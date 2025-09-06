@@ -1,0 +1,11 @@
+# Propriétaires par sous-projet (ajuste les handles @org/team ou @user)
+# Fichier évalué depuis la racine du repo
+
+/tchalanet-web/     @your-org/web-team
+/tchalanet-server/  @your-org/backend-team
+/tchalanet-mobile/  @your-org/mobile-team
+/tchalanet-infra/   @your-org/infra-team
+/docs/              @your-org/docs-team
+
+# Par défaut (fallback)
+*                   @your-org/maintainers

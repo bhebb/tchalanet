@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Angular (npm)
+  - package-ecosystem: "npm"
+    directory: "/tchalanet-web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      angular-minors:
+        patterns: ["@angular/*", "rxjs", "zone.js", "@ngrx/*"]
+        update-types: ["minor", "patch"]
+
+  # Spring (Maven)
+  - package-ecosystem: "maven"
+    directory: "/tchalanet-server"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
