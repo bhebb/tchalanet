@@ -61,7 +61,6 @@ Thumbs.db
 *.swp
 *.swo
 *.tmp
-*.bak
 *.orig
 
 # IDEs
@@ -70,3 +69,9 @@ Thumbs.db
 # Environment files (don’t commit secrets)
 src/environments/environment*.ts
 
+# Backup files and directories
+*.back
+tchalanet-web-backup/
+
+# Qodana configuration
+qodana.yaml

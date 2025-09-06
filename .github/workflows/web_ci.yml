@@ -1,4 +1,4 @@
-name: Web CI
+name: CI - Tchalanet Web
 
 on:
   push:
