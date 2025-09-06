@@ -1,0 +1,30 @@
+site_name: Tchalanet Docs
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - content.code.copy
+    - search.suggest
+nav:
+  - Accueil: index.md
+  - Architecture:
+      - "Vue d'ensemble": architecture/overview.md
+  - Backend:
+      - Setup: backend/setup.md
+      - Persistance: backend/persistence.md
+      - Sécurité: backend/security.md
+      - API: backend/api.md
+  - Web: { Architecture: web/architecture.md, charte-graphique: web/graphic-design.md, "Règles de développement": web/dev-rules.md }
+  - DevOps: { "CI/CD": devops/ci-cd.md }
+  - ADR: { "Architecture Decisions": adr/0002-architecture-decisions.md, "Stack": adr/0001-stack.md }
+plugins:
+  - search
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
