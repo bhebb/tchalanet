@@ -1,3 +1,22 @@
+
+# Tchalanet
+
+Projet monorepo Tchalanet comprenant les applications web, mobile, le backend et la documentation.
+
+## Structure du projet
+
+- **tchalanet-web** : Application web Angular avec Nx
+- **tchalanet-mobile** : Application mobile Ionic Angular
+- **tchalanet-server** : Backend Spring Boot
+- **tchalanet-docs** : Documentation technique (MkDocs)
+- **tchalanet-infra** : Configuration d'infrastructure
+
+## Démarrage rapide
+
+### Web (Angular + Nx)
+
+
+
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d pg
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d keycloak
