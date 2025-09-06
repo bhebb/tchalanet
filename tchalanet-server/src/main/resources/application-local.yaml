@@ -1,0 +1,13 @@
+server:
+  port: 8082
+
+  # (optionnel) regrouper des routes spécifiques
+  # group-configs:
+  #   - group: admin
+  #     paths-to-match: /api/admin/**
+app:
+  cors:
+    allowed-origins: http://localhost:4200,http://localhost:8082
+  apiBaseUrl: ${APP_API_BASEURL:http://localhost:8082}
+
+

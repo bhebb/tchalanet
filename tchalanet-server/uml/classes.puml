@@ -1,0 +1,23 @@
+@startuml
+actor Admin as A
+participant Angular as Web
+participant API as Spring
+database Postgres as PG
+queue Outbox as OX
+
+
+A -> Web: Change cotes (Odds)
+Web -> API: PUT /api/admin/odds {multiplier}
+API -> API: Valide droits & RLS (tenant)
+API -> PG: UPDATE odds (tx)
+API -> PG: INSERT odds_AUD via Envers (rev)
+API -> PG: INSERT audit_event (qui/quoi/quand)
+API -> PG: INSERT domain_event (OddsUpdated)
+API -> PG: INSERT outbox (topic=domain.events)
+API --> Web: 200 OK
+
+
+== Publication asynchrone ==
+API -> OX: Scheduler lit outbox (published=false)
+API -> PG: UPDATE outbox set published=true
+@enduml
