@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # Enable version updates for npm in the web directory
+  - package-ecosystem: "npm"
+    directory: "/tchalanet-web"
+    schedule:
+      interval: "daily"
+    labels:
+      - "deps"
+      - "web"
+    groups:
+      angular-minors:
+        patterns: ["@angular/*", "rxjs", "zone.js", "@ngrx/*"]
+        update-types: ["minor", "patch"]
+
+  # Enable version updates for npm in the mobile directory
+  - package-ecosystem: "npm"
+    directory: "/tchalanet-mobile"
+    schedule:
+      interval: "daily"
+    labels:
+      - "deps"
+      - "mobile"
+
+  # Enable version updates for Maven in the server directory
+  - package-ecosystem: "maven"
+    directory: "/tchalanet-server"
+    schedule:
+      interval: "daily"
+    labels:
+      - "deps"
+      - "server"
+
+  # Enable version updates for Terraform in the infra directory
+  - package-ecosystem: "terraform"
+    directory: "/tchalanet-infra"
+    schedule:
+      interval: "daily"
+    labels:
+      - "deps"
+      - "infra"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "deps"
+      - "ci"

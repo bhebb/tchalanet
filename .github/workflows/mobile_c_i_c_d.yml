@@ -1,4 +1,4 @@
-name: Mobile CI
+name: CI - Tchalanet mobile
 
 on:
   push:

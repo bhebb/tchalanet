@@ -1,4 +1,4 @@
-name: CI-CD
+name: CI-CD tchalanet-server
 
 on:
   push:
