@@ -5,10 +5,12 @@ on:
     branches: [ main, develop ]
     paths:
       - 'tchalanet-web/**'
+      - '.github/workflows/web_ci.yml'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'tchalanet-web/**'
+      - '.github/workflows/web_ci.yml'
 
 jobs:
   build:
@@ -22,27 +24,31 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: nrwl/nx-set-shas@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
           cache-dependency-path: 'tchalanet-web/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      - name: Lint affected
+        run: npx nx affected --target=lint --parallel=3
 
-      - name: Build
-        run: npm run build
+      - name: Test affected
+        run: npx nx affected --target=test --parallel=3
 
-      - name: Test
-        run: npm run test
+      - name: Build affected
+        run: npx nx affected --target=build --parallel=3
 
       - name: Upload build artifacts
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         uses: actions/upload-artifact@v4
         with:
-          name: web-build
+          name: web-dist
           path: tchalanet-web/dist/apps/web
+          retention-days: 7

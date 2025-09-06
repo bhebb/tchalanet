@@ -2,14 +2,15 @@ name: CI - Tchalanet mobile
 
 on:
   push:
-    branches:
+    branches: [ main, develop ]
     paths:
       - 'tchalanet-mobile/'
-      - '.github/workflows/mobile-ci.yml'
+      - '.github/workflows/mobile_c_i_c_d.yml'
   pull_request:
     paths:
       - 'tchalanet-mobile/'
-      - '.github/workflows/mobile-ci.yml'
+      - '.github/workflows/mobile_c_i_c_d.yml'
+
 jobs:
   build:
     runs-on: ubuntu-latest
