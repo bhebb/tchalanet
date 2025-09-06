@@ -1,0 +1,65 @@
+services:
+  pg:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      KC_USER: ${KC_USER:-kc}
+      KC_PASS: ${KC_PASS:-kc_pwd}
+      KC_DB_NAME: ${KC_DB_NAME:-keycloak_db}
+      APP_USER: ${APP_USER:-app}
+      APP_PASS: ${APP_PASS:-app_pwd}
+      APP_DB: ${APP_DB:-tchalanet_db}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
+    ports: [ "5432:5432" ]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start --http-enabled=true --hostname-strict=false
+    depends_on:
+     pg:
+       condition: service_healthy
+    environment:
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+
+      # Vendor (NOT your DB name)
+      KC_DB: postgres
+
+      # Connection
+      KC_DB_USERNAME: ${KC_USER}
+      KC_DB_PASSWORD: ${KC_PASS}
+      KC_DB_URL_HOST: pg
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: ${KC_DB_NAME}
+
+      # Admin user
+      KEYCLOAK_ADMIN: ${KC_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASS}
+
+    ports:
+      - "8080:8080"
+
+  api:
+    image: ghcr.io/tchalanet/tchalanet-server:${API_TAG:-latest}
+    depends_on:
+      pg: { condition: service_healthy }
+      keycloak: { condition: service_started }
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg:5432/${APP_DB}
+      SPRING_DATASOURCE_USERNAME: ${APP_USER}
+      SPRING_DATASOURCE_PASSWORD: ${APP_PASS}
+      OIDC_ISSUER_URI: ${OIDC_ISSUER_URI}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+    restart: unless-stopped
+
+volumes:
+  pgdata: {}

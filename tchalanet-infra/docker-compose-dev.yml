@@ -1,0 +1,28 @@
+services:
+  pg:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
+    ports: ["5432:5432"]
+
+  keycloak:
+    command: ["start-dev","--import-realm"]
+    environment:
+      KC_HOSTNAME_STRICT: "false"
+      KC_PROXY: "none"
+      KC_HTTP_ENABLED: "true"
+    volumes:
+      - ./keycloak/realms/tchalanet-dev.json:/opt/keycloak/data/import/tchalanet.json:ro
+    ports: ["8080:8080"]
+
+  api:
+    build:
+      context: ../tchalanet-server
+    environment:
+      OIDC_ISSUER_URI: http://localhost:8080/realms/tchalanet
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:4200
+    ports: ["8081:8080"]

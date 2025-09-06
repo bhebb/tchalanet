@@ -1,0 +1,19 @@
+services:
+  pg:
+    # pas de ports exposés en prod
+    restart: unless-stopped
+
+  keycloak:
+    command: ["start","--optimized","--proxy-headers","xforwarded",
+              "--hostname","https://${KC_HOST}"]
+    environment:
+      KC_PROXY: edge
+    volumes:
+      - ./keycloak/realms/tchalanet-${ENV_NAME}.json:/opt/keycloak/data/import/tchalanet.json:ro
+    # published via reverse proxy (Traefik/Nginx), pas de ports mappés
+
+  api:
+    environment:
+      OIDC_ISSUER_URI: https://${KC_HOST}/realms/tchalanet
+      APP_CORS_ALLOWED_ORIGINS: https://${APP_WEB_HOST}
+    # pas de ports mappés ; exposé via reverse proxy

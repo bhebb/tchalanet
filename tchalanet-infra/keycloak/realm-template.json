@@ -1,0 +1,108 @@
+{
+  "realm": "tchalanet",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      { "name": "SUPER_ADMIN" },
+      { "name": "ADMIN_ENTERPRISE" },
+      { "name": "SUPERVISOR" },
+      { "name": "BANK_GROUP_CONTROLLER", "description": "Contrôle un groupe de banques borlette (multi-entreprises, pas d'ownership d'entreprise)" },
+      { "name": "AGENT" },
+      { "name": "AUDITOR" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "tchalanet-web",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "attributes": {},
+      "redirectUris": ["${APP_WEB_ORIGIN}/*"],
+      "webOrigins": ["${APP_WEB_ORIGIN}"]
+    },
+    {
+      "clientId": "tchalanet-api",
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [],
+      "webOrigins": ["https://${APP_API_HOST}"]
+    },
+    {
+      "clientId": "tchalanet-swagger",
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "attributes": {"pkce.code.challenge.method":"S256"},
+      "redirectUris": [
+        "http://localhost:8081/swagger-ui/oauth2-redirect.html",
+        "http://localhost:8080/swagger-ui/oauth2-redirect.html",
+        "http://localhost:8082/swagger-ui/oauth2-redirect.html"
+      ],
+      "webOrigins": [
+        "http://localhost:8081",
+        "http://localhost:8080",
+        "http://localhost:8082"
+      ]
+    }
+  ],
+  "users": [{
+    "username": "bankctl@tchalanet.ht",
+    "email": "bankctl@tchalanet.ht",
+    "enabled": true,
+    "emailVerified": true,
+    "credentials": [{ "type": "password", "value": "bankctl", "temporary": false }],
+    "realmRoles": ["BANK_GROUP_CONTROLLER"],
+    "attributes": { "bank_group_id": ["grp-1"] }
+  },
+    {
+      "username": "superadmin@tchalanet.ht",
+      "email": "superadmin@tchalanet.ht",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "superadmin", "temporary": false }],
+      "realmRoles": ["SUPER_ADMIN"]
+    },
+    {
+      "username": "admin@tchalanet.ht",
+      "email": "admin@tchalanet.ht",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
+      "realmRoles": ["ADMIN_ENTERPRISE"],
+      "attributes": {
+        "active_enterprise_id": ["ent-1"],
+        "tenants": ["[{\"enterprise_id\":\"ent-1\",\"role\":\"ADMIN_ENTERPRISE\"}]"]
+      }
+    },
+    {
+      "username": "supervisor@tchalanet.ht",
+      "email": "supervisor@tchalanet.ht",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "supervisor", "temporary": false }],
+      "realmRoles": ["SUPERVISOR"],
+      "attributes": { "active_enterprise_id": ["ent-1"] }
+    },
+    {
+      "username": "agent@tchalanet.ht",
+      "email": "agent@tchalanet.ht",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "agent", "temporary": false }],
+      "realmRoles": ["AGENT"],
+      "attributes": { "active_enterprise_id": ["ent-1"] }
+    },
+    {
+      "username": "auditor@tchalanet.ht",
+      "email": "auditor@tchalanet.ht",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "auditor", "temporary": false }],
+      "realmRoles": ["AUDITOR"]
+    }
+  ]
+}
