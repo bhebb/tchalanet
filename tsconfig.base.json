@@ -14,7 +14,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "data-access": ["libs/auth/data-access/src/index.ts"],
+      "data-access-config": ["libs/shared/data-access-config/src/index.ts"],
+      "feature-login": ["libs/auth/feature-login/src/index.ts"],
+      "models": ["libs/shared/models/src/index.ts"],
+      "theme": ["libs/shared/ui/theme/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

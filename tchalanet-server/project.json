@@ -1,0 +1,36 @@
+{
+  "name": "tchalanet-server",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "tchalanet-server/src",
+  "targets": {
+    "serve": {
+      "executor": "@nx/run-commands",
+      "options": {
+        "command": "./mvnw spring-boot:run",
+        "cwd": "tchalanet-server"
+      }
+    },
+    "build": {
+      "executor": "@nx/run-commands",
+      "options": {
+        "command": "./mvnw package",
+        "cwd": "tchalanet-server"
+      }
+    },
+    "test": {
+      "executor": "@nx/run-commands",
+      "options": {
+        "command": "./mvnw test",
+        "cwd": "tchalanet-server"
+      }
+    },
+    "lint": {
+      "executor": "@nx/run-commands",
+      "options": {
+        "command": "./mvnw checkstyle:check",
+        "cwd": "tchalanet-server"
+      }
+    }
+  }
+}

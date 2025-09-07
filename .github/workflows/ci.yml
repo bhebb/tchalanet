@@ -1,0 +1,81 @@
+name: Tchalanet CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint Affected Projects
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Nécessaire pour que Nx puisse comparer les commits
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Affected
+        run: npx nx affected --target=lint --parallel=3
+
+  test:
+    name: Test Affected Projects
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Test Affected
+        run: npx nx affected --target=test --parallel=3 --configuration=ci
+
+  build:
+    name: Build Affected Apps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # Optionnel mais fortement recommandé : Activer le cache Nx
+      - uses: nx/actions/setup-nx@v3
+        with:
+          nx-cloud-access-token: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Show Affected Projects
+        id: show_affected # On donne un ID à l'étape pour y faire référence
+        run: |
+          # La commande 'nx show projects --affected' liste les projets affectés
+          # On la stocke dans une variable d'environnement pour le résumé du job
+          AFFECTED_PROJECTS=$(npx nx show projects --affected)
+          echo "AFFECTED_PROJECTS=${AFFECTED_PROJECTS}" >> $GITHUB_ENV
+          echo "🔨 Building the following projects:"
+          echo "$AFFECTED_PROJECTS"
+
+      - name: Build Affected
+        run: npx nx affected --target=build --parallel=3 --configuration=production

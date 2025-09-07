@@ -95,9 +95,7 @@
     "docs:check-links": "cd tchalanet-docs && mkdocs linkcheck",
     "docs:check": "npm run docs:lint && npm run docs:check-links",
     "docs:check:ci": "cd tchalanet-docs && mkdocs build --strict",
-
     "docs:serve": "cd tchalanet-docs && mkdocs serve",
-
     "security:check": "snyk test",
     "security:monitor": "snyk monitor",
     "spell:check": "cspell \"**/*.{ts,html,scss,md}\" --no-progress",

@@ -1,0 +1,22 @@
+{
+  "name": "tchalanet-docs",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "tchalanet-docs",
+  "targets": {
+    "serve": {
+      "executor": "@nx/run-commands",
+      "options": {
+        "command": "mkdocs serve",
+        "cwd": "tchalanet-docs"
+      }
+    },
+    "build": {
+      "executor": "@nx/run-commands",
+      "options": {
+        "command": "mkdocs build",
+        "cwd": "tchalanet-docs"
+      }
+    }
+  }
+}
