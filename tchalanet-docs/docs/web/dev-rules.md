@@ -86,14 +86,11 @@ GitHub Actions configured for:
 cmd + shift + p > Nx: Generate
 ❯ npx nx g @nx/angular:application --name=tchalanet-web --directory=apps --style=scss --routing --standalone --addTailwind --inlineStyle --inlineTemplate --prefix=tch
 
-npm nx g @nx/angular:application --name=tchalanet-web \
---directory=apps \
+npx nx g @nx/angular:application --name=tchalanet-web \
+--directory=apps/tchalanet-web \
 --routing \
---appName=tchalanet-web \
 --inlineStyle \
 --inlineTemplate \
---changeDetection=OnPush \
---projectNameAndRootFormat=as-provided \
 --standalone \
 --prefix=tch \
 --style=scss \
