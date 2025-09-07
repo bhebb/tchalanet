@@ -1,6 +1,26 @@
 # Add files here to ignore them from prettier formatting
-/dist
-/coverage
 /.nx/cache
 /.nx/workspace-data
-.angular
+
+dist/
+tmp/
+out-tsc/
+coverage/
+.angular/
+
+# Dependencies
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+.project
+.classpath
+.settings/
+
+# Misc
+.git/
+.gitignore
+.DS_Store
+npm-debug.log
+yarn-error.log

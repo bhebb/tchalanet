@@ -1,0 +1,9 @@
+{
+  "name": "tchalanet-mobile-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/tchalanet-mobile-e2e/src",
+  "implicitDependencies": ["tchalanet-mobile"],
+  "// targets": "to see all targets run: nx show project tchalanet-mobile-e2e --web",
+  "targets": {}
+}

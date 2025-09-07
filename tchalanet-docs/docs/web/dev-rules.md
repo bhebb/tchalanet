@@ -96,3 +96,14 @@ npx nx g @nx/angular:application --name=tchalanet-web \
 --style=scss \
 --addTailwind \
 --tags=type:app,scope:web
+
+npx nx g @nx/angular:application --name=tchalanet-mobile \
+--directory=apps/tchalanet-mobile \
+--routing \
+--inlineStyle \
+--inlineTemplate \
+--standalone \
+--prefix=tch \
+--style=scss \
+--addTailwind \
+--tags=type:app,scope:mobile
