@@ -471,6 +471,15 @@ import { CommonModule } from '@angular/common';
         </div>
         <!--  MIDDLE CONTENT  -->
         <div id="middle-content">
+          <!-- Test rapide et visible -->
+          <div class="bg-red-500 text-white p-8 text-3xl font-bold">
+            SI CE BANDEAU EST ROUGE, TAILWIND FONCTIONNE.
+          </div>
+
+          <button class="btn btn-accent mt-4">
+            Si ce bouton a un style, DAISYUI fonctionne.
+          </button>
+          
           <div id="middle-left-content">
             <button class="bg-sky-500 hover:bg-sky-700 ...">Save changes</button>
             <div class="badge badge-primary">Primary</div>
