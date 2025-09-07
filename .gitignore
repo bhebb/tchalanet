@@ -1,77 +1,22 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-### VS Code ###
-.vscode/
-
-# Node dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# Build outputs
-/dist
 /tmp
 /out-tsc
-/.angular
 
-# Testing
-/coverage
-/.nyc_output
-/karma-*.log
-testem.log
-/lcov.info
-
-# Logs
+/node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+/.pnp
+.pnp.js
 
-# OS / Editor cruft
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*.tmp
-*.orig
+.vscode/*
+.nx/installation
+.nx/cache
+.nx/workspace-data
 
-# IDEs
-.idea/
 
-# Environment files (don’t commit secrets)
-src/environments/environment*.ts
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+.angular
 
-# Backup files and directories
-*.back
-tchalanet-web-backup/
-
-# Qodana configuration
-qodana.yaml
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

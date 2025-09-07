@@ -44,3 +44,45 @@ ng add @ngrx/store@latest
 ng add @ngrx/effects@latest
 ng add @ngrx/store-devtools@latest
 npm i @ngrx/router-store
+
+# Mettre à jour le README avec les nouvelles commandes
+cat >> README.md << 'EOF'
+
+## Développement Frontend
+
+### Application Web
+```bash
+# Démarrer l'application web en mode développement
+npm run start:web
+
+# Construire l'application web pour la production
+npm run build:web
+
+# Exécuter les tests unitaires
+npm run test:web
+
+# Exécuter les tests e2e
+npm run e2e:web
+
+# Démarrer l'application mobile en mode développement
+npm run start:mobile
+
+# Construire l'application mobile
+npm run build:mobile
+
+# Synchroniser avec Capacitor
+npm run cap:sync
+
+# Ouvrir dans Android Studio
+npm run cap:android
+
+# Ouvrir dans Xcode
+npm run cap:ios
+
+# Exécuter les tests unitaires
+npm run test:mobile
+
+# Exécuter les tests e2e
+npm run e2e:mobile
+
+```

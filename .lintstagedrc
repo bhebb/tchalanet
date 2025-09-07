@@ -1,0 +1,12 @@
+{
+  "*.{ts,html}": [
+    "nx affected:lint --fix",
+    "prettier --write"
+  ],
+  "*.{scss,css}": [
+    "prettier --write"
+  ],
+  "*.{md,json}": [
+    "prettier --write"
+  ]
+}

@@ -82,3 +82,28 @@ GitHub Actions configured for:
 - **Services** : `XxxService`
 - **Stores** : `XxxStore` (signals or NgRx)
 - **Routes** : kebab-case paths (`/tickets`, `/user-profile`)
+
+cmd + shift + p > Nx: Generate
+❯ npx nx g @nx/angular:application --name=tchalanet-web --directory=apps --style=scss --routing --standalone --addTailwind --inlineStyle --inlineTemplate --prefix=tch
+
+npx nx g @nx/angular:application --name=tchalanet-web \
+--directory=apps/tchalanet-web \
+--routing \
+--inlineStyle \
+--inlineTemplate \
+--standalone \
+--prefix=tch \
+--style=scss \
+--addTailwind \
+--tags=type:app,scope:web
+
+npx nx g @nx/angular:application --name=tchalanet-mobile \
+--directory=apps/tchalanet-mobile \
+--routing \
+--inlineStyle \
+--inlineTemplate \
+--standalone \
+--prefix=tch \
+--style=scss \
+--addTailwind \
+--tags=type:app,scope:mobile
