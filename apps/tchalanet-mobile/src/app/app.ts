@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  standalone: true,
+  imports: [
+    RouterModule,
+    IonApp,
+    IonRouterOutlet
+  ],
   selector: 'tch-root',
-  template: `<tch-nx-welcome></tch-nx-welcome> <router-outlet></router-outlet>`,
-  styles: ``,
+  template: `
+    <ion-app>
+      <ion-router-outlet></ion-router-outlet>
+    </ion-app>
+  `
 })
-export class App {
-  protected title = 'tchalanet-mobile';
-}
+export class App{}
