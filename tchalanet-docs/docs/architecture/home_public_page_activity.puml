@@ -1,27 +1,37 @@
 @startuml
-title Activité - Home public (Origin pour services, CDN pour assets)
+title Activité - Home Public (via BFF)
 
 start
-:Bootstrap (lang, toggles);
-:GET Origin /configs/home?ctx=default;
-:Appliquer thème + header; Lister sections;
+:Détecter langue & contexte;
 
-:GET Origin /rules?ctx=default;
-:Evaluate(sections, toggles, contexte)\n-> sections filtrées + props;
+:GET BFF /api/v1/page/home-public;
+
+partition "Backend for Frontend (BFF)" {
+  fork
+    :GET /configs/home?ctx=default;
+  fork again
+    :GET /configs/i18n/default;
+  fork again
+    :GET /rules?ctx=default;
+  end fork
+
+  :Évaluer les règles;
+  -> Widgets/sections filtrés;
+
+  :Charger données publiques pour widgets visibles (ex: news, loteries);
+
+  :Agréger en une réponse JSON unique;
+}
+
+:Réponse unique (layout, theme, data, i18n);
 
 fork
-  if (Widget Loteries ?) then (oui)
-    :GET Origin /lotteries?src=miami,newyork;
-  endif
+  :Charger assets (images, logos) via Asset CDN;
 fork again
-  if (Widget News ?) then (oui)
-    :GET Origin /news?limit=...&lang=...;
-  endif
-fork again
-  :GET Origin /configs/i18n/default?lang=fr;\nMerge base+overrides;
+  :Préparer ViewModel pour rendu;
 end fork
 
-:Charger assets (images, logos) via Asset CDN;
-:Render Home;
+:Render Home Page;
+
 stop
 @enduml

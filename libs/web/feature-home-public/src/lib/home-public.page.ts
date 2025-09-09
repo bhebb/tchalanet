@@ -1,36 +1,25 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FooterModel, HeaderModel } from 'shared/types';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PageFacade } from '@tchl/facades';
+import { GridLayoutComponent } from '@tchl/ui/layout';
 
 @Component({
-  selector: 'lib-home-public-page',
+  selector: 'tchl-home-public-page',
   standalone: true,
-  imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [MatProgressSpinnerModule, GridLayoutComponent],
   template: `
-
-    <!-- Ici tu rends tes sections (hero/news/partners) via ton moteur config-driven -->
-    <h1>Accueil public</h1>
-    <p>Home page affiche</p>
-
+    @if (pageData(); as pageModel) {
+    <tchl-grid-layout [layout]="pageModel.layout" />
+    } @else {
+    <p>Loading layout...</p>
+    }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styles: [],
 })
 export class HomePublicPage {
-  header: HeaderModel = {
-    logoUrl: '/assets/brand/logo.svg',
-    menu: [{ id: 'home', label: 'Accueil', route: '/' }, { id: 'results', label: 'Résultats', route: '/results' }],
-    cta: { label: 'Se connecter', href: '/login' },
-    langs: ['fr', 'en'],
-    currentLang: 'fr'
-  };
-  footer: FooterModel = {
-    columns: [
-      { title: 'À propos', links: [{ label: 'Entreprise', href: '/company' }] },
-      { title: 'Aide', links: [{ label: 'Support', href: '/support' }] },
-      { title: 'Légal', links: [{ label: 'Confidentialité', href: '/privacy' }] }
-    ],
-    note: '© 2025 Tchalanet'
-  };
+  private readonly pageFacade = inject(PageFacade);
 
-  onLang(l: string) {
-  }
+  pageData = this.pageFacade.page;
+  isLoading = this.pageFacade.loading;
 }

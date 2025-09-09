@@ -1,0 +1,21 @@
+@function strip-unit($v) {
+  @if type-of($v) == 'number' and not unitless($v) {
+    @return $v / ($v * 0 + 1);
+  }
+  @return $v;
+}
+
+@function rem($value, $base: 16) {
+  @if unit($value) == 'rem' {
+    @return $value;
+  }
+  $n: if(unitless($value), $value, strip-unit($value));
+  @return ($n / $base) * 1rem;
+}
+
+@function tok($map, $key, $fallback: null) {
+  @if map-has-key($map, $key) {
+    @return map-get($map, $key);
+  }
+  @return $fallback;
+}

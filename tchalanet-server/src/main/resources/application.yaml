@@ -19,6 +19,19 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8080/realms/tchalanet}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000
+
+tchalanet:
+  search:
+    meili:
+      host: ${MEILI_HOST:http://meilisearch:7700}
+      masterKey: ${MEILI_MASTER_KEY:dev-meili}
+      index: ${MEILI_INDEX:tch_content}
 
   web:
     cors:
@@ -31,11 +44,20 @@ app:
   cors:
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200}
   version: ${APP_VERSION:0.1.0}
-  apiBaseUrl: ${APP_API_BASEURL:http://localhost:8081}
+  api-version: ${API_VERSION:v1}
+  api-base-url: ${APP_API_BASEURL:http://localhost:8081}
   auth-url: ${OIDC_ISSUER_URI:http://localhost:8080/realms/tchalanet}
+  base-path: ${APP_BASE_PATH:/api}
+  default-tenant: ${APP_DEFAULT_TENANT:tchalanet}
+  security:
+    required-audience: tchalanet-api
 
 springdoc:
+  api-docs:
+    path: /openapi
+    enabled: true
   swagger-ui:
+    path: /swagger-ui
     oauth:
       client-id: ${SWAGGER_CLIENT_ID:tchalanet-swagger}
       use-pkce-with-authorization-code-grant: true
@@ -43,3 +65,16 @@ springdoc:
     display-operation-id: true
     try-it-out-enabled: true
     filter: true
+
+logging:
+  config: classpath:logback-spring.xml
+  # Default log level for all loggers. (e.g., INFO, DEBUG, WARN, ERROR)
+  level:
+    # Set the root logger level
+    root: INFO
+    # Set the level for your application's packages
+    com.tchalanet.server: DEBUG
+    # Set the level for specific Spring packages (useful for debugging)
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG # To see generated SQL queries

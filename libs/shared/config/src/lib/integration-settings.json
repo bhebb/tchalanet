@@ -1,0 +1,7 @@
+{
+  "integrations": {
+    "sentryDsn": "https://xxxx@sentry.io/123",
+    "analyticsKey": "UA-123456-1",
+    "featureFlagServiceUrl": "https://flags.tchalanet.com"
+  }
+}

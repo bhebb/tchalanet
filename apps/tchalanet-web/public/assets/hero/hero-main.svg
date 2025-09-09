@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300">
+    <defs>
+        <!-- Dégradés -->
+        <radialGradient id="blueBall" cx="35%" cy="30%" r="75%">
+            <stop offset="0" stop-color="#7FB1FF"/>
+            <stop offset="0.55" stop-color="#3C6DDF"/>
+            <stop offset="1" stop-color="#15439A"/>
+        </radialGradient>
+        <radialGradient id="orangeBall" cx="35%" cy="30%" r="75%">
+            <stop offset="0" stop-color="#FFB099"/>
+            <stop offset="0.55" stop-color="#E94B3C"/>
+            <stop offset="1" stop-color="#B7362C"/>
+        </radialGradient>
+        <radialGradient id="shine" cx="30%" cy="25%" r="45%">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity=".9"/>
+            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Orbit -->
+        <path id="orbitPath" d="M 40 130 a 170 105 0 1 0 340 0 a 170 105 0 1 0 -340 0" />
+
+        <style>
+            .frame{fill:#0D3B82}
+            .stand{fill:#133D8F}
+            .screen{fill:#F4F7FF}
+            .bar{fill:#3C6DDF}
+            .num{fill:#0D3B82;font:700 11px/1 Poppins,Arial;
+                text-anchor:middle;dominant-baseline:middle}
+        </style>
+    </defs>
+
+    <!-- Ordinateur -->
+    <g id="computer">
+        <rect class="frame" x="60" y="40" width="300" height="180" rx="12"/>
+        <rect class="screen" x="74" y="54" width="272" height="152" rx="10"/>
+        <rect x="74" y="54" width="272" height="34" rx="10" fill="#E6ECF9"/>
+        <text x="92" y="75" fill="#0D3B82" style="font:700 16px Poppins,Arial">Today Sales</text>
+        <circle cx="130" cy="135" r="28" fill="#3C6DDF"/>
+        <path d="M130,135 L130,107 A28,28 0 0 1 158,135 Z" fill="#0D3B82"/>
+        <rect class="bar" x="190" y="148" width="16" height="44" rx="3"/>
+        <rect class="bar" x="214" y="132" width="16" height="60" rx="3"/>
+        <rect class="bar" x="238" y="116" width="16" height="76" rx="3"/>
+        <rect class="bar" x="262" y="126" width="16" height="66" rx="3"/>
+        <rect class="stand" x="190" y="236" width="60" height="18" rx="6"/>
+        <rect class="stand" x="160" y="254" width="120" height="18" rx="8"/>
+    </g>
+
+    <!-- Boule 5 -->
+    <g>
+        <g>
+            <circle r="13" fill="url(#blueBall)"/>
+            <circle r="11" fill="#0D3B82" opacity=".06"/>
+            <circle r="12.2" fill="none" stroke="white" stroke-width="3"/>
+            <ellipse rx="5.5" ry="4" cx="-4" cy="-4.5" fill="url(#shine)"/>
+            <text class="num" y="3">5</text>
+        </g>
+        <animateMotion dur="10s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#orbitPath"/>
+        </animateMotion>
+    </g>
+
+    <!-- Boule 8 -->
+    <g>
+        <g>
+            <circle r="13" fill="url(#blueBall)"/>
+            <circle r="11" fill="#0D3B82" opacity=".06"/>
+            <circle r="12.2" fill="none" stroke="white" stroke-width="3"/>
+            <ellipse rx="5.5" ry="4" cx="-4" cy="-4.5" fill="url(#shine)"/>
+            <text class="num" y="3">8</text>
+        </g>
+        <animateMotion dur="10s" begin="3.3s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#orbitPath"/>
+        </animateMotion>
+    </g>
+
+    <!-- Boule 17 -->
+    <g>
+        <g>
+            <circle r="15" fill="url(#orangeBall)"/>
+            <circle r="13" fill="#0D3B82" opacity=".06"/>
+            <circle r="14.2" fill="none" stroke="white" stroke-width="3"/>
+            <ellipse rx="6.5" ry="4.5" cx="-4.5" cy="-5.5" fill="url(#shine)"/>
+            <text class="num" y="3">17</text>
+        </g>
+        <animateMotion dur="10s" begin="6.6s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#orbitPath"/>
+        </animateMotion>
+    </g>
+</svg>

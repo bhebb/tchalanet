@@ -1,0 +1,8 @@
+{
+  "apiUrl": "https://api.tchalanet.com/api",
+  "cdnUrl": "https://cdn.tchalanet.com",
+  "authUrl": "https://auth.tchalanet.com",
+  "envName": "staging",
+  "version": "0.2.5",
+  "buildDate": "2025-09-13T10:00:00Z"
+}

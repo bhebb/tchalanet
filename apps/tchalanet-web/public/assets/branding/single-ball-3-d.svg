@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+    <defs>
+        <!-- Ombre portée douce -->
+        <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feOffset dy="3" in="SourceAlpha" result="o"/>
+            <feGaussianBlur stdDeviation="4" in="o" result="b"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .25 0" in="b" result="s"/>
+            <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+
+        <!-- Dégradés bleus -->
+        <radialGradient id="rimBlue" cx="35%" cy="30%" r="75%">
+            <stop offset="0"  stop-color="#64A0FF"/>
+            <stop offset="0.55" stop-color="#2E63D6"/>
+            <stop offset="1"  stop-color="#0D3B82"/>
+        </radialGradient>
+        <radialGradient id="innerBlue" cx="40%" cy="35%" r="75%">
+            <stop offset="0"  stop-color="#7FB1FF"/>
+            <stop offset="0.55" stop-color="#3C6DDF"/>
+            <stop offset="1"  stop-color="#15439A"/>
+        </radialGradient>
+
+        <!-- Reflet spéculaire -->
+        <radialGradient id="spec" cx="28%" cy="25%" r="40%">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/>
+            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+        </radialGradient>
+
+        <style>
+            .num{ fill:#0D3B82; font: 700 44px/1 Poppins, Arial, sans-serif;
+                text-anchor:middle; dominant-baseline:middle; }
+        </style>
+    </defs>
+
+    <!-- Disque d'arrière-plan pour l'effet “décalé” -->
+    <circle cx="76" cy="74" r="40" fill="#0D3B82" opacity=".25"/>
+
+    <!-- Boule principale -->
+    <g filter="url(#shadow)">
+        <!-- Bague bleue extérieure -->
+        <circle cx="64" cy="64" r="44" fill="url(#rimBlue)"/>
+        <!-- Anneau blanc -->
+        <circle cx="64" cy="64" r="34" fill="#FFFFFF"/>
+        <!-- Disque bleu interne -->
+        <circle cx="64" cy="64" r="26" fill="url(#innerBlue)"/>
+        <!-- Reflet -->
+        <ellipse cx="52" cy="50" rx="16" ry="10" fill="url(#spec)"/>
+        <!-- Numéro -->
+        <text class="num" x="64" y="70">8</text>
+    </g>
+</svg>

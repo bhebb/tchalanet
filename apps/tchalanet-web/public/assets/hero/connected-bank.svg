@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160">
+  <!-- base -->
+  <rect x="40" y="100" width="140" height="20" fill="#0D3B82"/>
+  <rect x="50" y="80" width="120" height="20" fill="#3C6DDF"/>
+  <!-- columns -->
+  <rect x="55" y="80" width="10" height="40" fill="#0D3B82"/>
+  <rect x="85" y="80" width="10" height="40" fill="#0D3B82"/>
+  <rect x="115" y="80" width="10" height="40" fill="#0D3B82"/>
+  <rect x="145" y="80" width="10" height="40" fill="#0D3B82"/>
+  <!-- roof -->
+  <polygon points="40,80 110,40 180,80" fill="#0D3B82"/>
+  <!-- wifi -->
+  <path d="M110 20 a20 20 0 0 1 20 20" fill="none" stroke="#3C6DDF" stroke-width="4"/>
+  <path d="M110 30 a10 10 0 0 1 10 10" fill="none" stroke="#3C6DDF" stroke-width="4"/>
+  <circle cx="110" cy="40" r="4" fill="#3C6DDF"/>
+  <!-- clouds -->
+  <circle cx="30" cy="50" r="10" fill="#E6ECF9"/>
+  <circle cx="190" cy="50" r="12" fill="#E6ECF9"/>
+</svg>

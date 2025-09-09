@@ -1,0 +1,21 @@
+{
+  "id": "pinkbluegrey",
+  "label": "Pink / Blue Grey",
+  "kind": "material",
+  "mode": "light",
+  "density": 0,
+  "matClass": "mat-pink-bluegrey",
+  "palette": {
+    "primary": "#E91E63",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#1A1A1A",
+    "outline": "rgba(0,0,0,0.12)",
+    "accent": "#607D8B",
+    "tertiary": "#607D8B"
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

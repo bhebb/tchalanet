@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "features": "Fonksyonalite",
+    "pricing": "Pri",
+    "home": "Akèy",
+    "results": "Rezilta"
+  },
+  "home": {
+    "title": "Bienvenue sur Tchalanet",
+    "subtitle": "La plateforme de gestion de loterie",
+    "hero": {
+      "eyebrow": "TCHALANET",
+      "title": "Jesyon borlèt la, reenvante.",
+      "subtitle": "Jere biznis ou ak yon platfòm pwisan e fasil pou itilize.",
+      "cta": "Kòmanse kounye a",
+      "demo": "Gade demonnstrasyon an",
+      "imageAlt": "Aperçu aplikasyon Tchalanet sou mobil ak entènèt"
+    }
+  },
+  "footer": {
+    "copyright": "© 2025 Tchalanet. Tout dwa rezève."
+  }
+}

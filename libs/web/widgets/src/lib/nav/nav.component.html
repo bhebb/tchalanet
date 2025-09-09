@@ -1,0 +1,43 @@
+<nav class="tch-nav" role="navigation" aria-label="Main">
+    @for (item of items() ?? []; track item.path) {
+        @if ((item.children?.length ?? 0) > 0) {
+            <button
+                    type="button"
+                    class="tch-nav__item has-children"
+                    [class.active]="currentPath() === item.path"
+                    [attr.aria-current]="currentPath() === item.path ? 'page' : null"
+                    [matMenuTriggerFor]="menu"
+                    #trigger="matMenuTrigger"
+                    aria-haspopup="menu"
+                    [attr.aria-expanded]="trigger.menuOpen ? 'true' : 'false'"
+                    [attr.aria-controls]="'menu-' + item.path"
+                    matRipple>
+                <span class="tch-nav__label">{{ item.labelKey | translate }}</span>
+                <mat-icon class="chev" fontSet="material-icons-outlined" aria-hidden="true">keyboard_arrow_down
+                </mat-icon>
+            </button>
+
+            <mat-menu #menu="matMenu" panelClass="nav-menu" xPosition="after" yPosition="below"
+                      [overlapTrigger]="false">
+                @for (c of item.children; track c.path) {
+                    <button mat-menu-item type="button" (click)="onSelect(c.path)">
+                        <span>{{ c.labelKey | translate }}</span>
+                        @if (c.icon) {
+                            <mat-icon aria-hidden="true">{{ c.icon }}</mat-icon>
+                        }
+                    </button>
+                }
+            </mat-menu>
+        } @else {
+            <button
+                    type="button"
+                    class="tch-nav__item"
+                    [class.active]="currentPath() === item.path"
+                    [attr.aria-current]="currentPath() === item.path ? 'page' : null"
+                    (click)="onSelect(item.path)"
+                    matRipple>
+                <span class="tch-nav__label">{{ item.labelKey | translate }}</span>
+            </button>
+        }
+    }
+</nav>

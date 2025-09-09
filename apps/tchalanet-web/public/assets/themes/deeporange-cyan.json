@@ -1,0 +1,20 @@
+{
+  "id": "deeporange-cyan",
+  "label": "Deep Orange / Cyan",
+  "kind": "material",
+  "mode": "light",
+  "density": 0,
+  "palette": {
+    "primary": "#FF5722",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#1A1A1A",
+    "outline": "rgba(0,0,0,0.12)",
+    "accent": "#00BCD4",
+    "tertiary": "#00BCD4"
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

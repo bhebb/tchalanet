@@ -1,0 +1,140 @@
+/* Toutes les @use tout en haut */
+@use '@angular/material' as mat;
+@use './lib/_themes' as tch;
+@use './lib/_tokens';
+@use './lib/_variables';
+@use './lib/_typography';
+@use './lib/_mixins';
+@use './lib/_utilities';
+@use './lib/primitives/_index';
+@use './lib/components/header';
+@use './lib/components/footer';
+@use './lib/overlay';
+
+/* Puis seulement les @include qui émettent du CSS */
+@include mat.core();
+@include tch.apply-tchalanet-class();
+
+/* Bridge brand → Material 3 sys tokens */
+.mat-theme-tchalanet {
+  --mat-sys-color-primary:   #134D9F; /* navy */
+  --mat-sys-color-on-primary: #fff;
+
+  /* pas géré par define-theme → on le pose en CSS */
+  --mat-sys-color-secondary: #225EC7; /* blue */
+  --mat-sys-color-on-secondary: #fff;
+
+  --mat-sys-color-tertiary:  #D84C51; /* rouge */
+  --mat-sys-color-on-tertiary: #fff;
+
+  /* surfaces/outline si besoin */
+  --mat-sys-color-surface:    #FAFAFA;
+  --mat-sys-color-on-surface: #0A1633;
+  --mat-sys-color-outline:    #C9CED6;
+}
+.mat-theme-tchalanet.dark {
+  --mat-sys-color-primary:   color-mix(in oklab, #fff 64%, #134D9F);
+  --mat-sys-color-on-primary: #0b1220;
+
+  --mat-sys-color-secondary: color-mix(in oklab, #fff 58%, #225EC7);
+  --mat-sys-color-on-secondary: #0b1220;
+
+  --mat-sys-color-tertiary:  color-mix(in oklab, #fff 52%, #D84C51);
+  --mat-sys-color-on-tertiary: #0b1220;
+
+  --mat-sys-color-surface:    #0c1220;
+  --mat-sys-color-on-surface: #e6edf7;
+  --mat-sys-color-outline:    #1f2a44;
+}
+
+/* --- Puis ton CSS global / reset --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--tch-root-size);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Couleurs de fond/texte globales → via alias M3 */
+body {
+  background: var(--tch-color-surface);
+  color: var(--tch-color-on-surface);
+}
+
+/* Layout sticky (shell) */
+tch-root,
+tch-public-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Le contenu principal occupe l'espace restant */
+main {
+  flex: 1 0 auto;
+}
+
+/* Le footer ne se compresse pas */
+tch-footer,
+footer,
+.app-footer {
+  flex-shrink: 0;
+}
+
+/* Menu actif (utilise le contrat nav) */
+.header-menu .mat-mdc-menu-item.active {
+  background: var(--tch-nav-active-bg);
+  color: var(--tch-nav-active-fg);
+}
+
+
+/* Liens globaux */
+a {
+  color: var(--tch-color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Focus global (a11y) → outline, pas border */
+:focus-visible {
+  outline: max(var(--tch-focus-ring-width, 2px), 0.15em) solid var(--tch-color-primary);
+  outline-offset: var(--tch-focus-ring-offset, 2px);
+}
+
+/* Médias fluides */
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Sélection de texte brandée */
+::selection {
+  background: color-mix(in oklab, var(--tch-color-primary) 25%, transparent);
+}
+
+/* Réduction des animations si demandé */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* (Option densité) : on gère plutôt par thème ; à garder en attendant si utile ponctuellement
+.mat-mdc-form-field,
+.mat-mdc-button-base,
+.mat-mdc-chip,
+.mat-mdc-table { --mdc-density-scale: -1; } */

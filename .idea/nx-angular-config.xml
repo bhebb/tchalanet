@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="NxAngularConfigService" workspaceLocation="file://$PROJECT_DIR$/nx.json">
+    <projects>
+      <project name="auth" file="file://$PROJECT_DIR$/libs/shared/auth/project.json" />
+      <project name="constants" file="file://$PROJECT_DIR$/libs/web/constants/project.json" />
+      <project name="i18n" file="file://$PROJECT_DIR$/libs/shared/data-access/i18n/project.json" />
+      <project name="plans" file="file://$PROJECT_DIR$/libs/ui/plans/project.json" />
+      <project name="private-pages" file="file://$PROJECT_DIR$/libs/web/private-pages/project.json" />
+      <project name="public-pages" file="file://$PROJECT_DIR$/libs/web/public-pages/project.json" />
+      <project name="session" file="file://$PROJECT_DIR$/libs/shared/data-access/session/project.json" />
+      <project name="shared-util-constants" file="file://$PROJECT_DIR$/libs/shared/utils/constants/project.json" />
+      <project name="shared/api" file="file://$PROJECT_DIR$/libs/shared/api/project.json" />
+      <project name="shared/config" file="file://$PROJECT_DIR$/libs/shared/config/project.json" />
+      <project name="shared/data-access" file="file://$PROJECT_DIR$/libs/shared/data-access/page/project.json" />
+      <project name="shared/facades" file="file://$PROJECT_DIR$/libs/shared/facades/project.json" />
+      <project name="shared/types" file="file://$PROJECT_DIR$/libs/shared/types/project.json" />
+      <project name="shared/ui" file="file://$PROJECT_DIR$/libs/ui/theme/project.json" />
+      <project name="shared/ui-shell-material" file="file://$PROJECT_DIR$/libs/ui/layout/project.json" />
+      <project name="shared/util-i18n" file="file://$PROJECT_DIR$/libs/shared/utils/i18n/project.json" />
+      <project name="shared/utils" file="file://$PROJECT_DIR$/libs/shared/utils/layout/project.json" />
+      <project name="styles" file="file://$PROJECT_DIR$/libs/ui/styles/project.json" />
+      <project name="tchalanet-mobile" file="file://$PROJECT_DIR$/apps/tchalanet-mobile/project.json" />
+      <project name="tchalanet-mobile-e2e" file="file://$PROJECT_DIR$/apps/tchalanet-mobile-e2e/project.json" />
+      <project name="tchalanet-server" file="file://$PROJECT_DIR$/tchalanet-server/project.json" />
+      <project name="tchalanet-web" file="file://$PROJECT_DIR$/apps/tchalanet-web/project.json" />
+      <project name="tchalanet-web-e2e" file="file://$PROJECT_DIR$/apps/tchalanet-web-e2e/project.json" />
+      <project name="ui/widget-renderer" file="file://$PROJECT_DIR$/libs/ui/widget-renderer/project.json" />
+      <project name="web/feature-home-private" file="file://$PROJECT_DIR$/libs/web/feature-home-private/project.json" />
+      <project name="web/feature-home-public" file="file://$PROJECT_DIR$/libs/web/feature-home-public/project.json" />
+      <project name="web/ui-shell-public" file="file://$PROJECT_DIR$/libs/web/shell/project.json" />
+      <project name="web/widgets" file="file://$PROJECT_DIR$/libs/web/widgets/project.json" />
+    </projects>
+  </component>
+</project>

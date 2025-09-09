@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300">
+  <!-- Monitor -->
+  <rect x="80" y="50" width="300" height="180" rx="12" fill="#0D3B82"/>
+  <rect x="94" y="64" width="272" height="152" rx="10" fill="#F4F7FF"/>
+  <rect x="94" y="64" width="272" height="34" rx="10" fill="#E6ECF9"/>
+  <text x="112" y="85" fill="#0D3B82" font-size="16" font-family="Poppins,Arial" font-weight="700">Today Sales</text>
+  <!-- Charts -->
+  <circle cx="150" cy="150" r="28" fill="#3C6DDF"/>
+  <path d="M150,150 L150,122 A28,28 0 0 1 178,150 Z" fill="#0D3B82"/>
+  <rect x="210" y="163" width="16" height="44" rx="3" fill="#3C6DDF"/>
+  <rect x="234" y="147" width="16" height="60" rx="3" fill="#3C6DDF"/>
+  <rect x="258" y="131" width="16" height="76" rx="3" fill="#3C6DDF"/>
+  <rect x="282" y="141" width="16" height="66" rx="3" fill="#3C6DDF"/>
+  <!-- Lottery balls (static) -->
+  <g>
+    <circle cx="115" cy="220" r="14" fill="#3C6DDF"/><circle cx="115" cy="220" r="12" fill="#0D3B82" opacity=".06"/>
+    <circle cx="325" cy="80" r="14" fill="#3C6DDF"/><circle cx="325" cy="80" r="12" fill="#0D3B82" opacity=".06"/>
+    <circle cx="350" cy="135" r="16" fill="#E94B3C"/><circle cx="350" cy="135" r="14" fill="#0D3B82" opacity=".06"/>
+    <text x="115" y="224" text-anchor="middle" font-size="10" font-family="Poppins,Arial" font-weight="700" fill="#0D3B82">5</text>
+    <text x="325" y="84"  text-anchor="middle" font-size="10" font-family="Poppins,Arial" font-weight="700" fill="#0D3B82">8</text>
+    <text x="350" y="139" text-anchor="middle" font-size="11" font-family="Poppins,Arial" font-weight="700" fill="#0D3B82">17</text>
+  </g>
+  <!-- Stand -->
+  <rect x="210" y="226" width="60" height="18" rx="6" fill="#133D8F"/>
+  <rect x="180" y="244" width="120" height="18" rx="8" fill="#133D8F"/>
+</svg>

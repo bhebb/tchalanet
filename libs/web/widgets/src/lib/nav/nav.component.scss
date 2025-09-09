@@ -1,0 +1,41 @@
+/* nav.component.scss — nettoie doublons + scoping */
+.tch-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.6vw, 16px);
+}
+
+.tch-nav__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 12px;
+  padding-inline: 12px;
+  height: 36px;
+  background: transparent;
+  color: var(--tch-color-on-primary, #fff);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.tch-nav__item .chev {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tch-nav__item:not(.has-children) .chev {
+  display: none;
+}
+
+/* État actif par défaut: transparent ici; underline géré côté header desktop */
+.tch-nav__item.active {
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Menu Material (burger) : surbrillance */
+.nav-menu .mat-mdc-menu-item.active {
+  background: var(--accent-dot, #D84C51);
+  color: var(--accent-dot-contrast, #fff);
+}

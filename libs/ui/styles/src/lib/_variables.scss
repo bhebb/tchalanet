@@ -1,0 +1,47 @@
+@use './_tokens' as tokens;
+
+/* Expose les échelles en CSS vars */
+@include tokens.export-css-vars(':root');
+
+/* Alias lisibles vers les tokens système M3 */
+:root {
+  --tch-color-primary: var(--mat-sys-color-primary);
+  --tch-color-on-primary: var(--mat-sys-color-on-primary);
+  --tch-color-surface: var(--mat-sys-color-surface);
+  --tch-color-on-surface: var(--mat-sys-color-on-surface);
+  --tch-color-outline: var(--mat-sys-color-outline);
+
+  --tch-color-accent: var(--mat-sys-color-tertiary);
+  --tch-color-on-accent: var(--mat-sys-color-on-tertiary);
+
+  /* Focus ring (a11y) */
+  --tch-focus-ring-width: 2px;
+  --tch-focus-ring-offset: 2px;
+
+  /* Surfaces M3 complémentaires (containers) */
+  --tch-color-surface-container: var(--mat-sys-color-surface-container);
+  --tch-color-surface-container-low: var(--mat-sys-color-surface-container-low);
+  --tch-color-surface-container-high: var(--mat-sys-color-surface-container-high);
+
+  /* Couleurs étendues (à ajuster plus tard si tu veux de vraies palettes) */
+  --tch-color-success: #1db954;
+  --tch-color-on-success: #fff;
+
+  --tch-color-info: var(--mat-sys-color-secondary);
+  --tch-color-on-info: var(--mat-sys-color-on-secondary);
+
+  --tch-color-warning: #f6ad55;
+  --tch-color-on-warning: #111;
+
+  --tch-color-neutral: var(--mat-sys-color-outline-variant); /* gris doux M3 */
+  --tch-color-on-neutral: #111;
+
+  --tch-root-size: 100%;
+  --page-max: 1200px;
+  --page-gutter: clamp(16px, 4vw, 24px);
+}
+
+/* (Option) variations runtime */
+.theme-dense {
+  --tch-hdr-min-h: 56px;
+}

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "themes": [
+    {
+      "id": "tchalanet",
+      "url": "/assets/themes/tchalanet.json"
+    },
+    {
+      "id": "blueamber",
+      "url": "/assets/themes/blueamber.json"
+    },
+    {
+      "id": "bluegrey-amber",
+      "url": "/assets/themes/bluegrey-amber.json"
+    },
+    {
+      "id": "brown-orange",
+      "url": "/assets/themes/brown-orange.json"
+    },
+    {
+      "id": "cyanlime",
+      "url": "/assets/themes/cyanlime.json"
+    },
+    {
+      "id": "deeporange-cyan",
+      "url": "/assets/themes/deeporange-cyan.json"
+    },
+    {
+      "id": "deeppurple",
+      "url": "/assets/themes/deeppurple.json"
+    },
+    {
+      "id": "indigo",
+      "url": "/assets/themes/indigo.json"
+    },
+    {
+      "id": "lightblue-deeppurple",
+      "url": "/assets/themes/lightblue-deeppurple.json"
+    },
+    {
+      "id": "lime-indigo",
+      "url": "/assets/themes/lime-indigo.json"
+    },
+    {
+      "id": "pinkbluegrey",
+      "url": "/assets/themes/pinkbluegrey.json"
+    },
+    {
+      "id": "purplegreen",
+      "url": "/assets/themes/purplegreen.json"
+    },
+    {
+      "id": "lightblue-deeppurple",
+      "url": "/assets/themes/teal-amber.json"
+    }
+  ]
+}

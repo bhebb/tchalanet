@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+        <style>
+            .base{fill:#0D3B82}
+            .frame{fill:#133d8f}
+            .glass{fill:#F4F7FF}
+        </style>
+    </defs>
+    <!-- Pied -->
+    <rect class="base" x="70" y="150" width="60" height="12" rx="6"/>
+    <rect class="base" x="56" y="162" width="88" height="12" rx="6"/>
+    <!-- Cadre écran -->
+    <rect class="frame" x="36" y="40" width="128" height="86" rx="10"/>
+    <!-- Vitrage -->
+    <rect class="glass" x="48" y="52" width="104" height="62" rx="6"/>
+</svg>

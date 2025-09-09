@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300">
+    <defs>
+        <style>
+            .frame{fill:#0D3B82}
+            .stand{fill:#133D8F}
+            .glass{fill:#F4F7FF}
+            .accent{fill:#3C6DDF}
+            .muted{fill:#DDE6FA}
+            .title{fill:#0D3B82;font:700 18px/1 Poppins, Arial, sans-serif;letter-spacing:.3px}
+        </style>
+    </defs>
+
+    <!-- pied -->
+    <rect class="stand" x="180" y="246" width="60" height="18" rx="6"/>
+    <rect class="stand" x="150" y="264" width="120" height="18" rx="8"/>
+
+    <!-- cadre écran -->
+    <rect class="frame" x="40" y="36" width="340" height="200" rx="12"/>
+    <rect class="glass" x="54" y="50" width="312" height="172" rx="10"/>
+
+    <!-- barre d'entête -->
+    <rect class="muted" x="54" y="50" width="312" height="36" rx="10"/>
+    <text class="title" x="70" y="73">Today Sales</text>
+
+    <!-- contenu écran -->
+    <!-- camembert -->
+    <circle class="accent" cx="120" cy="150" r="40"/>
+    <path d="M120,150 L120,110 A40,40 0 0,1 160,150 Z" fill="#0D3B82"/>
+
+    <!-- barres -->
+    <rect class="accent" x="190" y="160" width="22" height="50" rx="3"/>
+    <rect class="accent" x="220" y="140" width="22" height="70" rx="3"/>
+    <rect class="accent" x="250" y="120" width="22" height="90" rx="3"/>
+    <rect class="accent" x="280" y="130" width="22" height="80" rx="3"/>
+
+    <!-- lignes UI -->
+    <rect class="muted" x="190" y="110" width="110" height="10" rx="5"/>
+    <rect class="muted" x="190" y="200" width="110" height="8" rx="4"/>
+</svg>

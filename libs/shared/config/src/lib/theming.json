@@ -1,0 +1,9 @@
+{
+  "theme": {
+    "mode": "light",
+    "primaryColor": "#3f51b5",
+    "accentColor": "#e91e63",
+    "logoUrl": "/assets/branding/logo.svg",
+    "faviconUrl": "/assets/branding/favicon.ico"
+  }
+}

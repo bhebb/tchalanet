@@ -92,3 +92,4 @@ nx g @nx/angular:lib --name=shared/util-i18n --directory=libs/shared/util-i18n -
 nx g @nx/angular:lib --name=shared/ui-shell-material --directory=libs/shared/ui-shell-material --tags=scope:shared,type:ui --standalone
 nx g @nx/angular:lib --name=web/feature-home-public --directory=libs/web/feature-home-public  --tags=scope:web,type:feature --standalone
 nx g @nx/angular:lib --name=web/feature-home-private --directory=libs/web/feature-home-private  --tags=scope:web,type:feature --standalone
+nx g @nx/angular:lib --name=shared/data-access --directory=libs/shared/data-access/page --prefix=tchp --tags=scope:shared,type:data-access --standalone

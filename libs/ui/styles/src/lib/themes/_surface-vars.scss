@@ -1,0 +1,30 @@
+// Dérive les surfaces/contrastes depuis M3 (--mat-sys-*)
+// et force l’accent “pastille” via CSS vars (aucun Sass requis).
+@mixin tchl-surface-vars($mode: light) {
+  /* Pastille accent rouge (brand) */
+  --accent-dot: #D84C51;
+  --accent-dot-contrast: #fff;
+
+  /* Header / Footer sur primaire M3 */
+  --header-bg: var(--mat-sys-color-primary);
+  --header-fg: var(--mat-sys-color-on-primary);
+  --footer-bg: var(--mat-sys-color-primary);
+  --footer-fg: var(--mat-sys-color-on-primary);
+
+  /* Hero */
+  @if $mode == light {
+    --hero-start: color-mix(in oklab, var(--mat-sys-color-primary) 92%, transparent);
+    --hero-end:   color-mix(in oklab, var(--mat-sys-color-primary) 12%, transparent);
+  } @else {
+    --hero-start: color-mix(in oklab, var(--mat-sys-color-primary) 96%, transparent);
+    --hero-end:   color-mix(in oklab, var(--mat-sys-color-primary) 18%, transparent);
+  }
+
+  /* Tokens applicatifs */
+  --tch-hdr-min-h: 64px;
+  --tch-hdr-pad-block: 10px 14px;
+  --tch-hdr-row-gap: 10px;
+
+  --tch-nav-active-bg: var(--accent-dot);
+  --tch-nav-active-fg: var(--accent-dot-contrast);
+}

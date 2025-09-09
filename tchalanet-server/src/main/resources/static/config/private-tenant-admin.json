@@ -1,0 +1,291 @@
+{
+  "context": "private",
+  "currentLang": "fr",
+  "langs": [
+    "fr",
+    "en",
+    "ht"
+  ],
+  "theme": {
+    "presetId": "tchalanet",
+    "mode": "light"
+  },
+  "header": {
+    "component": "PrivateHeader",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/app/dashboard"
+      },
+      "langSwitcher": {
+        "visible": true,
+        "position": "end"
+      },
+      "showUserMenu": true,
+      "sticky": true
+    }
+  },
+  "nav": {
+    "sidenav": [
+      {
+        "labelKey": "nav.dashboard",
+        "path": "/app/dashboard",
+        "icon": "dashboard",
+        "feature": "dashboard:view"
+      },
+      {
+        "labelKey": "nav.users",
+        "path": "/app/users",
+        "icon": "group",
+        "feature": "users:manage"
+      },
+      {
+        "labelKey": "nav.pos",
+        "path": "/app/pos",
+        "icon": "point_of_sale",
+        "feature": "pos:view",
+        "children": [
+          {
+            "labelKey": "nav.posList",
+            "path": "/app/pos",
+            "feature": "pos:view"
+          },
+          {
+            "labelKey": "nav.posNew",
+            "path": "/app/pos/new",
+            "feature": "pos:edit"
+          }
+        ]
+      },
+      {
+        "labelKey": "nav.rapports",
+        "path": "/app/rapports",
+        "icon": "bar_chart",
+        "feature": "reports:view"
+      },
+      {
+        "labelKey": "nav.settings",
+        "path": "/app/gestion",
+        "icon": "settings",
+        "feature": "settings:edit"
+      }
+    ]
+  },
+  "features": [
+    "dashboard:view",
+    "users:manage",
+    "pos:view",
+    "pos:edit",
+    "reports:view",
+    "settings:edit"
+  ],
+  "layout": {
+    "component": "GridLayout",
+    "rows": [
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "FilterBarWidget",
+                "properties": {
+                  "fields": [
+                    {
+                      "type": "daterange",
+                      "key": "date",
+                      "label": "Période",
+                      "preset": "7d"
+                    },
+                    {
+                      "type": "select",
+                      "key": "pos",
+                      "label": "POS",
+                      "options": [
+                        {
+                          "label": "Tous",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    {
+                      "type": "search",
+                      "key": "q",
+                      "placeholder": "Rechercher ticket…"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "CA jour",
+                  "value": "123 450 HTG",
+                  "icon": "trending_up",
+                  "trend": "up"
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "Tickets",
+                  "value": "2 345",
+                  "icon": "receipt_long"
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "POS actifs",
+                  "value": "78",
+                  "icon": "store"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "ChartWidget",
+                "properties": {
+                  "title": "Ventes par jour",
+                  "height": 300,
+                  "option": {
+                    "tooltip": {
+                      "trigger": "axis"
+                    },
+                    "legend": {},
+                    "xAxis": {
+                      "type": "category",
+                      "data": [
+                        "Lun",
+                        "Mar",
+                        "Mer",
+                        "Jeu",
+                        "Ven",
+                        "Sam",
+                        "Dim"
+                      ]
+                    },
+                    "yAxis": {
+                      "type": "value"
+                    },
+                    "series": [
+                      {
+                        "name": "3PM",
+                        "type": "bar",
+                        "data": [
+                          12,
+                          18,
+                          11,
+                          9,
+                          10,
+                          15,
+                          16
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "TabTableWidget",
+                "properties": {
+                  "title": "Derniers tickets",
+                  "tabs": [
+                    {
+                      "key": "tickets",
+                      "label": "Tickets",
+                      "columns": [
+                        {
+                          "header": "ID",
+                          "field": "id"
+                        },
+                        {
+                          "header": "POS",
+                          "field": "pos"
+                        },
+                        {
+                          "header": "Montant",
+                          "field": "amount",
+                          "type": "currency"
+                        },
+                        {
+                          "header": "Date",
+                          "field": "createdAt",
+                          "type": "date"
+                        }
+                      ],
+                      "rows": [
+                        {
+                          "id": "TK-001",
+                          "pos": "POS-01",
+                          "amount": 150,
+                          "createdAt": "2025-09-12T10:15:00Z"
+                        },
+                        {
+                          "id": "TK-002",
+                          "pos": "POS-02",
+                          "amount": 80,
+                          "createdAt": "2025-09-12T10:20:00Z"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "component": "PublicFooter",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/"
+      },
+      "copyrightKey": "footer.copyright",
+      "columns": []
+    }
+  },
+  "i18n": {},
+  "issues": []
+}

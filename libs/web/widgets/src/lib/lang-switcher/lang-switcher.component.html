@@ -1,0 +1,36 @@
+<button
+        mat-icon-button
+        class="lang-chip"
+        [matMenuTriggerFor]="langMenu"
+        aria-label="Changer de langue">
+    <img class="flag flag--chip"
+         [src]="flagIcon(currentLang())"
+         [alt]="currentLang()"/>
+</button>
+
+<mat-menu #langMenu="matMenu"
+          class="lang-menu"
+          backdropClass="lang-menu-backdrop"
+          xPosition="after"
+          yPosition="below"
+          [overlapTrigger]="false"
+          panelClass="lang-menu">
+    @for (l of availableLangs(); track l) {
+        <button
+                mat-menu-item
+                type="button"
+                role="menuitemradio"
+                [attr.aria-checked]="currentLang()===l ? 'true' : 'false'"
+                (click)="changeLanguage(l)"
+                [class.is-current]="currentLang()===l">
+      <span class="lang-row">
+        <img class="flag flag--menu" [src]="flagIcon(l)" [alt]="l"/>
+        <span class="lang-label">{{ labelFor()(l) }}</span>
+          @if (currentLang() === l) {
+              <span class="current-dot" aria-hidden="true"></span>
+          }
+      </span>
+        </button>
+    }
+</mat-menu>
+

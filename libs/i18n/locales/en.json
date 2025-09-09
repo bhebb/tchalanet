@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "results": "Results",
+    "login": "Login"
+  },
+  "home": {
+    "title": "Lottery management, reinvented.",
+    "subtitle": "Drive your operations with a powerful and intuitive platform.",
+    "hero": {
+      "eyebrow": "TCHALANET",
+      "title": "Lottery operations, reinvented.",
+      "subtitle": "Run your business with a powerful, intuitive platform.",
+      "cta": "Get started",
+      "demo": "View demo",
+      "imageAlt": "Preview of the Tchalanet app on mobile and web"
+    }
+  },
+  "footer": {
+    "copyright": "© 2024 Tchalanet. All rights reserved."
+  }
+}

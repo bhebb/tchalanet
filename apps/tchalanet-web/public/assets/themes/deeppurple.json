@@ -1,0 +1,21 @@
+{
+  "id": "deeppurple",
+  "label": "Deep Purple / Amber",
+  "kind": "material",
+  "mode": "light",
+  "density": 0,
+  "matClass": "mat-deeppurple-amber",
+  "palette": {
+    "primary": "#673AB7",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#1A1A1A",
+    "outline": "rgba(0,0,0,0.12)",
+    "accent": "#FFC107",
+    "tertiary": "#FFC107"
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "tchalanet",
+  "label": "Tchalanet",
+  "kind": "custom",
+  "mode": "light",
+  "density": 0,
+  "matClass": "mat-indigo-pink",
+  "palette": {
+    "primary": "#134D9F",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#111111",
+    "outline": "rgba(0,0,0,0.16)",
+    "accent": "#D84C51",
+    "tertiary": "#D84C51",
+    "shape": {
+      "cornerRadius": 12
+    }
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

@@ -1,0 +1,19 @@
+<a class="skip-link" href="#content">Skip to content</a>
+
+<!-- SLOT header -->
+<ng-content select="[shell-header]"></ng-content>
+
+<!-- Corps -->
+<div class="shell-body">
+    @if (hasSidebar()) {
+        <aside class="shell-side">
+            <ng-content select="[sidenav]"></ng-content>
+        </aside>
+    }
+    <main id="content" class="shell-main container" role="main">
+        <ng-content></ng-content>
+    </main>
+</div>
+
+<!-- SLOT footer -->
+<ng-content select="[shell-footer]"></ng-content>

@@ -1,0 +1,68 @@
+{
+  "currentLang": "fr",
+  "langs": [
+    "fr"
+  ],
+  "context": "dashboard-private",
+  "version": "fallback-1",
+  "theme": {
+    "presetId": "tchalanet-console",
+    "mode": "light",
+    "primaryColor": "#225EC7",
+    "accentColor": "#134D9F"
+  },
+  "header": {
+    "component": "PrivateHeader",
+    "properties": {
+      "brand": {
+        "name": "Tchalanet"
+      }
+    }
+  },
+  "nav": {
+    "header": [],
+    "sidenav": [
+      {
+        "labelKey": "nav.dashboard",
+        "path": "/app/dashboard",
+        "icon": "dashboard"
+      }
+    ]
+  },
+  "layout": {
+    "component": "GridLayout",
+    "rows": [
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "InfoWidget",
+                "properties": {
+                  "title": "Console prête",
+                  "message": "Configuration par défaut appliquée. Veuillez contacter l’administrateur si les données tardent à arriver."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "component": "PrivateFooter",
+    "properties": {
+      "brand": {
+        "name": "Tchalanet Console"
+      }
+    }
+  },
+  "features": [],
+  "i18n": {
+    "fr": {
+      "nav.dashboard": "Tableau de bord"
+    }
+  },
+  "issues": []
+}

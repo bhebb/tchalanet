@@ -1,0 +1,313 @@
+{
+  "context": "private",
+  "currentLang": "fr",
+  "langs": [
+    "fr",
+    "en",
+    "ht"
+  ],
+  "theme": {
+    "presetId": "tchalanet",
+    "mode": "light"
+  },
+  "header": {
+    "component": "PrivateHeader",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/app/dashboard"
+      },
+      "langSwitcher": {
+        "visible": true,
+        "position": "end"
+      },
+      "showUserMenu": true,
+      "sticky": true
+    }
+  },
+  "nav": {
+    "sidenav": [
+      {
+        "labelKey": "nav.dashboard",
+        "path": "/app/dashboard",
+        "icon": "dashboard",
+        "feature": "dashboard:view"
+      },
+      {
+        "labelKey": "nav.tenants",
+        "path": "/app/tenants",
+        "icon": "apartment",
+        "feature": "tenants:manage"
+      },
+      {
+        "labelKey": "nav.users",
+        "path": "/app/users",
+        "icon": "group",
+        "feature": "users:manage"
+      },
+      {
+        "labelKey": "nav.rolesPerms",
+        "path": "/app/roles",
+        "icon": "admin_panel_settings",
+        "feature": "roles:manage"
+      },
+      {
+        "labelKey": "nav.features",
+        "path": "/app/features",
+        "icon": "tune",
+        "feature": "features:manage"
+      },
+      {
+        "labelKey": "nav.i18n",
+        "path": "/app/i18n",
+        "icon": "language",
+        "feature": "i18n:manage"
+      },
+      {
+        "labelKey": "nav.rules",
+        "path": "/app/rules",
+        "icon": "rule",
+        "feature": "rules:manage"
+      },
+      {
+        "labelKey": "nav.audit",
+        "path": "/app/audit",
+        "icon": "history",
+        "feature": "audit:view"
+      },
+      {
+        "labelKey": "nav.settings",
+        "path": "/app/gestion",
+        "icon": "settings",
+        "feature": "settings:edit"
+      }
+    ]
+  },
+  "features": [
+    "dashboard:view",
+    "tenants:manage",
+    "users:manage",
+    "roles:manage",
+    "features:manage",
+    "i18n:manage",
+    "rules:manage",
+    "audit:view",
+    "settings:edit"
+  ],
+  "layout": {
+    "component": "GridLayout",
+    "rows": [
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "FilterBarWidget",
+                "properties": {
+                  "fields": [
+                    {
+                      "type": "daterange",
+                      "key": "date",
+                      "label": "Période",
+                      "preset": "7d"
+                    },
+                    {
+                      "type": "select",
+                      "key": "tenant",
+                      "label": "Tenant",
+                      "options": [
+                        {
+                          "label": "Tous",
+                          "value": ""
+                        }
+                      ]
+                    },
+                    {
+                      "type": "search",
+                      "key": "q",
+                      "placeholder": "Rechercher…"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "Tenants",
+                  "value": "12",
+                  "icon": "apartment",
+                  "trend": "up"
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "Utilisateurs",
+                  "value": "1 245",
+                  "icon": "group"
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "POS actifs",
+                  "value": "312",
+                  "icon": "point_of_sale"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "ChartWidget",
+                "properties": {
+                  "title": "Ventes (tous tenants)",
+                  "height": 300,
+                  "option": {
+                    "tooltip": {
+                      "trigger": "axis"
+                    },
+                    "legend": {},
+                    "xAxis": {
+                      "type": "category",
+                      "data": [
+                        "Lun",
+                        "Mar",
+                        "Mer",
+                        "Jeu",
+                        "Ven",
+                        "Sam",
+                        "Dim"
+                      ]
+                    },
+                    "yAxis": {
+                      "type": "value"
+                    },
+                    "series": [
+                      {
+                        "name": "3PM",
+                        "type": "bar",
+                        "data": [
+                          120,
+                          200,
+                          150,
+                          80,
+                          70,
+                          110,
+                          130
+                        ]
+                      },
+                      {
+                        "name": "8PM",
+                        "type": "bar",
+                        "data": [
+                          90,
+                          160,
+                          120,
+                          60,
+                          50,
+                          90,
+                          100
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "TabTableWidget",
+                "properties": {
+                  "title": "Activité récente",
+                  "tabs": [
+                    {
+                      "key": "tenants",
+                      "label": "Tenants",
+                      "columns": [
+                        {
+                          "header": "Tenant",
+                          "field": "name"
+                        },
+                        {
+                          "header": "POS",
+                          "field": "pos",
+                          "type": "number"
+                        },
+                        {
+                          "header": "Utilisateurs",
+                          "field": "users",
+                          "type": "number"
+                        }
+                      ],
+                      "rows": [
+                        {
+                          "name": "ACME",
+                          "pos": 32,
+                          "users": 140
+                        },
+                        {
+                          "name": "Beta",
+                          "pos": 18,
+                          "users": 77
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "component": "PublicFooter",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/"
+      },
+      "copyrightKey": "footer.copyright",
+      "columns": []
+    }
+  },
+  "i18n": {},
+  "issues": []
+}

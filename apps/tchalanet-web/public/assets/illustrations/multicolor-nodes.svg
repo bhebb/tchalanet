@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+        <style>
+            .link{stroke:#0D3B82;stroke-width:6;fill:none}
+            .nodeA{fill:#3C6DDF}
+            .nodeB{fill:#0D3B82}
+            .nodeAccent{fill:#E94B3C}
+        </style>
+    </defs>
+    <!-- Liens -->
+    <path class="link" d="M60 70c20 10 60 10 80 0"/>
+    <path class="link" d="M60 130c20-10 60-10 80 0"/>
+    <path class="link" d="M60 70v60"/>
+    <path class="link" d="M140 70v60"/>
+    <!-- Nœuds -->
+    <circle class="nodeA" cx="60" cy="70" r="18"/>
+    <circle class="nodeB" cx="140" cy="70" r="18"/>
+    <circle class="nodeB" cx="60" cy="130" r="18"/>
+    <circle class="nodeA" cx="140" cy="130" r="18"/>
+    <circle class="nodeAccent" cx="100" cy="100" r="14"/>
+</svg>

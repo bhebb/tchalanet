@@ -1,0 +1,47 @@
+@use './_variables' as v;
+
+@mixin surface($bg: var(--tch-color-surface), $fg: var(--tch-color-on-surface)) {
+  background: $bg;
+  color: $fg;
+}
+
+@mixin outline($color: var(--tch-color-outline)) {
+  border: var(--tch-border-width, 1px) solid $color;
+}
+
+@mixin rounded($r: null) {
+  border-radius: if($r == null, var(--tch-radius-md, #{8px}), $r);
+}
+
+@mixin elevate($level: 1) {
+  $levels: (0:none, 1:var(--tch-elevation-1), 2:var(--tch-elevation-2), 3:var(--tch-elevation-3), 4:var(--tch-elevation-4), 5:var(--tch-elevation-5));
+  box-shadow: map-get($levels, $level);
+}
+
+@mixin focus-visible($color: currentColor) {
+  &:focus-visible {
+    outline: max(var(--tch-focus-ring-width), 0.15em) solid $color;
+    outline-offset: var(--tch-focus-ring-offset);
+  }
+}
+
+@mixin text-ellipsis($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-inline-size: 0;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-inline-size: 0;
+  }
+}
+
+@mixin container($max: var(--page-max), $pad: var(--page-gutter)) {
+  width: min(#{$max}, 100%);
+  margin-inline: auto;
+  padding-inline: #{$pad};
+}
