@@ -15,11 +15,16 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "data-access": ["libs/auth/data-access/src/index.ts"],
       "data-access-config": ["libs/shared/data-access-config/src/index.ts"],
       "feature-login": ["libs/auth/feature-login/src/index.ts"],
       "models": ["libs/shared/models/src/index.ts"],
-      "theme": ["libs/shared/ui/theme/src/index.ts"]
+      "shared/types": ["libs/shared/types/src/index.ts"],
+      "shared/ui-shell-material": ["libs/shared/ui-shell-material/src/index.ts"],
+      "shared/util-i18n": ["libs/shared/util-i18n/src/index.ts"],
+      "theme": ["libs/shared/ui/theme/src/index.ts"],
+      "web/feature-home-private": ["libs/web/feature-home-private/src/index.ts"],
+      "web/feature-home-public": ["libs/web/feature-home-public/src/index.ts"],
+      "web/ui-shell-public": ["libs/web/ui-shell-public/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

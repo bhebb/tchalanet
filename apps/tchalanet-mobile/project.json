@@ -2,7 +2,7 @@
   "name": "tchalanet-mobile",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "prefix": "tch",
+  "prefix": "tchm",
   "sourceRoot": "apps/tchalanet-mobile/src",
   "tags": ["type:app", "scope:mobile"],
   "targets": {
@@ -81,7 +81,7 @@
       "executor": "@nx/web:file-server",
       "options": {
         "buildTarget": "tchalanet-mobile:build",
-        "port": 4200,
+        "port": 4300,
         "staticFilePath": "dist/apps/tchalanet-mobile/browser",
         "spa": true
       }

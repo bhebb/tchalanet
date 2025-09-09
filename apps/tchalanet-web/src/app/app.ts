@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [RouterModule],
   selector: 'tch-root',
-  template: `<tch-nx-welcome></tch-nx-welcome> <router-outlet></router-outlet>`,
+  template: `<router-outlet></router-outlet>`,
   styles: ``,
 })
 export class App {

@@ -1,0 +1,58 @@
+@startuml
+title Séquence - Home connecté (tenant-first + RBAC + rules, assets via CDN)
+
+actor Utilisateur as U
+participant "App Web/Mobile" as App
+participant "Keycloak (IdP)" as KC
+participant "TenantService" as Ten
+participant "PermissionService" as Perm
+participant "ConfigService" as Cfg
+participant "RulesService" as Rules
+participant "I18nService" as I18n
+participant "WidgetRegistry (Web/Mobile)" as Reg
+participant "Services privés" as Priv
+participant "API Origin" as API
+participant "Asset CDN (images/fonts)" as ACDN
+
+U -> App: /login
+App -> KC: OIDC
+KC --> App: Tokens
+
+App -> Ten: Identifier tenant (subdomaine/mapping)
+Ten --> App: tenant=<code>
+
+App -> Cfg: GET /configs/home?ctx=tenant:<code>
+Cfg -> API: GET /configs/home?ctx=tenant:<code>
+API --> Cfg: 200
+Cfg --> App: sections + visibleIf
+
+App -> I18n: GET /configs/i18n/tenant/<code>?lang=fr
+I18n -> API: GET /configs/i18n/tenant/<code>?lang=fr
+API --> I18n: 200
+I18n --> App: merge(base + default + tenant)
+
+App -> Perm: Collect claims (roles, subscriptions, fine perms)
+Perm --> App: claims/policies
+
+App -> Rules: GET /rules?ctx=tenant:<code>
+Rules -> API: GET /rules?ctx=tenant:<code>
+API --> Rules: 200
+Rules --> App: ruleset
+App -> Rules: evaluate(sections, claims, toggles, contexte)
+Rules --> App: sections filtrées + props ajustées
+
+par Chargements widgets visibles (privés)
+  App -> Priv: GET /... (origin only, no-store si sensible)
+  Priv -> API: GET /...
+  API --> Priv: 200
+else (autres widgets)
+  App -> Priv: GET /...
+  API --> Priv: 200
+end
+
+== Assets (branding/logo/avatars/images widgets) ==
+App -> ACDN: GET /assets/tenant/<code>/...
+ACDN --> App: 200
+
+App -> U: Rendu Dashboard (web/mobile)
+@enduml

@@ -61,8 +61,7 @@
       "style": "scss",
       "changeDetection": "OnPush",
       "inlineStyle": false,
-      "inlineTemplate": false,
-      "prefix": "tch"
+      "inlineTemplate": false
     }
   }
 }

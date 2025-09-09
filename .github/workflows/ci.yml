@@ -60,9 +60,9 @@ jobs:
           cache: 'npm'
 
       # Optionnel mais fortement recommandé : Activer le cache Nx
-      - uses: nx/actions/setup-nx@v3
-        with:
-          nx-cloud-access-token: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
+#      - uses: nx/actions/setup-nx@v3
+#        with:
+#          nx-cloud-access-token: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
       - name: Install Dependencies
         run: npm ci

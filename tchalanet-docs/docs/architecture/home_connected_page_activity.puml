@@ -1,0 +1,24 @@
+@startuml
+title Activité - Home connecté (Origin pour services, CDN pour assets)
+
+start
+:OIDC Login (Keycloak);
+:Identifier tenant;
+
+:GET Origin /configs/home?ctx=tenant:<code>;
+:i18n = GET Origin /configs/i18n/tenant/<code>?lang=fr;\nmerge base→default→tenant;
+
+:Collect claims (RBAC);
+:GET Origin /rules?ctx=tenant:<code>;
+:Evaluate(sections, claims, toggles);\n-> sections filtrées + props;
+
+fork
+  :Charger données privées (origin only, no-store si sensible);
+fork again
+  :Préparer ViewModel pour rendu;
+end fork
+
+:Charger assets (branding, images) via Asset CDN;
+:Render Dashboard (web ou mobile);
+stop
+@enduml

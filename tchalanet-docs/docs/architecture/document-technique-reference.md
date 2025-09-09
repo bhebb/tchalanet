@@ -77,3 +77,80 @@ sequenceDiagram
 - **`TenantService` & `TenantConfigService`** : Identifient le tenant et chargent sa configuration spécifique (thème, layout de la homepage privée, langues, souscriptions).
 - **`PermissionService`** : Le service central pour la logique d'autorisation. Il expose une méthode `hasPermission(permission: string, subscription?: string): boolean` qui sera utilisée dans toute l'application (via des `*ngIf` ou des `Guards`).
 - **Architecture de Rendu Dynamique** : La page d'accueil privée utilise un `HomeContainerComponent` qui lit la configuration du layout du tenant et rend dynamiquement une série de "widgets" (`app-widget-*`), chacun vérifiant ses propres permissions avant de s'afficher.
+
+## Stratégie CDN et Caching — Home Public vs Home Privé
+
+### Décision
+- **Cloudflare CDN** est utilisé **uniquement pour les assets statiques** : images (hero, news), logos, polices, fichiers `.webp/.png/.svg`, éventuellement bundles versionnés.
+- **Tous les appels de service** (configs, i18n overrides, rules, lotteries, news, services privés) passent **directement par l’Origin** (API), **sans CDN**.
+
+---
+
+### Home Public (non connecté)
+**Flow**
+1. Bootstrap (détection langue, lecture toggles).
+2. `GET /configs/home?ctx=default` (Origin) → applique **theme**, **header**, **sections**.
+3. `GET /rules?ctx=default` (Origin) → **evaluate**(sections, toggles, contexte) → sections filtrées/props ajustées.
+4. Données widgets visibles :
+    - Loteries : `GET /lotteries?src=...` (Origin)
+    - News : `GET /news?limit=...&lang=...` (Origin)
+    - i18n overrides : `GET /configs/i18n/default?lang=xx` (Origin) → merge **base + overrides**
+5. **Assets** référencés par les widgets (images, logos) : chargés via **Asset CDN**.
+6. Rendu Home (skeletons + SWR côté app si besoin).
+
+**Caching**
+- **Backend** : Redis + in-memory (Caffeine) pour `configs/home`, `rules`, `i18n` (overrides), avec **ETag/Version** et SWR.
+- **Client** : memo par session + ETag/If-None-Match.
+- **CDN** : non appliqué aux services; **oui uniquement pour /assets/**.
+
+**Headers (services)**
+-- Cache-Control: public, max-age=300, stale-while-revalidate=3600
+-- ETag: "W/<sha256>"
+-- Content-Type: application/json
+-- Vary: Accept-Language
+
+
+---
+
+### Home Privé (connecté)
+**Flow**
+1. OIDC (Keycloak) → tokens.
+2. Tenant-first (subdomaine/mapping).
+3. `GET /configs/home?ctx=tenant:<code>` (Origin) → sections + `visibleIf`.
+4. i18n : `base → default → tenant` via Origin (`/configs/i18n/tenant/<code>?lang=xx`).
+5. RBAC : `PermissionService` (rôles, souscriptions, permissions fines).
+6. Règles : `GET /rules?ctx=tenant:<code>` (Origin) → **evaluate**(sections, claims, toggles).
+7. Données privées par widget **origin only** (souvent `no-store` si sensible).
+8. **Assets** branding/illustrations via **Asset CDN**.
+9. Rendu Dashboard (web/mobile), vues distinctes (Ionic côté mobile).
+
+**Caching**
+- **Backend** : Redis + in-memory pour `configs/home`, `rules`, `i18n tenant`.
+- **Pas de cache partagé** pour réponses **per-user**. Utiliser **no-store** si nécessaire.
+- **CDN** : jamais pour les endpoints privés; **oui** pour assets statiques (logos/avatars si publics).
+
+**Sécurité**
+- Clés de cache incluant `{tenant}`, `{lang}`, `{version}`.
+- Éviter de mettre des données sensibles dans des caches partagés.
+- Headers possibles côté privé : `Cache-Control: no-store` selon la sensibilité.
+
+---
+
+### Règles & Évaluation
+- **Ruleset** chargé depuis Origin; résultats d’évaluation **non** mis en cache global (dépendent du contexte utilisateur).
+- Contexte rules : toggles, environnement (heure, geo si autorisée), claims RBAC, paramètres de sections.
+- En cas d’erreur rules/configs/i18n → fallback **bundle** (base) ou **stale** (mémoire/Redis) avec bandeau “mode dégradé”.
+
+---
+
+### Observabilité
+- Métriques : hit ratio (in-mem/Redis), latence P95, taux de stale, taux d’erreurs Origin.
+- Alerte si : hit ratio chute, stale > seuil, Origin en erreur.
+- Warm-up post-deploy : prime caches `configs/rules/i18n` pour tenants actifs.
+
+---
+
+### Résumé
+- **Services = Origin only** (sécurité, cohérence), **Assets = CDN** (perf/UI).
+- **Caches backend** (Redis + in-mem) + **ETag/SWR** => latence basse sans CDN services.
+- **Règles & RBAC** au cœur du filtrage des widgets; **vues distinctes** web vs mobile (Ionic).

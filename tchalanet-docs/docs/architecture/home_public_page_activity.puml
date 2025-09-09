@@ -1,0 +1,27 @@
+@startuml
+title Activité - Home public (Origin pour services, CDN pour assets)
+
+start
+:Bootstrap (lang, toggles);
+:GET Origin /configs/home?ctx=default;
+:Appliquer thème + header; Lister sections;
+
+:GET Origin /rules?ctx=default;
+:Evaluate(sections, toggles, contexte)\n-> sections filtrées + props;
+
+fork
+  if (Widget Loteries ?) then (oui)
+    :GET Origin /lotteries?src=miami,newyork;
+  endif
+fork again
+  if (Widget News ?) then (oui)
+    :GET Origin /news?limit=...&lang=...;
+  endif
+fork again
+  :GET Origin /configs/i18n/default?lang=fr;\nMerge base+overrides;
+end fork
+
+:Charger assets (images, logos) via Asset CDN;
+:Render Home;
+stop
+@enduml

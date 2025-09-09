@@ -1,0 +1,48 @@
+@startuml
+title Composants - Home public (services via Origin, assets via CDN)
+
+package "Frontend (Nx)" {
+  [App Web]
+  [Feature Toggles]
+  [Feature-Logic Home]
+  [WidgetRegistry (Web)]
+  [ConfigService]
+  [RulesService]
+  [I18nService]
+  [LotteryService]
+  [NewsService]
+  [HTTP Client]
+  [Cache (SWR/ETag)]
+}
+
+package "Origin" {
+  [API Origin]
+  [Configs Controller]
+  [Rules Engine API]
+  [I18n Controller]
+  [Lottery Aggregator]
+  [News Controller]
+}
+
+package "Static Delivery" {
+  [Asset CDN]
+}
+
+[App Web] --> [Feature-Logic Home]
+[Feature-Logic Home] --> [ConfigService]
+[Feature-Logic Home] --> [RulesService]
+[Feature-Logic Home] --> [I18nService]
+[Feature-Logic Home] --> [WidgetRegistry (Web)]
+[Feature-Logic Home] --> [LotteryService]
+[Feature-Logic Home] --> [NewsService]
+
+[ConfigService] --> [HTTP Client]
+[RulesService] --> [HTTP Client]
+[I18nService] --> [HTTP Client]
+[LotteryService] --> [HTTP Client]
+[NewsService] --> [HTTP Client]
+[HTTP Client] --> [Cache (SWR/ETag)]
+[HTTP Client] --> [API Origin]
+
+[App Web] --> [Asset CDN] : images, fonts, static files
+@enduml

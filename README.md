@@ -86,3 +86,9 @@ npm run test:mobile
 npm run e2e:mobile
 
 ```
+
+nx g @nx/angular:lib --name=shared/types --directory=libs/shared/types --prefix=tchl --tags=scope:shared,type:types --standalone
+nx g @nx/angular:lib --name=shared/util-i18n --directory=libs/shared/util-i18n --tags=scope:shared,type:util --standalone
+nx g @nx/angular:lib --name=shared/ui-shell-material --directory=libs/shared/ui-shell-material --tags=scope:shared,type:ui --standalone
+nx g @nx/angular:lib --name=web/feature-home-public --directory=libs/web/feature-home-public  --tags=scope:web,type:feature --standalone
+nx g @nx/angular:lib --name=web/feature-home-private --directory=libs/web/feature-home-private  --tags=scope:web,type:feature --standalone
