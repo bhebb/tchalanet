@@ -1,0 +1,115 @@
+/* Variables de taille (mobile-first) */
+.feature-card {
+  --media-h: 120px; /* hauteur fixe de la zone image */
+  --card-min-h: 200px; /* hauteur min. carte sans image */
+
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius, 12px);
+  box-shadow: var(--elev-2);
+  padding: 1rem 1.25rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+
+  /* toutes les cartes auront au moins cette hauteur (rangée bien alignée) */
+  min-height: var(--card-min-h);
+
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--elev-3);
+}
+
+/* Quand il y a une image, on augmente un peu la hauteur mini */
+.feature-card--with-image {
+  --card-min-h: 260px;
+}
+
+/* Zone média : taille fixe, image centrée */
+.feature-card__image {
+  height: var(--media-h);
+  border-radius: calc(var(--radius, 12px) - 6px);
+  background: color-mix(in oklab, var(--color-primary) 6%, white);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* éloigne visuellement la bordure du contenu */
+  padding: 8px;
+}
+
+.feature-card__image img {
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain; /* pas de crop; change en 'cover' si tu veux remplir */
+}
+
+/* Titre + icône sur une ligne */
+.feature-card__head {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+}
+
+.feature-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in oklab, var(--color-primary) 12%, white);
+  color: var(--color-primary);
+  font-size: 22px;
+}
+
+.feature-card__title {
+  font: 600 16px/24px var(--font-family);
+  margin: 0;
+}
+
+/* Texte avec clamp pour stabiliser la hauteur */
+.feature-card__desc {
+  font: 400 14px/22px var(--font-family);
+  color: var(--color-on-surface);
+  opacity: .9;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* ~3 lignes sur mobile */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Lien en bas si possible */
+.feature-card__link {
+  align-self: flex-start;
+  margin-top: auto; /* pousse vers le bas */
+  font: 600 13px/18px var(--font-family);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.feature-card__link:hover {
+  text-decoration: underline;
+}
+
+/* Desktop : un peu plus d’espace */
+@media (min-width: 960px) {
+  .feature-card {
+    --media-h: 180px;
+    --card-min-h: 260px;
+  }
+  .feature-card--with-image {
+    --card-min-h: 340px;
+  }
+  .feature-card__desc {
+    -webkit-line-clamp: 4;
+  }
+  /* 4 lignes sur desktop */
+}

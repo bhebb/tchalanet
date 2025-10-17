@@ -1,0 +1,49 @@
+@startuml
+title Séquence - Home public (CDN assets only, config-driven + rules + i18n)
+
+actor Utilisateur as U
+participant "App Web (Angular)" as App
+participant "Feature Toggles" as FT
+participant "ConfigService" as Cfg
+participant "RulesService" as Rules
+participant "I18nService" as I18n
+participant "WidgetRegistry (Web)" as Reg
+participant "LotteryService" as Lot
+participant "NewsService" as News
+participant "Cache (SWR/ETag)" as Cache
+participant "API Origin" as API
+participant "Asset CDN (images/fonts)" as ACDN
+
+U -> App: Accède à tchalanet.com
+App -> FT: Charger toggles
+App -> Cfg: GET /configs/home?ctx=default
+Cfg -> API: GET /configs/home?ctx=default
+API --> Cfg: 200 (ETag, body)
+Cfg --> App: Config (theme, header, sections)
+
+App -> Reg: Résoudre composants (type -> composant)
+
+== Rules ==
+App -> Rules: GET /rules?ctx=default
+Rules -> API: GET /rules?ctx=default
+API --> Rules: 200
+Rules --> App: ruleset
+App -> Rules: evaluate(sections, toggles, contexte)
+Rules --> App: sections filtrées + props ajustées
+
+== Données widgets visibles ==
+par Loteries (si présent après règles)
+  App -> Lot: fetch(sources=[miami,newyork])
+  Lot -> API: GET /lotteries?src=miami,newyork
+  API --> Lot: 200
+else News (si présent après règles)
+  App -> News: fetch(limit, lang)
+  News -> API: GET /news?limit=...&lang=...
+  API --> News: 200
+else i18n overrides
+  App -> I18n: GET /configs/i18n/default?lang=fr
+  I18n -> API: GET /configs/i18n/default?lang=fr
+  API --> I18n: 200
+  I18n --> App: merge(base + overrides)
+end
+

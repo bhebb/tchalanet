@@ -1,0 +1,54 @@
+@if (properties(); as props) {
+    <footer class="tch-footer ftr" role="contentinfo" aria-label="Pied de page Tchalanet">
+        <div class="container">
+            <section class="cols">
+                @for (col of props.columns; track col.titleKey) {
+                    <div class="col">
+                        <h3 class="col__title">{{ col.titleKey | translate }}</h3>
+                        <ul class="col__list">
+                            @for (l of col.links; track l.labelKey) {
+                                <li>
+                                    @if (l.path) {
+                                        <a class="link" [routerLink]="l.path">{{ l.labelKey | translate }}</a>
+                                    } @else if (l.external) {
+                                        <a class="link" [href]="l.external" target="_blank" rel="noopener">
+                                            {{ l.labelKey | translate }}
+                                        </a>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <!-- Bloc marque + réseaux + langue -->
+                <div class="col brand">
+                    <a class="brand__link" [routerLink]="props.brand?.href || '/'">
+                        @if (props.brand?.logo) {
+                            <img class="brand__logo" [src]="props.brand!.logo"
+                                 [alt]="props.brand?.name || 'Tchalanet'"/>
+                        }
+                        <span class="brand__name">{{ props.brand?.name || 'Tchalanet' }}</span>
+                    </a>
+
+                    @if (props.socials?.length) {
+                        <div class="socials">
+                            @for (s of props.socials; track s.href) {
+                                <a class="social" [href]="s.href" target="_blank" rel="noopener"
+                                   [attr.aria-label]="s.aria || s.icon">
+                                    <mat-icon [svgIcon]="s.icon"></mat-icon>   <!-- 👈 -->
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <mat-divider class="divider"></mat-divider>
+
+            <div class="baseline">
+                <span class="copy">{{ props.copyrightKey | translate }}</span>
+            </div>
+        </div>
+    </footer>
+}

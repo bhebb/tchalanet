@@ -4,24 +4,38 @@
   "projectType": "application",
   "prefix": "tch",
   "sourceRoot": "apps/tchalanet-web/src",
-  "tags": ["type:app", "scope:web"],
+  "tags": [
+    "type:app",
+    "scope:web"
+  ],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/tchalanet-web",
         "browser": "apps/tchalanet-web/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/tchalanet-web/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
+            "input": "libs/i18n/locales",
+            "output": "/assets/i18n"
+          },
+          {
+            "glob": "**/*",
             "input": "apps/tchalanet-web/public"
           }
         ],
-        "styles": ["apps/tchalanet-web/src/styles.scss"]
+        "styles": [
+          "apps/tchalanet-web/src/styles.scss"
+        ]
       },
       "configurations": {
         "production": {
@@ -71,7 +85,9 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "reportsDirectory": "../../coverage/apps/tchalanet-web"
       }
@@ -81,7 +97,7 @@
       "executor": "@nx/web:file-server",
       "options": {
         "buildTarget": "tchalanet-web:build",
-        "port": 4200,
+        "port": 4300,
         "staticFilePath": "dist/apps/tchalanet-web/browser",
         "spa": true
       }

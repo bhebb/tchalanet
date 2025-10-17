@@ -1,0 +1,230 @@
+:root {
+  --tch-link: var(--mat-sys-color-primary, #1a73e8);
+  --tch-link-visited: color-mix(in oklab, var(--tch-link) 60%, #551a8b);
+  --tch-hit-hover: color-mix(in oklab, var(--tch-link) 10%, transparent);
+  --tch-sep: var(--mat-sys-color-outline, #e5e7eb);
+}
+
+
+/* === CDK / MATERIAL OVERLAYS — GLOBAL === */
+/* overlay AU-DESSUS du header */
+.cdk-overlay-container {
+  position: fixed;
+  z-index: var(--tch-z-menu) !important;
+}
+
+/* Optionnel : ne booster que le menu langue */
+.cdk-overlay-pane,
+.mat-mdc-menu-panel {
+  z-index: auto !important;
+}
+
+.tchl-search-overlay .bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 1) Le conteneur racine de l’autocomplete doit prendre la place */
+.tchl-search-overlay .bar > div:first-child {
+  flex: 1 1 auto; /* prend tout l’espace restant */
+  min-width: 0; /* permet au champ de s’étirer correctement */
+}
+
+/* 2) Forcer les wrappers Algolia à s’étirer */
+.tchl-search-overlay .aa-Autocomplete,
+.tchl-search-overlay .aa-Form,
+.tchl-search-overlay .aa-InputWrapper {
+  width: 100%;
+}
+
+/* 3) Panel "inline" dans la sheet (pas en overlay flottant) */
+#aa-panel .aa-Panel {
+  position: static !important;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+}
+
+#aa-panel .aa-PanelLayout {
+  padding: 12px;
+  min-height: 64px; /* évite l’écrasement quand 0 résultat */
+}
+
+/* 4) Un "no results" propre */
+#aa-panel .aa-NoResults,
+#aa-panel .aa-SourceNoResults {
+  padding: 16px 12px;
+  color: #667085;
+  font-size: 14px;
+}
+
+
+/* Panel inline dans ta sheet */
+#aa-panel .aa-Panel {
+  position: static !important;
+  border: 0;
+  box-shadow: none;
+  margin: 0;
+}
+
+#aa-panel .aa-PanelLayout {
+  padding: 6px;
+  min-height: 64px;
+}
+
+/* Carte-lien */
+#aa-panel .tch-hit {
+  display: grid;
+  grid-template-columns: 24px 1fr 18px;
+  gap: 10px;
+  align-items: start;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--tch-sep);
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tch-hit__icon {
+  opacity: .85;
+  line-height: 1;
+}
+
+.tch-hit__chev {
+  opacity: .5;
+  align-self: center;
+}
+
+/* Titre = lien */
+.tch-hit__title {
+  font-weight: 600;
+  text-decoration: underline transparent;
+  text-underline-offset: 2px;
+  color: var(--color-on-surface, #111);
+}
+
+.tch-hit:visited .tch-hit__title {
+  color: var(--tch-link-visited);
+}
+
+.tch-hit__subtitle {
+  display: block;
+  margin-top: 4px;
+  color: #475467;
+}
+
+.tch-hit__meta {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #667085;
+}
+
+/* Hover/focus = look “cliquable” */
+#aa-panel .tch-hit:hover,
+#aa-panel .tch-hit:focus {
+  background: var(--tch-hit-hover);
+}
+
+#aa-panel .tch-hit:hover .tch-hit__title,
+#aa-panel .tch-hit:focus .tch-hit__title {
+  text-decoration-color: currentColor;
+}
+
+#aa-panel .tch-hit:focus-visible {
+  outline: 2px solid var(--tch-link);
+  outline-offset: 2px;
+}
+
+/* Pas de résultats */
+#aa-panel .aa-NoResults {
+  padding: 16px 12px;
+  color: #667085;
+  font-size: 14px;
+}
+
+.tch-hit__subtitle em {
+  font-style: normal;
+  color: var(--tch-link, #1a73e8);
+  background: transparent;
+}
+
+.aa-DetachedContainer,
+.aa-DetachedOverlay,
+.aa-DetachedFormContainer,
+.aa-DetachedCancelButton,
+.aa-DetachedSearchButton,
+.aa-DetachedSearchButtonPlaceholder {
+  display: none !important;
+}
+
+.tchl-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--tch-z-search);
+  background: rgba(17, 24, 39, .45);
+  backdrop-filter: blur(2px);
+  display: none; /* ⬅️ au lieu de contents */
+}
+
+/* stylage menu mobile et underline fiable */
+.cdk-overlay-container .mat-mdc-menu-panel.tch-menu--mobile .mat-mdc-menu-content {
+  padding: 8px;
+}
+
+.cdk-overlay-container .tch-header__nav-item {
+  min-height: 44px;
+  border-radius: 12px;
+  padding-inline: 12px 16px;
+}
+
+.cdk-overlay-container .tch-header__nav-item .mat-mdc-menu-item-text {
+  position: relative;
+  display: block;
+}
+
+.cdk-overlay-container .tch-header__nav-item__active-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--tch-color-accent, #D84C51);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
+}
+
+.cdk-overlay-container .tch-header__nav-item.is-active,
+.cdk-overlay-container .tch-header__nav-item[aria-current="page"] {
+  font-weight: 600;
+  background: color-mix(in oklab, var(--tch-color-accent, #D84C51) 12%, transparent);
+  color: #111;
+}
+
+.cdk-overlay-container .tch-header__nav-item.is-active .tch-header__nav-item__active-mark,
+.cdk-overlay-container .tch-header__nav-item[aria-current="page"] .tch-header__nav-item__active-mark {
+  opacity: 1;
+}
+
+/* 1) Backdrop spécifique à ce menu (grâce à [backdropClass]) */
+.cdk-overlay-backdrop.lang-menu-backdrop.cdk-overlay-backdrop-showing {
+  background: rgba(17, 24, 39, .28);
+  backdrop-filter: blur(3px);
+}
+
+/* 2) Panel du menu (grâce à panelClass="lang-menu") */
+.cdk-overlay-pane > .mat-mdc-menu-panel.lang-menu {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(10, 22, 51, .06);
+  box-shadow: 0 12px 28px rgba(22, 30, 50, .24), 0 2px 6px rgba(22, 30, 50, .10);
+  margin-top: 10px;
+  margin-left: 6px;
+  transform-origin: top right;
+  overflow: visible;
+  will-change: transform, opacity;
+}

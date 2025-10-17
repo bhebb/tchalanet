@@ -1,0 +1,121 @@
+/* bouton rond (mobile) */
+.lang-chip {
+  --chip-size: 32px; /* mobile: cible tactile confortable */
+  padding: 0 !important;
+  inline-size: var(--chip-size);
+  block-size: var(--chip-size);
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid color-mix(in oklab, currentColor 28%, transparent);
+  --mdc-icon-button-state-layer-size: var(--chip-size);
+}
+
+/* évite ::ng-deep: on cible la classe réelle du bouton Material présente sur l’élément */
+.lang-chip.mat-mdc-icon-button {
+  width: var(--chip-size) !important;
+  height: var(--chip-size) !important;
+  line-height: var(--chip-size);
+}
+
+.flag {
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.flag--chip {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+  box-shadow: none;
+  border: 0;
+}
+
+/* Menu SCOPÉ sous .lang-menu (plus de ::ng-deep global) */
+.lang-menu.mat-mdc-menu-panel {
+  margin-top: 8px; /* descend le menu */
+  margin-left: 4px; /* l’écarte de la loupe */
+  transform-origin: top right;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(10,22,51,.06);
+  box-shadow: 0 8px 24px rgba(22,30,50,.18);
+}
+
+.lang-menu .mat-mdc-menu-content {
+  padding: 8px 6px;
+}
+
+.lang-menu .mat-mdc-menu-item {
+  min-height: 44px; /* cible tactile */
+  padding: 0 14px;
+}
+
+/* drapeau + libellé sur une ligne */
+.lang-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.flag--menu {
+  width: 18px;
+  height: 18px;
+}
+
+.lang-label {
+  font: 500 14px/1.2 var(--font-family);
+  color: var(--color-on-surface, #0A1633);
+}
+
+/* état courant (pas disabled) + petit point accent */
+.is-current .lang-label {
+  font-weight: 700;
+}
+
+.current-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-dot, #D84C51);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent-dot, #D84C51) 18%, transparent);
+}
+
+/* Flèche (facultatif) */
+.cdk-overlay-pane .lang-menu.mat-mdc-menu-panel::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 24px;      /* ajuste pour viser ton chip */
+  width: 10px; height: 10px;
+  background: #fff;
+  transform: rotate(45deg);
+  box-shadow: -2px -2px 4px rgba(22,30,50,.06);
+}
+
+.lang-chip.mat-mdc-icon-button .mdc-icon-button__ripple,
+.lang-chip.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+  display: none;
+}
+
+.lang-chip:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Desktop/up: réduire légèrement le chip si souhaité (28px) */
+@media (min-width: 768px) {
+  .lang-chip {
+    --chip-size: 28px;
+  }
+  .flag--chip {
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 0 0 2px color-mix(in oklab, #fff 35%, transparent);
+  }
+}

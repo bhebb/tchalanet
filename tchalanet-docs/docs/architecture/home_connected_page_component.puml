@@ -1,0 +1,52 @@
+@startuml
+title Composants - Home connecté (services via Origin, assets via CDN)
+
+package "Frontend (Nx)" {
+  [App Web/Mobile]
+  [Feature-Logic Home]
+  [WidgetRegistry (Web)]
+  [WidgetRegistry (Mobile)]
+  [TenantService]
+  [PermissionService]
+  [ConfigService]
+  [RulesService]
+  [I18nService]
+  [HTTP Client]
+}
+
+package "Security" {
+  [Keycloak (IdP/OIDC)]
+  [Subscriptions/RBAC Service]
+}
+
+package "Origin" {
+  [API Origin]
+  [Configs Controller (tenant)]
+  [Rules Engine API]
+  [I18n Controller (tenant)]
+  [Services privés (Stats/Cash/Rapports)]
+}
+
+package "Static Delivery" {
+  [Asset CDN]
+}
+
+[App Web/Mobile] --> [Feature-Logic Home]
+[Feature-Logic Home] --> [TenantService]
+[Feature-Logic Home] --> [PermissionService]
+[Feature-Logic Home] --> [ConfigService]
+[Feature-Logic Home] --> [RulesService]
+[Feature-Logic Home] --> [I18nService]
+[Feature-Logic Home] --> [WidgetRegistry (Web)]
+[Feature-Logic Home] --> [WidgetRegistry (Mobile)]
+
+[ConfigService] --> [HTTP Client]
+[RulesService] --> [HTTP Client]
+[I18nService] --> [HTTP Client]
+[HTTP Client] --> [API Origin]
+
+[PermissionService] --> [Keycloak (IdP/OIDC)]
+[PermissionService] --> [Subscriptions/RBAC Service]
+
+[App Web/Mobile] --> [Asset CDN] : logos, images, fonts
+@enduml

@@ -1,0 +1,91 @@
+@use 'sass:map';
+@use './_functions' as fn;
+
+// (si tu as déjà ces scalaires, on s’en sert)
+$container-max: 1120px !default;
+$container-pad-min: 16px !default;
+$container-pad-max: 24px !default;
+
+// Hauteurs/paddings du header (source de vérité)
+$hdr: (
+        h-mobile: 64px,
+        h-desktop: 72px,
+        pad-block: 8px 12px
+) !default;
+
+// Container (on mappe tes scalaires → une map)
+$container: (
+        max: $container-max,
+        pad-min: $container-pad-min,
+        pad-max: $container-pad-max
+) !default;
+
+// Échelles stables (compile-time)
+$spacing: (xs:.25rem, sm:.5rem, md:1rem, lg:1.5rem, xl:2rem);
+$radius: (sm: 8px, md: 12px, lg: 16px) !default;
+$z: (side: 800, header: 900, dropdown: 1120, dialog: 1300, snackbar: 1400, tooltip: 1500, overlay: 4000, search:5200, menu: 5500) !default;
+$dur: (fast:150ms, normal:250ms, slow:400ms);
+
+/* _tokens.scss */
+:root {
+  --tch-elev-0: none;
+  --tch-elev-1: 0 1px 2px rgba(0, 0, 0, .08), 0 1px 1px rgba(0, 0, 0, .06);
+  --tch-elev-2: 0 2px 6px rgba(0, 0, 0, .10), 0 2px 2px rgba(0, 0, 0, .06);
+  --tch-elev-3: 0 4px 10px rgba(0, 0, 0, .12), 0 3px 3px rgba(0, 0, 0, .06);
+  --tch-elev-4: 0 8px 16px rgba(0, 0, 0, .14), 0 4px 6px rgba(0, 0, 0, .06);
+  --tch-elev-5: 0 12px 24px rgba(0, 0, 0, .18), 0 8px 10px rgba(0, 0, 0, .08);
+}
+
+/* _mixins.scss */
+@mixin elevate($level: 1) {
+  box-shadow: var(--tch-elev-#{$level});
+}
+
+// Export runtime (CSS vars)
+@mixin export-css-vars($scope: ':root') {
+  #{$scope} {
+    /* spacing */
+    --tch-spacing-xs: #{fn.tok($spacing, xs)};
+    --tch-spacing-sm: #{fn.tok($spacing, sm)};
+    --tch-spacing-md: #{fn.tok($spacing, md)};
+    --tch-spacing-lg: #{fn.tok($spacing, lg)};
+    --tch-spacing-xl: #{fn.tok($spacing, xl)};
+
+    /* shape + elevation + motion + z-index */
+    --tch-radius-sm: #{fn.tok($radius, sm)};
+    --tch-radius-md: #{fn.tok($radius, md)};
+    --tch-radius-lg: #{fn.tok($radius, lg)};
+
+    --tch-duration-fast: #{fn.tok($dur, fast)};
+    --tch-duration-normal: #{fn.tok($dur, normal)};
+
+    /* easings M3-ish */
+    --tch-ease-standard: cubic-bezier(.2, 0, 0, .9);
+    --tch-ease-emphasized: cubic-bezier(.2, 0, 0, 1);
+
+    /* === Focus ring (a11y) === */
+    --tch-focus-ring-width: 2px;
+    --tch-focus-ring-offset: 2px;
+
+    /* === Z-index (échelle alignée Angular CDK) === */
+    --tch-z-base: 0;
+    --tch-z-side: #{fn.tok($z, side)}; /* ex: 800 */
+    --tch-z-header: #{fn.tok($z, header)}; /* ex: 900 (DOIT < 1000) */
+    --tch-z-overlay: #{fn.tok($z, overlay, 4000)}; /* ex: 1000 (CDK overlay) */
+    --tch-z-dropdown: #{fn.tok($z, dropdown, 1120)};
+    --tch-z-dialog: #{fn.tok($z, dialog, 1300)};
+    --tch-z-tooltip: #{fn.tok($z, tooltip, 1500)};
+    --tch-z-snackbar: #{fn.tok($z, snackbar, 1400)};
+    --tch-z-search: #{fn.tok($z, search, 3000)}; // overlay recherche custom
+    --tch-z-menu: #{fn.tok($z, menu, 5000)};
+
+    /* === Header & layout (pour le header “long” + alignement container) === */
+    --hdr-h-mobile: #{fn.tok($hdr, h-mobile, 64px)};
+    --hdr-h-desktop: #{fn.tok($hdr, h-desktop, 72px)};
+    --hdr-pad-block: #{fn.tok($hdr, pad-block, 8px 12px)};
+
+    --container-max: #{fn.tok($container, max, 1120px)};
+    --container-pad-min: #{fn.tok($container, pad-min, 16px)};
+    --container-pad-max: #{fn.tok($container, pad-max, 24px)};
+  }
+}

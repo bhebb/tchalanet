@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <!-- Cercle bleu -->
+    <circle cx="100" cy="100" r="100" fill="#0D3B82"/>
+    <!-- Lettre T blanche -->
+    <rect x="85" y="40" width="30" height="80" rx="5" fill="#FFFFFF"/>
+    <rect x="60" y="40" width="80" height="25" rx="5" fill="#FFFFFF"/>
+    <!-- Point rouge -->
+    <circle cx="150" cy="50" r="15" fill="#E94B3C"/>
+</svg>

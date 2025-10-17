@@ -1,0 +1,48 @@
+@use '../_mixins' as m;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  @include m.rounded();
+  padding: .6rem 1rem;
+  border: 1px solid transparent;
+  font: 600 14px/20px var(--font-family, inherit);
+  @include m.elevate(1);
+  transition: box-shadow .15s ease, transform .05s ease;
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    @include m.focus-visible();
+  }
+}
+
+/* Variantes pilotées par tokens (pas d’hex) */
+.btn--primary {
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--tch-color-on-surface);
+  border-color: var(--tch-color-outline);
+}
+
+.btn--success {
+  background: var(--tch-color-success);
+  color: var(--tch-color-on-success);
+}
+
+.btn--info {
+  background: var(--tch-color-info);
+  color: var(--tch-color-on-info);
+}
+
+.btn--warn {
+  background: var(--tch-color-warning);
+  color: var(--tch-color-on-warning);
+}

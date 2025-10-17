@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160">
+  <defs>
+    <clipPath id="cut"><path d="M30,54 h160 a8,8 0 0 1 8,8 v8 a10,10 0 0 0 -20,0 v14 a10,10 0 0 0 20,0 v8 a8,8 0 0 1 -8,8 H30 a8,8 0 0 1 -8,-8 v-8 a10,10 0 0 0 20,0 V70 a10,10 0 0 0 -20,0 v-8 a8,8 0 0 1 8,-8 z"/></clipPath>
+  </defs>
+  <rect x="30" y="54" width="160" height="44" rx="8" fill="#3C6DDF" clip-path="url(#cut)"/>
+  <rect x="44" y="66" width="96" height="6" rx="3" fill="#fff"/>
+  <rect x="44" y="78" width="72" height="6" rx="3" fill="#fff" opacity=".9"/>
+  <!-- barcode -->
+  <g transform="translate(146,64)" fill="#fff">
+    <rect x="0" y="0" width="2" height="24"/>
+    <rect x="4" y="0" width="1" height="24"/>
+    <rect x="7" y="0" width="3" height="24"/>
+    <rect x="12" y="0" width="1" height="24"/>
+    <rect x="15" y="0" width="2" height="24"/>
+    <rect x="19" y="0" width="1" height="24"/>
+  </g>
+</svg>

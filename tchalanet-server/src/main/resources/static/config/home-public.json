@@ -1,0 +1,517 @@
+{
+  "currentLang": "fr",
+  "langs": [
+    "fr",
+    "en",
+    "ht"
+  ],
+  "context": "home-public",
+  "theme": {
+    "id": "indigo",
+    "mode": "light",
+    "primaryColor": "#225EC7",
+    "accentColor": "#134D9F"
+  },
+  "header": {
+    "component": "PublicHeader",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "TCHALANET",
+        "href": "/"
+      },
+      "navigation": [
+        {
+          "labelKey": "nav.home",
+          "path": "/"
+        },
+        {
+          "labelKey": "nav.features",
+          "path": "features"
+        },
+        {
+          "labelKey": "nav.pricing",
+          "path": "pricing"
+        },
+        {
+          "labelKey": "nav.results",
+          "path": "results"
+        }
+      ],
+      "cta": {
+        "labelKey": "nav.dashboard",
+        "path": "/auth/login"
+      },
+      "langSwitcher": {
+        "visible": true,
+        "position": "end"
+      },
+      "sticky": true
+    }
+  },
+  "layout": {
+    "component": "GridLayout",
+    "rows": [
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "HeroWidget",
+                "properties": {
+                  "eyebrow": "home.hero.eyebrow",
+                  "title": "home.hero.title",
+                  "subtitle": "home.hero.subtitle",
+                  "align": "left",
+                  "image": {
+                    "src": "/assets/hero/hero-main.svg",
+                    "altKey": "home.hero.imageAlt",
+                    "width": 560,
+                    "height": 420,
+                    "srcset": "/assets/images/hero-main.webp 1x, /assets/images/hero-main@2x.webp 2x",
+                    "sizes": "(min-width:1024px) 560px, 90vw"
+                  },
+                  "primaryCta": {
+                    "labelKey": "home.hero.cta",
+                    "path": "/register"
+                  },
+                  "secondaryCta": {
+                    "labelKey": "home.hero.demo",
+                    "path": "/demo"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "NewsBannerWidget",
+                "properties": {
+                  "title": "Actualités",
+                  "labelKey": "news.label",
+                  "region": "ht|global",
+                  "autoScroll": true,
+                  "pauseOnHover": true,
+                  "maxItems": 12,
+                  "emptyStateKey": "news.empty",
+                  "ui": {
+                    "compact": true
+                  },
+                  "data": {
+                    "items": [
+                      {
+                        "id": "1",
+                        "title": "Jackpot record en Europe : 210M€",
+                        "source": "AFP",
+                        "href": "#",
+                        "region": "global"
+                      },
+                      {
+                        "id": "2",
+                        "title": "Haïti : nouveau calendrier des tirages 3PM",
+                        "source": "Le Nouvelliste",
+                        "href": "#",
+                        "region": "ht"
+                      }
+                    ]
+                  },
+                  "dataSource": {
+                    "type": "http",
+                    "url": "/api/news?region=ht,global&limit=12",
+                    "method": "GET",
+                    "cacheTTL": 300,
+                    "fallbackPath": "$.properties.data.items"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "DrawSwitcherWidget",
+                "properties": {
+                  "title": "Derniers résultats",
+                  "config": {
+                    "initialLotteryId": "tch-ht-3pm",
+                    "ui": {
+                      "showIcons": true,
+                      "compact": true
+                    }
+                  },
+                  "data": {
+                    "lotteries": [
+                      {
+                        "id": "tch-ht-3pm",
+                        "name": "Haïti 3PM",
+                        "icon": "looks_3"
+                      },
+                      {
+                        "id": "tch-ht-8pm",
+                        "name": "Haïti 8PM",
+                        "icon": "nights_stay"
+                      },
+                      {
+                        "id": "tch-car-7pm",
+                        "name": "Caraïbes 7PM",
+                        "icon": "sunny"
+                      }
+                    ],
+                    "results": {
+                      "tch-ht-3pm": [
+                        {
+                          "lotteryId": "tch-ht-3pm",
+                          "lotteryName": "Haïti 3PM",
+                          "drawTime": "2025-09-11T18:05:00Z",
+                          "numbers": [
+                            4,
+                            12,
+                            19,
+                            7,
+                            31
+                          ]
+                        }
+                      ],
+                      "tch-ht-8pm": [
+                        {
+                          "lotteryId": "tch-ht-8pm",
+                          "lotteryName": "Haïti 8PM",
+                          "drawTime": "2025-09-10T20:05:00Z",
+                          "numbers": [
+                            2,
+                            9,
+                            18,
+                            27,
+                            33
+                          ],
+                          "bonus": [
+                            5
+                          ]
+                        }
+                      ],
+                      "tch-car-7pm": [
+                        {
+                          "lotteryId": "tch-car-7pm",
+                          "lotteryName": "Caraïbes 7PM",
+                          "drawTime": "2025-09-10T23:05:00Z",
+                          "numbers": [
+                            6,
+                            11,
+                            22,
+                            28,
+                            34
+                          ]
+                        }
+                      ]
+                    },
+                    "next": {
+                      "tch-ht-3pm": {
+                        "lotteryId": "tch-ht-3pm",
+                        "lotteryName": "Haïti 3PM",
+                        "nextDrawTime": "2025-09-12T19:00:00Z"
+                      },
+                      "tch-ht-8pm": {
+                        "lotteryId": "tch-ht-8pm",
+                        "lotteryName": "Haïti 8PM",
+                        "nextDrawTime": "2025-09-12T01:00:00Z"
+                      },
+                      "tch-car-7pm": {
+                        "lotteryId": "tch-car-7pm",
+                        "lotteryName": "Caraïbes 7PM",
+                        "nextDrawTime": "2025-09-12T23:00:00Z"
+                      }
+                    }
+                  },
+                  "dataSource": {
+                    "type": "composite",
+                    "endpoints": {
+                      "lotteries": {
+                        "url": "/api/lotteries?active=true",
+                        "cacheTTL": 600
+                      },
+                      "results": {
+                        "url": "/api/lotteries/{id}/results?limit=5",
+                        "cacheTTL": 120
+                      },
+                      "next": {
+                        "url": "/api/lotteries/{id}/next-draw",
+                        "cacheTTL": 60
+                      }
+                    },
+                    "fallbackPath": "$.properties.data"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "FeatureCardWidget",
+                "properties": {
+                  "icon": "manage_accounts",
+                  "title": "home.feature1.title",
+                  "description": "home.feature1.desc",
+                  "link": {
+                    "labelKey": "home.feature.learnMore",
+                    "path": "/features/multi-tenant"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "FeatureCardWidget",
+                "properties": {
+                  "icon": "query_stats",
+                  "title": "home.feature2.title",
+                  "description": "home.feature2.desc",
+                  "link": {
+                    "labelKey": "home.feature.learnMore",
+                    "path": "/features/analytics"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "FeatureCardWidget",
+                "properties": {
+                  "icon": "verified_user",
+                  "title": "home.feature3.title",
+                  "description": "home.feature3.desc",
+                  "link": {
+                    "labelKey": "home.feature.learnMore",
+                    "path": "/features/security"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "FeatureCardWidget",
+                "properties": {
+                  "icon": "point_of_sale",
+                  "title": "home.feature4.title",
+                  "description": "home.feature4.desc",
+                  "link": {
+                    "labelKey": "home.feature.learnMore",
+                    "path": "/features/pos"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "FeatureCardWidget",
+                "properties": {
+                  "icon": "apartment",
+                  "title": "home.feature5.title",
+                  "description": "home.feature5.desc",
+                  "link": {
+                    "labelKey": "home.feature.learnMore",
+                    "path": "/features/multi-company"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "span": 4,
+            "widgets": [
+              {
+                "component": "FeatureCardWidget",
+                "properties": {
+                  "icon": "tune",
+                  "title": "home.feature6.title",
+                  "description": "home.feature6.desc",
+                  "link": {
+                    "labelKey": "home.feature.learnMore",
+                    "path": "/features/config"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "HeroWidget",
+                "properties": {
+                  "title": "Connected Borlette Bank",
+                  "subtitle": "Intégrez dépôts, trésorerie et paiements en toute simplicité.",
+                  "image": {
+                    "src": "/assets/hero/connected-bank.svg",
+                    "alt": "Banque connectée"
+                  },
+                  "primaryCta": {
+                    "label": "En savoir plus",
+                    "link": "/features/bank"
+                  },
+                  "align": "center"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "component": "PublicFooter",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/"
+      },
+      "accentHex": "#6A66FF",
+      "columns": [
+        {
+          "titleKey": "footer.legal",
+          "links": [
+            {
+              "labelKey": "footer.legalMentions",
+              "path": "/legal"
+            },
+            {
+              "labelKey": "footer.refund",
+              "path": "/refund-policy"
+            },
+            {
+              "labelKey": "footer.languages",
+              "path": "/languages"
+            },
+            {
+              "labelKey": "footer.dpa",
+              "path": "/dpa"
+            },
+            {
+              "labelKey": "footer.about",
+              "path": "/about"
+            }
+          ]
+        },
+        {
+          "titleKey": "footer.support",
+          "links": [
+            {
+              "labelKey": "footer.docs",
+              "path": "/docs"
+            },
+            {
+              "labelKey": "footer.preSale",
+              "path": "/contact/pre-sale"
+            },
+            {
+              "labelKey": "footer.faq",
+              "path": "/faq"
+            },
+            {
+              "labelKey": "footer.tech",
+              "path": "/support"
+            },
+            {
+              "labelKey": "footer.findTranslator",
+              "external": "https://…"
+            }
+          ]
+        },
+        {
+          "titleKey": "footer.product",
+          "links": [
+            {
+              "labelKey": "footer.contact",
+              "path": "/contact"
+            },
+            {
+              "labelKey": "footer.wpDemo",
+              "external": "https://…"
+            },
+            {
+              "labelKey": "footer.shopifyDemo",
+              "external": "https://…"
+            },
+            {
+              "labelKey": "footer.comparison",
+              "path": "/comparison"
+            },
+            {
+              "labelKey": "footer.affiliates",
+              "path": "/affiliates"
+            }
+          ]
+        }
+      ],
+      "socials": [
+        {
+          "icon": "x",
+          "href": "https://x.com/tchalanet",
+          "aria": "x"
+        },
+        {
+          "icon": "facebook",
+          "href": "https://facebook.com/tchalanet",
+          "aria": "Facebook"
+        },
+        {
+          "icon": "youtube",
+          "href": "https://youtube.com/@tchalanet",
+          "aria": "YouTube"
+        },
+        {
+          "icon": "instagram",
+          "href": "https://instagram.com/tchalanet",
+          "aria": "Instagram"
+        },
+        {
+          "icon": "linkedin",
+          "href": "https://linkedin.com/company/tchalanet",
+          "aria": "LinkedIn"
+        }
+      ],
+      "copyrightKey": "footer.copyright"
+    }
+  },
+  "i18n": {},
+  "issues": []
+}
+     

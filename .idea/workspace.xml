@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4f8c544c-0416-4345-b090-cd86b415705c" name="Changes" comment="feat(web) - WIP - i18n and theming">
+      <change afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/header.component.back" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/header.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/header.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/header.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/lang-theme-group/lang-theme-group.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/search-pill/search-pill.component.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_breakpoints.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/components/_footer.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/components/_header.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/components/carte.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/components/sidenav.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/primitives/_badge.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/primitives/_button.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/primitives/_card.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/primitives/_index.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/primitives/_input.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell/private-shell.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/public-pages/src/lib/features-page/features.page.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/public-pages/src/lib/results-page/results.page.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/shell/src/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/shell/src/lib/shell/shell.component.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/shell/src/lib/shell/shell.component.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/libs/web/shell/src/lib/shell/shell.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/nx-angular-config.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nx-angular-config.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/tchalanet-web/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/tchalanet-web/src/app/app.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/tchalanet-web/src/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/apps/tchalanet-web/src/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/tchalanet-web/src/styles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/apps/tchalanet-web/src/styles.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/shared/types/src/lib/page.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/shared/types/src/lib/page.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/layout/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/private-footer/private-footer.component.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/public-footer/footer.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/footer.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/public-footer/footer.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/footer.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/public-footer/footer.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/footer/footer.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/private-header/private-header.component.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/public-header/header.component.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/public-header/header.component.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/layout/src/lib/header/public-header/header.component.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/_breakpoints.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/index.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/index.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_functions.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_functions.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_mixins.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_mixins.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_themes.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_themes.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_tokens.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_tokens.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_typography.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_typography.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_utilities.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_utilities.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/_variables.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/_variables.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/themes/_surface-vars.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/themes/_surface-vars.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/styles/src/lib/themes/_tchalanet.theme.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/styles/src/lib/themes/_tchalanet.theme.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/ui/theme/src/lib/theme.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/theme/src/lib/theme.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/feature-home-public/src/lib/home-public.page.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/feature-home-public/src/lib/home-public.page.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/private-pages/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/private-pages/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell-component/private-shell.component.back" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell-component/private-shell.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell/private-shell.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell-component/private-shell.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/ui/layout/src/lib/brand/brand.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell-component/private-shell.component.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell/private-shell.component.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell-component/private-shell.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/private-pages/src/lib/private-shell/private-shell.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/public-pages/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/public-pages/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/public-pages/src/lib/plans-page/plans.page.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/public-pages/src/lib/plans-page/plans.page.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/eslint.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/project.json" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/project.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/src/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/src/lib/public-home-shell.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/public-pages/src/lib/public-shell/public-shell.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/src/test-setup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/src/test-setup.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/tsconfig.lib.json" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/tsconfig.lib.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/tsconfig.spec.json" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/tsconfig.spec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/ui-shell-public/vite.config.mts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/shell/vite.config.mts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/widgets/src/lib/nav/nav.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/widgets/src/lib/nav/nav.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/widgets/src/lib/nav/nav.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/widgets/src/lib/nav/nav.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/web/widgets/src/lib/nav/nav.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/web/widgets/src/lib/nav/nav.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tchalanet-server/src/main/resources/static/config/home-public.json" beforeDir="false" afterPath="$PROJECT_DIR$/tchalanet-server/src/main/resources/static/config/home-public.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.base.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.base.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="SCSS File" />
+        <option value="JavaScript File" />
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;bhebb&quot;
+  }
+}</component>
+  <component name="GitRewordedCommitMessages">
+    <option name="commitMessagesMapping">
+      <RewordedCommitMessageMapping>
+        <option name="originalMessage" value="WIP reorganisation" />
+        <option name="rewordedMessage" value="feat(web) - WIP - i18n and theming" />
+      </RewordedCommitMessageMapping>
+    </option>
+    <option name="currentCommit" value="1" />
+    <option name="onto" value="9ef33a0227baa3eded5aa51bc40c5ab86da4d529" />
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/bhebb/tchalanet.git&quot;,
+    &quot;accountId&quot;: &quot;953b24a4-71e9-40c5-a60b-08e168c7a5e3&quot;
+  }
+}</component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="Z7cd5X0x" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="2" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="32TQ3tZEESowUpsK3pJTNwbpj4C" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showScratchesAndConsoles" value="false" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.header.component.html.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "layout-public",
+    "last_opened_file_path": "/home/stevens/projets/tchalanet/libs/ui/layout/src/lib/header",
+    "list.type.of.created.stylesheet": "SCSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "/home/stevens/projets/tchalanet/node_modules/prettier",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/home/stevens/projets/tchalanet/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "dev.nx.console.project_details_files": [
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile-e2e/project.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile-e2e/package.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile-e2e/playwright.config.ts",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile-e2e/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web-e2e/project.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web-e2e/package.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web-e2e/playwright.config.ts",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web-e2e/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile/project.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile/package.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-mobile/vite.config.mts",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web/project.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web/package.json",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/apps/tchalanet-web/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/api/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/api/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/api/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/api/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/auth/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/auth/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/auth/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/auth/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/config/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/config/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/config/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/config/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/i18n/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/i18n/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/i18n/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/i18n/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/page/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/page/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/page/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/page/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/session/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/session/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/session/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/data-access/session/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/facades/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/facades/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/facades/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/facades/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/types/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/types/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/types/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/types/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/constants/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/constants/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/constants/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/constants/vite.config.ts",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/i18n/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/i18n/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/i18n/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/i18n/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/layout/project.json",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/layout/package.json",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/layout/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/shared/utils/layout/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/ui/layout/project.json",
+      "/home/stevens/projets/tchalanet/libs/ui/layout/package.json",
+      "/home/stevens/projets/tchalanet/libs/ui/layout/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/ui/layout/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/ui/plans/project.json",
+      "/home/stevens/projets/tchalanet/libs/ui/plans/package.json",
+      "/home/stevens/projets/tchalanet/libs/ui/plans/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/ui/plans/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/ui/styles/project.json",
+      "/home/stevens/projets/tchalanet/libs/ui/styles/package.json",
+      "/home/stevens/projets/tchalanet/libs/ui/styles/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/ui/styles/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/ui/theme/project.json",
+      "/home/stevens/projets/tchalanet/libs/ui/theme/package.json",
+      "/home/stevens/projets/tchalanet/libs/ui/theme/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/ui/theme/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/ui/widget-renderer/project.json",
+      "/home/stevens/projets/tchalanet/libs/ui/widget-renderer/package.json",
+      "/home/stevens/projets/tchalanet/libs/ui/widget-renderer/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/ui/widget-renderer/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/web/constants/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/constants/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/constants/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/constants/vite.config.ts",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-private/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-private/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-private/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-private/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-public/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-public/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-public/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/feature-home-public/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/web/private-pages/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/private-pages/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/private-pages/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/private-pages/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/web/public-pages/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/public-pages/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/public-pages/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/public-pages/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/web/shell/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/shell/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/shell/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/shell/vite.config.mts",
+      "/home/stevens/projets/tchalanet/libs/web/widgets/project.json",
+      "/home/stevens/projets/tchalanet/libs/web/widgets/package.json",
+      "/home/stevens/projets/tchalanet/libs/web/widgets/eslint.config.mjs",
+      "/home/stevens/projets/tchalanet/libs/web/widgets/vite.config.mts",
+      "/home/stevens/projets/tchalanet/tchalanet-server/project.json",
+      "/home/stevens/projets/tchalanet/tchalanet-server/package.json"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/libs/ui/layout/src/lib/header" />
+      <recent name="$PROJECT_DIR$/libs/web/public-pages/src/lib" />
+      <recent name="$PROJECT_DIR$/libs/ui/layout/src/lib/footer" />
+      <recent name="$PROJECT_DIR$/libs/web/ui-shell/src/lib/shell" />
+      <recent name="$PROJECT_DIR$/libs/web/public-pages/src/lib/public-shell" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/libs/ui/styles/src/lib" />
+      <recent name="$PROJECT_DIR$/libs/ui/styles/src/lib/themes" />
+      <recent name="$PROJECT_DIR$/libs/web/ui-shell/src/lib/shell" />
+      <recent name="$PROJECT_DIR$/libs/ui/layout/src/lib/grid-layout" />
+      <recent name="$PROJECT_DIR$/libs/ui/layout/src/lib/sidenav" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="header.component.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/tchalanet/libs/ui/layout/src/lib/header/header.component.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.header.component.html" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-WS-252.25557.126" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4f8c544c-0416-4345-b090-cd86b415705c" name="Changes" comment="" />
+      <created>1757441887976</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1757441887976</updated>
+      <workItem from="1757441890057" duration="138000" />
+      <workItem from="1757442050430" duration="11651000" />
+      <workItem from="1757539178373" duration="49577000" />
+      <workItem from="1757972503743" duration="89539000" />
+      <workItem from="1758323956831" duration="81340000" />
+      <workItem from="1758567823495" duration="24631000" />
+    </task>
+    <task id="LOCAL-00001" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1757539803589</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1757539803589</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1757735211927</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1757735211927</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1757887910502</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1757887910502</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1757907052135</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1757907052135</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1757981380001</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1757981380001</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1758066465581</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1758066465581</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat(web) - WIP - i18n and theming">
+      <option name="closed" value="true" />
+      <created>1758386475656</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1758386475656</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+    <option name="exactExcludedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/node_modules/piscina/test/fixtures/notify-then-sleep-or.js" />
+        <option value="$PROJECT_DIR$/node_modules/tailwindcss/stubs/tailwind.config.cjs" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="layout-public" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="layout-public" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(web) - WIP - i18n and theming" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(web) - WIP - i18n and theming" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/libs/ui/widget-renderer/src/lib/widget-renderer.component.ts</url>
+          <line>63</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/libs/ui/layout/src/lib/header/header.component.html</url>
+          <line>92</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

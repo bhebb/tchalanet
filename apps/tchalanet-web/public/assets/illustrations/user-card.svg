@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+        <style>
+            .card{fill:#F4F7FF}
+            .tab{fill:#0D3B82}
+            .avatar{fill:#3C6DDF}
+            .slot{fill:#E6ECF9}
+        </style>
+    </defs>
+    <!-- Carte -->
+    <rect class="card" x="44" y="54" rx="12" ry="12" width="112" height="92"/>
+    <!-- Onglet -->
+    <rect class="tab" x="140" y="54" rx="12" ry="12" width="16" height="92"/>
+    <!-- Avatar -->
+    <circle class="avatar" cx="82" cy="98" r="18"/>
+    <rect class="avatar" x="66" y="118" width="32" height="16" rx="8"/>
+    <!-- Emplacements -->
+    <rect class="slot" x="104" y="88" width="34" height="10" rx="5"/>
+    <rect class="slot" x="104" y="106" width="34" height="10" rx="5"/>
+</svg>

@@ -1,0 +1,21 @@
+{
+  "id": "indigo",
+  "label": "Indigo / Pink",
+  "kind": "material",
+  "mode": "light",
+  "density": 0,
+  "matClass": "mat-indigo-pink",
+  "palette": {
+    "primary": "#3F51B5",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#1A1A1A",
+    "outline": "rgba(0,0,0,0.12)",
+    "accent": "#E91E63",
+    "tertiary": "#E91E63"
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

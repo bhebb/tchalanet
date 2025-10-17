@@ -1,0 +1,82 @@
+{
+  "nav": {
+    "results": "Résultats",
+    "about": "À propos",
+    "demo": "Voir la démo",
+    "home": "Accueil",
+    "pricing": "Plans",
+    "dashboard": "Tableau de bord",
+    "tenants": "Locataires",
+    "users": "Utilisateurs",
+    "rolesPerms": "Rôles & Permissions",
+    "features": "Fonctionnalités",
+    "i18n": "Langues",
+    "rules": "Règles",
+    "audit": "Audit",
+    "settings": "Paramètres",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "pos": "Points de vente",
+    "posList": "Liste des POS",
+    "posNew": "Nouveau POS",
+    "rapports": "Rapports",
+    "tickets": "Tickets",
+    "newTicket": "Nouveau ticket",
+    "myTickets": "Mes tickets",
+    "reports": "Rapports"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "TCHALANET",
+      "demo": "Voir la démo",
+      "imageAlt": "Aperçu de l’application Tchalanet sur mobile et web",
+      "title": "La gestion de loterie, réinventée.",
+      "subtitle": "Pilotez vos opérations avec une plateforme puissante et intuitive.",
+      "cta": "Commencer maintenant"
+    }
+  },
+  "header": {
+  },
+  "news": {
+    "label": "Actualités",
+    "aria": "Dernières actualités loteries"
+  },
+  "draw": {
+    "latest": "Derniers résultats",
+    "loading": "Chargement…",
+    "nextIn": "Prochain tirage dans",
+    "seeAll": "Voir tous les tirages",
+    "switchLottery": "Changer de loterie"
+  },
+  "footer": {
+    "copyright": "©2024 Tchalanet. Tous droits réservés.",
+    "privacy": "Vie privée",
+    "legal": "Legal",
+    "support": "Support",
+    "product": "Product",
+    "legalMentions": "Mentions légales",
+    "refund": "Politique de remboursement",
+    "languages": "Langues disponibles",
+    "dpa": "DPA",
+    "about": "À propos",
+    "docs": "Documentation",
+    "preSale": "Question pré-vente",
+    "faq": "FAQ",
+    "tech": "Support technique",
+    "findTranslator": "Trouver un traducteur",
+    "contact": "Contact",
+    "wpDemo": "Démo WordPress",
+    "shopifyDemo": "Démo Shopify",
+    "comparison": "Comparatif concurrents",
+    "affiliates": "Programme d'affiliation"
+  },
+  "errors": {
+    "title": "Oups, une erreur est survenue",
+    "notFound": {
+      "title": "Page introuvable",
+      "desc": "La page demandée n’existe pas."
+    },
+    "retry": "Réessayer",
+    "home": "Retour à l’accueil"
+  }
+}

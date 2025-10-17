@@ -1,0 +1,160 @@
+<header class="tch-header"
+        role="banner"
+        [class.tch-header--private]="isPrivate()"
+        [attr.data-theme]="theme()">
+
+    <div class="tch-header__toolbar">
+        <div class="tch-header__grid" role="navigation" aria-label="Entête">
+
+            <!-- ===== L1 ===== -->
+            <div class="tch-header__row tch-header__row--l1">
+
+                <!-- Brand -->
+                <button class="tch-header__brand-btn"
+                        type="button"
+                        aria-label="Tchalanet — Accueil"
+                        (click)="onBrandHome()">
+                    <tch-brand class="tch-header__brand"
+                               [brand]="brand()!"
+                               [homeLink]="'/'"
+                               [showName]="true">
+                    </tch-brand>
+                </button>
+
+                <!-- Nav desktop (hidden ≤ tablet) -->
+                <tchl-nav class="tch-header__nav"
+                          [items]="navigation()"
+                          [currentPath]="currentPath"
+                          (select)="go($event)">
+                </tchl-nav>
+
+                <!-- Right cluster -->
+                <div class="tch-header__right">
+
+                    <!-- ===== Desktop : Search → Lang/Thème → CTA ===== -->
+                    @if (isDesktop()) {
+                        <button class="tch-header__searchbtn"
+                                type="button"
+                                mat-icon-button
+                                aria-label="Rechercher"
+                                (click)="onSearchClick()">
+                            <mat-icon>search</mat-icon>
+                        </button>
+
+                        <tch-lang-theme-group class="tch-header__ltg"
+                                              [currentLang]="currentLang()"
+                                              [availableLangs]="availableLangs()"
+                                              [themeMode]="themeMode()"
+                                              [size]="32"
+                                              [gap]="10"
+                                              (changeLang)="setLang($event)"
+                                              (toggleTheme)="setThemeMode($event)">
+                        </tch-lang-theme-group>
+
+                        <button class="tch-header__cta tch-header__cta--tertiary"
+                                type="button"
+                                (click)="go(user() ? '/app/dashboard' : (cta()?.path || '/register'))">
+                            {{ user() ? 'Tableau de bord' : (cta()?.labelKey | translate) || 'Essayer' }}
+                        </button>
+                    }
+
+                    <!-- ===== Mobile / Tablet : avatar + burger ===== -->
+                    @if (!isDesktop()) {
+                        <!-- Avatar lien simple (texte ou bouton, selon ton choix de style) -->
+                        <button class="tch-header__avatar"
+                                type="button"
+                                mat-icon-button
+                                aria-label="Compte"
+                                (click)="onAvatarClick()">
+                            <mat-icon>account_circle</mat-icon>
+                        </button>
+
+                        <button class="tch-header__burger"
+                                type="button"
+                                mat-icon-button
+                                aria-label="Ouvrir le menu"
+                                (click)="openSidenav()">
+                            <mat-icon>menu</mat-icon>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- ===== L2 (mobile/tablette, toujours affichée) ===== -->
+            @if (!isDesktop()) {
+                <div class="tch-header__row tch-header__row--l2" role="region" aria-label="Outils">
+
+                    <!-- CTA compact -->
+                    <button class="tch-header__cta tch-header__cta--primary"
+                            type="button"
+                            (click)="go(user() ? '/app/dashboard' : (cta()?.path || '/register'))">
+                        {{ user() ? 'Tableau de bord' : (cta()?.labelKey | translate) || 'Essayer' }}
+                    </button>
+
+                    <div class="tch-header__l2-actions">
+                        <!-- Icône recherche uniquement -->
+                        <button class="tch-header__searchbtn"
+                                type="button"
+                                mat-icon-button
+                                aria-label="Rechercher"
+                                (click)="onSearchClick()">
+                            <mat-icon>search</mat-icon>
+                        </button>
+
+                        <!-- Chips Langue + Thème -->
+                        <tch-lang-theme-group class="tch-header__ltg"
+                                              [currentLang]="currentLang()"
+                                              [availableLangs]="availableLangs()"
+                                              [themeMode]="themeMode()"
+                                              [size]="32"
+                                              [gap]="10"
+                                              (changeLang)="setLang($event)"
+                                              (toggleTheme)="setThemeMode($event)">
+                        </tch-lang-theme-group>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</header>
+
+<!-- ===== FULLSCREEN OVERLAY MENU (mobile/tablette) ===== -->
+@if (!isDesktop()) {
+    <mat-drawer-container class="tch-sidenav-container full"
+                          autosize
+                          [class.is-open]="mobileNav?.opened"
+                          [hasBackdrop]="false">
+        <mat-drawer #mobileNav="matDrawer"
+                    position="end"
+                    mode="over"
+                    class="tch-sidenav-drawer full"
+                    (openedChange)="onDrawerOpenedChange($event)"
+                    (keydown.escape)="closeSidenav()">
+
+            <header class="tch-sidenav__header">
+                <div class="tch-sidenav__brand">
+                    <tch-brand [brand]="brand()!" [showName]="true"></tch-brand>
+                </div>
+                <button class="tch-sidenav__close"
+                        type="button"
+                        aria-label="Fermer"
+                        (click)="closeSidenav()">×
+                </button>
+            </header>
+
+            <nav class="tch-sidenav__content" aria-label="Navigation">
+                @for (item of navigation(); track item.path) {
+                    <button class="tch-sidenav__item"
+                            type="button"
+                            (click)="go(item.path); closeSidenav()"
+                            [attr.aria-current]="isActive(item.path) ? 'page' : null">
+                        {{ item.labelKey | translate }}
+                    </button>
+                }
+            </nav>
+        </mat-drawer>
+
+        <!-- requis par MatSidenav (même vide) -->
+        <div mat-drawer-content></div>
+    </mat-drawer-container>
+}

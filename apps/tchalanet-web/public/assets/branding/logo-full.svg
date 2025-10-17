@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+    <defs>
+        <style>
+            .circle{fill:#0D3B82}
+            .letter{fill:#FFFFFF}
+            .dot{fill:#E94B3C}
+            .brand{fill:#0D3B82;font:700 48px/1 Poppins, Arial, sans-serif}
+        </style>
+    </defs>
+    <!-- Cercle -->
+    <circle class="circle" cx="60" cy="60" r="50"/>
+    <!-- T -->
+    <rect class="letter" x="50" y="32" width="20" height="50" rx="3"/>
+    <rect class="letter" x="34" y="32" width="52" height="16" rx="3"/>
+    <!-- Point rouge -->
+    <circle class="dot" cx="96" cy="28" r="10"/>
+    <!-- Nom -->
+    <text class="brand" x="150" y="76">Tchalanet</text>
+</svg>

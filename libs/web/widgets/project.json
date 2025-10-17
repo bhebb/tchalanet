@@ -1,0 +1,20 @@
+{
+  "name": "web/widgets",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/widgets/src",
+  "prefix": "tchl",
+  "projectType": "library",
+  "tags": ["scope:web", "type:widgets"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/libs/web/widgets"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

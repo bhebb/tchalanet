@@ -1,0 +1,106 @@
+//@use '@angular/material' as mat;
+
+
+//$typography: mat.define-typography-config(); /* ou ton config custom */
+//:root { @include mat.all-component-typographies($typography); }
+
+/* famille + poids (si pas déjà faits) */
+:root {
+  --tch-font-family: 'Poppins', ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+  Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  /* tu as déjà --tch-h1/--tch-h2/--tch-h3 et --tch-weight-* dans _tokens.scss */
+}
+
+/* base document */
+html, body {
+  font-family: var(--tch-font-family);
+}
+
+/* éléments sémantiques (optionnel mais recommandé) */
+:where(h1) {
+  font: var(--tch-weight-bold) var(--tch-h1)/1.25 var(--tch-font-family);
+  margin: 0 0 .5em;
+}
+
+:where(h2) {
+  font: var(--tch-weight-bold) var(--tch-h2)/1.25 var(--tch-font-family);
+  margin: 0 0 .5em;
+}
+
+:where(h3) {
+  font: var(--tch-weight-semibold) var(--tch-h3)/1.3 var(--tch-font-family);
+  margin: 0 0 .5em;
+}
+
+/* utilitaires (ceux que tu as demandé) */
+.h1 {
+  font: var(--tch-weight-bold) var(--tch-h1)/1.25 var(--tch-font-family);
+  letter-spacing: -0.2px;
+}
+
+.h2 {
+  font: var(--tch-weight-bold) var(--tch-h2)/1.25 var(--tch-font-family);
+}
+
+.h3 {
+  font: var(--tch-weight-semibold) var(--tch-h3)/1.3 var(--tch-font-family);
+}
+
+/* bonus que tu avais déjà */
+.subtle {
+  opacity: .75;
+}
+
+.tabnums {
+  font-variant-numeric: tabular-nums;
+}
+
+:root {
+  --tch-size-display: clamp(2rem, 4.2vw + 1rem, 3rem);
+  --tch-size-headline: clamp(1.625rem, 2.6vw + 1rem, 2.25rem);
+  --tch-size-title: clamp(1.25rem, 1.4vw + 1rem, 1.5rem);
+  --tch-size-body: 1rem;
+  --tch-size-label: .875rem;
+  --tch-size-micro: .75rem;
+
+  --tch-lh-tight: 1.2;
+  --tch-lh-normal: 1.45;
+  --tch-lh-relaxed: 1.6;
+
+  --tch-w-regular: 400;
+  --tch-w-medium: 500;
+  --tch-w-semibold: 600;
+  --tch-w-bold: 700;
+
+  --tch-letter-tight: -0.2px;
+}
+
+.tch-display {
+  font: var(--tch-w-bold) var(--tch-size-display)/var(--tch-lh-tight) inherit;
+  letter-spacing: var(--tch-letter-tight);
+}
+
+.tch-headline {
+  font: var(--tch-w-bold) var(--tch-size-headline)/var(--tch-lh-tight) inherit;
+  letter-spacing: var(--tch-letter-tight);
+}
+
+.tch-title {
+  font: var(--tch-w-semibold) var(--tch-size-title)/var(--tch-lh-normal) inherit;
+}
+
+.tch-body {
+  font: var(--tch-w-regular) var(--tch-size-body)/var(--tch-lh-relaxed) inherit;
+}
+
+.tch-label {
+  font: var(--tch-w-medium) var(--tch-size-label)/var(--tch-lh-normal) inherit;
+}
+
+.tch-muted {
+  opacity: .75;
+}
+
+.tch-tabnums {
+  font-variant-numeric: tabular-nums;
+}

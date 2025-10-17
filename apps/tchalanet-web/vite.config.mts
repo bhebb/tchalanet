@@ -25,4 +25,9 @@ export default defineConfig(() => ({
       provider: 'v8' as const,
     },
   },
+/*  server: {
+    proxy: {
+      '/api': 'http://localhost:8082',
+    },
+  },*/
 }));

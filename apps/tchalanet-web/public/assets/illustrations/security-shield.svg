@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+        <style>
+            .shield{fill:#0D3B82}
+            .keyhole{fill:#FFFFFF}
+        </style>
+    </defs>
+    <!-- Bouclier -->
+    <path class="shield" d="M100 28c20 14 42 14 62 8 3 38-6 83-62 136C44 119 35 74 38 36c20 6 42 6 62-8z"/>
+    <!-- Trou de serrure -->
+    <circle class="keyhole" cx="100" cy="92" r="16"/>
+    <rect class="keyhole" x="92" y="104" width="16" height="30" rx="8"/>
+</svg>

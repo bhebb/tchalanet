@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160">
+  <!-- cloud -->
+  <ellipse cx="110" cy="80" rx="50" ry="28" fill="#3C6DDF"/>
+  <circle cx="80" cy="75" r="20" fill="#3C6DDF"/>
+  <circle cx="140" cy="75" r="22" fill="#3C6DDF"/>
+  <circle cx="110" cy="65" r="24" fill="#3C6DDF"/>
+  <!-- arrows -->
+  <path d="M110 40 v-14 l-8 8" stroke="#0D3B82" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M110 120 v14 l-8-8" stroke="#0D3B82" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

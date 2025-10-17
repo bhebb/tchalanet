@@ -1,0 +1,13 @@
+{
+  "name": "ui/widget-renderer",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/widget-renderer/src",
+  "prefix": "tchl",
+  "projectType": "library",
+  "tags": ["scope:ui", "type:widget-renderer"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

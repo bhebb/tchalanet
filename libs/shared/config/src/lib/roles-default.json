@@ -1,0 +1,27 @@
+{
+  "roles": {
+    "admin": {
+      "canAccess": [
+        "dashboard",
+        "tickets",
+        "reports",
+        "management"
+      ],
+      "defaultPage": "dashboard"
+    },
+    "agent": {
+      "canAccess": [
+        "tickets",
+        "draws",
+        "results"
+      ],
+      "defaultPage": "tickets"
+    },
+    "viewer": {
+      "canAccess": [
+        "results"
+      ],
+      "defaultPage": "results"
+    }
+  }
+}

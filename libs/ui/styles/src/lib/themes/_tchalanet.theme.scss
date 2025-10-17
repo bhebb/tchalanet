@@ -1,0 +1,32 @@
+@use '@angular/material' as mat;
+@use './_surface-vars' as surf;
+
+$tch-primary:  mat.$blue-palette;
+$tch-tertiary: mat.$blue-palette;
+
+$tch-light: mat.define-theme((
+        color: (theme-type: light, primary: $tch-primary, tertiary: $tch-tertiary)
+));
+
+$tch-dark: mat.define-theme((
+        color: (theme-type: dark, primary: $tch-primary, tertiary: $tch-tertiary)
+));
+
+@mixin apply-tchalanet-class() {
+  .mat-theme-tchalanet {
+    @include mat.all-component-themes($tch-light);
+    @include surf.tchl-surface-vars(light);
+
+    &.dark {
+      @include mat.all-component-colors($tch-dark);
+      @include surf.tchl-surface-vars(dark);
+      color-scheme: dark;
+    }
+  }
+}
+
+
+
+/* exports facultatifs si besoin ailleurs */
+$__tch-light: $tch-light;
+$__tch-dark:  $tch-dark;

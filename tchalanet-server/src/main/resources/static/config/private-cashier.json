@@ -1,0 +1,161 @@
+{
+  "context": "private",
+  "currentLang": "fr",
+  "langs": [
+    "fr",
+    "en",
+    "ht"
+  ],
+  "theme": {
+    "presetId": "tchalanet",
+    "mode": "light"
+  },
+  "header": {
+    "component": "PrivateHeader",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/app/dashboard"
+      },
+      "langSwitcher": {
+        "visible": true,
+        "position": "end"
+      },
+      "showUserMenu": true,
+      "sticky": true
+    }
+  },
+  "nav": {
+    "sidenav": [
+      {
+        "labelKey": "nav.dashboard",
+        "path": "/app/dashboard",
+        "icon": "dashboard",
+        "feature": "dashboard:view"
+      },
+      {
+        "labelKey": "nav.tickets",
+        "path": "/app/tickets",
+        "icon": "receipt_long",
+        "feature": "tickets:sell",
+        "children": [
+          {
+            "labelKey": "nav.newTicket",
+            "path": "/app/tickets/new",
+            "feature": "tickets:sell"
+          },
+          {
+            "labelKey": "nav.myTickets",
+            "path": "/app/tickets",
+            "feature": "tickets:view"
+          }
+        ]
+      },
+      {
+        "labelKey": "nav.results",
+        "path": "/app/resultats",
+        "icon": "emoji_events",
+        "feature": "results:view"
+      },
+      {
+        "labelKey": "nav.reports",
+        "path": "/app/rapports",
+        "icon": "bar_chart",
+        "feature": "reports:view"
+      }
+    ]
+  },
+  "features": [
+    "dashboard:view",
+    "tickets:sell",
+    "tickets:view",
+    "results:view",
+    "reports:view"
+  ],
+  "layout": {
+    "component": "GridLayout",
+    "rows": [
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "KpiWidget",
+                "properties": {
+                  "label": "Ventes aujourd’hui",
+                  "value": "9 820 HTG",
+                  "icon": "trending_up"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "TabTableWidget",
+                "properties": {
+                  "title": "Mes derniers tickets",
+                  "tabs": [
+                    {
+                      "key": "tickets",
+                      "label": "Tickets",
+                      "columns": [
+                        {
+                          "header": "ID",
+                          "field": "id"
+                        },
+                        {
+                          "header": "Montant",
+                          "field": "amount",
+                          "type": "currency"
+                        },
+                        {
+                          "header": "Date",
+                          "field": "createdAt",
+                          "type": "date"
+                        }
+                      ],
+                      "rows": [
+                        {
+                          "id": "TK-1001",
+                          "amount": 50,
+                          "createdAt": "2025-09-12T12:01:00Z"
+                        },
+                        {
+                          "id": "TK-1002",
+                          "amount": 120,
+                          "createdAt": "2025-09-12T12:05:00Z"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "component": "PublicFooter",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/"
+      },
+      "copyrightKey": "footer.copyright",
+      "columns": []
+    }
+  },
+  "i18n": {},
+  "issues": []
+}

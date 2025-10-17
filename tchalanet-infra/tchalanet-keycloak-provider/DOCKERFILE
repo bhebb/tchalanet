@@ -1,0 +1,4 @@
+FROM quay.io/keycloak/keycloak:26.3.4 as base
+COPY target/tch-keycloak-provider-1.0.0.jar /opt/keycloak/providers/
+RUN /opt/keycloak/bin/kc.sh build
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh","start","--optimized"]

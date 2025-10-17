@@ -1,0 +1,59 @@
+@use 'libs/ui/styles/src/lib/_mixins.scss' as m;
+@use 'libs/ui/styles/src/lib/_breakpoints.scss' as br;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh; /* footer en bas */
+  background: var(--tch-color-surface);
+  color: var(--tch-color-on-surface);
+  position: relative;
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 8px;
+  inset-block-start: -40px;
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface);
+  padding: .5rem .75rem;
+  border-radius: .5rem;
+  box-shadow: var(--tch-elevation-2);
+}
+
+.skip-link:focus {
+  inset-block-start: 8px;
+}
+
+.shell-body {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 1fr; /* sans side */
+  min-block-size: 0;
+}
+
+:host(.with-side) .shell-body {
+  grid-template-columns: min(280px, 86vw) 1fr; /* side | main */
+}
+
+.shell-side {
+  background: var(--tch-color-surface-container);
+  border-inline-end: 1px solid var(--tch-color-outline);
+  padding: var(--tch-spacing-sm);
+  overflow: auto;
+}
+
+.shell-main {
+  padding-block: clamp(12px, 3vw, 24px);
+  min-block-size: 60vh;
+}
+
+/* Mobile: la side passe au-dessus du main */
+@include br.down(md) {
+  :host(.with-side) .shell-body {
+    grid-template-columns: 1fr;
+  }
+  .shell-side {
+    order: -1;
+  }
+}

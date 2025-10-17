@@ -9,8 +9,11 @@ set -euo pipefail
 : "${APP_USER:=app}"
 : "${APP_PASS:=app_pwd}"
 : "${APP_DB:=tchalanet_db}"
+: "${UN_DB:=unleash}"
+: "${UMAMI:=umami}"
 
 # 1) Create roles (allowed inside DO)
+
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d postgres <<SQL
 DO \$\$
 BEGIN
@@ -43,6 +46,8 @@ create_db_if_missing () {
 # 2) Create databases
 create_db_if_missing "${KC_DB_NAME}"  "${KC_USER}"
 create_db_if_missing "${APP_DB}"      "${APP_USER}"
+create_db_if_missing "${UN_DB}"      "${POSTGRES_USER}"
+create_db_if_missing "${UMAMI}"      "${POSTGRES_USER}"
 
 # 3) (Optional) Harden ownership for safety
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "${KC_DB_NAME}"  -c "ALTER DATABASE ${KC_DB_NAME} OWNER TO ${KC_USER};"

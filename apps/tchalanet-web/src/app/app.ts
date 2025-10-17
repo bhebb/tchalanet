@@ -1,13 +1,18 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+import { AuthService } from '@tchl/shared/auth';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [RouterModule],
+  standalone: true,
   selector: 'tch-root',
-  template: `<tch-nx-welcome></tch-nx-welcome> <router-outlet></router-outlet>`,
+  template: `<router-outlet></router-outlet>`,
   styles: ``,
 })
 export class App {
-  protected title = 'tchalanet-web';
+  protected title = 'tchalanet';
+
+  constructor(auth: AuthService) {
+    auth.wireOidcEvents(); // pour que silent refresh réhydrate tes signals
+  }
 }

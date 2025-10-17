@@ -1,0 +1,150 @@
+@use './_mixins' as m;
+
+/* Surfaces */
+.surface {
+  @include m.surface();
+}
+
+/* Surface container (M3) */
+.surface-container {
+  @include m.surface(var(--tch-color-surface-container), var(--tch-color-on-surface));
+}
+
+/* Outline (bordure subtile) */
+.outline {
+  @include m.outline();
+}
+
+/* Rayons */
+.rounded {
+  @include m.rounded();
+}
+
+.rounded-sm {
+  @include m.rounded(8px);
+}
+
+.rounded-lg {
+  @include m.rounded(16px);
+}
+
+.rounded-pill {
+  @include m.rounded(999px);
+}
+
+/* Élévations */
+.elevate-1 {
+  @include m.elevate(1);
+}
+
+.elevate-2 {
+  @include m.elevate(2);
+}
+
+.elevate-3 {
+  @include m.elevate(3);
+}
+
+.elevate-4 {
+  @include m.elevate(4);
+}
+
+.elevate-5 {
+  @include m.elevate(5);
+}
+
+/* Focus visible (a11y) */
+.focus-visible {
+  @include m.focus-visible();
+}
+
+/* Typo utilitaires */
+.text-ellipsis {
+  @include m.text-ellipsis(1);
+}
+
+.text-ellipsis-2 {
+  @include m.text-ellipsis(2);
+}
+
+.text-ellipsis-3 {
+  @include m.text-ellipsis(3);
+}
+
+/* Conteneur responsive */
+.container {
+  @include m.container();
+}
+
+/* Layout rapides */
+.flex {
+  display: flex;
+  gap: var(--tch-spacing-sm);
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tch-spacing-sm);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid {
+  display: grid;
+  gap: var(--tch-spacing-md);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tch-spacing-md);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--tch-spacing-md);
+}
+
+/* Spacing */
+.mt-sm {
+  margin-top: var(--tch-spacing-sm);
+}
+
+.mt-md {
+  margin-top: var(--tch-spacing-md);
+}
+
+.mt-lg {
+  margin-top: var(--tch-spacing-lg);
+}
+
+.mb-sm {
+  margin-bottom: var(--tch-spacing-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--tch-spacing-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--tch-spacing-lg);
+}
+
+/* A11y */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}

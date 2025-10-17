@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160">
+  <!-- dashboard -->
+  <rect x="30" y="30" width="160" height="100" rx="10" fill="#F4F7FF" stroke="#0D3B82" stroke-width="4"/>
+  <rect x="30" y="30" width="160" height="24" rx="10" fill="#E6ECF9"/>
+  <text x="40" y="46" font-size="11" font-family="Poppins,Arial" font-weight="700" fill="#0D3B82">Analytics</text>
+  <!-- pie -->
+  <circle cx="70" cy="90" r="20" fill="#3C6DDF"/>
+  <path d="M70,90 L70,70 A20,20 0 0 1 90,90 Z" fill="#0D3B82"/>
+  <!-- bars -->
+  <rect x="110" y="96" width="12" height="24" rx="2" fill="#3C6DDF"/>
+  <rect x="128" y="84" width="12" height="36" rx="2" fill="#3C6DDF"/>
+  <rect x="146" y="72" width="12" height="48" rx="2" fill="#3C6DDF"/>
+  <rect x="164" y="80" width="12" height="40" rx="2" fill="#3C6DDF"/>
+</svg>

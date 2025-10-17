@@ -1,0 +1,9 @@
+@use '../_mixins' as m;
+
+.card {
+  background: var(--tch-color-surface-container);
+  @include m.outline();
+  @include m.rounded();
+  @include m.elevate(2);
+  padding: var(--tch-spacing-md);
+}

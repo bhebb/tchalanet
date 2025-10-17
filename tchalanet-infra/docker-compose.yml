@@ -1,3 +1,4 @@
+name: tchalanet
 services:
   pg:
     image: postgres:15-alpine
@@ -13,53 +14,148 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d:ro
-    ports: [ "5432:5432" ]
+    ports: [ "5432:5432" ] # DEV uniquement
     healthcheck:
-      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d postgres"]
+      test: [ "CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d postgres" ]
       interval: 5s
       timeout: 3s
       retries: 30
     restart: unless-stopped
+    networks: [ tchalanet_net ]
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.3.4
     command: start --http-enabled=true --hostname-strict=false
     depends_on:
-     pg:
-       condition: service_healthy
+      pg: { condition: service_healthy }
     environment:
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
-
-      # Vendor (NOT your DB name)
       KC_DB: postgres
-
-      # Connection
       KC_DB_USERNAME: ${KC_USER}
       KC_DB_PASSWORD: ${KC_PASS}
       KC_DB_URL_HOST: pg
       KC_DB_URL_PORT: 5432
       KC_DB_URL_DATABASE: ${KC_DB_NAME}
-
-      # Admin user
       KEYCLOAK_ADMIN: ${KC_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASS}
+    ports: [ "8080:8080" ] # DEV uniquement
+    healthcheck:
+      test: [ "CMD-SHELL","curl -fsS http://localhost:8080/health/ready || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [ tchalanet_net ]
 
-    ports:
-      - "8080:8080"
+  redis:
+    image: redis:7-alpine
+    command: >
+      sh -c '
+        echo "requirepass $$REDIS_PASSWORD" > /usr/local/etc/redis/redis.conf &&
+        echo "appendonly yes" >> /usr/local/etc/redis/redis.conf &&
+        redis-server /usr/local/etc/redis/redis.conf
+      '
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme-redis}
+    volumes: [ redis_data:/data ]
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ tchalanet_net ]
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.16
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-changeme-meili}
+      MEILI_ENV: ${MEILI_ENV:-development}
+      MEILI_DB_PATH: /meili_data
+      MEILI_HTTP_PAYLOAD_SIZE_LIMIT: 100MB
+    ports: [ "7700:7700" ] # DEV uniquement
+    volumes: [ meili_data:/meili_data ]
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:7700/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ tchalanet_net ]
+
+  meili-init:
+    image: curlimages/curl:8.10.1
+    depends_on:
+      meilisearch: { condition: service_healthy }
+    entrypoint: [ "/bin/sh","-c" ]
+    command: |
+      set -e
+      BASE="http://meilisearch:7700"
+      KEY="${MEILI_MASTER_KEY:-changeme-meili}"
+
+      echo "⏳ Init index tch_content…"
+      curl -fsS -X POST "$BASE/indexes" \
+        -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+        -d '{"uid":"tch_content","primaryKey":"id"}' || true
+
+      curl -fsS -X PATCH "$BASE/indexes/tch_content/settings" \
+        -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+        -d @- <<'JSON'
+      {
+        "searchableAttributes": ["title","body"],
+        "filterableAttributes": ["tags","lang","tenantId"],
+        "sortableAttributes": ["published_at"],
+        "synonyms": {
+          "billet": ["ticket"],
+          "ticket": ["billet"],
+          "jeu": ["draw","loterie","tirage"],
+          "draw": ["jeu","tirage"]
+        },
+        "typoTolerance": { "enabled": true }
+      }
+      JSON
+      echo "✅ Meilisearch initialisé."
+    networks: [ tchalanet_net ]
 
   api:
     image: ghcr.io/tchalanet/tchalanet-server:${API_TAG:-latest}
     depends_on:
       pg: { condition: service_healthy }
       keycloak: { condition: service_started }
+      redis: { condition: service_started }
+      meilisearch: { condition: service_healthy }
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://pg:5432/${APP_DB}
       SPRING_DATASOURCE_USERNAME: ${APP_USER}
       SPRING_DATASOURCE_PASSWORD: ${APP_PASS}
-      OIDC_ISSUER_URI: ${OIDC_ISSUER_URI}
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
-    restart: unless-stopped
+      OIDC_ISSUER_URI: http://keycloak:8080/realms/tchalanet
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:4200
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_INDEX: tch_content
+    networks: [ tchalanet_net ]
+  # --- Umami (analytics) ---
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    depends_on:
+      pg: { condition: service_healthy }
+    environment:
+      # DB dédiée umami (créée via init SQL ci-dessous)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@pg:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET:-dev-umami-secret}     # change en prod
+      DISABLE_TELEMETRY: "true"
+      TRACKER_SCRIPT_NAME: script.js                        # /script.js
+      # (optionnel) FORCE_SSL: "false" en dev
+    ports:
+      - "3300:3000"   # <— host:container (évite le 3000 pris)
+    networks: [ tchalanet_net ]
+
+networks:
+  tchalanet_net:
+    driver: bridge
 
 volumes:
-  pgdata: {}
+  pgdata: { }
+  redis_data: { }
+  meili_data: { }

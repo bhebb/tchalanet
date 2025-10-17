@@ -1,0 +1,75 @@
+<svg viewBox="0 0 460 300" width="460" height="300" aria-hidden="true">
+    <defs>
+        <style>
+            /* Palette Tchalanet */
+            .c-frame{fill:#0D3B82}
+            .c-stand{fill:#133D8F}
+            .c-screen{fill:#F4F7FF}
+            .c-bar{fill:#3C6DDF}
+            .num{fill:#0D3B82;font:700 11px/1 Poppins,Arial; text-anchor:middle; dominant-baseline:middle}
+
+            /* Orbits: ellipse autour du centre écran (210,130) */
+            .ring{transform-origin:210px 130px; animation:spin 10s linear infinite}
+            .ring--b{animation-delay:-3.3s}
+            .ring--o{animation-delay:-6.6s}
+            @keyframes spin{from{transform:rotate(0deg) scaleY(.72)} to{transform:rotate(360deg) scaleY(.72)}}
+
+            /* Respecte prefers-reduced-motion */
+            @media (prefers-reduced-motion:reduce){ .ring{animation:none} }
+        </style>
+    </defs>
+
+    <!-- ORDINATEUR -->
+    <g>
+        <rect class="c-frame" x="60" y="40" width="300" height="180" rx="12"/>
+        <rect class="c-screen" x="74" y="54" width="272" height="152" rx="10"/>
+        <rect x="74" y="54" width="272" height="34" rx="10" fill="#E6ECF9"/>
+        <text x="92" y="75" fill="#0D3B82" style="font:700 16px Poppins,Arial">Today Sales</text>
+        <!-- mini-graphs -->
+        <circle cx="130" cy="135" r="28" fill="#3C6DDF"/>
+        <path d="M130,135 L130,107 A28,28 0 0 1 158,135 Z" fill="#0D3B82"/>
+        <rect class="c-bar" x="190" y="148" width="16" height="44" rx="3"/>
+        <rect class="c-bar" x="214" y="132" width="16" height="60" rx="3"/>
+        <rect class="c-bar" x="238" y="116" width="16" height="76" rx="3"/>
+        <rect class="c-bar" x="262" y="126" width="16" height="66" rx="3"/>
+        <!-- pied -->
+        <rect class="c-stand" x="190" y="236" width="60" height="18" rx="6"/>
+        <rect class="c-stand" x="160" y="254" width="120" height="18" rx="8"/>
+    </g>
+
+    <!-- RING A — boule 5 (bleue, petite) -->
+    <g class="ring">
+        <g transform="translate(210 130)">         <!-- centre de l’ellipse -->
+            <g transform="translate(140 0)">         <!-- rayon (élargir/réduire) -->
+                <circle r="13" fill="#3C6DDF"/>
+                <circle r="11" fill="#0D3B82" opacity=".06"/>
+                <circle r="12.2" fill="none" stroke="#fff" stroke-width="3"/>
+                <text class="num" y="3">5</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- RING B — boule 8 (bleue, petite) -->
+    <g class="ring ring--b">
+        <g transform="translate(210 130)">
+            <g transform="translate(140 0)">
+                <circle r="13" fill="#3C6DDF"/>
+                <circle r="11" fill="#0D3B82" opacity=".06"/>
+                <circle r="12.2" fill="none" stroke="#fff" stroke-width="3"/>
+                <text class="num" y="3">8</text>
+            </g>
+        </g>
+    </g>
+
+    <!-- RING C — boule 17 (orange, un peu plus grande) -->
+    <g class="ring ring--o">
+        <g transform="translate(210 130)">
+            <g transform="translate(140 0)">
+                <circle r="15" fill="#E94B3C"/>
+                <circle r="13" fill="#0D3B82" opacity=".06"/>
+                <circle r="14.2" fill="none" stroke="#fff" stroke-width="3"/>
+                <text class="num" y="3">17</text>
+            </g>
+        </g>
+    </g>
+</svg>

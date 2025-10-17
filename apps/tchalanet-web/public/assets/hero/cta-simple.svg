@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+    <defs>
+        <style>
+            .screen{fill:#0D3B82}
+            .glass{fill:#F4F7FF}
+            .chartBar{fill:#3C6DDF}
+            .chartPie{fill:#3C6DDF}
+            .stand{fill:#133D8F}
+            .ballBlue{fill:#3C6DDF}
+            .ballRed{fill:#E94B3C}
+            .ballText{fill:#FFFFFF;font:700 20px/1 Arial, sans-serif;text-anchor:middle}
+        </style>
+    </defs>
+
+    <!-- Support écran -->
+    <rect class="stand" x="160" y="240" width="80" height="20" rx="6"/>
+    <rect class="stand" x="140" y="260" width="120" height="20" rx="6"/>
+
+    <!-- Cadre écran -->
+    <rect class="screen" x="60" y="40" width="280" height="180" rx="8"/>
+    <!-- Écran clair -->
+    <rect class="glass" x="72" y="52" width="256" height="156" rx="6"/>
+
+    <!-- Graphique camembert -->
+    <circle class="chartPie" cx="120" cy="120" r="30"/>
+    <path d="M120,120 L120,90 A30,30 0 0,1 150,120 Z" fill="#0D3B82"/>
+
+    <!-- Graphiques barres -->
+    <rect class="chartBar" x="180" y="130" width="20" height="50"/>
+    <rect class="chartBar" x="210" y="110" width="20" height="70"/>
+    <rect class="chartBar" x="240" y="90"  width="20" height="90"/>
+    <rect class="chartBar" x="270" y="100" width="20" height="80"/>
+
+    <!-- Boule bleue 5 -->
+    <circle class="ballBlue" cx="80" cy="200" r="22"/>
+    <text class="ballText" x="80" y="207">5</text>
+
+    <!-- Boule bleue 8 -->
+    <circle class="ballBlue" cx="310" cy="60" r="22"/>
+    <text class="ballText" x="310" y="67">8</text>
+
+    <!-- Boule rouge 17 -->
+    <circle class="ballRed" cx="340" cy="120" r="22"/>
+    <text class="ballText" x="340" y="127">17</text>
+</svg>

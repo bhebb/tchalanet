@@ -7,17 +7,90 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d:ro
-    ports: ["5432:5432"]
+    ports: [ "5432:5432" ]
+    networks: [ tchalanet_net ]
 
   keycloak:
-    command: ["start-dev","--import-realm"]
+    image: quay.io/keycloak/keycloak:26.3.4
+    command: [ "start-dev","--import-realm","--features=scripts" ]
     environment:
       KC_HOSTNAME_STRICT: "false"
       KC_PROXY: "none"
       KC_HTTP_ENABLED: "true"
     volumes:
+      - ./keycloak/tchalanet-keycloak-provider-26.3.4.jar:/opt/keycloak/providers/tchalanet-keycloak-provider.jar:ro
       - ./keycloak/realms/tchalanet-dev.json:/opt/keycloak/data/import/tchalanet.json:ro
-    ports: ["8080:8080"]
+    ports: [ "8080:8080" ]
+    networks: [ tchalanet_net ]
+
+  redis:
+    image: redis:7-alpine
+    command: [ "redis-server","--appendonly","yes","--requirepass","${REDIS_PASSWORD:-dev-redis}" ]
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev-redis}
+    ports: [ "6379:6379" ]
+    volumes: [ redis_data:/data ]
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ tchalanet_net ]
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.16
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-dev-meili}
+      MEILI_ENV: development
+      MEILI_DB_PATH: /meili_data
+    ports: [ "7700:7700" ]
+    volumes: [ meili_data:/meili_data ]
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:7700/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [ tchalanet_net ]
+
+  meili-init:
+    image: curlimages/curl:8.10.1
+    depends_on:
+      meilisearch: { condition: service_started }
+    entrypoint: [ "/bin/sh","-c" ]
+    command: |
+      set -e
+      BASE="http://meilisearch:7700"
+      KEY="${MEILI_MASTER_KEY:-dev-meili}"
+  
+      echo "⏳ Attente de Meilisearch…"
+      for i in $(seq 1 60); do
+        if curl -fsS "$$BASE/health" >/dev/null 2>&1; then
+          echo "✅ Meilisearch OK"; break
+        fi
+        sleep 2
+      done
+  
+      echo "⏳ Init index tch_content…"
+      curl -fsS -X POST "$$BASE/indexes" \
+        -H "Authorization: Bearer $$KEY" -H "Content-Type: application/json" \
+        -d '{"uid":"tch_content","primaryKey":"id"}' || true
+  
+      curl -fsS -X PATCH "$$BASE/indexes/tch_content/settings" \
+        -H "Authorization: Bearer $$KEY" -H "Content-Type: application/json" \
+        -d @- <<'JSON'
+      {
+        "searchableAttributes": ["title","body"],
+        "filterableAttributes": ["tags","lang","tenantId"],
+        "sortableAttributes": ["published_at"],
+        "synonyms": {
+          "billet": ["ticket"], "ticket": ["billet"],
+          "jeu": ["draw","loterie","tirage"], "draw": ["jeu","tirage"]
+        },
+        "typoTolerance": { "enabled": true }
+      }
+      JSON
+      echo "✅ Meilisearch initialisé."
+
 
   api:
     build:
@@ -25,4 +98,46 @@ services:
     environment:
       OIDC_ISSUER_URI: http://localhost:8080/realms/tchalanet
       APP_CORS_ALLOWED_ORIGINS: http://localhost:4200
-    ports: ["8081:8080"]
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_INDEX: tch_content
+    depends_on:
+      redis: { condition: service_started }
+      meilisearch: { condition: service_healthy }
+    networks: [ tchalanet_net ]
+
+  unleash:
+    image: unleashorg/unleash-server:latest
+    depends_on:
+      pg: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@pg:5432/unleash?sslmode=disable
+      DATABASE_SSL: "false"
+      LOG_LEVEL: info
+    ports: [ "4242:4242" ]
+    networks: [ tchalanet_net ]
+
+  unleash-proxy:
+    image: unleashorg/unleash-proxy:latest
+    depends_on:
+      unleash: { condition: service_started }
+    environment:
+      UNLEASH_URL: http://unleash:4242/api
+      UNLEASH_API_TOKEN: ${UNLEASH_API_TOKEN}
+      UNLEASH_PROXY_SECRETS: ${UNLEASH_PROXY_KEYS:-frontend.dev.public}
+      UNLEASH_PROXY_CORS_ALLOWED_ORIGINS: http://localhost:4200
+      LOG_LEVEL: info
+    ports: [ "3063:3000" ]
+    networks: [ tchalanet_net ]
+
+networks:
+  tchalanet_net:
+    driver: bridge
+
+volumes:
+  pgdata: {}
+  redis_data: {}
+  meili_data: {}

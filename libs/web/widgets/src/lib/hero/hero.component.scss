@@ -1,0 +1,113 @@
+/* Fond + conteneur */
+.hero {
+  background: linear-gradient(180deg, rgba(34, 94, 199, .08), transparent 60%);
+  overflow: hidden;
+}
+
+.hero__inner {
+  width: min(1200px, 92vw);
+  margin-inline: auto;
+
+  /* MOBILE FIRST — une colonne */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+
+  /* padding texte demandé */
+  padding-top: clamp(8px, 3vw, 20px);
+  padding-bottom: clamp(24px, 6vw, 64px);
+}
+
+/* Bloc texte avec padding interne */
+.hero__content {
+  padding-inline: clamp(12px, 3vw, 24px); /* <= padding du texte hero */
+  max-width: 60ch;
+}
+
+.eyebrow {
+  font: 600 14px/20px var(--font-family);
+  color: var(--color-secondary);
+  margin: 0 0 .25rem;
+}
+
+.title {
+  font: 700 clamp(28px, 5vw, 40px)/1.25 var(--font-family);
+  margin: .25rem 0 .75rem;
+}
+
+.lead {
+  font: 400 16px/26px var(--font-family);
+  opacity: .95;
+  margin: 0;
+}
+
+/* CTA charte */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  border-radius: var(--radius, 12px);
+  font: 600 14px/20px var(--font-family);
+  text-decoration: none;
+  border: 1px solid transparent;
+  box-shadow: var(--elev-1);
+}
+
+.btn--primary {
+  background: var(--color-primary, #225EC7); /* respecte la charte */
+  color: #fff;
+}
+
+.btn--ghost {
+  background: #fff;
+  color: var(--color-on-surface);
+  border-color: var(--color-outline);
+}
+
+/* Image centrée sur mobile */
+.hero__art {
+  justify-self: center;
+}
+
+.hero__art img {
+  display: block;
+  max-width: clamp(280px, 70vw, 560px);
+  height: auto;
+}
+
+/* ≥ 960px : deux colonnes, image à droite */
+@media (min-width: 960px) {
+  .hero__inner {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: clamp(16px, 3vw, 32px);
+  }
+  .hero__art {
+    justify-self: end;
+  }
+}
+
+/* hero-widget.component.scss */
+.hero {
+  padding: clamp(2rem, 6vw, 6rem) 0;
+  background: radial-gradient(1200px 800px at 75% 20%, var(--hero-start), transparent 60%),
+  linear-gradient(180deg, var(--hero-end), transparent 60%);
+  color: var(--color-on-surface);
+}
+
+.btn--with-dot {
+  position: relative;
+}
+
+.btn--with-dot::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-dot);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent-dot) 22%, transparent);
+}

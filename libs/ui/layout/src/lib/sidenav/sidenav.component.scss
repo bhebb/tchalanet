@@ -1,0 +1,30 @@
+
+.side {
+  --sidebar-bg: var(--color-surface-container-lowest, transparent);
+  --sidebar-text: var(--color-on-surface, inherit);
+  --sidebar-active-bg: color-mix(in oklab, var(--color-primary) 10%, transparent);
+  --sidebar-active-text: var(--color-primary-fg, inherit);
+
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  padding: var(--spacing-sm, 8px);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.list.mini {
+  width: 64px; /* largeur minimale */
+  overflow: hidden;
+}
+
+.nav-item {
+  border-radius: var(--border-radius-md, 10px);
+  margin: var(--spacing-xs, 2px) var(--spacing-sm, 4px);
+  transition: background-color 0.2s ease;
+}
+
+.nav-item.active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+  font-weight: var(--font-weight-semibold, 600);
+}

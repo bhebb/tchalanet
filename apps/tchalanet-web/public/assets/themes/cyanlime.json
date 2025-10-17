@@ -1,0 +1,20 @@
+{
+  "id": "cyanlime",
+  "label": "Cyan / Lime",
+  "kind": "material",
+  "mode": "light",
+  "density": 0,
+  "palette": {
+    "primary": "#00BCD4",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#1A1A1A",
+    "outline": "rgba(0,0,0,0.12)",
+    "accent": "#CDDC39",
+    "tertiary": "#CDDC39"
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

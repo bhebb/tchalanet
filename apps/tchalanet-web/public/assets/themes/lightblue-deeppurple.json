@@ -1,0 +1,20 @@
+{
+  "id": "lightblue-deeppurple",
+  "label": "Light Blue / Deep Purple",
+  "kind": "material",
+  "mode": "light",
+  "density": 0,
+  "palette": {
+    "primary": "#03A9F4",
+    "onPrimary": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "onSurface": "#1A1A1A",
+    "outline": "rgba(0,0,0,0.12)",
+    "accent": "#673AB7",
+    "tertiary": "#673AB7"
+  },
+  "tokens": {
+    "headerBg": "var(--mat-sys-color-primary)",
+    "headerFg": "var(--mat-sys-color-on-primary)"
+  }
+}

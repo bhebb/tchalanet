@@ -1,0 +1,335 @@
+/* =========================================================
+   Tchalanet — Footer (mobile-first, tokens, full-bleed)
+   Namespace: <footer class="tch-footer ftr">…</footer>
+   ========================================================= */
+
+@use 'libs/ui/styles/src/lib/_mixins.scss' as m;
+@use 'libs/ui/styles/src/lib/_breakpoints.scss' as br;
+
+/* ---------------- TOKENS (overridables) ---------------- */
+:root {
+  /* Couleurs */
+  --ftr-bg: var(--mat-sys-color-primary, #134D9F);
+  --ftr-fg: var(--mat-sys-color-on-primary, #fff);
+  --ftr-muted: color-mix(in oklab, var(--ftr-fg) 78%, transparent);
+  --ftr-sep: color-mix(in oklab, var(--ftr-fg) 18%, transparent);
+
+  /* Typo */
+  --ftr-title-size: 15px;
+  --ftr-title-weight: 800;
+  --ftr-title-color: #fff;
+  --ftr-title-ls: .3px;
+  --ftr-link-size: 14px;
+  --ftr-link-weight: 500;
+  --ftr-copy-size: 13px;
+
+  /* Layout */
+  --ftr-pad-top: 28px;
+  --ftr-pad-bottom: 28px; /* plus d’air pour le copyright */
+  --ftr-cols-gap: 28px;
+  --ftr-list-gap: 8px;
+  --ftr-divider-m: 22px;
+
+  /* Container (aligné au site) */
+  --ftr-max: var(--page-max, 1120px);
+  --ftr-gutter: var(--page-gutter, clamp(16px, 4vw, 24px));
+
+  /* Brand & Socials */
+  --ftr-logo-size: 36px;
+  --ftr-social-size: 40px;
+  --ftr-social-bg: color-mix(in oklab, #fff 18%, transparent);
+  --ftr-social-bg-hover: color-mix(in oklab, #fff 28%, transparent);
+}
+
+/* ---------------- ROOT + full-bleed ---------------- */
+.tch-footer.ftr {
+  position: relative;
+  isolation: isolate;
+  background: var(--ftr-bg);
+  color: var(--ftr-fg);
+  padding-block: var(--ftr-pad-top) var(--ftr-pad-bottom);
+  font-family: var(--font-family, system-ui, sans-serif);
+  line-height: 1.45;
+}
+
+.tch-footer.ftr::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  background: var(--ftr-bg);
+  z-index: -1;
+}
+
+/* ---------------- Container & grid ---------------- */
+.tch-footer .container {
+  @include m.container(var(--ftr-max), var(--ftr-gutter));
+}
+
+.tch-footer .cols {
+  display: grid;
+  grid-template-columns: 1fr; /* mobile */
+  column-gap: clamp(16px, 4vw, 28px);
+  row-gap: var(--ftr-cols-gap);
+}
+
+/* ---------------- Colonnes ---------------- */
+.tch-footer .col {
+  min-width: 0;
+}
+
+/* Titres (distincts des liens) */
+.tch-footer .col__title {
+  margin: 0 0 10px;
+  padding-inline-start: 2px; /* léger inset optique */
+  font: var(--ftr-title-weight) var(--ftr-title-size)/1.15 var(--font-family);
+  color: var(--ftr-title-color);
+  letter-spacing: var(--ftr-title-ls);
+  opacity: .98;
+  /* rendu net & gras assuré */
+  font-weight: 800;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Liens */
+.tch-footer .col__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ftr-list-gap);
+}
+
+.tch-footer .link {
+  display: inline-block;
+  font: var(--ftr-link-weight) var(--ftr-link-size)/1.4 var(--font-family);
+  color: var(--ftr-fg);
+  text-decoration: none;
+  opacity: .92;
+  overflow-wrap: anywhere;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* ---------------- Brand & Socials ---------------- */
+.tch-footer .col.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.tch-footer .brand__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.tch-footer .brand__logo {
+  inline-size: var(--ftr-logo-size);
+  block-size: var(--ftr-logo-size);
+  object-fit: contain;
+  display: block; /* supprime la baseline image */
+  aspect-ratio: 1 / 1;
+}
+
+.tch-footer .brand__name {
+  font: 700 18px/1 var(--font-family);
+  letter-spacing: .2px;
+}
+
+/* Sociaux */
+.tch-footer .socials {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tch-footer .social {
+  inline-size: var(--ftr-social-size);
+  block-size: var(--ftr-social-size);
+  min-width: 44px;
+  min-height: 44px; /* a11y */
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ftr-social-bg);
+  color: var(--ftr-fg);
+  transition: background .2s ease;
+
+  &:hover, &:focus-visible {
+    background: var(--ftr-social-bg-hover);
+    outline: none;
+  }
+
+  .mat-icon, .mat-icon svg {
+    color: currentColor;
+    fill: currentColor;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    display: block;
+  }
+
+  .mat-icon {
+    font-size: calc(var(--ftr-social-size) * .52);
+  }
+}
+
+/* ---------------- Divider & baseline ---------------- */
+.tch-footer .divider {
+  border-color: var(--ftr-sep) !important;
+  margin: var(--ftr-divider-m) 0;
+}
+
+.tch-footer .baseline {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  padding-bottom: 6px;
+}
+
+.tch-footer .copy {
+  font: 500 var(--ftr-copy-size)/1.4 var(--font-family);
+  color: var(--ftr-muted);
+  text-align: center;
+}
+
+/* ---------------- Tablet ≥ md ---------------- */
+@include br.up(md) {
+  .tch-footer .cols {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .tch-footer .col {
+    grid-column: span 3;
+  }
+  .tch-footer .col.brand {
+    grid-column: 5 / -1;
+    justify-self: end;
+    align-items: flex-end;
+    text-align: right;
+  }
+  .tch-footer .col__list {
+    gap: 10px;
+  }
+}
+
+/* ---------------- Desktop ≥ lg ---------------- */
+@include br.up(lg) {
+  .tch-footer .cols {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 3vw, 32px);
+    grid-auto-flow: row dense; /* remplit au plus haut possible */
+    align-items: start;
+  }
+
+  /* trois colonnes de liens = 3,3,3 (1–3, 4–6, 7–9) */
+  .tch-footer .col {
+    grid-column: span 3;
+  }
+
+  /* brand démarre à 10 -> pas de chevauchement, même rangée */
+  .tch-footer .col.brand {
+    grid-column: 10 / -1;
+    justify-self: end;
+    align-items: flex-end;
+    text-align: right;
+    align-self: start;
+    margin-top: 0;
+  }
+
+  /* clamps anti-overflow + lisibilité */
+  .tch-footer .brand__logo {
+    inline-size: clamp(28px, 3.2vw, var(--ftr-logo-size));
+    block-size: clamp(28px, 3.2vw, var(--ftr-logo-size));
+  }
+  .tch-footer .brand__name {
+    max-inline-size: 18ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* sociaux compacts, sur une ligne quand possible */
+  .tch-footer .socials {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .tch-footer .social {
+    inline-size: clamp(32px, 3vw, 36px);
+    block-size: clamp(32px, 3vw, 36px);
+  }
+  .tch-footer .social .mat-icon {
+    font-size: 19px;
+  }
+  /* ~0.53 * 36 */
+}
+
+/* ---------------- Modifiers (optionnels) ---------------- */
+/* Barre d’accent à gauche des titres */
+.tch-footer.title-accent .col__title {
+  position: relative;
+  padding-inline-start: 10px;
+}
+
+.tch-footer.title-accent .col__title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .2em;
+  bottom: .2em;
+  inline-size: 3px;
+  border-radius: 2px;
+  background: color-mix(in oklab, #fff 70%, transparent);
+}
+
+/* Titres en petites CAPS */
+.tch-footer.title-caps .col__title {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* ---------------- Dark mode ---------------- */
+:root[data-theme="dark"] {
+  --ftr-bg: color-mix(in oklab, var(--mat-sys-color-primary) 90%, #000 10%);
+  --ftr-fg: var(--mat-sys-color-on-primary, #fff);
+  --ftr-muted: color-mix(in oklab, #fff 70%, transparent);
+  --ftr-sep: color-mix(in oklab, #fff 20%, transparent);
+}
+
+/* ---------------- XS tweaks ---------------- */
+@media (max-width: 360px) {
+  .tch-footer .brand__name {
+    font-size: 16px;
+  }
+}
+
+/* --------- Accessibilité & motion --------- */
+.tch-footer :is(a.link,.brand__link,.social):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tch-footer .social {
+    transition: none;
+  }
+}

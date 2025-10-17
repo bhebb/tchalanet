@@ -1,193 +1,315 @@
 {
   "realm": "tchalanet",
   "enabled": true,
+  "displayName": "Tchalanet",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "fr", "ht"],
+  "defaultLocale": "fr",
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "verifyEmail": false,
+  "bruteForceProtected": true,
+
   "roles": {
     "realm": [
-      {
-        "name": "SUPER_ADMIN"
-      },
-      {
-        "name": "ADMIN_ENTERPRISE"
-      },
-      {
-        "name": "SUPERVISOR"
-      },
-      {
-        "name": "BANK_GROUP_CONTROLLER",
-        "description": "Contrôle un groupe de banques borlette (multi-entreprises, pas d'ownership d'entreprise)"
-      },
-      {
-        "name": "AGENT"
-      },
-      {
-        "name": "AUDITOR"
-      }
+      { "name": "SUPER_ADMIN",  "description": "Global super admin" },
+      { "name": "TENANT_ADMIN", "description": "Tenant administrator" },
+      { "name": "MANAGER",      "description": "Manager role" },
+      { "name": "CASHIER",      "description": "Cashier role" },
+      { "name": "VIEWER",       "description": "Read-only viewer" }
     ]
   },
+
+  "groups": [
+    {
+      "name": "tenants",
+      "path": "/tenants",
+      "subGroups": [
+        {
+          "name": "default",
+          "path": "/tenants/default",
+          "attributes": {
+            "tenantId": ["default"],
+            "plan": ["free"],
+            "featureSetId": ["default-1"],
+            "features": ["[\"draws\"]"]
+          }
+        }
+      ]
+    }
+  ],
+
+  "users": [
+    {
+      "username": "superadmin@tchalanet.com",
+      "enabled": true,
+      "email": "superadmin@tchalanet.com",
+      "emailVerified": true,
+      "requiredActions": ["UPDATE_PASSWORD"],
+      "credentials": [
+        { "type": "password", "value": "ChangeMe!", "temporary": true }
+      ],
+      "realmRoles": ["SUPER_ADMIN"],
+      "groups": ["/tenants/default"],
+      "attributes": {
+        "locale": ["fr-CA"],
+        "plan": ["free"],
+        "featureSetId": ["default-1"]
+      }
+    }
+  ],
+
+  "clientScopes": [
+    {
+      "name": "profile",
+      "description": "OpenID Connect scope: profile",
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "given name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "user.attribute": "firstName",
+            "claim.name": "given_name",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "family name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "user.attribute": "lastName",
+            "claim.name": "family_name",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "full name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-full-name-mapper",
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "preferred username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "user.attribute": "username",
+            "claim.name": "preferred_username",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "locale",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "locale",
+            "claim.name": "locale",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "email",
+      "description": "OpenID Connect scope: email",
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "email",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "user.attribute": "email",
+            "claim.name": "email",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "user.attribute": "emailVerified",
+            "claim.name": "email_verified",
+            "jsonType.label": "boolean",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "tch-core",
+      "description": "Tenant context via custom provider",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "tch json claim",
+          "protocol": "openid-connect",
+          "protocolMapper": "tch-json-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "tch",
+            "jsonType.label": "JSON",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+
+  "defaultDefaultClientScopes": [
+    "web-origins",
+    "role_list",
+    "profile",
+    "email",
+    "roles",
+    "tch-core"
+  ],
+  "defaultOptionalClientScopes": [
+    "offline_access"
+  ],
+
   "clients": [
     {
       "clientId": "tchalanet-web",
-      "publicClient": true,
+      "name": "Tchalanet Web",
       "protocol": "openid-connect",
+      "publicClient": true,
       "standardFlowEnabled": true,
-      "attributes": {},
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+",
+        "oauth2.device.authorization.grant.enabled": "false"
+      },
       "redirectUris": [
-        "http://localhost:4200/*"
+        "http://localhost:4200/*",
+        "https://app.tchalanet.com/*"
       ],
       "webOrigins": [
-        "http://localhost:4200"
+        "http://localhost:4200",
+        "https://app.tchalanet.com"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audience-tchalanet-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "tchalanet-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "tchalanet-mobile",
+      "name": "Tchalanet Mobile",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "oauth2.device.authorization.grant.enabled": "false"
+      },
+      "redirectUris": [
+        "capacitor://localhost/*",
+        "ionic://localhost/*",
+        "tchalanet://auth/callback"
+      ],
+      "webOrigins": [
+        "capacitor://localhost",
+        "ionic://localhost"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audience-tchalanet-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "tchalanet-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
       ]
     },
     {
       "clientId": "tchalanet-api",
-      "publicClient": false,
+      "name": "Tchalanet API",
       "protocol": "openid-connect",
-      "standardFlowEnabled": true,
-      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "false"
+      },
+      "secret": "CHANGE_ME_API_SECRET",
       "redirectUris": [],
-      "webOrigins": [
-        "https://localhost:4200"
-      ]
+      "webOrigins": []
     },
     {
       "clientId": "tchalanet-swagger",
-      "publicClient": true,
+      "name": "Tchalanet Swagger UI",
       "protocol": "openid-connect",
+      "publicClient": true,
       "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "oauth2.device.authorization.grant.enabled": "false"
       },
       "redirectUris": [
-        "http://localhost:8081/swagger-ui/oauth2-redirect.html",
         "http://localhost:8080/swagger-ui/oauth2-redirect.html",
+        "http://localhost:8081/swagger-ui/oauth2-redirect.html",
         "http://localhost:8082/swagger-ui/oauth2-redirect.html"
       ],
       "webOrigins": [
-        "http://localhost:8081",
         "http://localhost:8080",
+        "http://localhost:8081",
         "http://localhost:8082"
-      ]
-    }
-  ],
-  "users": [
-    {
-      "username": "bankctl@tchalanet.ht",
-      "email": "bankctl@tchalanet.ht",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "bankctl",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "BANK_GROUP_CONTROLLER"
-      ],
-      "attributes": {
-        "bank_group_id": [
-          "grp-1"
-        ]
-      }
-    },
-    {
-      "username": "superadmin@tchalanet.ht",
-      "email": "superadmin@tchalanet.ht",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "superadmin",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "SUPER_ADMIN"
-      ]
-    },
-    {
-      "username": "admin@tchalanet.ht",
-      "email": "admin@tchalanet.ht",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "admin",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "ADMIN_ENTERPRISE"
-      ],
-      "attributes": {
-        "active_enterprise_id": [
-          "ent-1"
-        ],
-        "tenants": [
-          "[{\"enterprise_id\":\"ent-1\",\"role\":\"ADMIN_ENTERPRISE\"}]"
-        ]
-      }
-    },
-    {
-      "username": "supervisor@tchalanet.ht",
-      "email": "supervisor@tchalanet.ht",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "supervisor",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "SUPERVISOR"
-      ],
-      "attributes": {
-        "active_enterprise_id": [
-          "ent-1"
-        ]
-      }
-    },
-    {
-      "username": "agent@tchalanet.ht",
-      "email": "agent@tchalanet.ht",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "agent",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "AGENT"
-      ],
-      "attributes": {
-        "active_enterprise_id": [
-          "ent-1"
-        ]
-      }
-    },
-    {
-      "username": "auditor@tchalanet.ht",
-      "email": "auditor@tchalanet.ht",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "auditor",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "AUDITOR"
       ]
     }
   ]

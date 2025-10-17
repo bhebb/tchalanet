@@ -1,0 +1,41 @@
+@startuml
+title Activité - Home Connecté (via BFF)
+
+start
+:OIDC Login (Keycloak) -> JWT;
+:Identifier tenant (subdomain);
+
+:GET BFF /api/v1/page/dashboard;
+
+partition "Backend for Frontend (BFF)" {
+  :Valider JWT, extraire tenant & rôles;
+  fork
+    :GET /configs/home?ctx=tenant:<code>;
+  fork again
+    :GET /configs/i18n/tenant/<code>;
+  fork again
+    :GET /permissions/me;
+  fork again
+    :GET /rules?ctx=tenant:<code>;
+  end fork
+
+  :Évaluer permissions (RBAC) & règles;
+  -> Widgets/sections filtrés;
+
+  :Charger données privées pour widgets visibles (Origin only);
+
+  :Agréger en une réponse JSON unique;
+}
+
+:Réponse unique (layout, theme, data, i18n);
+
+fork
+  :Charger assets (branding, images) via Asset CDN;
+fork again
+  :Préparer ViewModel pour rendu;
+end fork
+
+:Render Dashboard (web ou mobile);
+
+stop
+@enduml
