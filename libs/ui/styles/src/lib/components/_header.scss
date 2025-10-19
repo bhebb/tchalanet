@@ -173,13 +173,62 @@
     border: 1px solid rgba(255, 255, 255, .25);
   }
 
-  /* Nav hidden mobile/tablette */
+  /* Nav hidden mobile/tablette par défaut */
   &__nav {
     display: none;
   }
 }
 
-/* Material harmonisation */
+/* ===================== NAV RESET (supprime les “pills”) ===================== */
+.tch-header tchl-nav .tch-nav__item,
+.tch-header tchl-nav .tch-header__nav-item,
+.tch-header tchl-nav button,
+.tch-header tchl-nav a {
+  appearance: none;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: #E7EFFA;
+  padding: 12px 6px 10px;
+  position: relative;
+  line-height: 1.4;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.tch-header tchl-nav .tch-nav__item:not(.active):hover,
+.tch-header tchl-nav .tch-nav__item:not(.active):focus-visible,
+.tch-header tchl-nav a:not(.active):hover,
+.tch-header tchl-nav a:not(.active):focus-visible {
+  background: color-mix(in oklab, #fff 10%, transparent);
+  color: #fff;
+}
+
+.tch-header tchl-nav .tch-nav__item.active,
+.tch-header tchl-nav a[aria-current="page"] {
+  color: #fff !important;
+  font-weight: 700;
+}
+
+.tch-header tchl-nav .tch-nav__item.active::after,
+.tch-header tchl-nav a[aria-current="page"]::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--tch-color-accent);
+}
+
+.tch-header tchl-nav :is(a,button):focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ===================== Material harmonisation ===================== */
 .tch-header {
   .mat-icon, .mat-icon svg {
     color: inherit;
@@ -205,37 +254,92 @@
   }
 }
 
-/* ===================== TABLET ===================== */
+/* ===================== TABLET (768–1023.98px) ===================== */
 @media (min-width: 768px) and (max-width: 1023.98px) {
-  .tch-header__row--l2 {
-    padding-top: 12px;
-    padding-bottom: 14px;
-    gap: 12px;
+
+  .tch-header {
+    --tch-chip-size: 30px;
+    --tch-hdr-gap-x: 10px;
+    --tch-right-gap-lg: 14px;
+    --tch-l2-cta-h: 40px;
+    --tch-l2-cta-fs: 15px;
+    --tch-l2-cta-pad-x: 14px;
   }
 
+  /* L1 = brand | nav | right  // L2 = tools (toujours visible) */
+  .tch-header__grid {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "brand nav right"
+      "tools tools tools";
+    align-items: center;
+    padding-block: 12px;
+  }
+
+  /* Nav centrée et compacte */
+  .tch-header__nav {
+    grid-area: nav;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 2.2vw, 28px);
+    min-width: 0;
+    margin-inline-start: clamp(24px, 5vw, 64px);
+  }
+
+  /* Cluster droit resserré, pas de burger */
+  .tch-header__right {
+    gap: var(--tch-right-gap-lg);
+  }
+  .tch-header__burger {
+    display: none !important;
+  }
+
+  .tch-header__avatar {
+    inline-size: 40px;
+    block-size: 40px;
+    display: grid;
+    place-items: center;
+  }
+
+  /* Loupe + chips compacts */
   .tch-header__searchbtn.mat-mdc-icon-button {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
   .tch-header__searchbtn .mat-icon {
     font-size: 20px;
     line-height: 1;
   }
-
   .tch-header__ltg {
-    --chip-size: 32px;
+    --chip-size: 30px;
     gap: 10px;
   }
 
-  .tch-header__burger, .tch-header__avatar {
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
+  /* L2 (CTA + actions) */
+  .tch-header__row--l2 {
+    padding-top: 10px;
+    padding-bottom: 12px;
+    gap: 12px;
+    border-top: 1px solid var(--tch-header-sep);
+  }
+  .tch-header__cta {
+    height: var(--tch-l2-cta-h);
+    padding: 0 var(--tch-l2-cta-pad-x);
+    font-size: var(--tch-l2-cta-fs);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .tch-header__l2-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex-wrap: nowrap;
   }
 }
 
-/* ===================== DESKTOP ===================== */
+/* ===================== DESKTOP (≥ lg) ===================== */
 @include br.up(lg) {
   .tch-header__row--l2 {
     display: none !important;
@@ -251,8 +355,12 @@
     padding-block: 14px 16px;
   }
 
-  .tch-header__brand-btn { justify-self: start; }
-  .tch-header__row--l1 { min-height: 64px; }
+  .tch-header__brand-btn {
+    justify-self: start;
+  }
+  .tch-header__row--l1 {
+    min-height: 64px;
+  }
 
   .tch-header__nav {
     display: flex !important;
@@ -261,49 +369,10 @@
     min-width: 0;
     margin-inline-start: clamp(40px, 6vw, 96px);
   }
-
-  .tch-header tchl-nav .tch-nav__item,
-  .tch-header tchl-nav .tch-header__nav-item {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    padding: 12px 6px 10px;
-    background: transparent !important;
-    border: 0 !important;
-    color: #E7EFFA;
-    line-height: 1.4;
-    cursor: pointer;
-  }
-  .tch-header tchl-nav .tch-nav__item:not(.active):hover,
-  .tch-header tchl-nav .tch-nav__item:not(.active):focus-visible {
-    background: color-mix(in oklab, #fff 10%, transparent);
-    color: #fff;
-  }
-  .tch-header tchl-nav .tch-nav__item.active,
-  .tch-header tchl-nav a[aria-current="page"] {
-    color: #fff !important;
-    font-weight: 700;
-  }
-  .tch-header tchl-nav .tch-nav__item.active::after,
-  .tch-header tchl-nav a[aria-current="page"]::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; bottom: 2px;
-    height: 2px;
-    border-radius: 2px;
-    background: var(--tch-color-accent);
-  }
-
-  .tch-header__right {
-    display: inline-flex;
-    align-items: center;
-    gap: clamp(14px, 2vw, 24px);
-  }
-  .tch-header__cta { display: inline-flex !important; }
 }
 
 /* ===================== FULLSCREEN OVERLAY MENU ===================== */
-/* Container toujours monté (pas de display:none) */
+/* Container toujours monté (évite clignotements); pointer-events géré par état */
 .tch-sidenav-container.full {
   position: fixed;
   inset: 0;
@@ -314,14 +383,14 @@
 }
 
 .tch-sidenav-container.full.is-open {
-  pointer-events: auto; /* ouvert : interactif */
+  pointer-events: auto;
 }
 
 /* Le panneau prend TOUT l’écran */
 @media (max-width: 1023.98px) {
   .tch-sidenav-drawer.full {
     position: fixed;
-    inset: 0; /* top/right/bottom/left = 0 */
+    inset: 0;
     width: 100vw !important;
     height: 100dvh !important;
     max-width: none !important;
@@ -393,4 +462,17 @@ html.no-scroll, body.no-scroll {
   overflow: hidden !important;
   overscroll-behavior: none !important;
   height: 100%;
+}
+
+.tch-header__ltg .lang-chip .flag,
+.tch-header__ltg tchl-lang-switcher .flag {
+  box-shadow: none !important; /* supprime le 2e anneau */
+  background: transparent !important;
+  border: 0 !important;
+}
+
+/* pas d’auréole MDC interne, on garde le focus visible du bouton */
+.tch-header__ltg .lang-chip .mat-mdc-button-persistent-ripple,
+.tch-header__ltg .lang-chip .mat-mdc-focus-indicator {
+  display: none !important;
 }

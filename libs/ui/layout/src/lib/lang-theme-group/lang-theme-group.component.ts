@@ -140,23 +140,24 @@ import { ThemeMode } from '@tchl/types';
     }
 
     .theme-toggle .sun {
-      opacity: 1;
-      transform: rotate(0) scale(1);
+      opacity: 0;
+      transform: rotate(15deg) scale(.9);
     }
 
     .theme-toggle .moon {
-      opacity: 0;
-      transform: rotate(-20deg) scale(.85);
+      opacity: 1;
+      transform: rotate(0) scale(1);
     }
 
+    /* MODE SOMBRE → on propose le soleil (passer en clair) */
     .theme-toggle.is-dark .sun {
-      opacity: 0;
-      transform: rotate(20deg) scale(.85);
+      opacity: 1;
+      transform: rotate(0) scale(1);
     }
 
     .theme-toggle.is-dark .moon {
-      opacity: 1;
-      transform: rotate(0) scale(1);
+      opacity: 0;
+      transform: rotate(-15deg) scale(.9);
     }
 
     :host ::ng-deep tchl-lang-switcher.chip > :is(img, svg, .mat-icon) {

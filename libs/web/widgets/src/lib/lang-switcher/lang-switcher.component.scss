@@ -107,15 +107,3 @@
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
-
-/* Desktop/up: réduire légèrement le chip si souhaité (28px) */
-@media (min-width: 768px) {
-  .lang-chip {
-    --chip-size: 28px;
-  }
-  .flag--chip {
-    width: 16px;
-    height: 16px;
-    box-shadow: 0 0 0 2px color-mix(in oklab, #fff 35%, transparent);
-  }
-}
