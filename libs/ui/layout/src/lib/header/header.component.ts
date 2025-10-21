@@ -14,7 +14,7 @@ import { IsActiveMatchOptions, Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
-import { Brand, TchLink, ThemeMode } from '@tchl/types';
+import { ActionToggle, Brand, TchAccountLink, TchLink, ThemeMode } from '@tchl/types';
 import { I18nFacade } from '@tchl/facades';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -28,6 +28,11 @@ import { MQ } from '../breakpoints/breakpoints';
 import { distinctUntilChanged, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDrawer, MatSidenavModule } from '@angular/material/sidenav';
+import { FeatureService } from '@tchl/feature';
+import { environment } from '@tchl/config';
+
+
+type User = { id: string; displayName?: string; avatarUrl?: string; email?: string };
 
 @Component({
   selector: 'tchl-header',
@@ -56,6 +61,7 @@ export class HeaderComponent {
   i18n = inject(I18nFacade);
   overlay = inject(OverlayService);
   analyticsService = inject(AnalyticsService);
+  private featureService = inject(FeatureService);
 
   private exact: IsActiveMatchOptions = {
     paths: 'exact',
@@ -76,16 +82,17 @@ export class HeaderComponent {
   mode = input<'public' | 'private'>('public');
   brand = input<Brand | undefined>();
   navigation = input<TchLink[]>([]);
-  cta = input<TchLink>();
-  user = input<{ name?: string; avatarUrl?: string } | null>(null);
+  cta = input<{ public: TchLink; private: TchLink }>();
+  actions = input<{ search: ActionToggle; lang: ActionToggle; theme: ActionToggle }>();
+  account = input<{ public: TchAccountLink; private: TchAccountLink }>();
 
   // Flags d’affichage
   showLang = input(true);
   showTheme = input(true);
   showSearch = input(false);
-
   // Sorties (si utilisées par le parent)
   toggleTheme = output<void>();
+
   changeLang = output<string>();
   login = output<void>();
   register = output<void>();
@@ -93,6 +100,9 @@ export class HeaderComponent {
   logout = output<void>();
   searchQuery = output<string>();
   setTheme = output<string>();
+
+  readonly isAuthenticated = signal<boolean>(false);
+  user = signal<User | null>(null);
 
   // État & dérivées
   theme = signal<ThemeMode>('light');
@@ -130,6 +140,7 @@ export class HeaderComponent {
   themeMode = this.themeService.mode;
 
   currentPath = '/';
+  DEFAULT_FLAG_VALUE = environment.feature.defaultValue;
 
   constructor() {
     effect(() => {
@@ -141,6 +152,23 @@ export class HeaderComponent {
   }
 
   /* ---------- Actions UI ---------- */
+
+  isOn = (flag?: string | null): boolean => {
+    if (!flag) return true; // pas de flag => visible
+    try {
+      const v = this.featureService.isEnabled(flag);
+      return typeof v === 'boolean' ? v : this.DEFAULT_FLAG_VALUE;
+    } catch {
+      return this.DEFAULT_FLAG_VALUE;
+    }
+  };
+
+  filteredNav = computed(() => (this.navigation() || []).filter(item => this.isOn(item.flag)));
+
+  /** actions (search/lang/theme) — lis faciles dans le template */
+  actionSearchOn = computed(() => this.isOn(this.actions()?.search?.flag));
+  actionLangOn = computed(() => this.isOn(this.actions()?.lang?.flag));
+  actionThemeOn = computed(() => this.isOn(this.actions()?.theme?.flag));
 
   setLang(lang: string) {
     this.i18n.setCurrent(lang);
@@ -188,11 +216,32 @@ export class HeaderComponent {
     this.mobileNav?.close();
   }
 
+  // ——— Helpers compte
+  avatarText = computed<string>(() => {
+    const u = this.user();
+    if (!u) return '';
+    const src = u.displayName || u.email || '';
+    return src
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(w => w[0]!.toUpperCase())
+      .join('');
+  });
+
+
   onAvatarClick() {
     if (this.user()) {
       this.router.navigateByUrl('/app/profile');
     } else {
       this.router.navigateByUrl('/login');
     }
+  }
+
+  signOut() {
+    // await this.auth.signOut();
+    this.isAuthenticated.set(false);
+    this.user.set(null);
+    this.router.navigateByUrl('/');
   }
 }

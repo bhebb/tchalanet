@@ -1,4 +1,3 @@
-/* nav.component.scss — nettoie doublons + scoping */
 .tch-nav {
   display: flex;
   align-items: center;
@@ -30,7 +29,7 @@
 /* État actif par défaut: transparent ici; underline géré côté header desktop */
 .tch-nav__item.active {
   background: transparent;
-  color: #fff;
+  color: var(--tch-nav-fg);
   font-weight: 700;
 }
 

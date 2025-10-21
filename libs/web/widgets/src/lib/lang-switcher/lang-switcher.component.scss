@@ -1,6 +1,7 @@
 /* bouton rond (mobile) */
 .lang-chip {
   --chip-size: 32px; /* mobile: cible tactile confortable */
+
   padding: 0 !important;
   inline-size: var(--chip-size);
   block-size: var(--chip-size);
@@ -8,7 +9,8 @@
   display: inline-grid;
   place-items: center;
   background: transparent;
-  border: 1px solid color-mix(in oklab, currentColor 28%, transparent);
+  border: 1px solid color-mix(in oklab, currentcolor 28%, transparent);
+
   --mdc-icon-button-state-layer-size: var(--chip-size);
 }
 
@@ -42,8 +44,8 @@
   transform-origin: top right;
   background: #fff;
   border-radius: 12px;
-  border: 1px solid rgba(10,22,51,.06);
-  box-shadow: 0 8px 24px rgba(22,30,50,.18);
+  border: 1px solid rgb(10 22 51 / 6%);
+  box-shadow: 0 8px 24px rgb(22 30 50 / 18%);
 }
 
 .lang-menu .mat-mdc-menu-content {
@@ -95,7 +97,7 @@
   width: 10px; height: 10px;
   background: #fff;
   transform: rotate(45deg);
-  box-shadow: -2px -2px 4px rgba(22,30,50,.06);
+  box-shadow: -2px -2px 4px rgb(22 30 50 / 6%);
 }
 
 .lang-chip.mat-mdc-icon-button .mdc-icon-button__ripple,
@@ -104,6 +106,6 @@
 }
 
 .lang-chip:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid currentcolor;
   outline-offset: 2px;
 }

@@ -6,11 +6,22 @@ import { TchLink } from '@tchl/types';
 import { menu } from 'ionicons/icons';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
+import { MatRipple } from '@angular/material/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'tchl-nav',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, TranslatePipe, MatIconModule, MatMenuModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    TranslatePipe,
+    MatIconModule,
+    MatMenuModule,
+    MatRipple,
+    RouterLinkActive,
+    RouterLink,
+  ],
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +34,6 @@ export class NavComponent {
   select = output<string>();
 
   onSelect(path: string) {
-    console.log('onSelect', path);
     if (path && path !== this.currentPath()) {
       this.select.emit(path);
     }

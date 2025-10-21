@@ -9,7 +9,11 @@
                             @for (l of col.links; track l.labelKey) {
                                 <li>
                                     @if (l.path) {
-                                        <a class="link" [routerLink]="l.path">{{ l.labelKey | translate }}</a>
+                                        <a
+                                                class="tch-footer__item"
+                                                [routerLink]="l.path"
+                                                routerLinkActive="active"
+                                                [routerLinkActiveOptions]="{ exact: true }">{{ l.labelKey | translate }}</a>
                                     } @else if (l.external) {
                                         <a class="link" [href]="l.external" target="_blank" rel="noopener">
                                             {{ l.labelKey | translate }}

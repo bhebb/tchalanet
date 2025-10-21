@@ -4,11 +4,15 @@
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  @include m.rounded();
+
+  @include m.rounded;
+
   padding: .6rem 1rem;
   border: 1px solid transparent;
   font: 600 14px/20px var(--font-family, inherit);
+
   @include m.elevate(1);
+
   transition: box-shadow .15s ease, transform .05s ease;
 
   &:active {
@@ -16,7 +20,7 @@
   }
 
   &:focus-visible {
-    @include m.focus-visible();
+    @include m.focus-visible;
   }
 }
 

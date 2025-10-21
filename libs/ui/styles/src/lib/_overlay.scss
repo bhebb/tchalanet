@@ -7,6 +7,7 @@
 
 
 /* === CDK / MATERIAL OVERLAYS — GLOBAL === */
+
 /* overlay AU-DESSUS du header */
 .cdk-overlay-container {
   position: fixed;
@@ -130,7 +131,7 @@
 
 #aa-panel .tch-hit:hover .tch-hit__title,
 #aa-panel .tch-hit:focus .tch-hit__title {
-  text-decoration-color: currentColor;
+  text-decoration-color: currentcolor;
 }
 
 #aa-panel .tch-hit:focus-visible {
@@ -164,7 +165,7 @@
   position: fixed;
   inset: 0;
   z-index: var(--tch-z-search);
-  background: rgba(17, 24, 39, .45);
+  background: rgb(17 24 39 / 45%);
   backdrop-filter: blur(2px);
   display: none; /* ⬅️ au lieu de contents */
 }
@@ -212,7 +213,7 @@
 
 /* 1) Backdrop spécifique à ce menu (grâce à [backdropClass]) */
 .cdk-overlay-backdrop.lang-menu-backdrop.cdk-overlay-backdrop-showing {
-  background: rgba(17, 24, 39, .28);
+  background: rgb(17 24 39 / 28%);
   backdrop-filter: blur(3px);
 }
 
@@ -220,8 +221,8 @@
 .cdk-overlay-pane > .mat-mdc-menu-panel.lang-menu {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid rgba(10, 22, 51, .06);
-  box-shadow: 0 12px 28px rgba(22, 30, 50, .24), 0 2px 6px rgba(22, 30, 50, .10);
+  border: 1px solid rgb(10 22 51 / 6%);
+  box-shadow: 0 12px 28px rgb(22 30 50 / 24%), 0 2px 6px rgb(22 30 50 / 10%);
   margin-top: 10px;
   margin-left: 6px;
   transform-origin: top right;

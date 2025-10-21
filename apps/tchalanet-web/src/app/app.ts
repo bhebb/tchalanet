@@ -13,6 +13,6 @@ export class App {
   protected title = 'tchalanet';
 
   constructor(auth: AuthService) {
-    auth.wireOidcEvents(); // pour que silent refresh réhydrate tes signals
+    auth.wireOidcEvents(); // pour que silent refresh réhydrate les signals
   }
 }

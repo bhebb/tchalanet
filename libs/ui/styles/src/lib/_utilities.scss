@@ -2,7 +2,7 @@
 
 /* Surfaces */
 .surface {
-  @include m.surface();
+  @include m.surface;
 }
 
 /* Surface container (M3) */
@@ -12,12 +12,12 @@
 
 /* Outline (bordure subtile) */
 .outline {
-  @include m.outline();
+  @include m.outline;
 }
 
 /* Rayons */
 .rounded {
-  @include m.rounded();
+  @include m.rounded;
 }
 
 .rounded-sm {
@@ -55,7 +55,7 @@
 
 /* Focus visible (a11y) */
 .focus-visible {
-  @include m.focus-visible();
+  @include m.focus-visible;
 }
 
 /* Typo utilitaires */
@@ -73,7 +73,7 @@
 
 /* Conteneur responsive */
 .container {
-  @include m.container();
+  @include m.container;
 }
 
 /* Layout rapides */

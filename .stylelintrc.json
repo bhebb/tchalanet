@@ -1,0 +1,36 @@
+{
+  "extends": [
+    "stylelint-config-standard-scss"
+  ],
+  "customSyntax": "postcss-scss",
+  "ignoreFiles": [
+    "**/dist/**",
+    "**/coverage/**",
+    "**/node_modules/**"
+  ],
+  "rules": {
+    "selector-class-pattern": [
+      "^(?:tch|tchl|mat|mdc|cdk)(?:-[a-z0-9]+)*(?:__(?:[a-z0-9]+(?:-[a-z0-9]+)*))?(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$|^(?:is|has)-[a-z0-9-]+$|^(?:avatar|flag|initials|tch-hide-[a-z0-9-]+)$",
+      {
+        "message": "Use BEM: tch-foo, tch-foo__bar, tch-foo--baz",
+        "resolveNestedSelectors": true
+      }
+    ],
+    "custom-property-pattern": "^--(?:tch|tchl|comp|page|header|chip|footer|accent|mdc|mat|nav|z|l1|l2)-[A-Za-z0-9-]+$",
+    "declaration-property-value-disallowed-list": {
+      "/^(?:background(?:-color)?|color|border(?:-(?:top|right|bottom|left))?-color|outline-color|fill|stroke|box-shadow)$/": [
+        "/\\brgb\\(/i",
+        "/\\bhsl\\(/i",
+        "/\\bhwb\\(/i",
+        "/\\blab\\(/i",
+        "/\\blch\\(/i"
+      ]
+    },
+    "property-no-vendor-prefix": true,
+    "value-no-vendor-prefix": true,
+    "length-zero-no-unit": true,
+    "property-disallowed-list": [
+      "font-family"
+    ]
+  }
+}

@@ -1,15 +1,19 @@
 {
+  "brand": {
+    "name": "Tchalanet"
+  },
   "nav": {
+    "home": "Accueil",
+    "features": "Fonctionnalités",
+    "pricing": "Plans",
+    "verify": "Vérifier un ticket",
     "results": "Résultats",
     "about": "À propos",
     "demo": "Voir la démo",
-    "home": "Accueil",
-    "pricing": "Plans",
     "dashboard": "Tableau de bord",
     "tenants": "Locataires",
     "users": "Utilisateurs",
-    "rolesPerms": "Rôles & Permissions",
-    "features": "Fonctionnalités",
+    "roles_perms": "Rôles & permissions",
     "i18n": "Langues",
     "rules": "Règles",
     "audit": "Audit",
@@ -17,25 +21,40 @@
     "profile": "Profil",
     "logout": "Déconnexion",
     "pos": "Points de vente",
-    "posList": "Liste des POS",
-    "posNew": "Nouveau POS",
-    "rapports": "Rapports",
+    "pos_list": "Liste des POS",
+    "pos_new": "Nouveau POS",
     "tickets": "Tickets",
-    "newTicket": "Nouveau ticket",
-    "myTickets": "Mes tickets",
-    "reports": "Rapports"
+    "new_ticket": "Nouveau ticket",
+    "my_tickets": "Mes tickets",
+    "reports": "Rapports",
+    "docs": "Documentation",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "support": "Aide technique",
+    "login": "Se connecter"
+  },
+  "cta": {
+    "try": "Essayer",
+    "dashboard": "Tableau de bord"
+  },
+  "auth": {
+    "login": "Se connecter",
+    "profile": "Profil"
+  },
+  "actions": {
+    "search": "Rechercher",
+    "lang": "Langue",
+    "theme": "Thème"
   },
   "home": {
     "hero": {
       "eyebrow": "TCHALANET",
-      "demo": "Voir la démo",
-      "imageAlt": "Aperçu de l’application Tchalanet sur mobile et web",
       "title": "La gestion de loterie, réinventée.",
       "subtitle": "Pilotez vos opérations avec une plateforme puissante et intuitive.",
-      "cta": "Commencer maintenant"
+      "cta": "Commencer maintenant",
+      "demo": "Voir la démo",
+      "imageAlt": "Aperçu de l’application Tchalanet sur mobile et web"
     }
-  },
-  "header": {
   },
   "news": {
     "label": "Actualités",
@@ -49,26 +68,34 @@
     "switchLottery": "Changer de loterie"
   },
   "footer": {
-    "copyright": "©2024 Tchalanet. Tous droits réservés.",
-    "privacy": "Vie privée",
-    "legal": "Legal",
-    "support": "Support",
-    "product": "Product",
-    "legalMentions": "Mentions légales",
-    "refund": "Politique de remboursement",
-    "languages": "Langues disponibles",
-    "dpa": "DPA",
-    "about": "À propos",
-    "docs": "Documentation",
-    "preSale": "Question pré-vente",
-    "faq": "FAQ",
-    "tech": "Support technique",
-    "findTranslator": "Trouver un traducteur",
-    "contact": "Contact",
-    "wpDemo": "Démo WordPress",
-    "shopifyDemo": "Démo Shopify",
-    "comparison": "Comparatif concurrents",
-    "affiliates": "Programme d'affiliation"
+    "section": {
+      "inform": "S’informer",
+      "legal": "Légal & conformité",
+      "resources": "Aide & ressources",
+      "partners": "Partenaires"
+    }
+  },
+  "info": {
+    "game_explanations": "Explications des jeux",
+    "security_tips": "Conseils de sécurité",
+    "official_results": "Résultats et rapports officiels",
+    "tchala": "Le Tchala"
+  },
+  "partners": {
+    "antb": "ANTB",
+    "evalujeu": "EvaluJeu"
+  },
+  "legal": {
+    "responsible": "Jeu responsable",
+    "regulation": "Réglementation",
+    "privacy": "Confidentialité",
+    "terms": "Conditions d’utilisation",
+    "cookies": "Gestion des témoins (cookies)",
+    "integrity": "Intégrité & rigueur",
+    "mentions": "Mentions légales"
+  },
+  "access": {
+    "accessibility": "Accessibilité"
   },
   "errors": {
     "title": "Oups, une erreur est survenue",
@@ -78,5 +105,39 @@
     },
     "retry": "Réessayer",
     "home": "Retour à l’accueil"
+  },
+  "copyright": {
+    "notice": "© 2025 Tchalanet. Tous droits réservés."
+  },
+  "seo": {
+    "default_title": "Tchalanet",
+    "default_desc": "Plateforme multi-tenant de gestion de loterie.",
+    "placeholder_coming_soon": "Contenu à venir.",
+    "info": {
+      "game_explanations": "Explications des jeux",
+      "security_tips": "Conseils de sécurité",
+      "official_results": "Résultats et rapports officiels",
+      "tchala": "Le Tchala — Rêves et significations"
+    },
+    "resources": {
+      "support": "Aide technique",
+      "docs": "Documentation Tchalanet",
+      "faq": "Foire aux questions",
+      "accessibility": "Accessibilité",
+      "contact": "Contact"
+    },
+    "legal": {
+      "responsible": "Jeu responsable",
+      "regulation": "Réglementation",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d’utilisation",
+      "cookies": "Gestion des témoins (cookies)",
+      "integrity": "Intégrité & rigueur"
+    },
+    "verify": "Vérifier un ticket",
+    "ticket": {
+      "title": "Vérification de ticket",
+      "desc": "Consultez le statut d’un ticket avec son code sécurisé."
+    }
   }
 }

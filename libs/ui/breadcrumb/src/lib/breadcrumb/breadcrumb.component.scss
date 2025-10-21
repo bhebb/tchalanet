@@ -1,0 +1,70 @@
+.tch-breadcrumb {
+  --_pad-y: 10px;
+  --_pad-x: var(--page-gutter, 24px);
+
+  background: color-mix(in oklab, var(--tch-color-on-surface) 4%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--tch-color-on-surface) 10%, transparent);
+  padding: var(--_pad-y) 0;
+}
+
+.tch-breadcrumb nav[aria-label="Breadcrumb"] {
+  display: block;
+}
+
+.tch-breadcrumb > nav {
+  max-width: var(--page-max, 1120px);
+  margin-inline: auto;
+  padding-inline: var(--_pad-x);
+}
+
+.tch-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tch-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--_gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tch-breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--_gap);
+  color: inherit;
+}
+
+.tch-breadcrumb a {
+  color: var(--crumb-link);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  cursor: pointer; /* au cas où */
+}
+
+.tch-breadcrumb .current {
+  color: var(--crumb-current);
+  font-weight: var(--tch-w-medium);
+}
+
+.tch-breadcrumb li + li::before {
+  content: "›";
+  color: var(--crumb-sep);
+  margin-inline: 2px;
+}

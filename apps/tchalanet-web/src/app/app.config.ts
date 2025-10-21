@@ -33,6 +33,8 @@ import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
 import { SearchIndexInitializerService } from '../../../../libs/web/widgets/src/lib/search-results/search-index-initializer.service';
 import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
 import { environment } from '@tchl/config';
+import { FEATURE_CONTEXT, FEATURE_INITIAL, provideFeatureClient } from '@tchl/feature';
+import { provideMarkdown } from 'ngx-markdown';
 
 export const TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
   'TRANSLATE_LOADER_OPTIONS',
@@ -58,7 +60,7 @@ export function createInstantSearchClient(config: MeilisearchConfig): InstantSea
 export const INSTANT_SEARCH_CLIENT_PROVIDER: Provider = {
   provide: InstantSearchClient,
   useFactory: createInstantSearchClient,
-  deps: [MEILISEARCH_CONFIG]
+  deps: [MEILISEARCH_CONFIG],
 };
 
 export const appConfig: ApplicationConfig = {
@@ -133,14 +135,14 @@ export const appConfig: ApplicationConfig = {
     {
       provide: ANALYTICS_CONFIG,
       useValue: {
-        provider: 'umami',                  // 'console' en dev si tu veux
+        provider: 'umami', // 'console' en dev si tu veux
         umami: {
-          host: environment.umami.host,    // ton instance Umami
+          host: environment.umami.host, // ton instance Umami
           websiteId: environment.umami.websiteId,
           autoTrack: false,
         },
-        debug: true,                        // logs console utiles
-      }
+        debug: true, // logs console utiles
+      },
     },
     provideAnalyticsInit(),
     // Router → pageviews
@@ -149,18 +151,31 @@ export const appConfig: ApplicationConfig = {
       provide: MEILISEARCH_CONFIG,
       useValue: {
         host: 'http://localhost:7700',
-        apiKey: 'dev-meili'
-      }
+        apiKey: 'dev-meili',
+      },
     },
     INSTANT_SEARCH_CLIENT_PROVIDER,
     {
       provide: APP_INITIALIZER,
-      useFactory: (indexInitializer: SearchIndexInitializerService) =>
-        () => indexInitializer.initializeIndexes(),
+      useFactory: (indexInitializer: SearchIndexInitializerService) => () =>
+        indexInitializer.initializeIndexes(),
       deps: [SearchIndexInitializerService],
-      multi: true
-    }
+      multi: true,
+    },
+    provideMarkdown(),
 
+    //features
+    { provide: FEATURE_INITIAL, useValue: [] },
 
+    // Contexte d’évaluation (tenant, user, pays…)
+    { provide: FEATURE_CONTEXT, useValue: { appName: 'tchalanet-web', tenantId: 'default' } },
+
+    provideFeatureClient({
+      kind: 'unleash',
+      url: environment.feature.url,
+      clientKey: environment.feature.clientKey,
+      appName: environment.feature.appName,
+      refreshInterval: environment.feature.refresh,
+    }),
   ],
 };

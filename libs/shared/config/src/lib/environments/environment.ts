@@ -20,7 +20,15 @@ export const environment = {
     host: 'http://localhost:3300',
     websiteId: '004d636a-8a5a-41ec-83c1-1af7259ce49b',
   },
-
+  feature: {
+    kind: 'unleash',
+    url: 'http://localhost:3063/api/frontend',
+    clientKey: 'default:development.97e1e48d98f7d191e1dc530152eb146bce6f8182a6d26762f688eeec',
+    appName: 'tchalanet-web',
+    environment: 'development',
+    refresh: 10,
+    defaultValue: true,
+  },
   tenant: 'public',
   lang: 'fr',
 };

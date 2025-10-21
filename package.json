@@ -9,6 +9,7 @@
     "@angular/compiler-cli": "~20.1.0",
     "@angular/language-service": "~20.1.0",
     "@angular/material": "^20.2.2",
+    "@biesbjerg/ngx-translate-extract": "^7.0.4",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
@@ -51,9 +52,14 @@
     "jsonc-eslint-parser": "^2.1.0",
     "lint-staged": "^16.1.6",
     "ng-matero": "^20.0.1",
+    "nx-stylelint": "^18.0.2",
     "postcss": "^8.4.5",
+    "postcss-scss": "^4.0.9",
     "prettier": "^2.8.8",
     "snyk": "^1.1299.0",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-order": "^7.0.0",
     "tslib": "^2.3.0",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.29.0",
@@ -88,8 +94,11 @@
     "instantsearch.css": "^8.5.1",
     "instantsearch.js": "^4.80.0",
     "ionicons": "^8.0.13",
+    "marked": "^16.4.1",
     "meilisearch": "^0.53.0",
+    "ngx-markdown": "^20.1.0",
     "rxjs": "~7.8.0",
+    "unleash-proxy-client": "^3.7.8",
     "zone.js": "~0.15.0"
   },
   "scripts": {
@@ -121,6 +130,7 @@
     "security:monitor": "snyk monitor",
     "spell:check": "cspell \"**/*.{ts,html,scss,md}\" --no-progress",
     "scan": "npm run security:check && npm run spell:check",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "i18n-extract": "ngx-translate-extract --input ./libs/i18n/locales/ --output ./libs/i18n/locales/ --clean --sort"
   }
 }

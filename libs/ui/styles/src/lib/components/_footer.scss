@@ -1,16 +1,11 @@
-/* =========================================================
-   Tchalanet — Footer (mobile-first, tokens, full-bleed)
-   Namespace: <footer class="tch-footer ftr">…</footer>
-   ========================================================= */
-
 @use 'libs/ui/styles/src/lib/_mixins.scss' as m;
 @use 'libs/ui/styles/src/lib/_breakpoints.scss' as br;
 
 /* ---------------- TOKENS (overridables) ---------------- */
 :root {
   /* Couleurs */
-  --ftr-bg: var(--mat-sys-color-primary, #134D9F);
-  --ftr-fg: var(--mat-sys-color-on-primary, #fff);
+  --ftr-bg: var(--footer-bg);
+  --ftr-fg: var(--footer-fg);
   --ftr-muted: color-mix(in oklab, var(--ftr-fg) 78%, transparent);
   --ftr-sep: color-mix(in oklab, var(--ftr-fg) 18%, transparent);
 
@@ -25,7 +20,7 @@
 
   /* Layout */
   --ftr-pad-top: 28px;
-  --ftr-pad-bottom: 28px; /* plus d’air pour le copyright */
+  --ftr-pad-bottom: 28px;
   --ftr-cols-gap: 28px;
   --ftr-list-gap: 8px;
   --ftr-divider-m: 22px;
@@ -45,8 +40,8 @@
 .tch-footer.ftr {
   position: relative;
   isolation: isolate;
-  background: var(--ftr-bg);
-  color: var(--ftr-fg);
+  background: var(--footer-bg);
+  color: var(--footer-fg);
   padding-block: var(--ftr-pad-top) var(--ftr-pad-bottom);
   font-family: var(--font-family, system-ui, sans-serif);
   line-height: 1.45;
@@ -56,7 +51,7 @@
   content: "";
   position: absolute;
   inset: 0 calc(50% - 50vw);
-  background: var(--ftr-bg);
+  background: var(--footer-bg);
   z-index: -1;
 }
 
@@ -68,8 +63,7 @@
 .tch-footer .cols {
   display: grid;
   grid-template-columns: 1fr; /* mobile */
-  column-gap: clamp(16px, 4vw, 28px);
-  row-gap: var(--ftr-cols-gap);
+  gap: var(--ftr-cols-gap) clamp(16px, 4vw, 28px);
 }
 
 /* ---------------- Colonnes ---------------- */
@@ -85,6 +79,7 @@
   color: var(--ftr-title-color);
   letter-spacing: var(--ftr-title-ls);
   opacity: .98;
+
   /* rendu net & gras assuré */
   font-weight: 800;
   -webkit-font-smoothing: antialiased;
@@ -100,22 +95,32 @@
   gap: var(--ftr-list-gap);
 }
 
-.tch-footer .link {
-  display: inline-block;
-  font: var(--ftr-link-weight) var(--ftr-link-size)/1.4 var(--font-family);
-  color: var(--ftr-fg);
-  text-decoration: none;
-  opacity: .92;
-  overflow-wrap: anywhere;
+.tch-footer {
+  .tch-footer__item {
+    display: inline-block;
+    font: var(--ftr-link-weight) var(--ftr-link-size)/1.4 var(--font-family);
+    color: var(--footer-fg);
+    text-decoration: none;
+    opacity: .92;
+    overflow-wrap: anywhere;
+    border-bottom: 2px solid transparent;
 
-  &:hover {
-    opacity: 1;
-    text-decoration: underline;
+
+    &:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentcolor;
+      outline-offset: 2px;
+    }
   }
 
-  &:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
+  .tch-footer__item.active {
+    font-weight: 600;
+    border-bottom-color: var(--tch-color-accent);
+    opacity: 1;
   }
 }
 
@@ -169,7 +174,7 @@
   display: grid;
   place-items: center;
   background: var(--ftr-social-bg);
-  color: var(--ftr-fg);
+  color: var(--footer-fg);
   transition: background .2s ease;
 
   &:hover, &:focus-visible {
@@ -178,8 +183,8 @@
   }
 
   .mat-icon, .mat-icon svg {
-    color: currentColor;
-    fill: currentColor;
+    color: currentcolor;
+    fill: currentcolor;
     width: 1em;
     height: 1em;
     line-height: 1;
@@ -215,15 +220,18 @@
   .tch-footer .cols {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
+
   .tch-footer .col {
     grid-column: span 3;
   }
+
   .tch-footer .col.brand {
     grid-column: 5 / -1;
     justify-self: end;
     align-items: flex-end;
     text-align: right;
   }
+
   .tch-footer .col__list {
     gap: 10px;
   }
@@ -246,10 +254,9 @@
   /* brand démarre à 10 -> pas de chevauchement, même rangée */
   .tch-footer .col.brand {
     grid-column: 10 / -1;
-    justify-self: end;
+    place-self: start end;
     align-items: flex-end;
     text-align: right;
-    align-self: start;
     margin-top: 0;
   }
 
@@ -258,6 +265,7 @@
     inline-size: clamp(28px, 3.2vw, var(--ftr-logo-size));
     block-size: clamp(28px, 3.2vw, var(--ftr-logo-size));
   }
+
   .tch-footer .brand__name {
     max-inline-size: 18ch;
     white-space: nowrap;
@@ -270,17 +278,21 @@
     flex-wrap: nowrap;
     gap: 10px;
   }
+
   .tch-footer .social {
     inline-size: clamp(32px, 3vw, 36px);
     block-size: clamp(32px, 3vw, 36px);
   }
+
   .tch-footer .social .mat-icon {
     font-size: 19px;
   }
+
   /* ~0.53 * 36 */
 }
 
 /* ---------------- Modifiers (optionnels) ---------------- */
+
 /* Barre d’accent à gauche des titres */
 .tch-footer.title-accent .col__title {
   position: relative;
@@ -306,16 +318,8 @@
   font-size: 13px;
 }
 
-/* ---------------- Dark mode ---------------- */
-:root[data-theme="dark"] {
-  --ftr-bg: color-mix(in oklab, var(--mat-sys-color-primary) 90%, #000 10%);
-  --ftr-fg: var(--mat-sys-color-on-primary, #fff);
-  --ftr-muted: color-mix(in oklab, #fff 70%, transparent);
-  --ftr-sep: color-mix(in oklab, #fff 20%, transparent);
-}
-
 /* ---------------- XS tweaks ---------------- */
-@media (max-width: 360px) {
+@media (width <= 360px) {
   .tch-footer .brand__name {
     font-size: 16px;
   }
@@ -323,7 +327,7 @@
 
 /* --------- Accessibilité & motion --------- */
 .tch-footer :is(a.link,.brand__link,.social):focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid currentcolor;
   outline-offset: 3px;
   text-decoration: none;
 }

@@ -5,7 +5,8 @@ import { RouterOutlet } from '@angular/router';
 import { PageFacade } from '@tchl/facades';
 import { ShellComponent } from '@tchl/web/shell';
 import { FooterComponent, HeaderComponent } from '@tchl/ui/layout';
-import { OverlayService, SearchOverlayComponent } from '@tchl/search';
+import { SearchOverlayComponent } from '@tchl/search';
+import { BreadcrumbComponent } from '@tchl/breadcrumb';
 
 @Component({
   selector: 'public-shell',
@@ -17,25 +18,29 @@ import { OverlayService, SearchOverlayComponent } from '@tchl/search';
     HeaderComponent,
     FooterComponent,
     SearchOverlayComponent,
+    BreadcrumbComponent,
   ],
   template: `
     @if (page(); as p) {
-      <tchl-shell>
-        <tchl-header
-          shell-header
-          mode="public"
-          [brand]="p.header.properties?.brand"
-          [navigation]="p.header.properties?.navigation!"
-          [cta]="p.header.properties?.cta"
-          [showLang]="true"
-          [showTheme]="true"
-        />
-        <router-outlet />
-        <tchl-footer shell-footer [properties]="p.footer.properties!" />
-      </tchl-shell>
-      <tchl-search-overlay></tchl-search-overlay>
+    <tchl-shell>
+      <tchl-header
+        shell-header
+        mode="public"
+        [brand]="p.header.properties?.brand"
+        [navigation]="p.header.properties?.navigation!"
+        [cta]="p.header.properties?.cta"
+        [actions]="p.header.properties?.actions"
+        [account]="p.header.properties?.account"
+        [showLang]="true"
+        [showTheme]="true"
+      />
+      <tchl-breadcrumb />
+      <router-outlet />
+      <tchl-footer shell-footer [properties]="p.footer.properties!" />
+    </tchl-shell>
+    <tchl-search-overlay></tchl-search-overlay>
     } @else {
-      <!-- loading / error selon ton besoin -->
+    <!-- loading / error selon ton besoin -->
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,7 +48,6 @@ import { OverlayService, SearchOverlayComponent } from '@tchl/search';
 export class PublicShellComponent implements OnInit {
   private readonly pageFacade = inject(PageFacade);
   page = this.pageFacade.page;
-  overlayService = inject(OverlayService);
 
   ngOnInit() {
     this.pageFacade.load('home-public', 'default');

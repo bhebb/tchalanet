@@ -10,6 +10,7 @@ export interface TchPalette {
 
   accent?: string; // #D84C51
   tertiary?: string; // fallback = accent
+  onTertiary?: string; // fallback = accent
   outline?: string; // rgba(0,0,0,.16)
   shape?: { cornerRadius?: number };
   mode?: ThemeMode; // mode intrinsèque de la variante
@@ -18,6 +19,8 @@ export interface TchPalette {
 export interface ThemeTokens {
   headerBg?: string;
   headerFg?: string;
+  footerBg?: string;
+  footerFg?: string;
   // étends au besoin : footerBg, chipRadius, etc.
 }
 
@@ -36,6 +39,18 @@ export interface TchTheme {
   tenantId?: string;
   version?: string;
   source?: 'base' | 'tenant' | 'system';
+
+  typography?: {
+    family?: string;
+    weights?: {
+      regular?: number;
+      medium?: number;
+      semibold?: number;
+      bold?: number;
+  },
+    scale?: number;
+    loadHref?: string;
+  };
 
   /** Vars prêtes en runtime (complément/override des palettes/tokens) */
   cssVars?: Record<string, string>;

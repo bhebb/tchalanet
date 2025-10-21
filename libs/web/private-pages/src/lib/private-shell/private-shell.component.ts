@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { selectPage } from '@tchl/data-access/page';
 import { ShellComponent } from '@tchl/web/shell';
 import { FooterComponent, HeaderComponent, SidebarNavComponent } from '@tchl/ui/layout';
-import { Brand } from '@tchl/types';
+import { BreadcrumbComponent } from '@tchl/breadcrumb';
 
 @Component({
   selector: 'tchl-private-shell',
@@ -17,26 +17,30 @@ import { Brand } from '@tchl/types';
     HeaderComponent,
     SidebarNavComponent,
     FooterComponent,
+    BreadcrumbComponent,
   ],
   template: `
     <tchl-shell [hasSidebar]="true">
       <tchl-header
         shell-header
-        mode="private"
-        [brand]="brand()"
-        [navigation]="links()"
-        [user]="user()"
-        (menu)="onToggleSideNav()"
-        (toggleTheme)="onToggleTheme()"
-        (changeLang)="onChangeLang($event)"
-      />
+        mode="public"
+        [brand]="page()?.header?.properties?.brand"
+        [navigation]="page()?.header?.properties?.navigation!"
+        [cta]="page()?.header?.properties?.cta"
+        [actions]="page()?.header?.properties?.actions"
+        [account]="page()?.header?.properties?.account"
+        [showLang]="true"
+        [showTheme]="true" />
+      <tchl-breadcrumb />
 
       <!-- sidenav projetée -->
       <tchl-sidebar-nav sidenav [links]="links()" [features]="features()"></tchl-sidebar-nav>
 
       <!-- contenu principal -->
       <router-outlet />
-      <tchl-footer shell-footer [properties]="page()?.footer?.properties!" /></tchl-shell>
+      <tchl-footer shell-footer [properties]="page()?.footer?.properties!"
+      />
+    </tchl-shell>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -44,7 +48,7 @@ export class PrivateShellComponent {
   private store = inject(Store);
   page = this.store.selectSignal(selectPage);
   links = computed(() => this.page()?.nav?.sidenav ?? []);
-  features = computed(() => this.page()?.features ?? []);
+  features = computed(() => this.page()?.flags ?? []);
   brand = computed(() => this.page()?.header?.properties?.brand);
   user = computed(() => ({ avatarUrl: '' })); // adapte
 

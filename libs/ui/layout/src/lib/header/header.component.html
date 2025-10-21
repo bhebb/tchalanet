@@ -1,7 +1,6 @@
 <header class="tch-header"
         role="banner"
-        [class.tch-header--private]="isPrivate()"
-        [attr.data-theme]="theme()">
+        [class.tch-header--private]="isPrivate()">
 
     <div class="tch-header__toolbar">
         <div class="tch-header__grid" role="navigation" aria-label="Entête">
@@ -23,7 +22,7 @@
 
                 <!-- Nav desktop (hidden ≤ tablet) -->
                 <tchl-nav class="tch-header__nav"
-                          [items]="navigation()"
+                          [items]="filteredNav()"
                           [currentPath]="currentPath"
                           (select)="go($event)">
                 </tchl-nav>
@@ -33,42 +32,75 @@
 
                     <!-- ===== Desktop : Search → Lang/Thème → CTA ===== -->
                     @if (isDesktop()) {
-                        <button class="tch-header__searchbtn"
-                                type="button"
-                                mat-icon-button
-                                aria-label="Rechercher"
-                                (click)="onSearchClick()">
-                            <mat-icon>search</mat-icon>
-                        </button>
+                        @if (actionSearchOn()) {
+                            <button class="tch-header__searchbtn"
+                                    type="button"
+                                    mat-icon-button
+                                    aria-label="Rechercher"
+                                    (click)="onSearchClick()">
+                                <mat-icon>search</mat-icon>
+                            </button>
+                        }
+                        @if (actionLangOn() || actionThemeOn()) {
 
-                        <tch-lang-theme-group class="tch-header__ltg"
-                                              [currentLang]="currentLang()"
-                                              [availableLangs]="availableLangs()"
-                                              [themeMode]="themeMode()"
-                                              [size]="32"
-                                              [gap]="10"
-                                              (changeLang)="setLang($event)"
-                                              (toggleTheme)="setThemeMode($event)">
-                        </tch-lang-theme-group>
+                            <tch-lang-theme-group class="tch-header__ltg"
+                                                  [currentLang]="currentLang()"
+                                                  [availableLangs]="availableLangs()"
+                                                  [themeMode]="themeMode()"
+                                                  [size]="32"
+                                                  [gap]="10"
+                                                  (changeLang)="setLang($event)"
+                                                  (toggleTheme)="setThemeMode($event)">
+                            </tch-lang-theme-group>
+                        }
 
-                        <button class="tch-header__cta tch-header__cta--tertiary"
-                                type="button"
-                                (click)="go(user() ? '/app/dashboard' : (cta()?.path || '/register'))">
-                            {{ user() ? 'Tableau de bord' : (cta()?.labelKey | translate) || 'Essayer' }}
-                        </button>
+                        @if (user()
+                            ? isOn(cta()?.private?.flag)
+                            : isOn(cta()?.public?.flag)) {
+                            <button class="tch-header__cta tch-header__cta--tertiary"
+                                    type="button"
+                                    (click)="go(user() ? cta()?.private?.path : cta()?.public?.path)">
+                                {{ user() ? (cta()?.private?.labelKey | translate) : (cta()?.public?.labelKey | translate) }}
+                            </button>
+                        }
                     }
 
-                    <!-- ===== Mobile / Tablet : avatar + burger ===== -->
-                    @if (!isDesktop()) {
-                        <!-- Avatar lien simple (texte ou bouton, selon ton choix de style) -->
+                    <!-- Compte -->
+                    @if (!isAuthenticated()) {
                         <button class="tch-header__avatar"
                                 type="button"
                                 mat-icon-button
                                 aria-label="Compte"
-                                (click)="onAvatarClick()">
+                                (click)="go(account()?.public?.path)">
                             <mat-icon>account_circle</mat-icon>
                         </button>
+                    } @else {
+                        <button
+                                type="button"
+                                class="tch-nav__account avatar"
+                                [matMenuTriggerFor]="accountMenu"
+                                aria-haspopup="menu"
+                                [attr.aria-label]="account()?.private?.labelKey | translate">
+                            @if (user()?.avatarUrl) {
+                                <img [src]="user()!.avatarUrl" alt="" />
+                            } @else {
+                                <span class="initials" aria-hidden="true">{{ avatarText() }}</span>
+                            }
+                        </button>
 
+                        <mat-menu #accountMenu="matMenu" xPosition="after" yPosition="below" [overlapTrigger]="false">
+                            <button mat-menu-item type="button" (click)="go(account()?.private?.path)">
+                                <mat-icon>person</mat-icon>
+                                <span>{{ 'nav.account' | translate }}</span>
+                            </button>
+                            <button mat-menu-item type="button" (click)="signOut()">
+                                <mat-icon>logout</mat-icon>
+                                <span>{{ 'nav.sign_out' | translate }}</span>
+                            </button>
+                        </mat-menu>
+                    }
+
+                    @if (!isDesktop()) {
                         <button class="tch-header__burger"
                                 type="button"
                                 mat-icon-button
@@ -85,32 +117,39 @@
                 <div class="tch-header__row tch-header__row--l2" role="region" aria-label="Outils">
 
                     <!-- CTA compact -->
-                    <button class="tch-header__cta tch-header__cta--primary"
-                            type="button"
-                            (click)="go(user() ? '/app/dashboard' : (cta()?.path || '/register'))">
-                        {{ user() ? 'Tableau de bord' : (cta()?.labelKey | translate) || 'Essayer' }}
-                    </button>
+                    @if (user()
+                        ? isOn(cta()?.private?.flag)
+                        : isOn(cta()?.public?.flag)) {
+                        <button class="tch-header__cta tch-header__cta--primary"
+                                type="button"
+                                (click)="go(user() ? cta()?.private?.path : cta()?.public?.path)">
+                            {{ user() ? (cta()?.private?.labelKey | translate) : (cta()?.public?.labelKey | translate) }}
+                        </button>
+                    }
 
                     <div class="tch-header__l2-actions">
                         <!-- Icône recherche uniquement -->
-                        <button class="tch-header__searchbtn"
-                                type="button"
-                                mat-icon-button
-                                aria-label="Rechercher"
-                                (click)="onSearchClick()">
-                            <mat-icon>search</mat-icon>
-                        </button>
-
+                        @if (actionSearchOn()) {
+                            <button class="tch-header__searchbtn"
+                                    type="button"
+                                    mat-icon-button
+                                    aria-label="Rechercher"
+                                    (click)="onSearchClick()">
+                                <mat-icon>search</mat-icon>
+                            </button>
+                        }
                         <!-- Chips Langue + Thème -->
-                        <tch-lang-theme-group class="tch-header__ltg"
-                                              [currentLang]="currentLang()"
-                                              [availableLangs]="availableLangs()"
-                                              [themeMode]="themeMode()"
-                                              [size]="32"
-                                              [gap]="10"
-                                              (changeLang)="setLang($event)"
-                                              (toggleTheme)="setThemeMode($event)">
-                        </tch-lang-theme-group>
+                        @if (actionLangOn() || actionThemeOn()) {
+                            <tch-lang-theme-group class="tch-header__ltg"
+                                                  [currentLang]="currentLang()"
+                                                  [availableLangs]="availableLangs()"
+                                                  [themeMode]="themeMode()"
+                                                  [size]="32"
+                                                  [gap]="10"
+                                                  (changeLang)="setLang($event)"
+                                                  (toggleTheme)="setThemeMode($event)">
+                            </tch-lang-theme-group>
+                        }
                     </div>
                 </div>
             }
@@ -118,7 +157,6 @@
     </div>
 </header>
 
-<!-- ===== FULLSCREEN OVERLAY MENU (mobile/tablette) ===== -->
 @if (!isDesktop()) {
     <mat-drawer-container class="tch-sidenav-container full"
                           autosize
@@ -143,10 +181,12 @@
             </header>
 
             <nav class="tch-sidenav__content" aria-label="Navigation">
-                @for (item of navigation(); track item.path) {
+                @for (item of filteredNav(); track item.path) {
                     <button class="tch-sidenav__item"
                             type="button"
-                            (click)="go(item.path); closeSidenav()"
+                            [routerLink]="item.path"
+                            [routerLinkActive]="'active'"
+                            (click)="closeSidenav()"
                             [attr.aria-current]="isActive(item.path) ? 'page' : null">
                         {{ item.labelKey | translate }}
                     </button>
@@ -154,7 +194,6 @@
             </nav>
         </mat-drawer>
 
-        <!-- requis par MatSidenav (même vide) -->
         <div mat-drawer-content></div>
     </mat-drawer-container>
 }

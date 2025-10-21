@@ -91,9 +91,9 @@ export class SidebarNavComponent {
   );
 
   // Méthodes de navigation et de filtrage
-  isLinkAllowed = (link: TchLink) => !link.feature || this.features()?.includes(link.feature);
+  isLinkAllowed = (link: TchLink) => !link.flag || this.features()?.includes(link.flag);
 
-  isChildAllowed = (child: TchLink) => !child.feature || this.features()?.includes(child.feature);
+  isChildAllowed = (child: TchLink) => !child.flag || this.features()?.includes(child.flag);
 
   isItemActive = (item: TchLink) => {
     // Logique de détection de l'élément actif

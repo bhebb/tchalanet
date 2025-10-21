@@ -4,6 +4,7 @@ import { provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { authGuard } from '@tchl/shared/auth';
 import { navAfterLoadFeature } from '@tchl/data-access/page';
+import { PUBLIC_ROUTES } from '@tchl/web/public-pages';
 
 export const appRoutes: Routes = [
   {
@@ -15,17 +16,11 @@ export const appRoutes: Routes = [
         loadComponent: () => import('@tchl/web/feature-home-public').then(m => m.HomePublicPage),
       },
       {
-        path: 'pricing',
-        loadComponent: () => import('@tchl/web/public-pages').then(m => m.PlansPage),
-      },
-      {
         path: 'results',
         loadComponent: () => import('@tchl/search').then(m => m.SearchResultsPage),
       },
-      {
-        path: 'features',
-        loadComponent: () => import('@tchl/web/public-pages').then(m => m.FeaturesPage),
-      },
+      { path: '404', loadComponent: () => import('@tchl/ui/layout').then(m => m.NotFoundComponent) },
+      ...PUBLIC_ROUTES,
     ],
   },
   {
@@ -46,8 +41,6 @@ export const appRoutes: Routes = [
     canMatch: [authGuard],
     loadChildren: () => import('@tchl/web/private-pages').then(m => m.routes),
   },
-  { path: '404', loadComponent: () => import('@tchl/ui/layout').then(m => m.NotFoundComponent) },
-
   {
     path: '**',
     redirectTo: '404',

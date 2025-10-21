@@ -61,7 +61,7 @@ services:
       set -e
       BASE="http://meilisearch:7700"
       KEY="${MEILI_MASTER_KEY:-dev-meili}"
-  
+      
       echo "⏳ Attente de Meilisearch…"
       for i in $(seq 1 60); do
         if curl -fsS "$$BASE/health" >/dev/null 2>&1; then
@@ -69,12 +69,12 @@ services:
         fi
         sleep 2
       done
-  
+      
       echo "⏳ Init index tch_content…"
       curl -fsS -X POST "$$BASE/indexes" \
         -H "Authorization: Bearer $$KEY" -H "Content-Type: application/json" \
         -d '{"uid":"tch_content","primaryKey":"id"}' || true
-  
+      
       curl -fsS -X PATCH "$$BASE/indexes/tch_content/settings" \
         -H "Authorization: Bearer $$KEY" -H "Content-Type: application/json" \
         -d @- <<'JSON'
@@ -119,18 +119,31 @@ services:
       LOG_LEVEL: info
     ports: [ "4242:4242" ]
     networks: [ tchalanet_net ]
+    healthcheck:
+      test: [ "CMD-SHELL","node -e \"fetch('http://localhost:4242/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"" ]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+      start_period: 15s
 
-  unleash-proxy:
-    image: unleashorg/unleash-proxy:latest
+  unleash-edge:
+    image: unleashorg/unleash-edge:latest
+    command: ["edge"]
     depends_on:
-      unleash: { condition: service_started }
+      unleash: { condition: service_healthy }
     environment:
-      UNLEASH_URL: http://unleash:4242/api
-      UNLEASH_API_TOKEN: ${UNLEASH_API_TOKEN}
-      UNLEASH_PROXY_SECRETS: ${UNLEASH_PROXY_KEYS:-frontend.dev.public}
-      UNLEASH_PROXY_CORS_ALLOWED_ORIGINS: http://localhost:4200
-      LOG_LEVEL: info
-    ports: [ "3063:3000" ]
+      # URL de votre serveur Unleash (client API)
+      UPSTREAM_URL: http://unleash:4242
+      # Au moins un **Client API token** (portée p.ex. *:development)
+      # Format recommandé (wildcard projet + env) :
+      #   "*:development.<client_token_string>"
+      TOKENS: "default:development.96960f544fee1b54afc7978e2490ee3ea56b261c842ed530426f3039"
+#      TOKENS: "default:development.97e1e48d98f7d191e1dc530152eb146bce6f8182a6d26762f688eeec"
+      # (Optionnel) conservez votre ancienne clé proxy :
+      PRETRUSTED_TOKENS: "tchalanet.dev.web@development"
+      # (Optionnel) logs
+      RUST_LOG: "warn,unleash_edge=info"
+    ports: [ "3063:3063" ]
     networks: [ tchalanet_net ]
 
 networks:
@@ -138,6 +151,6 @@ networks:
     driver: bridge
 
 volumes:
-  pgdata: {}
-  redis_data: {}
-  meili_data: {}
+  pgdata: { }
+  redis_data: { }
+  meili_data: { }

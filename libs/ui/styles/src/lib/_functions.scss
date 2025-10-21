@@ -2,6 +2,7 @@
   @if type-of($v) == 'number' and not unitless($v) {
     @return $v / ($v * 0 + 1);
   }
+
   @return $v;
 }
 
@@ -9,7 +10,9 @@
   @if unit($value) == 'rem' {
     @return $value;
   }
+
   $n: if(unitless($value), $value, strip-unit($value));
+
   @return ($n / $base) * 1rem;
 }
 
@@ -17,5 +20,6 @@
   @if map-has-key($map, $key) {
     @return map-get($map, $key);
   }
+
   @return $fallback;
 }

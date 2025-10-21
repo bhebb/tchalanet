@@ -1,24 +1,95 @@
 {
+  "brand": {
+    "name": "Tchalanet"
+  },
   "nav": {
     "home": "Home",
     "features": "Features",
     "pricing": "Pricing",
+    "verify": "Verify a ticket",
     "results": "Results",
-    "login": "Login"
+    "docs": "Documentation",
+    "faq": "FAQ",
+    "support": "Technical support",
+    "contact": "Contact",
+    "login": "Login",
+    "profile": "Profile",
+    "dashboard": "Dashboard"
   },
-  "home": {
-    "title": "Lottery management, reinvented.",
-    "subtitle": "Drive your operations with a powerful and intuitive platform.",
-    "hero": {
-      "eyebrow": "TCHALANET",
-      "title": "Lottery operations, reinvented.",
-      "subtitle": "Run your business with a powerful, intuitive platform.",
-      "cta": "Get started",
-      "demo": "View demo",
-      "imageAlt": "Preview of the Tchalanet app on mobile and web"
-    }
+  "cta": {
+    "try": "Try",
+    "dashboard": "Dashboard"
+  },
+  "auth": {
+    "login": "Login",
+    "profile": "Profile"
+  },
+  "actions": {
+    "search": "Search",
+    "lang": "Language",
+    "theme": "Theme"
   },
   "footer": {
-    "copyright": "© 2024 Tchalanet. All rights reserved."
+    "section": {
+      "inform": "Learn",
+      "legal": "Legal & compliance",
+      "resources": "Help & resources",
+      "partners": "Partners"
+    }
+  },
+  "info": {
+    "game_explanations": "Game explanations",
+    "security_tips": "Security tips",
+    "official_results": "Official results & reports",
+    "tchala": "Le Tchala"
+  },
+  "partners": {
+    "antb": "ANTB",
+    "evalujeu": "EvaluJeu"
+  },
+  "legal": {
+    "responsible": "Responsible gaming",
+    "regulation": "Regulation",
+    "privacy": "Privacy",
+    "terms": "Terms of use",
+    "cookies": "Cookies",
+    "integrity": "Integrity & rigor"
+  },
+  "access": {
+    "accessibility": "Accessibility"
+  },
+  "copyright": {
+    "notice": "© 2025 Tchalanet. All rights reserved."
+  },
+  "seo": {
+    "default_title": "Tchalanet",
+    "default_desc": "Multi-tenant lottery management platform.",
+    "placeholder_coming_soon": "Content coming soon.",
+    "info": {
+      "game_explanations": "Game explanations",
+      "security_tips": "Security tips",
+      "official_results": "Official results & reports",
+      "tchala": "Le Tchala — Dreams & meanings"
+    },
+    "resources": {
+      "support": "Technical support",
+      "docs": "Tchalanet documentation",
+      "faq": "Frequently Asked Questions",
+      "accessibility": "Accessibility",
+      "contact": "Contact"
+    },
+    "legal": {
+      "responsible": "Responsible gaming",
+      "regulation": "Regulation",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use",
+      "cookies": "Cookies",
+      "integrity": "Integrity & rigor"
+    },
+    "verify": "Verify a ticket",
+    "ticket": {
+      "title": "Ticket verification",
+      "desc": "Check the status of a ticket with its secure code."
+    }
   }
 }

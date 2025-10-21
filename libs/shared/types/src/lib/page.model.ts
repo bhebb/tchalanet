@@ -14,7 +14,7 @@ export interface PageModel {
   currentLang: string;
   langs: string[];
   /** whitelist des features actives côté UI (vient du JSON ou enrichi par le back) */
-  features?: string[];
+  flags?: string[];
 }
 
 export interface TchLink {
@@ -22,10 +22,16 @@ export interface TchLink {
   path: string;
   query?: Params;
   icon?: string;
-  feature?: string;
+  flag?: string;
   external?: string;
   children?: TchLink[];
 }
+
+export type TchAccountLink =
+  | (TchLink & { avatar: 'generic' }) // visiteur
+  | (TchLink & { avatar: 'user' }); // connecté
+
+export type ActionToggle = { flag?: string };
 
 export interface Brand {
   name: string;
@@ -35,13 +41,13 @@ export interface Brand {
 
 export interface HeaderProperties {
   brand?: Brand;
-  showUserMenu?: boolean;
-  showNotifications?: boolean;
-  langSwitcher?: { visible: boolean; position?: 'start' | 'end' };
-  sticky?: boolean;
+  actions: { search: ActionToggle; lang: ActionToggle; theme: ActionToggle };
   navigation?: Array<TchLink>;
-  cta?: TchLink;
-  accentHex?: string;
+  cta: { public: TchLink; private: TchLink };
+  account: {
+    public: TchAccountLink;
+    private: TchAccountLink;
+  };
 }
 
 export interface FooterProperties {

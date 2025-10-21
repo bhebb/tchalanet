@@ -4,7 +4,7 @@ import { isAbsoluteUrl, isKeycloakUrl } from '../utils/http.utils';
 
 export const apiBaseInterceptor: HttpInterceptorFn = (req, next) => {
   // Laisse les assets (ex: /assets/i18n/fr.json)
-  if (req.url.startsWith('/assets/')) return next(req);
+  if (req.url.includes('assets/')) return next(req);
   // Skip Keycloak
   if (isKeycloakUrl(req.url)) return next(req);
 

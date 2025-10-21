@@ -1,13 +1,14 @@
-//@use '@angular/material' as mat;
+// @use '@angular/material' as mat;
 
 
-//$typography: mat.define-typography-config(); /* ou ton config custom */
-//:root { @include mat.all-component-typographies($typography); }
+// $typography: mat.define-typography-config(); /* ou ton config custom */
+// :root { @include mat.all-component-typographies($typography); }
 
 /* famille + poids (si pas déjà faits) */
 :root {
   --tch-font-family: 'Poppins', ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-  Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  roboto, "Helvetica Neue", arial, "Apple Color Emoji", "Segoe UI Emoji";
+
   /* tu as déjà --tch-h1/--tch-h2/--tch-h3 et --tch-weight-* dans _tokens.scss */
 }
 
@@ -62,16 +63,13 @@ html, body {
   --tch-size-body: 1rem;
   --tch-size-label: .875rem;
   --tch-size-micro: .75rem;
-
   --tch-lh-tight: 1.2;
   --tch-lh-normal: 1.45;
   --tch-lh-relaxed: 1.6;
-
   --tch-w-regular: 400;
   --tch-w-medium: 500;
   --tch-w-semibold: 600;
   --tch-w-bold: 700;
-
   --tch-letter-tight: -0.2px;
 }
 
