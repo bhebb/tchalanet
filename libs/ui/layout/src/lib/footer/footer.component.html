@@ -13,6 +13,8 @@
                                                 class="tch-footer__item"
                                                 [routerLink]="l.path"
                                                 routerLinkActive="active"
+                                                #rla="routerLinkActive"
+                                                [attr.aria-current]="rla.isActive ? 'page' : null"
                                                 [routerLinkActiveOptions]="{ exact: true }">{{ l.labelKey | translate }}</a>
                                     } @else if (l.external) {
                                         <a class="link" [href]="l.external" target="_blank" rel="noopener">
