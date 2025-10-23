@@ -1,7 +1,9 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { map, Observable } from 'rxjs';
+
+import { Observable } from 'rxjs';
+
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 
 export interface BootstrapDto {
   context: { tenant: string; role: string; locale: string; /* ... */ };

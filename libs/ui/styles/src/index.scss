@@ -1,18 +1,17 @@
 @use '@angular/material' as mat;
-@use './lib/_themes' as tch;
-@use './lib/_tokens';
-@use './lib/_variables';
-@use './lib/_typography';
-@use './lib/_mixins';
-@use './lib/_utilities';
-@use './lib/primitives/_index';
+@use '../../theme/src/lib/scss/runtime-root' as *;
+@use '../../theme/src/lib/scss/runtime-vars' as *;
+@use './lib/tokens';
+@use './lib/typography';
+@use './lib/mixins';
+@use './lib/utilities';
+@use './lib/primitives/index';
 @use './lib/components/header';
 @use './lib/components/footer';
 @use './lib/overlay';
 
 /* Puis seulement les @include qui émettent du CSS */
-@include mat.core;
-@include tch.apply-app-theme-class;
+//@include mat.core;
 
 /* --- Puis ton CSS global / reset --- */
 *,
@@ -39,8 +38,8 @@ body {
 }
 
 .tch-theme {
-  --mat-toolbar-container-background-color: var(--header-bg);
-  --mat-toolbar-container-text-color: var(--header-fg);
+  --mat-toolbar-container-background-color: var(--tch-header-bg);
+  --mat-toolbar-container-text-color: var(--tch-header-fg);
   --mat-menu-container-background-color: var(--tch-surface-card);
   --mat-menu-item-label-text-color: var(--tch-on-surface-card);
   --mat-dialog-container-background-color: var(--tch-surface-card);
@@ -62,15 +61,8 @@ main {
 
 /* Le footer ne se compresse pas */
 tch-footer,
-footer,
-.app-footer {
+footer {
   flex-shrink: 0;
-}
-
-/* Menu actif (utilise le contrat nav) */
-.header-menu .mat-mdc-menu-item.active {
-  background: var(--tch-nav-active-bg);
-  color: var(--tch-nav-active-fg);
 }
 
 /* Liens globaux */

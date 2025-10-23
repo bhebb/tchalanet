@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HeroWidgetProps } from '@tchl/types';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+
+import { HeroWidgetProps } from '@tchl/types';
 
 @Component({
   selector: 'tchl-hero-widget',

@@ -1,0 +1,24 @@
+:host {
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  z-index: var(--tch-z-header, 1000);
+  display: block;
+
+  background: var(--tch-header-bg);
+  color: var(--tch-header-fg);
+}
+
+.tch-header,
+.tch-header__grid,
+.tch-header__row--l1,
+.tch-header__row--l2 {
+  overflow: visible;
+}
+
+/* clickable nav items if <a> */
+a.tch-nav__item {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}

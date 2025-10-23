@@ -1,8 +1,9 @@
 // libs/feature/src/lib/feature.provider.ts
 import { Provider } from '@angular/core';
-import { FEATURE_CLIENT, FEATURE_CONTEXT, FEATURE_INITIAL } from './feature.tokens';
+
 import { MemoryFeatureClient } from './clients/memory.client';
 import { UnleashProxyClient } from './clients/unleash-proxy.client';
+import { FEATURE_CLIENT, FEATURE_CONTEXT, FEATURE_INITIAL } from './feature.tokens';
 
 export type FeatureProviderConfig =
   | { kind: 'memory'; initial?: string[] }

@@ -1,7 +1,8 @@
 // libs/web/widgets-actions/src/lib/quick-actions-widget.component.ts
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
+
 import { TchLink } from '@tchl/types';
 
 export interface QuickActionsProps {

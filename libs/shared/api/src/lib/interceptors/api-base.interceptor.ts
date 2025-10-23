@@ -1,6 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+
 import { environment } from '@tchl/config';
-import { isAbsoluteUrl, isKeycloakUrl } from '../utils/http.utils';
+
+import { isKeycloakUrl } from '../utils/http.utils';
 
 export const apiBaseInterceptor: HttpInterceptorFn = (req, next) => {
   // Laisse les assets (ex: /assets/i18n/fr.json)

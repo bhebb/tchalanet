@@ -1,4 +1,5 @@
 // libs/web/widgets/src/lib/widget-renderer.component.ts
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,7 +9,7 @@ import {
   OnInit,
   ViewContainerRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { PageElement } from '@tchl/types';
 import { TCH_WIDGET_REGISTRY, WidgetFactory } from '@tchl/web/widgets';
 

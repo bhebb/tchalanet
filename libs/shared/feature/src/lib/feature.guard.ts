@@ -1,5 +1,6 @@
-import { CanMatchFn } from '@angular/router';
 import { inject } from '@angular/core';
+import { CanMatchFn } from '@angular/router';
+
 import { FeatureService } from './feature.service';
 
 export const featureGuard: CanMatchFn = route => {

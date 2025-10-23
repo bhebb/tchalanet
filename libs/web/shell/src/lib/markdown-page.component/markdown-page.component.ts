@@ -1,15 +1,18 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Meta, Title } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
 import { MarkdownModule, MARKED_OPTIONS, MarkedOptions } from 'ngx-markdown';
+
 import { combineLatest, of } from 'rxjs';
 import { catchError, distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
+
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { I18nFacade } from '@tchl/facades';
+import { Meta, Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
+
 import { selectCurrentLang } from '@tchl/data-access/i18n';
+import { I18nFacade } from '@tchl/facades';
 
 type FrontMatter = {
   title?: string;
@@ -58,9 +61,9 @@ type FrontMatter = {
     }
 
     .h-container {
-      max-width: var(--page-max, 1120px);
+      max-width: var(--tch-page-max, 1120px);
       margin: 0 auto;
-      padding-inline: var(--page-gutter, 24px);
+      padding-inline: var(--tch-page-gutter, 24px);
     }
 
     /* TITRES + SOUS-TITRES (plus sobres) */
@@ -329,7 +332,7 @@ export class MarkdownPageComponent {
           valRaw = valRaw.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
 
           // booleans
-          let val: any = (valRaw === 'true') ? true : (valRaw === 'false') ? false : valRaw;
+          const val: any = (valRaw === 'true') ? true : (valRaw === 'false') ? false : valRaw;
 
           // affectation
           if (inSeo && fm.seo) {

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+
 import { FeatureDirective, FeatureEnabledPipe, FeatureService } from '@tchl/feature';
 
 @Component({

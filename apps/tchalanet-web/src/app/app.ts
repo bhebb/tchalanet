@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+
 import { AuthService } from '@tchl/shared/auth';
 
 @Component({

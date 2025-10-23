@@ -2,7 +2,7 @@
   "name": "shared/ui-shell-material",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/shared/ui-shell-material/src",
-  "prefix": "lib",
+  "prefix": "tchl",
   "projectType": "library",
   "tags": ["scope:shared", "type:ui"],
   "targets": {

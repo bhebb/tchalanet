@@ -1,3 +1,7 @@
+import { autocomplete, AutocompleteApi } from '@algolia/autocomplete-js';
+import { Hit, MeiliSearch } from 'meilisearch';
+
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -10,12 +14,11 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { environment } from '@tchl/config';
-import { Hit, MeiliSearch } from 'meilisearch';
+
 import { AnalyticsService } from '@tchl/analytics';
+import { environment } from '@tchl/config';
+
 import { OverlayService } from './overlay.service';
-import { autocomplete, AutocompleteApi } from '@algolia/autocomplete-js';
-import { CommonModule } from '@angular/common';
 
 @Component({
   standalone: true,

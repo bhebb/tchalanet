@@ -1,0 +1,105 @@
+<header class="tch-private-header" role="banner">
+    <div class="tch-private-header__toolbar">
+        <div class="tch-private-header__grid" role="navigation" aria-label="Entête privée">
+
+            <!-- ROW L1 -->
+            <div class="tch-private-header__row tch-private-header__row--l1">
+
+                <!-- Burger (ouvre la sidebar gauche du dashboard) -->
+                <button
+                        class="tch-private-header__burger-btn tch-private-header__icon-btn"
+                        type="button"
+                        aria-label="Ouvrir le menu latéral"
+                        (click)="onToggleSidebar()"
+                >
+                    <mat-icon>menu</mat-icon>
+                </button>
+
+                <!-- Brand -->
+                <button
+                        class="tch-private-header__brand-btn"
+                        type="button"
+                        aria-label="Aller au tableau de bord"
+                        (click)="onBrandClick()"
+                >
+                    <tchl-brand
+                            class="tch-private-header__brand"
+                            [brand]="vm().brand"
+                    ></tchl-brand>
+                </button>
+
+                <!-- Search (tablet+/desktop shows here, mobile moves to row2) -->
+                @if (!vm().handset && vm().showSearch) {
+                    <button
+                            class="tch-private-header__search-btn tch-private-header__icon-btn"
+                            type="button"
+                            aria-label="Rechercher"
+                            (click)="onSearchClick()"
+                    >
+                        <mat-icon>search</mat-icon>
+                    </button>
+                }
+
+                <!-- Lang/Theme (tablet+/desktop inline) -->
+                @if (!vm().handset && vm().showLangTheme) {
+                    <tchl-lang-theme-group
+                            class="tch-private-header__ltg"
+                            [currentLang]="currentLang()"
+                            [availableLangs]="availableLangs()"
+                            [themeMode]="themeMode()"
+                            [size]="32"
+                            [gap]="10"
+                            (changeLang)="onChangeLang($event)"
+                            (toggleTheme)="onToggleTheme($event)"
+                    ></tchl-lang-theme-group>
+                }
+
+                <!-- Account avatar / menu -->
+                <button
+                        class="tch-private-header__account-btn tch-private-header__icon-btn avatar"
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-label="Compte"
+                        (click)="onAccountClick()"
+                >
+                    @if (user().avatarUrl) {
+                        <img [src]="user().avatarUrl!" alt=""/>
+                    } @else {
+                        <span class="initials" aria-hidden="true">{{ initials() }}</span>
+                    }
+                </button>
+            </div>
+
+            <!-- ROW L2 (mobile only): search + lang/theme -->
+            @if (vm().showRow2MobileTools) {
+                <div class="tch-private-header__row tch-private-header__row--l2">
+                    <div class="tch-private-header__tools">
+                        @if (vm().showSearch) {
+                            <button
+                                    class="tch-private-header__search-btn tch-private-header__icon-btn"
+                                    type="button"
+                                    aria-label="Rechercher"
+                                    (click)="onSearchClick()"
+                            >
+                                <mat-icon>search</mat-icon>
+                            </button>
+                        }
+
+                        @if (vm().showLangTheme) {
+                            <tchl-lang-theme-group
+                                    class="tch-private-header__ltg"
+                                    [currentLang]="currentLang()"
+                                    [availableLangs]="availableLangs()"
+                                    [themeMode]="themeMode()"
+                                    [size]="32"
+                                    [gap]="10"
+                                    (changeLang)="onChangeLang($event)"
+                                    (toggleTheme)="onToggleTheme($event)"
+                            ></tchl-lang-theme-group>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</header>

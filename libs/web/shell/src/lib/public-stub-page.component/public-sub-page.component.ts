@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -35,9 +36,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
         border-color: rgba(255, 255, 255, 0.25);
       }
       .h-container {
-        max-width: var(--page-max, 1120px);
+        max-width: var(--tch-page-max, 1120px);
         margin: 0 auto;
-        padding-inline: var(--page-gutter, 24px);
+        padding-inline: var(--tch-page-gutter, 24px);
       }
     `,
   ],

@@ -1,4 +1,5 @@
 import { InjectionToken } from '@angular/core';
+
 import { FeatureClient, FeatureContext, FeatureKey } from './feature.types';
 
 export const FEATURE_CLIENT = new InjectionToken<FeatureClient>('FEATURE_CLIENT');

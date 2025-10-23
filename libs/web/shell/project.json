@@ -2,7 +2,7 @@
   "name": "web/ui-shell-public",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/web/ui-shell-public/src",
-  "prefix": "lib",
+  "prefix": "tchl",
   "projectType": "library",
   "tags": ["scope:web", "type:feature"],
   "targets": {

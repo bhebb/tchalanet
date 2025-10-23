@@ -1,21 +1,28 @@
-import { ChangeDetectionStrategy, Component, HostBinding, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, HostBinding, input } from '@angular/core';
 
 @Component({
   selector: 'tchl-shell',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './shell.component.html',
-  styleUrls: ['./shell.component.scss'],
+  styleUrl: './shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    // largeur "logique" de la sidebar (peut être overridée via CSS var)
+    '[style.--tch-side-w.px]': 'sideWidth()',
+  },
 })
 export class ShellComponent {
-  // Active l’aside si fourni par le parent
+  // est-ce qu'on affiche une colonne side ?
   hasSidebar = input(false);
 
-  // Largeur de la sidebar (overridable en CSS: --tch-side-w)
+  // largeur souhaitée de la colonne side
   sideWidth = input<number>(280);
 
-  // Ajoute une classe hôte pour cibler le layout côté SCSS
-  @HostBinding('class.with-side') get withSide() { return this.hasSidebar(); }
+  // classe d'état pour cibler les layouts dans le SCSS
+  @HostBinding('class.tch-shell--has-side')
+  get sideClass() {
+    return this.hasSidebar();
+  }
 }

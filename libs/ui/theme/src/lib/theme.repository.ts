@@ -1,35 +1,36 @@
-import { TchTheme } from '@tchl/types';
 import { Injectable, signal } from '@angular/core';
+
+import { TchTheme } from './theme.types';
+import { THEME_PRESETS } from './theme-presets.registry';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeRepository {
-  private cache = new Map<string, TchTheme>();
-  private _ready = signal(false);
-  private _version = signal(0); // bump à chaque register
-
+  private readonly _map = new Map<string, TchTheme>();
+  private readonly _ready = signal(false);
   ready = this._ready.asReadonly();
-  version = this._version.asReadonly();
 
-  registerMany(list: TchTheme[]) {
-    for (const t of list) this.register(t);
+  constructor() {
+    // THEME_PRESETS est importé
+    for (const preset of THEME_PRESETS) {
+      this._map.set(preset.id, preset);
+    }
     this._ready.set(true);
   }
 
-  register(theme: TchTheme) {
-    this.cache.set(this.norm(theme.id), theme);
-    this._version.update(v => v + 1);
+  has(id: string): boolean {
+    return this._map.has(id);
   }
 
-  get(id: string | null | undefined): TchTheme | null {
-    if (!id) return null;
-    return this.cache.get(this.norm(id)) ?? null;
+  get(id: string): TchTheme | null {
+    return this._map.get(id) ?? null;
   }
 
-  has(id: string | null | undefined): boolean {
-    return !!id && this.cache.has(this.norm(id));
+  list(): TchTheme[] {
+    return Array.from(this._map.values());
   }
 
-  private norm(id: string) {
-    return id.trim().toLowerCase();
+  /** pour le futur si on clone + modifie un tenant runtime */
+  upsert(preset: TchTheme) {
+    this._map.set(preset.id, preset);
   }
 }

@@ -1,4 +1,5 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
+
 import { FeatureService } from './feature.service';
 
 @Pipe({ name: 'featureEnabled', standalone: true, pure: false })

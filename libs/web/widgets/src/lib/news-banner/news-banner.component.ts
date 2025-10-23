@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+
 import { NewsBannerProps } from '@tchl/types';
 
 @Component({

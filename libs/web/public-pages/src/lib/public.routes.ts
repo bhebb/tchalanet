@@ -1,7 +1,9 @@
 import { Routes } from '@angular/router';
+
 import { MarkdownPageComponent, PublicStubPageComponent } from '@tchl/web/shell';
-import { PlansPage } from './plans-page/plans.page';
+
 import { FeaturesPage } from './features-page/features.page';
+import { PlansPage } from './plans-page/plans.page';
 
 export const PUBLIC_ROUTES: Routes = [
   { path: 'pricing', component: PlansPage, data: { breadcrumb: 'nav.pricing' } },

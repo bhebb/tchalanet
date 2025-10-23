@@ -7,10 +7,13 @@
   ],
   "context": "home-public",
   "theme": {
-    "id": "tchalanet",
+    "presetId": "tchalanet",
     "mode": "light",
-    "primaryColor": "#225EC7",
-    "accentColor": "#134D9F"
+    "density": -1,
+    "overrides": {
+      "vars": {
+      }
+    }
   },
   "header": {
     "component": "PublicHeader",
@@ -530,4 +533,4 @@
   "i18n": {},
   "issues": []
 }
-     
+

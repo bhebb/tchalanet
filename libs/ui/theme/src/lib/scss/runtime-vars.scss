@@ -1,0 +1,43 @@
+/* runtime-vars.scss
+   Ce fichier donne la "vraie" valeur que les composants consomment.
+   Il ne dépend pas d'un preset ID. Il dépend juste du mode clair/sombre.
+*/
+
+.tch-theme {
+  /* header/footer couleurs finales consommées par les composants */
+  --tch-header-bg: var(--tch-header-bg-base);
+  --tch-header-fg: var(--tch-header-fg-base);
+
+  --tch-footer-bg: var(--tch-footer-bg-base);
+  --tch-footer-fg: var(--tch-footer-fg-base);
+
+  /* accent CTA / hover / underline actif */
+  --tch-color-accent: var(--tch-accent-bg-base);
+  --tch-on-color-accent: var(--tch-accent-fg-base);
+}
+
+/* Variante dark (on "post-traite" les bases) */
+.tch-theme.dark {
+  /* On fonce le header/footer bg (brand) pour éviter le violet fluo en dark,
+     et on force un fg très lisible.
+     On utilise des tokens runtime génériques que TU définis une fois pour toutes.
+     Ici on va créer deux variables globales helpers.
+  */
+  --tch-header-bg: color-mix(
+                  in oklab,
+                  var(--tch-header-bg-base) 70%,
+                  var(--tch-darken-base, #000) 30%
+  );
+  --tch-header-fg: var(--tch-dark-fg, #fff);
+
+  --tch-footer-bg: color-mix(
+                  in oklab,
+                  var(--tch-footer-bg-base) 70%,
+                  var(--tch-darken-base, #000) 30%
+  );
+  --tch-footer-fg: var(--tch-dark-fg, #fff);
+
+  /* L'accent en dark : on réutilise l'accent tel quel. */
+  --tch-color-accent: var(--tch-accent-bg-base);
+  --tch-on-color-accent: var(--tch-accent-fg-base);
+}

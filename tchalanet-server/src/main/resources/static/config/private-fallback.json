@@ -6,10 +6,18 @@
   "context": "dashboard-private",
   "version": "fallback-1",
   "theme": {
-    "presetId": "tchalanet-console",
+    "presetId": "violet-green",
     "mode": "light",
-    "primaryColor": "#225EC7",
-    "accentColor": "#134D9F"
+    "density": -1,
+    "overrides": {
+      "vars": {
+        "--tch-header-bg": "#000000",
+        "--tch-header-fg": "#FFD700",
+        "--dark:--tch-header-bg": "#000000",
+        "--dark:--tch-header-fg": "#FFD700"
+      },
+      "fontHref": "https://fonts.example.com/Inter.css"
+    }
   },
   "header": {
     "component": "PrivateHeader",

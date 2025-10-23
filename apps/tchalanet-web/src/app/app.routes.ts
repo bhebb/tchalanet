@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
-import { SessionEffects, sessionFeature } from '@tchl/data-access/session';
-import { provideState } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
-import { authGuard } from '@tchl/shared/auth';
+import { provideState } from '@ngrx/store';
+
 import { navAfterLoadFeature } from '@tchl/data-access/page';
+import { SessionEffects, sessionFeature } from '@tchl/data-access/session';
+import { authGuard } from '@tchl/shared/auth';
 import { PUBLIC_ROUTES } from '@tchl/web/public-pages';
 
 export const appRoutes: Routes = [

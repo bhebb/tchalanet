@@ -1,4 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
+
 import { NavAfterLoadActions } from './nav.actions';
 
 export interface NavAfterLoadState {

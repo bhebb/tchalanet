@@ -1,8 +1,10 @@
 // libs/shared/auth/auth.service.spec.ts
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthService, TchClaim } from './auth.service';
 import { EventTypes, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { of, Subject } from 'rxjs';
+
+import { AuthService, TchClaim } from './auth.service';
 
 // ---- Mocks ----
 class OidcSecurityServiceMock {

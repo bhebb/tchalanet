@@ -1,6 +1,8 @@
 import { HttpHeaders, HttpInterceptorFn } from '@angular/common/http';
+
 import { environment } from '@tchl/config';
-import { isAbsoluteUrl, isKeycloakUrl } from '../utils/http.utils';
+
+import { isKeycloakUrl } from '../utils/http.utils';
 
 export const metaHeadersInterceptor: HttpInterceptorFn = (req, next) => {
   // Laisse assets

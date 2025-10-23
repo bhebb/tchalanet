@@ -1,12 +1,14 @@
-import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { Router } from '@angular/router';
 import { mergeMap, of } from 'rxjs';
 import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
 
-import { SessionActions } from './session.actions';
-import { AuthService } from '@tchl/shared/auth';
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+
 import { NavAfterLoadActions, PageActions } from '@tchl/data-access/page';
+import { AuthService } from '@tchl/shared/auth';
+
+import { SessionActions } from './session.actions';
 
 @Injectable()
 export class SessionEffects {

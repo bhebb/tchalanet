@@ -1,6 +1,8 @@
-import { FeatureClient, FeatureContext, FeatureVariant } from '../feature.types';
-import { BehaviorSubject } from 'rxjs';
 import { UnleashClient } from 'unleash-proxy-client';
+
+import { BehaviorSubject } from 'rxjs';
+
+import { FeatureClient, FeatureContext, FeatureVariant } from '../feature.types';
 
 export class UnleashProxyClient implements FeatureClient {
   private client: any;

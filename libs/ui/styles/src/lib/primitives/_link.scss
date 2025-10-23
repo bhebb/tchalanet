@@ -1,0 +1,46 @@
+@use '../_mixins' as m;
+
+%tch-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  color: var(--tch-link-fg);
+  text-decoration: none;
+
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+
+
+  transition: color 0.15s, background-color 0.15s;
+}
+
+%tch-link-hoverable {
+  &:hover,
+  &:focus-visible {
+    color: var(--tch-link-fg-hover);
+    text-decoration: none;
+    outline: none;
+    font-weight: 600;
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--tch-link-focus-ring);
+    border-radius: 4px;
+  }
+}
+
+/* lien "actif" (ex: onglet courant dans la nav) */
+%tch-link-active-underline {
+  &::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 0;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--tch-link-underline-active);
+  }
+}

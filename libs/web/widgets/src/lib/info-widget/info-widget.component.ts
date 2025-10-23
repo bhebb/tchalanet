@@ -1,6 +1,6 @@
 // libs/web/widgets-info/src/lib/info-widget.component.ts
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export interface InfoProps {
   title?: string;

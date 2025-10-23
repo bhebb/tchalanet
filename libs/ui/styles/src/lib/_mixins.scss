@@ -1,4 +1,4 @@
-@use './_variables' as v;
+@use 'sass:map';
 
 @mixin surface($bg: var(--tch-color-surface), $fg: var(--tch-color-on-surface)) {
   background: $bg;
@@ -16,7 +16,7 @@
 @mixin elevate($level: 1) {
   $levels: (0:none, 1:var(--tch-elevation-1), 2:var(--tch-elevation-2), 3:var(--tch-elevation-3), 4:var(--tch-elevation-4), 5:var(--tch-elevation-5));
 
-  box-shadow: map-get($levels, $level);
+  box-shadow: map.get($levels, $level);
 }
 
 @mixin focus-visible($color: currentColor) {
@@ -41,7 +41,7 @@
   }
 }
 
-@mixin container($max: var(--page-max), $pad: var(--page-gutter)) {
+@mixin container($max: var(--tch-page-max), $pad: var(--tch-page-gutter)) {
   width: min(#{$max}, 100%);
   margin-inline: auto;
   padding-inline: #{$pad};
@@ -56,6 +56,14 @@
   color: var(--tch-link);
   text-decoration: none;
   cursor: pointer;
-  &:hover { color: var(--tch-link-hover); text-decoration: underline; }
-  &:focus-visible { outline: 2px solid currentcolor; outline-offset: 2px; }
+
+  &:hover {
+    color: var(--tch-link-hover);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
 }

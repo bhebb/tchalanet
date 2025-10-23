@@ -1,8 +1,9 @@
 // i18n.reducer.ts
 import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
+
 import { I18nActions } from './i18n.actions';
-import { i18nInitial } from './i18n.state';
 import { I18N_FEATURE_KEY } from './i18n.selectors';
+import { i18nInitial } from './i18n.state';
 
 const reducer = createReducer(
   i18nInitial,

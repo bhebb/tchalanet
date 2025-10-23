@@ -1,4 +1,6 @@
 // breadcrumb.component.ts
+import { filter } from 'rxjs/operators';
+
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
@@ -10,7 +12,7 @@ import {
   Router,
   RouterLink,
 } from '@angular/router';
-import { filter } from 'rxjs/operators';
+
 import { I18nFacade } from '@tchl/facades';
 
 export type Crumb = { label: string; url?: string; aria?: string };
@@ -72,7 +74,7 @@ export class BreadcrumbComponent {
     const query = this.route.snapshot.queryParams;
 
     let node: ActivatedRouteSnapshot | null = this.route.root.snapshot;
-    let acc: string[] = [];
+    const acc: string[] = [];
 
     while (node) {
       // on ne garde que la voie primaire

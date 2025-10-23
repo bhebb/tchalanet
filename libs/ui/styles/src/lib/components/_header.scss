@@ -1,566 +1,395 @@
 @use 'libs/ui/styles/src/lib/_mixins.scss' as m;
 @use 'libs/ui/styles/src/lib/_breakpoints.scss' as br;
+@use '../primitives/button' as *;
 
-/* ===================== TOKENS ===================== */
-:root {
-  --tch-header-sep: color-mix(in oklab, var(--tch-header-fg) 24%, transparent);
-  --page-max: 1120px;
-  --page-gutter: clamp(16px, 4vw, 24px);
-  --tch-l1-ctrl-size: 40px;
-  --tch-chip-size: 32px;
-  --tch-brand-size: 34px;
-  --tch-l2-cta-h: 40px;
-  --tch-l2-cta-pad-x: 16px;
-  --tch-l2-cta-fs: 15px;
-  --tch-hdr-gap-x: 12px;
-  --tch-hdr-gap-y: 8px;
-  --tch-right-gap-lg: clamp(14px, 2.6vw, 24px);
-  --tch-cta-bg: var(--accent-dot);
-  --tch-cta-fg: var(--accent-dot-contrast);
-  --tch-cta-border: rgb(0 0 0 / 12%);
-  --tch-z-header: 1000;
-  --tch-z-overlay: 4000;
+/* ==========================================================================
+   .tch-header
+   - sticky, themé
+   - expose ses tokens locaux (--comp-header-*)
+   - mobile-first
+   ========================================================================== */
+
+.tch-header {
+  /* Vars locales header (lisent mais ne redéfinissent pas les --tch-*) */
+  --comp-header-h: 56px;
+  --comp-header-z: var(--tch-z-header, 1000);
+  --comp-header-bg: var(--tch-header-bg);
+  --comp-header-fg: var(--tch-header-fg);
+
+  /* layout */
+  --comp-header-page-max: var(--tch-page-max, 1120px);
+  --comp-header-page-gutter: var(--tch-page-gutter, clamp(16px, 4vw, 24px));
+  --comp-header-row-h: 56px;
+  --comp-header-gap-inline: 12px;
+
+  /* nav/link tokens (consommés par tchl-nav et nos links header) */
+  --tch-link-fg: var(--tch-header-fg, #fff);
+  --tch-link-fg-hover: var(--tch-color-accent);
+  --tch-link-fg-active: var(--tch-color-accent);
+  --tch-link-underline-active: var(--tch-color-accent);
+  --tch-link-focus-ring: var(--tch-color-accent);
+
+  /* CTA tokens (consommés par %tch-btn-*) */
+  --tch-btn-bg: var(--tch-color-accent);
+  --tch-btn-fg: var(--tch-color-on-accent);
+  --tch-btn-bg-hover: color-mix(in oklab, var(--tch-color-accent) 90%, black);
+  --tch-btn-fg-hover: var(--tch-color-on-accent);
+  --tch-btn-radius: 8px;
+  --tch-btn-pad-x: 16px;
+  --tch-btn-pad-y: 10px;
+  --tch-btn-font-weight: 600;
+  --tch-btn-font-size: 0.9rem;
+  --tch-btn-focus-ring: var(--tch-color-accent);
+
+  /* chips lang/theme group (tch-ltg) */
+  --comp-ltg-chip-bg: transparent;
+  --comp-ltg-chip-fg: currentColor;
+  --comp-ltg-chip-border-color: color-mix(in oklab, currentColor 28%, transparent);
+  --comp-ltg-chip-focus-ring: currentColor;
+
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  z-index: var(--comp-header-z);
+  background: var(--comp-header-bg);
+  color: var(--comp-header-fg);
+
+  /* ombre sous L1+L2 globalement, pas entre les 2 lignes */
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.2);
 }
 
-/* ===================== HEADER ===================== */
-.tch-header {
-  color: var(--header-fg);
-  background: var(--header-bg);
+/* ==========================================================================
+   Toolbar / Grid wrapper
+   - On centre le contenu à la largeur DS
+   - On empile row L1 / row L2 verticalement en mobile
+   ========================================================================== */
 
-  &__toolbar {
-    position: sticky;
-    top: env(safe-area-inset-top, 0);
-    z-index: var(--tch-z-header);
-    background: inherit;
-    color: inherit;
+.tch-header__toolbar {
+  background: inherit;
+  color: inherit;
+}
+
+.tch-header__grid {
+  background: inherit;
+  color: inherit;
+
+  /* container utilitaire DS (max-width + padding inline) */
+  @include m.container(var(--comp-header-page-max), var(--comp-header-page-gutter));
+
+  /* mobile: stack vertical (row L1 puis row L2) */
+  display: flex;
+  flex-direction: column;
+  row-gap: 0;
+}
+
+/* ==========================================================================
+   Row base
+   ========================================================================== */
+
+.tch-header__row {
+  background: inherit;
+  color: inherit;
+  border: 0;
+  box-shadow: none;
+  width: 100%;
+}
+
+/* ==========================================================================
+   ROW L1 (toujours rendue)
+   Mobile:
+     col1: brand (+ burger)
+     col2: nav slot (masqué)
+     col3: actions utilitaires (search + account)
+   Tablet+:
+     nav visible au centre
+     CTA visible à droite
+     lang/theme visible à droite
+     séparateur vertical entre CTA et utilitaires
+   ========================================================================== */
+
+.tch-header__row--l1 {
+  display: grid;
+  align-items: center;
+
+  grid-template-columns: auto 1fr auto;
+  column-gap: var(--comp-header-gap-inline);
+  min-block-size: var(--comp-header-row-h);
+  color: inherit;
+}
+
+/* === BRAND SLOT (colonne gauche L1) === */
+.tch-header__brand-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-inline-size: 0;
+  color: inherit;
+}
+
+/* clickable brand (logo + nom) */
+.tch-header__brand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  line-height: 1;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--tch-color-accent, currentColor);
+    outline-offset: 3px;
+    border-radius: 6px;
   }
+}
 
-  &__grid {
-    @include m.container(var(--page-max), var(--page-gutter));
+/* === NAV SLOT (colonne milieu L1) ===
+   - mobile: on cache, nav va potentiellement ailleurs (overlay/burger)
+   - tablet+: on affiche au centre
+*/
+.tch-header__nav-slot {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  color: inherit;
 
-    display: grid;
-    align-items: center;
-    gap: var(--tch-hdr-gap-y) var(--tch-hdr-gap-x);
-    padding-block: 12px;
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas:
-      "brand right"
-      "tools tools";
-  }
-
-  &__row--l1 {
-    grid-column: 1 / -1;
-    display: contents;
-  }
-
-  /* Brand */
-  &__brand-btn {
-    grid-area: brand;
-    justify-self: start;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  &__brand {
-    inline-size: var(--tch-brand-size);
-    block-size: var(--tch-brand-size);
-  }
-
-  /* Right cluster */
-  &__right {
-    grid-area: right;
-    justify-self: end;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--tch-right-gap-lg);
-    flex-wrap: nowrap;
-  }
-
-  &__avatar, &__burger, &__searchbtn {
-    inline-size: var(--tch-l1-ctrl-size);
-    block-size: var(--tch-l1-ctrl-size);
-    display: grid;
-    place-items: center;
-  }
-
-  /* ===== L2 (mobile/tablette) ===== */
-  &__row--l2 {
-    grid-area: tools;
+  @include br.up(md) {
     display: flex;
+    min-width: 0;
+  }
+}
+
+.tch-header__nav {
+  max-width: 100%;
+}
+
+/* === ACTIONS SLOT (colonne droite L1) ===
+   Contient:
+   - .tch-header__actions-primary  (CTA)
+   - .tch-header__actions-utility (search, lang/theme, account)
+
+   Mobile:
+     - pas de CTA ici → .tch-header__actions-primary masqué
+     - utilitaires = search + account (lang/theme descend en L2)
+     - pas de séparateur
+
+   Tablet+:
+     - CTA apparaît
+     - lang/theme remonte dans utility
+     - séparateur vertical entre CTA et utility
+*/
+.tch-header__actions-slot {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  /* gap entre le bloc CTA et le bloc utility */
+  column-gap: 20px;
+
+  min-width: 0;
+  min-height: var(--comp-header-row-h);
+}
+
+/* bloc CTA (droite L1) */
+.tch-header__actions-primary {
+  display: none; /* mobile */
+
+  @include br.up(md) {
+    display: flex; /* tablet+ : CTA revient */
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 0 14px;
-    border-top: 1px solid var(--tch-header-sep);
+  }
+}
+
+/* bloc utilitaire (search, lang/theme, account) */
+.tch-header__actions-utility {
+  display: flex;
+  align-items: center;
+  column-gap: 12px;
+
+  /* mobile: pas de séparateur */
+  position: static;
+  padding-left: 0;
+
+  &::before {
+    content: none;
+    display: none;
   }
 
-  &__l2-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
+  @include br.up(md) {
+    /* tablet+ : séparateur vertical entre CTA et utilitaires */
+    position: relative;
+    padding-left: 16px;
 
-  /* CTA */
-  &__cta {
-    height: var(--tch-l2-cta-h);
-    padding: 0 var(--tch-l2-cta-pad-x);
-    min-width: 120px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    font-weight: 600;
-    font-size: var(--tch-l2-cta-fs);
-    cursor: pointer;
-    border: 1px solid rgb(255 255 255 / 28%);
-    box-shadow: none;
+    &::before {
+      display: block;
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 1px;
+      background: color-mix(in oklab, currentColor 30%, transparent);
+      border-radius: 1px;
+      opacity: 0.4;
+    }
   }
+}
 
-  &__cta--primary,
-  &__cta--tertiary {
-    background: var(--tch-cta-bg);
-    color: var(--tch-cta-fg);
-    border: 1px solid var(--tch-cta-border);
-  }
+/* CTA bouton (tablet+/desktop) */
+.tch-header__cta-btn {
+  @extend %tch-btn-reset;
+  @extend %tch-btn-shape;
+  @extend %tch-btn-typography;
+  @extend %tch-btn-primary-visual;
+  @extend %tch-btn-primary-states;
+}
 
-  &__cta:hover {
-    filter: brightness(1.05);
-  }
+/* icon buttons (burger, search, account) */
+.tch-header__icon-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 
-  &__cta:focus-visible {
-    outline: 2px solid #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 9999px;
+  padding: 0;
+  line-height: 1;
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
     outline-offset: 2px;
   }
 
-  /* Lang/Thème group */
-  &__ltg {
-    --chip-size: var(--tch-chip-size);
-
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  &__ltg :is(.chip, .lang-chip, .theme-toggle, button) {
-    width: var(--tch-chip-size);
-    height: var(--tch-chip-size);
-    min-width: var(--tch-chip-size);
-    min-height: var(--tch-chip-size);
-    border-radius: 50%;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: 1px solid rgb(255 255 255 / 25%);
-  }
-
-  /* Nav hidden mobile/tablette par défaut */
-  &__nav {
-    display: none;
-  }
-}
-
-/* ===================== NAV RESET (supprime les “pills”) ===================== */
-.tch-header tchl-nav .tch-nav__item,
-.tch-header tchl-nav .tch-header__nav-item,
-.tch-header tchl-nav button,
-.tch-header tchl-nav a {
-  appearance: none;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  color: #E7EFFA;
-  padding: 12px 6px 10px;
-  position: relative;
-  line-height: 1.4;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.tch-header tchl-nav .tch-nav__item:not(.active):hover,
-.tch-header tchl-nav .tch-nav__item:not(.active):focus-visible,
-.tch-header tchl-nav a:not(.active):hover,
-.tch-header tchl-nav a:not(.active):focus-visible {
-  background: color-mix(in oklab, #fff 10%, transparent);
-  color: #fff;
-}
-
-.tch-header tchl-nav .tch-nav__item.active,
-.tch-header tchl-nav a[aria-current="page"] {
-  color: #fff !important;
-  font-weight: 700;
-}
-
-.tch-header tchl-nav .tch-nav__item.active::after{
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 2px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--tch-color-accent);
-}
-
-.tch-header tchl-nav :is(a,button):focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
-}
-
-/* ===================== Material harmonisation ===================== */
-.tch-header {
-  .mat-icon, .mat-icon svg {
-    color: inherit;
-    fill: currentcolor;
-  }
-
-  .mat-mdc-icon-button {
-    color: inherit;
-
-    --mdc-icon-button-state-layer-color: transparent;
-  }
-
-  .mat-mdc-button .mdc-button__ripple,
-  .mat-mdc-icon-button .mdc-icon-button__ripple {
-    display: none;
-  }
-
-  .mat-mdc-unelevated-button .mdc-button__label,
-  .mat-mdc-button .mdc-button__label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-}
-
-/* ===================== TABLET (768–1023.98px) ===================== */
-@media (width >= 768px) and (width <= 1023.98px) {
-  .tch-header {
-    --tch-chip-size: 30px;
-    --tch-hdr-gap-x: 10px;
-    --tch-right-gap-lg: 14px;
-    --tch-l2-cta-h: 40px;
-    --tch-l2-cta-fs: 15px;
-    --tch-l2-cta-pad-x: 14px;
-  }
-
-  /* L1 = brand | nav | right  // L2 = tools (toujours visible) */
-  .tch-header__grid {
-    grid-template-columns: auto 1fr auto;
-    grid-template-areas:
-      "brand nav right"
-      "tools tools tools";
-    align-items: center;
-    padding-block: 12px;
-  }
-
-  /* Nav centrée et compacte */
-  .tch-header__nav {
-    grid-area: nav;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(14px, 2.2vw, 28px);
-    min-width: 0;
-    margin-inline-start: clamp(24px, 5vw, 64px);
-  }
-
-  /* Cluster droit resserré, pas de burger */
-  .tch-header__right {
-    gap: var(--tch-right-gap-lg);
-  }
-
-  .tch-header__burger {
-    display: none !important;
-  }
-
-  .tch-header__avatar {
-    inline-size: 40px;
-    block-size: 40px;
-    display: grid;
-    place-items: center;
-  }
-
-  /* Loupe + chips compacts */
-  .tch-header__searchbtn.mat-mdc-icon-button {
-    width: 30px;
-    height: 30px;
-  }
-
-  .tch-header__searchbtn .mat-icon {
+  mat-icon {
     font-size: 20px;
     line-height: 1;
   }
 
-  .tch-header__ltg {
-    --chip-size: 30px;
-
-    gap: 10px;
+  &.tch-header__icon-btn--account mat-icon {
+    font-size: 25px;
   }
+}
 
-  /* L2 (CTA + actions) */
-  .tch-header__row--l2 {
-    padding-top: 10px;
-    padding-bottom: 12px;
-    gap: 12px;
-    border-top: 1px solid var(--tch-header-sep);
+/* burger visible mobile, hidden tablet+ */
+.tch-header__icon-btn--burger {
+  @include br.up(md) {
+    display: none;
   }
+}
 
-  .tch-header__cta {
-    height: var(--tch-l2-cta-h);
-    padding: 0 var(--tch-l2-cta-pad-x);
-    font-size: var(--tch-l2-cta-fs);
-    border-radius: 999px;
-    white-space: nowrap;
-  }
+/* lang/theme group dans l’actions-utility
+   (tch-ltg est autonome, ici on ne force rien
+   sauf éventuellement layout tweaks si besoin) */
+.tch-header__ltg {
+  /* rien ici par défaut */
+}
 
-  .tch-header__l2-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 0;
+/* ==========================================================================
+   ROW L2 (mobile seulement)
+   - CTA compact + lang/theme group
+   - disparaît à partir de md
+   ========================================================================== */
+
+.tch-header__row--l2 {
+  background: inherit;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid color-mix(in oklab, currentColor 20%, transparent);
+  box-shadow: none;
+  outline: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  row-gap: 12px;
+  column-gap: 12px;
+
+  /* même padding horizontal que le container header */
+  padding-block: 12px;
+  /* pas besoin de re-padding-inline ici :
+     le parent .tch-header__grid a déjà le container()
+     donc on laisse juste ce row prendre 100% */
+  width: 100%;
+
+  @include br.up(md) {
+    /* en tablette on veut souvent que cette row soit une simple ligne
+          centrée horizontalement */
     flex-wrap: nowrap;
-  }
-}
+    justify-content: center;
+    row-gap: 0;
+    column-gap: 24px;
 
-/* ===================== DESKTOP (≥ lg) ===================== */
-@include br.up(lg) {
-  .tch-header__row--l2 {
-    display: none !important;
+    /* si c'est la nav seule : elle pourra s'étendre */
+    .tch-header__nav {
+      max-width: 100%;
+    }
+  }
+
+  /* DESKTOP (lg+):
+   - nav remonte dans L1
+   - L2 n'est plus rendue
+   - on enlève la border-top
+*/
+  @include br.up(lg) {
+    display: none;
     border-top: 0;
-    margin: 0;
-    padding: 0;
+    padding-block: 0;
   }
+}
 
-  .tch-header__grid {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    grid-template-areas: "brand nav right";
-    align-items: center;
-    padding-block: 14px 16px;
-  }
+/* CTA mobile dans L2 :
+   - densité réduite pour ne pas avoir un énorme pill marketing
+*/
+.tch-header__cta-btn--mobile {
+  @extend %tch-btn-reset;
+  @extend %tch-btn-primary-visual;
+  @extend %tch-btn-primary-states;
 
-  .tch-header__brand-btn {
-    justify-self: start;
-  }
+  padding-inline: 12px;
+  padding-block: 8px;
+  min-height: 36px;
+  border-radius: 8px;
 
+  font-weight: var(--tch-btn-font-weight, 600);
+  font-size: var(--tch-btn-font-size, 0.9rem);
+  line-height: 1.2;
+
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+
+  flex: 0 0 auto;
+}
+
+/* lang/theme group dans L2 (mobile) */
+.tch-header__ltg--mobile {
+  flex: 0 0 auto;
+}
+
+/* ==========================================================================
+   DESKTOP FINESSE (lg+)
+   - on centre la rangée L1 dans un max-width cohérent (déjà ok via container())
+   - nav reste visible
+   - rien de spécial en plus pour l’instant
+   ========================================================================== */
+
+@include br.up(lg) {
   .tch-header__row--l1 {
-    min-height: 64px;
-  }
-
-  .tch-header__nav {
-    display: flex !important;
-    align-items: center;
-    gap: clamp(16px, 2.4vw, 36px);
-    min-width: 0;
-    margin-inline-start: clamp(40px, 6vw, 96px);
-  }
-}
-
-/* ===================== FULLSCREEN OVERLAY MENU ===================== */
-
-/* Container toujours monté (évite clignotements); pointer-events géré par état */
-.tch-sidenav-container.full {
-  position: fixed;
-  inset: 0;
-  height: 100dvh;
-  width: 100vw;
-  z-index: var(--tch-z-overlay);
-  pointer-events: none; /* fermé : ignore les clics */
-}
-
-.tch-sidenav-container.full.is-open {
-  pointer-events: auto;
-}
-
-/* Le panneau prend TOUT l’écran */
-@media (width <= 1023.98px) {
-  .tch-sidenav-drawer.full {
-    position: fixed;
-    inset: 0;
-    width: 100vw !important;
-    height: 100dvh !important;
-    max-width: none !important;
-    border-radius: 0;
-    background: #fff;
-    color: #0A1633;
-    box-shadow: none;
-    filter: none;
-    backdrop-filter: none;
-    overflow: auto;
-    padding-bottom: env(safe-area-inset-bottom, 0);
-  }
-
-  .tch-sidenav__header {
-    display: flex;
-    align-items: center;
-    padding: max(12px, env(safe-area-inset-top, 12px)) 14px 12px;
-    border-bottom: 1px solid #eef2f6;
-  }
-
-  .tch-sidenav__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .tch-sidenav__close {
-    margin-left: auto;
-    border: 0;
-    background: transparent;
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    font-size: 22px;
-    color: #475467;
-  }
-
-  .tch-sidenav__content {
-    padding: 10px 12px 16px;
-    display: grid;
-    gap: 8px;
-  }
-
-  .tch-sidenav__item {
-    width: 100%;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-    min-height: 48px;
-    border-radius: 12px;
-    padding: 0 14px;
-    cursor: pointer;
-    background: transparent;
-    border: 0;
-  }
-
-  .tch-sidenav__item:hover {
-    background: #f5f7fb;
-  }
-
-  .tch-sidenav__item[aria-current="page"] {
-    font-weight: 600;
-    background: color-mix(in oklab, var(--tch-color-accent) 12%, transparent);
-    color: #111;
-  }
-}
-
-/* ===== Helpers global scroll-lock ===== */
-html.no-scroll, body.no-scroll {
-  overflow: hidden !important;
-  overscroll-behavior: none !important;
-  height: 100%;
-}
-
-.tch-header__ltg .lang-chip .flag,
-.tch-header__ltg tchl-lang-switcher .flag {
-  box-shadow: none !important; /* supprime le 2e anneau */
-  background: transparent !important;
-  border: 0 !important;
-}
-
-/* pas d’auréole MDC interne, on garde le focus visible du bouton */
-.tch-header__ltg .lang-chip .mat-mdc-button-persistent-ripple,
-.tch-header__ltg .lang-chip .mat-mdc-focus-indicator {
-  display: none !important;
-}
-
-.tch-nav__account {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 999px;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-}
-
-.tch-nav__account.avatar {
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-.tch-nav__account.avatar img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-
-.tch-nav__account.avatar .initials {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  background: #f1f3f8;
-}
-
-.tch-hide-sm {
-  display: none;
-}
-
-@media (width >= 640px) {
-  .tch-hide-sm {
-    display: inline;
-  }
-}
-
-.tch-nav__account {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 999px;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-}
-
-.tch-nav__account.avatar {
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-.tch-nav__account.avatar img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-}
-
-.tch-nav__account.avatar .initials {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  background: #f1f3f8;
-}
-
-.tch-hide-sm {
-  display: none;
-}
-
-@media (width >= 640px) {
-  .tch-hide-sm {
-    display: inline;
+    /* rien à changer de spécifique ici
+       mais c'est le hook pour plus tard si tu veux
+       augmenter les gaps / la hauteur */
   }
 }

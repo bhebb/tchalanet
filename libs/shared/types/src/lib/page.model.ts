@@ -1,10 +1,11 @@
 import { Params } from '@angular/router';
-import { TchTheme } from './theme.model';
+
+import {TenantThemePayload } from '@tchl/ui/theme';
 
 export interface PageModel {
   context: string;
   version?: string;
-  theme: TchTheme;
+  theme: TenantThemePayload;
   header: PageElement<HeaderProperties>;
   nav?: { header?: TchLink[]; sidenav?: TchLink[] };
   layout: Layout;

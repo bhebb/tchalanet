@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Store } from '@ngrx/store';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Store } from '@ngrx/store';
+
 import { selectPage } from '@tchl/data-access/page';
 import { GridLayoutComponent } from '@tchl/ui/layout';
 

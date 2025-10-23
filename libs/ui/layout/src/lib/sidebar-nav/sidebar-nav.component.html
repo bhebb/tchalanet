@@ -1,0 +1,47 @@
+<nav class="tch-sidebar" role="navigation" aria-label="Navigation principale">
+    <div class="tch-sidebar__header">
+        <span class="tch-sidebar__title">{{ 'nav.menu' | translate }}</span>
+
+        <button
+                type="button"
+                class="tch-sidebar__mini-toggle"
+                (click)="toggleMini()"
+                [attr.aria-label]="
+            mini() ? ('Expand navigation' | translate) : ('Collapse navigation' | translate)
+          "
+        >
+            <mat-icon>{{ mini() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+        </button>
+    </div>
+
+    <ul class="tch-sidebar__list">
+        @for (item of processedLinks(); track item._key) {
+            <li class="tch-sidebar__item" [class.tch-sidebar__item--active]="isActive(item)">
+                <a class="tch-sidebar__link" [routerLink]="item.path" (click)="go(item.path)">
+                    @if (item.icon) {
+                        <mat-icon class="tch-sidebar__icon">{{ item.icon }}</mat-icon>
+                    }
+                    <span class="tch-sidebar__label">{{ item.labelKey | translate }}</span>
+                </a>
+
+                @if (item.children?.length) {
+                    <ul class="tch-sidebar__children">
+                        @for (child of item.children; track child.path) {
+                            @if (isAllowed(child)) {
+                                <li class="tch-sidebar__child" [class.tch-sidebar__child--active]="isActive(child)">
+                                    <a class="tch-sidebar__child-link" [routerLink]="child.path"
+                                       (click)="go(child.path)">
+                                        @if (child.icon) {
+                                            <mat-icon class="tch-sidebar__child-icon">{{ child.icon }}</mat-icon>
+                                        }
+                                        <span class="tch-sidebar__child-label">{{ child.labelKey | translate }}</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+            </li>
+        }
+    </ul>
+</nav>

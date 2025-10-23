@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import { PageFacade } from '@tchl/facades';
 import { GridLayoutComponent } from '@tchl/ui/layout';
 

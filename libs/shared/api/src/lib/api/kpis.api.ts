@@ -1,7 +1,8 @@
 // libs/shared/data-access/kpis/kpis.api.ts
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 
 export interface KpisDto { salesToday: number; tickets: number; payoutPending: number; margin: number; }
 

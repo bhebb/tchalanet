@@ -1,6 +1,7 @@
-import { inject, Injectable } from '@angular/core';
+import { map,Observable } from 'rxjs';
+
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
 
 export interface FeaturesPayload { tenant: string; role: string; features: string[]; }
 

@@ -1,19 +1,22 @@
-<a class="skip-link" href="#content">Skip to content</a>
+<a class="tch-shell__skip-link" href="#content">Skip to content</a>
 
-<!-- SLOT header -->
+<!-- Header global -->
 <ng-content select="[shell-header]"></ng-content>
 
-<!-- Corps -->
-<div class="shell-body">
+<div class="tch-shell__layout">
+    <!-- Sidebar zone -->
     @if (hasSidebar()) {
-        <aside class="shell-side">
+        <aside class="tch-shell__side">
             <ng-content select="[sidenav]"></ng-content>
         </aside>
     }
-    <main id="content" class="shell-main container" role="main">
+
+    <!-- Contenu principal -->
+    <main id="content" class="tch-shell__main container" role="main">
+        <ng-content select="[breadcrumb]"></ng-content>
         <ng-content></ng-content>
     </main>
 </div>
 
-<!-- SLOT footer -->
+<!-- Footer global -->
 <ng-content select="[shell-footer]"></ng-content>

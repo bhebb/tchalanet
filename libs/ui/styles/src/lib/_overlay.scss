@@ -1,8 +1,8 @@
 :root {
-  --tch-link: var(--mat-sys-color-primary, #1a73e8);
+  --tch-link: var(--mat-sys-primary, #1a73e8);
   --tch-link-visited: color-mix(in oklab, var(--tch-link) 60%, #551a8b);
   --tch-hit-hover: color-mix(in oklab, var(--tch-link) 10%, transparent);
-  --tch-sep: var(--mat-sys-color-outline, #e5e7eb);
+  --tch-sep: var(--mat-sys-outline, #e5e7eb);
 }
 
 

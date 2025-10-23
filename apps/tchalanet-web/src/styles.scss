@@ -1,4 +1,6 @@
+
 @use 'libs/ui/styles/src/index.scss' as *;
-@import 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';
-@import 'instantsearch.css/themes/satellite-min.css';
-@import "@algolia/autocomplete-theme-classic/dist/theme.min.css";
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('instantsearch.css/themes/satellite-min.css');
+@import url("@algolia/autocomplete-theme-classic/dist/theme.min.css");

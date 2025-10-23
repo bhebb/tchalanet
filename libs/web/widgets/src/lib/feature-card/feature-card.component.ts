@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FeatureCardWidgetProps } from '@tchl/types';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+
+import { FeatureCardWidgetProps } from '@tchl/types';
 
 @Component({
   selector: 'tchl-feature-card-widget',

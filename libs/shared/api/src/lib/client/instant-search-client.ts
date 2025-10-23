@@ -1,6 +1,8 @@
-import { MeiliSearch, RecordAny, SearchParams, SearchResponse } from 'meilisearch';
-import { environment } from '@tchl/config';
+import { MeiliSearch, RecordAny, SearchResponse } from 'meilisearch';
+
 import { InjectionToken } from '@angular/core';
+
+import { environment } from '@tchl/config';
 
 // Créer un token d'injection
 export const MEILISEARCH_CONFIG = new InjectionToken<MeilisearchConfig>('MEILISEARCH_CONFIG');

@@ -1,4 +1,5 @@
 import { InjectionToken, Type } from '@angular/core';
+
 import { PageElement } from '@tchl/types';
 
 export type WidgetFactory = (el: PageElement) => Promise<Type<any>> | Type<any>;

@@ -1,0 +1,33 @@
+@use '@angular/material' as mat;
+@use './_theme-presets' as gen;
+@use './tchalanet/_theme-colors' as tchalanet;
+
+@include gen.tch-generate-theme(
+                'tchalanet',
+                tchalanet.$primary-palette,
+                tchalanet.$tertiary-palette
+);
+
+// 1. violet-green : futuriste, vibrant
+@include gen.tch-generate-theme('violet-green', mat.$violet-palette, mat.$green-palette);
+
+// 2. rose-blue : startup friendly, flashy mais doux
+@include gen.tch-generate-theme('rose-blue', mat.$rose-palette, mat.$blue-palette);
+
+// 3. red-gold : urgence / énergie / fintech agressif
+@include gen.tch-generate-theme('red-gold', mat.$red-palette, mat.$yellow-palette);
+
+// 4. indigo-orange : sérieux (bleu) + accent chaud (orange) → B2B SaaS moderne
+@include gen.tch-generate-theme('indigo-orange', mat.$blue-palette, mat.$orange-palette);
+
+// 5. cyan-magenta : tech / IA / neon
+@include gen.tch-generate-theme('cyan-magenta', mat.$cyan-palette, mat.$magenta-palette);
+
+// 6. spring-green-violet : punch cyberpunk (vert fluo + violet profond)
+@include gen.tch-generate-theme('spring-green-violet', mat.$spring-green-palette, mat.$violet-palette);
+
+// 7. azure-rose : côté cloud (azure) + pop marketing (rose)
+@include gen.tch-generate-theme('azure-rose', mat.$azure-palette, mat.$rose-palette);
+
+// 8. chartreuse-indigo : brand très pop, accent sérieux/pro
+@include gen.tch-generate-theme('chartreuse-indigo', mat.$chartreuse-palette, mat.$blue-palette);

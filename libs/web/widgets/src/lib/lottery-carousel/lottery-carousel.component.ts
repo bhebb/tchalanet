@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, input, output,ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 export interface LotteryLite { id: string; name: string; icon?: string; }

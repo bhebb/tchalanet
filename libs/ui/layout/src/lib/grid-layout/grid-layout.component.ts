@@ -1,8 +1,8 @@
-// libs/web/layout/src/lib/grid-layout.component.ts
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WidgetRendererComponent } from '@tchl/ui/widget-renderer';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+
 import { Layout, PageElement, Widget } from '@tchl/types';
+import { WidgetRendererComponent } from '@tchl/ui/widget-renderer';
 
 type Platform = 'web' | 'mobile';
 
@@ -36,42 +36,51 @@ type Platform = 'web' | 'mobile';
         background: var(--color-surface);
         color: var(--color-on-surface);
       }
+
       .grid-container {
         display: flex;
         justify-content: center;
         padding-inline: clamp(12px, 4vw, 24px);
       }
+
       .grid-inner {
         width: min(var(--container-max, 1200px), 100%);
         display: flex;
         flex-direction: column;
         gap: var(--tch-gap-lg, 24px);
       }
+
       .grid-row {
         display: grid;
         grid-template-columns: repeat(12, minmax(0, 1fr));
         gap: var(--tch-gap-lg, 24px);
       }
+
       .grid-col {
         grid-column: span var(--span, 12);
         min-width: 0;
       }
+
       .widget-wrap {
         background: var(--color-surface-container);
         border-radius: var(--radius);
         box-shadow: var(--elev-1);
         padding: clamp(10px, 2vw, 16px);
       }
+
       @media (max-width: 767px) {
         .grid-row {
           grid-template-columns: 1fr;
         }
+
         .grid-col {
           grid-column: span 1;
         }
+
         .grid-inner {
           gap: var(--tch-gap-md, 16px);
         }
+
         .widget-wrap {
           border-radius: calc(var(--radius) - 2px);
         }

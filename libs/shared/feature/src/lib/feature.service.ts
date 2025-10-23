@@ -1,8 +1,10 @@
+import { map, startWith } from 'rxjs';
+
 import { inject, Injectable } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 import { FEATURE_CLIENT } from './feature.tokens';
 import { FeatureClient, FeatureContext } from './feature.types';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map, startWith } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class FeatureService {

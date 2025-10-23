@@ -1,8 +1,9 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { selectTenantId } from '@tchl/data-access/session';
 import { Store } from '@ngrx/store';
+
 import { isKeycloakUrl } from '@tchl/api';
+import { selectTenantId } from '@tchl/data-access/session';
 import { AuthService } from '@tchl/shared/auth';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {

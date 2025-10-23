@@ -1,6 +1,5 @@
-import { AfterViewInit, Component, inject, OnDestroy } from '@angular/core';
-import instantsearch, { SearchClient } from 'instantsearch.js';
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
+import instantsearch, { SearchClient } from 'instantsearch.js';
 import {
   clearRefinements,
   configure,
@@ -9,10 +8,14 @@ import {
   searchBox,
   sortBy,
 } from 'instantsearch.js/es/widgets';
-import 'instantsearch.css/themes/satellite-min.css';
-import { environment } from '@tchl/config';
+
+import { AfterViewInit, Component, inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { AnalyticsService } from '@tchl/analytics';
+import { environment } from '@tchl/config';
+
+import 'instantsearch.css/themes/satellite-min.css';
 
 type Hit = {
   id: string;

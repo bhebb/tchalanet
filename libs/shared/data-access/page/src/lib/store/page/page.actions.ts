@@ -1,4 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
+
 import { PageModel } from '@tchl/types';
 
 export const PageActions = createActionGroup({

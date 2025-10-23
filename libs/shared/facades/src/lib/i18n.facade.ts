@@ -1,6 +1,8 @@
+import { TranslateService } from '@ngx-translate/core';
+
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { TranslateService } from '@ngx-translate/core';
+
 import { I18nActions, selectAvailableLangs, selectCurrentLang } from '@tchl/data-access/i18n';
 
 @Injectable({ providedIn: 'root' })

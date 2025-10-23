@@ -1,9 +1,11 @@
 // src/app/widgets/draw-switcher/draw-switcher.widget.ts
 import { ChangeDetectionStrategy, Component, computed, Input, OnInit, signal } from '@angular/core';
-import { DrawCardComponent, DrawResult, NextDrawInfo } from '../draw-card/draw-card.component';
-import { DrawSwitcherData, DrawSwitcherProps } from '@tchl/types';
-import { LotteryCarouselComponent } from '../lottery-carousel/lottery-carousel.component';
 import { MatIconModule } from '@angular/material/icon';
+
+import { DrawSwitcherData, DrawSwitcherProps } from '@tchl/types';
+
+import { DrawCardComponent, DrawResult, NextDrawInfo } from '../draw-card/draw-card.component';
+import { LotteryCarouselComponent } from '../lottery-carousel/lottery-carousel.component';
 
 @Component({
   selector: 'tchl-draw-switcher',

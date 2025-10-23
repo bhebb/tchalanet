@@ -1,3 +1,9 @@
+import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
+import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
+import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
+import { provideMarkdown } from 'ngx-markdown';
+
+import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
   APP_INITIALIZER,
   ApplicationConfig,
@@ -7,34 +13,32 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { appRoutes } from './app.routes';
-import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
-import {
-  MergedTranslateLoader,
-  MergedTranslateLoaderOptions,
-} from '../../../../libs/shared/utils/i18n/src/lib/loader/merged-translate-loader';
-import { I18nMergerService } from '@tchl/utils/i18n';
-import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
-import { provideState, provideStore } from '@ngrx/store';
-import { PageEffects, pageFeature } from '@tchl/data-access/page';
-import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
 import { provideEffects } from '@ngrx/effects';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
-import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
+
+import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
+import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
+import { environment } from '@tchl/config';
+import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
+import { PageEffects, pageFeature } from '@tchl/data-access/page';
+import { FEATURE_CONTEXT, FEATURE_INITIAL, provideFeatureClient } from '@tchl/feature';
 import { AuthService, LocalStorageSecurityService } from '@tchl/shared/auth';
-import { provideBuiltinWidgets } from '@tchl/web/widgets';
 import { THEME_INIT_PROVIDER } from '@tchl/ui/theme';
+import { I18nMergerService } from '@tchl/utils/i18n';
+import { provideBuiltinWidgets } from '@tchl/web/widgets';
+
 import {
   InstantSearchClient,
   MEILISEARCH_CONFIG,
 } from '../../../../libs/shared/api/src/lib/client/instant-search-client';
-import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
+import {
+  MergedTranslateLoader,
+  MergedTranslateLoaderOptions,
+} from '../../../../libs/shared/utils/i18n/src/lib/loader/merged-translate-loader';
 import { SearchIndexInitializerService } from '../../../../libs/web/widgets/src/lib/search-results/search-index-initializer.service';
-import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
-import { environment } from '@tchl/config';
-import { FEATURE_CONTEXT, FEATURE_INITIAL, provideFeatureClient } from '@tchl/feature';
-import { provideMarkdown } from 'ngx-markdown';
+
+import { appRoutes } from './app.routes';
 
 export const TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
   'TRANSLATE_LOADER_OPTIONS',

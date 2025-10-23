@@ -1,5 +1,6 @@
-import { FeatureClient, FeatureContext, FeatureVariant } from '../feature.types';
 import { BehaviorSubject, Observable } from 'rxjs';
+
+import { FeatureClient, FeatureContext, FeatureVariant } from '../feature.types';
 
 export class MemoryFeatureClient implements FeatureClient {
   private enabled = new Set<string>();

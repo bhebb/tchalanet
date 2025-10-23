@@ -1,9 +1,13 @@
+import { TranslateService } from '@ngx-translate/core';
+
+import { map, tap } from 'rxjs';
+
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { TranslateService } from '@ngx-translate/core';
-import { I18nActions } from './i18n.actions';
-import { map, tap } from 'rxjs';
+
 import { LANG_KEY_ATTRIBUTE, LANG_KEY_STORAGE } from '@tchl/web/constants';
+
+import { I18nActions } from './i18n.actions';
 
 @Injectable()
 export class I18nEffects {

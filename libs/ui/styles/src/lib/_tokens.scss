@@ -1,6 +1,16 @@
 @use 'sass:map';
 @use './_functions' as fn;
 
+/* _tokens.scss */
+:root {
+  --tch-elev-0: none;
+  --tch-elev-1: 0 1px 2px rgb(0 0 0 / 8%), 0 1px 1px rgb(0 0 0 / 6%);
+  --tch-elev-2: 0 2px 6px rgb(0 0 0 / 10%), 0 2px 2px rgb(0 0 0 / 6%);
+  --tch-elev-3: 0 4px 10px rgb(0 0 0 / 12%), 0 3px 3px rgb(0 0 0 / 6%);
+  --tch-elev-4: 0 8px 16px rgb(0 0 0 / 14%), 0 4px 6px rgb(0 0 0 / 6%);
+  --tch-elev-5: 0 12px 24px rgb(0 0 0 / 18%), 0 8px 10px rgb(0 0 0 / 8%);
+}
+
 // (si tu as déjà ces scalaires, on s’en sert)
 $container-max: 1120px !default;
 $container-pad-min: 16px !default;
@@ -26,15 +36,6 @@ $radius: (sm: 8px, md: 12px, lg: 16px) !default;
 $z: (side: 800, header: 900, dropdown: 1120, dialog: 1300, snackbar: 1400, tooltip: 1500, overlay: 4000, search:5200, menu: 5500) !default;
 $dur: (fast:150ms, normal:250ms, slow:400ms);
 
-/* _tokens.scss */
-:root {
-  --tch-elev-0: none;
-  --tch-elev-1: 0 1px 2px rgb(0 0 0 / 8%), 0 1px 1px rgb(0 0 0 / 6%);
-  --tch-elev-2: 0 2px 6px rgb(0 0 0 / 10%), 0 2px 2px rgb(0 0 0 / 6%);
-  --tch-elev-3: 0 4px 10px rgb(0 0 0 / 12%), 0 3px 3px rgb(0 0 0 / 6%);
-  --tch-elev-4: 0 8px 16px rgb(0 0 0 / 14%), 0 4px 6px rgb(0 0 0 / 6%);
-  --tch-elev-5: 0 12px 24px rgb(0 0 0 / 18%), 0 8px 10px rgb(0 0 0 / 8%);
-}
 
 /* _mixins.scss */
 @mixin elevate($level: 1) {
