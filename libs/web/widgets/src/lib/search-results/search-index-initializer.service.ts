@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+
 import { InstantSearchClient } from '../../../../../shared/api/src/lib/client/instant-search-client';
 
 @Injectable({

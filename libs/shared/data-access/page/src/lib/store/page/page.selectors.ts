@@ -1,4 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
+
 import { PageState } from './page.state';
 
 // Le nom de notre "feature" dans le store, ex: 'page'
@@ -29,4 +30,4 @@ export const selectI18n = createSelector(selectPage, page => page?.i18n);
 export const selectBackendLangs = createSelector(selectPage, page => page?.langs);
 export const selectBackendCurrent = createSelector(selectPage, page => page?.currentLang);
 export const selectSidenav = createSelector(selectPage, p => p?.nav?.sidenav ?? []);
-export const selectFeatures = createSelector(selectPage, p => new Set(p?.features ?? []));
+export const selectFeatures = createSelector(selectPage, p => new Set(p?.flags ?? []));

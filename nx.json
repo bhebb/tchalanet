@@ -43,6 +43,12 @@
       }
     },
     {
+      "plugin": "@nx/run-commands/plugin",
+      "options": {
+        "targetName": "run-commands"
+      }
+    },
+    {
       "plugin": "@nx/vite/plugin",
       "options": {
         "buildTargetName": "build",

@@ -1,7 +1,9 @@
+import { filter } from 'rxjs/operators';
+
 import { inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+
 import { AnalyticsService } from './analytics.service';
-import { filter } from 'rxjs/operators';
 
 export function setupRouterPageViews() {
   const router = inject(Router);

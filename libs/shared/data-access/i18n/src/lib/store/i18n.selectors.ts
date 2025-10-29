@@ -1,5 +1,6 @@
 // Le nom de notre "feature" dans le store, ex: 'page'
 import { createFeatureSelector, createSelector } from '@ngrx/store';
+
 import { I18nState } from './i18n.state';
 
 export const I18N_FEATURE_KEY = 'i18n';

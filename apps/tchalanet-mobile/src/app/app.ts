@@ -1,6 +1,7 @@
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 
 @Component({
   standalone: true,

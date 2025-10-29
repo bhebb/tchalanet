@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+
 import { AuthService } from '@tchl/shared/auth';
 
 @Component({
@@ -13,6 +14,6 @@ export class App {
   protected title = 'tchalanet';
 
   constructor(auth: AuthService) {
-    auth.wireOidcEvents(); // pour que silent refresh réhydrate tes signals
+    auth.wireOidcEvents(); // pour que silent refresh réhydrate les signals
   }
 }

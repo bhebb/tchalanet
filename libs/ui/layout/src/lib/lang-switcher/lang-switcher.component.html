@@ -1,0 +1,47 @@
+<button
+        mat-icon-button
+        class="tch-lang-switcher__trigger"
+        [matMenuTriggerFor]="langMenu"
+        aria-label="Changer de langue"
+>
+    <img
+            class="tch-lang-switcher__flag tch-lang-switcher__flag--chip"
+            [src]="flagIcon(currentLang())"
+            [alt]="currentLang()"
+    />
+</button>
+
+<mat-menu
+    #langMenu="matMenu"
+    class="tch-lang-switcher__menu"
+    backdropClass="tch-lang-switcher__backdrop"
+    xPosition="after"
+    yPosition="below"
+    [overlapTrigger]="false"
+    panelClass="tch-lang-switcher__menu"
+>
+    @for (l of availableLangs(); track l) {
+        <button
+                mat-menu-item
+                type="button"
+                role="menuitemradio"
+                class="tch-lang-switcher__menu-item"
+                [class.tch-lang-switcher__menu-item--current]="currentLang() === l"
+                [attr.aria-checked]="currentLang()===l ? 'true' : 'false'"
+                (click)="changeLanguage(l)"
+        >
+      <span class="tch-lang-switcher__row">
+        <img
+                class="tch-lang-switcher__flag tch-lang-switcher__flag--menu"
+                [src]="flagIcon(l)"
+                [alt]="l"
+        />
+        <span class="tch-lang-switcher__label">{{ labelFor()(l) }}</span>
+
+          @if (currentLang() === l) {
+              <span class="tch-lang-switcher__current-dot" aria-hidden="true"></span>
+          }
+      </span>
+        </button>
+    }
+</mat-menu>

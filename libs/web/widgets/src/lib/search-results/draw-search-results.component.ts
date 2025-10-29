@@ -1,6 +1,7 @@
-import { DrawSearchResult, SearchService } from './search.service';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { DrawSearchResult, SearchService } from './search.service';
 
 @Component({
   selector: 'app-draw-search-results',

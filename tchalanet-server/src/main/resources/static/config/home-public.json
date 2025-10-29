@@ -7,17 +7,20 @@
   ],
   "context": "home-public",
   "theme": {
-    "id": "indigo",
+    "presetId": "tchalanet",
     "mode": "light",
-    "primaryColor": "#225EC7",
-    "accentColor": "#134D9F"
+    "density": -1,
+    "overrides": {
+      "vars": {
+      }
+    }
   },
   "header": {
     "component": "PublicHeader",
     "properties": {
       "brand": {
         "logo": "/assets/branding/logo-tchalanet.svg",
-        "name": "TCHALANET",
+        "name": "Tchalanet",
         "href": "/"
       },
       "navigation": [
@@ -27,26 +30,53 @@
         },
         {
           "labelKey": "nav.features",
-          "path": "features"
+          "path": "/features"
         },
         {
           "labelKey": "nav.pricing",
-          "path": "pricing"
+          "path": "/pricing"
         },
         {
-          "labelKey": "nav.results",
-          "path": "results"
+          "labelKey": "nav.verify",
+          "path": "/verifier",
+          "flag": "ff.ticket.verify"
         }
       ],
+      "actions": {
+        "search": {
+          "flag": "ff.search.enabled"
+        },
+        "lang": {
+          "flag": "ff.lang.enabled"
+        },
+        "theme": {
+          "flag": "ff.theme.enabled"
+        }
+      },
       "cta": {
-        "labelKey": "nav.dashboard",
-        "path": "/auth/login"
+        "public": {
+          "labelKey": "cta.try",
+          "path": "/demo",
+          "flag": "ff.cta.public"
+        },
+        "private": {
+          "labelKey": "cta.dashboard",
+          "path": "/app/dashboard",
+          "flag": "ff.cta.private"
+        }
       },
-      "langSwitcher": {
-        "visible": true,
-        "position": "end"
-      },
-      "sticky": true
+      "account": {
+        "public": {
+          "labelKey": "auth.login",
+          "path": "/login",
+          "avatar": "generic"
+        },
+        "private": {
+          "labelKey": "auth.profile",
+          "path": "/app/profile",
+          "avatar": "user"
+        }
+      }
     }
   },
   "layout": {
@@ -403,85 +433,79 @@
         "name": "Tchalanet",
         "href": "/"
       },
-      "accentHex": "#6A66FF",
+      "accentHex": "#D84C51",
       "columns": [
         {
-          "titleKey": "footer.legal",
+          "titleKey": "footer.section.inform",
           "links": [
             {
-              "labelKey": "footer.legalMentions",
-              "path": "/legal"
+              "labelKey": "info.game_explanations",
+              "path": "/explanations"
             },
             {
-              "labelKey": "footer.refund",
-              "path": "/refund-policy"
+              "labelKey": "info.security_tips",
+              "path": "/security"
             },
             {
-              "labelKey": "footer.languages",
-              "path": "/languages"
+              "labelKey": "info.official_results",
+              "path": "/official-reports"
             },
             {
-              "labelKey": "footer.dpa",
-              "path": "/dpa"
-            },
-            {
-              "labelKey": "footer.about",
-              "path": "/about"
+              "labelKey": "info.tchala",
+              "path": "/tchala"
             }
           ]
         },
         {
-          "titleKey": "footer.support",
+          "titleKey": "footer.section.legal",
           "links": [
             {
-              "labelKey": "footer.docs",
-              "path": "/docs"
+              "labelKey": "legal.regulation",
+              "path": "/legal/regulation"
             },
             {
-              "labelKey": "footer.preSale",
-              "path": "/contact/pre-sale"
+              "labelKey": "legal.responsible",
+              "path": "/legal/responsible"
             },
             {
-              "labelKey": "footer.faq",
-              "path": "/faq"
+              "labelKey": "legal.privacy",
+              "path": "/legal/privacy"
+            }
+          ]
+        },
+        {
+          "titleKey": "footer.section.resources",
+          "links": [
+            {
+              "labelKey": "nav.verify",
+              "path": "/verify"
             },
             {
-              "labelKey": "footer.tech",
+              "labelKey": "nav.support",
               "path": "/support"
-            },
-            {
-              "labelKey": "footer.findTranslator",
-              "external": "https://…"
             }
           ]
         },
         {
-          "titleKey": "footer.product",
+          "titleKey": "footer.section.partners",
           "links": [
             {
-              "labelKey": "footer.contact",
-              "path": "/contact"
+              "labelKey": "partners.antb",
+              "external": "https://antbhaiti.org"
             },
             {
-              "labelKey": "footer.wpDemo",
-              "external": "https://…"
-            },
-            {
-              "labelKey": "footer.shopifyDemo",
-              "external": "https://…"
-            },
-            {
-              "labelKey": "footer.comparison",
-              "path": "/comparison"
-            },
-            {
-              "labelKey": "footer.affiliates",
-              "path": "/affiliates"
+              "labelKey": "partners.evalujeu",
+              "external": "https://www.evalujeu.fr/"
             }
           ]
         }
       ],
       "socials": [
+        {
+          "icon": "youtube",
+          "href": "https://youtube.com/@tchalanet",
+          "aria": "YouTube"
+        },
         {
           "icon": "x",
           "href": "https://x.com/tchalanet",
@@ -491,11 +515,6 @@
           "icon": "facebook",
           "href": "https://facebook.com/tchalanet",
           "aria": "Facebook"
-        },
-        {
-          "icon": "youtube",
-          "href": "https://youtube.com/@tchalanet",
-          "aria": "YouTube"
         },
         {
           "icon": "instagram",
@@ -508,10 +527,10 @@
           "aria": "LinkedIn"
         }
       ],
-      "copyrightKey": "footer.copyright"
+      "copyrightKey": "copyright.notice"
     }
   },
   "i18n": {},
   "issues": []
 }
-     
+

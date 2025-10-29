@@ -1,12 +1,14 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
 import {
   EventTypes,
   LoginResponse,
   OidcSecurityService,
   PublicEventsService,
 } from 'angular-auth-oidc-client';
+
 import { Observable } from 'rxjs';
 import { finalize, shareReplay, take } from 'rxjs/operators';
+
+import { computed, inject, Injectable, signal } from '@angular/core';
 
 export type TchClaim = {
   tenantId: string;
@@ -53,7 +55,7 @@ export class AuthService {
 
   // ===== Login/Logout =====
   /** Démarre le flow OIDC; target sera utilisée après callback. */
-  login(target: string = '/app') {
+  login(target = '/app') {
     sessionStorage.setItem('login_target', target);
     this.oidc.authorize();
   }

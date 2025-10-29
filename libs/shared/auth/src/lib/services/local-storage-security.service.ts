@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
 import { AbstractSecurityStorage } from 'angular-auth-oidc-client';
+
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class LocalStorageSecurityService extends AbstractSecurityStorage {

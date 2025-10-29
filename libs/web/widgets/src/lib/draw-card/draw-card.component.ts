@@ -1,6 +1,6 @@
 // src/app/widgets/draw-card/draw-card.component.ts
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, input, signal, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed,input, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 

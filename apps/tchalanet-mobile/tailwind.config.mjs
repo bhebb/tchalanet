@@ -1,6 +1,6 @@
 import { createGlobPatternsForDependencies } from '@nx/angular/tailwind';
-import { join } from 'path';
 import daisyui from 'daisyui';
+import { join } from 'path';
 
 export default { // 👈 CHANGEMENT N°2 : On utilise 'export default'
   content: [

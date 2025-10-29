@@ -1,6 +1,8 @@
-import { Inject, Injectable } from '@angular/core';
-import { InstantSearchClient } from '../../../../../shared/api/src/lib/client/instant-search-client';
 import { SearchResponse } from 'meilisearch';
+
+import { Inject, Injectable } from '@angular/core';
+
+import { InstantSearchClient } from '../../../../../shared/api/src/lib/client/instant-search-client';
 
 export interface SearchResult<T = any> {
   id: string; // Identifiant unique du résultat

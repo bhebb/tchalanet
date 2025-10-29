@@ -1,5 +1,6 @@
-import { TchLink } from './page.model';
 import { DrawResult, LotteryLite, NextDrawInfo } from '@tchl/web/widgets';
+
+import { TchLink } from './page.model';
 
 export type WidgetKind = 'HeroWidget' | 'FeatureCardWidget';
 

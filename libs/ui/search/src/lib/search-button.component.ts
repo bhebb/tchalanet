@@ -1,7 +1,9 @@
 import { Component, HostListener, inject } from '@angular/core';
-import { OverlayService } from './overlay.service';
 import { MatIcon } from '@angular/material/icon';
+
 import { AnalyticsService } from '@tchl/analytics';
+
+import { OverlayService } from './overlay.service';
 
 @Component({
   standalone: true,

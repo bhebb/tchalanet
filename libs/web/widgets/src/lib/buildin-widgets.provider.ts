@@ -1,5 +1,4 @@
 import { Provider } from '@angular/core';
-import { TCH_WIDGET_REGISTRY } from './widget.token';
 
 import {
   DrawSwitcherWidget,
@@ -7,7 +6,9 @@ import {
   HeroWidgetComponent,
   NewsBannerWidget,
 } from '@tchl/web/widgets';
+
 import { QuickActionsWidgetComponent } from './quick-actions/quick-actions.component';
+import { TCH_WIDGET_REGISTRY } from './widget.token';
 
 export const provideBuiltinWidgets = (): Provider => [
   {

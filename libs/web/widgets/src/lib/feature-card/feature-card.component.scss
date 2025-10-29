@@ -8,14 +8,12 @@
   border-radius: var(--radius, 12px);
   box-shadow: var(--elev-2);
   padding: 1rem 1.25rem;
-
   display: flex;
   flex-direction: column;
   gap: .75rem;
 
   /* toutes les cartes auront au moins cette hauteur (rangée bien alignée) */
   min-height: var(--card-min-h);
-
   transition: transform .2s ease, box-shadow .2s ease;
 }
 
@@ -34,7 +32,6 @@
   height: var(--media-h);
   border-radius: calc(var(--radius, 12px) - 6px);
   background: color-mix(in oklab, var(--color-primary) 6%, white);
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,7 +76,6 @@
   font: 400 14px/22px var(--font-family);
   color: var(--color-on-surface);
   opacity: .9;
-
   display: -webkit-box;
   -webkit-line-clamp: 3; /* ~3 lignes sur mobile */
   -webkit-box-orient: vertical;
@@ -100,16 +96,19 @@
 }
 
 /* Desktop : un peu plus d’espace */
-@media (min-width: 960px) {
+@media (width >= 960px) {
   .feature-card {
     --media-h: 180px;
     --card-min-h: 260px;
   }
+
   .feature-card--with-image {
     --card-min-h: 340px;
   }
+
   .feature-card__desc {
     -webkit-line-clamp: 4;
   }
+
   /* 4 lignes sur desktop */
 }

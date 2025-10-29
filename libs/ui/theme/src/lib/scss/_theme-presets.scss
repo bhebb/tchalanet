@@ -1,0 +1,82 @@
+// libs/ui/theme/src/lib/scss/_preset-theme.scss
+@use '@angular/material' as mat;
+
+/// Génère un preset Tchalanet basé sur deux palettes Material:
+/// - $primaryPalette  => brand principal (header/footer)
+/// - $accentPalette   => accent (CTA / hover / underline actif)
+///
+/// $id = presetId unique ('violet-green', 'indigo-orange', 'tchalanet', ...)
+///
+/// Rôle:
+/// 1. appelle mat.theme() pour sortir toutes les --mat-sys-*
+/// 2. mappe les tokens de marque app → --tch-*
+@mixin tch-generate-theme($id, $primaryPalette, $accentPalette) {
+
+  /* ================= LIGHT VARIANT ================= */
+  .tch-theme[data-preset="#{$id}"] {
+    color-scheme: light;
+
+    @include mat.theme((
+            color: (
+                    theme-type: light,
+                    primary: $primaryPalette,
+                    tertiary: $accentPalette,
+            ),
+            typography: (
+                    plain-family: 'Poppins, system-ui, sans-serif',
+                    brand-family: 'Poppins, system-ui, sans-serif',
+                    regular-weight: 400,
+                    medium-weight: 500,
+                    bold-weight: 600,
+            ),
+            density: 0,
+    ));
+
+    /* Marque header/footer (état "clair" brut) */
+    --tch-header-bg-base: var(--mat-sys-primary);
+    --tch-header-fg-base: var(--mat-sys-on-primary);
+
+    --tch-footer-bg-base: var(--mat-sys-primary);
+    --tch-footer-fg-base: var(--mat-sys-on-primary);
+
+    /* Accent global pour CTA, hover liens, underline actif */
+    --tch-accent-bg-base: var(--mat-sys-tertiary);
+    --tch-accent-fg-base: var(--mat-sys-on-tertiary);
+  }
+
+  /* ================= DARK VARIANT ================= */
+  .tch-theme.dark[data-preset="#{$id}"] {
+    color-scheme: dark;
+
+    @include mat.theme((
+            color: (
+                    theme-type: dark,
+                    primary: $primaryPalette,
+                    tertiary: $accentPalette,
+            ),
+            typography: (
+                    plain-family: 'Poppins, system-ui, sans-serif',
+                    brand-family: 'Poppins, system-ui, sans-serif',
+                    regular-weight: 400,
+                    medium-weight: 500,
+                    bold-weight: 600,
+            ),
+            density: 0,
+    ));
+
+    /* On réutilise les mêmes sources de vérité en dark.
+       On NE force pas ici du #000 / #fff :
+       on laisse le runtime dark-layer décider.
+       On ne duplique pas les tokens mais on set les mêmes noms pour que
+       l'algo global fonctionne pareil.
+    */
+    --tch-header-bg-base: var(--mat-sys-primary);
+    --tch-header-fg-base: var(--mat-sys-on-primary);
+
+    --tch-footer-bg-base: var(--mat-sys-primary);
+    --tch-footer-fg-base: var(--mat-sys-on-primary);
+
+    --tch-accent-bg-base: var(--mat-sys-tertiary);
+    --tch-accent-fg-base: var(--mat-sys-on-tertiary);
+  }
+}

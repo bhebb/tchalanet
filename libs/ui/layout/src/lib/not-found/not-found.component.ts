@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+
 import { ErrorBlockComponent } from '../error-block/error-block.component';
 
 @Component({

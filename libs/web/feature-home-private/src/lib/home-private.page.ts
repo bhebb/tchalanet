@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { FooterComponent, HeaderComponent } from 'shared/ui-shell-material';
-import { RouterLink } from '@angular/router';
 import { FooterModel, HeaderModel } from 'shared/types';
+import { FooterComponent, HeaderComponent } from 'shared/ui-shell-material';
+
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'lib-home-private-page',

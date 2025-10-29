@@ -18,7 +18,6 @@ $accent: mat.define-palette(mat.$indigo-palette, 600);
 // Et enfin, la couleur "warn" pour les messages d'erreur ou les actions destructrices.
 $warn: mat.define-palette(mat.$red-palette, 400);
 
-
 // --- PARTIE 2 : CRÉER LES RECETTES DE THÈME COMPLÈTES ---
 // Maintenant qu'on a nos ingrédients (les palettes), on crée les recettes.
 
@@ -50,7 +49,6 @@ warn: $warn,
 ),
 density: 0
 ));
-
 
 // --- PARTIE 3 : GÉNÉRER LE CSS ---
 // C'est ici que la magie opère. Les recettes sont prêtes, on lance la cuisson.
@@ -104,9 +102,10 @@ _token.scss
 --mdc-theme-on-accent: #{mat.get-color-from-palette(theme.$accent, '500-contrast')};
 
 --mdc-theme-warn: #{mat.get-color-from-palette(theme.$warn, 500)};
---mdc-theme-on-warn: #{mat.get-color-from-palette(theme.$warn, '500-contrast')}; 
+--mdc-theme-on-warn: #{mat.get-color-from-palette(theme.$warn, '500-contrast')};
 
 🎨 Tchalanet Design System
+
 1. Système de Theming
 
 Base Angular Material 20 (MDC) + surcouche SCSS.
@@ -219,3 +218,61 @@ Un thème central + overrides runtime → simple et multi-tenant.
 Layout mobile-first clair et stable.
 
 Les bases sont solides, les améliorations à faire sont du polish et de l’accessibilité.}
+
+# Theming Guide (Tchalanet)
+
+## Architecture
+
+- **Source of truth (runtime)** : `ThemeDomApplier`
+    - Écrit `:root { … }` et `:root[data-theme="dark"] { … }` (tokens Material `--mat-sys-*` + tokens globaux).
+    - Toggle `.dark` sur le conteneur `.tch-theme` et sur `OverlayContainer`.
+    - Applique `matClass` (Angular Material) et densité (`mat-density-0/1/2`).
+    - (Option) charge la police définie dans le preset JSON.
+- **Surfaces applicatives (compile-time)** : `@mixin tchl-surface-vars(light|dark)`
+    - Dérive `--header-*`, `--footer-*`, `--hero-*`, `--crumb-*`, `--tch-nav-*`, etc. depuis `--mat-sys-*`.
+    - Émis sur `.tch-theme` (light) et `.tch-theme.dark` (dark).
+- **Presets (JSON)** : couleurs, typo, densité, overrides
+    - `palette` → alimente `--mat-sys-*`
+    - `typography` → `--tch-font-family`, `--tch-w-*`, `--tch-type-scale` (+ `loadHref`)
+    - `cssVars` : overrides arbitraires (`"--dark:--header-bg": "#0f2a5a"`, etc.)
+    - `tokens` (option) : `headerBg`, `headerFg`, …
+
+## Règles d’or
+
+1. **Jamais de couleurs/valeurs “en dur” dans les composants**  
+   Utiliser *uniquement* des variables CSS (tokens).
+2. **Un seul calcul des surfaces** (dans `tchl-surface-vars`)  
+   L’applier **n’écrit pas** `--header-*` / `--footer-*` par défaut (sauf override preset).
+3. **Exposer des variables par composant**  
+   `--comp-*` avec fallback vers les tokens globaux → rethémable sans toucher au CSS.
+4. **Navigation active**  
+   Utiliser `routerLinkActive="active"` + `{ exact: path === '/' }`.  
+   Styles via `--tch-nav-active-bg/fg`.
+5. **Mapping Angular Material → tokens app**  
+   Une seule fois en global (toolbar/menu/dialog/select/overlay/card/table).
+6. **Typographie pilotée par preset**  
+   Famille, poids, échelle via variables → pas de police “en dur” dans un composant.
+7. **Dark mode**  
+   `.tch-theme.dark` + `:root[data-theme="dark"]` → zéro style conditionnel local.
+
+## Tokens globaux (exemples)
+
+- **Couleurs document** : `--tch-color-surface`, `--tch-color-on-surface`, `--tch-color-primary`
+- **Nav** : `--tch-nav-fg`, `--tch-nav-hover-bg`, `--tch-nav-active-bg`, `--tch-nav-active-fg`
+- **Breadcrumb** : `--crumb-bg`, `--crumb-fg`, `--crumb-sep`, `--crumb-link`, `--crumb-current`
+- **Card/Surfaces** : `--tch-surface-card`, `--tch-on-surface-card`, `--tch-sep`
+- **Typo** : `--tch-font-family`, `--tch-w-regular/medium/semibold/bold`, `--tch-type-scale`
+- **Rayon** : `--tch-shape-radius`
+
+## Patterns de composant
+
+### A. Consommer les tokens
+
+```scss
+.tch-card {
+  background: var(--tch-surface-card);
+  color: var(--tch-on-surface-card);
+  border: 1px solid var(--tch-sep);
+  border-radius: var(--tch-shape-radius, 12px);
+}
+

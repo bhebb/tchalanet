@@ -1,335 +1,183 @@
-/* =========================================================
-   Tchalanet — Footer (mobile-first, tokens, full-bleed)
-   Namespace: <footer class="tch-footer ftr">…</footer>
-   ========================================================= */
-
 @use 'libs/ui/styles/src/lib/_mixins.scss' as m;
 @use 'libs/ui/styles/src/lib/_breakpoints.scss' as br;
+@use '../primitives/link' as *;
 
-/* ---------------- TOKENS (overridables) ---------------- */
-:root {
-  /* Couleurs */
-  --ftr-bg: var(--mat-sys-color-primary, #134D9F);
-  --ftr-fg: var(--mat-sys-color-on-primary, #fff);
-  --ftr-muted: color-mix(in oklab, var(--ftr-fg) 78%, transparent);
-  --ftr-sep: color-mix(in oklab, var(--ftr-fg) 18%, transparent);
+/* ==========================================================================
+   FOOTER
+   - Layout + theming du footer global
+   - Expose ses tokens locaux (--comp-footer-*)
+   - Mobile-first
+   ========================================================================== */
 
-  /* Typo */
-  --ftr-title-size: 15px;
-  --ftr-title-weight: 800;
-  --ftr-title-color: #fff;
-  --ftr-title-ls: .3px;
-  --ftr-link-size: 14px;
-  --ftr-link-weight: 500;
-  --ftr-copy-size: 13px;
+.tch-footer {
+  /* Tokens locaux du footer */
+  --comp-footer-bg: var(--tch-footer-bg);
+  --comp-footer-fg: var(--tch-footer-fg);
+  --comp-footer-border: var(--tch-sep-header);
+  --comp-footer-pad-block: clamp(24px, 4vw, 32px);
+  --comp-footer-grid-gap: clamp(20px, 3vw, 24px);
+  --comp-footer-max-width: var(--tch-page-max, 1120px);
+  --comp-footer-gutter: var(--tch-page-gutter, clamp(16px, 4vw, 24px));
 
-  /* Layout */
-  --ftr-pad-top: 28px;
-  --ftr-pad-bottom: 28px; /* plus d’air pour le copyright */
-  --ftr-cols-gap: 28px;
-  --ftr-list-gap: 8px;
-  --ftr-divider-m: 22px;
+  /* Link tokens (hérités par les liens du footer) */
+  --tch-link-fg: var(--comp-footer-fg);
+  --tch-link-fg-hover: var(--tch-color-accent);
+  --tch-link-fg-active: var(--tch-color-accent);
+  --tch-link-focus-ring: var(--tch-color-accent);
 
-  /* Container (aligné au site) */
-  --ftr-max: var(--page-max, 1120px);
-  --ftr-gutter: var(--page-gutter, clamp(16px, 4vw, 24px));
+  /* Social link tokens */
+  --comp-footer-social-size: 28px;
+  --comp-footer-social-gap: 8px;
+  --comp-footer-social-bg: color-mix(in oklab, var(--comp-footer-bg) 80%, white);
+  --comp-footer-social-border: color-mix(in oklab, var(--tch-color-outline) 35%, transparent);
 
-  /* Brand & Socials */
-  --ftr-logo-size: 36px;
-  --ftr-social-size: 40px;
-  --ftr-social-bg: color-mix(in oklab, #fff 18%, transparent);
-  --ftr-social-bg-hover: color-mix(in oklab, #fff 28%, transparent);
-}
-
-/* ---------------- ROOT + full-bleed ---------------- */
-.tch-footer.ftr {
+  background: var(--comp-footer-bg);
+  color: var(--comp-footer-fg);
+  border-top: 1px solid var(--comp-footer-border);
+  padding-block: var(--comp-footer-pad-block);
   position: relative;
-  isolation: isolate;
-  background: var(--ftr-bg);
-  color: var(--ftr-fg);
-  padding-block: var(--ftr-pad-top) var(--ftr-pad-bottom);
-  font-family: var(--font-family, system-ui, sans-serif);
-  line-height: 1.45;
-}
+  overflow: hidden;
 
-.tch-footer.ftr::before {
-  content: "";
-  position: absolute;
-  inset: 0 calc(50% - 50vw);
-  background: var(--ftr-bg);
-  z-index: -1;
-}
+  /* Grille responsive */
+  &__grid {
+    @include m.container(var(--comp-footer-max-width), var(--comp-footer-gutter));
+    display: grid;
+    gap: var(--comp-footer-grid-gap);
+    grid-template-columns: 1fr;
 
-/* ---------------- Container & grid ---------------- */
-.tch-footer .container {
-  @include m.container(var(--ftr-max), var(--ftr-gutter));
-}
+    @include br.up('sm') {
+      grid-template-columns: repeat(2, 1fr);
+    }
 
-.tch-footer .cols {
-  display: grid;
-  grid-template-columns: 1fr; /* mobile */
-  column-gap: clamp(16px, 4vw, 28px);
-  row-gap: var(--ftr-cols-gap);
-}
+    @include br.up('lg') {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
 
-/* ---------------- Colonnes ---------------- */
-.tch-footer .col {
-  min-width: 0;
-}
+  /* Colonnes */
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 
-/* Titres (distincts des liens) */
-.tch-footer .col__title {
-  margin: 0 0 10px;
-  padding-inline-start: 2px; /* léger inset optique */
-  font: var(--ftr-title-weight) var(--ftr-title-size)/1.15 var(--font-family);
-  color: var(--ftr-title-color);
-  letter-spacing: var(--ftr-title-ls);
-  opacity: .98;
-  /* rendu net & gras assuré */
-  font-weight: 800;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Liens */
-.tch-footer .col__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: var(--ftr-list-gap);
-}
-
-.tch-footer .link {
-  display: inline-block;
-  font: var(--ftr-link-weight) var(--ftr-link-size)/1.4 var(--font-family);
-  color: var(--ftr-fg);
-  text-decoration: none;
-  opacity: .92;
-  overflow-wrap: anywhere;
-
-  &:hover {
+  /* Typographie */
+  &__title {
+    /* on le rend clairement plus haut dans la hiérarchie */
+    font-weight: var(--tch-weight-semibold);
+    font-size: var(--tch-font-size-body, 1rem); /* si t'as une var dédiée genre --tch-size-title utilise-la */
+    line-height: 1.4;
+    letter-spacing: var(--tch-letter-tight, -0.2px);
+    color: var(--comp-footer-fg);
+    margin-block-end: 8px;
     opacity: 1;
-    text-decoration: underline;
   }
 
-  &:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
-  }
-}
-
-/* ---------------- Brand & Socials ---------------- */
-.tch-footer .col.brand {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.tch-footer .brand__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: inherit;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.tch-footer .brand__logo {
-  inline-size: var(--ftr-logo-size);
-  block-size: var(--ftr-logo-size);
-  object-fit: contain;
-  display: block; /* supprime la baseline image */
-  aspect-ratio: 1 / 1;
-}
-
-.tch-footer .brand__name {
-  font: 700 18px/1 var(--font-family);
-  letter-spacing: .2px;
-}
-
-/* Sociaux */
-.tch-footer .socials {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.tch-footer .social {
-  inline-size: var(--ftr-social-size);
-  block-size: var(--ftr-social-size);
-  min-width: 44px;
-  min-height: 44px; /* a11y */
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--ftr-social-bg);
-  color: var(--ftr-fg);
-  transition: background .2s ease;
-
-  &:hover, &:focus-visible {
-    background: var(--ftr-social-bg-hover);
-    outline: none;
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .mat-icon, .mat-icon svg {
-    color: currentColor;
-    fill: currentColor;
-    width: 1em;
-    height: 1em;
-    line-height: 1;
-    display: block;
+  &__item {
+    margin: 0;
+    padding: 0;
   }
 
-  .mat-icon {
-    font-size: calc(var(--ftr-social-size) * .52);
-  }
-}
+  /* Liens */
+  &__link {
+    @extend %tch-link;
+    @extend %tch-link-hoverable;
+    font-weight: var(--tch-weight-regular);
+    font-size: var(--tch-font-size-small, .9375rem); /* un chouïa plus petit que le titre */
+    line-height: 1.6;
+    color: var(--tch-link-fg);
+    opacity: .8;
+    text-decoration: none;
+    text-underline-offset: 3px;
+    transition: color var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease),
+    opacity var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease),
+    text-decoration-color var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease);
 
-/* ---------------- Divider & baseline ---------------- */
-.tch-footer .divider {
-  border-color: var(--ftr-sep) !important;
-  margin: var(--ftr-divider-m) 0;
-}
+    &:hover,
+    &:focus-visible {
+      color: var(--tch-link-fg-hover); /* vert dans violet-green, orange dans indigo-orange, etc. */
+      opacity: 1;
+      text-decoration-line: none;
+    }
 
-.tch-footer .baseline {
-  display: flex;
-  justify-content: center;
-  margin-top: 14px;
-  padding-bottom: 6px;
-}
+    &:active{
+      color: var(--tch-link-fg-active); /* vert dans violet-green, orange dans indigo-orange, etc. */
+    }
+  }
 
-.tch-footer .copy {
-  font: 500 var(--ftr-copy-size)/1.4 var(--font-family);
-  color: var(--ftr-muted);
-  text-align: center;
-}
 
-/* ---------------- Tablet ≥ md ---------------- */
-@include br.up(md) {
-  .tch-footer .cols {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+  /* Colonne marque */
+  &__col--brand {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
-  .tch-footer .col {
-    grid-column: span 3;
-  }
-  .tch-footer .col.brand {
-    grid-column: 5 / -1;
-    justify-self: end;
-    align-items: flex-end;
-    text-align: right;
-  }
-  .tch-footer .col__list {
+
+  &__brand-link {
+    @extend %tch-link;
+    display: inline-flex;
+    align-items: center;
     gap: 10px;
   }
-}
 
-/* ---------------- Desktop ≥ lg ---------------- */
-@include br.up(lg) {
-  .tch-footer .cols {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(16px, 3vw, 32px);
-    grid-auto-flow: row dense; /* remplit au plus haut possible */
-    align-items: start;
+  &__brand-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
   }
 
-  /* trois colonnes de liens = 3,3,3 (1–3, 4–6, 7–9) */
-  .tch-footer .col {
-    grid-column: span 3;
+  &__brand-name {
+    font-weight: var(--tch-weight-semibold);
   }
 
-  /* brand démarre à 10 -> pas de chevauchement, même rangée */
-  .tch-footer .col.brand {
-    grid-column: 10 / -1;
-    justify-self: end;
-    align-items: flex-end;
-    text-align: right;
-    align-self: start;
-    margin-top: 0;
+  /* Réseaux sociaux */
+  &__socials {
+    display: inline-flex;
+    gap: var(--comp-footer-social-gap);
+    margin-block-start: 6px;
   }
 
-  /* clamps anti-overflow + lisibilité */
-  .tch-footer .brand__logo {
-    inline-size: clamp(28px, 3.2vw, var(--ftr-logo-size));
-    block-size: clamp(28px, 3.2vw, var(--ftr-logo-size));
+  &__social-link {
+    @extend %tch-link;
+    width: var(--comp-footer-social-size);
+    height: var(--comp-footer-social-size);
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--comp-footer-social-bg);
+    outline: 1px solid var(--comp-footer-social-border);
+    transition: filter .2s, transform .2s;
+
+    &:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
   }
-  .tch-footer .brand__name {
-    max-inline-size: 18ch;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+  /* Séparateur et baseline */
+  &__divider {
+    @include m.container(var(--comp-footer-max-width), var(--comp-footer-gutter));
+    margin-block-start: 20px;
+    height: 1px;
+    background: color-mix(in oklab, var(--comp-footer-bg) 16%, transparent);
   }
 
-  /* sociaux compacts, sur une ligne quand possible */
-  .tch-footer .socials {
-    flex-wrap: nowrap;
-    gap: 10px;
+  &__bottom {
+    @include m.container(var(--comp-footer-max-width), var(--comp-footer-gutter));
+    text-align: center;
+    font-size: var(--tch-font-size-small);
+    opacity: .75;
+    margin-block-start: 16px;
   }
-  .tch-footer .social {
-    inline-size: clamp(32px, 3vw, 36px);
-    block-size: clamp(32px, 3vw, 36px);
-  }
-  .tch-footer .social .mat-icon {
-    font-size: 19px;
-  }
-  /* ~0.53 * 36 */
-}
 
-/* ---------------- Modifiers (optionnels) ---------------- */
-/* Barre d’accent à gauche des titres */
-.tch-footer.title-accent .col__title {
-  position: relative;
-  padding-inline-start: 10px;
-}
-
-.tch-footer.title-accent .col__title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: .2em;
-  bottom: .2em;
-  inline-size: 3px;
-  border-radius: 2px;
-  background: color-mix(in oklab, #fff 70%, transparent);
-}
-
-/* Titres en petites CAPS */
-.tch-footer.title-caps .col__title {
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  font-weight: 800;
-  font-size: 13px;
-}
-
-/* ---------------- Dark mode ---------------- */
-:root[data-theme="dark"] {
-  --ftr-bg: color-mix(in oklab, var(--mat-sys-color-primary) 90%, #000 10%);
-  --ftr-fg: var(--mat-sys-color-on-primary, #fff);
-  --ftr-muted: color-mix(in oklab, #fff 70%, transparent);
-  --ftr-sep: color-mix(in oklab, #fff 20%, transparent);
-}
-
-/* ---------------- XS tweaks ---------------- */
-@media (max-width: 360px) {
-  .tch-footer .brand__name {
-    font-size: 16px;
-  }
-}
-
-/* --------- Accessibilité & motion --------- */
-.tch-footer :is(a.link,.brand__link,.social):focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
-  text-decoration: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tch-footer .social {
-    transition: none;
+  &__copy {
+    display: inline-block;
   }
 }

@@ -1,9 +1,12 @@
 //create the loader because we need to merge the label keys, They can be like: home.nave or home:{nav}
 
-import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+
 import { catchError, forkJoin, map, Observable, of } from 'rxjs';
+
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
+
 import { I18nMergerService } from '@tchl/utils/i18n';
 
 // Définir un token d'injection pour les options

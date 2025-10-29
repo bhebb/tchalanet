@@ -1,6 +1,6 @@
 // libs/web/widgets-kpi/src/lib/kpi-widget.component.ts
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export interface KpiProps {
   label: string;

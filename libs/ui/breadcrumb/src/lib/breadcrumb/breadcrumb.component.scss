@@ -1,0 +1,71 @@
+@use 'libs/ui/styles/src/lib/_mixins.scss' as m;
+
+/* ==========================================================================
+   BREADCRUMB (mobile-first)
+   Utilise les tokens DS exposés par le thème :
+   --tch-crumb-bg, --tch-crumb-fg, --tch-crumb-sep, --tch-crumb-link, --tch-crumb-current
+   ========================================================================== */
+
+.tch-breadcrumb {
+  /* Tokens locaux (scopés) */
+  --comp-bc-pad-y: 10px;
+  --comp-bc-pad-x: var(--tch-page-gutter, clamp(16px, 4vw, 24px));
+  --comp-bc-gap: 8px;
+
+  background: var(--tch-crumb-bg, transparent);
+  color: var(--tch-crumb-fg, inherit);
+  border-block-end: 1px solid var(--tch-crumb-sep, color-mix(in oklab, currentColor 12%, transparent));
+  padding-block: var(--comp-bc-pad-y);
+
+  /* container */
+  > nav {
+    @include m.container(var(--tch-page-max, 1120px), var(--comp-bc-pad-x));
+    display: block;
+  }
+
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--comp-bc-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--comp-bc-gap);
+    color: inherit;
+    min-width: 0; /* autorise les libellés longs à wrap */
+  }
+
+  a {
+    color: var(--tch-crumb-link, var(--tch-color-primary));
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: var(--tch-focus-ring-width, 2px) solid currentcolor;
+      outline-offset: var(--tch-focus-ring-offset, 2px);
+      text-decoration: none;
+    }
+  }
+
+  .current {
+    color: var(--tch-crumb-current, currentColor);
+    font-weight: var(--tch-w-medium, 500);
+    /* long libellé = autorise le wrap naturel */
+  }
+
+  /* séparateur "›" entre éléments (non cliquable, couleur douce) */
+  li + li::before {
+    content: "›";
+    color: var(--tch-crumb-sep, color-mix(in oklab, currentColor 28%, transparent));
+    margin-inline: 2px;
+  }
+}

@@ -16,7 +16,7 @@
 }
 
 /* Mobile-first : 1 colonne */
-@media (max-width: 767px){
+@media (width <= 767px){
   .grid-row{ grid-template-columns: 1fr; }
   .grid-col{ grid-column: span 1; }
 }

@@ -1,72 +1,107 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { TchTheme } from '@tchl/types';
-
-const STYLE_TAG_ID = 'tch-theme-vars';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeDomApplier {
-  constructor(private overlay: OverlayContainer, @Inject(DOCUMENT) private doc: Document) {}
+  constructor(private readonly overlay: OverlayContainer, @Inject(DOCUMENT) private doc: Document) {}
 
-  apply(theme: TchTheme, effMode: 'light' | 'dark', density: 0 | -1 | -2) {
-    this.applyMaterialClass(theme.matClass);
-    this.applyDensity(density);
-    this.writeCssVars(theme, effMode);
-    this.doc.documentElement.setAttribute('data-theme', effMode);
-  }
-
-  private applyMaterialClass(matClass?: string) {
-    const body = this.doc.body.classList;
-    const overlay = this.overlay.getContainerElement().classList;
-    Array.from(body)
-      .filter(c => c.startsWith('mat-'))
-      .forEach(c => body.remove(c));
-    Array.from(overlay)
-      .filter(c => c.startsWith('mat-'))
-      .forEach(c => overlay.remove(c));
-    if (matClass) {
-      body.add(matClass);
-      overlay.add(matClass);
-    }
-  }
-
-  private applyDensity(d: 0 | -1 | -2) {
-    const cl = this.doc.documentElement.classList;
-    ['mat-density-0', 'mat-density-1', 'mat-density-2'].forEach(c => cl.remove(c));
-    cl.add(`mat-density-${d === 0 ? '0' : d === -1 ? '1' : '2'}`);
-  }
-
-  private writeCssVars(theme: TchTheme, effMode: 'light' | 'dark') {
-    const vars = this.composeCssVars(theme, effMode);
-    const css = `:root{\n${Object.entries(vars)
-      .map(([k, v]) => `  ${k}:${v};`)
-      .join('\n')}\n}`;
-    let tag = this.doc.getElementById(STYLE_TAG_ID) as HTMLStyleElement | null;
+  applyPresetCss(presetId: string, css: string) {
+    // 1. injecter/mettre à jour le <style id="tch-theme-base">
+    let tag = this.doc.getElementById('tch-theme-base') as HTMLStyleElement | null;
     if (!tag) {
       tag = this.doc.createElement('style');
-      tag.id = STYLE_TAG_ID;
+      tag.id = 'tch-theme-base';
       this.doc.head.appendChild(tag);
     }
     tag.innerHTML = css;
+
+    // 2. marquer le root
+    const root = this.getRoot();
+    root.setAttribute('data-preset', presetId);
   }
 
-  private composeCssVars(theme: TchTheme, effMode: 'light' | 'dark') {
-    const p = theme.palette,
-      t = theme.tokens ?? {};
-    const base: Record<string, string> = {
-      '--mat-sys-color-primary': p.primary,
-      '--mat-sys-color-on-primary': p.onPrimary,
-      '--mat-sys-color-surface': p.surface,
-      '--mat-sys-color-on-surface': p.onSurface,
-      '--mat-sys-color-outline': p.outline ?? 'rgba(0,0,0,.16)',
-      '--tch-color-accent': p.accent ?? '#D84C51',
-      '--tch-color-tertiary': p.tertiary ?? 'var(--tch-color-accent)',
-      '--tch-header-bg': t.headerBg ?? 'var(--mat-sys-color-primary)',
-      '--tch-header-fg': t.headerFg ?? 'var(--mat-sys-color-on-primary)',
+  applyRuntimeState(opts: {
+    mode: 'light' | 'dark';
+    density: 0 | -1 | -2;
+    overrides?: {
+      vars?: Record<string, string>;
+      fontHref?: string;
     };
-    if (p.surfaceContainer) base['--tch-surface-container'] = p.surfaceContainer;
-    if (p.shape?.cornerRadius != null) base['--tch-shape-radius'] = `${p.shape.cornerRadius}px`;
-    return { ...base, ...(theme.cssVars ?? {}) };
+  }) {
+    const { mode, density, overrides } = opts;
+
+    // mode light/dark
+    const root = this.getRoot();
+    root.classList.toggle('dark', mode === 'dark');
+    this.overlay.getContainerElement().classList.toggle('dark', mode === 'dark');
+    this.doc.documentElement.setAttribute('data-theme', mode);
+
+    // density
+    const cl = this.doc.documentElement.classList;
+    ['mat-density-0', 'mat-density-1', 'mat-density-2'].forEach(c => cl.remove(c));
+    cl.add(`mat-density-${density === 0 ? '0' : density === -1 ? '1' : '2'}`);
+
+    // overrides.vars -> <style id="tch-theme-overrides">
+    this.applyOverrides(overrides?.vars);
+
+    // overrides.fontHref -> inject link if needed
+    if (overrides?.fontHref) {
+      this.ensureFontLoaded(overrides.fontHref);
+    }
+  }
+
+  private applyOverrides(vars?: Record<string, string>) {
+    let tag = this.doc.getElementById('tch-theme-overrides') as HTMLStyleElement | null;
+    if (!vars || Object.keys(vars).length === 0) {
+      if (tag) tag.innerHTML = '';
+      return;
+    }
+
+    // séparer normal et dark
+    const lightVars: Record<string, string> = {};
+    const darkVars: Record<string, string> = {};
+    for (const [key, value] of Object.entries(vars)) {
+      if (key.startsWith('--dark:')) {
+        darkVars[key.slice(7)] = value;
+      } else {
+        lightVars[key] = value;
+      }
+    }
+
+    const lightCss = Object.entries(lightVars)
+      .map(([k, v]) => `  ${k}: ${v};`)
+      .join('\n');
+
+    const darkCss = Object.entries(darkVars)
+      .map(([k, v]) => `  ${k}: ${v};`)
+      .join('\n');
+
+    const cssOut = `.tch-theme {\n${lightCss}\n}\n` + `.tch-theme.dark {\n${darkCss}\n}`;
+
+    if (!tag) {
+      tag = this.doc.createElement('style');
+      tag.id = 'tch-theme-overrides';
+      this.doc.head.appendChild(tag);
+    }
+    tag.innerHTML = cssOut;
+  }
+
+  private ensureFontLoaded(href: string) {
+    const id = 'tch-theme-font';
+    if (this.doc.getElementById(id)) return;
+    const link = this.doc.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    link.href = href;
+    this.doc.head.appendChild(link);
+  }
+
+  private getRoot(): HTMLElement {
+    return (
+      (this.doc.getElementById('theme-root') as HTMLElement) ||
+      (this.doc.querySelector('.tch-theme') as HTMLElement) ||
+      this.doc.body
+    );
   }
 }

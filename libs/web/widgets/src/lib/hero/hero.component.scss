@@ -1,6 +1,6 @@
 /* Fond + conteneur */
 .hero {
-  background: linear-gradient(180deg, rgba(34, 94, 199, .08), transparent 60%);
+  background: linear-gradient(180deg, rgb(34 94 199 / 8%), transparent 60%);
   overflow: hidden;
 }
 
@@ -77,12 +77,13 @@
 }
 
 /* ≥ 960px : deux colonnes, image à droite */
-@media (min-width: 960px) {
+@media (width >= 960px) {
   .hero__inner {
     grid-template-columns: 1.1fr 0.9fr;
     align-items: center;
     gap: clamp(16px, 3vw, 32px);
   }
+
   .hero__art {
     justify-self: end;
   }
@@ -108,6 +109,6 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--accent-dot);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent-dot) 22%, transparent);
+  background: var(--tch-color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--tch-color-accent) 22%, transparent);
 }

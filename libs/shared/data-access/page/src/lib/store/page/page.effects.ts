@@ -1,27 +1,31 @@
-import { inject, Injectable } from '@angular/core';
-import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, exhaustMap, map, mergeMap, of, tap } from 'rxjs';
-import { PageActions } from './page.actions';
+
 import { HttpClient } from '@angular/common/http';
-import { ThemeService } from '@tchl/ui/theme';
-import { PageModel } from '@tchl/types';
+import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { I18nFacade } from '@tchl/facades';
-import { PageApi } from '@tchl/api';
-import { selectPendingTarget } from '../navigation/nav.reducer';
-import { Store } from '@ngrx/store';
-import { NavAfterLoadActions } from '../navigation/nav.actions';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { concatLatestFrom } from '@ngrx/operators';
+import { Store } from '@ngrx/store';
+
+import { PageApi } from '@tchl/api';
+import { I18nFacade } from '@tchl/facades';
+import { PageModel } from '@tchl/types';
+import { ThemeService } from '@tchl/ui/theme';
+
+import { NavAfterLoadActions } from '../navigation/nav.actions';
+import { selectPendingTarget } from '../navigation/nav.reducer';
+
+import { PageActions } from './page.actions';
 
 @Injectable()
 export class PageEffects {
-  private http = inject(HttpClient);
-  private theme = inject(ThemeService);
-  private router = inject(Router);
-  private actions$ = inject(Actions);
-  private pageApi = inject(PageApi);
-  private i18nFacade = inject(I18nFacade);
-  private store = inject(Store);
+  private readonly http = inject(HttpClient);
+  private readonly theme = inject(ThemeService);
+  private  readonly router = inject(Router);
+  private readonly actions$ = inject(Actions);
+  private readonly pageApi = inject(PageApi);
+  private readonly i18nFacade = inject(I18nFacade);
+  private readonly store = inject(Store);
 
   loadPage$ = createEffect(() =>
     this.actions$.pipe(
@@ -56,7 +60,7 @@ export class PageEffects {
           const page = (action as { page: PageModel }).page;
           const currentLang = page.currentLang;
           this.i18nFacade.initFromPage(page.langs, currentLang, page.i18n);
-          this.theme.applyPublicTheme(page.theme);
+          this.theme.applyTheme(page.theme);
           if (!target) return;
           this.router.navigateByUrl(target);
           this.store.dispatch(NavAfterLoadActions.clear());

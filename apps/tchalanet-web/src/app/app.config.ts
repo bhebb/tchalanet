@@ -1,3 +1,9 @@
+import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
+import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
+import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
+import { provideMarkdown } from 'ngx-markdown';
+
+import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
   APP_INITIALIZER,
   ApplicationConfig,
@@ -7,32 +13,32 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { appRoutes } from './app.routes';
-import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
-import {
-  MergedTranslateLoader,
-  MergedTranslateLoaderOptions,
-} from '../../../../libs/shared/utils/i18n/src/lib/loader/merged-translate-loader';
-import { I18nMergerService } from '@tchl/utils/i18n';
-import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
-import { provideState, provideStore } from '@ngrx/store';
-import { PageEffects, pageFeature } from '@tchl/data-access/page';
-import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
 import { provideEffects } from '@ngrx/effects';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
-import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
+
+import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
+import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
+import { environment } from '@tchl/config';
+import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
+import { PageEffects, pageFeature } from '@tchl/data-access/page';
+import { FEATURE_CONTEXT, FEATURE_INITIAL, provideFeatureClient } from '@tchl/feature';
 import { AuthService, LocalStorageSecurityService } from '@tchl/shared/auth';
-import { provideBuiltinWidgets } from '@tchl/web/widgets';
 import { THEME_INIT_PROVIDER } from '@tchl/ui/theme';
+import { I18nMergerService } from '@tchl/utils/i18n';
+import { provideBuiltinWidgets } from '@tchl/web/widgets';
+
 import {
   InstantSearchClient,
   MEILISEARCH_CONFIG,
 } from '../../../../libs/shared/api/src/lib/client/instant-search-client';
-import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
+import {
+  MergedTranslateLoader,
+  MergedTranslateLoaderOptions,
+} from '../../../../libs/shared/utils/i18n/src/lib/loader/merged-translate-loader';
 import { SearchIndexInitializerService } from '../../../../libs/web/widgets/src/lib/search-results/search-index-initializer.service';
-import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
-import { environment } from '@tchl/config';
+
+import { appRoutes } from './app.routes';
 
 export const TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
   'TRANSLATE_LOADER_OPTIONS',
@@ -58,7 +64,7 @@ export function createInstantSearchClient(config: MeilisearchConfig): InstantSea
 export const INSTANT_SEARCH_CLIENT_PROVIDER: Provider = {
   provide: InstantSearchClient,
   useFactory: createInstantSearchClient,
-  deps: [MEILISEARCH_CONFIG]
+  deps: [MEILISEARCH_CONFIG],
 };
 
 export const appConfig: ApplicationConfig = {
@@ -133,14 +139,14 @@ export const appConfig: ApplicationConfig = {
     {
       provide: ANALYTICS_CONFIG,
       useValue: {
-        provider: 'umami',                  // 'console' en dev si tu veux
+        provider: 'umami', // 'console' en dev si tu veux
         umami: {
-          host: environment.umami.host,    // ton instance Umami
+          host: environment.umami.host, // ton instance Umami
           websiteId: environment.umami.websiteId,
           autoTrack: false,
         },
-        debug: true,                        // logs console utiles
-      }
+        debug: true, // logs console utiles
+      },
     },
     provideAnalyticsInit(),
     // Router → pageviews
@@ -149,18 +155,31 @@ export const appConfig: ApplicationConfig = {
       provide: MEILISEARCH_CONFIG,
       useValue: {
         host: 'http://localhost:7700',
-        apiKey: 'dev-meili'
-      }
+        apiKey: 'dev-meili',
+      },
     },
     INSTANT_SEARCH_CLIENT_PROVIDER,
     {
       provide: APP_INITIALIZER,
-      useFactory: (indexInitializer: SearchIndexInitializerService) =>
-        () => indexInitializer.initializeIndexes(),
+      useFactory: (indexInitializer: SearchIndexInitializerService) => () =>
+        indexInitializer.initializeIndexes(),
       deps: [SearchIndexInitializerService],
-      multi: true
-    }
+      multi: true,
+    },
+    provideMarkdown(),
 
+    //features
+    { provide: FEATURE_INITIAL, useValue: [] },
 
+    // Contexte d’évaluation (tenant, user, pays…)
+    { provide: FEATURE_CONTEXT, useValue: { appName: 'tchalanet-web', tenantId: 'default' } },
+
+    provideFeatureClient({
+      kind: 'unleash',
+      url: environment.feature.url,
+      clientKey: environment.feature.clientKey,
+      appName: environment.feature.appName,
+      refreshInterval: environment.feature.refresh,
+    }),
   ],
 };

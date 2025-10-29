@@ -1,65 +1,52 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+
 import { Brand } from '@tchl/types';
-import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'tch-brand',
+  selector: 'tchl-brand',
   standalone: true,
-  imports: [CommonModule, MatIconModule, RouterLink],
+  imports: [CommonModule, MatIconModule],
   template: `
-    <a class="brand" [routerLink]="homeLink()" (click)="onClick($event)" aria-label="Tchalanet">
+    <div class="tch-brand">
       @if (brand()?.logo) {
-      <img class="brand__logo" [src]="brand()!.logo!" alt="" width="28" height="28" />
-      } @if (showName()){
-      <span class="brand__name">{{ brand()?.name || 'TCHALANET' }}</span>
+      <img class="tch-brand__icon" [src]="brand()!.logo!" alt="" aria-hidden="true" />
+      } @if (showName()) {
+      <span class="tch-brand__text">{{ brand()?.name || 'TCHALANET' }}</span>
       }
-    </a>
+    </div>
   `,
-  styles: ` 
-  .brand {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    min-inline-size: 0;
-  }
+  styles: `
+    .tch-brand {
+      --comp-brand-icon-size: 34px;
+      --comp-brand-gap: 0.5rem;
+      --comp-brand-text-size: 1rem;
+      --comp-brand-fg: var(--tch-on-surface-header, currentColor);
 
-  .brand__logo {
-    width: 28px;
-    height: 28px;
-    display: block;
-    object-fit: contain;
-    flex: 0 0 auto;
-  }
+      display: inline-flex;
+      align-items: center;
+      gap: var(--comp-brand-gap);
+      color: var(--comp-brand-fg);
+    }
 
-  .brand__name {
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-inline-size: 48vw;
-    min-inline-size: 0;
-  }
+    .tch-brand__icon {
+      inline-size: var(--comp-brand-icon-size);
+      block-size: var(--comp-brand-icon-size);
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
 
-  a, a:visited {
-    color: inherit;
-    text-decoration: none;
-  }
+    .tch-brand__text {
+      line-height: 1.2;
+      font-size: var(--comp-brand-text-size);
+      font-weight: 600;
+    }
 
-   a:hover, a:focus-visible {
-    text-decoration: underline;
-  }`,
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BrandComponent {
   brand = input<Brand>();
-  homeLink = input<string>('/');
-  navigateHome = output<void>(); // ← nouvel output
   showName = input<boolean>(true);
-
-  onClick(e: MouseEvent) {
-    e.preventDefault();
-    this.navigateHome.emit();
-  }
 }

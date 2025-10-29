@@ -1,13 +1,13 @@
 // register-icons.ts
 import { addIcons } from 'ionicons';
 import {
-  home, homeOutline, homeSharp,
-  settingsOutline, personOutline,
-  gridOutline, notificationsOutline,
-  menuOutline, searchOutline, alertCircleOutline,
-  logInOutline, logOutOutline, chevronBack, chevronForward, people, time, heart, add, camera, person, triangle, square,
-  ellipse
-} from 'ionicons/icons';
+add, alertCircleOutline,
+camera, chevronBack, chevronForward,   ellipse,
+  gridOutline, heart,   home, homeOutline, homeSharp,
+  logInOutline, logOutOutline,   menuOutline, notificationsOutline,
+people, person, personOutline,
+searchOutline,   settingsOutline, square,
+time, triangle} from 'ionicons/icons';
 
 export function registerIcons() {
   addIcons({

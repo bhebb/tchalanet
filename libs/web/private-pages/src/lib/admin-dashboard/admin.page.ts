@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+
 import { AuthService } from '@tchl/shared/auth';
 
 @Component({

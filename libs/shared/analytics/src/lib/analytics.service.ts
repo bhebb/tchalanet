@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+
 import { ANALYTICS_CONFIG } from './analytics.tokens';
 import { AnalyticsConfig, AnalyticsEvent } from './analytics.types';
 

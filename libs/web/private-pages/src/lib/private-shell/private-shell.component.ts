@@ -1,11 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { selectPage } from '@tchl/data-access/page';
+
+import { BreadcrumbComponent } from '@tchl/breadcrumb';
+import { PageFacade } from '@tchl/facades';
+import { FooterComponent, PrivateHeaderComponent, SidebarNavComponent } from '@tchl/ui/layout';
 import { ShellComponent } from '@tchl/web/shell';
-import { FooterComponent, HeaderComponent, SidebarNavComponent } from '@tchl/ui/layout';
-import { Brand } from '@tchl/types';
 
 @Component({
   selector: 'tchl-private-shell',
@@ -14,47 +19,42 @@ import { Brand } from '@tchl/types';
     CommonModule,
     RouterOutlet,
     ShellComponent,
-    HeaderComponent,
+    PrivateHeaderComponent,
     SidebarNavComponent,
+    BreadcrumbComponent,
     FooterComponent,
   ],
-  template: `
-    <tchl-shell [hasSidebar]="true">
-      <tchl-header
-        shell-header
-        mode="private"
-        [brand]="brand()"
-        [navigation]="links()"
-        [user]="user()"
-        (menu)="onToggleSideNav()"
-        (toggleTheme)="onToggleTheme()"
-        (changeLang)="onChangeLang($event)"
-      />
-
-      <!-- sidenav projetée -->
-      <tchl-sidebar-nav sidenav [links]="links()" [features]="features()"></tchl-sidebar-nav>
-
-      <!-- contenu principal -->
-      <router-outlet />
-      <tchl-footer shell-footer [properties]="page()?.footer?.properties!" /></tchl-shell>
-  `,
+  templateUrl: './private-shell.component.html',
+  styleUrl: './private-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivateShellComponent {
-  private store = inject(Store);
-  page = this.store.selectSignal(selectPage);
-  links = computed(() => this.page()?.nav?.sidenav ?? []);
-  features = computed(() => this.page()?.features ?? []);
-  brand = computed(() => this.page()?.header?.properties?.brand);
-  user = computed(() => ({ avatarUrl: '' })); // adapte
+  private readonly pageFacade = inject(PageFacade);
+  page = this.pageFacade.page;
 
-  onToggleSideNav() {
-    /* ouvrir/fermer ta sidenav (si matérialisée ailleurs) */
+  flags = computed(() => this.page()?.flags ?? []);
+
+  headerProps = computed(() => {
+    const p = this.page();
+    return p?.header?.properties;
+  });
+
+  sideLinks = computed(() => this.page()?.nav?.sidenav ?? []);
+
+  userInfo = computed(() => {
+    // TODO brancher ton auth réel
+    return {
+      displayName: 'Jane Doe',
+      email: 'jane@example.com',
+      avatarUrl: '',
+    };
+  });
+
+  onToggleSidebar() {
+    // TODO: ouvrir ton sidenav dashboard
   }
-  onToggleTheme() {
-    /* toggle dark/light */
-  }
-  onChangeLang(l: string) {
-    /* i18n */
+
+  onSignOut() {
+    // TODO: déconnexion
   }
 }

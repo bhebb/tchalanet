@@ -1,7 +1,8 @@
-import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { PageModel } from '@tchl/types';
+import { inject, Injectable } from '@angular/core';
+
 import { AuthService } from '@tchl/shared/auth';
+import { PageModel } from '@tchl/types';
 
 @Injectable({ providedIn: 'root' })
 export class PageApi {

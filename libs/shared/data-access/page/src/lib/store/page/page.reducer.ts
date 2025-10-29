@@ -1,8 +1,8 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
+
 import { PageActions } from './page.actions';
-import { initialState } from './page.state';
-import { I18N_FEATURE_KEY } from '@tchl/data-access/i18n';
 import { PAGE_FEATURE_KEY } from './page.selectors';
+import { initialState } from './page.state';
 
 const reducer = createReducer(
   initialState,

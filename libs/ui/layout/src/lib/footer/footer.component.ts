@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
-import { FooterProperties } from '@tchl/types';
-import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
-import { MatDivider } from '@angular/material/divider';
+
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
+import { FooterProperties } from '@tchl/types';
 
 @Component({
   selector: 'tchl-footer',
@@ -19,7 +20,6 @@ import { DomSanitizer } from '@angular/platform-browser';
     MatButtonModule,
     TranslatePipe,
     MatIconModule,
-    MatDivider,
   ],
   styleUrl: 'footer.component.scss',
   templateUrl: 'footer.component.html',
