@@ -4,22 +4,15 @@
   "projectType": "application",
   "prefix": "tch",
   "sourceRoot": "apps/tchalanet-web/src",
-  "tags": [
-    "type:app",
-    "scope:web"
-  ],
+  "tags": ["type:app", "scope:web"],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/tchalanet-web",
         "browser": "apps/tchalanet-web/src/main.ts",
-        "polyfills": [
-          "zone.js"
-        ],
+        "polyfills": ["zone.js"],
         "tsConfig": "apps/tchalanet-web/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
@@ -33,9 +26,7 @@
             "input": "apps/tchalanet-web/public"
           }
         ],
-        "styles": [
-          "apps/tchalanet-web/src/styles.scss"
-        ]
+        "styles": ["apps/tchalanet-web/src/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -57,6 +48,14 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "ci": {
+          "optimization": true,
+          "sourceMap": false,
+          "budgets": [
+            { "type": "initial", "maximumWarning": "2.5mb", "maximumError": "3mb" },
+            { "type": "anyComponentStyle", "maximumWarning": "400kb", "maximumError": "600kb" }
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -85,9 +84,7 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
         "reportsDirectory": "../../coverage/apps/tchalanet-web"
       }
