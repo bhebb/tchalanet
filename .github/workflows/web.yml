@@ -1,0 +1,88 @@
+name: Web CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'apps/tchalanet-web/**'
+      - 'apps/tchalanet-mobile/**'
+      - 'libs/**'
+      - 'nx.json'
+      - 'project.json'
+      - 'workspace.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'eslint.config.mjs'
+      - '.stylelintrc.cjs'
+      - 'tsconfig.json'
+      - 'tsconfig.*.json'
+  pull_request:
+    branches:
+      - main
+      - prod
+    paths:
+      - 'apps/tchalanet-web/**'
+      - 'apps/tchalanet-mobile/**'
+      - 'libs/**'
+      - 'nx.json'
+      - 'project.json'
+      - 'workspace.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'eslint.config.mjs'
+      - '.stylelintrc.cjs'
+      - 'tsconfig.json'
+      - 'tsconfig.*.json'
+
+jobs:
+  web_lint_build_test:
+    runs-on: ubuntu-latest
+    name: Lint & Build & Test Web/Mobile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: true
+
+      - name: Restore Nx cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: nx-${{ runner.os }}-
+
+      - name: ESLint affected projects
+        run: pnpm nx affected --target=lint --base=origin/main --head=HEAD
+
+      - name: Stylelint (SCSS / tokens / BEM)
+        run: pnpm lint:styles
+
+      - name: Type check affected
+        run: pnpm nx affected --target=typecheck --base=origin/main --head=HEAD
+
+      - name: Test affected projects
+        run: pnpm nx affected --target=test --base=origin/main --head=HEAD --coverage
+
+      - name: Build Web app (tchalanet-web)
+        run: pnpm nx build tchalanet-web --prod
+
+      - name: Build Mobile app (tchalanet-mobile)
+        run: pnpm nx build tchalanet-mobile --prod
+
+      - name: E2E Web (if affected)
+        run: pnpm nx affected --target=e2e --base=origin/main --head=HEAD --parallel=1
+        continue-on-error: true

@@ -1,0 +1,39 @@
+name: Docs CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'tchalanet-docs/**'
+  pull_request:
+    branches:
+      - main
+      - prod
+    paths:
+      - 'tchalanet-docs/**'
+
+jobs:
+  docs_build:
+    runs-on: ubuntu-latest
+    name: Build MkDocs
+
+    defaults:
+      run:
+        working-directory: tchalanet-docs
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt || pip install mkdocs
+
+      - name: Build docs
+        run: mkdocs build --strict

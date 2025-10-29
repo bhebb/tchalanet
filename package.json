@@ -114,10 +114,13 @@
   },
   "lint-staged": {
     "**/*.{ts,js,html}": [
-      "eslint --fix"
+      "eslint --fix --max-warnings=10"
     ],
     "**/*.{scss,css}": [
-      "stylelint --fix"
+      "stylelint --fix --max-warnings=10"
+    ],
+    "**/*.{ts,html,scss,md,json}": [
+      "prettier --write"
     ]
   },
   "scripts": {
@@ -130,30 +133,35 @@
     "lint:web": "nx lint tchalanet-web",
     "lint:mobile": "nx lint tchalanet-mobile",
     "format": "prettier --write \"**/*.{ts,html,scss,md,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,html,scss,md,json}\"",
     "e2e:web": "nx e2e tchalanet-web-e2e",
     "e2e:mobile": "nx e2e tchalanet-mobile-e2e",
-    "test:affected": "nx affected --target=test",
-    "lint:affected": "nx affected --target=lint",
-    "cap:sync": "cd apps/tchalanet-mobile && npx cap sync",
-    "cap:build": "nx build tchalanet-mobile && npm run cap:sync",
-    "cap:android": "npm run cap:build && cd apps/tchalanet-mobile && npx cap open android",
-    "cap:ios": "npm run cap:build && cd apps/tchalanet-mobile && npx cap open ios",
+    "test:affected": "nx affected --target=test --base=origin/main",
+    "lint:affected": "nx affected --target=lint --base=origin/main",
+    "typecheck:all": "nx run-many --target=typecheck --all",
+    "cap:sync": "cd apps/tchalanet-mobile && pnpm cap sync",
+    "cap:build": "nx build tchalanet-mobile && pnpm cap:sync",
+    "cap:android": "pnpm cap:build && cd apps/tchalanet-mobile && pnpm cap open android",
+    "cap:ios": "pnpm cap:build && cd apps/tchalanet-mobile && pnpm cap open ios",
     "docs:build": "cd tchalanet-docs && mkdocs build",
     "docs:deploy": "cd tchalanet-docs && mkdocs gh-deploy",
     "docs:lint": "cd tchalanet-docs && mkdocs lint",
     "docs:check-links": "cd tchalanet-docs && mkdocs linkcheck",
-    "docs:check": "npm run docs:lint && npm run docs:check-links",
+    "docs:check": "pnpm docs:lint && pnpm docs:check-links",
     "docs:check:ci": "cd tchalanet-docs && mkdocs build --strict",
     "docs:serve": "cd tchalanet-docs && mkdocs serve",
     "security:check": "snyk test",
     "security:monitor": "snyk monitor",
     "spell:check": "cspell \"**/*.{ts,html,scss,md}\" --no-progress",
-    "scan": "npm run security:check && npm run spell:check",
+    "scan": "pnpm security:check && pnpm spell:check",
     "i18n-extract": "ngx-translate-extract --input ./libs/i18n/locales/ --output ./libs/i18n/locales/ --clean --sort",
     "prepare": "simple-git-hooks",
-    "lint": "eslint . --ext .ts,.js,.html",
-    "lint:fix": "eslint . --ext .ts,.js,.html --fix",
-    "lint:styles": "stylelint \"libs/**/*.{scss,css}\"",
-    "lint:styles:fix": "stylelint \"libs/**/*.{scss,css}\" --fix"
+    "lint": "nx affected --target=lint --base=origin/main",
+    "lint:all": "nx run-many --target=lint --all",
+    "lint:fix": "nx affected --target=lint --fix --base=origin/main",
+    "lint:styles": "stylelint \"libs/**/*.{scss,css}\" \"apps/**/*.{scss,css}\"",
+    "lint:styles:fix": "stylelint \"libs/**/*.{scss,css}\" \"apps/**/*.{scss,css}\" --fix",
+    "build:all": "nx run-many --target=build --all",
+    "test:all": "nx run-many --target=test --all"
   }
 }

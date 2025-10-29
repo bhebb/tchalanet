@@ -1,9 +1,8 @@
-name: CI-CD tchalanet-server
+name: CI/CD Staging - tchalanet-server
 
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*.*.*' ]
   pull_request:
 
 jobs:
@@ -12,6 +11,7 @@ jobs:
     defaults:
       run:
         working-directory: tchalanet-server
+
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +32,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push image
+      - name: Build & push image (staging tag)
         uses: docker/build-push-action@v6
         with:
           context: ./tchalanet-server
@@ -45,12 +45,13 @@ jobs:
 
   deploy-staging:
     needs: [build-api]
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
       DOCKER_HOST: ssh://deploy@staging.tchalanet.ht
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -65,42 +66,5 @@ jobs:
             pull api && \
           API_TAG=sha-${GITHUB_SHA} \
           docker compose --env-file envs/staging/.env \
-            -f docker-compose.yml -f docker-compose.prod.yml \
-            up -d
-
-  release-prod:
-    needs: [build-api]
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    env:
-      DOCKER_HOST: ssh://deploy@prod.tchalanet.ht
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
-
-      - name: Compute version tag
-        id: ver
-        run: echo "TAG=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
-
-      - name: Retag & push semver
-        run: |
-          docker pull ghcr.io/${{ github.repository_owner }}/tchalanet-server:sha-${GITHUB_SHA}
-          docker tag ghcr.io/${{ github.repository_owner }}/tchalanet-server:sha-${GITHUB_SHA} \
-                    ghcr.io/${{ github.repository_owner }}/tchalanet-server:${{ steps.ver.outputs.TAG }}
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/tchalanet-server:${{ steps.ver.outputs.TAG }}
-
-      - name: Deploy prod
-        run: |
-          cd tchalanet-infra
-          API_TAG=${{ steps.ver.outputs.TAG }} \
-          docker compose --env-file envs/prod/.env \
-            -f docker-compose.yml -f docker-compose.prod.yml \
-            pull api && \
-          API_TAG=${{ steps.ver.outputs.TAG }} \
-          docker compose --env-file envs/prod/.env \
             -f docker-compose.yml -f docker-compose.prod.yml \
             up -d

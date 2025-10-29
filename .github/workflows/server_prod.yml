@@ -1,0 +1,51 @@
+name: Manual Prod Deploy - tchalanet-server
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Tag de version à déployer en prod (ex: v1.3.0)"
+        required: true
+      sha:
+        description: "SHA exact de l'image déjà poussée (ex: commit SHA de main)"
+        required: true
+
+jobs:
+  release-prod:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_HOST: ssh://deploy@prod.tchalanet.ht
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: Retag & push semver to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+          # On récupère l'image qui correspond au SHA qu'on veut promouvoir
+          docker pull ghcr.io/${{ github.repository_owner }}/tchalanet-server:sha-${{ github.event.inputs.sha }}
+
+          # On la retag avec un tag version propre (ex: v1.3.0)
+          docker tag ghcr.io/${{ github.repository_owner }}/tchalanet-server:sha-${{ github.event.inputs.sha }} \
+                     ghcr.io/${{ github.repository_owner }}/tchalanet-server:${{ github.event.inputs.version_tag }}
+
+          # Push du tag version
+          docker push ghcr.io/${{ github.repository_owner }}/tchalanet-server:${{ github.event.inputs.version_tag }}
+
+      - name: Deploy prod
+        run: |
+          cd tchalanet-infra
+          API_TAG=${{ github.event.inputs.version_tag }} \
+          docker compose --env-file envs/prod/.env \
+            -f docker-compose.yml -f docker-compose.prod.yml \
+            pull api && \
+          API_TAG=${{ github.event.inputs.version_tag }} \
+          docker compose --env-file envs/prod/.env \
+            -f docker-compose.yml -f docker-compose.prod.yml \
+            up -d
