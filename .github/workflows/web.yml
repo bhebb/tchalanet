@@ -68,8 +68,6 @@ jobs:
 
       - name: Sets the base and head SHAs for the nx affected commands in CI
         uses: nrwl/nx-set-shas@v4
-          gh-token: ${{ github.token }}
-
 
       # (optionnel) scan sécu + orthographe, commente si tu veux aller au plus vite
       # - name: Security & spell scan
