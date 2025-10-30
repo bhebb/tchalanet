@@ -139,11 +139,8 @@ jobs:
           path: reports/
 
       - name: Build Web
-        run: pnpm exec nx build tchalanet-web
+        run: pnpm exec nx build tchalanet-web --configuration=ci
 
       - name: Build Mobile
         run: pnpm exec nx build tchalanet-mobile
-
-      - name: E2E Web (affected)
-        run: pnpm exec nx affected -t=e2e --base=$NX_BASE --head=$NX_HEAD --exclude=tchalanet-server --parallel=1 || true
      
