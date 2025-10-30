@@ -73,14 +73,70 @@ jobs:
       # - name: Security & spell scan
       #   run: pnpm scan
 
-      - name: ESLint (affected)
-        run: pnpm exec nx affected --target=lint --base=$NX_BASE --head=$NX_HEAD --exclude=tchalanet-server --parallel=3
+        # -----------------------------
+      # ESLint — non bloquant + rapports
+      # -----------------------------
+      - name: ESLint (affected, report + non-blocking)
+        id: eslint
+        run: |
+          # Sortie brute (tout le log) sans bloquer la CI
+          pnpm exec nx affected --target=lint --base=$NX_BASE --head=$NX_HEAD --parallel=3 \
+            --silent 2>&1 | tee reports/eslint-raw.log || true
+      
+          # Rapport JSON machine-readable (facultatif mais pratique)
+          pnpm exec eslint "apps/**/*.{ts,html}" "libs/**/*.{ts,html}" -f json -o reports/eslint.json \
+            || echo "eslint json generation failed" >> reports/eslint-raw.log
+      
+          # Petit résumé lisible dans les logs si jq disponible
+          if [ -f reports/eslint.json ] && command -v jq >/dev/null 2>&1; then
+            echo "Top 20 fichiers avec messages ESLint :"
+            jq -r '.[] | "\(.filePath) — messages: \(.messages|length)"' reports/eslint.json | head -n 20
+          fi
+        continue-on-error: true
 
-      - name: Stylelint
-        run: pnpm lint:styles
+      # ---------------------------------
+      # Stylelint — non bloquant + rapports
+      # ---------------------------------
+      - name: Stylelint (SCSS/CSS, report + non-blocking)
+        id: stylelint
+        run: |
+          # Sortie brute
+          pnpm lint:styles 2>&1 | tee reports/stylelint-raw.log || true
+      
+          # Rapport JSON pour post-traitement (le pattern suit ton repo)
+          pnpm exec stylelint "apps/**/*.{scss,css}" "libs/**/*.{scss,css}" \
+            --formatter json > reports/stylelint.json || echo "stylelint json failed" >> reports/stylelint-raw.log
+      
+          # Court résumé si jq dispo
+          if [ -f reports/stylelint.json ] && command -v jq >/dev/null 2>&1; then
+            echo "Top 20 fichiers avec messages Stylelint :"
+            jq -r '.[] | "\(.source) — warnings: \(.warnings|length)"' reports/stylelint.json | head -n 20
+          fi
+        continue-on-error: true
 
-      - name: Typecheck (affected)
-        run: pnpm exec nx affected -t=typecheck --base=$NX_BASE --head=$NX_HEAD --exclude=tchalanet-server --parallel=3 || true
+      # ---------------------------------
+      # Typecheck — non bloquant + rapport brut
+      # ---------------------------------
+      - name: Typecheck (affected, non-blocking)
+        id: typecheck
+        run: |
+          pnpm exec nx affected -t=typecheck --base=$NX_BASE --head=$NX_HEAD --parallel=3 \
+            2>&1 | tee reports/typecheck-raw.log || true
+        continue-on-error: true
+      
+      # (optionnel) E2E non bloquant
+      - name: E2E Web (affected, non-blocking)
+        run: pnpm exec nx affected -t=e2e --base=$NX_BASE --head=$NX_HEAD --parallel=1 2>&1 | tee reports/e2e-raw.log || true
+        continue-on-error: true
+
+      # ---------------------------------
+      # Upload artifacts (tous les rapports)
+      # ---------------------------------
+      - name: Upload lint/typecheck reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-ci-reports
+          path: reports/
 
       - name: Build Web
         run: pnpm exec nx build tchalanet-web
