@@ -39,6 +39,9 @@ jobs:
   web_lint_build_test:
     runs-on: ubuntu-latest
     name: Lint & Build & Test Web/Mobile
+    strategy:
+      matrix:
+        node-version: [ 20 ]
 
     steps:
       - name: Checkout
@@ -46,17 +49,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Setup PNPM
+      - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
-          run_install: true
+          version: 10
+
+      - name: use Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
       - name: Restore Nx cache
         uses: actions/cache@v4
