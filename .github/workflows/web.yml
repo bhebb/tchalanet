@@ -74,21 +74,20 @@ jobs:
       #   run: pnpm scan
 
       - name: ESLint (affected)
-        run: pnpm lint
+        run: pnpm exec nx affected --target=lint --base=$NX_BASE --head=$NX_HEAD --exclude=tchalanet-server --parallel=3
 
-      - name: Stylelint (SCSS / tokens / BEM)
+      - name: Stylelint
         run: pnpm lint:styles
 
-      # Souple: si le target "typecheck" n'existe pas partout, on n'échoue pas la CI
       - name: Typecheck (affected)
-        run: pnpm exec nx affected -t=typecheck --base=origin/main --head=HEAD --parallel=3 || true
+        run: pnpm exec nx affected -t=typecheck --base=$NX_BASE --head=$NX_HEAD --exclude=tchalanet-server --parallel=3 || true
 
       - name: Build Web
-        run: pnpm build:web
+        run: pnpm exec nx build tchalanet-web
 
       - name: Build Mobile
-        run: pnpm build:mobile
+        run: pnpm exec nx build tchalanet-mobile
 
-      # E2E uniquement sur projets affectés, non bloquant pour ne pas freiner au début
       - name: E2E Web (affected)
-        run: pnpm exec nx affected -t=e2e --base=origin/main --head=HEAD --parallel=1 || true
+        run: pnpm exec nx affected -t=e2e --base=$NX_BASE --head=$NX_HEAD --exclude=tchalanet-server --parallel=1 || true
+     
