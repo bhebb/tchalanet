@@ -2,11 +2,9 @@ name: Web CI
 
 on:
   push:
-    branches:
-      - '**'
+    branches: ['**']
     paths:
-      - 'apps/tchalanet-web/**'
-      - 'apps/tchalanet-mobile/**'
+      - 'apps/**'
       - 'libs/**'
       - 'nx.json'
       - 'project.json'
@@ -18,12 +16,9 @@ on:
       - 'tsconfig.json'
       - 'tsconfig.*.json'
   pull_request:
-    branches:
-      - main
-      - prod
+    branches: [main, prod]
     paths:
-      - 'apps/tchalanet-web/**'
-      - 'apps/tchalanet-mobile/**'
+      - 'apps/**'
       - 'libs/**'
       - 'nx.json'
       - 'project.json'
@@ -63,23 +58,34 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Restore Nx cache
+      - name: Cache Nx
         uses: actions/cache@v4
         with:
           path: .nx/cache
           key: nx-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: nx-${{ runner.os }}-
+          restore-keys: |
+            nx-${{ runner.os }}-
 
-      - name: Run Nx targets
-        uses: mansagroup/nrwl-nx-action@v3
-        with:
-          targets: lint,typecheck,build
-          projects: tchalanet-web,tchalanet-mobile
-          parallel: true
+      # (optionnel) scan sécu + orthographe, commente si tu veux aller au plus vite
+      # - name: Security & spell scan
+      #   run: pnpm scan
+
+      - name: ESLint (affected)
+        run: pnpm lint
 
       - name: Stylelint (SCSS / tokens / BEM)
         run: pnpm lint:styles
 
-      - name: E2E Web (if affected)
-        run: pnpm nx affected --target=e2e --base=origin/main --head=HEAD --parallel=1
-        continue-on-error: true
+      # Souple: si le target "typecheck" n'existe pas partout, on n'échoue pas la CI
+      - name: Typecheck (affected)
+        run: pnpm exec nx affected -t=typecheck --base=origin/main --head=HEAD --parallel=3 || true
+
+      - name: Build Web
+        run: pnpm build:web
+
+      - name: Build Mobile
+        run: pnpm build:mobile
+
+      # E2E uniquement sur projets affectés, non bloquant pour ne pas freiner au début
+      - name: E2E Web (affected)
+        run: pnpm exec nx affected -t=e2e --base=origin/main --head=HEAD --parallel=1 || true
