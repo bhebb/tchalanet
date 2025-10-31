@@ -7,7 +7,6 @@
   /* header/footer couleurs finales consommées par les composants */
   --tch-header-bg: var(--tch-header-bg-base);
   --tch-header-fg: var(--tch-header-fg-base);
-
   --tch-footer-bg: var(--tch-footer-bg-base);
   --tch-footer-fg: var(--tch-footer-fg-base);
 
@@ -24,16 +23,15 @@
      Ici on va créer deux variables globales helpers.
   */
   --tch-header-bg: color-mix(
-                  in oklab,
-                  var(--tch-header-bg-base) 70%,
-                  var(--tch-darken-base, #000) 30%
+    in oklab,
+    var(--tch-header-bg-base) 70%,
+    var(--tch-darken-base, #000) 30%
   );
   --tch-header-fg: var(--tch-dark-fg, #fff);
-
   --tch-footer-bg: color-mix(
-                  in oklab,
-                  var(--tch-footer-bg-base) 70%,
-                  var(--tch-darken-base, #000) 30%
+    in oklab,
+    var(--tch-footer-bg-base) 70%,
+    var(--tch-darken-base, #000) 30%
   );
   --tch-footer-fg: var(--tch-dark-fg, #fff);
 

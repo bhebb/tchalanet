@@ -31,19 +31,24 @@
   --comp-footer-social-bg: color-mix(in oklab, var(--comp-footer-bg) 80%, white);
   --comp-footer-social-border: color-mix(in oklab, var(--tch-color-outline) 35%, transparent);
 
-  background: var(--comp-footer-bg);
-  color: var(--comp-footer-fg);
-  border-top: 1px solid var(--comp-footer-border);
-  padding-block: var(--comp-footer-pad-block);
   position: relative;
+
   overflow: hidden;
+
+  padding-block: var(--comp-footer-pad-block);
+  border-top: 1px solid var(--comp-footer-border);
+
+  color: var(--comp-footer-fg);
+
+  background: var(--comp-footer-bg);
 
   /* Grille responsive */
   &__grid {
     @include m.container(var(--comp-footer-max-width), var(--comp-footer-gutter));
+
     display: grid;
-    gap: var(--comp-footer-grid-gap);
     grid-template-columns: 1fr;
+    gap: var(--comp-footer-grid-gap);
 
     @include br.up('sm') {
       grid-template-columns: repeat(2, 1fr);
@@ -63,13 +68,16 @@
 
   /* Typographie */
   &__title {
+    margin-block-end: 8px;
+
+    font-size: var(--tch-font-size-body, 1rem); /* si t'as une var dédiée genre --tch-size-title utilise-la */
+
     /* on le rend clairement plus haut dans la hiérarchie */
     font-weight: var(--tch-weight-semibold);
-    font-size: var(--tch-font-size-body, 1rem); /* si t'as une var dédiée genre --tch-size-title utilise-la */
     line-height: 1.4;
-    letter-spacing: var(--tch-letter-tight, -0.2px);
     color: var(--comp-footer-fg);
-    margin-block-end: 8px;
+    letter-spacing: var(--tch-letter-tight, -0.2px);
+
     opacity: 1;
   }
 
@@ -88,22 +96,25 @@
   &__link {
     @extend %tch-link;
     @extend %tch-link-hoverable;
+
+    font-size: var(--tch-font-size-small, 0.9375rem); /* un chouïa plus petit que le titre */
     font-weight: var(--tch-weight-regular);
-    font-size: var(--tch-font-size-small, .9375rem); /* un chouïa plus petit que le titre */
     line-height: 1.6;
     color: var(--tch-link-fg);
-    opacity: .8;
     text-decoration: none;
     text-underline-offset: 3px;
+
+    opacity: 0.8;
+
     transition: color var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease),
-    opacity var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease),
-    text-decoration-color var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease);
+      opacity var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease),
+      text-decoration-color var(--tch-duration-fast, 150ms) var(--tch-ease-standard, ease);
 
     &:hover,
     &:focus-visible {
       color: var(--tch-link-fg-hover); /* vert dans violet-green, orange dans indigo-orange, etc. */
-      opacity: 1;
       text-decoration-line: none;
+      opacity: 1;
     }
 
     &:active{
@@ -114,17 +125,18 @@
 
   /* Colonne marque */
   &__col--brand {
-    align-items: flex-start;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    align-items: flex-start;
   }
 
   &__brand-link {
     @extend %tch-link;
+
     display: inline-flex;
-    align-items: center;
     gap: 10px;
+    align-items: center;
   }
 
   &__brand-logo {
@@ -146,35 +158,41 @@
 
   &__social-link {
     @extend %tch-link;
-    width: var(--comp-footer-social-size);
-    height: var(--comp-footer-social-size);
+
     display: grid;
     place-items: center;
+
+    width: var(--comp-footer-social-size);
+    height: var(--comp-footer-social-size);
     border-radius: 999px;
+
     background: var(--comp-footer-social-bg);
     outline: 1px solid var(--comp-footer-social-border);
-    transition: filter .2s, transform .2s;
+
+    transition: filter 0.2s, transform 0.2s;
 
     &:hover {
-      filter: brightness(1.1);
       transform: translateY(-1px);
+      filter: brightness(1.1);
     }
   }
 
   /* Séparateur et baseline */
   &__divider {
     @include m.container(var(--comp-footer-max-width), var(--comp-footer-gutter));
-    margin-block-start: 20px;
+
     height: 1px;
+    margin-block-start: 20px;
     background: color-mix(in oklab, var(--comp-footer-bg) 16%, transparent);
   }
 
   &__bottom {
     @include m.container(var(--comp-footer-max-width), var(--comp-footer-gutter));
-    text-align: center;
-    font-size: var(--tch-font-size-small);
-    opacity: .75;
+
     margin-block-start: 16px;
+    font-size: var(--tch-font-size-small);
+    text-align: center;
+    opacity: 0.75;
   }
 
   &__copy {

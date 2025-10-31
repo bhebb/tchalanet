@@ -1,11 +1,10 @@
 @use '../_mixins' as m;
 
 .input {
-  background: var(--tch-color-surface);
+  padding: 0.6rem 0.75rem;
   color: var(--tch-color-on-surface);
+  background: var(--tch-color-surface);
 
   @include m.outline;
   @include m.rounded;
-
-  padding: .6rem .75rem;
 }

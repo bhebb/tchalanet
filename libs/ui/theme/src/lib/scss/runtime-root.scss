@@ -2,18 +2,15 @@
   /* Typo scale de base */
   --tch-font-family: 'Poppins, system-ui, sans-serif';
   --tch-font-size-body: 1rem;
-  --tch-font-size-small: .9375rem;
+  --tch-font-size-small: 0.9375rem;
   --tch-letter-tight: -0.2px;
-
   --tch-weight-regular: 400;
   --tch-weight-medium: 500;
   --tch-weight-semibold: 600;
   --tch-weight-bold: 700;
-
   --tch-radius-md: 12px;
-
   --tch-duration-fast: 150ms;
-  --tch-ease-standard: cubic-bezier(.2,0,0,.9);
+  --tch-ease-standard: cubic-bezier(0.2,0,0,0.9);
 
   /* tokens layout que ton footer/header utilisent */
   --tch-page-max: 1120px;

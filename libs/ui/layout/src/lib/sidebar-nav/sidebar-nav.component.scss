@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
   font-size: 14px;
   color: var(--tch-on-surface-side, #111);
 }
@@ -13,29 +14,35 @@
 }
 
 .tch-sidebar__title {
-  font-weight: 600;
   font-size: 13px;
-  text-transform: uppercase;
+  font-weight: 600;
   color: color-mix(in oklab, var(--tch-on-surface-side, #111) 75%, transparent);
+  text-transform: uppercase;
 }
 
 .tch-sidebar__mini-toggle {
-  border: 0;
-  background: transparent;
-  inline-size: 32px;
-  block-size: 32px;
+  cursor: pointer;
+
   display: grid;
   place-items: center;
+
+  inline-size: 32px;
+  block-size: 32px;
+  border: 0;
   border-radius: 8px;
-  cursor: pointer;
+
   color: inherit;
+
+  background: transparent;
 }
 
 .tch-sidebar__list {
   display: grid;
   gap: 4px;
+
   margin: 0;
   padding: 0;
+
   list-style: none;
 }
 
@@ -44,20 +51,22 @@
 }
 
 .tch-sidebar__item--active {
-  background: color-mix(in oklab, var(--tch-color-accent, #D84C51) 12%, transparent);
-  color: var(--tch-color-on-surface, #111);
   font-weight: 600;
+  color: var(--tch-color-on-surface, #111);
+  background: color-mix(in oklab, var(--tch-color-accent, #D84C51) 12%, transparent);
 }
 
 .tch-sidebar__link {
   display: flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
+
   min-block-size: 44px;
   padding-inline: 12px;
   border-radius: 8px;
-  text-decoration: none;
+
   color: inherit;
+  text-decoration: none;
 }
 
 .tch-sidebar__link:hover {
@@ -67,7 +76,7 @@
 .tch-sidebar__icon {
   font-size: 20px;
   line-height: 1;
-  opacity: .8;
+  opacity: 0.8;
 }
 
 .tch-sidebar__label {
@@ -75,28 +84,32 @@
 }
 
 .tch-sidebar__children {
-  list-style: none;
-  margin: 4px 0 8px 38px;
-  padding: 0;
   display: grid;
   gap: 4px;
+
+  margin: 4px 0 8px 38px;
+  padding: 0;
+
+  list-style: none;
 }
 
 .tch-sidebar__child-link {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
+
   min-block-size: 36px;
   padding-inline: 8px 12px;
   border-radius: 6px;
+
   font-size: 13px;
   color: inherit;
   text-decoration: none;
 }
 
 .tch-sidebar__child--active .tch-sidebar__child-link {
-  background: color-mix(in oklab, var(--tch-color-accent, #D84C51) 12%, transparent);
   font-weight: 600;
+  background: color-mix(in oklab, var(--tch-color-accent, #D84C51) 12%, transparent);
 }
 
 .tch-sidebar__child-link:hover {

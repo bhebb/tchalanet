@@ -1,85 +1,86 @@
 @use '../_mixins' as m;
 
 %tch-btn-reset {
-  appearance: none;
-  border: 0;
-  background: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  line-height: 1.2;
   cursor: pointer;
-  text-decoration: none;
+  user-select: none;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  user-select: none;
-  -webkit-user-select: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  font: inherit;
+  line-height: 1.2;
+  text-decoration: none;
   white-space: nowrap;
+
+  appearance: none;
+  background: none;
 }
 
 %tch-btn-shape {
-  border-radius: var(--tch-btn-radius, 8px);
-  padding-inline: var(--tch-btn-pad-x, 16px);
-  padding-block: var(--tch-btn-pad-y, 10px);
-  min-height: 36px;
   min-inline-size: max-content;
+  min-height: 36px;
+  padding-block: var(--tch-btn-pad-y, 10px);
+  padding-inline: var(--tch-btn-pad-x, 16px);
+  border-radius: var(--tch-btn-radius, 8px);
 }
 
 %tch-btn-typography {
-  font-weight: var(--tch-btn-font-weight, 600);
   font-size: var(--tch-btn-font-size, 0.9rem);
+  font-weight: var(--tch-btn-font-weight, 600);
   line-height: 1.2;
 }
 
 %tch-btn-primary-visual {
-  background-color: var(--tch-btn-bg, var(--tch-color-accent));
   color: var(--tch-btn-fg, var(--tch-color-on-accent));
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
+  background-color: var(--tch-btn-bg, var(--tch-color-accent));
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
   transition: background-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s;
 }
 
 %tch-btn-primary-states {
   &:hover,
   &:focus-visible {
-    background-color: var(--tch-btn-bg-hover, color-mix(in oklab, var(--tch-btn-bg) 90%, black));
     color: var(--tch-btn-fg-hover, var(--tch-btn-fg));
-    box-shadow: 0 4px 8px rgb(0 0 0 / 0.3);
+    background-color: var(--tch-btn-bg-hover, color-mix(in oklab, var(--tch-btn-bg) 90%, black));
     outline: none;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 30%);
   }
 
   &:focus-visible {
     box-shadow:
-            0 0 0 2px var(--tch-btn-focus-ring, var(--tch-color-accent)),
-            0 4px 8px rgb(0 0 0 / 0.3);
+      0 0 0 2px var(--tch-btn-focus-ring, var(--tch-color-accent)),
+      0 4px 8px rgb(0 0 0 / 30%);
   }
 
   &:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 0.4);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 40%);
   }
 }
 
 /* Variantes pilotées par tokens (pas d’hex) */
 %tch-btn--ghost {
-  background: transparent;
-  color: var(--tch-color-on-surface);
   border-color: var(--tch-color-outline);
+  color: var(--tch-color-on-surface);
+  background: transparent;
 }
 
 %tch-btn--success {
-  background: var(--tch-color-success);
   color: var(--tch-color-on-success);
+  background: var(--tch-color-success);
 }
 
 %tch-btn--info {
-  background: var(--tch-color-info);
   color: var(--tch-color-on-info);
+  background: var(--tch-color-info);
 }
 
 %tch-btn--warn {
-  background: var(--tch-color-warning);
   color: var(--tch-color-on-warning);
+  background: var(--tch-color-warning);
 }

@@ -43,19 +43,21 @@
 
   /* chips lang/theme group (tch-ltg) */
   --comp-ltg-chip-bg: transparent;
-  --comp-ltg-chip-fg: currentColor;
-  --comp-ltg-chip-border-color: color-mix(in oklab, currentColor 28%, transparent);
-  --comp-ltg-chip-focus-ring: currentColor;
+  --comp-ltg-chip-fg: currentcolor;
+  --comp-ltg-chip-border-color: color-mix(in oklab, currentcolor 28%, transparent);
+  --comp-ltg-chip-focus-ring: currentcolor;
 
   position: sticky;
+  z-index: var(--comp-header-z);
   top: 0;
   inset-inline: 0;
-  z-index: var(--comp-header-z);
-  background: var(--comp-header-bg);
+
   color: var(--comp-header-fg);
 
+  background: var(--comp-header-bg);
+
   /* ombre sous L1+L2 globalement, pas entre les 2 lignes */
-  box-shadow: 0 1px 0 rgb(0 0 0 / 0.2);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 20%);
 }
 
 /* ==========================================================================
@@ -65,21 +67,22 @@
    ========================================================================== */
 
 .tch-header__toolbar {
-  background: inherit;
   color: inherit;
+  background: inherit;
 }
 
 .tch-header__grid {
-  background: inherit;
-  color: inherit;
-
-  /* container utilitaire DS (max-width + padding inline) */
-  @include m.container(var(--comp-header-page-max), var(--comp-header-page-gutter));
-
   /* mobile: stack vertical (row L1 puis row L2) */
   display: flex;
   flex-direction: column;
   row-gap: 0;
+
+  color: inherit;
+
+  background: inherit;
+
+  /* container utilitaire DS (max-width + padding inline) */
+  @include m.container(var(--comp-header-page-max), var(--comp-header-page-gutter));
 }
 
 /* ==========================================================================
@@ -87,11 +90,13 @@
    ========================================================================== */
 
 .tch-header__row {
-  background: inherit;
-  color: inherit;
-  border: 0;
-  box-shadow: none;
   width: 100%;
+  border: 0;
+
+  color: inherit;
+
+  background: inherit;
+  box-shadow: none;
 }
 
 /* ==========================================================================
@@ -109,43 +114,49 @@
 
 .tch-header__row--l1 {
   display: grid;
-  align-items: center;
-
   grid-template-columns: auto 1fr auto;
   column-gap: var(--comp-header-gap-inline);
+  align-items: center;
+
   min-block-size: var(--comp-header-row-h);
+
   color: inherit;
 }
 
 /* === BRAND SLOT (colonne gauche L1) === */
 .tch-header__brand-slot {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
+
   min-inline-size: 0;
+
   color: inherit;
 }
 
 /* clickable brand (logo + nom) */
 .tch-header__brand-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  color: inherit;
-  font: inherit;
   cursor: pointer;
+
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  font: inherit;
   line-height: 1;
+  color: inherit;
   text-decoration: none;
 
+  background: none;
+
   &:focus-visible {
+    border-radius: 6px;
     outline: 2px solid var(--tch-color-accent, currentColor);
     outline-offset: 3px;
-    border-radius: 6px;
   }
 }
 
@@ -155,8 +166,8 @@
 */
 .tch-header__nav-slot {
   display: none;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   color: inherit;
 
   @include br.up(md) {
@@ -186,11 +197,11 @@
 */
 .tch-header__actions-slot {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
 
   /* gap entre le bloc CTA et le bloc utility */
   column-gap: 20px;
+  align-items: center;
+  justify-content: flex-end;
 
   min-width: 0;
   min-height: var(--comp-header-row-h);
@@ -208,12 +219,13 @@
 
 /* bloc utilitaire (search, lang/theme, account) */
 .tch-header__actions-utility {
-  display: flex;
-  align-items: center;
-  column-gap: 12px;
-
   /* mobile: pas de séparateur */
   position: static;
+
+  display: flex;
+  column-gap: 12px;
+  align-items: center;
+
   padding-left: 0;
 
   &::before {
@@ -227,16 +239,20 @@
     padding-left: 16px;
 
     &::before {
-      display: block;
       content: '';
+
       position: absolute;
-      left: 0;
       top: 8px;
       bottom: 8px;
+      left: 0;
+
+      display: block;
+
       width: 1px;
-      background: color-mix(in oklab, currentColor 30%, transparent);
       border-radius: 1px;
+
       opacity: 0.4;
+      background: color-mix(in oklab, currentcolor 30%, transparent);
     }
   }
 }
@@ -252,10 +268,6 @@
 
 /* icon buttons (burger, search, account) */
 .tch-header__icon-btn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: inherit;
   cursor: pointer;
 
   display: inline-flex;
@@ -264,12 +276,18 @@
 
   min-width: 36px;
   min-height: 36px;
-  border-radius: 9999px;
   padding: 0;
+  border: 0;
+  border-radius: 9999px;
+
   line-height: 1;
+  color: inherit;
+
+  appearance: none;
+  background: transparent;
 
   &:focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid currentcolor;
     outline-offset: 2px;
   }
 
@@ -304,35 +322,34 @@
    ========================================================================== */
 
 .tch-header__row--l2 {
-  background: inherit;
-  color: inherit;
-  border: 0;
-  border-top: 1px solid color-mix(in oklab, currentColor 20%, transparent);
-  box-shadow: none;
-  outline: 0;
-
   display: flex;
   flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
 
-  row-gap: 12px;
-  column-gap: 12px;
-
-  /* même padding horizontal que le container header */
-  padding-block: 12px;
   /* pas besoin de re-padding-inline ici :
      le parent .tch-header__grid a déjà le container()
      donc on laisse juste ce row prendre 100% */
   width: 100%;
 
+  /* même padding horizontal que le container header */
+  padding-block: 12px;
+  border: 0;
+  border-top: 1px solid color-mix(in oklab, currentcolor 20%, transparent);
+
+  color: inherit;
+
+  background: inherit;
+  outline: 0;
+  box-shadow: none;
+
   @include br.up(md) {
     /* en tablette on veut souvent que cette row soit une simple ligne
           centrée horizontalement */
     flex-wrap: nowrap;
+    gap: 0 24px;
     justify-content: center;
-    row-gap: 0;
-    column-gap: 24px;
 
     /* si c'est la nav seule : elle pourra s'étendre */
     .tch-header__nav {
@@ -347,8 +364,8 @@
 */
   @include br.up(lg) {
     display: none;
-    border-top: 0;
     padding-block: 0;
+    border-top: 0;
   }
 }
 
@@ -360,18 +377,18 @@
   @extend %tch-btn-primary-visual;
   @extend %tch-btn-primary-states;
 
-  padding-inline: 12px;
-  padding-block: 8px;
+  flex: 0 0 auto;
+
   min-height: 36px;
+  padding-block: 8px;
+  padding-inline: 12px;
   border-radius: 8px;
 
-  font-weight: var(--tch-btn-font-weight, 600);
   font-size: var(--tch-btn-font-size, 0.9rem);
+  font-weight: var(--tch-btn-font-weight, 600);
   line-height: 1.2;
 
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.2);
-
-  flex: 0 0 auto;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
 }
 
 /* lang/theme group dans L2 (mobile) */

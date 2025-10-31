@@ -7,7 +7,7 @@
 // Note: Color palettes are generated from primary: #134D9F, tertiary: #D84C51
 $_palettes: (
   primary: (
-    0: #000000,
+    0: #000,
     10: #001a41,
     20: #002e69,
     25: #00397e,
@@ -22,10 +22,10 @@ $_palettes: (
     95: #edf0ff,
     98: #f9f9ff,
     99: #fefbff,
-    100: #ffffff,
+    100: #fff,
   ),
   secondary: (
-    0: #000000,
+    0: #000,
     10: #091b39,
     20: #20304f,
     25: #2c3b5b,
@@ -40,10 +40,10 @@ $_palettes: (
     95: #edf0ff,
     98: #f9f9ff,
     99: #fefbff,
-    100: #ffffff,
+    100: #fff,
   ),
   tertiary: (
-    0: #000000,
+    0: #000,
     10: #410007,
     20: #680011,
     25: #7c0217,
@@ -52,16 +52,16 @@ $_palettes: (
     40: #af2e36,
     50: #d0464c,
     60: #f25f63,
-    70: #ff8888,
+    70: #f88,
     80: #ffb3b1,
     90: #ffdad8,
     95: #ffedeb,
     98: #fff8f7,
     99: #fffbff,
-    100: #ffffff,
+    100: #fff,
   ),
   neutral: (
-    0: #000000,
+    0: #000,
     10: #191b21,
     20: #2e3036,
     25: #393b41,
@@ -76,7 +76,7 @@ $_palettes: (
     95: #f0f0f8,
     98: #f9f9ff,
     99: #fefbff,
-    100: #ffffff,
+    100: #fff,
     4: #0c0e13,
     6: #111319,
     12: #1e1f25,
@@ -89,7 +89,7 @@ $_palettes: (
     96: #f3f3fb,
   ),
   neutral-variant: (
-    0: #000000,
+    0: #000,
     10: #171c25,
     20: #2c303b,
     25: #373b46,
@@ -104,10 +104,10 @@ $_palettes: (
     95: #edf0fe,
     98: #f9f9ff,
     99: #fefbff,
-    100: #ffffff,
+    100: #fff,
   ),
   error: (
-    0: #000000,
+    0: #000,
     10: #410002,
     20: #690005,
     25: #7e0007,
@@ -122,16 +122,14 @@ $_palettes: (
     95: #ffedea,
     98: #fff8f7,
     99: #fffbff,
-    100: #ffffff,
+    100: #fff,
   ),
 );
-
 $_rest: (
   secondary: map.get($_palettes, secondary),
   neutral: map.get($_palettes, neutral),
   neutral-variant: map.get($_palettes,  neutral-variant),
   error: map.get($_palettes, error),
 );
-
 $primary-palette: map.merge(map.get($_palettes, primary), $_rest);
 $tertiary-palette: map.merge(map.get($_palettes, tertiary), $_rest);

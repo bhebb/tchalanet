@@ -11,7 +11,7 @@
 @use './lib/overlay';
 
 /* Puis seulement les @include qui émettent du CSS */
-//@include mat.core;
+// @include mat.core;
 
 /* --- Puis ton CSS global / reset --- */
 *,
@@ -25,16 +25,16 @@ html {
 }
 
 html, body {
+  overflow-x: hidden;
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 /* Couleurs de fond/texte globales → via alias M3 */
 body {
-  background: var(--tch-color-surface);
   color: var(--tch-color-on-surface);
+  background: var(--tch-color-surface);
 }
 
 .tch-theme {
@@ -49,9 +49,9 @@ body {
 /* Layout sticky (shell) */
 tch-root,
 tch-public-shell {
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  min-height: 100dvh;
 }
 
 /* Le contenu principal occupe l'espace restant */
@@ -95,7 +95,7 @@ img, svg, video, canvas {
 /* Réduction des animations si demandé */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation: none !important;
     transition: none !important;
+    animation: none !important;
   }
 }

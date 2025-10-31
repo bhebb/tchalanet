@@ -6,18 +6,18 @@ html, body {
 
 /* éléments sémantiques (optionnel mais recommandé) */
 :where(h1) {
+  margin: 0 0 0.5em;
   font: var(--tch-weight-bold) var(--tch-h1)/1.25 var(--tch-font-family);
-  margin: 0 0 .5em;
 }
 
 :where(h2) {
+  margin: 0 0 0.5em;
   font: var(--tch-weight-bold) var(--tch-h2)/1.25 var(--tch-font-family);
-  margin: 0 0 .5em;
 }
 
 :where(h3) {
+  margin: 0 0 0.5em;
   font: var(--tch-weight-semibold) var(--tch-h3)/1.3 var(--tch-font-family);
-  margin: 0 0 .5em;
 }
 
 .h1 {
