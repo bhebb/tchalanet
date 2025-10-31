@@ -5,14 +5,14 @@
   "sourceRoot": "tchalanet-docs",
   "targets": {
     "serve": {
-      "executor": "@nx/run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "command": "mkdocs serve",
         "cwd": "tchalanet-docs"
       }
     },
     "build": {
-      "executor": "@nx/run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "command": "mkdocs build",
         "cwd": "tchalanet-docs"

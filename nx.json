@@ -3,7 +3,7 @@
     "version": "21.4.1"
   },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "nxCloudId": "68bdcae75ea3cd1b6836b9e9",
+  "neverConnectToCloud": true,
   "targetDefaults": {
     "@angular/build:application": {
       "cache": true,

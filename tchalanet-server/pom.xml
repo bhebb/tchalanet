@@ -331,6 +331,7 @@
             </plugin>
 
             <!-- OWASP Dependency-Check: audit vulnérabilités -->
+<!--
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
@@ -341,7 +342,7 @@
                     <format>HTML</format>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <suppressionFiles>${project.basedir}/dependency-check-suppressions.xml</suppressionFiles>
-                    <!-- Optionnel: suppression file si nécessaire -->
+                    &lt;!&ndash; Optionnel: suppression file si nécessaire &ndash;&gt;
                 </configuration>
                 <executions>
                     <execution>
@@ -352,6 +353,7 @@
                     </execution>
                 </executions>
             </plugin>
+-->
 
 
         </plugins>

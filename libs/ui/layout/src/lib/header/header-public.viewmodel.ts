@@ -1,13 +1,14 @@
 import { Brand, TchLink } from '@tchl/types';
 import { ThemeMode } from '@tchl/ui/theme';
 
-export interface HeaderPublicVm { // responsive
+export interface HeaderPublicVm {
+  // responsive
   handset: boolean;
   tablet?: boolean;
   desktop: boolean;
 
   // brand / session
-  brand: Brand;
+  brand?: Brand;
   onBrandClick: () => void;
 
   // CTA

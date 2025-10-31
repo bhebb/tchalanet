@@ -11,16 +11,15 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Entity
 @Table(name = "theme")
@@ -28,8 +27,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class Theme {
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "tenant_id")
   private UUID tenantId;

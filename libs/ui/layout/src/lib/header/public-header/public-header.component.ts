@@ -111,7 +111,7 @@ export class PublicHeaderComponent {
       desktop,
 
       // brand
-      brand: props?.brand!,
+      brand: props?.brand,
       onBrandClick: () => this.onBrandHome(),
 
       // CTA
@@ -157,7 +157,9 @@ export class PublicHeaderComponent {
     this.router.navigateByUrl('/');
     try {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch {}
+    } catch {
+      console.error('error displaying home');
+    }
   }
 
   go(path: string | undefined) {
@@ -188,12 +190,9 @@ export class PublicHeaderComponent {
   }
 
   onAccountClick() {
-    this.router.navigateByUrl(this.properties().account?.public?.path);
+    const path = this.properties().account?.public?.path;
+    if (path) {
+      this.router.navigateByUrl(path);
+    }
   }
-
-  // filtre features
-  private readonly flagOn = (flag?: string | null | undefined): boolean => {
-    if (!flag) return true;
-    return this.flags().includes(flag);
-  };
 }

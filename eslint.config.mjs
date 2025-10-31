@@ -50,7 +50,7 @@ export default [
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
     },
-    rules: {
+    rules: {//
       // --- Nx boundaries ---
       '@nx/enforce-module-boundaries': [
         'error',
