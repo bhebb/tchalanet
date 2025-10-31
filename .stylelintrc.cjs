@@ -3,7 +3,16 @@ module.exports = {
     'stylelint-config-standard-scss',
     'stylelint-config-clean-order', // tri des props logiques
   ],
+  plugins: ['@stylistic/stylelint-plugin'],
   rules: {
+    '@stylistic/number-leading-zero': 'always',
+    '@stylistic/string-quotes': 'single',
+    '@stylistic/indentation': 2,
+    '@stylistic/no-extra-semicolons': true,
+    '@stylistic/selector-list-comma-newline-after': 'always-multi-line',
+    '@stylistic/block-opening-brace-newline-after': 'always-multi-line',
+    '@stylistic/declaration-colon-space-after': 'always-single-line',
+
     // 1. pas de couleurs en dur sauf variables CSS
     'color-named': 'never',
     'color-no-hex': null, // on laisse temporairement, on montrera des warnings plus tard si tu veux
@@ -23,9 +32,6 @@ module.exports = {
       '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__(?:[a-z0-9]+(?:-[a-z0-9]+)*))?(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$',
       { message: 'Use BEM-style class names (block__element--modifier)' },
     ],
-
-    // 4. pas d’unités interdites dans line-height
-    'number-leading-zero': 'always',
   },
   ignoreFiles: ['dist/**', '**/*.js', '**/*.ts'],
 };

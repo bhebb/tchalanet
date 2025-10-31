@@ -6,46 +6,39 @@
    ========================================================================== */
 
 .tch-overlay-nav {
-
   /* =========================
    Variables locales panneau
    ========================= */
   --comp-overlay-radius: 16px;
   --comp-overlay-max-w: min(420px, 92vw);
   --comp-overlay-max-h: min(90dvh, 640px);
-
   --comp-overlay-bg: var(--tch-color-surface, #fff);
   --comp-overlay-fg: var(--tch-color-on-surface, #111);
-
   --comp-overlay-divider: color-mix(
-                  in oklab,
-                  var(--comp-overlay-fg) 12%,
-                  transparent
+    in oklab,
+    var(--comp-overlay-fg) 12%,
+    transparent
   );
-
   --comp-overlay-accent-bg: var(--tch-color-accent, #7b2cbf);
   --comp-overlay-accent-fg: var(--tch-color-on-accent, #fff);
-
   --comp-overlay-item-radius: 12px;
   --comp-overlay-item-pad-x: 16px;
   --comp-overlay-item-pad-y: 14px;
-
   --comp-overlay-gap-y: 12px;
 
   /* Backdrop plein écran. On ne l'affiche que quand --open est vrai via classe */
   position: fixed;
-  inset: 0;
   z-index: var(--tch-z-overlay, 4000);
+  inset: 0;
 
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: none; /* fermé par défaut */
   align-items: flex-start;
   justify-content: center;
 
   background: rgb(0 0 0 / 45%);
   backdrop-filter: blur(2px);
-
-  overflow-y: auto;
-  overscroll-behavior: contain;
 
   /* quand le composant a la classe --open => visible */
   &.tch-overlay-nav--open {
@@ -56,93 +49,100 @@
 
 /* Le panneau qui contient header + liens */
 .tch-overlay-nav__panel {
-  background: var(--comp-overlay-bg);
-  color: var(--comp-overlay-fg);
-
   display: grid;
   grid-template-rows: auto 1fr;
 
   inline-size: 100%;
-  block-size: 100%;
   max-inline-size: 100%;
+  block-size: 100%;
   max-block-size: 100%;
 
+  color: var(--comp-overlay-fg);
+
+  background: var(--comp-overlay-bg);
   box-shadow:
-          0 24px 48px rgb(0 0 0 / 40%),
-          0 4px 12px rgb(0 0 0 / 20%);
+    0 24px 48px rgb(0 0 0 / 40%),
+    0 4px 12px rgb(0 0 0 / 20%);
 
   /* Sur mobile pur (<480px): plein écran, pas de radius */
-  @media (max-width: 479.98px) {
-    border-radius: 0;
-    box-shadow: none;
+  @media (width <= 479.98px) {
     max-inline-size: 100%;
     max-block-size: 100%;
     margin-top: 0;
+    border-radius: 0;
+
+    box-shadow: none;
   }
 
   /* Sur viewport un peu plus large: carte centrée */
-  @media (min-width: 480px) {
+  @media (width >= 480px) {
+    overflow: hidden; /* pour que le header respecte le radius */
+
     max-inline-size: var(--comp-overlay-max-w);
     max-block-size: var(--comp-overlay-max-h);
-    border-radius: var(--comp-overlay-radius);
     margin-top: 4dvh;
-    overflow: hidden; /* pour que le header respecte le radius */
+    border-radius: var(--comp-overlay-radius);
   }
 }
 
 /* Bar violet du haut */
 .tch-overlay-nav__bar {
-  background: var(--tch-surface-header, var(--comp-overlay-accent-bg));
-  color: var(--tch-on-surface-header, var(--comp-overlay-accent-fg));
-  border-bottom: 1px solid
-  color-mix(in oklab, var(--comp-overlay-fg) 20%, transparent);
-
   display: flex;
   align-items: center;
+
   min-block-size: 48px;
   padding: 14px 16px;
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--comp-overlay-fg) 20%, transparent);
+
   line-height: 1.3;
+  color: var(--tch-on-surface-header, var(--comp-overlay-accent-fg));
+
+  background: var(--tch-surface-header, var(--comp-overlay-accent-bg));
 }
 
 /* Logo + nom */
 .tch-overlay-nav__brand {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
+
   font-size: 15px;
   font-weight: 600;
   color: inherit;
 }
 
 .tch-overlay-nav__brand-name {
-  color: inherit;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.3;
+  color: inherit;
 }
 
 /* Bouton X */
 .tch-overlay-nav__close {
-  margin-left: auto;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  inline-size: 32px;
-  block-size: 32px;
+  cursor: pointer;
 
   display: grid;
   place-items: center;
 
-  cursor: pointer;
-  border-radius: 8px;
-  line-height: 0;
+  inline-size: 32px;
+  block-size: 32px;
+  margin-left: auto;
   padding: 0;
+  border: 0;
+  border-radius: 8px;
+
+  line-height: 0;
+  color: inherit;
+
+  background: transparent;
 
   .mat-icon,
   .mat-icon svg {
+    font-size: 20px;
     color: inherit;
     fill: currentcolor;
-    font-size: 20px;
   }
 
   &:hover {
@@ -150,40 +150,45 @@
   }
 
   &:focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid currentcolor;
     outline-offset: 2px;
   }
 }
 
 /* Zone scrollable des liens */
 .tch-overlay-nav__content {
-  background: var(--comp-overlay-bg);
-  color: var(--comp-overlay-fg);
+  overflow-y: auto;
 
   padding: 16px;
-  overflow-y: auto;
+
+  color: var(--comp-overlay-fg);
+
+  background: var(--comp-overlay-bg);
+
   -webkit-overflow-scrolling: touch;
 }
 
 /* Chaque lien */
 .tch-overlay-nav__item {
-  /* reset bouton/anchor */
-  appearance: none;
-  border: 0;
-  background: transparent;
   cursor: pointer;
-  text-decoration: none;
+
   display: flex;
   align-items: flex-start;
 
   width: 100%;
-  border-radius: var(--comp-overlay-item-radius);
   padding: var(--comp-overlay-item-pad-y) var(--comp-overlay-item-pad-x);
+  border: 0;
+  border-radius: var(--comp-overlay-item-radius);
 
   font-size: 16px;
   font-weight: 500;
   line-height: 1.4;
   color: inherit;
+  text-decoration: none;
+
+  /* reset bouton/anchor */
+  appearance: none;
+  background: transparent;
 
   /* spacing entre les items */
   & + .tch-overlay-nav__item {
@@ -193,9 +198,9 @@
   /* hover style */
   &:hover {
     background: color-mix(
-                    in oklab,
-                    var(--comp-overlay-fg) 6%,
-                    transparent
+      in oklab,
+      var(--comp-overlay-fg) 6%,
+      transparent
     );
   }
 
@@ -208,29 +213,30 @@
   /* état actif via classe .active OU aria-current='page' */
   &.active,
   &[aria-current='page'] {
+    font-weight: 600;
     background: color-mix(
-                    in oklab,
-                    var(--comp-overlay-accent-bg) 12%,
-                    transparent
+      in oklab,
+      var(--comp-overlay-accent-bg) 12%,
+      transparent
     );
     box-shadow: 0 0 0 1px
-    color-mix(
-                    in oklab,
-                    var(--comp-overlay-accent-bg) 40%,
-                    transparent
-    );
-
-    font-weight: 600;
+      color-mix(
+        in oklab,
+        var(--comp-overlay-accent-bg) 40%,
+        transparent
+      );
   }
 }
 
 /* Icône éventuelle (optionnelle) */
 .tch-overlay-nav__icon {
+  flex-shrink: 0;
+
+  margin-inline-end: 12px;
+
   font-size: 20px;
   line-height: 1;
-  margin-inline-end: 12px;
   color: inherit;
-  flex-shrink: 0;
 
   .mat-icon,
   .mat-icon svg {

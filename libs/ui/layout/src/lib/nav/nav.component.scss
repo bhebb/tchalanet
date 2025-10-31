@@ -10,8 +10,8 @@
   --comp-nav-item-radius: 4px;
 
   /* Visuals (inherit from parent surface by default) */
-  --comp-nav-bg: currentColor;
-  --comp-nav-fg: currentColor;
+  --comp-nav-bg: currentcolor;
+  --comp-nav-fg: currentcolor;
 
   /* Menu (Material) */
   --comp-nav-menu-active-bg: var(--tch-color-accent);
@@ -25,16 +25,17 @@
 
   &__list {
     display: flex;
+    flex-flow: row wrap;
     gap: var(--comp-nav-gap, 8px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    flex-direction: row;
+
+    margin: 0;
+    padding: 0;
+
     font-size: var(--tch-font-size-body, 14px);
     color: var(--comp-nav-fg);
+    list-style: none;
   }
 
   /* ===================== ITEM ===================== */
@@ -52,8 +53,9 @@
     /* Active (bold only — underline/marker is handled by header.scss) */
     &--active,
     &[aria-current='page'] {
-      font-weight: 600;
       @extend %tch-link-active-underline;
+
+      font-weight: 600;
     }
   }
 }

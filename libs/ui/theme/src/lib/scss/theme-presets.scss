@@ -3,9 +3,9 @@
 @use './tchalanet/_theme-colors' as tchalanet;
 
 @include gen.tch-generate-theme(
-                'tchalanet',
-                tchalanet.$primary-palette,
-                tchalanet.$tertiary-palette
+  'tchalanet',
+  tchalanet.$primary-palette,
+  tchalanet.$tertiary-palette
 );
 
 // 1. violet-green : futuriste, vibrant

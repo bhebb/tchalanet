@@ -1,8 +1,8 @@
 @use 'sass:map';
 
 @mixin surface($bg: var(--tch-color-surface), $fg: var(--tch-color-on-surface)) {
-  background: $bg;
   color: $fg;
+  background: $bg;
 }
 
 @mixin outline($color: var(--tch-color-outline)) {
@@ -32,11 +32,14 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     min-inline-size: 0;
-  } @else {
+  }
+
+ @else {
     display: -webkit-box;
     -webkit-line-clamp: $lines;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
     min-inline-size: 0;
   }
 }
@@ -48,14 +51,14 @@
 }
 
 @mixin uses-tokens {
-  color: var(--tch-color-on-surface);
   font-family: var(--tch-font-family);
+  color: var(--tch-color-on-surface);
 }
 
 @mixin link-reset {
+  cursor: pointer;
   color: var(--tch-link);
   text-decoration: none;
-  cursor: pointer;
 
   &:hover {
     color: var(--tch-link-hover);
@@ -63,7 +66,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid currentcolor;
     outline-offset: 2px;
   }
 }

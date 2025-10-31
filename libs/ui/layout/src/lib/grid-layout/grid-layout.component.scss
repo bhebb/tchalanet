@@ -1,12 +1,12 @@
 /* même largeur que le hero */
-.grid-container{ display:flex; justify-content:center; padding-inline:1rem; }
-.grid-inner{ width:min(1200px, 92vw); display:flex; flex-direction:column; gap:32px; }
+.grid-container{ display: flex; justify-content: center; padding-inline: 1rem; }
+.grid-inner{ display: flex; flex-direction: column; gap: 32px; width: min(1200px, 92vw); }
 
 /* 12 colonnes en CSS Grid */
 .grid-row{
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap:24px;                /* espace entre colonnes et lignes */
+  gap: 24px;                /* espace entre colonnes et lignes */
 }
 
 /* Chaque "colonne" occupe span colonnes */

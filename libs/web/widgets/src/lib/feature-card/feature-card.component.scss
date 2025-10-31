@@ -3,18 +3,20 @@
   --media-h: 120px; /* hauteur fixe de la zone image */
   --card-min-h: 200px; /* hauteur min. carte sans image */
 
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-outline);
-  border-radius: var(--radius, 12px);
-  box-shadow: var(--elev-2);
-  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: .75rem;
+  gap: 0.75rem;
 
   /* toutes les cartes auront au moins cette hauteur (rangée bien alignée) */
   min-height: var(--card-min-h);
-  transition: transform .2s ease, box-shadow .2s ease;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--radius, 12px);
+
+  background: var(--color-surface-container);
+  box-shadow: var(--elev-2);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .feature-card:hover {
@@ -29,63 +31,72 @@
 
 /* Zone média : taille fixe, image centrée */
 .feature-card__image {
-  height: var(--media-h);
-  border-radius: calc(var(--radius, 12px) - 6px);
-  background: color-mix(in oklab, var(--color-primary) 6%, white);
   display: flex;
   align-items: center;
   justify-content: center;
 
+  height: var(--media-h);
+
   /* éloigne visuellement la bordure du contenu */
   padding: 8px;
+  border-radius: calc(var(--radius, 12px) - 6px);
+
+  background: color-mix(in oklab, var(--color-primary) 6%, white);
 }
 
 .feature-card__image img {
   display: block;
-  max-height: 100%;
   max-width: 100%;
+  max-height: 100%;
   object-fit: contain; /* pas de crop; change en 'cover' si tu veux remplir */
 }
 
 /* Titre + icône sur une ligne */
 .feature-card__head {
   display: flex;
+  gap: 0.5rem;
   align-items: center;
-  gap: .5rem;
   min-width: 0;
 }
 
 .feature-card__icon {
+  display: grid;
+  place-items: center;
+
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: color-mix(in oklab, var(--color-primary) 12%, white);
-  color: var(--color-primary);
+
   font-size: 22px;
+  color: var(--color-primary);
+
+  background: color-mix(in oklab, var(--color-primary) 12%, white);
 }
 
 .feature-card__title {
-  font: 600 16px/24px var(--font-family);
   margin: 0;
+  font: 600 16px/24px var(--font-family);
 }
 
 /* Texte avec clamp pour stabiliser la hauteur */
 .feature-card__desc {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* ~3 lignes sur mobile */
+
   font: 400 14px/22px var(--font-family);
   color: var(--color-on-surface);
-  opacity: .9;
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* ~3 lignes sur mobile */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+
+  opacity: 0.9;
 }
 
 /* Lien en bas si possible */
 .feature-card__link {
   align-self: flex-start;
+
   margin-top: auto; /* pousse vers le bas */
+
   font: 600 13px/18px var(--font-family);
   color: var(--color-primary);
   text-decoration: none;

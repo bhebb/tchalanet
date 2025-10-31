@@ -1,9 +1,12 @@
 :host {
   position: sticky;
+  z-index: var(--tch-z-header, 1000);
   top: 0;
   inset-inline: 0;
-  z-index: var(--tch-z-header, 1000);
+
   display: block;
-  background: var(--tch-surface-header-private, var(--tch-surface-container-low));
+
   color: var(--tch-on-surface-header-private, var(--tch-on-surface));
+
+  background: var(--tch-surface-header-private, var(--tch-surface-container-low));
 }

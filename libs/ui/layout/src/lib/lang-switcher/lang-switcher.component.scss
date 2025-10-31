@@ -2,12 +2,10 @@
   --comp-lang-chip-size: 32px;
   --comp-lang-gap: 10px;
   --comp-lang-icon-scale: 0.70;
-
-  --comp-lang-fg: currentColor;
+  --comp-lang-fg: currentcolor;
   --comp-lang-ring-w: var(--tch-focus-ring-width, 2px);
   --comp-lang-ring-off: var(--tch-focus-ring-offset, 2px);
   --comp-lang-border-color: color-mix(in oklab, var(--comp-lang-fg) 28%, transparent);
-
   --comp-lang-menu-bg: var(--tch-color-surface);
   --comp-lang-menu-fg: var(--tch-color-on-surface);
   --comp-lang-menu-outline: var(--tch-color-outline);
@@ -18,32 +16,32 @@
 
 /* déclencheur */
 .tch-lang-switcher__trigger {
-  inline-size: var(--comp-lang-chip-size);
-  block-size: var(--comp-lang-chip-size);
-  min-inline-size: var(--comp-lang-chip-size);
-  min-block-size: var(--comp-lang-chip-size);
+  cursor: pointer;
 
   display: inline-grid;
   place-items: center;
 
-  background: transparent !important;
-  color: var(--comp-lang-fg);
-
+  inline-size: var(--comp-lang-chip-size);
+  min-inline-size: var(--comp-lang-chip-size);
+  block-size: var(--comp-lang-chip-size);
+  min-block-size: var(--comp-lang-chip-size);
+  padding: 0;
   border: 1px solid var(--comp-lang-border-color);
   border-radius: 9999px;
 
-  padding: 0;
   line-height: 1;
-  cursor: pointer;
+  color: var(--comp-lang-fg);
+
+  background: transparent !important;
 
   &.mat-mdc-icon-button {
     inline-size: var(--comp-lang-chip-size);
-    block-size: var(--comp-lang-chip-size);
     min-width: auto;
+    block-size: var(--comp-lang-chip-size);
     min-height: auto;
+    border: 0 !important;
 
     background: transparent !important;
-    border: 0 !important;
     box-shadow: none !important;
   }
 
@@ -53,7 +51,7 @@
   }
 
   &:focus-visible {
-    outline: var(--comp-lang-ring-w) solid currentColor;
+    outline: var(--comp-lang-ring-w) solid currentcolor;
     outline-offset: var(--comp-lang-ring-off);
   }
 
@@ -65,26 +63,29 @@
 /* drapeau dans le chip */
 .tch-lang-switcher__flag,
 .tch-lang-switcher__flag--chip {
+  display: block;
+
   inline-size: calc(var(--comp-lang-chip-size) * var(--comp-lang-icon-scale));
   block-size: calc(var(--comp-lang-chip-size) * var(--comp-lang-icon-scale));
-  border-radius: 50%;
-  display: block;
-  object-fit: cover;
   border: 0;
+  border-radius: 50%;
+
+  object-fit: cover;
   box-shadow: none;
 }
 
 /* PANEL */
 .tch-lang-switcher__menu.mat-mdc-menu-panel {
-  margin-top: 8px;
-  margin-left: 4px;
   transform-origin: top right;
 
-  background: var(--comp-lang-menu-bg);
+  margin-top: 8px;
+  margin-left: 4px;
+  border: 1px solid var(--comp-lang-menu-outline);
+  border-radius: 12px;
+
   color: var(--comp-lang-menu-fg);
 
-  border-radius: 12px;
-  border: 1px solid var(--comp-lang-menu-outline);
+  background: var(--comp-lang-menu-bg);
   box-shadow: var(--comp-lang-menu-elev);
 }
 
@@ -103,20 +104,23 @@
 /* ligne interne flag + label + pastille */
 .tch-lang-switcher__row {
   display: inline-flex;
-  align-items: center;
   column-gap: 8px; /* <- spacing fiable */
-  white-space: nowrap;
+  align-items: center;
+
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 /* flag dans la liste */
 .tch-lang-switcher__flag--menu {
+  display: block;
+  flex-shrink: 0;
+
   inline-size: 18px;
   block-size: 18px;
   border-radius: 4px;
-  display: block;
+
   object-fit: cover;
-  flex-shrink: 0;
 }
 
 /* libellé */
@@ -134,6 +138,7 @@
   inline-size: 8px;
   block-size: 8px;
   border-radius: 50%;
+
   background: var(--comp-lang-current-dot);
   box-shadow: 0 0 0 3px var(--comp-lang-current-ring);
 }
@@ -141,12 +146,15 @@
 /* flèche du menu */
 .cdk-overlay-pane .tch-lang-switcher__menu.mat-mdc-menu-panel::before {
   content: '';
+
   position: absolute;
   top: -6px;
   right: 24px;
+  transform: rotate(45deg);
+
   inline-size: 10px;
   block-size: 10px;
+
   background: var(--comp-lang-menu-bg);
-  transform: rotate(45deg);
   box-shadow: 0 0 4px color-mix(in oklab, var(--tch-color-on-surface) 12%, transparent);
 }
