@@ -2,19 +2,19 @@ name: Docs CI
 
 on:
   push:
-    branches:
-      - '**'
+    branches: [ main ]
     paths:
       - 'tchalanet-docs/**'
   pull_request:
-    branches:
-      - main
-      - prod
+    branches: [ main, prod ]
     paths:
       - 'tchalanet-docs/**'
 
+permissions:
+  contents: write
+
 jobs:
-  docs_build:
+  build:
     runs-on: ubuntu-latest
     name: Build MkDocs
 
@@ -31,9 +31,30 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install deps
+      - name: Install mkdocs deps
         run: |
-          pip install -r requirements.txt || pip install mkdocs
+          pip install -r requirements.txt
 
-      - name: Build docs
+      - name: Build docs (strict)
         run: mkdocs build --strict
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install mkdocs deps
+        run: pip install -r requirements.txt
+
+      - name: Deploy to GitHub Pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        run: mkdocs gh-deploy --force
