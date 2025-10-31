@@ -60,6 +60,8 @@
         "vercel": {
           "optimization": true,
           "sourceMap": false,
+          "extractLicenses": true,
+          "outputHashing": "all",
           "budgets": [
             { "type": "initial", "maximumWarning": "2.5mb", "maximumError": "3mb" },
             { "type": "anyComponentStyle", "maximumWarning": "400kb", "maximumError": "600kb" }
