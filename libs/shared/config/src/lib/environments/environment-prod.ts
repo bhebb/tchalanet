@@ -1,10 +1,10 @@
 export const environment = {
-  apiBase: import.meta.env.VITE_API_BASE ?? '',
-  authUrl: import.meta.env.VITE_AUTH_URL ?? '',
-  authClientId: import.meta.env.VITE_AUTH_CLIENT_ID ?? '',
-  apiVersion: import.meta.env.VITE_API_VERSION ?? 'v1',
-  appVersion: import.meta.env.VITE_APP_VERSION ?? 'dev',
-  errorVersion: Number(import.meta.env.VITE_ERROR_VERSION ?? '1'),
+  apiBase: 'https://api.tchalanet.com/api',
+  authUrl: 'https://sso.tchalanet.com/realms/tchalanet',
+  authClientId: 'tchalanet-web',
+  apiVersion: 'v1',
+  appVersion: '1',
+  errorVersion: '1',
   // Mode: 'direct' (InstantSearch → Meili) | 'proxy' (Http → /api/search)
   searchMode: 'direct' as 'direct' | 'proxy',
 
