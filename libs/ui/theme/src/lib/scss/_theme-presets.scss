@@ -12,7 +12,7 @@
 /// 2. mappe les tokens de marque app → --tch-*
 @mixin tch-generate-theme($id, $primaryPalette, $accentPalette) {
   /* ================= LIGHT VARIANT ================= */
-  .tch-theme[data-preset="#{$id}"] {
+  .tch-theme[data-preset='#{$id}'] {
     /* Marque header/footer (état "clair" brut) */
     --tch-header-bg-base: var(--mat-sys-primary);
     --tch-header-fg-base: var(--mat-sys-on-primary);
@@ -25,25 +25,27 @@
 
     color-scheme: light;
 
-    @include mat.theme((
-      color: (
-                    theme-type: light,
-                    primary: $primaryPalette,
-                    tertiary: $accentPalette,
-            ),
-            typography: (
-                    plain-family: 'Poppins, system-ui, sans-serif',
-                    brand-family: 'Poppins, system-ui, sans-serif',
-                    regular-weight: 400,
-                    medium-weight: 500,
-                    bold-weight: 600,
-            ),
-            density: 0,
-    ));
+    @include mat.theme(
+      (
+        color: (
+          theme-type: light,
+          primary: $primaryPalette,
+          tertiary: $accentPalette,
+        ),
+        typography: (
+          plain-family: 'Poppins, system-ui, sans-serif',
+          brand-family: 'Poppins, system-ui, sans-serif',
+          regular-weight: 400,
+          medium-weight: 500,
+          bold-weight: 600,
+        ),
+        density: 0,
+      )
+    );
   }
 
   /* ================= DARK VARIANT ================= */
-  .tch-theme.dark[data-preset="#{$id}"] {
+  .tch-theme.dark[data-preset='#{$id}'] {
     /* On réutilise les mêmes sources de vérité en dark.
        On NE force pas ici du #000 / #fff :
        on laisse le runtime dark-layer décider.
@@ -59,20 +61,22 @@
 
     color-scheme: dark;
 
-    @include mat.theme((
-      color: (
-                    theme-type: dark,
-                    primary: $primaryPalette,
-                    tertiary: $accentPalette,
-            ),
-            typography: (
-                    plain-family: 'Poppins, system-ui, sans-serif',
-                    brand-family: 'Poppins, system-ui, sans-serif',
-                    regular-weight: 400,
-                    medium-weight: 500,
-                    bold-weight: 600,
-            ),
-            density: 0,
-    ));
+    @include mat.theme(
+      (
+        color: (
+          theme-type: dark,
+          primary: $primaryPalette,
+          tertiary: $accentPalette,
+        ),
+        typography: (
+          plain-family: 'Poppins, system-ui, sans-serif',
+          brand-family: 'Poppins, system-ui, sans-serif',
+          regular-weight: 400,
+          medium-weight: 500,
+          bold-weight: 600,
+        ),
+        density: 0,
+      )
+    );
   }
 }

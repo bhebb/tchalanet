@@ -24,7 +24,8 @@ html {
   font-size: var(--tch-root-size);
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
   height: 100%;
   margin: 0;
@@ -82,7 +83,10 @@ a:hover {
 }
 
 /* Médias fluides */
-img, svg, video, canvas {
+img,
+svg,
+video,
+canvas {
   max-width: 100%;
   height: auto;
 }
@@ -93,9 +97,13 @@ img, svg, video, canvas {
 }
 
 /* Réduction des animations si demandé */
+/* stylelint-disable declaration-no-important */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
     animation: none !important;
   }
 }
+/* stylelint-enable declaration-no-important */

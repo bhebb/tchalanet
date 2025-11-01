@@ -1,7 +1,7 @@
 :host {
   --comp-lang-chip-size: 32px;
   --comp-lang-gap: 10px;
-  --comp-lang-icon-scale: 0.70;
+  --comp-lang-icon-scale: 0.7;
   --comp-lang-fg: currentcolor;
   --comp-lang-ring-w: var(--tch-focus-ring-width, 2px);
   --comp-lang-ring-off: var(--tch-focus-ring-offset, 2px);
@@ -15,6 +15,7 @@
 }
 
 /* déclencheur */
+/* stylelint-disable declaration-no-important */
 .tch-lang-switcher__trigger {
   cursor: pointer;
 
@@ -59,6 +60,7 @@
     box-shadow: none;
   }
 }
+/* stylelint-enable declaration-no-important */
 
 /* drapeau dans le chip */
 .tch-lang-switcher__flag,

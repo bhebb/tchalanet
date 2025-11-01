@@ -1,8 +1,9 @@
+/* stylelint-disable scss/at-rule-no-unknown, no-invalid-position-at-import-rule */
+
 /* Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 @import '@ionic/angular/css/core.css';
 @import '@ionic/angular/css/normalize.css';
@@ -15,3 +16,4 @@
 @import '@ionic/angular/css/text-transformation.css';
 @import '@ionic/angular/css/flex-utils.css';
 @import '@ionic/angular/css/ionic-swiper.css';
+/* stylelint-enable scss/at-rule-no-unknown, no-invalid-position-at-import-rule */

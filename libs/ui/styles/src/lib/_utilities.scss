@@ -137,6 +137,7 @@
 }
 
 /* A11y */
+/* stylelint-disable declaration-no-important */
 .sr-only {
   position: absolute !important;
 
@@ -150,5 +151,6 @@
 
   white-space: nowrap !important;
 
-  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(0 0 0 0) !important;
 }
+/* stylelint-enable declaration-no-important */

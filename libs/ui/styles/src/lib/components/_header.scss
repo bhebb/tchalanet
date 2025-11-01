@@ -32,7 +32,7 @@
   /* CTA tokens (consommés par %tch-btn-*) */
   --tch-btn-bg: var(--tch-color-accent);
   --tch-btn-fg: var(--tch-color-on-accent);
-  --tch-btn-bg-hover: color-mix(in oklab, var(--tch-color-accent) 90%, black);
+  --tch-btn-bg-hover: color-mix(in oklab, var(--tch-btn-bg) 90%, #000);
   --tch-btn-fg-hover: var(--tch-color-on-accent);
   --tch-btn-radius: 8px;
   --tch-btn-pad-x: 16px;
