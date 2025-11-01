@@ -1,6 +1,6 @@
 {
   "framework": "angular",
   "buildCommand": "pnpm exec nx build tchalanet-web --configuration=vercel",
-  "outputDirectory": "/vercel/path0/dist/apps",
+  "outputDirectory": "dist/apps/tchalanet-web",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
