@@ -1,10 +1,9 @@
-// src/app/widgets/draw-switcher/draw-switcher.widget.ts
 import { ChangeDetectionStrategy, Component, computed, Input, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
-import { DrawSwitcherData, DrawSwitcherProps } from '@tchl/types';
+import { DrawResult, DrawSwitcherData, DrawSwitcherProps, NextDrawInfo } from '@tchl/types';
 
-import { DrawCardComponent, DrawResult, NextDrawInfo } from '../draw-card/draw-card.component';
+import { DrawCardComponent } from '../draw-card/draw-card.component';
 import { LotteryCarouselComponent } from '../lottery-carousel/lottery-carousel.component';
 
 @Component({
@@ -21,23 +20,23 @@ import { LotteryCarouselComponent } from '../lottery-carousel/lottery-carousel.c
       /* replace styles in the component with these additions/changes */
       .block {
         display: grid;
-        gap: .5rem;
+        gap: 0.5rem;
         padding-inline: 1rem;
       }
 
       .block-title {
         display: flex;
         align-items: center;
-        gap: .5rem;
-        margin: .25rem 0;
+        gap: 0.5rem;
+        margin: 0.25rem 0;
       }
 
       .nb {
         background: var(--color-surface-variant, #eef3ff);
         border: 1px solid color-mix(in srgb, #000 10%, transparent);
-        border-radius: .75rem;
+        border-radius: 0.75rem;
       }
-      
+
       .stack {
         display: grid;
         gap: 0.75rem;
@@ -51,13 +50,12 @@ import { LotteryCarouselComponent } from '../lottery-carousel/lottery-carousel.c
         <span>{{ properties.title || 'Derniers résultats' }}</span>
       </h2>
 
-
       @if (ready()) {
       <div class="stack">
         <tchl-lottery-carousel
           [lotteries]="data().lotteries"
           [selectedId]="selectedId()"
-          [showIcons]="properties.config?.ui?.showIcons ?? true"
+          [showIcons]="properties.config.ui?.showIcons ?? true"
           (selectionChange)="selectedId.set($event)"
         >
         </tchl-lottery-carousel>
@@ -84,14 +82,8 @@ export class DrawSwitcherWidget implements OnInit {
     () =>
       !!this.properties?.config &&
       !!this.properties?.data &&
-      this.properties!.data!.lotteries?.length > 0,
+      this.properties.data.lotteries?.length > 0,
   );
-
-  ngOnInit() {
-    if (!this.ready()) return;
-    const first = this.data().lotteries?.[0]?.id ?? null;
-    this.selectedId.set(this.properties.config?.initialLotteryId ?? first);
-  }
 
   selectedResults = computed<DrawResult[]>(() => {
     const id = this.selectedId();
@@ -104,4 +96,10 @@ export class DrawSwitcherWidget implements OnInit {
     if (!id) return null;
     return this.data().next?.[id] ?? null;
   });
+
+  ngOnInit() {
+    if (!this.ready()) return;
+    const first = this.data().lotteries?.[0]?.id ?? null;
+    this.selectedId.set(this.properties.config?.initialLotteryId ?? first);
+  }
 }

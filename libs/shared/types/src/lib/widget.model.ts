@@ -1,5 +1,4 @@
-import { DrawResult, LotteryLite, NextDrawInfo } from '@tchl/web/widgets';
-
+import { DrawResult, LotteryLite, NextDrawInfo } from './lottery.model';
 import { TchLink } from './page.model';
 
 export type WidgetKind = 'HeroWidget' | 'FeatureCardWidget';
@@ -36,17 +35,20 @@ export interface DrawSwitcherConfig {
   initialLotteryId?: string;
   ui?: { showIcons?: boolean; compact?: boolean };
 }
+
 export interface DrawSwitcherData {
   lotteries: LotteryLite[];
   results: Record<string, DrawResult[]>;
   next: Record<string, NextDrawInfo>;
 }
+
 export interface DrawSwitcherProps {
   title?: string;
   config: DrawSwitcherConfig;
   data?: DrawSwitcherData; // optional; if your renderer resolves dataSource into data
   dataSource?: unknown; // your renderer can hydrate this and pass into data
 }
+
 export interface NewsItem {
   id: string;
   title: string;
@@ -55,6 +57,7 @@ export interface NewsItem {
   ts?: string;
   region?: 'global' | 'ht' | 'caribbean';
 }
+
 export interface NewsBannerProps {
   title?: string;
   labelKey?: string; // e.g. "news.label"
@@ -68,6 +71,7 @@ export interface NewsBannerProps {
   // optional dataSource handled by your renderer; we just accept local data
   dataSource?: unknown;
 }
+
 export type Widget =
   | { component: 'HeroWidget'; properties: HeroWidgetProps }
   | { component: 'DrawSwitcherWidget'; properties: DrawSwitcherProps }

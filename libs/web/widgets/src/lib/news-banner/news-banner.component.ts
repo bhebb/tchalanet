@@ -50,25 +50,25 @@ import { NewsBannerProps } from '@tchl/types';
       /* replace styles in the component with these additions/changes */
       .block {
         display: grid;
-        gap: .5rem;
+        gap: 0.5rem;
         padding-inline: 1rem;
       }
 
       .block-title {
         display: flex;
         align-items: center;
-        gap: .5rem;
-        margin: .25rem 0;
+        gap: 0.5rem;
+        margin: 0.25rem 0;
       }
 
       .nb {
         background: var(--color-surface-variant, #eef3ff);
         border: 1px solid color-mix(in srgb, #000 10%, transparent);
-        border-radius: .75rem;
+        border-radius: 0.75rem;
       }
 
       .row {
-        padding: .5rem 1rem;
+        padding: 0.5rem 1rem;
       }
 
       @media (min-width: 640px) {
@@ -93,7 +93,6 @@ import { NewsBannerProps } from '@tchl/types';
         <span>{{ properties.title || 'Actualités' }}</span>
       </h2>
 
-
       <div
         class="nb"
         role="region"
@@ -101,10 +100,10 @@ import { NewsBannerProps } from '@tchl/types';
       >
         <div class="row">
           @if (properties.labelKey; as lk) {
-            <div class="label">
-              <mat-icon class="material-symbols-outlined">campaign</mat-icon>
-              <span>{{ lk }}</span>
-            </div>
+          <div class="label">
+            <mat-icon class="material-symbols-outlined">campaign</mat-icon>
+            <span>{{ lk }}</span>
+          </div>
           }
           <div
             class="track"
@@ -112,20 +111,18 @@ import { NewsBannerProps } from '@tchl/types';
             (mouseenter)="properties.pauseOnHover ? paused.set(true) : null"
             (mouseleave)="properties.pauseOnHover ? paused.set(false) : null"
           >
-            @if ((properties?.data?.items?.length ?? 0) === 0) {
-              <span>{{
-                  properties.emptyStateKey || 'Aucune actualité disponible pour le moment.'
-                }}</span>
-            } @else {
-              @for (n of properties.data!.items; track n.id) {
-                <a class="item" [href]="n.href || '#'" target="_blank" rel="noopener">
-                  <span>{{ n.title }}</span>
-                  @if (n.source) {
-                    <span> · {{ n.source }}</span>
-                  }
-                </a>
+            @if ((properties.data?.items?.length ?? 0) === 0) {
+            <span>{{
+              properties.emptyStateKey || 'Aucune actualité disponible pour le moment.'
+            }}</span>
+            } @else { @for (n of properties.data!.items; track n.id) {
+            <a class="item" [href]="n.href || '#'" target="_blank" rel="noopener">
+              <span>{{ n.title }}</span>
+              @if (n.source) {
+              <span> · {{ n.source }}</span>
               }
-            }
+            </a>
+            } }
           </div>
 
           <!-- optional right-side controls area (hidden on mobile) -->

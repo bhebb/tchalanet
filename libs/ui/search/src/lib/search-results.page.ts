@@ -9,7 +9,13 @@ import {
   sortBy,
 } from 'instantsearch.js/es/widgets';
 
-import { AfterViewInit, Component, inject, OnDestroy } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnDestroy,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AnalyticsService } from '@tchl/analytics';
@@ -25,10 +31,11 @@ type Hit = {
   tenantId: string;
   lang: string;
   published_at?: string;
-  __position?: number; // injecté par InstantSearch
+  __position?: number;
 };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   selector: 'tchl-search-results',
   template: `
@@ -36,7 +43,9 @@ type Hit = {
       <header class="top">
         <div id="searchbox"></div>
         <button class="filtersBtn" (click)="toggleFilters()">
-          Filtres <span *ngIf="filtersCount">{{ filtersCount }}</span>
+          Filtres @if (filtersCount) {
+          <span>{{ filtersCount }}</span>
+          }
         </button>
       </header>
 
@@ -152,8 +161,8 @@ type Hit = {
   ],
 })
 export class SearchResultsPage implements AfterViewInit, OnDestroy {
-  private router = inject(Router);
-  private analyticsService = inject(AnalyticsService);
+  private readonly router = inject(Router);
+  private readonly analyticsService = inject(AnalyticsService);
 
   private search!: ReturnType<typeof instantsearch>;
   filtersOpen = false;
@@ -218,9 +227,7 @@ export class SearchResultsPage implements AfterViewInit, OnDestroy {
           empty(params: any) {
             const { html, state } = params;
             const q = state?.query || '';
-            return html`<div class="ais-Hits-empty">
-              Aucun résultat pour “${q}”.
-            </div>`;
+            return html`<div class="ais-Hits-empty">Aucun résultat pour “${q}”.</div>`;
           },
         },
       }),
@@ -252,10 +259,10 @@ export class SearchResultsPage implements AfterViewInit, OnDestroy {
 
     // Navigation SPA au clic des résultats (Angular Router)
     const onDocClick = (e: Event) => {
-      const a = (e.target as HTMLElement).closest('#hits .hit-link') as HTMLAnchorElement | null;
+      const a = (e.target as HTMLElement).closest('#hits .hit-link');
       if (!a) return;
       e.preventDefault();
-      const card = a.closest('.card') as HTMLElement | null;
+      const card = a.closest('.card');
       const id = card?.getAttribute('data-hit-id') || a.href;
       const pos = Number(card?.getAttribute('data-hit-pos') || '0');
 
@@ -280,5 +287,7 @@ export class SearchResultsPage implements AfterViewInit, OnDestroy {
     };
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    // for cleanup
+  }
 }

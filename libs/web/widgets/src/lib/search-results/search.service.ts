@@ -40,7 +40,7 @@ export interface DrawSearchResult extends SearchResult<DrawResult> {
 export class SearchService {
   constructor(
     @Inject(InstantSearchClient)
-    private searchClient: InstantSearchClient,
+    private readonly searchClient: InstantSearchClient,
   ) {}
 
   async searchDraws(query: string): Promise<DrawSearchResult[]> {
@@ -76,7 +76,7 @@ export class SearchService {
     options?: {
       indexes?: string[];
       limit?: number;
-    }
+    },
   ): Promise<Record<string, SearchResponse<SearchResult>>> {
     const indexes = options?.indexes ?? ['draws', 'lotteries', 'products'];
     const limit = options?.limit ?? 5;
@@ -112,8 +112,8 @@ export class SearchService {
             hits: [],
             query,
             processingTimeMs: 0,
-            limit: 0
-          }
+            limit: 0,
+          },
         };
       }
     });
@@ -178,7 +178,7 @@ export class SearchService {
       const client = await this.searchClient.ensureClient();
       const index = client.index(indexName);
 
-      // @ts-ignore
+      // @ts-expect-error Property indexing with string key
       const documents = testDocuments[indexName] || [];
 
       if (documents.length > 0) {
@@ -189,6 +189,6 @@ export class SearchService {
     } catch (error) {
       console.error(`Error adding documents to ${indexName}:`, error);
     }
-    return []
+    return [];
   }
 }

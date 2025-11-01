@@ -7,8 +7,8 @@ import { I18nFacade } from './i18n.facade';
 
 @Injectable({ providedIn: 'root' })
 export class PageFacade {
-  private store = inject(Store);
-  private i18nFacade = inject(I18nFacade);
+  private readonly store = inject(Store);
+  private readonly i18nFacade = inject(I18nFacade);
 
   // ✅ Signals directement depuis le store
   loading = this.store.selectSignal(selectIsLoading);
