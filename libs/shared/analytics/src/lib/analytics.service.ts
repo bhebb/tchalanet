@@ -3,15 +3,6 @@ import { Inject, Injectable } from '@angular/core';
 import { ANALYTICS_CONFIG } from './analytics.tokens';
 import { AnalyticsConfig, AnalyticsEvent } from './analytics.types';
 
-declare global {
-  interface Window {
-    umami?: {
-      track: (event: string, data?: Record<string, unknown>) => void;
-      trackView?: (url?: string, referrer?: string) => void;
-    };
-  }
-}
-
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   constructor(@Inject(ANALYTICS_CONFIG) private cfg: AnalyticsConfig) {}
@@ -22,16 +13,32 @@ export class AnalyticsService {
 
   pageView(url = location.pathname) {
     this.logDebug('pageView', url);
-    if (this.cfg.provider === 'umami' && window.umami?.trackView) {
-      window.umami.trackView(url, document.referrer || undefined);
+    try {
+      if (this.cfg.provider === 'ga') {
+        // gtag expects: gtag('event', 'page_view', { page_path: url })
+        const gtag = (globalThis as any).gtag;
+        if (typeof gtag === 'function') {
+          gtag('event', 'page_view', { page_path: url });
+          return;
+        }
+      }
+    } catch (e) {
+      // noop
     }
   }
 
   event(ev: AnalyticsEvent) {
     this.logDebug('event', ev);
-    if (this.cfg.provider === 'umami' && window.umami?.track) {
-      window.umami.track(ev.name, ev.data);
-      return;
+    try {
+      if (this.cfg.provider === 'ga') {
+        const gtag = (globalThis as any).gtag;
+        if (typeof gtag === 'function') {
+          gtag('event', ev.name, ev.data || {});
+          return;
+        }
+      }
+    } catch (e) {
+      // noop
     }
     // fallback dev
     if (this.cfg.provider === 'console') {
@@ -39,7 +46,7 @@ export class AnalyticsService {
     }
   }
 
-  // Helpers “prêts à l’emploi”
+  // Helpers
   searchViewSuggestions(q: string, meta?: Record<string, unknown>) {
     this.event({ name: 'view_suggestions', data: { q, ...meta } });
   }

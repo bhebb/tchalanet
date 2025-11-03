@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# setup-api-env.sh
+# Copie et configure le fichier .env pour l'API avec les bonnes valeurs depuis l'infra
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+INFRA_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+API_ROOT="$(cd "$INFRA_ROOT/../tchalanet-server" && pwd)"
+
+ENV="${1:-dev}"
+
+# Couleurs
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+log() { echo -e "${BLUE}→${NC} $*"; }
+success() { echo -e "${GREEN}✔${NC} $*"; }
+warn() { echo -e "${YELLOW}⚠${NC} $*"; }
+
+log "Configuration de l'API Spring Boot pour l'environnement: $ENV"
+
+# Vérifier que le dossier API existe
+if [ ! -d "$API_ROOT" ]; then
+  warn "Dossier API introuvable: $API_ROOT"
+  echo "Assure-toi que tchalanet-server est au même niveau que tchalanet-infra"
+  exit 1
+fi
+
+# Lire les secrets de l'infra
+SECRETS_FILE="$INFRA_ROOT/envs/$ENV/.secrets"
+if [ ! -f "$SECRETS_FILE" ]; then
+  warn "Fichier secrets introuvable: $SECRETS_FILE"
+  echo "Exécute d'abord: make generate-meili-master-key ENV=$ENV"
+  exit 1
+fi
+
+# Charger les secrets
+set -a
+source "$SECRETS_FILE"
+set +a
+
+# Créer le fichier .env pour l'API
+API_ENV_FILE="$API_ROOT/.env"
+
+log "Création de $API_ENV_FILE"
+
+cat > "$API_ENV_FILE" <<EOF
+# ========================================
+# Tchalanet API Spring Boot - Configuration $ENV
+# ========================================
+# Généré automatiquement le $(date)
+# IMPORTANT : Ce fichier ne doit PAS être versionné
+
+# ========================================
+# 🗄️ Postgres (Database)
+# ========================================
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+
+# ========================================
+# 🔴 Redis (Cache)
+# ========================================
+SPRING_REDIS_HOST=localhost
+SPRING_REDIS_PORT=6379
+SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-devredis}
+
+# ========================================
+# 🔐 Keycloak (Authentication)
+# ========================================
+SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8082/realms/tchalanet-$ENV
+KEYCLOAK_REALM=tchalanet-$ENV
+KEYCLOAK_AUTH_SERVER_URL=http://localhost:8082
+KEYCLOAK_RESOURCE=tchalanet-api
+KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CLIENT_SECRET:-change-me-in-production}
+
+# ========================================
+# 🚩 Unleash (Feature Flags)
+# ========================================
+UNLEASH_API_URL=http://localhost:4242/api
+# Prefer server/admin token for API access, fall back to personal token, then frontend token if present (dev convenience)
+UNLEASH_API_TOKEN=${UNLEASH_SERVER_TOKEN:-${UNLEASH_PERSONAL_TOKEN:-${UNLEASH_FRONTEND_TOKEN:-*:*.dev-edge-token}}}
+UNLEASH_APP_NAME=tchalanet-api
+UNLEASH_ENVIRONMENT=$ENV
+
+# ========================================
+# 🔍 Meilisearch (Search Engine)
+# ========================================
+MEILI_URL=http://localhost:7700
+MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+
+# ========================================
+# 🔧 Application Config
+# ========================================
+SERVER_PORT=8081
+SPRING_PROFILES_ACTIVE=$ENV
+LOGGING_LEVEL_ROOT=INFO
+SPRING_JPA_SHOW_SQL=true
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+# ========================================
+# 🌐 CORS (Frontend)
+# ========================================
+CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:4201
+EOF
+
+chmod 600 "$API_ENV_FILE"
+
+success "Fichier .env créé pour l'API Spring Boot: $API_ENV_FILE"
+echo ""
+echo "Pour lancer l'API:"
+echo "  cd $API_ROOT"
+echo "  set -a; source .env; set +a"
+echo "  ./mvnw spring-boot:run"

@@ -1,0 +1,25 @@
+# Override local pour builder les images depuis les Dockerfile locaux
+# Usage: docker compose -f compose/docker-compose-project.yml -f compose/docker-compose.local-build.yml up -d --build
+
+services:
+  api:
+    build:
+      context: ../../tchalanet-server
+      dockerfile: Dockerfile
+      args:
+        IMAGE_TAG: ${IMAGE_TAG:-local-build}
+    image: ghcr.io/tchalanet/api:${IMAGE_TAG:-local-build}
+    pull_policy: never
+
+  keycloak:
+    build:
+      context: ../keycloak
+      dockerfile: Dockerfile
+      args:
+        MAVEN_ARGS: -DskipTests
+        IMAGE_TAG: ${IMAGE_TAG:-local-build}
+    image: tchl/keycloak:${IMAGE_TAG:-local-build}
+    pull_policy: never
+
+# Ne touchons pas aux env_file définis dans les fichiers compose principaux :
+# les containers continueront de lire ../envs/${ENV}/.env.merged au runtime.

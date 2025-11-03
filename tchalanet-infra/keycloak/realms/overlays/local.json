@@ -1,0 +1,20 @@
+{
+  "realm": "tchalanet",
+  "clients": [
+    {
+      "clientId": "tchalanet-web",
+      "redirectUris": ["https://app.localtest.me/*"],
+      "webOrigins": ["https://app.localtest.me"]
+    },
+    {
+      "clientId": "tchalanet-swagger",
+      "redirectUris": ["https://api.localtest.me/swagger-ui/oauth2-redirect.html"],
+      "webOrigins": ["https://api.localtest.me"]
+    },
+    {
+      "clientId": "unleash",
+      "redirectUris": ["https://flags.localtest.me/auth/callback"],
+      "webOrigins": ["https://flags.localtest.me"]
+    }
+  ]
+}

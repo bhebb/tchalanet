@@ -1,0 +1,45 @@
+services:
+  redis:
+    # Alpine pour une image plus légère, dernière version stable
+    image: ${REDIS_IMAGE:-redis:8.2.3}
+    container_name: ${REDIS_CONTAINER:-${DOCKER_PREFIX:-tchl}-redis}-${ENV}
+    env_file:
+      - ../envs/${ENV}/.env.merged
+      - ../envs/${ENV}/.secrets
+    # Use a mounted entrypoint script (avoids quoting issues)
+    volumes:
+      - ../scripts/docker/redis-entrypoint.sh:/usr/local/bin/redis-entrypoint.sh:ro
+      - redis-data:/data
+    command: ["/usr/local/bin/redis-entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          # use concrete defaults for validation; override in CI/orchestrator
+          memory: "256M"
+          cpus: 0.5
+        reservations:
+          memory: "128M"
+          cpus: 0.1
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: ${REDIS_LOG_MAX_SIZE:-10m}
+        max-file: ${REDIS_LOG_MAX_FILES:-3}
+    sysctls:
+      net.core.somaxconn: '511'
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks: [ back, edge ]
+
+volumes:
+  redis-data:
+    name: redis-data-${ENV}

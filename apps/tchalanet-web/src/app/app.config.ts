@@ -119,9 +119,9 @@ export const appConfig: ApplicationConfig = {
 
     provideAuth({
       config: {
-        authority: 'http://localhost:8080/realms/tchalanet',
-        redirectUrl: 'http://localhost:4200/auth/callback',
-        postLogoutRedirectUri: 'http://localhost:4200',
+        authority: 'https://auth.localtest.me/realms/tchalanet',
+        redirectUrl: 'https://app.localtest.me/auth/callback',
+        postLogoutRedirectUri: 'https://app.localtest.me',
         clientId: 'tchalanet-web',
         scope: 'openid profile email',
         responseType: 'code',
@@ -139,13 +139,12 @@ export const appConfig: ApplicationConfig = {
     {
       provide: ANALYTICS_CONFIG,
       useValue: {
-        provider: 'umami', // 'console' en dev si tu veux
-        umami: {
-          host: environment.umami.host, // ton instance Umami
-          websiteId: environment.umami.websiteId,
-          autoTrack: false,
+        provider: environment.analytics.provider || 'ga',
+        ga: {
+          measurementId: environment.analytics.gaMeasurementId,
+          autoTrack: environment.analytics.autoTrack ?? true,
         },
-        debug: true, // logs console utiles
+        debug: true,
       },
     },
     provideAnalyticsInit(),

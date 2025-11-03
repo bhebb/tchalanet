@@ -1,0 +1,14 @@
+services:
+  doppler:
+    image: ${DOPPLER_IMAGE:-dopplerhq/cli:latest}
+    container_name: ${DOCKER_PREFIX:-tchl}-doppler-${ENV}
+    restart: "no"
+    entrypoint: ["/bin/sh","-lc"]
+    command: ["doppler --version"]
+    working_dir: /work
+    environment:
+      # Provide at runtime: DOPPLER_TOKEN=<service token>
+      DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+    volumes:
+      - ./:/work
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -1,0 +1,20 @@
+{
+  "mappers": [
+    {
+      "name": "tch-json-claim",
+      "protocol": "openid-connect",
+      "protocolMapper": "tch-json-claim-mapper",
+      "config": {
+        "claim.name": "tch",
+        "jsonType.label": "JSON",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    }
+  ],
+  "notes": [
+    "Ajoutez ce mapper dans un client scope nommé 'tch' et rattachez ce scope aux defaultClientScopes des clients pour que le claim apparaisse dans les tokens.",
+    "Exemple: scope 'tch' avec ce mapper → clients.defaultClientScopes += ['tch']"
+  ]
+}

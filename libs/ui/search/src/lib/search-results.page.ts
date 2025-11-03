@@ -263,7 +263,7 @@ export class SearchResultsPage implements AfterViewInit, OnDestroy {
       if (!a) return;
       e.preventDefault();
       const card = a.closest('.card');
-      const id = card?.getAttribute('data-hit-id') || a.href;
+      const id = card?.getAttribute('data-hit-id')?? '';
       const pos = Number(card?.getAttribute('data-hit-pos') || '0');
 
       this.analyticsService.selectSearchResult(id, pos, {

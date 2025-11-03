@@ -1,0 +1,18 @@
+server:
+  port: 8083
+app:
+  cors:
+    allowed-origins: https://app.localtest.me,https://auth.localtest.me
+  apiBaseUrl: ${APP_API_BASEURL:https://api.localtest.me}
+
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://auth.localtest.me/realms/tchalanet
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tchalanet_db

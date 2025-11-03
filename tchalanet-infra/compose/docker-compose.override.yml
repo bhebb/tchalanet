@@ -1,0 +1,34 @@
+services:
+  api:
+    ports:
+      - "8081:8080"
+
+  postgres:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  keycloak:
+    ports:
+      - "8082:8080"
+
+  unleash:
+    ports:
+      - "4242:4242"
+
+  unleash-edge:
+    ports:
+      - "3063:3063"
+
+  meilisearch:
+    ports:
+      - "7700:7700"
+
+  traefik:
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Dashboard Traefik

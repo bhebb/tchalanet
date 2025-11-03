@@ -1,6 +1,6 @@
 export const environment = {
-  apiBase: 'https://api.tchalanet.com/api',
-  authUrl: 'https://sso.tchalanet.com/realms/tchalanet',
+  apiBase: 'https://api.localtest.me/api',
+  authUrl: 'https://auth.localtest.me/realms/tchalanet',
   authClientId: 'tchalanet-web',
   apiVersion: 'v1',
   appVersion: '1',
@@ -16,9 +16,11 @@ export const environment = {
   // Proxy (prod ou dev sécurisé)
   apiBaseUrl: 'http://localhost:8081',
 
-  umami: {
-    host: 'http://localhost:3300',
-    websiteId: '004d636a-8a5a-41ec-83c1-1af7259ce49b',
+  // Analytics configuration — Google Analytics (GA4)
+  analytics: {
+    provider: 'ga',
+    gaMeasurementId: '', // set in env-specific builds e.g. G-XXXXXXX
+    autoTrack: true,
   },
   feature: {
     kind: 'unleash',

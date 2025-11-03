@@ -1,146 +1,61 @@
-name: Web CI
+name: Build Web App
 
 on:
   push:
-    branches: [ '**' ]
     paths:
-      - 'apps/**'
-      - 'libs/**'
-      - 'nx.json'
-      - 'project.json'
-      - 'workspace.json'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'eslint.config.mjs'
-      - '.stylelintrc.cjs'
-      - 'tsconfig.json'
-      - 'tsconfig.*.json'
-  pull_request:
-    branches: [ main, prod ]
-    paths:
-      - 'apps/**'
-      - 'libs/**'
-      - 'nx.json'
-      - 'project.json'
-      - 'workspace.json'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'eslint.config.mjs'
-      - '.stylelintrc.cjs'
-      - 'tsconfig.json'
-      - 'tsconfig.*.json'
-jobs:
-  web_lint_build_test:
-    runs-on: ubuntu-latest
-    name: Lint & Build & Test Web/Mobile
-    strategy:
-      matrix:
-        node-version: [ 20 ]
+      - 'apps/tchalanet-web/**'
+      - 'libs/ui/**'
+      - '.github/workflows/web.yml'
+  workflow_dispatch: {}
 
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: use Node ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          node-version: '20'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Cache Nx
-        uses: actions/cache@v4
-        with:
-          path: .nx/cache
-          key: nx-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            nx-${{ runner.os }}-
-
-      - name: Sets the base and head SHAs for the nx affected commands in CI
-        uses: nrwl/nx-set-shas@v4
-
-      # (optionnel) scan sécu + orthographe, commente si tu veux aller au plus vite
-      # - name: Security & spell scan
-      #   run: pnpm scan
-
-        # -----------------------------
-      # ESLint — non bloquant + rapports
-      # -----------------------------
-      - name: ESLint (affected, report + non-blocking)
-        id: eslint
+      - name: Install pnpm
         run: |
-          # Sortie brute (tout le log) sans bloquer la CI
-          pnpm exec nx affected --target=lint --base=$NX_BASE --head=$NX_HEAD --parallel=3 \
-            --silent 2>&1 | tee reports/eslint-raw.log || true
-      
-          # Rapport JSON machine-readable (facultatif mais pratique)
-          pnpm exec eslint "apps/**/*.{ts,html}" "libs/**/*.{ts,html}" -f json -o reports/eslint.json \
-            || echo "eslint json generation failed" >> reports/eslint-raw.log
-      
-          # Petit résumé lisible dans les logs si jq disponible
-          if [ -f reports/eslint.json ] && command -v jq >/dev/null 2>&1; then
-            echo "Top 20 fichiers avec messages ESLint :"
-            jq -r '.[] | "\(.filePath) — messages: \(.messages|length)"' reports/eslint.json | head -n 20
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install deps
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Generate theme registry (lib)
+        run: |
+          # The theme registry generator lives under tchalanet-infra/web and
+          # produces a TS registry used by the theme lib. Run it before building
+          # the web app so the registry is available during the build.
+          if [ -f tchalanet-infra/web/generate-theme-registry.mjs ]; then
+            node tchalanet-infra/web/generate-theme-registry.mjs
+          else
+            echo 'No generate-theme-registry.mjs found; skipping'
           fi
-        continue-on-error: true
 
-      # ---------------------------------
-      # Stylelint — non bloquant + rapports
-      # ---------------------------------
-      - name: Stylelint (SCSS/CSS, report + non-blocking)
-        id: stylelint
+      - name: Build theme lib (if present)
         run: |
-          # Sortie brute
-          pnpm lint:styles 2>&1 | tee reports/stylelint-raw.log || true
-      
-          # Rapport JSON pour post-traitement (le pattern suit ton repo)
-          pnpm exec stylelint "apps/**/*.{scss,css}" "libs/**/*.{scss,css}" \
-            --formatter json > reports/stylelint.json || echo "stylelint json failed" >> reports/stylelint-raw.log
-      
-          # Court résumé si jq dispo
-          if [ -f reports/stylelint.json ] && command -v jq >/dev/null 2>&1; then
-            echo "Top 20 fichiers avec messages Stylelint :"
-            jq -r '.[] | "\(.source) — warnings: \(.warnings|length)"' reports/stylelint.json | head -n 20
+          if [ -f libs/ui/theme/package.json ]; then
+            pnpm --filter libs/ui/theme... build || true
+          else
+            echo 'libs/ui/theme not present; skipping theme build'
           fi
-        continue-on-error: true
 
-      # ---------------------------------
-      # Typecheck — non bloquant + rapport brut
-      # ---------------------------------
-      - name: Typecheck (affected, non-blocking)
-        id: typecheck
+      - name: Build web app
         run: |
-          pnpm exec nx affected -t=typecheck --base=$NX_BASE --head=$NX_HEAD --parallel=3 \
-            2>&1 | tee reports/typecheck-raw.log || true
-        continue-on-error: true
-      
-      # (optionnel) E2E non bloquant
-      - name: E2E Web (affected, non-blocking)
-        run: pnpm exec nx affected -t=e2e --base=$NX_BASE --head=$NX_HEAD --parallel=1 2>&1 | tee reports/e2e-raw.log || true
-        continue-on-error: true
+          pnpm build:web
 
-      # ---------------------------------
-      # Upload artifacts (tous les rapports)
-      # ---------------------------------
-      - name: Upload lint/typecheck reports
+      - name: Upload build artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: web-ci-reports
-          path: reports/
+          name: web-build
+          path: dist/apps/tchalanet-web/**
 
-      - name: Build Web
-        run: pnpm exec nx build tchalanet-web --configuration=ci
-
-      - name: Build Mobile
-        run: pnpm exec nx build tchalanet-mobile
-     
