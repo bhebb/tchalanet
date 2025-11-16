@@ -1,0 +1,23 @@
+/* Basic brand overrides for Tchalanet */
+:root {
+  --kc-primary: #0d9488;
+  --kc-primary-contrast: #ffffff;
+}
+
+.kc-logo-text {
+  font-weight: 700;
+}
+
+#kc-header-wrapper {
+  color: var(--kc-primary-contrast);
+}
+
+#kc-header {
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+}
+
+.kcFormCard {
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.12);
+}
+

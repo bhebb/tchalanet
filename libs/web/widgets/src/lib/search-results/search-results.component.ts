@@ -1,11 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { SearchService } from './search.service';
 
 @Component({
   selector: 'tch-results-page',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="h-container tch-results">
       <div class="tch-results__controls">
@@ -21,22 +20,7 @@ import { SearchService } from './search.service';
   `,
 })
 export class SearchResultsComponent {
-  private route = inject(ActivatedRoute);
-
-  constructor(private searchService: SearchService) {}
-
-  async search(query: string) {
-    // Recherche de base
-    // const results = await this.searchService.performSearch(query);
-
-    // // Recherche avec options
-    // const filteredResults = await this.searchService.performSearch(query, {
-    //   indexName: 'books',
-    //   limit: 20,
-    //   filter: 'category="science"',
-    // });
-
-    // Suggestions
-    // const suggestions = await this.searchService.getSuggestions(query);
+  async search(_: string) {
+    // for testing
   }
 }

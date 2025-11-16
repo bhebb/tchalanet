@@ -14,13 +14,13 @@ export interface InfoProps {
   selector: 'tchl-info-widget',
   imports: [CommonModule],
   template: `
-    <section class="info" [attr.data-variant]="props()?.variant || 'info'">
+    <section class="info" [attr.data-variant]="props().variant || 'info'">
       <div class="head">
-        @if (props()?.icon) { <span class="material-icons icon">{{ props()?.icon }}</span> }
-        <h3 class="h3">{{ props()?.title }}</h3>
+        @if (props().icon) { <span class="material-icons icon">{{ props().icon }}</span> }
+        <h3 class="h3">{{ props().title }}</h3>
       </div>
-      @if (props()?.text) {
-      <p class="text">{{ props()?.text }}</p>
+      @if (props().text) {
+      <p class="text">{{ props().text }}</p>
       }
     </section>
   `,

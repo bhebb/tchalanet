@@ -28,7 +28,7 @@
   /* Social link tokens */
   --comp-footer-social-size: 28px;
   --comp-footer-social-gap: 8px;
-  --comp-footer-social-bg: color-mix(in oklab, var(--comp-footer-bg) 80%, white);
+  --comp-footer-social-bg: color-mix(in oklab, var(--comp-footer-bg) 80%, #fff);
   --comp-footer-social-border: color-mix(in oklab, var(--tch-color-outline) 35%, transparent);
 
   position: relative;
@@ -70,7 +70,10 @@
   &__title {
     margin-block-end: 8px;
 
-    font-size: var(--tch-font-size-body, 1rem); /* si t'as une var dédiée genre --tch-size-title utilise-la */
+    font-size: var(
+      --tch-font-size-body,
+      1rem
+    ); /* si t'as une var dédiée genre --tch-size-title utilise-la */
 
     /* on le rend clairement plus haut dans la hiérarchie */
     font-weight: var(--tch-weight-semibold);
@@ -117,11 +120,12 @@
       opacity: 1;
     }
 
-    &:active{
-      color: var(--tch-link-fg-active); /* vert dans violet-green, orange dans indigo-orange, etc. */
+    &:active {
+      color: var(
+        --tch-link-fg-active
+      ); /* vert dans violet-green, orange dans indigo-orange, etc. */
     }
   }
-
 
   /* Colonne marque */
   &__col--brand {

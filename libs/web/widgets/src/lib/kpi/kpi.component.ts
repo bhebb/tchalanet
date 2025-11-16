@@ -14,9 +14,9 @@ export interface KpiProps {
   imports: [CommonModule],
   template: `
     <div class="kpi">
-      <div class="label">{{ props()?.label }}</div>
-      <div class="value tabnums">{{ props()?.value }}</div>
-      <div class="trend" [attr.data-trend]="props()?.trend"></div>
+      <div class="label">{{ props().label }}</div>
+      <div class="value tabnums">{{ props().value }}</div>
+      <div class="trend" [attr.data-trend]="props().trend"></div>
     </div>
   `,
   styles: [

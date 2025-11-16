@@ -31,7 +31,7 @@ ROOT --> SEARCH[/search]
 L'API est documentée avec OpenAPI 3.0 (Swagger). La documentation est générée automatiquement à partir des annotations dans le code.
 
 La documentation Swagger UI est accessible à l'adresse :
-http://localhost:8080/swagger-ui/index.html
+http://localhost:8082/swagger-ui/index.html
 
 ## Gestion des erreurs
 Les erreurs sont retournées au format JSON avec un code HTTP approprié :

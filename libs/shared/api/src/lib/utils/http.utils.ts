@@ -1,5 +1,5 @@
-export const OIDC_BASE = 'http://localhost:8080/realms/tchalanet'; // ou depuis env
-export const API_BASE = 'http://localhost:8082'; // ton BFF en local
+export const OIDC_BASE = 'http://localhost:8082/realms/tchalanet'; // ou depuis env
+export const API_BASE = 'http://localhost:8081'; // ton BFF en local
 export const PROXY_OIDC_PREFIX = '/keycloak'; // si tu utilises un proxy dev
 
 export function isKeycloakUrl(url: string): boolean {

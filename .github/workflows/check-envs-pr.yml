@@ -1,0 +1,50 @@
+name: Check envs on PR
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-envs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run env validation (staging)
+        run: |
+          cd tchalanet-infra
+          chmod +x scripts/check-envars.sh
+          ./scripts/check-envars.sh staging
+
+      - name: Validate docker-compose syntax (staging) for all compose files
+        run: |
+          set -euo pipefail
+          cd tchalanet-infra
+          # minimal set of compose files to validate (keep in sync with compose/ directory)
+          COMPOSE_FILES=(docker-compose-postgres.yml docker-compose-redis.yml docker-compose-meilisearch.yml docker-compose-keycloak.yml docker-compose-unleash.yml docker-compose-api.yml docker-compose-traefik.yml docker-compose-project.yml docker-compose.local-build.yml)
+
+          # Prefer `docker compose config` if available
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            echo "Using 'docker compose' to validate compose files"
+            for f in "${COMPOSE_FILES[@]}"; do
+              if [ -f "$f" ]; then
+                echo "-> validating $f"
+                docker compose --env-file envs/staging/compose.env -f "$f" config >/dev/null
+              else
+                echo "-> skipping (not found): $f"
+              fi
+            done
+          else
+            echo "'docker compose' not available; trying pip docker-compose fallback"
+            python3 -m pip install --user 'docker-compose' >/dev/null
+            PATH="$HOME/.local/bin:$PATH"
+            for f in "${COMPOSE_FILES[@]}"; do
+              if [ -f "$f" ]; then
+                echo "-> validating $f (docker-compose)"
+                docker-compose --env-file envs/staging/compose.env -f "$f" config >/dev/null
+              else
+                echo "-> skipping (not found): $f"
+              fi
+            done
+          fi

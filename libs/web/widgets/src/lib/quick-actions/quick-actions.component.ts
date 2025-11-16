@@ -1,4 +1,3 @@
-// libs/web/widgets-actions/src/lib/quick-actions-widget.component.ts
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -16,9 +15,9 @@ export interface QuickActionsProps {
   imports: [CommonModule, RouterModule],
   template: `
     <section class="qa">
-      <h4>{{ props()?.title || 'Actions rapides' }}</h4>
+      <h4>{{ props().title || 'Actions rapides' }}</h4>
       <div class="list">
-        @for (a of props()?.actions; track a.path) {
+        @for (a of props().actions; track a.path) {
         <a [routerLink]="a.path" class="pill">
           @if (a.icon) { <span class="material-icons">{{ a.icon }}</span> }
           {{ a.labelKey }}

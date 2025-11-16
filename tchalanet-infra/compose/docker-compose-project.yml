@@ -1,0 +1,29 @@
+# compose/docker-compose-project.yml
+# Fichier "projet" inclus en premier (-f) pour fixer réseaux/labels/logs par défaut.
+
+services: {}
+
+# (Optionnel) -> on préfère garder le project name via --project-name dans les scripts
+# name: tchalanet-${ENV:-dev}
+
+networks:
+  edge:
+    name: ${DOCKER_NETWORK_EDGE:-edge-dev}
+    external: true
+  back:
+    name: ${DOCKER_NETWORK_BACK:-back-dev}
+    external: true
+
+# Labels communs factorizables
+x-common-labels: &common-labels
+  com.tchalanet.project: "tchalanet"
+  com.tchalanet.environment: "${ENV:-dev}"
+
+# Defaults communs (tu peux les merge sur un service avec "<<: *service-defaults")
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "${LOG_MAX_SIZE:-10m}"
+      max-file: "${LOG_MAX_FILES:-3}"

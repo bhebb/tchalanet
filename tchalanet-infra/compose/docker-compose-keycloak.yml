@@ -1,0 +1,91 @@
+services:
+  keycloak:
+    build:
+      context: ../keycloak
+      dockerfile: Dockerfile
+      args:
+        - MAVEN_ARGS=-DskipTests
+    image: ${KEYCLOAK_IMAGE:-tchl/keycloak:26.4.0-custom}
+
+    container_name: ${KEYCLOAK_CONTAINER:-tchl-keycloak}-${ENV}
+
+    env_file:
+      - ../envs/${ENV}/.env.merged
+      - ../envs/${ENV}/.secrets
+
+    command: >
+      start
+      --http-enabled=true
+      --hostname-strict=false
+      --http-port=8080
+      --http-management-enabled=true
+      --http-management-port=9000
+      --hostname=keycloak
+      --proxy-headers=xforwarded
+      --import-realm
+      --cache=local
+      ${KC_EXTRA_ARGS}
+    environment:
+      # DB
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak_db
+      # Keycloak Quarkus expects KC_DB_USERNAME/KC_DB_PASSWORD
+      KC_DB_USERNAME: ${KC_DB_USERNAME:-kc_user}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      # Admin bootstrap (assure-toi de les définir)
+      # New recommended env names (Keycloak >=26)
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+
+      # JVM sizing
+      JAVA_OPTS: >
+        -Xms${KC_XMS:-512m} -Xmx${KC_XMX:-1024m}
+        -XX:MetaspaceSize=${KC_METASPACE_SIZE:-96M}
+        -XX:MaxMetaspaceSize=${KC_MAX_METASPACE_SIZE:-256m}
+        -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication
+      TZ: UTC
+      KC_LOG_LEVEL: INFO
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_HOST: "0.0.0.0"
+      KC_HTTP_MANAGEMENT_PORT: "9000"
+    volumes:
+      - ${KEYCLOAK_DATA_VOLUME:-keycloak-data}:/opt/keycloak/data
+      - ../keycloak/realms:/opt/keycloak/data/import:ro
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'exec 3<>/dev/tcp/0.0.0.0/9000'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 24
+      start_period: 240s
+
+    networks:
+      - back
+      - edge
+
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: ${KC_LOG_MAX_SIZE:-10m}
+        max-file: ${KC_LOG_MAX_FILES:-3}
+
+    labels:
+      - traefik.enable=${UNLEASH_TRAEFIK_ENABLE:-true}
+      - traefik.docker.network=${DOCKER_NETWORK_EDGE:-edge-${ENV}}
+      - traefik.http.services.kc-svc.loadbalancer.server.port=8080
+      - prometheus.scrape=true
+      - prometheus.path=/metrics
+      - prometheus.port=8080
+
+volumes:
+  keycloak-data: {}

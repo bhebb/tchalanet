@@ -1,12 +1,9 @@
 import { Provider } from '@angular/core';
 
-import {
-  DrawSwitcherWidget,
-  FeatureCardWidgetComponent,
-  HeroWidgetComponent,
-  NewsBannerWidget,
-} from '@tchl/web/widgets';
-
+import { DrawSwitcherWidget } from './draw-switcher/draw-switcher.component';
+import { FeatureCardWidgetComponent } from './feature-card/feature-card.component';
+import { HeroWidgetComponent } from './hero/hero.component';
+import { NewsBannerWidget } from './news-banner/news-banner.component';
 import { QuickActionsWidgetComponent } from './quick-actions/quick-actions.component';
 import { TCH_WIDGET_REGISTRY } from './widget.token';
 

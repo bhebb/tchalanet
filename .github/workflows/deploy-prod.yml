@@ -1,0 +1,59 @@
+name: Deploy Production (API Only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-production-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload infra repo to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: tch
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "./"
+          target: "/opt/tchalanet-infra"
+          overwrite: true
+
+      - name: Prepare and deploy API via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: tch
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euxo pipefail
+            cd /opt/tchalanet-infra
+
+            # Préparer envs (merge) et secrets (Doppler) pour prod
+            make env-prepare ENV=prod || true
+            export DOPPLER_TOKEN='${{ secrets.DOPPLER_TOKEN_PROD }}'
+            if [ -z "$DOPPLER_TOKEN" ]; then echo "Missing DOPPLER_TOKEN_PROD" >&2; exit 1; fi
+            docker run --rm -e DOPPLER_TOKEN="$DOPPLER_TOKEN" -v "$PWD":/work -w /work \
+              dopplerhq/cli:latest \
+              sh -lc 'doppler secrets download --format env --project tchalanet --config production > envs/prod/.secrets && chmod 600 envs/prod/.secrets'
+
+            # Pull et déploiement de l'API uniquement
+            docker compose --env-file envs/prod/compose.env -f compose/docker-compose-api.yml pull || true
+            docker compose --env-file envs/prod/compose.env -f compose/docker-compose-api.yml config >/dev/null
+            docker compose --env-file envs/prod/compose.env -f compose/docker-compose-api.yml up -d
+
+            # Health check API
+            API_HOST=$(awk -F= '/^API_HOST=/{print $2}' envs/prod/compose.env || true)
+            retry=0; max=12
+            until [ $retry -ge $max ]; do
+              if [ -n "$API_HOST" ] && curl -fsS "https://$API_HOST/actuator/health" >/dev/null; then
+                echo "API healthy"; break
+              fi
+              retry=$((retry+1)); sleep 5
+            done
+            if [ $retry -ge $max ]; then echo "Warning: API health not OK after $max attempts" >&2; fi
+
+            echo "Production API deployment done."

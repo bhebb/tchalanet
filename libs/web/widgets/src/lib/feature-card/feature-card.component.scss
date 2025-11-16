@@ -41,7 +41,7 @@
   padding: 8px;
   border-radius: calc(var(--radius, 12px) - 6px);
 
-  background: color-mix(in oklab, var(--color-primary) 6%, white);
+  background: color-mix(in oklab, var(--color-primary) 6%, #fff);
 }
 
 .feature-card__image img {
@@ -70,7 +70,7 @@
   font-size: 22px;
   color: var(--color-primary);
 
-  background: color-mix(in oklab, var(--color-primary) 12%, white);
+  background: color-mix(in oklab, var(--color-primary) 12%, #fff);
 }
 
 .feature-card__title {

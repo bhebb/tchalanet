@@ -7,21 +7,24 @@
     <property name="LOG_DIR" value="logs"/>
 
     <!-- ====================================================== -->
-    <!-- Appender for Development/Local Profiles (Console)      -->
+    <!-- Appender for Console (default)                         -->
+    <!-- ====================================================== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Use the default console pattern from Spring Boot -->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- ====================================================== -->
+    <!-- Settings for Development/Local Profiles                -->
     <!-- ====================================================== -->
     <springProfile name="local, dev">
-        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <!-- Use the default console pattern from Spring Boot -->
-                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-                <charset>utf8</charset>
-            </encoder>
-        </appender>
-
-        <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
-        </root>
-
         <!-- More specific logging levels for development -->
         <logger name="com.tchalanet.server" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>

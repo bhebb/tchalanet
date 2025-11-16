@@ -1,11 +1,8 @@
-server:
-  port: 8081
-
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/tchalanet_db}
-    username: ${SPRING_DATASOURCE_USERNAME:app}
-    password: ${SPRING_DATASOURCE_PASSWORD:app_pwd}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
+    username: ${SPRING_DATASOURCE_USERNAME:app_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:devpass}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -18,7 +15,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8080/realms/tchalanet}
+          issuer-uri: http://keycloak:8080/realms/tchalanet
   data:
     redis:
       host: ${REDIS_HOST:redis}
@@ -46,9 +43,9 @@ app:
   version: ${APP_VERSION:0.1.0}
   api-version: ${API_VERSION:v1}
   api-base-url: ${APP_API_BASEURL:http://localhost:8081}
-  auth-url: ${OIDC_ISSUER_URI:http://localhost:8080/realms/tchalanet}
+  auth-url: ${TCH_KC_ISSUER}
   base-path: ${APP_BASE_PATH:/api}
-  default-tenant: ${APP_DEFAULT_TENANT:tchalanet}
+  default-tenant: ${APP_DEFAULT_TENANT:default}
   security:
     required-audience: tchalanet-api
 
@@ -61,7 +58,7 @@ springdoc:
     oauth:
       client-id: ${SWAGGER_CLIENT_ID:tchalanet-swagger}
       use-pkce-with-authorization-code-grant: true
-    oauth2-redirect-url: http://localhost:8082/swagger-ui/oauth2-redirect.html
+    oauth2-redirect-url: https://auth.localtest.me/swagger-ui/oauth2-redirect.html
     display-operation-id: true
     try-it-out-enabled: true
     filter: true

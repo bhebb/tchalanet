@@ -46,14 +46,13 @@
   &:hover,
   &:focus-visible {
     color: var(--tch-btn-fg-hover, var(--tch-btn-fg));
-    background-color: var(--tch-btn-bg-hover, color-mix(in oklab, var(--tch-btn-bg) 90%, black));
+    background-color: var(--tch-btn-bg-hover, color-mix(in oklab, var(--tch-btn-bg) 90%, #000));
     outline: none;
     box-shadow: 0 4px 8px rgb(0 0 0 / 30%);
   }
 
   &:focus-visible {
-    box-shadow:
-      0 0 0 2px var(--tch-btn-focus-ring, var(--tch-color-accent)),
+    box-shadow: 0 0 0 2px var(--tch-btn-focus-ring, var(--tch-color-accent)),
       0 4px 8px rgb(0 0 0 / 30%);
   }
 
@@ -64,23 +63,23 @@
 }
 
 /* Variantes pilotées par tokens (pas d’hex) */
-%tch-btn--ghost {
+/* stylelint-disable-next-line scss/percent-placeholder-pattern */
+%tch-btn-ghost {
   border-color: var(--tch-color-outline);
   color: var(--tch-color-on-surface);
   background: transparent;
 }
 
-%tch-btn--success {
+%tch-btn-success {
   color: var(--tch-color-on-success);
   background: var(--tch-color-success);
 }
-
-%tch-btn--info {
+%tch-btn-info {
   color: var(--tch-color-on-info);
   background: var(--tch-color-info);
 }
 
-%tch-btn--warn {
+%tch-btn-warn {
   color: var(--tch-color-on-warning);
   background: var(--tch-color-warning);
 }

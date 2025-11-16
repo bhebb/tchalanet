@@ -1,0 +1,94 @@
+#cloud-config
+# Cloud-init template pour staging et production
+#
+# Responsabilités:
+#   - Créer l'utilisateur 'tch' avec sudo NOPASSWD et clé SSH
+#   - Installer les packages système essentiels (curl, jq, rsync, etc.)
+#   - Configurer le firewall UFW (22/80/443)
+#   - Configurer timezone
+#   - Créer /opt/tchalanet-infra
+#
+# Docker est installé séparément via scripts/remote/install-docker.sh
+# appelé par scripts/remote/01-bootstrap.sh
+#
+# Variables substituées par 04-generate-cloud-init.sh:
+#   ${SERVER_NAME} - nom du serveur (ex: stg-app)
+#   ${ENV} - environnement (staging ou production)
+#   ${SSH_KEY} - clé publique SSH
+
+
+hostname: ${SERVER_NAME}
+
+# NOTE: DataSourceHetzner ignore souvent le bloc users: ci-dessous.
+# On conserve ce bloc pour compatibilité avec d'autres cloud providers,
+# mais on s'appuie sur runcmd (voir plus bas) pour créer l'utilisateur tch de manière robuste.
+users:
+  - name: tch
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ${SSH_KEY}
+
+package_update: true
+package_upgrade: true
+packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - ufw
+  - htop
+  - jq
+  - rsync
+
+write_files:
+  - path: /etc/motd
+    permissions: '0644'
+    content: |
+      🎯 Tchalanet — ${ENV}
+      User: tch (sudo NOPASSWD)
+      UFW: 22/80/443 allowed
+
+  - path: /root/setup-tch-user.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+      
+      # Clé SSH à injecter (substituée par 04-generate-cloud-init.sh)
+      SSH_KEY='${SSH_KEY}'
+      
+      # Création utilisateur tch (100% idempotent)
+      id tch &>/dev/null || useradd -m -s /bin/bash -G sudo tch
+      
+      # Setup SSH key
+      mkdir -p /home/tch/.ssh
+      chmod 700 /home/tch/.ssh
+      
+      # Ajouter la clé SSH (idempotent - sans duplication)
+      if ! grep -qF "$SSH_KEY" /home/tch/.ssh/authorized_keys 2>/dev/null; then
+        echo "$SSH_KEY" >> /home/tch/.ssh/authorized_keys
+      fi
+      
+      chmod 600 /home/tch/.ssh/authorized_keys
+      chown -R tch:tch /home/tch/.ssh
+      
+      # Setup sudo NOPASSWD
+      if [ ! -f /etc/sudoers.d/90-tch-nopasswd ]; then
+        echo "tch ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-tch-nopasswd
+        chmod 440 /etc/sudoers.d/90-tch-nopasswd
+      fi
+      
+      # Créer répertoire infra
+      mkdir -p /opt/tchalanet-infra
+      chown -R tch:tch /opt/tchalanet-infra
+      
+      echo "[setup-tch-user] User 'tch' configured successfully"
+
+runcmd:
+  - ufw allow OpenSSH
+  - ufw allow 80,443/tcp
+  - ufw --force enable
+  - timedatectl set-timezone Etc/UTC
+  - /root/setup-tch-user.sh
+

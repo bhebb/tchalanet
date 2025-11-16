@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Profile({"qa", "prod"})
+@Profile({"staging", "prod"})
 public class SubscriptionService implements ISubscription {
 
   private final PlanRepository planRepository;

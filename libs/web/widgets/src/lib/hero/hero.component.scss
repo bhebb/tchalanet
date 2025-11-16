@@ -1,7 +1,10 @@
 /* Fond + conteneur */
 .hero {
   overflow: hidden;
-  background: linear-gradient(180deg, rgb(34 94 199 / 8%), transparent 60%);
+  padding: clamp(2rem, 6vw, 6rem) 0;
+  color: var(--color-on-surface);
+  background: radial-gradient(1200px 800px at 75% 20%, var(--hero-start), transparent 60%),
+    linear-gradient(180deg, var(--hero-end), transparent 60%);
 }
 
 .hero__inner {
@@ -32,7 +35,7 @@
 
 .title {
   margin: 0.25rem 0 0.75rem;
-  font: 700 clamp(28px, 5vw, 40px)/1.25 var(--font-family);
+  font: 700 clamp(28px, 5vw, 40px) / 1.25 var(--font-family);
 }
 
 .lead {
@@ -59,7 +62,7 @@
 
 .btn--primary {
   color: #fff;
-  background: var(--color-primary, #225EC7); /* respecte la charte */
+  background: var(--color-primary, #225ec7); /* respecte la charte */
 }
 
 .btn--ghost {
@@ -93,12 +96,6 @@
 }
 
 /* hero-widget.component.scss */
-.hero {
-  padding: clamp(2rem, 6vw, 6rem) 0;
-  color: var(--color-on-surface);
-  background: radial-gradient(1200px 800px at 75% 20%, var(--hero-start), transparent 60%),
-    linear-gradient(180deg, var(--hero-end), transparent 60%);
-}
 
 .btn--with-dot {
   position: relative;

@@ -1,0 +1,63 @@
+name: Security Scans (Trivy • Gitleaks • OWASP ZAP)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scans:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- Gitleaks (secrets) ---
+      - name: Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --no-banner --redact --report-format sarif --report-path gitleaks.sarif
+      - name: Upload Gitleaks SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks.sarif
+
+      # --- Trivy (fs + dockerfiles) ---
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v0.2.3
+
+      - name: Trivy FS Scan (repo)
+        run: trivy fs --no-progress --format sarif --output trivy-fs.sarif . || true
+      - name: Upload Trivy FS SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-fs.sarif
+
+      - name: Trivy Config (Dockerfiles & Compose)
+        run: trivy config --no-progress --format sarif --output trivy-config.sarif . || true
+      - name: Upload Trivy Config SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-config.sarif
+
+      # --- OWASP ZAP Baseline (optional URL target) ---
+      # Set ZAP_TARGET in repo secrets to run against staging URL
+      - name: ZAP Baseline Scan
+        if: ${{ secrets.ZAP_TARGET != '' }}
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: ${{ secrets.ZAP_TARGET }}
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+      - name: Upload ZAP Report (HTML)
+        if: ${{ secrets.ZAP_TARGET != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-baseline-report
+          path: 'zap_report.html'

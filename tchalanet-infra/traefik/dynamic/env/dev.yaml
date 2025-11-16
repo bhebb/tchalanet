@@ -1,0 +1,26 @@
+http:
+  routers:
+    traefik-dash:
+      rule: Host(`traefik.localtest.me`)
+      entryPoints: [ websecure ]
+      service: api@internal
+      tls: { }
+      middlewares: [ secure-headers@file ]
+
+    keycloak:
+      rule: Host(`auth.localtest.me`)
+      entryPoints: [websecure]
+      service: keycloak-svc
+      tls: {}                                   # ← utilise le cert par défaut (mkcert)
+      middlewares: [kc-iframe@file, gzip@file]   # ← remplace secure-headers@file ici
+
+    api:
+      rule: Host(`api.localtest.me`)
+      entryPoints: [websecure]
+      service: api-svc
+      tls: {}
+      middlewares: [secure-headers@file, gzip@file]
+
+  services:
+    keycloak-svc: { loadBalancer: { servers: [ { url: "http://keycloak:8080" } ] } }
+    api-svc:      { loadBalancer: { servers: [ { url: "http://api:8080"     } ] } }

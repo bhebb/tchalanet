@@ -1,4 +1,3 @@
-
 # Tchalanet
 
 Projet monorepo Tchalanet comprenant les applications web, mobile, le backend et la documentation.
@@ -93,3 +92,38 @@ nx g @nx/angular:lib --name=shared/ui-shell-material --directory=libs/shared/ui-
 nx g @nx/angular:lib --name=web/feature-home-public --directory=libs/web/feature-home-public  --tags=scope:web,type:feature --standalone
 nx g @nx/angular:lib --name=web/feature-home-private --directory=libs/web/feature-home-private  --tags=scope:web,type:feature --standalone
 nx g @nx/angular:lib --name=shared/data-access --directory=libs/shared/data-access/page --prefix=tchp --tags=scope:shared,type:data-access --standalone
+cat >> README.md << 'EOF'
+
+## Infra: build & deploy workflow (résumé)
+
+Nous utilisons deux types d'ENV pour l'infra:
+
+- Build-time (substitution dans les compose files, interpolation `${...}`) :
+  - Fichiers: `tchalanet-infra/envs/common/compose.env` et `tchalanet-infra/envs/<ENV>/compose.env`
+  - Usage: passés à `docker compose --env-file` au moment du `build`. Contiennent `IMAGE_TAG`, versions d'images, URLs de callback oauth2-proxy, etc.
+  - En local on peut utiliser `compose/docker-compose.local-build.yml` pour builder depuis le code source local, mais **ce fichier est réservé au développement local** et ne doit pas être utilisé par les workflows de staging/production.
+
+- Runtime (variables injectées dans les conteneurs) :
+  - Fichiers: `tchalanet-infra/envs/<ENV>/.env.merged` (fusion des `envs/common/*.env` + `envs/<ENV>/*.env`) et `tchalanet-infra/envs/<ENV>/.secrets`
+  - Usage: référençés dans les compose files via `env_file:` — ce sont les variables effectives au runtime (DB urls, secrets, tokens).
+
+CI → publishing (staging/prod)
+- Dans CI (ex: GitHub Actions) nous BUILDONS et PUSHons des images immuables (ex: `ghcr.io/tchalanet/api:stg-<shortsha>`). Le workflow met ensuite à jour `tchalanet-infra/envs/staging/compose.env` pour y écrire `IMAGE_TAG=<tag>` et déclenche le déploiement (sur le serveur: `docker compose --env-file envs/staging/compose.env pull && up -d`).
+- Avantage : pas de build sur le serveur, images immuables et audits plus faciles.
+
+Commandes usuelles — rapide
+```bash
+# build local (dev override):
+cd tchalanet-infra
+# builder localement depuis les Dockerfiles locaux (usage dev)
+docker compose -f compose/docker-compose-project.yml -f compose/docker-compose.local-build.yml build --parallel
+
+# builder via la cible Make (concat common+env compose.env pour build-time)
+make compose-build ENV=dev
+
+# lancer tout (par défaut compose-build est exécuté via Make; passer DO_BUILD=0 pour sauter la phase build)
+make up-all ENV=dev
+DO_BUILD=0 make up-all ENV=staging
+```
+
+EOF

@@ -1,0 +1,154 @@
+name: Manage Keycloak Realm (create/update/delete)
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment"
+        type: choice
+        options: [staging, production]
+        required: true
+        default: staging
+      action:
+        description: "Operation"
+        type: choice
+        options: [create, update, delete]
+        required: true
+        default: update
+
+jobs:
+  manage-realm:
+    runs-on: ubuntu-latest
+    env:
+      ENV: ${{ inputs.env }}
+      ACTION: ${{ inputs.action }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select host & realm
+        id: select
+        run: |
+          if [ "${ENV}" = "staging" ]; then
+            echo "KC_HOST=${{ secrets.KC_HOST_STAGING }}" >> $GITHUB_ENV
+            echo "KC_REALM=tchalanet-staging" >> $GITHUB_ENV
+          else
+            echo "KC_HOST=${{ secrets.KC_HOST_PRODUCTION }}" >> $GITHUB_ENV
+            echo "KC_REALM=tchalanet" >> $GITHUB_ENV
+          fi
+          echo "BASE=https://${KC_HOST}" >> $GITHUB_ENV
+          echo "ADMIN_BASE=https://${KC_HOST}/admin/realms" >> $GITHUB_ENV
+
+      - name: Pre-req tools
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install jq
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+
+      - name: Build Keycloak provider
+        run: |
+          cd tchalanet-infra/tchalanet-keycloak-provider
+          chmod +x mvnw
+          ./mvnw -q -DskipTests package
+          # copy resulting jar to infra keycloak providers dir
+          mkdir -p ../../tchalanet-infra/keycloak/providers
+          cp target/tchalanet-keycloak-provider-*.jar ../../tchalanet-infra/keycloak/providers/ || true
+
+      - name: Generate UI theme registry and build theme
+        run: |
+          # Build the UI theme library only. The theme generator belongs to the
+          # theme lib (libs/ui/theme) and will be run as part of its build.
+          if [ -f ./libs/ui/theme/package.json ]; then
+            cd libs/ui/theme
+            pnpm install --frozen-lockfile || true
+            pnpm build || true
+          else
+            echo "No libs/ui/theme package found; skipping theme build"
+          fi
+
+      # Génère le JSON à partir de realm.base.json + envs/${ENV}/.env (sauf delete)
+      - name: Generate realm JSON
+        if: ${{ inputs.action != 'delete' }}
+        run: |
+          chmod +x tchalanet-infra/scripts/get-realm.sh
+          ./tchalanet-infra/scripts/get-realm.sh "${ENV}"
+          ls -l keycloak/realms/
+          # Détermine le fichier généré (staging: tchalanet-staging.json, prod: tchalanet.json)
+          if [ "${ENV}" = "staging" ]; then
+            echo "REALM_FILE=keycloak/realms/tchalanet-staging.json" >> $GITHUB_ENV
+          else
+            echo "REALM_FILE=keycloak/realms/tchalanet.json" >> $GITHUB_ENV
+          fi
+
+      - name: Get admin access token
+        id: token
+        run: |
+          TOKEN=$(curl -fsS \
+            -d "client_id=admin-cli" \
+            -d "username=${{ secrets.KC_BOOTSTRAP_ADMIN_USERNAME }}" \
+            -d "password=${{ secrets.KC_BOOTSTRAP_ADMIN_PASSWORD }}" \
+            -d "grant_type=password" \
+            "${BASE}/realms/master/protocol/openid-connect/token" \
+          | jq -r .access_token)
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Failed to get admin token" >&2; exit 1
+          fi
+          echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      # CREATE = POST /admin/realms (idempotent-ish; si 409, on bascule en UPDATE)
+      - name: Create realm
+        if: ${{ inputs.action == 'create' }}
+        run: |
+          set -e
+          CODE=$(curl -sS -o /tmp/kc-create.out -w "%{http_code}" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            -X POST "${ADMIN_BASE}" \
+            --data-binary @"${REALM_FILE}")
+          if [ "$CODE" = "201" ]; then
+            echo "✔ Realm created"
+          elif [ "$CODE" = "409" ]; then
+            echo "Realm already exists, switching to update..."
+            CODE=$(curl -sS -o /tmp/kc-update.out -w "%{http_code}" \
+              -H "Authorization: Bearer ${TOKEN}" \
+              -H "Content-Type: application/json" \
+              -X PUT "${ADMIN_BASE}/${KC_REALM}" \
+              --data-binary @"${REALM_FILE}")
+            test "$CODE" = "204" && echo "✔ Realm updated (after 409 on create)" || (cat /tmp/kc-update.out; exit 1)
+          else
+            cat /tmp/kc-create.out; echo "HTTP $CODE"; exit 1
+          fi
+
+      # UPDATE = PUT /admin/realms/{realm}
+      - name: Update realm
+        if: ${{ inputs.action == 'update' }}
+        run: |
+          CODE=$(curl -sS -o /tmp/kc-update.out -w "%{http_code}" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            -X PUT "${ADMIN_BASE}/${KC_REALM}" \
+            --data-binary @"${REALM_FILE}")
+          test "$CODE" = "204" && echo "✔ Realm updated" || (cat /tmp/kc-update.out; echo "HTTP $CODE"; exit 1)
+
+      # DELETE = DELETE /admin/realms/{realm}
+      - name: Delete realm
+        if: ${{ inputs.action == 'delete' }}
+        run: |
+          CODE=$(curl -sS -o /tmp/kc-del.out -w "%{http_code}" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -X DELETE "${ADMIN_BASE}/${KC_REALM}")
+          test "$CODE" = "204" && echo "✔ Realm deleted" || (cat /tmp/kc-del.out; echo "HTTP $CODE"; exit 1)
+
+      - name: Verify OIDC discovery (skip on delete)
+        if: ${{ inputs.action != 'delete' }}
+        run: |
+          curl -fsS "${BASE}/realms/${KC_REALM}/.well-known/openid-configuration" | jq '.issuer,.authorization_endpoint' -r

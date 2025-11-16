@@ -1,0 +1,40 @@
+# .gitignore
+
+# Secrets
+envs/**/.secrets
+
+# Environnement
+.env
+.env.*
+!.env.example
+
+# Ignore generated secrets and local env overrides
+*.env.local
+*.secrets
+.env.*.local
+.tmp/
+
+# Ignore any secret files under envs
+envs/*/.secrets
+
+# Infra: merged envs par environnement
+envs/*/.env.merged
+
+# Système
+.DS_Store
+.idea/
+*.log
+
+# Certificats et clés
+*.pem
+*.key
+acme.json
+
+# Données
+data/
+volumes/
+pgdata*/
+
+# Node / general
+node_modules/
+dist/

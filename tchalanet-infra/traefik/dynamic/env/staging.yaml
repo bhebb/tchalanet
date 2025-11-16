@@ -1,0 +1,70 @@
+http:
+  routers:
+    traefik-dash:
+      rule: Host(`traefik.stg.tchalanet.com`) || Host(`91.98.194.162`)
+      entryPoints: [ websecure ]
+      service: api@internal
+      tls: {}
+      middlewares: [ secure-headers@file ]
+
+    keycloak:
+      rule: Host(`auth.stg.tchalanet.com`) || HostRegexp(`^91\.98\.194\.162$`)
+      entryPoints: [websecure]
+      service: keycloak-svc
+      tls: {}
+      middlewares: [kc-iframe@file, gzip@file]
+
+    api:
+      rule: Host(`api.stg.tchalanet.com`) || PathPrefix(`/api`)
+      entryPoints: [websecure]
+      service: api-svc
+      tls: {}
+      middlewares: [secure-headers@file, gzip@file]
+
+    unleash:
+      rule: Host(`flags.stg.tchalanet.com`)
+      entryPoints: [websecure]
+      service: unleash-svc
+      tls: {}
+      middlewares: [secure-headers@file, gzip@file]
+
+    meilisearch:
+      rule: Host(`search.stg.tchalanet.com`)
+      entryPoints: [websecure]
+      service: meili-svc
+      tls: {}
+      middlewares: [secure-headers@file, gzip@file]
+
+  services:
+    keycloak-svc:
+      loadBalancer:
+        servers:
+          - url: "http://keycloak:8080"
+
+    api-svc:
+      loadBalancer:
+        servers:
+          - url: "http://api:8080"
+
+    unleash-svc:
+      loadBalancer:
+        servers:
+          - url: "http://unleash:4242"
+
+    meili-svc:
+      loadBalancer:
+        servers:
+          - url: "http://meilisearch:7700"
+
+# TLS Configuration (self-signed pour staging sans DNS)
+tls:
+  certificates:
+    - certFile: /etc/traefik/certs/staging-cert.pem
+      keyFile: /etc/traefik/certs/staging-key.pem
+  options:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+

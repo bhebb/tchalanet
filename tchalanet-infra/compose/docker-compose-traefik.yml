@@ -1,0 +1,51 @@
+services:
+  traefik:
+    image: ${TRAEFIK_IMAGE:-traefik:v3.5.4}
+    container_name: ${DOCKER_PREFIX:-tchl}-traefik-${ENV}
+    entrypoint: [ "/bin/sh", "/entrypoint-custom.sh" ]
+    command:
+      - --log.level=INFO
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL:-frinaytech@gmail.com}
+      - --certificatesresolvers.le.acme.storage=/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --ping=true                       # dashboard
+    environment:
+      - TZ=UTC
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Fichiers communs (TLS/middlewares)
+      - ../traefik/dynamic:/etc/traefik/dynamic:ro
+       # Certificats locaux (si tu fais du HTTPS local avec mkcert)
+      - ../traefik/certs:/certs:ro
+      - ../scripts/docker/traefik-entrypoint.sh:/entrypoint-custom.sh:ro
+    # Expose les ports host -> container pour permettre l'accès via 127.0.0.1
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # dashboard/API (insecure mode)
+    networks:
+      - edge
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  edge:
+    name: ${DOCKER_NETWORK_EDGE:-edge-${ENV}}
+    external: true

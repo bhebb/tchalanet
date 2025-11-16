@@ -14,11 +14,7 @@
   --comp-overlay-max-h: min(90dvh, 640px);
   --comp-overlay-bg: var(--tch-color-surface, #fff);
   --comp-overlay-fg: var(--tch-color-on-surface, #111);
-  --comp-overlay-divider: color-mix(
-    in oklab,
-    var(--comp-overlay-fg) 12%,
-    transparent
-  );
+  --comp-overlay-divider: color-mix(in oklab, var(--comp-overlay-fg) 12%, transparent);
   --comp-overlay-accent-bg: var(--tch-color-accent, #7b2cbf);
   --comp-overlay-accent-fg: var(--tch-color-on-accent, #fff);
   --comp-overlay-item-radius: 12px;
@@ -44,7 +40,6 @@
   &.tch-overlay-nav--open {
     display: flex;
   }
-
 }
 
 /* Le panneau qui contient header + liens */
@@ -60,9 +55,7 @@
   color: var(--comp-overlay-fg);
 
   background: var(--comp-overlay-bg);
-  box-shadow:
-    0 24px 48px rgb(0 0 0 / 40%),
-    0 4px 12px rgb(0 0 0 / 20%);
+  box-shadow: 0 24px 48px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 20%);
 
   /* Sur mobile pur (<480px): plein écran, pas de radius */
   @media (width <= 479.98px) {
@@ -92,8 +85,7 @@
 
   min-block-size: 48px;
   padding: 14px 16px;
-  border-bottom: 1px solid
-    color-mix(in oklab, var(--comp-overlay-fg) 20%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--comp-overlay-fg) 20%, transparent);
 
   line-height: 1.3;
   color: var(--tch-on-surface-header, var(--comp-overlay-accent-fg));
@@ -197,11 +189,7 @@
 
   /* hover style */
   &:hover {
-    background: color-mix(
-      in oklab,
-      var(--comp-overlay-fg) 6%,
-      transparent
-    );
+    background: color-mix(in oklab, var(--comp-overlay-fg) 6%, transparent);
   }
 
   /* focus visible style */
@@ -214,17 +202,8 @@
   &.active,
   &[aria-current='page'] {
     font-weight: 600;
-    background: color-mix(
-      in oklab,
-      var(--comp-overlay-accent-bg) 12%,
-      transparent
-    );
-    box-shadow: 0 0 0 1px
-      color-mix(
-        in oklab,
-        var(--comp-overlay-accent-bg) 40%,
-        transparent
-      );
+    background: color-mix(in oklab, var(--comp-overlay-accent-bg) 12%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--comp-overlay-accent-bg) 40%, transparent);
   }
 }
 
@@ -250,5 +229,5 @@
   flex: 1 1 auto;
   min-width: 0;
   color: inherit;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }

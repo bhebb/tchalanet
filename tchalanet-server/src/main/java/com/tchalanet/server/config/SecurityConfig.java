@@ -37,7 +37,7 @@ public class SecurityConfig {
   private String requiredAudience;
 
   @Bean
-  SecurityFilterChain security(HttpSecurity http) throws Exception {
+  SecurityFilterChain security(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())
         .authorizeHttpRequests(
@@ -61,7 +61,7 @@ public class SecurityConfig {
         .oauth2ResourceServer(
             oauth ->
                 oauth.jwt(
-                    jwt -> jwt.jwtAuthenticationConverter(this::convert).decoder(jwtDecoder())));
+                    jwt -> jwt.jwtAuthenticationConverter(this::convert).decoder(jwtDecoder)));
     ;
     return http.build();
   }
@@ -98,14 +98,10 @@ public class SecurityConfig {
   }
 
   @Bean
-  JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder decoder =
-        JwtDecoders.fromIssuerLocation(
-            System.getProperty(
-                "spring.security.oauth2.resourceserver.jwt.issuer-uri",
-                // fallback si lancé en tests
-                "http://localhost:8080/realms/tchalanet"));
-    // audience validator
+  JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri) {
+      NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuerUri);
+
+          // audience validatorjwtDecoder
     OAuth2TokenValidator<Jwt> audValidator =
         jwt ->
             Optional.ofNullable(jwt.getAudience()).orElse(List.of()).contains(requiredAudience)
