@@ -1,6 +1,7 @@
 export const environment = {
-  apiBase: 'https://api.localtest.me/api',
-  authUrl: 'https://auth.localtest.me/realms/tchalanet',
+  apiBase: 'https://api.tchalanet.com/api',
+  authUrl: 'https://sso.tchalanet.com/realms/tchalanet',
+
   authClientId: 'tchalanet-web',
   apiVersion: 'v1',
   appVersion: '1',
