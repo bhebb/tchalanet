@@ -40,36 +40,28 @@ else
 fi
 
 # Default profile and extra files per service
-PROFILES="--profile core"
+PROFILES=""
 EXTRA_FILES=""
 case "$SERVICE" in
   api)
-    PROFILES="--profile core --profile cache --profile api"
     EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml $COMPOSE_DIR/docker-compose-redis.yml $COMPOSE_DIR/docker-compose-keycloak.yml"
     ;;
   keycloak)
-    PROFILES="--profile core"   # postgres est dans core → OK
     EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml"
     ;;
   unleash)
     # ⟵ AVANT: PROFILES="--profile flags"
-    PROFILES="--profile core --profile cache --profile flags"
     EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml $COMPOSE_DIR/docker-compose-redis.yml"
     ;;
   meilisearch|meili)
-    PROFILES="--profile search"
     ;;
   redis)
-    PROFILES="--profile cache"
     ;;
   postgres)
-    PROFILES="--profile core"
     ;;
   traefik)
-    PROFILES="--profile core"
     ;;
   *)
-    PROFILES="--profile core"
     ;;
 esac
 

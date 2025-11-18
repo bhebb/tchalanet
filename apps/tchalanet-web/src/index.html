@@ -20,30 +20,6 @@
             line-height: 1;
         }
     </style>
-
-
-    <!-- Google Analytics (gtag) init: uses import.meta.env.VITE_GA_MEASUREMENT_ID or window.__GA_MEASUREMENT_ID -->
-    <script type="module">
-      (function() {
-        try {
-          // Vite will replace import.meta.env.VITE_GA_MEASUREMENT_ID at build time
-          const id = (import.meta.env.VITE_GA_MEASUREMENT_ID || window.__GA_MEASUREMENT_ID || '').trim();
-          if (id) {
-            const s1 = document.createElement('script');
-            s1.async = true;
-            s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
-            document.head.appendChild(s1);
-            (globalThis as any).dataLayer = (globalThis as any).dataLayer || [];
-            function gtag(){(globalThis as any).dataLayer.push(arguments);}
-            (globalThis as any).gtag = gtag;
-            gtag('js', new Date());
-            gtag('config', id, { 'anonymize_ip': true });
-          }
-        } catch (e) { console.warn('GA init failed', e); }
-      })();
-    </script>
-
-
 </head>
 <body class="tch-theme" id="theme-root">
     <tch-root></tch-root>

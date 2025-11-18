@@ -6,17 +6,18 @@ services:
       - ../envs/${ENV}/.env.merged
       - ../envs/${ENV}/.secrets
     environment:
-      NODE_ENV: production
+      # Connexion Postgres (on mappe nos UNLEASH_DB_* vers ce que Unleash attend)
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_SSL: 'false'
+
+      # Config app (facultatif, à adapter)
       LOG_LEVEL: info
-      ENABLE_API_TOKEN: "true"
-      SECURE_HEADERS: "true"
-      UNLEASH_AUTH_TYPE: none
-      DATABASE_HOST: "postgres"
-      DATABASE_PORT: "5432"
-      DATABASE_NAME: ${UNLEASH_DB_NAME:-unleash_db}
-      DATABASE_USERNAME: ${UNLEASH_DB_USER:-unleash_user}
-      DATABASE_PASSWORD: ${UNLEASH_DB_PASSWORD}
-      DATABASE_SSL: "false"
+      NODE_ENV: production
+      UNLEASH_URL: https://flags.stg.tchalanet.com
+      UNLEASH_HOST: 0.0.0.0
+      UNLEASH_PORT: 4242
+
     depends_on:
       postgres: { condition: service_healthy }
     healthcheck:

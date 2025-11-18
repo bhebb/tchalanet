@@ -15,6 +15,17 @@ export default defineConfig(() => {
       'import.meta.env.VITE_GA_MEASUREMENT_ID': JSON.stringify(process.env['GA_MEASUREMENT_ID'] || process.env['VITE_GA_MEASUREMENT_ID'] || ''),
     },
     server: {
+      host: '0.0.0.0',
+      port: 4200,
+      strictPort: false,
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        '0.0.0.0',
+        '.localtest.me',
+        'app.localtest.me',
+        'mob.localtest.me',
+      ],
       proxy: {
         '/api': {
           target: apiTarget,

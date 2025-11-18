@@ -88,7 +88,6 @@ jobs:
                 redis) echo "compose/docker-compose-redis.yml";;
                 keycloak) echo "compose/docker-compose-keycloak.yml";;
                 unleash) echo "compose/docker-compose-unleash.yml";;
-                meilisearch) echo "compose/docker-compose-meilisearch.yml";;
                 *) return 1;;
               esac
             }
@@ -109,7 +108,7 @@ jobs:
 
             if [ "$MODE" = "create" ]; then
               # Full stack infra (ordre recommandé)
-              CORE_PULL="compose/docker-compose-traefik.yml compose/docker-compose-postgres.yml compose/docker-compose-keycloak.yml compose/docker-compose-unleash.yml compose/docker-compose-redis.yml compose/docker-compose-meilisearch.yml"
+              CORE_PULL="compose/docker-compose-traefik.yml compose/docker-compose-postgres.yml compose/docker-compose-keycloak.yml compose/docker-compose-unleash.yml compose/docker-compose-redis.yml"
               for f in $CORE_PULL; do
                 if [ -f "$f" ]; then docker compose --env-file envs/$ENV_INPUT/compose.env -f "$f" pull || true; fi
               done
@@ -123,7 +122,6 @@ jobs:
                 -f compose/docker-compose-keycloak.yml \
                 -f compose/docker-compose-unleash.yml \
                 -f compose/docker-compose-redis.yml \
-                -f compose/docker-compose-meilisearch.yml \
                 up -d
 
               echo "✔ Infra créée/actualisée pour $ENV_INPUT"
@@ -152,5 +150,4 @@ jobs:
               -f compose/docker-compose-keycloak.yml \
               -f compose/docker-compose-unleash.yml \
               -f compose/docker-compose-redis.yml \
-              -f compose/docker-compose-meilisearch.yml \
               ps || true

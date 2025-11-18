@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -62,7 +63,6 @@ public class SecurityConfig {
             oauth ->
                 oauth.jwt(
                     jwt -> jwt.jwtAuthenticationConverter(this::convert).decoder(jwtDecoder)));
-    ;
     return http.build();
   }
 
@@ -98,6 +98,7 @@ public class SecurityConfig {
   }
 
   @Bean
+  @ConditionalOnMissingBean(JwtDecoder.class)
   JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri) {
       NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuerUri);
 

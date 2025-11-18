@@ -24,7 +24,7 @@
     <!-- ====================================================== -->
     <!-- Settings for Development/Local Profiles                -->
     <!-- ====================================================== -->
-    <springProfile name="local, dev">
+    <springProfile name="local,dev,local-ide">
         <!-- More specific logging levels for development -->
         <logger name="com.tchalanet.server" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>
@@ -38,17 +38,15 @@
             <file>${LOG_DIR}/tchalanet-server.log</file>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <!-- For files, a more detailed pattern is often useful -->
-                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+                <Pattern>%d %-5level %c{1} [%thread] %msg%n</Pattern>
             </encoder>
-
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <!-- daily rollover -->
                 <fileNamePattern>${LOG_DIR}/archived/tchalanet-server.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                    <maxFileSize>10MB</maxFileSize>
-                </timeBasedFileNamingAndTriggeringPolicy>
+                <maxFileSize>10MB</maxFileSize>
                 <!-- keep 30 days' worth of history -->
                 <maxHistory>30</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
             </rollingPolicy>
         </appender>
 

@@ -1,0 +1,9 @@
+# Fichiers realm générés dynamiquement
+# Ces fichiers peuvent contenir des secrets et doivent être régénérés par environnement
+*-realm.json
+tchalanet-realm.json
+
+# Ne pas ignorer les templates et overlays
+!templates/
+!overlays/
+

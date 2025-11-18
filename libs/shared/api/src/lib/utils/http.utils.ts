@@ -1,21 +1,23 @@
-export const OIDC_BASE = 'http://localhost:8082/realms/tchalanet'; // ou depuis env
-export const API_BASE = 'http://localhost:8081'; // ton BFF en local
-export const PROXY_OIDC_PREFIX = '/keycloak'; // si tu utilises un proxy dev
+import { environment } from '@tchl/config';
+
+export const PROXY_OIDC_PREFIX = '/keycloak';
 
 export function isKeycloakUrl(url: string): boolean {
-  // appels direct KC (découverte, auth, token, userinfo, jwks, logout)
-  if (url.startsWith(`${OIDC_BASE}/`)) return true;
-  // appels via proxy dev: /keycloak/realms/tchalanet/...
-  if (url.startsWith(`${PROXY_OIDC_PREFIX}/realms/tchalanet/`)) return true;
-  // garde-fou: si l’URL contient /realms/tchalanet/protocol/openid-connect
-  return url.includes('/realms/tchalanet/protocol/openid-connect');
+  // Vérifier si l'URL commence par l'authUrl de l'environnement
+  if (url.startsWith(environment.authUrl)) return true;
+
+  // appels via proxy dev: /keycloak/realms/...
+  if (url.startsWith(`${PROXY_OIDC_PREFIX}/realms/`)) return true;
+
+  // garde-fou: si l'URL contient /realms/.../protocol/openid-connect
+  if (url.includes('/realms/') && url.includes('/protocol/openid-connect')) return true;
+
+  // Détection des domaines Keycloak connus
+  if (url.includes('auth.localtest.me') || url.includes('auth.stg.tchalanet.com') || url.includes('auth.tchalanet.com')) return true;
+
+  return false;
 }
 
 export function isAbsoluteUrl(url: string): boolean {
   return /^https?:\/\//i.test(url);
-}
-
-export function isApiUrl(url: string): boolean {
-  // selon ton design : toutes les routes non KC destinées au BFF
-  return url.startsWith(API_BASE) || (!isAbsoluteUrl(url) && !url.startsWith(PROXY_OIDC_PREFIX));
 }

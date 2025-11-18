@@ -5,5 +5,4 @@ export * from './lib/private.routes';
 export * from './lib/private-shell/private-shell.component';
 export * from './lib/profile-page/profile.page';
 export * from './lib/reports-page/reports.page';
-export * from './lib/results-page/results.page';
 export * from './lib/tickets-page/tickets.page';

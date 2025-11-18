@@ -23,10 +23,6 @@ export const routes: Routes = [
         loadComponent: () => import('@tchl/web/private-pages').then(m => m.DrawsPage),
       },
       {
-        path: 'resultats',
-        loadComponent: () => import('@tchl/web/private-pages').then(m => m.ResultsPage),
-      },
-      {
         path: 'rapports',
         loadComponent: () => import('@tchl/web/private-pages').then(m => m.ReportsPage),
       },

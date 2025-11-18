@@ -11,7 +11,7 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Paths
 ENV_DIR="$ROOT_DIR/envs/$ENV"
-TEMPLATE="${TEMPLATE:-$ROOT_DIR/keycloak/realms/realm.base.json}"
+TEMPLATE="${TEMPLATE:-$ROOT_DIR/keycloak/realms/templates/realm.base.json}"
 OUT_DIR="${OUT_DIR:-$ROOT_DIR/keycloak/realms}"
 OVERLAY_FILE="$ROOT_DIR/keycloak/realms/overlays/${ENV}.json"
 
@@ -64,7 +64,7 @@ load_env_merged() {
 load_env_merged "$ENV_DIR" || true
 
 # Defaults
-KC_REALM="${KC_REALM:-$( [ "$ENV" = "staging" ] && echo "tchalanet-staging" || echo "tchalanet" )}"
+KC_REALM="${KC_REALM:-"tchalanet"}"
 DEFAULT_LOCALE="${DEFAULT_LOCALE:-fr}"
 SUPPORTED_LOCALES_CSV="${SUPPORTED_LOCALES:-}"
 TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-changeme}"

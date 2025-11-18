@@ -42,12 +42,19 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "fileReplacements": []
         },
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "sourceMap": true
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "libs/shared/config/src/lib/environments/environment.ts",
+              "with": "libs/shared/config/src/lib/environments/environment-local-ide.ts"
+            }
+          ]
         },
         "ci": {
           "optimization": true,
@@ -65,6 +72,14 @@
           "budgets": [
             { "type": "initial", "maximumWarning": "2.5mb", "maximumError": "3mb" },
             { "type": "anyComponentStyle", "maximumWarning": "400kb", "maximumError": "600kb" }
+          ]
+        },
+        "staging": {
+          "fileReplacements": [
+            {
+              "replace": "libs/shared/config/src/lib/environments/environment.ts",
+              "with": "libs/shared/config/src/lib/environments/environment-staging.ts"
+            }
           ]
         }
       },

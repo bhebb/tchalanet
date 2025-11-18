@@ -1,4 +1,3 @@
-import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
 import { provideMarkdown } from 'ngx-markdown';
@@ -17,7 +16,6 @@ import { provideEffects } from '@ngrx/effects';
 import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 
-import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
 import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
 import { environment } from '@tchl/config';
 import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
@@ -29,14 +27,9 @@ import { I18nMergerService } from '@tchl/utils/i18n';
 import { provideBuiltinWidgets } from '@tchl/web/widgets';
 
 import {
-  InstantSearchClient,
-  MEILISEARCH_CONFIG,
-} from '../../../../libs/shared/api/src/lib/client/instant-search-client';
-import {
   MergedTranslateLoader,
   MergedTranslateLoaderOptions,
 } from '../../../../libs/shared/utils/i18n/src/lib/loader/merged-translate-loader';
-import { SearchIndexInitializerService } from '../../../../libs/web/widgets/src/lib/search-results/search-index-initializer.service';
 
 import { appRoutes } from './app.routes';
 
@@ -53,18 +46,6 @@ export const authInitializer: Provider = {
   useFactory: initAuth,
   deps: [AuthService],
   multi: true,
-};
-
-// Fonction de création du client
-export function createInstantSearchClient(config: MeilisearchConfig): InstantSearchClient {
-  return new InstantSearchClient(config);
-}
-
-// Provider pour le client
-export const INSTANT_SEARCH_CLIENT_PROVIDER: Provider = {
-  provide: InstantSearchClient,
-  useFactory: createInstantSearchClient,
-  deps: [MEILISEARCH_CONFIG],
 };
 
 export const appConfig: ApplicationConfig = {
@@ -119,10 +100,10 @@ export const appConfig: ApplicationConfig = {
 
     provideAuth({
       config: {
-        authority: 'https://auth.localtest.me/realms/tchalanet',
-        redirectUrl: 'https://app.localtest.me/auth/callback',
-        postLogoutRedirectUri: 'https://app.localtest.me',
-        clientId: 'tchalanet-web',
+        authority: environment.authUrl,
+        redirectUrl: environment.appUrl + '/auth/callback',
+        postLogoutRedirectUri: environment.appUrl,
+        clientId: environment.authClientId,
         scope: 'openid profile email',
         responseType: 'code',
         silentRenew: true,
@@ -136,37 +117,7 @@ export const appConfig: ApplicationConfig = {
     authInitializer,
     THEME_INIT_PROVIDER,
 
-    {
-      provide: ANALYTICS_CONFIG,
-      useValue: {
-        provider: environment.analytics.provider || 'ga',
-        ga: {
-          measurementId: environment.analytics.gaMeasurementId,
-          autoTrack: environment.analytics.autoTrack ?? true,
-        },
-        debug: true,
-      },
-    },
-    provideAnalyticsInit(),
-    // Router → pageviews
-    { provide: 'ANALYTICS_ROUTER_BOOT', useFactory: setupRouterPageViews },
-    {
-      provide: MEILISEARCH_CONFIG,
-      useValue: {
-        host: 'http://localhost:7700',
-        apiKey: 'dev-meili',
-      },
-    },
-    INSTANT_SEARCH_CLIENT_PROVIDER,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (indexInitializer: SearchIndexInitializerService) => () =>
-        indexInitializer.initializeIndexes(),
-      deps: [SearchIndexInitializerService],
-      multi: true,
-    },
     provideMarkdown(),
-
     //features
     { provide: FEATURE_INITIAL, useValue: [] },
 

@@ -68,7 +68,7 @@
       "account": {
         "public": {
           "labelKey": "auth.login",
-          "path": "/login",
+          "path": "/auth/login",
           "avatar": "generic"
         },
         "private": {

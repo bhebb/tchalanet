@@ -9,7 +9,6 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${APP_DB_NAME:-tchalanet_db}
       SPRING_DATASOURCE_USERNAME: ${APP_DB_USER:-app_user}
-      SPRING_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD}
       TCH_KC_ISSUER: ${KC_OIDC_ISSUER_URL:-http://keycloak:8080/realms/${KC_REALM}}
       TCH_KC_AUDIENCE: tch-api
 

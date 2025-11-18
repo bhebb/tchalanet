@@ -7,7 +7,6 @@ import { AnalyticsService } from '@tchl/analytics';
 import { environment } from '@tchl/config';
 import { I18nFacade } from '@tchl/facades';
 import { FeatureService } from '@tchl/feature';
-import { OverlayService } from '@tchl/search'; // you might still reuse for search overlay
 import { HeaderProperties } from '@tchl/types';
 import { ThemeMode, ThemeService } from '@tchl/ui/theme';
 
@@ -92,14 +91,13 @@ export class PrivateHeaderComponent {
   handset = this.breakpoint.handset;
   tablet = this.breakpoint.tablet;
   desktop = this.breakpoint.desktop;
-  private router = inject(Router);
-  private i18n = inject(I18nFacade);
+  private readonly router = inject(Router);
+  private readonly i18n = inject(I18nFacade);
   currentLang = this.i18n.current;
   availableLangs = this.i18n.available;
-  private theme = inject(ThemeService);
+  private readonly theme = inject(ThemeService);
   themeMode = this.theme.mode;
-  private overlay = inject(OverlayService);
-  private analytics = inject(AnalyticsService);
+  private readonly analytics = inject(AnalyticsService);
 
   onToggleSidebar() {
     this.toggleSidebar.emit();
@@ -134,9 +132,6 @@ export class PrivateHeaderComponent {
 
   onSearchClick() {
     this.searchClick.emit();
-    document.documentElement.classList.add('search-open');
-    this.overlay.show();
-    this.analytics.pageView('open_search_from_button_private');
   }
 
   onChangeLang(lang: string) {
