@@ -17,7 +17,7 @@
     "typeCheckHostBindings": true,
     "strictTemplates": true
   },
-  "files": [],
+  "files": ["src/vite-env.d.ts"],
   "include": [],
   "references": [
     {

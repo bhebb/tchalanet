@@ -3,14 +3,7 @@ import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oid
 import { provideMarkdown } from 'ngx-markdown';
 
 import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import {
-  APP_INITIALIZER,
-  ApplicationConfig,
-  InjectionToken,
-  provideBrowserGlobalErrorListeners,
-  Provider,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, InjectionToken, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideState, provideStore } from '@ngrx/store';
@@ -37,16 +30,8 @@ export const TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoader
   'TRANSLATE_LOADER_OPTIONS',
 );
 
-export function initAuth(auth: AuthService) {
-  return () => auth.init(); // ← restaure la session si possible, sans déclencher de login
-}
-
-export const authInitializer: Provider = {
-  provide: APP_INITIALIZER,
-  useFactory: initAuth,
-  deps: [AuthService],
-  multi: true,
-};
+// auth initialisation via APP_INITIALIZER removed — we avoid blocking the app bootstrap.
+// AuthService.init() will be called explicitly when appropriate (or via component lifecycle).
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -114,22 +99,26 @@ export const appConfig: ApplicationConfig = {
     }),
     { provide: AbstractSecurityStorage, useClass: LocalStorageSecurityService },
     provideBuiltinWidgets(),
-    authInitializer,
+    // removed APP_INITIALIZER authInitializer to prevent bootstrap blocking
     THEME_INIT_PROVIDER,
 
     provideMarkdown(),
     //features
     { provide: FEATURE_INITIAL, useValue: [] },
 
-    // Contexte d’évaluation (tenant, user, pays…)
+    // Contexte d'évaluation (tenant, user, pays…)
     { provide: FEATURE_CONTEXT, useValue: { appName: 'tchalanet-web', tenantId: 'default' } },
 
-    provideFeatureClient({
-      kind: 'unleash',
-      url: environment.feature.url,
-      clientKey: environment.feature.clientKey,
-      appName: environment.feature.appName,
-      refreshInterval: environment.feature.refresh,
-    }),
+    provideFeatureClient(
+      environment.feature.kind === 'memory'
+        ? { kind: 'memory', initial: [] }
+        : {
+            kind: 'unleash',
+            url: environment.feature.url,
+            clientKey: environment.feature.clientKey,
+            appName: environment.feature.appName,
+            refreshInterval: environment.feature.refresh,
+          }
+    ),
   ],
 };

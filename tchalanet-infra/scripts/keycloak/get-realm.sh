@@ -15,6 +15,60 @@ TEMPLATE="${TEMPLATE:-$ROOT_DIR/keycloak/realms/templates/realm.base.json}"
 OUT_DIR="${OUT_DIR:-$ROOT_DIR/keycloak/realms}"
 OVERLAY_FILE="$ROOT_DIR/keycloak/realms/overlays/${ENV}.json"
 
+# Resolve overlay candidates: prefer exact env file, but accept prod/production aliases
+# Also support MERGE_OVERLAYS=1 to merge multiple overlays (applied in candidate order)
+OVERLAY_DIR="$ROOT_DIR/keycloak/realms/overlays"
+OVERLAY_CANDIDATES=()
+# exact name first
+OVERLAY_CANDIDATES+=("$OVERLAY_DIR/${ENV}.json")
+# common aliases for production
+if [ "$ENV" = "production" ] || [ "$ENV" = "prod" ]; then
+  # prefer prod.json over production.json when both exist
+  OVERLAY_CANDIDATES+=("$OVERLAY_DIR/prod.json")
+fi
+
+# Find existing overlays in candidate order
+FOUND_OVERLAYS=()
+for c in "${OVERLAY_CANDIDATES[@]}"; do
+  if [ -f "$c" ]; then
+    FOUND_OVERLAYS+=("$c")
+  fi
+done
+
+if [ ${#FOUND_OVERLAYS[@]} -eq 0 ]; then
+  OVERLAY_FILE=""
+elif [ ${#FOUND_OVERLAYS[@]} -eq 1 ]; then
+  OVERLAY_FILE="${FOUND_OVERLAYS[0]}"
+else
+  # multiple overlays found
+  if [ "${MERGE_OVERLAYS:-0}" = "1" ]; then
+    tmp_merge=$(mktemp_safe /tmp/tch-get-realm.overlay.merge.XXXXXX.json)
+    add_tmp "$tmp_merge"
+    # merge all found overlays in order: left-to-right overlay wins
+    jq -s 'reduce .[] as $i ({}; . * $i)' "${FOUND_OVERLAYS[@]}" > "$tmp_merge"
+    OVERLAY_FILE="$tmp_merge"
+    echo "→ MERGE_OVERLAYS=1: merged overlays into $OVERLAY_FILE" >&2
+  else
+    # choose preferred overlay: prefer prod.json (explicit) over production.json
+    preferred="${FOUND_OVERLAYS[0]}"
+    # if prod.json present, select it; else if production.json present, select it; else keep first
+    for f in "${FOUND_OVERLAYS[@]}"; do
+      case "$(basename "$f")" in
+        prod.json)
+          preferred="$f"; break;;
+        production.json)
+          # select production.json only if prod.json wasn't found earlier
+          if [ "${preferred##*/}" != "prod.json" ]; then
+            preferred="$f"
+          fi
+          ;;
+      esac
+    done
+    echo "→ Multiple overlays found: using $preferred (others ignored). Set MERGE_OVERLAYS=1 to merge them." >&2
+    OVERLAY_FILE="$preferred"
+  fi
+fi
+
 # portable mktemp helper: try GNU mktemp, macOS style, then python fallback
 mktemp_safe() {
   local template="$1"
@@ -64,14 +118,31 @@ load_env_merged() {
 load_env_merged "$ENV_DIR" || true
 
 # Defaults
-KC_REALM="${KC_REALM:-"tchalanet"}"
+# Set KC_REALM based on ENV with sensible defaults, can be overridden by KC_REALM env var
+if [ -z "${KC_REALM+x}" ]; then
+  case "$ENV" in
+    staging)
+      KC_REALM="tchalanet-staging"
+      ;;
+    production)
+      KC_REALM="tchalanet-production"
+      ;;
+    *)
+      KC_REALM="tchalanet"
+      ;;
+  esac
+else
+  KC_REALM="$KC_REALM"
+fi
 DEFAULT_LOCALE="${DEFAULT_LOCALE:-fr}"
 SUPPORTED_LOCALES_CSV="${SUPPORTED_LOCALES:-}"
 TEST_USER_PASSWORD="${TEST_USER_PASSWORD:-changeme}"
 #THEME_NAME="${KC_LOGIN_THEME:-${THEME_NAME:-tchalanet}}"
 
 mkdir -p "$OUT_DIR"
-OUT_FILE="${OUT_FILE:-$OUT_DIR/${KC_REALM}-realm.json}"
+# Always write to a single file name (user requested): tchalanet-realm.json
+# The internal realm name (KC_REALM) is still set in the JSON content.
+OUT_FILE="${OUT_FILE:-$OUT_DIR/tchalanet-realm.json}"
 
 # sanity
 command -v jq >/dev/null 2>&1 || { echo "✖ jq required" >&2; exit 1; }
@@ -264,8 +335,29 @@ rm -f "$jq_err3" || true
 if [ -f "$OVERLAY_FILE" ]; then
   tmp_overlay=$(mktemp_safe /tmp/tch-get-realm.overlay.XXXXXX.json)
   add_tmp "$tmp_overlay"
-  jq -s '.[0] * .[1]' "$OUT_FILE" "$OVERLAY_FILE" > "$tmp_overlay"
+  # Merge strategy:
+  # - shallow merge other top-level keys (overlay wins)
+  # - for .clients, merge by clientId: take template client object and overlay client object and combine (overlay fields override, missing fields preserved)
+  jq -s '
+  .[0] as $base | .[1] as $overlay
+  | ($base.clients // []) as $bclients
+  | ($overlay.clients // []) as $oclients
+  | ($bclients + $oclients) as $allclients
+  | (reduce $allclients[] as $c ({}; .[$c.clientId] = ((.[$c.clientId] // {}) * $c))) as $clients_map
+  | ($base * $overlay) | .clients = ([$clients_map[]])
+  ' "$OUT_FILE" "$OVERLAY_FILE" > "$tmp_overlay"
   mv "$tmp_overlay" "$OUT_FILE"
+  echo "→ Applied intelligent overlay merge: $OVERLAY_FILE" >&2
+fi
+
+# Ensure realm remains enabled by default (protect against overlays that might disable it)
+# You can opt-out by setting ALLOW_DISABLED_REALM=1 in environment when running this script.
+if [ "${ALLOW_DISABLED_REALM:-0}" != "1" ]; then
+  tmp_force=$(mktemp_safe /tmp/tch-get-realm.force.XXXXXX.json)
+  add_tmp "$tmp_force"
+  jq '.enabled = true' "$OUT_FILE" > "$tmp_force"
+  mv "$tmp_force" "$OUT_FILE"
+  echo "→ Forced .enabled = true on $OUT_FILE (set ALLOW_DISABLED_REALM=1 to skip)" >&2
 fi
 
 # 5) ensure client scope for custom mapper and attach to clients

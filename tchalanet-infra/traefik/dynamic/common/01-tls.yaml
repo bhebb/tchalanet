@@ -1,5 +1,4 @@
 tls:
-  # Options TLS communes pour tous les environnements
   options:
     default:
       minVersion: VersionTLS12

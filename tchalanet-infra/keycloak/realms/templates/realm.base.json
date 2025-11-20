@@ -1,5 +1,6 @@
 {
   "realm": "CHANGE_ME",
+  "enabled": true,
   "internationalizationEnabled": true,
   "defaultLocale": "fr",
   "supportedLocales": ["fr","en","ht"],
@@ -126,6 +127,41 @@
       "redirectUris": ["http://localhost:8081/swagger-ui/oauth2-redirect.html"],
       "webOrigins": ["http://localhost:8081"],
       "defaultClientScopes": ["email","profile","role_list","roles","tch","web-origins"]
+    }
+  ],
+  "users": [
+    {
+      "username": "super_admin",
+      "enabled": true,
+      "email": "super_admin@local",
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "changeme", "temporary": false }
+      ],
+      "realmRoles": [ "SUPER_ADMIN" ],
+      "attributes": { "locale": [ "fr" ] }
+    },
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@local",
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "changeme", "temporary": false }
+      ],
+      "realmRoles": [ "ADMIN" ],
+      "attributes": { "locale": [ "fr" ] }
+    },
+    {
+      "username": "agent",
+      "enabled": true,
+      "email": "agent@local",
+      "emailVerified": true,
+      "credentials": [
+        { "type": "password", "value": "changeme", "temporary": false }
+      ],
+      "realmRoles": [ "AGENT" ],
+      "attributes": { "locale": [ "fr" ] }
     }
   ]
 }

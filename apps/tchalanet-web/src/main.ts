@@ -1,6 +1,13 @@
+import './styles.scss';
+import 'zone.js';
+
 import { bootstrapApplication } from '@angular/platform-browser';
 
 import { App } from './app/app';
 import { appConfig } from './app/app.config';
 
-bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+console.log('🔄 main.ts loading... Angular bootstrap starting');
+
+bootstrapApplication(App, appConfig).catch((err) =>
+  console.error('Bootstrap Error:', err),
+);

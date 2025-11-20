@@ -1,20 +1,26 @@
 {
-  "realm": "tchalanet",
   "clients": [
     {
       "clientId": "tchalanet-web",
-      "redirectUris": ["https://app.localtest.me/*"],
-      "webOrigins": ["https://app.localtest.me"]
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:4200/auth/callback",
+        "http://127.0.0.1/*",
+        "https://app.localtest.me/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://127.0.0.1",
+        "https://app.localtest.me",
+        "https://mob.localtest.me"
+      ]
     },
     {
       "clientId": "tchalanet-swagger",
-      "redirectUris": ["https://api.localtest.me/swagger-ui/oauth2-redirect.html"],
-      "webOrigins": ["https://api.localtest.me"]
-    },
-    {
-      "clientId": "unleash",
-      "redirectUris": ["https://flags.localtest.me/auth/callback"],
-      "webOrigins": ["https://flags.localtest.me"]
+      "redirectUris": [
+        "http://localhost:8081/swagger-ui/oauth2-redirect.html"
+      ],
+      "webOrigins": ["http://localhost:8081"]
     }
   ]
 }

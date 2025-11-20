@@ -2,19 +2,22 @@
 
 interface ImportMetaEnv {
   // API
-  readonly VITE_API_BASE: string
-  readonly VITE_API_BASE_URL: string
-  readonly VITE_APP_URL: string
-  readonly VITE_API_VERSION: string
-  readonly VITE_APP_VERSION: string
-  readonly VITE_ERROR_VERSION: string
+  readonly VITE_API_BASE?: string
+  readonly VITE_API_BASE_URL?: string
+  readonly VITE_APP_URL?: string
+  readonly VITE_API_VERSION?: string
+  readonly VITE_APP_VERSION?: string
+  readonly VITE_ERROR_VERSION?: string
 
   // Auth
-  readonly VITE_AUTH_URL: string
-  readonly VITE_AUTH_CLIENT_ID: string
+  readonly VITE_AUTH_URL?: string
+  readonly VITE_AUTH_CLIENT_ID?: string
+  // En dev on peut pointer vers un target complet (avec port) pour la proxy Vite
+  readonly VITE_AUTH_TARGET?: string
 
   // Feature Flags
-  readonly VITE_FEATURE_KIND: string
+  // 'memory' pour flags locaux, 'unleash' pour utilisation d'Unleash
+  readonly VITE_FEATURE_KIND?: 'memory' | 'unleash'
   readonly VITE_FEATURE_URL: string
   readonly VITE_FEATURE_CLIENT_KEY: string
   readonly VITE_FEATURE_APP_NAME: string

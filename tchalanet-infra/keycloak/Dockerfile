@@ -14,7 +14,7 @@ ENV KC_HEALTH_ENABLED=true \
     TZ=UTC
 
 # Thèmes & provider
-COPY --chown=keycloak:keycloak themes/ /opt/keycloak/themes/
+#  COPY --chown=keycloak:keycloak themes/ /opt/keycloak/themes/
 COPY --from=provider-builder --chown=keycloak:keycloak /build/target/*.jar /opt/keycloak/providers/
 # (optionnel) Realms pré-générés
 COPY --chown=keycloak:keycloak realms/*-realm.json /opt/keycloak/data/import/

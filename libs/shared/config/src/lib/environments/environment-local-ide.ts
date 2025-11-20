@@ -15,9 +15,9 @@ export const environment: Environment = {
     autoTrack: true,
   },
   feature: {
-    kind: 'unleash',
-    url: 'https://flags.localtest.me/api/frontend',
-    clientKey: '*:development.78ab7cdd8be7c7b39f1ccc9aae52911d40dd13122edc6fb14151bc88',
+    kind: 'memory',
+    url: '',
+    clientKey: '',
     appName: 'tchalanet-web',
     environment: 'development',
     refresh: 10,

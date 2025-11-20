@@ -3,7 +3,7 @@ log:
 
 api:
   dashboard: true
-  insecure: false     # false par défaut (staging/prod). Override en dev via TRAEFIK_API_INSECURE=true
+  insecure: false     # override en dev via TRAEFIK_API_INSECURE=true
 
 entryPoints:
   web:
@@ -14,6 +14,7 @@ entryPoints:
           to: websecure
           scheme: https
           permanent: true
+
   websecure:
     address: ":443"
 
