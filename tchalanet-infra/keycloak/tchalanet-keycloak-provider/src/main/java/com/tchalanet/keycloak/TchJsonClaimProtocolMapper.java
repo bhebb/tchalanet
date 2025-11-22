@@ -26,7 +26,7 @@ public class TchJsonClaimProtocolMapper extends AbstractOIDCProtocolMapper
   @Override public String getDisplayType() { return "Tch JSON Claim"; }
   @Override public String getDisplayCategory() { return "Token mapper"; }
   @Override public String getHelpText() {
-    return "Injecte un claim JSON 'tch' (tenantId, plan, featureSetId, locale, roles, resourceRoles, groups).";
+    return "Injecte un claim JSON 'tch' (tenantId, plan, featureSetId, resourceRoles).";
   }
 
   // Propriétés configurables dans l’UI (sans OIDCAttributeMapperHelper)
@@ -76,43 +76,19 @@ public class TchJsonClaimProtocolMapper extends AbstractOIDCProtocolMapper
     UserModel user = userSession.getUser();
     RealmModel realm = userSession.getRealm();
 
-    String tenantId = inferTenantFromGroups(user, "default");
+    String tenantId = getAttr(user, "tenant_id", "default");
     String plan = getAttr(user, "plan", "free");
     String featureSetId = getAttr(user, "featureSetId", "base");
-    String locale = Optional.ofNullable(user.getFirstAttribute("locale"))
-      .orElse(Optional.ofNullable(user.getFirstAttribute("locale_str")).orElse("fr"));
 
-    // Realm roles
-    Set<String> realmRoles = user.getRealmRoleMappingsStream()
-      .map(RoleModel::getName)
-      .collect(Collectors.toCollection(TreeSet::new));
 
-    // Client roles (resourceRoles)
-    Map<String, Set<String>> resourceRoles = new TreeMap<>();
-    realm.getClientsStream().forEach(client -> {
-      Set<String> roles = user.getClientRoleMappingsStream(client)
-        .map(RoleModel::getName)
-        .collect(Collectors.toCollection(TreeSet::new));
-      if (!roles.isEmpty()) resourceRoles.put(client.getClientId(), roles);
-    });
-
-    // Group paths (reconstruits, KC 26)
-    List<String> groups = user.getGroupsStream()
-      .map(TchJsonClaimProtocolMapper::buildGroupPath)
-      .sorted()
-      .toList();
 
     Map<String, Object> tch = new LinkedHashMap<>();
-    tch.put("tenantId", tenantId);
     tch.put("plan", plan);
     tch.put("featureSetId", featureSetId);
-    tch.put("locale", locale);
-    tch.put("roles", realmRoles);
-    tch.put("resourceRoles", resourceRoles);
-    tch.put("groups", groups);
 
     String claimName = mappingModel.getConfig().getOrDefault(CFG_CLAIM_NAME, "tch");
     token.getOtherClaims().put(claimName, tch);
+    token.getOtherClaims().put("tenant_id", tenantId);
   }
 
   private static String getAttr(UserModel user, String k, String defVal) {

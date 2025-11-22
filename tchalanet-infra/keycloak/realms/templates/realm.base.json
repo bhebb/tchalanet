@@ -3,16 +3,34 @@
   "enabled": true,
   "internationalizationEnabled": true,
   "defaultLocale": "fr",
-  "supportedLocales": ["fr","en","ht"],
-  "loginTheme": "tchalanet",
-
+  "supportedLocales": ["fr", "en", "ht"],
+  "loginTheme": "keycloak",
   "roles": {
-    "realm": [
-      { "name": "SUPER_ADMIN" },
-      { "name": "ADMIN" },
-      { "name": "AGENT" }
-    ]
+    "realm": [{ "name": "SUPER_ADMIN" }, { "name": "ADMIN" }, { "name": "AGENT" }]
   },
+
+  "groups": [
+    {
+      "name": "tenants",
+      "path": "/tenants",
+      "subGroups": [
+        {
+          "name": "default",
+          "path": "/tenants/default",
+          "subGroups": [
+            {
+              "name": "admins",
+              "path": "/tenants/default/admins"
+            },
+            {
+              "name": "agents",
+              "path": "/tenants/default/agents"
+            }
+          ]
+        }
+      ]
+    }
+  ],
 
   "clientScopes": [
     {
@@ -33,47 +51,90 @@
             "id.token.claim": "true",
             "access.token.claim": "true"
           }
+        },
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "emailVerified",
+            "claim.name": "email_verified",
+            "jsonType.label": "boolean",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
         }
       ]
     },
+
     {
       "name": "profile",
       "protocol": "openid-connect",
       "attributes": { "include.in.token.scope": "true" },
-      "protocolMappers": []
+      "protocolMappers": [
+        {
+          "name": "username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "username",
+            "claim.name": "preferred_username",
+            "jsonType.label": "String",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "locale",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "locale",
+            "claim.name": "locale",
+            "jsonType.label": "String",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
     },
+
     {
       "name": "roles",
       "protocol": "openid-connect",
       "attributes": { "include.in.token.scope": "true" },
       "protocolMappers": [
         {
-          "name": "roles",
+          "name": "realm-roles",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-role-name-mapper",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
           "consentRequired": false,
           "config": {
+            "multivalued": "true",
+            "realm.roles": "true",
             "claim.name": "roles",
             "jsonType.label": "String",
             "access.token.claim": "true",
             "id.token.claim": "true",
-            "userinfo.token.claim": "false"
+            "userinfo.token.claim": "true"
           }
         }
       ]
     },
-    {
-      "name": "role_list",
-      "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "false" },
-      "protocolMappers": []
-    },
+
     {
       "name": "web-origins",
       "protocol": "openid-connect",
       "attributes": { "include.in.token.scope": "false" },
       "protocolMappers": []
     },
+
     {
       "name": "tch-groups",
       "protocol": "openid-connect",
@@ -94,11 +155,30 @@
         }
       ]
     },
+
     {
       "name": "tch",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" },
-      "protocolMappers": []
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "name": "tch-json-claim",
+          "protocol": "openid-connect",
+          "protocolMapper": "tch-json-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "jsonType.label": "JSON",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "claim.name": "tch"
+          }
+        }
+      ]
     }
   ],
 
@@ -108,17 +188,40 @@
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
-      "redirectUris": ["https://app.localtest.me/*"],
-      "webOrigins": ["https://app.localtest.me"],
-      "attributes": { "pkce.code.challenge.method": "S256" },
-      "defaultClientScopes": ["email","profile","role_list","roles","tch","tch-groups","web-origins"]
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://127.0.0.1:4200/*",
+        "https://app.localtest.me/*"
+      ],
+      "webOrigins": ["http://localhost:4200", "http://127.0.0.1:4200", "https://app.localtest.me"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": ["email", "profile", "tch", "tch-groups", "web-origins", "roles"],
+      "optionalClientScopes": ["offline_access"],
+      "protocolMappers": [
+        {
+          "name": "aud-tchalanet-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "tchalanet-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
     },
+
     {
       "clientId": "tchalanet-api",
+      "name": "Tchalanet API (resource server)",
       "protocol": "openid-connect",
       "bearerOnly": true,
       "publicClient": false
     },
+
     {
       "clientId": "tchalanet-swagger",
       "protocol": "openid-connect",
@@ -126,9 +229,10 @@
       "standardFlowEnabled": true,
       "redirectUris": ["http://localhost:8081/swagger-ui/oauth2-redirect.html"],
       "webOrigins": ["http://localhost:8081"],
-      "defaultClientScopes": ["email","profile","role_list","roles","tch","web-origins"]
+      "defaultClientScopes": ["email", "profile", "roles", "tch", "web-origins"]
     }
   ],
+
   "users": [
     {
       "username": "super_admin",
@@ -136,10 +240,20 @@
       "email": "super_admin@local",
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "changeme", "temporary": false }
+        {
+          "type": "password",
+          "value": "changeme",
+          "temporary": false
+        }
       ],
-      "realmRoles": [ "SUPER_ADMIN" ],
-      "attributes": { "locale": [ "fr" ] }
+      "realmRoles": ["SUPER_ADMIN"],
+      "groups": [],
+      "attributes": {
+        "locale": ["fr"],
+        "tenantId": ["platform"],
+        "plan": ["free"],
+        "featureSetId": ["base"]
+      }
     },
     {
       "username": "admin",
@@ -147,10 +261,20 @@
       "email": "admin@local",
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "changeme", "temporary": false }
+        {
+          "type": "password",
+          "value": "changeme",
+          "temporary": false
+        }
       ],
-      "realmRoles": [ "ADMIN" ],
-      "attributes": { "locale": [ "fr" ] }
+      "realmRoles": ["ADMIN"],
+      "groups": ["/tenants/default/admins"],
+      "attributes": {
+        "locale": ["fr"],
+        "tenantId": ["default"],
+        "plan": ["pro"],
+        "featureSetId": ["base"]
+      }
     },
     {
       "username": "agent",
@@ -158,10 +282,20 @@
       "email": "agent@local",
       "emailVerified": true,
       "credentials": [
-        { "type": "password", "value": "changeme", "temporary": false }
+        {
+          "type": "password",
+          "value": "changeme",
+          "temporary": false
+        }
       ],
-      "realmRoles": [ "AGENT" ],
-      "attributes": { "locale": [ "fr" ] }
+      "realmRoles": ["AGENT"],
+      "groups": ["/tenants/default/agents"],
+      "attributes": {
+        "locale": ["fr"],
+        "tenantId": ["default"],
+        "plan": ["free"],
+        "featureSetId": ["base"]
+      }
     }
   ]
 }

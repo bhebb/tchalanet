@@ -2,22 +2,13 @@
   "clients": [
     {
       "clientId": "tchalanet-web",
-      "redirectUris": [
-        "https://app.stg.tchalanet.com/*",
-        "https://app.localtest.me/*"
-      ],
-      "webOrigins": [
-        "https://app.stg.tchalanet.com",
-        "https://app.localtest.me"
-      ]
+      "redirectUris": ["https://app.stg.tchalanet.com/*"],
+      "webOrigins": ["https://app.stg.tchalanet.com"]
     },
     {
       "clientId": "tchalanet-swagger",
-      "redirectUris": [
-        "https://api.stg.tchalanet.com/swagger-ui/oauth2-redirect.html"
-      ],
+      "redirectUris": ["https://api.stg.tchalanet.com/swagger-ui/oauth2-redirect.html"],
       "webOrigins": ["https://api.stg.tchalanet.com"]
     }
   ]
 }
-
