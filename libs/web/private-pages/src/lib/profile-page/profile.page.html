@@ -1,1 +1,57 @@
-<p>profile.page works!</p>
+<section class="p-4 space-y-6">
+  <header>
+    <h1 class="text-2xl font-semibold">Mon profil</h1>
+    <p class="text-sm text-gray-500">Informations de votre compte connecté.</p>
+  </header>
+
+  <div class="rounded-lg border bg-base-100/60 p-4 shadow-sm space-y-4">
+    <!-- Bloc identité de base -->
+    <div>
+      <h2 class="font-medium mb-2">Identité</h2>
+      <div class="space-y-1 text-sm">
+        <div>
+          <span class="font-semibold">Nom affiché :</span>
+          <span>{{ user()?.displayName || 'Inconnu' }}</span>
+        </div>
+        <div>
+          <span class="font-semibold">Email :</span>
+          <span>{{ user()?.email || 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloc contexte Tchalanet -->
+    @if (tch(); as t) {
+    <div class="space-y-2 text-sm">
+      <h2 class="font-medium mb-2">Contexte Tchalanet</h2>
+
+      @if (t.tenantId) {
+      <div>
+        <span class="font-semibold">Tenant :</span>
+        <span>{{ t.tenantId }}</span>
+      </div>
+      } @if (t.plan) {
+      <div>
+        <span class="font-semibold">Plan :</span>
+        <span>{{ t.plan }}</span>
+      </div>
+      } @if (t.featureSetId) {
+      <div>
+        <span class="font-semibold">Feature set :</span>
+        <span>{{ t.featureSetId }}</span>
+      </div>
+      } @if (t.locale) {
+      <div>
+        <span class="font-semibold">Langue :</span>
+        <span>{{ t.locale }}</span>
+      </div>
+      } @if (t.roles?.length) {
+      <div>
+        <span class="font-semibold">Rôles :</span>
+        <span>{{ t.roles.join(', ') }}</span>
+      </div>
+      }
+    </div>
+    }
+  </div>
+</section>

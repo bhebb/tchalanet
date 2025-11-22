@@ -1,4 +1,5 @@
 export * from './lib/admin-page/admin.page';
+export * from './lib/dashboard-container/dashboard-container.component';
 export * from './lib/dashboard-page/dashboard.page';
 export * from './lib/draws-page/draws.page';
 export * from './lib/private.routes';
