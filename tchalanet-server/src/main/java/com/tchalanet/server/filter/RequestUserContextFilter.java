@@ -3,9 +3,9 @@ package com.tchalanet.server.filter;
 import static com.tchalanet.server.constants.AppConstants.REQUEST_CONTEXT;
 import static com.tchalanet.server.constants.AppConstants.TENANT_ID_CLAIMS;
 
-import com.tchalanet.server.config.context.RequestContext;
-import com.tchalanet.server.config.properties.ApiProperties;
 import com.tchalanet.server.constants.TchRole;
+import com.tchalanet.server.context.TchRequestContext;
+import com.tchalanet.server.properties.ApiProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -96,7 +96,7 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
     // Build and attach RequestContext (you can extend your record to include customRoles if
     // desired)
     var ctx =
-        new RequestContext(
+        new TchRequestContext(
             originalTenant,
             effectiveTenant,
             userId,

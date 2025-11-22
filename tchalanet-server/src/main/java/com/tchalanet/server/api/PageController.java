@@ -7,8 +7,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.config.context.CurrentContext;
-import com.tchalanet.server.config.context.RequestContext;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -17,6 +15,9 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import com.tchalanet.server.context.CurrentContext;
+import com.tchalanet.server.context.TchRequestContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -53,25 +54,25 @@ public class PageController {
 
   // ---------- PRIVATE (auto, en fonction des rôles) ----------
   @GetMapping(value = "/private", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> getPrivatePage(@CurrentContext RequestContext ctx) {
+  public ResponseEntity<String> getPrivatePage(@CurrentContext TchRequestContext ctx) {
     var roles = ctx.systemRoles();
 
     // ✅ If SA + overridden → open tenant page (tenant-admin shell)
     if (roles.contains(SUPER_ADMIN)
         && ctx.tenantOverridden()
         && !ctx.tenantId().equals(ctx.originalTenantId())) {
-      return serveStaticJson("classpath:static/config/private-super-admin.json");
+      return serveStaticJson("classpath:static/config/home-super-admin.json");
     }
 
     // ✅ Otherwise: return matched page by role
     if (roles.contains(SUPER_ADMIN))
-      return serveStaticJson("classpath:static/config/private-super-admin.json");
+      return serveStaticJson("classpath:static/config/home-super-admin.json");
     if (roles.contains(ADMIN))
-      return serveStaticJson("classpath:static/config/private-tenant-admin.json");
+      return serveStaticJson("classpath:static/config/home-tenant-admin.json");
     if (roles.contains(CASHIER))
-      return serveStaticJson("classpath:static/config/private-cashier.json");
+      return serveStaticJson("classpath:static/config/home-cashier.json");
 
-    return serveStaticJson("classpath:static/config/private-fallback.json");
+    return serveStaticJson("classpath:static/config/home-tenant-admin.json");
   }
 
   // ---------- PRIVATE (profil explicite pour tests / snapshots / QA) ----------
@@ -81,9 +82,9 @@ public class PageController {
     String normalized = profile.trim().toLowerCase(Locale.ROOT);
     String file =
         switch (normalized) {
-          case "sa", "super", "super-admin" -> "config/private-super-admin.json";
-          case "ta", "tenant-admin", "admin-tenant" -> "config/private-tenant-admin.json";
-          case "cashier", "vendeur" -> "config/private-cashier.json";
+          case "sa", "super", "super-admin" -> "config/home-super-admin.json";
+          case "ta", "tenant-admin", "admin-tenant" -> "config/home-tenant-admin.json";
+          case "cashier", "vendeur" -> "config/home-cashier.json";
           default -> "config/private-fallback.json";
         };
     return serveStaticJson(file);

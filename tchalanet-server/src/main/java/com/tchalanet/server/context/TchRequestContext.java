@@ -1,4 +1,4 @@
-package com.tchalanet.server.config.context;
+package com.tchalanet.server.context;
 
 import com.tchalanet.server.constants.TchRole;
 import java.util.Locale;
@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 // immuable = sûr & testable
-public record RequestContext(
+public record TchRequestContext(
     String originalTenantId, // from JWT
     String tenantId, // effective (may be overridden by SA)
     String userId,

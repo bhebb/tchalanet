@@ -1,8 +1,9 @@
 package com.tchalanet.server.config;
 
-import com.tchalanet.server.config.context.CurrentContextArgumentResolver;
-import com.tchalanet.server.config.properties.ApiProperties;
 import java.util.List;
+
+import com.tchalanet.server.context.CurrentContextArgumentResolver;
+import com.tchalanet.server.properties.ApiProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

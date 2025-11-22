@@ -2,8 +2,8 @@ package com.tchalanet.server.api;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.tchalanet.server.config.context.CurrentContext;
-import com.tchalanet.server.config.context.RequestContext;
+import com.tchalanet.server.context.CurrentContext;
+import com.tchalanet.server.context.TchRequestContext;
 import com.tchalanet.server.services.I18nConfigurationService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class I18nController {
 
   @GetMapping()
   public Map<String, Object> get(
-      @CurrentContext RequestContext context, @RequestParam(required = false) String lang) {
+          @CurrentContext TchRequestContext context, @RequestParam(required = false) String lang) {
     return i18nConfigurationService.getMergedI18n(context, lang);
   }
 }

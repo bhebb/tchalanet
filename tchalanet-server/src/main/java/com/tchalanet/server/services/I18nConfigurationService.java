@@ -2,11 +2,12 @@ package com.tchalanet.server.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.config.context.RequestContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
+
+import com.tchalanet.server.context.TchRequestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -43,7 +44,7 @@ public class I18nConfigurationService {
    * Récupère les surcharges de traduction pour un contexte et une langue donnés. NOTE : Plus tard,
    * cette méthode interrogera la base de données.
    */
-  public Map<String, Object> getMergedI18n(RequestContext context, String lang) {
+  public Map<String, Object> getMergedI18n(TchRequestContext context, String lang) {
     // The context parameter is not used for now, but it's there for future enhancements.
     var translationsByLang = loadI18nOverrides();
     return translationsByLang.getOrDefault(lang, Collections.emptyMap());

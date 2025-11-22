@@ -1,4 +1,4 @@
-package com.tchalanet.server.config.context;
+package com.tchalanet.server.context;
 
 import static com.tchalanet.server.constants.AppConstants.REQUEST_CONTEXT;
 
@@ -16,7 +16,7 @@ public class CurrentContextArgumentResolver implements HandlerMethodArgumentReso
   @Override
   public boolean supportsParameter(MethodParameter p) {
     return p.hasParameterAnnotation(CurrentContext.class)
-        && p.getParameterType().equals(RequestContext.class);
+        && p.getParameterType().equals(TchRequestContext.class);
   }
 
   @Override

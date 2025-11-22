@@ -1,4 +1,4 @@
-package com.tchalanet.server.config.context;
+package com.tchalanet.server.context;
 
 import static com.tchalanet.server.constants.AppConstants.REQUEST_CONTEXT;
 
@@ -9,13 +9,13 @@ import org.springframework.web.context.annotation.RequestScope;
 @Component
 @RequestScope
 public class RequestContextHolder {
-  private final RequestContext ctx;
+  private final TchRequestContext ctx;
 
   public RequestContextHolder(HttpServletRequest req) {
-    this.ctx = (RequestContext) req.getAttribute(REQUEST_CONTEXT);
+    this.ctx = (TchRequestContext) req.getAttribute(REQUEST_CONTEXT);
   }
 
-  public RequestContext get() {
+  public TchRequestContext get() {
     return ctx;
   }
 }

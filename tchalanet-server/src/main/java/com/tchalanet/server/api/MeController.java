@@ -1,7 +1,7 @@
 package com.tchalanet.server.api;
 
-import com.tchalanet.server.config.context.CurrentContext;
-import com.tchalanet.server.config.context.RequestContext;
+import com.tchalanet.server.context.CurrentContext;
+import com.tchalanet.server.context.TchRequestContext;
 import com.tchalanet.server.dto.ContextDto;
 import com.tchalanet.server.services.ContextService;
 import java.util.List;
@@ -51,7 +51,7 @@ public class MeController {
   @GetMapping(value = "/context", produces = "application/json")
   public ResponseEntity<ContextDto> context(
       @AuthenticationPrincipal Jwt jwt,
-      @CurrentContext RequestContext context,
+      @CurrentContext TchRequestContext context,
       @RequestParam(required = false) String featureSetId) {
 
     Map<String, Object> tch =

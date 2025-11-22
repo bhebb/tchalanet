@@ -15,6 +15,3 @@ spring:
           issuer-uri: https://auth.localtest.me/realms/tchalanet
   datasource:
     url: jdbc:postgresql://localhost:5432/tchalanet_db
-# Profil de dev: ajouter "insecure" à SPRING_PROFILES_ACTIVE pour ignorer la validation TLS du certificat Keycloak.
-# Exemple: export SPRING_PROFILES_ACTIVE=local-ide,insecure
-# Pour un fallback ultra rapide sans HTTPS, changer issuer-uri en http://auth.localtest.me/realms/tchalanet (moins sûr).

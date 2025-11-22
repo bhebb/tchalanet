@@ -1,4 +1,4 @@
-package com.tchalanet.server.config.context;
+package com.tchalanet.server.context;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

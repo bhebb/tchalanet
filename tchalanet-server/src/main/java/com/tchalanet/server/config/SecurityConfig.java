@@ -1,14 +1,6 @@
 package com.tchalanet.server.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -27,91 +19,98 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
 
-  @Value("${app.security.required-audience}")
-  private String requiredAudience;
+    @Value("${app.security.required-audience}")
+    private String requiredAudience;
 
-  @Bean
-  SecurityFilterChain security(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable)
-        .cors(withDefaults())
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(
-                        "/actuator/health",
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/api/v1/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/api/v1/openapi/**",
-                        "/api/v1/configs/i18n/**",
-                        "/api/v1/pages/home-public")
-                    .permitAll()
-                    .requestMatchers("/api/platform/*")
-                    .hasRole("SUPER_ADMIN")
-                    .requestMatchers("/api/admin/**")
-                    .hasAnyRole("ADMIN_ENTERPRISE", "SUPER_ADMIN")
-                    .anyRequest()
-                    .authenticated())
-        .oauth2ResourceServer(
-            oauth ->
-                oauth.jwt(
-                    jwt -> jwt.jwtAuthenticationConverter(this::convert).decoder(jwtDecoder)));
-    return http.build();
-  }
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
-  private AbstractAuthenticationToken convert(Jwt jwt) {
-    // Authorities depuis realm roles et client roles (optionnel)
-    Collection<GrantedAuthority> auths = new ArrayList<>();
-    Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-    if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
-      roles.forEach(r -> auths.add(new SimpleGrantedAuthority("ROLE_" + r)));
+    @Bean
+    SecurityFilterChain security(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/api/v1/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/api/v1/openapi/**",
+                                "/api/v1/configs/i18n/**",
+                                "/api/v1/pages/home-public")
+                        .permitAll()
+                        .requestMatchers("/api/platform/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN_ENTERPRISE", "SUPER_ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth -> oauth
+                        .jwt(jwt -> jwt
+                                .decoder(jwtDecoder)
+                                .jwtAuthenticationConverter(this::convert)
+                        )
+                );
+
+        return http.build();
     }
-    Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
-    if (resourceAccess != null) {
-      resourceAccess.forEach(
-          (clientId, obj) -> {
-            if (obj instanceof Map<?, ?> m && m.get("roles") instanceof Collection<?> cr) {
-              cr.forEach(r -> auths.add(new SimpleGrantedAuthority(clientId + ":" + r)));
-            }
-          });
+
+    @Bean
+    JwtDecoder jwtDecoder() {
+        NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuerUri);
+
+        OAuth2TokenValidator<Jwt> audValidator = jwt -> {
+            List<String> aud = Optional.ofNullable(jwt.getAudience()).orElse(List.of());
+            return aud.contains(requiredAudience)
+                    ? OAuth2TokenValidatorResult.success()
+                    : OAuth2TokenValidatorResult.failure(
+                    new OAuth2Error("invalid_token", "Missing required audience: " + requiredAudience, null));
+        };
+
+        decoder.setJwtValidator(
+                new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuerUri), audValidator)
+        );
+        return decoder;
     }
-    return new JwtAuthenticationToken(jwt, auths);
-  }
 
-  @Bean
-  CorsConfigurationSource corsConfigurationSource(
-      @Value("${app.cors.allowed-origins:http://localhost:4200}") String origins) {
-    var c = new CorsConfiguration();
-    c.setAllowedOrigins(List.of(origins.split(",")));
-    c.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    c.setAllowedHeaders(List.of("*"));
-    var s = new UrlBasedCorsConfigurationSource();
-    s.registerCorsConfiguration("/**", c);
-    return s;
-  }
+    private AbstractAuthenticationToken convert(Jwt jwt) {
+        Collection<GrantedAuthority> auths = new ArrayList<>();
 
-  @Bean
-  @ConditionalOnMissingBean(JwtDecoder.class)
-  JwtDecoder jwtDecoder(@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri) {
-      NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuerUri);
+        // 1. roles dans realm_access (Keycloak classique)
+        Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+        if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
+            roles.forEach(r -> auths.add(new SimpleGrantedAuthority("ROLE_" + r)));
+        }
 
-          // audience validatorjwtDecoder
-    OAuth2TokenValidator<Jwt> audValidator =
-        jwt ->
-            Optional.ofNullable(jwt.getAudience()).orElse(List.of()).contains(requiredAudience)
-                ? OAuth2TokenValidatorResult.success()
-                : OAuth2TokenValidatorResult.failure(
-                    new OAuth2Error(
-                        "invalid_token", "Missing required audience: " + requiredAudience, null));
-    decoder.setJwtValidator(
-        new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefault(), audValidator));
-    return decoder;
-  }
+        // 2. fallback sur le claim "roles" à la racine (ton mapper actuel)
+        List<String> flatRoles = jwt.getClaimAsStringList("roles");
+        if (flatRoles != null) {
+            flatRoles.forEach(r -> auths.add(new SimpleGrantedAuthority("ROLE_" + r)));
+        }
+
+        // 3. client roles (optionnel)
+        Map<String, Object> resourceAccess = jwt.getClaimAsMap("resource_access");
+        if (resourceAccess != null) {
+            resourceAccess.forEach((clientId, obj) -> {
+                if (obj instanceof Map<?, ?> m && m.get("roles") instanceof Collection<?> cr) {
+                    cr.forEach(r -> auths.add(new SimpleGrantedAuthority(clientId + ":" + r)));
+                }
+            });
+        }
+
+        return new JwtAuthenticationToken(jwt, auths);
+    }
+
+
 }

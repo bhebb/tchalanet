@@ -1,4 +1,4 @@
-package com.tchalanet.server.config.filter;
+package com.tchalanet.server.filter;
 
 import static com.tchalanet.server.constants.AppConstants.API_VERSION_HEADER;
 import static com.tchalanet.server.constants.AppConstants.API_VERSION_V1;
@@ -9,6 +9,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -29,7 +31,7 @@ public class ApiMetaFilter extends OncePerRequestFilter {
     }
 
     // Propager dans les logs (MDC), si tu utilises SLF4J
-    // MDC.put("appVersion", appVersion);
+     MDC.put("appVersion", apiVersion);
 
     // Exposer la version servie en réponse (utile en debug)
     res.setHeader(API_VERSION_HEADER, API_VERSION_V1);

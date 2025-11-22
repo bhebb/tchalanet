@@ -1,0 +1,167 @@
+{
+  "currentLang": "fr",
+  "langs": ["fr", "en", "ht"],
+  "context": "home-tenant-admin",
+  "theme": {
+    "presetId": "tchalanet",
+    "mode": "light",
+    "density": -1,
+    "overrides": {
+      "vars": {}
+    }
+  },
+  "header": {
+    "component": "PrivateHeader",
+    "properties": {
+      "brand": {
+        "logo": " /assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/app/dashboard"
+      },
+      "navigation": [
+        { "labelKey": "nav.dashboard", "path": "/app/dashboard" },
+        { "labelKey": "nav.locations", "path": "/app/locations" },
+        { "labelKey": "nav.staff", "path": "/app/staff" },
+        { "labelKey": "nav.reports", "path": "/app/reports" }
+      ]
+    }
+  },
+  "nav": {
+    "header": [],
+    "sidenav": [
+      {
+        "labelKey": "nav.dashboard",
+        "path": "/app/dashboard",
+        "icon": "dashboard"
+      },
+      {
+        "labelKey": "nav.locations",
+        "path": "/app/locations",
+        "icon": "store",
+        "children": [
+          {
+            "labelKey": "nav.locations.list",
+            "path": "/app/locations",
+            "icon": "list"
+          },
+          {
+            "labelKey": "nav.locations.create",
+            "path": "/app/locations/new",
+            "icon": "add_location_alt"
+          }
+        ]
+      },
+      {
+        "labelKey": "nav.staff",
+        "path": "/app/staff",
+        "icon": "group",
+        "children": [
+          {
+            "labelKey": "nav.staff.agents",
+            "path": "/app/staff/agents",
+            "icon": "badge"
+          },
+          {
+            "labelKey": "nav.staff.managers",
+            "path": "/app/staff/managers",
+            "icon": "supervisor_account"
+          }
+        ]
+      },
+      {
+        "labelKey": "nav.reports",
+        "path": "/app/reports",
+        "icon": "analytics",
+        "children": [
+          {
+            "labelKey": "nav.reports.sales",
+            "path": "/app/reports/sales",
+            "icon": "bar_chart"
+          },
+          {
+            "labelKey": "nav.reports.activity",
+            "path": "/app/reports/activity",
+            "icon": "timeline"
+          }
+        ]
+      }
+    ]
+  },
+  "layout": {
+    "component": "GridLayout",
+    "rows": [
+      {
+        "columns": [
+          {
+            "span": 12,
+            "widgets": [
+              {
+                "component": "HeroWidget",
+                "properties": {
+                  "eyebrow": "home.tenant_admin.eyebrow",
+                  "title": "home.tenant_admin.title",
+                  "subtitle": "home.tenant_admin.subtitle",
+                  "align": "left"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "component": "PublicFooter",
+    "properties": {
+      "brand": {
+        "logo": "/assets/branding/logo-tchalanet.svg",
+        "name": "Tchalanet",
+        "href": "/"
+      },
+      "accentHex": "#D84C51",
+      "columns": [
+        {
+          "titleKey": "footer.section.inform",
+          "links": [
+            { "labelKey": "info.game_explanations", "path": "/explanations" },
+            { "labelKey": "info.security_tips", "path": "/security" },
+            { "labelKey": "info.official_results", "path": "/official-reports" },
+            { "labelKey": "info.tchala", "path": "/tchala" }
+          ]
+        },
+        {
+          "titleKey": "footer.section.legal",
+          "links": [
+            { "labelKey": "legal.regulation", "path": "/legal/regulation" },
+            { "labelKey": "legal.responsible", "path": "/legal/responsible" },
+            { "labelKey": "legal.privacy", "path": "/legal/privacy" }
+          ]
+        },
+        {
+          "titleKey": "footer.section.resources",
+          "links": [
+            { "labelKey": "nav.verify", "path": "/verify" },
+            { "labelKey": "nav.support", "path": "/support" }
+          ]
+        },
+        {
+          "titleKey": "footer.section.partners",
+          "links": [
+            { "labelKey": "partners.antb", "external": "https://antbhaiti.org" },
+            { "labelKey": "partners.evalujeu", "external": "https://www.evalujeu.fr/" }
+          ]
+        }
+      ],
+      "socials": [
+        { "icon": "youtube", "href": "https://youtube.com/@tchalanet", "aria": "YouTube" },
+        { "icon": "x", "href": "https://x.com/tchalanet", "aria": "x" },
+        { "icon": "facebook", "href": "https://facebook.com/tchalanet", "aria": "Facebook" },
+        { "icon": "instagram", "href": "https://instagram.com/tchalanet", "aria": "Instagram" },
+        { "icon": "linkedin", "href": "https://linkedin.com/company/tchalanet", "aria": "LinkedIn" }
+      ],
+      "copyrightKey": "copyright.notice"
+    }
+  },
+  "i18n": {},
+  "issues": []
+}
