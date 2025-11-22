@@ -14,7 +14,22 @@
     "contact": "Contact",
     "login": "Login",
     "profile": "Profile",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "locations": {
+      "title": "Points of sale",
+      "list": "Points of sale list",
+      "create": "New point of sale"
+    },
+    "staff": {
+      "title": "Staff",
+      "agents": "Agents",
+      "managers": "Managers"
+    },
+    "reports": {
+      "title": "Reports",
+      "sales": "Sales reports",
+      "activity": "Activity"
+    }
   },
   "cta": {
     "try": "Try",

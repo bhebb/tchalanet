@@ -95,6 +95,18 @@ export const appConfig: ApplicationConfig = {
         useRefreshToken: true,
         renewTimeBeforeTokenExpiresInSeconds: 30,
         logLevel: LogLevel.Debug,
+        // Important : en dev derrière Traefik, on force l'origin publique et on
+        // évite que angular-auth-oidc-client essaie de découvrir un endpoint
+        // via le proxy Vite (localhost:4200). Tout doit parler directement
+        // à https://auth.localtest.me.
+        //
+        // NOTE : environment.authUrl doit pointer sur
+        //   https://auth.localtest.me/realms/tchalanet
+        // et le client Keycloak doit autoriser
+        //   redirect_uri = https://app.localtest.me/auth/callback
+        //   Web Origins = https://app.localtest.me
+        // pour éviter les erreurs CORS / redirect_uri.
+        ignoreNonceAfterRefresh: true,
       },
     }),
     { provide: AbstractSecurityStorage, useClass: LocalStorageSecurityService },

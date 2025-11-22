@@ -42,6 +42,17 @@ export class AuthService {
     this.oidc.authorize();
   }
 
+  /** Logout */
+  logout() {
+    // Reset local state
+    this._isAuth.set(false);
+    this._access.set(null);
+    this._id.set(null);
+    this._tch.set(null);
+    // Déclenche le logout OIDC (redirigera vers postLogoutRedirectUri)
+    this.oidc.logoff();
+  }
+
   // ===== Callback / Check =====
   /** checkAuth est idempotent; on le single-flight pour éviter les doublons. */
   checkAuth$(): Observable<LoginResponse> {

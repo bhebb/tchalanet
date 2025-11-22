@@ -35,7 +35,7 @@ npx nx build tchalanet-web --configuration=staging
 npx nx build tchalanet-web --configuration=production
 ```
 
-## Comment ça fonctionne
+```
 
 Vite charge automatiquement le bon fichier `.env.*` selon le mode :
 - `--configuration=development` → charge `.env.development`
@@ -55,18 +55,18 @@ export const environment = {
 ```
 
 ## Variables disponibles
-
+3. Par défaut : `production`
 Toutes les variables doivent commencer par `VITE_` pour être exposées côté client :
 
 ### API
 - `VITE_API_BASE` - URL base de l'API (ex: `http://localhost:8083/api`)
 - `VITE_API_BASE_URL` - URL racine de l'API
 - `VITE_APP_URL` - URL de l'application
-
+## Logs
 ### Auth (Keycloak)
 - `VITE_AUTH_URL` - URL du realm Keycloak
 - `VITE_AUTH_CLIENT_ID` - Client ID Keycloak
-
+>>> API target: http://localhost:8080
 ### Feature Flags
 - `VITE_FEATURE_KIND` - `memory` ou `unleash`
 - `VITE_FEATURE_URL` - URL du serveur Unleash
@@ -94,7 +94,7 @@ Toutes les variables doivent commencer par `VITE_` pour être exposées côté c
 VITE_API_BASE=http://localhost:8083/api
 VITE_AUTH_URL=https://auth.localtest.me/realms/tchalanet
 VITE_FEATURE_KIND=memory  # Pas de serveur Unleash requis
-```
+[Vite Env Plugin] Configuration: development
 
 ## Avantages de cette approche
 
@@ -109,4 +109,3 @@ VITE_FEATURE_KIND=memory  # Pas de serveur Unleash requis
 ⚠️ Les variables d'environnement sont **remplacées au moment du build**  
 ⚠️ Ne JAMAIS mettre de secrets sensibles dans les variables `VITE_*`  
 ⚠️ Les fichiers `.env.local` sont ignorés par git (pour overrides locaux)  
-
