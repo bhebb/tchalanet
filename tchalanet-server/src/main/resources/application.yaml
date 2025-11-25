@@ -9,6 +9,7 @@ app:
   auth-url: ${TCH_KC_ISSUER}
   default-tenant: ${APP_DEFAULT_TENANT:default}
   cors:
+    # use a comma-separated env var (APP_CORS_ALLOWED_ORIGINS) which Spring will bind to a List<String>
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:https://app.localtest.me}
     allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
     allowed-headers: Authorization,Content-Type,Accept,Origin
@@ -30,6 +31,12 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+    properties:
+      org.hibernate.envers.audit_table_suffix: "_aud"
+      org.hibernate.envers.store_data_at_delete: true
+      org.hibernate.envers.revision_field_name: "rev"
+      org.hibernate.envers.revision_type_field_name: "revtype"
+      org.hibernate.envers.revision_listener: "com.tchalanet.server.common.infra.persistence.audit.TchRevisionListener"
 
   # --- Database Migration ---
   flyway:
@@ -51,6 +58,48 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000
+
+  # --- Spring Batch: disable auto-run at startup when multiple jobs are defined ---
+  batch:
+    job:
+      enabled: false
+
+tch:
+  # Draw results provider configuration (external provider + fake mode)
+  # mode: fake | api | api_then_fake | disabled
+  results:
+    mode: ${TCH_RESULTS_MODE:api_then_fake}
+    # lotteryresults provider configuration
+    lotteryresults:
+      enabled: ${TCH_RESULTS_LOTTERY_ENABLED:true}
+      base-url: ${TCH_RESULTS_LOTTERY_BASEURL:https://api.lotteryresults.example.com}
+      api-key: ${LOTTERYRESULTS_API_KEY:}
+
+  # News provider / cache configuration
+  news:
+    provider:
+      url: ${TCH_NEWS_FEED:https://lotterydaily.com/feed/}
+      apiKey: ""
+    redis:
+      key: ${TCH_NEWS_REDIS_KEY:tch:public:news}
+    ttl:
+      hours: ${TCH_NEWS_TTL_HOURS:24}
+    refresh:
+      cron: ${TCH_NEWS_REFRESH_CRON:0 0 */6 * * *}
+
+  # Draw generation and cache configuration
+  draw:
+    results:
+      # kept alias to old props for backwards compat with env names
+      mode: ${TCH_RESULTS_MODE:api_then_fake}
+    generation:
+      days: ${DRAW_GENERATION_DAYS:14}
+      cron: ${DRAW_GENERATION_CRON:0 5 0 * * *}
+    cache:
+      ttl:
+        last7m: ${DRAW_CACHE_TTL_LAST7M:5}   # minutes
+        todaym: ${DRAW_CACHE_TTL_TODAYM:5}   # minutes
+        nexts: ${DRAW_CACHE_TTL_NEXTS:60}    # seconds
 
 # ===========================
 # API DOCUMENTATION

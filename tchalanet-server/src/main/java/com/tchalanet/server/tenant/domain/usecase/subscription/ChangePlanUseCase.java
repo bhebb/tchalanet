@@ -12,6 +12,7 @@ import com.tchalanet.server.tenant.infra.persistence.SubscriptionMapper;
 import com.tchalanet.server.tenant.web.dto.ChangePlanRequest;
 import com.tchalanet.server.tenant.web.dto.SubscriptionDTO;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class ChangePlanUseCase {
   private final BillingPort billingPort;
 
   @Transactional
-  public SubscriptionDTO execute(String tenantId, ChangePlanRequest request) {
+  public SubscriptionDTO execute(UUID tenantId, ChangePlanRequest request) {
     // 1. Charger le plan cible (doit être public)
     PlanJpaEntity targetPlan =
         planRepository
@@ -59,7 +60,7 @@ public class ChangePlanUseCase {
 
     // 5. Mettre à jour les informations de billing
     subscription.setBillingProvider(BillingProvider.NONE);
-    subscription.setBillingExternalId(billingResult.externalSubscriptionId());
+    subscription.setBillingExternalId(billingResult.externalSubscriptionId().toString());
     subscription.setCurrentPeriodStart(billingResult.periodStart());
     subscription.setCurrentPeriodEnd(billingResult.periodEnd());
     subscription.setMeta(billingResult.meta());
@@ -67,5 +68,14 @@ public class ChangePlanUseCase {
     // 6. Sauvegarder et retourner
     SubscriptionJpaEntity saved = subscriptionRepository.save(subscription);
     return SubscriptionMapper.toDto(saved);
+  }
+
+  private UUID safeUuid(String s) {
+    if (s == null) return null;
+    try {
+      return UUID.fromString(s);
+    } catch (Exception ex) {
+      return null;
+    }
   }
 }

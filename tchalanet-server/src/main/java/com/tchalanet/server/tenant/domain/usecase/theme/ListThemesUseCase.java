@@ -4,6 +4,8 @@ import com.tchalanet.server.tenant.domain.model.ThemeStatus;
 import com.tchalanet.server.tenant.infra.persistence.JpaThemeRepository;
 import com.tchalanet.server.tenant.infra.persistence.ThemeJpaEntity;
 import com.tchalanet.server.tenant.web.dto.ThemeDto;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -49,8 +51,12 @@ public class ListThemesUseCase {
         entity.getTokens(),
         entity.getCssVars(),
         entity.getStatus(),
-        entity.getVersion(),
-        entity.getCreatedAt(),
-        entity.getUpdatedAt());
+        entity.getThemeVersion(),
+        entity.getCreatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(entity.getCreatedAt(), ZoneOffset.UTC),
+        entity.getUpdatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(entity.getUpdatedAt(), ZoneOffset.UTC));
   }
 }

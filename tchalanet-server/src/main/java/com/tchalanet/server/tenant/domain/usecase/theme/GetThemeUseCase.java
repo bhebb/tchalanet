@@ -2,6 +2,8 @@ package com.tchalanet.server.tenant.domain.usecase.theme;
 
 import com.tchalanet.server.tenant.infra.persistence.JpaThemeRepository;
 import com.tchalanet.server.tenant.web.dto.ThemeDto;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -36,8 +38,12 @@ public class GetThemeUseCase {
         theme.getTokens(),
         theme.getCssVars(),
         theme.getStatus(),
-        theme.getVersion(),
-        theme.getCreatedAt(),
-        theme.getUpdatedAt());
+        theme.getThemeVersion(),
+        theme.getCreatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(theme.getCreatedAt(), ZoneOffset.UTC),
+        theme.getUpdatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(theme.getUpdatedAt(), ZoneOffset.UTC));
   }
 }

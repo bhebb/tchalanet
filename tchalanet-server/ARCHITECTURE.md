@@ -392,6 +392,15 @@ public class CreateTicketUseCase {
     }
 }
 
-Ce document doit rester vivant : mets-le à jour au fur et à mesure des décisions d’architecture.
+---
 
+## Documentation complémentaire
+
+Pour les détails d'implémentation et les runbooks, voir les documents techniques dans `docs/` :
+
+- `docs/persistence.md`  — description de la couche persistence, conventions d'ID, BaseEntity/BaseTenantEntity, converters JSON, version technique et migrations Flyway.
+- `docs/rls.md`          — explication des fonctions SQL RLS (`set_current_tenant`, `set_deleted_visibility`), politiques RLS, et fonctionnement du filtre `DbAppRlsFilter`.
+- `docs/audit.md`        — stratégie d'audit (Hibernate Envers + `audit_event`), recommandations pour persister l'audit afterCommit, et use cases.
+
+Ces documents sont destinés à être la référence rapide pour les développeurs qui travaillent sur la persistance, la sécurité au niveau DB (RLS) et l'audit.
 ```

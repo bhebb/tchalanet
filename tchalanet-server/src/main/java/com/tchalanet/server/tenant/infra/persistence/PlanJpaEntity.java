@@ -1,47 +1,54 @@
 package com.tchalanet.server.tenant.infra.persistence;
 
-import com.tchalanet.server.tenant.domain.model.BillingFrequency;
+import com.tchalanet.server.common.infra.persistence.BaseEntity;
+import com.tchalanet.server.common.infra.persistence.MapToJsonConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
-@Table(name = "plans")
+@Table(name = "plan")
 @Getter
 @Setter
-public class PlanJpaEntity {
-  @Id @GeneratedValue private UUID id;
+@Audited
+public class PlanJpaEntity extends BaseEntity {
 
-  @Column(nullable = false, unique = true)
-  private String code; // "PRO", "ENTERPRISE"
+  @Column(name = "code", nullable = false, unique = true, length = 64)
+  private String code;
 
-  @Column(nullable = false)
+  @Column(name = "name", nullable = false, length = 128)
+  private String name;
+
+  @Column(name = "description")
+  private String description;
+
+  @Column(name = "price_amount", nullable = false)
   private BigDecimal priceAmount;
 
-  @Column(nullable = false)
-  private String currency; // "EUR", "USD"
+  @Column(name = "currency", nullable = false, length = 3)
+  private String currency;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false, name = "billing_frequency")
-  private BillingFrequency frequency; // MONTH, YEAR
+  @Column(name = "billing_frequency", nullable = false, length = 16)
+  private String billingFrequency;
 
-  @Column(nullable = false)
-  private boolean publicPlan = false;
+  @Column(name = "public_plan", nullable = false)
+  private boolean publicPlan;
 
-  //    @Convert(converter = StringListJsonConverter.class)
-  @Column(columnDefinition = "jsonb")
-  private List<String> features; // "plans.feat.analytics", ...
-  /*
-  @Version
-  private long version;*/
+  @Convert(converter = MapToJsonConverter.class)
+  @Column(name = "features", columnDefinition = "jsonb")
+  private Map<String, Object> features;
 
+  // inverse: subscriptions referencing this plan
+  @OneToMany(mappedBy = "plan", fetch = FetchType.LAZY)
+  private List<SubscriptionJpaEntity> subscriptions = new ArrayList<>();
 }

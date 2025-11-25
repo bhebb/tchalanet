@@ -7,6 +7,7 @@ import com.tchalanet.server.tenant.domain.usecase.subscription.ResumeSubscriptio
 import com.tchalanet.server.tenant.web.dto.ChangePlanRequest;
 import com.tchalanet.server.tenant.web.dto.SubscriptionDTO;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +32,7 @@ public class SubscriptionController {
   @PreAuthorize("hasRole('TENANT_ADMIN')")
   public ResponseEntity<SubscriptionDTO> getCurrentSubscription(@AuthenticationPrincipal Jwt jwt) {
     String tenantId = jwt.getClaim(TENANT_ID_CLAIM);
-    SubscriptionDTO subscription = getCurrentSubscriptionUseCase.execute(tenantId);
+    SubscriptionDTO subscription = getCurrentSubscriptionUseCase.execute(UUID.fromString(tenantId));
     return ResponseEntity.ok(subscription);
   }
 
@@ -41,7 +42,7 @@ public class SubscriptionController {
       @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ChangePlanRequest request) {
 
     String tenantId = jwt.getClaim(TENANT_ID_CLAIM);
-    SubscriptionDTO subscription = changePlanUseCase.execute(tenantId, request);
+    SubscriptionDTO subscription = changePlanUseCase.execute(UUID.fromString(tenantId), request);
     return ResponseEntity.ok(subscription);
   }
 
@@ -51,7 +52,8 @@ public class SubscriptionController {
       @AuthenticationPrincipal Jwt jwt, @RequestParam(defaultValue = "true") boolean atPeriodEnd) {
 
     String tenantId = jwt.getClaim(TENANT_ID_CLAIM);
-    SubscriptionDTO subscription = cancelSubscriptionUseCase.execute(tenantId, atPeriodEnd);
+    SubscriptionDTO subscription =
+        cancelSubscriptionUseCase.execute(UUID.fromString(tenantId), atPeriodEnd);
     return ResponseEntity.ok(subscription);
   }
 
@@ -59,7 +61,7 @@ public class SubscriptionController {
   @PreAuthorize("hasRole('TENANT_ADMIN')")
   public ResponseEntity<SubscriptionDTO> resumeSubscription(@AuthenticationPrincipal Jwt jwt) {
     String tenantId = jwt.getClaim(TENANT_ID_CLAIM);
-    SubscriptionDTO subscription = resumeSubscriptionUseCase.execute(tenantId);
+    SubscriptionDTO subscription = resumeSubscriptionUseCase.execute(UUID.fromString(tenantId));
     return ResponseEntity.ok(subscription);
   }
 }

@@ -1,9 +1,11 @@
 package com.tchalanet.server.tenant.domain.ports;
 
+import java.util.UUID;
+
 public interface BillingPort {
-  BillingResult changePlan(String tenantId, String planCode, boolean proration);
+  BillingResult changePlan(UUID tenantId, String planCode, boolean proration);
 
-  BillingResult cancelAtPeriodEnd(String tenantId);
+  BillingResult cancelAtPeriodEnd(UUID tenantId);
 
-  BillingResult resume(String tenantId);
+  BillingResult resume(UUID tenantId);
 }

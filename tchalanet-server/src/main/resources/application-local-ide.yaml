@@ -8,6 +8,9 @@ app:
 spring:
   main:
     allow-bean-definition-overriding: true
+  jpa:
+    hibernate:
+      ddl-auto: update
   security:
     oauth2:
       resourceserver:
@@ -15,3 +18,8 @@ spring:
           issuer-uri: https://auth.localtest.me/realms/tchalanet
   datasource:
     url: jdbc:postgresql://localhost:5432/tchalanet_db
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: devredis

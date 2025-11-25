@@ -7,6 +7,7 @@ import com.tchalanet.server.tenant.infra.persistence.JpaSubscriptionRepository;
 import com.tchalanet.server.tenant.infra.persistence.SubscriptionMapper;
 import com.tchalanet.server.tenant.web.dto.SubscriptionDTO;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class CancelSubscriptionUseCase {
   private final BillingPort billingPort;
 
   @Transactional
-  public SubscriptionDTO execute(String tenantId, boolean atPeriodEnd) {
+  public SubscriptionDTO execute(UUID tenantId, boolean atPeriodEnd) {
     // Trouver l'abonnement actif
     var subscription =
         subscriptionRepository

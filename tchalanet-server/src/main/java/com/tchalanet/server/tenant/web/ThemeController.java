@@ -5,6 +5,11 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.tenant.domain.model.TenantId;
 import com.tchalanet.server.tenant.domain.model.ThemeStatus;
 import com.tchalanet.server.tenant.domain.usecase.ConfigureTenantThemeUseCase;
+import com.tchalanet.server.tenant.domain.usecase.theme.CreateThemeUseCase;
+import com.tchalanet.server.tenant.domain.usecase.theme.GetThemeUseCase;
+import com.tchalanet.server.tenant.domain.usecase.theme.ListThemesUseCase;
+import com.tchalanet.server.tenant.domain.usecase.theme.PublishThemeUseCase;
+import com.tchalanet.server.tenant.domain.usecase.theme.UpdateThemeUseCase;
 import com.tchalanet.server.tenant.web.dto.ThemeCreateDto;
 import com.tchalanet.server.tenant.web.dto.ThemeDto;
 import com.tchalanet.server.tenant.web.dto.ThemeUpdateDto;
@@ -16,16 +21,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST API pour la gestion des thèmes tenant. Migration hexagonale - utilise les use cases du
- * domaine.
- */
+/** REST API pour gérer les thèmes d'un tenant. */
 @RestController
 @RequestMapping("/api/v1/themes")
 @RequiredArgsConstructor
 public class ThemeController {
 
   private final ConfigureTenantThemeUseCase configureTenantThemeUseCase;
+  private final ListThemesUseCase listThemesUseCase;
+  private final CreateThemeUseCase createThemeUseCase;
+  private final GetThemeUseCase getThemeUseCase;
+  private final UpdateThemeUseCase updateThemeUseCase;
+  private final PublishThemeUseCase publishThemeUseCase;
 
   @GetMapping
   @PreAuthorize("hasAuthority('TENANT_READ')")

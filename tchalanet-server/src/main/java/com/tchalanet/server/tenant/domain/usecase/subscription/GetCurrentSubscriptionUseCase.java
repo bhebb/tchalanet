@@ -6,6 +6,7 @@ import com.tchalanet.server.tenant.infra.persistence.JpaSubscriptionRepository;
 import com.tchalanet.server.tenant.infra.persistence.SubscriptionMapper;
 import com.tchalanet.server.tenant.web.dto.SubscriptionDTO;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class GetCurrentSubscriptionUseCase {
 
   private final JpaSubscriptionRepository subscriptionRepository;
 
-  public SubscriptionDTO execute(String tenantId) {
+  public SubscriptionDTO execute(UUID tenantId) {
     var subscription =
         subscriptionRepository
             .findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(

@@ -29,7 +29,7 @@ public class ArchiveThemeUseCase {
 
     // Archiver le thème
     theme.setStatus(ThemeStatus.ARCHIVED);
-    theme.setVersion(theme.getVersion() + 1);
+    theme.setThemeVersion(theme.getThemeVersion() + 1);
 
     themeRepository.save(theme);
 

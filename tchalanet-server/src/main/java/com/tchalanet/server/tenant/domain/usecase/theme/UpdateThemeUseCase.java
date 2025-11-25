@@ -3,6 +3,8 @@ package com.tchalanet.server.tenant.domain.usecase.theme;
 import com.tchalanet.server.tenant.infra.persistence.JpaThemeRepository;
 import com.tchalanet.server.tenant.web.dto.ThemeDto;
 import com.tchalanet.server.tenant.web.dto.ThemeUpdateDto;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class UpdateThemeUseCase {
     }
 
     // Vérifier la version pour l'optimistic locking
-    if (!Objects.equals(theme.getVersion(), expectedVersion)) {
+    if (!Objects.equals(theme.getThemeVersion(), expectedVersion)) {
       throw new OptimisticLockingFailureException("Version mismatch");
     }
 
@@ -42,7 +44,7 @@ public class UpdateThemeUseCase {
     if (dto.tokens() != null) theme.getTokens().putAll(dto.tokens());
     if (dto.cssVars() != null) theme.getCssVars().putAll(dto.cssVars());
 
-    theme.setVersion(theme.getVersion() + 1);
+    theme.setThemeVersion(theme.getThemeVersion() + 1);
 
     var saved = themeRepository.save(theme);
 
@@ -57,8 +59,12 @@ public class UpdateThemeUseCase {
         saved.getTokens(),
         saved.getCssVars(),
         saved.getStatus(),
-        saved.getVersion(),
-        saved.getCreatedAt(),
-        saved.getUpdatedAt());
+        saved.getThemeVersion(),
+        saved.getCreatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(saved.getCreatedAt(), ZoneOffset.UTC),
+        saved.getUpdatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(saved.getUpdatedAt(), ZoneOffset.UTC));
   }
 }

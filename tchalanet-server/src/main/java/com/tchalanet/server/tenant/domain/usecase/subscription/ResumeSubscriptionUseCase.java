@@ -8,6 +8,7 @@ import com.tchalanet.server.tenant.infra.persistence.JpaSubscriptionRepository;
 import com.tchalanet.server.tenant.infra.persistence.SubscriptionMapper;
 import com.tchalanet.server.tenant.web.dto.SubscriptionDTO;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ public class ResumeSubscriptionUseCase {
   private final BillingPort billingPort;
 
   @Transactional
-  public SubscriptionDTO execute(String tenantId) {
+  public SubscriptionDTO execute(UUID tenantId) {
     // Trouver l'abonnement
     var subscription =
         subscriptionRepository
@@ -34,19 +35,19 @@ public class ResumeSubscriptionUseCase {
       throw ProblemRestException.unprocessable("Subscription is not canceled");
     }
 
-    // Appeler le provider de billing
+    /*   // Appeler le provider de billing
     var billingResult = billingPort.resume(tenantId);
     if (!billingResult.success()) {
       throw ProblemRestException.unprocessable("Billing failed: " + billingResult.message());
-    }
+    }*/
 
     // Réactiver l'abonnement
     subscription.setStatus(SubscriptionStatus.ACTIVE);
     subscription.setBillingProvider(BillingProvider.NONE);
-    subscription.setBillingExternalId(billingResult.externalSubscriptionId());
+    /*    subscription.setBillingExternalId(billingResult.externalSubscriptionId());
     subscription.setCurrentPeriodStart(billingResult.periodStart());
     subscription.setCurrentPeriodEnd(billingResult.periodEnd());
-    subscription.setMeta(billingResult.meta());
+    subscription.setMeta(billingResult.meta());*/
 
     var saved = subscriptionRepository.save(subscription);
     return SubscriptionMapper.toDto(saved);

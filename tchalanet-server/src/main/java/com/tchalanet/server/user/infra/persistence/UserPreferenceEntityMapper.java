@@ -11,7 +11,9 @@ class UserPreferenceEntityMapper {
     if (entity == null) return null;
     com.tchalanet.server.user.domain.model.UserPreference pref =
         new com.tchalanet.server.user.domain.model.UserPreference();
-    pref.setUserId(new UserId(entity.getUserId()));
+    if (entity.getUser() != null) {
+      pref.setUserId(new UserId(entity.getUser().getId()));
+    }
     pref.setThemeMode(entity.getThemeMode());
     pref.setDensity(entity.getDensity());
     if (entity.getLocale() != null) {
@@ -24,7 +26,10 @@ class UserPreferenceEntityMapper {
     if (domain == null) return null;
     UserPreferenceJpaEntity entity = new UserPreferenceJpaEntity();
     UUID id = domain.getUserId().value();
-    entity.setUserId(id);
+    // set the user relation by creating a lightweight AppUserJpaEntity with the id
+    AppUserJpaEntity user = new AppUserJpaEntity();
+    user.setId(id);
+    entity.setUser(user);
     entity.setThemeMode(domain.getThemeMode());
     entity.setDensity(domain.getDensity());
     if (domain.getLocale() != null) {

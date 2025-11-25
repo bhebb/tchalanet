@@ -2,12 +2,16 @@ package com.tchalanet.server.user.web;
 
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.domain.TchRole;
+import com.tchalanet.server.common.security.RoleUtils;
+import com.tchalanet.server.common.security.RoleUtils.RoleSplit;
 import com.tchalanet.server.common.usecase.GetTenantContextUseCase;
 import com.tchalanet.server.common.web.dto.ContextDto;
 import com.tchalanet.server.user.web.dto.UserContextResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,18 +31,12 @@ public class MeController {
 
   @GetMapping
   public ResponseEntity<UserContextResponse> me(@AuthenticationPrincipal Jwt jwt) {
-    // Extraction des rôles depuis realm_access
-    List<String> roles =
-        Optional.ofNullable(jwt.getClaimAsMap("realm_access"))
-            .map(m -> (List<String>) m.getOrDefault("roles", List.of()))
-            .orElse(List.of());
-
-    String activeEnterpriseId = jwt.getClaimAsString("active_enterprise_id");
-    boolean isSuperAdmin = roles.contains("SUPER_ADMIN");
+    Set<String> roles = RoleUtils.collectRoles(jwt);
+    RoleSplit split = RoleUtils.splitRoles(roles);
+    boolean isSuperAdmin = split.system.contains(TchRole.SUPER_ADMIN);
 
     UserContextResponse response =
-        new UserContextResponse(
-            jwt.getSubject(), roles, activeEnterpriseId, isSuperAdmin, Map.of());
+        new UserContextResponse(jwt.getSubject(), List.copyOf(roles), null, isSuperAdmin, Map.of());
 
     return ResponseEntity.ok(response);
   }

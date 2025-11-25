@@ -6,6 +6,8 @@ import com.tchalanet.server.tenant.infra.persistence.JpaThemeRepository;
 import com.tchalanet.server.tenant.infra.persistence.ThemeJpaEntity;
 import com.tchalanet.server.tenant.web.dto.ThemeCreateDto;
 import com.tchalanet.server.tenant.web.dto.ThemeDto;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +33,7 @@ public class CreateThemeUseCase {
     theme.setTokens(Optional.ofNullable(dto.tokens()).orElseGet(HashMap::new));
     theme.setCssVars(Optional.ofNullable(dto.cssVars()).orElseGet(HashMap::new));
     theme.setStatus(ThemeStatus.DRAFT);
-    theme.setVersion(1);
+    theme.setThemeVersion(1);
 
     var saved = themeRepository.save(theme);
 
@@ -46,8 +48,12 @@ public class CreateThemeUseCase {
         saved.getTokens(),
         saved.getCssVars(),
         saved.getStatus(),
-        saved.getVersion(),
-        saved.getCreatedAt(),
-        saved.getUpdatedAt());
+        saved.getThemeVersion(),
+        saved.getCreatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(saved.getCreatedAt(), ZoneOffset.UTC),
+        saved.getUpdatedAt() == null
+            ? null
+            : OffsetDateTime.ofInstant(saved.getUpdatedAt(), ZoneOffset.UTC));
   }
 }
