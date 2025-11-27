@@ -250,7 +250,7 @@
       "groups": [],
       "attributes": {
         "locale": ["fr"],
-        "tenantId": ["platform"],
+        "tenant_code": ["default"],
         "plan": ["free"],
         "featureSetId": ["base"]
       }
@@ -271,7 +271,7 @@
       "groups": ["/tenants/default/admins"],
       "attributes": {
         "locale": ["fr"],
-        "tenantId": ["default"],
+        "tenant_code": ["default"],
         "plan": ["pro"],
         "featureSetId": ["base"]
       }
@@ -292,7 +292,7 @@
       "groups": ["/tenants/default/agents"],
       "attributes": {
         "locale": ["fr"],
-        "tenantId": ["default"],
+        "tenant_code": ["default"],
         "plan": ["free"],
         "featureSetId": ["base"]
       }

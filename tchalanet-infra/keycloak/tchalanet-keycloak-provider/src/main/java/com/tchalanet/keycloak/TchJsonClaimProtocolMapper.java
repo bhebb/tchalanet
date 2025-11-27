@@ -76,7 +76,7 @@ public class TchJsonClaimProtocolMapper extends AbstractOIDCProtocolMapper
     UserModel user = userSession.getUser();
     RealmModel realm = userSession.getRealm();
 
-    String tenantId = getAttr(user, "tenant_id", "default");
+    String tenant_code = getAttr(user, "tenant_code", "default");
     String plan = getAttr(user, "plan", "free");
     String featureSetId = getAttr(user, "featureSetId", "base");
 
@@ -88,7 +88,7 @@ public class TchJsonClaimProtocolMapper extends AbstractOIDCProtocolMapper
 
     String claimName = mappingModel.getConfig().getOrDefault(CFG_CLAIM_NAME, "tch");
     token.getOtherClaims().put(claimName, tch);
-    token.getOtherClaims().put("tenant_id", tenantId);
+    token.getOtherClaims().put("tenant_code", tenant_code);
   }
 
   private static String getAttr(UserModel user, String k, String defVal) {
