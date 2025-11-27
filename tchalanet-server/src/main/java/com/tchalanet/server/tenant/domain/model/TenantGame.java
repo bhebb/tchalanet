@@ -1,7 +1,5 @@
 package com.tchalanet.server.tenant.domain.model;
 
-import com.tchalanet.server.common.domain.TenantGameId;
-import com.tchalanet.server.common.domain.TenantId;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;

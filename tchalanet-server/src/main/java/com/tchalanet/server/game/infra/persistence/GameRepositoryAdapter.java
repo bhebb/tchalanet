@@ -1,11 +1,14 @@
 package com.tchalanet.server.game.infra.persistence;
 
-import com.tchalanet.server.common.audit.domain.model.AuditAction;
-import com.tchalanet.server.common.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.domain.model.AuditAction;
+import com.tchalanet.server.audit.domain.model.AuditActorType;
+import com.tchalanet.server.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.audit.domain.model.AuditEvent;
+import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.game.domain.model.Game;
 import com.tchalanet.server.game.domain.ports.GameRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -44,11 +47,18 @@ public class GameRepositoryAdapter implements GameRepository {
             e -> {
               e.setDeletedAt(java.time.Instant.now());
               repo.save(e);
-              auditLog.log(
-                  AuditEntityType.DRAW,
-                  e.getId().toString(),
-                  AuditAction.SOFT_DELETE,
-                  java.util.Map.of("code", e.getCode()));
+              var ev =
+                  AuditEvent.of(
+                      null,
+                      AuditActorType.SYSTEM,
+                      "system",
+                      AuditEntityType.GAME,
+                      e.getId().toString(),
+                      AuditAction.SOFT_DELETE,
+                      Map.of("code", e.getCode()).toString(),
+                      null,
+                      null);
+              auditLog.log(ev);
             });
   }
 }

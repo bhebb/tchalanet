@@ -1,9 +1,12 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.common.audit.domain.model.AuditAction;
-import com.tchalanet.server.common.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.domain.model.AuditAction;
+import com.tchalanet.server.audit.domain.model.AuditActorType;
+import com.tchalanet.server.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.audit.domain.model.AuditEvent;
+import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
+import com.tchalanet.server.draw.domain.model.DrawStatus;
 import com.tchalanet.server.draw.domain.ports.DrawRepository;
 import com.tchalanet.server.draw.domain.usecase.CloseDueDrawsUseCase;
 import java.time.Instant;
@@ -25,41 +28,28 @@ public class CloseDrawsUseCaseImpl implements CloseDueDrawsUseCase {
   @Transactional
   public void closeDueDraws() {
     Instant now = Instant.now();
-    // We rely on the adapter implementation to expose a helper; fallback to repository call via
-    // adapter
     if (drawRepository
         instanceof com.tchalanet.server.draw.infra.persistence.JpaDrawRepositoryAdapter) {
       var jpa =
           (com.tchalanet.server.draw.infra.persistence.JpaDrawRepositoryAdapter) drawRepository;
-      // find scheduled draws with scheduled_at <= now
-      List<Draw> toClose =
-          jpa.findByStatusAndScheduledAtBefore("SCHEDULED", now).stream()
-              .map(d -> (Draw) d)
-              .toList();
+      List<Draw> toClose = jpa.findByStatusAndScheduledAtBefore("SCHEDULED", now).stream().toList();
 
       for (Draw d : toClose) {
         try {
-          var updated =
-              new Draw(
-                  d.id(),
-                  d.tenantId(),
-                  d.drawChannelId(),
-                  d.gameCode(),
-                  d.scheduledAt(),
-                  d.cutoffSec(),
-                  "CLOSED",
-                  d.resultPayload(),
-                  d.drawSource(),
-                  d.systemGenerated(),
-                  d.locked(),
-                  d.createdBy(),
-                  d.updatedBy());
+          Draw updated = d.withStatus(DrawStatus.CLOSED);
           drawRepository.save(updated);
-          audit.log(
-              AuditEntityType.DRAW,
-              d.id().toString(),
-              AuditAction.UPDATE,
-              Map.of("reason", "auto-close"));
+          var event =
+              AuditEvent.of(
+                  updated.tenantId(),
+                  AuditActorType.SYSTEM,
+                  "system",
+                  AuditEntityType.DRAW,
+                  updated.id().toString(),
+                  AuditAction.UPDATE,
+                  Map.of("reason", "auto-close").toString(),
+                  null,
+                  null);
+          audit.log(event);
         } catch (Exception e) {
           log.warn("Failed to close draw {}: {}", d.id(), e.getMessage());
         }
@@ -71,7 +61,6 @@ public class CloseDrawsUseCaseImpl implements CloseDueDrawsUseCase {
 
   @Override
   public void execute() {
-    // Delegate to existing method to keep behavior
     closeDueDraws();
   }
 }

@@ -1,8 +1,6 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.common.audit.domain.model.AuditAction;
-import com.tchalanet.server.common.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort.DrawExternalQuery;
@@ -71,23 +69,7 @@ public class SettleDrawsUseCaseImpl
           if (applied) {
             // invalidate cache and audit
             invalidator.invalidateTenant(d.tenantId());
-            auditLog.log(
-                AuditEntityType.DRAW,
-                d.id().toString(),
-                AuditAction.CREATE,
-                Map.of("action", "settled", "provider", payload.get("provider")));
-          } else {
-            log.info(
-                "Skipped applying external result for draw {} because it's locked or manual",
-                d.id());
-            auditLog.log(
-                AuditEntityType.DRAW,
-                d.id().toString(),
-                AuditAction.UPDATE,
-                Map.of("action", "settle_skipped", "reason", "locked_or_manual"));
           }
-        } else {
-          log.info("No external result for draw {} / {}", d.id(), d.gameCode());
         }
       } catch (Exception e) {
         log.error("Failed to settle draw {}", d.id(), e);

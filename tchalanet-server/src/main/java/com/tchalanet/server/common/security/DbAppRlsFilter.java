@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.security;
 
+import com.tchalanet.server.accesscontrol.domain.model.TchRole;
 import com.tchalanet.server.common.context.RequestContextHolder;
 import com.tchalanet.server.common.context.TchRequestContext;
 import jakarta.persistence.EntityManager;
@@ -39,10 +40,9 @@ public class DbAppRlsFilter extends OncePerRequestFilter {
     try {
       TchRequestContext ctx = requestContextHolder.get();
       if (ctx != null) {
-        tenantId = ctx.tenantId();
-        Set<com.tchalanet.server.common.domain.TchRole> roles = ctx.systemRoles();
-        isSA =
-            roles != null && roles.contains(com.tchalanet.server.common.domain.TchRole.SUPER_ADMIN);
+        tenantId = ctx.effectiveTenantCode();
+        Set<TchRole> roles = ctx.systemRoles();
+        isSA = roles != null && roles.contains(TchRole.SUPER_ADMIN);
       }
     } catch (Exception ex) {
       log.debug("No request context available for RLS", ex);

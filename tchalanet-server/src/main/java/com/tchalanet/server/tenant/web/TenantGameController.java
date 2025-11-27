@@ -1,6 +1,8 @@
 package com.tchalanet.server.tenant.web;
 
 import com.tchalanet.server.tenant.domain.model.TenantGame;
+import com.tchalanet.server.tenant.domain.model.TenantGameId;
+import com.tchalanet.server.tenant.domain.model.TenantId;
 import com.tchalanet.server.tenant.domain.usecase.TenantGameCrudUseCase;
 import com.tchalanet.server.tenant.web.dto.TenantGameDto;
 import java.util.List;
@@ -46,14 +48,8 @@ public class TenantGameController {
 
   private TenantGame fromDto(TenantGameDto d) {
     return TenantGame.builder()
-        .id(
-            d.getId() == null
-                ? null
-                : new com.tchalanet.server.common.domain.TenantGameId(d.getId()))
-        .tenantId(
-            d.getTenantId() == null
-                ? null
-                : new com.tchalanet.server.common.domain.TenantId(d.getTenantId()))
+        .id(d.getId() == null ? null : new TenantGameId(d.getId()))
+        .tenantId(d.getTenantId() == null ? null : new TenantId(d.getTenantId()))
         .gameCode(d.getGameCode())
         .enabled(d.getEnabled())
         .displayName(d.getDisplayName())

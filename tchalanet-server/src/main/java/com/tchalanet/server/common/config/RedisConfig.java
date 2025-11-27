@@ -36,8 +36,11 @@ public class RedisConfig {
 
   @Bean
   public LettuceConnectionFactory redisConnectionFactory() {
-    log.info("Creating LettuceConnectionFactory for Redis {}:{} (user-provided: {})",
-        redisHost, redisPort, !redisPassword.isBlank());
+    log.info(
+        "Creating LettuceConnectionFactory for Redis {}:{} (user-provided: {})",
+        redisHost,
+        redisPort,
+        !redisPassword.isBlank());
 
     RedisStandaloneConfiguration cfg = new RedisStandaloneConfiguration(redisHost, redisPort);
 

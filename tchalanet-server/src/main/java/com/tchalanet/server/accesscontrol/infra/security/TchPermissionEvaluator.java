@@ -1,0 +1,93 @@
+package com.tchalanet.server.accesscontrol.infra.security;
+
+import com.tchalanet.server.accesscontrol.application.port.in.CheckUserPermissionsUseCase;
+import com.tchalanet.server.accesscontrol.domain.exception.PermissionsDeniedException;
+import com.tchalanet.server.common.context.TchRequestContext;
+import jakarta.annotation.Nullable;
+import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+@RequiredArgsConstructor
+@Component
+@Slf4j
+public class TchPermissionEvaluator implements PermissionEvaluator {
+
+  private final CheckUserPermissionsUseCase checkUserPermissionsUseCase;
+
+  @Override
+  public boolean hasPermission(
+      @Nullable Authentication authentication,
+      @Nullable Object targetDomainObject,
+      @Nullable Object permission) {
+    return evaluate(authentication, permission);
+  }
+
+  @Override
+  public boolean hasPermission(
+      @Nullable Authentication authentication,
+      @Nullable Serializable targetId,
+      @Nullable String targetType,
+      @Nullable Object permission) {
+    return evaluate(authentication, permission);
+  }
+
+  private boolean evaluate(Authentication authentication, Object permission) {
+    var hasPermission = false;
+
+    var ctx = prepareContext(authentication, permission);
+    if (ctx == null) {
+      return false;
+    }
+
+    UUID tenantId = ctx.principal().tenantUuid();
+    UUID userId = ctx.principal().userUuid();
+    String permissionKey = ctx.permissionKey();
+
+    try {
+      checkUserPermissionsUseCase.check(tenantId, userId, List.of(permissionKey));
+      hasPermission = true;
+    } catch (PermissionsDeniedException ex) {
+      log.debug(
+          "Permission denied by domain: tenant={} user={} perm= {}",
+          tenantId,
+          userId,
+          permissionKey,
+          ex);
+    }
+    return hasPermission;
+  }
+
+  /** Helper record that holds the principal and the normalized permission key. */
+  private record PermissionEvalContext(TchRequestContext principal, String permissionKey) {}
+
+  /**
+   * Validate input authentication and permission, returning a context with the principal and
+   * permission key. Returns null when validation fails (logs are emitted by this method).
+   */
+  private PermissionEvalContext prepareContext(Authentication authentication, Object permission) {
+    if (authentication == null
+        || !(authentication.getPrincipal() instanceof TchRequestContext principal)) {
+      log.warn("Permission check denied: no valid principal");
+      return null;
+    }
+
+    if (permission == null) {
+      log.warn("Permission check denied: null permission");
+      return null;
+    }
+
+    String permissionKey = permission.toString().trim();
+    if (permissionKey.isEmpty()) {
+      log.warn("Permission check denied: blank permission");
+      return null;
+    }
+
+    return new PermissionEvalContext(principal, permissionKey);
+  }
+}

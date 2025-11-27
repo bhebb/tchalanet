@@ -8,7 +8,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/draw-channels")
@@ -56,39 +64,19 @@ public class DrawChannelController {
     return DrawChannelDto.builder()
         .id(d.getId() == null ? null : d.getId().value())
         .tenantId(d.getTenantId() == null ? null : d.getTenantId().value())
-        .code(d.getCode())
+        .code(d.getGameCode())
         .name(d.getName())
         .gameCode(d.getGameCode())
         .timezone(d.getTimezone())
         .drawTime(d.getDrawTime())
         .cutoffSec(d.getCutoffSec())
-        .daysOfWeek(d.getDaysOfWeek())
+        //            .daysOfWeek(d.getDaysOfWeek())
         .active(d.getActive())
         .sortOrder(d.getSortOrder())
-        .createdAt(d.getCreatedAt())
-        .updatedAt(d.getUpdatedAt())
         .build();
   }
 
   private DrawChannel fromDto(DrawChannelDto dto) {
-    return DrawChannel.builder()
-        .id(
-            dto.getId() == null
-                ? null
-                : new com.tchalanet.server.common.domain.DrawChannelId(dto.getId()))
-        .tenantId(
-            dto.getTenantId() == null
-                ? null
-                : new com.tchalanet.server.common.domain.TenantId(dto.getTenantId()))
-        .code(dto.getCode())
-        .name(dto.getName())
-        .gameCode(dto.getGameCode())
-        .timezone(dto.getTimezone())
-        .drawTime(dto.getDrawTime())
-        .cutoffSec(dto.getCutoffSec())
-        .daysOfWeek(dto.getDaysOfWeek())
-        .active(dto.getActive())
-        .sortOrder(dto.getSortOrder())
-        .build();
+    return null;
   }
 }

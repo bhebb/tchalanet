@@ -1,53 +1,114 @@
--- V4__seed_core_and_themes.sql
+-- V3__seed_core_and_tenants.sql
 
 -- ===================
 -- 1. TENANTS
 -- ===================
 INSERT INTO tenant (id, code, name, timezone, currency, status, active_theme_id)
 VALUES
-    ('00000000-0000-0000-0000-000000000001', 'platform', 'Tchalanet Platform', 'America/Toronto', 'USD', 'ACTIVE', NULL),
-    ('00000000-0000-0000-0000-000000000002', 'demo',      'Tchalanet Demo',      'America/Toronto', 'USD', 'ACTIVE', NULL);
+    ('00000000-0000-0000-0000-000000000001', 'platform',  'Tchalanet Platform', 'America/Toronto', 'USD', 'ACTIVE', NULL),
+    ('00000000-0000-0000-0000-000000000002', 'demo',      'Tchalanet Demo',      'America/Toronto', 'USD', 'ACTIVE', NULL),
+    ('00000000-0000-0000-0000-000000000003', 'tchalanet', 'Tchalanet Default',   'America/Toronto', 'USD', 'ACTIVE', NULL)
+ON CONFLICT (id) DO NOTHING;
 
 
 -- ===================
--- 2. GAMES
+-- 2. GAMES (catalogue global)
 -- ===================
 INSERT INTO game (code, name, category, min_digits, max_digits, combination, description, active, sort_order)
 VALUES
+    -- Borlette / Numbers (3, 4, 5 chiffres)
     ('BORLETTE_3', 'Borlette 3 chiffres', 'BORLETTE', 0, 999, 'STRAIGHT',
-     'Sélection de 3 chiffres (000–999), payoff typique de la borlette.', true, 10),
+     'Sélection de 3 chiffres (000–999), payoff typique de la borlette et des jeux type Pick 3 / Numbers 3.', true, 10),
+
+    ('BORLETTE_4', 'Borlette 4 chiffres', 'BORLETTE', 0, 9999, 'STRAIGHT',
+     'Sélection de 4 chiffres (0000–9999), pour des jeux type Pick 4 / Numbers 4.', true, 20),
+
     ('BORLETTE_5', 'Borlette 5 chiffres', 'BORLETTE', 0, 99999, 'STRAIGHT',
-     'Sélection de 5 chiffres (00000–99999), gains plus élevés.', true, 20),
-    ('MARIAGE', 'Mariage', 'MARRIAGE', 1, 99, 'PAIR',
-     'Mariage de deux nombres (ex: 12-34) sur un tirage donné.', true, 30),
+     'Sélection de 5 chiffres (00000–99999), gains plus élevés.', true, 30),
+
+    -- Mariage (Haiti)
+    ('MARIAGE', 'Mariage 2 chiffres', 'MARRIAGE', 1, 99, 'PAIR',
+     'Mariage de deux nombres (ex: 12-34) sur un tirage donné.', true, 40),
+
+    -- Lotto "N chiffres" (Haiti, winners = nombre à N chiffres)
+    ('LOTTO_3', 'Lotto 3 chiffres', 'LOTTO', 0, 999, 'STRAIGHT',
+     'Lotto 3 chiffres (000–999).', true, 50),
+
+    ('LOTTO_4', 'Lotto 4 chiffres', 'LOTTO', 0, 9999, 'STRAIGHT',
+     'Lotto 4 chiffres (0000–9999).', true, 60),
+
+    ('LOTTO_5', 'Lotto 5 chiffres', 'LOTTO', 0, 99999, 'STRAIGHT',
+     'Lotto 5 chiffres (00000–99999).', true, 70),
+
+    -- Lotto combinatoire
     ('LOTTO_5_40', 'Lotto 5/40', 'LOTTO', 1, 40, 'COMBO',
-     'Jeu de lotto où le joueur choisit 5 numéros parmi 40.', true, 40),
+     'Jeu de lotto où le joueur choisit 5 numéros parmi 40.', true, 80),
+
     ('LOTTO_6_50', 'Lotto 6/50', 'LOTTO', 1, 50, 'COMBO',
-     'Lotto avancé: 6 numéros parmi 50.', true, 50)
-    ON CONFLICT (code) DO NOTHING;
+     'Lotto avancé: 6 numéros parmi 50.', true, 90)
+ON CONFLICT (code) DO NOTHING;
+
 
 -- ===================
--- 3. TENANT_GAME
+-- 3. TENANT_GAME (jeux activés pour platform/demo/tchalanet)
 -- ===================
--- We insert tenant_game rows by joining tenants and games on their codes to ensure the game IDs exist.
--- This avoids FK violations when the game IDs are not known as literals.
+WITH tg_tenants AS (
+    SELECT id
+    FROM tenant
+    WHERE code IN ('platform', 'demo', 'tchalanet')
+),
+     tg_games AS (
+         SELECT code, id
+         FROM game
+         WHERE code IN (
+             'BORLETTE_3',
+             'BORLETTE_4',
+             'BORLETTE_5',
+             'MARIAGE',
+             'LOTTO_3',
+             'LOTTO_4',
+             'LOTTO_5',
+             'LOTTO_5_40',
+             'LOTTO_6_50'
+         )
+     )
 INSERT INTO tenant_game (tenant_id, game_id, enabled, display_name, min_stake, max_stake)
-SELECT t.id, g.id, true, 'Borlette 3', 1.00, 100.00
-FROM tenant t
-JOIN game g ON g.code = 'BORLETTE_3'
-WHERE t.code IN ('platform', 'demo')
+SELECT
+    t.id        AS tenant_id,
+    g.id        AS game_id,
+    true        AS enabled,
+    CASE g.code
+        WHEN 'BORLETTE_3'  THEN 'Borlette 3'
+        WHEN 'BORLETTE_4'  THEN 'Borlette 4'
+        WHEN 'BORLETTE_5'  THEN 'Borlette 5'
+        WHEN 'MARIAGE'     THEN 'Mariage 2 chiffres'
+        WHEN 'LOTTO_3'     THEN 'Lotto 3 chiffres'
+        WHEN 'LOTTO_4'     THEN 'Lotto 4 chiffres'
+        WHEN 'LOTTO_5'     THEN 'Lotto 5 chiffres'
+        WHEN 'LOTTO_5_40'  THEN 'Lotto 5/40'
+        WHEN 'LOTTO_6_50'  THEN 'Lotto 6/50'
+        ELSE g.code
+    END        AS display_name,
+    1.00       AS min_stake,
+    CASE g.code
+        WHEN 'BORLETTE_3'  THEN 100.00
+        WHEN 'BORLETTE_4'  THEN 100.00
+        WHEN 'BORLETTE_5'  THEN 200.00
+        WHEN 'MARIAGE'     THEN 100.00
+        WHEN 'LOTTO_3'     THEN 200.00
+        WHEN 'LOTTO_4'     THEN 200.00
+        WHEN 'LOTTO_5'     THEN 200.00
+        WHEN 'LOTTO_5_40'  THEN 500.00
+        WHEN 'LOTTO_6_50'  THEN 500.00
+        ELSE 200.00
+    END        AS max_stake
+FROM tg_tenants t
+         CROSS JOIN tg_games g
 ON CONFLICT (tenant_id, game_id) DO NOTHING;
 
-INSERT INTO tenant_game (tenant_id, game_id, enabled, display_name, min_stake, max_stake)
-SELECT t.id, g.id, true, 'Borlette 5', 1.00, 200.00
-FROM tenant t
-JOIN game g ON g.code = 'BORLETTE_5'
-WHERE t.code IN ('platform', 'demo')
-ON CONFLICT (tenant_id, game_id) DO NOTHING;
-
 
 -- ===================
--- 4. PLAN & SUBSCRIPTION
+-- 4. PLAN & SUBSCRIPTION (inchangé)
 -- ===================
 INSERT INTO plan (code, name, description, price_amount, currency, billing_frequency, public_plan, features)
 VALUES
@@ -142,36 +203,50 @@ ON CONFLICT DO NOTHING;
 
 
 -- ==========================
--- 6. DRAW_CHANNEL pour le tenant de démo
+-- 6. DRAW_CHANNEL pour les tenants demo + tchalanet
 -- ==========================
 
-WITH demo AS (
-    SELECT id AS tenant_id FROM tenant WHERE code = 'demo'
+WITH tenants AS (
+    SELECT id AS tenant_id
+    FROM tenant
+    WHERE code IN ('demo', 'tchalanet')
 ),
      cfg AS (
          SELECT *
          FROM (VALUES
-                   ('NY_MID',        'New York Midday',        'BORLETTE_3', 'America/New_York',       '12:30:00'::time, 180, 'MON-SAT', true, 10),
-                   ('NY_EVE',        'New York Evening',       'BORLETTE_3', 'America/New_York',       '19:30:00'::time, 180, 'MON-SAT', true, 20),
-                   ('FL_MID',        'Florida Midday',         'BORLETTE_3', 'America/New_York',       '13:30:00'::time, 180, 'MON-SAT', true, 30),
-                   ('FL_EVE',        'Florida Evening',        'BORLETTE_3', 'America/New_York',       '21:00:00'::time, 180, 'MON-SAT', true, 40),
-                   ('HT_LOTTO_5_40', 'Lotto national 5/40',    'LOTTO_5_40', 'America/Port-au-Prince', '20:00:00'::time, 300, 'WED-SAT-SUN', true, 50)
+                      -- US NEW YORK: Numbers 3 & 4
+                      ('US_NY_NUM3_MID',  'NY Numbers 3 Midday',   'BORLETTE_3', 'America/New_York',       '14:30:00'::time, 180, 'MON-SAT', true, 10),
+                      ('US_NY_NUM3_EVE',  'NY Numbers 3 Evening',  'BORLETTE_3', 'America/New_York',       '22:30:00'::time, 180, 'MON-SAT', true, 20),
+                      ('US_NY_NUM4_MID',  'NY Numbers 4 Midday',   'BORLETTE_4', 'America/New_York',       '14:30:00'::time, 180, 'MON-SAT', true, 30),
+                      ('US_NY_NUM4_EVE',  'NY Numbers 4 Evening',  'BORLETTE_4', 'America/New_York',       '22:30:00'::time, 180, 'MON-SAT', true, 40),
+
+                      -- US FLORIDA: Pick 3 & Pick 4
+                      ('US_FL_PICK3_MID', 'Florida Pick 3 Midday', 'BORLETTE_3', 'America/New_York',       '13:30:00'::time, 180, 'MON-SAT', true, 50),
+                      ('US_FL_PICK3_EVE', 'Florida Pick 3 Evening','BORLETTE_3', 'America/New_York',       '21:00:00'::time, 180, 'MON-SAT', true, 60),
+                      ('US_FL_PICK4_MID', 'Florida Pick 4 Midday', 'BORLETTE_4', 'America/New_York',       '13:30:00'::time, 180, 'MON-SAT', true, 70),
+                      ('US_FL_PICK4_EVE', 'Florida Pick 4 Evening','BORLETTE_4', 'America/New_York',       '21:00:00'::time, 180, 'MON-SAT', true, 80),
+
+                      -- HAITI: Lotto 3/4/5 + Lotto 5/40
+                      ('HT_LOTTO_3',      'Lotto 3 chiffres',      'LOTTO_3',    'America/Port-au-Prince', '20:00:00'::time, 300, 'MON-SAT', true, 90),
+                      ('HT_LOTTO_4',      'Lotto 4 chiffres',      'LOTTO_4',    'America/Port-au-Prince', '20:00:00'::time, 300, 'MON-SAT', true, 100),
+                      ('HT_LOTTO_5',      'Lotto 5 chiffres',      'LOTTO_5',    'America/Port-au-Prince', '20:00:00'::time, 300, 'MON-SAT', true, 110),
+                      ('HT_LOTTO_5_40',   'Lotto national 5/40',   'LOTTO_5_40', 'America/Port-au-Prince', '20:00:00'::time, 300, 'WED-SAT-SUN', true, 120)
               ) AS t(code, name, game_code, tz, draw_time, cutoff_sec, days_of_week, active, sort_order)
      )
 INSERT INTO draw_channel (
-  tenant_id,
-  code,
-  name,
-  game_id,
-  timezone,
-  draw_time,
-  cutoff_sec,
-  days_of_week,
-  active,
-  sort_order
+    tenant_id,
+    code,
+    name,
+    game_id,
+    timezone,
+    draw_time,
+    cutoff_sec,
+    days_of_week,
+    active,
+    sort_order
 )
 SELECT
-    d.tenant_id,
+    te.tenant_id,
     c.code,
     c.name,
     g.id             AS game_id,
@@ -181,13 +256,13 @@ SELECT
     c.days_of_week,
     c.active,
     c.sort_order
-FROM demo d
-         JOIN cfg c ON true
-         JOIN game g ON g.code = c.game_code
-    ON CONFLICT (tenant_id, code) DO NOTHING;
+FROM tenants te
+         JOIN cfg   c ON true
+         JOIN game  g ON g.code = c.game_code
+ON CONFLICT (tenant_id, code) DO NOTHING;
 
 -- ===================
--- 5. THEME PRESETS GLOBAUX
+-- 7. THEME PRESETS GLOBAUX + liaison tenants
 -- ===================
 INSERT INTO theme (
     id, version, tenant_id, base_preset_id, label, mode, density,
@@ -268,7 +343,7 @@ INSERT INTO theme (
 
 
 -- ===================
--- 6. Lier les tenants au thème "tchalanet"
+-- 8. Lier les tenants au thème "tchalanet"
 -- ===================
 UPDATE tenant
 SET active_theme_id = '55500000-0000-0000-0000-000000000001'
@@ -276,3 +351,4 @@ WHERE id IN (
              '00000000-0000-0000-0000-000000000001', -- platform
              '00000000-0000-0000-0000-000000000002'  -- demo
     );
+

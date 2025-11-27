@@ -2,7 +2,9 @@ package com.tchalanet.server.draw.domain.usecase;
 
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.draw.domain.model.DrawChannel;
+import com.tchalanet.server.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.draw.domain.ports.DrawChannelRepository;
+import com.tchalanet.server.tenant.domain.model.TenantId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,41 +24,44 @@ public class DrawChannelCrudUseCaseImpl implements DrawChannelCrudUseCase {
 
   @Override
   public Optional<DrawChannel> get(UUID id) {
-    return repo.findById(new com.tchalanet.server.common.domain.DrawChannelId(id));
+    return repo.findById(new DrawChannelId(id));
   }
 
   @Override
   public List<DrawChannel> listAll() {
-    // repo findAll not implemented: fallback to empty for now
     return List.of();
   }
 
   @Override
   public List<DrawChannel> listByTenant(UUID tenantId) {
-    return repo.findByTenant(new com.tchalanet.server.common.domain.TenantId(tenantId));
+    return repo.findByTenant(new TenantId(tenantId));
   }
 
   @Override
   @Transactional
   public DrawChannel update(UUID id, DrawChannel d) {
-    // simple implementation: ensure exists then save
     var opt = get(id);
     if (opt.isEmpty()) throw new IllegalArgumentException("DrawChannel not found: " + id);
     DrawChannel existing = opt.get();
-    existing.setName(d.getName());
-    existing.setGameCode(d.getGameCode());
-    existing.setTimezone(d.getTimezone());
-    existing.setDrawTime(d.getDrawTime());
-    existing.setCutoffSec(d.getCutoffSec());
-    existing.setDaysOfWeek(d.getDaysOfWeek());
-    existing.setActive(d.getActive());
-    existing.setSortOrder(d.getSortOrder());
-    return repo.save(existing);
+    // create a new instance with updated fields
+    DrawChannel updated =
+        new DrawChannel(
+            existing.getId(),
+            d.getName() != null ? d.getName() : existing.getName(),
+            existing.getTenantId(),
+            d.getGameCode() != null ? d.getGameCode() : existing.getGameCode(),
+            d.getTimezone() != null ? d.getTimezone() : existing.getTimezone(),
+            d.getDrawTime() != null ? d.getDrawTime() : existing.getDrawTime(),
+            d.getCutoffSec() != null ? d.getCutoffSec() : existing.getCutoffSec(),
+            d.getDaysOfWeek() != null ? d.getDaysOfWeek() : existing.getDaysOfWeek(),
+            d.getActive() != null ? d.getActive() : existing.getActive(),
+            d.getSortOrder() != null ? d.getSortOrder() : existing.getSortOrder());
+    return repo.save(updated);
   }
 
   @Override
   @Transactional
   public void delete(UUID id) {
-    repo.deleteById(new com.tchalanet.server.common.domain.DrawChannelId(id));
+    repo.deleteById(new DrawChannelId(id));
   }
 }

@@ -24,4 +24,13 @@ public interface DrawRepository {
 
   // Helper: find draws with given status scheduled before 'before' (excluding deleted)
   List<Draw> findByStatusAndScheduledAtBefore(String status, Instant before);
+
+  /**
+   * Finds all SCHEDULED draws for a tenant that are past their cutoff time.
+   *
+   * @param tenantId The tenant ID.
+   * @param now The current instant.
+   * @return A list of draws that should be closed.
+   */
+  List<Draw> findScheduledDrawsPastCutoff(UUID tenantId, Instant now);
 }

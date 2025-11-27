@@ -3,9 +3,10 @@ package com.tchalanet.server.common.security;
 import static com.tchalanet.server.common.domain.AppConstants.REQUEST_CONTEXT;
 import static com.tchalanet.server.common.domain.AppConstants.TENANT_ID_CLAIMS;
 
+import com.tchalanet.server.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.accesscontrol.infra.security.RoleUtils;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.domain.TchRole;
 import com.tchalanet.server.common.usecase.ResolveTenantUseCase;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

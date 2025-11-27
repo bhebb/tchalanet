@@ -19,4 +19,3 @@ public class ListTenantUsersUseCaseImpl implements ListTenantUsersUseCase {
     return repo.findByTenantId(tenantId);
   }
 }
-

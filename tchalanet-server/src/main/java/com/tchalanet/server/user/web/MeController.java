@@ -1,12 +1,12 @@
 package com.tchalanet.server.user.web;
 
+import com.tchalanet.server.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.accesscontrol.infra.security.RoleUtils;
+import com.tchalanet.server.accesscontrol.infra.security.RoleUtils.RoleSplit;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.domain.TchRole;
-import com.tchalanet.server.common.security.RoleUtils;
-import com.tchalanet.server.common.security.RoleUtils.RoleSplit;
-import com.tchalanet.server.common.usecase.GetTenantContextUseCase;
 import com.tchalanet.server.common.web.dto.ContextDto;
+import com.tchalanet.server.tenant.application.ports.in.GetTenantContextUseCase;
 import com.tchalanet.server.user.web.dto.UserContextResponse;
 import java.util.List;
 import java.util.Map;

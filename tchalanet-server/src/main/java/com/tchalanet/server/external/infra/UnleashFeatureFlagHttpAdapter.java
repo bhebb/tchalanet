@@ -1,28 +1,18 @@
 package com.tchalanet.server.external.infra;
 
 import com.tchalanet.server.external.ports.FeatureFlagPort;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import com.tchalanet.server.featureflags.domain.model.FeatureContext;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class UnleashFeatureFlagHttpAdapter implements FeatureFlagPort {
 
-  private final RestTemplate rest;
-  private final String base = "http://localhost:4242"; // config later
-
-  public UnleashFeatureFlagHttpAdapter(RestTemplateBuilder b) {
-    this.rest = b.build();
-  }
-
   @Override
-  public boolean isEnabled(String flagName) {
-    // simple check for now, to replace with a proper client
-    try {
-      var r = rest.getForObject(base + "/api/client/features/" + flagName, String.class);
-      return r != null;
-    } catch (Exception ex) {
-      return false;
-    }
+  public boolean isEnabled(String flagKey, FeatureContext context) {
+    return false;
   }
 }

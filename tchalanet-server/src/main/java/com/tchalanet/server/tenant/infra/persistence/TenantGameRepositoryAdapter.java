@@ -1,7 +1,7 @@
 package com.tchalanet.server.tenant.infra.persistence;
 
-import com.tchalanet.server.common.domain.TenantId;
 import com.tchalanet.server.tenant.domain.model.TenantGame;
+import com.tchalanet.server.tenant.domain.model.TenantId;
 import com.tchalanet.server.tenant.domain.ports.TenantGameRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ public class TenantGameRepositoryAdapter implements TenantGameRepository {
 
   @Override
   public List<TenantGame> findByTenant(TenantId tenantId) {
-    return repo.findByTenantId(tenantId.value()).stream()
+    return repo.findByTenantId(tenantId.getId()).stream()
         .map(TenantGameMapper::toDomain)
         .collect(Collectors.toList());
   }

@@ -1,0 +1,13 @@
+package com.tchalanet.server.pos.domain.ports.in;
+
+import com.tchalanet.server.pos.domain.model.PosSession;
+import java.math.BigDecimal;
+import java.util.UUID;
+
+public interface OpenSessionUseCase {
+  PosSession openSession(OpenSessionCommand command);
+
+  record OpenSessionCommand(
+      UUID tenantId, UUID terminalId, UUID userId, BigDecimal openingFloat // Optional
+      ) {}
+}

@@ -41,7 +41,7 @@ public class ThemeController {
       @RequestParam(defaultValue = "false") boolean includeBase,
       @RequestParam(required = false) ThemeStatus status) {
 
-    var tenantId = new TenantId(context.effectiveTenant());
+    var tenantId = new TenantId(context.effectiveTenantUuid());
     List<ThemeDto> themes = configureTenantThemeUseCase.listThemes(tenantId, includeBase);
 
     // TODO: Ajouter le filtrage par status au use case si nécessaire
@@ -53,7 +53,7 @@ public class ThemeController {
   public ResponseEntity<ThemeDto> getTheme(
       @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-    var tenantId = new TenantId(context.effectiveTenant());
+    var tenantId = new TenantId(context.effectiveTenantUuid());
     ThemeDto theme = configureTenantThemeUseCase.getTheme(tenantId, id);
 
     return ResponseEntity.ok(theme);
@@ -64,7 +64,7 @@ public class ThemeController {
   public ResponseEntity<ThemeDto> createTheme(
       @CurrentContext TchRequestContext context, @Valid @RequestBody ThemeCreateDto dto) {
 
-    var tenantId = new TenantId(context.effectiveTenant());
+    var tenantId = new TenantId(context.effectiveTenantUuid());
     ThemeDto theme = configureTenantThemeUseCase.createTheme(tenantId, dto);
 
     return ResponseEntity.ok(theme);
@@ -77,7 +77,7 @@ public class ThemeController {
       @PathVariable UUID id,
       @Valid @RequestBody ThemeUpdateDto dto) {
 
-    var tenantId = new TenantId(context.effectiveTenant());
+    var tenantId = new TenantId(context.effectiveTenantUuid());
     ThemeDto theme = configureTenantThemeUseCase.updateTheme(tenantId, id, dto, dto.version());
 
     return ResponseEntity.ok(theme);
@@ -90,7 +90,8 @@ public class ThemeController {
       @PathVariable UUID id,
       @RequestParam Integer version) {
 
-    var tenantId = new TenantId(context.effectiveTenant());
+    var tenantId = new TenantId(context.effectiveTenantUuid());
+
     ThemeDto theme = configureTenantThemeUseCase.publishTheme(tenantId, id);
 
     // TODO: Le use case devrait vérifier la version pour éviter les conflits
@@ -102,7 +103,7 @@ public class ThemeController {
   public ResponseEntity<Void> archiveTheme(
       @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-    var tenantId = new TenantId(context.effectiveTenant());
+    var tenantId = new TenantId(context.effectiveTenantUuid());
     configureTenantThemeUseCase.archiveTheme(tenantId, id);
 
     return ResponseEntity.noContent().build();

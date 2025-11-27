@@ -20,9 +20,9 @@ public class TenantEntityListener {
           if (attrs != null) {
             Object ctx = attrs.getAttribute(REQUEST_CONTEXT, RequestAttributes.SCOPE_REQUEST);
             if (ctx instanceof com.tchalanet.server.common.context.TchRequestContext tch) {
-              var tenant = tch.tenantId();
+              var tenant = tch.tenantUuid();
               if (tenant != null) {
-                tenantEntity.setTenantId(java.util.UUID.fromString(tenant));
+                tenantEntity.setTenantId(tenant);
               }
             }
           }

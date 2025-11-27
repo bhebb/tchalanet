@@ -18,4 +18,3 @@ public class ListAllUsersUseCaseImpl implements ListAllUsersUseCase {
     return repo.findAll();
   }
 }
-

@@ -2,6 +2,7 @@ package com.tchalanet.server.common.error;
 
 import static com.tchalanet.server.common.domain.AppConstants.APP_HEADER_ERROR_VERSION;
 
+import com.tchalanet.server.accesscontrol.domain.exception.PermissionsDeniedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -80,6 +81,35 @@ public class ErrorHandler {
     pd.setDetail(ex.getMessage());
     decorate(pd, req, ex, true);
     log.warn("[400] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    return pd;
+  }
+
+  /** 403 – permissions manquantes (accesscontrol) */
+  @ExceptionHandler(PermissionsDeniedException.class)
+  public ProblemDetail handlePermissionsDenied(
+      PermissionsDeniedException ex, HttpServletRequest req) {
+
+    var pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+    pd.setTitle("Forbidden");
+    // Tu peux garder le message exact ou le rendre plus générique selon ce que tu veux exposer
+    pd.setDetail("You are not allowed to perform this action.");
+
+    // Métadonnées génériques (traceId, path, method, errorId, etc.)
+    decorate(pd, req, ex, true);
+
+    // Infos techniques supplémentaires éventuellement utiles au front/admin
+    pd.setProperty("missingPermissions", ex.getMissingPermissions());
+    pd.setProperty("tenantId", ex.getTenantId().toString());
+    pd.setProperty("userId", ex.getUserId().toString());
+
+    log.warn(
+        "[403] {} {} – missingPermissions={} tenantId={} userId={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getMissingPermissions(),
+        ex.getTenantId(),
+        ex.getUserId());
+
     return pd;
   }
 

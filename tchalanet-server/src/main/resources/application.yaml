@@ -101,6 +101,52 @@ tch:
         todaym: ${DRAW_CACHE_TTL_TODAYM:5}   # minutes
         nexts: ${DRAW_CACHE_TTL_NEXTS:60}    # seconds
 
+  # US Lottery API configuration
+  us-lottery:
+    ny:
+      enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
+      base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov/api/v3/views/hsys-3def/query.json}
+      app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
+      games:
+        - code: "NY_NUMBERS_MIDDAY"
+          external_key: "NUMBERS"
+          draw_time: "14:30"
+        - code: "NY_NUMBERS_EVENING"
+          external_key: "NUMBERS"
+          draw_time: "22:30"
+        - code: "NY_WIN4_MIDDAY"
+          external_key: "WIN4"
+          draw_time: "14:30"
+        - code: "NY_WIN4_EVENING"
+          external_key: "WIN4"
+          draw_time: "22:30"
+        - code: "NY_TAKE5_EVENING"
+          external_key: "TAKE 5"
+          draw_time: "22:30"
+
+    florida:
+      enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
+      base-url: ${TCH_US_LOTTERY_FL_BASEURL:https://apim-website-prod-eastus.azure-api.net}
+      latest-path: /drawgamesapp/getLatestDrawGames
+      alert-path: /site/services/alert
+      games:
+        - code: "FL_PICK3_MIDDAY"
+          external_key: "PICK3"
+          draw_time: "13:30"
+        - code: "FL_PICK3_EVENING"
+          external_key: "PICK3"
+          draw_time: "22:45"
+        - code: "FL_PICK4_MIDDAY"
+          external_key: "PICK4"
+          draw_time: "13:30"
+        - code: "FL_PICK4_EVENING"
+          external_key: "PICK4"
+          draw_time: "22:45"
+        - code: "FL_LOTTO"
+          external_key: "FLORIDA LOTTO"
+          draw_time: "23:15"
+
+
 # ===========================
 # API DOCUMENTATION
 # ===========================

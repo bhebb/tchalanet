@@ -1,0 +1,12 @@
+package com.tchalanet.server.accesscontrol.domain.model;
+
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+
+public record CheckPermissionsResult(boolean allowed, Set<String> missingPermissions) {
+  public CheckPermissionsResult {
+    Objects.requireNonNull(missingPermissions, "missingPermissions cannot be null");
+    missingPermissions = Collections.unmodifiableSet(missingPermissions);
+  }
+}

@@ -1,15 +1,15 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.common.audit.domain.model.AuditAction;
-import com.tchalanet.server.common.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.domain.model.AuditEvent;
+import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.draw.domain.model.Draw;
+import com.tchalanet.server.draw.domain.model.DrawSource;
 import com.tchalanet.server.draw.domain.ports.DrawRepository;
 import com.tchalanet.server.draw.domain.usecase.AdminOverrideResultUseCase;
 import com.tchalanet.server.draw.web.dto.OverrideResultRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,40 +24,54 @@ public class AdminOverrideResultUseCaseImpl implements AdminOverrideResultUseCas
 
   @Override
   public void overrideResult(UUID tenantId, UUID drawId, OverrideResultRequest req, UUID adminId) {
-    Optional<com.tchalanet.server.draw.domain.model.Draw> opt = drawRepository.findById(drawId);
-    if (opt.isEmpty()) throw new IllegalArgumentException("Draw not found");
-    var d = opt.get();
-    if (!d.tenantId().equals(tenantId)) throw new IllegalArgumentException("Tenant mismatch");
+    log.info("Admin {} is overriding result for draw {}", adminId, drawId);
 
-    // Build payload
+    // 1. Find the entity
+    Draw draw =
+        drawRepository
+            .findById(drawId)
+            .orElseThrow(() -> new IllegalArgumentException("Draw not found with id: " + drawId));
+
+    // 2. Authorize the action
+    if (!draw.tenantId().equals(tenantId)) {
+      throw new SecurityException("Tenant mismatch for draw " + drawId);
+    }
+
+    // 3. Prepare the data for the domain method
     Map<String, Object> payload = new HashMap<>();
     payload.put("numbers", req.numbers());
-    if (req.extra() != null) payload.putAll(req.extra());
+    if (req.extra() != null) {
+      payload.putAll(req.extra());
+    }
 
-    // Mark manual result and lock
-    var updated =
-        new com.tchalanet.server.draw.domain.model.Draw(
-            d.id(),
-            d.tenantId(),
-            d.drawChannelId(),
-            d.gameCode(),
-            d.scheduledAt(),
-            d.cutoffSec(),
-            "RESULTED",
-            payload,
-            "MANUAL_RESULT",
-            Boolean.FALSE,
-            Boolean.TRUE,
-            d.createdBy(),
-            adminId);
+    // 4. Call the rich domain model method
+    // The entity itself is responsible for validation and state transition.
+    Draw updatedDraw = draw.applyResult(payload, DrawSource.MANUAL, adminId);
 
-    drawRepository.save(updated);
+    // 5. Save the new state
+    drawRepository.save(updatedDraw);
 
-    // audit the manual override
-    audit.log(
-        AuditEntityType.DRAW,
-        drawId.toString(),
-        AuditAction.UPDATE,
-        Map.of("admin", adminId.toString(), "action", "override_result"));
+    // 6. Audit the manual override
+    AuditEvent ev =
+        AuditEvent.of(
+            updatedDraw.tenantId(),
+            com.tchalanet.server.audit.domain.model.AuditActorType.USER,
+            adminId.toString(),
+            com.tchalanet.server.audit.domain.model.AuditEntityType.DRAW,
+            drawId.toString(),
+            com.tchalanet.server.audit.domain.model.AuditAction.UPDATE,
+            Map.of(
+                    "admin",
+                    adminId.toString(),
+                    "action",
+                    "override_result",
+                    "new_numbers",
+                    req.numbers())
+                .toString(),
+            null,
+            null);
+    audit.log(ev);
+
+    log.info("Successfully overrode result for draw {}", drawId);
   }
 }

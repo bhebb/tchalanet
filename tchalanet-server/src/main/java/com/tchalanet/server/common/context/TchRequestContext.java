@@ -1,11 +1,12 @@
 package com.tchalanet.server.common.context;
 
-import com.tchalanet.server.common.domain.TchRole;
+import com.tchalanet.server.accesscontrol.domain.model.TchRole;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
-// Immutable request-scoped context holding tenant/user info.
+@Slf4j
 public record TchRequestContext(
     String originalTenantCode, // from JWT claim (code like "demo")
     UUID originalTenantUuid, // resolved UUID (may be null)
@@ -25,33 +26,14 @@ public record TchRequestContext(
     return effectiveTenantUuid != null ? effectiveTenantUuid : originalTenantUuid;
   }
 
-  /** Backward-compatible accessor used by existing code: string form of effective tenant id. */
-  public String tenantId() {
-    var t = tenantUuid();
-    if (t != null) return t.toString();
-    if (effectiveTenantCode != null && !effectiveTenantCode.isBlank()) return effectiveTenantCode;
-    return originalTenantCode;
-  }
+  public UUID userUuid() {
 
-  /** Backward-compatible accessor returning the original tenant id as String. */
-  public String originalTenantId() {
-    if (originalTenantUuid != null) return originalTenantUuid.toString();
-    return originalTenantCode;
-  }
-
-  /** Backward-compatible method previously used to get a UUID for the effective tenant. */
-  public UUID effectiveTenant() {
-    var t = tenantUuid();
-    if (t != null) return t;
     try {
-      if (effectiveTenantCode != null && !effectiveTenantCode.isBlank()) {
-        return UUID.fromString(effectiveTenantCode);
+      if (userId != null) {
+        return UUID.fromString(userId);
       }
-      if (originalTenantCode != null && !originalTenantCode.isBlank()) {
-        return UUID.fromString(originalTenantCode);
-      }
-    } catch (IllegalArgumentException ignored) {
-      // not a UUID string; caller must handle null
+    } catch (IllegalArgumentException exception) {
+      log.error("Cannot convert string to UUID: '{}'", userId, exception);
     }
     return null;
   }

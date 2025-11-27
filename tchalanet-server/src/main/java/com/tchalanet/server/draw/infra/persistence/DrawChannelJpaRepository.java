@@ -1,6 +1,7 @@
 package com.tchalanet.server.draw.infra.persistence;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,4 +11,6 @@ public interface DrawChannelJpaRepository extends JpaRepository<DrawChannelJpaEn
   List<DrawChannelJpaEntity> findByTenantIdAndActiveTrueOrderBySortOrder(UUID tenantId);
 
   List<DrawChannelJpaEntity> findByActiveTrueOrderBySortOrder();
+
+  Optional<DrawChannelJpaEntity> findByTenantIdAndCode(UUID tenantId, String code);
 }

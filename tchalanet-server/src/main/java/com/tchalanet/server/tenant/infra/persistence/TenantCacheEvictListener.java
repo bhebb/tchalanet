@@ -1,7 +1,6 @@
 package com.tchalanet.server.tenant.infra.persistence;
 
 import com.tchalanet.server.common.config.SpringContextHolder;
-import com.tchalanet.server.common.usecase.ResolveTenantUseCase;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
 
@@ -12,11 +11,13 @@ public class TenantCacheEvictListener {
   public void onChange(TenantJpaEntity entity) {
     if (entity == null) return;
     try {
-      ResolveTenantUseCase resolver = SpringContextHolder.getBean(ResolveTenantUseCase.class);
+      var resolver =
+          SpringContextHolder.getBean(
+              com.tchalanet.server.tenant.application.ports.in.ResolveTenantIdByCodeUseCase.class);
       if (resolver != null && entity.getCode() != null) {
         resolver.evictByCode(entity.getCode());
       }
-    } catch (Exception ex) {
+    } catch (Exception ignored) {
       // avoid failing persistence operation
     }
   }

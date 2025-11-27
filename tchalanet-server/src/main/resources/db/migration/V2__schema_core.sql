@@ -84,6 +84,47 @@ CREATE TRIGGER trg_terminal_updated_at
 
 
 -- ===========================
+-- 2b. POS SESSION : périodes de caisse par terminal
+-- ===========================
+
+CREATE TABLE pos_session (
+                             id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                             tenant_id      uuid NOT NULL REFERENCES tenant(id),
+                             outlet_id      uuid NOT NULL REFERENCES outlet(id),
+                             terminal_id    uuid NOT NULL REFERENCES terminal(id),
+                             user_id        uuid NOT NULL REFERENCES app_user(id), -- le caissier
+
+                             status         varchar(16) NOT NULL, -- OPEN|CLOSED|SETTLED
+                             opened_at      timestamptz NOT NULL DEFAULT now(),
+                             closed_at      timestamptz,
+                             opening_float  numeric(14,2),        -- montant initial (optionnel)
+                             closing_amount numeric(14,2),        -- ce que le caissier déclare à la fin (optionnel)
+
+    -- caches / totaux calculés à la fermeture (V1 simple)
+                             total_tickets  bigint,
+                             total_stake    numeric(14,2),
+                             total_payout   numeric(14,2),
+                             gross_margin   numeric(14,2),
+
+                             meta           jsonb NOT NULL DEFAULT '{}'::jsonb,
+                             version        bigint NOT NULL DEFAULT 0,
+                             created_at     timestamptz NOT NULL DEFAULT now(),
+                             created_by     uuid,
+                             updated_at     timestamptz NOT NULL DEFAULT now(),
+                             updated_by     uuid,
+                             deleted_at     timestamptz,
+
+                             UNIQUE (tenant_id, terminal_id, status)
+                                 DEFERRABLE INITIALLY IMMEDIATE -- au plus une session OPEN par terminal
+);
+
+CREATE INDEX ix_pos_session_tenant_terminal ON pos_session(tenant_id, terminal_id, status);
+CREATE TRIGGER trg_pos_session_updated_at
+    BEFORE UPDATE ON pos_session
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+-- ===========================
 -- 3. CATALOGUE DE JEUX (global)
 -- ===========================
 
@@ -324,6 +365,9 @@ CREATE TABLE ticket
 );
 
 ALTER TABLE ticket
+    ADD COLUMN session_id uuid REFERENCES pos_session(id);
+
+ALTER TABLE ticket
     ADD CONSTRAINT chk_ticket_status
         CHECK (status IN ('PENDING', 'WON', 'LOST', 'PAID', 'VOID'));
 
@@ -365,8 +409,8 @@ CREATE TABLE app_user
     id            uuid PRIMARY KEY,            -- Keycloak sub
     username      text        NOT NULL,
     email         citext,
-    tenant_code   text        NOT NULL,        -- claim "tenant"
-    tenant_id     uuid REFERENCES tenant (id), -- optionnel
+    tenant_code   text        NOT NULL,        -- claim "tenant" (tenant par défaut)
+    tenant_id     uuid REFERENCES tenant (id), -- optionnel: tenant principal
     display_name  text,
     locale        text,
     last_login_at timestamptz,
@@ -408,48 +452,88 @@ CREATE TRIGGER trg_user_preference_updated_at
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 
--- 9.b APP_ROLE & APP_USER_ROLE (rôles applicatifs)
+-- ===========================
+-- 9.b APP_ROLE / PERMISSION / ROLE_PERMISSION (rôles & permissions applicatifs)
+-- ===========================
 
 CREATE TABLE app_role (
-    id          uuid PRIMARY KEY     DEFAULT gen_random_uuid(),
-    code        varchar(64) NOT NULL UNIQUE,
-    name        varchar(128) NOT NULL,
-    description text,
-    version    bigint      NOT NULL DEFAULT 0,
+                          id              uuid PRIMARY KEY     DEFAULT gen_random_uuid(),
+                          version         bigint      NOT NULL DEFAULT 0,
 
-    created_at  timestamptz  NOT NULL DEFAULT now(),
-    created_by  uuid,
-    updated_at  timestamptz  NOT NULL DEFAULT now(),
-    updated_by  uuid,
-    deleted_at  timestamptz
+                          code            varchar(64)  NOT NULL,        -- SUPER_ADMIN, TENANT_ADMIN, CASHIER, ...
+                          name            varchar(128) NOT NULL,
+                          description     text,
+                          tenant_id       uuid REFERENCES tenant(id),   -- NULL = global; non null = rôle spécifique à un tenant
+                          parent_role_id  uuid REFERENCES app_role(id), -- NULL = rôle racine
+                          is_system       boolean      NOT NULL DEFAULT false,
+
+                          created_at      timestamptz  NOT NULL DEFAULT now(),
+                          created_by      uuid,
+                          updated_at      timestamptz  NOT NULL DEFAULT now(),
+                          updated_by      uuid,
+                          deleted_at      timestamptz
 );
 
-CREATE TABLE app_user_role (
-    user_id uuid NOT NULL REFERENCES app_user(id),
-    role_id uuid NOT NULL REFERENCES app_role(id),
-    PRIMARY KEY (user_id, role_id)
+CREATE UNIQUE INDEX ux_app_role_tenant_code
+    ON app_role (tenant_id, code)
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX idx_app_role_tenant ON app_role (tenant_id);
+
+CREATE TRIGGER trg_app_role_updated_at
+    BEFORE UPDATE
+    ON app_role
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+CREATE TABLE permission (
+                            code        varchar(128) PRIMARY KEY,  -- ex: 'ticket.create', 'draw.result.enter'
+                            name        varchar(128) NOT NULL,
+                            description text,
+                            version     bigint       NOT NULL DEFAULT 0,
+                            created_at  timestamptz  NOT NULL DEFAULT now(),
+                            created_by  uuid,
+                            updated_at  timestamptz  NOT NULL DEFAULT now(),
+                            updated_by  uuid,
+                            deleted_at  timestamptz
+);
+
+CREATE TRIGGER trg_permission_updated_at
+    BEFORE UPDATE
+    ON permission
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+CREATE TABLE role_permission (
+                                 role_id         uuid         NOT NULL REFERENCES app_role(id),
+                                 permission_code varchar(128) NOT NULL REFERENCES permission(code),
+                                 version         bigint       NOT NULL DEFAULT 0,
+                                 PRIMARY KEY (role_id, permission_code)
 );
 
 
 -- ===========================
--- 9.c TENANT_USER (liaison user <-> tenant)
+-- 9.c TENANT_USER (liaison user <-> tenant + rôle principal)
 -- ===========================
 
 CREATE TABLE tenant_user (
-    id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id      uuid NOT NULL REFERENCES tenant(id),
-    user_id        uuid NOT NULL REFERENCES app_user(id),
-    role           varchar(32) NOT NULL,   -- SUPER_ADMIN | TENANT_ADMIN | CASHIER | ...
-    autonomy_level varchar(16) NOT NULL DEFAULT 'none',
-    is_owner       boolean NOT NULL DEFAULT false,
-    version        bigint      NOT NULL DEFAULT 0,
-    created_at     timestamptz NOT NULL DEFAULT now(),
-    created_by     uuid,
-    updated_at     timestamptz NOT NULL DEFAULT now(),
-    updated_by     uuid,
-    deleted_at     timestamptz,
+                             id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                             version        bigint      NOT NULL DEFAULT 0,
 
-    UNIQUE (tenant_id, user_id)
+                             tenant_id      uuid NOT NULL REFERENCES tenant(id),
+                             user_id        uuid NOT NULL REFERENCES app_user(id),
+
+                             role_id        uuid NOT NULL REFERENCES app_role(id),  -- rôle principal dans ce tenant
+                             autonomy_level varchar(16) NOT NULL DEFAULT 'none',    -- none|partial|full
+                             is_owner       boolean NOT NULL DEFAULT false,
+
+                             created_at     timestamptz NOT NULL DEFAULT now(),
+                             created_by     uuid,
+                             updated_at     timestamptz NOT NULL DEFAULT now(),
+                             updated_by     uuid,
+                             deleted_at     timestamptz,
+
+                             UNIQUE (tenant_id, user_id)
 );
 
 CREATE INDEX ix_tenant_user_tenant_user ON tenant_user (tenant_id, user_id);
@@ -536,6 +620,7 @@ CREATE TRIGGER trg_subscription_updated_at
 -- ===========================
 -- 11. THEME
 -- ===========================
+
 CREATE TABLE theme (
                        id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                        version        bigint NOT NULL DEFAULT 0,
@@ -564,6 +649,7 @@ CREATE INDEX idx_theme_base ON theme(base_preset_id);
 CREATE TRIGGER trg_theme_updated_at
     BEFORE UPDATE ON theme
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
 
 -- ===========================
 -- 12. AUDIT_EVENT (audit applicatif)
@@ -603,3 +689,25 @@ CREATE TRIGGER trg_audit_event_updated_at
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_draw_tenant_channel_scheduled_unique
     ON draw (tenant_id, draw_channel_id, scheduled_at);
+
+
+-- ===========================
+-- X. PAGE MODEL (config UI dynamique)
+-- ===========================
+
+CREATE TABLE page_model (
+                            id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                            tenant_id  uuid REFERENCES tenant(id),
+                            code       varchar(64) NOT NULL,
+                            lang       varchar(8)  NOT NULL,
+                            json       jsonb       NOT NULL,
+                            created_at timestamptz NOT NULL DEFAULT now(),
+                            updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX ux_page_model_tenant_code_lang
+    ON page_model(tenant_id, code, lang);
+
+CREATE TRIGGER trg_page_model_updated_at
+    BEFORE UPDATE ON page_model
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();

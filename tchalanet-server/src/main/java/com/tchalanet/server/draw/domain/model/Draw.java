@@ -4,192 +4,159 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
+/** Tirage métier central Tchalanet (Haïti, US Lottery, ...). */
 public record Draw(
     UUID id,
     UUID tenantId,
     UUID drawChannelId,
     String gameCode,
     Instant scheduledAt,
-    Integer cutoffSec,
-    String status,
-    Map<String, Object> resultPayload,
-    String drawSource,
-    Boolean systemGenerated,
-    Boolean locked,
-    UUID createdBy,
-    UUID updatedBy) {
+    int cutoffSeconds,
+    DrawStatus status,
+    DrawSource source,
+    String resultPayloadJson,
+    boolean systemGenerated,
+    boolean locked) {
 
-  public Draw withScheduledAt(Instant scheduledAt) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+  // compatibility alias: cutoffSec() used in code
+  public int cutoffSec() {
+    return this.cutoffSeconds;
   }
 
-  public Draw withCutoffSec(Integer cutoffSec) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+  // compatibility alias: some code expects resultPayload() (string or null)
+  public String resultPayload() {
+    return this.resultPayloadJson;
   }
 
-  public Draw withStatus(String status) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+  // alias for source
+  public DrawSource drawSource() {
+    return this.source;
   }
 
-  public Draw withResultPayload(Map<String, Object> resultPayload) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+  // createdBy/updatedBy may be referenced; provide nullable stubs
+  public UUID createdBy() {
+    return null;
   }
 
-  public Draw withSystemGenerated(boolean systemGenerated) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        Boolean.valueOf(systemGenerated),
-        locked,
-        createdBy,
-        updatedBy);
+  public UUID updatedBy() {
+    return null;
   }
 
-  public Draw withLocked(Boolean locked) {
+  // Mutators helpers used in various services — return a new Draw with updated fields
+  public Draw withScheduledAt(Instant newScheduledAt) {
     return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+        this.id,
+        this.tenantId,
+        this.drawChannelId,
+        this.gameCode,
+        newScheduledAt,
+        this.cutoffSeconds,
+        this.status,
+        this.source,
+        this.resultPayloadJson,
+        this.systemGenerated,
+        this.locked);
+  }
+
+  public Draw withCutoffSec(int newCutoff) {
+    return new Draw(
+        this.id,
+        this.tenantId,
+        this.drawChannelId,
+        this.gameCode,
+        this.scheduledAt,
+        newCutoff,
+        this.status,
+        this.source,
+        this.resultPayloadJson,
+        this.systemGenerated,
+        this.locked);
+  }
+
+  public Draw withStatus(DrawStatus newStatus) {
+    return new Draw(
+        this.id,
+        this.tenantId,
+        this.drawChannelId,
+        this.gameCode,
+        this.scheduledAt,
+        this.cutoffSeconds,
+        newStatus,
+        this.source,
+        this.resultPayloadJson,
+        this.systemGenerated,
+        this.locked);
+  }
+
+  public Draw withResultPayload(String payloadJson) {
+    return new Draw(
+        this.id,
+        this.tenantId,
+        this.drawChannelId,
+        this.gameCode,
+        this.scheduledAt,
+        this.cutoffSeconds,
+        this.status,
+        this.source,
+        payloadJson,
+        this.systemGenerated,
+        this.locked);
+  }
+
+  public Draw withSystemGenerated(boolean sys) {
+    return new Draw(
+        this.id,
+        this.tenantId,
+        this.drawChannelId,
+        this.gameCode,
+        this.scheduledAt,
+        this.cutoffSeconds,
+        this.status,
+        this.source,
+        this.resultPayloadJson,
+        sys,
+        this.locked);
   }
 
   public Draw withLocked(boolean locked) {
-    return withLocked(Boolean.valueOf(locked));
+    return new Draw(
+        this.id,
+        this.tenantId,
+        this.drawChannelId,
+        this.gameCode,
+        this.scheduledAt,
+        this.cutoffSeconds,
+        this.status,
+        this.source,
+        this.resultPayloadJson,
+        this.systemGenerated,
+        locked);
   }
 
   public Draw withUpdatedBy(UUID updatedBy) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+    // audit fields are not stored on Draw record; stub returns same Draw
+    return this;
   }
 
-  public Draw withDrawSource(String drawSource) {
+  /**
+   * Apply a result payload (map) to the draw and return updated Draw. Minimal implementation: store
+   * toString() as JSON placeholder.
+   */
+  public Draw applyResult(Map<String, Object> payload, DrawSource source, UUID appliedBy) {
+    String payloadJson = payload == null ? null : payload.toString();
+    Draw updated = this.withResultPayload(payloadJson).withSystemGenerated(this.systemGenerated);
+    // also set source
     return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
-  }
-
-  public Draw withSystemGenerated(Boolean generated) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        generated,
-        locked,
-        createdBy,
-        updatedBy);
-  }
-
-  public Draw withCreatedBy(UUID createdBy) {
-    return new Draw(
-        id,
-        tenantId,
-        drawChannelId,
-        gameCode,
-        scheduledAt,
-        cutoffSec,
-        status,
-        resultPayload,
-        drawSource,
-        systemGenerated,
-        locked,
-        createdBy,
-        updatedBy);
+        updated.id,
+        updated.tenantId,
+        updated.drawChannelId,
+        updated.gameCode,
+        updated.scheduledAt,
+        updated.cutoffSeconds,
+        updated.status,
+        source,
+        updated.resultPayloadJson,
+        updated.systemGenerated,
+        updated.locked);
   }
 }

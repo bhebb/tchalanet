@@ -14,6 +14,6 @@ import lombok.Setter;
 @Setter
 public abstract class BaseTenantEntity extends BaseEntity {
 
-  @Column(name = "tenant_id", nullable = false)
+  @Column(name = "tenant_id", nullable = true)
   private UUID tenantId;
 }

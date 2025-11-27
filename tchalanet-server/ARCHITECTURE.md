@@ -1,406 +1,415 @@
-# Architecture applicative Tchalanet (modular monolith / hexagonal)
+# Tchalanet – Architecture Backend (Hexagonal + CQRS)
 
-Ce document décrit l’architecture cible du backend Tchalanet, afin de servir de **référence technique** pendant la refactorisation.
-
-L’objectif est de passer d’un découpage principalement technique (api, services, repository, model, dto, …) à un **modular monolith orienté domaines et use cases**, inspiré de l’architecture hexagonale / clean architecture.
-
----
-
-## 1. Principes généraux
-
-1. **Découpage par domaine métier** (bounded contexts) plutôt que par couches techniques :
-
-   - `tenant` : configuration tenant, thème, plan d’abonnement, autonomie, limites.
-   - `user` : utilisateurs applicatifs (vendeur, admin, superadmin) et préférences.
-   - `ticket` : création / validation / consultation des tickets de jeu.
-   - `draw` : tirages, horaires, résultats.
-   - (plus tard) `sales`, `reporting`, etc.
-   - `common` : éléments réellement transverses et partagés (jamais de “poubelle”).
-
-2. **Séparation claire Domain / Application / Infrastructure / Web** dans chaque domaine :
-
-   - `domain.model` : modèle métier pur (pas d’annotations Spring / JPA si possible).
-   - `domain.ports` : interfaces nécessaires au domaine (repositories, services externes, horloge, contexte…).
-   - `domain.usecase` : cas d’usage applicatifs (orchestration métier). Un use case = une classe.
-   - `infra.*` : implémentations techniques des ports (persistence, messaging, billing, …).
-   - `web` : API HTTP (controllers, DTO, mappers HTTP).
-
-3. **Hexagonal** :
-
-   - Le domaine dépend uniquement de **ports** et de types de domaine.
-   - Les couches `infra` et `web` dépendent du domaine, jamais l’inverse.
-
-4. **Progressivité** :
-   - On n’essaie pas de tout déplacer d’un coup.
-   - Pour chaque domaine, on commence par introduire les packages et ports, puis on migre use cases et modèles progressivement.
+> Version : 2025-11  
+> Ce document est la **source de vérité** concernant l’architecture du backend Tchalanet  
+> (Spring Boot, PostgreSQL, RLS, Keycloak, Unleash, Meilisearch, Redis, Traefik).
+>
+> Tous les domaines doivent suivre les conventions décrites ici,  
+> y compris les assistants AI (Copilot, ChatGPT, etc.).
+>
+> Pour les règles de style détaillées (naming, logging, tests), voir `CODE_STYLE.md`.
 
 ---
 
-## 2. Arbre de packages cible
+## 1. Principes fondamentaux
 
-Tout est sous `com.tchalanet.server`.
+### 1.1 Hexagonal Architecture (Ports & Adapters)
+
+Le backend suit strictement l’approche **Ports & Adapters** :
+
+- **domain**
+
+  - modèles métier, invariants, logique pure ;
+  - aucune dépendance Spring, JPA, WebClient, Lombok, etc.
+
+- **application**
+
+  - implémentation des cas d’usage (use cases) ;
+  - commands / queries (CQRS) ;
+  - ports `in` (handlers exposés) et `out` (dépendances externes) ;
+  - dépend de `domain`, **jamais** des adapters.
+
+- **infra**
+  - implémentations des ports (JPA, WebClient, Redis, Meilisearch, Envers, batch, web, config) ;
+  - contient les annotations Spring / JPA / WebClient ;
+  - dépend de `application`, _jamais l’inverse_.
+
+### 1.2 Séparation CQRS
+
+- **Commands** : changent l’état, transactionnelles, renvoient un ID / summary / void.
+- **Queries** : lecture seule, pas d’effets de bord, renvoient des DTO optimisés pour la vue.
+
+---
+
+## 2. Organisation des packages
+
+Pour un bounded context `<bc>` (ex. `audit`, `accesscontrol`, `draw`) :
 
 ```text
-com.tchalanet.server
- ├─ common
- │   ├─ domain
- │   │   ├─ model       # Types vraiment transverses (TenantId, UserId, Money...)
- │   │   ├─ ports       # Ports cross-cutting (ex: ClockPort global, EventBusPort...)
- │   │   └─ usecase     # Use cases globaux s’il y en a (rare)
- │   ├─ error           # Exceptions et mappers d’erreur transverses
- │   ├─ web             # Infra web globale (exception handlers, resolvers globaux)
- │   ├─ config          # Configuration Spring globale (CORS, security, OpenAPI, Jackson...)
- │   ├─ security        # Sécurité globale (filtres, config SecurityFilterChain partagée)
- │   └─ context         # Contexte request/tenant/user et utilitaires associés
+com.tchalanet.server.<bc>
+ ├── domain
+ │     ├── model        // entités, agrégats, value objects
+ │     ├── service      // services métier purs (optionnel)
+ │     └── exception    // exceptions métier
  │
- ├─ tenant
- │   ├─ domain
- │   │   ├─ model       # Tenant, Plan, Subscription, Theme, limites, policies…
- │   │   ├─ ports       # TenantRepository, SubscriptionRepository, BillingPort, ...
- │   │   └─ usecase     # ConfigureTenantThemeUseCase, ChangePlanUseCase, ...
- │   ├─ infra
- │   │   └─ persistence # Entités JPA, Spring Data, mappers JPA pour tenant
- │   └─ web             # REST tenant/subscription/theme + DTO/mappers HTTP
+ ├── application
+ │     ├── command
+ │     │     ├── model     // *Command records
+ │     │     └── handler   // *CommandHandler interfaces + impl *UseCase
+ │     ├── query
+ │     │     ├── model     // *Query records
+ │     │     └── handler   // *QueryHandler interfaces + impl *UseCase
+ │     └── port
+ │           ├── in        // interfaces des handlers (use cases)
+ │           └── out       // ports vers DB, services externes, etc.
  │
- ├─ user
- │   ├─ domain
- │   │   ├─ model       # User, UserPreference, rôles applicatifs, ...
- │   │   ├─ ports       # UserRepository, UserPreferenceRepository, ...
- │   │   └─ usecase     # UpsertUserFromJwtUseCase, UpdateUserPreferenceUseCase, ...
- │   ├─ infra
- │   │   └─ persistence # Entités JPA / JDBC pour user + impl des repos
- │   └─ web             # /me, profils, préférences, etc.
- │
- ├─ ticket
- │   ├─ domain
- │   │   ├─ model       # Ticket, TicketId, TicketStatus, etc.
- │   │   ├─ ports       # TicketRepository, TicketSearchPort, ...
- │   │   └─ usecase     # CreateTicketUseCase, VerifyTicketUseCase, ...
- │   ├─ infra
- │   │   └─ persistence # Entités JPA ticket + repos
- │   └─ web             # REST ticket + DTO/mappers
- │
- ├─ draw
- │   ├─ domain
- │   │   ├─ model       # Draw, DrawId, DrawSchedule, Result, ...
- │   │   ├─ ports       # DrawRepository, ExternalResultPort, ...
- │   │   └─ usecase     # ScheduleDrawUseCase, CloseDrawUseCase, ...
- │   ├─ infra
- │   │   └─ persistence # Entités JPA draw + repos
- │   └─ web             # REST draw + DTO/mappers
- │
- └─ (plus tard) sales, reporting, ...
+ └── infra
+       ├── persistence     // entités JPA, repositories Spring, adapters persistence
+       ├── external        // WebClient / HTTP / messagerie
+       ├── web             // controllers REST, aspects, DTO HTTP
+       ├── batch           // scheduled jobs, tasklets
+       └── config          // config technique (AuditorAware, Jackson, WebClient, etc.)
 ```
 
-Rappel important :
+**Règle importante :**
 
-- **`common` ne doit contenir que ce qui est utilisé par au moins 2 domaines.**
-- Si un type n’est consommé que dans `ticket`, il reste dans `ticket`, pas dans `common`.
-
----
-
-## 3. Mapping ancien → nouveau (règles de migration)
-
-### 3.1. Packages techniques existants
-
-| Ancien package                     | Nouveau package cible                                       |
-| ---------------------------------- | ----------------------------------------------------------- |
-| `api`                              | `<domaine>.web`                                             |
-| `services`                         | `<domaine>.domain.usecase`                                  |
-| `model` (entités JPA)              | `<domaine>.infra.persistence`                               |
-| `model` (modèle métier pur)        | `<domaine>.domain.model`                                    |
-| `repository`                       | `<domaine>.infra.persistence` (implémentent des ports)      |
-| `dto` (HTTP)                       | `<domaine>.web` (souvent sous-paquet `dto`)                 |
-| `dto` (métier / value objects)     | `<domaine>.domain.model`                                    |
-| `mapper` (HTTP)                    | `<domaine>.web` (souvent sous-paquet `mapper`)              |
-| `mapper` (JPA ↔ domaine)           | `<domaine>.infra.persistence`                               |
-| `adapter` (ex: NoopBillingAdapter) | `<domaine>.infra.*` (ex: `tenant.infra.billing`)            |
-| `port`                             | `<domaine>.domain.ports`                                    |
-| `error` (global)                   | `common.error`                                              |
-| `filter` (HTTP)                    | `common.security`                                           |
-| `config`, `properties`             | `common.config` (ou config spécifique de domaine si besoin) |
-| `resolver` (MVC)                   | `common.web`                                                |
-| `context`                          | `common.context`                                            |
-| `constants`                        | `common.domain.model` ou `<domaine>.domain.model`           |
-
-### 3.2. Exemples concrets (à partir de classes réelles)
-
-- `com.tchalanet.server.services.DashboardService`
-  → `com.tchalanet.server.tenant.domain.usecase.GetDashboardUseCase` (ou plusieurs use cases plus petits).
-
-- `com.tchalanet.server.services.UserService`
-  → `com.tchalanet.server.user.domain.usecase.UpsertUserFromJwtUseCase`
-  → (éventuellement) `GetCurrentUserUseCase`.
-
-- `com.tchalanet.server.services.UserPreferenceService`
-  → `com.tchalanet.server.user.domain.usecase.UpdateUserPreferenceUseCase`.
-
-- `com.tchalanet.server.services.ThemeQueryService`
-  → `com.tchalanet.server.tenant.domain.usecase.GetTenantThemesUseCase`.
-
-- `com.tchalanet.server.model.Subscription`, `Plan`, `SubscriptionStatus`, `BillingProvider`
-  → `com.tchalanet.server.tenant.domain.model.Subscription` / `Plan` / `SubscriptionStatus` / `BillingProvider`.
-
-- `com.tchalanet.server.model.Theme`
-  → `com.tchalanet.server.tenant.domain.model.Theme`.
-
-- `com.tchalanet.server.model.UserPreference`
-  → `com.tchalanet.server.user.domain.model.UserPreference`.
-
-- `com.tchalanet.server.filter.RequestUserContextFilter`
-  → `com.tchalanet.server.common.security.RequestUserContextFilter`.
-
-- `com.tchalanet.server.filter.DbTenantRlsFilter`
-  → `com.tchalanet.server.common.security.DbTenantRlsFilter`.
-
-- `com.tchalanet.server.error.ProblemRestException`
-  → `com.tchalanet.server.common.error.ProblemRestException`.
-
-- `com.tchalanet.server.port.BillingResult` (+ futur `BillingPort`)
-  → `com.tchalanet.server.tenant.domain.ports.BillingResult` / `BillingPort`.
+- Les **ports ne vont jamais dans `domain`**.  
+  Ils vivent toujours sous `application.port.in` / `application.port.out`.
 
 ---
 
-## 4. Conventions de nommage & stéréotypes Spring
+## 3. Commands & Queries
 
-### 4.1. Use cases
+### 3.1 Commands
 
-- Localisation : `*.domain.usecase`.
-- Nom : `XxxUseCase` (verbe métier au présent + complément, ex : `CreateTicketUseCase`, `ChangePlanUseCase`).
-- Annotation : stéréotype dédié, par exemple :
+- Doivent être des **records Java**.
+- Nom : `CreateDrawCommand`, `RecordAuditEventCommand`, `PayTicketCommand`, etc.
+- Contiennent les paramètres métiers **déjà validés au niveau “shape”** (types de base).
+
+Exemple :
 
 ```java
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
+public record CreateDrawCommand(
+    UUID tenantId,
+    String channelCode,
+    LocalDate scheduledDate
+) {}
+```
+
+Handler (port d’entrée) :
+
+```java
+public interface CreateDrawCommandHandler {
+    UUID handle(CreateDrawCommand command);
+}
+```
+
+Implémentation :
+
+```java
+@Service
+public class CreateDrawUseCase implements CreateDrawCommandHandler {
+
+    private final DrawWriterPort drawWriter;
+    private final TenantReaderPort tenantReader;
+
+    public CreateDrawUseCase(DrawWriterPort drawWriter,
+                             TenantReaderPort tenantReader) {
+        this.drawWriter = drawWriter;
+        this.tenantReader = tenantReader;
+    }
+
+    @Override
+    @Transactional
+    public UUID handle(CreateDrawCommand command) {
+        // 1. Charger le tenant
+        // 2. Vérifier les invariants métier
+        // 3. Construire l’agrégat Draw
+        // 4. Persister via DrawWriterPort
+        // 5. Retourner l’ID
+        return /* new draw id */;
+    }
+}
+```
+
+### 3.2 Queries
+
+- Doivent aussi être des **records Java**.
+- **Aucun effet de bord**.
+- Ne dépendent que de ports “reader”.
+
+Exemple :
+
+```java
+public record ListUpcomingDrawsQuery(
+    UUID tenantId,
+    String channelCode,
+    int limit
+) {}
+```
+
+Handler :
+
+```java
+public interface ListUpcomingDrawsQueryHandler {
+    List<UpcomingDrawDto> handle(ListUpcomingDrawsQuery query);
+}
+```
+
+---
+
+## 4. Ports : in & out
+
+### 4.1 Ports d’entrée (`application.port.in`)
+
+- Interfaces exposées aux adapters (web, batch, messaging).
+- Correspondent aux handlers de commands / queries.
+
+Exemples :
+
+```java
+public interface CreateTicketCommandHandler { … }
+public interface ListTicketsQueryHandler { … }
+public interface RecordAuditEventCommandHandler { … }
+```
+
+Les controllers REST, aspects, jobs batch **parlent uniquement à ces ports**.
+
+### 4.2 Ports de sortie (`application.port.out`)
+
+- Interfaces décrivant les besoins d’un use case vis-à-vis de l’extérieur :
+  - persistance,
+  - services externes,
+  - caches, etc.
+- Ils sont implémentés exclusivement dans `infra.*`.
+
+Exemples :
+
+```java
+public interface DrawReaderPort {
+    Optional<Draw> findById(UUID tenantId, UUID drawId);
+}
+
+public interface DrawWriterPort {
+    Draw save(Draw draw);
+}
+```
+
+---
+
+## 5. Domaine (domain)
+
+### 5.1 Règles
+
+- Les classes du domaine résident dans `domain.*`.
+- Elles **ne dépendent pas** :
+  - de Spring (`@Service`, `@Component`, etc.),
+  - de JPA (`@Entity`, `@Table`, etc.),
+  - de WebClient / HTTP,
+  - des adapters.
+
+### 5.2 Rich Domain Model
+
+Les entités doivent encapsuler la logique métier et les invariants.
+
+Exemple :
+
+```java
+public final class Draw {
+
+    private final UUID id;
+    private final UUID tenantId;
+    private final String channelCode;
+    private final LocalDate scheduledDate;
+    private final LocalDateTime cutoffAt;
+    private final DrawStatus status;
+
+    public Draw close(LocalDateTime now) {
+        if (status != DrawStatus.SCHEDULED) {
+            throw new DrawAlreadyClosedException(id);
+        }
+        if (now.isBefore(cutoffAt)) {
+            throw new DrawTooEarlyToCloseException(id);
+        }
+        return new Draw(id, tenantId, channelCode, scheduledDate, cutoffAt, DrawStatus.CLOSED);
+    }
+}
+```
+
+Les exceptions associées vivent dans `domain.exception`.
+
+---
+
+## 6. Infra (adapters)
+
+### 6.1 Persistence
+
+- `infra.persistence` contient :
+  - entités JPA (`@Entity`),
+  - repositories Spring Data,
+  - adapters qui implémentent les ports `*ReaderPort` / `*WriterPort`.
+
+Exemple d’adapter :
+
+```java
 @Component
-public @interface UseCase {
-}
-```
+@RequiredArgsConstructor
+public class DrawPersistenceAdapter implements DrawReaderPort, DrawWriterPort {
 
-- Interface vs impl :
-  - On peut définir une interface `CreateTicketUseCase` et une impl `CreateTicketUseCaseImpl` annotée `@UseCase`.
-  - Les contrôleurs dépendent de l’**interface**.
+    private final DrawSpringRepository jpa;
 
-### 4.2. Ports de domaine
-
-- Localisation : `*.domain.ports`.
-- Nom : `XxxRepository`, `XxxPort`, `XxxClient` (selon le rôle).
-- Pas d’annotations Spring / JPA.
-- Exemple :
-
-```java
-public interface TicketRepository {
-    Optional<Ticket> findById(TicketId id);
-    Ticket save(Ticket ticket);
-}
-```
-
-### 4.3. Infrastructure (implémentations techniques)
-
-- Localisation : `*.infra.persistence`, `*.infra.messaging`, `*.infra.billing`, etc.
-- Concrètement :
-  - Entités JPA : `TicketJpaEntity`, `TenantJpaEntity`…
-  - Repositories Spring Data : `TicketJpaRepository extends JpaRepository<...>`.
-  - Adaptateurs d’API externe : `KeycloakUserClient`, `BillingHttpClient`, etc.
-
-### 4.4. Web (API HTTP)
-
-- Localisation : `*.web`.
-- Contenu :
-  - `@RestController`, `@Controller`.
-  - DTO HTTP (`TicketResponse`, `CreateTicketRequest`, etc.).
-  - Mappers HTTP (`TicketHttpMapper`).
-
-Les contrôleurs **ne dépendent pas** directement de `repository` ni d’entités JPA : ils parlent uniquement en termes de use cases + DTO HTTP.
-
----
-
-## 5. Stratégie de migration progressive
-
-### 5.1. Ordre recommandé
-
-1. **Stabiliser `common`** :
-
-   - Créer / documenter `common.error`, `common.web`, `common.context`, `common.security`, `common.config`.
-   - Déplacer les filtres globaux, exceptions transverses, résolveurs globaux.
-
-2. **Introduire les packages de domaines** (sans déplacer le code tout de suite) :
-
-   - `tenant.domain.{model,ports,usecase}`, `tenant.infra.persistence`, `tenant.web`.
-   - même chose pour `user`, `ticket`, `draw`.
-
-3. **Choisir un service pilote** simple à transformer en use case\*\* (par ex. `DashboardService`).
-
-4. **Pour chaque domaine** : appliquer la même séquence :
-   - Créer les interfaces de ports (`*.domain.ports`).
-   - Créer les modèles métier (`*.domain.model`) à partir de `model.*`.
-   - Créer les use cases (`*.domain.usecase`) à partir de `services.*`.
-   - Créer les impls infra (`*.infra.persistence`, etc.) qui implémentent les ports.
-   - Adapter les contrôleurs existants pour appeler les use cases.
-   - Enfin, déplacer DTO / mappers dans `*.web` et supprimer progressivement les packages techniques historiques (`services`, `model`, `repository`, `dto`, `mapper`).
-
-### 5.2. Bridges et @Deprecated pendant la migration
-
-Pour ne pas casser le build ni tout refactorer d’un coup :
-
-- On peut garder des classes “pont” dans les anciens packages (ex: `services.SubscriptionService`) qui délèguent aux nouveaux use cases, annotées `@Deprecated`.
-- Idem pour certains DTO ou mappers.
-
-À la fin de la migration, ces classes seront supprimées quand tous les appels auront été migrés vers les nouveaux packages.
-
----
-
-## 6. Exemples de squelette (ticket & tenant)
-
-### 6.1. Ticket – squelette minimal
-
-```java
-// ticket.domain.model
-public record TicketId(String value) {}
-
-public enum TicketStatus {
-    PENDING, VALIDATED, CANCELED
-}
-
-public class Ticket {
-    private final TicketId id;
-    private final TicketStatus status;
-    // TODO: autres champs (joueur, combinaisons, montants...)
-
-    public Ticket(TicketId id, TicketStatus status) {
-        this.id = id;
-        this.status = status;
+    @Override
+    public Optional<Draw> findById(UUID tenantId, UUID drawId) {
+        return jpa.findByIdAndTenantId(drawId, tenantId).map(this::toDomain);
     }
 
-    public TicketId id() { return id; }
-    public TicketStatus status() { return status; }
-}
-```
-
-```java
-// ticket.domain.ports
-public interface TicketRepository {
-    Optional<Ticket> findById(TicketId id);
-    Ticket save(Ticket ticket);
-}
-
-public interface TicketSearchPort {
-    List<Ticket> searchTicketsByTenant(String tenantId);
-}
-```
-
-```java
-// ticket.domain.usecase
-public interface CreateTicketUseCase {
-    Ticket createTicket(/* TODO: paramètres métier (tenantId, payload, ...) */);
-}
-
-public interface VerifyTicketUseCase {
-    boolean verifyTicket(TicketId id);
-}
-```
-
-### 6.2. Tenant – squelette minimal
-
-```java
-// tenant.domain.model
-public record TenantId(String value) {}
-
-public class Tenant {
-    private final TenantId id;
-    // TODO: autres champs (nom, statut, limites, thème actif...)
-
-    public Tenant(TenantId id) {
-        this.id = id;
+    @Override
+    public Draw save(Draw draw) {
+        var entity = toEntity(draw);
+        var saved = jpa.save(entity);
+        return toDomain(saved);
     }
-
-    public TenantId id() { return id; }
-}
-
-public class AutonomyPolicy {
-    // TODO: définir les règles d’autonomie du tenant (changement de plan seul, limites, ...)
 }
 ```
 
-```java
-// tenant.domain.usecase
-public interface ConfigureTenantThemeUseCase {
-    void configureTheme(TenantId tenantId /*, autres paramètres métier (themeId, palette...) */);
-}
-```
+### 6.2 Web
 
-Ces classes sont volontairement incomplètes : elles servent de squelette pour guider la migration.
+- `infra.web` :
+  - `@RestController` minces,
+  - mapping HTTP ↔ Commands / Queries ↔ DTOs.
+
+Les controllers :
+
+- ne contiennent **aucune règle métier**,
+- ne parlent **jamais** aux repositories ou WebClient directement,
+- appellent uniquement les handlers via ports `in`.
+
+### 6.3 External
+
+- `infra.external` :
+  - clients `WebClient` pour API externes,
+  - mapping JSON ↔ DTO.
+
+Les détails HTTP **ne fuient pas** vers `application` ou `domain`.
 
 ---
 
-## 7. Règle d’or "common vs domaine"
+## 7. Multi-tenancy & RLS
 
-- Si un élément n’est utilisé que dans un seul domaine (par ex. `TicketStatus`), il doit **rester dans ce domaine** (`ticket.domain.model`).
-- `common` ne doit contenir que ce qui est **vraiment partagé** (erreurs bas niveau, contexte, sécurité, types génériques…).
+### 7.1 Colonne tenant & audit
 
-# Use cases, ports & adapters dans Tchalanet
+Toutes les tables multi-tenant incluent :
 
-Ce document explique les concepts clés de l’architecture applicative Tchalanet et comment migrer progressivement depuis l’ancien modèle `controller → service → repository` vers le modèle **domain/usecase/port/adapter**.
-
----
-
-## 1. Use Case
-
-### 1.1 Définition
-
-Un **use case** représente une **action métier concrète** que l’application peut réaliser.
-
-- 1 use case = 1 classe dans `*.domain.usecase`.
-- Il orchestre :
-  - le modèle métier (`*.domain.model`)
-  - les ports (`*.domain.ports`)
-  - éventuellement plusieurs domaines
-- Il ne connaît rien de HTTP, de JPA, ni de la façon dont les données sont stockées.
-
-Exemples de use cases pour Tchalanet :
-
-- `CreateTicketUseCase`
-- `VerifyTicketUseCase`
-- `ConfigureTenantThemeUseCase`
-- `UpdateUserPreferenceUseCase`
-- `ScheduleDrawUseCase`
-
-### 1.2 Exemple de squelette
-
-```java
-// ticket.domain.usecase
-@UseCase
-public class CreateTicketUseCase {
-
-    private final TicketRepository ticketRepository;
-    private final TenantContext tenantContext;
-
-    public CreateTicketUseCase(TicketRepository ticketRepository,
-                               TenantContext tenantContext) {
-        this.ticketRepository = ticketRepository;
-        this.tenantContext = tenantContext;
-    }
-
-    public Ticket handle(CreateTicketCommand command) {
-        // TODO: logique métier (autonomie, limites, tirage, etc.)
-        // 1. valider la requête
-        // 2. construire le Ticket (domain.model)
-        // 3. persister via TicketRepository (port)
-        // 4. retourner le Ticket créé
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-}
-
----
-
-## Documentation complémentaire
-
-Pour les détails d'implémentation et les runbooks, voir les documents techniques dans `docs/` :
-
-- `docs/persistence.md`  — description de la couche persistence, conventions d'ID, BaseEntity/BaseTenantEntity, converters JSON, version technique et migrations Flyway.
-- `docs/rls.md`          — explication des fonctions SQL RLS (`set_current_tenant`, `set_deleted_visibility`), politiques RLS, et fonctionnement du filtre `DbAppRlsFilter`.
-- `docs/audit.md`        — stratégie d'audit (Hibernate Envers + `audit_event`), recommandations pour persister l'audit afterCommit, et use cases.
-
-Ces documents sont destinés à être la référence rapide pour les développeurs qui travaillent sur la persistance, la sécurité au niveau DB (RLS) et l'audit.
+```sql
+tenant_id    uuid        NOT NULL,
+version      bigint      NOT NULL DEFAULT 0,
+created_at   timestamptz NOT NULL DEFAULT now(),
+created_by   uuid,
+updated_at   timestamptz NOT NULL DEFAULT now(),
+updated_by   uuid,
+deleted_at   timestamptz
 ```
+
+- `tenant_id` est **obligatoire** et géré par :
+  - RequestContext + hooks JPA (`TenantEntityListener`),
+  - règles RLS.
+
+### 7.2 RLS
+
+Les migrations doivent définir des policies RLS typiques :
+
+```sql
+ALTER TABLE ticket ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY ticket_tenant_isolation
+  ON ticket
+  USING (tenant_id = current_setting('app.tenant')::uuid);
+```
+
+Les adapters ne doivent jamais ignorer `tenantId`.
+
+---
+
+## 8. Exemples de domaines (BC)
+
+### 8.1 AccessControl
+
+- Rôle : calcul des permissions d’un user par tenant.
+- Ports :
+  - in : `CheckUserPermissionsUseCase`, `GetEffectivePermissionsUseCase`.
+  - out : `TenantUserDirectoryPort`, `PermissionCatalogPort`.
+
+### 8.2 Audit
+
+- Rôle : traçabilité des actions + révisions Envers.
+- Ports :
+  - in : `RecordAuditEventCommandHandler`, `ListRecentAuditEventsQueryHandler`, etc.
+  - out : `AuditEventReaderPort`, `AuditEventWriterPort`, `RevisionReaderPort`.
+
+### 8.3 Draw / Ticket / Session / TenantConfig / PageModel
+
+- Suivent le même pattern : `domain` riche, `application` en CQRS, `infra` en adapters.
+
+---
+
+## 9. Règles transversales
+
+- Pas de “service layer” anémique.
+- Pas de logique métier dans les controllers / adapters.
+- Logging :
+  - utiliser SLF4J,
+  - messages structurés,
+  - pas de `System.out.println`.
+- Gestion d’erreurs HTTP via `@ControllerAdvice` global :
+  - 400 : validations,
+  - 403 : accès interdit,
+  - 404 : ressources non trouvées,
+  - 500 : erreurs inattendues.
+
+---
+
+## 10. Tests
+
+- **Tests domaine** :
+
+  - pas de Spring,
+  - instanciation directe des entités / services.
+
+- **Tests application** :
+
+  - use cases testés avec des faux ports / in-memory ports.
+
+- **Tests adapters** :
+  - persistence : Testcontainers Postgres,
+  - external HTTP : MockWebServer / mocks WebClient,
+  - web : `@WebMvcTest` pour les controllers.
+
+---
+
+## 11. Références externes
+
+Ces références sont la base conceptuelle de cette architecture :
+
+- Hexagonal Architecture — Alistair Cockburn  
+  https://alistair.cockburn.us/hexagonal-architecture/
+
+- Clean Architecture — Robert C. Martin  
+  https://www.oreilly.com/library/view/clean-architecture/9780134494272/
+
+- CQRS Documents — Greg Young  
+  https://cqrs.files.wordpress.com/2010/11/cqrs_documents.pdf
+
+- Domain-Driven Design — Eric Evans  
+  https://domainlanguage.com/
+
+---
+
+## 12. Priorité du document
+
+En cas de conflit entre ce document et un autre fichier de documentation :
+
+- **ARCHITECTURE.md prévaut** pour :
+  - structure des packages,
+  - localisation des ports,
+  - principes Hexagonal/CQRS,
+  - séparation domain / application / infra.

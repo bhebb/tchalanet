@@ -1,10 +1,13 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.common.audit.domain.model.AuditAction;
-import com.tchalanet.server.common.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.domain.model.AuditAction;
+import com.tchalanet.server.audit.domain.model.AuditActorType;
+import com.tchalanet.server.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.audit.domain.model.AuditEvent;
+import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
+import com.tchalanet.server.draw.domain.model.DrawStatus;
 import com.tchalanet.server.draw.domain.ports.DrawRepository;
 import com.tchalanet.server.draw.domain.usecase.AdminUpdateDrawUseCase;
 import com.tchalanet.server.draw.web.dto.UpdateDrawRequest;
@@ -41,16 +44,16 @@ public class AdminUpdateDrawUseCaseImpl implements AdminUpdateDrawUseCase {
       changed = true;
     }
     if (req.getStatus() != null) {
-      d = d.withStatus(req.getStatus());
+      d = d.withStatus(DrawStatus.valueOf(req.getStatus()));
       changed = true;
     }
     if (req.getResultPayload() != null) {
-      d = d.withResultPayload(req.getResultPayload());
+      d = d.withResultPayload(req.getResultPayload().toString());
       changed = true;
     }
 
     // mark manual edit (distinct from manual result)
-    d = d.withSystemGenerated(false).withDrawSource("MANUAL_EDIT");
+    d = d.withSystemGenerated(false);
     if (req.getLocked() != null) d = d.withLocked(req.getLocked());
     else d = d.withLocked(true);
 
@@ -60,11 +63,18 @@ public class AdminUpdateDrawUseCaseImpl implements AdminUpdateDrawUseCase {
     var saved = drawRepository.save(d);
 
     // audit
-    audit.log(
-        AuditEntityType.DRAW,
-        saved.id().toString(),
-        AuditAction.UPDATE,
-        Map.of("admin", adminId.toString(), "changes", "manual update"));
+    var ev =
+        AuditEvent.of(
+            saved.tenantId(),
+            AuditActorType.USER,
+            adminId == null ? "admin" : adminId.toString(),
+            AuditEntityType.DRAW,
+            saved.id().toString(),
+            AuditAction.UPDATE,
+            Map.of("by", "admin").toString(),
+            null,
+            null);
+    audit.log(ev);
 
     return saved;
   }

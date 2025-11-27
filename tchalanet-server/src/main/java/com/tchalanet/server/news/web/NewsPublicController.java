@@ -1,9 +1,9 @@
 package com.tchalanet.server.news.web;
 
-import com.tchalanet.server.common.usecase.ListPublicNewsUseCase;
+import com.tchalanet.server.news.application.ports.in.ListPublicNewsUseCase;
+import com.tchalanet.server.news.domain.model.NewsArticle;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +20,8 @@ public class NewsPublicController {
   private final Random random = new Random();
 
   @GetMapping("/random")
-  public List<Map<String, Object>> random(@RequestParam(defaultValue = "5") int count) {
-    var all = newsUseCase.listPublicNews();
+  public List<NewsArticle> random(@RequestParam(defaultValue = "5") int count) {
+    var all = newsUseCase.listNews();
     if (all.isEmpty()) return Collections.emptyList();
     // shuffle and pick count
     Collections.shuffle(all, random);
@@ -29,9 +29,9 @@ public class NewsPublicController {
   }
 
   @GetMapping
-  public List<Map<String, Object>> list(
+  public List<NewsArticle> list(
       @RequestParam(defaultValue = "0") int offset, @RequestParam(defaultValue = "20") int limit) {
-    var all = newsUseCase.listPublicNews();
+    var all = newsUseCase.listNews();
     if (all.isEmpty()) return Collections.emptyList();
     int from = Math.max(0, offset);
     int to = Math.min(all.size(), from + Math.max(1, limit));

@@ -1,8 +1,10 @@
 package com.tchalanet.server.tenant.domain.usecase.impl;
 
-import com.tchalanet.server.common.audit.domain.model.AuditAction;
-import com.tchalanet.server.common.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.domain.model.AuditAction;
+import com.tchalanet.server.audit.domain.model.AuditActorType;
+import com.tchalanet.server.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.audit.domain.model.AuditEvent;
+import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.common.error.ProblemRestException;
 import com.tchalanet.server.tenant.domain.model.Plan;
@@ -10,6 +12,7 @@ import com.tchalanet.server.tenant.domain.ports.PlanRepository;
 import com.tchalanet.server.tenant.domain.usecase.PlanCrudUseCase;
 import com.tchalanet.server.tenant.infra.persistence.JpaSubscriptionRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,10 +66,17 @@ public class PlanCrudUseCaseImpl implements PlanCrudUseCase {
     }
     // soft-delete and log audit
     planRepository.softDeleteByCode(code);
-    auditLog.log(
-        AuditEntityType.PLAN,
-        plan.id().toString(),
-        AuditAction.SOFT_DELETE,
-        java.util.Map.of("code", plan.code()));
+    var ev =
+        AuditEvent.of(
+            /* tenantId */ null,
+            AuditActorType.USER,
+            /* actorId */ null,
+            AuditEntityType.PLAN,
+            plan.id().toString(),
+            AuditAction.SOFT_DELETE,
+            Map.of("code", plan.code()).toString(),
+            null,
+            null);
+    auditLog.log(ev);
   }
 }

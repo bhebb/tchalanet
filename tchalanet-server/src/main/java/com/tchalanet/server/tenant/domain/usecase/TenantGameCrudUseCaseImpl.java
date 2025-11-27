@@ -1,7 +1,7 @@
 package com.tchalanet.server.tenant.domain.usecase;
 
-import com.tchalanet.server.common.domain.TenantId;
 import com.tchalanet.server.tenant.domain.model.TenantGame;
+import com.tchalanet.server.tenant.domain.model.TenantId;
 import com.tchalanet.server.tenant.domain.ports.TenantGameRepository;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +26,6 @@ public class TenantGameCrudUseCaseImpl implements TenantGameCrudUseCase {
 
   @Override
   public List<TenantGame> listByTenant(UUID tenantId) {
-    return tenantGameRepository.findByTenant(TenantId.of(tenantId));
+    return tenantGameRepository.findByTenant(new TenantId(tenantId));
   }
 }

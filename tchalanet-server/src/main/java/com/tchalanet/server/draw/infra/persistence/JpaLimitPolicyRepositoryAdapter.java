@@ -24,7 +24,8 @@ public class JpaLimitPolicyRepositoryAdapter implements LimitPolicyRepository {
                     e.getScope(),
                     e.getTarget(),
                     e.getDailyCap(),
-                    e.getOnBreach()));
+                    com.tchalanet.server.draw.domain.model.LimitPolicy.BreachOutcome.valueOf(
+                        e.getOnBreach())));
   }
 
   @Override
@@ -35,7 +36,7 @@ public class JpaLimitPolicyRepositoryAdapter implements LimitPolicyRepository {
     e.setScope(p.scope());
     e.setTarget(p.target());
     e.setDailyCap(p.dailyCap());
-    e.setOnBreach(p.onBreach());
+    e.setOnBreach(p.onBreach().name());
     var saved = jpa.save(e);
     return new LimitPolicy(
         saved.getId(),
@@ -43,6 +44,7 @@ public class JpaLimitPolicyRepositoryAdapter implements LimitPolicyRepository {
         saved.getScope(),
         saved.getTarget(),
         saved.getDailyCap(),
-        saved.getOnBreach());
+        com.tchalanet.server.draw.domain.model.LimitPolicy.BreachOutcome.valueOf(
+            saved.getOnBreach()));
   }
 }

@@ -5,8 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.5</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>4.0.0</version>
+        <relativePath/>
     </parent>
     <groupId>com.tchalanet</groupId>
     <artifactId>tchalanet-server</artifactId>
@@ -15,25 +15,27 @@
     <description>tchalanet-server</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>21</java.version>
-        <spotless.plugin.version>2.43.0</spotless.plugin.version>
+        <java.version>25</java.version>
+        <!-- Plugin versions chosen for stability and compatibility -->
+        <spotless.plugin.version>3.1.0</spotless.plugin.version>
         <googlejavaformat.version>1.28.0</googlejavaformat.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.config>checkstyle/google_checks.xml</checkstyle.config>
-        <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
-        <maven.failsafe.plugin.version>3.5.3</maven.failsafe.plugin.version>
-        <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
-        <sonar.maven.plugin.version>5.2.0.4988</sonar.maven.plugin.version>
-        <dependencycheck.plugin.version>12.1.3</dependencycheck.plugin.version>
+        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>3.5.4</maven.failsafe.plugin.version>
+        <jacoco.plugin.version>0.8.14</jacoco.plugin.version>
+        <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
+        <dependencycheck.plugin.version>12.1.9</dependencycheck.plugin.version>
 
         <!-- Third party versions centralised -->
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <mapstruct.processor.version>${mapstruct.version}</mapstruct.processor.version>
-        <caffeine.version>3.1.8</caffeine.version>
-        <lombok.version>1.18.32</lombok.version>
-        <hibernate.version>6.6.26.Final</hibernate.version>
+        <caffeine.version>3.2.3</caffeine.version>
+        <lombok.version>1.18.40</lombok.version>
+        <hibernate.version>6.6.37.Final</hibernate.version>
         <testcontainers.version>1.20.3</testcontainers.version>
-        <springdoc.version>2.8.13</springdoc.version>
+        <springdoc.version>3.0.0</springdoc.version>
+        <spring.batch.version>6.0.0</spring.batch.version>
 
         <!-- SonarQube (à ajuster) -->
         <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
@@ -172,6 +174,7 @@
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
+            <version>${spring.batch.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -183,6 +186,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <release>${java.version}</release>
                     <fork>true</fork>
                     <annotationProcessorPaths>
                         <path>
@@ -215,6 +219,13 @@
                         </configuration>
                     </execution>
                 </executions>
+              <dependencies>
+                <dependency>
+                  <groupId>net.bytebuddy</groupId>
+                  <artifactId>byte-buddy</artifactId>
+                  <version>1.18.1</version>
+                </dependency>
+              </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
@@ -233,7 +244,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Enforcer: Java 21 & Maven minimum -->
+            <!-- Enforcer: Java 25 & Maven minimum -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -246,7 +257,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[21,)</version>
+                                    <version>[25,)</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
                                     <version>[3.9.0,)</version>
