@@ -1,8 +1,9 @@
-package com.tchalanet.server.common.infra.persistence.audit;
+package com.tchalanet.server.common.persistence.audit;
 
-import static com.tchalanet.server.common.domain.AppConstants.REQUEST_CONTEXT;
+import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.PrePersist;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.RequestAttributes;
@@ -19,7 +20,7 @@ public class TenantEntityListener {
           RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
           if (attrs != null) {
             Object ctx = attrs.getAttribute(REQUEST_CONTEXT, RequestAttributes.SCOPE_REQUEST);
-            if (ctx instanceof com.tchalanet.server.common.context.TchRequestContext tch) {
+            if (ctx instanceof TchRequestContext tch) {
               var tenant = tch.tenantUuid();
               if (tenant != null) {
                 tenantEntity.setTenantId(tenant);

@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.usecase;
+package com.tchalanet.server.pagemodel.application.port.in;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import java.util.Map;

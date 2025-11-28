@@ -1,6 +1,6 @@
 package com.tchalanet.server.user.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;

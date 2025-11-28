@@ -1,10 +1,10 @@
-package com.tchalanet.server.common.web;
+package com.tchalanet.server.pagemodel.web;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.usecase.GetI18nConfigUseCase;
+import com.tchalanet.server.pagemodel.application.port.in.GetI18nConfigUseCase;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

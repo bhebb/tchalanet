@@ -1,10 +1,10 @@
 package com.tchalanet.server.user.domain.usecase;
 
-import com.tchalanet.server.common.web.dto.MeThemeResponse;
 import com.tchalanet.server.tenant.domain.model.TenantId;
 import com.tchalanet.server.tenant.domain.usecase.GetPublishedThemeUseCase;
 import com.tchalanet.server.user.domain.model.UserId;
 import com.tchalanet.server.user.domain.ports.UserPreferenceRepository;
+import com.tchalanet.server.user.web.dto.MeThemeResponse;
 import com.tchalanet.server.user.web.dto.UserPrefDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

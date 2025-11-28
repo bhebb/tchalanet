@@ -1,7 +1,7 @@
 package com.tchalanet.server.draw.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.infra.persistence.MapToJsonConverter;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.MapToJsonConverter;
 import com.tchalanet.server.pos.infra.persistence.TicketJpaEntity;
 import jakarta.persistence.*;
 import java.time.Instant;

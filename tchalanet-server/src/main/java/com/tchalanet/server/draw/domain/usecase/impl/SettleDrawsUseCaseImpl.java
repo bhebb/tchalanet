@@ -1,7 +1,7 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
 import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort.DrawExternalQuery;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort.ExternalDrawResult;

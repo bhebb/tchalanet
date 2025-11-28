@@ -1,6 +1,6 @@
 package com.tchalanet.server.audit.infra.config;
 
-import com.tchalanet.server.common.context.RequestContextHolder;
+import com.tchalanet.server.common.context.TchRequestContextHolder;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RequestContextAuditorAware implements AuditorAware<UUID> {
 
-  private final RequestContextHolder ctxHolder;
+  private final TchRequestContextHolder ctxHolder;
 
   /**
    * Retourne l'UUID de l'utilisateur courant pour l'auditing Spring Data. Si le context est absent

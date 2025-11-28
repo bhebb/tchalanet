@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.web.dto;
+package com.tchalanet.server.tenantconfig.domain.model;
 
 import java.util.List;
 

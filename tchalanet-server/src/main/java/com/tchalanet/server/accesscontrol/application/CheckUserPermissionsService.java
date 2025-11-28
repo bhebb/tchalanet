@@ -7,7 +7,7 @@ import com.tchalanet.server.accesscontrol.domain.exception.PermissionsDeniedExce
 import com.tchalanet.server.accesscontrol.domain.model.CheckPermissionsResult;
 import com.tchalanet.server.accesscontrol.domain.model.EffectivePermissions;
 import com.tchalanet.server.accesscontrol.domain.model.Permission;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.featureflags.domain.model.FeatureContext;
 import com.tchalanet.server.featureflags.domain.ports.in.IsFeatureEnabledQuery;
 import java.util.Collection;

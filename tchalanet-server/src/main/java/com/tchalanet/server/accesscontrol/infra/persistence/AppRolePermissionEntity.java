@@ -1,6 +1,6 @@
 package com.tchalanet.server.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.AuditableEntity;
+import com.tchalanet.server.common.persistence.AuditableEntity;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

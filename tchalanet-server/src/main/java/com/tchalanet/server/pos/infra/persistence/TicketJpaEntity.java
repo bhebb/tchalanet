@@ -1,6 +1,6 @@
 package com.tchalanet.server.pos.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.draw.infra.persistence.DrawJpaEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;

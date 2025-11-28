@@ -3,7 +3,7 @@ package com.tchalanet.server.audit.application.command.handler;
 import com.tchalanet.server.audit.application.command.model.PurgeOldAuditEventsCommand;
 import com.tchalanet.server.audit.application.port.in.PurgeOldAuditEventsCommandHandler;
 import com.tchalanet.server.audit.application.port.out.AuditEventWriterPort;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.draw.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

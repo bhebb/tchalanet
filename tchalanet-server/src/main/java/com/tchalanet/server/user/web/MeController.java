@@ -5,7 +5,6 @@ import com.tchalanet.server.accesscontrol.infra.security.RoleUtils;
 import com.tchalanet.server.accesscontrol.infra.security.RoleUtils.RoleSplit;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.web.dto.ContextDto;
 import com.tchalanet.server.tenant.application.ports.in.GetTenantContextUseCase;
 import com.tchalanet.server.user.web.dto.UserContextResponse;
 import java.util.List;
@@ -42,7 +41,7 @@ public class MeController {
   }
 
   @GetMapping(value = "/context", produces = "application/json")
-  public ResponseEntity<ContextDto> context(
+  public ResponseEntity<UserContextResponse> context(
       @AuthenticationPrincipal Jwt jwt,
       @CurrentContext TchRequestContext context,
       @RequestParam(required = false) String featureSetId) {

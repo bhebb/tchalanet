@@ -1,8 +1,8 @@
 // common/infra/audit/TchRevisionListener.java
 package com.tchalanet.server.audit.infra.persistence.envers;
 
-import com.tchalanet.server.common.context.RequestContextHolder;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.TchRequestContextHolder;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class TchRevisionListener implements RevisionListener {
 
-  private final RequestContextHolder ctxHolder;
+  private final TchRequestContextHolder ctxHolder;
 
   @Override
   public void newRevision(Object revisionEntity) {

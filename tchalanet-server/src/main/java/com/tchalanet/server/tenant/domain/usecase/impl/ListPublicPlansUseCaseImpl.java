@@ -1,6 +1,6 @@
 package com.tchalanet.server.tenant.domain.usecase.impl;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.tenant.domain.model.Plan;
 import com.tchalanet.server.tenant.domain.ports.PlanRepository;
 import com.tchalanet.server.tenant.domain.usecase.ListPublicPlansUseCase;

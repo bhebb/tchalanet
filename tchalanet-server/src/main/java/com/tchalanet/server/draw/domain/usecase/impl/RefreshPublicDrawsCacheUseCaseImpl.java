@@ -1,6 +1,6 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.draw.domain.usecase.GetPublicDrawSummaryUseCase;
 import com.tchalanet.server.draw.domain.usecase.RefreshPublicDrawsCacheUseCase;
 import com.tchalanet.server.tenant.infra.persistence.TenantJpaRepository;

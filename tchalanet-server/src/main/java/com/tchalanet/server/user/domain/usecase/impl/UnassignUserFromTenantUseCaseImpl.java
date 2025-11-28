@@ -1,6 +1,6 @@
 package com.tchalanet.server.user.domain.usecase.impl;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.tenant.domain.ports.TenantUserRepository;
 import com.tchalanet.server.user.domain.usecase.UnassignUserFromTenantUseCase;
 import java.util.UUID;

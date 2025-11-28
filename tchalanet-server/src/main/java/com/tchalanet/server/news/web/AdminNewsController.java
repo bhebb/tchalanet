@@ -1,7 +1,7 @@
 package com.tchalanet.server.news.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.common.usecase.RefreshPublicNewsUseCase;
+import com.tchalanet.server.news.application.ports.out.RefreshPublicNewsUseCase;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,6 @@
-package com.tchalanet.server.common.infra.persistence;
+package com.tchalanet.server.common.persistence;
 
-import com.tchalanet.server.common.infra.persistence.audit.TenantEntityListener;
+import com.tchalanet.server.common.persistence.audit.TenantEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

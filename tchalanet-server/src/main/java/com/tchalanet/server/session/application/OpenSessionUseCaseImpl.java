@@ -1,6 +1,6 @@
 package com.tchalanet.server.session.application;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.session.domain.model.PosSession;
 import com.tchalanet.server.session.domain.ports.in.OpenSessionUseCase;
 import com.tchalanet.server.session.domain.ports.out.PosSessionRepositoryPort;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.tenant.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.infra.persistence.MapToJsonConverter;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.MapToJsonConverter;
 import com.tchalanet.server.tenant.domain.model.BillingProvider;
 import com.tchalanet.server.tenant.domain.model.SubscriptionStatus;
 import jakarta.persistence.Column;

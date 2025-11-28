@@ -1,6 +1,6 @@
 package com.tchalanet.server.user.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseEntity;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.user.domain.model.ThemeMode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

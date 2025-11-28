@@ -1,6 +1,6 @@
 package com.tchalanet.server.pagemodel.infrastructure.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseEntity; // Extend BaseEntity
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.*;
 // Not needed if using Instant from BaseEntity
 import java.util.UUID;

@@ -5,7 +5,8 @@ import com.tchalanet.server.audit.application.port.in.RecordAuditEventCommandHan
 import com.tchalanet.server.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.stereotype.UseCase;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RecordAuditEventUseCase implements RecordAuditEventCommandHandler {
 
   private final AuditEventWriterPort writerPort;
-  private final com.tchalanet.server.common.context.RequestContextHolder ctxHolder;
+  private final TchRequestContextHolder ctxHolder;
   private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
   @Override

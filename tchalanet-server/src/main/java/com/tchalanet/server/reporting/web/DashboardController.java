@@ -1,6 +1,5 @@
 package com.tchalanet.server.reporting.web;
 
-import com.tchalanet.server.common.web.dto.TenantFeaturesDto;
 import com.tchalanet.server.draw.domain.usecase.GetNextDrawUseCase;
 import com.tchalanet.server.reporting.domain.usecase.GetTenantKpisUseCase;
 import com.tchalanet.server.reporting.web.dto.DrawSummaryDto;
@@ -23,15 +22,6 @@ public class DashboardController {
   private final GetTenantFeaturesUseCase getTenantFeaturesUseCase;
   private final GetTenantKpisUseCase getTenantKpisUseCase;
   private final GetNextDrawUseCase getNextDrawUseCase;
-
-  @GetMapping("/tenant/features")
-  @PreAuthorize("hasAuthority('SCOPE_console.api:read')")
-  public ResponseEntity<TenantFeaturesDto> getTenantFeatures(
-      @RequestParam String tenant, @RequestParam String role) {
-
-    TenantFeaturesDto features = getTenantFeaturesUseCase.execute(tenant, role);
-    return ResponseEntity.ok(features);
-  }
 
   @GetMapping("/console/kpis")
   @PreAuthorize("hasAuthority('SCOPE_console.api:read')")

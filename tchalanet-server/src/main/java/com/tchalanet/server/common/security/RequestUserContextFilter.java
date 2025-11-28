@@ -1,23 +1,30 @@
 package com.tchalanet.server.common.security;
 
-import static com.tchalanet.server.common.domain.AppConstants.REQUEST_CONTEXT;
-import static com.tchalanet.server.common.domain.AppConstants.TENANT_ID_CLAIMS;
+import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
+import static com.tchalanet.server.common.constant.SecurityClaims.TENANT_ID_CLAIMS;
+import static com.tchalanet.server.common.constant.TchHeaders.X_FORWARDED_FOR;
+import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
+import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.accesscontrol.domain.model.TchRole;
 import com.tchalanet.server.accesscontrol.infra.security.RoleUtils;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.usecase.ResolveTenantUseCase;
+import com.tchalanet.server.tenantconfig.application.port.in.ResolveTenantQueryHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
@@ -30,88 +37,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * SA-in-tenant mode.
  */
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE - 10) // ensure this runs after Spring Security's JWT filter
+@Order(Ordered.LOWEST_PRECEDENCE - 10)
 @RequiredArgsConstructor
 public class RequestUserContextFilter extends OncePerRequestFilter {
 
-  private static final String X_REQUEST_ID = "X-Request-Id";
-  private static final String X_FORWARDED_FOR = "X-Forwarded-For";
-
-  private final ApiProperties props; // provides defaultTenant(), etc.
-  private final ResolveTenantUseCase tenantResolver;
+  private final ApiProperties props;
+  private final ResolveTenantQueryHandler tenantResolver;
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws ServletException, IOException {
 
-    var originalTenantCode = props.defaultTenant();
-    UUID originalTenantId = null;
-    var effectiveTenantCode = originalTenantCode;
-    UUID effectiveTenantId = null;
-
-    String userId = null;
-    var locale = req.getLocale();
-    var requestId =
-        Optional.ofNullable(req.getHeader(X_REQUEST_ID)).orElse(UUID.randomUUID().toString());
-    var clientIp =
-        Optional.ofNullable(req.getHeader(X_FORWARDED_FOR)).orElseGet(req::getRemoteAddr);
-
-    var systemRoles = new HashSet<TchRole>();
-    Set<String> customRoles = new HashSet<>();
-    var overridden = false;
-
-    var auth = SecurityContextHolder.getContext().getAuthentication();
-    if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Jwt jwt) {
-      userId = jwt.getSubject();
-
-      var jwtTenant = jwt.getClaimAsString(TENANT_ID_CLAIMS);
-      if (jwtTenant != null && !jwtTenant.isBlank()) {
-        originalTenantCode = jwtTenant;
-        effectiveTenantCode = jwtTenant;
-        var resolved = tenantResolver.resolveIdByCode(jwtTenant);
-        if (resolved.isPresent()) originalTenantId = resolved.get();
-      }
-
-      var rawRoles = RoleUtils.collectRoles(jwt);
-      var split = RoleUtils.splitRoles(rawRoles);
-      systemRoles.addAll(split.system);
-      customRoles = split.custom;
-
-      var isSA = systemRoles.contains(TchRole.SUPER_ADMIN);
-      var overrideTenant =
-          Optional.ofNullable(req.getHeader("X-Tenant-Id")).orElse(req.getParameter("tenantId"));
-      if (isSA && overrideTenant != null && !overrideTenant.isBlank()) {
-        effectiveTenantCode = overrideTenant;
-        overridden = true;
-        var resolved = tenantResolver.resolveIdByCode(overrideTenant);
-        if (resolved.isPresent()) effectiveTenantId = resolved.get();
-      }
-    }
-
-    if (effectiveTenantId == null) effectiveTenantId = originalTenantId;
-
-    var ctx =
-        new TchRequestContext(
-            originalTenantCode,
-            originalTenantId,
-            effectiveTenantCode,
-            effectiveTenantId,
-            userId,
-            systemRoles,
-            customRoles,
-            locale,
-            requestId,
-            clientIp,
-            overridden);
+    var ctx = buildRequestContext(req);
 
     req.setAttribute(REQUEST_CONTEXT, ctx);
-
-    MDC.put("tenant_original", originalTenantCode != null ? originalTenantCode : "-");
-    MDC.put("tenant_effective", effectiveTenantCode != null ? effectiveTenantCode : "-");
-    MDC.put("tenant_overridden", String.valueOf(overridden));
-    MDC.put("user", userId != null ? userId : "-");
-    MDC.put("reqId", requestId);
+    putMdc(ctx);
 
     try {
       chain.doFilter(req, res);
@@ -119,4 +60,146 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
       MDC.clear();
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Construction du TchRequestContext
+  // ---------------------------------------------------------------------------
+
+  private TchRequestContext buildRequestContext(HttpServletRequest req) {
+    var defaultTenant = props.defaultTenant();
+
+    var requestId = resolveRequestId(req);
+    var clientIp = resolveClientIp(req);
+    var locale = req.getLocale();
+
+    var authData = extractAuthData(req, defaultTenant);
+    var tenantIds = resolveTenantIds(authData);
+
+    return new TchRequestContext(
+        authData.originalTenantCode,
+        tenantIds.originalTenantId,
+        authData.effectiveTenantCode,
+        tenantIds.effectiveTenantId,
+        authData.userId,
+        authData.systemRoles,
+        authData.customRoles,
+        locale,
+        requestId,
+        clientIp,
+        authData.overridden);
+  }
+
+  private String resolveRequestId(HttpServletRequest req) {
+    return Optional.ofNullable(req.getHeader(X_REQUEST_ID))
+        .orElseGet(() -> UUID.randomUUID().toString());
+  }
+
+  private String resolveClientIp(HttpServletRequest req) {
+    return Optional.ofNullable(req.getHeader(X_FORWARDED_FOR)).orElseGet(req::getRemoteAddr);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Extraction des infos d'authentification / tenant (codes + rôles)
+  // ---------------------------------------------------------------------------
+
+  private AuthData extractAuthData(HttpServletRequest req, String defaultTenant) {
+    String originalTenantCode = defaultTenant;
+    String effectiveTenantCode = defaultTenant;
+    String userId = null;
+
+    var systemRoles = new HashSet<TchRole>();
+    Set<String> customRoles = new HashSet<>();
+    boolean overridden = false;
+
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+    if (!isJwtAuthentication(auth)) {
+      return new AuthData(
+          originalTenantCode, effectiveTenantCode, userId, overridden, systemRoles, customRoles);
+    }
+
+    var jwt = (Jwt) auth.getPrincipal();
+    userId = jwt.getSubject();
+
+    // 1) Tenant provenant du JWT
+    var jwtTenant = jwt.getClaimAsString(TENANT_ID_CLAIMS);
+    if (jwtTenant != null && !jwtTenant.isBlank()) {
+      originalTenantCode = jwtTenant;
+      effectiveTenantCode = jwtTenant;
+    }
+
+    // 2) Rôles système + custom
+    var rawRoles = RoleUtils.collectRoles(jwt);
+    var split = RoleUtils.splitRoles(rawRoles);
+    systemRoles.addAll(split.system);
+    customRoles = split.custom;
+
+    // 3) Override tenant si SUPER_ADMIN
+    var isSuperAdmin = systemRoles.contains(TchRole.SUPER_ADMIN);
+    if (isSuperAdmin) {
+      var overrideTenant =
+          Optional.ofNullable(req.getHeader(X_TENANT_ID)).orElse(req.getParameter("tenantId"));
+      if (overrideTenant != null && !overrideTenant.isBlank()) {
+        effectiveTenantCode = overrideTenant;
+        overridden = true;
+      }
+    }
+
+    return new AuthData(
+        originalTenantCode, effectiveTenantCode, userId, overridden, systemRoles, customRoles);
+  }
+
+  private boolean isJwtAuthentication(Authentication auth) {
+    return auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof Jwt;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Résolution des IDs de tenant à partir des codes
+  // ---------------------------------------------------------------------------
+
+  private TenantIds resolveTenantIds(AuthData authData) {
+    UUID originalTenantId = resolveTenantIdOrNull(authData.originalTenantCode);
+    UUID effectiveTenantId =
+        authData.overridden
+            ? resolveTenantIdOrNull(authData.effectiveTenantCode)
+            : originalTenantId;
+
+    return new TenantIds(originalTenantId, effectiveTenantId);
+  }
+
+  private UUID resolveTenantIdOrNull(String tenantCode) {
+    if (tenantCode == null || tenantCode.isBlank()) {
+      return null;
+    }
+    return tenantResolver.resolveIdByCode(tenantCode).orElse(null);
+  }
+
+  // ---------------------------------------------------------------------------
+  // MDC
+  // ---------------------------------------------------------------------------
+
+  private void putMdc(TchRequestContext ctx) {
+    MDC.put("tenant_original", valueOrDash(ctx.originalTenantCode()));
+    MDC.put("tenant_effective", valueOrDash(ctx.effectiveTenantCode()));
+    MDC.put("tenant_overridden", String.valueOf(ctx.tenantOverridden()));
+    MDC.put("user", valueOrDash(ctx.userId()));
+    MDC.put("reqId", valueOrDash(ctx.requestId()));
+  }
+
+  private String valueOrDash(String value) {
+    return value != null ? value : "-";
+  }
+
+  // ---------------------------------------------------------------------------
+  // Petites structures internes pour clarifier le code
+  // ---------------------------------------------------------------------------
+
+  private record AuthData(
+      String originalTenantCode,
+      String effectiveTenantCode,
+      String userId,
+      boolean overridden,
+      Set<TchRole> systemRoles,
+      Set<String> customRoles) {}
+
+  private record TenantIds(UUID originalTenantId, UUID effectiveTenantId) {}
 }

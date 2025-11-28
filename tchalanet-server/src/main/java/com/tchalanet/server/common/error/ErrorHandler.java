@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.error;
 
-import static com.tchalanet.server.common.domain.AppConstants.APP_HEADER_ERROR_VERSION;
+import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
+import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
 import com.tchalanet.server.accesscontrol.domain.exception.PermissionsDeniedException;
 import jakarta.persistence.EntityNotFoundException;
@@ -139,12 +140,12 @@ public class ErrorHandler {
     pd.setProperty("path", req.getRequestURI());
 
     // Propager un traceId si présent ; sinon générer un errorId
-    String traceId = headerOrNull(req, "X-Request-Id");
+    String traceId = headerOrNull(req, X_REQUEST_ID);
     if (traceId != null) pd.setProperty("traceId", traceId);
     pd.setProperty("errorId", UUID.randomUUID().toString());
 
     // Versionnement de payload d’erreur (si tu veux le garder)
-    String ver = req.getHeader(APP_HEADER_ERROR_VERSION);
+    String ver = req.getHeader(APP_ERROR_VERSION);
     if (ver != null) pd.setProperty("version", ver);
 
     if (verbose) {

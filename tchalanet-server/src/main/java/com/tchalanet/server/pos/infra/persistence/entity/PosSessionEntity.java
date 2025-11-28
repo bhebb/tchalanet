@@ -1,6 +1,6 @@
 package com.tchalanet.server.pos.infra.persistence.entity;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.pos.domain.model.PosSessionStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @Table(name = "pos_session")
 @Getter
 @Setter
-public class PosSessionEntity extends BaseTenantEntity { // Extends BaseTenantEntity
+public class PosSessionEntity extends BaseTenantEntity {
 
   // ID is now inherited from BaseEntity
   // @Id

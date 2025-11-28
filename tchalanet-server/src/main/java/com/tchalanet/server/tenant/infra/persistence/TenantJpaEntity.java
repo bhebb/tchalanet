@@ -1,6 +1,6 @@
 package com.tchalanet.server.tenant.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseEntity;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;

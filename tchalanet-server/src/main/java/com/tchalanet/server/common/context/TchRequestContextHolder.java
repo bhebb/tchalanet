@@ -1,17 +1,21 @@
 package com.tchalanet.server.common.context;
 
-public final class TchRequestContextHolder {
-  private static final ThreadLocal<TchRequestContext> CTX = new ThreadLocal<>();
+import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
 
-  public static TchRequestContext getCurrentContext() {
-    return CTX.get();
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
+
+@Component
+@RequestScope
+public class TchRequestContextHolder {
+  private final TchRequestContext ctx;
+
+  public TchRequestContextHolder(HttpServletRequest req) {
+    this.ctx = (TchRequestContext) req.getAttribute(REQUEST_CONTEXT);
   }
 
-  public static void setCurrentContext(TchRequestContext ctx) {
-    CTX.set(ctx);
-  }
-
-  public static void clear() {
-    CTX.remove();
+  public TchRequestContext get() {
+    return ctx;
   }
 }

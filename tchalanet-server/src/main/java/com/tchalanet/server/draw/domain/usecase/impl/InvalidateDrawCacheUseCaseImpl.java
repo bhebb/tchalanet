@@ -1,6 +1,6 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.draw.domain.usecase.InvalidateDrawCacheUseCase;
 import com.tchalanet.server.draw.infra.cache.DrawCacheKeyBuilder;
 import java.util.UUID;

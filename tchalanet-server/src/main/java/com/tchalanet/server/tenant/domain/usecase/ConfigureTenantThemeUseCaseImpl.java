@@ -1,6 +1,6 @@
 package com.tchalanet.server.tenant.domain.usecase;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.tenant.domain.model.TenantId;
 import com.tchalanet.server.tenant.domain.usecase.theme.ArchiveThemeUseCase;
 import com.tchalanet.server.tenant.domain.usecase.theme.CreateThemeUseCase;

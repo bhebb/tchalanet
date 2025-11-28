@@ -1,6 +1,6 @@
 package com.tchalanet.server.tenant.domain.usecase;
 
-import com.tchalanet.server.common.web.dto.TenantFeaturesDto;
+import com.tchalanet.server.tenantconfig.domain.model.TenantFeaturesDto;
 import java.util.List;
 import org.springframework.stereotype.Service;
 

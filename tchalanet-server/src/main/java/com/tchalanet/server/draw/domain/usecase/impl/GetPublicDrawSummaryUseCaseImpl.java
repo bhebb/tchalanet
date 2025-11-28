@@ -2,7 +2,7 @@ package com.tchalanet.server.draw.domain.usecase.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.draw.domain.dto.DrawDto;
 import com.tchalanet.server.draw.domain.dto.NextDrawDto;
 import com.tchalanet.server.draw.domain.dto.PublicDrawSummary;

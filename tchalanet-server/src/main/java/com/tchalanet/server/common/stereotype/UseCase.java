@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.domain;
+package com.tchalanet.server.common.stereotype;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

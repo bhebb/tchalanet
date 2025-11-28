@@ -1,18 +1,21 @@
 package com.tchalanet.server.common.security;
 
+import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILITY;
+
 import com.tchalanet.server.accesscontrol.domain.model.TchRole;
-import com.tchalanet.server.common.context.RequestContextHolder;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.TchRequestContextHolder;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Statement;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -21,12 +24,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 5)
 @RequiredArgsConstructor
+@Slf4j
 public class DbAppRlsFilter extends OncePerRequestFilter {
 
-  private static final Logger log = LoggerFactory.getLogger(DbAppRlsFilter.class);
-  private static final String HEADER_DELETED_VISIBILITY = "X-Deleted-Visibility";
-
-  private final RequestContextHolder requestContextHolder;
+  private final TchRequestContextHolder requestContextHolder;
   private final EntityManager em;
 
   @Override
@@ -34,55 +35,93 @@ public class DbAppRlsFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
-    String tenantId = null;
-    boolean isSA = false;
+    var rlsContext = resolveRlsContext();
+    if (rlsContext.tenantCode == null || rlsContext.tenantCode.isBlank()) {
+      // Pas de tenant → pas de RLS à appliquer
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    var visibility = resolveVisibility(request, rlsContext.isSuperAdmin);
+    applyRlsSessionVariables(rlsContext.tenantCode, visibility);
+
+    filterChain.doFilter(request, response);
+  }
+
+  // ---------------------------------------------------------------------
+  // Résolution du contexte (tenant + rôle)
+  // ---------------------------------------------------------------------
+
+  private RlsContext resolveRlsContext() {
+    String tenantCode = null;
+    boolean isSuperAdmin = false;
 
     try {
       TchRequestContext ctx = requestContextHolder.get();
       if (ctx != null) {
-        tenantId = ctx.effectiveTenantCode();
+        tenantCode = ctx.effectiveTenantCode();
         Set<TchRole> roles = ctx.systemRoles();
-        isSA = roles != null && roles.contains(TchRole.SUPER_ADMIN);
+        isSuperAdmin = roles != null && roles.contains(TchRole.SUPER_ADMIN);
       }
     } catch (Exception ex) {
       log.debug("No request context available for RLS", ex);
     }
 
-    if (tenantId == null || tenantId.isBlank()) {
-      // nothing to set; continue without applying RLS session vars
-      filterChain.doFilter(request, response);
-      return;
-    }
+    return new RlsContext(tenantCode, isSuperAdmin);
+  }
 
+  // ---------------------------------------------------------------------
+  // Résolution de la visibilité des enregistrements supprimés
+  // ---------------------------------------------------------------------
+
+  private String resolveVisibility(HttpServletRequest request, boolean isSuperAdmin) {
+    // valeur par défaut
     var visibility = "active";
-    var requested = request.getHeader(HEADER_DELETED_VISIBILITY);
-    if ((requested == null || requested.isBlank()))
+
+    // header prioritaire, sinon query param
+    var requested = request.getHeader(X_DELETED_VISIBILITY);
+    if (requested == null || requested.isBlank()) {
       requested = request.getParameter("deletedVisibility");
-    if (isSA && requested != null && !requested.isBlank()) {
-      var r = requested.trim().toLowerCase();
-      if (r.equals("active") || r.equals("deleted") || r.equals("all")) {
-        visibility = r;
-      } else {
-        log.debug("Ignored invalid deletedVisibility='{}' from request", requested);
-      }
     }
 
-    final String tenantToSet = tenantId;
-    final String visToSet = visibility;
+    if (!isSuperAdmin || requested == null || requested.isBlank()) {
+      return visibility;
+    }
+
+    var v = requested.trim().toLowerCase();
+    if (v.equals("active") || v.equals("deleted") || v.equals("all")) {
+      return v;
+    }
+
+    log.debug("Ignored invalid deletedVisibility='{}' from request", requested);
+    return visibility;
+  }
+
+  // ---------------------------------------------------------------------
+  // Application des variables de session RLS côté DB
+  // ---------------------------------------------------------------------
+
+  private void applyRlsSessionVariables(String tenantCode, String visibility) {
+    final String safeTenant = tenantCode.replace("'", "''");
+    final String vis = visibility; // déjà whitelisté
 
     try {
-      em.unwrap(org.hibernate.Session.class)
+      em.unwrap(Session.class)
           .doWork(
               conn -> {
-                try (var st = conn.createStatement()) {
-                  st.execute("SELECT set_deleted_visibility('" + visToSet + "')");
-                  st.execute("SELECT set_current_tenant('" + tenantToSet.replace("'", "''") + "')");
+                try (Statement st = conn.createStatement()) {
+                  st.execute("SELECT set_deleted_visibility('" + vis + "')");
+                  st.execute("SELECT set_current_tenant('" + safeTenant + "')");
                 }
               });
     } catch (Exception ex) {
       log.error("Failed to set DB RLS session variables", ex);
     }
-
-    filterChain.doFilter(request, response);
   }
+
+  // ---------------------------------------------------------------------
+  // Petit record interne pour clarifier les retours de resolveRlsContext
+  // ---------------------------------------------------------------------
+
+  private record RlsContext(String tenantCode, boolean isSuperAdmin) {}
 }

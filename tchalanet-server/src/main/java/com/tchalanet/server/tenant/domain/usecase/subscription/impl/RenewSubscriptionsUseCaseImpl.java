@@ -1,6 +1,6 @@
 package com.tchalanet.server.tenant.domain.usecase.subscription.impl;
 
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.tenant.domain.model.SubscriptionStatus;
 import com.tchalanet.server.tenant.domain.usecase.subscription.RenewSubscriptionsUseCase;
 import com.tchalanet.server.tenant.infra.persistence.JpaSubscriptionRepository;

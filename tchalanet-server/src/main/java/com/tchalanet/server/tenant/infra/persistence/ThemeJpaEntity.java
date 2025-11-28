@@ -1,8 +1,8 @@
 package com.tchalanet.server.tenant.infra.persistence;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.infra.persistence.MapStringToJsonConverter;
-import com.tchalanet.server.common.infra.persistence.MapToJsonConverter;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.MapStringToJsonConverter;
+import com.tchalanet.server.common.persistence.MapToJsonConverter;
 import com.tchalanet.server.tenant.domain.model.ThemeMode;
 import com.tchalanet.server.tenant.domain.model.ThemeStatus;
 import jakarta.persistence.Column;

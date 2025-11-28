@@ -1,6 +1,6 @@
 package com.tchalanet.server.tenant.application;
 
-import com.tchalanet.server.common.infra.persistence.BaseEntity;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.tenant.application.ports.in.ResolveTenantIdByCodeUseCase;
 import com.tchalanet.server.tenant.infra.persistence.TenantJpaRepository;
 import java.util.Optional;

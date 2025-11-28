@@ -4,8 +4,8 @@ import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand
 import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.common.error.ProblemRestException;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.tenant.domain.model.Plan;
 import com.tchalanet.server.tenant.domain.ports.PlanRepository;
 import com.tchalanet.server.tenant.domain.usecase.PlanCrudUseCase;

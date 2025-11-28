@@ -1,6 +1,6 @@
 package com.tchalanet.server.limitpolicy.infra.persistence.entity;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.limitpolicy.domain.model.BreachOutcome;
 import com.tchalanet.server.limitpolicy.domain.model.LimitScope;
 import jakarta.persistence.*;

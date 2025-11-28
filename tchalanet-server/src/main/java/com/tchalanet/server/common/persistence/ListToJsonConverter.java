@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.infra.persistence;
+package com.tchalanet.server.common.persistence;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -3,7 +3,7 @@ package com.tchalanet.server.audit.domain.service;
 import com.tchalanet.server.audit.domain.model.AuditAction;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
 import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.common.context.RequestContextHolder;
+import com.tchalanet.server.common.context.TchRequestContextHolder;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuditEventFactory {
 
-  private final RequestContextHolder ctxHolder;
+  private final TchRequestContextHolder ctxHolder;
 
   public AuditEvent build(
       AuditEntityType entityType,

@@ -1,6 +1,5 @@
 package com.tchalanet.server.featureflags.infra.aop;
 
-import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.featureflags.application.annotation.FeatureFlagEnabled;
 import com.tchalanet.server.featureflags.domain.model.FeatureContext;
@@ -25,6 +24,7 @@ public class FeatureFlagAspect {
 
   private final IsFeatureEnabledQuery isFeatureEnabledQuery;
   private final ExpressionParser parser = new SpelExpressionParser();
+  private final TchRequestContextHolder tchRequestContextHolder;
 
   @Around("@annotation(featureFlagEnabled)")
   public Object checkFeatureFlag(
@@ -42,8 +42,8 @@ public class FeatureFlagAspect {
 
   private FeatureContext buildFeatureContext(
       ProceedingJoinPoint joinPoint, FeatureFlagEnabled featureFlagEnabled) {
-    TchRequestContext requestContext = TchRequestContextHolder.getCurrentContext();
-    UUID tenantId = requestContext != null ? requestContext.tenantUuid() : null;
+    var requestContext = tchRequestContextHolder.get();
+    var tenantId = requestContext != null ? requestContext.tenantUuid() : null;
     UUID userId =
         (requestContext != null
                 && requestContext.userId() != null

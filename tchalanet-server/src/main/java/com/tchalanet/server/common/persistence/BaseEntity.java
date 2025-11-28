@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.infra.persistence;
+package com.tchalanet.server.common.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;

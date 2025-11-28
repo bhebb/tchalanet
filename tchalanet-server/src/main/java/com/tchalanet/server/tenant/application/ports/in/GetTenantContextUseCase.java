@@ -1,7 +1,7 @@
 package com.tchalanet.server.tenant.application.ports.in;
 
-import com.tchalanet.server.common.web.dto.ContextDto;
+import com.tchalanet.server.user.web.dto.UserContextResponse;
 
 public interface GetTenantContextUseCase {
-  ContextDto execute(String tenantCode, String featureSetId);
+  UserContextResponse execute(String tenantCode, String featureSetId);
 }

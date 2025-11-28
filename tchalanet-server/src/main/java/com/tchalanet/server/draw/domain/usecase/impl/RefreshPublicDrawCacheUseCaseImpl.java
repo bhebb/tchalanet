@@ -1,7 +1,7 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.draw.domain.usecase.GetNextDrawsUseCase;
 import com.tchalanet.server.draw.domain.usecase.ListLast7DaysResultsUseCase;
 import com.tchalanet.server.draw.domain.usecase.ListTodayResultsUseCase;

@@ -5,7 +5,7 @@ import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandle
 import com.tchalanet.server.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.audit.domain.model.AuditEvent;
 import com.tchalanet.server.audit.domain.service.AuditEventFactory;
-import com.tchalanet.server.common.domain.UseCase;
+import com.tchalanet.server.common.stereotype.UseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;

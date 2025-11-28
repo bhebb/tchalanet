@@ -1,6 +1,6 @@
 package com.tchalanet.server.ticket.infra.persistence.entity;
 
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.ticket.domain.model.TicketStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
