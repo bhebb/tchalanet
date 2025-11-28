@@ -3,10 +3,8 @@ package com.tchalanet.server.accesscontrol.infra.adapter;
 import com.tchalanet.server.accesscontrol.application.port.out.RolePermissionRepositoryPort;
 import com.tchalanet.server.accesscontrol.domain.model.Permission;
 import com.tchalanet.server.accesscontrol.domain.model.TchRole;
-import com.tchalanet.server.accesscontrol.infra.persistence.AppRolePermissionEntity;
 import com.tchalanet.server.accesscontrol.infra.persistence.RolePermissionJpaRepository;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -38,11 +36,10 @@ public class RolePermissionRepositoryJpaAdapter implements RolePermissionReposit
       return Collections.emptySet();
     }
 
-      return mappings.stream()
-          .map(m -> m.getPermission().getCode())
-          .filter(code -> code != null && !code.isBlank())
-          .map(Permission::new)
-          .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
-
+    return mappings.stream()
+        .map(m -> m.getPermission().getCode())
+        .filter(code -> code != null && !code.isBlank())
+        .map(Permission::new)
+        .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
   }
 }

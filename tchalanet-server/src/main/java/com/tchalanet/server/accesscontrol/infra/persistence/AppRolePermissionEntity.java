@@ -1,6 +1,5 @@
 package com.tchalanet.server.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.audit.infra.web.AuditLog;
 import com.tchalanet.server.common.infra.persistence.AuditableEntity;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -33,5 +32,4 @@ public class AppRolePermissionEntity extends AuditableEntity {
   @MapsId("permissionCode")
   @JoinColumn(name = "permission_code", referencedColumnName = "code", nullable = false)
   private PermissionEntity permission;
-
 }

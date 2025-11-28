@@ -1,11 +1,10 @@
 package com.tchalanet.server.draw.application;
 
 import com.tchalanet.server.accesscontrol.application.annotation.RequiresPermission;
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.common.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.draw.application.ports.in.ApplyDrawResultUseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
 import com.tchalanet.server.draw.domain.model.DrawSource;
@@ -26,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminOverrideResultUseCaseImpl implements AdminOverrideResultUseCase {
 
   private final DrawRepository drawRepository; // Still needed for initial find
-  private final LogAuditEventUseCase audit;
+  private final LogAuditEventCommandHandler audit;
   private final ApplyDrawResultUseCase applyDrawResultUseCase; // New: Inject ApplyDrawResultUseCase
 
   @Override
@@ -61,18 +60,10 @@ public class AdminOverrideResultUseCaseImpl implements AdminOverrideResultUseCas
 
     // 5. Audit the manual override (audit is already handled by ApplyDrawResultService, but this is
     // specific to override)
-    var ev =
-        AuditEvent.of(
-            tenantId,
-            AuditActorType.USER,
-            adminId == null ? "admin" : adminId.toString(),
-            AuditEntityType.DRAW,
-            drawId.toString(),
-            AuditAction.UPDATE,
-            Map.of("reason", "admin_override").toString(),
-            null,
-            null);
-    audit.log(ev);
+    var details = Map.<String, Object>of("reason", "admin_override");
+    audit.handle(
+        new LogAuditEventCommand(
+            AuditEntityType.DRAW, drawId.toString(), AuditAction.UPDATE, details));
 
     log.info("Successfully overrode result for draw {}", drawId);
   }

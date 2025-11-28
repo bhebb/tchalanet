@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings("nullness")
 public class RequestContextAuditorAware implements AuditorAware<UUID> {
 
   private final RequestContextHolder ctxHolder;
@@ -31,7 +30,7 @@ public class RequestContextAuditorAware implements AuditorAware<UUID> {
       return Optional.of(UUID.fromString(ctx.userId()));
     } catch (IllegalArgumentException ex) {
       // invalid sub in token/context; log at debug to help investigations but don't spam error logs
-      log.debug("Invalid user id in request context (not a UUID): {}", ctx.userId(), ex);
+      log.info("Invalid user id in request context (not a UUID): {}", ctx.userId(), ex);
       return Optional.empty(); // sub pas en UUID => on ignore
     }
   }

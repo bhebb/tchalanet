@@ -1,4 +1,4 @@
-package com.tchalanet.server.audit.domain.ports.out;
+package com.tchalanet.server.audit.application.port.out;
 
 import com.tchalanet.server.audit.domain.model.AuditEvent;
 import java.util.List;

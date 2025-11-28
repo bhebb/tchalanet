@@ -1,18 +1,21 @@
 package com.tchalanet.server.audit.application.command.handler;
 
 import com.tchalanet.server.audit.application.command.model.RecordAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.RecordAuditEventCommandHandler;
+import com.tchalanet.server.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.ports.in.RecordAuditEventCommandHandler;
-import com.tchalanet.server.audit.domain.ports.out.AuditEventWriterPort;
+import com.tchalanet.server.common.domain.UseCase;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
-@Service
+@UseCase
 @RequiredArgsConstructor
+@Slf4j
 public class RecordAuditEventUseCase implements RecordAuditEventCommandHandler {
 
   private final AuditEventWriterPort writerPort;
@@ -42,9 +45,7 @@ public class RecordAuditEventUseCase implements RecordAuditEventCommandHandler {
     }
 
     Map<String, Object> details =
-        command.details() != null
-            ? new java.util.HashMap<>(command.details())
-            : new java.util.HashMap<>();
+        command.details() != null ? new HashMap<>(command.details()) : new HashMap<>();
 
     if (ctx != null && ctx.requestId() != null) {
       details.putIfAbsent("requestId", ctx.requestId());
@@ -54,6 +55,7 @@ public class RecordAuditEventUseCase implements RecordAuditEventCommandHandler {
     try {
       json = objectMapper.writeValueAsString(details);
     } catch (Exception ex) {
+      log.error("Failed to serialize audit details", ex);
       json = "{}";
     }
 

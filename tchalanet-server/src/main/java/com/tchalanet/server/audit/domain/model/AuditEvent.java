@@ -1,4 +1,3 @@
-// common.audit.domain.model.AuditEvent
 package com.tchalanet.server.audit.domain.model;
 
 import java.time.Instant;

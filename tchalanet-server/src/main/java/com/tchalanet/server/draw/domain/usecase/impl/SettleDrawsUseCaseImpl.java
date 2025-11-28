@@ -1,13 +1,13 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort.DrawExternalQuery;
 import com.tchalanet.server.draw.application.port.out.ExternalDrawResultPort.ExternalDrawResult;
+import com.tchalanet.server.draw.application.ports.in.InvalidateDrawCacheUseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
 import com.tchalanet.server.draw.domain.ports.DrawRepository;
-import com.tchalanet.server.draw.domain.usecase.InvalidateDrawCacheUseCase;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +25,7 @@ public class SettleDrawsUseCaseImpl
   private final DrawRepository drawRepository;
   private final ExternalDrawResultPort external; // provider router
   private final InvalidateDrawCacheUseCase invalidator;
-  private final LogAuditEventUseCase auditLog;
+  private final LogAuditEventCommandHandler auditLog;
 
   @Override
   @Transactional

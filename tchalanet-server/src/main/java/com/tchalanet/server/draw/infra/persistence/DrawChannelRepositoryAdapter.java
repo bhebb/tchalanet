@@ -1,10 +1,9 @@
 package com.tchalanet.server.draw.infra.persistence;
 
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.draw.domain.model.DrawChannel;
 import com.tchalanet.server.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.draw.domain.model.TenantId;
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class DrawChannelRepositoryAdapter implements DrawChannelRepository {
 
   private final DrawChannelJpaRepository repo;
-  private final LogAuditEventUseCase audit;
+  private final LogAuditEventCommandHandler audit;
 
   @Override
   public DrawChannel save(DrawChannel d) {
@@ -28,18 +27,9 @@ public class DrawChannelRepositoryAdapter implements DrawChannelRepository {
     var saved = repo.save(e);
     // audit
     try {
-      var event =
-          AuditEvent.of(
-              saved.getTenantId(),
-              AuditActorType.SYSTEM,
-              "system",
-              AuditEntityType.DRAW,
-              saved.getId().toString(),
-              AuditAction.UPDATE,
-              null,
-              null,
-              null);
-      audit.log(event);
+      audit.handle(
+          new LogAuditEventCommand(
+              AuditEntityType.DRAW, saved.getId().toString(), AuditAction.UPDATE, null));
     } catch (Exception ignored) {
     }
     return DrawChannelMapper.toDomain(saved);
@@ -72,18 +62,13 @@ public class DrawChannelRepositoryAdapter implements DrawChannelRepository {
   @Override
   public void deleteById(DrawChannelId id) {
     try {
-      var event =
-          AuditEvent.of(
-              id == null ? null : null,
-              AuditActorType.SYSTEM,
-              "system",
+      var details = (java.util.Map<String, Object>) null;
+      audit.handle(
+          new LogAuditEventCommand(
               AuditEntityType.DRAW,
               id == null ? null : id.value().toString(),
               AuditAction.DELETE,
-              null,
-              null,
-              null);
-      audit.log(event);
+              details));
     } catch (Exception ignored) {
     }
     repo.deleteById(id.value());

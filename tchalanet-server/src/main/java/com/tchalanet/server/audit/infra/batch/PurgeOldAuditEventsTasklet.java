@@ -1,6 +1,6 @@
 package com.tchalanet.server.audit.infra.batch;
 
-import com.tchalanet.server.audit.application.PurgeOldAuditEventsUseCase;
+import com.tchalanet.server.audit.application.command.handler.PurgeOldAuditEventsUseCase;
 import com.tchalanet.server.audit.application.command.model.PurgeOldAuditEventsCommand;
 import org.springframework.stereotype.Component;
 

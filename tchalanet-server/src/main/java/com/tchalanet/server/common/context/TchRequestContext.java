@@ -37,4 +37,9 @@ public record TchRequestContext(
     }
     return null;
   }
+
+  public String userAgent() {
+    // user agent get it
+    return null;
+  }
 }

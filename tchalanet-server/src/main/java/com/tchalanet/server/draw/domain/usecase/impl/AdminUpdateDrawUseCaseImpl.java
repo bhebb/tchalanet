@@ -1,10 +1,9 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
 import com.tchalanet.server.draw.domain.model.DrawStatus;
@@ -23,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminUpdateDrawUseCaseImpl implements AdminUpdateDrawUseCase {
 
   private final DrawRepository drawRepository;
-  private final LogAuditEventUseCase audit;
+  private final LogAuditEventCommandHandler audit;
 
   @Override
   public Draw updateDraw(UUID tenantId, UUID drawId, UpdateDrawRequest req, UUID adminId) {
@@ -63,18 +62,10 @@ public class AdminUpdateDrawUseCaseImpl implements AdminUpdateDrawUseCase {
     var saved = drawRepository.save(d);
 
     // audit
-    var ev =
-        AuditEvent.of(
-            saved.tenantId(),
-            AuditActorType.USER,
-            adminId == null ? "admin" : adminId.toString(),
-            AuditEntityType.DRAW,
-            saved.id().toString(),
-            AuditAction.UPDATE,
-            Map.of("by", "admin").toString(),
-            null,
-            null);
-    audit.log(ev);
+    var details = Map.<String, Object>of("by", "admin");
+    audit.handle(
+        new LogAuditEventCommand(
+            AuditEntityType.DRAW, saved.id().toString(), AuditAction.UPDATE, details));
 
     return saved;
   }

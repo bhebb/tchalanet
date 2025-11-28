@@ -1,5 +1,5 @@
 // common.audit.web.AuditLog
-package com.tchalanet.server.audit.web;
+package com.tchalanet.server.audit.infra.web;
 
 import java.util.List;
 import java.util.Map;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/admin/audit")
-public class AuditLog {
+public class AuditEventRestController {
 
   // Disabled dependency on AuditQueryService until the query layer is implemented.
-  public AuditLog() {}
+  public AuditEventRestController() {}
 
   @GetMapping("/logs")
   public List<Map<String, Object>> getAuditLogs(

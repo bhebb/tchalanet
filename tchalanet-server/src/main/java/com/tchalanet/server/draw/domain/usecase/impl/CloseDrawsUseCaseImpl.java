@@ -1,14 +1,13 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.draw.application.ports.in.CloseDueDrawsUseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
 import com.tchalanet.server.draw.domain.model.DrawStatus;
 import com.tchalanet.server.draw.domain.ports.DrawRepository;
-import com.tchalanet.server.draw.domain.usecase.CloseDueDrawsUseCase;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CloseDrawsUseCaseImpl implements CloseDueDrawsUseCase {
 
   private final DrawRepository drawRepository;
-  private final LogAuditEventUseCase audit;
+  private final LogAuditEventCommandHandler audit;
 
   @Transactional
   public void closeDueDraws() {
@@ -38,18 +37,10 @@ public class CloseDrawsUseCaseImpl implements CloseDueDrawsUseCase {
         try {
           Draw updated = d.withStatus(DrawStatus.CLOSED);
           drawRepository.save(updated);
-          var event =
-              AuditEvent.of(
-                  updated.tenantId(),
-                  AuditActorType.SYSTEM,
-                  "system",
-                  AuditEntityType.DRAW,
-                  updated.id().toString(),
-                  AuditAction.UPDATE,
-                  Map.of("reason", "auto-close").toString(),
-                  null,
-                  null);
-          audit.log(event);
+          var details = Map.<String, Object>of("reason", "auto-close");
+          audit.handle(
+              new LogAuditEventCommand(
+                  AuditEntityType.DRAW, updated.id().toString(), AuditAction.UPDATE, details));
         } catch (Exception e) {
           log.warn("Failed to close draw {}: {}", d.id(), e.getMessage());
         }
@@ -59,7 +50,6 @@ public class CloseDrawsUseCaseImpl implements CloseDueDrawsUseCase {
     }
   }
 
-  @Override
   public void execute() {
     closeDueDraws();
   }

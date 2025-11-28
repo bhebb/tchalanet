@@ -1,17 +1,16 @@
-package com.tchalanet.server.audit.application;
+package com.tchalanet.server.audit.application.command.handler;
 
 import com.tchalanet.server.audit.application.command.model.PurgeOldAuditEventsCommand;
-import com.tchalanet.server.audit.domain.ports.in.PurgeOldAuditEventsCommandHandler;
-import com.tchalanet.server.audit.domain.ports.out.AuditEventWriterPort;
+import com.tchalanet.server.audit.application.port.in.PurgeOldAuditEventsCommandHandler;
+import com.tchalanet.server.audit.application.port.out.AuditEventWriterPort;
+import com.tchalanet.server.common.domain.UseCase;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@UseCase
 @RequiredArgsConstructor
 @Slf4j
 public class PurgeOldAuditEventsUseCase implements PurgeOldAuditEventsCommandHandler {
@@ -22,7 +21,7 @@ public class PurgeOldAuditEventsUseCase implements PurgeOldAuditEventsCommandHan
   private int retentionDays;
 
   @Override
-  @Transactional
+  // add transaction transverse
   public void handle(PurgeOldAuditEventsCommand command) {
     var threshold = Instant.now().minus(retentionDays, ChronoUnit.DAYS);
     int deleted = repository.deleteBefore(threshold);

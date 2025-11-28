@@ -74,12 +74,18 @@ public class PermissionAdminService implements PermissionAdminUseCase {
             .collect(java.util.stream.Collectors.toSet());
 
     if (existingCodes.isEmpty()) {
-      log.warn("None of the provided permission codes exist in catalog for role {}: {}", roleId, permissionCodes);
+      log.warn(
+          "None of the provided permission codes exist in catalog for role {}: {}",
+          roleId,
+          permissionCodes);
       return;
     }
 
     // Load role entity reference
-    var roleEntity = appRoleRepository.findById(roleId).orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
+    var roleEntity =
+        appRoleRepository
+            .findById(roleId)
+            .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
 
     // Créer les liens rôle ↔ permission
     var links =

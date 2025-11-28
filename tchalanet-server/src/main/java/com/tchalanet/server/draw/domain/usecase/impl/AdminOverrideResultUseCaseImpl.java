@@ -1,7 +1,7 @@
 package com.tchalanet.server.draw.domain.usecase.impl;
 
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.common.domain.UseCase;
 import com.tchalanet.server.draw.domain.model.Draw;
 import com.tchalanet.server.draw.domain.model.DrawSource;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminOverrideResultUseCaseImpl implements AdminOverrideResultUseCase {
 
   private final DrawRepository drawRepository;
-  private final LogAuditEventUseCase audit;
+  private final LogAuditEventCommandHandler audit;
 
   @Override
   public void overrideResult(UUID tenantId, UUID drawId, OverrideResultRequest req, UUID adminId) {
@@ -51,26 +51,18 @@ public class AdminOverrideResultUseCaseImpl implements AdminOverrideResultUseCas
     // 5. Save the new state
     drawRepository.save(updatedDraw);
 
-    // 6. Audit the manual override
-    AuditEvent ev =
-        AuditEvent.of(
-            updatedDraw.tenantId(),
-            com.tchalanet.server.audit.domain.model.AuditActorType.USER,
-            adminId.toString(),
+    // 6. Audit the manual override (build lightweight command; UseCase will enrich via factory)
+    var details =
+        Map.<String, Object>of(
+            "admin", adminId.toString(),
+            "action", "override_result",
+            "new_numbers", req.numbers());
+    audit.handle(
+        new LogAuditEventCommand(
             com.tchalanet.server.audit.domain.model.AuditEntityType.DRAW,
             drawId.toString(),
             com.tchalanet.server.audit.domain.model.AuditAction.UPDATE,
-            Map.of(
-                    "admin",
-                    adminId.toString(),
-                    "action",
-                    "override_result",
-                    "new_numbers",
-                    req.numbers())
-                .toString(),
-            null,
-            null);
-    audit.log(ev);
+            details));
 
     log.info("Successfully overrode result for draw {}", drawId);
   }

@@ -1,4 +1,4 @@
-package com.tchalanet.server.audit.domain.ports.in;
+package com.tchalanet.server.audit.application.port.in;
 
 import com.tchalanet.server.audit.application.command.model.PurgeOldAuditEventsCommand;
 

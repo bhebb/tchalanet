@@ -1,11 +1,11 @@
 package com.tchalanet.server.audit.infra.persistence.adapter;
 
+import com.tchalanet.server.audit.application.port.out.AuditEventReaderPort;
+import com.tchalanet.server.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.audit.domain.model.AuditAction;
 import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
 import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.ports.out.AuditEventReaderPort;
-import com.tchalanet.server.audit.domain.ports.out.AuditEventWriterPort;
 import com.tchalanet.server.audit.infra.persistence.AuditEventJpaEntity;
 import com.tchalanet.server.audit.infra.persistence.AuditEventSpringRepository;
 import java.time.Instant;

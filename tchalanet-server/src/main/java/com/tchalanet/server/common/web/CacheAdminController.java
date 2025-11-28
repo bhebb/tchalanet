@@ -1,12 +1,9 @@
 package com.tchalanet.server.common.web;
 
-import static java.util.stream.Collectors.*;
-
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import java.util.List;
 import java.util.Map;
 import org.springframework.cache.CacheManager;
@@ -23,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class CacheAdminController {
 
   private final CacheManager cacheManager;
-  private final LogAuditEventUseCase audit;
+  private final LogAuditEventCommandHandler audit;
 
-  public CacheAdminController(CacheManager cacheManager, LogAuditEventUseCase audit) {
+  public CacheAdminController(CacheManager cacheManager, LogAuditEventCommandHandler audit) {
     this.cacheManager = cacheManager;
     this.audit = audit;
   }
@@ -33,7 +30,7 @@ public class CacheAdminController {
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   @GetMapping("/list")
   public ResponseEntity<List<String>> listCaches() {
-    var names = cacheManager.getCacheNames().stream().sorted().collect(toList());
+    var names = cacheManager.getCacheNames().stream().sorted().toList();
     return ResponseEntity.ok(names);
   }
 
@@ -44,18 +41,10 @@ public class CacheAdminController {
     if (cache != null) {
       cache.clear();
       // audit
-      var ev =
-          AuditEvent.of(
-              null,
-              AuditActorType.USER,
-              "admin",
-              AuditEntityType.CACHE,
-              cacheName,
-              AuditAction.CACHE_CLEAR,
-              Map.of("by", "admin").toString(),
-              null,
-              null);
-      audit.log(ev);
+      var details = Map.<String, Object>of("by", "admin");
+      audit.handle(
+          new LogAuditEventCommand(
+              AuditEntityType.CACHE, cacheName, AuditAction.CACHE_CLEAR, details));
     }
     return ResponseEntity.noContent().build();
   }
@@ -73,18 +62,9 @@ public class CacheAdminController {
               }
             });
     // audit
-    var evAll =
-        AuditEvent.of(
-            null,
-            AuditActorType.USER,
-            "admin",
-            AuditEntityType.CACHE,
-            "*",
-            AuditAction.CACHE_CLEAR,
-            Map.of("action", "clear-all").toString(),
-            null,
-            null);
-    audit.log(evAll);
+    var detailsAll = Map.<String, Object>of("action", "clear-all");
+    audit.handle(
+        new LogAuditEventCommand(AuditEntityType.CACHE, "*", AuditAction.CACHE_CLEAR, detailsAll));
     return ResponseEntity.noContent().build();
   }
 }

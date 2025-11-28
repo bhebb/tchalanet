@@ -1,10 +1,9 @@
 package com.tchalanet.server.game.infra.persistence;
 
+import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditActorType;
 import com.tchalanet.server.audit.domain.model.AuditEntityType;
-import com.tchalanet.server.audit.domain.model.AuditEvent;
-import com.tchalanet.server.audit.domain.usecase.LogAuditEventUseCase;
 import com.tchalanet.server.game.domain.model.Game;
 import com.tchalanet.server.game.domain.ports.GameRepository;
 import java.util.List;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class GameRepositoryAdapter implements GameRepository {
 
   private final GameJpaRepository repo;
-  private final LogAuditEventUseCase auditLog;
+  private final LogAuditEventCommandHandler auditLog;
 
   @Override
   public Game save(Game g) {
@@ -47,18 +46,13 @@ public class GameRepositoryAdapter implements GameRepository {
             e -> {
               e.setDeletedAt(java.time.Instant.now());
               repo.save(e);
-              var ev =
-                  AuditEvent.of(
-                      null,
-                      AuditActorType.SYSTEM,
-                      "system",
+              var details = Map.<String, Object>of("code", e.getCode());
+              auditLog.handle(
+                  new LogAuditEventCommand(
                       AuditEntityType.GAME,
                       e.getId().toString(),
                       AuditAction.SOFT_DELETE,
-                      Map.of("code", e.getCode()).toString(),
-                      null,
-                      null);
-              auditLog.log(ev);
+                      details));
             });
   }
 }
