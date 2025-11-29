@@ -156,6 +156,26 @@ public interface ListUpcomingDrawsQueryHandler {
 }
 ```
 
+### Mapping between layers (MapStruct)
+
+Pour les mappings entre modèles de différentes couches (ex. `infra.web.model` ↔ `application.command.model` / `application.query.model`, ou `infra.persistence` ↔ `domain.model`) nous recommandons d'utiliser MapStruct :
+
+- créer des interfaces `Mapper` dans `infra.web.mapper` ou `infra.persistence.mapper`.
+- préférer MapStruct pour les mappings simples/structurés afin d'avoir du code généré, lisible et testable.
+- config MapStruct : `componentModel = "spring"` pour injection auto des mappers.
+
+Exemple :
+
+```java
+@Mapper(componentModel = "spring")
+public interface DrawWebMapper {
+  CreateDrawCommand toCreateDrawCommand(CreateDrawRequest request);
+  DrawSummaryResponse toDrawSummaryResponse(Draw draw);
+}
+```
+
+MapStruct facilite la séparation claire entre DTO HTTP et Commands/Queries et évite les conversions manuelles dispersées.
+
 ---
 
 ## 4. Ports : in & out
@@ -365,6 +385,18 @@ Les adapters ne doivent jamais ignorer `tenantId`.
   - 403 : accès interdit,
   - 404 : ressources non trouvées,
   - 500 : erreurs inattendues.
+
+### Audit et aspects
+
+- Pour l'audit applicatif, prioriser l'utilisation de l'annotation métier `@AuditLog` (aspect) sur les méthodes de controller / use case où nécessaire. L'aspect doit rester léger : il doit construire un command minimal (ou utiliser `AuditEventFactory`) et déléguer au port d'application d'audit.
+- L'audit doit être isolé : le handler d'audit doit écrire dans une transaction REQUIRES_NEW et ne doit jamais faire échouer le flux métier en cas d'erreur d'écriture d'audit (log et swallow).
+
+### Records vs classes
+
+- Préférence pour les **records Java** pour les DTOs immutables (Commands / Queries / simple DTOs) : clarté, immutabilité et concision.
+- Lorsque la structure nécessite des comportements ou des annotations (JPA entities, etc.), utiliser des classes ; dans ce cas, l'utilisation de Lombok (`@Getter`, `@Value`, `@Builder`) est autorisée pour réduire le boilerplate.
+
+Cette convention facilite la compréhension : records = données immuables, classes (+ Lombok) = entités/mutations.
 
 ---
 

@@ -1,11 +1,13 @@
 package com.tchalanet.server.uslottery.application;
 
-import com.tchalanet.server.draw.application.ports.in.ApplyDrawResultUseCase;
+import com.tchalanet.server.draw.application.command.handler.FetchAndApplyExternalResultUseCase;
+import com.tchalanet.server.draw.application.command.model.FetchAndApplyExternalResultCommand;
 import com.tchalanet.server.draw.domain.model.DrawSource;
 import com.tchalanet.server.uslottery.domain.dto.LatestDrawDto;
 import com.tchalanet.server.uslottery.domain.ports.in.RefreshUsLotteryResultsUseCase;
 import com.tchalanet.server.uslottery.domain.ports.out.LatestDrawProviderClient;
 import com.tchalanet.server.uslottery.domain.ports.out.UsLotterySyncStatePort;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +23,7 @@ public class RefreshUsLotteryResultsService implements RefreshUsLotteryResultsUs
 
   private final List<LatestDrawProviderClient> providers;
   private final UsLotterySyncStatePort syncStatePort;
-  private final ApplyDrawResultUseCase applyDrawResultUseCase;
+  private final FetchAndApplyExternalResultUseCase fetchAndApplyExternalResultUseCase;
 
   // Placeholder for mapping externalKey + provider -> game.code + draw_channel.code
   // This would typically be done via a dedicated port/service in the draw domain or a mapping
@@ -58,17 +60,17 @@ public class RefreshUsLotteryResultsService implements RefreshUsLotteryResultsUs
                     dto.scheduledAt().toString());
 
             // Map LatestDrawDto to ApplyDrawResultCommand
-            ApplyDrawResultUseCase.ApplyDrawResultCommand command =
-                new ApplyDrawResultUseCase.ApplyDrawResultCommand(
+            var command =
+                new FetchAndApplyExternalResultCommand(
                     resolvedDrawId,
                     UUID.fromString(
                         "00000000-0000-0000-0000-000000000001"), // Placeholder Tenant ID
-                    Map.of("resultPayloadJson", dto.resultPayloadJson()), // resultPayload
                     DrawSource.US_LOTTERY, // Source is US_LOTTERY for external provider
-                    UUID.fromString("00000000-0000-0000-0000-000000000001") // System User ID
-                    );
+                    Instant.now(),
+                    Map.of("resultPayloadJson", dto.resultPayloadJson()));
 
-            applyDrawResultUseCase.applyResult(command); // Call the use case in the draw domain
+            fetchAndApplyExternalResultUseCase.handle(
+                command); // Call the use case in the draw domain
             log.info(
                 "Successfully applied result for draw {} from provider {}",
                 resolvedDrawId,

@@ -12,5 +12,6 @@ public enum AuditAction {
   LOGOUT,
   OVERRIDE_TENANT,
   CACHE_CLEAR,
+  SETTLE,
   OTHER
 }

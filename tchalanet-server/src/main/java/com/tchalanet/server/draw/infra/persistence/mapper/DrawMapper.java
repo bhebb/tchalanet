@@ -1,34 +1,61 @@
 package com.tchalanet.server.draw.infra.persistence.mapper;
 
 import com.tchalanet.server.draw.domain.model.Draw;
-import com.tchalanet.server.draw.infra.persistence.entity.DrawEntity;
-import org.springframework.stereotype.Component;
+import com.tchalanet.server.draw.domain.model.DrawChannelId;
+import com.tchalanet.server.draw.domain.model.DrawResult;
+import com.tchalanet.server.draw.domain.model.DrawStatus;
+import com.tchalanet.server.draw.infra.persistence.DrawJpaEntity;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import org.mapstruct.Mapper;
 
-@Component
-public class DrawMapper {
+@Mapper(componentModel = "spring")
+public interface DrawMapper {
 
-  public DrawEntity toEntity(Draw domain) {
-    DrawEntity entity = new DrawEntity();
-    entity.setId(domain.id());
-    entity.setTenantId(domain.tenantId());
-    entity.setDrawChannelId(domain.drawChannelId());
-    entity.setGameCode(domain.gameCode());
-    entity.setDrawSource(domain.drawSource().name()); // Convert enum to String
-    entity.setScheduledAt(domain.scheduledAt());
-    entity.setCutoffSec(domain.cutoffSec());
-    entity.setStatus(domain.status()); // Use enum directly
-    // todo result
-    // entity.setResultPayload(domain.resultPayload());
-    entity.setSystemGenerated(domain.systemGenerated());
-    entity.setLocked(domain.locked());
-    entity.setCreatedBy(domain.createdBy());
-    entity.setUpdatedBy(domain.updatedBy());
-    // createdAt, updatedAt, deletedAt are handled by BaseTenantEntity or @PrePersist
-    return entity;
+  default Draw toDomain(DrawJpaEntity entity) {
+    if (entity == null) return null;
+    Instant scheduled = entity.getScheduledAt();
+    ZonedDateTime scheduledZdt =
+        scheduled == null ? null : ZonedDateTime.ofInstant(scheduled, ZoneId.of("UTC"));
+    ZonedDateTime cutoffZdt =
+        scheduledZdt == null
+            ? null
+            : scheduledZdt.minusSeconds(
+                entity.getCutoffSec() == null ? 120 : entity.getCutoffSec());
+
+    DrawStatus status =
+        entity.getStatus() == null ? DrawStatus.PLANNED : DrawStatus.valueOf(entity.getStatus());
+
+    // result mapping omitted for first pass
+    DrawResult result = null;
+
+    return new Draw(
+        entity.getId(),
+        entity.getTenantId(),
+        new DrawChannelId(entity.getDrawChannelId()),
+        scheduledZdt,
+        cutoffZdt,
+        status,
+        result);
   }
 
-  public Draw toDomain(DrawEntity entity) {
-    // todo defdf
-    return null;
+  default DrawJpaEntity toEntity(Draw domain) {
+    DrawJpaEntity entity = new DrawJpaEntity();
+    if (domain == null) return entity;
+    entity.setId(domain.id());
+    entity.setTenantId(domain.tenantId());
+    entity.setDrawChannelId(domain.channelId() == null ? null : domain.channelId().value());
+    // only set fields that exist on domain.Draw
+    if (domain.scheduledAt() != null)
+      entity.setScheduledAt(java.time.Instant.from(domain.scheduledAt()));
+    if (domain.cutoffAt() != null && domain.scheduledAt() != null) {
+      long cutoffSec =
+          java.time.Duration.between(domain.cutoffAt(), domain.scheduledAt()).getSeconds();
+      entity.setCutoffSec((int) cutoffSec);
+    }
+    if (domain.status() != null) entity.setStatus(domain.status().name());
+    // drawSource/resultPayload/systemGenerated/locked are set elsewhere when available
+    return entity;
   }
 }

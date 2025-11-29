@@ -1,8 +1,11 @@
 package com.tchalanet.server.draw.domain.model;
 
 public enum DrawStatus {
-  CANCELED,
-  RESULTED,
+  SCHEDULED,
+  PLANNED,
+  OPEN,
   CLOSED,
-  SCHEDULED
+  RESULTED,
+  SETTLED,
+  CANCELED
 }

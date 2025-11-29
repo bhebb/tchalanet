@@ -255,6 +255,7 @@ CREATE TABLE draw
     system_generated boolean NOT NULL DEFAULT true,
     locked boolean NOT NULL DEFAULT false,
 
+    version      bigint       NOT NULL DEFAULT 0,
     created_at      timestamptz NOT NULL DEFAULT now(),
     created_by      uuid,
     updated_at      timestamptz NOT NULL DEFAULT now(),
@@ -277,6 +278,51 @@ CREATE TRIGGER trg_draw_updated_at
     BEFORE UPDATE
     ON draw
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+
+CREATE TABLE draw_result (
+                             id              uuid            PRIMARY KEY DEFAULT gen_random_uuid(),
+
+                             tenant_id       uuid            NOT NULL,                     -- RLS comme les autres
+                             draw_id         uuid            NOT NULL
+                                 REFERENCES draw(id),
+
+    -- Source du résultat
+                             source          varchar(32)     NOT NULL,                     -- 'EXTERNAL', 'MANUAL', 'ADMIN_OVERRIDE'
+                             status          varchar(32)     NOT NULL DEFAULT 'VALID',     -- 'VALID', 'OVERRIDDEN', 'INVALIDATED'
+
+    -- Résultats "métier"
+                             numbers_main    text[]          NOT NULL,                     -- ex: { "12","34","56" }
+                             numbers_extra   jsonb,                                        -- si besoin de bonus, series, etc.
+
+    -- Payload brut de l’API/parseur
+                             raw_payload     jsonb,                                        -- JSON NY/FL/HT pour audit/debug
+                             version      bigint       NOT NULL DEFAULT 0,
+
+    -- Audit
+                             created_at      timestamptz     NOT NULL DEFAULT now(),
+                             created_by      uuid,
+                             updated_at      timestamptz,
+                             updated_by      uuid,
+
+    -- Override
+                             overridden_at   timestamptz,
+                             overridden_by   uuid,
+                             override_reason text
+);
+
+-- 1 résultat courant max par tirage, par tenant
+ALTER TABLE draw_result
+    ADD CONSTRAINT draw_result_uq_draw UNIQUE (tenant_id, draw_id);
+
+CREATE INDEX draw_result_tenant_idx
+    ON draw_result (tenant_id);
+
+CREATE INDEX draw_result_draw_idx
+    ON draw_result (tenant_id, draw_id);
+
+CREATE INDEX draw_result_status_idx
+    ON draw_result (tenant_id, status);
 
 
 -- ===========================

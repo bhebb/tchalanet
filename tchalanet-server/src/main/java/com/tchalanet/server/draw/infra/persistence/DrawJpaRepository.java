@@ -1,5 +1,6 @@
 package com.tchalanet.server.draw.infra.persistence;
 
+import com.tchalanet.server.draw.domain.model.DrawStatus;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -41,4 +42,17 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
       @Param("cutoffSec") Integer cutoffSec,
       @Param("status") String status,
       @Param("resultPayload") String resultPayload);
+
+  List<DrawJpaEntity> findByTenantIdAndScheduledAtBetween(UUID tenantId, Instant from, Instant to);
+
+  List<DrawJpaEntity> findByStatusAndScheduledAtBefore(DrawStatus status, Instant before);
+
+  @Query(
+      "SELECT d FROM DrawJpaEntity d WHERE d.tenantId = :tenantId AND d.status = 'SCHEDULED' AND (d.scheduledAt - d.cutoffSec * 1000) < :now")
+  List<DrawJpaEntity> findScheduledDrawsPastCutoff(
+      @Param("tenantId") UUID tenantId, @Param("now") Instant now);
+
+  List<DrawJpaEntity>
+      findByTenantIdAndDrawChannelCodeAndStatusAndScheduledAtAfterOrderByScheduledAtAsc(
+          UUID tenantId, String drawChannelId, String status, Instant scheduledAtAfter);
 }

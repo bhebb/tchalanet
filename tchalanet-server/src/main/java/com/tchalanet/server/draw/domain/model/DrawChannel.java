@@ -3,47 +3,29 @@ package com.tchalanet.server.draw.domain.model;
 import com.tchalanet.server.tenant.domain.model.TenantId;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@EqualsAndHashCode(of = "id")
+@ToString(of = {"id", "name", "tenantId"})
+@AllArgsConstructor
 public final class DrawChannel {
-  private final DrawChannelId id;
-  private final String name;
-  private final TenantId tenantId;
-  private final String gameCode;
-  private final String timezone;
-  private final LocalTime drawTime;
-  private final Integer cutoffSec;
-  private final List<DayOfWeek> daysOfWeek;
-  private final Boolean active;
-  private final Integer sortOrder;
-
-  public DrawChannel(DrawChannelId id, String name, TenantId tenantId) {
-    this(id, name, tenantId, null, null, null, null, null, null, null);
-  }
-
-  public DrawChannel(
-      DrawChannelId id,
-      String name,
-      TenantId tenantId,
-      String gameCode,
-      String timezone,
-      LocalTime drawTime,
-      Integer cutoffSec,
-      List<DayOfWeek> daysOfWeek,
-      Boolean active,
-      Integer sortOrder) {
-    this.id = id;
-    this.name = name;
-    this.tenantId = tenantId;
-    this.gameCode = gameCode;
-    this.timezone = timezone;
-    this.drawTime = drawTime;
-    this.cutoffSec = cutoffSec;
-    this.daysOfWeek = daysOfWeek;
-    this.active = active;
-    this.sortOrder = sortOrder;
-  }
+  private DrawChannelId id;
+  private String name;
+  private String label; // pour UI back-office
+  private TenantId tenantId;
+  private String gameCode;
+  private ZoneId timezone;
+  private LocalTime drawTime;
+  private Integer cutoffSec;
+  private List<DayOfWeek> daysOfWeek;
+  private Boolean active;
+  private Integer sortOrder;
+  private DrawSource defaultSource; // EXTERNAL_NY, MANUAL_HT, etc.
 
   public DrawChannelId id() {
     return id;
@@ -57,86 +39,59 @@ public final class DrawChannel {
     return tenantId;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public String getGameCode() {
+  public String gameCode() {
     return gameCode;
   }
 
-  public String getTimezone() {
-    return timezone;
-  }
-
-  public LocalTime getDrawTime() {
-    return drawTime;
-  }
-
-  public Integer getCutoffSec() {
-    return cutoffSec;
-  }
-
-  public java.util.List<java.time.DayOfWeek> getDaysOfWeek() {
-    return daysOfWeek;
-  }
-
-  public Boolean getActive() {
-    return active;
-  }
-
-  public Integer getSortOrder() {
-    return sortOrder;
-  }
-
-  public DrawChannelId getId() {
-    return id;
-  }
-
-  public TenantId getTenantId() {
-    return tenantId;
-  }
-
-  // Compatibility convenience methods expected by usecases
-  public String timezone() {
-    return this.timezone;
+  public String label() {
+    return label;
   }
 
   public LocalTime drawTime() {
-    return this.drawTime;
-  }
-
-  public String code() {
-    return this.id == null ? null : this.id.toString();
-  }
-
-  public String gameCode() {
-    return this.gameCode;
+    return drawTime;
   }
 
   public Integer cutoffSec() {
-    return this.cutoffSec == null ? 0 : this.cutoffSec;
+    return cutoffSec;
   }
 
-  public boolean isScheduledOn(DayOfWeek dow) {
-    return this.daysOfWeek != null && this.daysOfWeek.contains(dow);
+  public List<DayOfWeek> daysOfWeek() {
+    return daysOfWeek;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    DrawChannel that = (DrawChannel) o;
-    return Objects.equals(id, that.id);
+  public Integer sortOrder() {
+    return sortOrder;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
+  public ZoneId timezone() {
+    return timezone;
   }
 
-  @Override
-  public String toString() {
-    return "DrawChannel{" + "id=" + id + ", name='" + name + '\'' + ", tenantId=" + tenantId + '}';
+  public boolean isActive() {
+    return active;
+  }
+
+  public DrawSource defaultSource() {
+    return defaultSource;
+  }
+
+  public void rename(String newLabel) {
+    this.label = Objects.requireNonNull(newLabel);
+  }
+
+  public void changeTimezone(ZoneId newZone) {
+    this.timezone = Objects.requireNonNull(newZone);
+  }
+
+  public void activate() {
+    this.active = true;
+  }
+
+  public void deactivate() {
+    this.active = false;
+  }
+
+  public void changeDefaultSource(DrawSource newSource) {
+    this.defaultSource = Objects.requireNonNull(newSource);
   }
 }

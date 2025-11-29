@@ -1,16 +1,18 @@
 package com.tchalanet.server.uslottery.infra;
 
+import com.tchalanet.server.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.draw.domain.model.Draw;
+import com.tchalanet.server.draw.domain.model.DrawChannelId;
+import com.tchalanet.server.draw.domain.model.DrawResult;
 import com.tchalanet.server.draw.domain.model.DrawSource;
 import com.tchalanet.server.draw.domain.model.DrawStatus;
-import com.tchalanet.server.draw.domain.ports.DrawRepository;
 import com.tchalanet.server.draw.infra.persistence.DrawChannelJpaEntity;
 import com.tchalanet.server.draw.infra.persistence.DrawChannelJpaRepository;
 import com.tchalanet.server.uslottery.domain.dto.LatestDrawDto;
 import com.tchalanet.server.uslottery.domain.ports.out.UsLotteryDrawSyncPort;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UsLotteryDrawSyncAdapter implements UsLotteryDrawSyncPort {
 
-  private final DrawRepository drawRepository;
+  private final DrawWriterPort drawWriterPort;
   private final DrawChannelJpaRepository drawChannelJpaRepository;
 
   /** Tenant par défaut pour les tirages US Lottery (peut être surchargé par propriété). */
@@ -71,47 +73,42 @@ public class UsLotteryDrawSyncAdapter implements UsLotteryDrawSyncPort {
     // DTO déjà fournit scheduledAt en Instant
     Instant scheduledAt = dto.scheduledAt();
 
-    // 3. Construire le payload résultat minimal
-    Map<String, Object> payload =
-        Map.of(
-            "channelCode", dto.externalChannelCode(),
-            "scheduledAt", dto.scheduledAt().toString(),
-            "resultPayloadJson", dto.resultPayloadJson());
-
-    // Pour l'instant, on utilise externalKey comme gameCode nominal
-    String gameCode = dto.externalChannelCode();
-
-    // Créer un draw de base en SCHEDULED puis appliquer le résultat via la logique métier
-    Draw base =
-        new Draw(
-            UUID.randomUUID(),
-            tenantId,
-            channel.getId(),
-            gameCode,
-            scheduledAt,
-            channel.getCutoffSec(),
-            DrawStatus.SCHEDULED,
+    // 3. Construire le DrawResult à partir du payload
+    // TODO: Parser resultPayloadJson pour extraire numbersMain, etc.
+    // Pour l'instant, dummy
+    List<String> numbersMain = List.of("1", "2", "3", "4", "5"); // dummy
+    List<String> numbersExtra = List.of("6"); // dummy
+    DrawResult result =
+        new DrawResult(
             DrawSource.US_LOTTERY,
+            numbersMain,
+            numbersExtra,
+            scheduledAt,
             dto.resultPayloadJson(),
-            Boolean.FALSE,
-            Boolean.FALSE);
+            false,
+            null);
 
-    Draw resulted = base.applyResult(payload, DrawSource.US_LOTTERY, null);
+    // 4. Créer le Draw avec le résultat
+    UUID drawId = UUID.randomUUID();
+    ZonedDateTime scheduledZdt = scheduledAt.atZone(java.time.ZoneId.systemDefault());
+    ZonedDateTime cutoffZdt = scheduledZdt.minusSeconds(channel.getCutoffSec());
 
-    // 5. Insérer si inexistant, sinon laisser la logique existante gérer les updates
-    boolean inserted = drawRepository.saveIfNotExists(resulted);
-    if (inserted) {
-      log.info(
-          "uslottery-sync: inserted RESULTED draw for tenant={} channel={} date{}",
-          tenantId,
-          dto.externalChannelCode(),
-          dto.scheduledAt());
-    } else {
-      log.debug(
-          "uslottery-sync: draw already exists for tenant={} channel={} date={}",
-          tenantId,
-          dto.externalChannelCode(),
-          dto.scheduledAt());
-    }
+    Draw draw =
+        new Draw(
+            drawId,
+            tenantId,
+            new DrawChannelId(channel.getId()),
+            scheduledZdt,
+            cutoffZdt,
+            DrawStatus.RESULTED,
+            result);
+
+    // 5. Sauvegarder
+    drawWriterPort.save(draw);
+    log.info(
+        "uslottery-sync: synced RESULTED draw for tenant={} channel={} date={}",
+        tenantId,
+        dto.externalChannelCode(),
+        dto.scheduledAt());
   }
 }

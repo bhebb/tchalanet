@@ -69,14 +69,23 @@ Interfaces côté `application.port.out` :
 
 ---
 
-## 5. Événements domaine
+## 5. Mapping & DTOs (convention)
 
-Si le domaine publie des événements (optionnel) :
+Pour assurer une séparation claire entre les layers :
 
-- `SomethingHappenedEvent` — consommateur typique : …
-- `AnotherEvent` — …
+- Utiliser MapStruct pour mapper `infra.web.model` ↔ `application.command.model` / `application.query.model`.
+- Créer des `Mapper` dans `infra.web.mapper` ou `infra.persistence.mapper`.
+- Configurer MapStruct `componentModel = "spring"` pour autowiring.
 
-Sinon : indiquer « Pas d’événements domaine en V1 ».
+### Audit
+
+- Favoriser l'annotation `@AuditLog` pour instrumenter les méthodes métier critiques.
+- L'aspect lié à `@AuditLog` doit construire un audit command ou utiliser `AuditEventFactory`, puis déléguer l'écriture au port d'audit.
+
+### Records vs Lombok
+
+- Préférer `record` pour les DTO immuables (commands / queries / simple dto).
+- Si une classe nécessite JPA/Lombok, utiliser `class` + Lombok (`@Getter`, `@Builder`, etc.).
 
 ---
 

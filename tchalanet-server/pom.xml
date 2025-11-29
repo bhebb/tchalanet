@@ -35,7 +35,6 @@
         <hibernate.version>6.6.37.Final</hibernate.version>
         <testcontainers.version>1.20.3</testcontainers.version>
         <springdoc.version>3.0.0</springdoc.version>
-        <spring.batch.version>6.0.0</spring.batch.version>
 
         <!-- SonarQube (à ajuster) -->
         <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
@@ -169,12 +168,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch</artifactId>
-        </dependency>
-        <!-- Ensure spring-batch-core is present for batch configuration classes -->
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-core</artifactId>
-            <version>${spring.batch.version}</version>
         </dependency>
     </dependencies>
     <build>

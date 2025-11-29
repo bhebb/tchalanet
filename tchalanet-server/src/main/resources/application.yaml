@@ -17,6 +17,14 @@ app:
     allow-credentials: true
   security:
     required-audience: tchalanet-api
+  batch:
+    fetch-results-windows: "12:00-14:00,20:00-23:00"
+    settle-draws-windows: "12:00-15:00,20:00-23:30"
+    close-draws-windows: "11:30-14:00,19:30-23:00"
+    settle:
+      chunk-size: ${APP_BATCH_SETTLE_CHUNK_SIZE:50}
+  # default ZoneId used by the application; can be overridden with env var APP_ZONE_ID
+  zone-id: ${APP_ZONE_ID:UTC}
 
 # ===========================
 # SPRING FRAMEWORK
@@ -38,11 +46,19 @@ spring:
       org.hibernate.envers.revision_type_field_name: "revtype"
       org.hibernate.envers.revision_listener: "com.tchalanet.server.common.infra.persistence.audit.TchRevisionListener"
 
+    batch:
+      jdbc:
+        initialize-schema: never   # on laisse Flyway créer les tables
+      job:
+        enabled: false             # pas de job auto au démarrage (on les lance via API / schedulers)
+
   # --- Database Migration ---
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    schemas: public,batch
+
 
   # --- Security (OAuth2 Resource Server) ---
   security:

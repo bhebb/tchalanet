@@ -1,162 +1,103 @@
 package com.tchalanet.server.draw.domain.model;
 
-import java.time.Instant;
-import java.util.Map;
+import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
-/** Tirage métier central Tchalanet (Haïti, US Lottery, ...). */
-public record Draw(
-    UUID id,
-    UUID tenantId,
-    UUID drawChannelId,
-    String gameCode,
-    Instant scheduledAt,
-    int cutoffSeconds,
-    DrawStatus status,
-    DrawSource source,
-    String resultPayloadJson,
-    boolean systemGenerated,
-    boolean locked) {
+public final class Draw {
 
-  // compatibility alias: cutoffSec() used in code
-  public int cutoffSec() {
-    return this.cutoffSeconds;
+  private final UUID id;
+  private final UUID tenantId;
+  private final DrawChannelId channelId;
+
+  private ZonedDateTime scheduledAt;
+  private ZonedDateTime cutoffAt;
+  private DrawStatus status;
+  private DrawResult result; // peut être null tant que pas RESULTED
+
+  public Draw(
+      UUID id,
+      UUID tenantId,
+      DrawChannelId channelId,
+      ZonedDateTime scheduledAt,
+      ZonedDateTime cutoffAt,
+      DrawStatus status,
+      DrawResult result) {
+    this.id = Objects.requireNonNull(id);
+    this.tenantId = Objects.requireNonNull(tenantId);
+    this.channelId = Objects.requireNonNull(channelId);
+    this.scheduledAt = Objects.requireNonNull(scheduledAt);
+    this.cutoffAt = Objects.requireNonNull(cutoffAt);
+    this.status = Objects.requireNonNull(status);
+    this.result = result;
   }
 
-  // compatibility alias: some code expects resultPayload() (string or null)
-  public String resultPayload() {
-    return this.resultPayloadJson;
+  public UUID id() {
+    return id;
   }
 
-  // alias for source
-  public DrawSource drawSource() {
-    return this.source;
+  public UUID tenantId() {
+    return tenantId;
   }
 
-  // createdBy/updatedBy may be referenced; provide nullable stubs
-  public UUID createdBy() {
-    return null;
+  public DrawChannelId channelId() {
+    return channelId;
   }
 
-  public UUID updatedBy() {
-    return null;
+  public ZonedDateTime scheduledAt() {
+    return scheduledAt;
   }
 
-  // Mutators helpers used in various services — return a new Draw with updated fields
-  public Draw withScheduledAt(Instant newScheduledAt) {
-    return new Draw(
-        this.id,
-        this.tenantId,
-        this.drawChannelId,
-        this.gameCode,
-        newScheduledAt,
-        this.cutoffSeconds,
-        this.status,
-        this.source,
-        this.resultPayloadJson,
-        this.systemGenerated,
-        this.locked);
+  public ZonedDateTime cutoffAt() {
+    return cutoffAt;
   }
 
-  public Draw withCutoffSec(int newCutoff) {
-    return new Draw(
-        this.id,
-        this.tenantId,
-        this.drawChannelId,
-        this.gameCode,
-        this.scheduledAt,
-        newCutoff,
-        this.status,
-        this.source,
-        this.resultPayloadJson,
-        this.systemGenerated,
-        this.locked);
+  public DrawStatus status() {
+    return status;
   }
 
-  public Draw withStatus(DrawStatus newStatus) {
-    return new Draw(
-        this.id,
-        this.tenantId,
-        this.drawChannelId,
-        this.gameCode,
-        this.scheduledAt,
-        this.cutoffSeconds,
-        newStatus,
-        this.source,
-        this.resultPayloadJson,
-        this.systemGenerated,
-        this.locked);
+  public DrawResult result() {
+    return result;
   }
 
-  public Draw withResultPayload(String payloadJson) {
-    return new Draw(
-        this.id,
-        this.tenantId,
-        this.drawChannelId,
-        this.gameCode,
-        this.scheduledAt,
-        this.cutoffSeconds,
-        this.status,
-        this.source,
-        payloadJson,
-        this.systemGenerated,
-        this.locked);
+  // --- state machine methods ---
+
+  public void open() {
+    DrawStatusTransition.check(this.status, DrawStatus.OPEN);
+    this.status = DrawStatus.OPEN;
   }
 
-  public Draw withSystemGenerated(boolean sys) {
-    return new Draw(
-        this.id,
-        this.tenantId,
-        this.drawChannelId,
-        this.gameCode,
-        this.scheduledAt,
-        this.cutoffSeconds,
-        this.status,
-        this.source,
-        this.resultPayloadJson,
-        sys,
-        this.locked);
+  public void close() {
+    DrawStatusTransition.check(this.status, DrawStatus.CLOSED);
+    this.status = DrawStatus.CLOSED;
   }
 
-  public Draw withLocked(boolean locked) {
-    return new Draw(
-        this.id,
-        this.tenantId,
-        this.drawChannelId,
-        this.gameCode,
-        this.scheduledAt,
-        this.cutoffSeconds,
-        this.status,
-        this.source,
-        this.resultPayloadJson,
-        this.systemGenerated,
-        locked);
+  public void applyResult(DrawResult result) {
+    DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
+    this.result = Objects.requireNonNull(result);
+    this.status = DrawStatus.RESULTED;
   }
 
-  public Draw withUpdatedBy(UUID updatedBy) {
-    // audit fields are not stored on Draw record; stub returns same Draw
-    return this;
+  public void settle() {
+    DrawStatusTransition.check(this.status, DrawStatus.SETTLED);
+    if (this.result == null) {
+      throw new IllegalStateException("Cannot settle draw without result");
+    }
+    this.status = DrawStatus.SETTLED;
   }
 
-  /**
-   * Apply a result payload (map) to the draw and return updated Draw. Minimal implementation: store
-   * toString() as JSON placeholder.
-   */
-  public Draw applyResult(Map<String, Object> payload, DrawSource source, UUID appliedBy) {
-    String payloadJson = payload == null ? null : payload.toString();
-    Draw updated = this.withResultPayload(payloadJson).withSystemGenerated(this.systemGenerated);
-    // also set source
-    return new Draw(
-        updated.id,
-        updated.tenantId,
-        updated.drawChannelId,
-        updated.gameCode,
-        updated.scheduledAt,
-        updated.cutoffSeconds,
-        updated.status,
-        source,
-        updated.resultPayloadJson,
-        updated.systemGenerated,
-        updated.locked);
+  public void cancel(String reason) {
+    DrawStatusTransition.check(this.status, DrawStatus.CANCELED);
+    // TODO: stocker reason si tu veux
+    this.status = DrawStatus.CANCELED;
+  }
+
+  // pour changer l’horaire via admin
+  public void reschedule(ZonedDateTime newScheduledAt, ZonedDateTime newCutoffAt) {
+    if (status != DrawStatus.PLANNED && status != DrawStatus.SCHEDULED) {
+      throw new IllegalStateException("Can only reschedule PLANNED or SCHEDULED draws");
+    }
+    this.scheduledAt = Objects.requireNonNull(newScheduledAt);
+    this.cutoffAt = Objects.requireNonNull(newCutoffAt);
   }
 }

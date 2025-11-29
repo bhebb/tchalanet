@@ -1,0 +1,416 @@
+Contexte général
+
+Nous avons un bounded context draw dans un backend Spring Boot / Java, avec une architecture hexagonale.
+
+Structure à respecter absolument :
+
+com.tchalanet.server.draw.application.command.model : Command (records, DTO de commande).
+
+com.tchalanet.server.draw.application.command.handler : Use cases command (impl métier) annotés avec @UseCase et @TchTx pour les opérations transactionnelles.
+
+com.tchalanet.server.draw.application.query.model : Query (records, DTO de requête).
+
+com.tchalanet.server.draw.application.query.handler : Use cases query (impl métier) annotés avec @UseCase (en général sans transaction, sauf besoin).
+
+com.tchalanet.server.draw.application.ports.in : ports IN (interfaces pour les command handlers ET les query handlers).
+
+com.tchalanet.server.draw.application.ports.out : ports OUT (interfaces vers persistence, external APIs, cache, etc.).
+
+@UseCase doit être utilisé à la place de @Service sur les use cases.
+
+@TchTx doit être utilisé à la place de @Transactional sur les méthodes ou classes transactionnelles.
+
+Objectif : structurer proprement le BC draw sans changer la logique métier, en alignant classes existantes sur :
+
+Commands & CommandHandlers,
+
+Queries & QueryHandlers,
+
+Use cases (command.handler & query.handler),
+
+Ports OUT,
+
+Batchs,
+
+Web controllers.
+
+1. Ports IN – Command side
+
+Package : com.tchalanet.server.draw.application.ports.in
+
+Créer/organiser les interfaces suivantes (ports IN).
+Ces interfaces NE contiennent que des signatures de méthodes.
+Les implémentations seront dans application.command.handler avec @UseCase.
+
+1.1. Cycle de vie & génération
+public interface CloseDueDrawsCommandHandler {
+    void handle(); // multi-tenant à l’intérieur
+}
+
+
+À créer aussi (interfaces, même si les impls viendront plus tard) :
+
+GenerateDrawsForDateRangeCommandHandler
+
+CancelDrawCommandHandler
+
+ReopenDrawForSalesCommandHandler
+
+OpenDueDrawsCommandHandler
+
+1.2. Résultats
+public interface FetchAndApplyExternalResultCommandHandler {
+    void handle(UUID drawId);
+}
+
+
+Et les interfaces :
+
+RecordManualDrawResultCommandHandler
+
+OverrideDrawResultCommandHandler
+
+InvalidateDrawResultCommandHandler (optionnel pour V2)
+
+1.3. Settlement
+public interface SettleDrawCommandHandler {
+    void handle(UUID drawId);
+}
+
+
+Et en option :
+
+RetrySettleDrawCommandHandler
+
+ResetSettlementForDrawCommandHandler
+
+1.4. Cache / maintenance
+
+RefreshInternalDrawCacheCommandHandler
+
+RefreshPublicDrawsCacheCommandHandler
+
+RebuildDrawReadModelsCommandHandler (optionnel)
+
+À FAIRE :
+
+Adapter les classes existantes pour qu’elles implémentent ces interfaces (dans application.command.handler).
+
+Ne pas changer la logique métier interne, seulement l’architecture et les noms.
+
+2. Commands – modèles
+
+Package : com.tchalanet.server.draw.application.command.model
+
+Créer des records pour les commands (DTO d’entrée des use cases) si ce n’est pas déjà fait.
+
+Exemples :
+
+CloseDueDrawsCommand (facultatif si handle() sans param)
+
+GenerateDrawsForDateRangeCommand
+
+CancelDrawCommand
+
+ReopenDrawForSalesCommand
+
+OpenDueDrawsCommand
+
+FetchAndApplyExternalResultCommand
+(record avec drawId et éventuels paramètres de provider)
+
+RecordManualDrawResultCommand
+
+OverrideDrawResultCommand
+
+InvalidateDrawResultCommand
+
+SettleDrawCommand
+
+RetrySettleDrawCommand
+
+ResetSettlementForDrawCommand
+
+RefreshInternalDrawCacheCommand
+
+RefreshPublicDrawsCacheCommand
+
+RebuildDrawReadModelsCommand
+
+IMPORTANT :
+
+Ne pas inventer de nouveaux champs dans ces records si ce n’est pas nécessaire.
+
+Mapper proprement ce qui existe déjà vers ces modèles.
+
+3. Use cases Command – impl
+
+Package : com.tchalanet.server.draw.application.command.handler
+
+Ici, mettre les impl métiers des ports IN (command) avec les règles suivantes :
+
+Annoter les classes avec @UseCase.
+
+Annoter la classe ou la méthode principale avec @TchTx si c’est transactionnel.
+
+Implémenter les interfaces définies dans ports.in.
+
+Exemples de refactor :
+
+CloseDueDrawsCommandHandlerImpl
+
+Classe existante à adapter :
+
+@UseCase
+public class CloseDueDrawsCommandHandlerImpl implements CloseDueDrawsCommandHandler {
+
+    @TchTx
+    @Override
+    public void handle() {
+        // logique métier existante
+    }
+}
+
+
+ApplyDrawResultService
+
+Renommer en FetchAndApplyExternalResultUseCase (dans command.handler).
+
+Implémenter FetchAndApplyExternalResultCommandHandler.
+
+Adapter la méthode principale :
+
+@UseCase
+public class FetchAndApplyExternalResultUseCase implements FetchAndApplyExternalResultCommandHandler {
+
+    @TchTx
+    @Override
+    public void handle(UUID drawId) {
+        // logique actuelle d’ApplyDrawResultService
+    }
+}
+
+
+SettleDrawsUseCaseImpl
+
+Rester dans application.command.handler ou être déplacé.
+
+Implémenter SettleDrawCommandHandler.
+
+Utiliser @UseCase + @TchTx.
+
+RefreshDrawCacheService
+
+Renommer en RefreshInternalDrawCacheUseCase.
+
+Implémenter RefreshInternalDrawCacheCommandHandler.
+
+Annoter avec @UseCase et @TchTx si besoin.
+
+RefreshPublicDrawsCacheUseCaseImpl
+
+Implémenter RefreshPublicDrawsCacheCommandHandler.
+
+@UseCase (+ éventuellement @TchTx).
+
+Règle pour Copilot :
+
+Ne modifie pas le corps des méthodes (logique métier).
+
+Ajoute juste @UseCase, @TchTx et implements <HandlerInterface>.
+
+4. Ports IN – Query side
+
+Package : com.tchalanet.server.draw.application.ports.in
+
+Dans ce même package (ou sous-package query si nécessaire), créer les interfaces de query handlers :
+
+GetNextDrawQueryHandler
+
+GetNextDrawsQueryHandler
+
+ListDrawsQueryHandler
+
+ListTodayDrawsQueryHandler
+
+ListLast7DaysDrawsQueryHandler
+
+ListTodayResultsQueryHandler
+
+ListLast7DaysResultsQueryHandler
+
+ListLastDaysResultsQueryHandler
+
+GetPublicHomePageDrawsQueryHandler
+
+GetPublicDrawsSummaryQueryHandler
+
+GetPublicResultsSummaryQueryHandler
+
+GetDrawDetailsQueryHandler
+
+GetDrawResultQueryHandler
+
+GetDrawSettlementStatusQueryHandler
+
+ListUnsettledResultedDrawsQueryHandler
+
+Chaque interface expose des méthodes prenant une Query (record) du package application.query.model et retournant le résultat approprié (DTO ou modèle).
+
+5. Queries – modèles
+
+Package : com.tchalanet.server.draw.application.query.model
+
+Créer des records pour les queries, par exemple :
+
+GetNextDrawQuery
+
+GetNextDrawsQuery
+
+ListDrawsQuery
+
+ListTodayDrawsQuery
+
+ListLast7DaysDrawsQuery
+
+ListTodayResultsQuery
+
+ListLast7DaysResultsQuery
+
+ListLastDaysResultsQuery
+
+GetPublicHomePageDrawsQuery
+
+GetPublicDrawsSummaryQuery
+
+GetPublicResultsSummaryQuery
+
+GetDrawDetailsQuery
+
+GetDrawResultQuery
+
+GetDrawSettlementStatusQuery
+
+ListUnsettledResultedDrawsQuery
+
+Ces records doivent refléter les paramètres déjà utilisés dans les services existants (tenantId, channelId, dates, pagination, etc.).
+
+6. Use cases Query – impl
+
+Package : com.tchalanet.server.draw.application.query.handler
+
+Refactorer les services/UseCases de lecture existants pour qu’ils :
+
+soient dans ce package,
+
+soient annotés avec @UseCase,
+
+implémentent les interfaces de query handlers dans ports.in,
+
+consomment les Query records de application.query.model.
+
+Exemples de classes à adapter :
+
+GetNextDrawUseCaseImpl → @UseCase, implements GetNextDrawQueryHandler
+
+GetNextDrawsUseCaseImpl
+
+ListDrawsUseCaseImpl
+
+ListTodayResultsUseCaseImpl
+
+ListLast7DaysResultsUseCaseImpl
+
+GetPublicHomePageUseCaseImpl
+
+etc.
+
+Ne pas changer la logique métier, juste le câblage et les annotations.
+
+7. Ports OUT – draw.application.ports.out
+
+Package : com.tchalanet.server.draw.application.ports.out
+
+Garder/adapter :
+
+ExternalDrawResultPort
+
+FindFetchableDrawIdsPort
+
+FindSettleableDrawIdsPort
+
+Et créer (interfaces vides ou basiques pour l’instant) :
+
+DrawReaderPort
+
+DrawWriterPort
+
+DrawChannelReaderPort
+
+DrawChannelWriterPort
+
+PublicDrawsCachePort (pour Redis/Caffeine)
+
+Les impls seront dans draw.infra.persistence, draw.infra.external, draw.infra.cache.
+
+8. Batch – draw.infra.batch
+
+Objectif : les batch steps appellent les ports IN (handlers), pas des services concrets.
+
+CloseDrawsTasklet
+
+Depend de CloseDueDrawsCommandHandler.
+
+execute : handler.handle(); puis RepeatStatus.FINISHED.
+
+Job close_due_draws (CloseDueDrawsJobConfig)
+
+Step close_due_draws_step avec new StepBuilder("close_due_draws_step", jobRepository).tasklet(tasklet, txManager).
+
+FetchDrawResultsJobConfig
+
+ItemReader<UUID> = FetchableDrawIdsReader (utilise FindFetchableDrawIdsPort).
+
+ItemWriter<UUID> : boucle sur les IDs et appelle FetchAndApplyExternalResultCommandHandler.handle(drawId).
+
+SettleDrawsJobConfig
+
+ItemReader<UUID> = SettleableDrawIdsReader (utilise FindSettleableDrawIdsPort).
+
+ItemWriter<UUID> : boucle sur les IDs et appelle SettleDrawCommandHandler.handle(drawId).
+
+9. Web – draw.infra.web
+
+Règles minimales pour ce refactor :
+
+Les controllers REST doivent dépendre des ports IN (CommandHandler, QueryHandler) et des modèles (Command/Query), pas des impls concrètes / services.
+
+Ne change pas les endpoints HTTP (path/méthode) pour l’instant.
+
+Adapte uniquement les injections de dépendances et les types.
+
+10. Règles pour Copilot
+
+Ne supprime pas de classes sans certitude. Si tu vois un doublon, garde la classe principale et mets // TODO sur l’ancienne.
+
+Ne modifie pas la logique métier interne des méthodes. Le refactor est principalement :
+
+déplacement de classes,
+
+renommage,
+
+implémentation des bonnes interfaces,
+
+ajout de @UseCase et @TchTx.
+
+Respecte strictement les packages :
+
+Commands → application.command.model
+
+Command usecases → application.command.handler
+
+Queries → application.query.model
+
+Query usecases → application.query.handler
+
+Ports in/out → application.ports.in / application.ports.out

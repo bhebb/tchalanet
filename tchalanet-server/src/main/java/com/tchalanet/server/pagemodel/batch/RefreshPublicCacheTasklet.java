@@ -1,26 +1,23 @@
 package com.tchalanet.server.pagemodel.batch;
 
-import com.tchalanet.server.draw.application.ports.in.RefreshPublicDrawsCacheUseCase;
-import org.springframework.batch.core.StepContribution;
+import com.tchalanet.server.draw.application.port.in.command.RefreshPublicDrawsCacheCommandHandler;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class RefreshPublicCacheTasklet implements Tasklet {
 
-  private final RefreshPublicDrawsCacheUseCase useCase;
+  private final RefreshPublicDrawsCacheCommandHandler useCase;
 
-  public RefreshPublicCacheTasklet(RefreshPublicDrawsCacheUseCase useCase) {
-    this.useCase = useCase;
-  }
-
-  public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
+  @Override
+  public @Nullable RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)
       throws Exception {
-    // Assuming refreshAllTenants() processes all tenants or a default.
-    // If it needs a tenantId, it should be passed from batch job parameters.
-    useCase.refreshCache(null);
-    return RepeatStatus.FINISHED;
+    return null;
   }
 }
