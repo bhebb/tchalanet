@@ -1,9 +1,9 @@
 package com.tchalanet.server.common.web;
 
-import com.tchalanet.server.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.audit.application.port.in.LogAuditEventCommandHandler;
-import com.tchalanet.server.audit.domain.model.AuditAction;
-import com.tchalanet.server.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.core.audit.application.port.in.LogAuditEventCommandHandler;
+import com.tchalanet.server.core.audit.domain.model.AuditAction;
+import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
 import java.util.List;
 import java.util.Map;
 import org.springframework.cache.CacheManager;

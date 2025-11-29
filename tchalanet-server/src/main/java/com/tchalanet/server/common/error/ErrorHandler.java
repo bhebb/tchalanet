@@ -3,7 +3,7 @@ package com.tchalanet.server.common.error;
 import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
-import com.tchalanet.server.accesscontrol.domain.exception.PermissionsDeniedException;
+import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

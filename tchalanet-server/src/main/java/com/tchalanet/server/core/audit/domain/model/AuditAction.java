@@ -1,0 +1,17 @@
+package com.tchalanet.server.core.audit.domain.model;
+
+public enum AuditAction {
+  CREATE,
+  UPDATE,
+  DELETE,
+  SOFT_DELETE,
+  RESTORE,
+  STATE_CHANGE,
+  PAY,
+  LOGIN,
+  LOGOUT,
+  OVERRIDE_TENANT,
+  CACHE_CLEAR,
+  SETTLE,
+  OTHER
+}

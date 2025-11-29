@@ -2,9 +2,9 @@ package com.tchalanet.server.common.security;
 
 import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILITY;
 
-import com.tchalanet.server.accesscontrol.domain.model.TchRole;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

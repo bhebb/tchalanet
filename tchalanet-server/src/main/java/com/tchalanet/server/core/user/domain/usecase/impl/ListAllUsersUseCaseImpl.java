@@ -1,0 +1,20 @@
+package com.tchalanet.server.core.user.domain.usecase.impl;
+
+import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.core.user.domain.model.AppUser;
+import com.tchalanet.server.core.user.domain.ports.AppUserRepository;
+import com.tchalanet.server.core.user.domain.usecase.ListAllUsersUseCase;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+
+@UseCase
+@RequiredArgsConstructor
+public class ListAllUsersUseCaseImpl implements ListAllUsersUseCase {
+
+  private final AppUserRepository repo;
+
+  @Override
+  public List<AppUser> listAll() {
+    return repo.findAll();
+  }
+}

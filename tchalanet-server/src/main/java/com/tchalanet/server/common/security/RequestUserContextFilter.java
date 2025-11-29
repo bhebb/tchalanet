@@ -6,11 +6,11 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_FORWARDED_FOR;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
 
-import com.tchalanet.server.accesscontrol.domain.model.TchRole;
-import com.tchalanet.server.accesscontrol.infra.security.RoleUtils;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.tenantconfig.application.port.in.ResolveTenantQueryHandler;
+import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.core.accesscontrol.infra.security.RoleUtils;
+import com.tchalanet.server.core.tenantconfig.application.port.in.ResolveTenantQueryHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
