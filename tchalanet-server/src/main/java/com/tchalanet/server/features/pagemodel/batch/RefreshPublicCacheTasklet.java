@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.batch;
 
-import com.tchalanet.server.core.draw.application.port.in.command.RefreshPublicDrawsCacheCommandHandler;
+import com.tchalanet.server.core.draw.application.command.handler.RefreshPublicDrawsCacheCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.scope.context.ChunkContext;

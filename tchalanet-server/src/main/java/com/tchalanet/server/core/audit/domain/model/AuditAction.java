@@ -13,5 +13,6 @@ public enum AuditAction {
   OVERRIDE_TENANT,
   CACHE_CLEAR,
   SETTLE,
+  ARCHIVE,
   OTHER
 }

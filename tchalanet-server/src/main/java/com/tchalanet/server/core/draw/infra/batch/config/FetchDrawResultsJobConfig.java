@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.batch.config;
 
+import com.tchalanet.server.core.draw.application.command.handler.FetchAndApplyExternalResultCommandHandler;
 import com.tchalanet.server.core.draw.application.command.model.FetchAndApplyExternalResultCommand;
-import com.tchalanet.server.core.draw.application.port.in.command.FetchAndApplyExternalResultCommandHandler;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import java.time.Clock;
 import java.time.Instant;

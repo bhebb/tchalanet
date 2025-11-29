@@ -100,4 +100,8 @@ public final class Draw {
     this.scheduledAt = Objects.requireNonNull(newScheduledAt);
     this.cutoffAt = Objects.requireNonNull(newCutoffAt);
   }
+
+  public void archive() {
+    this.status = DrawStatus.ARCHIVED;
+  }
 }

@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.reporting.web;
 
-import com.tchalanet.server.core.draw.application.port.in.query.DrawQueryHandler;
+import com.tchalanet.server.core.draw.application.query.handler.GetNextDrawHandler;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawQuery;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.tenant.domain.usecase.GetTenantFeaturesUseCase;
@@ -24,7 +24,7 @@ public class DashboardController {
 
   private final GetTenantFeaturesUseCase getTenantFeaturesUseCase;
   private final GetTenantKpisUseCase getTenantKpisUseCase;
-  private final DrawQueryHandler drawQueryHandler;
+  private final GetNextDrawHandler drawQueryHandler;
 
   @GetMapping("/console/kpis")
   @PreAuthorize("hasAuthority('SCOPE_console.api:read')")
@@ -42,7 +42,7 @@ public class DashboardController {
 
     // todo zoneDateTime optional and web mapper request- domaine
     var nextDraw =
-        drawQueryHandler.getNext(
+        drawQueryHandler.handle(
             new GetNextDrawQuery(UUID.fromString(tenant), channelCode, ZonedDateTime.now()));
 
     return ResponseEntity.ok(nextDraw);

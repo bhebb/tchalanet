@@ -15,7 +15,7 @@ public interface DrawWebMapper {
   SettleDrawCommand toSettleCommand(java.util.UUID drawId);
 
   default CloseDueDrawsCommand toCloseDueCommand() {
-    return new CloseDueDrawsCommand();
+    return new CloseDueDrawsCommand(null);
   }
 
   // example mappings

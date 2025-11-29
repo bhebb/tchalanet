@@ -7,5 +7,6 @@ public enum DrawStatus {
   CLOSED,
   RESULTED,
   SETTLED,
+  ARCHIVED,
   CANCELED
 }

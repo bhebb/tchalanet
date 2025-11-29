@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.draw.infra.web;
 
+import com.tchalanet.server.core.draw.application.command.handler.CreateDrawCommandHandler;
+import com.tchalanet.server.core.draw.application.command.handler.OverrideDrawResultCommandHandler;
+import com.tchalanet.server.core.draw.application.command.handler.UpdateDrawCommandHandler;
 import com.tchalanet.server.core.draw.application.command.model.OverrideDrawResultCommand;
-import com.tchalanet.server.core.draw.application.port.in.command.CreateDrawCommandHandler;
-import com.tchalanet.server.core.draw.application.port.in.command.OverrideDrawResultCommandHandler;
-import com.tchalanet.server.core.draw.application.port.in.command.UpdateDrawCommandHandler;
-import com.tchalanet.server.core.draw.application.port.in.query.DrawQueryHandler;
+import com.tchalanet.server.core.draw.application.query.handler.ListDrawsHandler;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawsQuery;
 import com.tchalanet.server.core.draw.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
@@ -34,12 +34,12 @@ public class DrawAdminController {
   private final CreateDrawCommandHandler createDrawCommandHandler;
   private final UpdateDrawCommandHandler updateDrawCommandHandler;
   private final OverrideDrawResultCommandHandler overrideDrawResultCommandHandler;
-  private final DrawQueryHandler drawQueryHandler;
+  private final ListDrawsHandler listDrawsHandler;
   private final DrawAdminWebMapper mapper;
 
   @GetMapping
   public ResponseEntity<List<DrawSummaryResponse>> listDraws(@RequestParam UUID tenantId) {
-    var summaries = drawQueryHandler.list(new ListDrawsQuery(tenantId, null, null, null));
+    var summaries = listDrawsHandler.handle(new ListDrawsQuery(tenantId, null, null, null));
     var responses = summaries.stream().map(mapper::toDrawSummaryResponse).toList();
     return ResponseEntity.ok(responses);
   }

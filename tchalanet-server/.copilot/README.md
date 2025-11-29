@@ -23,14 +23,15 @@ Ports MUST live in `application.port.in` and `application.port.out`.
 
 - Must be Java `record`s.
 - Names: `CreateDrawCommand`, `RecordAuditEventCommand`, …
-- Handlers interfaces: `CreateDrawCommandHandler`.
-- Implementations: `CreateDrawUseCase`, `RecordAuditEventUseCase`.
+- Handlers: Direct implementations of `CommandHandler<CreateDrawCommand, UUID>` or `VoidCommandHandler<ArchiveDrawCommand>` for void.
+- Implementations: `CreateDrawCommandHandler`, `RecordAuditEventCommandHandler`.
 
 ### Queries
 
 - Must be Java `record`s.
 - Must have no side effects.
-- Handlers interfaces: `ListUpcomingDrawsQueryHandler`.
+- Handlers: Direct implementations of `QueryHandler<ListUpcomingDrawsQuery, List<UpcomingDrawDto>>`.
+- Implementations: `ListUpcomingDrawsHandler`.
 
 ---
 
@@ -39,7 +40,6 @@ Ports MUST live in `application.port.in` and `application.port.out`.
 Place ports in:
 
 ```text
-<bc>/application/port/in
 <bc>/application/port/out
 ```
 
@@ -66,6 +66,7 @@ Do NOT generate:
 - Controllers in `infra.web`, kept thin:
   - Map HTTP → Commands/Queries → DTOs.
   - No business logic.
+  - Inject concrete handler classes directly.
 
 ---
 

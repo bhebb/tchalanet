@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch;
 
-import com.tchalanet.server.core.draw.application.port.in.command.CloseDueDrawsCommandHandler;
+import com.tchalanet.server.core.draw.application.command.handler.CloseDueDrawsCommandHandler;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.StepContribution;

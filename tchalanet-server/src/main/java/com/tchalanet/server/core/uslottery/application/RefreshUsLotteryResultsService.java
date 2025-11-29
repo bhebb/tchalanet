@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.application;
 
-import com.tchalanet.server.core.draw.application.command.handler.FetchAndApplyExternalResultUseCase;
+import com.tchalanet.server.core.draw.application.command.handler.FetchAndApplyExternalResultCommandHandler;
 import com.tchalanet.server.core.draw.application.command.model.FetchAndApplyExternalResultCommand;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import com.tchalanet.server.core.uslottery.domain.dto.LatestDrawDto;
@@ -23,7 +23,7 @@ public class RefreshUsLotteryResultsService implements RefreshUsLotteryResultsUs
 
   private final List<LatestDrawProviderClient> providers;
   private final UsLotterySyncStatePort syncStatePort;
-  private final FetchAndApplyExternalResultUseCase fetchAndApplyExternalResultUseCase;
+  private final FetchAndApplyExternalResultCommandHandler fetchAndApplyExternalResultCommandHandler;
 
   // Placeholder for mapping externalKey + provider -> game.code + draw_channel.code
   // This would typically be done via a dedicated port/service in the draw domain or a mapping
@@ -69,7 +69,7 @@ public class RefreshUsLotteryResultsService implements RefreshUsLotteryResultsUs
                     Instant.now(),
                     Map.of("resultPayloadJson", dto.resultPayloadJson()));
 
-            fetchAndApplyExternalResultUseCase.handle(
+            fetchAndApplyExternalResultCommandHandler.handle(
                 command); // Call the use case in the draw domain
             log.info(
                 "Successfully applied result for draw {} from provider {}",

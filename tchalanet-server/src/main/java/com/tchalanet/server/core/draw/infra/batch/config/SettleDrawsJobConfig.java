@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.batch.config;
 
+import com.tchalanet.server.core.draw.application.command.handler.SettleDrawsCommandHandler;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
-import com.tchalanet.server.core.draw.application.port.in.command.SettleDrawsCommandHandler;
 import java.util.UUID;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;

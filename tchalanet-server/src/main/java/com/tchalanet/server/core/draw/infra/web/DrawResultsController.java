@@ -1,6 +1,9 @@
 package com.tchalanet.server.core.draw.infra.web;
 
-import com.tchalanet.server.core.draw.application.port.in.query.DrawResultQueryHandler;
+import com.tchalanet.server.core.draw.application.query.handler.GetDrawResultHandler;
+import com.tchalanet.server.core.draw.application.query.handler.ListDrawResultsHandler;
+import com.tchalanet.server.core.draw.application.query.handler.ListLastDaysDrawResultsHandler;
+import com.tchalanet.server.core.draw.application.query.handler.ListTodayDrawResultsHandler;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawResultQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawResultsQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListLastDaysDrawResultsQuery;
@@ -25,14 +28,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DrawResultsController {
 
-  private final DrawResultQueryHandler drawResultQueryHandler;
+  private final GetDrawResultHandler getDrawResultHandler;
+  private final ListDrawResultsHandler listDrawResultsHandler;
+  private final ListTodayDrawResultsHandler listTodayDrawResultsHandler;
+  private final ListLastDaysDrawResultsHandler listLastDaysDrawResultsHandler;
   private final DrawResultWebMapper mapper;
 
   @GetMapping("/{drawId}")
   public ResponseEntity<DrawResultResponse> get(
       @PathVariable UUID drawId, @RequestParam UUID tenantId) {
     try {
-      DrawResult result = drawResultQueryHandler.get(new GetDrawResultQuery(tenantId, drawId));
+      DrawResult result = getDrawResultHandler.handle(new GetDrawResultQuery(tenantId, drawId));
       return ResponseEntity.ok(mapper.toResponse(result));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.notFound().build();
@@ -45,8 +51,8 @@ public class DrawResultsController {
       @RequestParam String channelCode,
       @RequestParam LocalDate from,
       @RequestParam LocalDate to) {
-    return drawResultQueryHandler
-        .list(new ListDrawResultsQuery(tenantId, channelCode, from, to))
+    return listDrawResultsHandler
+        .handle(new ListDrawResultsQuery(tenantId, channelCode, from, to))
         .stream()
         .map(mapper::toResponse)
         .collect(Collectors.toList());
@@ -55,8 +61,8 @@ public class DrawResultsController {
   @GetMapping("/today")
   public List<DrawResultResponse> listToday(
       @RequestParam UUID tenantId, @RequestParam String channelCode) {
-    return drawResultQueryHandler
-        .listToday(new ListTodayDrawResultQuery(tenantId, channelCode))
+    return listTodayDrawResultsHandler
+        .handle(new ListTodayDrawResultQuery(tenantId, channelCode))
         .stream()
         .map(mapper::toResponse)
         .collect(Collectors.toList());
@@ -65,8 +71,8 @@ public class DrawResultsController {
   @GetMapping("/last-days")
   public List<DrawResultResponse> listLastDays(
       @RequestParam UUID tenantId, @RequestParam String channelCode, @RequestParam int days) {
-    return drawResultQueryHandler
-        .listLastDays(new ListLastDaysDrawResultsQuery(tenantId, channelCode, days))
+    return listLastDaysDrawResultsHandler
+        .handle(new ListLastDaysDrawResultsQuery(tenantId, channelCode, days))
         .stream()
         .map(mapper::toResponse)
         .collect(Collectors.toList());

@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.draw.infra.web;
 
-import com.tchalanet.server.core.draw.application.port.in.command.CreateDrawChannelCommandHandler;
-import com.tchalanet.server.core.draw.application.port.in.command.UpdateDrawChannelCommandHandler;
-import com.tchalanet.server.core.draw.application.port.in.query.GetDrawChannelQueryHandler;
-import com.tchalanet.server.core.draw.application.port.in.query.ListActiveDrawChannelsQueryHandler;
-import com.tchalanet.server.core.draw.application.port.in.query.ListDrawChannelsQueryHandler;
+import com.tchalanet.server.core.draw.application.command.handler.CreateDrawChannelCommandHandler;
+import com.tchalanet.server.core.draw.application.command.handler.UpdateDrawChannelCommandHandler;
+import com.tchalanet.server.core.draw.application.query.handler.GetDrawChannelHandler;
+import com.tchalanet.server.core.draw.application.query.handler.ListActiveDrawChannelsHandler;
+import com.tchalanet.server.core.draw.application.query.handler.ListDrawChannelsHandler;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawChannelQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListActiveDrawChannelsQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawChannelsQuery;
@@ -35,9 +35,9 @@ public class DrawChannelController {
 
   private final CreateDrawChannelCommandHandler createDrawChannelCommandHandler;
   private final UpdateDrawChannelCommandHandler updateDrawChannelCommandHandler;
-  private final GetDrawChannelQueryHandler getDrawChannelQueryHandler;
-  private final ListDrawChannelsQueryHandler listDrawChannelsQueryHandler;
-  private final ListActiveDrawChannelsQueryHandler listActiveDrawChannelsQueryHandler;
+  private final GetDrawChannelHandler getDrawChannelQueryHandler;
+  private final ListDrawChannelsHandler listDrawChannelsQueryHandler;
+  private final ListActiveDrawChannelsHandler listActiveDrawChannelsQueryHandler;
 
   private final DrawChannelWebMapper mapper;
 
@@ -45,17 +45,19 @@ public class DrawChannelController {
   public List<DrawChannelSummaryResponse> list(
       @RequestParam UUID tenantId, @RequestParam(required = false) Boolean activeOnly) {
     if (activeOnly == null) {
-      return listDrawChannelsQueryHandler.list(new ListDrawChannelsQuery(tenantId, null)).stream()
+      return listDrawChannelsQueryHandler.handle(new ListDrawChannelsQuery(tenantId, null)).stream()
           .map(mapper::toSummaryResponse)
           .collect(Collectors.toList());
     } else if (activeOnly) {
       return listActiveDrawChannelsQueryHandler
-          .listActive(new ListActiveDrawChannelsQuery(tenantId))
+          .handle(new ListActiveDrawChannelsQuery(tenantId))
           .stream()
           .map(mapper::toSummaryResponse)
           .collect(Collectors.toList());
     } else {
-      return listDrawChannelsQueryHandler.list(new ListDrawChannelsQuery(tenantId, false)).stream()
+      return listDrawChannelsQueryHandler
+          .handle(new ListDrawChannelsQuery(tenantId, false))
+          .stream()
           .map(mapper::toSummaryResponse)
           .collect(Collectors.toList());
     }
@@ -65,7 +67,8 @@ public class DrawChannelController {
   public ResponseEntity<DrawChannelResponse> get(
       @PathVariable UUID id, @RequestParam UUID tenantId) {
     try {
-      DrawChannel channel = getDrawChannelQueryHandler.get(new GetDrawChannelQuery(tenantId, id));
+      DrawChannel channel =
+          getDrawChannelQueryHandler.handle(new GetDrawChannelQuery(tenantId, id));
       return ResponseEntity.ok(mapper.toResponse(channel));
     } catch (IllegalArgumentException e) {
       return ResponseEntity.notFound().build();
