@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.news.batch;
 
-import com.tchalanet.server.features.news.application.ports.in.RefreshPublicNewsUseCase;
+import com.tchalanet.server.features.news.config.NewsConfigProperties;
+import com.tchalanet.server.features.news.shared.service.ExternalNewsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +12,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NewsRefreshScheduler {
 
-  private final RefreshPublicNewsUseCase refresh;
+    private final ExternalNewsService externalNewsService;
+    private final NewsConfigProperties newsConfigProperties;
 
-  @Value("${news.refresh.cron:0 0 */6 * * *}")
-  private String newsRefreshCron;
-
-  @Scheduled(cron = "${news.refresh.cron:0 0 */6 * * *}")
-  public void refreshNews() {
-    log.info("Scheduled refresh of public news starting (cron={})", newsRefreshCron);
-    refresh.refreshNews();
-  }
+    /**
+     * Tâche planifiée qui rafraîchit les news publiques selon la configuration
+     * globale `tch.news.refresh.cron`.
+     */
+    @Scheduled(cron = "${tch.news.refresh.cron:0 0 */6 * * *}")
+    public void refreshNews() {
+        var cron = newsConfigProperties.getRefresh().getCron();
+        log.info("Scheduled refresh of public news starting (cron={})", cron);
+        externalNewsService.fetchSnapshot();
+    }
 }
