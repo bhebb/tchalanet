@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.notifications.domain.ports.out;
+package com.tchalanet.server.features.notifications.shared;
 
 import java.util.UUID;
 
