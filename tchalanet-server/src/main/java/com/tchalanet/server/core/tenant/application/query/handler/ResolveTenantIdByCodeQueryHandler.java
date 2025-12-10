@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.tenant.application.query.handler;
 
-import com.tchalanet.server.common.app.QueryHandler;
+import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.core.tenant.infra.persistence.TenantJpaRepository;
 import lombok.RequiredArgsConstructor;

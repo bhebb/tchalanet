@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.user.application.query.handler;
 
-import com.tchalanet.server.common.app.QueryHandler;
+import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
 import com.tchalanet.server.core.user.application.query.model.PagedListAllUsersQuery;

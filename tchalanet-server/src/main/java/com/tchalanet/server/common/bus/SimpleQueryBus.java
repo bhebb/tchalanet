@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.tchalanet.server.common.app.QueryHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.aop.support.AopUtils;
@@ -33,10 +32,10 @@ public class SimpleQueryBus implements QueryBus {
         }
 
         // Also discover handlers implementing common.app.QueryHandler (project-level)
-        Map<String, QueryHandler> appBeans = ctx.getBeansOfType(com.tchalanet.server.common.app.QueryHandler.class);
+        Map<String, QueryHandler> appBeans = ctx.getBeansOfType(QueryHandler.class);
         for (var bean : appBeans.values()) {
             Class<?> implClass = AopUtils.getTargetClass(bean);
-            Class<?> queryType = resolveGenericParameter(implClass, com.tchalanet.server.common.app.QueryHandler.class, 0);
+            Class<?> queryType = resolveGenericParameter(implClass, QueryHandler.class, 0);
             if (queryType != null) {
                 handlers.put(queryType, bean);
             }

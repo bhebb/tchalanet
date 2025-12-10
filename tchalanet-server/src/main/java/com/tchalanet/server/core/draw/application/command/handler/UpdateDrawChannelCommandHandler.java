@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
-import com.tchalanet.server.common.app.CommandHandler;
+import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.UpdateDrawChannelCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;

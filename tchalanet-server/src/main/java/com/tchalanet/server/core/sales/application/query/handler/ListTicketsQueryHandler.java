@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.application.query.handler;
 
+import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ListTicketsQueryHandler implements com.tchalanet.server.common.app.QueryHandler<ListTicketsQuery, PagedResult<TicketSummaryDto>> {
+public class ListTicketsQueryHandler implements QueryHandler<ListTicketsQuery, PagedResult<TicketSummaryDto>> {
 
   private final TicketWritterPort ticketRepository;
 

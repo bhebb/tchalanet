@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.application.query.handler;
 
-import com.tchalanet.server.common.app.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketDetailsByIdQuery;
 import java.util.Optional;

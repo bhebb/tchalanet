@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
-import com.tchalanet.server.common.app.VoidCommandHandler;
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.InvalidateDrawResultCommand;
 import lombok.RequiredArgsConstructor;

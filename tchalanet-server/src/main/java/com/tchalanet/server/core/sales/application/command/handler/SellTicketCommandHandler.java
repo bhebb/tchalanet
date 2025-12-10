@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.application.command.handler;
 
-import com.tchalanet.server.common.app.CommandHandler;
+import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
 import java.util.UUID;

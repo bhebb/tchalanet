@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.accesscontrol.application.query.handler;
 
-import com.tchalanet.server.common.app.QueryHandler;
+import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.core.accesscontrol.application.port.out.PermissionCatalogPort;
 import com.tchalanet.server.core.accesscontrol.application.port.out.TenantUserDirectoryPort;
 import com.tchalanet.server.core.accesscontrol.application.query.model.GetEffectivePermissionsQuery;

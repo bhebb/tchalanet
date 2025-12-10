@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.notification.application;
 
-import com.tchalanet.server.common.app.VoidCommandHandler;
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.notification.domain.InvalidNotificationException;

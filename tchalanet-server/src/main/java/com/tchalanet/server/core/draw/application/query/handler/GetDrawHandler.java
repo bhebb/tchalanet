@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.application.query.handler;
 
-import com.tchalanet.server.common.app.QueryHandler;
+import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawQuery;
