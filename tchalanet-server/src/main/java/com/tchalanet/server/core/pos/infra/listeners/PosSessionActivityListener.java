@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pos.infra.listeners;
 
 import com.tchalanet.server.core.pos.domain.ports.out.PosSessionRepositoryPort;
-import com.tchalanet.server.core.sales.infra.events.TicketCreatedEvent;
+
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

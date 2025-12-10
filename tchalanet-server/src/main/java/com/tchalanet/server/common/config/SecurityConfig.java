@@ -57,7 +57,18 @@ public class SecurityConfig {
                     .requestMatchers("/api/platform/**")
                     .hasRole("SUPER_ADMIN")
                     .requestMatchers("/api/admin/**")
-                    .hasAnyRole("ADMIN_ENTERPRISE", "SUPER_ADMIN")
+                    .hasAnyRole("TENANT_ADMIN", "SUPER_ADMIN")
+                    // secure app-settings, i18n-overrides, games, themes, agents, roles, permissions, tenant-users
+                    .requestMatchers(
+                        "/admin/app-settings/**",
+                        "/admin/i18n-overrides/**",
+                        "/admin/games/**",
+                        "/admin/themes/**",
+                        "/admin/agents/**",
+                        "/admin/roles/**",
+                        "/admin/permissions/**",
+                        "/admin/tenant-users/**")
+                    .hasAnyRole("SUPER_ADMIN", "ADMIN_TENANT")
                     .anyRequest()
                     .authenticated())
         .oauth2ResourceServer(

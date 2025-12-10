@@ -35,15 +35,16 @@ public class FetchAndApplyExternalResultCommandHandler
   @Override
   @TchTx
   public void handle(FetchAndApplyExternalResultCommand command) {
-    var tenantId = command.tenantId();
     var drawId = command.drawId();
 
     var draw =
         drawReaderPort
-            .findById(tenantId, drawId)
+            .findById(drawId)
             .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + drawId));
 
-    var external = externalDrawResultPort.fetchExternalResult(tenantId, drawId);
+      var query = new ExternalDrawResultPort.DrawExternalQuery(draw.source(), draw.scheduledAt());
+
+      var external = externalDrawResultPort.fetchExternalResult(query);
 
     var result =
         new DrawResult(
@@ -57,7 +58,7 @@ public class FetchAndApplyExternalResultCommandHandler
 
     draw.applyResult(result);
 
-    drawResultWriterPort.save(tenantId, drawId, result);
+    drawResultWriterPort.save(draw.tenantId(), drawId, result);
     drawWriterPort.save(draw);
 
     // éventuellement publier DrawResultedEvent ici

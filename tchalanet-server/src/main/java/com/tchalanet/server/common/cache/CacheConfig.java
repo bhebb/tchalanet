@@ -29,8 +29,6 @@ public class CacheConfig {
   @Primary
   public CacheManager cacheManager(
       CaffeineCacheManager caffeineCacheManager, @Nullable CacheManager redisCacheManager) {
-    // If Redis is available, prefer a composite manager (local Caffeine + remote Redis).
-    // Otherwise fall back to the local Caffeine cache manager only.
     if (redisCacheManager != null) {
       return new com.tchalanet.server.common.cache.CombinedCacheManager(
           caffeineCacheManager, redisCacheManager);

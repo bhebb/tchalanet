@@ -3,6 +3,7 @@ package com.tchalanet.server.core.draw.infra.persistence.mapper;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
+import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import java.time.Instant;
@@ -15,16 +16,16 @@ public interface DrawMapper {
 
   default Draw toDomain(DrawJpaEntity entity) {
     if (entity == null) return null;
-    Instant scheduled = entity.getScheduledAt();
-    ZonedDateTime scheduledZdt =
+    var scheduled = entity.getScheduledAt();
+    var scheduledZdt =
         scheduled == null ? null : ZonedDateTime.ofInstant(scheduled, ZoneId.of("UTC"));
-    ZonedDateTime cutoffZdt =
+    var cutoffZdt =
         scheduledZdt == null
             ? null
             : scheduledZdt.minusSeconds(
                 entity.getCutoffSec() == null ? 120 : entity.getCutoffSec());
 
-    DrawStatus status =
+    var status =
         entity.getStatus() == null ? DrawStatus.PLANNED : DrawStatus.valueOf(entity.getStatus());
 
     // result mapping omitted for first pass
@@ -37,6 +38,7 @@ public interface DrawMapper {
         scheduledZdt,
         cutoffZdt,
         status,
+        DrawSource.valueOf(entity.getDrawSource()),
         result);
   }
 

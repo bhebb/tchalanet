@@ -2,9 +2,10 @@ package com.tchalanet.server.core.uslottery.infra.external;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tchalanet.server.core.uslottery.domain.dto.LatestDrawDto;
+import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
 import com.tchalanet.server.core.uslottery.domain.model.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.domain.ports.out.LatestDrawProviderClient;
+import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -12,23 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /** Client Florida Lottery minimal pour récupérer les derniers tirages Pick 3 / Pick 4. */
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "tch.us-lottery.providers.florida", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
 public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient {
 
   private final WebClient floridaLotteryWebClient;
-
-  @Value("${tch.us-lottery.florida.timezone:America/New_York}")
-  private String floridaTimezone;
-
-  @Value("${tch.us-lottery.florida.latest-path:/drawgamesapp/getLatestDrawGames}")
-  private String latestPath;
+  private final UsLotteryProperties props;
 
   @Override
   public UsLotteryProvider provider() {
@@ -36,10 +33,14 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
   }
 
   @Override
-  public List<LatestDrawDto> fetchLatestDraws() {
-    List<LatestDrawDto> results = new ArrayList<>();
+  public List<LatestDraw> fetchLatestDraws() {
+    List<LatestDraw> results = new ArrayList<>();
     try {
-      FloridaResultDto response =
+      var provider = props.getProviders() != null ? props.getProviders().get("florida") : null;
+      String floridaTimezone = provider != null ? provider.getTimezone() : "America/New_York";
+      String latestPath = provider != null ? provider.getLatestPath() : "/drawgamesapp/getLatestDrawGames";
+
+      var response =
           floridaLotteryWebClient
               .get()
               .uri(latestPath)
@@ -55,7 +56,7 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
       for (FloridaDrawGameDto game : response.drawResults) {
         String gameName = game.gameName(); // ex: "PICK 3", "PICK 4",
         if (gameName == null) continue;
-        String externalKey = gameName.trim().toUpperCase().replace(" ", ""); // PICK3, PICK4
+        var externalKey = gameName.trim().toUpperCase().replace(" ", ""); // PICK3, PICK4
 
         // On ne traite pour l'instant que PICK3 / PICK4 (les autres jeux seront mappés plus tard)
         if (!externalKey.equals("PICK3") && !externalKey.equals("PICK4")) {
@@ -63,25 +64,32 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
         }
 
         for (FloridaDrawDto d : game.draws()) {
-          LocalDate date = d.getDrawDate();
-          String drawType = d.getDrawType(); // MIDDAY / EVENING / MOR / ...
+          var date = d.getDrawDate();
+          var drawType = d.getDrawType(); // MIDDAY / EVENING / MOR / ...
           if (drawType == null) continue;
 
           OffsetDateTime drawTimeUtc = date.atStartOfDay(zone).toOffsetDateTime();
           List<String> numbers = parseNumbersFromDrawNumbers(d.drawNumbers());
           if (numbers.isEmpty()) continue;
 
-          String normalizedType = drawType.trim().toUpperCase();
-          String channelCode = mapChannelCode(externalKey, normalizedType);
+          var normalizedType = drawType.trim().toUpperCase();
+          var channelCode = mapChannelCode(externalKey, normalizedType);
           if (channelCode == null) {
             // ex: CASH POP MOR/AFT/EVE, PICK2/PICK5, etc.
             continue;
           }
 
           // Build minimal DTO expected by the rest of the pipeline
-          String resultJson =
-              String.format("{\"numbers\":%s,\"source\":\"FL_APIM\"}", numbers.toString());
-          results.add(new LatestDrawDto(channelCode, drawTimeUtc.toInstant(), resultJson));
+          var origin = "FL_APIM";
+          results.add(
+              new LatestDraw(
+                  UsLotteryProvider.FLORIDA,
+                  externalKey,
+                  channelCode,
+                  date,
+                  drawTimeUtc,
+                  numbers,
+                  origin));
         }
       }
     } catch (Exception e) {

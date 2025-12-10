@@ -2,7 +2,7 @@ package com.tchalanet.server.core.pos.infra.persistence.adapter;
 
 import com.tchalanet.server.core.pos.domain.model.PosSession;
 import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
-import com.tchalanet.server.core.pos.domain.ports.out.PosSessionRepositoryPort;
+import com.tchalanet.server.core.pos.application.port.out.PosSessionRepositoryPort;
 import com.tchalanet.server.core.pos.infra.persistence.entity.PosSessionEntity;
 import com.tchalanet.server.core.pos.infra.persistence.mapper.PosSessionMapper;
 import com.tchalanet.server.core.pos.infra.persistence.repository.SpringPosSessionJpaRepository;
@@ -34,6 +34,11 @@ public class JpaPosSessionRepositoryAdapter implements PosSessionRepositoryPort 
   }
 
   @Override
+  public Optional<PosSession> findByTenantIdAndTerminalIdAndStatus(UUID tenantId, UUID terminalId, PosSessionStatus status) {
+    return jpaRepository.findByTenantIdAndTerminalIdAndStatus(tenantId, terminalId, status).map(mapper::toDomain);
+  }
+
+  @Override
   public Optional<PosSession> findOpenSessionByTerminal(UUID tenantId, UUID terminalId) {
     return jpaRepository
         .findByTenantIdAndTerminalIdAndStatus(tenantId, terminalId, PosSessionStatus.OPEN)
@@ -43,6 +48,13 @@ public class JpaPosSessionRepositoryAdapter implements PosSessionRepositoryPort 
   @Override
   public List<PosSession> findOpenSessions(Instant idleCutoff, Instant openedCutoff) {
     return jpaRepository.findOpenSessionsToAutoClose(idleCutoff, openedCutoff).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<PosSession> findByTenantIdAndUserIdAndStatus(UUID tenantId, UUID userId, PosSessionStatus status) {
+    return jpaRepository.findByTenantIdAndUserIdAndStatus(tenantId, userId, status).stream()
         .map(mapper::toDomain)
         .collect(Collectors.toList());
   }

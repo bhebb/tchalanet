@@ -10,7 +10,8 @@ import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
 import com.tchalanet.server.core.accesscontrol.infra.security.RoleUtils;
-import com.tchalanet.server.core.tenantconfig.application.port.in.ResolveTenantQueryHandler;
+import com.tchalanet.server.core.tenant.application.query.handler.ResolveTenantIdByCodeQueryHandler;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,11 +43,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class RequestUserContextFilter extends OncePerRequestFilter {
 
   private final ApiProperties props;
-  private final ResolveTenantQueryHandler tenantResolver;
+  private final ResolveTenantIdByCodeQueryHandler resolveTenantIdByCodeQueryHandler;
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+      @Nonnull HttpServletRequest req, @Nonnull HttpServletResponse res, @Nonnull FilterChain chain)
       throws ServletException, IOException {
 
     var ctx = buildRequestContext(req);
@@ -75,12 +76,14 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
     var authData = extractAuthData(req, defaultTenant);
     var tenantIds = resolveTenantIds(authData);
 
+    // appUserId inconnu au premier passage (null) — sera rempli par /api/me/bootstrap
     return new TchRequestContext(
         authData.originalTenantCode,
         tenantIds.originalTenantId,
         authData.effectiveTenantCode,
         tenantIds.effectiveTenantId,
-        authData.userId,
+        authData.keycloakUserId,
+        null,
         authData.systemRoles,
         authData.customRoles,
         locale,
@@ -105,7 +108,7 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
   private AuthData extractAuthData(HttpServletRequest req, String defaultTenant) {
     String originalTenantCode = defaultTenant;
     String effectiveTenantCode = defaultTenant;
-    String userId = null;
+    String keycloakUserId = null;
 
     var systemRoles = new HashSet<TchRole>();
     Set<String> customRoles = new HashSet<>();
@@ -114,11 +117,16 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
     var auth = SecurityContextHolder.getContext().getAuthentication();
     if (!isJwtAuthentication(auth)) {
       return new AuthData(
-          originalTenantCode, effectiveTenantCode, userId, overridden, systemRoles, customRoles);
+          originalTenantCode, effectiveTenantCode, keycloakUserId, overridden, systemRoles, customRoles);
     }
 
     var jwt = (Jwt) auth.getPrincipal();
-    userId = jwt.getSubject();
+    if (jwt == null) {
+      return new AuthData(
+          originalTenantCode, effectiveTenantCode, keycloakUserId, overridden, systemRoles, customRoles);
+    }
+
+    keycloakUserId = jwt.getSubject();
 
     // 1) Tenant provenant du JWT
     var jwtTenant = jwt.getClaimAsString(TENANT_ID_CLAIMS);
@@ -145,7 +153,7 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
     }
 
     return new AuthData(
-        originalTenantCode, effectiveTenantCode, userId, overridden, systemRoles, customRoles);
+        originalTenantCode, effectiveTenantCode, keycloakUserId, overridden, systemRoles, customRoles);
   }
 
   private boolean isJwtAuthentication(Authentication auth) {
@@ -170,7 +178,7 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
     if (tenantCode == null || tenantCode.isBlank()) {
       return null;
     }
-    return tenantResolver.resolveIdByCode(tenantCode).orElse(null);
+    return resolveTenantIdByCodeQueryHandler.handle(tenantCode).orElse(null);
   }
 
   // ---------------------------------------------------------------------------
@@ -181,7 +189,7 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
     MDC.put("tenant_original", valueOrDash(ctx.originalTenantCode()));
     MDC.put("tenant_effective", valueOrDash(ctx.effectiveTenantCode()));
     MDC.put("tenant_overridden", String.valueOf(ctx.tenantOverridden()));
-    MDC.put("user", valueOrDash(ctx.userId()));
+    MDC.put("user", valueOrDash(ctx.keycloakUserId()));
     MDC.put("reqId", valueOrDash(ctx.requestId()));
   }
 
@@ -196,7 +204,7 @@ public class RequestUserContextFilter extends OncePerRequestFilter {
   private record AuthData(
       String originalTenantCode,
       String effectiveTenantCode,
-      String userId,
+      String keycloakUserId,
       boolean overridden,
       Set<TchRole> systemRoles,
       Set<String> customRoles) {}

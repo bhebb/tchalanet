@@ -17,30 +17,30 @@ import org.hibernate.envers.Audited;
 @NoArgsConstructor
 public class GameJpaEntity extends BaseEntity {
 
-  @Column(name = "code", length = 32, nullable = false)
-  private String code;
+    @Column(name = "code", nullable = false, unique = true)
+    private String code;
 
-  @Column(name = "name", nullable = false)
-  private String name;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  @Column(name = "category", nullable = false)
-  private String category;
+    @Column(name = "category", nullable = false)
+    private String category;
 
-  @Column(name = "min_digits", nullable = false)
-  private Integer minDigits;
+    @Column(name = "min_digits", nullable = false)
+    private Integer minDigits;
 
-  @Column(name = "max_digits", nullable = false)
-  private Integer maxDigits;
+    @Column(name = "max_digits", nullable = false)
+    private Integer maxDigits;
 
-  @Column(name = "combination", nullable = false)
-  private String combination;
+    @Column(name = "combination", nullable = false)
+    private String combination;
 
-  @Column(name = "description")
-  private String description;
+    @Column(name = "description")
+    private String description;
 
-  @Column(name = "active", nullable = false)
-  private Boolean active = Boolean.TRUE;
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
 
-  @Column(name = "sort_order", nullable = false)
-  private Integer sortOrder = 0;
+    @Column(name = "sort_order", nullable = false)
+    private Integer sortOrder = 0;
 }

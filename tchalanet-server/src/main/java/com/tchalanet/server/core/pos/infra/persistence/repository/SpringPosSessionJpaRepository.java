@@ -20,4 +20,7 @@ public interface SpringPosSessionJpaRepository extends JpaRepository<PosSessionE
       "SELECT s FROM PosSessionEntity s WHERE s.status = 'OPEN' AND s.lastActivityAt < :idleCutoff AND s.openedAt < :openedCutoff")
   List<PosSessionEntity> findOpenSessionsToAutoClose(
       @Param("idleCutoff") Instant idleCutoff, @Param("openedCutoff") Instant openedCutoff);
+
+  // Find open sessions for a given tenant and user (cashier)
+  List<PosSessionEntity> findByTenantIdAndUserIdAndStatus(UUID tenantId, UUID userId, PosSessionStatus status);
 }

@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.draw.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.pos.infra.persistence.TicketJpaEntity;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,8 +21,9 @@ public class DrawJpaEntity extends BaseTenantEntity {
   @Column(name = "game_code", nullable = false)
   private String gameCode;
 
-  @Column(name = "draw_channel_id", nullable = false)
-  private java.util.UUID drawChannelId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "draw_channel_id", nullable = false)
+  private DrawChannelJpaEntity drawChannel;
 
   @Column(name = "scheduled_at", nullable = false)
   private Instant scheduledAt;
@@ -45,4 +45,7 @@ public class DrawJpaEntity extends BaseTenantEntity {
 
   @OneToMany(mappedBy = "draw", fetch = FetchType.LAZY)
   private List<TicketJpaEntity> tickets = new ArrayList<>();
+
+  @OneToOne(mappedBy = "draw", cascade = CascadeType.ALL)
+  private DrawResultJpaEntity result;
 }

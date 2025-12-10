@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "id": "public.home",
+    "scope": "public",
+    "slug": "home",
+    "context": "public_home",
+    "schema_version": 1,
+    "langs": ["fr", "en", "ht"],
+    "default_lang": "fr"
+  },
+  "theme": {
+    "preset": "tchalanet_default",
+    "mode": "light",
+    "density": 0
+  },
+  "shell": {
+    "header": {
+      "component": "PublicHeader",
+      "nav": {
+        "primary": [
+          { "label_key": "nav.features", "path": "/features", "icon": "star" },
+          { "label_key": "nav.pricing", "path": "/pricing", "icon": "credit_card" },
+          { "label_key": "nav.login", "path": "/login", "icon": "login" }
+        ],
+        "secondary": []
+      },
+      "props": {
+        "show_language_switch": true,
+        "show_theme_switch": true
+      }
+    },
+    "sidenav": null,
+    "footer": {
+      "component": "PublicFooter",
+      "nav": {
+        "primary": [
+          { "label_key": "footer.about", "path": "/about", "icon": "info" },
+          { "label_key": "footer.pricing", "path": "/pricing", "icon": "credit_card" },
+          { "label_key": "footer.docs", "path": "/docs", "icon": "book" }
+        ],
+        "secondary": [
+          { "label_key": "footer.legal.terms", "path": "/legal/terms", "icon": "gavel" },
+          { "label_key": "footer.legal.privacy", "path": "/legal/privacy", "icon": "policy" }
+        ]
+      },
+      "props": {
+        "show_social_linkedin": true,
+        "show_regulation_link": true
+      }
+    }
+  },
+  "content": {
+    "layout": {
+      "component": "GridLayout",
+      "rows": [
+        {
+          "id": "hero",
+          "label_key": "layout.public_home.hero",
+          "columns": [{ "span": 12, "widgets": ["home.hero"] }]
+        },
+        {
+          "id": "draws",
+          "label_key": "layout.public_home.draws",
+          "columns": [{ "span": 12, "widgets": ["home.draws", "home.check_ticket"] }]
+        },
+        {
+          "id": "features",
+          "label_key": "layout.public_home.features",
+          "columns": [{ "span": 12, "widgets": ["home.features"] }]
+        },
+        {
+          "id": "news",
+          "label_key": "layout.public_home.news",
+          "columns": [{ "span": 12, "widgets": ["home.news"] }]
+        },
+        {
+          "id": "tchala",
+          "label_key": "layout.public_home.tchala",
+          "columns": [{ "span": 12, "widgets": ["home.tchala"] }]
+        },
+        {
+          "id": "testimonials",
+          "label_key": "layout.public_home.testimonials",
+          "columns": [{ "span": 12, "widgets": ["home.testimonials"] }]
+        },
+        {
+          "id": "plans",
+          "label_key": "layout.public_home.plans",
+          "columns": [{ "span": 12, "widgets": ["home.plans"] }]
+        }
+      ]
+    },
+    "widgets": {
+      "home.hero": {
+        "type": "HeroWidget",
+        "binding": { "mode": "dynamic", "source": "hero" },
+        "props": {
+          "title_key": "home.hero.title",
+          "subtitle_key": "home.hero.subtitle",
+          "primary_cta_key": "cta.try_now",
+          "secondary_cta_key": "cta.request_demo"
+        }
+      },
+      "home.draws": {
+        "type": "DrawsWidget",
+        "binding": { "mode": "dynamic", "source": "results_by_game" },
+        "props": {
+          "title_key": "home.draws.title"
+        }
+      },
+      "home.check_ticket": {
+        "type": "CheckTicketWidget",
+        "binding": { "mode": "static", "source": null },
+        "props": {
+          "title_key": "home.check_ticket.title",
+          "description_key": "home.check_ticket.description",
+          "cta_key": "cta.check_ticket",
+          "route": "/verifier"
+        }
+      },
+      "home.features": {
+        "type": "FeatureGridWidget",
+        "binding": { "mode": "dynamic", "source": "features" },
+        "props": {
+          "title_key": "home.features.title",
+          "layout": "LMSS"
+        }
+      },
+      "home.news": {
+        "type": "NewsListWidget",
+        "binding": { "mode": "dynamic", "source": "news" },
+        "props": {
+          "title_key": "home.news.title",
+          "max_items": 4
+        }
+      },
+      "home.tchala": {
+        "type": "TchalaWidget",
+        "binding": { "mode": "dynamic", "source": "tchala" },
+        "props": {
+          "title_key": "home.tchala.title"
+        }
+      },
+      "home.testimonials": {
+        "type": "TestimonialsWidget",
+        "binding": { "mode": "dynamic", "source": "testimonials" },
+        "props": {
+          "title_key": "home.testimonials.title"
+        }
+      },
+      "home.plans": {
+        "type": "PlansWidget",
+        "binding": { "mode": "dynamic", "source": "plans" },
+        "props": {
+          "title_key": "home.plans.title",
+          "show_toggle_billing_period": true
+        }
+      }
+    }
+  }
+}

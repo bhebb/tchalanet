@@ -13,6 +13,7 @@ public final class Draw {
   private ZonedDateTime scheduledAt;
   private ZonedDateTime cutoffAt;
   private DrawStatus status;
+  private DrawSource source;
   private DrawResult result; // peut être null tant que pas RESULTED
 
   public Draw(
@@ -22,6 +23,7 @@ public final class Draw {
       ZonedDateTime scheduledAt,
       ZonedDateTime cutoffAt,
       DrawStatus status,
+      DrawSource source,
       DrawResult result) {
     this.id = Objects.requireNonNull(id);
     this.tenantId = Objects.requireNonNull(tenantId);
@@ -29,6 +31,7 @@ public final class Draw {
     this.scheduledAt = Objects.requireNonNull(scheduledAt);
     this.cutoffAt = Objects.requireNonNull(cutoffAt);
     this.status = Objects.requireNonNull(status);
+    this.source = Objects.requireNonNull(source);
     this.result = result;
   }
 
@@ -58,6 +61,10 @@ public final class Draw {
 
   public DrawResult result() {
     return result;
+  }
+
+  public DrawSource source() {
+    return source;
   }
 
   // --- state machine methods ---

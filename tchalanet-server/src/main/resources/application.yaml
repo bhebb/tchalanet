@@ -51,7 +51,6 @@ spring:
         initialize-schema: never   # on laisse Flyway créer les tables
       job:
         enabled: false             # pas de job auto au démarrage (on les lance via API / schedulers)
-
   # --- Database Migration ---
   flyway:
     enabled: true
@@ -74,30 +73,30 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000
+    rest:
+      base-path: /admin
+      enabled: true
 
-  # --- Spring Batch: disable auto-run at startup when multiple jobs are defined ---
-  batch:
-    job:
-      enabled: false
+
 
 tch:
-  # Draw results provider configuration (external provider + fake mode)
-  # mode: fake | api | api_then_fake | disabled
-  results:
-    mode: ${TCH_RESULTS_MODE:api_then_fake}
-    # lotteryresults provider configuration
-    lotteryresults:
-      enabled: ${TCH_RESULTS_LOTTERY_ENABLED:true}
-      base-url: ${TCH_RESULTS_LOTTERY_BASEURL:https://api.lotteryresults.example.com}
-      api-key: ${LOTTERYRESULTS_API_KEY:}
+  cache:
+    redis:
+      enabled: true
 
+  notification:
+   node:
+     base-path: /notifications
+     enabled: true
+     timeout: 500
   # News provider / cache configuration
   news:
     provider:
       url: ${TCH_NEWS_FEED:https://lotterydaily.com/feed/}
       apiKey: ""
-    redis:
-      key: ${TCH_NEWS_REDIS_KEY:tch:public:news}
+    cache:
+      key: ${TCH_NEWS_CACHE_KEY:tch:public:news}
+      cacheName: ${TCH_NEWS_CACHE_NAME:news-latest}
     ttl:
       hours: ${TCH_NEWS_TTL_HOURS:24}
     refresh:
@@ -119,48 +118,51 @@ tch:
 
   # US Lottery API configuration
   us-lottery:
-    ny:
-      enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
-      base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov/api/v3/views/hsys-3def/query.json}
-      app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
-      games:
-        - code: "NY_NUMBERS_MIDDAY"
-          external_key: "NUMBERS"
-          draw_time: "14:30"
-        - code: "NY_NUMBERS_EVENING"
-          external_key: "NUMBERS"
-          draw_time: "22:30"
-        - code: "NY_WIN4_MIDDAY"
-          external_key: "WIN4"
-          draw_time: "14:30"
-        - code: "NY_WIN4_EVENING"
-          external_key: "WIN4"
-          draw_time: "22:30"
-        - code: "NY_TAKE5_EVENING"
-          external_key: "TAKE 5"
-          draw_time: "22:30"
+    providers:
+      ny:
+        enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov/api/v3/views/hsys-3def/query.json}
+        app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
+        timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
+        games:
+          - code: "NY_NUMBERS_MIDDAY"
+            external_key: "NUMBERS"
+            draw_time: "14:30"
+          - code: "NY_NUMBERS_EVENING"
+            external_key: "NUMBERS"
+            draw_time: "22:30"
+          - code: "NY_WIN4_MIDDAY"
+            external_key: "WIN4"
+            draw_time: "14:30"
+          - code: "NY_WIN4_EVENING"
+            external_key: "WIN4"
+            draw_time: "22:30"
+          - code: "NY_TAKE5_EVENING"
+            external_key: "TAKE 5"
+            draw_time: "22:30"
 
-    florida:
-      enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
-      base-url: ${TCH_US_LOTTERY_FL_BASEURL:https://apim-website-prod-eastus.azure-api.net}
-      latest-path: /drawgamesapp/getLatestDrawGames
-      alert-path: /site/services/alert
-      games:
-        - code: "FL_PICK3_MIDDAY"
-          external_key: "PICK3"
-          draw_time: "13:30"
-        - code: "FL_PICK3_EVENING"
-          external_key: "PICK3"
-          draw_time: "22:45"
-        - code: "FL_PICK4_MIDDAY"
-          external_key: "PICK4"
-          draw_time: "13:30"
-        - code: "FL_PICK4_EVENING"
-          external_key: "PICK4"
-          draw_time: "22:45"
-        - code: "FL_LOTTO"
-          external_key: "FLORIDA LOTTO"
-          draw_time: "23:15"
+      florida:
+        enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_LOTTERY_FL_BASEURL:https://apim-website-prod-eastus.azure-api.net}
+        latest-path: /drawgamesapp/getLatestDrawGames
+        alert-path: /site/services/alert
+        timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
+        games:
+          - code: "FL_PICK3_MIDDAY"
+            external_key: "PICK3"
+            draw_time: "13:30"
+          - code: "FL_PICK3_EVENING"
+            external_key: "PICK3"
+            draw_time: "22:45"
+          - code: "FL_PICK4_MIDDAY"
+            external_key: "PICK4"
+            draw_time: "13:30"
+          - code: "FL_PICK4_EVENING"
+            external_key: "PICK4"
+            draw_time: "22:45"
+          - code: "FL_LOTTO"
+            external_key: "FLORIDA LOTTO"
+            draw_time: "23:15"
 
 
 # ===========================

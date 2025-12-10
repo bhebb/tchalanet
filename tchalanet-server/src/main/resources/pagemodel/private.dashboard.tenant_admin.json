@@ -1,0 +1,206 @@
+{
+  "meta": {
+    "id": "private.dashboard.tenant_admin",
+    "scope": "private",
+    "slug": "dashboard",
+    "context": "private_dashboard_tenant_admin",
+    "schema_version": 1,
+    "langs": ["fr", "en", "ht"],
+    "default_lang": "fr"
+  },
+  "theme": {
+    "preset": "tchalanet_default",
+    "mode": "light",
+    "density": 0
+  },
+  "shell": {
+    "header": {
+      "component": "PrivateHeader",
+      "nav": {
+        "primary": [],
+        "secondary": []
+      },
+      "props": {
+        "show_profile_menu": true
+      }
+    },
+    "sidenav": {
+      "component": "PrivateSidenav",
+      "nav": {
+        "primary": [
+          {
+            "label_key": "nav.dashboard",
+            "path": "/app/admin",
+            "icon": "dashboard"
+          },
+          {
+            "label_key": "nav.draws",
+            "path": "/app/admin/draws",
+            "icon": "event"
+          },
+          {
+            "label_key": "nav.sales",
+            "path": "/app/admin/sales",
+            "icon": "bar_chart"
+          },
+          {
+            "label_key": "nav.agents",
+            "path": "/app/admin/agents",
+            "icon": "supervisor_account"
+          },
+          {
+            "label_key": "nav.settings",
+            "path": "/app/admin/settings",
+            "icon": "settings"
+          }
+        ]
+      },
+      "props": {
+        "collapsible": true
+      }
+    },
+    "footer": {
+      "component": "PrivateFooter",
+      "nav": {
+        "primary": [],
+        "secondary": [
+          {
+            "label_key": "footer.support",
+            "path": "/support",
+            "icon": "support_agent"
+          }
+        ]
+      },
+      "props": {}
+    }
+  },
+  "content": {
+    "layout": {
+      "component": "GridLayout",
+      "rows": [
+        {
+          "id": "overview",
+          "label_key": "layout.private_dashboard_tenant_admin.overview",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.tenant_admin.overview"]
+            }
+          ]
+        },
+        {
+          "id": "kpi_global",
+          "label_key": "layout.private_dashboard_tenant_admin.kpi_global",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.tenant_admin.kpi_global"]
+            }
+          ]
+        },
+        {
+          "id": "kpi_draws",
+          "label_key": "layout.private_dashboard_tenant_admin.kpi_draws",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.tenant_admin.kpi_draws"]
+            }
+          ]
+        },
+        {
+          "id": "kpi_sales",
+          "label_key": "layout.private_dashboard_tenant_admin.kpi_sales",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.tenant_admin.kpi_sales"]
+            }
+          ]
+        },
+        {
+          "id": "validations",
+          "label_key": "layout.private_dashboard_tenant_admin.validations",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.tenant_admin.validations"]
+            }
+          ]
+        },
+        {
+          "id": "recent_activity",
+          "label_key": "layout.private_dashboard_tenant_admin.recent_activity",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": ["dashboard.tenant_admin.recent_activity"]
+            }
+          ]
+        }
+      ]
+    },
+    "widgets": {
+      "dashboard.tenant_admin.overview": {
+        "type": "TenantAdminOverviewWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "overview"
+        },
+        "props": {
+          "title_key": "dashboard.tenant_admin.overview.title"
+        }
+      },
+      "dashboard.tenant_admin.kpi_global": {
+        "type": "KpiGridWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "kpi_global"
+        },
+        "props": {
+          "title_key": "dashboard.tenant_admin.kpi_global.title"
+        }
+      },
+      "dashboard.tenant_admin.kpi_draws": {
+        "type": "KpiDrawsWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "kpi_draws"
+        },
+        "props": {
+          "title_key": "dashboard.tenant_admin.kpi_draws.title"
+        }
+      },
+      "dashboard.tenant_admin.kpi_sales": {
+        "type": "KpiSalesWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "kpi_sales"
+        },
+        "props": {
+          "title_key": "dashboard.tenant_admin.kpi_sales.title"
+        }
+      },
+      "dashboard.tenant_admin.validations": {
+        "type": "ValidationsWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "validations"
+        },
+        "props": {
+          "title_key": "dashboard.tenant_admin.validations.title"
+        }
+      },
+      "dashboard.tenant_admin.recent_activity": {
+        "type": "ActivityFeedWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "recent_activity"
+        },
+        "props": {
+          "title_key": "dashboard.tenant_admin.recent_activity.title"
+        }
+      }
+    }
+  }
+}

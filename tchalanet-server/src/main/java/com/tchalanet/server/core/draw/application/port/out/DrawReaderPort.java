@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DrawReaderPort {
-  Optional<Draw> findById(UUID tenantId, UUID drawId);
+  Optional<Draw> findById(UUID drawId);
 
   List<Draw> findClosableDraws(UUID tenantId, ZonedDateTime now);
 

@@ -2,8 +2,11 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
+import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawQuery;
+import com.tchalanet.server.core.draw.application.query.model.GetNextDrawsQuery;
 import com.tchalanet.server.core.draw.domain.model.Draw;
+import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
 import java.time.Instant;
@@ -23,7 +26,7 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort 
   private final DrawMapper mapper;
 
   @Override
-  public Optional<Draw> findById(UUID tenantId, UUID drawId) {
+  public Optional<Draw> findById(UUID drawId) {
     return jpa.findById(drawId).map(mapper::toDomain);
   }
 
@@ -54,15 +57,12 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort 
   }
 
   @Override
-  public List<com.tchalanet.server.core.draw.domain.model.DrawSummary> findByCriteria(
-      com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria
-          drawSearchCriteria) {
+  public List<DrawSummary> findByCriteria(DrawSearchCriteria drawSearchCriteria) {
     return List.of();
   }
 
   @Override
-  public List<Draw> findNextForChannels(
-      com.tchalanet.server.core.draw.application.query.model.GetNextDrawsQuery query) {
+  public List<Draw> findNextForChannels(GetNextDrawsQuery query) {
     return List.of();
   }
 

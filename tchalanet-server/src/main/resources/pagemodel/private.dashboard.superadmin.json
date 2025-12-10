@@ -1,0 +1,146 @@
+{
+  "meta": {
+    "id": "private.dashboard.superadmin",
+    "scope": "private",
+    "slug": "dashboard",
+    "context": "private_dashboard_superadmin",
+    "schema_version": 1,
+    "langs": ["fr", "en", "ht"],
+    "default_lang": "fr"
+  },
+  "theme": {
+    "preset": "tchalanet_default",
+    "mode": "light",
+    "density": 0
+  },
+  "shell": {
+    "header": {
+      "component": "PrivateHeader",
+      "nav": {
+        "primary": [],
+        "secondary": []
+      },
+      "props": {
+        "show_profile_menu": true
+      }
+    },
+    "sidenav": {
+      "component": "PrivateSidenav",
+      "nav": {
+        "primary": [
+          { "label_key": "nav.dashboard", "path": "/app/superadmin", "icon": "dashboard" },
+          { "label_key": "nav.tenants", "path": "/app/superadmin/tenants", "icon": "apartment" },
+          { "label_key": "nav.users", "path": "/app/superadmin/users", "icon": "group" },
+          {
+            "label_key": "nav.platform_health",
+            "path": "/app/superadmin/health",
+            "icon": "monitor_heart"
+          },
+          {
+            "label_key": "nav.releases",
+            "path": "/app/superadmin/releases",
+            "icon": "rocket_launch"
+          }
+        ]
+      },
+      "props": {
+        "collapsible": true
+      }
+    },
+    "footer": {
+      "component": "PrivateFooter",
+      "nav": {
+        "primary": [],
+        "secondary": [
+          {
+            "label_key": "footer.release_notes",
+            "path": "/app/superadmin/releases",
+            "icon": "article"
+          }
+        ]
+      },
+      "props": {}
+    }
+  },
+  "content": {
+    "layout": {
+      "component": "GridLayout",
+      "rows": [
+        {
+          "id": "overview",
+          "label_key": "layout.private_dashboard_superadmin.overview",
+          "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.overview"] }]
+        },
+        {
+          "id": "kpi_global",
+          "label_key": "layout.private_dashboard_superadmin.kpi_global",
+          "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.kpi_global"] }]
+        },
+        {
+          "id": "kpi_draws",
+          "label_key": "layout.private_dashboard_superadmin.kpi_draws",
+          "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.kpi_draws"] }]
+        },
+        {
+          "id": "kpi_sales",
+          "label_key": "layout.private_dashboard_superadmin.kpi_sales",
+          "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.kpi_sales"] }]
+        },
+        {
+          "id": "alerts",
+          "label_key": "layout.private_dashboard_superadmin.alerts",
+          "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.alerts"] }]
+        },
+        {
+          "id": "recent_activity",
+          "label_key": "layout.private_dashboard_superadmin.recent_activity",
+          "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.recent_activity"] }]
+        }
+      ]
+    },
+    "widgets": {
+      "dashboard.superadmin.overview": {
+        "type": "SuperadminOverviewWidget",
+        "binding": { "mode": "dynamic", "source": "overview" },
+        "props": {
+          "title_key": "dashboard.superadmin.overview.title"
+        }
+      },
+      "dashboard.superadmin.kpi_global": {
+        "type": "KpiGridWidget",
+        "binding": { "mode": "dynamic", "source": "kpi_global" },
+        "props": {
+          "title_key": "dashboard.superadmin.kpi_global.title"
+        }
+      },
+      "dashboard.superadmin.kpi_draws": {
+        "type": "KpiDrawsWidget",
+        "binding": { "mode": "dynamic", "source": "kpi_draws" },
+        "props": {
+          "title_key": "dashboard.superadmin.kpi_draws.title"
+        }
+      },
+      "dashboard.superadmin.kpi_sales": {
+        "type": "KpiSalesWidget",
+        "binding": { "mode": "dynamic", "source": "kpi_sales" },
+        "props": {
+          "title_key": "dashboard.superadmin.kpi_sales.title"
+        }
+      },
+      "dashboard.superadmin.alerts": {
+        "type": "AlertsWidget",
+        "binding": { "mode": "dynamic", "source": "alerts" },
+        "props": {
+          "title_key": "dashboard.superadmin.alerts.title"
+        }
+      },
+      "dashboard.superadmin.recent_activity": {
+        "type": "ActivityFeedWidget",
+        "binding": { "mode": "dynamic", "source": "recent_activity" },
+        "props": {
+          "title_key": "dashboard.superadmin.recent_activity.title"
+        }
+      }
+    }
+  }
+}

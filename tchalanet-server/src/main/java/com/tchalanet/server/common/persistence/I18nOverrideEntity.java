@@ -1,0 +1,32 @@
+package com.tchalanet.server.common.persistence;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.envers.Audited;
+
+@Entity
+@Table(name = "i18n_override")
+@Audited
+@Getter
+@Setter
+@NoArgsConstructor
+public class I18nOverrideEntity extends BaseEntity {
+
+  @Column(name = "tenant_id", nullable = false)
+  private UUID tenantId;
+
+  @Column(name = "locale", nullable = false)
+  private String locale;
+
+  @Column(name = "i18n_key", nullable = false)
+  private String i18nKey;
+
+  @Column(name = "i18n_value", nullable = false)
+  private String i18nValue;
+}

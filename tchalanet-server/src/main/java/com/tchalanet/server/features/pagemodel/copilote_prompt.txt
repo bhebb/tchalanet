@@ -1,0 +1,298 @@
+# PROMPT POUR COPILOT – Pages privées & data dynamique (Tchalanet)
+
+Contexte global
+----------------
+Le backend Tchalanet est organisé en deux grands espaces :
+- core/ : domaines critiques (hexagonal / Clean Architecture)
+- features/ : vertical slices orientées écrans / use-cases UI
+
+Les pages (publiques et privées) sont décrites par un PageModel JSON stocké en base.
+Un BFF renvoie au frontend un "PageModelResponse" qui contient :
+- la langue courante
+- le PageModel normalisé
+- un bloc "dynamic" avec les données métiers pour les widgets dynamiques
+
+Objectif de ce chantier
+------------------------
+Mettre en place **la partie dynamique des pages privées** (dashboards) en s’appuyant sur :
+- le domaine `pagemodel` (PageModel + templates)
+- les features `reporting/*` existantes
+- les domaines `draw`, `session`, `autonomy`, `audit`, etc.
+
+On veut en particulier :
+- un service unique `PrivateDashboardDynamicDataService` qui construit les données dynamiques pour les dashboards privés en fonction du rôle `TchRole`
+- des services de rôle :
+  - `SuperadminDashboardService`
+  - `TenantAdminDashboardService`
+  - `CashierDashboardService`
+- des blocs Java (records) pour véhiculer la data dynamique côté PageModel (exposés dans le champ `dynamic` de la réponse)
+
+Important : respecter l’architecture verticale existante, ne pas déplacer les features de reporting, juste les consommer.
+
+Structure et packages
+----------------------
+Mettre le code dans les packages suivants :
+
+- PageModel partagé (déjà existant) :
+  - `com.tchalanet.server.features.pagemodel.shared`
+  - `com.tchalanet.server.features.pagemodel.shared.dynamic`
+  - `com.tchalanet.server.features.pagemodel.shared.block`
+
+- Dashboards privés (nouvelle slice / sous-slice) :
+  - `com.tchalanet.server.features.private_dashboard.block`
+  - `com.tchalanet.server.features.private_dashboard.dynamic`
+
+- Reporting existant (à consommer, ne pas déplacer) :
+  - `com.tchalanet.server.features.reporting.salesreport`
+  - `com.tchalanet.server.features.reporting.outletperformance`
+  - `com.tchalanet.server.features.reporting.tenantkpis`
+  - `com.tchalanet.server.features.reporting.tenant_dashboard`
+
+- Domaines utilisés :
+  - draw : `com.tchalanet.server.core.draw.*`
+  - session POS : `com.tchalanet.server.core.session.*` (si existant)
+  - autonomy / validation : `com.tchalanet.server.core.autonomy.*` (ou feature dédiée)
+  - audit / activity : `com.tchalanet.server.core.audit.*`
+
+Étape 1 – Payload dynamique commun
+-----------------------------------
+1. Créer un record `PrivateDashboardDynamicPayload` dans
+   `com.tchalanet.server.features.private_dashboard.block` :
+
+   - Contient des sous-blocs pour chaque rôle et fonctionnalité :
+     - `SuperadminOverviewBlock superadminOverview`
+     - `TenantAdminOverviewBlock tenantAdminOverview`
+     - `CashierOverviewBlock cashierOverview`
+     - `KpiBlock kpiGlobal`
+     - `KpiBlock kpiDraws`
+     - `KpiBlock kpiSales`
+     - `AlertsBlock alerts`
+     - `ActivityFeedBlock recentActivity`
+     - `ValidationsBlock validations`
+     - `SessionBlock session`
+     - `TicketsBlock recentTickets`
+     - `QuickSalePreloadBlock quickSale`
+
+   - Ajouter une méthode statique `empty()` qui retourne un payload avec tous les champs à `null`.
+
+2. Créer des records vides (avec `empty()`) pour chacun des blocs suivants :
+   - `SuperadminOverviewBlock`
+   - `TenantAdminOverviewBlock`
+   - `CashierOverviewBlock`
+   - `KpiBlock` + `KpiItem` interne
+   - `AlertsBlock` + `AlertItem`
+   - `ActivityFeedBlock` + `ActivityItem`
+   - `ValidationsBlock` + `ValidationItem`
+   - `SessionBlock`
+   - `TicketsBlock` + `TicketItem`
+   - `QuickSalePreloadBlock` + types internes si nécessaire
+
+L’objectif est d’avoir une structure prête, même si le contenu réel est rempli progressivement.
+
+Étape 2 – Service d’orchestration par rôle
+-------------------------------------------
+Créer la classe `PrivateDashboardDynamicDataService` dans
+`com.tchalanet.server.features.private_dashboard.dynamic`.
+
+- Annoter avec `@Service` + `@RequiredArgsConstructor`.
+- Injecter les services par rôle :
+
+  ```java
+  private final SuperadminDashboardService superadminDashboardService;
+  private final TenantAdminDashboardService tenantAdminDashboardService;
+  private final CashierDashboardService cashierDashboardService;
+
+
+Ajouter une méthode :
+
+public PrivateDashboardDynamicPayload buildDynamicData(
+    UUID tenantId,
+    UUID userId,
+    TchRole role,
+    String currentLang,
+    PageModel pageModel
+)
+
+
+Implémenter un switch (role) :
+
+SUPER_ADMIN → superadminDashboardService.build(...)
+
+TENANT_ADMIN → tenantAdminDashboardService.build(...)
+
+CASHIER → cashierDashboardService.build(...)
+
+OPERATOR → pour l’instant retourner PrivateDashboardDynamicPayload.empty() ou gérer plus tard.
+
+Ce service sera appelé par l’adapter REST/BFF pour construire le champ dynamic de la réponse des pages privées.
+
+Étape 3 – TenantAdminDashboardService
+
+Créer TenantAdminDashboardService dans features.private_dashboard.dynamic :
+
+Annoter avec @Service + @RequiredArgsConstructor.
+
+Injecter les handlers / services suivants (si déjà existants) :
+
+GetTenantKpisHandler (features.reporting.tenantkpis)
+
+TenantDashboardStatsService ou TenantDashboardStatsUseCase (features.reporting.tenant_dashboard)
+
+GetOutletPerformanceReportHandler (features.reporting.outletperformance)
+
+ListPendingValidationsHandler (feature autonomy)
+
+ListTenantRecentActivityHandler (audit / activity)
+
+Ajouter une méthode :
+
+public PrivateDashboardDynamicPayload build(
+    UUID tenantId,
+    UUID userId,
+    String currentLang,
+    PageModel pageModel
+)
+
+
+Implémenter au moins ces méthodes privées (avec TODO si pas encore les handlers) :
+
+TenantAdminOverviewBlock buildOverview(...)
+
+Basé sur TenantDashboardStatsService ou GetTenantKpisHandler.
+
+KpiBlock buildGlobalKpis(...)
+
+KpiBlock buildDrawKpis(...)
+
+KpiBlock buildSalesKpis(...)
+
+ValidationsBlock buildValidations(...)
+
+ActivityFeedBlock buildActivity(...)
+
+Dans build(...), construire un PrivateDashboardDynamicPayload avec :
+
+tenantAdminOverview rempli
+
+kpiGlobal, kpiDraws, kpiSales, validations, recentActivity
+
+autres champs à null.
+
+Étape 4 – SuperadminDashboardService
+
+Créer SuperadminDashboardService dans features.private_dashboard.dynamic :
+
+Annoter avec @Service + @RequiredArgsConstructor.
+
+Injecter les handlers de reporting global (à créer ou existants) :
+
+GetPlatformOverviewHandler (à créer si nécessaire)
+
+GetPlatformSalesKpiHandler (ou réutiliser salesreport avec tenantId = null)
+
+ListPlatformAlertsHandler
+
+ListPlatformRecentActivityHandler
+
+Méthode build(UUID tenantId, UUID userId, String currentLang, PageModel pageModel) :
+
+Remplir SuperadminOverviewBlock (nb tenants, nb actifs, nb users, santé des services)
+
+Remplir un KpiBlock kpiGlobal basé sur les ventes globales (30 jours)
+
+Remplir un AlertsBlock (alertes plateforme)
+
+Remplir un ActivityFeedBlock (activité globale)
+
+Retourner un PrivateDashboardDynamicPayload avec ces champs + le reste à null.
+
+Étape 5 – CashierDashboardService
+
+Créer CashierDashboardService dans features.private_dashboard.dynamic :
+
+Annoter avec @Service + @RequiredArgsConstructor.
+
+Injecter les handlers nécessaires :
+
+GetCashierSalesReportHandler (adaptation de SalesReport pour filtrer sur cashierId)
+
+GetCashierSessionSummaryHandler (sessions en cours)
+
+ListRecentTicketsForCashierHandler
+
+GetQuickSaleOptionsHandler (jeux + stakes pour la vente rapide)
+
+GetOutletPerformanceReportHandler (statistiques PDV)
+
+ListCashierNotificationsHandler
+
+ListCashierRecentActivityHandler
+
+Méthode build(UUID tenantId, UUID userId, String currentLang, PageModel pageModel) :
+
+Construire :
+
+CashierOverviewBlock : ventes/payout/tickets du jour pour ce caissier
+
+SessionBlock : info sur la session courante
+
+TicketsBlock : tickets récents
+
+QuickSalePreloadBlock : options de vente rapide
+
+Enrichir ensuite avec :
+
+un bloc pour l’outlet du caissier (peut être intégré dans CashierOverviewBlock ou bloc dédié)
+
+plus tard : stats par jeu dans la session (CashierGameSessionStatsBlock), stats du jour détaillées, etc.
+
+Retourner un PrivateDashboardDynamicPayload avec cashierOverview, session, recentTickets, quickSale.
+
+Étape 6 – Connexion avec PageModelResponse
+
+Dans l’adapter REST/BFF qui sert les pages privées :
+
+Résoudre :
+
+TchRole effectif de l’utilisateur
+
+le PageModel à utiliser (via le domaine pagemodel)
+
+tenantId, userId, currentLang (via la logique existante)
+
+Appeler privateDashboardDynamicDataService.buildDynamicData(...) pour construire la partie dynamic.
+
+Construire la réponse JSON type :
+
+{
+  "currentLang": "fr",
+  "langs": ["fr", "en", "ht"],
+  "pageModel": { ... },
+  "dynamic": {
+    "private_dashboard": { ... payload mappé depuis PrivateDashboardDynamicPayload ... }
+  },
+  "i18n": {
+    "namespaces": [...],
+    "overrides": { ... }
+  },
+  "issues": []
+}
+
+
+Le mapping Java → JSON peut se faire en :
+
+exposant PrivateDashboardDynamicPayload tel quel,
+
+ou en le transformant dans un DTO de BFF si nécessaire.
+
+Contraintes générales
+
+Ne pas introduire de logique métier critique dans features.private_dashboard.
+
+Les features de dashboard doivent orchestrer des handlers de reporting / domain déjà existants (ou à créer dans core ou features.reporting).
+
+Préférer des records immuables pour les blocs (record en Java 17+).
+
+Toujours renvoyer un bloc "vide" (via empty()) plutôt que null quand c’est pertinent, pour faciliter les "empty states" côté frontend.
+
+Respecter le multi-tenant : tous les handlers de reporting doivent être filtrés par tenantId quand c’est logique.

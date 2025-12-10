@@ -25,8 +25,8 @@ public class CombinedCacheManager implements CacheManager {
     return caches.computeIfAbsent(
         name,
         n -> {
-          Cache localCache = local.getCache(n);
-          Cache remoteCache = remote == null ? null : remote.getCache(n);
+          var localCache = local.getCache(n);
+          var remoteCache = remote == null ? null : remote.getCache(n);
           return new CombinedCache(n, localCache, remoteCache);
         });
   }

@@ -1,12 +1,11 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
+import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.ports.in.ListTicketsQuery.PageRequest;
-import com.tchalanet.server.core.sales.domain.ports.in.ListTicketsQuery.PagedResult;
-import com.tchalanet.server.core.sales.domain.ports.in.ListTicketsQuery.TicketFilter;
-import com.tchalanet.server.core.sales.domain.ports.out.ClockPort;
-import com.tchalanet.server.core.sales.domain.ports.out.TicketRepositoryPort;
-import com.tchalanet.server.core.sales.infra.persistence.entity.TicketEntity;
+import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PageRequest;
+import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PagedResult;
+import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
+import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class JpaTicketRepositoryAdapter implements TicketRepositoryPort {
+public class JpaTicketRepositoryAdapter implements TicketWritterPort {
 
   private final SpringTicketJpaRepository jpaRepository;
   private final TicketMapper mapper;

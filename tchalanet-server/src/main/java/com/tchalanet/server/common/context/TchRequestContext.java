@@ -12,7 +12,8 @@ public record TchRequestContext(
     UUID originalTenantUuid, // resolved UUID (may be null)
     String effectiveTenantCode, // effective (may be overridden by SA)
     UUID effectiveTenantUuid, // resolved UUID (may be null)
-    String userId,
+    String keycloakUserId, // subject from Keycloak JWT (external identity)
+    UUID appUserId, // nullable, persisted AppUser UUID, filled after /api/me/bootstrap
     Set<TchRole> systemRoles,
     Set<String> customRoles,
     Locale locale,
@@ -26,14 +27,28 @@ public record TchRequestContext(
     return effectiveTenantUuid != null ? effectiveTenantUuid : originalTenantUuid;
   }
 
-  public UUID userUuid() {
+  /**
+   * Compatibility: return the application user id as string when available. Do NOT mix
+   * Keycloak subject with app user id. If app user is not known yet, this returns null.
+   */
+  public String userId() {
+    return appUserId != null ? appUserId.toString() : null;
+  }
 
+  /** Return the application user UUID (if present) */
+  public UUID userUuid() {
+    return appUserId;
+  }
+
+  /** Helper to convert keycloak subject to UUID when possible (may be non-UUID strings) */
+  @SuppressWarnings("unused")
+  public UUID keycloakAsUuid() {
     try {
-      if (userId != null) {
-        return UUID.fromString(userId);
+      if (keycloakUserId != null) {
+        return UUID.fromString(keycloakUserId);
       }
-    } catch (IllegalArgumentException exception) {
-      log.error("Cannot convert string to UUID: '{}'", userId, exception);
+    } catch (IllegalArgumentException e) {
+      log.debug("Keycloak subject is not a UUID: '{}'", keycloakUserId, e);
     }
     return null;
   }
@@ -41,5 +56,26 @@ public record TchRequestContext(
   public String userAgent() {
     // user agent get it
     return null;
+  }
+
+  /**
+   * Rôle principal courant dérivé de systemRoles, avec priorité :
+   * SUPER_ADMIN > TENANT_ADMIN > CASHIER (fallback si aucun des deux premiers).
+   */
+  public TchRole currentRole() {
+    if (systemRoles == null || systemRoles.isEmpty()) {
+      return null;
+    }
+
+    if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
+      return TchRole.SUPER_ADMIN;
+    }
+
+    if (systemRoles.contains(TchRole.TENANT_ADMIN)) {
+      return TchRole.TENANT_ADMIN;
+    }
+
+    // Sinon, on considère que l'utilisateur est au moins caissier
+    return TchRole.CASHIER;
   }
 }

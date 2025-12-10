@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.draw.application.query.model.DrawResultsSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawResultMapper;
@@ -30,8 +31,7 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   }
 
   @Override
-  public java.util.List<DrawResult> findByCriteria(
-      com.tchalanet.server.core.draw.application.query.model.DrawResultsSearchCriteria criteria) {
+  public java.util.List<DrawResult> findByCriteria(DrawResultsSearchCriteria criteria) {
     return java.util.List.of();
   }
 

@@ -3,10 +3,7 @@ package com.tchalanet.server.core.draw.infra.persistence;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.persistence.ListToJsonConverter;
 import com.tchalanet.server.common.persistence.MapToJsonConverter;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +18,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DrawResultJpaEntity extends BaseTenantEntity {
 
-  @Column(name = "draw_id", nullable = false)
-  private java.util.UUID drawId;
+  // relation vers draw
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "draw_id", nullable = false)
+  private DrawJpaEntity draw;
 
   @Column(name = "source", nullable = false)
   private String source;

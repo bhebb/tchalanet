@@ -2,8 +2,8 @@ package com.tchalanet.server.core.sales.infra.persistence.mapper;
 
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.sales.infra.persistence.entity.TicketEntity;
-import com.tchalanet.server.core.sales.infra.persistence.entity.TicketLineEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketLineEntity;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 

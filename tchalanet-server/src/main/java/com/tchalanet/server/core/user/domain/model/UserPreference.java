@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserPreference {
 
-  private UserId userId;
+  private AppUserId userId;
   private ThemeMode themeMode; // nullable
   private Short density; // nullable
   private Locale locale; // nullable

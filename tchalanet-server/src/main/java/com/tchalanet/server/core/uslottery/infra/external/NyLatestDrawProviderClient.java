@@ -2,9 +2,10 @@ package com.tchalanet.server.core.uslottery.infra.external;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tchalanet.server.core.uslottery.domain.dto.LatestDrawDto;
+import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
 import com.tchalanet.server.core.uslottery.domain.model.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.domain.ports.out.LatestDrawProviderClient;
+import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -13,23 +14,19 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /** Client NY Open Data pour récupérer les derniers tirages DAILY (NUMBERS) / WIN4. */
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "tch.us-lottery.providers.ny", name = "enabled", havingValue = "true", matchIfMissing = true)
 @Slf4j
 public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
 
   private final WebClient nyLotteryWebClient;
-
-  @Value("${tch.us-lottery.ny.timezone:America/New_York}")
-  private String nyTimezone;
-
-  @Value("${tch.us-lottery.ny.app-token:}")
-  private String appToken;
+  private final UsLotteryProperties props;
 
   @Override
   public UsLotteryProvider provider() {
@@ -37,16 +34,19 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
   }
 
   @Override
-  public List<LatestDrawDto> fetchLatestDraws() {
-    List<LatestDrawDto> results = new ArrayList<>();
+  public List<LatestDraw> fetchLatestDraws() {
+    List<LatestDraw> results = new ArrayList<>();
     try {
+      var provider = props.getProviders() != null ? props.getProviders().get("ny") : null;
+      String nyTimezone = provider != null ? provider.getTimezone() : "America/New_York";
+      String appToken = provider != null ? provider.getAppToken() : null;
+
       NyResultDto[] response =
           nyLotteryWebClient
               .get()
               .uri(
                   uriBuilder -> {
-                    var builder =
-                        uriBuilder.queryParam("$limit", 7).queryParam("$order", "draw_date DESC");
+                    var builder = uriBuilder.queryParam("$limit", 7).queryParam("$order", "draw_date DESC");
                     if (appToken != null && !appToken.isBlank()) {
                       builder = builder.queryParam("app_token", appToken);
                     }
@@ -69,17 +69,32 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
         if (row.middayDaily() != null && !row.middayDaily().isBlank()) {
           List<String> numbers = splitDigits(row.middayDaily());
           if (numbers.size() == 3) {
-            String resultJson =
-                String.format("{\"numbers\":%s,\"source\":\"NY_OPEN_DATA\"}", numbers.toString());
-            results.add(new LatestDrawDto("US_NY_NUM3_MID", baseTimeUtc.toInstant(), resultJson));
+            String origin = "NY_OPEN_DATA";
+            // provider = NY, externalKey = NUMBERS
+            results.add(
+                new LatestDraw(
+                    UsLotteryProvider.NY,
+                    "NUMBERS",
+                    "NY_NUMBERS_MIDDAY",
+                    date,
+                    baseTimeUtc,
+                    numbers,
+                    origin));
           }
         }
         if (row.eveningDaily() != null && !row.eveningDaily().isBlank()) {
           List<String> numbers = splitDigits(row.eveningDaily());
           if (numbers.size() == 3) {
-            String resultJson =
-                String.format("{\"numbers\":%s,\"source\":\"NY_OPEN_DATA\"}", numbers.toString());
-            results.add(new LatestDrawDto("US_NY_NUM3_EVE", baseTimeUtc.toInstant(), resultJson));
+            String origin = "NY_OPEN_DATA";
+            results.add(
+                new LatestDraw(
+                    UsLotteryProvider.NY,
+                    "NUMBERS",
+                    "NY_NUMBERS_EVENING",
+                    date,
+                    baseTimeUtc,
+                    numbers,
+                    origin));
           }
         }
 
@@ -87,17 +102,31 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
         if (row.middayWin4() != null && !row.middayWin4().isBlank()) {
           List<String> numbers = splitDigits(row.middayWin4());
           if (numbers.size() == 4) {
-            String resultJson =
-                String.format("{\"numbers\":%s,\"source\":\"NY_OPEN_DATA\"}", numbers.toString());
-            results.add(new LatestDrawDto("US_NY_NUM4_MID", baseTimeUtc.toInstant(), resultJson));
+            String origin = "NY_OPEN_DATA";
+            results.add(
+                new LatestDraw(
+                    UsLotteryProvider.NY,
+                    "WIN4",
+                    "NY_WIN4_MIDDAY",
+                    date,
+                    baseTimeUtc,
+                    numbers,
+                    origin));
           }
         }
         if (row.eveningWin4() != null && !row.eveningWin4().isBlank()) {
           List<String> numbers = splitDigits(row.eveningWin4());
           if (numbers.size() == 4) {
-            String resultJson =
-                String.format("{\"numbers\":%s,\"source\":\"NY_OPEN_DATA\"}", numbers.toString());
-            results.add(new LatestDrawDto("US_NY_NUM4_EVE", baseTimeUtc.toInstant(), resultJson));
+            String origin = "NY_OPEN_DATA";
+            results.add(
+                new LatestDraw(
+                    UsLotteryProvider.NY,
+                    "WIN4",
+                    "NY_WIN4_EVENING",
+                    date,
+                    baseTimeUtc,
+                    numbers,
+                    origin));
           }
         }
       }

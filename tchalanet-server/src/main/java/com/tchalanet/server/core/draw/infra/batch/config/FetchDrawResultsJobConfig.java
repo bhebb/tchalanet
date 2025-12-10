@@ -14,6 +14,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.batch.infrastructure.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -22,7 +23,13 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class FetchDrawResultsJobConfig {
   public static final String JOB_NAME = "fetch_draw_results";
 
-  @Bean
+    private final int chunkSize;
+
+    public FetchDrawResultsJobConfig(@Value("${app.batch.settle.chunk-size:50}") int chunkSize) {
+        this.chunkSize = chunkSize;
+    }
+
+    @Bean
   public Job fetchDrawResultsJob(JobRepository jobRepository, Step fetchDrawResultsStep) {
     return new JobBuilder(JOB_NAME, jobRepository).start(fetchDrawResultsStep).build();
   }
@@ -35,8 +42,6 @@ public class FetchDrawResultsJobConfig {
       ItemProcessor<UUID, FetchAndApplyExternalResultCommand> fetchDrawResultsProcessor,
       ItemWriter<FetchAndApplyExternalResultCommand> fetchDrawResultsWriter) {
 
-    int chunkSize = 50;
-
     return new StepBuilder(jobRepository)
         .<UUID, FetchAndApplyExternalResultCommand>chunk(chunkSize)
         .transactionManager(batchTxManager)
@@ -47,23 +52,16 @@ public class FetchDrawResultsJobConfig {
   }
 
   @Bean
-  public ItemProcessor<UUID, FetchAndApplyExternalResultCommand> fetchDrawResultsProcessor(
-      Clock clock) {
+  public ItemProcessor<UUID, FetchAndApplyExternalResultCommand> fetchDrawResultsProcessor(Clock clock) {
     return drawId -> {
       var now = Instant.now(clock);
       // Tu pourras affiner la fenêtre ici (near real-time vs backfill)
-      return new FetchAndApplyExternalResultCommand(
-          drawId,
-          UUID.fromString("00000000-0000-0000-0000-000000000001"), // Placeholder Tenant ID
-          DrawSource.US_LOTTERY, // Source is US_LOTTERY for external provider
-          now,
-          null);
+      return new FetchAndApplyExternalResultCommand(drawId, now);
     };
   }
 
   @Bean
-  public ItemWriter<FetchAndApplyExternalResultCommand> fetchDrawResultsWriter(
-      FetchAndApplyExternalResultCommandHandler fetchDrawResultsCommandHandler) {
+  public ItemWriter<FetchAndApplyExternalResultCommand> fetchDrawResultsWriter(FetchAndApplyExternalResultCommandHandler fetchDrawResultsCommandHandler) {
     return items -> {
       for (FetchAndApplyExternalResultCommand cmd : items) {
         fetchDrawResultsCommandHandler.handle(cmd);

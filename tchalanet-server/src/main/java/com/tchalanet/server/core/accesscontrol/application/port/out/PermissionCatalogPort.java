@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.accesscontrol.application.port.out;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.List;
 
 public interface PermissionCatalogPort {
-  Set<String> findPermissionsForRoleHierarchy(UUID roleId);
+    List<String> getPermissionsForRoles(List<String> roleCodes);
+    boolean hasPermission(String roleCode, String permissionCode);
 }

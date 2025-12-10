@@ -17,7 +17,11 @@ BEGIN
       'ticket',
       'subscription',
       'theme',
-      'audit_event'
+      'audit_event',
+      'app_user',
+      'app_role',
+      'tenant_user'
+      'page_model'
     ])
   LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);

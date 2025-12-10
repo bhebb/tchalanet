@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.infra.adapter;
 
 import com.tchalanet.server.core.limitpolicy.domain.ports.out.GameReadModelPort;
-import com.tchalanet.server.core.tenant.infra.persistence.GameJpaRepository;
+
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -2,6 +2,75 @@
 -- Schéma principal Tchalanet (multi-tenant + soft delete)
 
 -- ===========================
+-- 0. ADDRESS (shared table for locations)
+-- ===========================
+
+CREATE TABLE address (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  line1        text NOT NULL,
+  line2        text,
+  city         text NOT NULL,
+  region       text,
+  country      text NOT NULL,
+  postal_code  text,
+  latitude     double precision,
+  longitude    double precision
+);
+
+-- ===========================
+-- 0b. APP_SETTING (generic settings)
+-- ===========================
+
+CREATE TABLE app_setting (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  version      bigint NOT NULL DEFAULT 0,
+
+  level        text NOT NULL,             -- 'GLOBAL', 'TENANT', 'TERMINAL'
+  tenant_id    uuid,                      -- NULL pour GLOBAL
+  terminal_id  uuid,                      -- NULL sauf pour TERMINAL
+  outlet_id    uuid,                      -- NULL sauf pour TERMINAL
+  namespace    text NOT NULL,             -- ex: 'ui.public_home', 'pos.behavior'
+  setting_key  text NOT NULL,             -- ex: 'hero_variant', 'max_offline_queue'
+  value_type   text NOT NULL,             -- 'STRING', 'INT', 'BOOLEAN', 'JSON'
+  setting_value text NOT NULL,
+  active       boolean NOT NULL DEFAULT true,
+
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  created_by   uuid,
+  updated_at   timestamptz NOT NULL DEFAULT now(),
+  updated_by   uuid,
+  deleted_at   timestamptz
+);
+
+-- Unicité par “niveau + cible + namespace + key”
+CREATE UNIQUE INDEX ux_app_setting_target_key
+  ON app_setting(level, tenant_id, terminal_id, outlet_id, namespace, setting_key)
+  WHERE active = true;
+
+-- ===========================
+-- 0c. I18N_OVERRIDE (tenant-specific translations)
+-- ===========================
+
+CREATE TABLE i18n_override (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  version    bigint NOT NULL DEFAULT 0,
+
+  tenant_id  uuid NOT NULL REFERENCES tenant(id),
+  locale     text NOT NULL,           -- 'fr', 'en', 'ht'
+  i18n_key   text NOT NULL,           -- ex: 'nav.home.label'
+  i18n_value text NOT NULL,
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz
+);
+
+CREATE UNIQUE INDEX ux_i18n_override_tenant_locale_key
+  ON i18n_override(tenant_id, locale, i18n_key);
+
+-- ===========================
 -- 1. TABLE TENANT (plateforme / opérateurs)
 -- ===========================
 
@@ -14,6 +83,16 @@ CREATE TABLE tenant (
                         timezone        varchar(64) NOT NULL,
                         currency        varchar(3)  NOT NULL DEFAULT 'USD',
                         status          varchar(32) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE|PENDING|SUSPENDED|REJECTED
+                        type            varchar(32) NOT NULL DEFAULT 'BORLETTE', -- BORLETTE|RESEAU_AMBULANT|...
+
+                        -- branding
+                        logo_url     text,
+                        brand_color_primary   text,
+                        brand_color_secondary text,
+                        theme_preset_id       uuid,
+
+                        -- fk vers address
+                        address_id   uuid REFERENCES address(id),
 
                         active_theme_id uuid, -- id d’une ligne dans theme (global ou custom)
 
@@ -41,7 +120,9 @@ CREATE TABLE outlet
 
     tenant_id  uuid         NOT NULL REFERENCES tenant (id),
     name       varchar(255) NOT NULL,
-    zone       varchar(128),
+    type       varchar(32)  NOT NULL DEFAULT 'PHYSICAL', -- PHYSICAL|VIRTUAL
+    address_id uuid         NOT NULL REFERENCES address(id),
+    active     boolean      NOT NULL DEFAULT true,
 
     created_at timestamptz  NOT NULL DEFAULT now(),
     created_by uuid,
@@ -454,11 +535,18 @@ CREATE TABLE app_user
 (
     id            uuid PRIMARY KEY,            -- Keycloak sub
     username      text        NOT NULL,
+    keycloak_id   uuid,
     email         citext,
+    phone         text,
     tenant_code   text        NOT NULL,        -- claim "tenant" (tenant par défaut)
     tenant_id     uuid REFERENCES tenant (id), -- optionnel: tenant principal
+    first_name    text,
+    last_name     text,
     display_name  text,
+    avatar_url    text,
     locale        text,
+    time_zone     varchar(64),
+    status        varchar(32) NOT NULL DEFAULT 'ACTIVE',
     last_login_at timestamptz,
     version       bigint      NOT NULL DEFAULT 0,
     created_at    timestamptz NOT NULL DEFAULT now(),
@@ -467,6 +555,10 @@ CREATE TABLE app_user
     updated_by    uuid,
     deleted_at    timestamptz
 );
+
+CREATE UNIQUE INDEX ux_app_user_keycloak_id ON app_user (keycloak_id) WHERE keycloak_id IS NOT NULL;
+CREATE UNIQUE INDEX ux_app_user_email ON app_user (email) WHERE email IS NOT NULL;
+CREATE UNIQUE INDEX ux_app_user_phone ON app_user (phone) WHERE phone IS NOT NULL;
 
 CREATE TRIGGER trg_app_user_updated_at
     BEFORE UPDATE
@@ -742,18 +834,76 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_draw_tenant_channel_scheduled_unique
 -- ===========================
 
 CREATE TABLE page_model (
-                            id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                            tenant_id  uuid REFERENCES tenant(id),
-                            code       varchar(64) NOT NULL,
-                            lang       varchar(8)  NOT NULL,
-                            json       jsonb       NOT NULL,
-                            created_at timestamptz NOT NULL DEFAULT now(),
-                            updated_at timestamptz NOT NULL DEFAULT now()
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  version        bigint      NOT NULL DEFAULT 0,
+
+  tenant_id      uuid        NOT NULL REFERENCES tenant(id),
+  template_id    uuid        NULL REFERENCES page_model_template(id);
+  logical_id     text        NOT NULL,             -- ex: 'public.home', 'private.dashboard.admin'
+  scope          text        NOT NULL,             -- 'public' | 'private'
+  slug           text        NOT NULL,             -- ex: 'home', 'dashboard'
+  schema_version integer     NOT NULL DEFAULT 1,
+  model          jsonb       NOT NULL,             -- JSON PageModel
+
+  status         text        NOT NULL DEFAULT 'DRAFT', -- DRAFT | PUBLISHED | ARCHIVED
+  published_at   timestamptz,
+
+  created_at     timestamptz NOT NULL DEFAULT now(),
+  created_by     uuid,
+  updated_at     timestamptz NOT NULL DEFAULT now(),
+  updated_by     uuid,
+  deleted_at     timestamptz
 );
 
-CREATE UNIQUE INDEX ux_page_model_tenant_code_lang
-    ON page_model(tenant_id, code, lang);
+ALTER TABLE page_model
+  ADD CONSTRAINT chk_page_model_status
+  CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED'));
 
-CREATE TRIGGER trg_page_model_updated_at
-    BEFORE UPDATE ON page_model
-    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Un seul modèle PUBLISHED par (tenant_id, logical_id, deleted_at IS NULL)
+CREATE UNIQUE INDEX uq_page_model_published_per_tenant_logical
+  ON page_model (tenant_id, logical_id)
+  WHERE status = 'PUBLISHED' AND deleted_at IS NULL;
+
+CREATE INDEX ix_page_model_tenant_logical
+  ON page_model (tenant_id, logical_id, status)
+  WHERE deleted_at IS NULL;
+
+
+-- Un modèle logique par tenant (clé principale fonctionnelle)
+ALTER TABLE page_model
+    ADD CONSTRAINT uq_page_model_logical
+        UNIQUE (tenant_id, logical_id);
+
+-- Accès BFF typique : tenant + scope + slug
+CREATE UNIQUE INDEX uq_page_model_tenant_scope_slug
+    ON page_model (tenant_id, scope, slug)
+    WHERE deleted_at IS NULL;
+
+-- Optionnel : index GIN sur le JSON pour debug / requêtes admin
+CREATE INDEX idx_page_model_jsonb
+    ON page_model
+    USING gin (model);
+
+CREATE TABLE page_model_template (
+                                     id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                                     version        bigint NOT NULL DEFAULT 0,
+
+                                     tenant_id      uuid NULL REFERENCES tenant (id),
+                                     logical_id     text NOT NULL,
+                                     label          text NOT NULL,
+                                     description    text,
+                                     schema_version integer NOT NULL,
+                                     model          jsonb NOT NULL,
+                                     is_default     boolean NOT NULL DEFAULT false,
+                                     is_system      boolean NOT NULL DEFAULT true,
+
+                                     created_at     timestamptz NOT NULL DEFAULT now(),
+                                     created_by     uuid,
+                                     updated_at     timestamptz NOT NULL DEFAULT now(),
+                                     updated_by     uuid,
+                                     deleted_at     timestamptz
+);
+
+CREATE UNIQUE INDEX uq_page_model_template_default
+    ON page_model_template (logical_id)
+    WHERE is_default = true AND is_system = true AND deleted_at IS NULL;

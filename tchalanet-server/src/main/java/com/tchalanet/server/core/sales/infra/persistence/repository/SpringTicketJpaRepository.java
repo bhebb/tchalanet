@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.sales.infra.persistence.repository;
 
-import com.tchalanet.server.core.sales.infra.persistence.entity.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -26,4 +28,7 @@ public interface SpringTicketJpaRepository
       @Param("now") Instant now);
 
   List<TicketEntity> findByDrawId(UUID drawId); // New method for Stats domain
+
+  Page<TicketEntity> findByTenantIdAndSessionIdInOrderByCreatedAtDesc(
+      UUID tenantId, List<UUID> sessionIds, Pageable pageable);
 }
