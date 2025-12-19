@@ -1,7 +1,5 @@
 package com.tchalanet.server.common.cache;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import java.time.Duration;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -10,30 +8,33 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.lang.Nullable;
 
+import java.time.Duration;
+import java.util.List;
+
 @Configuration
 @EnableCaching
 public class CacheConfig {
-  @Bean
-  public Caffeine<Object, Object> caffeine() {
-    return Caffeine.newBuilder().maximumSize(10_000).expireAfterWrite(Duration.ofMinutes(5));
-  }
 
-  @Bean
-  public CaffeineCacheManager caffeineCacheManager(Caffeine<Object, Object> caffeine) {
-    CaffeineCacheManager cm = new CaffeineCacheManager();
-    cm.setCaffeine(caffeine);
-    return cm;
-  }
-
-  @Bean
-  @Primary
-  public CacheManager cacheManager(
-      CaffeineCacheManager caffeineCacheManager, @Nullable CacheManager redisCacheManager) {
-    if (redisCacheManager != null) {
-      return new com.tchalanet.server.common.cache.CombinedCacheManager(
-          caffeineCacheManager, redisCacheManager);
+    @Bean
+    public CaffeineCacheManager caffeineCacheManager(List<CacheSpecProvider> specProviders) {
+        // defaults si pas de spec
+        return new CacheSpecAwareCaffeineCacheManager(
+            specProviders,
+            Duration.ofMinutes(5),
+            10_000
+        );
     }
 
-    return caffeineCacheManager;
-  }
+    @Bean
+    @Primary
+    public CacheManager cacheManager(
+        CaffeineCacheManager caffeineCacheManager,
+        @Nullable CacheManager redisCacheManager
+    ) {
+        if (redisCacheManager != null) {
+            return new CombinedCacheManager(caffeineCacheManager, redisCacheManager);
+        }
+        return caffeineCacheManager;
+    }
 }
+

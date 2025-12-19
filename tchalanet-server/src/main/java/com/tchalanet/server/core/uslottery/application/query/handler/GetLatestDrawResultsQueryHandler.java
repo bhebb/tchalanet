@@ -22,7 +22,7 @@ public class GetLatestDrawResultsQueryHandler implements QueryHandler<GetLatestD
 
   @Override
   public List<DrawResult> handle(GetLatestDrawResultsQuery query) {
-    ZonedDateTime now = ZonedDateTime.now(clock);
+    var now = ZonedDateTime.now(clock);
     var criteria = DrawResultsSearchCriteria.lastDays(query.tenantId(), query.channelCode(), now, query.days());
     var results = drawResultReaderPort.findByCriteria(criteria);
     log.debug("uslottery: returning {} results for tenant={} channel={}", results.size(), query.tenantId(), query.channelCode());

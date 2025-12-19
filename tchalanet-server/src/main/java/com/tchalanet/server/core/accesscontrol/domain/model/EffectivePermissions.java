@@ -7,40 +7,41 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/** Permissions effectives d'un utilisateur dans un tenant donné. */
+/**
+ * Permissions effectives d'un utilisateur dans un tenant donné.
+ */
 public record EffectivePermissions(
-    UUID tenantId, UUID userId, UUID roleId, Set<Permission> permissionSet) {
+    UUID tenantId, UUID userId, UUID roleId, Set<String> permissionCodes) {
 
-  public EffectivePermissions {
-    Objects.requireNonNull(tenantId, "tenantId cannot be null");
-    Objects.requireNonNull(userId, "userId cannot be null");
-    if (permissionSet == null) {
-      permissionSet = Collections.emptySet();
-    } else {
-      permissionSet = Collections.unmodifiableSet(permissionSet);
-    }
-  }
-
-  public boolean has(String permissionKey) {
-    return permissionSet.contains(new Permission(permissionKey));
-  }
-
-  /** Vérifie si l'utilisateur possède toutes les permissions demandées. */
-  public CheckPermissionsResult check(Collection<String> requestedPermissions) {
-    if (requestedPermissions == null || requestedPermissions.isEmpty()) {
-      // Rien demandé => autorisé
-      return new CheckPermissionsResult(true, Collections.emptySet());
+    public EffectivePermissions {
+        Objects.requireNonNull(tenantId, "tenantId cannot be null");
+        Objects.requireNonNull(userId, "userId cannot be null");
+        if (permissionCodes == null) {
+            permissionCodes = Collections.emptySet();
+        } else {
+            permissionCodes = Collections.unmodifiableSet(permissionCodes);
+        }
     }
 
-    Set<String> grantedCodes =
-        permissionSet.stream().map(Permission::key).collect(Collectors.toUnmodifiableSet());
+    public boolean has(String permissionCode) {
+        return permissionCodes.contains(permissionCode);
+    }
 
-    Set<String> missing =
-        requestedPermissions.stream()
-            .filter(p -> !grantedCodes.contains(p))
-            .collect(Collectors.toUnmodifiableSet());
+    /**
+     * Vérifie si l'utilisateur possède toutes les permissions demandées.
+     */
+    public CheckPermissionsResult check(Collection<String> requestedPermissions) {
+        if (requestedPermissions == null || requestedPermissions.isEmpty()) {
+            // Rien demandé => autorisé
+            return new CheckPermissionsResult(true, Collections.emptySet());
+        }
 
-    boolean allowed = missing.isEmpty();
-    return new CheckPermissionsResult(allowed, missing);
-  }
+        Set<String> missing =
+            requestedPermissions.stream()
+                .filter(p -> !permissionCodes.contains(p))
+                .collect(Collectors.toUnmodifiableSet());
+
+        boolean allowed = missing.isEmpty();
+        return new CheckPermissionsResult(allowed, missing);
+    }
 }

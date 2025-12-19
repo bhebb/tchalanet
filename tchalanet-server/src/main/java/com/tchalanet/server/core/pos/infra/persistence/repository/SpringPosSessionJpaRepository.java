@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.pos.infra.persistence.repository;
 
-import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
 import com.tchalanet.server.core.pos.infra.persistence.entity.PosSessionEntity;
 import java.time.Instant;
 import java.util.List;

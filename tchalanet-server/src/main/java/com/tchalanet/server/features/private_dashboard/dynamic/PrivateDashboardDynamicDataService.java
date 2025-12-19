@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.private_dashboard.dynamic;
 
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
 import lombok.RequiredArgsConstructor;

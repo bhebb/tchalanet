@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pos.application.port.out;
 
 import com.tchalanet.server.core.pos.domain.model.PosSession;
-import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

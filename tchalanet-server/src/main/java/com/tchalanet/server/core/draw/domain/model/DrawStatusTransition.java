@@ -7,7 +7,7 @@ public class DrawStatusTransition {
 
   private static final Map<DrawStatus, Set<DrawStatus>> ALLOWED =
       Map.of(
-          DrawStatus.PLANNED, Set.of(DrawStatus.OPEN, DrawStatus.CANCELED),
+          DrawStatus.SCHEDULED, Set.of(DrawStatus.OPEN, DrawStatus.CANCELED),
           DrawStatus.OPEN, Set.of(DrawStatus.CLOSED, DrawStatus.CANCELED),
           DrawStatus.CLOSED, Set.of(DrawStatus.RESULTED, DrawStatus.CANCELED),
           DrawStatus.RESULTED, Set.of(DrawStatus.SETTLED, DrawStatus.CANCELED),

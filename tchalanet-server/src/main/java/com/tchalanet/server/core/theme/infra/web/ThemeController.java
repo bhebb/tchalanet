@@ -1,106 +1,90 @@
 package com.tchalanet.server.core.theme.infra.web;
 
+import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
-import com.tchalanet.server.core.tenant.domain.usecase.theme.CreateThemeUseCase;
-import com.tchalanet.server.core.tenant.domain.usecase.theme.GetThemeUseCase;
-import com.tchalanet.server.core.tenant.domain.usecase.theme.ListThemesUseCase;
-import com.tchalanet.server.core.theme.application.command.handler.PublishThemeUseCase;
-import com.tchalanet.server.core.tenant.domain.usecase.theme.UpdateThemeUseCase;
-import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
+import com.tchalanet.server.core.theme.application.command.model.ArchiveThemeCommand;
+import com.tchalanet.server.core.theme.application.command.model.PublishThemeCommand;
+import com.tchalanet.server.core.theme.application.query.model.GetThemeByIdQuery;
+import com.tchalanet.server.core.theme.application.query.model.ListThemesQuery;
+import com.tchalanet.server.core.theme.application.query.model.ThemeView;
+import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-/** REST API pour gérer les thèmes d'un tenant. */
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * REST API pour gérer les thèmes d'un tenant.
+ */
 @RestController
 @RequestMapping("/api/v1/themes")
 @RequiredArgsConstructor
 public class ThemeController {
 
-  private final ConfigureTenantThemeUseCase configureTenantThemeUseCase;
-  private final ListThemesUseCase listThemesUseCase;
-  private final CreateThemeUseCase createThemeUseCase;
-  private final GetThemeUseCase getThemeUseCase;
-  private final UpdateThemeUseCase updateThemeUseCase;
-  private final PublishThemeUseCase publishThemeUseCase;
+    private final CommandBus commandBus;
+    private final QueryBus queryBus;
 
-  @GetMapping
-  @PreAuthorize("hasAuthority('TENANT_READ')")
-  public ResponseEntity<List<ThemeDto>> listThemes(
-      @CurrentContext TchRequestContext context,
-      @RequestParam(defaultValue = "false") boolean includeBase,
-      @RequestParam(required = false) ThemeStatus status) {
+    @GetMapping
+    @PreAuthorize("hasAuthority('TENANT_READ')")
+    public ResponseEntity<List<ThemeView>> listThemes(
+        @CurrentContext TchRequestContext context,
+        @RequestParam(defaultValue = "false") boolean includeBase,
+        @RequestParam(required = false) ThemeStatus status) {
 
-    var tenantId = new TenantId(context.effectiveTenantUuid());
-    List<ThemeDto> themes = configureTenantThemeUseCase.listThemes(tenantId, includeBase);
+        UUID tenantId = context.effectiveTenantUuid();
+        ThemeStatus effectiveStatus = status != null ? status : ThemeStatus.PUBLISHED;
 
-    // TODO: Ajouter le filtrage par status au use case si nécessaire
-    return ResponseEntity.ok(themes);
-  }
+        var views =
+            queryBus.send(new ListThemesQuery(tenantId, effectiveStatus, includeBase));
 
-  @GetMapping("/{id}")
-  @PreAuthorize("hasAuthority('TENANT_READ')")
-  public ResponseEntity<ThemeDto> getTheme(
-      @CurrentContext TchRequestContext context, @PathVariable UUID id) {
+        return ResponseEntity.ok(views);
+    }
 
-    var tenantId = new TenantId(context.effectiveTenantUuid());
-    ThemeDto theme = configureTenantThemeUseCase.getTheme(tenantId, id);
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('TENANT_READ')")
+    public ResponseEntity<ThemeView> getTheme(
+        @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-    return ResponseEntity.ok(theme);
-  }
+        UUID tenantId = context.effectiveTenantUuid();
+        var theme = queryBus.send(new GetThemeByIdQuery(tenantId, id));
 
-  @PostMapping
-  @PreAuthorize("hasAuthority('TENANT_ADMIN')")
-  public ResponseEntity<ThemeDto> createTheme(
-      @CurrentContext TchRequestContext context, @Valid @RequestBody ThemeCreateDto dto) {
+        return ResponseEntity.ok(theme);
+    }
 
-    var tenantId = new TenantId(context.effectiveTenantUuid());
-    ThemeDto theme = configureTenantThemeUseCase.createTheme(tenantId, dto);
 
-    return ResponseEntity.ok(theme);
-  }
+    @PostMapping("/{id}/publish")
+    @PreAuthorize("hasAuthority('TENANT_ADMIN')")
+    public ResponseEntity<Void> publishTheme(
+        @CurrentContext TchRequestContext context,
+        @PathVariable UUID id,
+        @RequestParam Integer version) {
 
-  @PutMapping("/{id}")
-  @PreAuthorize("hasAuthority('TENANT_ADMIN')")
-  public ResponseEntity<ThemeDto> updateTheme(
-      @CurrentContext TchRequestContext context,
-      @PathVariable UUID id,
-      @Valid @RequestBody ThemeUpdateDto dto) {
+        UUID tenantId = context.effectiveTenantUuid();
 
-    var tenantId = new TenantId(context.effectiveTenantUuid());
-    ThemeDto theme = configureTenantThemeUseCase.updateTheme(tenantId, id, dto, dto.version());
+        commandBus.send(new PublishThemeCommand(tenantId, id, version));
 
-    return ResponseEntity.ok(theme);
-  }
+        return ResponseEntity.noContent().build();
+    }
 
-  @PostMapping("/{id}/publish")
-  @PreAuthorize("hasAuthority('TENANT_ADMIN')")
-  public ResponseEntity<ThemeDto> publishTheme(
-      @CurrentContext TchRequestContext context,
-      @PathVariable UUID id,
-      @RequestParam Integer version) {
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('TENANT_ADMIN')")
+    public ResponseEntity<Void> archiveTheme(
+        @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-    var tenantId = new TenantId(context.effectiveTenantUuid());
+        UUID tenantId = context.effectiveTenantUuid();
+        commandBus.send(new ArchiveThemeCommand(tenantId, id));
 
-    ThemeDto theme = configureTenantThemeUseCase.publishTheme(tenantId, id);
-
-    // TODO: Le use case devrait vérifier la version pour éviter les conflits
-    return ResponseEntity.ok(theme);
-  }
-
-  @DeleteMapping("/{id}")
-  @PreAuthorize("hasAuthority('TENANT_ADMIN')")
-  public ResponseEntity<Void> archiveTheme(
-      @CurrentContext TchRequestContext context, @PathVariable UUID id) {
-
-    var tenantId = new TenantId(context.effectiveTenantUuid());
-    configureTenantThemeUseCase.archiveTheme(tenantId, id);
-
-    return ResponseEntity.noContent().build();
-  }
+        return ResponseEntity.noContent().build();
+    }
 }

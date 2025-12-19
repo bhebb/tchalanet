@@ -6,10 +6,12 @@ import com.tchalanet.server.core.draw.application.query.model.DrawResultsSearchC
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawResultMapper;
+import jakarta.persistence.EntityManager;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 
 @Component
 @RequiredArgsConstructor
@@ -17,6 +19,7 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
 
   private final DrawResultJpaRepository repo;
   private final DrawResultMapper mapper;
+  private final EntityManager entityManager;
 
   @Override
   public Optional<DrawResult> findByDrawId(UUID tenantId, UUID drawId) {
@@ -43,8 +46,25 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
 
   @Override
   public DrawResult save(UUID tenantId, UUID drawId, DrawResult result) {
-    var entity = mapper.toEntity(tenantId, drawId, result);
-    var saved = repo.save(entity);
+    var existing = repo.findByTenantIdAndDrawId(tenantId, drawId).orElse(null);
+    if (existing == null) {
+      var created = mapper.toEntity(tenantId, result);
+      created.setDraw(entityManager.getReference(DrawJpaEntity.class, drawId));
+      var saved = repo.save(created);
+      return mapper.toDomain(saved);
+    }
+
+    existing.setSource(result.source().name());
+    existing.setStatus(result.overridden() ? "OVERRIDDEN" : "VALID");
+    existing.setNumbersMain(result.numbersMain());
+    existing.setNumbersExtra(result.numbersExtra());
+    existing.setRawPayload(java.util.Map.of("raw", result.rawPayload()));
+    if (result.overridden()) {
+      existing.setOverriddenAt(java.time.Instant.now());
+      existing.setOverrideReason(result.overrideReason());
+    }
+
+    var saved = repo.save(existing);
     return mapper.toDomain(saved);
   }
 

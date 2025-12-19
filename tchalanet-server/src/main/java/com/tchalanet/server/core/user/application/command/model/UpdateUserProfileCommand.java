@@ -9,4 +9,5 @@ public record UpdateUserProfileCommand(
     Optional<String> firstName,
     Optional<String> lastName,
     Optional<String> email,
-    Optional<String> locale) implements Command<Void> {}
+    Optional<String> locale
+) implements Command<Void> {}

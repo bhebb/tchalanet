@@ -7,19 +7,21 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.application.port.in.UpdateTicketStatusUseCase;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import lombok.RequiredArgsConstructor;
+import java.time.Clock;
 
 @UseCase
 @RequiredArgsConstructor
 public class UpdateTicketStatusCommandHandler implements UpdateTicketStatusUseCase {
 
   private final TicketWritterPort ticketRepository;
+  private final Clock clock;
 
   @Override
   @TchTx
   @RequiresPermission("ticket.mark_paid")
   public Ticket markAsPaid(UpdateTicketStatusUseCase.UpdateStatusCommand command) {
     Ticket ticket = findAndAuthorize(command.tenantId(), command.ticketId());
-    ticket.markAsPaid();
+    ticket.markAsPaid(java.time.Instant.now(clock));
     return ticketRepository.save(ticket);
   }
 
@@ -28,7 +30,7 @@ public class UpdateTicketStatusCommandHandler implements UpdateTicketStatusUseCa
   @RequiresPermission("ticket.void")
   public Ticket voidTicket(UpdateTicketStatusUseCase.UpdateStatusCommand command) {
     Ticket ticket = findAndAuthorize(command.tenantId(), command.ticketId());
-    ticket.voidTicket();
+    ticket.voidTicket(java.time.Instant.now(clock));
     return ticketRepository.save(ticket);
   }
 
@@ -44,4 +46,3 @@ public class UpdateTicketStatusCommandHandler implements UpdateTicketStatusUseCa
     return ticket;
   }
 }
-

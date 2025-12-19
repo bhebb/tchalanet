@@ -2,44 +2,77 @@ package com.tchalanet.server.core.tenant.infra.web.admin;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.core.tenant.application.command.model.ActivateTenantCommand;
 import com.tchalanet.server.core.tenant.application.command.model.ArchiveTenantCommand;
-import com.tchalanet.server.core.tenant.application.query.model.GenerateTenantPerPeriodReportQuery;
-import com.tchalanet.server.core.tenant.application.query.model.GetTenantDashboardStatsQuery;
-import java.time.YearMonth;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.UUID;
+import com.tchalanet.server.core.tenant.application.command.model.CreateTenantCommand;
+import com.tchalanet.server.core.tenant.application.command.model.DeactivateTenantCommand;
+import com.tchalanet.server.core.tenant.application.query.model.GetTenantByIdQuery;
+import com.tchalanet.server.core.tenant.application.query.model.ResolveTenantIdByCodeQuery;
+import com.tchalanet.server.core.tenant.domain.model.TenantType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin-api/tenants")
 @RequiredArgsConstructor
 public class TenantAdminController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+    private final CommandBus commandBus;
+    private final QueryBus queryBus;
 
-  @PostMapping("/{id}/archive")
-  public ResponseEntity<Void> archive(@PathVariable UUID id, @RequestBody Map<String,String> body) {
-    String reason = body.getOrDefault("reason", "archived_by_admin");
-    commandBus.send(new ArchiveTenantCommand(id, reason));
-    return ResponseEntity.noContent().build();
-  }
+    public record CreateTenantRequest(
+        String code,
+        String name,
+        TenantType type,
+        String timezone,
+        String currency
+    ) {
+    }
 
-  @GetMapping("/{id}/monthly-report")
-  public ResponseEntity<String> generateMonthlyReport(@PathVariable UUID id, @RequestParam("month") String month) {
-    var ym = YearMonth.parse(month);
-    var path = queryBus.send(new GenerateTenantPerPeriodReportQuery(id, ym));
-    return ResponseEntity.ok(path.toString());
-  }
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> create(@RequestBody CreateTenantRequest req) {
+        UUID id = commandBus.send(new CreateTenantCommand(req.code(), req.name(), req.type(), req.timezone(), req.currency()));
+        return ResponseEntity.ok(Map.of("id", id));
+    }
 
-  @GetMapping("/{id}/dashboard")
-  public ResponseEntity<Map<String,Object>> dashboard(@PathVariable UUID id, @RequestParam(value="since", required=false) String since) {
-    LocalDate s = since == null ? LocalDate.now().minusDays(7) : LocalDate.parse(since);
-    var stats = queryBus.send(new GetTenantDashboardStatsQuery(id, s));
-    return ResponseEntity.ok((Map<String,Object>)stats);
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<UUID> get(@PathVariable UUID id) {
+        return ResponseEntity.ok(queryBus.send(new GetTenantByIdQuery(id)));
+    }
+
+    @GetMapping("/resolve")
+    public ResponseEntity<Map<String, Object>> resolveByCode(@RequestParam("code") String code) {
+        UUID id = queryBus.send(new ResolveTenantIdByCodeQuery(code));
+        return ResponseEntity.ok(Map.of("id", id));
+    }
+
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<Void> activate(@PathVariable UUID id) {
+        commandBus.send(new ActivateTenantCommand(id));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivate(@PathVariable UUID id, @RequestBody(required = false) Map<String, String> body) {
+        var reason = body == null ? "deactivated_by_admin" : body.getOrDefault("reason", "deactivated_by_admin");
+        commandBus.send(new DeactivateTenantCommand(id, reason));
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/archive")
+    public ResponseEntity<Void> archive(@PathVariable UUID id, @RequestBody(required = false) Map<String, String> body) {
+        var reason = body == null ? "archived_by_admin" : body.getOrDefault("reason", "archived_by_admin");
+        commandBus.send(new ArchiveTenantCommand(id, reason));
+        return ResponseEntity.noContent().build();
+    }
 }
-

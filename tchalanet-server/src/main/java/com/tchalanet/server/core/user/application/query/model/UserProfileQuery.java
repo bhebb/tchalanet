@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
+import com.tchalanet.server.core.theme.domain.model.ThemeMode;
+
 public class UserProfileQuery {
   public UUID id;
   public UUID keycloakId;
@@ -21,4 +23,9 @@ public class UserProfileQuery {
   public String locale;
   public String timeZone;
   public Instant lastLoginAt;
+
+  // Preferences (optionnelles)
+  public ThemeMode themeMode;
+  public Short density;
+  public String preferenceLocale;
 }

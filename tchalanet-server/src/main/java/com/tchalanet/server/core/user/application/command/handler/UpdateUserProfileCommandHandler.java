@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
 @RequiredArgsConstructor
-public class UpdateUserProfileCommandHandler implements CommandHandler<UpdateUserProfileCommand, AppUser> {
+public class UpdateUserProfileCommandHandler implements CommandHandler<UpdateUserProfileCommand, Void> {
 
     private final UserReaderPort userReader;
     private final UserWriterPort userWriter;
@@ -20,40 +20,42 @@ public class UpdateUserProfileCommandHandler implements CommandHandler<UpdateUse
 
     @Override
     @Transactional
-    public AppUser handle(UpdateUserProfileCommand command) {
+    public Void handle(UpdateUserProfileCommand command) {
         AppUser existing =
             userReader
                 .findById(command.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        String updatedFirstName = command.firstName().orElse(existing.firstName());
-        String updatedLastName = command.lastName().orElse(existing.lastName());
-        String updatedEmail = command.email().orElse(existing.email());
-        String updatedLocale = command.locale().orElse(existing.locale());
+        String updatedFirstName = command.firstName().orElse(existing.getFirstName());
+        String updatedLastName = command.lastName().orElse(existing.getLastName());
+        String updatedEmail = command.email().orElse(existing.getEmail());
+        String updatedLocale = command.locale().orElse(existing.getLocale());
 
-        var updated =
-            new AppUser(
-                existing.id(),
-                existing.keycloakId(),
-                existing.tenantId(),
-                existing.username(),
-                updatedEmail,
-                existing.phone(),
-                updatedFirstName,
-                updatedLastName,
-                updatedFirstName + " " + updatedLastName,
-                existing.avatarUrl(),
-                existing.status(),
-                updatedLocale,
-                existing.timeZone(),
-                existing.lastLoginAt());
+        var updated = existing.syncProfile(
+            existing.getUsername(),
+            updatedEmail,
+            existing.getPhone(),
+            updatedFirstName,
+            updatedLastName,
+            updatedFirstName + " " + updatedLastName,
+            existing.getAvatarUrl(),
+            updatedLocale,
+            existing.getTimeZone(),
+            existing.getTenantCode()
+        );
 
         var saved = userWriter.save(updated);
 
-        if (existing.keycloakId() != null) {
-            keycloakIdentityPort.updateUserProfile(existing.keycloakId(), updatedFirstName, updatedLastName, updatedEmail, updatedLocale);
+        if (saved.getKeycloakId() != null) {
+            keycloakIdentityPort.updateUserProfile(
+                saved.getKeycloakId(),
+                updatedFirstName,
+                updatedLastName,
+                updatedEmail,
+                updatedLocale
+            );
         }
 
-        return saved;
+        return null;
     }
 }

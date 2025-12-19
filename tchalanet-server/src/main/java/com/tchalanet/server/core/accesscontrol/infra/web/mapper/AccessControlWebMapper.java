@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.accesscontrol.infra.web.mapper;
 
-import com.tchalanet.server.core.accesscontrol.application.port.in.PermissionAdminUseCase;
-import com.tchalanet.server.core.accesscontrol.application.port.in.RoleAdminUseCase;
+import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.core.accesscontrol.application.port.out.PermissionCatalogAdminPort.PermissionSummary;
 import com.tchalanet.server.core.accesscontrol.infra.web.dto.PermissionResponse;
 import com.tchalanet.server.core.accesscontrol.infra.web.dto.RoleAdminResponse;
 
@@ -9,13 +9,14 @@ public final class AccessControlWebMapper {
 
   private AccessControlWebMapper() {}
 
-  public static RoleAdminResponse toRoleAdminResponse(RoleAdminUseCase.RoleSummary r) {
-    return new RoleAdminResponse(
-        r.id(), r.code(), r.name(), r.description(), r.tenantId(), r.parentRoleId(), r.system());
+  public static RoleAdminResponse toRoleAdminResponse(TchRole role) {
+    // Pour l'instant, on mappe simplement le nom de l'enum comme code/nom.
+    String code = role.name();
+    String name = role.name();
+    return new RoleAdminResponse(null, code, name, null, null, null, true);
   }
 
-  public static PermissionResponse toPermissionResponse(
-      PermissionAdminUseCase.PermissionSummary p) {
+  public static PermissionResponse toPermissionResponse(PermissionSummary p) {
     return new PermissionResponse(p.code(), p.name(), p.category(), p.description());
   }
 }

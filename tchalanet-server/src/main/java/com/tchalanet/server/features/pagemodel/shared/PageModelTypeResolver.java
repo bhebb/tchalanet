@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.shared;
 
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import org.springframework.stereotype.Service;
 
 @Service

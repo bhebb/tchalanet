@@ -2,7 +2,7 @@ package com.tchalanet.server.core.user.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.core.user.domain.model.AppUser;
-import java.util.Locale;
+
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,4 +15,5 @@ public record CreateUserCommand(
     String locale,
     boolean sendInvitation,
     Set<String> initialRoles
-) implements Command<AppUser> {}
+) implements Command<AppUser> {
+}

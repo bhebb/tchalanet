@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.session.infra.persistence;
 
 import com.tchalanet.server.core.session.application.ports.out.PosSessionRepositoryPort;
-import com.tchalanet.server.core.session.domain.model.PosSession;
 import com.tchalanet.server.core.session.domain.model.PosSessionStatus;
 import java.util.List;
 import java.util.Optional;
@@ -96,11 +95,11 @@ public class PosSessionPortAdapter implements PosSessionRepositoryPort {
     }
 
     private PosSessionStatus mapToSessionStatus(com.tchalanet.server.core.pos.domain.model.PosSessionStatus s) {
-        if (s == null) return PosSessionStatus.OPEN;
+        if (s == null) return PosSessionStatus.OPENED;
         try {
             return PosSessionStatus.valueOf(s.name());
         } catch (Exception ex) {
-            return PosSessionStatus.OPEN;
+            return PosSessionStatus.OPENED;
         }
     }
 }

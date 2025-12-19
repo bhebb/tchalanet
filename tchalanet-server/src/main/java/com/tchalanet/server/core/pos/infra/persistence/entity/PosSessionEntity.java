@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.pos.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,14 +13,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PosSessionEntity extends BaseTenantEntity {
-
-  // ID is now inherited from BaseEntity
-  // @Id
-  // private UUID id;
-
-  // tenantId is now inherited from BaseTenantEntity
-  // @Column(name = "tenant_id", nullable = false)
-  // private UUID tenantId;
 
   @Column(name = "terminal_id", nullable = false)
   private UUID terminalId;

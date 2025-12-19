@@ -3,6 +3,7 @@ package com.tchalanet.server.common.cache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Component
@@ -26,6 +27,10 @@ public final class CacheKeyBuilder {
     }
 
     public String tenantOutletKey(UUID tenantId, UUID outletId) {
+        return "tch:%s:%s:outlet:%s".formatted(env, tenantId, outletId);
+    }
+
+    public String appSettingsKey(UUID tenantId, UUID outletId) {
         return "tch:%s:%s:outlet:%s".formatted(env, tenantId, outletId);
     }
 
@@ -59,6 +64,17 @@ public final class CacheKeyBuilder {
 
     public String tenantRolesMatrixKey(UUID tenantId) {
         return "tch:%s:%s:roles:matrix".formatted(env, tenantId);
+    }
+
+    public String usLotteryCacheKey(String provider, String channelCode, LocalDate drawDate) {
+        if (provider == null || provider.isBlank()) throw new IllegalArgumentException("provider");
+        if (channelCode == null || channelCode.isBlank()) throw new IllegalArgumentException("channelCode");
+        if (drawDate == null) throw new IllegalArgumentException("drawDate");
+
+        return "tch:" + env + ":uslottery:sync:v1:"
+            + provider.trim().toUpperCase()
+            + ":" + channelCode.trim().toUpperCase()
+            + ":" + drawDate;
     }
 
     public String globalSearchKey(String queryHash) {

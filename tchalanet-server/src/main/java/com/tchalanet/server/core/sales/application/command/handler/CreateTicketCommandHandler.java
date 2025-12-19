@@ -12,8 +12,8 @@ import com.tchalanet.server.core.featureflags.application.annotation.FeatureFlag
 import com.tchalanet.server.core.limitpolicy.domain.model.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
 import com.tchalanet.server.core.limitpolicy.application.ports.in.EvaluateLimitsForTicketUseCase;
-import com.tchalanet.server.core.pos.application.port.out.PosSessionRepositoryPort;
-import com.tchalanet.server.core.pos.domain.model.PosSession;
+import com.tchalanet.server.core.session.application.ports.out.PosSessionRepositoryPort;
+import com.tchalanet.server.core.session.domain.model.PosSession;
 import com.tchalanet.server.core.sales.application.command.model.CreateTicketCommand;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
@@ -61,7 +61,7 @@ public class CreateTicketCommandHandler implements CommandHandler<CreateTicketCo
     var draw = resolveAndValidateDraw(command);
 
     // Step 3: Limit Policy Validation
-    validateLimits(command, session.getUserId(), session.getId());
+    validateLimits(command, session.userId(), session.id());
 
     // --- If all validations pass, proceed with creation ---
 
@@ -69,32 +69,35 @@ public class CreateTicketCommandHandler implements CommandHandler<CreateTicketCo
     String ticketCode = numberGenerator.generate();
     String publicCode = publicCodeGenerator.generate();
     // todo add sessionId
+    Instant now = Instant.now(clock);
     Ticket ticket =
         Ticket.create(
-            command.tenantId(), command.terminalId(), null, draw.id(), ticketCode, publicCode, lines
+            command.tenantId(), command.terminalId(), null, draw.id(), ticketCode, publicCode, lines, now
             );
 
     Ticket savedTicket = ticketRepository.save(ticket);
     // keep existing port-based event for backward compatibility
     try {
       eventPublisher.publishTicketCreatedEvent(
-          savedTicket.getId(), savedTicket.getTenantId(), session.getId()); // Pass sessionId
+          savedTicket.getId(), savedTicket.getTenantId(), session.id()); // Pass sessionId
     } catch (Exception e) {
       log.debug("legacy TicketEventPublisherPort.publishTicketCreatedEvent failed: {}", e.getMessage());
     }
 
     // publish new DomainEvent
+    String firstGameCode = lines.isEmpty() ? "" : lines.get(0).gameCode();
+    long totalStakeCents = savedTicket.getTotalAmount().multiply(new java.math.BigDecimal(100)).longValue();
     TicketPlacedEvent domainEvent = new TicketPlacedEvent(
         UUID.randomUUID(),
-        Instant.now(clock),
+        now,
         new TenantId(savedTicket.getTenantId()),
         savedTicket.getId(),
         null, // outletId not present on Ticket domain yet
-        savedTicket.getSessionId(),
+        session.id(),
         savedTicket.getSessionId(),
         savedTicket.getDrawId(),
-        savedTicket.getGameCode() == null ? "" : savedTicket.getGameCode(),
-        savedTicket.getTotalAmount().longValue(),
+        firstGameCode,
+        totalStakeCents,
         "USD" // currency unknown here; default placeholder
     );
 
@@ -119,7 +122,7 @@ public class CreateTicketCommandHandler implements CommandHandler<CreateTicketCo
 
   private PosSession validateSession(UUID tenantId, UUID terminalId) {
     return posSessionPort
-        .findOpenSessionByTerminal(tenantId, terminalId)
+        .findOpenByTerminal(tenantId, terminalId)
         .orElseThrow(
             () ->
                 new SecurityException(

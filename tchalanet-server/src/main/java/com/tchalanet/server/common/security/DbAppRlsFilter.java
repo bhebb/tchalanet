@@ -4,7 +4,6 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILI
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

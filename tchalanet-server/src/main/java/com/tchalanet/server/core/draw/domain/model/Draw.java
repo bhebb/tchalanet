@@ -8,7 +8,7 @@ public final class Draw {
 
   private final UUID id;
   private final UUID tenantId;
-  private final DrawChannelId channelId;
+  private final DrawChannel drawChannel;
 
   private ZonedDateTime scheduledAt;
   private ZonedDateTime cutoffAt;
@@ -19,7 +19,7 @@ public final class Draw {
   public Draw(
       UUID id,
       UUID tenantId,
-      DrawChannelId channelId,
+      DrawChannel drawChannel,
       ZonedDateTime scheduledAt,
       ZonedDateTime cutoffAt,
       DrawStatus status,
@@ -27,7 +27,7 @@ public final class Draw {
       DrawResult result) {
     this.id = Objects.requireNonNull(id);
     this.tenantId = Objects.requireNonNull(tenantId);
-    this.channelId = Objects.requireNonNull(channelId);
+    this.drawChannel = Objects.requireNonNull(drawChannel);
     this.scheduledAt = Objects.requireNonNull(scheduledAt);
     this.cutoffAt = Objects.requireNonNull(cutoffAt);
     this.status = Objects.requireNonNull(status);
@@ -43,8 +43,8 @@ public final class Draw {
     return tenantId;
   }
 
-  public DrawChannelId channelId() {
-    return channelId;
+  public DrawChannel drawChannel() {
+    return drawChannel;
   }
 
   public ZonedDateTime scheduledAt() {
@@ -101,7 +101,7 @@ public final class Draw {
 
   // pour changer l’horaire via admin
   public void reschedule(ZonedDateTime newScheduledAt, ZonedDateTime newCutoffAt) {
-    if (status != DrawStatus.PLANNED && status != DrawStatus.SCHEDULED) {
+    if (status != DrawStatus.SCHEDULED && status != DrawStatus.SCHEDULED) {
       throw new IllegalStateException("Can only reschedule PLANNED or SCHEDULED draws");
     }
     this.scheduledAt = Objects.requireNonNull(newScheduledAt);

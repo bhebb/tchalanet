@@ -1,6 +1,13 @@
 package com.tchalanet.server.core.draw.application.command.model;
 
-import java.time.LocalDate;
-import java.util.UUID;
+import com.tchalanet.server.common.bus.Command;
+import java.time.Instant;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-public record OpenDueDrawsCommand(UUID tenantId, LocalDate date, int chunkSize) {}
+public record OpenDueDrawsCommand(
+    @NotNull Instant now,
+    @Positive int limit,
+    @Positive int openHorizonHours,
+    @Positive int openLagHours,
+    boolean dryRun) implements Command<OpenDueDrawsResult> {}

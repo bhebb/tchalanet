@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.pos.infra.persistence.adapter;
 
 import com.tchalanet.server.core.pos.domain.model.PosSession;
-import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
 import com.tchalanet.server.core.pos.application.port.out.PosSessionRepositoryPort;
 import com.tchalanet.server.core.pos.infra.persistence.entity.PosSessionEntity;
 import com.tchalanet.server.core.pos.infra.persistence.mapper.PosSessionMapper;

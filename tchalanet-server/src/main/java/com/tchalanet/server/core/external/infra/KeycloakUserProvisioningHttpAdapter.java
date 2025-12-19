@@ -6,16 +6,16 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 @Component
 @Slf4j
 public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisioningPort {
+
+  private static final String USERS_PATH = "/admin/realms/tchalanet/users";
 
   private final WebClient webClient;
   private final String adminUrl;
@@ -29,7 +29,7 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
 
   @Override
   public Map<String, Object> createUser(Map<String, Object> payload) {
-    String url = adminUrl + "/admin/realms/tchalanet/users";
+    String url = adminUrl + USERS_PATH;
 
     try {
       String response = webClient.post()
@@ -39,6 +39,11 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
           .retrieve()
           .bodyToMono(String.class) // Could be improved with a proper DTO
           .block();
+
+      if (response == null) {
+        log.warn("Keycloak user creation returned empty body for payload: {}", payload);
+        return Map.of("status", "success", "response", "");
+      }
 
       log.info("Successfully created user in Keycloak. Response: {}", response);
       return Map.of("status", "success", "response", response);
@@ -51,7 +56,7 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
 
   @Override
   public void resetPassword(String userId, String newPassword) {
-    String url = adminUrl + "/admin/realms/tchalanet/users/" + userId + "/reset-password";
+    String url = adminUrl + USERS_PATH + "/" + userId + "/reset-password";
 
     Map<String, Object> body = Map.of(
         "type", "password",
@@ -76,7 +81,7 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
 
   @Override
   public void updateUserProfile(UUID keycloakId, String firstName, String lastName, String email, String locale) {
-    String url = adminUrl + "/admin/realms/tchalanet/users/" + keycloakId.toString();
+    String url = adminUrl + USERS_PATH + "/" + keycloakId;
 
     Map<String, Object> body = new HashMap<>();
     body.put("firstName", firstName);
@@ -103,7 +108,7 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
 
   @Override
   public void disableUser(UUID keycloakId, String reason) {
-    String url = adminUrl + "/admin/realms/tchalanet/users/" + keycloakId.toString();
+    String url = adminUrl + USERS_PATH + "/" + keycloakId;
 
     Map<String, Object> body = new HashMap<>();
     body.put("enabled", false);

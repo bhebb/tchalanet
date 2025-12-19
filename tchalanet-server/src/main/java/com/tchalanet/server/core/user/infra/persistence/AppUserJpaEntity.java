@@ -1,15 +1,18 @@
 package com.tchalanet.server.core.user.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.user.domain.model.UserStatus;
 import jakarta.persistence.*;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "app_user")
@@ -18,42 +21,66 @@ import org.hibernate.envers.Audited;
 @Setter
 @NoArgsConstructor
 public class AppUserJpaEntity extends BaseTenantEntity {
-  @Column(name = "username", nullable = false)
-  private String username;
 
-  @Column(name = "keycloak_id")
-  private UUID keycloakId;
+    @Version
+    @Column(name = "version", nullable = false)
+    private long version;
 
-  @Column(name = "email", columnDefinition = "citext")
-  private String email;
+    @Column(name = "keycloak_id", nullable = false, updatable = false)
+    private UUID keycloakId;
 
-  @Column(name = "phone", length = 32)
-  private String phone;
+    @Column(name = "username", nullable = false)
+    private String username;
 
-  @Column(name = "first_name")
-  private String firstName;
+    @Column(name = "email")
+    private String email;
 
-  @Column(name = "last_name")
-  private String lastName;
+    @Column(name = "phone")
+    private String phone;
 
-  @Column(name = "display_name")
-  private String displayName;
+    @Column(name = "tenant_code", nullable = false)
+    private String tenantCode;
 
-  @Column(name = "avatar_url")
-  private String avatarUrl;
+    @Column(name = "tenant_id", nullable = false)
+    private UUID tenantId;
 
-  @Column(name = "locale", length = 8)
-  private String locale;
+    @Column(name = "first_name")
+    private String firstName;
 
-  @Column(name = "time_zone", length = 64)
-  private String timeZone;
+    @Column(name = "last_name")
+    private String lastName;
 
-  @Column(name = "status", length = 32)
-  private String status;
+    @Column(name = "display_name")
+    private String displayName;
 
-  @Column(name = "last_login_at")
-  private Instant lastLoginAt;
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-  private List<UserPreferenceJpaEntity> preferences = new ArrayList<>();
+    @Column(name = "locale")
+    private String locale;
+
+    @Column(name = "time_zone")
+    private String timeZone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private UserStatus status;
+
+    @Column(name = "approved_at")
+    private Instant approvedAt;
+
+    @Column(name = "approved_by")
+    private UUID approvedBy;
+
+    @Column(name = "last_login_at")
+    private Instant lastLoginAt;
+
+    /**
+     * IMPORTANT:
+     * - Pas d'audit sur les collections (ça gonfle l'historique et casse vite).
+     * - On garde le lien uniquement pour lecture/écriture quand besoin.
+     */
+    @NotAudited
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPreferenceJpaEntity> preferences = new ArrayList<>();
 }

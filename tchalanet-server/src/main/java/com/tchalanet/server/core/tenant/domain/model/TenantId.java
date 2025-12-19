@@ -1,16 +1,29 @@
 package com.tchalanet.server.core.tenant.domain.model;
 
+import java.util.Objects;
 import java.util.UUID;
 
-public final class TenantId {
-  private final UUID id;
+/** Value object identifier for Tenant. */
+public record TenantId(UUID id) {
 
-  public TenantId(UUID id) {
-    this.id = id;
+  public TenantId {
+    Objects.requireNonNull(id, "tenant id is required");
   }
 
-  public UUID getId() {
-    return id;
+  /**
+   * Static factory from UUID.
+   */
+  public static TenantId of(UUID id) {
+    return new TenantId(Objects.requireNonNull(id, "tenant id is required"));
+  }
+
+  /**
+   * Static factory from String representation of UUID.
+   * @throws IllegalArgumentException if the string is not a valid UUID
+   */
+  public static TenantId of(String id) {
+    Objects.requireNonNull(id, "tenant id string is required");
+    return new TenantId(UUID.fromString(id));
   }
 
   public UUID value() {
@@ -19,19 +32,6 @@ public final class TenantId {
 
   @Override
   public String toString() {
-    return id == null ? null : id.toString();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    TenantId tenantId = (TenantId) o;
-    return id.equals(tenantId.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return id.hashCode();
+    return id.toString();
   }
 }

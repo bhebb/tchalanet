@@ -3,6 +3,8 @@ package com.tchalanet.server.core.theme.infra.persistence;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.persistence.MapStringToJsonConverter;
 import com.tchalanet.server.common.persistence.MapToJsonConverter;
+import com.tchalanet.server.core.theme.domain.model.ThemeMode;
+import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -13,11 +15,13 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "theme")
 @Getter
 @Setter
+@Audited
 @NoArgsConstructor
 public class ThemeJpaEntity extends BaseTenantEntity {
   @Column(name = "base_preset_id", nullable = false, length = 128)
@@ -51,5 +55,6 @@ public class ThemeJpaEntity extends BaseTenantEntity {
 
   @Column(name = "theme_version", nullable = false)
   private int themeVersion;
+
 }
 

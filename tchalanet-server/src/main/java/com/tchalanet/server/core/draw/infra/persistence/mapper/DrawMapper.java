@@ -6,7 +6,7 @@ import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
-import java.time.Instant;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import org.mapstruct.Mapper;
@@ -26,7 +26,7 @@ public interface DrawMapper {
                 entity.getCutoffSec() == null ? 120 : entity.getCutoffSec());
 
     var status =
-        entity.getStatus() == null ? DrawStatus.PLANNED : DrawStatus.valueOf(entity.getStatus());
+        entity.getStatus() == null ? DrawStatus.SCHEDULED : DrawStatus.valueOf(entity.getStatus());
 
     // result mapping omitted for first pass
     DrawResult result = null;

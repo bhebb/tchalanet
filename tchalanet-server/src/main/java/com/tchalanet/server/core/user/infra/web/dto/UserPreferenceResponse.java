@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.user.infra.web.dto;
 
-import com.tchalanet.server.core.user.domain.model.ThemeMode;
 import java.util.UUID;
 
 public record UserPreferenceResponse(

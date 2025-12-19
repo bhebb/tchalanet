@@ -15,7 +15,6 @@ public class DrawCacheConfig {
     return () ->
         List.of(
             // Résumé des tirages par tenant, TTL L2 = 60s
-            new CacheSpec("tenant_draws_summary", Duration.ofHours(5)));
+            CacheSpec.of("tenant_draws_summary", Duration.ofHours(5)));
   }
 }
-

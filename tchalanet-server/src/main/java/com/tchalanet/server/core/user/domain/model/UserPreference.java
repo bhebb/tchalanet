@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.user.domain.model;
 
 import java.util.Locale;
+
+import com.tchalanet.server.core.theme.domain.model.ThemeMode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

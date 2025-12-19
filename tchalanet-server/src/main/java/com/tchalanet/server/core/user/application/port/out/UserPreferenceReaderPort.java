@@ -8,5 +8,7 @@ import java.util.UUID;
 
 public interface UserPreferenceReaderPort {
     Optional<UserPreference> findByUserId(UUID id);
+    Optional<UserPreference> findActiveByUserId(UUID userId);
+
 }
 

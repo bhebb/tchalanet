@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.session.infra.web;
 
-import com.tchalanet.server.core.session.domain.model.PosSession;
 import com.tchalanet.server.core.session.domain.ports.in.CloseSessionUseCase;
 import com.tchalanet.server.core.session.domain.ports.in.GetCurrentSessionQuery;
 import com.tchalanet.server.core.session.domain.ports.in.OpenSessionUseCase;

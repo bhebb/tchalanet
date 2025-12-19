@@ -8,7 +8,6 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
 import com.tchalanet.server.core.accesscontrol.infra.security.RoleUtils;
 import com.tchalanet.server.core.tenant.application.query.handler.ResolveTenantIdByCodeQueryHandler;
 import jakarta.annotation.Nonnull;

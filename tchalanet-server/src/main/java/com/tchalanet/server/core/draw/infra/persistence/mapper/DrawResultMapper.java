@@ -30,16 +30,14 @@ public interface DrawResultMapper {
         e.getOverrideReason());
   }
 
-  default DrawResultJpaEntity toEntity(UUID tenantId, UUID drawId, DrawResult d) {
+  default DrawResultJpaEntity toEntity(UUID tenantId, DrawResult d) {
     if (d == null) return null;
     DrawResultJpaEntity e = new DrawResultJpaEntity();
     e.setTenantId(tenantId);
-    e.setDrawId(drawId);
     e.setSource(d.source().name());
     e.setStatus(d.overridden() ? "OVERRIDDEN" : "VALID");
     e.setNumbersMain(d.numbersMain() == null ? null : List.copyOf(d.numbersMain()));
     e.setNumbersExtra(d.numbersExtra() == null ? null : List.copyOf(d.numbersExtra()));
-    // rawPayload stored as string in domain, map to JSON as simple field
     e.setRawPayload(Map.of("raw", d.rawPayload()));
     if (d.overridden()) {
       e.setOverriddenAt(Instant.now());

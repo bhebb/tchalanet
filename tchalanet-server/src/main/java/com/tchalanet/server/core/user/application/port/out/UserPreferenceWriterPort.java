@@ -9,5 +9,7 @@ import java.util.UUID;
 public interface UserPreferenceWriterPort {
     UserPreference save(UserPreference preference);
     void softDelete(UUID userId, Instant when);
+    void upsert(UUID userId, String themeMode, Short density, String locale);
+
 }
 

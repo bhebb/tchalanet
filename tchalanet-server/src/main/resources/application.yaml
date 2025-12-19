@@ -125,19 +125,19 @@ tch:
         app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
         timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
         games:
-          - code: "NY_NUMBERS_MIDDAY"
+          - code: "US_NY_NUM3_MID"
             external_key: "NUMBERS"
             draw_time: "14:30"
-          - code: "NY_NUMBERS_EVENING"
+          - code: "US_NY_NUM3_EVE"
             external_key: "NUMBERS"
             draw_time: "22:30"
-          - code: "NY_WIN4_MIDDAY"
+          - code: "US_NY_NUM4_MID"
             external_key: "WIN4"
             draw_time: "14:30"
-          - code: "NY_WIN4_EVENING"
+          - code: "US_NY_NUM4_EVE"
             external_key: "WIN4"
             draw_time: "22:30"
-          - code: "NY_TAKE5_EVENING"
+          - code: "US_NY_TAKE5_EVE"
             external_key: "TAKE 5"
             draw_time: "22:30"
 
@@ -148,19 +148,19 @@ tch:
         alert-path: /site/services/alert
         timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
         games:
-          - code: "FL_PICK3_MIDDAY"
+          - code: "US_FL_PICK3_MID"
             external_key: "PICK3"
             draw_time: "13:30"
-          - code: "FL_PICK3_EVENING"
+          - code: "US_FL_PICK3_EVE"
             external_key: "PICK3"
             draw_time: "22:45"
-          - code: "FL_PICK4_MIDDAY"
+          - code: "US_FL_PICK4_MID"
             external_key: "PICK4"
             draw_time: "13:30"
-          - code: "FL_PICK4_EVENING"
+          - code: "US_FL_PICK4_EVE"
             external_key: "PICK4"
             draw_time: "22:45"
-          - code: "FL_LOTTO"
+          - code: "US_FL_LOTTO"
             external_key: "FLORIDA LOTTO"
             draw_time: "23:15"
 

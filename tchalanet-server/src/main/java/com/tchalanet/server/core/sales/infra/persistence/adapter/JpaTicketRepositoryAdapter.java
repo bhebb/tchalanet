@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PageRequest;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PagedResult;
@@ -9,6 +10,7 @@ import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
 import jakarta.persistence.criteria.Predicate;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +24,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class JpaTicketRepositoryAdapter implements TicketWritterPort {
+public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketReaderPort {
 
   private final SpringTicketJpaRepository jpaRepository;
   private final TicketMapper mapper;
-  private final ClockPort clock;
+  private final Clock clock;
 
   @Override
   public Ticket save(Ticket ticket) {
@@ -85,6 +87,6 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort {
 
   @Override
   public int archiveOldTickets(UUID tenantId, Instant cutoffDate) {
-    return jpaRepository.archiveOldTickets(tenantId, cutoffDate, clock.now());
+    return jpaRepository.archiveOldTickets(tenantId, cutoffDate, Instant.now(clock));
   }
 }

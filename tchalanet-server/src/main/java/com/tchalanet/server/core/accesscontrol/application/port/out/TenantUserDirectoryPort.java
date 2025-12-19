@@ -1,8 +1,11 @@
 package com.tchalanet.server.core.accesscontrol.application.port.out;
 
-import java.util.List;
+import com.tchalanet.server.core.accesscontrol.domain.model.TenantUserSnapshot;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface TenantUserDirectoryPort {
-    List<String> getUserRolesInTenant(String userId, String tenantId);
-    boolean isUserActiveInTenant(String userId, String tenantId);
+
+    /** Retourne la membership active (rôle unique) pour un user dans un tenant, ou vide si aucune. */
+    Optional<TenantUserSnapshot> findActiveMembership(UUID tenantId, UUID userId);
 }

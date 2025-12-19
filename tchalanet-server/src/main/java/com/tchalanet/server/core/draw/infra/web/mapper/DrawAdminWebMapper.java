@@ -9,6 +9,8 @@ import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.OverrideDrawResultRequest;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface DrawAdminWebMapper {
@@ -19,4 +21,30 @@ public interface DrawAdminWebMapper {
   OverrideDrawResultCommand toOverrideDrawResultCommand(OverrideDrawResultRequest request);
 
   DrawSummaryResponse toDrawSummaryResponse(DrawSummary summary);
+
+  @Mappings({
+    @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())"),
+    @Mapping(target = "channelCode", source = "request.channelCode"),
+    @Mapping(target = "channelName", constant = ""),
+    @Mapping(target = "status", constant = "SCHEDULED"),
+    @Mapping(target = "drawTime", expression = "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().toOffsetDateTime())"),
+    @Mapping(target = "cutoffTime", ignore = true),
+    @Mapping(target = "isNext", constant = "false"),
+    @Mapping(target = "active", constant = "true"),
+    @Mapping(target = "lastResult", expression = "java(java.util.List.of())")
+  })
+  DrawSummaryResponse toDrawSummaryResponseFallback(CreateDrawRequest request);
+
+  @Mappings({
+    @Mapping(target = "id", source = "request.drawId"),
+    @Mapping(target = "channelCode", source = "request.code"),
+    @Mapping(target = "channelName", source = "request.name"),
+    @Mapping(target = "status", constant = "SCHEDULED"),
+    @Mapping(target = "drawTime", expression = "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().toOffsetDateTime())"),
+    @Mapping(target = "cutoffTime", ignore = true),
+    @Mapping(target = "isNext", constant = "false"),
+    @Mapping(target = "active", constant = "true"),
+    @Mapping(target = "lastResult", expression = "java(java.util.List.of())")
+  })
+  DrawSummaryResponse toDrawSummaryResponseFallback(UpdateDrawRequest request);
 }

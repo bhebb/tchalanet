@@ -2,7 +2,7 @@ package com.tchalanet.server.core.limitpolicy.infra.persistence.adapter;
 
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitPolicy;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitScope;
-import com.tchalanet.server.core.limitpolicy.domain.ports.out.LimitPolicyRepositoryPort;
+import com.tchalanet.server.core.limitpolicy.application.ports.out.LimitPolicyRepositoryPort;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.entity.LimitPolicyEntity;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.mapper.LimitPolicyMapper;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.repository.SpringLimitPolicyJpaRepository;

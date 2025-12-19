@@ -10,15 +10,15 @@ import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.application.port.out.ExternalDrawResultPort;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.Instant;
 
 /**
  * Use case pour récupérer les résultats d’un tirage via les providers externes / saisies manuelles
  * et les enregistrer.
- *
- * <p>TODO: brancher les ports out (ExternalDrawResultPort, DrawReader/WriterPort, etc.) et
+ * <p>
  * implémenter la logique métier complète.
  */
 @UseCase
@@ -42,9 +42,22 @@ public class FetchAndApplyExternalResultCommandHandler
             .findById(drawId)
             .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + drawId));
 
-      var query = new ExternalDrawResultPort.DrawExternalQuery(draw.source(), draw.scheduledAt());
+    var query =
+        new ExternalDrawResultPort.DrawExternalQuery(
+            draw.source(), draw.scheduledAt(), draw.drawChannel().gameCode(), command.force());
 
-      var external = externalDrawResultPort.fetchExternalResult(query);
+    var external = externalDrawResultPort.fetchExternalResult(query);
+
+    // Si aucun résultat (numbers null ou status != FOUND), on ne fait rien
+    if (!external.isFound() || external.numbers() == null) {
+      log.info(
+          "No external result: drawId={} status={} channel={} date={}",
+          drawId,
+          external.status(),
+          external.channelCode(),
+          external.drawDate());
+      return;
+    }
 
     var result =
         new DrawResult(
@@ -57,10 +70,8 @@ public class FetchAndApplyExternalResultCommandHandler
             null);
 
     draw.applyResult(result);
-
     drawResultWriterPort.save(draw.tenantId(), drawId, result);
     drawWriterPort.save(draw);
-
     // éventuellement publier DrawResultedEvent ici
   }
 }

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.session.application.query.handler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.session.application.ports.in.ListCashierOpenSessionsQuery;
 import com.tchalanet.server.core.pos.application.port.out.PosSessionRepositoryPort;
-import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

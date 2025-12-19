@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.context;
 
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;

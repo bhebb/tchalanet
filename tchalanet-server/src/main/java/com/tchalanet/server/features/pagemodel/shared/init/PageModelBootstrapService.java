@@ -1,10 +1,8 @@
 package com.tchalanet.server.features.pagemodel.shared.init;
 
-import com.tchalanet.server.features.pagemodel.shared.PageModelEntity;
 import com.tchalanet.server.features.pagemodel.shared.PageModelRepository;
-import com.tchalanet.server.features.pagemodel.shared.PageModelType;
-import com.tchalanet.server.features.pagemodel.shared.PageStatus;
 import com.tchalanet.server.features.pagemodel.shared.PageModelService;
+import com.tchalanet.server.features.pagemodel.shared.PageModelType;
 import com.tchalanet.server.features.pagemodel.shared.template.PageModelTemplateEntity;
 import com.tchalanet.server.features.pagemodel.shared.template.PageModelTemplateService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.draw.infra.web.mapper;
 
-import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.FetchAndApplyExternalResultCommand;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.domain.model.Draw;

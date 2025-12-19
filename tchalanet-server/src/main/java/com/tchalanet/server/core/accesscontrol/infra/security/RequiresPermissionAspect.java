@@ -1,12 +1,16 @@
 package com.tchalanet.server.core.accesscontrol.infra.security;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
-import com.tchalanet.server.core.accesscontrol.application.port.in.CheckUserPermissionsUseCase;
+import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -21,10 +25,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequiresPermissionAspect {
 
-  private final CheckUserPermissionsUseCase checkUserPermissionsUseCase;
+  private final QueryBus queryBus;
 
-  public RequiresPermissionAspect(CheckUserPermissionsUseCase checkUserPermissionsUseCase) {
-    this.checkUserPermissionsUseCase = checkUserPermissionsUseCase;
+  public RequiresPermissionAspect(QueryBus queryBus) {
+    this.queryBus = queryBus;
   }
 
   @Around("@annotation(requiresPermission)")
@@ -36,9 +40,24 @@ public class RequiresPermissionAspect {
 
     if (!requested.isEmpty()) {
       var authentication = SecurityContextHolder.getContext().getAuthentication();
-      var principal = (TchRequestContext) authentication.getPrincipal();
+      Object principal = authentication.getPrincipal();
+      if (!(principal instanceof TchRequestContext ctx)) {
+        throw new AccessDeniedException("Missing TchRequestContext principal");
+      }
 
-      checkUserPermissionsUseCase.check(principal.tenantUuid(), principal.userUuid(), requested);
+      UUID tenantId = ctx.tenantUuid();
+      UUID userId = ctx.userUuid();
+
+      if (tenantId == null || userId == null) {
+        throw new AccessDeniedException("Missing tenant or user in request context");
+      }
+
+      var query = new CheckUserPermissionsQuery(tenantId, userId, Set.copyOf(requested));
+      Boolean allowed = queryBus.send(query);
+
+      if (allowed == null || !allowed) {
+        throw new AccessDeniedException("Access denied: missing required permissions");
+      }
     }
 
     return pjp.proceed();

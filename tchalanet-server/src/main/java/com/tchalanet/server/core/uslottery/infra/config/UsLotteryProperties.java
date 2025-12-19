@@ -21,8 +21,6 @@ public class UsLotteryProperties {
     /** Default tenant id to associate external US draws when tenant not provided. */
     private String defaultTenantId = "00000000-0000-0000-0000-000000000002";
 
-    /** TTL (seconds) used to mark a fetch attempt in the sync state (defaults to 1 hour). */
-    private int syncTtlSeconds = 3600;
 
     public UUID getDefaultTenantUuid() {
         return UUID.fromString(defaultTenantId);

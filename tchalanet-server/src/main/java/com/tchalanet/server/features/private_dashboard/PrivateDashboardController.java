@@ -16,7 +16,7 @@ import com.tchalanet.server.features.pagemodel.shared.PageModelService;
 import com.tchalanet.server.features.pagemodel.shared.PageModelTypeResolver;
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.private_dashboard.dynamic.PrivateDashboardDynamicDataService;
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 

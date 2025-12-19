@@ -16,6 +16,7 @@ public interface JpaAppUserRepository extends JpaRepository<AppUserJpaEntity, UU
   Optional<AppUserJpaEntity> findByEmailOrPhone(String email, String phone);
   List<AppUserJpaEntity> findByStatusAndDeletedAtIsNull(String status);
   List<AppUserJpaEntity> findByTenantIdAndStatusAndDeletedAtIsNull(UUID tenantId, String status);
+  Optional<AppUserJpaEntity> findByKeycloakIdAndDeletedAtIsNull(UUID keycloakId);
 
   // Paged
   Page<AppUserJpaEntity> findAll(Pageable pageable);

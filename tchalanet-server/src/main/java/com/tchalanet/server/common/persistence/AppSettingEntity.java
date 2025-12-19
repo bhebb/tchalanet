@@ -1,14 +1,20 @@
 package com.tchalanet.server.common.persistence;
 
+import com.tchalanet.server.common.settings.AppSettingCacheEvictListener;
+import com.tchalanet.server.common.settings.AppSettingLevel;
+import com.tchalanet.server.common.settings.AppSettingValueType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "app_setting")
@@ -16,32 +22,36 @@ import org.hibernate.envers.Audited;
 @Getter
 @Setter
 @NoArgsConstructor
+@EntityListeners({AppSettingCacheEvictListener.class})
 public class AppSettingEntity extends BaseEntity {
 
-  @Column(name = "level", nullable = false)
-  private String level;
+    @Column(name = "tenant_id")
+    private UUID tenantId;
 
-  @Column(name = "tenant_id")
-  private UUID tenantId;
+    @Column(name = "terminal_id")
+    private UUID terminalId;
 
-  @Column(name = "terminal_id")
-  private UUID terminalId;
+    @Column(name = "outlet_id")
+    private UUID outletId;
 
-  @Column(name = "outlet_id")
-  private UUID outletId;
+    @Column(name = "namespace", nullable = false)
+    private String namespace;
 
-  @Column(name = "namespace", nullable = false)
-  private String namespace;
+    @Column(name = "setting_key", nullable = false)
+    private String settingKey;
 
-  @Column(name = "setting_key", nullable = false)
-  private String settingKey;
+    @Column(name = "setting_value", nullable = false)
+    private String settingValue;
 
-  @Column(name = "value_type", nullable = false)
-  private String valueType;
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
 
-  @Column(name = "setting_value", nullable = false)
-  private String settingValue;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "level", nullable = false)
+    private AppSettingLevel level;
 
-  @Column(name = "active", nullable = false)
-  private Boolean active = true;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "value_type", nullable = false)
+    private AppSettingValueType valueType;
+
 }

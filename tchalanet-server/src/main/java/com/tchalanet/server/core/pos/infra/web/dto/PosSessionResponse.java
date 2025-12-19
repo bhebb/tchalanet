@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.pos.infra.web.dto;
 
-import com.tchalanet.server.core.pos.domain.model.PosSessionStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;

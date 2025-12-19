@@ -1,20 +1,42 @@
 package com.tchalanet.server.core.tenant.application.command.handler;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.tenant.application.command.model.DeactivateTenantCommand;
+import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
+import com.tchalanet.server.core.tenant.application.port.out.TenantWriterPort;
+import com.tchalanet.server.core.tenant.domain.event.TenantStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.UUID;
 
 @UseCase
 @RequiredArgsConstructor
-@Component
-public class DeactivateTenantCommandHandler implements VoidCommandHandler<DeactivateTenantCommand> {
+class DeactivateTenantCommandHandler implements VoidCommandHandler<DeactivateTenantCommand> {
 
-  @Override
-  public void handle(DeactivateTenantCommand command) {
-    // TODO: implement deactivation
-    throw new UnsupportedOperationException("DeactivateTenantCommandHandler not implemented yet");
-  }
+    private final TenantWriterPort tenantWriterPort;
+    private final TenantReaderPort tenantReaderPort;
+    private final DomainEventPublisher publisher;
+    private final Clock clock;
+
+    @Override
+    @TchTx
+    public void handle(DeactivateTenantCommand cmd) {
+        var t = tenantReaderPort.findById(cmd.tenantId()).orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+        var prev = t.status();
+        t.suspend();
+        tenantWriterPort.save(t);
+
+        String reason = cmd.reason() == null ? "deactivated_by_admin" : cmd.reason();
+        AfterCommit.run(() -> publisher.publish(new TenantStatusChangedEvent(
+            UUID.randomUUID(), Instant.now(clock), t.id(), prev, t.status(), reason
+        )));
+    }
 }
+
 

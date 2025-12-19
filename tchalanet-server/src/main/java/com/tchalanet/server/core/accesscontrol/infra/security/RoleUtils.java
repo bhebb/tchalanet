@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.accesscontrol.infra.security;
 
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.security.oauth2.jwt.Jwt;

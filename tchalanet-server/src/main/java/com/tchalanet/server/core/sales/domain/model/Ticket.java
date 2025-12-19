@@ -2,7 +2,6 @@ package com.tchalanet.server.core.sales.domain.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -26,11 +25,9 @@ public class Ticket {
     private Instant updatedAt;
     private final List<TicketLine> lines;
     private BigDecimal totalStake;
-    private BigDecimal potentialPayout;
-    private String outletName;
-    private String gameCode;
-    private String drawCode;
-    private Instant drawDateTime;
+    // potentialPayout remains per-line (TicketLine.potentialPayout). Aggregate winning amount after result:
+    private BigDecimal winningAmount;
+    // projection fields removed from domain — they belong to DTO/projection layers
 
     private Ticket(
         UUID id,
@@ -40,7 +37,10 @@ public class Ticket {
         UUID drawId,
         String ticketCode,
         String publicCode,
-        List<TicketLine> lines) {
+        List<TicketLine> lines,
+        BigDecimal totalAmount,
+        Instant createdAt,
+        Instant updatedAt) {
         this.id = id;
         this.tenantId = tenantId;
         this.terminalId = terminalId;
@@ -49,15 +49,14 @@ public class Ticket {
         this.ticketCode = ticketCode;
         this.publicCode = publicCode;
         this.lines = lines;
-        this.totalAmount =
-            lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.status = TicketStatus.PENDING;
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
+        this.totalAmount = totalAmount;
+        this.status = TicketStatus.SOLD;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     /**
-     * Factory method to ensure a Ticket is created in a valid initial state.
+     * Factory method to reconstruct or create Ticket. Caller supplies createdAt (Clock).
      */
     public static Ticket create(
         UUID tenantId,
@@ -66,134 +65,79 @@ public class Ticket {
         UUID drawId,
         String ticketCode,
         String publicCode,
-        List<TicketLine> lines) {
+        List<TicketLine> lines,
+        Instant createdAt) {
         Objects.requireNonNull(tenantId, "TenantId cannot be null");
         Objects.requireNonNull(terminalId, "TerminalId cannot be null");
         Objects.requireNonNull(drawId, "DrawId cannot be null");
         Objects.requireNonNull(ticketCode, "TicketCode cannot be null");
         Objects.requireNonNull(publicCode, "PublicCode cannot be null");
+        Objects.requireNonNull(createdAt, "createdAt cannot be null");
         if (lines == null || lines.isEmpty()) {
             throw new IllegalArgumentException("A ticket must have at least one line.");
         }
-        return new Ticket(
-            UUID.randomUUID(), tenantId, terminalId, sessionId, drawId, ticketCode, publicCode, lines);
+        BigDecimal totalAmount = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new Ticket(UUID.randomUUID(), tenantId, terminalId, sessionId, drawId, ticketCode, publicCode, lines, totalAmount, createdAt, createdAt);
     }
 
     // --- Business Methods ---
 
-    public void markAsPaid() {
-        if (this.status != TicketStatus.WON) {
+    public void markAsPaid(Instant when) {
+        Objects.requireNonNull(when, "when");
+        if (this.status != TicketStatus.RESULTED_WIN) {
             throw new IllegalStateException(
-                "Only a WON ticket can be marked as PAID. Current status: " + this.status);
+                "Only a RESULTED_WIN ticket can be marked as PAID. Current status: " + this.status);
         }
         this.status = TicketStatus.PAID;
-        this.updatedAt = Instant.now();
+        this.updatedAt = when;
     }
 
-    public void voidTicket() {
-        if (this.status != TicketStatus.PENDING) {
+    public void voidTicket(Instant when) {
+        Objects.requireNonNull(when, "when");
+        if (this.status != TicketStatus.SOLD) {
             throw new IllegalStateException(
-                "Only a PENDING ticket can be voided. Current status: " + this.status);
+                "Only a SOLD ticket can be voided. Current status: " + this.status);
         }
-        this.status = TicketStatus.VOID;
-        this.updatedAt = Instant.now();
+        this.status = TicketStatus.VOIDED;
+        this.updatedAt = when;
     }
 
-    // --- Getters ---
-
-    public UUID getId() {
-        return id;
+    /**
+     * Apply draw result to this ticket. Computes/sets the winning amount and transitions the ticket
+     * to RESULTED_WIN or RESULTED_LOSS. Allowed only when ticket is SOLD.
+     */
+    public void recordResult(BigDecimal winningAmount, Instant when) {
+        Objects.requireNonNull(when, "when");
+        Objects.requireNonNull(winningAmount, "winningAmount");
+        if (this.status != TicketStatus.SOLD) {
+            throw new IllegalStateException("recordResult allowed only when ticket is SOLD. Current status: " + this.status);
+        }
+        this.winningAmount = winningAmount;
+        if (winningAmount.compareTo(BigDecimal.ZERO) > 0) {
+            this.status = TicketStatus.RESULTED_WIN;
+        } else {
+            this.status = TicketStatus.RESULTED_LOSS;
+        }
+        this.updatedAt = when;
     }
 
-    public UUID getTenantId() {
-        return tenantId;
-    }
+    // --- Getters (explicit) ---
+    public UUID getId() { return id; }
+    public UUID getTenantId() { return tenantId; }
+    public UUID getTerminalId() { return terminalId; }
+    public UUID getSessionId() { return sessionId; }
+    public UUID getDrawId() { return drawId; }
+    public String getTicketCode() { return ticketCode; }
+    public String getPublicCode() { return publicCode; }
+    public TicketStatus getStatus() { return status; }
+    public BigDecimal getTotalAmount() { return totalAmount; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public List<TicketLine> getLines() { return List.copyOf(lines); }
+    public BigDecimal getTotalStake() { return totalStake; }
+    public BigDecimal getWinningAmount() { return winningAmount; }
 
-    public UUID getTerminalId() {
-        return terminalId;
-    }
+    public void setTotalStake(BigDecimal totalStake) { this.totalStake = totalStake; }
+    // No setters for projection fields — projections should be built outside the aggregate
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public UUID getDrawId() {
-        return drawId;
-    }
-
-    public String getTicketCode() {
-        return ticketCode;
-    }
-
-    public String getPublicCode() {
-        return publicCode;
-    }
-
-    public TicketStatus getStatus() {
-        return status;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public List<TicketLine> getLines() {
-        return Collections.unmodifiableList(lines);
-    }
-
-    public BigDecimal getTotalStake() {
-        return totalStake;
-    }
-
-    public void setTotalStake(BigDecimal totalStake) {
-        this.totalStake = totalStake;
-    }
-
-    public BigDecimal getPotentialPayout() {
-        return potentialPayout;
-    }
-
-    public void setPotentialPayout(BigDecimal potentialPayout) {
-        this.potentialPayout = potentialPayout;
-    }
-
-    public String getOutletName() {
-        return outletName;
-    }
-
-    public void setOutletName(String outletName) {
-        this.outletName = outletName;
-    }
-
-    public String getGameCode() {
-        return gameCode;
-    }
-
-    public void setGameCode(String gameCode) {
-        this.gameCode = gameCode;
-    }
-
-    public String getDrawCode() {
-        return drawCode;
-    }
-
-    public void setDrawCode(String drawCode) {
-        this.drawCode = drawCode;
-    }
-
-    public Instant getDrawDateTime() {
-        return drawDateTime;
-    }
-
-    public void setDrawDateTime(Instant drawDateTime) {
-        this.drawDateTime = drawDateTime;
-    }
 }
