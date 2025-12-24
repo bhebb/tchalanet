@@ -1,62 +1,71 @@
 package com.tchalanet.server.core.audit.domain.service;
 
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.core.audit.domain.model.AuditAction;
+import com.tchalanet.server.core.audit.domain.model.AuditActorType;
 import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
+
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/** Build and enrich AuditEvent from minimal inputs (entity/action/details). */
+/**
+ * Build and enrich AuditEvent from minimal inputs (entity/action/details).
+ */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AuditEventFactory {
 
-  private final TchRequestContextHolder ctxHolder;
+    private final TchRequestContextHolder ctxHolder;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-  public AuditEvent build(
-      AuditEntityType entityType,
-      String entityId,
-      AuditAction action,
-      Map<String, Object> details) {
-    var ctx = ctxHolder.get();
+    public AuditEvent build(
+        AuditEntityType entityType,
+        String entityId,
+        AuditAction action,
+        Map<String, Object> details) {
+        var ctxOpt = Optional.ofNullable(ctxHolder.get());
 
-    UUID tenantId = null;
-    UUID createdBy = null;
-    String actorId = "system";
-    var actorType = com.tchalanet.server.core.audit.domain.model.AuditActorType.SYSTEM;
-    String ip = null;
-    String userAgent = null;
+        var tenantId = ctxOpt.map(TchRequestContext::tenantUuid).orElse(null);
+        var userOpt = ctxOpt.map(TchRequestContext::userUuid);
+        var createdBy = userOpt.orElse(null);
+        var actorId = userOpt.orElse(null);
+        var actorType = userOpt.isPresent() ? AuditActorType.USER : AuditActorType.SYSTEM;
+        var ip = ctxOpt.map(TchRequestContext::clientIp).orElse(null);
+        var userAgent = ctxOpt.map(TchRequestContext::userAgent).orElse(null);
 
-    if (ctx != null) {
-      if (ctx.tenantUuid() != null) {
-        tenantId = ctx.tenantUuid();
-      }
-      if (ctx.userUuid() != null) {
-        createdBy = ctx.userUuid();
-        actorId = ctx.userUuid().toString();
-        actorType = com.tchalanet.server.core.audit.domain.model.AuditActorType.USER;
-      }
-      ip = ctx.clientIp();
-      userAgent = ctx.userAgent();
+        var entityUuid = Optional.ofNullable(entityId).map(UUID::fromString).orElse(null);
+        var detailsJson = Optional.ofNullable(details)
+            .map(d -> {
+                try {
+                    return objectMapper.writeValueAsString(d);
+                } catch (Exception ex) {
+                    log.error(ex.getMessage(), ex);
+                    return "{}";
+                }
+            })
+            .orElse("{}");
+
+        return new AuditEvent(
+            null,
+            tenantId,
+            Instant.now(),
+            createdBy,
+            actorType,
+            actorId,
+            entityType,
+            entityUuid,
+            action,
+            detailsJson,
+            ip,
+            userAgent);
     }
-
-    String detailsJson = details == null ? "{}" : details.toString();
-
-    return new AuditEvent(
-        null,
-        tenantId,
-        java.time.Instant.now(),
-        createdBy,
-        actorType,
-        actorId,
-        entityType,
-        entityId,
-        action,
-        detailsJson,
-        ip,
-        userAgent);
-  }
 }

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.infra.persistence.mapper;
 
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
-import com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaEntity;
+import com.tchalanet.server.core.draw.infra.persistence.entity.DrawResultJpaEntity;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;

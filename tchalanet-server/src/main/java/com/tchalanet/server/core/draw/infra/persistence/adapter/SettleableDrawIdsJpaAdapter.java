@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort;
-import com.tchalanet.server.core.draw.infra.persistence.repo.SettleableDrawIdsJpaRepository;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawBatchQueryRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SettleableDrawIdsJpaAdapter implements FindSettleableDrawIdsPort {
 
-  private final SettleableDrawIdsJpaRepository repo;
+  private final DrawBatchQueryRepository repo;
 
   @Override
-  public List<UUID> findSettleableDrawIds(SettleableDrawCriteria criteria) {
+  public List<UUID> findSettleableDrawIds(FindSettleableDrawIdsPort.SettleableDrawCriteria criteria) {
     return repo.findSettleableDrawIds(
         criteria.tenantId(),
         criteria.source(),
@@ -26,4 +26,3 @@ public class SettleableDrawIdsJpaAdapter implements FindSettleableDrawIdsPort {
         criteria.force());
   }
 }
-

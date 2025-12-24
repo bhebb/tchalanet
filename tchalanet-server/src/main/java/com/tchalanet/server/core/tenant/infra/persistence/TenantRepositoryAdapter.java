@@ -92,4 +92,12 @@ public class TenantRepositoryAdapter
             .orElse(false);
     }
 
+    @Override
+    public java.util.List<java.util.UUID> listActiveTenantIds() {
+        return repo.findAll().stream()
+            .filter(e -> e.getDeletedAt() == null && e.getStatus() == TenantStatus.ACTIVE)
+            .map(com.tchalanet.server.core.tenant.infra.persistence.TenantJpaEntity::getId)
+            .toList();
+    }
+
 }

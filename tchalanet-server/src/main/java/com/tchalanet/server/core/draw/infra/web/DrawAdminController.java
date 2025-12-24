@@ -34,8 +34,8 @@ public class DrawAdminController {
   private final TchRequestContextHolder contextHolder;
 
   @GetMapping
-  public ResponseEntity<List<DrawSummaryResponse>> listDraws(@RequestParam UUID tenantId) {
-    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tenantId, null, null, null));
+  public ResponseEntity<List<DrawSummaryResponse>> listDraws() {
+    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(contextHolder.get().tenantUuid(), null, null, null));
     var responses = summaries.stream().map(mapper::toDrawSummaryResponse).toList();
     return ResponseEntity.ok(responses);
   }

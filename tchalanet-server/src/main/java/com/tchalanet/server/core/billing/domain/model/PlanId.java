@@ -8,4 +8,8 @@ public record PlanId(UUID value) {
   public PlanId {
     Objects.requireNonNull(value, "PlanId value cannot be null");
   }
+
+  public static PlanId of(UUID value) {
+    return new PlanId(value);
+  }
 }

@@ -1,15 +1,10 @@
 package com.tchalanet.server.core.ledger.application.command.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.bus.Command;
+
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.UUID;
 
-/** Start-of-day deposit from agent to physical cashbox. */
-public record DepositCashCommand(
-    UUID tenantId,
-    UUID outletId,
-    UUID agentId,
-    BigDecimal amount,
-    LocalDateTime occurredAt
-) {}
-
+public record DepositCashCommand(UUID tenantId, UUID refId, BigDecimal amount, Instant occurredAt) implements Command<Void> {
+}

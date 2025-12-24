@@ -3,7 +3,7 @@ package com.tchalanet.server.core.user.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.external.ports.KeycloakUserProvisioningPort;
+import com.tchalanet.server.core.external.port.out.KeycloakUserProvisioningPort;
 import com.tchalanet.server.core.user.application.command.model.CreateUserCommand;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
 import com.tchalanet.server.core.user.application.port.out.UserWriterPort;

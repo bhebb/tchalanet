@@ -12,4 +12,5 @@ public record Plan(
     BigDecimal priceAmount,
     String currency,
     BillingFrequency billingFrequency,
+    boolean publicPlan,
     Map<String, Object> features) {}

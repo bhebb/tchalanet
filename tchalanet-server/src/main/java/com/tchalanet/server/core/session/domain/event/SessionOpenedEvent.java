@@ -11,6 +11,6 @@ public record SessionOpenedEvent(
     TenantId tenantId,
     UUID sessionId,
     UUID outletId,
+    UUID terminalId,
     UUID cashierId,
-    Instant openedAt) implements DomainEvent {}
-
+    long openingFloatCents) implements DomainEvent {}

@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.application.query.model;
 
+import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.core.sales.domain.model.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -10,7 +11,7 @@ import java.util.UUID;
 public record ListTicketsQuery(
     TicketFilter filter,
     PageRequest pageRequest
-) {
+) implements Query<ListTicketsQuery.PagedResult<ListTicketsQuery.TicketSummaryDto>> {
 
   /** Filter for tickets. */
   public record TicketFilter(

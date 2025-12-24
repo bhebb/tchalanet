@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,7 +36,7 @@ public class AuditEventJpaEntity extends BaseTenantEntity {
   @Column(name = "action", nullable = false, length = 64)
   private String action;
 
-  @Column(name = "details", nullable = false, columnDefinition = "jsonb")
+  @Column(name = "details", columnDefinition = "jsonb")
   private String details;
 
   @Column(name = "ip", columnDefinition = "inet")

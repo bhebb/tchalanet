@@ -22,7 +22,9 @@ t text;
     'draw',
     'draw_result',
     'odds',
-    'limit_policy',
+    'limit_policy_config',
+    'limit_definition',
+    'limit_assignment',
     'subscription',
     'theme',
     'audit_event',
@@ -31,13 +33,15 @@ t text;
     'tenant_user',
     'page_model',
     'i18n_override',
-    'app_setting'
+    'app_setting',
+    'payout'
   ];
 
   -- Tables multi-tenant only (require tenant_id; no deleted_at required)
   tenant_only_tables text[] := ARRAY[
     'ledger_entry',
-    'stats_draw'
+    'stats_draw',
+    'draw_exposure'
   ];
 BEGIN
   -- ---------- soft delete tables ----------

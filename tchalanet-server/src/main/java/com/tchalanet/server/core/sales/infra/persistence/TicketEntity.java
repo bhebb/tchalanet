@@ -14,40 +14,45 @@ import lombok.Setter;
 @Table(name = "ticket")
 @Getter
 @Setter
-public class TicketEntity extends BaseTenantEntity { // Extends BaseTenantEntity
+public class TicketEntity extends BaseTenantEntity {
 
-  // ID is now inherited from BaseEntity
-  // @Id
-  // private UUID id;
+    @Column(name = "terminal_id", nullable = false)
+    private UUID terminalId;
 
-  // tenantId is now inherited from BaseTenantEntity
-  // @Column(name = "tenant_id", nullable = false)
-  // todo handle
-  private UUID sessionId;
+    @Column(name = "draw_id", nullable = false)
+    private UUID drawId;
 
-  @Column(name = "terminal_id")
-  private UUID terminalId;
+    @Column(name = "session_id")
+    private UUID sessionId;
 
-  @Column(name = "draw_id", nullable = false)
-  private UUID drawId;
+    @Column(name = "ticket_code", nullable = false, unique = true)
+    private String ticketCode;
 
-  @Column(name = "ticket_code", nullable = false, unique = true)
-  private String ticketCode;
+    @Column(name = "public_code", length = 32)
+    private String publicCode;
 
-  @Column(name = "public_code", nullable = false, unique = true)
-  private String publicCode;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 32)
+    private TicketStatus status;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private TicketStatus status;
+    @Column(name = "total_amount", nullable = false, precision = 14, scale = 2)
+    private BigDecimal totalAmount;
 
-  @Column(name = "total_amount", nullable = false)
-  private BigDecimal totalAmount;
+    @OneToMany(
+        mappedBy = "ticket",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    private List<TicketLineEntity> lines = new ArrayList<>();
 
-  @OneToMany(
-      mappedBy = "ticket",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.EAGER)
-  private List<TicketLineEntity> lines = new ArrayList<>();
+    public void addLine(TicketLineEntity line) {
+        lines.add(line);
+        line.setTicket(this);
+    }
+
+    public void clearAndAddLines(List<TicketLineEntity> newLines) {
+        lines.clear();
+        for (var l : newLines) addLine(l);
+    }
 }

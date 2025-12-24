@@ -1,11 +1,12 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
-/** Defines the action to take when a limit policy is breached. */
+/**
+ * Enumeration of possible outcomes from limit policy evaluation.
+ *
+ * - ALLOW: Transaction is permitted to proceed
+ * - WARN: Transaction is permitted but requires user notification
+ * - BLOCK: Transaction is not permitted and must be rejected or approved
+ */
 public enum BreachOutcome {
-  /** The action (e.g., ticket creation) is blocked. */
-  BLOCK,
-  /** The action is allowed, but a warning is logged. */
-  WARN,
-  /** The action is allowed without any warning. */
-  ALLOW
+    ALLOW, WARN, BLOCK
 }

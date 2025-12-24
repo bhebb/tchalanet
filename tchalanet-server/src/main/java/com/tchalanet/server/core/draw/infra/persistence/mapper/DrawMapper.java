@@ -5,7 +5,7 @@ import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
+import com.tchalanet.server.core.draw.infra.persistence.entity.DrawJpaEntity;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

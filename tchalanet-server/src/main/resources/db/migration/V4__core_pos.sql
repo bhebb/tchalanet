@@ -1,95 +1,79 @@
--- V4: core POS (outlet, terminal, pos_session)
+-- V4__pos_session.sql (recreate table, no ALTER)
+DROP TABLE IF EXISTS pos_session CASCADE;
 
-CREATE TABLE IF NOT EXISTS outlet (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    version bigint NOT NULL DEFAULT 0,
+CREATE TABLE pos_session (
+                             id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                             version bigint NOT NULL DEFAULT 0,
 
-    tenant_id uuid NOT NULL REFERENCES tenant(id),
-    name varchar(255) NOT NULL,
-    type varchar(32) NOT NULL DEFAULT 'PHYSICAL', -- PHYSICAL|VIRTUAL
-    address_id uuid NOT NULL REFERENCES address(id),
-    active boolean NOT NULL DEFAULT true,
+                             tenant_id uuid NOT NULL REFERENCES tenant(id),
+                             outlet_id uuid NOT NULL REFERENCES outlet(id),
+                             terminal_id uuid NOT NULL REFERENCES terminal(id),
+                             user_id uuid NOT NULL REFERENCES app_user(id),
 
-    created_at timestamptz NOT NULL DEFAULT now(),
-    created_by uuid,
-    updated_at timestamptz NOT NULL DEFAULT now(),
-    updated_by uuid,
-    deleted_at timestamptz
+                             status varchar(16) NOT NULL CHECK (status IN ('OPEN', 'CLOSED')),
+                             opened_at timestamptz NOT NULL DEFAULT now(),
+                             closed_at timestamptz,
+
+                             opening_float numeric(14,2) NOT NULL DEFAULT 0,
+                             closing_amount numeric(14,2) NOT NULL DEFAULT 0,
+
+                             meta jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+                             created_at timestamptz NOT NULL DEFAULT now(),
+                             created_by uuid,
+                             updated_at timestamptz NOT NULL DEFAULT now(),
+                             updated_by uuid,
+                             deleted_at timestamptz
 );
 
-CREATE INDEX IF NOT EXISTS ix_outlet_tenant_name ON outlet (tenant_id, name);
+-- Un seul OPEN par terminal (unique partiel) -> mieux que UNIQUE(tenant, terminal, status)
+CREATE UNIQUE INDEX ux_pos_session_open_per_terminal
+    ON pos_session(tenant_id, terminal_id)
+    WHERE status = 'OPEN' AND deleted_at IS NULL;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_outlet_updated_at') THEN
-    CREATE TRIGGER trg_outlet_updated_at
-      BEFORE UPDATE ON outlet
-      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-  END IF;
-END $$;
+CREATE INDEX ix_pos_session_tenant_terminal
+    ON pos_session(tenant_id, terminal_id);
 
-CREATE TABLE IF NOT EXISTS terminal (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    version bigint NOT NULL DEFAULT 0,
-
-    tenant_id uuid NOT NULL REFERENCES tenant(id),
-    outlet_id uuid NOT NULL REFERENCES outlet(id),
-    state varchar(32) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE|INACTIVE|BLOCKED
-    last_seen timestamptz,
-
-    created_at timestamptz NOT NULL DEFAULT now(),
-    created_by uuid,
-    updated_at timestamptz NOT NULL DEFAULT now(),
-    updated_by uuid,
-    deleted_at timestamptz
-);
-
-CREATE INDEX IF NOT EXISTS ix_terminal_tenant_outlet ON terminal (tenant_id, outlet_id);
-
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_terminal_updated_at') THEN
-    CREATE TRIGGER trg_terminal_updated_at
-      BEFORE UPDATE ON terminal
-      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-  END IF;
-END $$;
-
-CREATE TABLE IF NOT EXISTS pos_session (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id uuid NOT NULL REFERENCES tenant(id),
-    outlet_id uuid REFERENCES outlet(id),
-    terminal_id uuid REFERENCES terminal(id),
-    user_id uuid NOT NULL REFERENCES app_user(id),
-
-    status varchar(16) NOT NULL, -- OPEN|CLOSED|SETTLED
-    opened_at timestamptz NOT NULL DEFAULT now(),
-    closed_at timestamptz,
-    opening_float numeric(14, 2),
-    closing_amount numeric(14, 2),
-    total_tickets bigint,
-    total_stake numeric(14, 2),
-    total_payout numeric(14, 2),
-    gross_margin numeric(14, 2),
-    meta jsonb NOT NULL DEFAULT '{}'::jsonb,
-    version bigint NOT NULL DEFAULT 0,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    created_by uuid,
-    updated_at timestamptz NOT NULL DEFAULT now(),
-    updated_by uuid,
-    deleted_at timestamptz,
-
-    UNIQUE (tenant_id, terminal_id, status) DEFERRABLE INITIALLY IMMEDIATE
-);
-
-CREATE INDEX IF NOT EXISTS ix_pos_session_tenant_terminal ON pos_session (tenant_id, terminal_id, status);
+CREATE INDEX ix_pos_session_tenant_opened_at
+    ON pos_session(tenant_id, opened_at DESC);
 
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_pos_session_updated_at') THEN
-    CREATE TRIGGER trg_pos_session_updated_at
-      BEFORE UPDATE ON pos_session
-      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-  END IF;
+CREATE TRIGGER trg_pos_session_updated_at
+    BEFORE UPDATE ON pos_session
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+END IF;
 END $$;
 
+DROP TABLE IF EXISTS pos_session_totals CASCADE;
+
+CREATE TABLE pos_session_totals (
+                                    session_id uuid PRIMARY KEY REFERENCES pos_session(id) ON DELETE CASCADE,
+                                    tenant_id uuid NOT NULL REFERENCES tenant(id),
+
+                                    total_tickets bigint NOT NULL DEFAULT 0,
+                                    total_stake numeric(14,2) NOT NULL DEFAULT 0,
+                                    total_payout numeric(14,2) NOT NULL DEFAULT 0,
+                                    gross_margin numeric(14,2) NOT NULL DEFAULT 0,
+
+                                    version bigint NOT NULL DEFAULT 0,
+
+                                    created_at timestamptz NOT NULL DEFAULT now(),
+                                    created_by uuid,
+                                    updated_at timestamptz NOT NULL DEFAULT now(),
+                                    updated_by uuid,
+                                    deleted_at timestamptz
+);
+
+CREATE INDEX ix_pos_session_totals_tenant ON pos_session_totals(tenant_id);
+CREATE INDEX ix_pos_session_totals_tenant_session ON pos_session_totals(tenant_id, session_id);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_pos_session_totals_updated_at') THEN
+CREATE TRIGGER trg_pos_session_totals_updated_at
+    BEFORE UPDATE ON pos_session_totals
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+END IF;
+END $$;

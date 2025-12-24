@@ -10,7 +10,8 @@ import com.tchalanet.server.core.draw.application.query.model.DrawChannelSearchC
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
-import com.tchalanet.server.core.draw.infra.persistence.DrawChannelJpaRepository;
+import com.tchalanet.server.core.draw.infra.persistence.entity.DrawChannelJpaEntity;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawChannelMapper;
 import java.util.List;
 import java.util.Optional;

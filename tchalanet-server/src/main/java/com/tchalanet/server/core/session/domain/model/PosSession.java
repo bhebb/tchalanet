@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.session.domain.model;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -14,12 +15,11 @@ public record PosSession(
     PosSessionStatus status,
     Instant openedAt,
     Instant closedAt,
-    long openingFloatCents,    // nullable côté DB, mais ici on met 0 par défaut
-    long closingAmountCents,   // idem
-    long totalTickets,
-    long totalStakeCents,
-    long totalPayoutCents,
-    long grossMarginCents,
+    Long openingFloatCents,   // nullable
+    Long closingAmountCents,  // nullable
+    BigDecimal totalStake,
+    Long totalTickets,
+    BigDecimal totalPayout,
     Map<String, Object> meta,
     long version
 ) {
@@ -30,16 +30,15 @@ public record PosSession(
         UUID outletId,
         UUID terminalId,
         UUID userId,
-        Long openingFloatCents,  // peut être null côté commande
+        Long openingFloatCents,
         Instant now
     ) {
-        Objects.requireNonNull(tenantId, "tenantId is required");
-        Objects.requireNonNull(outletId, "outletId is required");
-        Objects.requireNonNull(terminalId, "terminalId is required");
-        Objects.requireNonNull(userId, "userId is required");
-        Objects.requireNonNull(now, "now is required");
-
-        long opening = openingFloatCents != null ? openingFloatCents : 0L;
+        Objects.requireNonNull(id);
+        Objects.requireNonNull(tenantId);
+        Objects.requireNonNull(outletId);
+        Objects.requireNonNull(terminalId);
+        Objects.requireNonNull(userId);
+        Objects.requireNonNull(now);
 
         return new PosSession(
             id,
@@ -50,65 +49,56 @@ public record PosSession(
             PosSessionStatus.OPENED,
             now,
             null,
-            opening,
+            openingFloatCents,
+            null,
+            BigDecimal.ZERO,
             0L,
-            0L,
-            0L,
-            0L,
-            0L,
+            BigDecimal.ZERO,
             Map.of(),
             0L
         );
     }
 
-    public PosSession close(long closingAmountCents, Instant now) {
+    public PosSession close(BigDecimal closingAmountCents, Instant now) {
         if (status != PosSessionStatus.OPENED) {
-            throw new IllegalStateException(
-                "Only an OPEN session can be closed. Current status: " + status);
+            throw new IllegalStateException("Only OPEN session can be closed. status=" + status);
         }
-        Objects.requireNonNull(now, "now is required");
-
+        Objects.requireNonNull(now);
         return new PosSession(
-            id,
-            tenantId,
-            outletId,
-            terminalId,
-            userId,
+            id, tenantId, outletId, terminalId, userId,
             PosSessionStatus.CLOSED,
             openedAt,
             now,
             openingFloatCents,
-            closingAmountCents,
+            closingAmountCents.longValue(),
+            totalStake,
             totalTickets,
-            totalStakeCents,
-            totalPayoutCents,
-            grossMarginCents,
+            totalPayout,
             meta,
             version
         );
     }
 
-    public PosSession withTotals(long totalTickets,
-                                 long totalStakeCents,
-                                 long totalPayoutCents,
-                                 long grossMarginCents) {
+    public static PosSession reconstruct(
+        UUID id,
+        UUID tenantId,
+        UUID outletId,
+        UUID terminalId,
+        UUID userId,
+        PosSessionStatus status,
+        Instant openedAt,
+        Instant closedAt,
+        Long openingFloatCents,
+        Long closingAmountCents,
+        BigDecimal totalStake,
+        Long totalTickets,
+        BigDecimal totalPayout,
+        Map<String, Object> meta,
+        long version
+    ) {
         return new PosSession(
-            id,
-            tenantId,
-            outletId,
-            terminalId,
-            userId,
-            status,
-            openedAt,
-            closedAt,
-            openingFloatCents,
-            closingAmountCents,
-            totalTickets,
-            totalStakeCents,
-            totalPayoutCents,
-            grossMarginCents,
-            meta,
-            version
+            id, tenantId, outletId, terminalId, userId, status, openedAt, closedAt,
+            openingFloatCents, closingAmountCents, totalStake, totalTickets, totalPayout, meta, version
         );
     }
 }

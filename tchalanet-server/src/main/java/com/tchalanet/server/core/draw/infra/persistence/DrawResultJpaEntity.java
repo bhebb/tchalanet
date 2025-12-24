@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.draw.infra.persistence;
+package com.tchalanet.server.core.draw.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.persistence.ListToJsonConverter;

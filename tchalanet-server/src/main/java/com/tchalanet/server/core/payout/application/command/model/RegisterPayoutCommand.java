@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.core.payout.domain.model.Payout;
 
 public record RegisterPayoutCommand(
     UUID tenantId,
@@ -13,5 +12,5 @@ public record RegisterPayoutCommand(
     BigDecimal amount,
     UUID cashierId,
     UUID outletId,
-    Instant requestedAt) implements Command<Payout> {
+    Instant requestedAt) implements Command<RegisterPayoutResult> {
 }

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 import com.tchalanet.server.core.draw.application.port.out.DrawStorePort;
 import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepositoryV1;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 public class DrawStoreJpaAdapter implements DrawStorePort {
 
-    private final DrawJpaRepositoryV1 repo;
+    private final DrawJpaRepository repo;
 
     @Override
     public boolean exists(UUID tenantId, UUID drawChannelId, Instant scheduledAt) {
@@ -33,14 +33,14 @@ public class DrawStoreJpaAdapter implements DrawStorePort {
             try {
                 created +=
                     repo.insertIfNotExists(
+                        r.id(),
                         r.tenantId(),
                         r.drawChannelId(),
+                        r.gameCode(),
                         r.scheduledAt(),
                         r.cutoffSec(),
                         r.status(),
-                        r.drawSource(),
-                        r.systemGenerated(),
-                        r.locked());
+                        r.resultPayload());
             } catch (DataIntegrityViolationException e) {
                 log.warn(e.getMessage(), e);
             }
@@ -50,7 +50,7 @@ public class DrawStoreJpaAdapter implements DrawStorePort {
 
     @Override
     public List<DueToCloseRow> findDueToClose(Instant now, int limit) {
-        return repo.findDueToClose(now, limit).stream()
+        return repo.findDueToClose(null, now, limit).stream()
             .map(p -> new DueToCloseRow(p.getTenantId(), p.getDrawId(), Boolean.TRUE.equals(p.getLocked())))
             .toList();
     }
@@ -59,6 +59,6 @@ public class DrawStoreJpaAdapter implements DrawStorePort {
     public int bulkClose(List<UUID> drawIds) {
         if (drawIds == null || drawIds.isEmpty()) return 0;
         UUID[] ids = drawIds.toArray(new UUID[0]);
-        return repo.bulkClose(ids);
+        return repo.bulkClose(null, ids);
     }
 }

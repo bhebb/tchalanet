@@ -79,6 +79,7 @@ public final class Draw {
     this.status = DrawStatus.CLOSED;
   }
 
+
   public void applyResult(DrawResult result) {
     DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
     this.result = Objects.requireNonNull(result);

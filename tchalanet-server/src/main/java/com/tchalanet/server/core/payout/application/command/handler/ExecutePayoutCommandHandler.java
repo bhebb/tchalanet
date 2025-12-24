@@ -7,7 +7,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
 import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
 import com.tchalanet.server.core.payout.application.command.model.ExecutePayoutCommand;
-import com.tchalanet.server.core.payout.port.out.PayoutRepositoryPort;
+import com.tchalanet.server.core.payout.application.port.out.PayoutRepositoryPort;
 import com.tchalanet.server.core.payout.domain.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.payout.domain.model.Payout;
 import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
@@ -52,7 +52,7 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
     }
 
     // load ticket and validate
-    Optional<Ticket> optTicket = ticketReaderPort.findById(payout.getTicketId());
+    Optional<Ticket> optTicket = ticketReaderPort.findWithLinesById(payout.getTenantId(), payout.getTicketId());
     if (optTicket.isEmpty()) {
       throw new IllegalStateException("Ticket not found for payout: " + payout.getTicketId());
     }

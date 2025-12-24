@@ -1,20 +1,30 @@
 package com.tchalanet.server.core.pos.application.command.handler;
 
-import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.pos.application.command.model.UnlockPosDeviceCommand;
+import com.tchalanet.server.core.pos.application.command.model.UnlockTerminalCommand;
+import com.tchalanet.server.core.pos.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.pos.application.port.out.TerminalWriterPort;
+import com.tchalanet.server.core.pos.domain.model.Terminal;
+import java.time.Clock;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class UnlockPosDeviceCommandHandler implements VoidCommandHandler<UnlockPosDeviceCommand> {
+public class UnlockPosDeviceCommandHandler implements CommandHandler<UnlockTerminalCommand, Terminal> {
+
+  private final TerminalReaderPort reader;
+  private final TerminalWriterPort writer;
+  private final Clock clock;
 
   @Override
-  public void handle(UnlockPosDeviceCommand command) {
-    // TODO: unlock device
-    throw new UnsupportedOperationException("UnlockPosDeviceCommandHandler not implemented yet");
+  public Terminal handle(UnlockTerminalCommand cmd) {
+    var t = reader.findById(cmd.tenantId(), cmd.terminalId())
+        .orElseThrow(() -> new IllegalStateException("Terminal not found"));
+    var now = Instant.now(clock);
+    return writer.save(t.unlock(cmd.actorId(), now));
   }
 }
-

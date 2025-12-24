@@ -1,37 +1,39 @@
 package com.tchalanet.server.core.sales.infra.persistence;
 
+import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.core.sales.domain.model.BetType;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "ticket_line")
 @Getter
 @Setter
-public class TicketLineEntity {
+public class TicketLineEntity extends BaseEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private UUID id;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ticket_id", nullable = false)
+    private TicketEntity ticket;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "ticket_id", nullable = false)
-  private TicketEntity ticket;
+    @Column(name = "game_code", nullable = false, length = 32)
+    private String gameCode;
 
-  @Column(name = "game_code", nullable = false)
-  private String gameCode;
+    @Column(name = "selection", nullable = false)
+    private String selection;
 
-  @Column(nullable = false)
-  private String selection;
+    @Column(name = "stake", nullable = false, precision = 12, scale = 2)
+    private BigDecimal stake;
 
-  @Column(nullable = false)
-  private BigDecimal stake;
+    @Column(name = "odds_snapshot", nullable = false, precision = 12, scale = 4)
+    private BigDecimal oddsSnapshot;
 
-  @Column(name = "odds_snapshot", nullable = false)
-  private BigDecimal oddsSnapshot;
+    @Column(name = "potential_payout", nullable = false, precision = 14, scale = 2)
+    private BigDecimal potentialPayout;
 
-  @Column(name = "potential_payout", nullable = false)
-  private BigDecimal potentialPayout;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "bet_type", nullable = false)
+    private BetType betType;
 }

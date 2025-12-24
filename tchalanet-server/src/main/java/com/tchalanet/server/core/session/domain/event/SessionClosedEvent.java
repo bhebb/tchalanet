@@ -14,7 +14,5 @@ public record SessionClosedEvent(
     UUID cashierId,
     Instant openedAt,
     Instant closedAt,
-    long totalStakeCents,
-    long totalWinningsCents,
     long netRevenueCents) implements DomainEvent {}
 

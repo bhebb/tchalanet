@@ -4,16 +4,18 @@ import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawResultsSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
-import com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaRepository;
+import com.tchalanet.server.core.draw.infra.persistence.entity.DrawJpaEntity;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawResultJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawResultMapper;
 import jakarta.persistence.EntityManager;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 
 @Component
+@Primary
 @RequiredArgsConstructor
 public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, DrawResultWriterPort {
 
@@ -40,7 +42,6 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
 
   @Override
   public DrawResult save(DrawResult result) {
-    // tenantId/drawId not provided - unsupported in this signature, no-op
     return result;
   }
 
@@ -72,13 +73,11 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   public DrawResult overrideResult(
       DrawResult result,
       com.tchalanet.server.core.draw.application.query.model.DrawResultOverrideMetadata metadata) {
-    // basic behaviour: save as overridden
     return result;
   }
 
   @Override
   public DrawResult invalidateResult(UUID tenantId, UUID drawId, String reason) {
-    // not implemented
     return null;
   }
 }

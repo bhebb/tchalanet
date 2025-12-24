@@ -4,16 +4,16 @@ import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.core.tenant.domain.model.TenantId;
 import java.time.Instant;
 import java.util.UUID;
-import org.springframework.lang.Nullable;
 
 public record TicketCancelledEvent(
     UUID eventId,
     Instant occurredAt,
     TenantId tenantId,
     UUID ticketId,
-    UUID outletId,
-    UUID cashierId,
-    @Nullable UUID sessionId,
-    UUID drawId,
-    String reasonCode) implements DomainEvent {}
-
+    UUID terminalId,
+    UUID sessionId,
+    UUID performedBy,
+    String reason,
+    long totalStakeCents,
+    String currency
+) implements DomainEvent {}

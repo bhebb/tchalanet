@@ -8,4 +8,8 @@ public record TicketId(UUID value) {
   public TicketId {
     Objects.requireNonNull(value, "TicketId value cannot be null");
   }
+
+  public static TicketId of(UUID value) {
+    return new TicketId(value);
+  }
 }

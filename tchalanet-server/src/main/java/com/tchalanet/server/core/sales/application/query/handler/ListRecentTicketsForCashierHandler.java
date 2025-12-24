@@ -1,23 +1,22 @@
 package com.tchalanet.server.core.sales.application.query.handler;
 
+import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
-import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
-import java.util.List;
-import java.util.UUID;
+import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.application.query.model.ListRecentTicketsForCashierQuery;
+import com.tchalanet.server.core.sales.domain.model.Ticket;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+
+import java.util.List;
 
 @UseCase
 @RequiredArgsConstructor
-public class ListRecentTicketsForCashierHandler {
+public class ListRecentTicketsForCashierHandler implements QueryHandler<ListRecentTicketsForCashierQuery, List<Ticket>> {
 
-    private final SpringTicketJpaRepository ticketRepository;
+    private final TicketReaderPort ticketReader;
 
-    public List<UUID> handle(UUID tenantId, List<UUID> sessionIds, int limit) {
-        if (sessionIds == null || sessionIds.isEmpty()) return List.of();
-        var page = ticketRepository.findByTenantIdAndSessionIdInOrderByCreatedAtDesc(tenantId, sessionIds, PageRequest.of(0, limit));
-        return page.getContent().stream().map(TicketEntity::getId).toList();
+    @Override
+    public List<Ticket> handle(ListRecentTicketsForCashierQuery query) {
+        return ticketReader.listRecentForCashier(query.cashierId(), query.limit());
     }
 }
-

@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.application.command.model;
 
+import com.tchalanet.server.common.bus.Command;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -11,4 +13,4 @@ public record OverrideDrawResultCommand(
     Instant overriddenAt,
     List<String> numbersMain,
     List<String> numbersExtra,
-    String reason) {}
+    String reason) implements Command<Void> {}

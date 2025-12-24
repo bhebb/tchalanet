@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.draw.infra.persistence;
+package com.tchalanet.server.core.draw.infra.persistence.repo;
 
 import java.util.UUID;
 

@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.audit.infra.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.core.audit.application.port.in.LogAuditEventCommandHandler;
 import com.tchalanet.server.core.audit.domain.model.AuditAction;
 import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AuditLogAspect {
 
-  private final LogAuditEventCommandHandler handler;
+  private final AuditLoggingCommandHandler handler;
   private final ObjectMapper objectMapper;
   private final ExpressionParser parser = new SpelExpressionParser();
 

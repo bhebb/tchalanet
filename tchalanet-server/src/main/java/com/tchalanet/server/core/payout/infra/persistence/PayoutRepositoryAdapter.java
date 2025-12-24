@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.payout.infra.persistence;
 
-import com.tchalanet.server.core.payout.port.out.PayoutRepositoryPort;
+import com.tchalanet.server.core.payout.application.port.out.PayoutRepositoryPort;
 import com.tchalanet.server.core.payout.domain.model.Payout;
 import java.util.Optional;
 import java.util.UUID;

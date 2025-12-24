@@ -1,8 +1,7 @@
 package com.tchalanet.server.features.private_dashboard.dynamic;
 
-import com.tchalanet.server.core.audit.application.query.handler.ListTenantRecentActivityHandler;
+import com.tchalanet.server.core.audit.application.query.handler.ListTenantRecentActivityQueryHandler;
 import com.tchalanet.server.core.audit.application.query.model.AuditEventQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.handler.ListPendingValidationsHandler;
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.private_dashboard.block.ActivityFeedBlock;
 import com.tchalanet.server.features.private_dashboard.block.AlertsBlock;
@@ -41,7 +40,7 @@ public class TenantAdminDashboardService {
     private final GetTenantKpisHandler getTenantKpisHandler;
     private final TenantDashboardStatsUseCase tenantDashboardStatsUseCase;
     private final ListPendingValidationsHandler listPendingValidationsHandler;
-    private final ListTenantRecentActivityHandler listTenantRecentActivityHandler;
+    private final ListTenantRecentActivityQueryHandler listTenantRecentActivityQueryHandler;
     private final CashierDashboardStatsUseCase cashierDashboardStatsUseCase;
     private final GetOutletPerformanceReportHandler getOutletPerformanceReportHandler;
 
@@ -171,7 +170,7 @@ public class TenantAdminDashboardService {
     @SuppressWarnings("unused")
     private ActivityFeedBlock buildActivity(UUID tenantId, UUID userId, String currentLang) {
         try {
-            var activities = listTenantRecentActivityHandler.handle(new AuditEventQuery(tenantId, 20));
+            var activities = listTenantRecentActivityQueryHandler.handle(new AuditEventQuery(tenantId, 20));
             if (activities == null || activities.isEmpty()) return ActivityFeedBlock.empty();
 
             var items = activities.stream().map(dto -> new ActivityFeedBlock.ActivityItem(

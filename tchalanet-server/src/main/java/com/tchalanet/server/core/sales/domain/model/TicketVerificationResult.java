@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.domain.model;
 
+import com.tchalanet.server.core.sales.domain.model.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -7,15 +8,18 @@ import java.util.UUID;
 
 public record TicketVerificationResult(
     UUID ticketId,
-    UUID tenantId,
     String publicCode,
     TicketStatus status,
-    String gameCode,
-    String drawCode,
-    Instant drawDateTime,
-    List<String> linesNumbers, // ex: ["05-12-24", "03-18-29"]
-    BigDecimal stakeAmount,
-    BigDecimal potentialPayout,
-    String outletNameMasked,
-    Instant createdAt) {
+    UUID drawId,
+    String terminalMasked,
+    Instant createdAt,
+    BigDecimal totalAmount,
+    List<Line> lines
+) {
+  public record Line(
+      String gameCode,
+      String selection,
+      BigDecimal stake,
+      BigDecimal potentialPayout
+  ) {}
 }

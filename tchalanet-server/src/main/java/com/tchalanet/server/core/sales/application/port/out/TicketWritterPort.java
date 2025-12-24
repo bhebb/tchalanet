@@ -24,11 +24,4 @@ public interface TicketWritterPort {
      * @return The number of tickets archived.
      */
     int archiveOldTickets(UUID tenantId, Instant cutoffDate);
-
-    // Common read methods exposed by writer adapter for other core modules (e.g., payout)
-    Optional<Ticket> findById(UUID ticketId);
-
-    Optional<Ticket> findByPublicCode(String publicCode);
-
-    PagedResult<Ticket> search(TicketFilter filter, PageRequest pageRequest);
 }

@@ -1,11 +1,9 @@
 package com.tchalanet.server.core.ledger.application.command.model;
 
+import com.tchalanet.server.common.bus.Command;
+
+import java.time.Instant;
 import java.util.UUID;
-import java.time.LocalDate;
 
-/** Batch at 02:00: compare physical vs logical cash. */
-public record ReconcileDailyLedgerCommand(
-    UUID tenantId,
-    LocalDate date
-) {}
-
+public record ReconcileDailyLedgerCommand(UUID tenantId, Instant dayStart, Instant dayEnd) implements Command<Void> {
+}

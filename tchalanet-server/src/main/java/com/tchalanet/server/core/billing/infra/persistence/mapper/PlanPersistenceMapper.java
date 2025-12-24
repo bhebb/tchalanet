@@ -17,6 +17,7 @@ public interface PlanPersistenceMapper {
     @Mapping(target = "priceAmount", source = "priceAmount")
     @Mapping(target = "currency", source = "currency")
     @Mapping(target = "billingFrequency", source = "billingFrequency")
+    @Mapping(target = "publicPlan", source = "publicPlan")
     @Mapping(target = "features", source = "features")
     Plan toDomain(PlanJpaEntity entity);
 

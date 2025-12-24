@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.featureflags.application;
 
-import com.tchalanet.server.core.external.ports.FeatureFlagPort;
+import com.tchalanet.server.core.external.port.out.FeatureFlagPort;
 import com.tchalanet.server.core.featureflags.domain.model.FeatureContext;
 import com.tchalanet.server.core.featureflags.domain.ports.in.IsFeatureEnabledQuery;
 import lombok.RequiredArgsConstructor;

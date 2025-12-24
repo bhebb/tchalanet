@@ -3,7 +3,7 @@ package com.tchalanet.server.core.draw.infra.web.ops;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
-import com.tchalanet.server.core.draw.infra.batch.config.DrawResultsJobStarter;
+import com.tchalanet.server.core.draw.infra.batch.results.fetch.DrawResultsJobStarter;
 import com.tchalanet.server.core.uslottery.infra.config.UsLotteryGameRegistry;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

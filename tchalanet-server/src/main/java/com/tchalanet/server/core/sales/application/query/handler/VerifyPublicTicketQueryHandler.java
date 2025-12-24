@@ -5,82 +5,69 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.query.model.VerifyPublicTicketQuery;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.domain.model.TicketVerificationResult;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Handler to verify a ticket by public code and return verification details.
+ *
+ * Security notes:
+ * - Rate-limit at controller layer to prevent abuse.
+ * - Add noindex meta tag or header to prevent search engine indexing.
  */
 @UseCase
 @RequiredArgsConstructor
-@Component
-public class VerifyPublicTicketQueryHandler implements QueryHandler<VerifyPublicTicketQuery, Optional<TicketVerificationResult>> {
+public class VerifyPublicTicketQueryHandler
+    implements QueryHandler<VerifyPublicTicketQuery, TicketVerificationResult> {
 
-    private final TicketReaderPort ticketReaderPort;
-    // plus tard : injecter un service de config/tenant pour la fenêtre
-    private static final Duration DEFAULT_VISIBILITY = Duration.ofDays(30);
+  private final TicketReaderPort ticketReader;
+  // TODO: replace with tenant config visibility window days (7–30)
+  private static final Duration DEFAULT_VISIBILITY = Duration.ofDays(30);
 
-    @Override
-    public Optional<TicketVerificationResult> handle(VerifyPublicTicketQuery query) {
-        return ticketReaderPort.findByPublicCode(query.publicCode())
-            .filter(ticket -> isVisible(ticket, query.now()))
-            .map(this::toVerificationResult);
-    }
+  @Override
+  public TicketVerificationResult handle(VerifyPublicTicketQuery query) {
+    Instant now = query.now() != null ? query.now() : Instant.now();
 
-    private boolean isVisible(Ticket ticket, Instant now) {
-        // TODO: remplacer par config tenant : visibilityWindowDays
-        var createdAt = ticket.getCreatedAt();
-        if (createdAt == null) {
-            return false;
-        }
-        return createdAt.plus(DEFAULT_VISIBILITY).isAfter(now);
-    }
+    var ticket =
+        ticketReader
+            .findByPublicCode(query.publicCode())
+            .filter(t -> isVisible(t, now))
+            .flatMap(t -> ticketReader.findWithLinesById(t.getTenantId(), t.getId()));
 
-    private TicketVerificationResult toVerificationResult(Ticket ticket) {
-        // TODO: adapter selon ta vraie structure de Ticket / TicketLine
-        List<String> linesNumbers = ticket.getLines().stream()
-            .map(this::formatNumbers)
+    return ticket.map(this::toResult).orElse(null);
+  }
+
+  private boolean isVisible(Ticket ticket, Instant now) {
+    var createdAt = ticket.getCreatedAt();
+    if (createdAt == null) return false;
+    return createdAt.plus(DEFAULT_VISIBILITY).isAfter(now);
+  }
+
+  private TicketVerificationResult toResult(Ticket ticket) {
+    var lines =
+        ticket.getLines().stream()
+            .map(
+                l ->
+                    new TicketVerificationResult.Line(
+                        l.gameCode(), l.selection(), l.stake(), l.potentialPayout()))
             .toList();
 
-        BigDecimal stakeAmount = ticket.getTotalStake();
-        BigDecimal potentialPayout = ticket.getPotentialPayout();
+    return new TicketVerificationResult(
+        ticket.getId(),
+        ticket.getPublicCode(),
+        ticket.getStatus(),
+        ticket.getDrawId(),
+        maskTerminal(ticket.getTerminalId()),
+        ticket.getCreatedAt(),
+        ticket.getTotalAmount(),
+        lines);
+  }
 
-        String outletNameMasked = maskOutletName(ticket.getOutletName());
-
-        return new TicketVerificationResult(
-            ticket.getId(),
-            ticket.getTenantId(),
-            ticket.getPublicCode(),
-            ticket.getStatus(),
-            ticket.getGameCode(),
-            ticket.getDrawCode(),
-            ticket.getDrawDateTime(),
-            linesNumbers,
-            stakeAmount,
-            potentialPayout,
-            outletNameMasked,
-            ticket.getCreatedAt()
-        );
-    }
-
-    private String formatNumbers(TicketLine line) {
-        // exemple : "05-12-24-31"
-        return String.join("-", line.getNumbers());
-    }
-
-    private String maskOutletName(String outletName) {
-        if (outletName == null || outletName.length() < 2) {
-            return outletName;
-        }
-        return outletName.charAt(0) + "***";
-    }
+  private String maskTerminal(java.util.UUID terminalId) {
+    if (terminalId == null) return null;
+    var s = terminalId.toString();
+    return s.length() <= 8 ? s : s.substring(0, 8) + "…";
+  }
 }
-

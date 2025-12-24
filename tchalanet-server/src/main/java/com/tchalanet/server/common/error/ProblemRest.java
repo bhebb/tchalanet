@@ -1,7 +1,12 @@
 package com.tchalanet.server.common.error;
 
+import com.tchalanet.server.core.autonomy.domain.model.ApprovalRole;
+import com.tchalanet.server.core.limitpolicy.domain.model.OperationType;
+import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+
+import java.util.List;
 
 public final class ProblemRest {
 
@@ -39,5 +44,17 @@ public final class ProblemRest {
 
   public static ProblemRestException internal(String detail) {
     return of(HttpStatus.INTERNAL_SERVER_ERROR, detail);
+  }
+
+  public static ProblemRestException limitBlocked(String detail, OperationType operationType, List<LimitNotice> limitReasons, boolean approvalRequired, ApprovalRole requiredRole) {
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    pd.setTitle("Limit blocked");
+    pd.setDetail(detail);
+    pd.setProperty("operationType", operationType);
+    pd.setProperty("limitOutcome", "BLOCK");
+    pd.setProperty("limitReasons", limitReasons);
+    pd.setProperty("approvalRequired", approvalRequired);
+    pd.setProperty("requiredRole", requiredRole);
+    return new ProblemRestException(pd);
   }
 }

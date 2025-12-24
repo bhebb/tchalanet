@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.billing.infra.batch;
 
+import com.tchalanet.server.core.billing.application.command.handler.RenewSubscriptionsCommandHandler;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RenewSubscriptionsTasklet implements Tasklet {
 
-  private final RenewSubscriptionsUseCase useCase;
+  private final RenewSubscriptionsCommandHandler renewSubscriptionsCommandHandler;
 
   @Override
   public @Nullable RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext)

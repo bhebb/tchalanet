@@ -7,16 +7,17 @@ import com.tchalanet.server.core.draw.application.query.model.GetNextDrawQuery;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawsQuery;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
-import com.tchalanet.server.core.draw.infra.persistence.DrawJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

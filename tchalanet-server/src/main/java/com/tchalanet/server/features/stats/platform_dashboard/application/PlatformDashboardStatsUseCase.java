@@ -5,7 +5,6 @@ import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyEnti
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;
 import com.tchalanet.server.core.tenant.infra.persistence.TenantJpaRepository;
-import com.tchalanet.server.core.pos.infra.persistence.OutletJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

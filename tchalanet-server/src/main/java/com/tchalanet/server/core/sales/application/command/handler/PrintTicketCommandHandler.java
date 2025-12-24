@@ -1,65 +1,64 @@
 package com.tchalanet.server.core.sales.application.command.handler;
 
+import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.core.sales.application.command.model.PrintTicketCommand;
+import com.tchalanet.server.core.sales.application.port.out.PrintTicketModels;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.application.port.in.PrintTicketUseCase;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrinterPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
-import java.time.Instant;
+import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
+
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
+
 
 @UseCase
 @RequiredArgsConstructor
-public class PrintTicketCommandHandler implements PrintTicketUseCase {
+public class PrintTicketCommandHandler implements CommandHandler<PrintTicketCommand, String> {
 
-  private final TicketWritterPort ticketRepository;
-  private final TicketPrinterPort ticketPrinterPort;
+    private final TicketReaderPort ticketRepository;
+    private final TicketPrinterPort ticketPrinterPort;
 
-  @Override
-  public String getPrintableTicket(UUID ticketId, UUID tenantId) {
-    Ticket ticket =
-        ticketRepository
-            .findById(ticketId)
-            .orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + ticketId));
+    @Override
+    public String handle(PrintTicketCommand cmd) {
+        Ticket ticket =
+            ticketRepository
+                .findWithLinesById(cmd.tenantId(), cmd.ticketId())
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + cmd.ticketId()));
 
-    if (!ticket.getTenantId().equals(tenantId)) {
-      throw new SecurityException("Tenant mismatch for ticket " + ticketId);
+        if (!ticket.getTenantId().equals(cmd.tenantId())) {
+            throw new SecurityException("Tenant mismatch for ticket " + cmd.ticketId());
+        }
+
+        PrintTicketModels.PrintTicketPayload payload = buildPayload(ticket);
+
+        return ticketPrinterPort.render(payload);
     }
 
-    PrintTicketPayload payload = buildPayload(ticket);
+    private PrintTicketModels.PrintTicketPayload buildPayload(Ticket ticket) {
+        String terminalInfo = ticket.getTerminalId().toString();
+        String drawName = ticket.getDrawId().toString();
 
-    return ticketPrinterPort.render(payload);
-  }
+        var lines =
+            ticket.getLines().stream()
+                .map(
+                    line ->
+                        new PrintTicketModels.PrintTicketPayload.Line(
+                            line.gameCode(),
+                            line.selection(),
+                            line.stake(),
+                            line.potentialPayout()))
+                .collect(Collectors.toList());
 
-  private PrintTicketPayload buildPayload(Ticket ticket) {
-    String tenantName = "Tenant " + ticket.getTenantId().toString().substring(0, 4);
-    String terminalInfo = "Terminal " + ticket.getTerminalId().toString().substring(0, 4);
-    String drawName = "Draw " + ticket.getDrawId().toString().substring(0, 4);
-    Instant drawTime = Instant.now(); // Placeholder
-
-    var lines =
-        ticket.getLines().stream()
-            .map(
-                line ->
-                    new PrintLine(
-                        line.gameCode(),
-                        line.selection(),
-                        line.stake(),
-                        line.potentialPayout()))
-            .collect(Collectors.toList());
-
-    return new PrintTicketPayload(
-        tenantName,
-        terminalInfo,
-        ticket.getTicketCode(),
-        ticket.getPublicCode(),
-        ticket.getCreatedAt(),
-        drawName,
-        drawTime,
-        ticket.getTotalAmount(),
-        lines);
-  }
+        return new PrintTicketModels.PrintTicketPayload(
+            ticket.getTicketCode(),
+            ticket.getPublicCode(),
+            terminalInfo,
+            drawName,
+            ticket.getCreatedAt(),
+            lines,
+            ticket.getTotalAmount());
+    }
 }
-

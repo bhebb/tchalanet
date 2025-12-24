@@ -11,17 +11,20 @@ import java.util.Objects;
  * @param stake The amount of money wagered on this line.
  * @param oddsSnapshot The odds for this selection at the time of purchase.
  * @param potentialPayout The potential winnings for this line (stake * odds).
+ * @param betType The type of bet for this line.
  */
 public record TicketLine(
     String gameCode,
     String selection,
     BigDecimal stake,
     BigDecimal oddsSnapshot,
-    BigDecimal potentialPayout) {
+    BigDecimal potentialPayout,
+    BetType betType) {
   public TicketLine {
     Objects.requireNonNull(gameCode, "Game code cannot be null");
     Objects.requireNonNull(selection, "Selection cannot be null");
     Objects.requireNonNull(stake, "Stake cannot be null");
+    Objects.requireNonNull(betType, "Bet type cannot be null");
     if (stake.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Stake must be positive.");
     }

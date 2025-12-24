@@ -21,6 +21,8 @@ app:
     fetch-results-windows: "12:00-14:00,20:00-23:00"
     settle-draws-windows: "12:00-15:00,20:00-23:30"
     close-draws-windows: "11:30-14:00,19:30-23:00"
+    fetch:
+      chunk-size: ${APP_BATCH_FETCH_CHUNK_SIZE:10}
     settle:
       chunk-size: ${APP_BATCH_SETTLE_CHUNK_SIZE:50}
   # default ZoneId used by the application; can be overridden with env var APP_ZONE_ID

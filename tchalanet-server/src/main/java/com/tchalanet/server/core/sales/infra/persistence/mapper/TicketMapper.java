@@ -4,67 +4,74 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import com.tchalanet.server.core.sales.infra.persistence.TicketLineEntity;
+
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TicketMapper {
 
-  public TicketEntity toEntity(Ticket ticket) {
-    TicketEntity entity = new TicketEntity();
-    entity.setId(ticket.getId());
-    entity.setTenantId(ticket.getTenantId());
-    entity.setTerminalId(ticket.getTerminalId());
-    entity.setSessionId(ticket.getSessionId());
-    entity.setDrawId(ticket.getDrawId());
-    entity.setTicketCode(ticket.getTicketCode());
-    entity.setPublicCode(ticket.getPublicCode());
-    entity.setStatus(ticket.getStatus());
-    entity.setTotalAmount(ticket.getTotalAmount());
-    entity.setCreatedAt(ticket.getCreatedAt());
-    entity.setUpdatedAt(ticket.getUpdatedAt());
+    public Ticket toDomain(TicketEntity e) {
+        var lines = e.getLines() == null ? List.<TicketLine>of()
+            : e.getLines().stream().map(this::toDomainLine).toList();
 
-    entity.setLines(
-        ticket.getLines().stream()
-            .map(line -> toLineEntity(line, entity))
-            .collect(Collectors.toList()));
+        // Reconstruct: keep exact persisted fields
+        return Ticket.rehydrate(
+            e.getId(),
+            e.getTenantId(),
+            e.getTerminalId(),
+            e.getSessionId(),
+            e.getDrawId(),
+            e.getTicketCode(),
+            e.getPublicCode(),
+            lines,
+            e.getTotalAmount(),
+            e.getStatus(),
+            e.getCreatedAt(),
+            e.getUpdatedAt()
+        );
+    }
 
-    return entity;
-  }
+    private TicketLine toDomainLine(TicketLineEntity le) {
+        return new TicketLine(
+            le.getGameCode(),
+            le.getSelection(),
+            le.getStake(),
+            le.getOddsSnapshot(),
+            le.getPotentialPayout(),
+            le.getBetType()
+        );
+    }
 
-  public Ticket toDomain(TicketEntity entity) {
-    // This is a simplified mapping. A more robust implementation would use reflection
-    // or a private constructor on the domain object if it needs to be reconstructed
-    // from a persisted state. For now, we assume we can create it via the factory.
-    // This highlights a common challenge in DDD: reconstructing aggregates.
-    // A dedicated constructor in Ticket for reconstruction is a good pattern.
-    return Ticket.create(
-        entity.getTenantId(),
-        entity.getTerminalId(),
-        entity.getSessionId(),
-        entity.getDrawId(),
-        entity.getTicketCode(),
-        entity.getPublicCode(),
-        entity.getLines().stream().map(this::toLineDomain).collect(Collectors.toList()));
-  }
+    public TicketEntity toEntity(Ticket domain) {
+        TicketEntity e = new TicketEntity();
+        e.setId(domain.getId());            // BaseTenantEntity
+        e.setTenantId(domain.getTenantId());
 
-  private TicketLineEntity toLineEntity(TicketLine line, TicketEntity ticketEntity) {
-    TicketLineEntity lineEntity = new TicketLineEntity();
-    lineEntity.setTicket(ticketEntity);
-    lineEntity.setGameCode(line.gameCode());
-    lineEntity.setSelection(line.selection());
-    lineEntity.setStake(line.stake());
-    lineEntity.setOddsSnapshot(line.oddsSnapshot());
-    lineEntity.setPotentialPayout(line.potentialPayout());
-    return lineEntity;
-  }
+        e.setTerminalId(domain.getTerminalId());
+        e.setSessionId(domain.getSessionId());
+        e.setDrawId(domain.getDrawId());
 
-  private TicketLine toLineDomain(TicketLineEntity lineEntity) {
-    return new TicketLine(
-        lineEntity.getGameCode(),
-        lineEntity.getSelection(),
-        lineEntity.getStake(),
-        lineEntity.getOddsSnapshot(),
-        lineEntity.getPotentialPayout());
-  }
+        e.setTicketCode(domain.getTicketCode());
+        e.setPublicCode(domain.getPublicCode());
+        e.setStatus(domain.getStatus());
+        e.setTotalAmount(domain.getTotalAmount());
+
+        var lineEntities = domain.getLines().stream().map(this::toEntityLine).toList();
+        e.clearAndAddLines(lineEntities);
+        return e;
+    }
+
+    private TicketLineEntity toEntityLine(TicketLine line) {
+        TicketLineEntity le = new TicketLineEntity();
+        le.setGameCode(line.gameCode());
+        le.setSelection(line.selection());
+        le.setStake(line.stake());
+        le.setOddsSnapshot(line.oddsSnapshot());
+        le.setPotentialPayout(line.potentialPayout());
+        le.setBetType(line.betType());
+        return le;
+    }
+
 }
