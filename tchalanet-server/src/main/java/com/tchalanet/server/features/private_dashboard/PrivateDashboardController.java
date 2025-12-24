@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.private_dashboard;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tchalanet.server.features.pagemodel.shared.PageModelService;
-import com.tchalanet.server.features.pagemodel.shared.PageModelTypeResolver;
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.private_dashboard.dynamic.PrivateDashboardDynamicDataService;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
-import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 
 @RestController
 @RequestMapping("/api/private/dashboard")
@@ -27,19 +22,16 @@ public class PrivateDashboardController {
 
     private final PrivateDashboardService service;
     private final PrivateDashboardDynamicDataService dynamicDataService;
-    private final PageModelService pageModelService;
-    private final PageModelTypeResolver pageModelTypeResolver;
-    private final LangResolver langResolver;
 
     @GetMapping
-    public ResponseEntity<PrivateDashboardResponse> getDashboard(
+    public ResponseEntity<ApiResponse<PrivateDashboardResponse>> getDashboard(
         @RequestParam(name = "lang", required = false) String lang,
         @RequestHeader(value = "X-User-Id", required = false) UUID userId,
         @RequestHeader(value = "X-User-Lang", required = false) String userPreferredLang
     ) {
         UUID effectiveUserId = userId != null ? userId : UUID.randomUUID();
 
-        PrivateDashboardResponse response = service.getDashboard(
+        ApiResponse<PrivateDashboardResponse> response = service.getDashboard(
             Optional.ofNullable(lang),
             effectiveUserId,
             userPreferredLang
@@ -48,35 +40,25 @@ public class PrivateDashboardController {
     }
 
     @GetMapping("/tenant/{tenantId}")
-    public ResponseEntity<PrivateDashboardDynamicPayload> getTenantDashboardForSuperadmin(
+    public ResponseEntity<ApiResponse<PrivateDashboardDynamicPayload>> getTenantDashboardForSuperadmin(
         @PathVariable UUID tenantId,
         @RequestParam(name = "lang", required = false) String lang,
         @RequestHeader(value = "X-User-Id", required = false) UUID userId
     ) {
         UUID effectiveUserId = userId != null ? userId : UUID.randomUUID();
-        var type = pageModelTypeResolver.forDashboard(TchRole.TENANT_ADMIN);
-        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
-
-        String resolvedLang = langResolver.resolve(new LangResolver.LangResolverContext(Optional.ofNullable(lang), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), "fr"));
-
-        PrivateDashboardDynamicPayload payload = dynamicDataService.buildDynamicData(tenantId, effectiveUserId, TchRole.TENANT_ADMIN, resolvedLang, pageModel);
-        return ResponseEntity.ok(payload);
+        ApiResponse<PrivateDashboardDynamicPayload> response = service.getTenantDashboardForSuperadmin(tenantId, Optional.ofNullable(lang), effectiveUserId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/tenant/{tenantId}/cashier/{cashierId}")
-    public ResponseEntity<PrivateDashboardDynamicPayload> getCashierDashboardForSuperadmin(
+    public ResponseEntity<ApiResponse<PrivateDashboardDynamicPayload>> getCashierDashboardForSuperadmin(
         @PathVariable UUID tenantId,
         @PathVariable UUID cashierId,
         @RequestParam(name = "lang", required = false) String lang,
         @RequestHeader(value = "X-User-Id", required = false) UUID userId
     ) {
-        UUID effectiveUserId = userId != null ? userId : cashierId;
-        var type = pageModelTypeResolver.forDashboard(TchRole.CASHIER);
-        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
-
-        String resolvedLang = langResolver.resolve(new LangResolver.LangResolverContext(Optional.ofNullable(lang), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), "fr"));
-
-        PrivateDashboardDynamicPayload payload = dynamicDataService.buildDynamicData(tenantId, effectiveUserId, TchRole.CASHIER, resolvedLang, pageModel);
-        return ResponseEntity.ok(payload);
+        var effectiveUserId = userId != null ? userId : cashierId;
+        var response = service.getCashierDashboardForSuperadmin(tenantId, cashierId, Optional.ofNullable(lang), effectiveUserId);
+        return ResponseEntity.ok(response);
     }
 }

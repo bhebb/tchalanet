@@ -33,10 +33,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.tchalanet.server.common.error.ProblemRest;
+import com.tchalanet.server.common.web.api.ApiNotice;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.advice.ApiResponseContext;
 
 @UseCase
 @RequiredArgsConstructor
@@ -110,17 +114,40 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
 
             log.info("Ticket sold ticketId={} tenantId={} publicCode={}", saved.getId(), saved.getTenantId(), saved.getPublicCode());
 
-            List<LimitNotice> warnings = limitResult.details().stream()
-                .map(d -> new LimitNotice(d.ruleKey(), d.outcome(), d.message(), d.targetApplied(), d.selectionKey(), d.currentValue(), d.limitValue()))
+            List<ApiNotice> warnings = limitResult.details().stream()
+                .map(d -> new ApiNotice(
+                    "LIMIT_" + d.outcome().name(),
+                    d.message(),
+                    "limitpolicy",
+                    d.outcome() == BreachOutcome.WARN ? NoticeSeverity.WARN : NoticeSeverity.INFO,
+                    Map.of(
+                        "ruleKey", d.ruleKey(),
+                        "targetApplied", d.targetApplied(),
+                        "selectionKey", d.selectionKey(),
+                        "currentValue", d.currentValue(),
+                        "limitValue", d.limitValue()
+                    )
+                ))
                 .toList();
 
+            // Add warnings to context
+            warnings.forEach(ApiResponseContext.get()::addNotice);
+
             String status = limitResult.overallOutcome() == BreachOutcome.WARN ? "SUCCESS_WITH_WARNINGS" : "SUCCESS";
-            return new SellTicketResult(saved, status, warnings, null);
+            return new SellTicketResult(saved, status, null);
         } else {
             // BLOCK - should not reach here if thrown, but for approval case
             // For now, return pending
             var approvalRequestId = UUID.randomUUID(); // dummy
-            return new SellTicketResult(null, "PENDING_APPROVAL", List.of(), approvalRequestId);
+            var notice = new ApiNotice(
+                "APPROVAL_REQUIRED",
+                "Transaction requires approval due to limit breach",
+                "autonomy",
+                NoticeSeverity.WARN,
+                Map.of("approvalRequestId", approvalRequestId)
+            );
+            ApiResponseContext.get().addNotice(notice);
+            return new SellTicketResult(null, "PENDING_APPROVAL", approvalRequestId);
         }
     }
 
@@ -186,7 +213,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
             if (!autonomyPolicy.requireApprovalOnBlock()) {
                 // REJECT
                 List<LimitNotice> notices = limitResult.details().stream()
-                    .map(d -> new LimitNotice(d.ruleKey(), d.outcome(), d.message(), d.targetApplied(), d.selectionKey(), d.currentValue(), d.limitValue()))
+                    .map(d -> new LimitNotice(d.ruleKey(), d.outcome(), d.message(), d.targetApplied().name(), d.selectionKey(), d.currentValue(), d.limitValue()))
                     .toList();
                 throw ProblemRest.limitBlocked("Limit breach blocked", OperationType.SALE, notices, true, autonomyPolicy.approvalRole());
             }

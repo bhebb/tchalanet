@@ -7,6 +7,7 @@ import com.tchalanet.server.core.sales.application.query.model.*;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.infra.web.model.*;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +26,13 @@ public class TicketController {
 
   // --- SELL ---
   @PostMapping
-  public ResponseEntity<SellTicketResponse> sell(@Valid @RequestBody SellTicketRequest request) {
+  public ResponseEntity<TicketResponse> sell(@Valid @RequestBody SellTicketRequest request) {
     var cmd = mapper.toSellCommand(request);
     var result = commandBus.send(cmd);
-    var response = mapper.toSellTicketResponse(result);
     if ("PENDING_APPROVAL".equals(result.status())) {
-      return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+      return ResponseEntity.status(HttpStatus.ACCEPTED).body(null); // Body will be wrapped by advice
     } else {
-      return ResponseEntity.status(HttpStatus.CREATED).body(response);
+      return ResponseEntity.status(HttpStatus.CREATED).body(result.ticket());
     }
   }
 

@@ -1,16 +1,25 @@
 package com.tchalanet.server.features.private_dashboard;
 
 import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.web.api.ApiNotice;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
+import com.tchalanet.server.common.web.api.ServiceHealth;
+import com.tchalanet.server.common.web.api.ServiceStatus;
 import com.tchalanet.server.features.i18n.TenantI18nOverrideService;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
+import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.pagemodel.shared.PageModelService;
 import com.tchalanet.server.features.pagemodel.shared.PageModelTypeResolver;
+import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
 import com.tchalanet.server.features.private_dashboard.dynamic.PrivateDashboardDynamicDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,7 +34,7 @@ public class PrivateDashboardService {
     private final PrivateDashboardDynamicDataService dynamicDataService;
     private final PageModelTypeResolver pageModelTypeResolver;
 
-    public PrivateDashboardResponse getDashboard(Optional<String> langFromUrl, UUID userId, String userPreferredLang) {
+    public ApiResponse<PrivateDashboardResponse> getDashboard(Optional<String> langFromUrl, UUID userId, String userPreferredLang) {
         var tenantId = tenantContext.get().tenantUuid();
         var role = tenantContext.get().currentRole();
         var type = pageModelTypeResolver.forDashboard(role);
@@ -44,7 +53,18 @@ public class PrivateDashboardService {
         var currentLang = langResolver.resolve(ctx);
         List<String> langs = meta != null && meta.langs() != null ? meta.langs() : List.of(currentLang);
 
-        var dynamic = dynamicDataService.buildDynamicData(tenantId, userId, role, currentLang, pageModel);
+        // Try to build dynamic data, catch failures
+        List<ServiceStatus> services = List.of();
+        List<ApiNotice> notices = List.of();
+        PrivateDashboardDynamicPayload dynamic;
+        try {
+            dynamic = dynamicDataService.buildDynamicData(tenantId, userId, role, currentLang, pageModel);
+        } catch (Exception e) {
+            // Service failure - return partial response
+            dynamic = null; // or empty payload
+            services = List.of(new ServiceStatus("dynamicDataService", ServiceHealth.DOWN, "Failed to load dynamic data: " + e.getMessage()));
+            notices = List.of(new ApiNotice("SERVICE_DEGRADED", "Some dashboard content may be unavailable", "private_dashboard", NoticeSeverity.WARN, Map.of()));
+        }
 
         var overridesPage = i18nOverrideService.pageByTenantAndLocale(tenantId, currentLang, PageRequest.of(0, 1000));
         var i18n = java.util.Map.<String, Object>of(
@@ -52,13 +72,73 @@ public class PrivateDashboardService {
             "pageSize", overridesPage.getSize()
         );
 
-        return new PrivateDashboardResponse(
+        var response = new PrivateDashboardResponse(
             currentLang,
             langs,
             pageModel,
             dynamic,
-            i18n,
-            List.of()
+            i18n
         );
+
+        // Return appropriate ApiResponse based on service status
+        if (!services.isEmpty()) {
+            return ApiResponse.partial(response, services, notices);
+        } else {
+            return ApiResponse.success(response);
+        }
+    }
+
+    public ApiResponse<PrivateDashboardDynamicPayload> getTenantDashboardForSuperadmin(UUID tenantId, Optional<String> lang, UUID userId) {
+        var type = pageModelTypeResolver.forDashboard(TchRole.TENANT_ADMIN);
+        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
+
+        String resolvedLang = langResolver.resolve(new LangResolver.LangResolverContext(lang, Optional.empty(), Optional.empty(), Optional.empty(), List.of(), "fr"));
+
+        // Try to build dynamic data, catch failures
+        List<ServiceStatus> services = List.of();
+        List<ApiNotice> notices = List.of();
+        PrivateDashboardDynamicPayload payload;
+        try {
+            payload = dynamicDataService.buildDynamicData(tenantId, userId, TchRole.TENANT_ADMIN, resolvedLang, pageModel);
+        } catch (Exception e) {
+            // Service failure - return partial response
+            payload = null; // or empty payload
+            services = List.of(new ServiceStatus("dynamicDataService", ServiceHealth.DOWN, "Failed to load tenant dashboard data: " + e.getMessage()));
+            notices = List.of(new ApiNotice("SERVICE_DEGRADED", "Tenant dashboard content may be unavailable", "private_dashboard", NoticeSeverity.WARN, Map.of()));
+        }
+
+        // Return appropriate ApiResponse based on service status
+        if (!services.isEmpty()) {
+            return ApiResponse.partial(payload, services, notices);
+        } else {
+            return ApiResponse.success(payload);
+        }
+    }
+
+    public ApiResponse<PrivateDashboardDynamicPayload> getCashierDashboardForSuperadmin(UUID tenantId, UUID cashierId, Optional<String> lang, UUID userId) {
+        var type = pageModelTypeResolver.forDashboard(TchRole.CASHIER);
+        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
+
+        String resolvedLang = langResolver.resolve(new LangResolver.LangResolverContext(lang, Optional.empty(), Optional.empty(), Optional.empty(), List.of(), "fr"));
+
+        // Try to build dynamic data, catch failures
+        List<ServiceStatus> services = List.of();
+        List<ApiNotice> notices = List.of();
+        PrivateDashboardDynamicPayload payload;
+        try {
+            payload = dynamicDataService.buildDynamicData(tenantId, userId, TchRole.CASHIER, resolvedLang, pageModel);
+        } catch (Exception e) {
+            // Service failure - return partial response
+            payload = null; // or empty payload
+            services = List.of(new ServiceStatus("dynamicDataService", ServiceHealth.DOWN, "Failed to load cashier dashboard data: " + e.getMessage()));
+            notices = List.of(new ApiNotice("SERVICE_DEGRADED", "Cashier dashboard content may be unavailable", "private_dashboard", NoticeSeverity.WARN, Map.of()));
+        }
+
+        // Return appropriate ApiResponse based on service status
+        if (!services.isEmpty()) {
+            return ApiResponse.partial(payload, services, notices);
+        } else {
+            return ApiResponse.success(payload);
+        }
     }
 }
