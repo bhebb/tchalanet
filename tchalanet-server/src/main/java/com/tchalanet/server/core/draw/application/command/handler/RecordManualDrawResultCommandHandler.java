@@ -28,7 +28,7 @@ public class RecordManualDrawResultCommandHandler
   public void handle(RecordManualDrawResultCommand command) {
     var draw =
         drawReaderPort
-            .findById(command.tenantId(), command.drawId())
+            .findById(command.drawId())
             .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
 
     var result =

@@ -1,12 +1,13 @@
 package com.tchalanet.server.core.limitpolicy.domain.service;
+import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.common.types.enums.TargetType;
 import com.tchalanet.server.core.limitpolicy.application.port.out.LimitDefinitionReaderPort;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitDefinition;
 import com.tchalanet.server.core.limitpolicy.domain.model.ResolvedLimitSet;
-import com.tchalanet.server.core.limitpolicy.domain.model.RuleKey;
-import com.tchalanet.server.core.limitpolicy.domain.model.TargetType;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -67,6 +68,7 @@ public class LimitResolver {
       case ZONE -> a.targetId().equals(context.zoneId());
       case RANGE -> context.rangeIds() != null && context.rangeIds().contains(a.targetId());
       case DRAWCHANNEL -> a.targetId().equals(context.drawChannelId());
+      default -> false;
     };
   }
 
@@ -79,6 +81,7 @@ public class LimitResolver {
       case RANGE -> 3;
       case DRAWCHANNEL -> 2;
       case TENANT -> 1;
+      default -> 0;
     };
   }
 }

@@ -1,15 +1,17 @@
 package com.tchalanet.server.core.accesscontrol.application.command.model;
+import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.Command;
 import java.util.UUID;
 
 public record CreateRoleCommand(
-    UUID id,
+    RoleId id,
     String code,
     String name,
     String description,
-    UUID tenantId,
-    UUID parentRoleId,
+    TenantId tenantId,
+    RoleId parentRoleId,
     boolean system
 ) implements Command<UUID> {}
 

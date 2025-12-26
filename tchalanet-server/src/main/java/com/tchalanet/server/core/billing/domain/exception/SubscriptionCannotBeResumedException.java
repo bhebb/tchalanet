@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.billing.domain.exception;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.SubscriptionId;
 
 public class SubscriptionCannotBeResumedException extends RuntimeException {
-    public SubscriptionCannotBeResumedException(UUID subscriptionId) {
+    public SubscriptionCannotBeResumedException(SubscriptionId subscriptionId) {
         super("Subscription " + subscriptionId + " cannot be resumed");
     }
 }

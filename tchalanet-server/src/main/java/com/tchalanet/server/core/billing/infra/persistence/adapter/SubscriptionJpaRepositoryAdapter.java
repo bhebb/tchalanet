@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.billing.infra.persistence.adapter;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.billing.application.port.out.SubscriptionReaderPort;
 import com.tchalanet.server.core.billing.application.port.out.SubscriptionWriterPort;
@@ -23,8 +24,8 @@ public class SubscriptionJpaRepositoryAdapter implements SubscriptionReaderPort,
     private final SubscriptionPersistenceMapper mapper;
 
     @Override
-    public Optional<Subscription> findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(UUID tenantId, List<SubscriptionStatus> statuses) {
-        return jpa.findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(tenantId, statuses)
+    public Optional<Subscription> findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc( TenantId tenantId, List<SubscriptionStatus> statuses) {
+        return jpa.findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(tenantId.uuid(), statuses)
                 .map(mapper::toDomain);
     }
 
@@ -44,7 +45,7 @@ public class SubscriptionJpaRepositoryAdapter implements SubscriptionReaderPort,
     }
 
     @Override
-    public Optional<Subscription> findFirstByTenantIdAndStatus(UUID tenantId, Set<SubscriptionStatus> statuses) {
+    public Optional<Subscription> findFirstByTenantIdAndStatus( TenantId tenantId, Set<SubscriptionStatus> statuses) {
         return findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(tenantId, List.copyOf(statuses));
     }
 }

@@ -1,18 +1,23 @@
 package com.tchalanet.server.core.session.application.query.model;
+import com.tchalanet.server.common.types.id.SessionId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.UUID;
 
 /**
  * DTO for session with totals.
  */
 public record SessionWithTotalsDto(
-    UUID sessionId,
-    UUID tenantId,
-    UUID outletId,
-    UUID terminalId,
-    UUID userId,
+    SessionId sessionId,
+    TenantId tenantId,
+    OutletId outletId,
+    TerminalId terminalId,
+    UserId userId,
     String status,
     Instant openedAt,
     Instant closedAt,

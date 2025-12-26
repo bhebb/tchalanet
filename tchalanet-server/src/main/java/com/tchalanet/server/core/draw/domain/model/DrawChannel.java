@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.domain.model;
 
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;

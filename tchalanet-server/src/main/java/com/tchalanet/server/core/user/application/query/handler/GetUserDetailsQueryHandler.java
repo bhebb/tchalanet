@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.user.application.query.handler;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -19,7 +21,7 @@ public class GetUserDetailsQueryHandler implements QueryHandler<GetUserDetailsQu
 
   @Override
   public UserProfileQuery handle(GetUserDetailsQuery query) {
-    UUID userId = query.keycloakUserId();
+    UserId userId = query.keycloakUserId();
     AppUser user = userReaderPort
         .findById(userId)
         .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));

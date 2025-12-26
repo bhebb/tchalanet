@@ -1,4 +1,5 @@
 package com.tchalanet.server.common.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.settings.AppSettingLevel;
 import org.springframework.data.jpa.repository.JpaRepository;

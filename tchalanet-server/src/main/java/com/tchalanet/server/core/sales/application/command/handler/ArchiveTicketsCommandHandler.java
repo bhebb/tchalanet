@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.sales.application.command.handler;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;

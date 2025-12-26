@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +14,13 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SettleWriter implements ItemWriter<UUID> {
+public class SettleWriter implements ItemWriter<DrawId> {
 
     private final DrawReaderPort drawReaderPort;
     private final DrawWriterPort drawWriterPort;
 
     @Override
-    public void write(Chunk<? extends UUID> chunks) throws Exception {
+    public void write(Chunk<? extends DrawId> chunks) throws Exception {
         chunks.getItems()
             .forEach(drawId -> {
                 var drawOpt = drawReaderPort.findById(drawId);

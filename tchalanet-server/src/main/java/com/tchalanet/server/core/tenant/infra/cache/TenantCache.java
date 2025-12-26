@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.tenant.infra.cache;
 
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
@@ -44,7 +44,7 @@ public class TenantCache {
             return Optional.empty();
         }
         UUID id = c.get(key, UUID.class);
-        return Optional.ofNullable(id).map(TenantId::new);
+        return Optional.ofNullable(id).map(TenantId::of);
     }
 
     public void putTenantIdByCode(String codeLower, TenantId tenantId) {

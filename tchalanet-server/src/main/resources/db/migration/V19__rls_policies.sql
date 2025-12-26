@@ -1,4 +1,4 @@
--- V13__rls_policies.sql
+-- V19__rls_policies.sql
 -- RLS multi-tenant + soft delete visibility via app.deleted_visibility ('active'|'deleted'|'all')
 -- Uses app.current_tenant (uuid) set via set_config('app.current_tenant', ...)
 DO $$

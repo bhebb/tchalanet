@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.application.command.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 
-public record ArchiveDrawCommand(UUID tenantId, UUID drawId) {}
+public record ArchiveDrawCommand(TenantId tenantId, DrawId drawId) {}

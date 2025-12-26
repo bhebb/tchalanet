@@ -1,4 +1,8 @@
 package com.tchalanet.server.core.audit.domain.model;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditActorType;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -13,7 +17,7 @@ public final class AuditEvent {
 
     private final UUID id; // nullable pour nouveaux événements
 
-    private final UUID tenantId; // nullable si event "platform/system" (optionnel)
+    private final TenantId tenantId; // nullable si event "platform/system" (optionnel)
     private final Instant occurredAt;
 
     // Compat / trace interne (peut être null si actor SYSTEM)
@@ -37,7 +41,7 @@ public final class AuditEvent {
 
     public AuditEvent(
         UUID id,
-        UUID tenantId,
+        TenantId tenantId,
         Instant occurredAt,
         UUID createdBy,
         AuditActorType actorType,
@@ -87,7 +91,7 @@ public final class AuditEvent {
      * Factory "safe" pour créer un event non persisté (id null).
      */
     public static AuditEvent of(
-        UUID tenantId,
+        TenantId tenantId,
         Instant occurredAt,
         AuditActorType actorType,
         UUID actorId,
@@ -117,7 +121,7 @@ public final class AuditEvent {
      * Variante simple: occurredAt = now().
      */
     public static AuditEvent now(
-        UUID tenantId,
+        TenantId tenantId,
         AuditActorType actorType,
         UUID actorId,
         AuditEntityType entityType,
@@ -135,7 +139,7 @@ public final class AuditEvent {
         return id;
     }
 
-    public UUID tenantId() {
+    public TenantId tenantId() {
         return tenantId;
     }
 

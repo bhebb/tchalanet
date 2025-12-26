@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.uslottery.infra.config;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.repository;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
-import com.tchalanet.server.core.sales.domain.model.BetType;
-import com.tchalanet.server.core.limitpolicy.domain.model.ScopeType;
+import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.common.types.enums.ScopeType;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.entity.DrawExposureJpaEntity;
 import java.math.BigDecimal;
 import java.util.UUID;

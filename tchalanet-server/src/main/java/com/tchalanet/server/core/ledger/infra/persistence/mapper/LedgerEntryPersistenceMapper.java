@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 public interface LedgerEntryPersistenceMapper {
 
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "tenantId", source = "tenantId")
+    @Mapping(target = "tenantId", expression = "java(domain.tenantId() == null ? null : domain.tenantId().uuid())")
     @Mapping(target = "refType", source = "refType")
     @Mapping(target = "refId", source = "refId")
     @Mapping(target = "amount", source = "amount")
@@ -18,7 +18,7 @@ public interface LedgerEntryPersistenceMapper {
     LedgerEntryJpaEntity toEntity(LedgerEntry domain);
 
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "tenantId", source = "tenantId")
+    @Mapping(target = "tenantId", expression = "java(entity.getTenantId() == null ? null : com.tchalanet.server.common.types.id.TenantId.of(entity.getTenantId()))")
     @Mapping(target = "refType", source = "refType")
     @Mapping(target = "refId", source = "refId")
     @Mapping(target = "amount", source = "amount")

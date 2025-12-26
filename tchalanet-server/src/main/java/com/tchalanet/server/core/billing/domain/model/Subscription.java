@@ -1,5 +1,9 @@
 package com.tchalanet.server.core.billing.domain.model;
 
+import com.tchalanet.server.common.types.id.PlanId;
+import com.tchalanet.server.common.types.id.SubscriptionId;
+import com.tchalanet.server.common.types.id.TenantId;
+
 import com.tchalanet.server.core.billing.domain.exception.SubscriptionAlreadyCanceledException;
 import com.tchalanet.server.core.billing.domain.exception.SubscriptionCannotBeCanceledException;
 import com.tchalanet.server.core.billing.domain.exception.SubscriptionCannotBeResumedException;
@@ -9,14 +13,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 
 public record Subscription(
-    UUID id,
-    UUID tenantId,
-    UUID planId,
+    SubscriptionId id,
+    TenantId tenantId,
+    PlanId planId,
     SubscriptionStatus status,
     Instant currentPeriodStart,
     Instant currentPeriodEnd,
@@ -49,14 +52,14 @@ public record Subscription(
 
     public Subscription resume(Instant now) {
         if (status != SubscriptionStatus.SUSPENDED) {
-            throw new SubscriptionCannotBeResumedException(id);
+            throw new SubscriptionCannotBeResumedException(SubscriptionId.nullableOf(id.value()));
         }
         return withStatus(SubscriptionStatus.ACTIVE);
     }
 
     public Subscription suspend(Instant now) {
         if (status != SubscriptionStatus.ACTIVE) {
-            throw new SubscriptionCannotBeSuspendedException(id, status);
+            throw new SubscriptionCannotBeSuspendedException(SubscriptionId.nullableOf(id.value()), status);
         }
         return withStatus(SubscriptionStatus.SUSPENDED);
     }
@@ -86,11 +89,11 @@ public record Subscription(
             cancelAtPeriodEnd, billingProvider, billingExternalId, meta, version);
     }
 
-    public static Subscription start(UUID subscriptionId, UUID tenantId, PlanId planId, Instant now, BillingProvider provider) {
+    public static Subscription start(SubscriptionId subscriptionId, TenantId tenantId, PlanId planId, Instant now, BillingProvider provider) {
         return new Subscription(
             subscriptionId,
             tenantId,
-            planId.value(),
+            planId,
             SubscriptionStatus.ACTIVE,
             now,
             now.plus(30, ChronoUnit.DAYS),

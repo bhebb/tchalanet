@@ -1,7 +1,10 @@
 package com.tchalanet.server.features.private_dashboard.dynamic;
 
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.core.audit.application.query.handler.ListTenantRecentActivityQueryHandler;
 import com.tchalanet.server.core.audit.application.query.model.AuditEventQuery;
+import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleQuery;
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.private_dashboard.block.ActivityFeedBlock;
 import com.tchalanet.server.features.private_dashboard.block.AlertsBlock;
@@ -31,7 +34,9 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +44,14 @@ public class TenantAdminDashboardService {
 
     private final GetTenantKpisHandler getTenantKpisHandler;
     private final TenantDashboardStatsUseCase tenantDashboardStatsUseCase;
-    private final ListPendingValidationsHandler listPendingValidationsHandler;
+    private final QueryBus queryBus;
     private final ListTenantRecentActivityQueryHandler listTenantRecentActivityQueryHandler;
     private final CashierDashboardStatsUseCase cashierDashboardStatsUseCase;
     private final GetOutletPerformanceReportHandler getOutletPerformanceReportHandler;
 
     public PrivateDashboardDynamicPayload build(
-        UUID tenantId,
-        UUID userId,
+        TenantId tenantId,
+        UserId userId,
         String currentLang,
         @SuppressWarnings("unused") PageModel pageModel
     ) {
@@ -77,9 +82,9 @@ public class TenantAdminDashboardService {
     }
 
     @SuppressWarnings("unused")
-    private KpiBlock buildGlobalKpis(UUID tenantId, String currentLang) {
+    private KpiBlock buildGlobalKpis(TenantId tenantId, String currentLang) {
         try {
-            var kpisResponse = getTenantKpisHandler.handle(new com.tchalanet.server.features.reporting.tenantkpis.GetTenantKpisQuery(tenantId, null, null));
+            var kpisResponse = getTenantKpisHandler.handle(new com.tchalanet.server.features.reporting.tenantkpis.GetTenantKpisQuery(tenantId.uuid(), null, null));
             var snapshot = kpisResponse.snapshot();
             var kpis = snapshot.kpis();
 
@@ -147,28 +152,34 @@ public class TenantAdminDashboardService {
     }
 
     @SuppressWarnings("unused")
-    private ValidationsBlock buildValidations(UUID tenantId, String currentLang) {
+    private ValidationsBlock buildValidations(TenantId tenantId, String currentLang) {
         try {
-            var pending = listPendingValidationsHandler.handle(tenantId);
-            if (pending == null || pending.isEmpty()) return ValidationsBlock.empty();
+            var rule = queryBus.send(new GetAutonomyPolicyRuleQuery(tenantId, AutonomyTargetType.TENANT, tenantId.uuid()));
+            if (rule == null) return ValidationsBlock.empty();
 
-            var items = pending.stream().map(p -> new ValidationsBlock.ValidationItem(
-                p.id().toString(),
-                "validation." + p.type().name().toLowerCase(),
-                p.target(),
-                p.requestedAmount() != null ? p.requestedAmount().toString() : null,
-                p.requestedBy() != null ? p.requestedBy().toString() : null,
-                p.requestedAt()
-            )).toList();
+            var item = new ValidationsBlock.ValidationItem(
+                rule.id() != null ? rule.id().toString() : null,
+                "autonomy.policy.level." + (rule.level() != null ? rule.level().name().toLowerCase() : "unknown"),
+                rule.targetType() != null ? rule.targetType().name().toLowerCase() : null,
+                null,
+                null,
+                rule.startsAt(),
+                rule.level(),
+                rule.requireApprovalOnBlock(),
+                rule.approvalRole(),
+                rule.enabled(),
+                rule.startsAt(),
+                rule.endsAt()
+            );
 
-            return new ValidationsBlock(items);
+            return new ValidationsBlock(java.util.List.of(item));
         } catch (Exception ignored) {
             return ValidationsBlock.empty();
         }
     }
 
     @SuppressWarnings("unused")
-    private ActivityFeedBlock buildActivity(UUID tenantId, UUID userId, String currentLang) {
+    private ActivityFeedBlock buildActivity(TenantId tenantId, UserId userId, String currentLang) {
         try {
             var activities = listTenantRecentActivityQueryHandler.handle(new AuditEventQuery(tenantId, 20));
             if (activities == null || activities.isEmpty()) return ActivityFeedBlock.empty();
@@ -189,13 +200,13 @@ public class TenantAdminDashboardService {
         }
     }
 
-    private TenantAdminOverviewBlock buildOverview(UUID tenantId, UUID userId, @SuppressWarnings("unused") String currentLang, TenantDashboardStatsResponse tenantStats) {
+    private TenantAdminOverviewBlock buildOverview(TenantId tenantId, UserId userId, @SuppressWarnings("unused") String currentLang, TenantDashboardStatsResponse tenantStats) {
         try {
             // use tenant default period from tenantStats
             var from = tenantStats != null && tenantStats.stats() != null ? tenantStats.stats().fromDate() : null;
             var to = tenantStats != null && tenantStats.stats() != null ? tenantStats.stats().toDate() : null;
 
-            var outletPerf = getOutletPerformanceReportHandler.handle(new GetOutletPerformanceReportQuery(tenantId, from, to, null));
+            var outletPerf = getOutletPerformanceReportHandler.handle(new GetOutletPerformanceReportQuery(tenantId.uuid(), from, to, null));
 
             var cashierStats = fetchCashierPreview(tenantId, userId, from, to);
 
@@ -205,11 +216,11 @@ public class TenantAdminDashboardService {
         }
     }
 
-    private List<CashierDashboardStatsResponse> fetchCashierPreview(UUID tenantId, UUID userId, LocalDate from, LocalDate to) {
-        List<CashierDashboardStatsResponse> result = new ArrayList<>();
+    private List<com.tchalanet.server.features.stats.cashier_dashboard.dto.CashierDashboardStatsResponse> fetchCashierPreview(TenantId tenantId, UserId userId, LocalDate from, LocalDate to) {
+        List<com.tchalanet.server.features.stats.cashier_dashboard.dto.CashierDashboardStatsResponse> result = new ArrayList<>();
         if (userId != null) {
             try {
-                var cs = cashierDashboardStatsUseCase.handle(new CashierDashboardStatsQuery(tenantId, userId, from, to));
+                var cs = cashierDashboardStatsUseCase.handle(new CashierDashboardStatsQuery(tenantId.uuid(), userId.uuid(), from, to));
                 result.add(cs);
             } catch (Exception e) {
                 // ignore
@@ -220,7 +231,7 @@ public class TenantAdminDashboardService {
         // No userId -> fetch top N cashier summaries in one call
         try {
             int limit = 3;
-            var topSummaries = cashierDashboardStatsUseCase.getTopCashierSummaries(tenantId, from != null ? from : LocalDate.now().minusDays(6), to != null ? to : LocalDate.now(), limit);
+            var topSummaries = cashierDashboardStatsUseCase.getTopCashierSummaries(tenantId.uuid(), from != null ? from : LocalDate.now().minusDays(6), to != null ? to : LocalDate.now(), limit);
             result.addAll(topSummaries);
         } catch (Exception ex) {
             // ignore and return what we have (possibly empty)

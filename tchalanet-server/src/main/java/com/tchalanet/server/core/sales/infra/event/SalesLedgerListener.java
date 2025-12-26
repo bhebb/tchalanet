@@ -18,7 +18,7 @@ public class SalesLedgerListener {
     public void onTicketPlaced(TicketPlacedEvent event) {
         try {
             ledgerPort.recordTicketSale(
-                event.tenantId().value(),
+                event.tenantId(),
                 event.ticketId(),
                 event.stakeCents(),
                 event.occurredAt()

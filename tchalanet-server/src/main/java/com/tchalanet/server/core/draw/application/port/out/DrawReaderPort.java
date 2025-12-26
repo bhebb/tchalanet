@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.draw.application.port.out;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawQuery;
@@ -11,11 +13,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DrawReaderPort {
-  Optional<Draw> findById(UUID drawId);
+  Optional<Draw> findById(DrawId drawId);
 
-  List<Draw> findClosableDraws(UUID tenantId, ZonedDateTime now);
+  List<Draw> findClosableDraws(TenantId tenantId, ZonedDateTime now);
 
-  List<Draw> findResultedUnsettled(UUID tenantId, ZonedDateTime now);
+  List<Draw> findResultedUnsettled(TenantId tenantId, ZonedDateTime now);
 
   Optional<Draw> findNext(GetNextDrawQuery query);
 

@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.theme.infra.web;
+import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.accesscontrol.domain.model.TchRole;
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import com.tchalanet.server.core.theme.infra.persistence.JpaThemeRepository;
 import com.tchalanet.server.core.theme.infra.persistence.ThemeJpaEntity;

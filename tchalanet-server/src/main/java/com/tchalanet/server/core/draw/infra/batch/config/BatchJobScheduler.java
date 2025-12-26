@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.infra.batch.config;
 
+import com.tchalanet.server.common.types.id.TenantId;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -98,7 +100,7 @@ public class BatchJobScheduler {
     // --------------------
     // helpers
     // --------------------
-    private void startFetch(java.util.UUID tenantId, String channelCode,
+    private void startFetch(TenantId tenantId, String channelCode,
                             int daysBack, int maxDraws, boolean dryRun) {
         var params = new java.util.HashMap<String, String>();
         long ts = java.time.Instant.now(clock).toEpochMilli();
@@ -119,7 +121,7 @@ public class BatchJobScheduler {
         drawResultsJobStarter.startFetchDrawResultsJob(params);
     }
 
-    private void startSettle(java.util.UUID tenantId, String channelCode, int daysBack, int maxDraws, boolean dryRun) {
+    private void startSettle(TenantId tenantId, String channelCode, int daysBack, int maxDraws, boolean dryRun) {
         var params = new HashMap<String, String>();
         long ts = java.time.Instant.now(clock).toEpochMilli();
         params.put("ts", Long.toString(ts));

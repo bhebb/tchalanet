@@ -1,11 +1,12 @@
 package com.tchalanet.server.core.tenant.infra.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.enums.TenantStatus;
 import com.tchalanet.server.core.tenant.application.port.out.TenantDirectory;
 import com.tchalanet.server.core.tenant.application.port.out.TenantOutletCheckPort;
 import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
 import com.tchalanet.server.core.tenant.application.port.out.TenantWriterPort;
 import com.tchalanet.server.core.tenant.domain.model.Tenant;
-import com.tchalanet.server.core.tenant.domain.model.TenantStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,7 @@ public class TenantRepositoryAdapter
     // TenantOutletCheckPort
     // -------------------------
     @Override
-    public boolean hasActiveOutlets(UUID tenantId) {
+    public boolean hasActiveOutlets( TenantId tenantId) {
         // TODO (quand core.outlet existe)
         // return outletRepo.existsByTenantIdAndStatusActiveAndDeletedAtIsNull(tenantId);
         return false;
@@ -34,8 +35,8 @@ public class TenantRepositoryAdapter
     // TenantReaderPort
     // -------------------------
     @Override
-    public Optional<Tenant> findById(UUID id) {
-        return repo.findById(id)
+    public Optional<Tenant> findById(TenantId id) {
+        return repo.findById(id.uuid())
             .filter(e -> e.getDeletedAt() == null)
             .map(TenantMapper::toDomain);
     }
@@ -66,37 +67,39 @@ public class TenantRepositoryAdapter
     }
 
     @Override
-    public void setActiveThemeId(UUID tenantId, UUID themeId) {
-        repo.updateActiveThemeId(tenantId, themeId);
+    public void setActiveThemeId( TenantId tenantId, UUID themeId) {
+        repo.updateActiveThemeId(tenantId.uuid(), themeId);
     }
 
     // -------------------------
     // TenantDirectory
     // -------------------------
     @Override
-    public UUID requireTenantIdByCode(String tenantCode) {
+    public TenantId requireTenantIdByCode(String tenantCode) {
         if (tenantCode == null || tenantCode.isBlank()) {
             throw new IllegalArgumentException("tenantCode is required");
         }
         return repo.findByCodeIgnoreCaseAndDeletedAtIsNull(tenantCode)
             .map(TenantJpaEntity::getId)
+            .map(TenantId::of)
             .orElseThrow(() -> new EntityNotFoundException("Tenant cannot be found with code: " + tenantCode));
     }
 
     @Override
-    public boolean isTenantActive(UUID tenantId) {
+    public boolean isTenantActive( TenantId tenantId) {
         if (tenantId == null) return false;
-        return repo.findById(tenantId)
+        return repo.findById(tenantId.uuid())
             .filter(e -> e.getDeletedAt() == null)
             .map(e -> e.getStatus() == TenantStatus.ACTIVE)
             .orElse(false);
     }
 
     @Override
-    public java.util.List<java.util.UUID> listActiveTenantIds() {
+    public java.util.List<TenantId> listActiveTenantIds() {
         return repo.findAll().stream()
             .filter(e -> e.getDeletedAt() == null && e.getStatus() == TenantStatus.ACTIVE)
             .map(com.tchalanet.server.core.tenant.infra.persistence.TenantJpaEntity::getId)
+            .map(TenantId::of)
             .toList();
     }
 

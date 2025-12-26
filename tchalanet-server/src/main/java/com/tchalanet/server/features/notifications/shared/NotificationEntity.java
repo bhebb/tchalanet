@@ -1,13 +1,11 @@
 package com.tchalanet.server.features.notifications.shared;
 
-import com.tchalanet.server.common.persistence.AuditableEntity;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.notification.domain.NotificationChannel;
+import com.tchalanet.server.common.types.enums.NotificationChannel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -59,4 +57,3 @@ public class NotificationEntity extends BaseTenantEntity {
     @Column(name = "read_at")
     private Instant readAt;
 }
-

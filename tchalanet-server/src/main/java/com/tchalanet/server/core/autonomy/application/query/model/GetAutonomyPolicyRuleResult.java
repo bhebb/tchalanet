@@ -1,4 +1,7 @@
 package com.tchalanet.server.core.autonomy.application.query.model;
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;

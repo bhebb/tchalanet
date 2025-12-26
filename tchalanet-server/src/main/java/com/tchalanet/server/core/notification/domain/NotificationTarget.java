@@ -1,14 +1,15 @@
 package com.tchalanet.server.core.notification.domain;
 
 import java.util.Objects;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
 /**
  * Cible d'une notification (tenant, utilisateur, destinataire brut).
  */
 public record NotificationTarget(
-    UUID tenantId,
-    UUID userId,
+    TenantId tenantId,
+    UserId userId,
     String recipient) {
 
     public NotificationTarget {
@@ -17,4 +18,3 @@ public record NotificationTarget(
     }
 
 }
-

@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.infra.cache;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.cache.CacheKeyBuilder;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
@@ -17,20 +18,20 @@ public class PublicDrawsCacheService {
     this.keyBuilder = keyBuilder;
   }
 
-  public DrawSummary getFromCache(UUID tenantId) {
+  public DrawSummary getFromCache(TenantId tenantId) {
     var key = keyBuilder.tenantDrawsSummaryKey(tenantId);
     var cache = cacheManager.getCache("publicDraws");
     if (cache == null) return null;
     return cache.get(key, DrawSummary.class);
   }
 
-  public void put(UUID tenantId, DrawSummary summary) {
+  public void put(TenantId tenantId, DrawSummary summary) {
     var key = keyBuilder.tenantDrawsSummaryKey(tenantId);
     var cache = cacheManager.getCache("publicDraws");
     if (cache != null) cache.put(key, summary);
   }
 
-  public void evict(UUID tenantId) {
+  public void evict(TenantId tenantId) {
     var key = keyBuilder.tenantDrawsSummaryKey(tenantId);
     var cache = cacheManager.getCache("publicDraws");
     if (cache != null) cache.evict(key);

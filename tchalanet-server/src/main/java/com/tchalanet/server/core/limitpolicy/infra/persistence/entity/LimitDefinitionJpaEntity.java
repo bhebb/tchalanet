@@ -2,8 +2,8 @@ package com.tchalanet.server.core.limitpolicy.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.persistence.MapToJsonConverter;
-import com.tchalanet.server.core.limitpolicy.domain.model.BreachOutcome;
-import com.tchalanet.server.core.limitpolicy.domain.model.RuleKey;
+import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.common.types.enums.RuleKey;
 import jakarta.persistence.*;
 import java.util.Map;
 import java.util.UUID;

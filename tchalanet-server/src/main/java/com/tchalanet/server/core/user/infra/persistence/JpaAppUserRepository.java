@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.user.infra.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.List;
 import java.util.Optional;

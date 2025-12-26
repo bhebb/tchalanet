@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.application.query.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
-import com.tchalanet.server.core.sales.domain.model.TicketStatus;
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +15,7 @@ public record GetTicketDetailsByPublicCodeQuery(
   /** DTO for ticket details. */
   public record TicketDetailsDto(
       UUID id,
-      UUID tenantId,
+      TenantId tenantId,
       String ticketCode,
       String publicCode,
       TicketStatus status,

@@ -1,18 +1,20 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawResultsSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
-import com.tchalanet.server.core.draw.infra.persistence.entity.DrawJpaEntity;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawResultJpaRepository;
+import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawResultMapper;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityManager;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 @Primary
@@ -24,13 +26,13 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   private final EntityManager entityManager;
 
   @Override
-  public Optional<DrawResult> findByDrawId(UUID tenantId, UUID drawId) {
-    return repo.findByTenantIdAndDrawId(tenantId, drawId).map(mapper::toDomain);
+  public Optional<DrawResult> findByDrawId( TenantId tenantId,  DrawId drawId) {
+    return repo.findByTenantIdAndDrawId(tenantId.uuid(), drawId.uuid()).map(mapper::toDomain);
   }
 
   @Override
   public java.util.List<DrawResult> findByTenantAndDateRange(
-      UUID tenantId, java.time.LocalDate from, java.time.LocalDate to) {
+       TenantId tenantId, java.time.LocalDate from, java.time.LocalDate to) {
     // Not implemented: needs a query over draw dates
     return java.util.List.of();
   }
@@ -46,11 +48,11 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   }
 
   @Override
-  public DrawResult save(UUID tenantId, UUID drawId, DrawResult result) {
-    var existing = repo.findByTenantIdAndDrawId(tenantId, drawId).orElse(null);
+  public DrawResult save( TenantId tenantId,  DrawId drawId, DrawResult result) {
+    var existing = repo.findByTenantIdAndDrawId(tenantId.uuid(), drawId.uuid()).orElse(null);
     if (existing == null) {
       var created = mapper.toEntity(tenantId, result);
-      created.setDraw(entityManager.getReference(DrawJpaEntity.class, drawId));
+      created.setDraw(entityManager.getReference(DrawJpaEntity.class, drawId.uuid()));
       var saved = repo.save(created);
       return mapper.toDomain(saved);
     }
@@ -77,7 +79,7 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   }
 
   @Override
-  public DrawResult invalidateResult(UUID tenantId, UUID drawId, String reason) {
+  public DrawResult invalidateResult( TenantId tenantId,  DrawId drawId, String reason) {
     return null;
   }
 }

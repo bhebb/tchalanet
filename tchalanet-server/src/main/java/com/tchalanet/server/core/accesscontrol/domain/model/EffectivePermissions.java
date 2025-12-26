@@ -1,4 +1,7 @@
 package com.tchalanet.server.core.accesscontrol.domain.model;
+import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -11,7 +14,7 @@ import java.util.stream.Collectors;
  * Permissions effectives d'un utilisateur dans un tenant donné.
  */
 public record EffectivePermissions(
-    UUID tenantId, UUID userId, UUID roleId, Set<String> permissionCodes) {
+    TenantId tenantId, UserId userId, RoleId roleId, Set<String> permissionCodes) {
 
     public EffectivePermissions {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");

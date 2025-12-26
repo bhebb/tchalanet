@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +24,8 @@ public class SuperadminDashboardService {
     private final PlatformDashboardStatsUseCase platformStatsUseCase;
 
     public PrivateDashboardDynamicPayload build(
-        UUID tenantId,
-        UUID userId,
+        TenantId tenantId,
+        UserId userId,
         String currentLang,
         PageModel pageModel
     ) {
@@ -66,18 +67,17 @@ public class SuperadminDashboardService {
     }
 
     private KpiBlock buildGlobalKpisFromStats(PlatformDashboardStatsResponse stats) {
-        KpiBlock.KpiBlockItem tenantsItem = new KpiBlock.KpiBlockItem("tenants", "Tenants", String.valueOf(stats.summary().totalTenants()), "");
-        KpiBlock.KpiBlockItem outletsItem = new KpiBlock.KpiBlockItem("outlets", "Outlets", String.valueOf(stats.summary().totalOutlets()), "");
-        KpiBlock.KpiBlockItem cashiersItem = new KpiBlock.KpiBlockItem("cashiers", "Cashiers", String.valueOf(stats.summary().totalCashiers()), "");
+        KpiBlock.KpiItem tenantsItem = new KpiBlock.KpiItem("tenants", "Tenants", String.valueOf(stats.summary().totalTenants()), "");
+        KpiBlock.KpiItem outletsItem = new KpiBlock.KpiItem("outlets", "Outlets", String.valueOf(stats.summary().totalOutlets()), "");
+        KpiBlock.KpiItem cashiersItem = new KpiBlock.KpiItem("cashiers", "Cashiers", String.valueOf(stats.summary().totalCashiers()), "");
 
-        KpiBlock kpi = new KpiBlock("global", "Global KPIs", List.of(tenantsItem, outletsItem, cashiersItem));
-        return kpi;
+        return new KpiBlock(List.of(tenantsItem, outletsItem, cashiersItem));
     }
 
     private KpiBlock buildSalesKpisFromStats(PlatformDashboardStatsResponse stats) {
-        KpiBlock.KpiBlockItem turnover = new KpiBlock.KpiBlockItem("turnover", "Turnover", String.valueOf(stats.summary().totalStakeCents()/100.0), "");
-        KpiBlock.KpiBlockItem net = new KpiBlock.KpiBlockItem("net", "Net Revenue", String.valueOf(stats.summary().totalNetRevenueCents()/100.0), "");
-        return new KpiBlock("sales", "Sales KPIs", List.of(turnover, net));
+        KpiBlock.KpiItem turnover = new KpiBlock.KpiItem("turnover", "Turnover", String.valueOf(stats.summary().totalStakeCents()/100.0), "");
+        KpiBlock.KpiItem net = new KpiBlock.KpiItem("net", "Net Revenue", String.valueOf(stats.summary().totalNetRevenueCents()/100.0), "");
+        return new KpiBlock(List.of(turnover, net));
     }
 
     // existing TODO helpers left untouched

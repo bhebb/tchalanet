@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.audit.application.query.model;
 
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditActorType;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditActorType;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 
 import java.time.Instant;
 import java.util.UUID;

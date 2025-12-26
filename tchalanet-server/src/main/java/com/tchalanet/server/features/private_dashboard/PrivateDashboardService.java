@@ -14,6 +14,8 @@ import com.tchalanet.server.features.pagemodel.shared.PageModelService;
 import com.tchalanet.server.features.pagemodel.shared.PageModelTypeResolver;
 import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
 import com.tchalanet.server.features.private_dashboard.dynamic.PrivateDashboardDynamicDataService;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +35,11 @@ public class PrivateDashboardService {
     private final PrivateDashboardDynamicDataService dynamicDataService;
     private final PageModelTypeResolver pageModelTypeResolver;
 
-    public ApiResponse<PrivateDashboardResponse> getDashboard(Optional<String> langFromUrl, UUID userId, String userPreferredLang) {
-        var tenantId = tenantContext.get().tenantUuid();
+    public ApiResponse<PrivateDashboardResponse> getDashboard(Optional<String> langFromUrl, UserId userId, String userPreferredLang) {
+        var tenantId = TenantId.of(tenantContext.get().tenantUuid());
         var role = tenantContext.get().currentRole();
         var type = pageModelTypeResolver.forDashboard(role);
-        var pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
+        var pageModel = pageModelService.loadEffectiveModel(tenantId.uuid(), type.logicalId());
 
         var meta = pageModel.meta();
         var ctx = new LangResolver.LangResolverContext(
@@ -66,7 +67,7 @@ public class PrivateDashboardService {
             notices = List.of(new ApiNotice("SERVICE_DEGRADED", "Some dashboard content may be unavailable", "private_dashboard", NoticeSeverity.WARN, Map.of()));
         }
 
-        var overridesPage = i18nOverrideService.pageByTenantAndLocale(tenantId, currentLang, PageRequest.of(0, 1000));
+        var overridesPage = i18nOverrideService.pageByTenantAndLocale(tenantId.uuid(), currentLang, PageRequest.of(0, 1000));
         var i18n = java.util.Map.<String, Object>of(
             "totalOverrides", overridesPage.getTotalElements(),
             "pageSize", overridesPage.getSize()
@@ -88,9 +89,9 @@ public class PrivateDashboardService {
         }
     }
 
-    public ApiResponse<PrivateDashboardDynamicPayload> getTenantDashboardForSuperadmin(UUID tenantId, Optional<String> lang, UUID userId) {
+    public ApiResponse<PrivateDashboardDynamicPayload> getTenantDashboardForSuperadmin(TenantId tenantId, Optional<String> lang, UserId userId) {
         var type = pageModelTypeResolver.forDashboard(TchRole.TENANT_ADMIN);
-        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
+        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId.uuid(), type.logicalId());
 
         String resolvedLang = langResolver.resolve(new LangResolver.LangResolverContext(lang, Optional.empty(), Optional.empty(), Optional.empty(), List.of(), "fr"));
 
@@ -115,9 +116,9 @@ public class PrivateDashboardService {
         }
     }
 
-    public ApiResponse<PrivateDashboardDynamicPayload> getCashierDashboardForSuperadmin(UUID tenantId, UUID cashierId, Optional<String> lang, UUID userId) {
+    public ApiResponse<PrivateDashboardDynamicPayload> getCashierDashboardForSuperadmin(TenantId tenantId, UserId cashierId, Optional<String> lang, UserId userId) {
         var type = pageModelTypeResolver.forDashboard(TchRole.CASHIER);
-        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
+        PageModel pageModel = pageModelService.loadEffectiveModel(tenantId.uuid(), type.logicalId());
 
         String resolvedLang = langResolver.resolve(new LangResolver.LangResolverContext(lang, Optional.empty(), Optional.empty(), Optional.empty(), List.of(), "fr"));
 
@@ -126,7 +127,7 @@ public class PrivateDashboardService {
         List<ApiNotice> notices = List.of();
         PrivateDashboardDynamicPayload payload;
         try {
-            payload = dynamicDataService.buildDynamicData(tenantId, userId, TchRole.CASHIER, resolvedLang, pageModel);
+            payload = dynamicDataService.buildDynamicData(tenantId, cashierId, TchRole.CASHIER, resolvedLang, pageModel);
         } catch (Exception e) {
             // Service failure - return partial response
             payload = null; // or empty payload

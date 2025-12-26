@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.sales.domain.model.TicketStatus;
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;

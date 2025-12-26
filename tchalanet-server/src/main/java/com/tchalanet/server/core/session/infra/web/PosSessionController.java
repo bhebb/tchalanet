@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.session.infra.web;
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.UserId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
@@ -7,6 +9,9 @@ import com.tchalanet.server.core.session.application.command.model.CloseSessionC
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
 import com.tchalanet.server.core.session.application.query.model.GetCurrentSessionQuery;
 import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.OutletId;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -37,8 +42,8 @@ public class PosSessionController {
     @PostMapping("/open")
     public ResponseEntity<PosSession> open(@jakarta.validation.Valid @RequestBody OpenSessionRequest body) {
         var ctx = contextHolder.get();
-        var tenantId = ctx.tenantUuid();
-        var userId = ctx.userUuid(); // source of truth
+        var tenantId = TenantId.of(ctx.tenantUuid());
+        var userId = com.tchalanet.server.common.types.id.UserId.of(ctx.userUuid()); // source of truth
 
         var session = commandBus.send(
             new OpenSessionCommand(
@@ -55,10 +60,10 @@ public class PosSessionController {
 
     @PostMapping("/{sessionId}/close")
     public ResponseEntity<PosSession> close(
-        @PathVariable UUID sessionId,
+        @PathVariable SessionId sessionId,
         @jakarta.validation.Valid @RequestBody CloseSessionRequest body
     ) {
-        var tenantId = contextHolder.get().tenantUuid();
+        var tenantId = TenantId.of(contextHolder.get().tenantUuid());
 
         var session = commandBus.send(
             new CloseSessionCommand(tenantId, sessionId, body.closingAmount())
@@ -68,8 +73,8 @@ public class PosSessionController {
     }
 
     @GetMapping("/current")
-    public ResponseEntity<PosSession> current(@RequestParam UUID terminalId) {
-        var tenantId = contextHolder.get().tenantUuid();
+    public ResponseEntity<PosSession> current(@RequestParam TerminalId terminalId) {
+        var tenantId = TenantId.of(contextHolder.get().tenantUuid());
 
         var result = queryBus.send(new GetCurrentSessionQuery(tenantId, terminalId));
 
@@ -77,8 +82,8 @@ public class PosSessionController {
     }
 
     public record OpenSessionRequest(
-        @NotNull UUID outletId,
-        @NotNull UUID terminalId,
+        @NotNull OutletId outletId,
+        @NotNull TerminalId terminalId,
         @DecimalMin("0.00") BigDecimal openingFloat
     ) {}
 

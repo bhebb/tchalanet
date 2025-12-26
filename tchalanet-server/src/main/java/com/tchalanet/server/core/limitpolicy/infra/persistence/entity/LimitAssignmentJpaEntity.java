@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.limitpolicy.domain.model.TargetType;
+import com.tchalanet.server.common.types.enums.TargetType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

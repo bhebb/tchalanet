@@ -1,20 +1,30 @@
 package com.tchalanet.server.core.payout.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.error.ProblemRest;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.common.types.enums.TicketStatus;
+import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
+import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutCommand;
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutResult;
 import com.tchalanet.server.core.payout.application.port.out.PayoutApprovalPolicyPort;
-import com.tchalanet.server.core.payout.application.port.out.PayoutRepositoryPort;
-import com.tchalanet.server.core.payout.domain.event.PayoutRegisteredEvent;
+import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
+import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
 import com.tchalanet.server.core.payout.domain.model.Payout;
+import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -22,22 +32,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
-import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
-import com.tchalanet.server.core.limitpolicy.domain.model.BreachOutcome;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
-import com.tchalanet.server.core.limitpolicy.domain.model.OperationType;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
-
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
 public class RegisterPayoutCommandHandler implements CommandHandler<RegisterPayoutCommand, RegisterPayoutResult> {
 
-    private final PayoutRepositoryPort payoutRepository;
+    private final PayoutReaderPort payoutReaderPort;
+    private final PayoutWriterPort payoutWriterPort;
     private final TicketReaderPort ticketReaderPort;
     private final TicketWritterPort ticketWritterPort;
     private final PayoutApprovalPolicyPort approvalPolicy;
@@ -58,28 +59,35 @@ public class RegisterPayoutCommandHandler implements CommandHandler<RegisterPayo
         Ticket ticket = optTicket.get();
 
         // Validate ticket state
-        if (ticket.getStatus() != com.tchalanet.server.core.sales.domain.model.TicketStatus.RESULTED_WIN) {
+        if (ticket.getStatus() != TicketStatus.RESULTED_WIN) {
             throw new IllegalStateException("Ticket is not in RESULTED_WIN state: " + ticket.getId());
         }
 
+        // payout amount: use ticket winning amount
+        var payoutAmount = ticket.getWinningAmount();
+        if (payoutAmount == null) throw new IllegalStateException("Ticket has no winning amount: " + ticket.getId());
+
         // Validate not already paid
-        if (payoutRepository.findByTicketId(ticket.getId()).isPresent()) {
+        if (payoutReaderPort.findByTicketId(ticket.getId()).isPresent()) {
             throw new IllegalStateException("Payout already registered for ticket: " + ticket.getId());
         }
 
         // Limits and autonomy validation
-        LimitEvaluationResult limitResult = validateLimitsAndAutonomy(command, ticket);
+        LimitEvaluationResult limitResult = validateLimitsAndAutonomy(command, ticket, payoutAmount);
 
         // Create payout and persist if allowed
         if (limitResult.overallOutcome() != BreachOutcome.BLOCK) {
-            Payout payout = Payout.createRequested(command.tenantId(), command.ticketId(), command.amount(), now);
-            Payout saved = payoutRepository.save(payout);
+            // Payout.createRequested expects amountCents and currency (domain uses cents)
+            long amountCents = payoutAmount.movePointRight(2).longValue();
+            Payout payout = Payout.createRequested(command.tenantId(), command.ticketId(), amountCents, "HTG", now);
+            Payout saved = payoutWriterPort.save(payout);
 
             // Decide auto-approval via policy
-            boolean autoApprove = approvalPolicy.autoApprove(command.tenantId(), command.amount());
+            boolean autoApprove = approvalPolicy.autoApprove(command.tenantId(), payoutAmount);
             if (autoApprove) {
-                saved.markPaid(now);
-                saved = payoutRepository.save(saved);
+                // allow marking as paid from REQUESTED when auto-approved
+                saved.markPaid(now, true);
+                saved = payoutWriterPort.save(saved);
 
                 // mark ticket paid and persist
                 ticket.markAsPaid(now);
@@ -87,18 +95,18 @@ public class RegisterPayoutCommandHandler implements CommandHandler<RegisterPayo
             } else {
                 // approve or leave requested based on workflow; for now mark as APPROVED
                 saved.approve(now);
-                saved = payoutRepository.save(saved);
+                saved = payoutWriterPort.save(saved);
             }
 
             // Publish event
             PayoutRegisteredEvent event = new PayoutRegisteredEvent(
                 UUID.randomUUID(),
                 now,
-                new TenantId(command.tenantId()),
+                command.tenantId(),
                 saved.getId(),
                 saved.getTicketId(),
                 ticket.getSessionId(),
-                saved.getAmount());
+                java.math.BigDecimal.valueOf(saved.getAmountCents(), 2));
 
             domainEventPublisher.publish(event);
 
@@ -116,7 +124,7 @@ public class RegisterPayoutCommandHandler implements CommandHandler<RegisterPayo
         }
     }
 
-    private LimitEvaluationResult validateLimitsAndAutonomy(RegisterPayoutCommand command, Ticket ticket) {
+    private LimitEvaluationResult validateLimitsAndAutonomy(RegisterPayoutCommand command, Ticket ticket, java.math.BigDecimal payoutAmount) {
         Instant now = Instant.now(clock);
 
         // Build limit context for payout
@@ -132,7 +140,7 @@ public class RegisterPayoutCommandHandler implements CommandHandler<RegisterPayo
             null, // gameCode
             OperationType.PAYOUT,
             List.of(), // betLines - empty for payout
-            command.amount(), // ticketStakeTotal - payout amount
+            payoutAmount, // use ticket winning amount
             0, // linesCount
             now,
             java.time.ZoneId.systemDefault()

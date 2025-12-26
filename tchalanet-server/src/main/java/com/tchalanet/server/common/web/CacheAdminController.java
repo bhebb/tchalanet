@@ -1,9 +1,9 @@
 package com.tchalanet.server.common.web;
 
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.core.audit.application.port.in.LogAuditEventCommandHandler;
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import java.util.List;
 import java.util.Map;
 import org.springframework.cache.CacheManager;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class CacheAdminController {
 
   private final CacheManager cacheManager;
-  private final LogAuditEventCommandHandler audit;
+  private final AuditLoggingCommandHandler audit;
 
-  public CacheAdminController(CacheManager cacheManager, LogAuditEventCommandHandler audit) {
+  public CacheAdminController(CacheManager cacheManager, AuditLoggingCommandHandler audit) {
     this.cacheManager = cacheManager;
     this.audit = audit;
   }

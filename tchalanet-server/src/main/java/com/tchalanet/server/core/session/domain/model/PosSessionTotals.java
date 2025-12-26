@@ -1,12 +1,14 @@
 package com.tchalanet.server.core.session.domain.model;
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 public record PosSessionTotals(
-    UUID sessionId,
-    UUID tenantId,
+    SessionId sessionId,
+    TenantId tenantId,
     long totalTickets,
     BigDecimal totalStake,
     BigDecimal totalPayout,

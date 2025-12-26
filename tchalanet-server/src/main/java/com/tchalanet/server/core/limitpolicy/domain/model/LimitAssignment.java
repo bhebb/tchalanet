@@ -1,11 +1,13 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.enums.TargetType;
 import java.time.Instant;
 import java.util.UUID;
 
 public record LimitAssignment(
     UUID id,
-    UUID tenantId,
+    TenantId tenantId,
     UUID limitDefinitionId,
     TargetType targetType,
     UUID targetId, // null for TENANT

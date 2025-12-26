@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.sales.application.command.handler;
 
+import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.types.id.TenantId;
+
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.command.model.PrintTicketCommand;
@@ -20,17 +23,11 @@ public class PrintTicketCommandHandler implements CommandHandler<PrintTicketComm
 
     private final TicketReaderPort ticketRepository;
     private final TicketPrinterPort ticketPrinterPort;
+    private TchRequestContextHolder contextHolder;
 
     @Override
     public String handle(PrintTicketCommand cmd) {
-        Ticket ticket =
-            ticketRepository
-                .findWithLinesById(cmd.tenantId(), cmd.ticketId())
-                .orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + cmd.ticketId()));
-
-        if (!ticket.getTenantId().equals(cmd.tenantId())) {
-            throw new SecurityException("Tenant mismatch for ticket " + cmd.ticketId());
-        }
+        Ticket ticket = ticketRepository.findWithLinesById(contextHolder.get().tenantid(), cmd.ticketId()).orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + cmd.ticketId()));
 
         PrintTicketModels.PrintTicketPayload payload = buildPayload(ticket);
 
@@ -41,24 +38,8 @@ public class PrintTicketCommandHandler implements CommandHandler<PrintTicketComm
         String terminalInfo = ticket.getTerminalId().toString();
         String drawName = ticket.getDrawId().toString();
 
-        var lines =
-            ticket.getLines().stream()
-                .map(
-                    line ->
-                        new PrintTicketModels.PrintTicketPayload.Line(
-                            line.gameCode(),
-                            line.selection(),
-                            line.stake(),
-                            line.potentialPayout()))
-                .collect(Collectors.toList());
+        var lines = ticket.getLines().stream().map(line -> new PrintTicketModels.PrintTicketPayload.Line(line.gameCode(), line.selection(), line.stake(), line.potentialPayout())).collect(Collectors.toList());
 
-        return new PrintTicketModels.PrintTicketPayload(
-            ticket.getTicketCode(),
-            ticket.getPublicCode(),
-            terminalInfo,
-            drawName,
-            ticket.getCreatedAt(),
-            lines,
-            ticket.getTotalAmount());
+        return new PrintTicketModels.PrintTicketPayload(ticket.getTicketCode(), ticket.getPublicCode(), terminalInfo, drawName, ticket.getCreatedAt(), lines, ticket.getTotalAmount());
     }
 }

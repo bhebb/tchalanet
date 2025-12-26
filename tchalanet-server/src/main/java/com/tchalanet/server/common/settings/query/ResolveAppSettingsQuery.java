@@ -2,14 +2,16 @@ package com.tchalanet.server.common.settings.query;
 
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.settings.dto.ResolvedSettingDto;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TerminalId;
 
 import java.util.List;
-import java.util.UUID;
 
 public record ResolveAppSettingsQuery(
-    UUID tenantId,
-    UUID outletId,     // nullable
-    UUID terminalId,   // nullable
+    TenantId tenantId,
+    OutletId outletId,     // nullable
+    TerminalId terminalId,   // nullable
     List<String> namespaces
 ) implements Query<List<ResolvedSettingDto>> {
 }

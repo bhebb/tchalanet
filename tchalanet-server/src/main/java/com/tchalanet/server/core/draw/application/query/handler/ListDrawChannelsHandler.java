@@ -20,7 +20,7 @@ public class ListDrawChannelsHandler
 
   @Override
   public List<DrawChannelSummary> handle(ListDrawChannelsQuery query) {
-    var criteria = new DrawChannelSearchCriteria(query.tenantId(), query.activeOnly());
+    var criteria = new DrawChannelSearchCriteria(query.tenantId(), query.active());
     return drawChannelReaderPort.findByCriteria(criteria);
   }
 }

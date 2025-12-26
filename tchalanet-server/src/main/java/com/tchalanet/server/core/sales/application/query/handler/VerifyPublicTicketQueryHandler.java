@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.sales.application.query.handler;
+import com.tchalanet.server.common.types.id.TerminalId;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -65,7 +66,7 @@ public class VerifyPublicTicketQueryHandler
         lines);
   }
 
-  private String maskTerminal(java.util.UUID terminalId) {
+  private String maskTerminal(TerminalId terminalId) {
     if (terminalId == null) return null;
     var s = terminalId.toString();
     return s.length() <= 8 ? s : s.substring(0, 8) + "…";

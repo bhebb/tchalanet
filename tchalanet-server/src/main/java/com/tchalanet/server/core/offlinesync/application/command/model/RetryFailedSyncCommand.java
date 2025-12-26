@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.offlinesync.application.command.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 
-public record RetryFailedSyncCommand(UUID tenantId, UUID deviceId) {}
+public record RetryFailedSyncCommand(TenantId tenantId, UUID deviceId) {}
 

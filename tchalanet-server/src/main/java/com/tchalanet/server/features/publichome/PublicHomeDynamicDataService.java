@@ -48,7 +48,7 @@ public class PublicHomeDynamicDataService {
         var features = sources.contains("features") ? featuresProvider.buildFeaturesBlock(pageModel, currentLang) : null;
         PlansBlock plans = sources.contains("plans") ? plansProvider.buildPlansBlock(pageModel, currentLang) : null;
         NewsBlock news = sources.contains("news") ? newsProvider.buildNewsBlock(pageModel, currentLang) : null;
-        ResultsByGameBlock resultsByGame = sources.contains("results_by_game") ? resultsProvider.buildResultsByGameBlock(pageModel, currentLang) : null;
+        ResultsByGameBlock resultsByGame = sources.contains("results_by_game") ? resultsProvider.buildResultsBlock(pageModel, currentLang) : null;
 
         return new PublicPageDynamicPayload(hero, features, plans, news, resultsByGame);
     }

@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.limitpolicy.application.query.handler;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;

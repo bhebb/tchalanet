@@ -10,7 +10,7 @@ import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
 import com.tchalanet.server.core.tenant.application.port.out.TenantWriterPort;
 import com.tchalanet.server.core.tenant.domain.event.TenantCreatedEvent;
 import com.tchalanet.server.core.tenant.domain.model.Tenant;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
@@ -35,7 +35,7 @@ public class CreateTenantCommandHandler implements CommandHandler<CreateTenantCo
         }
 
         var tenant = Tenant.createDraft(
-            new TenantId(UUID.randomUUID()),
+            TenantId.of(UUID.randomUUID()),
             codeLower,
             cmd.name(),
             cmd.type(),

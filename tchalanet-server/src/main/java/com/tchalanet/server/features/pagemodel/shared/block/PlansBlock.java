@@ -17,7 +17,7 @@ public record PlansBlock(List<PlanItem> items) {
         Map<String, Object> featureKeys // ou List<PlanFeatureItem>
     ) {
         public static PlanItem fromDomain(Plan plan) {
-            Map<String, Object> featureKeys = plan.features() != null ? plan.features() : List.of();
+            Map<String, Object> featureKeys = plan.features() != null ? plan.features() : Map.of();
             return new PlanItem(
                 plan.name(),
                 plan.description(),

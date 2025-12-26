@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.sales.application.port.out;
+import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PageRequest;
@@ -16,17 +18,17 @@ import java.util.UUID;
  */
 public interface TicketReaderPort {
 
-    Optional<Ticket> findById(UUID ticketId);
+    Optional<Ticket> findById(TicketId ticketId);
 
     Optional<Ticket> findByPublicCode(String publicCode);
 
     PagedResult<Ticket> search(TicketFilter filter, PageRequest pageRequest);
 
-    Optional<Ticket> findWithLinesById(UUID tenantId, UUID ticketId);
+    Optional<Ticket> findWithLinesById(TenantId tenantId, TicketId ticketId);
 
     List<Ticket> listRecentForCashier(UUID cashierId, int limit);
 
-    List<AgentDailySalesDto> getAgentDailySales(UUID tenantId, Instant from, Instant to);
+    List<AgentDailySalesDto> getAgentDailySales(TenantId tenantId, Instant from, Instant to);
 
-    byte[] exportDailySalesCsv(UUID tenantId, Instant dayStart, Instant dayEnd);
+    byte[] exportDailySalesCsv(TenantId tenantId, Instant dayStart, Instant dayEnd);
 }

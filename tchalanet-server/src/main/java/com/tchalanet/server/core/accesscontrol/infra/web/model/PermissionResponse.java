@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.accesscontrol.infra.web.dto;
+package com.tchalanet.server.core.accesscontrol.infra.web.model;
 
 public class PermissionResponse {
   private String code;

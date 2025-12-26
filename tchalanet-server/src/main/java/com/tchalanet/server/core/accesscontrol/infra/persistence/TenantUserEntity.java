@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
@@ -20,7 +21,7 @@ import org.hibernate.envers.Audited;
 public class TenantUserEntity extends BaseEntity {
 
   @Column(name = "tenant_id", nullable = false)
-  private UUID tenantId;
+  private TenantId tenantId;
 
   @Column(name = "user_id", nullable = false)
   private String userId; // Keycloak sub, string

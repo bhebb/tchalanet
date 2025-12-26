@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.repository;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.limitpolicy.infra.persistence.entity.LimitDefinitionJpaEntity;
 import java.util.UUID;

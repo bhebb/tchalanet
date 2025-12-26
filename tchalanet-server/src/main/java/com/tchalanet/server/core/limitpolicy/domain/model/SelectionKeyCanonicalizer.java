@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
-import com.tchalanet.server.core.sales.domain.model.BetType;
+import com.tchalanet.server.common.types.enums.BetType;
 
 public class SelectionKeyCanonicalizer {
 

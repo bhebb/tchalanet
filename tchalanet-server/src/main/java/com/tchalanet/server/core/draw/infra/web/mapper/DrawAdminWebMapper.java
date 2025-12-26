@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.infra.web.mapper;
 
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.command.model.OverrideDrawResultCommand;
 import com.tchalanet.server.core.draw.application.command.model.UpdateDrawCommand;
@@ -8,6 +10,7 @@ import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.OverrideDrawResultRequest;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
+import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -22,8 +25,15 @@ public interface DrawAdminWebMapper {
 
   DrawSummaryResponse toDrawSummaryResponse(DrawSummary summary);
 
+  default DrawId mapDrawId(UUID value) {
+    return value == null ? null : DrawId.of(value);
+  }
+
+  default TenantId mapTenantId(UUID value) {
+    return value == null ? null : TenantId.of(value);
+  }
+
   @Mappings({
-    @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())"),
     @Mapping(target = "channelCode", source = "request.channelCode"),
     @Mapping(target = "channelName", constant = ""),
     @Mapping(target = "status", constant = "SCHEDULED"),
@@ -36,7 +46,6 @@ public interface DrawAdminWebMapper {
   DrawSummaryResponse toDrawSummaryResponseFallback(CreateDrawRequest request);
 
   @Mappings({
-    @Mapping(target = "id", source = "request.drawId"),
     @Mapping(target = "channelCode", source = "request.code"),
     @Mapping(target = "channelName", source = "request.name"),
     @Mapping(target = "status", constant = "SCHEDULED"),

@@ -2,9 +2,10 @@ package com.tchalanet.server.core.audit.domain.service;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditActorType;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditActorType;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
 
 import java.time.Instant;
@@ -56,7 +57,7 @@ public class AuditEventFactory {
 
         return new AuditEvent(
             null,
-            tenantId,
+            TenantId.of(tenantId),
             Instant.now(),
             createdBy,
             actorType,

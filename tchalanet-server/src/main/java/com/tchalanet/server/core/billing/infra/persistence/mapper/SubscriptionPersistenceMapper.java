@@ -1,18 +1,22 @@
 package com.tchalanet.server.core.billing.infra.persistence.mapper;
 
+import com.tchalanet.server.common.types.id.PlanId;
+import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.core.billing.domain.model.Subscription;
 import com.tchalanet.server.core.billing.infra.persistence.SubscriptionJpaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.Optional;
+import java.util.UUID;
 
-@Mapper(componentModel = "spring")
+import com.tchalanet.server.common.mapper.CommonIdMapper;
+
+@Mapper(componentModel = "spring", uses = CommonIdMapper.class)
 public interface SubscriptionPersistenceMapper {
 
     @Mapping(target = "id", expression = "java(s.getId().orElse(null))")
     @Mapping(target = "tenantId", source = "tenantId")
-    @Mapping(target = "planId", source = "plan.id")
     @Mapping(target = "status", expression = "java(mapStatus(s.getStatus()))")
     @Mapping(target = "currentPeriodStart", source = "currentPeriodStart")
     @Mapping(target = "currentPeriodEnd", source = "currentPeriodEnd")
@@ -23,9 +27,9 @@ public interface SubscriptionPersistenceMapper {
     @Mapping(target = "version", source = "version")
     SubscriptionJpaEntity toEntity(Subscription s);
 
-    @Mapping(target = "id", expression = "java(Optional.ofNullable(e.getId()))")
+    @Mapping(target = "id", expression = "java(mapSubscrptionId(e.getId()))")
     @Mapping(target = "tenantId", source = "tenantId")
-    @Mapping(target = "planId", source = "plan.id")
+    @Mapping(target = "planId", expression = "java(mapPlanId(e.getPlan().getId()))")
     @Mapping(target = "status", expression = "java(mapStatus(e.getStatus()))")
     @Mapping(target = "currentPeriodStart", source = "currentPeriodStart")
     @Mapping(target = "currentPeriodEnd", source = "currentPeriodEnd")
@@ -43,5 +47,9 @@ public interface SubscriptionPersistenceMapper {
         } catch (IllegalArgumentException ex) {
             return null;
         }
+    }
+
+    default SubscriptionId mapSubscrptionId(UUID id) {
+        return id == null ? null : SubscriptionId.of(id);
     }
 }

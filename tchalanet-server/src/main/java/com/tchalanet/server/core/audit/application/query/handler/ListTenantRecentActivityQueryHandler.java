@@ -15,22 +15,22 @@ import java.util.stream.Collectors;
 @UseCase
 public class ListTenantRecentActivityQueryHandler {
 
-  private final AuditEventReaderPort reader;
+    private final AuditEventReaderPort reader;
 
-  @Transactional(readOnly = true)
-  public List<ActivityItemDto> handle(AuditEventQuery query) {
-    List<AuditEvent> events = reader.findRecentForTenant(query.tenant(), query.limit());
+    @Transactional(readOnly = true)
+    public List<ActivityItemDto> handle(AuditEventQuery query) {
+        List<AuditEvent> events = reader.findRecentForTenant(query.tenant(), query.limit());
 
-    return events.stream().map(ev -> new ActivityItemDto(
-        ev.id(),
-        ev.createdAt(),
-        ev.entityType(),
-        ev.entityId(),
-        ev.action(),
-        ev.actorType(),
-        ev.actorId(),
-        ev.action().name() + " "+ ev.entityType().name() + "/" + ev.entityId(),
-        ev.detailsJson()
-    )).collect(Collectors.toList());
-  }
+        return events.stream().map(ev -> new ActivityItemDto(
+            ev.id(),
+            ev.occurredAt(),
+            ev.entityType(),
+            ev.entityId().toString(),
+            ev.action(),
+            ev.actorType(),
+            ev.actorId().toString(),
+            ev.action().name() + " " + ev.entityType().name() + "/" + ev.entityId(),
+            ev.detailsJson()
+        )).collect(Collectors.toList());
+    }
 }

@@ -6,7 +6,7 @@ import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.audit.application.command.model.RecordAuditEventCommand;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
-import com.tchalanet.server.core.audit.domain.model.AuditActorType;
+import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
 
 import java.time.Instant;
@@ -31,7 +31,7 @@ public class RecordAuditEventCommandHandler implements VoidCommandHandler<Record
         var ctxOpt = Optional.ofNullable(ctxHolder.get());
 
         var userOpt = ctxOpt.map(TchRequestContext::userId);
-        var createdBy = userOpt.map(this::safeUuid).orElse(null);
+        var createdBy = userOpt.orElse(null);
         var actorId = createdBy;
         var actorType = userOpt.isPresent() ? AuditActorType.USER : AuditActorType.SYSTEM;
         var ip = ctxOpt.map(TchRequestContext::clientIp).orElse(null);
@@ -59,9 +59,9 @@ public class RecordAuditEventCommandHandler implements VoidCommandHandler<Record
             null,
             null, // tenantId
             Instant.now(),
-            createdBy,
+            createdBy.uuid(),
             actorType,
-            actorId,
+            actorId.uuid(),
             command.entityType(),
             UUID.fromString(command.entityId()),
             command.action(),

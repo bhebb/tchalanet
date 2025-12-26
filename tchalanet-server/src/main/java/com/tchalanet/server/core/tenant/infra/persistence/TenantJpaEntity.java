@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.tenant.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.core.tenant.domain.model.TenantStatus;
-import com.tchalanet.server.core.tenant.domain.model.TenantType;
+import com.tchalanet.server.common.types.enums.TenantStatus;
+import com.tchalanet.server.common.types.enums.TenantType;
 import com.tchalanet.server.core.tenant.infra.cache.TenantCacheEvictListener;
 import jakarta.persistence.*;
 import java.util.UUID;

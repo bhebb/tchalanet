@@ -1,16 +1,17 @@
 package com.tchalanet.server.core.sales.domain.model;
+import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.DrawId;
 
-import com.tchalanet.server.core.sales.domain.model.TicketStatus;
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 public record TicketVerificationResult(
-    UUID ticketId,
+    TicketId ticketId,
     String publicCode,
     TicketStatus status,
-    UUID drawId,
+    DrawId drawId,
     String terminalMasked,
     Instant createdAt,
     BigDecimal totalAmount,

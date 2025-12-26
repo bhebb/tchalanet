@@ -3,6 +3,9 @@ package com.tchalanet.server.common.settings.web;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.settings.dto.ResolvedSettingDto;
 import com.tchalanet.server.common.settings.query.ResolveAppSettingsQuery;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +30,9 @@ public class AppSettingsController {
         @RequestParam(required = false) UUID terminalId,
         @RequestParam List<String> namespaces
     ) {
-        return ResponseEntity.ok(queryBus.send(new ResolveAppSettingsQuery(tenantId, outletId, terminalId, namespaces)));
+        TenantId t = TenantId.of(tenantId);
+        OutletId o = outletId == null ? null : OutletId.of(outletId);
+        TerminalId tr = terminalId == null ? null : TerminalId.of(terminalId);
+        return ResponseEntity.ok(queryBus.send(new ResolveAppSettingsQuery(t, o, tr, namespaces)));
     }
 }

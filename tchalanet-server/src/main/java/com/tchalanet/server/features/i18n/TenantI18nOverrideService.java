@@ -1,4 +1,5 @@
 package com.tchalanet.server.features.i18n;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.persistence.I18nOverrideEntity;
 import com.tchalanet.server.common.persistence.I18nOverrideRepository;

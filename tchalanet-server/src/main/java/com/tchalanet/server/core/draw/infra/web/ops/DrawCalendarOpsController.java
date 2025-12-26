@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.infra.web.ops;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
@@ -27,7 +28,7 @@ public class DrawCalendarOpsController {
 
   @PostMapping("/generate")
   public GenerateDrawsForRangeResult generate(
-      @RequestParam UUID tenantId,
+      @RequestParam TenantId tenantId,
       @RequestParam LocalDate from,
       @RequestParam LocalDate to,
       @RequestParam(defaultValue = "false") boolean dryRun,

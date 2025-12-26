@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.draw.infra.web;
 
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.DrawId;
+
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawChannelCommand;
@@ -8,6 +11,7 @@ import com.tchalanet.server.core.draw.application.query.model.GetDrawChannelQuer
 import com.tchalanet.server.core.draw.application.query.model.ListActiveDrawChannelsQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawChannelsQuery;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
+import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
 import com.tchalanet.server.core.draw.infra.web.mapper.DrawChannelWebMapper;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawChannelRequest;
@@ -43,7 +47,7 @@ public class DrawChannelController {
 
     @GetMapping
     public List<DrawChannelSummaryResponse> list(
-        @RequestParam UUID tenantId, @RequestParam(required = false) Boolean activeOnly) {
+        @RequestParam TenantId tenantId, @RequestParam(required = false) Boolean activeOnly) {
         if (activeOnly == null) {
             List<DrawChannelSummary> channels = queryBus.send(new ListDrawChannelsQuery(tenantId, null));
             return channels.stream().map(mapper::toSummaryResponse).collect(Collectors.toList());
@@ -58,7 +62,7 @@ public class DrawChannelController {
 
     @GetMapping("/{id}")
     public ResponseEntity<DrawChannelResponse> get(
-        @PathVariable UUID id, @RequestParam UUID tenantId) {
+        @PathVariable DrawChannelId id, @RequestParam TenantId tenantId) {
         try {
             DrawChannel channel = queryBus.send(new GetDrawChannelQuery(tenantId, id));
             return ResponseEntity.ok(mapper.toResponse(channel));

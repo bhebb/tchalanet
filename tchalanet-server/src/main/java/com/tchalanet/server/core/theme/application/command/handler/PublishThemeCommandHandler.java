@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.theme.application.command.handler;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -29,7 +30,7 @@ public class PublishThemeCommandHandler implements VoidCommandHandler<PublishThe
     @Transactional
     @CacheEvict(cacheNames = "publishedThemeByTenant", key = "#cmd.tenantId()")
     public void handle(PublishThemeCommand cmd) {
-        UUID tenantId = require(cmd.tenantId(), "tenantId is required");
+        TenantId tenantId = require(cmd.tenantId(), "tenantId is required");
         UUID themeId = require(cmd.themeId(), "themeId is required");
         int version = cmd.themeVersion();
 

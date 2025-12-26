@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.persistence.repo;
 
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.core.draw.infra.persistence.entity.DrawJpaEntity;
+import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

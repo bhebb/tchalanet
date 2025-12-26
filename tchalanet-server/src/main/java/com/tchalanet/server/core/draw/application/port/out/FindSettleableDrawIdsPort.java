@@ -1,14 +1,16 @@
 package com.tchalanet.server.core.draw.application.port.out;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 public interface FindSettleableDrawIdsPort {
-  List<UUID> findSettleableDrawIds(SettleableDrawCriteria criteria);
+  List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria);
 
   record SettleableDrawCriteria(
-      UUID tenantId,
+      TenantId tenantId,
       String source,
       String provider,
       String channelCode,

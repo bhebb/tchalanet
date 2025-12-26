@@ -10,7 +10,7 @@ import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPo
 import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
 import com.tchalanet.server.core.session.domain.event.SessionClosedEvent;
 import com.tchalanet.server.core.session.domain.model.PosSession;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
@@ -32,7 +32,7 @@ public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCo
     public PosSession handle(CloseSessionCommand command) {
         var existing =
             sessionReader
-                .findById(command.sessionId())
+                .findById(command.sessionId().value())
                 .orElseThrow(() -> new IllegalStateException("PosSession not found: " + command.sessionId()));
 
         // idempotent
@@ -50,7 +50,7 @@ public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCo
             new SessionClosedEvent(
                 UUID.randomUUID(),
                 now,
-                new TenantId(saved.tenantId()),
+                new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().uuid()),
                 saved.id(),
                 saved.outletId(),
                 saved.userId(),

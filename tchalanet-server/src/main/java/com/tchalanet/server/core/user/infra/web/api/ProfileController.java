@@ -5,6 +5,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.constant.ContextKeys;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.user.application.command.model.EnsureUserExistsForPrincipalCommand;
 import com.tchalanet.server.core.user.application.command.model.UpdateUserProfileCommand;
 import com.tchalanet.server.core.user.application.query.model.GetCurrentUserQuery;
@@ -12,16 +13,12 @@ import com.tchalanet.server.core.user.infra.web.dto.MeResponse;
 import com.tchalanet.server.core.user.infra.web.dto.UpdateUserProfileRequest;
 import com.tchalanet.server.core.user.infra.web.dto.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -35,12 +32,12 @@ public class ProfileController {
 
     @GetMapping("/me")
     public ResponseEntity<MeResponse> me(@CurrentContext TchRequestContext context) {
-        var details = queryBus.send(new GetCurrentUserQuery(context.userUuid()));
+        var details = queryBus.send(new GetCurrentUserQuery(context.userId()));
 
         var meResponse = new MeResponse(
             details.id,
             details.keycloakId,
-            details.tenantId,
+            details.tenantId.uuid(),
             details.username,
             details.email,
             details.firstName,
@@ -80,7 +77,7 @@ public class ProfileController {
         var meResponse = new MeResponse(
             details.id,
             details.keycloakId,
-            details.tenantId,
+            details.tenantId.uuid(),
             details.username,
             details.email,
             details.firstName,
@@ -97,7 +94,7 @@ public class ProfileController {
         @CurrentContext TchRequestContext context,
         @RequestBody UpdateUserProfileRequest req
     ) {
-        UUID userId = context.userUuid();
+        UserId userId = context.userId();
         if (userId == null) {
             return ResponseEntity.status(409).build();
         }
@@ -114,7 +111,7 @@ public class ProfileController {
 
         var details = queryBus.send(new GetCurrentUserQuery(userId));
         var res = new UserResponse(
-            details.id,
+            UserId.nullableOf(details.id),
             details.keycloakId,
             details.tenantId,
             details.username,

@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
 import com.tchalanet.server.core.draw.application.query.projection.OpenableDrawRow;
@@ -24,8 +26,8 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   }
 
   private OpenableDrawRow mapOpenableRow(Object[] row) {
-    UUID tenantId = (UUID) row[0];
-    UUID drawId = (UUID) row[1];
+     TenantId tenantId = TenantId.of((UUID) row[0]);
+     DrawId drawId = DrawId.of((UUID) row[1]);
     Boolean locked = row[2] == null ? Boolean.FALSE : (Boolean) row[2];
     Instant scheduledAt = row[3] == null ? null : (Instant) row[3];
     Integer cutoffSec = null;
@@ -39,9 +41,10 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   }
 
   @Override
-  public int bulkOpen(List<UUID> drawIds) {
+  public int bulkOpen(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) return 0;
-    return repo.bulkOpen(drawIds.toArray(new UUID[0]));
+    UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
+    return repo.bulkOpen(ids);
   }
 
   @Override
@@ -51,16 +54,16 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   }
 
   private DueToCloseRow mapDueToCloseRow(Object[] row) {
-    UUID tenantId = (UUID) row[0];
-    UUID drawId = (UUID) row[1];
+     TenantId tenantId = TenantId.of((UUID) row[0]);
+     DrawId drawId = DrawId.of((UUID) row[1]);
     Boolean locked = row[2] == null ? Boolean.FALSE : (Boolean) row[2];
     return new DueToCloseRow(tenantId, drawId, locked);
   }
 
   @Override
-  public int bulkClose(List<UUID> drawIds) {
+  public int bulkClose(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) return 0;
-    UUID[] ids = drawIds.toArray(new UUID[0]);
+    UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
     return repo.bulkClose(null, ids);
   }
 }

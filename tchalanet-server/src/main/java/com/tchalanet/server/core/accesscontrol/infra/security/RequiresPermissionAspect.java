@@ -4,9 +4,10 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.UUID;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,10 +17,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Aspect centralisant l'application de @RequiresPermission sur les controllers.
- *
- * <p>- Lit les permissions à partir de l'annotation. - Récupère tenantId / userId depuis le
- * principal. - Appelle CheckUserPermissionsUseCase. - Sémantique : toutes les permissions demandées
- * doivent être accordées (AND).
  */
 @Aspect
 @Component
@@ -45,8 +42,8 @@ public class RequiresPermissionAspect {
         throw new AccessDeniedException("Missing TchRequestContext principal");
       }
 
-      UUID tenantId = ctx.tenantUuid();
-      UUID userId = ctx.userUuid();
+      TenantId tenantId = TenantId.of(ctx.tenantUuid());
+      UserId userId = UserId.of(ctx.userUuid());
 
       if (tenantId == null || userId == null) {
         throw new AccessDeniedException("Missing tenant or user in request context");

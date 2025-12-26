@@ -5,15 +5,16 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
 import com.tchalanet.server.core.draw.application.query.handler.GetDrawHandler;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawQuery;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
-import com.tchalanet.server.core.limitpolicy.domain.model.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
-import com.tchalanet.server.core.limitpolicy.domain.model.OperationType;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketResult;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
@@ -25,7 +26,10 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
 import com.tchalanet.server.core.session.domain.model.PosSession;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.AgentId;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -41,6 +45,7 @@ import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
+import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 
 @UseCase
 @RequiredArgsConstructor
@@ -59,6 +64,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
     private final GetDrawHandler drawHandler;
     private final LimitPolicyFacade limitPolicyFacade;
     private final AutonomyResolver autonomyResolver;
+    private final OutletLookupPort outletLookupPort;
 
     // --- events + time ---
     private final DomainEventPublisher domainEventPublisher;
@@ -151,9 +157,17 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
         }
     }
 
-    private PosSession validateSession(UUID tenantId, UUID terminalId) {
-        return posSessionPort.findOpenByTerminal(tenantId, terminalId)
+    private PosSession validateSession(TenantId tenantId, TerminalId terminalId) {
+        PosSession session = posSessionPort.findOpenByTerminal(tenantId, terminalId)
             .orElseThrow(() -> new SecurityException("No open session for terminalId=" + terminalId + " tenantId=" + tenantId));
+
+        // Prevent sales if outlet is blocked
+        boolean blocked = outletLookupPort.isSalesBlocked(tenantId, session.outletId());
+        if (blocked) {
+            throw new SecurityException("Outlet sales are temporarily blocked for outletId=" + session.outletId());
+        }
+
+        return session;
     }
 
     private Draw resolveAndValidateDraw(SellTicketCommand command) {
@@ -183,11 +197,11 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
             command.tenantId(),
             draw.id(),
             null, // drawChannelId
-            session.userId(), // agentId
+            AgentId.of(session.userId().uuid()), // agentId (convert from UserId)
             session.terminalId(),
             session.outletId(),
             null, // zoneId
-            List.of(), // rangeIds
+            java.util.List.of(), // rangeIds
             null, // gameCode
             OperationType.SALE,
             betLines,
@@ -201,7 +215,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
         LimitEvaluationResult limitResult = limitPolicyFacade.evaluate(OperationType.SALE, context);
 
         // Resolve autonomy
-        var autonomyPolicy = autonomyResolver.resolve(command.tenantId(), session.userId(), session.terminalId(), session.outletId(), now);
+        var autonomyPolicy = autonomyResolver.resolve(command.tenantId(), AgentId.of(session.userId().uuid()), session.terminalId(), session.outletId(), now);
 
         // Apply decision matrix V1
         if (limitResult.overallOutcome() == BreachOutcome.ALLOW) {
@@ -213,7 +227,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
             if (!autonomyPolicy.requireApprovalOnBlock()) {
                 // REJECT
                 List<LimitNotice> notices = limitResult.details().stream()
-                    .map(d -> new LimitNotice(d.ruleKey(), d.outcome(), d.message(), d.targetApplied().name(), d.selectionKey(), d.currentValue(), d.limitValue()))
+                    .map(d -> new LimitNotice(d.ruleKey(), d.outcome(), d.message(), d.targetApplied(), d.selectionKey(), d.currentValue(), d.limitValue()))
                     .toList();
                 throw ProblemRest.limitBlocked("Limit breach blocked", OperationType.SALE, notices, true, autonomyPolicy.approvalRole());
             }
@@ -230,8 +244,8 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
         return lineCommands.stream()
             .map(lineCmd -> {
                 // TODO: replace with OddsSnapshotPort / PricingPort
-                BigDecimal odds = new BigDecimal("10.00");
-                BigDecimal potentialPayout = lineCmd.stake().multiply(odds);
+                var odds = new BigDecimal("10.00");
+                var potentialPayout = lineCmd.stake().multiply(odds);
                 return new TicketLine(
                     lineCmd.gameCode(),
                     lineCmd.selection(),
@@ -258,15 +272,15 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
         return new TicketPlacedEvent(
             UUID.randomUUID(),
             occurredAt,
-            new TenantId(saved.getTenantId()),
+            saved.getTenantId(),
             saved.getId(),
-            null,              // outletId not in domain yet
-            session.id(),      // sessionId
-            session.userId(),  // cashierId (if that's what your session.userId means)
+            null, // outletId (not stored on ticket aggregate)
+            session.userId().uuid(), // cashier UUID
+            session.id(),
             saved.getDrawId(),
             firstGameCode,
             totalStakeCents,
-            currency != null ? currency : "USD" // TODO: ideally tenant setting / command required
+            currency
         );
     }
 }

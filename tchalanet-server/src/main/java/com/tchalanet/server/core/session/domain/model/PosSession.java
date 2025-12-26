@@ -4,14 +4,19 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
+
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
 public record PosSession(
-    UUID id,
-    UUID tenantId,
-    UUID outletId,
-    UUID terminalId,
-    UUID userId,
+    SessionId id,
+    TenantId tenantId,
+    OutletId outletId,
+    TerminalId terminalId,
+    UserId userId,
     PosSessionStatus status,
     Instant openedAt,
     Instant closedAt,
@@ -25,11 +30,11 @@ public record PosSession(
 ) {
 
     public static PosSession open(
-        UUID id,
-        UUID tenantId,
-        UUID outletId,
-        UUID terminalId,
-        UUID userId,
+        SessionId id,
+        TenantId tenantId,
+        OutletId outletId,
+        TerminalId terminalId,
+        UserId userId,
         Long openingFloatCents,
         Instant now
     ) {
@@ -80,11 +85,11 @@ public record PosSession(
     }
 
     public static PosSession reconstruct(
-        UUID id,
-        UUID tenantId,
-        UUID outletId,
-        UUID terminalId,
-        UUID userId,
+        SessionId id,
+        TenantId tenantId,
+        OutletId outletId,
+        TerminalId terminalId,
+        UserId userId,
         PosSessionStatus status,
         Instant openedAt,
         Instant closedAt,

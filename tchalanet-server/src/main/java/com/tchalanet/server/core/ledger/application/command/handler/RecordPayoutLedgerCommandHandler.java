@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.ledger.application.command.handler;
 
+import com.tchalanet.server.common.types.id.PayoutId;
+import com.tchalanet.server.common.types.id.TenantId;
+
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.ledger.application.port.in.RecordLedgerFromPayoutPort;
@@ -29,7 +32,7 @@ public class RecordPayoutLedgerCommandHandler implements RecordLedgerFromPayoutP
 
     @Override
     @TchTx
-    public void recordPayout(UUID tenantId, UUID payoutId, BigDecimal amount, Instant occurredAt) {
+    public void recordPayout(TenantId tenantId, PayoutId payoutId, BigDecimal amount, Instant occurredAt) {
         Objects.requireNonNull(tenantId, "tenantId");
         Objects.requireNonNull(payoutId, "payoutId");
         Objects.requireNonNull(amount, "amount");
@@ -41,7 +44,7 @@ public class RecordPayoutLedgerCommandHandler implements RecordLedgerFromPayoutP
         }
 
         // Idempotency (soft)
-        if (ledgerReader.existsByRef(tenantId, LedgerRefType.PAYOUT, payoutId)) {
+        if (ledgerReader.existsByRef(tenantId, LedgerRefType.PAYOUT, payoutId.uuid())) {
             log.warn("Ledger entry already exists for payoutId={} tenantId={}, skipping", payoutId, tenantId);
             return;
         }
@@ -52,7 +55,7 @@ public class RecordPayoutLedgerCommandHandler implements RecordLedgerFromPayoutP
             LedgerEntry.create(
                 tenantId,
                 LedgerRefType.PAYOUT,
-                payoutId,
+                payoutId.uuid(),
                 amount,
                 LedgerDirection.DEBIT,
                 at);

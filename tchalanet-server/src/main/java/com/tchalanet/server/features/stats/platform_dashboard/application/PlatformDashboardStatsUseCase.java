@@ -1,10 +1,13 @@
 package com.tchalanet.server.features.stats.platform_dashboard.application;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.features.stats.platform_dashboard.dto.PlatformDashboardDtos.*;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;
 import com.tchalanet.server.core.tenant.infra.persistence.TenantJpaRepository;
+import com.tchalanet.server.core.outlet.infra.persistence.OutletSpringRepository;
+import com.tchalanet.server.core.accesscontrol.infra.persistence.TenantUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +23,8 @@ public class PlatformDashboardStatsUseCase {
     private final StatsDailyJpaRepository statsDailyRepo;
     private final StatsDrawJpaRepository statsDrawRepo;
     private final TenantJpaRepository tenantRepo;
-    private final OutletJpaRepository outletRepo;
-    private final TenantUserJpaRepository tenantUserRepo;
+    private final OutletSpringRepository outletRepo;
+    private final TenantUserRepository tenantUserRepo;
 
     @Transactional(readOnly = true)
     public PlatformDashboardStatsResponse handle(PlatformDashboardStatsQuery query) {

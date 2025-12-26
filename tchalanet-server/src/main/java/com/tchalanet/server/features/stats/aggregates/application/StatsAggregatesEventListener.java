@@ -6,6 +6,7 @@ import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.session.domain.event.SessionClosedEvent;
 import com.tchalanet.server.core.session.domain.event.SessionOpenedEvent;
+import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsEventLogEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsEventLogJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class StatsAggregatesEventListener {
 
     @EventListener
     @Transactional
-    public void onTicketSettled(TicketSettledEvent event) {
+    public void onTicketSettled(TicketResultedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (alreadyProcessed(event.eventId())) return;
 
@@ -69,10 +70,10 @@ public class StatsAggregatesEventListener {
     @EventListener
     @Transactional
     public void onSessionOpened(SessionOpenedEvent event) {
-        if (isOldEvent(event.openedAt())) return;
+        if (isOldEvent(event.occurredAt())) return;
         if (alreadyProcessed(event.eventId())) return;
 
-        LocalDate refDate = LocalDate.ofInstant(event.openedAt(), ZoneOffset.UTC);
+        LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applySessionOpened(event, refDate);
         saveEventLog(event);
     }

@@ -17,15 +17,14 @@ public class CreateRoleCommandHandler implements CommandHandler<CreateRoleComman
   @Override
   public UUID handle(CreateRoleCommand command) {
     AppRoleEntity entity = new AppRoleEntity();
-    entity.setId(command.id() != null ? command.id() : UUID.randomUUID());
     entity.setCode(command.code());
     entity.setName(command.name());
     entity.setDescription(command.description());
-    entity.setTenantId(command.tenantId());
-    entity.setParentRoleId(command.parentRoleId());
+    entity.setTenantId(command.tenantId().uuid());
+    // parentRoleId may be null when not provided by the client
+    entity.setParentRoleId(command.parentRoleId() == null ? null : command.parentRoleId().uuid());
     entity.setSystem(command.system());
     AppRoleEntity saved = appRoleRepository.save(entity);
     return saved.getId();
   }
 }
-

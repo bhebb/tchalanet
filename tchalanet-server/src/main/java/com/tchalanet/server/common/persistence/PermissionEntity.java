@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.user.infra.persistence;
+package com.tchalanet.server.common.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;

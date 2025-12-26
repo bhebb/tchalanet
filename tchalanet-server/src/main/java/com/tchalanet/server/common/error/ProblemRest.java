@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.error;
 
-import com.tchalanet.server.core.autonomy.domain.model.ApprovalRole;
-import com.tchalanet.server.core.limitpolicy.domain.model.OperationType;
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

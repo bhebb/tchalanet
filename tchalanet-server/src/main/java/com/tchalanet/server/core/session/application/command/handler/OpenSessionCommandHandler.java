@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.session.application.command.handler;
+import com.tchalanet.server.common.types.id.SessionId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
@@ -10,12 +11,13 @@ import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPo
 import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
 import com.tchalanet.server.core.session.domain.event.SessionOpenedEvent;
 import com.tchalanet.server.core.session.domain.model.PosSession;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 
 @UseCase
@@ -49,7 +51,7 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
 
         var session =
             PosSession.open(
-                UUID.randomUUID(),
+                com.tchalanet.server.common.types.id.SessionId.random(),
                 command.tenantId(),
                 command.outletId(),
                 command.terminalId(),
@@ -63,7 +65,7 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
             new SessionOpenedEvent(
                 UUID.randomUUID(),
                 now,
-                new TenantId(saved.tenantId()),
+                new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().uuid()),
                 saved.id(),
                 saved.outletId(),
                 saved.terminalId(),

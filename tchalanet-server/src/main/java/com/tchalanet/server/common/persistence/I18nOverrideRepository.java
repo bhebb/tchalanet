@@ -1,4 +1,5 @@
 package com.tchalanet.server.common.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.List;
 import java.util.UUID;

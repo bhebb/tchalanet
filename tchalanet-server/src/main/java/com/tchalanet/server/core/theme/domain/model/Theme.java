@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.theme.domain.model;
+import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -8,7 +10,7 @@ import java.util.UUID;
 
 public record Theme(
     UUID id,
-    UUID tenantId,
+    TenantId tenantId,
     String basePresetId,
     String label,
     ThemeMode mode,
@@ -40,7 +42,7 @@ public record Theme(
 
     public static Theme draft(
         UUID id,
-        UUID tenantId,
+        TenantId tenantId,
         String basePresetId,
         String label,
         ThemeMode mode,

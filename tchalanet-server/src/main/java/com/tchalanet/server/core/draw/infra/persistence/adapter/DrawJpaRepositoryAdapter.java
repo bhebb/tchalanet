@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
@@ -27,26 +29,28 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort 
   private final DrawMapper mapper;
 
   @Override
-  public Optional<Draw> findById(UUID drawId) {
-    return jpa.findById(drawId).map(mapper::toDomain);
+  public Optional<Draw> findById( DrawId drawId) {
+    return jpa.findById(drawId.uuid()).map(mapper::toDomain);
   }
 
   @Override
-  public List<Draw> findClosableDraws(UUID tenantId, ZonedDateTime now) {
+  public List<Draw> findClosableDraws( TenantId tenantId, ZonedDateTime now) {
     Instant inst = now.toInstant();
     return jpa
         .findByStatusAndScheduledAtBeforeAndDeletedAtIsNullAndLockedFalse("CLOSED", inst)
         .stream()
+        .filter(e -> tenantId == null || tenantId.uuid().equals(e.getTenantId()))
         .map(mapper::toDomain)
         .collect(Collectors.toList());
   }
 
   @Override
-  public List<Draw> findResultedUnsettled(UUID tenantId, ZonedDateTime now) {
+  public List<Draw> findResultedUnsettled( TenantId tenantId, ZonedDateTime now) {
     return jpa
         .findByStatusAndScheduledAtBeforeAndDeletedAtIsNullAndLockedFalse(
             "RESULTED", now.toInstant())
         .stream()
+        .filter(e -> tenantId == null || tenantId.uuid().equals(e.getTenantId()))
         .map(mapper::toDomain)
         .collect(Collectors.toList());
   }

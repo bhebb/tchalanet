@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.tenant.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.core.tenant.domain.model.TenantType;
+import com.tchalanet.server.common.types.enums.TenantType;
 
 import java.util.UUID;
 

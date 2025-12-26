@@ -8,7 +8,6 @@ import java.util.UUID;
 public interface ResultsByGameProvider {
 
     ResultsByGameBlock buildResultsBlock(
-        UUID tenantId,
         PageModel pageModel,
         String currentLang
     );

@@ -1,10 +1,15 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.TenantUserDirectoryPort;
-import com.tchalanet.server.core.accesscontrol.domain.model.AutonomyLevel;
 import com.tchalanet.server.core.accesscontrol.domain.model.TenantUserSnapshot;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
+
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,23 +17,31 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TenantUserDirectoryJpaAdapter implements TenantUserDirectoryPort {
 
-  private final TenantUserRepository tenantUserRepository;
+    private final TenantUserRepository tenantUserRepository;
 
-  @Override
-  public Optional<TenantUserSnapshot> findActiveMembership(UUID tenantId, UUID userId) {
-    if (tenantId == null || userId == null) {
-      return Optional.empty();
+    @Override
+    public Optional<TenantUserSnapshot> findActiveMembership(TenantId tenantId, UserId userId) {
+        if (tenantId == null || userId == null) {
+            return Optional.empty();
+        }
+        return tenantUserRepository.findByTenantIdAndUserId(tenantId.uuid(), userId.uuid()).stream()
+            .filter(entity -> entity.getDeletedAt() == null)
+            .findFirst()
+            .map(
+                entity ->
+                    new TenantUserSnapshot(
+                        entity.getTenantId(),
+                        UserId.of(entity.getUserId()),
+                        RoleId.of(entity.getRoleId()),
+                        AutonomyLevel.valueOf(entity.getAutonomyLevel()),
+                        Boolean.TRUE.equals(entity.getOwner())));
     }
-    return tenantUserRepository.findByTenantIdAndUserId(tenantId, userId).stream()
-        .filter(entity -> entity.getDeletedAt() == null)
-        .findFirst()
-        .map(
-            entity ->
-                new TenantUserSnapshot(
-                    entity.getTenantId(),
-                    entity.getUserId(),
-                    entity.getRoleId(),
-                    AutonomyLevel.valueOf(entity.getAutonomyLevel()),
-                    Boolean.TRUE.equals(entity.getOwner())));
-  }
+
+    @Override
+    public List<RoleId> getUserRolesInTenant(UserId userId, TenantId tenantId) {
+        return tenantUserRepository.findByTenantIdAndUserId(tenantId.uuid(), userId.uuid()).stream()
+            .map(TenantUserEntity::getRoleId)
+            .map(RoleId::of)
+            .toList();
+    }
 }

@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.sales.application.command.handler;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
@@ -45,7 +46,7 @@ public class RecordTicketResultCommandHandler implements CommandHandler<RecordTi
         var event = new TicketResultedEvent(
             UUID.randomUUID(),
             now,
-            new com.tchalanet.server.core.tenant.domain.model.TenantId(command.tenantId()),
+            saved.getTenantId(),
             saved.getId(),
             command.winningAmount()
         );

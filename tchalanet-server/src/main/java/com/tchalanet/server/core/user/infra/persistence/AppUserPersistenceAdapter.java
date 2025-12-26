@@ -1,9 +1,11 @@
 package com.tchalanet.server.core.user.infra.persistence;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.enums.UserStatus;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
 import com.tchalanet.server.core.user.application.port.out.UserWriterPort;
 import com.tchalanet.server.core.user.domain.model.AppUser;
-import com.tchalanet.server.core.user.domain.model.UserStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,8 +23,8 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     private final JpaAppUserRepository jpa;
 
     @Override
-    public Optional<AppUser> findById(UUID id) {
-        return jpa.findById(id).map(UserMapper::toDomain);
+    public Optional<AppUser> findById(UserId id) {
+        return jpa.findById(id.uuid()).map(UserMapper::toDomain);
     }
 
     @Override
@@ -44,8 +46,8 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     public AppUser save(AppUser user) {
         AppUserJpaEntity entity;
         if (user.getId() != null) {
-            entity = jpa.findById(user.getId()).orElseGet(AppUserJpaEntity::new);
-            entity.setId(user.getId());
+            entity = jpa.findById(user.getId().uuid()).orElseGet(AppUserJpaEntity::new);
+            entity.setId(user.getId().uuid());
             UserMapper.merge(entity, user);
         } else {
             entity = UserMapper.toNewEntity(user);
@@ -55,8 +57,8 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     }
 
     @Override
-    public void softDelete(UUID userId, Instant when) {
-        jpa.findById(userId).ifPresent(e -> {
+    public void softDelete( UserId userId, Instant when) {
+        jpa.findById(userId.uuid()).ifPresent(e -> {
             e.setDeletedAt(when);
             jpa.save(e);
         });
@@ -70,8 +72,8 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     }
 
     @Override
-    public Page<AppUser> findByTenantId(UUID tenantId, Pageable pageable) {
-        var page = jpa.findByTenantId(tenantId, pageable);
+    public Page<AppUser> findByTenantId( TenantId tenantId, Pageable pageable) {
+        var page = jpa.findByTenantId(tenantId.uuid(), pageable);
         var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());
     }
@@ -84,8 +86,8 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     }
 
     @Override
-    public Page<AppUser> findAllActiveUsersByTenant(UUID tenantId, Pageable pageable) {
-        var page = jpa.findByTenantIdAndStatusAndDeletedAtIsNull(tenantId, UserStatus.ACTIVE.name(), pageable);
+    public Page<AppUser> findAllActiveUsersByTenant( TenantId tenantId, Pageable pageable) {
+        var page = jpa.findByTenantIdAndStatusAndDeletedAtIsNull(tenantId.uuid(), UserStatus.ACTIVE.name(), pageable);
         var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());
     }

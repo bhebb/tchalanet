@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.accesscontrol.application.query.model;
 
 import com.tchalanet.server.common.bus.Query;
-import java.util.Set;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.RoleId;
 
-public record ListRolePermissionsQuery(UUID roleId) implements Query<Set<String>> {}
+import java.util.Set;
+
+public record ListRolePermissionsQuery(RoleId roleId) implements Query<Set<String>> {}
 

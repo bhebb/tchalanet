@@ -1,4 +1,7 @@
 package com.tchalanet.server.core.user.infra.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.UserStatus;
 
 import com.tchalanet.server.core.user.domain.model.AppUser;
 
@@ -8,9 +11,9 @@ final class UserMapper {
 
     static AppUser toDomain(AppUserJpaEntity e) {
         return AppUser.restore(
-            e.getId(),
+            UserId.of(e.getId()),
             e.getKeycloakId(),
-            e.getTenantId(),
+            TenantId.of(e.getTenantId()),
             e.getTenantCode(),
             e.getUsername(),
             e.getEmail(),
@@ -21,7 +24,7 @@ final class UserMapper {
             e.getAvatarUrl(),
             e.getLocale(),
             e.getTimeZone(),
-            e.getStatus(),
+            UserStatus.valueOf(e.getStatus().name()),
             e.getApprovedAt(),
             e.getApprovedBy(),
             e.getLastLoginAt(),
@@ -31,7 +34,7 @@ final class UserMapper {
 
     static AppUserJpaEntity toNewEntity(AppUser u) {
         AppUserJpaEntity e = new AppUserJpaEntity();
-        e.setId(u.id());
+        if (u.getId() != null) e.setId(u.getId().uuid());
         apply(e, u);
         return e;
     }
@@ -42,22 +45,22 @@ final class UserMapper {
     }
 
     private static void apply(AppUserJpaEntity e, AppUser u) {
-        e.setKeycloakId(u.keycloakId());
-        e.setTenantId(u.tenantId());
-        e.setTenantCode(u.tenantCode());
-        e.setUsername(u.username());
-        e.setEmail(u.email());
-        e.setPhone(u.phone());
-        e.setFirstName(u.firstName());
-        e.setLastName(u.lastName());
-        e.setDisplayName(u.displayName());
-        e.setAvatarUrl(u.avatarUrl());
-        e.setLocale(u.locale());
-        e.setTimeZone(u.timeZone());
-        e.setStatus(u.status());
-        e.setApprovedAt(u.approvedAt());
-        e.setApprovedBy(u.approvedBy());
-        e.setLastLoginAt(u.lastLoginAt());
-        e.setVersion(u.version());
+        e.setKeycloakId(u.getKeycloakId());
+        if (u.getTenantId() != null) e.setTenantId(u.getTenantId().uuid());
+        e.setTenantCode(u.getTenantCode());
+        e.setUsername(u.getUsername());
+        e.setEmail(u.getEmail());
+        e.setPhone(u.getPhone());
+        e.setFirstName(u.getFirstName());
+        e.setLastName(u.getLastName());
+        e.setDisplayName(u.getDisplayName());
+        e.setAvatarUrl(u.getAvatarUrl());
+        e.setLocale(u.getLocale());
+        e.setTimeZone(u.getTimeZone());
+        e.setStatus(com.tchalanet.server.common.types.enums.UserStatus.valueOf(u.getStatus().name()));
+        e.setApprovedAt(u.getApprovedAt());
+        e.setApprovedBy(u.getApprovedBy());
+        e.setLastLoginAt(u.getLastLoginAt());
+        e.setVersion(u.getVersion());
     }
 }

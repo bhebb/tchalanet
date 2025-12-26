@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.session.infra.persistence.repository;
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

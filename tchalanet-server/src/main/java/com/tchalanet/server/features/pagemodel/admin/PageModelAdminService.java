@@ -1,4 +1,5 @@
 package com.tchalanet.server.features.pagemodel.admin;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

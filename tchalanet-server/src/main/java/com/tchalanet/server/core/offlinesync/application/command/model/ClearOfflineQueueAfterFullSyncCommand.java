@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.offlinesync.application.command.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 
-public record ClearOfflineQueueAfterFullSyncCommand(UUID tenantId, UUID deviceId) {}
+public record ClearOfflineQueueAfterFullSyncCommand(TenantId tenantId, UUID deviceId) {}
 

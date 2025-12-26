@@ -1,47 +1,99 @@
--- V13__core_payout.sql (recreate table, no ALTER)
+-- V13__core_payout.sql (create table including V21 additions)
 DROP TABLE IF EXISTS payout CASCADE;
 
 CREATE TABLE payout (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   version bigint NOT NULL DEFAULT 0,
+
   tenant_id uuid NOT NULL REFERENCES tenant(id),
-  -- Optional scoping / traceability
-  outlet_id uuid REFERENCES outlet(id),
-  terminal_id uuid REFERENCES terminal(id),
-  session_id uuid REFERENCES pos_session(id),
-  -- Ticket payout
-  ticket_id uuid REFERENCES ticket(id),
-  status varchar(16) NOT NULL DEFAULT 'REQUESTED'
-    CHECK (status IN ('REQUESTED', 'APPROVED', 'PAID', 'REJECTED', 'CANCELLED')),
+
+  -- --- Paying context (where the payment is executed)
+  outlet_id uuid,            -- paying outlet
+  session_id uuid,           -- paying session
+  terminal_id uuid,
+  paid_by_user_id uuid,
+
+  -- --- Selling context (convenience, coming from ticket)
+  ticket_id uuid NOT NULL,
+  selling_outlet_id uuid,
+  selling_session_id uuid,
+
+  -- --- Amounts
   amount numeric(14,2) NOT NULL CHECK (amount >= 0),
+  amount_cents bigint,
   currency varchar(8) NOT NULL DEFAULT 'USD',
-  method varchar(16) NOT NULL DEFAULT 'CASH'
-    CHECK (method IN ('CASH', 'MOBILE_MONEY', 'BANK', 'OTHER')),
+
+  -- --- Status
+  status varchar(24) NOT NULL DEFAULT 'REQUESTED',
+
+  -- --- Timestamps / audit
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid,
   requested_at timestamptz NOT NULL DEFAULT now(),
   requested_by uuid,
   approved_at timestamptz,
   approved_by uuid,
   paid_at timestamptz,
   paid_by uuid,
+  rejected_at timestamptz,
+
+  -- Rejection metadata
+  rejected_reason varchar(255),
+
   reason varchar(255),
   meta jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  created_by uuid,
+
   updated_at timestamptz NOT NULL DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz
 );
 
-CREATE INDEX ix_payout_tenant_status ON payout (tenant_id, status);
-CREATE INDEX ix_payout_tenant_requested_at ON payout (tenant_id, requested_at DESC);
-CREATE INDEX ix_payout_ticket ON payout (ticket_id) WHERE ticket_id IS NOT NULL;
-CREATE INDEX ix_payout_session ON payout (session_id) WHERE session_id IS NOT NULL;
+-- Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS ux_payout_tenant_ticket_active
+  ON payout(tenant_id, ticket_id)
+  WHERE deleted_at IS NULL;
 
+CREATE INDEX IF NOT EXISTS ix_payout_tenant_status
+  ON payout (tenant_id, status);
+
+CREATE INDEX IF NOT EXISTS ix_payout_tenant_requested_at
+  ON payout (tenant_id, requested_at DESC);
+
+CREATE INDEX IF NOT EXISTS ix_payout_ticket
+  ON payout (ticket_id) WHERE ticket_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS ix_payout_session
+  ON payout (session_id) WHERE session_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS ix_payout_tenant_paid_at
+  ON payout(tenant_id, paid_at) WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS ix_payout_tenant_outlet_created
+  ON payout(tenant_id, outlet_id, created_at) WHERE deleted_at IS NULL;
+
+-- Constraint: amount_cents positive (nullable to allow backfills)
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_payout_updated_at') THEN
-    CREATE TRIGGER trg_payout_updated_at
-      BEFORE UPDATE ON payout
-      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_payout_amount_cents_positive') THEN
+    ALTER TABLE payout ADD CONSTRAINT chk_payout_amount_cents_positive CHECK (amount_cents IS NULL OR amount_cents > 0);
   END IF;
-END $$;
+END$$;
+
+-- Trigger to set updated_at if helper function exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'set_updated_at') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_payout_set_updated_at') THEN
+      CREATE TRIGGER trg_payout_set_updated_at
+      BEFORE UPDATE ON payout
+      FOR EACH ROW
+      EXECUTE FUNCTION set_updated_at();
+    END IF;
+  END IF;
+END$$;
+
+-- Backfill amount_cents for existing numeric(amount) if any rows are present (safe no-op on empty table)
+-- Note: this will run during migration; keep it idempotent
+UPDATE payout SET amount_cents = (amount * 100)::bigint WHERE amount_cents IS NULL AND amount IS NOT NULL;
+
+-- End of migration V13 (table creation aligned with V21 additions)

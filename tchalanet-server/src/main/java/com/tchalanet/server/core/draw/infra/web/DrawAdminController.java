@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.draw.infra.web;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
@@ -35,7 +37,7 @@ public class DrawAdminController {
 
   @GetMapping
   public ResponseEntity<List<DrawSummaryResponse>> listDraws() {
-    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(contextHolder.get().tenantUuid(), null, null, null));
+    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(com.tchalanet.server.common.types.id.TenantId.of(contextHolder.get().tenantUuid()), null, null, null));
     var responses = summaries.stream().map(mapper::toDrawSummaryResponse).toList();
     return ResponseEntity.ok(responses);
   }
@@ -43,8 +45,8 @@ public class DrawAdminController {
   @PostMapping
   public ResponseEntity<DrawSummaryResponse> createDraw(@RequestBody CreateDrawRequest request) {
     CreateDrawCommand command = mapper.toCreateDrawCommand(request);
-    UUID drawId = commandBus.send(command);
-    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(request.tenantId(), null, null, null));
+    com.tchalanet.server.common.types.id.DrawId drawId = commandBus.send(command);
+    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(com.tchalanet.server.common.types.id.TenantId.of(request.tenantId()), null, null, null));
     Optional<DrawSummaryResponse> summary =
         summaries.stream()
             .filter(s -> s.id().equals(drawId))
@@ -57,13 +59,13 @@ public class DrawAdminController {
 
   @PutMapping("/{drawId}")
   public ResponseEntity<DrawSummaryResponse> updateDraw(
-      @PathVariable UUID drawId,
-      @RequestParam UUID tenantId,
+      @PathVariable DrawId drawId,
+      @RequestParam TenantId tenantId,
       @RequestBody UpdateDrawRequest request) {
-    if (!drawId.equals(request.drawId())) {
+    if (!drawId.uuid().equals(request.drawId())) {
       return ResponseEntity.badRequest().build();
     }
-    if (!tenantId.equals(request.tenantId())) {
+    if (!tenantId.uuid().equals(request.tenantId())) {
       return ResponseEntity.badRequest().build();
     }
     UpdateDrawCommand command = mapper.toUpdateDrawCommand(request);
@@ -81,8 +83,8 @@ public class DrawAdminController {
 
   @PostMapping("/{drawId}/override-result")
   public ResponseEntity<Void> overrideResult(
-      @PathVariable UUID drawId,
-      @RequestParam UUID tenantId,
+      @PathVariable DrawId drawId,
+      @RequestParam TenantId tenantId,
       @RequestBody OverrideDrawResultRequest request) {
     OverrideDrawResultCommand command = mapper.toOverrideDrawResultCommand(request);
     commandBus.send(command);

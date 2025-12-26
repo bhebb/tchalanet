@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.theme.infra.web;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
@@ -42,7 +43,7 @@ public class ThemeController {
         @RequestParam(defaultValue = "false") boolean includeBase,
         @RequestParam(required = false) ThemeStatus status) {
 
-        UUID tenantId = context.effectiveTenantUuid();
+        TenantId tenantId = context.effectiveTenantUuid();
         ThemeStatus effectiveStatus = status != null ? status : ThemeStatus.PUBLISHED;
 
         var views =
@@ -56,7 +57,7 @@ public class ThemeController {
     public ResponseEntity<ThemeView> getTheme(
         @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-        UUID tenantId = context.effectiveTenantUuid();
+        TenantId tenantId = context.effectiveTenantUuid();
         var theme = queryBus.send(new GetThemeByIdQuery(tenantId, id));
 
         return ResponseEntity.ok(theme);
@@ -70,7 +71,7 @@ public class ThemeController {
         @PathVariable UUID id,
         @RequestParam Integer version) {
 
-        UUID tenantId = context.effectiveTenantUuid();
+        TenantId tenantId = context.effectiveTenantUuid();
 
         commandBus.send(new PublishThemeCommand(tenantId, id, version));
 
@@ -82,7 +83,7 @@ public class ThemeController {
     public ResponseEntity<Void> archiveTheme(
         @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-        UUID tenantId = context.effectiveTenantUuid();
+        TenantId tenantId = context.effectiveTenantUuid();
         commandBus.send(new ArchiveThemeCommand(tenantId, id));
 
         return ResponseEntity.noContent().build();

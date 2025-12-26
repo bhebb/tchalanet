@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.uslottery.domain.model;
 
+import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.common.types.enums.UsLotteryProvider;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;

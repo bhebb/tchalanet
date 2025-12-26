@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.session.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.SessionId;
+
 import com.tchalanet.server.core.session.application.port.out.PosSessionTotalsReaderPort;
 import com.tchalanet.server.core.session.domain.model.PosSessionTotals;
 import com.tchalanet.server.core.session.infra.persistence.mapper.PosSessionTotalsMapper;
@@ -17,7 +19,8 @@ public class PosSessionTotalsReaderAdapter implements PosSessionTotalsReaderPort
   private final PosSessionTotalsMapper mapper;
 
   @Override
-  public Optional<PosSessionTotals> findBySessionId(UUID sessionId) {
-    return repository.findById(sessionId).map(mapper::toDomain);
+  public Optional<PosSessionTotals> findBySessionId(SessionId sessionId) {
+    return repository.findBySessionId(sessionId.uuid())
+        .map(mapper::toDomain);
   }
 }

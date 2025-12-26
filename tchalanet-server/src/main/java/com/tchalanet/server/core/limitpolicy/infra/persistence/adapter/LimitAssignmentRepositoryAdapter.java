@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.adapter;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.limitpolicy.application.port.out.LimitAssignmentReaderPort;
 import com.tchalanet.server.core.limitpolicy.application.port.out.LimitAssignmentWriterPort;
@@ -22,24 +23,24 @@ public class LimitAssignmentRepositoryAdapter implements LimitAssignmentReaderPo
     private final LimitAssignmentMapper mapper;
 
     @Override
-    public List<LimitAssignment> findActiveByTarget(UUID tenantId, String targetType, UUID targetId) {
-        return jpaRepository.findByTenantIdAndTargetTypeAndTargetIdAndDeletedAtIsNull(tenantId, targetType, targetId)
+    public List<LimitAssignment> findActiveByTarget( TenantId tenantId, String targetType, UUID targetId) {
+        return jpaRepository.findByTenantIdAndTargetTypeAndTargetIdAndDeletedAtIsNull(tenantId.uuid(), targetType, targetId)
                 .stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<LimitAssignment> findById(UUID tenantId, UUID assignmentId) {
+    public Optional<LimitAssignment> findById( TenantId tenantId, UUID assignmentId) {
         return jpaRepository.findById(assignmentId)
-                .filter(e -> e.getTenantId().equals(tenantId) && e.getDeletedAt() == null)
+                .filter(e -> e.getTenantId().equals(tenantId.uuid()) && e.getDeletedAt() == null)
                 .map(mapper::toDomain);
     }
 
     @Override
-    public boolean existsByTenantAndLimitAndTarget(UUID tenantId, UUID limitDefinitionId, String targetType, UUID targetId) {
+    public boolean existsByTenantAndLimitAndTarget( TenantId tenantId, UUID limitDefinitionId, String targetType, UUID targetId) {
         return jpaRepository.existsByTenantIdAndLimitDefinitionIdAndTargetTypeAndTargetIdAndDeletedAtIsNull(
-                tenantId, limitDefinitionId, targetType, targetId);
+                tenantId.uuid(), limitDefinitionId, targetType, targetId);
     }
 
     @Override
@@ -50,9 +51,9 @@ public class LimitAssignmentRepositoryAdapter implements LimitAssignmentReaderPo
     }
 
     @Override
-    public void softDelete(UUID tenantId, UUID assignmentId) {
+    public void softDelete( TenantId tenantId, UUID assignmentId) {
         var entity = jpaRepository.findById(assignmentId).orElseThrow();
-        if (!entity.getTenantId().equals(tenantId)) {
+        if (!entity.getTenantId().equals(tenantId.uuid())) {
             throw new IllegalArgumentException("Assignment not found");
         }
         entity.setDeletedAt(Instant.now());

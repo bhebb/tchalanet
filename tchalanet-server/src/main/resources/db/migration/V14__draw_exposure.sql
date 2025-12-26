@@ -1,4 +1,4 @@
--- V21__draw_exposure.sql
+-- V14__draw_exposure.sql
 -- Add draw_exposure read model for limit facts
 
 CREATE TABLE draw_exposure (

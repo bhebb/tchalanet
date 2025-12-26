@@ -1,9 +1,12 @@
 package com.tchalanet.server.core.session.application.query.handler;
+import com.tchalanet.server.common.types.id.SessionId;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
 import com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -16,7 +19,7 @@ public class ListCashierOpenSessionsHandler implements QueryHandler<ListCashierO
     private final PosSessionReaderPort sessionReader;
 
     public record CashierSessionDto(
-        UUID sessionId,
+        SessionId sessionId,
         String channelCode,
         java.time.Instant openedAt,
         java.math.BigDecimal totalSales,

@@ -3,6 +3,7 @@ package com.tchalanet.server.core.outlet.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.outlet.application.query.model.GenerateOutletReportQuery;
+import com.tchalanet.server.core.outlet.application.port.out.OutletReportPort;
 import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,12 +11,12 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GenerateOutletReportHandler implements QueryHandler<GenerateOutletReportQuery, Path> {
+public class GenerateOutletReportQueryHandler implements QueryHandler<GenerateOutletReportQuery, Path> {
+
+  private final OutletReportPort reportPort;
 
   @Override
   public Path handle(GenerateOutletReportQuery query) {
-    // TODO: generate PDF/Excel
-    throw new UnsupportedOperationException("GenerateOutletReportHandler not implemented yet");
+    return reportPort.generateDailyReport(query.tenantId(), query.outletId(), query.from());
   }
 }
-

@@ -1,20 +1,26 @@
 package com.tchalanet.server.core.outlet.application.command.handler;
 
-import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.stereotype.TchTx;
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.core.outlet.application.command.model.ReopenOutletDayCommand;
+import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
+import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @UseCase
 @RequiredArgsConstructor
-@Component
-public class ReopenOutletDayHandler implements VoidCommandHandler<ReopenOutletDayCommand> {
+public class ReopenOutletDayCommandHandler implements VoidCommandHandler<ReopenOutletDayCommand> {
+
+  private final OutletReaderPort reader;
+  private final OutletWriterPort writer;
 
   @Override
-  public void handle(ReopenOutletDayCommand command) {
-    // TODO: implement reopen logic
-    throw new UnsupportedOperationException("ReopenOutletDayHandler not implemented yet");
+  @TchTx
+  public void handle(ReopenOutletDayCommand cmd) {
+    Outlet outlet = reader.getRequired(cmd.tenantId(), cmd.outletId());
+    Outlet updated = outlet.reopenDay();
+    writer.save(updated);
   }
 }
-

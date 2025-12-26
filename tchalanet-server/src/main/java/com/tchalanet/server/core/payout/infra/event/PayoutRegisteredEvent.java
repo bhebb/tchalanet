@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.payout.domain.event;
+package com.tchalanet.server.core.payout.infra.event;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TicketId;

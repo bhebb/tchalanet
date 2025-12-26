@@ -3,7 +3,7 @@ package com.tchalanet.server.core.theme.infra.persistence;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.persistence.MapStringToJsonConverter;
 import com.tchalanet.server.common.persistence.MapToJsonConverter;
-import com.tchalanet.server.core.theme.domain.model.ThemeMode;
+import com.tchalanet.server.common.types.enums.ThemeMode;
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -57,4 +57,3 @@ public class ThemeJpaEntity extends BaseTenantEntity {
   private int themeVersion;
 
 }
-

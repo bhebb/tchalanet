@@ -20,7 +20,7 @@ public class MarkAllNotificationsReadService {
 
 
     public void handle(MarkAllNotificationsReadCommand command) {
-        repo.markAllRead(command.tenantId(), command.userId(), Instant.now());
+        repo.markAllRead(command.tenantId().uuid(), command.userId().uuid(), Instant.now());
     }
 }
 

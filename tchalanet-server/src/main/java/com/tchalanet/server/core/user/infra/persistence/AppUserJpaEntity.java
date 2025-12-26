@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.user.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.user.domain.model.UserStatus;
+import com.tchalanet.server.common.types.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

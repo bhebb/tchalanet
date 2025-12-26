@@ -1,22 +1,27 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
-import com.tchalanet.server.core.sales.domain.model.BetType;
+import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.common.types.id.AgentId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.UUID;
 
 public record LimitContext(
-    UUID tenantId,
-    UUID drawId,
-    UUID drawChannelId, // optional
-    UUID agentId,
-    UUID terminalId,
-    UUID outletId,
-    UUID zoneId, // optional
-    List<UUID> rangeIds, // optional
+    TenantId tenantId,
+    DrawId drawId,
+    DrawId drawChannelId, // optional (reuse DrawId for channel id if not present differently)
+    AgentId agentId,
+    TerminalId terminalId,
+    OutletId outletId,
+    String zoneId, // optional (now string)
+    List<String> rangeIds, // optional
     String gameCode, // optional
     OperationType operationType,
     List<BetLine> lines,

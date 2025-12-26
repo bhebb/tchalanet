@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort;
 import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort.SettleableDrawCriteria;
@@ -20,7 +22,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @StepScope
-public class SettleableDrawIdsReader extends IteratorItemReader<UUID> {
+public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
 
     public SettleableDrawIdsReader(
         FindSettleableDrawIdsPort port,
@@ -29,7 +31,7 @@ public class SettleableDrawIdsReader extends IteratorItemReader<UUID> {
         super(fetch(port, clock, jobParameters));
     }
 
-    private static List<UUID> fetch(
+    private static List<DrawId> fetch(
         FindSettleableDrawIdsPort port, Clock clock, JobParameters jobParameters) {
         var ctx = JobCtx.from(jobParameters, clock);
         var criteria =
@@ -46,7 +48,7 @@ public class SettleableDrawIdsReader extends IteratorItemReader<UUID> {
     }
 
     private record JobCtx(
-        UUID tenantId,
+        TenantId tenantId,
         String source,
         String provider,
         String channelCode,
@@ -57,7 +59,7 @@ public class SettleableDrawIdsReader extends IteratorItemReader<UUID> {
 
         static JobCtx from(JobParameters jp, Clock clock) {
             var tenantIdStr = jp.getString("tenant_id");
-            var tenantId = tenantIdStr != null && !tenantIdStr.isBlank() ? UUID.fromString(tenantIdStr) : null;
+            var tenantId = tenantIdStr != null && !tenantIdStr.isBlank() ? TenantId.of(tenantIdStr) : null;
             var source = jp.getString("source");
             var provider = jp.getString("provider");
             var channelCode = jp.getString("channel_code");

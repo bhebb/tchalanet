@@ -1,32 +1,51 @@
 package com.tchalanet.server.core.payout.infra.persistence;
 
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.envers.Audited;
+
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "payouts")
-public class PayoutJpaEntity {
-
-  @Id
-  @Column(name = "id", nullable = false)
-  private UUID id;
-
-  @Column(name = "tenant_id", nullable = false)
-  private UUID tenantId;
+@Table(name = "payout")
+@Audited
+@Getter
+@Setter
+public class PayoutJpaEntity  extends BaseTenantEntity {
 
   @Column(name = "ticket_id", nullable = false)
   private UUID ticketId;
 
-  @Column(name = "amount", nullable = false)
-  private BigDecimal amount;
+  @Column(name = "outlet_id")
+  private UUID outletId;
+
+  @Column(name = "session_id")
+  private UUID sessionId;
+
+  @Column(name = "terminal_id")
+  private UUID terminalId;
+
+  @Column(name = "paid_by_user_id")
+  private UUID paidByUserId;
+
+  @Column(name = "selling_outlet_id")
+  private UUID sellingOutletId;
+
+  @Column(name = "selling_session_id")
+  private UUID sellingSessionId;
+
+  @Column(name = "amount_cents", nullable = false)
+  private Long amountCents;
+
+  @Column(name = "currency", nullable = false, length = 3)
+  private String currency;
 
   @Column(name = "status", nullable = false)
   private String status;
 
-  @Column(name = "created_at", nullable = false)
-  private Instant createdAt;
 
   @Column(name = "approved_at")
   private Instant approvedAt;
@@ -34,30 +53,9 @@ public class PayoutJpaEntity {
   @Column(name = "paid_at")
   private Instant paidAt;
 
-  @Version
-  private Long version;
+  @Column(name = "rejected_at")
+  private Instant rejectedAt;
 
-  // --- Constructors ---
-  public PayoutJpaEntity() {}
-
-  // Getters and setters
-  public UUID getId() { return id; }
-  public void setId(UUID id) { this.id = id; }
-  public UUID getTenantId() { return tenantId; }
-  public void setTenantId(UUID tenantId) { this.tenantId = tenantId; }
-  public UUID getTicketId() { return ticketId; }
-  public void setTicketId(UUID ticketId) { this.ticketId = ticketId; }
-  public BigDecimal getAmount() { return amount; }
-  public void setAmount(BigDecimal amount) { this.amount = amount; }
-  public String getStatus() { return status; }
-  public void setStatus(String status) { this.status = status; }
-  public Instant getCreatedAt() { return createdAt; }
-  public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-  public Instant getApprovedAt() { return approvedAt; }
-  public void setApprovedAt(Instant approvedAt) { this.approvedAt = approvedAt; }
-  public Instant getPaidAt() { return paidAt; }
-  public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
-  public Long getVersion() { return version; }
-  public void setVersion(Long version) { this.version = version; }
+  @Column(name = "rejected_reason")
+  private String rejectedReason;
 }
-

@@ -1,5 +1,7 @@
 package com.tchalanet.server.features.notifications.list_my_notifications;
 
+import com.tchalanet.server.common.types.id.TenantId;
+
 import com.tchalanet.server.features.notifications.shared.NotificationDto;
 import com.tchalanet.server.features.notifications.shared.NotificationJpaRepository;
 import com.tchalanet.server.features.notifications.shared.NotificationMapper;
@@ -23,9 +25,9 @@ public class ListMyNotificationsService {
 
         var page = query.unreadOnly()
             ? repository.findByTenantIdAndUserIdAndReadIsFalseOrderByCreatedAtDesc(
-            query.tenantId(), query.userId(), pageable)
+            query.tenantId().uuid(), query.userId().uuid(), pageable)
             : repository.findByTenantIdAndUserIdOrderByCreatedAtDesc(
-            query.tenantId(), query.userId(), pageable);
+            query.tenantId().uuid(), query.userId().uuid(), pageable);
 
         return page.map(NotificationMapper::toDto);
 

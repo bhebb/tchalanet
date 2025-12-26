@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
+import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.PermissionCatalogAdminPort;
 import com.tchalanet.server.core.accesscontrol.application.port.out.PermissionCatalogAdminPort.PermissionSummary;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionAdminPort;
@@ -40,27 +41,27 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
   @Override
   @Transactional(readOnly = true)
   @Cacheable(cacheNames = "role-permissions", key = "#roleId")
-  public Set<String> listPermissionCodes(UUID roleId) {
-    return rolePermissionRepository.findByRoleId(roleId).stream()
+  public Set<String> listPermissionCodes(RoleId roleId) {
+    return rolePermissionRepository.findByRoleId(roleId.uuid()).stream()
         .map(rp -> rp.getPermission().getCode())
         .collect(java.util.stream.Collectors.toUnmodifiableSet());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public Set<String> getRolePermissions(UUID roleId) {
+  public Set<String> getRolePermissions(RoleId roleId) {
     // Alias vers listPermissionCodes pour compatibilité avec PermissionCatalogAdminPort
     return listPermissionCodes(roleId);
   }
 
   @Override
   @CacheEvict(cacheNames = "role-permissions", key = "#roleId")
-  public boolean grant(UUID roleId, String permissionCode) {
+  public boolean grant(RoleId roleId, String permissionCode) {
     if (roleId == null || permissionCode == null || permissionCode.isBlank()) {
       throw new IllegalArgumentException("roleId and permissionCode must not be null/blank");
     }
 
-    var existing = rolePermissionRepository.findByRoleId(roleId).stream()
+    var existing = rolePermissionRepository.findByRoleId(roleId.uuid()).stream()
         .anyMatch(rp -> rp.getPermission().getCode().equals(permissionCode));
     if (existing) {
       return false; // idempotent: lien déjà présent
@@ -73,11 +74,11 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
 
     var role =
         appRoleRepository
-            .findById(roleId)
+            .findById(roleId.uuid())
             .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
 
     var link = new AppRolePermissionEntity();
-    link.setId(new AppRolePermissionId(roleId, permissionCode));
+    link.setId(new AppRolePermissionId(roleId.uuid(), permissionCode));
     link.setRole(role);
     link.setPermission(permission);
 
@@ -88,12 +89,12 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
 
   @Override
   @CacheEvict(cacheNames = "role-permissions", key = "#roleId")
-  public boolean revoke(UUID roleId, String permissionCode) {
+  public boolean revoke(RoleId roleId, String permissionCode) {
     if (roleId == null || permissionCode == null || permissionCode.isBlank()) {
       throw new IllegalArgumentException("roleId and permissionCode must not be null/blank");
     }
 
-    var links = new HashSet<>(rolePermissionRepository.findByRoleId(roleId));
+    var links = new HashSet<>(rolePermissionRepository.findByRoleId(roleId.uuid()));
     var toRemove = links.stream()
         .filter(rp -> rp.getPermission().getCode().equals(permissionCode))
         .toList();

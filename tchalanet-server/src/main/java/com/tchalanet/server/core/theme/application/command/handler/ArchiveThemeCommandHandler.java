@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.theme.application.command.handler;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.core.theme.application.command.model.ArchiveThemeCommand;
@@ -22,7 +23,7 @@ public class ArchiveThemeCommandHandler implements VoidCommandHandler<ArchiveThe
 
     @Override
     public void handle(ArchiveThemeCommand command) {
-        UUID tenantId = command.tenantId();
+        TenantId tenantId = command.tenantId();
         UUID themeId = command.themeId();
 
         var theme =

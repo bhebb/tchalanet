@@ -9,6 +9,9 @@ import java.util.UUID;
 
 import com.tchalanet.server.core.session.infra.persistence.mapper.PosSessionMapper;
 import com.tchalanet.server.core.session.infra.persistence.repository.PosSessionJpaRepository;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +32,8 @@ public class PosSessionRepositoryAdapter implements PosSessionReaderPort, PosSes
   }
 
   @Override
-  public Optional<PosSession> findOpenByTerminal(UUID tenantId, UUID terminalId) {
-    return jpaRepository.findByTenantIdAndTerminalIdAndStatus(tenantId, terminalId, "OPEN")
+  public Optional<PosSession> findOpenByTerminal(TenantId tenantId, TerminalId terminalId) {
+    return jpaRepository.findByTenantIdAndTerminalIdAndStatus(tenantId.uuid(), terminalId.uuid(), "OPEN")
         .map(mapper::toDomain);
   }
 
@@ -42,8 +45,8 @@ public class PosSessionRepositoryAdapter implements PosSessionReaderPort, PosSes
   }
 
   @Override
-  public List<PosSession> findOpenByCashier(UUID tenantId, UUID userId) {
-    return jpaRepository.findOpenByCashier(tenantId, userId)
+  public List<PosSession> findOpenByCashier(TenantId tenantId, UserId userId) {
+    return jpaRepository.findOpenByCashier(tenantId.uuid(), userId.uuid())
         .stream()
         .map(mapper::toDomain)
         .toList();

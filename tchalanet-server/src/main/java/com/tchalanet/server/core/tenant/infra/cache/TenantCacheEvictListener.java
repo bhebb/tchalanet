@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.tenant.infra.cache;
 
 import com.tchalanet.server.common.config.SpringContextHolder;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.tenant.infra.persistence.TenantJpaEntity;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;

@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.outlet.application.command.model;
 
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.bus.Command;
-import java.util.UUID;
-import java.util.Map;
 
-/** Change outlet configuration (limits, options) */
-public record UpdateOutletConfigCommand(UUID tenantId, UUID outletId, Map<String,Object> config) implements Command<Void> {}
-
+/** Update outlet configuration command */
+public record UpdateOutletConfigCommand(TenantId tenantId, OutletId outletId, OutletConfigPatch patch) implements Command<Void> {}

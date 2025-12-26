@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.user.infra.web.dto;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 

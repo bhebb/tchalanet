@@ -4,11 +4,15 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
 import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
+import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
+import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
 import com.tchalanet.server.core.payout.application.command.model.ExecutePayoutCommand;
-import com.tchalanet.server.core.payout.application.port.out.PayoutRepositoryPort;
-import com.tchalanet.server.core.payout.domain.event.PayoutRegisteredEvent;
+import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
+import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
+import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.payout.domain.model.Payout;
 import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
@@ -18,6 +22,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayoutCommand, Payout> {
 
-  private final PayoutRepositoryPort payoutRepository;
+  private final PayoutReaderPort payoutReaderPort;
+  private final PayoutWriterPort payoutWriterPort;
+
   private final TicketReaderPort ticketReaderPort;
   private final TicketWritterPort ticketWritterPort;
   private final LedgerWriterPort ledgerWriter;
@@ -36,7 +43,7 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
   @Override
   @TchTx
   public Payout handle(ExecutePayoutCommand command) {
-    Optional<Payout> optPayout = payoutRepository.findById(command.payoutId());
+    Optional<Payout> optPayout = payoutReaderPort.findById(command.payoutId());
     if (optPayout.isEmpty()) {
       throw new IllegalStateException("Payout not found: " + command.payoutId());
     }
@@ -57,36 +64,42 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
       throw new IllegalStateException("Ticket not found for payout: " + payout.getTicketId());
     }
     Ticket ticket = optTicket.get();
-    if (ticket.getStatus() != com.tchalanet.server.core.sales.domain.model.TicketStatus.WON) {
+    if (ticket.getStatus() != TicketStatus.RESULTED_WIN) {
       throw new IllegalStateException("Ticket is not in WON/RESULTED_WIN state: " + ticket.getId());
     }
 
     // execute payout
-    Instant now = Instant.now(clock);
-    payout.markPaid(now);
-    Payout saved = payoutRepository.save(payout);
+    var now = Instant.now(clock);
+    // allow marking paid from REQUESTED when executing
+    payout.markPaid(now, true);
+    var saved = payoutWriterPort.save(payout);
 
     // mark ticket paid and persist
     ticket.markAsPaid(now);
     ticketWritterPort.save(ticket);
 
-    // ledger entry
+    // amount as BigDecimal reconstructed from cents
+    BigDecimal amount = BigDecimal.valueOf(saved.getAmountCents(), 2);
+
+    // ledger entry — use domain enums and TenantId wrapper
     LedgerEntry entry = LedgerEntry.create(
         saved.getTenantId(),
-        "PAYOUT",
-        saved.getId(),
-        saved.getAmount(),
-        "DEBIT");
+        LedgerRefType.PAYOUT,
+        saved.getId().uuid(),
+        amount,
+        LedgerDirection.DEBIT,
+        now);
     ledgerWriter.append(entry);
 
     // publish event
     PayoutRegisteredEvent event = new PayoutRegisteredEvent(
         UUID.randomUUID(),
         Instant.now(clock),
-        new com.tchalanet.server.core.tenant.domain.model.TenantId(saved.getTenantId()),
+        saved.getTenantId(),
         saved.getId(),
         saved.getTicketId(),
-        saved.getAmount());
+        null,
+        amount);
     domainEventPublisher.publish(event);
 
     log.info("Executed payout {} for ticket {}", saved.getId(), saved.getTicketId());

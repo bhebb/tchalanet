@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.theme.application.port.out;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.theme.domain.model.Theme;
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
@@ -12,7 +13,7 @@ public interface ThemeReaderPort {
 
   Optional<Theme> findPublishedById(UUID id);
 
-  List<Theme> listByTenantAndStatus(UUID tenantId, ThemeStatus status);
+  List<Theme> listByTenantAndStatus(TenantId tenantId, ThemeStatus status);
 
-  Optional<Theme> findActiveForTenant(UUID tenantId);
+  Optional<Theme> findActiveForTenant(TenantId tenantId);
 }

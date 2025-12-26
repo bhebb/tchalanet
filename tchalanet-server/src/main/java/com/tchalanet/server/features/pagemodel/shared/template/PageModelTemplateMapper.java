@@ -1,4 +1,5 @@
 package com.tchalanet.server.features.pagemodel.shared.template;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.features.pagemodel.shared.template.dto.PageModelTemplateRequest;
 import com.tchalanet.server.features.pagemodel.shared.template.dto.PageModelTemplateResponse;

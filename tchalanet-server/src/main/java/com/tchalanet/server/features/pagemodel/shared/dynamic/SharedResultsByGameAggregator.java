@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.pagemodel.shared.dynamic;
 
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.query.handler.GetNextDrawsHandler;
 import com.tchalanet.server.core.draw.application.query.handler.ListActiveDrawChannelsHandler;
 import com.tchalanet.server.core.draw.application.query.handler.ListLastDaysDrawResultsHandler;
@@ -32,7 +33,7 @@ public class SharedResultsByGameAggregator {
     private final GetNextDrawsHandler getNextDrawsHandler;
     private final Clock clock;
 
-    public ResultsByGameBlock buildResultsBlock(UUID tenantId) {
+    public ResultsByGameBlock buildResultsBlock(TenantId tenantId) {
         // 1) Channels actifs
         var channels = listActiveDrawChannelsHandler.handle(new ListActiveDrawChannelsQuery(tenantId));
 
@@ -51,7 +52,7 @@ public class SharedResultsByGameAggregator {
 
         var nextByChannel = nextDraws.stream()
             .collect(Collectors.toMap(
-                Draw::channelId, // adapte selon ton modèle
+                Draw::, // adapte selon ton modèle
                 d -> d
             ));
 

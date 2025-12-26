@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.tenant.application.query.model;
 
-import com.tchalanet.server.core.tenant.domain.model.TenantStatus;
-import com.tchalanet.server.core.tenant.domain.model.TenantType;
+import com.tchalanet.server.common.types.enums.TenantStatus;
+import com.tchalanet.server.common.types.enums.TenantType;
 import java.util.UUID;
 
 public record TenantDto(

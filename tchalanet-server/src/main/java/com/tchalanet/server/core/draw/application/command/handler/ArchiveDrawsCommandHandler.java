@@ -4,8 +4,8 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.ArchiveDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
@@ -36,7 +36,7 @@ public class ArchiveDrawsCommandHandler implements VoidCommandHandler<ArchiveDra
   public void handle(ArchiveDrawCommand command) {
     var draw =
         drawReaderPort
-            .findById(command.tenantId(), command.drawId())
+            .findById(command.drawId())
             .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
 
     var result =

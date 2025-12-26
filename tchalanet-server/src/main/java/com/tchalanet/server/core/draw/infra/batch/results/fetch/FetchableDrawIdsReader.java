@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.infra.batch.results.fetch;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawBatchQueryRepository;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;

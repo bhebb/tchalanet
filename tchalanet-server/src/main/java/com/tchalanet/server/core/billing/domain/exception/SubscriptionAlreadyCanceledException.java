@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.billing.domain.exception;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.SubscriptionId;
 
 public class SubscriptionAlreadyCanceledException extends RuntimeException {
-    public SubscriptionAlreadyCanceledException(UUID subscriptionId) {
+    public SubscriptionAlreadyCanceledException(SubscriptionId subscriptionId) {
         super("Subscription " + subscriptionId + " is already canceled");
     }
 }

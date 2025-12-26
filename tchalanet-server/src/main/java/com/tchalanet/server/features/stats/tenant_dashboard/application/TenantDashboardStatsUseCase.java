@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +14,7 @@ public class TenantDashboardStatsUseCase {
     private final TenantDashboardFromAggregatesService aggregatesService;
 
     public TenantDashboardStatsResponse getStats(
-        UUID tenantId,
+        TenantId tenantId,
         LocalDate fromDate,
         LocalDate toDate
     ) {

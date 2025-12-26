@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.payout.port.out;
+package com.tchalanet.server.core.payout.application.port.out;
 
 import com.tchalanet.server.core.payout.application.query.model.GeneratePayoutReportQuery;
 import java.nio.file.Path;

@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
+import com.tchalanet.server.common.types.enums.BreachOutcome;
+// Target applied is represented as string for easier mapping to API models
+
 import java.math.BigDecimal;
 
 /**
@@ -12,7 +15,7 @@ public record LimitBreachDetail(
     String ruleKey,
     BreachOutcome outcome,
     String message,
-    TargetType targetApplied,
+    String targetApplied,
     String selectionKey,
     BigDecimal currentValue,
     BigDecimal limitValue

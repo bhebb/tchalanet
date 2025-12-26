@@ -82,11 +82,14 @@ public class GenerateDrawsForRangeCommandHandler implements CommandHandler<Gener
 
                     rows.add(
                         new NewDrawRow(
+                            com.tchalanet.server.common.types.id.DrawId.random(),
                             command.tenantId(),
                             c.channelId(),
+                            c.code(),
                             scheduledAt,
                             c.cutoffSec(),
                             "SCHEDULED",
+                            null,
                             c.defaultSource(),
                             true,
                             false));

@@ -5,9 +5,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.core.audit.application.port.in.LogAuditEventCommandHandler;
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.draw.application.command.model.OverrideDrawResultCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
@@ -27,7 +27,7 @@ public class OverrideDrawResultCommandHandler
   private final DrawWriterPort drawWriterPort;
   private final DrawResultReaderPort drawResultReaderPort;
   private final DrawResultWriterPort drawResultWriterPort;
-  private final LogAuditEventCommandHandler audit;
+  private final AuditLoggingCommandHandler audit;
 
   @Override
   @TchTx
@@ -35,7 +35,7 @@ public class OverrideDrawResultCommandHandler
   public void handle(OverrideDrawResultCommand command) {
     var draw =
         drawReaderPort
-            .findById(command.tenantId(), command.drawId())
+            .findById(command.drawId())
             .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
 
     var currentResult =

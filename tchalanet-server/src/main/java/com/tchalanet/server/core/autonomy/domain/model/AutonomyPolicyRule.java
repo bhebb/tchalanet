@@ -1,4 +1,8 @@
 package com.tchalanet.server.core.autonomy.domain.model;
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -10,9 +14,9 @@ import java.util.UUID;
  * An autonomy policy determines whether certain transactions require approval
  * and which role can provide that approval.
  */
-public record AutonomyPolicyRuleRule(
+public record AutonomyPolicyRule(
     UUID id,
-    UUID tenantId,
+    TenantId tenantId,
     AutonomyTargetType targetType,
     UUID targetId,
     AutonomyLevel level,

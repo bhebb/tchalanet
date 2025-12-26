@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.tenant.infra.persistence;
 
 import com.tchalanet.server.core.tenant.domain.model.Tenant;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 final class TenantMapper {
 
@@ -10,7 +10,7 @@ final class TenantMapper {
 
     static Tenant toDomain(TenantJpaEntity e) {
         return Tenant.restore(
-            new TenantId(e.getId()),
+            TenantId.of(e.getId()),
             e.getCode(),
             e.getName(),
             e.getType(),

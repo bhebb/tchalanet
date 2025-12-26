@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.tenant.infra.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

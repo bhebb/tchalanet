@@ -30,7 +30,7 @@ public class UpdateDrawCommandHandler implements VoidCommandHandler<UpdateDrawCo
     // Find the existing draw
     Draw existing =
         drawReaderPort
-            .findById(command.tenantId(), command.drawId())
+            .findById(command.drawId())
             .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
 
     // Update scheduledAt

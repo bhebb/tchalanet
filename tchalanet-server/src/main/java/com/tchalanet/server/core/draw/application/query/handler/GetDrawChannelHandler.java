@@ -14,13 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GetDrawChannelHandler implements QueryHandler<GetDrawChannelQuery, DrawChannel> {
 
-  private final DrawChannelReaderPort drawChannelReaderPort;
+    private final DrawChannelReaderPort drawChannelReaderPort;
 
-  @Override
-  public DrawChannel handle(GetDrawChannelQuery query) {
-    return drawChannelReaderPort
-        .findById(query.tenantId(), new DrawChannelId(query.channelId()))
-        .orElseThrow(
-            () -> new IllegalArgumentException("DrawChannel not found: " + query.channelId()));
-  }
+    @Override
+    public DrawChannel handle(GetDrawChannelQuery query) {
+        return drawChannelReaderPort
+            .findById(query.tenantId(), query.id())
+            .orElseThrow(
+                () -> new IllegalArgumentException("DrawChannel not found: " + query.id()));
+    }
 }

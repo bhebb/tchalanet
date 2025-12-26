@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
 
 @Component
 @RequiredArgsConstructor
@@ -25,12 +25,12 @@ public class TenantDashboardFromAggregatesService {
 
     @Transactional(readOnly = true)
     public TenantDashboardStatsResponse compute(TenantDashboardStatsQuery query) {
-        UUID tenantId = query.tenantId();
+        TenantId tenantId = query.tenantId();
         LocalDate from = query.fromDate();
         LocalDate to = query.toDate();
 
         List<StatsDailyEntity> rows = statsDailyRepo.findByDimensionTypeAndDimensionIdAndRefDateBetween(
-                "tenant", tenantId, from, to
+                "tenant", tenantId.uuid(), from, to
         );
 
         long totalTickets = 0;

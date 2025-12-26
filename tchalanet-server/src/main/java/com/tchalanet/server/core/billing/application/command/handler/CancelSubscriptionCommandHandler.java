@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.billing.application.command.handler;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.error.ProblemRestException;

@@ -2,12 +2,12 @@ package com.tchalanet.server.core.uslottery.infra.external;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.common.types.enums.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.application.port.out.LatestDrawProviderClient;
 import com.tchalanet.server.core.uslottery.domain.model.DrawExtras;
 import com.tchalanet.server.core.uslottery.domain.model.DrawMain;
 import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
-import com.tchalanet.server.core.uslottery.domain.model.ResultQuality;
-import com.tchalanet.server.core.uslottery.domain.model.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

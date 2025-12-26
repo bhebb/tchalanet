@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.tenant.domain.model;
 
+import com.tchalanet.server.common.types.enums.TenantStatus;
+import com.tchalanet.server.common.types.enums.TenantType;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.util.Objects;
 import java.util.UUID;
 

@@ -2,6 +2,11 @@ package com.tchalanet.server.core.session.infra.persistence.mapper;
 
 import com.tchalanet.server.core.session.domain.model.PosSession;
 import com.tchalanet.server.core.session.infra.persistence.entity.PosSessionJpaEntity;
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,11 +21,11 @@ public class PosSessionMapper {
 
     public PosSession toDomain(PosSessionJpaEntity entity) {
         return PosSession.reconstruct(
-            entity.getId(),
-            entity.getTenantId(),
-            entity.getOutletId(),
-            entity.getTerminalId(),
-            entity.getUserId(),
+            SessionId.of(entity.getId()),
+            TenantId.of(entity.getTenantId()),
+            OutletId.of(entity.getOutletId()),
+            TerminalId.of(entity.getTerminalId()),
+            UserId.of(entity.getUserId()),
             entity.getStatus(),
             entity.getOpenedAt(),
             entity.getClosedAt(),
@@ -36,11 +41,11 @@ public class PosSessionMapper {
 
     public PosSessionJpaEntity toEntity(PosSession domain) {
         var entity = new PosSessionJpaEntity();
-        entity.setId(domain.id());
-        entity.setTenantId(domain.tenantId());
-        entity.setOutletId(domain.outletId());
-        entity.setTerminalId(domain.terminalId());
-        entity.setUserId(domain.userId());
+        entity.setId(domain.id().uuid());
+        entity.setTenantId(domain.tenantId().uuid());
+        entity.setOutletId(domain.outletId().uuid());
+        entity.setTerminalId(domain.terminalId().uuid());
+        entity.setUserId(domain.userId().uuid());
         entity.setStatus(domain.status());
         entity.setOpenedAt(domain.openedAt());
         entity.setClosedAt(domain.closedAt());

@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.sales.infra.web.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TerminalId;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

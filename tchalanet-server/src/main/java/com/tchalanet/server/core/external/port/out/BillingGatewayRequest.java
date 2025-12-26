@@ -1,17 +1,20 @@
 package com.tchalanet.server.core.external.port.out;
 
+import com.tchalanet.server.common.types.id.SubscriptionId;
+import com.tchalanet.server.common.types.id.TenantId;
+
 import java.util.UUID;
 
 public record BillingGatewayRequest(
-    UUID tenantId,
-    UUID subscriptionId,
+    TenantId tenantId,
+    SubscriptionId subscriptionId,
     String planExternalKey // nullable
 ) {
-    public static BillingGatewayRequest of(UUID tenantId, UUID subscriptionId) {
+    public static BillingGatewayRequest of(TenantId tenantId, SubscriptionId subscriptionId) {
         return new BillingGatewayRequest(tenantId, subscriptionId, null);
     }
 
-    public static BillingGatewayRequest of(UUID tenantId, UUID subscriptionId, String planExternalKey) {
+    public static BillingGatewayRequest of(TenantId tenantId, SubscriptionId subscriptionId, String planExternalKey) {
         return new BillingGatewayRequest(tenantId, subscriptionId, planExternalKey);
     }
 }

@@ -26,7 +26,7 @@ public class RecomputePosSessionTotalsCommandHandler
     @Override
     @TchTx
     public PosSessionTotals handle(RecomputePosSessionTotalsCommand cmd) {
-        var session = sessionRepo.findById(cmd.sessionId())
+        var session = sessionRepo.findById(cmd.sessionId().value())
             .orElseThrow(() -> new IllegalStateException("Session not found: " + cmd.sessionId()));
 
         if (!cmd.tenantId().equals(session.tenantId())) {

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.tenant.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
 import com.tchalanet.server.core.tenant.application.query.model.ResolveTenantIdByCodeQuery;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.tenant.infra.cache.TenantCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;

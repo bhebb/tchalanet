@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.draw.infra.persistence.repo;
 
-import com.tchalanet.server.core.draw.infra.persistence.entity.DrawChannelJpaEntity;
+import com.tchalanet.server.common.types.id.TenantId;
+
+import com.tchalanet.server.core.draw.infra.persistence.DrawChannelJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

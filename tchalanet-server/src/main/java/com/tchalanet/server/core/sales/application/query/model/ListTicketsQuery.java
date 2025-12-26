@@ -1,7 +1,10 @@
 package com.tchalanet.server.core.sales.application.query.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.core.sales.domain.model.TicketStatus;
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -15,9 +18,9 @@ public record ListTicketsQuery(
 
   /** Filter for tickets. */
   public record TicketFilter(
-      UUID tenantId,
-      UUID terminalId, // optional
-      UUID drawId, // optional
+      TenantId tenantId,
+      TerminalId terminalId, // optional
+      DrawId drawId, // optional
       TicketStatus status, // optional
       Instant from, // optional
       Instant to // optional
@@ -34,7 +37,7 @@ public record ListTicketsQuery(
 
   /** DTO for ticket summary. */
   public record TicketSummaryDto(
-      UUID id,
+      com.tchalanet.server.common.types.id.TicketId id,
       String ticketCode,
       String publicCode,
       TicketStatus status,
@@ -46,8 +49,8 @@ public record ListTicketsQuery(
 
   /** DTO for ticket details. */
   public record TicketDetailsDto(
-      UUID id,
-      UUID tenantId,
+      com.tchalanet.server.common.types.id.TicketId id,
+      TenantId tenantId,
       DrawRef draw,
       String ticketCode,
       String publicCode,
@@ -58,7 +61,7 @@ public record ListTicketsQuery(
   ) {
 
     /** Reference to draw. */
-    public record DrawRef(UUID id) {}
+    public record DrawRef(com.tchalanet.server.common.types.id.DrawId id) {}
 
     /** DTO for ticket line. */
     public record TicketLineDto(

@@ -16,7 +16,8 @@ import com.tchalanet.server.features.reporting.outletperformance.GetOutletPerfor
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.LocalDate;
 
 @Service
@@ -29,8 +30,8 @@ public class CashierDashboardService {
     private final GetOutletPerformanceReportHandler getOutletPerformanceReportHandler;
 
     public PrivateDashboardDynamicPayload build(
-        UUID tenantId,
-        UUID userId,
+        TenantId tenantId,
+        UserId userId,
         String currentLang,
         PageModel pageModel
     ) {
@@ -60,12 +61,12 @@ public class CashierDashboardService {
         );
     }
 
-    private CashierOverviewBlock buildOverview(UUID tenantId, UUID userId, @SuppressWarnings("unused") String currentLang) {
+    private CashierOverviewBlock buildOverview(TenantId tenantId, UserId userId, @SuppressWarnings("unused") String currentLang) {
         try {
-            var resp = cashierDashboardStatsUseCase.handle(new CashierDashboardStatsQuery(tenantId, userId, null, null));
+            var resp = cashierDashboardStatsUseCase.handle(new CashierDashboardStatsQuery(tenantId.uuid(), userId.uuid(), null, null));
             // Fill outlet summary from outlet performance report (today)
             var today = LocalDate.now();
-            var perf = getOutletPerformanceReportHandler.handle(new GetOutletPerformanceReportQuery(tenantId, today, today, null));
+            var perf = getOutletPerformanceReportHandler.handle(new GetOutletPerformanceReportQuery(tenantId.uuid(), today, today, null));
             var outletLine = perf.outlets() != null ? perf.outlets().stream().findFirst().orElse(null) : null;
             com.tchalanet.server.features.private_dashboard.block.OutletSummaryDto outletSummary;
             if (outletLine != null) {
@@ -87,9 +88,9 @@ public class CashierDashboardService {
         }
     }
 
-    private SessionBlock buildSession(UUID tenantId, UUID userId, @SuppressWarnings("unused") String currentLang) {
+    private SessionBlock buildSession(TenantId tenantId, UserId userId, @SuppressWarnings("unused") String currentLang) {
         try {
-            var sessions = listCashierOpenSessionsHandler.handle(new com.tchalanet.server.core.session.application.ports.in.ListCashierOpenSessionsQuery(tenantId, userId));
+            var sessions = listCashierOpenSessionsHandler.handle(new com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery(tenantId, userId));
             if (sessions == null || sessions.isEmpty()) return SessionBlock.empty();
             var s = sessions.stream().findFirst().orElse(null);
             return new SessionBlock(
@@ -103,18 +104,18 @@ public class CashierDashboardService {
         }
     }
 
-    private TicketsBlock buildRecentTickets(UUID tenantId, UUID userId, @SuppressWarnings("unused") String currentLang) {
+    private TicketsBlock buildRecentTickets(TenantId tenantId, UserId userId, @SuppressWarnings("unused") String currentLang) {
         try {
-            var sessions = listCashierOpenSessionsHandler.handle(new com.tchalanet.server.core.session.application.ports.in.ListCashierOpenSessionsQuery(tenantId, userId));
+            var sessions = listCashierOpenSessionsHandler.handle(new com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery(tenantId, userId));
             var sessionIds = sessions.stream().map(com.tchalanet.server.core.session.application.query.handler.ListCashierOpenSessionsHandler.CashierSessionDto::sessionId).toList();
-            var recent = listRecentTicketsForCashierHandler.handle(tenantId, sessionIds, 20);
-            return new TicketsBlock(recent.size(), 0, recent.stream().map(UUID::toString).toList());
+            var recent = listRecentTicketsForCashierHandler.handle(sessionIds, 20);
+            return new TicketsBlock(recent.size(), 0, recent.stream().map(java.util.UUID::toString).toList());
         } catch (Exception e) {
             return TicketsBlock.empty();
         }
     }
 
-    private QuickSalePreloadBlock buildQuickSalePreload(UUID tenantId, UUID userId, String currentLang) {
+    private QuickSalePreloadBlock buildQuickSalePreload(TenantId tenantId, UserId userId, String currentLang) {
         // TODO: quick sale games/options based on draws & product config
         return QuickSalePreloadBlock.empty();
     }

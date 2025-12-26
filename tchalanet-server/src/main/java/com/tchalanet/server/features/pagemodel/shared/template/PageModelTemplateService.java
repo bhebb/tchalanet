@@ -1,4 +1,5 @@
 package com.tchalanet.server.features.pagemodel.shared.template;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

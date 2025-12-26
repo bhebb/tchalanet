@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.user.application.command.model;
+import com.tchalanet.server.common.types.id.UserId;
 
 import java.util.UUID;
 
@@ -7,7 +8,7 @@ import java.util.UUID;
  */
 public record EnsureUserExistsForPrincipalResult(
     boolean isNew,
-    UUID userId
+    UserId userId
 ) {
 }
 

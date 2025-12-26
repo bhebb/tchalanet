@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.uslottery.application.port.out;
 
+import com.tchalanet.server.common.types.enums.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
-import com.tchalanet.server.core.uslottery.domain.model.UsLotteryProvider;
 
 import java.util.List;
 

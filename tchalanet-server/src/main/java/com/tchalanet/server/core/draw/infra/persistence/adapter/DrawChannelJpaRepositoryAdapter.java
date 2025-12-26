@@ -1,21 +1,20 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.core.audit.application.port.in.LogAuditEventCommandHandler;
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
-import com.tchalanet.server.core.draw.infra.persistence.entity.DrawChannelJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawChannelMapper;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,7 +25,7 @@ public class DrawChannelJpaRepositoryAdapter
     implements DrawChannelReaderPort, DrawChannelWriterPort {
 
   private final DrawChannelJpaRepository repo;
-  private final LogAuditEventCommandHandler audit;
+  private final AuditLoggingCommandHandler audit;
   private final DrawChannelMapper mapper;
 
   @Override
@@ -58,20 +57,20 @@ public class DrawChannelJpaRepositoryAdapter
 
   // Port method: include tenantId parameter as required by DrawChannelReaderPort
   @Override
-  public Optional<DrawChannel> findById(UUID tenantId, DrawChannelId id) {
+  public Optional<DrawChannel> findById( TenantId tenantId, DrawChannelId id) {
     if (id == null) return Optional.empty();
     // tenantId is not used by the JPA lookup by id, but kept to satisfy the port signature
     return findById(id);
   }
 
   @Override
-  public Optional<DrawChannel> findByCode(UUID tenantId, String code) {
-    return repo.findByTenantIdAndCode(tenantId, code).map(mapper::toDomain);
+  public Optional<DrawChannel> findByCode( TenantId tenantId, String code) {
+    return repo.findByTenantIdAndCode(tenantId.uuid(), code).map(mapper::toDomain);
   }
 
   @Override
-  public List<DrawChannel> findActiveByTenant(UUID tenantId) {
-    return repo.findByTenantIdAndActiveTrueOrderBySortOrder(tenantId).stream()
+  public List<DrawChannel> findActiveByTenant( TenantId tenantId) {
+    return repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantId.uuid()).stream()
         .map(mapper::toDomain)
         .collect(Collectors.toList());
   }
@@ -82,9 +81,9 @@ public class DrawChannelJpaRepositoryAdapter
   }
 
   public List<DrawChannel> findByTenant(
-      com.tchalanet.server.core.tenant.domain.model.TenantId tenantId) {
+      com.tchalanet.server.common.types.id.TenantId tenantId) {
     if (tenantId == null) return List.of();
-    return repo.findByTenantIdAndActiveTrueOrderBySortOrder(tenantId.value()).stream()
+    return repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantId.uuid()).stream()
         .map(mapper::toDomain)
         .collect(Collectors.toList());
   }

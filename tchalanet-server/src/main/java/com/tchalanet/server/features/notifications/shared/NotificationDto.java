@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.notifications.shared;
 
-import com.tchalanet.server.core.notification.domain.NotificationChannel;
+import com.tchalanet.server.common.types.enums.NotificationChannel;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -21,4 +21,3 @@ public record NotificationDto(
     Instant createdAt,
     Instant readAt) {
 }
-

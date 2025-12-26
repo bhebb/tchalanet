@@ -1,4 +1,8 @@
 package com.tchalanet.server.core.accesscontrol.domain.model;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -7,9 +11,9 @@ import java.util.UUID;
  * Snapshot des infos tenant_user, côté domaine.
  */
 public record TenantUserSnapshot(
-    UUID tenantId,
-    UUID userId,
-    UUID roleId,
+    TenantId tenantId,
+    UserId userId,
+    RoleId roleId,
     AutonomyLevel autonomyLevel,
     boolean owner) {
 

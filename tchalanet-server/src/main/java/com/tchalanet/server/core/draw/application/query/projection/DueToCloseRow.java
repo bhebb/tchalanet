@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.application.query.projection;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
-public record DueToCloseRow(UUID tenantId, UUID drawId, boolean locked) {}
+public record DueToCloseRow(TenantId tenantId, DrawId drawId, boolean locked) {}

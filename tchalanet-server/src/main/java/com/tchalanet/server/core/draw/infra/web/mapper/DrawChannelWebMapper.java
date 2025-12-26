@@ -8,8 +8,9 @@ import com.tchalanet.server.core.draw.infra.web.model.DrawChannelResponse;
 import com.tchalanet.server.core.draw.infra.web.model.DrawChannelSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawChannelRequest;
 import org.mapstruct.Mapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = CommonIdMapper.class)
 public interface DrawChannelWebMapper {
   DrawChannelResponse toResponse(com.tchalanet.server.core.draw.domain.model.DrawChannel drawChannel);
 

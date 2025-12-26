@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.audit.application.query.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
 
-public record AuditEventQuery(UUID tenant, int limit) {}
+public record AuditEventQuery(TenantId tenant, int limit) {}
 

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence.repository;
 
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.domain.model.TicketStatus;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 
 import java.time.Instant;
@@ -56,4 +56,9 @@ public interface SpringTicketJpaRepository
            "WHERE t.tenantId = :tenantId AND t.createdAt BETWEEN :from AND :to AND t.deletedAt IS NULL " +
            "GROUP BY t.createdBy")
     List<AgentDailySalesDto> findAgentDailySales(@Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
+
+    // Counts for CloseDay stats
+    long countByTenantIdAndSessionIdInAndCreatedAtBetween(UUID tenantId, List<UUID> sessionIds, Instant from, Instant to);
+
+    long countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(UUID tenantId, List<UUID> sessionIds, Instant from, Instant to, TicketStatus status);
 }

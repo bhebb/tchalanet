@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.theme.application.query.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.enums.ThemeMode;
 import com.tchalanet.server.core.theme.domain.model.Theme;
-import com.tchalanet.server.core.theme.domain.model.ThemeMode;
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import java.time.Instant;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 public record ThemeView(
     UUID id,
-    UUID tenantId,
+    TenantId tenantId,
     String basePresetId,
     String label,
     ThemeMode mode,

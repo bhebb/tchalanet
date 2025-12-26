@@ -1,40 +1,41 @@
 package com.tchalanet.server.core.autonomy.domain;
 
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyPolicyRuleRuleRepositoryPort;
-import com.tchalanet.server.core.autonomy.domain.model.ApprovalRole;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyLevel;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRuleRule;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetType;
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.application.port.out.AutonomyPolicyRuleRepositoryPort;
+import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.common.types.id.AgentId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.OutletId;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 /**
  * Service for resolving the applicable autonomy policy for a given transaction context.
- *
- * The resolver follows a hierarchy to find the most specific autonomy policy:
- * 1. Agent-specific policy
- * 2. Terminal-specific policy
- * 3. Outlet-specific policy
- * 4. Tenant-wide policy
- * 5. Default policy (PARTIAL autonomy requiring OPERATOR approval)
  */
 @Service
 public final class AutonomyResolver {
 
-  private final AutonomyPolicyRuleRuleRepositoryPort repo; // port
+  private final AutonomyPolicyRuleRepositoryPort repo; // port
 
-  public AutonomyResolver(AutonomyPolicyRuleRuleRepositoryPort repo) {
+  public AutonomyResolver(AutonomyPolicyRuleRepositoryPort repo) {
     this.repo = repo;
   }
 
-  public ResolvedAutonomy resolve(UUID tenantId, UUID agentId, UUID terminalId, UUID outletId, Instant now) {
-    var p = repo.findActive(tenantId, AutonomyTargetType.AGENT, agentId, now)
-        .or(() -> repo.findActive(tenantId, AutonomyTargetType.TERMINAL, terminalId, now))
-        .or(() -> repo.findActive(tenantId, AutonomyTargetType.OUTLET, outletId, now))
-        .or(() -> repo.findActive(tenantId, AutonomyTargetType.TENANT, tenantId, now))
+  public ResolvedAutonomy resolve(TenantId tenantId, AgentId agentId, TerminalId terminalId, OutletId outletId, Instant now) {
+    var tenantUuid = tenantId == null ? null : tenantId.uuid();
+    var agentUuid = agentId == null ? null : agentId.uuid();
+    var terminalUuid = terminalId == null ? null : terminalId.uuid();
+    var outletUuid = outletId == null ? null : outletId.uuid();
+
+    var p = repo.findActive(tenantId, AutonomyTargetType.AGENT, agentUuid, now)
+        .or(() -> repo.findActive(tenantId, AutonomyTargetType.TERMINAL, terminalUuid, now))
+        .or(() -> repo.findActive(tenantId, AutonomyTargetType.OUTLET, outletUuid, now))
+        .or(() -> repo.findActive(tenantId, AutonomyTargetType.TENANT, tenantUuid, now))
         .orElseGet(this::defaultPolicy);
 
     return new ResolvedAutonomy(
@@ -44,8 +45,8 @@ public final class AutonomyResolver {
     );
   }
 
-  private AutonomyPolicyRuleRule defaultPolicy() {
-    return new AutonomyPolicyRuleRule(
+  private AutonomyPolicyRule defaultPolicy() {
+    return new AutonomyPolicyRule(
         null, // id
         null, // tenantId
         null, // targetType

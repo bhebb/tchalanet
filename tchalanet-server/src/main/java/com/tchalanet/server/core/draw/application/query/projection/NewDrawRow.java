@@ -1,11 +1,13 @@
 package com.tchalanet.server.core.draw.application.query.projection;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.UUID;
 
 public record NewDrawRow(
-    UUID id,
-    UUID tenantId,
+    DrawId id,
+    TenantId tenantId,
     UUID drawChannelId,
     String gameCode,
     Instant scheduledAt,

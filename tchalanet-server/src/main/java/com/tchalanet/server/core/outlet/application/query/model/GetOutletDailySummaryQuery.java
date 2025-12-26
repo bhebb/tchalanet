@@ -1,8 +1,10 @@
 package com.tchalanet.server.core.outlet.application.query.model;
 
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.bus.Query;
-import java.util.UUID;
+
 import java.time.LocalDate;
 
-public record GetOutletDailySummaryQuery(UUID tenantId, UUID outletId, LocalDate date) implements Query<java.util.Map<String,Object>> {}
-
+/** Query to get daily summary for an outlet */
+public record GetOutletDailySummaryQuery(TenantId tenantId, OutletId outletId, LocalDate date) implements Query<OutletDailySummary> {}

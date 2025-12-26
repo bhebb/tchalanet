@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.private_dashboard.dynamic.PrivateDashboardDynamicDataService;
 import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
 @RestController
 @RequestMapping("/api/private/dashboard")
@@ -33,7 +35,7 @@ public class PrivateDashboardController {
 
         ApiResponse<PrivateDashboardResponse> response = service.getDashboard(
             Optional.ofNullable(lang),
-            effectiveUserId,
+            UserId.of(effectiveUserId),
             userPreferredLang
         );
         return ResponseEntity.ok(response);
@@ -41,24 +43,24 @@ public class PrivateDashboardController {
 
     @GetMapping("/tenant/{tenantId}")
     public ResponseEntity<ApiResponse<PrivateDashboardDynamicPayload>> getTenantDashboardForSuperadmin(
-        @PathVariable UUID tenantId,
+        @PathVariable TenantId tenantId,
         @RequestParam(name = "lang", required = false) String lang,
         @RequestHeader(value = "X-User-Id", required = false) UUID userId
     ) {
         UUID effectiveUserId = userId != null ? userId : UUID.randomUUID();
-        ApiResponse<PrivateDashboardDynamicPayload> response = service.getTenantDashboardForSuperadmin(tenantId, Optional.ofNullable(lang), effectiveUserId);
+        ApiResponse<PrivateDashboardDynamicPayload> response = service.getTenantDashboardForSuperadmin(tenantId, Optional.ofNullable(lang), UserId.of(effectiveUserId));
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/tenant/{tenantId}/cashier/{cashierId}")
     public ResponseEntity<ApiResponse<PrivateDashboardDynamicPayload>> getCashierDashboardForSuperadmin(
-        @PathVariable UUID tenantId,
-        @PathVariable UUID cashierId,
+        @PathVariable TenantId tenantId,
+        @PathVariable UserId cashierId,
         @RequestParam(name = "lang", required = false) String lang,
         @RequestHeader(value = "X-User-Id", required = false) UUID userId
     ) {
-        var effectiveUserId = userId != null ? userId : cashierId;
-        var response = service.getCashierDashboardForSuperadmin(tenantId, cashierId, Optional.ofNullable(lang), effectiveUserId);
+        var effectiveUserId = userId != null ? userId : cashierId.uuid();
+        var response = service.getCashierDashboardForSuperadmin(tenantId, UserId.of(cashierId.uuid()), Optional.ofNullable(lang), UserId.of(effectiveUserId));
         return ResponseEntity.ok(response);
     }
 }

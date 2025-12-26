@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.ledger.domain.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -6,12 +7,12 @@ import java.util.UUID;
 
 public class LedgerEntryFactory {
 
-    public static LedgerEntry createDeposit(UUID tenantId, UUID refId, BigDecimal amount, Instant occurredAt) {
+    public static LedgerEntry createDeposit(TenantId tenantId, UUID refId, BigDecimal amount, Instant occurredAt) {
         validate(amount);
         return LedgerEntry.create(tenantId, LedgerRefType.CASH_DEPOSIT, refId, amount, LedgerDirection.CREDIT, occurredAt);
     }
 
-    public static LedgerEntry createWithdraw(UUID tenantId, UUID refId, BigDecimal amount, Instant occurredAt) {
+    public static LedgerEntry createWithdraw(TenantId tenantId, UUID refId, BigDecimal amount, Instant occurredAt) {
         validate(amount);
         return LedgerEntry.create(tenantId, LedgerRefType.CASH_WITHDRAW, refId, amount, LedgerDirection.DEBIT, occurredAt);
     }

@@ -7,5 +7,5 @@ import java.util.UUID;
 public record AgentDailySalesDto(
     UUID agentId,
     BigDecimal totalAmount,
-    long ticketCount
+    Long ticketCount
 ) {}

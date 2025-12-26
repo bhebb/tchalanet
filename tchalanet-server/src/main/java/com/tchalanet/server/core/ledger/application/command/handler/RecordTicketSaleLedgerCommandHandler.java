@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.ledger.application.command.handler;
 
+import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.TenantId;
+
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.ledger.application.port.in.RecordLedgerFromSalesPort;
@@ -28,9 +31,9 @@ public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSal
 
     @Override
     @TchTx
-    public void recordTicketSale(UUID tenantId, UUID ticketId, long stakeCents, Instant occurredAt) {
+    public void recordTicketSale(TenantId tenantId, TicketId ticketId, long stakeCents, Instant occurredAt) {
         // Idempotency (soft)
-        if (ledgerReader.existsByRef(tenantId, LedgerRefType.TICKET_SALE, ticketId)) {
+        if (ledgerReader.existsByRef(tenantId, LedgerRefType.TICKET_SALE, ticketId.uuid())) {
             log.warn("Ledger entry already exists for ticketId={} tenantId={}, skipping", ticketId, tenantId);
             return;
         }
@@ -42,7 +45,7 @@ public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSal
             LedgerEntry.create(
                 tenantId,
                 LedgerRefType.TICKET_SALE,
-                ticketId,
+                ticketId.uuid(),
                 amount,
                 LedgerDirection.CREDIT,
                 at);

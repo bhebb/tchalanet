@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.application.command.model;
 
-import com.tchalanet.server.core.limitpolicy.domain.model.BreachOutcome;
+import com.tchalanet.server.common.types.enums.BreachOutcome;
 
 import java.math.BigDecimal;
 

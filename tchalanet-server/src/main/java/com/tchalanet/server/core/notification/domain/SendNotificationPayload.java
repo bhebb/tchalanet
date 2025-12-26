@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.notification.domain;
 
+import com.tchalanet.server.common.types.enums.NotificationChannel;
+import com.tchalanet.server.common.types.enums.NotificationType;
+
 import java.util.Map;
 import java.util.Objects;
 

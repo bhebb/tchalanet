@@ -8,6 +8,8 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.common.types.id.AgentId;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleResult;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
@@ -15,7 +17,7 @@ import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,10 +30,9 @@ import java.util.stream.Collectors;
 
 import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
 import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
-import com.tchalanet.server.core.limitpolicy.domain.model.BreachOutcome;
+import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
-import com.tchalanet.server.core.limitpolicy.domain.model.OperationType;
 
 @UseCase
 @RequiredArgsConstructor
@@ -63,11 +64,11 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         var event = new TicketCancelledEvent(
             UUID.randomUUID(),
             now,
-            new TenantId(saved.getTenantId()),
+            new com.tchalanet.server.common.types.id.TenantId(saved.getTenantId().uuid()),
             saved.getId(),
             saved.getTerminalId(),
             saved.getSessionId(),
-            cmd.performedBy(),      // ou ctx user id
+            cmd.performedBy().uuid(),      // ou ctx user id
             cmd.reason(),
             totalStakeCents,
             cmd.currency()
@@ -98,7 +99,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
             cmd.tenantId(),
             ticket.getDrawId(),
             null, // drawChannelId
-            cmd.performedBy(), // agentId
+            AgentId.of(cmd.performedBy().uuid()), // agentId
             ticket.getTerminalId(),
             null, // outletId - not available
             null, // zoneId
@@ -124,7 +125,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
             // EXECUTE + log
             log.warn("Limit breach (WARN) tenantId={} details={}", cmd.tenantId(), limitResult.details());
         } else if (limitResult.overallOutcome() == BreachOutcome.BLOCK) {
-            var autonomyPolicy = autonomyResolver.resolve(cmd.tenantId(), cmd.performedBy(), ticket.getTerminalId(), null, now);
+            var autonomyPolicy = autonomyResolver.resolve(cmd.tenantId(), AgentId.of(cmd.performedBy().uuid()), ticket.getTerminalId(), null, now);
             // REJECT - for cancel, always block if limits breached
             List<LimitNotice> notices = limitResult.details().stream()
                 .map(d -> new LimitNotice(d.ruleKey(), d.outcome(), d.message(), d.targetApplied(), d.selectionKey(), d.currentValue(), d.limitValue()))

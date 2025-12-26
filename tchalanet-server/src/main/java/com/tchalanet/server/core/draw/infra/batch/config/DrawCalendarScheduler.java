@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.infra.batch.config;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
@@ -34,7 +35,7 @@ public class DrawCalendarScheduler {
     public void generateNext7Days() {
         var from = LocalDate.now(DEFAULT_TENANT_ZONE);
         var to = from.plusDays(7);
-        for (UUID tenantId : tenantPort.listActiveTenantIdsForDrawCalendar()) {
+        for (TenantId tenantId : tenantPort.listActiveTenantIdsForDrawCalendar()) {
             try {
                 commandBus.send(new GenerateDrawsForRangeCommand(tenantId, from, to, DEFAULT_DRY_RUN, DEFAULT_DRY_RUN));
             } catch (Exception e) {

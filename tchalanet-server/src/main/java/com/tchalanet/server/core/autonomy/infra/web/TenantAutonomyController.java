@@ -2,11 +2,16 @@ package com.tchalanet.server.core.autonomy.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutonomyPolicyRuleRuleCommand;
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutonomyPolicyRuleCommand;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleQuery;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleResult;
-import com.tchalanet.server.core.autonomy.domain.model.*;
+import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -21,18 +26,20 @@ public class TenantAutonomyController {
     private final QueryBus queryBus;
 
     @GetMapping
-    public GetAutonomyPolicyRuleResult get(@RequestParam UUID tenantId) {
+    @ResponseStatus(value = HttpStatus.OK)
+    public GetAutonomyPolicyRuleResult get(@RequestParam TenantId tenantId) {
         return queryBus.send(new GetAutonomyPolicyRuleQuery(
-            tenantId, AutonomyTargetType.TENANT, tenantId
+            tenantId, AutonomyTargetType.TENANT, tenantId.uuid()
         ));
     }
 
     @PutMapping
-    public Object upsert(@RequestParam UUID tenantId, @RequestBody UpsertAutonomyRequest req) {
-        return commandBus.send(new UpsertAutonomyPolicyRuleRuleCommand(
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public AutonomyPolicyRule upsert(@RequestParam TenantId tenantId, @RequestBody UpsertAutonomyRequest req) {
+        return commandBus.send(new UpsertAutonomyPolicyRuleCommand(
             tenantId,
             AutonomyTargetType.TENANT,
-            tenantId,
+            tenantId.uuid(),
             req.level(),
             req.requireApprovalOnBlock(),
             req.approvalRole(),

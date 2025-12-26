@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.core.sales.domain.model.BetType;
+import com.tchalanet.server.common.types.enums.BetType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

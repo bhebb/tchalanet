@@ -1,12 +1,14 @@
 package com.tchalanet.server.core.draw.application.command.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 public record RecordManualDrawResultCommand(
-    UUID drawId,
-    UUID tenantId,
+    DrawId drawId,
+    TenantId tenantId,
     UUID performedBy,
     Instant performedAt,
     List<String> numbersMain,

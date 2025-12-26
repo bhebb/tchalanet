@@ -4,8 +4,9 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionReaderPort;
 import com.tchalanet.server.core.accesscontrol.application.port.out.TenantUserDirectoryPort;
 import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.Set;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +20,8 @@ public class CheckUserPermissionsHandler
 
   @Override
   public Boolean handle(CheckUserPermissionsQuery query) {
-    UUID tenantId = query.tenantId();
-    UUID userId = query.userId();
+    TenantId tenantId = query.tenantId();
+    UserId userId = query.userId();
     Set<String> required = query.requiredPermissions();
 
     // Cas trivial : si aucune permission demandée, on autorise
@@ -38,7 +39,7 @@ public class CheckUserPermissionsHandler
     }
 
     var membership = membershipOpt.get();
-    UUID roleId = membership.roleId();
+    var roleId = membership.roleId();
 
     // Résoudre les permissions accordées par la hiérarchie de ce rôle
     Set<String> granted = rolePermissionReaderPort.findPermissionCodesForRoleHierarchy(roleId);

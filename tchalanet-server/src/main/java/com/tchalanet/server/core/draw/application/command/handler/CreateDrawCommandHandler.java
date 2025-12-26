@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.application.command.handler;
+import com.tchalanet.server.common.types.id.DrawId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -8,6 +9,7 @@ import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -17,13 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class CreateDrawCommandHandler implements CommandHandler<CreateDrawCommand, Draw> {
+public class CreateDrawCommandHandler implements CommandHandler<CreateDrawCommand, DrawId> {
 
   private final DrawWriterPort drawWriterPort;
   private final DrawChannelReaderPort drawChannelReaderPort;
 
   @Override
-  public Draw handle(CreateDrawCommand command) {
+  public DrawId handle(CreateDrawCommand command) {
     log.info(
         "CreateDrawCommandHandler.handle - creating draw for tenant={}, channelCode={}, scheduledDate={}",
         command.tenantId(),
@@ -40,7 +42,7 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
                         "Draw channel not found: " + command.channelCode()));
 
     // Generate draw id
-    UUID drawId = UUID.randomUUID();
+    DrawId drawId = DrawId.random();
 
     // Set scheduledAt to start of day in system default zone
     ZonedDateTime scheduledAt = command.scheduledDate().atStartOfDay(ZoneId.systemDefault());
@@ -53,14 +55,15 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
         new Draw(
             drawId,
             command.tenantId(),
-            channel.id(),
+            channel,
             scheduledAt,
             cutoffAt,
             DrawStatus.SCHEDULED,
+            DrawSource.SYSTEM,
             null);
 
     // Save and return id
     var saved = drawWriterPort.save(draw);
-    return saved;
+    return saved.id();
   }
 }

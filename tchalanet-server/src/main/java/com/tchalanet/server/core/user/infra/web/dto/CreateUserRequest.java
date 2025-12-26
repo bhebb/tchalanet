@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.user.infra.web.dto;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.Set;
-import java.util.UUID;
 
 public record CreateUserRequest(
-    UUID tenantIdInitiator,
+    TenantId tenantIdInitiator,
     String email,
     String phone,
     String firstName,
@@ -13,4 +13,3 @@ public record CreateUserRequest(
     boolean sendInvitation,
     Set<String> initialRoles
 ) {}
-

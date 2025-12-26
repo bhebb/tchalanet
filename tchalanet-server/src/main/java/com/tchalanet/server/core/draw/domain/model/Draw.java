@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.draw.domain.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -6,8 +8,8 @@ import java.util.UUID;
 
 public final class Draw {
 
-  private final UUID id;
-  private final UUID tenantId;
+  private final DrawId id;
+  private final TenantId tenantId;
   private final DrawChannel drawChannel;
 
   private ZonedDateTime scheduledAt;
@@ -17,8 +19,8 @@ public final class Draw {
   private DrawResult result; // peut être null tant que pas RESULTED
 
   public Draw(
-      UUID id,
-      UUID tenantId,
+      DrawId id,
+      TenantId tenantId,
       DrawChannel drawChannel,
       ZonedDateTime scheduledAt,
       ZonedDateTime cutoffAt,
@@ -35,11 +37,11 @@ public final class Draw {
     this.result = result;
   }
 
-  public UUID id() {
+  public DrawId id() {
     return id;
   }
 
-  public UUID tenantId() {
+  public TenantId tenantId() {
     return tenantId;
   }
 

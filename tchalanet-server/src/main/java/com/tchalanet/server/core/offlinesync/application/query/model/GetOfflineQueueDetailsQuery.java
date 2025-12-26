@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.offlinesync.application.query.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 import java.time.LocalDate;
 
-public record GetOfflineQueueDetailsQuery(UUID tenantId, UUID deviceId, int page, int size) {}
+public record GetOfflineQueueDetailsQuery(TenantId tenantId, UUID deviceId, int page, int size) {}
 

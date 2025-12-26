@@ -125,7 +125,7 @@ Le domaine `core.pos` gère les terminaux de point de vente (POS devices) pour l
 
 - `V3__core_terminal.sql`: Création table terminal
 - `V14__core_payout.sql`: Création table payout
-- `V13__rls_policies.sql`: Politiques RLS (inclut terminal et payout)
+- `V19__rls_policies.sql`: Politiques RLS (inclut terminal et payout)
 - `V15__rls_payout.sql`: RLS spécifiques pour payout
 
 ## Sécurité

@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.mapper;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.entity.LimitAssignmentJpaEntity;
@@ -12,7 +13,7 @@ public class LimitAssignmentMapper {
     public LimitAssignment toDomain(LimitAssignmentJpaEntity entity) {
         return new LimitAssignment(
                 entity.getId(),
-                entity.getTenantId(),
+                TenantId.of(entity.getTenantId())    ,
                 entity.getLimitDefinitionId(),
                 entity.getTargetType(),
                 entity.getTargetId(),
@@ -26,7 +27,7 @@ public class LimitAssignmentMapper {
     public LimitAssignmentJpaEntity toEntity(LimitAssignment domain) {
         LimitAssignmentJpaEntity entity = new LimitAssignmentJpaEntity();
         entity.setId(domain.id() != null ? domain.id() : UUID.randomUUID());
-        entity.setTenantId(domain.tenantId());
+        entity.setTenantId(domain.tenantId().uuid());
         entity.setLimitDefinitionId(domain.limitDefinitionId());
         entity.setTargetType(domain.targetType());
         entity.setTargetId(domain.targetId());

@@ -1,13 +1,8 @@
-package com.tchalanet.server.core.draw.infra.persistence.entity;
+package com.tchalanet.server.core.draw.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,7 +34,8 @@ public class DrawJpaEntity extends BaseTenantEntity {
     private Integer cutoffSec;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private DrawStatus status;
 
     @Column(name = "draw_source")
     private String drawSource;

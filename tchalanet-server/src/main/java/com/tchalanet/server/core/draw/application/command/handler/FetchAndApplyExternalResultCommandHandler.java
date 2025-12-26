@@ -13,7 +13,7 @@ import com.tchalanet.server.core.draw.application.port.out.ExternalDrawResultPor
 import com.tchalanet.server.core.draw.domain.event.DrawResultedEvent;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,7 +96,7 @@ public class FetchAndApplyExternalResultCommandHandler
             var event = new DrawResultedEvent(
                 java.util.UUID.randomUUID(),
                 Instant.now(clock),
-                TenantId.of(draw.tenantId()),
+                draw.tenantId(),
                 drawId,
                 draw.drawChannel().code(),
                 draw.scheduledAt().toInstant(),

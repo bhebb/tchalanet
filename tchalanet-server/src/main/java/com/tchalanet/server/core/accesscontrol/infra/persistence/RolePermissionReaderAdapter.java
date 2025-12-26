@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
 import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionReaderPort;
+import com.tchalanet.server.common.types.id.RoleId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -17,16 +17,16 @@ public class RolePermissionReaderAdapter implements RolePermissionReaderPort {
 
   @Override
   @Cacheable(cacheNames = "role-permissions", key = "#roleId")
-  public Set<String> findPermissionCodesForRoleHierarchy(UUID roleId) {
+  public Set<String> findPermissionCodesForRoleHierarchy(RoleId roleId) {
     if (roleId == null) {
       return Set.of();
     }
-    List<String> codes = permissionHierarchyRepository.findPermissionCodesForRoleHierarchy(roleId);
+    List<String> codes = permissionHierarchyRepository.findPermissionCodesForRoleHierarchy(roleId.uuid());
     return new HashSet<>(codes);
   }
 
   @Override
-  public boolean roleHierarchyHasPermission(UUID roleId, String permissionCode) {
+  public boolean roleHierarchyHasPermission(RoleId roleId, String permissionCode) {
     if (roleId == null || permissionCode == null || permissionCode.isBlank()) {
       return false;
     }

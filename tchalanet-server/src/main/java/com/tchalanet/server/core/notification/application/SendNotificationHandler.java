@@ -3,8 +3,8 @@ package com.tchalanet.server.core.notification.application;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.enums.NotificationChannel;
 import com.tchalanet.server.core.notification.domain.InvalidNotificationException;
-import com.tchalanet.server.core.notification.domain.NotificationChannel;
 import com.tchalanet.server.core.notification.domain.NotificationTarget;
 import com.tchalanet.server.core.notification.domain.SendNotificationPayload;
 import com.tchalanet.server.core.notification.port.NotificationGatewayPort;
@@ -59,4 +59,3 @@ public class SendNotificationHandler implements VoidCommandHandler<SendNotificat
         return value != null && value.matches("\\+?[0-9]{6,15}");
     }
 }
-

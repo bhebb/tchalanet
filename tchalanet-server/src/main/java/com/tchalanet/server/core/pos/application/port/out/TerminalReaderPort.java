@@ -1,4 +1,7 @@
 package com.tchalanet.server.core.pos.application.port.out;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.pos.domain.model.Terminal;
 import java.util.List;
@@ -8,7 +11,7 @@ import org.springframework.data.domain.PageRequest;
 
 public interface TerminalReaderPort {
 
-  Optional<Terminal> findById(UUID tenantId, UUID terminalId);
+  Optional<Terminal> findById(TenantId tenantId, TerminalId terminalId);
 
-  List<Terminal> listByOutlet(UUID tenantId, UUID outletId, PageRequest pageRequest);
+  List<Terminal> listByOutlet(TenantId tenantId, OutletId outletId, PageRequest pageRequest);
 }

@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.session.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.session.application.command.model.RecomputePosSessionTotalsCommand;
 
 
@@ -19,18 +20,18 @@ public class PosSessionTotalsProjectionListener {
     @EventListener
     public void onTicketPlaced(com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent e) {
         if (e.sessionId() == null) return;
-        commandBus.send(new RecomputePosSessionTotalsCommand(e.tenantId().value(), e.sessionId()));
+        commandBus.send(new RecomputePosSessionTotalsCommand(e.tenantId(), e.sessionId()));
     }
 
     @EventListener
     public void onTicketCancelled(com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent e) {
         if (e.sessionId() == null) return;
-        commandBus.send(new RecomputePosSessionTotalsCommand(e.tenantId().value(), e.sessionId()));
+        commandBus.send(new RecomputePosSessionTotalsCommand(e.tenantId(), e.sessionId()));
     }
 
     @EventListener
-    public void onPayoutRegistered(com.tchalanet.server.core.payout.domain.event.PayoutRegisteredEvent e) {
+    public void onPayoutRegistered(PayoutRegisteredEvent e) {
         if (e.sessionId() == null) return;
-        commandBus.send(new RecomputePosSessionTotalsCommand(e.tenantId().value(), e.sessionId()));
+        commandBus.send(new RecomputePosSessionTotalsCommand(e.tenantId(), e.sessionId()));
     }
 }

@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.autonomy.domain;
 
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyLevel;
-import com.tchalanet.server.core.autonomy.domain.model.ApprovalRole;
+
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
 
 /**
  * Resolved autonomy information for a specific transaction context.

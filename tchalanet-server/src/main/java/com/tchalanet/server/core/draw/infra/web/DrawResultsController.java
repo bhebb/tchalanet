@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.draw.infra.web;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
@@ -36,14 +38,14 @@ public class DrawResultsController {
 
     @GetMapping("/{drawId}")
     public ResponseEntity<DrawResultResponse> get(
-        @PathVariable UUID drawId, @RequestParam UUID tenantId) {
-        DrawResult result = queryBus.send(new GetDrawResultQuery(tenantId, drawId));
+        @PathVariable DrawId drawId, @RequestParam TenantId tenantId) {
+        var result = queryBus.send(new GetDrawResultQuery(tenantId, drawId));
         return ResponseEntity.ok(mapper.toResponse(result));
     }
 
     @GetMapping
     public List<DrawResultResponse> list(
-        @RequestParam UUID tenantId,
+        @RequestParam TenantId tenantId,
         @RequestParam String channelCode,
         @RequestParam LocalDate from,
         @RequestParam LocalDate to) {
@@ -55,7 +57,7 @@ public class DrawResultsController {
 
     @GetMapping("/today")
     public List<DrawResultResponse> listToday(
-        @RequestParam UUID tenantId, @RequestParam String channelCode) {
+        @RequestParam TenantId tenantId, @RequestParam String channelCode) {
         return queryBus.send(new ListTodayDrawResultQuery(tenantId, channelCode))
             .stream()
             .map(mapper::toResponse)
@@ -64,7 +66,7 @@ public class DrawResultsController {
 
     @GetMapping("/last-days")
     public List<DrawResultResponse> listLastDays(
-        @RequestParam UUID tenantId, @RequestParam String channelCode, @RequestParam int days) {
+        @RequestParam TenantId tenantId, @RequestParam String channelCode, @RequestParam int days) {
         return queryBus.send(new ListLastDaysDrawResultsQuery(tenantId, channelCode, days))
             .stream()
             .map(mapper::toResponse)

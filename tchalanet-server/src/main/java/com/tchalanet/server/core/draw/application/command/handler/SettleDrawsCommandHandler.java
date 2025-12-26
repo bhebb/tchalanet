@@ -6,15 +6,14 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
-import com.tchalanet.server.core.audit.domain.model.AuditAction;
-import com.tchalanet.server.core.audit.domain.model.AuditEntityType;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,7 +70,7 @@ public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawC
             var event = new DrawSettledEvent(
                 java.util.UUID.randomUUID(),
                 Instant.now(clock),
-                TenantId.of(draw.tenantId()),
+                draw.tenantId(),
                 draw.id(),
                 draw.drawChannel().code(),
                 draw.scheduledAt().toInstant(),

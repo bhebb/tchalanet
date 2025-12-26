@@ -21,7 +21,7 @@ public class GetSessionWithTotalsQueryHandler implements QueryHandler<GetSession
 
   @Override
   public Optional<SessionWithTotalsDto> handle(GetSessionWithTotalsQuery query) {
-    var sessionOpt = sessionReader.findById(query.sessionId());
+    var sessionOpt = sessionReader.findById(query.sessionId().value());
     if (sessionOpt.isEmpty()) {
       return Optional.empty();
     }

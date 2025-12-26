@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.autonomy.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.autonomy.domain.model.ApprovalRole;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyLevel;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetType;
+import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

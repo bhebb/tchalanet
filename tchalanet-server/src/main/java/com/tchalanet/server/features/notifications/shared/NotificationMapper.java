@@ -1,4 +1,5 @@
 package com.tchalanet.server.features.notifications.shared;
+import com.tchalanet.server.common.types.id.TenantId;
 
 public class NotificationMapper {
 

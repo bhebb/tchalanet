@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.tenant.infra.listener;
+import com.tchalanet.server.common.types.id.TenantId;
 
 
 import com.tchalanet.server.common.persistence.AppSettingEntity;
@@ -35,13 +36,13 @@ public class TenantCreatedInitListener {
 
 
     //app settings
-    private void createTenantSettings(UUID tenantId) {
+    private void createTenantSettings(TenantId tenantId) {
         for (var k : AppSettingRegistry.all()) {
             upsertIfMissing(tenantId, k);
         }
     }
 
-    private void upsertIfMissing(UUID tenantId, AppSettingKey<?> k) {
+    private void upsertIfMissing(TenantId tenantId, AppSettingKey<?> k) {
         // tu peux faire une query "exists" simple (ou une contrainte unique + try/catch)
         // v1 simple: insert and ignore duplicates -> nécessite un repo custom.
         var ent = new AppSettingEntity();

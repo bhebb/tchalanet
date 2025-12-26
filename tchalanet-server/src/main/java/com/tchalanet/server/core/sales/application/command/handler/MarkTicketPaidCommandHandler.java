@@ -11,7 +11,7 @@ import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPaidEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.tenant.domain.model.TenantId;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
@@ -47,7 +47,7 @@ public class MarkTicketPaidCommandHandler implements CommandHandler<MarkTicketPa
         var event = new TicketPaidEvent(
             UUID.randomUUID(),
             now,
-            new TenantId(saved.getTenantId()),
+            saved.getTenantId(),
             saved.getId(),
             cmd.performedBy(),
             cmd.reason(),

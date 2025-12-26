@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.accesscontrol.infra.security;
+import com.tchalanet.server.common.types.id.UserId;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.accesscontrol.application.query.handler.CheckUserPermissionsHandler;
 import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Component
@@ -47,8 +48,8 @@ public class TchPermissionEvaluator implements PermissionEvaluator {
             return false;
         }
 
-        UUID tenantId = ctx.principal().tenantUuid();
-        UUID userId = ctx.principal().userUuid();
+        var tenantId = TenantId.of(ctx.principal().tenantUuid());
+        var userId = com.tchalanet.server.common.types.id.UserId.of(ctx.principal().userUuid());
         String permissionKey = ctx.permissionKey();
 
         try {

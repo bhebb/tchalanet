@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.autonomy.infra.persistence.repository;
+import com.tchalanet.server.common.types.id.TenantId;
 
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetType;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.core.autonomy.infra.persistence.entity.AutonomyPolicyRuleJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,6 +1,9 @@
 package com.tchalanet.server.core.sales.infra.web.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 
-import com.tchalanet.server.core.sales.domain.model.BetType;
+import com.tchalanet.server.common.types.enums.BetType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

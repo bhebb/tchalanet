@@ -1,16 +1,18 @@
 package com.tchalanet.server.core.user.application.query.model;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
-import com.tchalanet.server.core.theme.domain.model.ThemeMode;
+import com.tchalanet.server.common.types.enums.ThemeMode;
 
 public class UserProfileQuery {
   public UUID id;
   public UUID keycloakId;
-  public UUID tenantId;
-  public UUID outletId;
+  public TenantId tenantId;
+  public OutletId outletId;
   public String username;
   public String name;
   public String firstName;

@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.payout.infra.event;
 
 import com.tchalanet.server.core.ledger.application.port.in.RecordLedgerFromPayoutPort;
-import com.tchalanet.server.core.payout.domain.event.PayoutRegisteredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -18,7 +17,7 @@ public class PayoutLedgerListener {
     public void onPayoutRegistered(PayoutRegisteredEvent event) {
         try {
             ledgerPort.recordPayout(
-                event.tenantId().value(),
+                event.tenantId(),
                 event.payoutId(),
                 event.amount(),
                 event.occurredAt()

@@ -18,7 +18,7 @@ public class GetDrawHandler implements QueryHandler<GetDrawQuery, Draw> {
   @Override
   public Draw handle(GetDrawQuery query) {
     return drawReaderPort
-        .findById(query.tenantId(), query.drawId())
+        .findById(query.drawId())
         .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + query.drawId()));
   }
 }

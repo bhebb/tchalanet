@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.billing.application.command.handler;
+import com.tchalanet.server.common.types.id.PlanId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.error.ProblemRestException;
@@ -35,7 +36,7 @@ public class ChangePlanCommandHandler implements CommandHandler<ChangePlanComman
             subscriptionReader
                 .findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(
                     command.tenantId(), List.of(SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING))
-                .orElseGet(() -> Subscription.start(command.subscriptionId(), command.tenantId(), PlanId.of(targetPlan.id()), Instant.now(), BillingProvider.NONE));
+                .orElseGet(() -> Subscription.start(command.subscriptionId(), command.tenantId(), targetPlan.id(), Instant.now(), BillingProvider.NONE));
 
         Subscription updated = current.changePlan(targetPlan, Instant.now());
         Subscription saved = subscriptionWriter.save(updated);

@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.billing.application.port.out;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.billing.domain.model.Subscription;
 import com.tchalanet.server.core.billing.domain.model.SubscriptionStatus;
@@ -10,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface SubscriptionReaderPort {
-    Optional<Subscription> findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(UUID tenantId, List<SubscriptionStatus> statuses);
-    Optional<Subscription> findFirstByTenantIdAndStatus(UUID tenantId, Set<SubscriptionStatus> statuses);
+    Optional<Subscription> findFirstByTenantIdAndStatusInOrderByCurrentPeriodStartDesc(TenantId tenantId, List<SubscriptionStatus> statuses);
+    Optional<Subscription> findFirstByTenantIdAndStatus(TenantId tenantId, Set<SubscriptionStatus> statuses);
     List<Subscription> findByStatusAndCurrentPeriodEndBefore(SubscriptionStatus status, Instant before);
 }

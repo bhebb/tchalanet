@@ -1,11 +1,12 @@
 package com.tchalanet.server.core.sales.application.query.model;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 import java.time.LocalDate;
 
 /** Query to export daily sales (e.g. CSV). */
 public record ExportDailySalesQuery(
-    UUID tenantId,
+    TenantId tenantId,
     LocalDate date
 ) {}
 

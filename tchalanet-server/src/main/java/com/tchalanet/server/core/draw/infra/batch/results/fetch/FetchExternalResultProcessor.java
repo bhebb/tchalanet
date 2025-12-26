@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.infra.batch.results.fetch;
+import com.tchalanet.server.common.types.id.DrawId;
 
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.ExternalDrawResultPort;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @StepScope
 @RequiredArgsConstructor
-public class FetchExternalResultProcessor implements ItemProcessor<UUID, ApplyResultRow> {
+public class FetchExternalResultProcessor implements ItemProcessor<DrawId, ApplyResultRow> {
 
     private final DrawReaderPort drawReaderPort;
     private final ExternalDrawResultPort externalDrawResultPort;
@@ -24,7 +25,7 @@ public class FetchExternalResultProcessor implements ItemProcessor<UUID, ApplyRe
     private String forceFlag;
 
     @Override
-    public ApplyResultRow process(UUID drawId) throws Exception {
+    public ApplyResultRow process(DrawId drawId) throws Exception {
         var drawOpt = drawReaderPort.findById(drawId);
         if (drawOpt.isEmpty()) {
             return null;

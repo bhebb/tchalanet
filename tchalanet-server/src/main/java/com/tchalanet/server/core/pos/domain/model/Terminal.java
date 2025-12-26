@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.pos.domain.model;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.Map;
@@ -7,8 +9,8 @@ import java.util.UUID;
 public class Terminal {
 
   private final UUID id;
-  private final UUID tenantId;
-  private UUID outletId;
+  private final TenantId tenantId;
+  private OutletId outletId;
   private TerminalState state;
   private Instant lastSeen;
   private String meta;
@@ -20,7 +22,7 @@ public class Terminal {
   private String lockReason;
   private Instant deletedAt;
 
-  public Terminal(UUID id, UUID tenantId, UUID outletId, TerminalState state, Instant lastSeen, String meta, long version, Instant registeredAt, Instant unregisteredAt, Instant lockedAt, UUID lockedBy, String lockReason, Instant deletedAt) {
+  public Terminal(UUID id, TenantId tenantId, OutletId outletId, TerminalState state, Instant lastSeen, String meta, long version, Instant registeredAt, Instant unregisteredAt, Instant lockedAt, UUID lockedBy, String lockReason, Instant deletedAt) {
     this.id = id;
     this.tenantId = tenantId;
     this.outletId = outletId;
@@ -81,8 +83,8 @@ public class Terminal {
 
   // Getters
   public UUID id() { return id; }
-  public UUID tenantId() { return tenantId; }
-  public UUID outletId() { return outletId; }
+  public TenantId tenantId() { return tenantId; }
+  public OutletId outletId() { return outletId; }
   public TerminalState state() { return state; }
   public Instant lastSeen() { return lastSeen; }
   public String meta() { return meta; }

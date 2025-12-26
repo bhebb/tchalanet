@@ -1,16 +1,17 @@
 package com.tchalanet.server.core.autonomy.application.port.out;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.common.types.id.TenantId;
 
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRuleRule;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
 
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface AutonomyPolicyRuleRuleRepositoryPort {
-    Optional<AutonomyPolicyRuleRule> findActive(UUID tenantId, AutonomyTargetType targetType, UUID targetId, Instant now);
+public interface AutonomyPolicyRuleRepositoryPort {
+    Optional<AutonomyPolicyRule> findActive(TenantId tenantId, AutonomyTargetType targetType, UUID targetId, Instant now);
 
-    Optional<AutonomyPolicyRuleRule> findByTarget(UUID tenantId, AutonomyTargetType targetType, UUID targetId);
+    Optional<AutonomyPolicyRule> findByTarget(TenantId tenantId, AutonomyTargetType targetType, UUID targetId);
 
-    AutonomyPolicyRuleRule save(AutonomyPolicyRuleRule policy);
+    AutonomyPolicyRule save(AutonomyPolicyRule policy);
 }

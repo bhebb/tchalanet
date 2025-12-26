@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.sales.application.port.out;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PageRequest;
@@ -23,5 +24,5 @@ public interface TicketWritterPort {
      * @param cutoffDate The cutoff timestamp.
      * @return The number of tickets archived.
      */
-    int archiveOldTickets(UUID tenantId, Instant cutoffDate);
+    int archiveOldTickets(TenantId tenantId, Instant cutoffDate);
 }

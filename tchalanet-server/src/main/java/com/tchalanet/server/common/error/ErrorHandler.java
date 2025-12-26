@@ -1,4 +1,5 @@
 package com.tchalanet.server.common.error;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;

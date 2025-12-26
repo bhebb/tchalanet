@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.ledger.infra.persistence.adapter;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.ledger.application.port.out.LedgerReaderPort;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
@@ -35,7 +36,7 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
     private LedgerEntry toDomain(LedgerEntryJpaEntity e) {
         return new LedgerEntry(
             e.getId(),
-            e.getTenantId(),
+            TenantId.of(e.getTenantId()),
             e.getRefType(),
             e.getRefId(),
             e.getAmount(),
@@ -47,7 +48,7 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
     private LedgerEntryJpaEntity toEntity(LedgerEntry entry) {
         var ledgerEntryJpaEntity = new LedgerEntryJpaEntity();
         ledgerEntryJpaEntity.setId(entry.id());
-        ledgerEntryJpaEntity.setTenantId(entry.tenantId());
+        ledgerEntryJpaEntity.setTenantId(entry.tenantId().uuid());
         ledgerEntryJpaEntity.setRefType(entry.refType());
         ledgerEntryJpaEntity.setRefId(entry.refId());
         ledgerEntryJpaEntity.setAmount(entry.amount());
@@ -67,13 +68,13 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
     }
 
     @Override
-    public BigDecimal getBalance(UUID tenantId) {
-        return jpaRepository.computeBalance(tenantId);
+    public BigDecimal getBalance( TenantId tenantId) {
+        return jpaRepository.computeBalance(tenantId.uuid());
     }
 
     @Override
-    public List<LedgerEntry> findByTenant(UUID tenantId, Instant from, Instant to, int limit, int offset) {
-        var entities = jpaRepository.findByTenantIdAndOccurredAtBetweenOrderByOccurredAtDesc(tenantId, from, to);
+    public List<LedgerEntry> findByTenant( TenantId tenantId, Instant from, Instant to, int limit, int offset) {
+        var entities = jpaRepository.findByTenantIdAndOccurredAtBetweenOrderByOccurredAtDesc(tenantId.uuid(), from, to);
         // Note: the repo method doesn't use pageable, so we slice manually
         return entities.stream()
             .skip(offset)
@@ -83,15 +84,15 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
     }
 
     @Override
-    public List<LedgerEntry> findByRef(UUID tenantId, LedgerRefType refType, UUID refId) {
-        return jpaRepository.findByTenantIdAndRefTypeAndRefId(tenantId, refType, refId)
+    public List<LedgerEntry> findByRef( TenantId tenantId, LedgerRefType refType, UUID refId) {
+        return jpaRepository.findByTenantIdAndRefTypeAndRefId(tenantId.uuid(), refType, refId)
             .stream()
             .map(this::toDomain)
             .toList();
     }
 
     @Override
-    public boolean existsByRef(UUID tenantId, LedgerRefType refType, UUID refId) {
-        return jpaRepository.existsByTenantIdAndRefTypeAndRefId(tenantId, refType.name(), refId);
+    public boolean existsByRef( TenantId tenantId, LedgerRefType refType, UUID refId) {
+        return jpaRepository.existsByTenantIdAndRefTypeAndRefId(tenantId.uuid(), refType, refId);
     }
 }

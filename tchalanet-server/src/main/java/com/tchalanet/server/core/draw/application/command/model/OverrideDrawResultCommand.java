@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.draw.application.command.model;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.Command;
 
@@ -7,8 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 public record OverrideDrawResultCommand(
-    UUID drawId,
-    UUID tenantId,
+    DrawId drawId,
+    TenantId tenantId,
     UUID adminId,
     Instant overriddenAt,
     List<String> numbersMain,

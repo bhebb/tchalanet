@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.session.infra.persistence.mapper;
 
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.TenantId;
+
 import com.tchalanet.server.core.session.domain.model.PosSessionTotals;
 import com.tchalanet.server.core.session.infra.persistence.entity.PosSessionTotalsJpaEntity;
 import org.springframework.stereotype.Component;
@@ -9,8 +12,8 @@ public class PosSessionTotalsMapper {
 
     public PosSessionTotals toDomain(PosSessionTotalsJpaEntity entity) {
         return new PosSessionTotals(
-            entity.getSessionId(),
-            entity.getTenantId(),
+            SessionId.nullableOf(entity.getSessionId()),
+            TenantId.of(entity.getTenantId()),
             entity.getTotalTickets(),
             entity.getTotalStake(),
             entity.getTotalPayout(),
@@ -21,8 +24,8 @@ public class PosSessionTotalsMapper {
 
     public PosSessionTotalsJpaEntity toEntity(PosSessionTotals domain) {
         var entity = new PosSessionTotalsJpaEntity();
-        entity.setSessionId(domain.sessionId());
-        entity.setTenantId(domain.tenantId());
+        entity.setSessionId(domain.sessionId().uuid());
+        entity.setTenantId(domain.tenantId().uuid());
         entity.setTotalTickets(domain.totalTickets());
         entity.setTotalStake(domain.totalStake());
         entity.setTotalPayout(domain.totalPayout());

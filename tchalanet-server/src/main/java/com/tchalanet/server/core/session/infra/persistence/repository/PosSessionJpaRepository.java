@@ -2,6 +2,8 @@ package com.tchalanet.server.core.session.infra.persistence.repository;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.time.Instant;
+import java.util.List;
 
 import com.tchalanet.server.core.session.infra.persistence.entity.PosSessionJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +27,11 @@ public interface PosSessionJpaRepository extends JpaRepository<PosSessionJpaEnti
      */
     @Query("SELECT s FROM PosSessionJpaEntity s WHERE s.tenantId = :tenantId AND s.userId = :userId AND s.status = 'OPEN'")
     java.util.List<PosSessionJpaEntity> findOpenByCashier(@Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
+
+    // Find by tenant + outlet + status
+    List<PosSessionJpaEntity> findByTenantIdAndOutletIdAndStatus(UUID tenantId, UUID outletId, String status);
+
+    // Find session ids by tenant + outlet + openedAt between
+    @Query("SELECT s.id FROM PosSessionJpaEntity s WHERE s.tenantId = :tenantId AND s.outletId = :outletId AND s.openedAt >= :from AND s.openedAt < :to")
+    List<UUID> findIdsByTenantIdAndOutletIdAndOpenedAtBetween(@Param("tenantId") UUID tenantId, @Param("outletId") UUID outletId, @Param("from") Instant from, @Param("to") Instant to);
 }

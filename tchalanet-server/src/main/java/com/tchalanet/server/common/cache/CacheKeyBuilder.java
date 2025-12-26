@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.cache;
 
+import com.tchalanet.server.common.types.id.TenantId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -38,23 +39,23 @@ public final class CacheKeyBuilder {
         return "tch:%s:%s:terminal:%s".formatted(env, tenantId, terminalId);
     }
 
-    public String tenantOutletTreeKey(UUID tenantId) {
+    public String tenantOutletTreeKey(TenantId tenantId) {
         return "tch:%s:%s:outlet:tree".formatted(env, tenantId);
     }
 
-    public String tenantDrawsSummaryKey(UUID tenantId) {
-        return "tch:%s:%s:draws:summary".formatted(env, tenantId);
+    public String tenantDrawsSummaryKey(TenantId tenantId) {
+        return "tch:%s:%s:draws:summary".formatted(env, tenantId.value());
     }
 
-    public String tenantDrawsChannelKey(UUID tenantId, String channelCode, String kind) {
+    public String tenantDrawsChannelKey(TenantId tenantId, String channelCode, String kind) {
         return "tch:%s:%s:draws:%s:%s".formatted(env, tenantId, channelCode, kind);
     }
 
-    public String tenantDrawPublicKey(UUID tenantId, String date) {
+    public String tenantDrawPublicKey(TenantId tenantId, String date) {
         return "tch:%s:%s:draws:public:%s".formatted(env, tenantId, date);
     }
 
-    public String userPermissionsKey(UUID tenantId, UUID userId) {
+    public String userPermissionsKey(TenantId tenantId, UUID userId) {
         return "tch:%s:%s:user:%s:permissions".formatted(env, tenantId, userId);
     }
 

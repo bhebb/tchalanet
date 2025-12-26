@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.offlinesync.application.port.out;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -7,7 +9,7 @@ import java.util.UUID;
 /** Port pour suivre l'état de synchronisation par terminal / device. */
 public interface SyncStatePort {
 
-  Optional<Instant> getLastSync(UUID tenantId, UUID terminalId);
+  Optional<Instant> getLastSync(TenantId tenantId, TerminalId terminalId);
 
-  void updateLastSync(UUID tenantId, UUID terminalId, Instant at);
+  void updateLastSync(TenantId tenantId, TerminalId terminalId, Instant at);
 }

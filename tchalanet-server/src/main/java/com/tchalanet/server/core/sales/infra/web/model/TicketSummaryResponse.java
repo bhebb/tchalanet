@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.infra.web.model;
 
-import com.tchalanet.server.core.sales.domain.model.TicketStatus;
+import com.tchalanet.server.common.types.enums.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;

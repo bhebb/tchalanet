@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.theme.infra.persistence;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import org.springframework.data.domain.Page;

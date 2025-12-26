@@ -1,5 +1,8 @@
 package com.tchalanet.server.core.notification.infra.external;
 
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.TenantId;
+
 
 import com.tchalanet.server.core.notification.domain.SendNotificationPayload;
 import com.tchalanet.server.core.notification.infra.config.NodeNotificationConfigProperties;
@@ -35,11 +38,14 @@ public class NodeNotificationGatewayAdapter implements NotificationGatewayPort {
     }
 
     private NodeNotificationRequest toRequest(SendNotificationPayload payload) {
+        var tenantId = payload.target().tenantId() != null ? payload.target().tenantId().uuid() : null;
+        var userId = payload.target().userId() != null ? payload.target().userId().uuid() : null;
+
         return new NodeNotificationRequest(
             payload.type().name(),
             payload.channel().name(),
-            payload.target().tenantId(),
-            payload.target().userId(),
+            TenantId.of(tenantId),
+            UserId.of(userId),
             payload.target().recipient(),
             payload.locale(),
             payload.data()
@@ -49,8 +55,8 @@ public class NodeNotificationGatewayAdapter implements NotificationGatewayPort {
     private record NodeNotificationRequest(
         String type,
         String channel,
-        UUID tenantId,
-        UUID userId,
+        TenantId tenantId,
+        UserId userId,
         String recipient,
         String locale,
         Map<String, Object> data

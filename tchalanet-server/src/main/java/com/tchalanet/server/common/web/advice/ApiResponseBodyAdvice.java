@@ -12,6 +12,8 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 
 import java.util.List;
 
@@ -23,16 +25,17 @@ import java.util.List;
 public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+    public boolean supports(@Nonnull MethodParameter returnType, @Nonnull Class<? extends HttpMessageConverter<?>> converterType) {
         // Don't wrap if already ApiResponse or ProblemDetail
-        return !ApiResponse.class.isAssignableFrom(returnType.getParameterType().getRawClass()) &&
-               !ProblemDetail.class.isAssignableFrom(returnType.getParameterType().getRawClass());
+        Class<?> paramType = returnType.getParameterType();
+        return !ApiResponse.class.isAssignableFrom(paramType) &&
+               !ProblemDetail.class.isAssignableFrom(paramType);
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-                                  Class<? extends HttpMessageConverter<?>> selectedConverterType,
-                                  ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(@Nullable Object body, @Nonnull MethodParameter returnType, @Nonnull MediaType selectedContentType,
+                                  @Nonnull Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                                  @Nonnull ServerHttpRequest request, @Nonnull ServerHttpResponse response) {
 
         ApiResponseContext context = ApiResponseContext.get();
         List<ApiNotice> notices = context.getNotices();

@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.application.port.out;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.draw.application.query.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
@@ -9,11 +10,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DrawChannelReaderPort {
-  Optional<DrawChannel> findById(UUID tenantId, DrawChannelId id);
+  Optional<DrawChannel> findById(TenantId tenantId, DrawChannelId id);
 
-  Optional<DrawChannel> findByCode(UUID tenantId, String code);
+  Optional<DrawChannel> findByCode(TenantId tenantId, String code);
 
-  List<DrawChannel> findActiveByTenant(UUID tenantId);
+  List<DrawChannel> findActiveByTenant(TenantId tenantId);
 
   List<DrawChannelSummary> findByCriteria(DrawChannelSearchCriteria criteria);
 }

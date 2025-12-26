@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.autonomy.domain.model;
+package com.tchalanet.server.common.types.enums;
 
 /**
  * Enumeration of target types for autonomy policies.

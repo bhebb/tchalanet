@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.limitpolicy.infra.web.policy;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
@@ -21,7 +22,7 @@ public class LimitPolicyController {
   private final QueryBus queryBus;
 
   @GetMapping
-  public GetLimitDefinitionsResult getDefinitions(@RequestParam UUID tenantId) {
+  public GetLimitDefinitionsResult getDefinitions(@RequestParam TenantId tenantId) {
     return queryBus.send(new GetLimitDefinitionsQuery(tenantId));
   }
 
@@ -36,7 +37,7 @@ public class LimitPolicyController {
   }
 
   @DeleteMapping("/{id}")
-  public void deleteDefinition(@PathVariable UUID id, @RequestParam UUID tenantId) {
+  public void deleteDefinition(@PathVariable UUID id, @RequestParam TenantId tenantId) {
     commandBus.send(new DeleteLimitDefinitionCommand(id));
   }
 }

@@ -13,5 +13,5 @@ public enum TicketStatus {
   /** The ticket's payout is pending approval/payment. */
   PAYMENT_PENDING,
   /** The winnings for this ticket have been paid out. */
-  PAID
+  PAID;
 }

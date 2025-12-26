@@ -6,7 +6,8 @@ import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDyn
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
 @Service
 @RequiredArgsConstructor
@@ -17,8 +18,8 @@ public class PrivateDashboardDynamicDataService {
     private final CashierDashboardService cashierDashboardService;
 
     public PrivateDashboardDynamicPayload buildDynamicData(
-        UUID tenantId,
-        UUID userId,
+        TenantId tenantId,
+        UserId userId,
         TchRole role,
         String currentLang,
         PageModel model

@@ -1,4 +1,5 @@
 package com.tchalanet.server.common.persistence.audit;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
 

@@ -1,4 +1,6 @@
 package com.tchalanet.server.core.user.application.port.out;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.core.user.domain.model.AppUser;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserReaderPort {
-    Optional<AppUser> findById(UUID id);
+    Optional<AppUser> findById(UserId id);
 
     Optional<AppUser> findByKeycloakId(UUID keycloakId);
 
@@ -20,11 +22,11 @@ public interface UserReaderPort {
     // Paged versions
     Page<AppUser> findAll(Pageable pageable);
 
-    Page<AppUser> findByTenantId(UUID tenantId, Pageable pageable);
+    Page<AppUser> findByTenantId(TenantId tenantId, Pageable pageable);
 
     Page<@NotNull AppUser> findAllActiveUsers(Pageable pageable);
 
-    Page<AppUser> findAllActiveUsersByTenant(UUID tenantId, Pageable pageable);
+    Page<AppUser> findAllActiveUsersByTenant(TenantId tenantId, Pageable pageable);
 
 }
 

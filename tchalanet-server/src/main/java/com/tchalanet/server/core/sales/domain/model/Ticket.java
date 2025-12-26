@@ -1,12 +1,19 @@
 package com.tchalanet.server.core.sales.domain.model;
 
+import com.tchalanet.server.common.types.enums.TicketStatus;
+import com.tchalanet.server.common.types.id.SessionId;
+
 import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
+
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.TicketId;
 
 /**
  * Aggregate Root for the Ticket domain. It encapsulates the state and business rules for a ticket,
@@ -15,11 +22,11 @@ import java.util.UUID;
 @Getter
 public class Ticket {
 
-    private final UUID id;
-    private final UUID tenantId;
-    private final UUID terminalId;
-    private final UUID sessionId;
-    private final UUID drawId;
+    private final TicketId id;
+    private final TenantId tenantId;
+    private final TerminalId terminalId;
+    private final SessionId sessionId;
+    private final DrawId drawId;
     private final String ticketCode;
     private final String publicCode;
 
@@ -33,11 +40,11 @@ public class Ticket {
     private BigDecimal winningAmount;
 
     private Ticket(
-        UUID id,
-        UUID tenantId,
-        UUID terminalId,
-        UUID sessionId,
-        UUID drawId,
+        TicketId id,
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
         String ticketCode,
         String publicCode,
         List<TicketLine> lines,
@@ -61,10 +68,10 @@ public class Ticket {
     }
 
     public static Ticket create(
-        UUID tenantId,
-        UUID terminalId,
-        UUID sessionId,
-        UUID drawId,
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
         String ticketCode,
         String publicCode,
         List<TicketLine> lines,
@@ -81,7 +88,7 @@ public class Ticket {
         BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new Ticket(
-            UUID.randomUUID(),
+            TicketId.random(),
             tenantId,
             terminalId,
             sessionId,
@@ -100,11 +107,11 @@ public class Ticket {
      * Rehydrate from persistence
      */
     public static Ticket rehydrate(
-        UUID id,
-        UUID tenantId,
-        UUID terminalId,
-        UUID sessionId,
-        UUID drawId,
+        TicketId id,
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
         String ticketCode,
         String publicCode,
         List<TicketLine> lines,
