@@ -35,7 +35,7 @@ public class MarkPaymentPendingCommandHandler
     public Ticket handle(MarkPaymentPendingCommand command) {
         var ticket =
             ticketReader
-                .findWithLinesById(command.tenantId(), command.ticketId())
+                .findWithLinesById(command.ticketId())
                 .orElseThrow(() -> ProblemRestException.notFound("Ticket not found"));
 
         var now = Instant.now(clock);
@@ -48,7 +48,7 @@ public class MarkPaymentPendingCommandHandler
             new TicketPaymentPendingEvent(
                 UUID.randomUUID(),
                 now,
-                command.tenantId(),
+                saved.getTenantId(),
                 saved.getId(),
                 command.reason(),
                 command.performedBy()

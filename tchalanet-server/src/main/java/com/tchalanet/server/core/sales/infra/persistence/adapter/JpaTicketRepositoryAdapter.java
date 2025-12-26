@@ -1,7 +1,10 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
+
+import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
@@ -39,6 +42,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     private final SpringTicketJpaRepository jpaRepository;
     private final TicketMapper mapper;
     private final Clock clock;
+    private final TchRequestContextHolder contextHolder;
 
     @Override
     public Ticket save(Ticket ticket) {
@@ -48,7 +52,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     }
 
     @Override
-    public Optional<Ticket> findById( TicketId ticketId) {
+    public Optional<Ticket> findById(TicketId ticketId) {
         return jpaRepository.findById(ticketId.uuid()).map(mapper::toDomain);
     }
 
@@ -103,27 +107,27 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     }
 
     @Override
-    public int archiveOldTickets( TenantId tenantId, Instant cutoffDate) {
+    public int archiveOldTickets(TenantId tenantId, Instant cutoffDate) {
         return jpaRepository.archiveOldTickets(tenantId.uuid(), cutoffDate, Instant.now(clock));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Ticket> findWithLinesById( TenantId tenantId,  TicketId ticketId) {
-        return jpaRepository.findWithLinesByTenantIdAndId(tenantId.uuid(), ticketId.uuid()).map(mapper::toDomain);
+    public Optional<Ticket> findWithLinesById(TicketId ticketId) {
+        return jpaRepository.findWithLinesByTenantIdAndId(contextHolder.get().tenantUuid(), ticketId.uuid()).map(mapper::toDomain);
     }
 
     @Override
-    public List<Ticket> listRecentForCashier(UUID cashierId, int limit) {
+    public List<Ticket> listRecentForCashier(UserId cashierId, int limit) {
         var pageable = org.springframework.data.domain.PageRequest.of(0, limit);
-        return jpaRepository.findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(cashierId, pageable)
+        return jpaRepository.findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(cashierId.uuid(), pageable)
             .stream()
             .map(mapper::toDomain)
             .toList();
     }
 
     @Override
-    public byte[] exportDailySalesCsv( TenantId tenantId, Instant dayStart, Instant dayEnd) {
+    public byte[] exportDailySalesCsv(TenantId tenantId, Instant dayStart, Instant dayEnd) {
         List<TicketEntity> tickets = jpaRepository.findByTenantIdAndCreatedAtBetween(
             tenantId.uuid(), dayStart, dayEnd);
 
@@ -156,7 +160,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     }
 
     @Override
-    public List<AgentDailySalesDto> getAgentDailySales( TenantId tenantId, Instant from, Instant to) {
+    public List<AgentDailySalesDto> getAgentDailySales(TenantId tenantId, Instant from, Instant to) {
         return jpaRepository.findAgentDailySales(tenantId.uuid(), from, to);
     }
 }

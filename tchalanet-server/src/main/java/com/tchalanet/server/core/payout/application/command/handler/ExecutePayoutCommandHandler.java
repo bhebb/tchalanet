@@ -59,7 +59,7 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
     }
 
     // load ticket and validate
-    Optional<Ticket> optTicket = ticketReaderPort.findWithLinesById(payout.getTenantId(), payout.getTicketId());
+    Optional<Ticket> optTicket = ticketReaderPort.findWithLinesById(payout.getTicketId());
     if (optTicket.isEmpty()) {
       throw new IllegalStateException("Ticket not found for payout: " + payout.getTicketId());
     }

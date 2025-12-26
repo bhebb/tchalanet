@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.tenant.infra.listener;
+
 import com.tchalanet.server.common.types.id.TenantId;
 
 
@@ -31,7 +32,7 @@ public class TenantCreatedInitListener {
         pageModelBootstrapService.bootstrapForTenant(tenantId);
 
         // Seed tenant-level defaults only if missing
-        createTenantSettings(tenantId);
+        createTenantSettings(e.tenantId());
     }
 
 
@@ -47,7 +48,7 @@ public class TenantCreatedInitListener {
         // v1 simple: insert and ignore duplicates -> nécessite un repo custom.
         var ent = new AppSettingEntity();
         ent.setLevel(AppSettingLevel.TENANT);
-        ent.setTenantId(tenantId);
+        ent.setTenantId(tenantId.uuid());
         ent.setNamespace(k.namespace());
         ent.setSettingKey(k.key());
         ent.setValueType(k.type());

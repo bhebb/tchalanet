@@ -35,7 +35,7 @@ public class RecordTicketResultCommandHandler implements CommandHandler<RecordTi
     @Override
     @TchTx
     public Ticket handle(RecordTicketResultCommand command) {
-        var ticket = ticketReader.findWithLinesById(command.tenantId(), command.ticketId())
+        var ticket = ticketReader.findWithLinesById(command.ticketId())
             .orElseThrow(() -> new IllegalStateException("Ticket not found"));
 
         var now = Instant.now(clock);

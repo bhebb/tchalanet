@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.sales.application.port.out;
+
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PageRequest;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PagedResult;
@@ -24,9 +26,9 @@ public interface TicketReaderPort {
 
     PagedResult<Ticket> search(TicketFilter filter, PageRequest pageRequest);
 
-    Optional<Ticket> findWithLinesById(TenantId tenantId, TicketId ticketId);
+    Optional<Ticket> findWithLinesById(TicketId ticketId);
 
-    List<Ticket> listRecentForCashier(UUID cashierId, int limit);
+    List<Ticket> listRecentForCashier(UserId cashierId, int limit);
 
     List<AgentDailySalesDto> getAgentDailySales(TenantId tenantId, Instant from, Instant to);
 

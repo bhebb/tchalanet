@@ -28,7 +28,7 @@ public class UserAdminController {
     private final QueryBus queryBus;
 
     @PostMapping
-    public ResponseEntity<UUID> createUser(@RequestBody CreateUserRequest req) {
+    public ResponseEntity<UserId> createUser(@RequestBody CreateUserRequest req) {
         var command = new CreateUserCommand(
             req.tenantIdInitiator(),
             req.email(),

@@ -15,9 +15,9 @@ import com.tchalanet.server.common.mapper.CommonIdMapper;
 @Mapper(componentModel = "spring", uses = CommonIdMapper.class)
 public interface SubscriptionPersistenceMapper {
 
-    @Mapping(target = "id", expression = "java(s.getId().orElse(null))")
+    @Mapping(target = "id", expression = "java(s.id() == null ? null : s.id().uuid())")
     @Mapping(target = "tenantId", source = "tenantId")
-    @Mapping(target = "status", expression = "java(mapStatus(s.getStatus()))")
+    @Mapping(target = "status", expression = "java(mapStatus(s.status()))")
     @Mapping(target = "currentPeriodStart", source = "currentPeriodStart")
     @Mapping(target = "currentPeriodEnd", source = "currentPeriodEnd")
     @Mapping(target = "cancelAtPeriodEnd", source = "cancelAtPeriodEnd")
@@ -29,7 +29,7 @@ public interface SubscriptionPersistenceMapper {
 
     @Mapping(target = "id", expression = "java(mapSubscrptionId(e.getId()))")
     @Mapping(target = "tenantId", source = "tenantId")
-    @Mapping(target = "planId", expression = "java(mapPlanId(e.getPlan().getId()))")
+    @Mapping(target = "planId", expression = "java(mapPlanId(e.getPlan() == null ? null : e.getPlan().getId()))")
     @Mapping(target = "status", expression = "java(mapStatus(e.getStatus()))")
     @Mapping(target = "currentPeriodStart", source = "currentPeriodStart")
     @Mapping(target = "currentPeriodEnd", source = "currentPeriodEnd")
@@ -51,5 +51,9 @@ public interface SubscriptionPersistenceMapper {
 
     default SubscriptionId mapSubscrptionId(UUID id) {
         return id == null ? null : SubscriptionId.of(id);
+    }
+
+    default PlanId mapPlanId(UUID id) {
+        return id == null ? null : PlanId.of(id);
     }
 }

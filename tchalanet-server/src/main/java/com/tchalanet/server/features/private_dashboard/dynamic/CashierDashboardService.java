@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.private_dashboard.dynamic;
 
+import com.tchalanet.server.core.sales.application.query.model.ListRecentTicketsForCashierQuery;
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.private_dashboard.block.CashierOverviewBlock;
 import com.tchalanet.server.features.private_dashboard.block.PrivateDashboardDynamicPayload;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+
 import java.time.LocalDate;
 
 @Service
@@ -108,8 +110,8 @@ public class CashierDashboardService {
         try {
             var sessions = listCashierOpenSessionsHandler.handle(new com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery(tenantId, userId));
             var sessionIds = sessions.stream().map(com.tchalanet.server.core.session.application.query.handler.ListCashierOpenSessionsHandler.CashierSessionDto::sessionId).toList();
-            var recent = listRecentTicketsForCashierHandler.handle(sessionIds, 20);
-            return new TicketsBlock(recent.size(), 0, recent.stream().map(java.util.UUID::toString).toList());
+            var recent = listRecentTicketsForCashierHandler.handle(new ListRecentTicketsForCashierQuery(userId, 20));
+            return new TicketsBlock(recent.size(), 0, recent.stream().map(r -> r.getId().uuid().toString()).toList());
         } catch (Exception e) {
             return TicketsBlock.empty();
         }

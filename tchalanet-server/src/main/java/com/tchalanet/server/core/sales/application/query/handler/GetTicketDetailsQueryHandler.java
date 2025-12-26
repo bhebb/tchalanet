@@ -30,7 +30,7 @@ public class GetTicketDetailsQueryHandler implements QueryHandler<GetTicketDetai
         Ticket ticket = ticketOpt.get();
 
         // Then, load with lines using tenantId from the ticket
-        Optional<Ticket> ticketWithLinesOpt = ticketReader.findWithLinesById(ticket.getTenantId(), query.ticketId());
+        Optional<Ticket> ticketWithLinesOpt = ticketReader.findWithLinesById(query.ticketId());
         if (ticketWithLinesOpt.isEmpty()) {
             return null; // Should not happen, but safety
         }

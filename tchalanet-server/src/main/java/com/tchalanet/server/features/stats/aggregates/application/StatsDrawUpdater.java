@@ -18,11 +18,11 @@ public class StatsDrawUpdater {
 
     @Transactional
     public void ensureDrawRow(DrawResultedEvent event) {
-        var existing = statsDrawRepo.findByDrawId(event.drawId());
+        var existing = statsDrawRepo.findByDrawId(event.drawId().uuid());
         if (existing == null || existing.isEmpty()) {
             var e = StatsDrawEntity.builder()
                 .id(UUID.randomUUID())
-                .drawId(event.drawId())
+                .drawId(event.drawId().uuid())
                 .tenantId(event.tenantId().value())
                 .gameCode(event.gameCode())
                 .scheduledAt(event.scheduledAt())

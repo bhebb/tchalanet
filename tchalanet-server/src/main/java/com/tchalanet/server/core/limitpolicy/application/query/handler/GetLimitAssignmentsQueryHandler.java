@@ -8,6 +8,9 @@ import com.tchalanet.server.core.limitpolicy.application.query.model.GetLimitAss
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @UseCase
 @Component
 @RequiredArgsConstructor
@@ -18,6 +21,29 @@ public class GetLimitAssignmentsQueryHandler implements QueryHandler<GetLimitAss
   @Override
   public GetLimitAssignmentsResult handle(GetLimitAssignmentsQuery query) {
     var assignments = reader.findActiveAssignmentsByTenantAndTarget(query.tenantId(), query.targetType(), query.targetId());
-    return new GetLimitAssignmentsResult(assignments);
+
+    var summaries = assignments.stream()
+        .map(assignment -> {
+          Optional<com.tchalanet.server.core.limitpolicy.domain.model.LimitDefinition> limitOpt = reader.findById(assignment.limitDefinitionId());
+          if (limitOpt.isEmpty()) {
+            return null; // skip if definition missing
+          }
+          var limit = limitOpt.get();
+          return new GetLimitAssignmentsResult.AssignmentSummary(
+              assignment.id(),
+              assignment.limitDefinitionId(),
+              limit.ruleKey(),
+              limit.enabled(),
+              limit.onBreach(),
+              limit.params(),
+              assignment.enabled(),
+              assignment.startsAt(),
+              assignment.endsAt()
+          );
+        })
+        .filter(java.util.Objects::nonNull)
+        .collect(Collectors.toList());
+
+    return new GetLimitAssignmentsResult(summaries);
   }
 }

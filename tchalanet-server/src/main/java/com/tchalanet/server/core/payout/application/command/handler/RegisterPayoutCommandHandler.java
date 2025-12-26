@@ -52,7 +52,7 @@ public class RegisterPayoutCommandHandler implements CommandHandler<RegisterPayo
     public RegisterPayoutResult handle(RegisterPayoutCommand command) {
         Instant now = Instant.now(clock);
         // Load ticket
-        Optional<Ticket> optTicket = ticketReaderPort.findWithLinesById(command.tenantId(), command.ticketId());
+        Optional<Ticket> optTicket = ticketReaderPort.findWithLinesById(command.ticketId());
         if (optTicket.isEmpty()) {
             throw new IllegalStateException("Ticket not found: " + command.ticketId());
         }

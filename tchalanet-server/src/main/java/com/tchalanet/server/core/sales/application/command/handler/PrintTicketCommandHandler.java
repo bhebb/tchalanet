@@ -27,7 +27,7 @@ public class PrintTicketCommandHandler implements CommandHandler<PrintTicketComm
 
     @Override
     public String handle(PrintTicketCommand cmd) {
-        Ticket ticket = ticketRepository.findWithLinesById(contextHolder.get().tenantid(), cmd.ticketId()).orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + cmd.ticketId()));
+        Ticket ticket = ticketRepository.findWithLinesById(cmd.ticketId()).orElseThrow(() -> new IllegalArgumentException("Ticket not found: " + cmd.ticketId()));
 
         PrintTicketModels.PrintTicketPayload payload = buildPayload(ticket);
 

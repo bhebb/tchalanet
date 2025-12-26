@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.session.infra.web;
+
 import com.tchalanet.server.common.types.id.SessionId;
 
 import com.tchalanet.server.common.bus.CommandBus;
@@ -31,7 +32,7 @@ public class PosSessionTotalsController {
     @GetMapping("/{sessionId}/totals")
     @RequiresPermission("session.read")
     public ResponseEntity<PosSessionTotals> getTotals(@PathVariable SessionId sessionId) {
-        var tenantId = ctxHolder.get().tenantUuid();
+        var tenantId = ctxHolder.get().tenantid();
 
         Optional<PosSessionTotals> opt = queryBus.send(new GetSessionTotalsQuery(tenantId, sessionId));
 
@@ -44,7 +45,7 @@ public class PosSessionTotalsController {
     @PostMapping("/{sessionId}/totals/recompute")
     @RequiresPermission("session.totals.recompute") // admin/manager only
     public ResponseEntity<PosSessionTotals> recompute(@PathVariable SessionId sessionId) {
-        var tenantId = ctxHolder.get().tenantUuid();
+        var tenantId = ctxHolder.get().tenantid();
 
         var totals = commandBus.send(new RecomputePosSessionTotalsCommand(tenantId, sessionId));
 

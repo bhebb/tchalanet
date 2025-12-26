@@ -43,8 +43,8 @@ public class ThemeController {
         @RequestParam(defaultValue = "false") boolean includeBase,
         @RequestParam(required = false) ThemeStatus status) {
 
-        TenantId tenantId = context.effectiveTenantUuid();
-        ThemeStatus effectiveStatus = status != null ? status : ThemeStatus.PUBLISHED;
+        var tenantId = context.tenantid();
+        var effectiveStatus = status != null ? status : ThemeStatus.PUBLISHED;
 
         var views =
             queryBus.send(new ListThemesQuery(tenantId, effectiveStatus, includeBase));
@@ -57,7 +57,7 @@ public class ThemeController {
     public ResponseEntity<ThemeView> getTheme(
         @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-        TenantId tenantId = context.effectiveTenantUuid();
+        var tenantId = context.tenantid();
         var theme = queryBus.send(new GetThemeByIdQuery(tenantId, id));
 
         return ResponseEntity.ok(theme);
@@ -71,7 +71,7 @@ public class ThemeController {
         @PathVariable UUID id,
         @RequestParam Integer version) {
 
-        TenantId tenantId = context.effectiveTenantUuid();
+        TenantId tenantId = context.tenantid();
 
         commandBus.send(new PublishThemeCommand(tenantId, id, version));
 
@@ -83,7 +83,7 @@ public class ThemeController {
     public ResponseEntity<Void> archiveTheme(
         @CurrentContext TchRequestContext context, @PathVariable UUID id) {
 
-        TenantId tenantId = context.effectiveTenantUuid();
+        TenantId tenantId = context.tenantid();
         commandBus.send(new ArchiveThemeCommand(tenantId, id));
 
         return ResponseEntity.noContent().build();

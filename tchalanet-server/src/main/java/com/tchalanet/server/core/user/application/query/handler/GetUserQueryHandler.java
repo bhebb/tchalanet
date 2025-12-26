@@ -17,7 +17,7 @@ public class GetUserQueryHandler implements QueryHandler<UserId, Optional<AppUse
     private final UserReaderPort repo;
 
     @Override
-    public Optional<AppUser> handle(UUID id) {
+    public Optional<AppUser> handle(UserId id) {
         return repo.findById(id);
     }
 }

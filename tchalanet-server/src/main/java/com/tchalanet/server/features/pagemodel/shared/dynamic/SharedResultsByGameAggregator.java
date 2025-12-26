@@ -51,8 +51,7 @@ public class SharedResultsByGameAggregator {
         );
 
         var nextByChannel = nextDraws.stream()
-            .collect(Collectors.toMap(
-                Draw::, // adapte selon ton modèle
+            .collect(Collectors.toMap(d -> d.drawChannel().id(),
                 d -> d
             ));
 

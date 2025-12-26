@@ -35,7 +35,7 @@ public class MarkTicketPaidCommandHandler implements CommandHandler<MarkTicketPa
     @Override
     @TchTx
     public Ticket handle(MarkTicketPaidCommand cmd) {
-        var ticket = ticketReader.findWithLinesById(cmd.tenantId(), cmd.ticketId())
+        var ticket = ticketReader.findWithLinesById(cmd.ticketId())
             .orElseThrow(() -> ProblemRestException.notFound("Ticket not found"));
 
         var now = Instant.now(clock);

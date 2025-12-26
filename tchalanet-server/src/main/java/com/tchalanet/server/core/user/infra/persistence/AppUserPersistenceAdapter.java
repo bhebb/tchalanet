@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.user.infra.persistence;
+
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.id.TenantId;
 
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Component
 public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort {
 
     private final JpaAppUserRepository jpa;
@@ -57,7 +60,7 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     }
 
     @Override
-    public void softDelete( UserId userId, Instant when) {
+    public void softDelete(UserId userId, Instant when) {
         jpa.findById(userId.uuid()).ifPresent(e -> {
             e.setDeletedAt(when);
             jpa.save(e);
@@ -72,7 +75,7 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     }
 
     @Override
-    public Page<AppUser> findByTenantId( TenantId tenantId, Pageable pageable) {
+    public Page<AppUser> findByTenantId(TenantId tenantId, Pageable pageable) {
         var page = jpa.findByTenantId(tenantId.uuid(), pageable);
         var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());
@@ -86,7 +89,7 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     }
 
     @Override
-    public Page<AppUser> findAllActiveUsersByTenant( TenantId tenantId, Pageable pageable) {
+    public Page<AppUser> findAllActiveUsersByTenant(TenantId tenantId, Pageable pageable) {
         var page = jpa.findByTenantIdAndStatusAndDeletedAtIsNull(tenantId.uuid(), UserStatus.ACTIVE.name(), pageable);
         var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());

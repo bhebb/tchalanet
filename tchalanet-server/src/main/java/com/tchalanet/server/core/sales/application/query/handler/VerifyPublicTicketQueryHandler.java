@@ -35,7 +35,7 @@ public class VerifyPublicTicketQueryHandler
         ticketReader
             .findByPublicCode(query.publicCode())
             .filter(t -> isVisible(t, now))
-            .flatMap(t -> ticketReader.findWithLinesById(t.getTenantId(), t.getId()));
+            .flatMap(t -> ticketReader.findWithLinesById(t.getId()));
 
     return ticket.map(this::toResult).orElse(null);
   }

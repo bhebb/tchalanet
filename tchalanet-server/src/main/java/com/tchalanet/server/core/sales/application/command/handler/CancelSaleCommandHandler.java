@@ -49,7 +49,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
     @Override
     @TchTx
     public CancelSaleResult handle(CancelSaleCommand cmd) {
-        var ticket = ticketReader.findWithLinesById(cmd.tenantId(), cmd.ticketId())
+        var ticket = ticketReader.findWithLinesById(cmd.ticketId())
             .orElseThrow(() -> ProblemRestException.notFound("Ticket not found"));
 
         // Limits and autonomy validation
