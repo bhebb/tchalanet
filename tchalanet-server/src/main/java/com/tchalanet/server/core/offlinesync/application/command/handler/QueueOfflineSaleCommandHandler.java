@@ -17,4 +17,3 @@ public class QueueOfflineSaleCommandHandler implements VoidCommandHandler<QueueO
     throw new UnsupportedOperationException("QueueOfflineSaleCommandHandler not implemented yet");
   }
 }
-

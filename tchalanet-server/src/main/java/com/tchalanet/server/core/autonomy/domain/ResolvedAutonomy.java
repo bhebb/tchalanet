@@ -1,17 +1,13 @@
 package com.tchalanet.server.core.autonomy.domain;
 
-
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
 
 /**
  * Resolved autonomy information for a specific transaction context.
  *
- * Contains the effective autonomy level and approval requirements
- * after evaluating the applicable autonomy policies.
+ * <p>Contains the effective autonomy level and approval requirements after evaluating the
+ * applicable autonomy policies.
  */
 public record ResolvedAutonomy(
-    AutonomyLevel level,
-    boolean requireApprovalOnBlock,
-    ApprovalRole approvalRole
-) {}
+    AutonomyLevel level, boolean requireApprovalOnBlock, ApprovalRole approvalRole) {}

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class UnregisterPosDeviceCommandHandler implements CommandHandler<UnregisterTerminalCommand, Terminal> {
+public class UnregisterPosDeviceCommandHandler
+    implements CommandHandler<UnregisterTerminalCommand, Terminal> {
 
   private final TerminalReaderPort reader;
   private final TerminalWriterPort writer;
@@ -22,8 +23,10 @@ public class UnregisterPosDeviceCommandHandler implements CommandHandler<Unregis
 
   @Override
   public Terminal handle(UnregisterTerminalCommand cmd) {
-    var t = reader.findById(cmd.tenantId(), cmd.terminalId())
-        .orElseThrow(() -> new IllegalStateException("Terminal not found"));
+    var t =
+        reader
+            .findById(cmd.tenantId(), cmd.terminalId())
+            .orElseThrow(() -> new IllegalStateException("Terminal not found"));
     var now = Instant.now(clock);
     // unregister = soft-delete; do not physically delete.
     return writer.save(t.unregister(cmd.actorId(), now));

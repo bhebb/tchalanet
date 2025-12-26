@@ -1,19 +1,18 @@
 package com.tchalanet.server.core.user.infra.persistence;
 
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.user.application.port.out.UserPreferenceReaderPort;
 import com.tchalanet.server.core.user.application.port.out.UserPreferenceWriterPort;
 import com.tchalanet.server.core.user.domain.model.UserPreference;
-import com.tchalanet.server.common.types.id.UserId;
-
 import java.time.Instant;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserPreferencePersistenceAdapter implements UserPreferenceReaderPort, UserPreferenceWriterPort {
+public class UserPreferencePersistenceAdapter
+    implements UserPreferenceReaderPort, UserPreferenceWriterPort {
 
   private final JpaUserPreferenceRepository jpaRepository;
 
@@ -28,23 +27,18 @@ public class UserPreferencePersistenceAdapter implements UserPreferenceReaderPor
     return findByUserId(userId);
   }
 
+  @Override
+  public UserPreference save(UserPreference preference) {
+    return null;
+  }
 
-    @Override
-    public UserPreference save(UserPreference preference) {
-        return null;
-    }
+  @Override
+  public void softDelete(UserId userId, Instant when) {}
 
-    @Override
-    public void softDelete(UserId userId, Instant when) {
+  @Override
+  public void upsert(UserId userId, String themeMode, Short density, String locale) {}
 
-    }
-
-    @Override
-    public void upsert(UserId userId, String themeMode, Short density, String locale) {
-
-    }
-
-    private UserPreference toDomain(UserPreferenceJpaEntity e) {
+  private UserPreference toDomain(UserPreferenceJpaEntity e) {
     UserPreference pref = new UserPreference();
     pref.setUserId(UserId.of(e.getUser().getId()));
     pref.setThemeMode(e.getThemeMode());

@@ -1,7 +1,4 @@
 package com.tchalanet.server.core.sales.infra.web.model;
-import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.types.enums.TicketStatus;
 import java.math.BigDecimal;

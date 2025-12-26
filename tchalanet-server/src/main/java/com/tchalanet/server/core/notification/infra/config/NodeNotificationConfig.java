@@ -9,13 +9,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableConfigurationProperties(NodeNotificationConfigProperties.class)
 class NodeNotificationConfig {
 
-    @Bean
-    WebClient nodeNotificationClient(NodeNotificationConfigProperties props, WebClient.Builder builder) {
-        return builder
-            .baseUrl(props.baseUrl())
-            .build();
-    }
+  @Bean
+  WebClient nodeNotificationClient(
+      NodeNotificationConfigProperties props, WebClient.Builder builder) {
+    return builder.baseUrl(props.baseUrl()).build();
+  }
 }
-
-
-

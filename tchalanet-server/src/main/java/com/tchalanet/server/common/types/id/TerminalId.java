@@ -9,18 +9,19 @@ public record TerminalId(UUID value) {
     if (value == null) throw new IllegalArgumentException("TerminalId.value is null");
   }
 
-  /**
-   * Static factory from UUID.
-   */
+  /** Static factory from UUID. */
   public static TerminalId of(UUID value) {
     return new TerminalId(value);
   }
 
   /** Return TerminalId or null if id is null */
-  public static TerminalId nullableOf(UUID id) { return id == null ? null : new TerminalId(id); }
+  public static TerminalId nullableOf(UUID id) {
+    return id == null ? null : new TerminalId(id);
+  }
 
   /**
    * Static factory from String representation of UUID.
+   *
    * @throws IllegalArgumentException if the string is not a valid UUID
    */
   public static TerminalId of(String id) {
@@ -37,5 +38,7 @@ public record TerminalId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

@@ -12,25 +12,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SalesLedgerListener {
 
-    private final RecordLedgerFromSalesPort ledgerPort;
+  private final RecordLedgerFromSalesPort ledgerPort;
 
-    @EventListener
-    public void onTicketPlaced(TicketPlacedEvent event) {
-        try {
-            ledgerPort.recordTicketSale(
-                event.tenantId(),
-                event.ticketId(),
-                event.stakeCents(),
-                event.occurredAt()
-            );
-        } catch (Exception e) {
-            log.error(
-                "Ledger recording failed for TicketPlacedEvent eventId={} tenantId={} ticketId={}",
-                event.eventId(),
-                event.tenantId().value(),
-                event.ticketId(),
-                e
-            );
-        }
+  @EventListener
+  public void onTicketPlaced(TicketPlacedEvent event) {
+    try {
+      ledgerPort.recordTicketSale(
+          event.tenantId(), event.ticketId(), event.stakeCents(), event.occurredAt());
+    } catch (Exception e) {
+      log.error(
+          "Ledger recording failed for TicketPlacedEvent eventId={} tenantId={} ticketId={}",
+          event.eventId(),
+          event.tenantId().value(),
+          event.ticketId(),
+          e);
     }
+  }
 }

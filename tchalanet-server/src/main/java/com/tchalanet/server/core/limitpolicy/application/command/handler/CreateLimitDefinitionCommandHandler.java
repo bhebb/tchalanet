@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 @Component
 @RequiredArgsConstructor
-public class CreateLimitDefinitionCommandHandler implements CommandHandler<CreateLimitDefinitionCommand, LimitDefinition> {
+public class CreateLimitDefinitionCommandHandler
+    implements CommandHandler<CreateLimitDefinitionCommand, LimitDefinition> {
 
   private final LimitDefinitionJpaRepository repo;
   private final LimitDefinitionMapper mapper;
@@ -21,16 +22,16 @@ public class CreateLimitDefinitionCommandHandler implements CommandHandler<Creat
   @Override
   @Transactional
   public LimitDefinition handle(CreateLimitDefinitionCommand cmd) {
-    LimitDefinition def = new LimitDefinition(
-        null, // id
-        cmd.tenantId(),
-        cmd.ruleKey(),
-        cmd.enabled(),
-        cmd.onBreach(),
-        cmd.params(),
-        new LimitDefinition.AppliesTo(cmd.betTypes(), cmd.selectionPattern()),
-        0L
-    );
+    LimitDefinition def =
+        new LimitDefinition(
+            null, // id
+            cmd.tenantId(),
+            cmd.ruleKey(),
+            cmd.enabled(),
+            cmd.onBreach(),
+            cmd.params(),
+            new LimitDefinition.AppliesTo(cmd.betTypes(), cmd.selectionPattern()),
+            0L);
     var entity = mapper.toEntity(def);
     entity = repo.save(entity);
     return mapper.toDomain(entity);

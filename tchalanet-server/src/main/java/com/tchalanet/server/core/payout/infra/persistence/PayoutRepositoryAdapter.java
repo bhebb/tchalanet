@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.payout.infra.persistence;
 
 import com.tchalanet.server.common.types.id.PayoutId;
-import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
 import com.tchalanet.server.core.payout.domain.model.Payout;
 import java.util.Optional;
@@ -16,12 +16,12 @@ public class PayoutRepositoryAdapter implements PayoutReaderPort {
   private final SpringPayoutJpaRepository jpaRepo;
 
   @Override
-  public Optional<Payout> findByTicketId( TicketId ticketId) {
+  public Optional<Payout> findByTicketId(TicketId ticketId) {
     return jpaRepo.findByTicketId(ticketId.uuid()).map(this::toDomain);
   }
 
   @Override
-  public Optional<Payout> findById( PayoutId payoutId) {
+  public Optional<Payout> findById(PayoutId payoutId) {
     return jpaRepo.findById(payoutId.uuid()).map(this::toDomain);
   }
 

@@ -5,4 +5,4 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 public record CloseDueDrawsCommand(@NotNull Instant now, int limit, boolean dryRun)
-implements Command<CloseDueDrawsResult> {}
+    implements Command<CloseDueDrawsResult> {}

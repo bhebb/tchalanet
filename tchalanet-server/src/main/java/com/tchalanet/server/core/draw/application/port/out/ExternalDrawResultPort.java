@@ -10,8 +10,8 @@ public interface ExternalDrawResultPort {
   ExternalDrawResult fetchExternalResult(DrawExternalQuery query);
 
   /** Query basée sur un SLOT (channel + date locale). */
-  record DrawExternalQuery(String channelCode, LocalDate drawDateLocal, Instant executedAt,
-                           boolean force) {
+  record DrawExternalQuery(
+      String channelCode, LocalDate drawDateLocal, Instant executedAt, boolean force) {
     public DrawExternalQuery {
       if (channelCode == null || channelCode.isBlank())
         throw new IllegalArgumentException("channelCode required");

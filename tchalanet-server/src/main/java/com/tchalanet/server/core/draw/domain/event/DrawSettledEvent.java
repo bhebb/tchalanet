@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.draw.domain.event;
-import com.tchalanet.server.common.types.id.DrawId;
 
 import com.tchalanet.server.common.event.DomainEvent;
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -14,5 +13,5 @@ public record DrawSettledEvent(
     DrawId drawId,
     String gameCode,
     Instant scheduledAt,
-    String channelCode) implements DomainEvent {}
-
+    String channelCode)
+    implements DomainEvent {}

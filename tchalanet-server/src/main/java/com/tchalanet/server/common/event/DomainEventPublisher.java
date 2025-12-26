@@ -7,4 +7,3 @@ public interface DomainEventPublisher {
 
   void publish(Collection<? extends DomainEvent> events);
 }
-

@@ -2,11 +2,10 @@ package com.tchalanet.server.core.outlet.infra.persistence;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,20 +14,23 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OutletPersistenceAdapter implements OutletReaderPort, OutletWriterPort, OutletLookupPort {
+public class OutletPersistenceAdapter
+    implements OutletReaderPort, OutletWriterPort, OutletLookupPort {
 
   private final OutletSpringRepository repo;
 
   @Override
-  public Optional<Outlet> findById(OutletId id,  TenantId tenantId) {
+  public Optional<Outlet> findById(OutletId id, TenantId tenantId) {
     return repo.findById(id.uuid())
         .filter(e -> tenantId.uuid().equals(e.getTenantId()))
         .map(this::toDomain);
   }
 
   @Override
-  public List<Outlet> findByTenantId( TenantId tenantId) {
-    return repo.findByTenantId(tenantId.uuid()).stream().map(this::toDomain).collect(Collectors.toList());
+  public List<Outlet> findByTenantId(TenantId tenantId) {
+    return repo.findByTenantId(tenantId.uuid()).stream()
+        .map(this::toDomain)
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -49,7 +51,21 @@ public class OutletPersistenceAdapter implements OutletReaderPort, OutletWriterP
   private Outlet toDomain(OutletEntity e) {
     OutletId oid = OutletId.of(e.getId());
     TenantId tid = e.getTenantId() == null ? null : TenantId.of(e.getTenantId());
-    return new Outlet(oid, tid, e.getName(), e.getSlug(), e.isDayClosed(), e.isSalesBlocked(), e.getSalesBlockReason(), e.getSalesBlockedAt(), e.getTimezone(), e.getBusinessDayCutoff(), e.isReceiptPrintingEnabled(), e.getReceiptHeaderMessage(), e.getReceiptFooterMessage(), e.isRequireOpeningFloat());
+    return new Outlet(
+        oid,
+        tid,
+        e.getName(),
+        e.getSlug(),
+        e.isDayClosed(),
+        e.isSalesBlocked(),
+        e.getSalesBlockReason(),
+        e.getSalesBlockedAt(),
+        e.getTimezone(),
+        e.getBusinessDayCutoff(),
+        e.isReceiptPrintingEnabled(),
+        e.getReceiptHeaderMessage(),
+        e.getReceiptFooterMessage(),
+        e.isRequireOpeningFloat());
   }
 
   private OutletEntity toEntity(Outlet o) {

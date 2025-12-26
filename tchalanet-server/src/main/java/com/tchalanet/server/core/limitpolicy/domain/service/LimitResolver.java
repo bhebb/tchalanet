@@ -1,5 +1,4 @@
 package com.tchalanet.server.core.limitpolicy.domain.service;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.common.types.enums.TargetType;
@@ -13,7 +12,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,21 +28,28 @@ public class LimitResolver {
     Map<RuleKey, LimitDefinition> resolved = new HashMap<>();
 
     // Group assignments by ruleKey
-    Map<RuleKey, List<LimitAssignment>> assignmentsByRule = assignments.stream()
-        .collect(java.util.stream.Collectors.groupingBy(a -> definitions.stream()
-            .filter(d -> d.id().equals(a.limitDefinitionId()))
-            .findFirst().map(LimitDefinition::ruleKey).orElse(null)));
+    Map<RuleKey, List<LimitAssignment>> assignmentsByRule =
+        assignments.stream()
+            .collect(
+                java.util.stream.Collectors.groupingBy(
+                    a ->
+                        definitions.stream()
+                            .filter(d -> d.id().equals(a.limitDefinitionId()))
+                            .findFirst()
+                            .map(LimitDefinition::ruleKey)
+                            .orElse(null)));
 
     for (LimitDefinition def : definitions) {
       if (!def.enabled()) continue;
 
       List<LimitAssignment> ruleAssignments = assignmentsByRule.get(def.ruleKey());
       if (ruleAssignments != null) {
-        LimitAssignment highestPriority = ruleAssignments.stream()
-            .filter(a -> a.enabled() && isActive(a, context.now()))
-            .filter(a -> matchesTarget(a, context))
-            .max(Comparator.comparingInt(a -> priority(a.targetType())))
-            .orElse(null);
+        LimitAssignment highestPriority =
+            ruleAssignments.stream()
+                .filter(a -> a.enabled() && isActive(a, context.now()))
+                .filter(a -> matchesTarget(a, context))
+                .max(Comparator.comparingInt(a -> priority(a.targetType())))
+                .orElse(null);
         if (highestPriority != null) {
           resolved.put(def.ruleKey(), def);
         }
@@ -55,8 +60,8 @@ public class LimitResolver {
   }
 
   private boolean isActive(LimitAssignment a, Instant now) {
-    return (a.startsAt() == null || !a.startsAt().isAfter(now)) &&
-           (a.endsAt() == null || !a.endsAt().isBefore(now));
+    return (a.startsAt() == null || !a.startsAt().isAfter(now))
+        && (a.endsAt() == null || !a.endsAt().isBefore(now));
   }
 
   private boolean matchesTarget(LimitAssignment a, LimitContext context) {

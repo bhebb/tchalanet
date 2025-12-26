@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.draw.infra.cache;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.cache.CacheKeyBuilder;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
-import java.util.UUID;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 

@@ -13,13 +13,15 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class ListPosDevicesByLocationQueryHandler implements QueryHandler<ListPosDevicesByLocationQuery, List<Terminal>> {
+public class ListPosDevicesByLocationQueryHandler
+    implements QueryHandler<ListPosDevicesByLocationQuery, List<Terminal>> {
 
   private final TerminalReaderPort readerPort;
 
   @Override
   public List<Terminal> handle(ListPosDevicesByLocationQuery query) {
     // For simplicity, fetch all, no paging
-    return readerPort.listByOutlet(query.tenantId(), query.outletId(), PageRequest.of(0, Integer.MAX_VALUE));
+    return readerPort.listByOutlet(
+        query.tenantId(), query.outletId(), PageRequest.of(0, Integer.MAX_VALUE));
   }
 }

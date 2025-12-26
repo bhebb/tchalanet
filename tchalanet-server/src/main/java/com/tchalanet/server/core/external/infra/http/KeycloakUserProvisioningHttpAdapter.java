@@ -32,13 +32,15 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
     String url = adminUrl + USERS_PATH;
 
     try {
-      String response = webClient.post()
-          .uri(url)
-          .contentType(MediaType.APPLICATION_JSON)
-          .body(BodyInserters.fromValue(payload))
-          .retrieve()
-          .bodyToMono(String.class) // Could be improved with a proper DTO
-          .block();
+      String response =
+          webClient
+              .post()
+              .uri(url)
+              .contentType(MediaType.APPLICATION_JSON)
+              .body(BodyInserters.fromValue(payload))
+              .retrieve()
+              .bodyToMono(String.class) // Could be improved with a proper DTO
+              .block();
 
       if (response == null) {
         log.warn("Keycloak user creation returned empty body for payload: {}", payload);
@@ -58,14 +60,11 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
   public void resetPassword(String userId, String newPassword) {
     String url = adminUrl + USERS_PATH + "/" + userId + "/reset-password";
 
-    Map<String, Object> body = Map.of(
-        "type", "password",
-        "temporary", false,
-        "value", newPassword
-    );
+    Map<String, Object> body = Map.of("type", "password", "temporary", false, "value", newPassword);
 
     try {
-      webClient.put()
+      webClient
+          .put()
           .uri(url)
           .contentType(MediaType.APPLICATION_JSON)
           .body(BodyInserters.fromValue(body))
@@ -80,7 +79,8 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
   }
 
   @Override
-  public void updateUserProfile(UUID keycloakId, String firstName, String lastName, String email, String locale) {
+  public void updateUserProfile(
+      UUID keycloakId, String firstName, String lastName, String email, String locale) {
     String url = adminUrl + USERS_PATH + "/" + keycloakId;
 
     Map<String, Object> body = new HashMap<>();
@@ -92,7 +92,8 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
     }
 
     try {
-      webClient.put()
+      webClient
+          .put()
           .uri(url)
           .contentType(MediaType.APPLICATION_JSON)
           .body(BodyInserters.fromValue(body))
@@ -117,7 +118,8 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
     }
 
     try {
-      webClient.put()
+      webClient
+          .put()
           .uri(url)
           .contentType(MediaType.APPLICATION_JSON)
           .body(BodyInserters.fromValue(body))

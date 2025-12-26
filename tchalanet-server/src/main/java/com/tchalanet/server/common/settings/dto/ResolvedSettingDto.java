@@ -8,5 +8,4 @@ public record ResolvedSettingDto(
     AppSettingValueType type,
     String value,
     String effectiveLevel // GLOBAL|TENANT|OUTLET|TERMINAL
-) {
-}
+    ) {}

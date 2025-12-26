@@ -12,4 +12,3 @@ public class StringToTenantIdConverter implements Converter<String, TenantId> {
     return TenantId.of(source);
   }
 }
-

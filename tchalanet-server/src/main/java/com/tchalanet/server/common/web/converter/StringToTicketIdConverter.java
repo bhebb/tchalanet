@@ -12,4 +12,3 @@ public class StringToTicketIdConverter implements Converter<String, TicketId> {
     return TicketId.of(source);
   }
 }
-

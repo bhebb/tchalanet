@@ -10,9 +10,7 @@ public record Money(BigDecimal amount, CurrencyCode currency) {
     if (currency == null) throw new IllegalArgumentException("Money.currency is null");
   }
 
-  /**
-   * Static factory for Money.
-   */
+  /** Static factory for Money. */
   public static Money of(BigDecimal amount, CurrencyCode currency) {
     return new Money(amount, currency);
   }

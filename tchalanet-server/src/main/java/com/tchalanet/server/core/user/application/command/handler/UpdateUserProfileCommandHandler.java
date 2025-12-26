@@ -12,26 +12,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
 @RequiredArgsConstructor
-public class UpdateUserProfileCommandHandler implements CommandHandler<UpdateUserProfileCommand, Void> {
+public class UpdateUserProfileCommandHandler
+    implements CommandHandler<UpdateUserProfileCommand, Void> {
 
-    private final UserReaderPort userReader;
-    private final UserWriterPort userWriter;
-    private final KeycloakUserProvisioningPort keycloakIdentityPort;
+  private final UserReaderPort userReader;
+  private final UserWriterPort userWriter;
+  private final KeycloakUserProvisioningPort keycloakIdentityPort;
 
-    @Override
-    @Transactional
-    public Void handle(UpdateUserProfileCommand command) {
-        AppUser existing =
-            userReader
-                .findById(command.userId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+  @Override
+  @Transactional
+  public Void handle(UpdateUserProfileCommand command) {
+    AppUser existing =
+        userReader
+            .findById(command.userId())
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        String updatedFirstName = command.firstName().orElse(existing.getFirstName());
-        String updatedLastName = command.lastName().orElse(existing.getLastName());
-        String updatedEmail = command.email().orElse(existing.getEmail());
-        String updatedLocale = command.locale().orElse(existing.getLocale());
+    String updatedFirstName = command.firstName().orElse(existing.getFirstName());
+    String updatedLastName = command.lastName().orElse(existing.getLastName());
+    String updatedEmail = command.email().orElse(existing.getEmail());
+    String updatedLocale = command.locale().orElse(existing.getLocale());
 
-        var updated = existing.syncProfile(
+    var updated =
+        existing.syncProfile(
             existing.getUsername(),
             updatedEmail,
             existing.getPhone(),
@@ -41,21 +43,15 @@ public class UpdateUserProfileCommandHandler implements CommandHandler<UpdateUse
             existing.getAvatarUrl(),
             updatedLocale,
             existing.getTimeZone(),
-            existing.getTenantCode()
-        );
+            existing.getTenantCode());
 
-        var saved = userWriter.save(updated);
+    var saved = userWriter.save(updated);
 
-        if (saved.getKeycloakId() != null) {
-            keycloakIdentityPort.updateUserProfile(
-                saved.getKeycloakId(),
-                updatedFirstName,
-                updatedLastName,
-                updatedEmail,
-                updatedLocale
-            );
-        }
-
-        return null;
+    if (saved.getKeycloakId() != null) {
+      keycloakIdentityPort.updateUserProfile(
+          saved.getKeycloakId(), updatedFirstName, updatedLastName, updatedEmail, updatedLocale);
     }
+
+    return null;
+  }
 }

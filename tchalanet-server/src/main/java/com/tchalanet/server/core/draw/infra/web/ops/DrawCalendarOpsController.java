@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.web.ops;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsResult;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
@@ -10,7 +10,6 @@ import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsComm
 import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsResult;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +41,8 @@ public class DrawCalendarOpsController {
       @RequestParam(defaultValue = "12") int openHorizonHours,
       @RequestParam(defaultValue = "6") int openLagHours,
       @RequestParam(defaultValue = "false") boolean dryRun) {
-    return commandBus.send(new OpenDueDrawsCommand(Instant.now(), limit, openHorizonHours, openLagHours, dryRun));
+    return commandBus.send(
+        new OpenDueDrawsCommand(Instant.now(), limit, openHorizonHours, openLagHours, dryRun));
   }
 
   @PostMapping("/close-due")

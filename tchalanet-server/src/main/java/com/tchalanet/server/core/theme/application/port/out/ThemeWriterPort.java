@@ -6,4 +6,3 @@ public interface ThemeWriterPort {
 
   Theme save(Theme theme);
 }
-

@@ -11,25 +11,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PayoutLedgerListener {
 
-    private final RecordLedgerFromPayoutPort ledgerPort;
+  private final RecordLedgerFromPayoutPort ledgerPort;
 
-    @EventListener
-    public void onPayoutRegistered(PayoutRegisteredEvent event) {
-        try {
-            ledgerPort.recordPayout(
-                event.tenantId(),
-                event.payoutId(),
-                event.amount(),
-                event.occurredAt()
-            );
-        } catch (Exception e) {
-            log.error(
-                "Ledger recording failed for PayoutRegisteredEvent eventId={} tenantId={} payoutId={}",
-                event.eventId(),
-                event.tenantId().value(),
-                event.payoutId(),
-                e
-            );
-        }
+  @EventListener
+  public void onPayoutRegistered(PayoutRegisteredEvent event) {
+    try {
+      ledgerPort.recordPayout(
+          event.tenantId(), event.payoutId(), event.amount(), event.occurredAt());
+    } catch (Exception e) {
+      log.error(
+          "Ledger recording failed for PayoutRegisteredEvent eventId={} tenantId={} payoutId={}",
+          event.eventId(),
+          event.tenantId().value(),
+          event.payoutId(),
+          e);
     }
+  }
 }

@@ -14,6 +14,4 @@ public record PayoutReportRow(
     String status,
     Instant createdAt,
     Instant approvedAt,
-    Instant paidAt
-) {}
-
+    Instant paidAt) {}

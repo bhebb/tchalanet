@@ -22,14 +22,14 @@ import org.hibernate.envers.Audited;
 @Setter
 @NoArgsConstructor
 public class UserPreferenceJpaEntity extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private AppUserJpaEntity user;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private AppUserJpaEntity user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "theme_mode")
-    private ThemeMode themeMode; // nullable
+  @Enumerated(EnumType.STRING)
+  @Column(name = "theme_mode")
+  private ThemeMode themeMode; // nullable
 
-    private Short density; // nullable
-    private String locale; // nullable
+  private Short density; // nullable
+  private String locale; // nullable
 }

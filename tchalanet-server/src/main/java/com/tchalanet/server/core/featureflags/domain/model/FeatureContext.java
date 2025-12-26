@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.featureflags.domain.model;
 
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.Map;
 import java.util.Objects;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.id.TerminalId;
 
 /**
  * Value Object representing the context for evaluating a feature flag. Contains attributes like

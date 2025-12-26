@@ -2,9 +2,7 @@ package com.tchalanet.server.core.notification.port;
 
 import com.tchalanet.server.core.notification.domain.SendNotificationPayload;
 
-/**
- * Port d'accès vers le service externe de notifications (serveur Node).
- */
+/** Port d'accès vers le service externe de notifications (serveur Node). */
 public interface NotificationGatewayPort {
 
   /**
@@ -14,4 +12,3 @@ public interface NotificationGatewayPort {
    */
   void send(SendNotificationPayload payload);
 }
-

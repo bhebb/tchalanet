@@ -12,4 +12,3 @@ public class StringToPayoutIdConverter implements Converter<String, PayoutId> {
     return PayoutId.of(source);
   }
 }
-

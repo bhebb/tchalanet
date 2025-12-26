@@ -11,26 +11,28 @@ import org.springframework.stereotype.Component;
 @UseCase
 @Component
 @RequiredArgsConstructor
-public class GetAutonomyPolicyRuleQueryHandler implements QueryHandler<GetAutonomyPolicyRuleQuery, GetAutonomyPolicyRuleResult> {
+public class GetAutonomyPolicyRuleQueryHandler
+    implements QueryHandler<GetAutonomyPolicyRuleQuery, GetAutonomyPolicyRuleResult> {
 
-    private final AutonomyPolicyRuleRepositoryPort repository;
+  private final AutonomyPolicyRuleRepositoryPort repository;
 
-    @Override
-    public GetAutonomyPolicyRuleResult handle(GetAutonomyPolicyRuleQuery query) {
-        var policy = repository.findByTarget(query.tenantId(), query.targetType(), query.targetId())
-                .orElseThrow(() -> new RuntimeException("Policy not found")); // or handle differently
+  @Override
+  public GetAutonomyPolicyRuleResult handle(GetAutonomyPolicyRuleQuery query) {
+    var policy =
+        repository
+            .findByTarget(query.tenantId(), query.targetType(), query.targetId())
+            .orElseThrow(() -> new RuntimeException("Policy not found")); // or handle differently
 
-        return new GetAutonomyPolicyRuleResult(
-                policy.id(),
-                policy.tenantId(),
-                policy.targetType(),
-                policy.targetId(),
-                policy.level(),
-                policy.requireApprovalOnBlock(),
-                policy.approvalRole(),
-                policy.enabled(),
-                policy.startsAt(),
-                policy.endsAt()
-        );
-    }
+    return new GetAutonomyPolicyRuleResult(
+        policy.id(),
+        policy.tenantId(),
+        policy.targetType(),
+        policy.targetId(),
+        policy.level(),
+        policy.requireApprovalOnBlock(),
+        policy.approvalRole(),
+        policy.enabled(),
+        policy.startsAt(),
+        policy.endsAt());
+  }
 }

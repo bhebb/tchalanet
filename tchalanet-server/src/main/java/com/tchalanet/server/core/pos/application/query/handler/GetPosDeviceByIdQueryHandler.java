@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GetPosDeviceByIdQueryHandler implements QueryHandler<GetPosDeviceByIdQuery, Optional<Terminal>> {
+public class GetPosDeviceByIdQueryHandler
+    implements QueryHandler<GetPosDeviceByIdQuery, Optional<Terminal>> {
 
   private final TerminalReaderPort readerPort;
 

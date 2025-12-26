@@ -13,11 +13,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WithdrawCashCommandHandler implements VoidCommandHandler<WithdrawCashCommand> {
 
-    private final LedgerWriterPort ledgerWriter;
+  private final LedgerWriterPort ledgerWriter;
 
-    @Override
-    public void handle(WithdrawCashCommand command) {
-        var entry = LedgerEntryFactory.createWithdraw(command.tenantId(), command.refId(), command.amount(), command.occurredAt());
-        ledgerWriter.append(entry);
-    }
+  @Override
+  public void handle(WithdrawCashCommand command) {
+    var entry =
+        LedgerEntryFactory.createWithdraw(
+            command.tenantId(), command.refId(), command.amount(), command.occurredAt());
+    ledgerWriter.append(entry);
+  }
 }

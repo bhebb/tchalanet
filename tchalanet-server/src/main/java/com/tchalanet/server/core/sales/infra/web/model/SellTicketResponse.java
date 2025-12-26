@@ -4,9 +4,4 @@ import java.util.List;
 import java.util.UUID;
 
 public record SellTicketResponse(
-    TicketResponse ticket,
-    String status,
-    List<LimitNotice> warnings,
-    UUID approvalRequestId
-) {}
-
+    TicketResponse ticket, String status, List<LimitNotice> warnings, UUID approvalRequestId) {}

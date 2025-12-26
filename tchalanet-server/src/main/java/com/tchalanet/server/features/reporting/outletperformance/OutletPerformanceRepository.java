@@ -2,30 +2,26 @@ package com.tchalanet.server.features.reporting.outletperformance;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
 public class OutletPerformanceRepository {
 
-    @PersistenceContext
-    private final EntityManager em;
+  @PersistenceContext private final EntityManager em;
 
-    public List<OutletPerformanceLineDto> findOutletPerformance(
-        UUID tenantId,
-        LocalDate fromDate,
-        LocalDate toDate,
-        String gameCode // null => tous jeux
-    ) {
-        LocalDate toExclusive = toDate.plusDays(1);
+  public List<OutletPerformanceLineDto> findOutletPerformance(
+      UUID tenantId, LocalDate fromDate, LocalDate toDate, String gameCode // null => tous jeux
+      ) {
+    LocalDate toExclusive = toDate.plusDays(1);
 
-        String sql = """
+    String sql =
+        """
             select
                 o.id                                        as outlet_id,
                 o.code                                      as outlet_code,
@@ -45,26 +41,27 @@ public class OutletPerformanceRepository {
             order by total_sales desc
             """;
 
-        var query = em.createNativeQuery(sql);
-        query.setParameter("tenantId", tenantId);
-        query.setParameter("fromDate", fromDate);
-        query.setParameter("toExclusive", toExclusive);
-        query.setParameter("gameCode", gameCode);
+    var query = em.createNativeQuery(sql);
+    query.setParameter("tenantId", tenantId);
+    query.setParameter("fromDate", fromDate);
+    query.setParameter("toExclusive", toExclusive);
+    query.setParameter("gameCode", gameCode);
 
-        @SuppressWarnings("unchecked")
-        List<Object[]> rows = query.getResultList();
+    @SuppressWarnings("unchecked")
+    List<Object[]> rows = query.getResultList();
 
-        return rows.stream()
-            .map(r -> new OutletPerformanceLineDto(
-                (UUID) r[0],
-                (String) r[1],
-                (String) r[2],
-                (String) r[3],
-                ((Number) r[4]).longValue(),
-                (BigDecimal) r[5],
-                (BigDecimal) r[6],
-                (BigDecimal) r[7]
-            ))
-            .toList();
-    }
+    return rows.stream()
+        .map(
+            r ->
+                new OutletPerformanceLineDto(
+                    (UUID) r[0],
+                    (String) r[1],
+                    (String) r[2],
+                    (String) r[3],
+                    ((Number) r[4]).longValue(),
+                    (BigDecimal) r[5],
+                    (BigDecimal) r[6],
+                    (BigDecimal) r[7]))
+        .toList();
+  }
 }

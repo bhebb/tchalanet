@@ -42,7 +42,8 @@ public class DrawResultsOpsController {
   @PostMapping("/fetch")
   @RequiresPermission("uslottery.refresh_results")
   public ResponseEntity<FetchDrawResultsResponse> fetch(
-      @CurrentContext TchRequestContext ctx, @RequestBody(required = false) FetchDrawResultsRequest req)
+      @CurrentContext TchRequestContext ctx,
+      @RequestBody(required = false) FetchDrawResultsRequest req)
       throws Exception {
 
     if (req == null) {
@@ -126,7 +127,7 @@ public class DrawResultsOpsController {
   public record FetchDrawResultsRequest(
       String channelCode,
       @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "drawDate must be YYYY-MM-DD")
-      String drawDate,
+          String drawDate,
       boolean force,
       @Min(0) @Max(14) int daysBack,
       @Min(1) @Max(5000) int maxDraws,

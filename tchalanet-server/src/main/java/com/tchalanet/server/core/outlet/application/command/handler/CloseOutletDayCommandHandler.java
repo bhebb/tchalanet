@@ -1,21 +1,20 @@
 package com.tchalanet.server.core.outlet.application.command.handler;
 
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.core.outlet.application.command.model.CloseDayMode;
 import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDayCommand;
 import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDayPayload;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.application.port.out.SessionAdminPort;
 import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
+import com.tchalanet.server.core.outlet.application.port.out.SessionAdminPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
@@ -33,7 +32,9 @@ public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOut
     var outletId = cmd.outletId();
 
     CloseOutletDayPayload payload = cmd.payload();
-    if (payload == null) payload = new CloseOutletDayPayload(LocalDate.now(), LocalDate.now(), CloseDayMode.STRICT, null);
+    if (payload == null)
+      payload =
+          new CloseOutletDayPayload(LocalDate.now(), LocalDate.now(), CloseDayMode.STRICT, null);
 
     CloseDayMode mode = payload.getMode() == null ? CloseDayMode.STRICT : payload.getMode();
 
@@ -65,7 +66,10 @@ public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOut
 
     // mark outlet closed in domain and persist (also block sales)
     Outlet outlet = outletReader.getRequired(outletId, tenantId);
-    String reason = payload.getReason() == null || payload.getReason().isBlank() ? "closed_by_outlet_day" : payload.getReason();
+    String reason =
+        payload.getReason() == null || payload.getReason().isBlank()
+            ? "closed_by_outlet_day"
+            : payload.getReason();
     Outlet updated = outlet.closeDay().withSalesBlocked(true, reason, Instant.now());
     outletWriter.save(updated);
   }

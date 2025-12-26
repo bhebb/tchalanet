@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ListThemesQueryHandler
-    implements QueryHandler<ListThemesQuery, List<ThemeView>> {
+public class ListThemesQueryHandler implements QueryHandler<ListThemesQuery, List<ThemeView>> {
 
   private final ThemeReaderPort themeReaderPort;
 
@@ -21,4 +20,3 @@ public class ListThemesQueryHandler
     return themes.stream().map(ThemeView::fromDomain).toList();
   }
 }
-

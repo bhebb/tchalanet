@@ -10,7 +10,6 @@ import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPo
 import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
 import com.tchalanet.server.core.session.domain.event.SessionClosedEvent;
 import com.tchalanet.server.core.session.domain.model.PosSession;
-import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
@@ -22,49 +21,50 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCommand, PosSession> {
 
-    private final PosSessionReaderPort sessionReader;
-    private final PosSessionWriterPort sessionWriter;
-    private final DomainEventPublisher domainEventPublisher;
-    private final Clock clock;
+  private final PosSessionReaderPort sessionReader;
+  private final PosSessionWriterPort sessionWriter;
+  private final DomainEventPublisher domainEventPublisher;
+  private final Clock clock;
 
-    @Override
-    @TchTx
-    public PosSession handle(CloseSessionCommand command) {
-        var existing =
-            sessionReader
-                .findById(command.sessionId().value())
-                .orElseThrow(() -> new IllegalStateException("PosSession not found: " + command.sessionId()));
+  @Override
+  @TchTx
+  public PosSession handle(CloseSessionCommand command) {
+    var existing =
+        sessionReader
+            .findById(command.sessionId().value())
+            .orElseThrow(
+                () -> new IllegalStateException("PosSession not found: " + command.sessionId()));
 
-        // idempotent
-        if (existing.closedAt() != null) {
-            return existing;
-        }
-
-        var now = Instant.now(clock);
-        var closed = existing.close(command.closingAmount(), now);
-        var saved = sessionWriter.save(closed);
-
-        Long closingAmountCents = toCentsOrNull(command.closingAmount());
-
-        var event =
-            new SessionClosedEvent(
-                UUID.randomUUID(),
-                now,
-                new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().uuid()),
-                saved.id(),
-                saved.outletId(),
-                saved.userId(),
-                saved.openedAt(),
-                saved.closedAt(),
-                closingAmountCents);
-
-        AfterCommit.run(() -> domainEventPublisher.publish(event));
-
-        return saved;
+    // idempotent
+    if (existing.closedAt() != null) {
+      return existing;
     }
 
-    private static Long toCentsOrNull(BigDecimal amount) {
-        if (amount == null) return null;
-        return amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP).longValueExact();
-    }
+    var now = Instant.now(clock);
+    var closed = existing.close(command.closingAmount(), now);
+    var saved = sessionWriter.save(closed);
+
+    Long closingAmountCents = toCentsOrNull(command.closingAmount());
+
+    var event =
+        new SessionClosedEvent(
+            UUID.randomUUID(),
+            now,
+            new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().uuid()),
+            saved.id(),
+            saved.outletId(),
+            saved.userId(),
+            saved.openedAt(),
+            saved.closedAt(),
+            closingAmountCents);
+
+    AfterCommit.run(() -> domainEventPublisher.publish(event));
+
+    return saved;
+  }
+
+  private static Long toCentsOrNull(BigDecimal amount) {
+    if (amount == null) return null;
+    return amount.movePointRight(2).setScale(0, RoundingMode.HALF_UP).longValueExact();
+  }
 }

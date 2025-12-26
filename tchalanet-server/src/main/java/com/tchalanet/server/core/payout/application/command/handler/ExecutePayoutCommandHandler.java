@@ -6,23 +6,23 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
-import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
 import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
+import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
 import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
 import com.tchalanet.server.core.payout.application.command.model.ExecutePayoutCommand;
 import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
 import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
-import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.payout.domain.model.Payout;
 import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +54,8 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
       return payout;
     }
 
-    if (payout.getStatus() != PayoutStatus.APPROVED && payout.getStatus() != PayoutStatus.REQUESTED) {
+    if (payout.getStatus() != PayoutStatus.APPROVED
+        && payout.getStatus() != PayoutStatus.REQUESTED) {
       throw new IllegalStateException("Payout is not approved for execution: " + payout.getId());
     }
 
@@ -82,24 +83,26 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
     BigDecimal amount = BigDecimal.valueOf(saved.getAmountCents(), 2);
 
     // ledger entry — use domain enums and TenantId wrapper
-    LedgerEntry entry = LedgerEntry.create(
-        saved.getTenantId(),
-        LedgerRefType.PAYOUT,
-        saved.getId().uuid(),
-        amount,
-        LedgerDirection.DEBIT,
-        now);
+    LedgerEntry entry =
+        LedgerEntry.create(
+            saved.getTenantId(),
+            LedgerRefType.PAYOUT,
+            saved.getId().uuid(),
+            amount,
+            LedgerDirection.DEBIT,
+            now);
     ledgerWriter.append(entry);
 
     // publish event
-    PayoutRegisteredEvent event = new PayoutRegisteredEvent(
-        UUID.randomUUID(),
-        Instant.now(clock),
-        saved.getTenantId(),
-        saved.getId(),
-        saved.getTicketId(),
-        null,
-        amount);
+    PayoutRegisteredEvent event =
+        new PayoutRegisteredEvent(
+            UUID.randomUUID(),
+            Instant.now(clock),
+            saved.getTenantId(),
+            saved.getId(),
+            saved.getTicketId(),
+            null,
+            amount);
     domainEventPublisher.publish(event);
 
     log.info("Executed payout {} for ticket {}", saved.getId(), saved.getTicketId());

@@ -1,8 +1,6 @@
 package com.tchalanet.server.common.types.enums;
 
-/**
- * Types métier de notifications.
- */
+/** Types métier de notifications. */
 public enum NotificationType {
   /** Envoi d'un reçu de ticket. */
   TICKET_RECEIPT,

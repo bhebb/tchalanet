@@ -4,12 +4,4 @@ import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import java.util.UUID;
 
 public record PageModelAdminUpsertRequest(
-    UUID id,
-    String logicalId,
-    String scope,
-    String slug,
-    Integer schemaVersion,
-    PageModel model
-) {
-}
-
+    UUID id, String logicalId, String scope, String slug, Integer schemaVersion, PageModel model) {}

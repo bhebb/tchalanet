@@ -58,7 +58,8 @@ public class SecurityConfig {
                     .hasRole("SUPER_ADMIN")
                     .requestMatchers("/api/admin/**")
                     .hasAnyRole("TENANT_ADMIN", "SUPER_ADMIN")
-                    // secure app-settings, i18n-overrides, games, themes, agents, roles, permissions, tenant-users
+                    // secure app-settings, i18n-overrides, games, themes, agents, roles,
+                    // permissions, tenant-users
                     .requestMatchers(
                         "/admin/app-settings/**",
                         "/admin/i18n-overrides/**",

@@ -22,8 +22,10 @@ public class LockPosDeviceCommandHandler implements CommandHandler<LockTerminalC
 
   @Override
   public Terminal handle(LockTerminalCommand cmd) {
-    var t = reader.findById(cmd.tenantId(), cmd.terminalId())
-        .orElseThrow(() -> new IllegalStateException("Terminal not found"));
+    var t =
+        reader
+            .findById(cmd.tenantId(), cmd.terminalId())
+            .orElseThrow(() -> new IllegalStateException("Terminal not found"));
     var now = Instant.now(clock);
     var locked = t.lock(cmd.actorId(), cmd.reason(), now);
     return writer.save(locked);

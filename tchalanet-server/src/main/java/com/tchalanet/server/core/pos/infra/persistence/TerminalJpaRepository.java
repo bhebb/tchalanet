@@ -14,6 +14,8 @@ public interface TerminalJpaRepository extends JpaRepository<TerminalJpaEntity, 
 
   Optional<TerminalJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
 
-  @Query("SELECT t FROM TerminalJpaEntity t WHERE t.tenantId = :tenantId AND t.outletId = :outletId AND t.deletedAt IS NULL")
-  List<TerminalJpaEntity> findAllByTenantIdAndOutletIdAndDeletedAtIsNull(@Param("tenantId") UUID tenantId, @Param("outletId") UUID outletId, Pageable pageable);
+  @Query(
+      "SELECT t FROM TerminalJpaEntity t WHERE t.tenantId = :tenantId AND t.outletId = :outletId AND t.deletedAt IS NULL")
+  List<TerminalJpaEntity> findAllByTenantIdAndOutletIdAndDeletedAtIsNull(
+      @Param("tenantId") UUID tenantId, @Param("outletId") UUID outletId, Pageable pageable);
 }

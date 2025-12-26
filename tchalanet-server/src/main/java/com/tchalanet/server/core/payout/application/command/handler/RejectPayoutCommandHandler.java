@@ -7,28 +7,27 @@ import com.tchalanet.server.core.payout.application.command.model.RejectPayoutCo
 import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
 import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
 import com.tchalanet.server.core.payout.domain.model.Payout;
-import lombok.RequiredArgsConstructor;
-
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class RejectPayoutCommandHandler implements VoidCommandHandler<RejectPayoutCommand> {
 
+  private final PayoutReaderPort reader;
+  private final PayoutWriterPort writer;
 
-    private final PayoutReaderPort reader;
-    private final PayoutWriterPort writer;
-
-
-    @Override
-    @TchTx
-    public void handle(RejectPayoutCommand cmd) {
-        Payout payout = reader.findById(cmd.payoutId())
+  @Override
+  @TchTx
+  public void handle(RejectPayoutCommand cmd) {
+    Payout payout =
+        reader
+            .findById(cmd.payoutId())
             .orElseThrow(() -> new IllegalArgumentException("Payout not found"));
 
-        var when = cmd.rejectedAt() == null ? Instant.now() : cmd.rejectedAt();
-        payout.reject(cmd.reason(), when);
+    var when = cmd.rejectedAt() == null ? Instant.now() : cmd.rejectedAt();
+    payout.reject(cmd.reason(), when);
 
-        writer.save(payout);
-    }
+    writer.save(payout);
+  }
 }

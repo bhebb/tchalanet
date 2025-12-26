@@ -10,19 +10,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TenantCacheEvictListener {
 
-    @PostPersist
-    @PostUpdate
-    public void onChange(TenantJpaEntity entity) {
-        if (entity == null) return;
-        try {
-            var cache = SpringContextHolder.getBean(TenantCache.class);
-            if (cache == null) return;
+  @PostPersist
+  @PostUpdate
+  public void onChange(TenantJpaEntity entity) {
+    if (entity == null) return;
+    try {
+      var cache = SpringContextHolder.getBean(TenantCache.class);
+      if (cache == null) return;
 
-            var  codeLower = entity.getCode() == null ? null : entity.getCode().trim().toLowerCase();
-            cache.evictAfterCommit(TenantId.of(entity.getId()), codeLower);
+      var codeLower = entity.getCode() == null ? null : entity.getCode().trim().toLowerCase();
+      cache.evictAfterCommit(TenantId.of(entity.getId()), codeLower);
 
-        } catch (Exception ex) {
-            log.error("Tenant cache evict failed: {}", ex.getMessage(), ex);
-        }
+    } catch (Exception ex) {
+      log.error("Tenant cache evict failed: {}", ex.getMessage(), ex);
     }
+  }
 }

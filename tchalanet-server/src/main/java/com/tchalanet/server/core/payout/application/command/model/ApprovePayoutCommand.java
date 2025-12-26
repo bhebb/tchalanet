@@ -4,5 +4,4 @@ import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TenantId;
 
-public record ApprovePayoutCommand(TenantId tenantId, PayoutId payoutId) implements Command<Void> {
-}
+public record ApprovePayoutCommand(TenantId tenantId, PayoutId payoutId) implements Command<Void> {}

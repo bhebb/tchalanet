@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,10 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ConditionalOnProperty(name = "tch.cache.redis.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(
+    name = "tch.cache.redis.enabled",
+    havingValue = "true",
+    matchIfMissing = false)
 public class RedisConfig {
 
   private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
@@ -79,9 +81,7 @@ public class RedisConfig {
     if (specProviders != null) {
       specProviders.stream()
           .flatMap(p -> p.cacheSpecs().stream())
-          .forEach(
-              spec ->
-                  perCacheCfg.put(spec.name(), defaultCfg.entryTtl(spec.ttlL2())));
+          .forEach(spec -> perCacheCfg.put(spec.name(), defaultCfg.entryTtl(spec.ttlL2())));
     }
 
     return RedisCacheManager.builder(connectionFactory)

@@ -11,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 @Component
 @RequiredArgsConstructor
-public class DeleteLimitDefinitionCommandHandler implements CommandHandler<DeleteLimitDefinitionCommand, Void> {
+public class DeleteLimitDefinitionCommandHandler
+    implements CommandHandler<DeleteLimitDefinitionCommand, Void> {
 
   private final LimitDefinitionJpaRepository repo;
 

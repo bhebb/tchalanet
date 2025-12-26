@@ -10,12 +10,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GetOfflineSyncSettingsQueryHandler implements QueryHandler<GetOfflineSyncSettingsQuery, Map<String,Object>> {
+public class GetOfflineSyncSettingsQueryHandler
+    implements QueryHandler<GetOfflineSyncSettingsQuery, Map<String, Object>> {
 
   @Override
-  public Map<String,Object> handle(GetOfflineSyncSettingsQuery query) {
+  public Map<String, Object> handle(GetOfflineSyncSettingsQuery query) {
     // TODO: return settings
-    throw new UnsupportedOperationException("GetOfflineSyncSettingsQueryHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "GetOfflineSyncSettingsQueryHandler not implemented yet");
   }
 }
-

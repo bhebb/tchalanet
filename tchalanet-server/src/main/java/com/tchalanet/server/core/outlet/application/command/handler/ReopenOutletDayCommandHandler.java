@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.outlet.application.command.handler;
 
-import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.outlet.application.command.model.ReopenOutletDayCommand;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;

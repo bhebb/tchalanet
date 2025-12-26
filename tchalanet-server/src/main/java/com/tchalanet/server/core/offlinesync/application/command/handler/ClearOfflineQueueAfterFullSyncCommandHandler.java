@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class ClearOfflineQueueAfterFullSyncCommandHandler implements VoidCommandHandler<ClearOfflineQueueAfterFullSyncCommand> {
+public class ClearOfflineQueueAfterFullSyncCommandHandler
+    implements VoidCommandHandler<ClearOfflineQueueAfterFullSyncCommand> {
 
   @Override
   public void handle(ClearOfflineQueueAfterFullSyncCommand command) {
     // TODO: clear queue after full sync
-    throw new UnsupportedOperationException("ClearOfflineQueueAfterFullSyncCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "ClearOfflineQueueAfterFullSyncCommandHandler not implemented yet");
   }
 }
-

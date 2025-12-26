@@ -2,10 +2,10 @@ package com.tchalanet.server.core.accesscontrol.infra.security;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
-import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
+import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
 import java.util.Arrays;
 import java.util.Set;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -15,9 +15,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-/**
- * Aspect centralisant l'application de @RequiresPermission sur les controllers.
- */
+/** Aspect centralisant l'application de @RequiresPermission sur les controllers. */
 @Aspect
 @Component
 public class RequiresPermissionAspect {

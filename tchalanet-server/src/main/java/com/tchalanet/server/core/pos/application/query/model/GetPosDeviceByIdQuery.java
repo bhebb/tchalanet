@@ -6,4 +6,5 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.core.pos.domain.model.Terminal;
 import java.util.Optional;
 
-public record GetPosDeviceByIdQuery(TenantId tenantId, TerminalId deviceId) implements Query<Optional<Terminal>> {}
+public record GetPosDeviceByIdQuery(TenantId tenantId, TerminalId deviceId)
+    implements Query<Optional<Terminal>> {}

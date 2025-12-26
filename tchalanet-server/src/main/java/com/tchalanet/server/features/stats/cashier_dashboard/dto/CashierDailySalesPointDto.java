@@ -4,8 +4,4 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record CashierDailySalesPointDto(
-    LocalDate date,
-    BigDecimal totalSales,
-    BigDecimal totalPayout
-) {}
-
+    LocalDate date, BigDecimal totalSales, BigDecimal totalPayout) {}

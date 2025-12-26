@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class RevokePermissionFromRoleCommandHandler implements CommandHandler<RevokePermissionFromRoleCommand, Boolean> {
+public class RevokePermissionFromRoleCommandHandler
+    implements CommandHandler<RevokePermissionFromRoleCommand, Boolean> {
 
   private final RolePermissionAdminPort rolePermissionAdminPort;
 
@@ -17,4 +18,3 @@ public class RevokePermissionFromRoleCommandHandler implements CommandHandler<Re
     return rolePermissionAdminPort.revoke(command.roleId(), command.permissionCode());
   }
 }
-

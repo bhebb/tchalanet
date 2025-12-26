@@ -4,9 +4,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
-/**
- * Helper mapper for converting between UUID and TenantId wrapper used across MapStruct mappers.
- */
+/** Helper mapper for converting between UUID and TenantId wrapper used across MapStruct mappers. */
 @Component
 public class TenantIdMapper {
 
@@ -18,4 +16,3 @@ public class TenantIdMapper {
     return id == null ? null : TenantId.of(id);
   }
 }
-

@@ -13,7 +13,4 @@ public record ReplaceUserRequest(
     String avatarUrl,
     String status,
     String locale,
-    String timeZone
-) {
-}
-
+    String timeZone) {}

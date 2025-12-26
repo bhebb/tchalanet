@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class QueueOfflineCancelCommandHandler implements VoidCommandHandler<QueueOfflineCancelCommand> {
+public class QueueOfflineCancelCommandHandler
+    implements VoidCommandHandler<QueueOfflineCancelCommand> {
 
   @Override
   public void handle(QueueOfflineCancelCommand command) {
@@ -17,4 +18,3 @@ public class QueueOfflineCancelCommandHandler implements VoidCommandHandler<Queu
     throw new UnsupportedOperationException("QueueOfflineCancelCommandHandler not implemented yet");
   }
 }
-

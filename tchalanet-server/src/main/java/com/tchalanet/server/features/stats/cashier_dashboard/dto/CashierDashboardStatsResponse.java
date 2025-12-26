@@ -8,5 +8,4 @@ public record CashierDashboardStatsResponse(
     LocalDate toDate,
     CashierSummaryCardDto summary,
     List<CashierGameBreakdownItemDto> gameBreakdown,
-    List<CashierDailySalesPointDto> dailySales
-) {}
+    List<CashierDailySalesPointDto> dailySales) {}

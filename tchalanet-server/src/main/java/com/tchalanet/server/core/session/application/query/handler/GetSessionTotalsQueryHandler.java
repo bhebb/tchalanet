@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GetSessionTotalsQueryHandler implements QueryHandler<GetSessionTotalsQuery, Optional<PosSessionTotals>> {
+public class GetSessionTotalsQueryHandler
+    implements QueryHandler<GetSessionTotalsQuery, Optional<PosSessionTotals>> {
 
   private final PosSessionTotalsReaderPort totalsReader;
 

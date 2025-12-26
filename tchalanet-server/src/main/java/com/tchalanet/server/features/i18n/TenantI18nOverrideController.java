@@ -17,18 +17,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TenantI18nOverrideController {
 
-    private final TenantI18nOverrideService service;
+  private final TenantI18nOverrideService service;
 
-    @GetMapping
-    public Page<I18nOverrideEntity> listAllForTenant(
-        @PageableDefault(size = 20, sort = "i18nKey") Pageable pageable, @CurrentContext TchRequestContext context) {
+  @GetMapping
+  public Page<I18nOverrideEntity> listAllForTenant(
+      @PageableDefault(size = 20, sort = "i18nKey") Pageable pageable,
+      @CurrentContext TchRequestContext context) {
 
-        return service.pageByTenant(context.tenantUuid(), pageable);
-    }
+    return service.pageByTenant(context.tenantUuid(), pageable);
+  }
 
-    @GetMapping("/{locale}")
-    public Page<I18nOverrideEntity> listForTenantAndLocale(@PathVariable String locale,
-                                                           @PageableDefault(size = 20, sort = "i18nKey") Pageable pageable, @CurrentContext TchRequestContext context) {
-        return service.pageByTenantAndLocale(context.tenantUuid(), locale, pageable);
-    }
+  @GetMapping("/{locale}")
+  public Page<I18nOverrideEntity> listForTenantAndLocale(
+      @PathVariable String locale,
+      @PageableDefault(size = 20, sort = "i18nKey") Pageable pageable,
+      @CurrentContext TchRequestContext context) {
+    return service.pageByTenantAndLocale(context.tenantUuid(), locale, pageable);
+  }
 }

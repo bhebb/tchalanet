@@ -1,4 +1,3 @@
 package com.tchalanet.server.core.tenant.infra;
 
-public class listenet {
-}
+public class listenet {}

@@ -1,5 +1,4 @@
 package com.tchalanet.server.core.user.application.command.handler;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -15,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 @UseCase
 @RequiredArgsConstructor
 public class EnsureUserExistsForPrincipalCommandHandler
-    implements CommandHandler<EnsureUserExistsForPrincipalCommand, EnsureUserExistsForPrincipalResult> {
+    implements CommandHandler<
+        EnsureUserExistsForPrincipalCommand, EnsureUserExistsForPrincipalResult> {
 
   private final UserReaderPort userReaderPort;
   private final UserWriterPort userWriterPort;
@@ -35,42 +35,42 @@ public class EnsureUserExistsForPrincipalCommandHandler
         throw new IllegalStateException("Tenant mismatch for user " + user.getId());
       }
 
-      var updated = user.syncProfile(
-          command.username(),
-          command.email(),
-          command.phone(),
-          command.firstName(),
-          command.lastName(),
-          command.displayName(),
-          null, // avatarUrl non fourni dans la command V1
-          command.locale(),
-          command.timeZone(),
-          command.tenantCode()
-      ).touchLogin(now);
+      var updated =
+          user.syncProfile(
+                  command.username(),
+                  command.email(),
+                  command.phone(),
+                  command.firstName(),
+                  command.lastName(),
+                  command.displayName(),
+                  null, // avatarUrl non fourni dans la command V1
+                  command.locale(),
+                  command.timeZone(),
+                  command.tenantCode())
+              .touchLogin(now);
 
       var saved = userWriterPort.save(updated);
       return new EnsureUserExistsForPrincipalResult(false, saved.getId());
     }
 
-    var newUser = AppUser.createNew(
-        null,
-        command.keycloakId(),
-        tenantId,
-        command.tenantCode(),
-        command.username(),
-        command.email(),
-        command.phone(),
-        command.firstName(),
-        command.lastName(),
-        command.displayName(),
-        null, // avatarUrl
-        command.locale(),
-        command.timeZone(),
-        now
-    );
+    var newUser =
+        AppUser.createNew(
+            null,
+            command.keycloakId(),
+            tenantId,
+            command.tenantCode(),
+            command.username(),
+            command.email(),
+            command.phone(),
+            command.firstName(),
+            command.lastName(),
+            command.displayName(),
+            null, // avatarUrl
+            command.locale(),
+            command.timeZone(),
+            now);
 
     var saved = userWriterPort.save(newUser);
     return new EnsureUserExistsForPrincipalResult(true, saved.getId());
   }
 }
-

@@ -12,6 +12,4 @@ public record PageModelAdminListItemDto(
     Integer schemaVersion,
     String title,
     List<String> langs,
-    Instant updatedAt
-) {
-}
+    Instant updatedAt) {}

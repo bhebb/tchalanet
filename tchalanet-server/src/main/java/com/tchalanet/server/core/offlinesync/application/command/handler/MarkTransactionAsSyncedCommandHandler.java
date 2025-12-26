@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class MarkTransactionAsSyncedCommandHandler implements VoidCommandHandler<MarkTransactionAsSyncedCommand> {
+public class MarkTransactionAsSyncedCommandHandler
+    implements VoidCommandHandler<MarkTransactionAsSyncedCommand> {
 
   @Override
   public void handle(MarkTransactionAsSyncedCommand command) {
     // TODO: mark transaction as synced in queue
-    throw new UnsupportedOperationException("MarkTransactionAsSyncedCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "MarkTransactionAsSyncedCommandHandler not implemented yet");
   }
 }
-

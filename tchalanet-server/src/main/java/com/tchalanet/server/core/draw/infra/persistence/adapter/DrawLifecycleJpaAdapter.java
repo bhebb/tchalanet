@@ -19,15 +19,16 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   private final DrawJpaRepository repo;
 
   @Override
-  public List<OpenableDrawRow> findOpenable(Instant now, int limit, int openHorizonHours, int openLagHours) {
+  public List<OpenableDrawRow> findOpenable(
+      Instant now, int limit, int openHorizonHours, int openLagHours) {
     return repo.findOpenable(now, limit, openHorizonHours, openLagHours).stream()
         .map(this::mapOpenableRow)
         .toList();
   }
 
   private OpenableDrawRow mapOpenableRow(Object[] row) {
-     TenantId tenantId = TenantId.of((UUID) row[0]);
-     DrawId drawId = DrawId.of((UUID) row[1]);
+    TenantId tenantId = TenantId.of((UUID) row[0]);
+    DrawId drawId = DrawId.of((UUID) row[1]);
     Boolean locked = row[2] == null ? Boolean.FALSE : (Boolean) row[2];
     Instant scheduledAt = row[3] == null ? null : (Instant) row[3];
     Integer cutoffSec = null;
@@ -37,7 +38,8 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
       if (o instanceof Number) cutoffSec = ((Number) o).intValue();
       else cutoffSec = Integer.parseInt(o.toString());
     }
-    return new OpenableDrawRow(tenantId, drawId, locked, scheduledAt, cutoffSec == null ? 0 : cutoffSec);
+    return new OpenableDrawRow(
+        tenantId, drawId, locked, scheduledAt, cutoffSec == null ? 0 : cutoffSec);
   }
 
   @Override
@@ -54,8 +56,8 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   }
 
   private DueToCloseRow mapDueToCloseRow(Object[] row) {
-     TenantId tenantId = TenantId.of((UUID) row[0]);
-     DrawId drawId = DrawId.of((UUID) row[1]);
+    TenantId tenantId = TenantId.of((UUID) row[0]);
+    DrawId drawId = DrawId.of((UUID) row[1]);
     Boolean locked = row[2] == null ? Boolean.FALSE : (Boolean) row[2];
     return new DueToCloseRow(tenantId, drawId, locked);
   }

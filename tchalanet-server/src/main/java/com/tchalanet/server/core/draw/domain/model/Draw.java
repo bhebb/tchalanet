@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.draw.domain.model;
+
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
-
 import java.time.ZonedDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 public final class Draw {
 
@@ -80,7 +79,6 @@ public final class Draw {
     DrawStatusTransition.check(this.status, DrawStatus.CLOSED);
     this.status = DrawStatus.CLOSED;
   }
-
 
   public void applyResult(DrawResult result) {
     DrawStatusTransition.check(this.status, DrawStatus.RESULTED);

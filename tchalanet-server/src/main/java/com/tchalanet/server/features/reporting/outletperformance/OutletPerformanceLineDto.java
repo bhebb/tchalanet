@@ -7,10 +7,8 @@ public record OutletPerformanceLineDto(
     UUID outletId,
     String outletCode,
     String outletName,
-    String gameCode,      // null si tous jeux
+    String gameCode, // null si tous jeux
     long ticketsSold,
     BigDecimal totalSales,
     BigDecimal totalPayout,
-    BigDecimal netRevenue) {
-}
-
+    BigDecimal netRevenue) {}

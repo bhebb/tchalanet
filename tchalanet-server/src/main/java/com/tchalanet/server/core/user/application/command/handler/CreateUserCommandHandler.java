@@ -9,13 +9,11 @@ import com.tchalanet.server.core.user.application.command.model.CreateUserComman
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
 import com.tchalanet.server.core.user.application.port.out.UserWriterPort;
 import com.tchalanet.server.core.user.domain.model.AppUser;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,36 +21,37 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateUserCommandHandler implements CommandHandler<CreateUserCommand, AppUser> {
 
-    private final UserReaderPort userReaderPort;
-    private final UserWriterPort userWriterPort;
-    private final KeycloakUserProvisioningPort keycloakProvisioningPort;
-    private final TchRequestContextHolder requestContextHolder;
+  private final UserReaderPort userReaderPort;
+  private final UserWriterPort userWriterPort;
+  private final KeycloakUserProvisioningPort keycloakProvisioningPort;
+  private final TchRequestContextHolder requestContextHolder;
 
-    @Override
-    @Transactional
-    public AppUser handle(CreateUserCommand command) {
-        userReaderPort
-            .findByEmailOrPhone(command.email(), command.phone())
-            .ifPresent(existing -> {
-                throw new IllegalStateException("User already exists with this email or phone");
+  @Override
+  @Transactional
+  public AppUser handle(CreateUserCommand command) {
+    userReaderPort
+        .findByEmailOrPhone(command.email(), command.phone())
+        .ifPresent(
+            existing -> {
+              throw new IllegalStateException("User already exists with this email or phone");
             });
 
-        UUID keycloakId = provisionInKeycloak(command);
+    UUID keycloakId = provisionInKeycloak(command);
 
-        var now = Instant.now(); // TODO: injecter une Clock commune si disponible
-        var timeZone = inferTimeZoneFromLocale(command.locale());
+    var now = Instant.now(); // TODO: injecter une Clock commune si disponible
+    var timeZone = inferTimeZoneFromLocale(command.locale());
 
-        var ctx = requestContextHolder.get();
-        var tenantId = ctx.tenantUuid();
-        var tenantCode = ctx.effectiveTenantCode() != null
-            ? ctx.effectiveTenantCode()
-            : ctx.originalTenantCode();
+    var ctx = requestContextHolder.get();
+    var tenantId = ctx.tenantUuid();
+    var tenantCode =
+        ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : ctx.originalTenantCode();
 
-        if (tenantId == null || tenantCode == null || tenantCode.trim().isEmpty()) {
-            throw new IllegalStateException("Missing tenant context on request");
-        }
+    if (tenantId == null || tenantCode == null || tenantCode.trim().isEmpty()) {
+      throw new IllegalStateException("Missing tenant context on request");
+    }
 
-        AppUser newUser = AppUser.createNew(
+    AppUser newUser =
+        AppUser.createNew(
             null,
             keycloakId,
             TenantId.nullableOf(tenantId),
@@ -66,55 +65,54 @@ public class CreateUserCommandHandler implements CommandHandler<CreateUserComman
             null, // avatarUrl
             command.locale(),
             timeZone,
-            now
-        );
+            now);
 
-        return userWriterPort.save(newUser);
+    return userWriterPort.save(newUser);
+  }
+
+  private UUID provisionInKeycloak(CreateUserCommand command) {
+    Map<String, Object> payload = new HashMap<>();
+    payload.put("email", command.email());
+    payload.put("phoneNumber", command.phone());
+    payload.put("firstName", command.firstName());
+    payload.put("lastName", command.lastName());
+    payload.put("locale", command.locale());
+    payload.put("sendInvitation", command.sendInvitation());
+    payload.put("initialRoles", command.initialRoles());
+
+    var response = keycloakProvisioningPort.createUser(payload);
+    Object idValue = response.get("id");
+    if (idValue == null) {
+      throw new IllegalStateException("Keycloak did not return an id");
     }
+    return UUID.fromString(idValue.toString());
+  }
 
-    private UUID provisionInKeycloak(CreateUserCommand command) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("email", command.email());
-        payload.put("phoneNumber", command.phone());
-        payload.put("firstName", command.firstName());
-        payload.put("lastName", command.lastName());
-        payload.put("locale", command.locale());
-        payload.put("sendInvitation", command.sendInvitation());
-        payload.put("initialRoles", command.initialRoles());
-
-        var response = keycloakProvisioningPort.createUser(payload);
-        Object idValue = response.get("id");
-        if (idValue == null) {
-            throw new IllegalStateException("Keycloak did not return an id");
-        }
-        return UUID.fromString(idValue.toString());
+  private String resolveUsername(CreateUserCommand command) {
+    if (command.email() != null && !command.email().isBlank()) {
+      return command.email();
     }
-
-    private String resolveUsername(CreateUserCommand command) {
-        if (command.email() != null && !command.email().isBlank()) {
-            return command.email();
-        }
-        if (command.phone() != null && !command.phone().isBlank()) {
-            return command.phone();
-        }
-        throw new IllegalArgumentException("Either email or phone must be provided");
+    if (command.phone() != null && !command.phone().isBlank()) {
+      return command.phone();
     }
+    throw new IllegalArgumentException("Either email or phone must be provided");
+  }
 
-    private String buildDisplayName(CreateUserCommand command) {
-        var first = command.firstName() != null ? command.firstName() : "";
-        var last = command.lastName() != null ? command.lastName() : "";
-        return (first + " " + last).trim();
-    }
+  private String buildDisplayName(CreateUserCommand command) {
+    var first = command.firstName() != null ? command.firstName() : "";
+    var last = command.lastName() != null ? command.lastName() : "";
+    return (first + " " + last).trim();
+  }
 
-    private String inferTimeZoneFromLocale(String localeString) {
-        if (localeString == null || localeString.isBlank()) {
-            return null;
-        }
-        Locale locale = Locale.forLanguageTag(localeString);
-        String country = locale.getCountry();
-        if ("HT".equalsIgnoreCase(country)) {
-            return "America/Port-au-Prince";
-        }
-        return null;
+  private String inferTimeZoneFromLocale(String localeString) {
+    if (localeString == null || localeString.isBlank()) {
+      return null;
     }
+    Locale locale = Locale.forLanguageTag(localeString);
+    String country = locale.getCountry();
+    if ("HT".equalsIgnoreCase(country)) {
+      return "America/Port-au-Prince";
+    }
+    return null;
+  }
 }

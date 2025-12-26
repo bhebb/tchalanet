@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GrantPermissionToRoleCommandHandler implements CommandHandler<GrantPermissionToRoleCommand, Boolean> {
+public class GrantPermissionToRoleCommandHandler
+    implements CommandHandler<GrantPermissionToRoleCommand, Boolean> {
 
   private final RolePermissionAdminPort rolePermissionAdminPort;
 
@@ -17,4 +18,3 @@ public class GrantPermissionToRoleCommandHandler implements CommandHandler<Grant
     return rolePermissionAdminPort.grant(command.roleId(), command.permissionCode());
   }
 }
-

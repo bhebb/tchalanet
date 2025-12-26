@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.featureflags.infra.aop;
 
 import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.featureflags.application.annotation.FeatureFlagEnabled;
 import com.tchalanet.server.core.featureflags.domain.model.FeatureContext;
 import com.tchalanet.server.core.featureflags.domain.ports.in.IsFeatureEnabledQuery;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +46,14 @@ public class FeatureFlagAspect {
   private FeatureContext buildFeatureContext(
       ProceedingJoinPoint joinPoint, FeatureFlagEnabled featureFlagEnabled) {
     var requestContext = tchRequestContextHolder.get();
-    TenantId tenantId = requestContext != null && requestContext.tenantUuid() != null ? TenantId.of(requestContext.tenantUuid()) : null;
-    UserId userId = requestContext != null && requestContext.userUuid() != null ? UserId.of(requestContext.userUuid()) : null;
+    TenantId tenantId =
+        requestContext != null && requestContext.tenantUuid() != null
+            ? TenantId.of(requestContext.tenantUuid())
+            : null;
+    UserId userId =
+        requestContext != null && requestContext.userUuid() != null
+            ? UserId.of(requestContext.userUuid())
+            : null;
     TerminalId terminalId = null;
 
     // Use SpEL to extract tenantId, userId, terminalId from method arguments if provided in
@@ -62,17 +68,26 @@ public class FeatureFlagAspect {
     }
 
     if (!featureFlagEnabled.tenantIdSpEL().isBlank()) {
-      var raw = parser.parseExpression(featureFlagEnabled.tenantIdSpEL()).getValue(evaluationContext, Object.class);
+      var raw =
+          parser
+              .parseExpression(featureFlagEnabled.tenantIdSpEL())
+              .getValue(evaluationContext, Object.class);
       if (raw instanceof UUID u) tenantId = TenantId.of(u);
       else if (raw instanceof String s) tenantId = TenantId.of(java.util.UUID.fromString(s));
     }
     if (!featureFlagEnabled.userIdSpEL().isBlank()) {
-      var raw = parser.parseExpression(featureFlagEnabled.userIdSpEL()).getValue(evaluationContext, Object.class);
+      var raw =
+          parser
+              .parseExpression(featureFlagEnabled.userIdSpEL())
+              .getValue(evaluationContext, Object.class);
       if (raw instanceof UUID u) userId = UserId.of(u);
       else if (raw instanceof String s) userId = UserId.of(java.util.UUID.fromString(s));
     }
     if (!featureFlagEnabled.terminalIdSpEL().isBlank()) {
-      var raw = parser.parseExpression(featureFlagEnabled.terminalIdSpEL()).getValue(evaluationContext, Object.class);
+      var raw =
+          parser
+              .parseExpression(featureFlagEnabled.terminalIdSpEL())
+              .getValue(evaluationContext, Object.class);
       if (raw instanceof UUID u) terminalId = TerminalId.of(u);
       else if (raw instanceof String s) terminalId = TerminalId.of(java.util.UUID.fromString(s));
     }

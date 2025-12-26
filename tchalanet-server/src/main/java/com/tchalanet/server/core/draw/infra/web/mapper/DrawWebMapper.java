@@ -5,7 +5,6 @@ import com.tchalanet.server.core.draw.application.command.model.FetchAndApplyExt
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
-import java.util.UUID;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

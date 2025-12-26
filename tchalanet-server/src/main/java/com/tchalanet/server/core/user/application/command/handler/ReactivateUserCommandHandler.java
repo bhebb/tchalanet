@@ -16,9 +16,10 @@ public class ReactivateUserCommandHandler implements CommandHandler<ReactivateUs
 
   @Override
   public Void handle(ReactivateUserCommand command) {
-    var user = userReaderPort
-        .findById(command.userId())
-        .orElseThrow(() -> new IllegalStateException("User not found: " + command.userId()));
+    var user =
+        userReaderPort
+            .findById(command.userId())
+            .orElseThrow(() -> new IllegalStateException("User not found: " + command.userId()));
 
     var reactivated = user.reactivate();
     userWriterPort.save(reactivated);
@@ -28,4 +29,3 @@ public class ReactivateUserCommandHandler implements CommandHandler<ReactivateUs
     return null;
   }
 }
-

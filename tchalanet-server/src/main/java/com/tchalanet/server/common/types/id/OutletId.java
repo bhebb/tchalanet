@@ -9,18 +9,19 @@ public record OutletId(UUID value) {
     if (value == null) throw new IllegalArgumentException("OutletId.value is null");
   }
 
-  /**
-   * Static factory from UUID.
-   */
+  /** Static factory from UUID. */
   public static OutletId of(UUID value) {
     return new OutletId(value);
   }
 
   /** Return OutletId or null if id is null */
-  public static OutletId nullableOf(UUID id) { return id == null ? null : new OutletId(id); }
+  public static OutletId nullableOf(UUID id) {
+    return id == null ? null : new OutletId(id);
+  }
 
   /**
    * Static factory from String representation of UUID.
+   *
    * @throws IllegalArgumentException if the string is not a valid UUID
    */
   public static OutletId of(String id) {
@@ -37,5 +38,7 @@ public record OutletId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

@@ -9,18 +9,19 @@ public record DrawId(UUID value) {
     if (value == null) throw new IllegalArgumentException("DrawId.value is null");
   }
 
-  /**
-   * Static factory from UUID.
-   */
+  /** Static factory from UUID. */
   public static DrawId of(UUID value) {
     return new DrawId(value);
   }
 
   /** Return DrawId or null if id is null */
-  public static DrawId nullableOf(UUID id) { return id == null ? null : new DrawId(id); }
+  public static DrawId nullableOf(UUID id) {
+    return id == null ? null : new DrawId(id);
+  }
 
   /**
    * Static factory from String representation of UUID.
+   *
    * @throws IllegalArgumentException if the string is not a valid UUID
    */
   public static DrawId of(String id) {
@@ -37,5 +38,7 @@ public record DrawId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

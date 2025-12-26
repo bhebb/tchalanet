@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.draw.domain.model;
-import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Represents a generic external draw result, independent of the source provider. This is a Value

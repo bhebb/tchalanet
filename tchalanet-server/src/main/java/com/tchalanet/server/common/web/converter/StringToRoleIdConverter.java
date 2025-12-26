@@ -12,4 +12,3 @@ public class StringToRoleIdConverter implements Converter<String, RoleId> {
     return RoleId.of(java.util.UUID.fromString(source));
   }
 }
-

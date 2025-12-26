@@ -12,4 +12,3 @@ public class StringToOutletIdConverter implements Converter<String, OutletId> {
     return OutletId.of(source);
   }
 }
-

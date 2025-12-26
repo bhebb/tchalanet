@@ -12,15 +12,23 @@ public class DrawDomainEventListener {
 
   @EventListener
   public void onDrawResulted(DrawResultedEvent event) {
-    log.info("DrawResultedEvent received: tenantId={}, drawId={}, gameCode={}, channelCode={}",
-        event.tenantId(), event.drawId(), event.gameCode(), event.channelCode());
+    log.info(
+        "DrawResultedEvent received: tenantId={}, drawId={}, gameCode={}, channelCode={}",
+        event.tenantId(),
+        event.drawId(),
+        event.gameCode(),
+        event.channelCode());
     // TODO: invalidate caches for today/last-days/next draws
   }
 
   @EventListener
   public void onDrawSettled(DrawSettledEvent event) {
-    log.info("DrawSettledEvent received: tenantId={}, drawId={}, gameCode={}, channelCode={}",
-        event.tenantId(), event.drawId(), event.gameCode(), event.channelCode());
+    log.info(
+        "DrawSettledEvent received: tenantId={}, drawId={}, gameCode={}, channelCode={}",
+        event.tenantId(),
+        event.drawId(),
+        event.gameCode(),
+        event.channelCode());
     // TODO: invalidate caches for today/last-days/next draws
   }
 }

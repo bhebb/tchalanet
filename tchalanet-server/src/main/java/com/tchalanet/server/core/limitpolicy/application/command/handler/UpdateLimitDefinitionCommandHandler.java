@@ -14,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 @Component
 @RequiredArgsConstructor
-public class UpdateLimitDefinitionCommandHandler implements CommandHandler<UpdateLimitDefinitionCommand, LimitDefinition> {
+public class UpdateLimitDefinitionCommandHandler
+    implements CommandHandler<UpdateLimitDefinitionCommand, LimitDefinition> {
 
   private final LimitDefinitionJpaRepository repo;
   private final LimitDefinitionMapper mapper;
@@ -26,7 +27,8 @@ public class UpdateLimitDefinitionCommandHandler implements CommandHandler<Updat
     entity.setEnabled(cmd.enabled());
     entity.setOnBreach(cmd.onBreach());
     entity.setParams(cmd.params());
-    entity.setAppliesTo(Map.of("bet_types", cmd.betTypes(), "selection_pattern", cmd.selectionPattern()));
+    entity.setAppliesTo(
+        Map.of("bet_types", cmd.betTypes(), "selection_pattern", cmd.selectionPattern()));
     entity = repo.save(entity);
     return mapper.toDomain(entity);
   }

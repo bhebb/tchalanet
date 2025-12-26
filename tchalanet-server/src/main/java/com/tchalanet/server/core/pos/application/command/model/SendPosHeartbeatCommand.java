@@ -1,11 +1,8 @@
 package com.tchalanet.server.core.pos.application.command.model;
 
-import com.tchalanet.server.common.types.id.TenantId;
-
 import com.tchalanet.server.common.bus.Command;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
-
-import java.util.UUID;
 import java.time.Instant;
 import java.util.Map;
 
@@ -16,6 +13,5 @@ public record SendPosHeartbeatCommand(
     String status,
     Integer batteryPercent,
     String appVersion,
-    Map<String, Object> extras
-) implements Command<Void> {
-}
+    Map<String, Object> extras)
+    implements Command<Void> {}

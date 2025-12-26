@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pos.domain.model;
+
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -22,7 +22,20 @@ public class Terminal {
   private String lockReason;
   private Instant deletedAt;
 
-  public Terminal(UUID id, TenantId tenantId, OutletId outletId, TerminalState state, Instant lastSeen, String meta, long version, Instant registeredAt, Instant unregisteredAt, Instant lockedAt, UUID lockedBy, String lockReason, Instant deletedAt) {
+  public Terminal(
+      UUID id,
+      TenantId tenantId,
+      OutletId outletId,
+      TerminalState state,
+      Instant lastSeen,
+      String meta,
+      long version,
+      Instant registeredAt,
+      Instant unregisteredAt,
+      Instant lockedAt,
+      UUID lockedBy,
+      String lockReason,
+      Instant deletedAt) {
     this.id = id;
     this.tenantId = tenantId;
     this.outletId = outletId;
@@ -64,39 +77,131 @@ public class Terminal {
 
   // New methods
   public Terminal lock(UUID by, String reason, Instant now) {
-    return new Terminal(id, tenantId, outletId, TerminalState.BLOCKED, lastSeen, meta, version, registeredAt, unregisteredAt, now, by, reason, deletedAt);
+    return new Terminal(
+        id,
+        tenantId,
+        outletId,
+        TerminalState.BLOCKED,
+        lastSeen,
+        meta,
+        version,
+        registeredAt,
+        unregisteredAt,
+        now,
+        by,
+        reason,
+        deletedAt);
   }
 
   public Terminal unlock(UUID by, Instant now) {
-    return new Terminal(id, tenantId, outletId, TerminalState.ACTIVE, lastSeen, meta, version, registeredAt, unregisteredAt, null, null, null, deletedAt);
+    return new Terminal(
+        id,
+        tenantId,
+        outletId,
+        TerminalState.ACTIVE,
+        lastSeen,
+        meta,
+        version,
+        registeredAt,
+        unregisteredAt,
+        null,
+        null,
+        null,
+        deletedAt);
   }
 
   public Terminal unregister(UUID by, Instant now) {
-    return new Terminal(id, tenantId, outletId, state, lastSeen, meta, version, registeredAt, now, lockedAt, lockedBy, lockReason, now);
+    return new Terminal(
+        id,
+        tenantId,
+        outletId,
+        state,
+        lastSeen,
+        meta,
+        version,
+        registeredAt,
+        now,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        now);
   }
 
   public Terminal mergeMetadata(Map<String, Object> patch, Instant now) {
     // TODO: implement proper merge
     String newMeta = meta; // placeholder
-    return new Terminal(id, tenantId, outletId, state, lastSeen, newMeta, version, registeredAt, unregisteredAt, lockedAt, lockedBy, lockReason, deletedAt);
+    return new Terminal(
+        id,
+        tenantId,
+        outletId,
+        state,
+        lastSeen,
+        newMeta,
+        version,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        deletedAt);
   }
 
   // Getters
-  public UUID id() { return id; }
-  public TenantId tenantId() { return tenantId; }
-  public OutletId outletId() { return outletId; }
-  public TerminalState state() { return state; }
-  public Instant lastSeen() { return lastSeen; }
-  public String meta() { return meta; }
-  public long version() { return version; }
-  public Instant registeredAt() { return registeredAt; }
-  public Instant unregisteredAt() { return unregisteredAt; }
-  public Instant lockedAt() { return lockedAt; }
-  public UUID lockedBy() { return lockedBy; }
-  public String lockReason() { return lockReason; }
-  public Instant deletedAt() { return deletedAt; }
+  public UUID id() {
+    return id;
+  }
+
+  public TenantId tenantId() {
+    return tenantId;
+  }
+
+  public OutletId outletId() {
+    return outletId;
+  }
+
+  public TerminalState state() {
+    return state;
+  }
+
+  public Instant lastSeen() {
+    return lastSeen;
+  }
+
+  public String meta() {
+    return meta;
+  }
+
+  public long version() {
+    return version;
+  }
+
+  public Instant registeredAt() {
+    return registeredAt;
+  }
+
+  public Instant unregisteredAt() {
+    return unregisteredAt;
+  }
+
+  public Instant lockedAt() {
+    return lockedAt;
+  }
+
+  public UUID lockedBy() {
+    return lockedBy;
+  }
+
+  public String lockReason() {
+    return lockReason;
+  }
+
+  public Instant deletedAt() {
+    return deletedAt;
+  }
 
   public enum TerminalState {
-    ACTIVE, INACTIVE, BLOCKED
+    ACTIVE,
+    INACTIVE,
+    BLOCKED
   }
 }

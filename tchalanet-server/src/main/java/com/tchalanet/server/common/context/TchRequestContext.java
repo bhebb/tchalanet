@@ -1,13 +1,11 @@
 package com.tchalanet.server.common.context;
 
 import com.tchalanet.server.common.security.TchRole;
-
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,72 +22,68 @@ public record TchRequestContext(
     String requestId, // correlation id for logs
     String clientIp,
     boolean tenantOverridden // true if SA override applied
-) {
+    ) {
 
-    /**
-     * Return the effective tenant UUID when available, otherwise the original one.
-     */
-    public UUID tenantUuid() {
-        return effectiveTenantUuid != null ? effectiveTenantUuid : originalTenantUuid;
+  /** Return the effective tenant UUID when available, otherwise the original one. */
+  public UUID tenantUuid() {
+    return effectiveTenantUuid != null ? effectiveTenantUuid : originalTenantUuid;
+  }
+
+  public TenantId tenantid() {
+    return effectiveTenantUuid != null
+        ? TenantId.of(effectiveTenantUuid)
+        : TenantId.of(originalTenantUuid);
+  }
+
+  /**
+   * Compatibility: return the application user id as string when available. Do NOT mix Keycloak
+   * subject with app user id. If app user is not known yet, this returns null.
+   */
+  public UserId userId() {
+    return UserId.nullableOf(appUserId);
+  }
+
+  /** Return the application user UUID (if present) */
+  public UUID userUuid() {
+    return appUserId;
+  }
+
+  /** Helper to convert keycloak subject to UUID when possible (may be non-UUID strings) */
+  @SuppressWarnings("unused")
+  public UUID keycloakAsUuid() {
+    try {
+      if (keycloakUserId != null) {
+        return UUID.fromString(keycloakUserId);
+      }
+    } catch (IllegalArgumentException e) {
+      log.debug("Keycloak subject is not a UUID: '{}'", keycloakUserId, e);
+    }
+    return null;
+  }
+
+  public String userAgent() {
+    // user agent get it
+    return null;
+  }
+
+  /**
+   * Rôle principal courant dérivé de systemRoles, avec priorité : SUPER_ADMIN > TENANT_ADMIN >
+   * CASHIER (fallback si aucun des deux premiers).
+   */
+  public TchRole currentRole() {
+    if (systemRoles == null || systemRoles.isEmpty()) {
+      return null;
     }
 
-    public TenantId tenantid() {
-        return effectiveTenantUuid != null ? TenantId.of(effectiveTenantUuid) : TenantId.of(originalTenantUuid);
+    if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
+      return TchRole.SUPER_ADMIN;
     }
 
-    /**
-     * Compatibility: return the application user id as string when available. Do NOT mix
-     * Keycloak subject with app user id. If app user is not known yet, this returns null.
-     */
-    public UserId userId() {
-        return UserId.nullableOf(appUserId);
+    if (systemRoles.contains(TchRole.TENANT_ADMIN)) {
+      return TchRole.TENANT_ADMIN;
     }
 
-    /**
-     * Return the application user UUID (if present)
-     */
-    public UUID userUuid() {
-        return appUserId;
-    }
-
-    /**
-     * Helper to convert keycloak subject to UUID when possible (may be non-UUID strings)
-     */
-    @SuppressWarnings("unused")
-    public UUID keycloakAsUuid() {
-        try {
-            if (keycloakUserId != null) {
-                return UUID.fromString(keycloakUserId);
-            }
-        } catch (IllegalArgumentException e) {
-            log.debug("Keycloak subject is not a UUID: '{}'", keycloakUserId, e);
-        }
-        return null;
-    }
-
-    public String userAgent() {
-        // user agent get it
-        return null;
-    }
-
-    /**
-     * Rôle principal courant dérivé de systemRoles, avec priorité :
-     * SUPER_ADMIN > TENANT_ADMIN > CASHIER (fallback si aucun des deux premiers).
-     */
-    public TchRole currentRole() {
-        if (systemRoles == null || systemRoles.isEmpty()) {
-            return null;
-        }
-
-        if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
-            return TchRole.SUPER_ADMIN;
-        }
-
-        if (systemRoles.contains(TchRole.TENANT_ADMIN)) {
-            return TchRole.TENANT_ADMIN;
-        }
-
-        // Sinon, on considère que l'utilisateur est au moins caissier
-        return TchRole.CASHIER;
-    }
+    // Sinon, on considère que l'utilisateur est au moins caissier
+    return TchRole.CASHIER;
+  }
 }

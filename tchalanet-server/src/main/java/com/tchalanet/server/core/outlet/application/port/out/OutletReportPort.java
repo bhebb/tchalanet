@@ -8,4 +8,3 @@ import java.time.LocalDate;
 public interface OutletReportPort {
   Path generateDailyReport(TenantId tenantId, OutletId outletId, LocalDate date);
 }
-

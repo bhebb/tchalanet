@@ -9,9 +9,7 @@ public record Percent(BigDecimal value) {
     if (value == null) throw new IllegalArgumentException("Percent.value is null");
   }
 
-  /**
-   * Static factory for Percent.
-   */
+  /** Static factory for Percent. */
   public static Percent of(BigDecimal value) {
     return new Percent(value);
   }

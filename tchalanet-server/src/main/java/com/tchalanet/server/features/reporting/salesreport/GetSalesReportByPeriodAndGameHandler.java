@@ -7,17 +7,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GetSalesReportByPeriodAndGameHandler {
 
-    private final SalesReportRepository salesReportRepository;
+  private final SalesReportRepository salesReportRepository;
 
-    public SalesReportResponse handle(GetSalesReportByPeriodAndGameQuery query) {
+  public SalesReportResponse handle(GetSalesReportByPeriodAndGameQuery query) {
 
-        var snapshot = salesReportRepository.findSalesByPeriodAndGame(query);
+    var snapshot = salesReportRepository.findSalesByPeriodAndGame(query);
 
-        return new SalesReportResponse(
-            query.fromDate(),
-            query.toDate(),
-            query.gameCode(),
-            snapshot
-        );
-    }
+    return new SalesReportResponse(query.fromDate(), query.toDate(), query.gameCode(), snapshot);
+  }
 }

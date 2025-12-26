@@ -9,18 +9,19 @@ public record TicketId(UUID value) {
     if (value == null) throw new IllegalArgumentException("TicketId.value is null");
   }
 
-  /**
-   * Static factory from UUID.
-   */
+  /** Static factory from UUID. */
   public static TicketId of(UUID value) {
     return new TicketId(value);
   }
 
   /** Return TicketId or null if id is null */
-  public static TicketId nullableOf(UUID id) { return id == null ? null : new TicketId(id); }
+  public static TicketId nullableOf(UUID id) {
+    return id == null ? null : new TicketId(id);
+  }
 
   /**
    * Static factory from String representation of UUID.
+   *
    * @throws IllegalArgumentException if the string is not a valid UUID
    */
   public static TicketId of(String id) {
@@ -37,5 +38,7 @@ public record TicketId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

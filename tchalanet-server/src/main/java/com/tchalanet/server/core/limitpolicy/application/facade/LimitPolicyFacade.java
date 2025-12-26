@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 /**
  * Facade service for limit policy evaluation.
  *
- * Provides a simplified interface for evaluating betting limits against transaction contexts.
+ * <p>Provides a simplified interface for evaluating betting limits against transaction contexts.
  * Delegates to the underlying LimitEvaluator for the actual evaluation logic.
  */
 @Service

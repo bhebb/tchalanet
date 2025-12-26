@@ -1,9 +1,7 @@
 package com.tchalanet.server.core.tenant.application.command.model;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.Command;
+import com.tchalanet.server.common.types.id.TenantId;
 
-import java.util.UUID;
-
-public record DeactivateTenantCommand(TenantId tenantId, String reason) implements Command<Void> {} // -> suspend
-
+public record DeactivateTenantCommand(TenantId tenantId, String reason)
+    implements Command<Void> {} // -> suspend

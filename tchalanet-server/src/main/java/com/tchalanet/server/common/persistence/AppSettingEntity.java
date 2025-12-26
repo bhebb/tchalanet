@@ -9,12 +9,11 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "app_setting")
@@ -25,33 +24,32 @@ import java.util.UUID;
 @EntityListeners({AppSettingCacheEvictListener.class})
 public class AppSettingEntity extends BaseEntity {
 
-    @Column(name = "tenant_id")
-    private UUID tenantId;
+  @Column(name = "tenant_id")
+  private UUID tenantId;
 
-    @Column(name = "terminal_id")
-    private UUID terminalId;
+  @Column(name = "terminal_id")
+  private UUID terminalId;
 
-    @Column(name = "outlet_id")
-    private UUID outletId;
+  @Column(name = "outlet_id")
+  private UUID outletId;
 
-    @Column(name = "namespace", nullable = false)
-    private String namespace;
+  @Column(name = "namespace", nullable = false)
+  private String namespace;
 
-    @Column(name = "setting_key", nullable = false)
-    private String settingKey;
+  @Column(name = "setting_key", nullable = false)
+  private String settingKey;
 
-    @Column(name = "setting_value", nullable = false)
-    private String settingValue;
+  @Column(name = "setting_value", nullable = false)
+  private String settingValue;
 
-    @Column(name = "active", nullable = false)
-    private Boolean active = true;
+  @Column(name = "active", nullable = false)
+  private Boolean active = true;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "level", nullable = false)
-    private AppSettingLevel level;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "level", nullable = false)
+  private AppSettingLevel level;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "value_type", nullable = false)
-    private AppSettingValueType valueType;
-
+  @Enumerated(EnumType.STRING)
+  @Column(name = "value_type", nullable = false)
+  private AppSettingValueType valueType;
 }

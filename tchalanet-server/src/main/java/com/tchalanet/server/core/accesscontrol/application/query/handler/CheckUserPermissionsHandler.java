@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.accesscontrol.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionReaderPort;
 import com.tchalanet.server.core.accesscontrol.application.port.out.TenantUserDirectoryPort;
 import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

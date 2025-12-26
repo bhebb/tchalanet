@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class QueueOfflinePayoutCommandHandler implements VoidCommandHandler<QueueOfflinePayoutCommand> {
+public class QueueOfflinePayoutCommandHandler
+    implements VoidCommandHandler<QueueOfflinePayoutCommand> {
 
   @Override
   public void handle(QueueOfflinePayoutCommand command) {
@@ -17,4 +18,3 @@ public class QueueOfflinePayoutCommandHandler implements VoidCommandHandler<Queu
     throw new UnsupportedOperationException("QueueOfflinePayoutCommandHandler not implemented yet");
   }
 }
-

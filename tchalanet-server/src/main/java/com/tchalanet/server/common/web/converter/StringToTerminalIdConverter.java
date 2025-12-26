@@ -12,4 +12,3 @@ public class StringToTerminalIdConverter implements Converter<String, TerminalId
     return TerminalId.of(source);
   }
 }
-

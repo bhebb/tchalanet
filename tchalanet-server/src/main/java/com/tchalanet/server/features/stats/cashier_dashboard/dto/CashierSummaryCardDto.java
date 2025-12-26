@@ -12,5 +12,4 @@ public record CashierSummaryCardDto(
     BigDecimal totalSales,
     BigDecimal totalPayout,
     BigDecimal netRevenue,
-    boolean hasOpenSession
-) {}
+    boolean hasOpenSession) {}

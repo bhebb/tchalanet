@@ -10,11 +10,10 @@ import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawResultMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityManager;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 @Primary
@@ -26,13 +25,13 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   private final EntityManager entityManager;
 
   @Override
-  public Optional<DrawResult> findByDrawId( TenantId tenantId,  DrawId drawId) {
+  public Optional<DrawResult> findByDrawId(TenantId tenantId, DrawId drawId) {
     return repo.findByTenantIdAndDrawId(tenantId.uuid(), drawId.uuid()).map(mapper::toDomain);
   }
 
   @Override
   public java.util.List<DrawResult> findByTenantAndDateRange(
-       TenantId tenantId, java.time.LocalDate from, java.time.LocalDate to) {
+      TenantId tenantId, java.time.LocalDate from, java.time.LocalDate to) {
     // Not implemented: needs a query over draw dates
     return java.util.List.of();
   }
@@ -48,7 +47,7 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   }
 
   @Override
-  public DrawResult save( TenantId tenantId,  DrawId drawId, DrawResult result) {
+  public DrawResult save(TenantId tenantId, DrawId drawId, DrawResult result) {
     var existing = repo.findByTenantIdAndDrawId(tenantId.uuid(), drawId.uuid()).orElse(null);
     if (existing == null) {
       var created = mapper.toEntity(tenantId, result);
@@ -79,7 +78,7 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   }
 
   @Override
-  public DrawResult invalidateResult( TenantId tenantId,  DrawId drawId, String reason) {
+  public DrawResult invalidateResult(TenantId tenantId, DrawId drawId, String reason) {
     return null;
   }
 }

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.domain.model;
-import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.types.id.TenantId;
 
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
 import java.time.Instant;
 import java.util.UUID;
 

@@ -18,8 +18,9 @@ public class OutletRestGuardEventHandler {
 
   @HandleBeforeSave
   public void beforeSave(OutletEntity incoming) {
-    var existing = repo.findById(incoming.getId())
-        .orElseThrow(() -> new IllegalArgumentException("Outlet not found"));
+    var existing =
+        repo.findById(incoming.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Outlet not found"));
 
     if (incoming.isSalesBlocked() != existing.isSalesBlocked()
         || !eq(incoming.getSalesBlockReason(), existing.getSalesBlockReason())
@@ -29,7 +30,8 @@ public class OutletRestGuardEventHandler {
         || !eq(incoming.getReceiptHeaderMessage(), existing.getReceiptHeaderMessage())
         || !eq(incoming.getReceiptFooterMessage(), existing.getReceiptFooterMessage())
         || incoming.isRequireOpeningFloat() != existing.isRequireOpeningFloat()) {
-      throw new IllegalStateException("Outlet config fields must be updated via /admin/outlets/{id}/config");
+      throw new IllegalStateException(
+          "Outlet config fields must be updated via /admin/outlets/{id}/config");
     }
   }
 
@@ -37,4 +39,3 @@ public class OutletRestGuardEventHandler {
     return a == null ? b == null : a.equals(b);
   }
 }
-

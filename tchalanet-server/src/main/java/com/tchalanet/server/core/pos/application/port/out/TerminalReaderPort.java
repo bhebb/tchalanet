@@ -1,12 +1,11 @@
 package com.tchalanet.server.core.pos.application.port.out;
-import com.tchalanet.server.common.types.id.TerminalId;
+
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-
+import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.core.pos.domain.model.Terminal;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
 
 public interface TerminalReaderPort {

@@ -19,7 +19,6 @@ public class OutletCacheConfig {
             // Config terminal : idem
             CacheSpec.of("tenant_terminal", Duration.ofMinutes(20)),
             // Arbre complet outlets/terminaux : 5–15 min, v1 = 10 min
-            CacheSpec.of("tenant_outlet_tree", Duration.ofMinutes(10))
-        );
+            CacheSpec.of("tenant_outlet_tree", Duration.ofMinutes(10)));
   }
 }

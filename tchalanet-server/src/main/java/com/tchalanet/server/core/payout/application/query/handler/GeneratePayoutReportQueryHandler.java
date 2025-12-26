@@ -2,14 +2,15 @@ package com.tchalanet.server.core.payout.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.payout.application.query.model.GeneratePayoutReportQuery;
 import com.tchalanet.server.core.payout.application.port.out.PayoutReportPort;
+import com.tchalanet.server.core.payout.application.query.model.GeneratePayoutReportQuery;
 import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GeneratePayoutReportQueryHandler implements QueryHandler<GeneratePayoutReportQuery, Path> {
+public class GeneratePayoutReportQueryHandler
+    implements QueryHandler<GeneratePayoutReportQuery, Path> {
 
   private final PayoutReportPort reportPort;
 
@@ -18,4 +19,3 @@ public class GeneratePayoutReportQueryHandler implements QueryHandler<GeneratePa
     return reportPort.generate(query);
   }
 }
-

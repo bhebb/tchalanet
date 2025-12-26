@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GetThemeByIdQueryHandler
-    implements QueryHandler<GetThemeByIdQuery, ThemeView> {
+public class GetThemeByIdQueryHandler implements QueryHandler<GetThemeByIdQuery, ThemeView> {
 
   private final ThemeReaderPort themeReaderPort;
 
@@ -29,4 +28,3 @@ public class GetThemeByIdQueryHandler
     return ThemeView.fromDomain(theme);
   }
 }
-

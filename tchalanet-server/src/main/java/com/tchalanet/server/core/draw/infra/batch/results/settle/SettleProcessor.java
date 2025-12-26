@@ -2,7 +2,6 @@ package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 

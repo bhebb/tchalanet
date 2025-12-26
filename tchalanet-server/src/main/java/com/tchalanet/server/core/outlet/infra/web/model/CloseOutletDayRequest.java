@@ -1,17 +1,12 @@
 package com.tchalanet.server.core.outlet.infra.web.model;
 
 import com.tchalanet.server.core.outlet.application.command.model.CloseDayMode;
-import java.time.LocalDate;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 
 public record CloseOutletDayRequest(
-    LocalDate from,
-    LocalDate to,
-    CloseDayMode mode,
-    @Size(max = 255)
-    String reason
-) {
+    LocalDate from, LocalDate to, CloseDayMode mode, @Size(max = 255) String reason) {
   public static CloseOutletDayRequest empty() {
     return new CloseOutletDayRequest(null, null, null, null);
   }

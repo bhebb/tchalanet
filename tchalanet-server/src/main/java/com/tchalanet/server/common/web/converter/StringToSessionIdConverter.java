@@ -12,4 +12,3 @@ public class StringToSessionIdConverter implements Converter<String, SessionId> 
     return SessionId.of(source);
   }
 }
-

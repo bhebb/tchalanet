@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
 import jakarta.persistence.*;
 import java.util.Map;
-import java.util.UUID;
 
 @Entity
 @Table(name = "limit_definition")

@@ -1,13 +1,13 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.adapter;
 
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
 import com.tchalanet.server.common.types.enums.ScopeType;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.repository.DrawExposureJpaRepository;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.AgentId;
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.infra.persistence.repository.DrawExposureJpaRepository;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +53,7 @@ public class DrawExposureUpdater {
           line.stake(),
           1L, // sales count
           line.stake().multiply(line.optionalMultiplier()) // potential payout
-      );
+          );
     }
 
     // Update total for draw
@@ -67,7 +67,7 @@ public class DrawExposureUpdater {
         context.ticketStakeTotal(),
         0L, // no count for total
         BigDecimal.ZERO // no payout for total
-    );
+        );
   }
 
   private UUID toUuid(Object id) {

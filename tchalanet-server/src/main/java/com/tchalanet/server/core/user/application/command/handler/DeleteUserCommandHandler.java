@@ -21,4 +21,3 @@ public class DeleteUserCommandHandler implements CommandHandler<DeleteUserComman
     return null;
   }
 }
-

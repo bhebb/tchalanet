@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class SyncPendingTransactionsCommandHandler implements VoidCommandHandler<SyncPendingTransactionsCommand> {
+public class SyncPendingTransactionsCommandHandler
+    implements VoidCommandHandler<SyncPendingTransactionsCommand> {
 
   @Override
   public void handle(SyncPendingTransactionsCommand command) {
     // TODO: sync pending transactions, detect conflicts
-    throw new UnsupportedOperationException("SyncPendingTransactionsCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "SyncPendingTransactionsCommandHandler not implemented yet");
   }
 }
-

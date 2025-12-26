@@ -13,6 +13,5 @@ public record EnsureUserExistsForPrincipalCommand(
     String displayName,
     String phone,
     String locale,
-    String timeZone
-) implements Command<EnsureUserExistsForPrincipalResult> {
-}
+    String timeZone)
+    implements Command<EnsureUserExistsForPrincipalResult> {}

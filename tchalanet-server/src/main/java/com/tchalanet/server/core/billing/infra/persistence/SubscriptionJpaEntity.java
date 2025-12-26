@@ -64,10 +64,10 @@ public class SubscriptionJpaEntity extends BaseTenantEntity {
     this.cancelAtPeriodEnd = false;
   }
 
-  public void changePlan(com.tchalanet.server.core.billing.infra.persistence.PlanJpaEntity newPlan) {
+  public void changePlan(
+      com.tchalanet.server.core.billing.infra.persistence.PlanJpaEntity newPlan) {
     this.plan = newPlan; /* autres règles éventuelles */
   }
 
   // getters/setters...
 }
-

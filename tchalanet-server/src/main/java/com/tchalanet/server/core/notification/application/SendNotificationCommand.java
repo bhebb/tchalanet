@@ -5,12 +5,9 @@ import com.tchalanet.server.common.types.enums.NotificationType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import jakarta.annotation.Nullable;
-
 import java.util.Map;
 
-/**
- * Commande d'application pour demander l'envoi d'une notification.
- */
+/** Commande d'application pour demander l'envoi d'une notification. */
 public record SendNotificationCommand(
     TenantId tenantId,
     @Nullable UserId userId,
@@ -18,5 +15,4 @@ public record SendNotificationCommand(
     NotificationType type,
     NotificationChannel channel,
     String locale,
-    Map<String, Object> data) {
-}
+    Map<String, Object> data) {}

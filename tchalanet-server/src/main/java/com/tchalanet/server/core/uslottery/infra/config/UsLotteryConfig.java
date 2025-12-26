@@ -10,10 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @EnableConfigurationProperties(UsLotteryProperties.class)
-@ConditionalOnProperty(
-    prefix = "tch.us-lottery",
-    name = "providers",
-    matchIfMissing = true)
+@ConditionalOnProperty(prefix = "tch.us-lottery", name = "providers", matchIfMissing = true)
 public class UsLotteryConfig {
 
   @Bean
@@ -22,7 +19,11 @@ public class UsLotteryConfig {
   }
 
   @Bean
-  @ConditionalOnProperty(prefix = "tch.us-lottery.providers.ny", name = "enabled", havingValue = "true", matchIfMissing = true)
+  @ConditionalOnProperty(
+      prefix = "tch.us-lottery.providers.ny",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
   public WebClient nyLotteryWebClient(WebClient.Builder builder, UsLotteryProperties props) {
     var provider = props.getProviders() != null ? props.getProviders().get("ny") : null;
     String baseUrl = provider != null ? provider.getBaseUrl() : null;
@@ -33,7 +34,11 @@ public class UsLotteryConfig {
   }
 
   @Bean
-  @ConditionalOnProperty(prefix = "tch.us-lottery.providers.florida", name = "enabled", havingValue = "true", matchIfMissing = true)
+  @ConditionalOnProperty(
+      prefix = "tch.us-lottery.providers.florida",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
   public WebClient floridaLotteryWebClient(WebClient.Builder builder, UsLotteryProperties props) {
     var provider = props.getProviders() != null ? props.getProviders().get("florida") : null;
     String baseUrl = provider != null ? provider.getBaseUrl() : null;

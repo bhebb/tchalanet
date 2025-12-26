@@ -1,12 +1,10 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RoleReaderPort;
-
 import java.util.List;
 import java.util.Objects;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,28 +14,31 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RoleReaderJpaAdapter implements RoleReaderPort {
 
-    private final AppRoleJpaRepository appRoleRepository;
+  private final AppRoleJpaRepository appRoleRepository;
 
-    @Override
-    public List<TchRole> listSystemRolesForTenant(TenantId tenantId) {
-        var entities =
-            tenantId == null
-                ? appRoleRepository.findAllGlobalNotDeleted()
-                : appRoleRepository.findAllForTenantOrGlobal(tenantId.uuid());
+  @Override
+  public List<TchRole> listSystemRolesForTenant(TenantId tenantId) {
+    var entities =
+        tenantId == null
+            ? appRoleRepository.findAllGlobalNotDeleted()
+            : appRoleRepository.findAllForTenantOrGlobal(tenantId.uuid());
 
-        return entities.stream()
-            .filter(AppRoleEntity::isSystem)
-            .map(e -> {
-                try {
-                    String code = e.getCode();
-                    return code == null ? null : TchRole.valueOf(code.trim().toUpperCase(java.util.Locale.ROOT));
-                } catch (IllegalArgumentException ex) {
-                    log.debug("Ignoring unknown role code: {}", e.getCode(), ex);
-                    return null;
-                }
+    return entities.stream()
+        .filter(AppRoleEntity::isSystem)
+        .map(
+            e -> {
+              try {
+                String code = e.getCode();
+                return code == null
+                    ? null
+                    : TchRole.valueOf(code.trim().toUpperCase(java.util.Locale.ROOT));
+              } catch (IllegalArgumentException ex) {
+                log.debug("Ignoring unknown role code: {}", e.getCode(), ex);
+                return null;
+              }
             })
-            .filter(Objects::nonNull)
-            .distinct()
-            .toList();
-    }
+        .filter(Objects::nonNull)
+        .distinct()
+        .toList();
+  }
 }

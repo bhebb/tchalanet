@@ -3,10 +3,9 @@ package com.tchalanet.server.common.error;
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-
-import java.util.List;
 
 public final class ProblemRest {
 
@@ -46,7 +45,12 @@ public final class ProblemRest {
     return of(HttpStatus.INTERNAL_SERVER_ERROR, detail);
   }
 
-  public static ProblemRestException limitBlocked(String detail, OperationType operationType, List<LimitNotice> limitReasons, boolean approvalRequired, ApprovalRole requiredRole) {
+  public static ProblemRestException limitBlocked(
+      String detail,
+      OperationType operationType,
+      List<LimitNotice> limitReasons,
+      boolean approvalRequired,
+      ApprovalRole requiredRole) {
     ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
     pd.setTitle("Limit blocked");
     pd.setDetail(detail);

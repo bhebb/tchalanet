@@ -2,11 +2,11 @@ package com.tchalanet.server.core.outlet.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
-import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
+import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
 import com.tchalanet.server.core.outlet.application.port.out.SessionLookupPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
+import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
 import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GetOutletDailySummaryQueryHandler implements QueryHandler<GetOutletDailySummaryQuery, OutletDailySummary> {
+public class GetOutletDailySummaryQueryHandler
+    implements QueryHandler<GetOutletDailySummaryQuery, OutletDailySummary> {
 
   private final SalesTicketAdminPort salesAdmin;
   private final SessionLookupPort sessionLookup;
@@ -41,7 +42,6 @@ public class GetOutletDailySummaryQueryHandler implements QueryHandler<GetOutlet
         stats.paid(),
         sessions.size(),
         outlet.name(),
-        outlet.salesBlocked()
-    );
+        outlet.salesBlocked());
   }
 }

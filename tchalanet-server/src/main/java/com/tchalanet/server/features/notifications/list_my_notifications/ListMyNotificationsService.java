@@ -1,7 +1,5 @@
 package com.tchalanet.server.features.notifications.list_my_notifications;
 
-import com.tchalanet.server.common.types.id.TenantId;
-
 import com.tchalanet.server.features.notifications.shared.NotificationDto;
 import com.tchalanet.server.features.notifications.shared.NotificationJpaRepository;
 import com.tchalanet.server.features.notifications.shared.NotificationMapper;
@@ -10,26 +8,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-/**
- * Use case listant les notifications pour l'utilisateur connecté.
- */
+/** Use case listant les notifications pour l'utilisateur connecté. */
 @Service
 @RequiredArgsConstructor
 public class ListMyNotificationsService {
 
-    private final NotificationJpaRepository repository;
+  private final NotificationJpaRepository repository;
 
+  public Page<NotificationDto> getNotifications(ListMyNotificationsQuery query) {
+    var pageable = PageRequest.of(query.page(), query.size());
 
-    public Page<NotificationDto> getNotifications(ListMyNotificationsQuery query) {
-        var pageable = PageRequest.of(query.page(), query.size());
-
-        var page = query.unreadOnly()
+    var page =
+        query.unreadOnly()
             ? repository.findByTenantIdAndUserIdAndReadIsFalseOrderByCreatedAtDesc(
-            query.tenantId().uuid(), query.userId().uuid(), pageable)
+                query.tenantId().uuid(), query.userId().uuid(), pageable)
             : repository.findByTenantIdAndUserIdOrderByCreatedAtDesc(
-            query.tenantId().uuid(), query.userId().uuid(), pageable);
+                query.tenantId().uuid(), query.userId().uuid(), pageable);
 
-        return page.map(NotificationMapper::toDto);
-
-    }
+    return page.map(NotificationMapper::toDto);
+  }
 }

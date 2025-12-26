@@ -2,26 +2,21 @@ package com.tchalanet.server.features.reporting.tenantkpis;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
 public class GetTenantKpisRepository {
-    @PersistenceContext
-    private final EntityManager em;
+  @PersistenceContext private final EntityManager em;
 
-    public KpisDto computeTenantKpis(
-        UUID tenantId,
-        LocalDate fromDate,
-        LocalDate toDate
-    ) {
-        // TODO: adapte table/colonnes (ticket, ticket_payout, etc.)
-        String sql = """
+  public KpisDto computeTenantKpis(UUID tenantId, LocalDate fromDate, LocalDate toDate) {
+    // TODO: adapte table/colonnes (ticket, ticket_payout, etc.)
+    String sql =
+        """
             select
                 coalesce(count(*), 0)                                         as tickets_sold,
                 coalesce(sum(t.total_amount), 0)                              as total_sales,
@@ -35,44 +30,43 @@ public class GetTenantKpisRepository {
               and t.sold_at < (:toDate + interval '1 day')
             """;
 
-        var query = em.createNativeQuery(sql);
-        query.setParameter("tenantId", tenantId);
-        query.setParameter("fromDate", LocalDate.from(fromDate));
-        query.setParameter("toDate", LocalDate.from(fromDate));
+    var query = em.createNativeQuery(sql);
+    query.setParameter("tenantId", tenantId);
+    query.setParameter("fromDate", LocalDate.from(fromDate));
+    query.setParameter("toDate", LocalDate.from(fromDate));
 
-        Object[] row = (Object[]) query.getSingleResult();
+    Object[] row = (Object[]) query.getSingleResult();
 
-        long ticketsSold = ((Number) row[0]).longValue();
-        BigDecimal totalSales = toBigDecimal(row[1]);
-        BigDecimal totalPayout = toBigDecimal(row[2]);
-        BigDecimal netRevenue = toBigDecimal(row[3]);
-        long activeOutlets = ((Number) row[4]).longValue();
-        long activeCashiers = ((Number) row[5]).longValue();
+    long ticketsSold = ((Number) row[0]).longValue();
+    BigDecimal totalSales = toBigDecimal(row[1]);
+    BigDecimal totalPayout = toBigDecimal(row[2]);
+    BigDecimal netRevenue = toBigDecimal(row[3]);
+    long activeOutlets = ((Number) row[4]).longValue();
+    long activeCashiers = ((Number) row[5]).longValue();
 
-        return new KpisDto(
-            ticketsSold,
-            totalSales,
-            totalPayout,
-            netRevenue,
-            activeOutlets,
-            activeCashiers,
-            null,
-            null,
-            0,
-            null
-        );
+    return new KpisDto(
+        ticketsSold,
+        totalSales,
+        totalPayout,
+        netRevenue,
+        activeOutlets,
+        activeCashiers,
+        null,
+        null,
+        0,
+        null);
+  }
+
+  private BigDecimal toBigDecimal(Object o) {
+    if (o == null) {
+      return BigDecimal.ZERO;
     }
-
-    private BigDecimal toBigDecimal(Object o) {
-        if (o == null) {
-            return BigDecimal.ZERO;
-        }
-        if (o instanceof BigDecimal bd) {
-            return bd;
-        }
-        if (o instanceof Number n) {
-            return BigDecimal.valueOf(n.doubleValue());
-        }
-        return new BigDecimal(o.toString());
+    if (o instanceof BigDecimal bd) {
+      return bd;
     }
+    if (o instanceof Number n) {
+      return BigDecimal.valueOf(n.doubleValue());
+    }
+    return new BigDecimal(o.toString());
+  }
 }

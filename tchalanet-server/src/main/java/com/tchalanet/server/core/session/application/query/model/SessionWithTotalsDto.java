@@ -1,17 +1,14 @@
 package com.tchalanet.server.core.session.application.query.model;
-import com.tchalanet.server.common.types.id.SessionId;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.time.Instant;
 
-/**
- * DTO for session with totals.
- */
+/** DTO for session with totals. */
 public record SessionWithTotalsDto(
     SessionId sessionId,
     TenantId tenantId,
@@ -23,13 +20,11 @@ public record SessionWithTotalsDto(
     Instant closedAt,
     BigDecimal openingFloat,
     BigDecimal closingAmount,
-    PosSessionTotalsDto totals
-) {
+    PosSessionTotalsDto totals) {
   public record PosSessionTotalsDto(
       long totalTickets,
       BigDecimal totalStake,
       BigDecimal totalPayout,
       BigDecimal grossMargin,
-      Instant updatedAt
-  ) {}
+      Instant updatedAt) {}
 }

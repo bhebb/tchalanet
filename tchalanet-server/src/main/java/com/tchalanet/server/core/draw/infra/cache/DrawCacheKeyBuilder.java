@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.draw.infra.cache;
-import com.tchalanet.server.common.types.id.TenantId;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

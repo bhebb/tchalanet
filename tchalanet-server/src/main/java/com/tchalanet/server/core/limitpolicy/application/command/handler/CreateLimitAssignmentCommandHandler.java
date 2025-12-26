@@ -13,30 +13,32 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 @Component
 @RequiredArgsConstructor
-public class CreateLimitAssignmentCommandHandler implements CommandHandler<CreateLimitAssignmentCommand, LimitAssignment> {
+public class CreateLimitAssignmentCommandHandler
+    implements CommandHandler<CreateLimitAssignmentCommand, LimitAssignment> {
 
-    private final LimitAssignmentReaderPort reader;
-    private final LimitAssignmentWriterPort writer;
+  private final LimitAssignmentReaderPort reader;
+  private final LimitAssignmentWriterPort writer;
 
-    @Override
-    @Transactional
-    public LimitAssignment handle(CreateLimitAssignmentCommand cmd) {
-        if (reader.existsByTenantAndLimitAndTarget(cmd.tenantId(), cmd.limitDefinitionId(), cmd.targetType().name(), cmd.targetId())) {
-            throw new IllegalStateException("Assignment already exists");
-        }
-
-        var assignment = new LimitAssignment(
-                null,
-                cmd.tenantId(),
-                cmd.limitDefinitionId(),
-                cmd.targetType(),
-                cmd.targetId(),
-                cmd.enabled(),
-                cmd.startsAt(),
-                cmd.endsAt(),
-                0L
-        );
-
-        return writer.save(assignment);
+  @Override
+  @Transactional
+  public LimitAssignment handle(CreateLimitAssignmentCommand cmd) {
+    if (reader.existsByTenantAndLimitAndTarget(
+        cmd.tenantId(), cmd.limitDefinitionId(), cmd.targetType().name(), cmd.targetId())) {
+      throw new IllegalStateException("Assignment already exists");
     }
+
+    var assignment =
+        new LimitAssignment(
+            null,
+            cmd.tenantId(),
+            cmd.limitDefinitionId(),
+            cmd.targetType(),
+            cmd.targetId(),
+            cmd.enabled(),
+            cmd.startsAt(),
+            cmd.endsAt(),
+            0L);
+
+    return writer.save(assignment);
+  }
 }

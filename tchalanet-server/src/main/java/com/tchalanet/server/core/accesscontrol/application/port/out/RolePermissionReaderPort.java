@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.accesscontrol.application.port.out;
 
-import java.util.Set;
 import com.tchalanet.server.common.types.id.RoleId;
+import java.util.Set;
 
 /** Port de sortie pour lire les permissions d'un rôle via sa hiérarchie. */
 public interface RolePermissionReaderPort {

@@ -1,18 +1,18 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
-import com.tchalanet.server.common.types.id.TenantId;
 
-import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
+import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawChannelMapper;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,19 +57,19 @@ public class DrawChannelJpaRepositoryAdapter
 
   // Port method: include tenantId parameter as required by DrawChannelReaderPort
   @Override
-  public Optional<DrawChannel> findById( TenantId tenantId, DrawChannelId id) {
+  public Optional<DrawChannel> findById(TenantId tenantId, DrawChannelId id) {
     if (id == null) return Optional.empty();
     // tenantId is not used by the JPA lookup by id, but kept to satisfy the port signature
     return findById(id);
   }
 
   @Override
-  public Optional<DrawChannel> findByCode( TenantId tenantId, String code) {
+  public Optional<DrawChannel> findByCode(TenantId tenantId, String code) {
     return repo.findByTenantIdAndCode(tenantId.uuid(), code).map(mapper::toDomain);
   }
 
   @Override
-  public List<DrawChannel> findActiveByTenant( TenantId tenantId) {
+  public List<DrawChannel> findActiveByTenant(TenantId tenantId) {
     return repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantId.uuid()).stream()
         .map(mapper::toDomain)
         .collect(Collectors.toList());
@@ -80,8 +80,7 @@ public class DrawChannelJpaRepositoryAdapter
     return List.of();
   }
 
-  public List<DrawChannel> findByTenant(
-      com.tchalanet.server.common.types.id.TenantId tenantId) {
+  public List<DrawChannel> findByTenant(com.tchalanet.server.common.types.id.TenantId tenantId) {
     if (tenantId == null) return List.of();
     return repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantId.uuid()).stream()
         .map(mapper::toDomain)

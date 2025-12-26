@@ -5,4 +5,3 @@ import com.tchalanet.server.core.user.domain.model.AppUser;
 import java.util.List;
 
 public record ListAllUsersQuery() implements Query<List<AppUser>> {}
-

@@ -23,7 +23,11 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
   public void publish(DomainEvent event) {
     delegate.publishEvent(event);
     if (log.isDebugEnabled()) {
-      log.debug("DomainEvent published: type={} tenant={} id={}", event.eventType(), event.tenantId(), event.eventId());
+      log.debug(
+          "DomainEvent published: type={} tenant={} id={}",
+          event.eventType(),
+          event.tenantId(),
+          event.eventId());
     }
   }
 
@@ -32,4 +36,3 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
     events.forEach(this::publish);
   }
 }
-

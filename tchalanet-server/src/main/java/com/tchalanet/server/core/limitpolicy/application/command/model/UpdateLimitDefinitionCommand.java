@@ -13,5 +13,5 @@ public record UpdateLimitDefinitionCommand(
     BreachOutcome onBreach,
     Map<String, Object> params,
     List<String> betTypes,
-    String selectionPattern
-) implements Command<LimitDefinition> {}
+    String selectionPattern)
+    implements Command<LimitDefinition> {}

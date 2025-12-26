@@ -14,7 +14,9 @@ public record SubscriptionId(UUID value) {
   }
 
   /** Return SubscriptionId or null if id is null */
-  public static SubscriptionId nullableOf(UUID id) { return id == null ? null : new SubscriptionId(id); }
+  public static SubscriptionId nullableOf(UUID id) {
+    return id == null ? null : new SubscriptionId(id);
+  }
 
   /** Static factory from String representation of UUID. */
   public static SubscriptionId of(String id) {
@@ -31,5 +33,7 @@ public record SubscriptionId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

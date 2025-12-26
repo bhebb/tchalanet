@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionReaderPort;
 import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionReaderPort;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +21,8 @@ public class RolePermissionReaderAdapter implements RolePermissionReaderPort {
     if (roleId == null) {
       return Set.of();
     }
-    List<String> codes = permissionHierarchyRepository.findPermissionCodesForRoleHierarchy(roleId.uuid());
+    List<String> codes =
+        permissionHierarchyRepository.findPermissionCodesForRoleHierarchy(roleId.uuid());
     return new HashSet<>(codes);
   }
 

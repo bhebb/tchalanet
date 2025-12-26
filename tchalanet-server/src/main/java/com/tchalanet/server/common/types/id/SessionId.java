@@ -15,17 +15,25 @@ public record SessionId(UUID value) {
   }
 
   /** Return SessionId or null if id is null */
-  public static SessionId nullableOf(UUID id) { return id == null ? null : new SessionId(id); }
+  public static SessionId nullableOf(UUID id) {
+    return id == null ? null : new SessionId(id);
+  }
 
   public static SessionId of(String id) {
     if (id == null) throw new IllegalArgumentException("session id string is required");
     return new SessionId(UUID.fromString(id));
   }
 
-  public static SessionId random() { return new SessionId(UUID.randomUUID()); }
+  public static SessionId random() {
+    return new SessionId(UUID.randomUUID());
+  }
 
   @Override
-  public String toString() { return value.toString(); }
+  public String toString() {
+    return value.toString();
+  }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

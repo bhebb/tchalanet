@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.application.command.model;
 
 import com.tchalanet.server.common.types.enums.BreachOutcome;
-
 import java.math.BigDecimal;
 
 public record LimitNotice(
@@ -11,5 +10,4 @@ public record LimitNotice(
     String targetApplied,
     String selectionKey,
     BigDecimal currentValue,
-    BigDecimal limitValue
-) {}
+    BigDecimal limitValue) {}

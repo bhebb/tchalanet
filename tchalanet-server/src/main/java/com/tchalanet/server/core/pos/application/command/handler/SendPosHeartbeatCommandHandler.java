@@ -1,13 +1,13 @@
 package com.tchalanet.server.core.pos.application.command.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.pos.application.command.model.SendPosHeartbeatCommand;
 import com.tchalanet.server.core.pos.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.pos.application.port.out.TerminalWriterPort;
 import com.tchalanet.server.core.pos.domain.model.Terminal;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -32,12 +32,12 @@ public class SendPosHeartbeatCommandHandler implements VoidCommandHandler<SendPo
     // Merge extras into meta
     String metaDelta = null;
     try {
-      var map = Map.of(
-          "status", command.status(),
-          "batteryPercent", command.batteryPercent(),
-          "appVersion", command.appVersion(),
-          "extras", command.extras()
-      );
+      var map =
+          Map.of(
+              "status", command.status(),
+              "batteryPercent", command.batteryPercent(),
+              "appVersion", command.appVersion(),
+              "extras", command.extras());
       metaDelta = objectMapper.writeValueAsString(map);
     } catch (JsonProcessingException e) {
       // ignore

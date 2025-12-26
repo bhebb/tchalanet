@@ -2,9 +2,7 @@ package com.tchalanet.server.core.external.infra.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * Propriétés de configuration du service externe de notifications (serveur Node).
- */
+/** Propriétés de configuration du service externe de notifications (serveur Node). */
 @ConfigurationProperties(prefix = "tch.notification")
 public class NotificationServiceProperties {
 
@@ -19,4 +17,3 @@ public class NotificationServiceProperties {
     this.baseUrl = baseUrl;
   }
 }
-

@@ -10,33 +10,32 @@ import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutono
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleQuery;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleResult;
 import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tenant/autonomy")
 @RequiredArgsConstructor
 public class TenantAutonomyController {
 
-    private final CommandBus commandBus;
-    private final QueryBus queryBus;
+  private final CommandBus commandBus;
+  private final QueryBus queryBus;
 
-    @GetMapping
-    @ResponseStatus(value = HttpStatus.OK)
-    public GetAutonomyPolicyRuleResult get(@RequestParam TenantId tenantId) {
-        return queryBus.send(new GetAutonomyPolicyRuleQuery(
-            tenantId, AutonomyTargetType.TENANT, tenantId.uuid()
-        ));
-    }
+  @GetMapping
+  @ResponseStatus(value = HttpStatus.OK)
+  public GetAutonomyPolicyRuleResult get(@RequestParam TenantId tenantId) {
+    return queryBus.send(
+        new GetAutonomyPolicyRuleQuery(tenantId, AutonomyTargetType.TENANT, tenantId.uuid()));
+  }
 
-    @PutMapping
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public AutonomyPolicyRule upsert(@RequestParam TenantId tenantId, @RequestBody UpsertAutonomyRequest req) {
-        return commandBus.send(new UpsertAutonomyPolicyRuleCommand(
+  @PutMapping
+  @ResponseStatus(value = HttpStatus.CREATED)
+  public AutonomyPolicyRule upsert(
+      @RequestParam TenantId tenantId, @RequestBody UpsertAutonomyRequest req) {
+    return commandBus.send(
+        new UpsertAutonomyPolicyRuleCommand(
             tenantId,
             AutonomyTargetType.TENANT,
             tenantId.uuid(),
@@ -45,17 +44,14 @@ public class TenantAutonomyController {
             req.approvalRole(),
             req.enabled(),
             req.startsAt(),
-            req.endsAt()
-        ));
-    }
+            req.endsAt()));
+  }
 
-    public record UpsertAutonomyRequest(
-        AutonomyLevel level,
-        boolean requireApprovalOnBlock,
-        ApprovalRole approvalRole,
-        boolean enabled,
-        Instant startsAt,
-        Instant endsAt
-    ) {
-    }
+  public record UpsertAutonomyRequest(
+      AutonomyLevel level,
+      boolean requireApprovalOnBlock,
+      ApprovalRole approvalRole,
+      boolean enabled,
+      Instant startsAt,
+      Instant endsAt) {}
 }

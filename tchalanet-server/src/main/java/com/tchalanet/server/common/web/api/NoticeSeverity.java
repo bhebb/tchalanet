@@ -1,9 +1,7 @@
 package com.tchalanet.server.common.web.api;
 
-/**
- * Enumeration of notice severity levels.
- */
+/** Enumeration of notice severity levels. */
 public enum NoticeSeverity {
-    INFO,
-    WARN
+  INFO,
+  WARN
 }

@@ -7,7 +7,6 @@ import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissi
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort, RolePermissionAdminPort {
+public class PermissionCatalogAdminAdapter
+    implements PermissionCatalogAdminPort, RolePermissionAdminPort {
 
   private final PermissionJpaRepository permissionRepository;
   private final RolePermissionAdminJpaRepository rolePermissionRepository;
@@ -28,9 +28,7 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
   @Override
   @Transactional(readOnly = true)
   public List<PermissionSummary> listPermissions() {
-    return permissionRepository.findAllNotDeleted().stream()
-        .map(this::toSummary)
-        .toList();
+    return permissionRepository.findAllNotDeleted().stream().map(this::toSummary).toList();
   }
 
   private PermissionSummary toSummary(PermissionEntity entity) {
@@ -61,8 +59,9 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
       throw new IllegalArgumentException("roleId and permissionCode must not be null/blank");
     }
 
-    var existing = rolePermissionRepository.findByRoleId(roleId.uuid()).stream()
-        .anyMatch(rp -> rp.getPermission().getCode().equals(permissionCode));
+    var existing =
+        rolePermissionRepository.findByRoleId(roleId.uuid()).stream()
+            .anyMatch(rp -> rp.getPermission().getCode().equals(permissionCode));
     if (existing) {
       return false; // idempotent: lien déjà présent
     }
@@ -70,7 +69,8 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
     var permission =
         permissionRepository
             .findById(permissionCode)
-            .orElseThrow(() -> new IllegalArgumentException("Permission not found: " + permissionCode));
+            .orElseThrow(
+                () -> new IllegalArgumentException("Permission not found: " + permissionCode));
 
     var role =
         appRoleRepository
@@ -95,9 +95,8 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
     }
 
     var links = new HashSet<>(rolePermissionRepository.findByRoleId(roleId.uuid()));
-    var toRemove = links.stream()
-        .filter(rp -> rp.getPermission().getCode().equals(permissionCode))
-        .toList();
+    var toRemove =
+        links.stream().filter(rp -> rp.getPermission().getCode().equals(permissionCode)).toList();
 
     if (toRemove.isEmpty()) {
       return false; // rien à révoquer
@@ -108,4 +107,3 @@ public class PermissionCatalogAdminAdapter implements PermissionCatalogAdminPort
     return true;
   }
 }
-

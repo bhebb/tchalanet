@@ -1,6 +1,5 @@
 package com.tchalanet.server.common.persistence;
 
-import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

@@ -44,7 +44,8 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
       @Param("limit") int limit);
 
   /**
-   * SLOT reader: retourne les drawIds du slot tenant+channel+jour (UTC window calculée côté application).
+   * SLOT reader: retourne les drawIds du slot tenant+channel+jour (UTC window calculée côté
+   * application).
    */
   @Query(
       value =

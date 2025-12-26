@@ -3,7 +3,6 @@ package com.tchalanet.server.core.audit.application.query.model;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -16,6 +15,4 @@ public record ActivityItemDto(
     AuditActorType actorType,
     String actorId,
     String summary,
-    String detailsJson
-) {}
-
+    String detailsJson) {}

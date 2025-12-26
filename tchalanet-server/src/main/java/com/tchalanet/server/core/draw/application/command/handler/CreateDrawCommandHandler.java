@@ -1,18 +1,17 @@
 package com.tchalanet.server.core.draw.application.command.handler;
-import com.tchalanet.server.common.types.id.DrawId;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

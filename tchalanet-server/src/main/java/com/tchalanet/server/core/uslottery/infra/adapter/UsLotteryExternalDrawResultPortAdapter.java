@@ -68,11 +68,7 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
           raw.put("draw_date", String.valueOf(d.drawDate()));
 
           return ExternalDrawResult.found(
-              "FOUND",
-              toStrings(d.numbers()),
-              toStrings(d.extras()),
-              occurredAt,
-              raw);
+              "FOUND", toStrings(d.numbers()), toStrings(d.extras()), occurredAt, raw);
         }
       } catch (Exception e) {
         log.warn("uslottery-adapter: provider {} failed: {}", provider.provider(), e.toString());

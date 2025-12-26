@@ -12,4 +12,3 @@ public class StringToUserIdConverter implements Converter<String, UserId> {
     return UserId.of(source);
   }
 }
-

@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.accesscontrol.application.query.handler;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.core.accesscontrol.application.query.model.ListRolesQuery;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RoleReaderPort;
+import com.tchalanet.server.core.accesscontrol.application.query.model.ListRolesQuery;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

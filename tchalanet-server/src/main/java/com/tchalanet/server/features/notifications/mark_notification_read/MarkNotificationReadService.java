@@ -7,9 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
-/**
- * Use case pour marquer une notification comme lue.
- */
+/** Use case pour marquer une notification comme lue. */
 @Service
 public class MarkNotificationReadService {
 
@@ -21,8 +19,7 @@ public class MarkNotificationReadService {
 
   public void handle(UUID userId, UUID notificationId) {
     NotificationEntity entity =
-        repo
-            .findById(notificationId)
+        repo.findById(notificationId)
             .orElseThrow(() -> new NoSuchElementException("Notification not found"));
 
     if (!entity.getUserId().equals(userId)) {
@@ -36,4 +33,3 @@ public class MarkNotificationReadService {
     }
   }
 }
-

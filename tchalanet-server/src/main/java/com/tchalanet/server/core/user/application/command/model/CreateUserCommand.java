@@ -1,11 +1,9 @@
 package com.tchalanet.server.core.user.application.command.model;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.Command;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.user.domain.model.AppUser;
-
 import java.util.Set;
-import java.util.UUID;
 
 public record CreateUserCommand(
     TenantId tenantIdInitiator,
@@ -15,6 +13,5 @@ public record CreateUserCommand(
     String lastName,
     String locale,
     boolean sendInvitation,
-    Set<String> initialRoles
-) implements Command<AppUser> {
-}
+    Set<String> initialRoles)
+    implements Command<AppUser> {}

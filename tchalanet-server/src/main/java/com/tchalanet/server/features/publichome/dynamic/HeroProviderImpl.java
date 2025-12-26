@@ -7,12 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class HeroProviderImpl implements HeroProvider {
 
-    @Override
-    public HeroBlock buildHeroBlock(PageModel pageModel, String currentLang) {
-        String title = "Welcome to Tchalanet";
-        String subtitle = "Your dynamic public home";
-        String cta = "Get started";
-        return new HeroBlock(title, subtitle, cta);
-    }
+  @Override
+  public HeroBlock buildHeroBlock(PageModel pageModel, String currentLang) {
+    String title = "Welcome to Tchalanet";
+    String subtitle = "Your dynamic public home";
+    String cta = "Get started";
+    return new HeroBlock(title, subtitle, cta);
+  }
 }
-

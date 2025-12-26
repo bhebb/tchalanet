@@ -12,6 +12,4 @@ public record OutletDailySummary(
     long paid,
     int sessionCount,
     String outletName,
-    boolean salesBlocked
-) {}
-
+    boolean salesBlocked) {}

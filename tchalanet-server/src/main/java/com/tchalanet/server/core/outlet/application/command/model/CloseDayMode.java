@@ -5,4 +5,3 @@ public enum CloseDayMode {
   FORCE_SESSIONS,
   FORCE_ALL
 }
-

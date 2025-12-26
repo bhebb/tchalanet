@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.session.domain.event;
-import com.tchalanet.server.common.types.id.SessionId;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 import java.util.UUID;
@@ -17,4 +17,5 @@ public record SessionClosedEvent(
     UserId cashierId,
     Instant openedAt,
     Instant closedAt,
-    long netRevenueCents) implements DomainEvent {}
+    long netRevenueCents)
+    implements DomainEvent {}

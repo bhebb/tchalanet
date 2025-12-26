@@ -13,7 +13,9 @@ public record PlanId(UUID value) {
   }
 
   /** Return PlanId or null if id is null */
-  public static PlanId nullableOf(UUID id) { return id == null ? null : new PlanId(id); }
+  public static PlanId nullableOf(UUID id) {
+    return id == null ? null : new PlanId(id);
+  }
 
   public static PlanId of(String id) {
     if (id == null) throw new IllegalArgumentException("plan id string is required");
@@ -29,5 +31,7 @@ public record PlanId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

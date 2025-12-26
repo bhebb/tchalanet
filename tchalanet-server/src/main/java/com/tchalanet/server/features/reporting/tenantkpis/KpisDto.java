@@ -9,8 +9,7 @@ public record KpisDto(
     BigDecimal netRevenue,
     long activeOutlets,
     long activeCashiers,
-    BigDecimal payoutRatio,          // 0.0 – 1.0
-    BigDecimal avgTicketAmount,      // totalSales / ticketsSold
+    BigDecimal payoutRatio, // 0.0 – 1.0
+    BigDecimal avgTicketAmount, // totalSales / ticketsSold
     long winningTicketsCount,
-    BigDecimal winningTicketsRatio) {
-}
+    BigDecimal winningTicketsRatio) {}

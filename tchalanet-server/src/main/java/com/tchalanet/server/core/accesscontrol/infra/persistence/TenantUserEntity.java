@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Getter;

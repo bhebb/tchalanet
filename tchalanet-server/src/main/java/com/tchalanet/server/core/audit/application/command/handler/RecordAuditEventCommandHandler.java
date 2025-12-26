@@ -4,16 +4,14 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.core.audit.application.command.model.RecordAuditEventCommand;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
-import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,40 +20,42 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RecordAuditEventCommandHandler implements VoidCommandHandler<RecordAuditEventCommand> {
 
-    private final AuditEventWriterPort writerPort;
-    private final TchRequestContextHolder ctxHolder;
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+  private final AuditEventWriterPort writerPort;
+  private final TchRequestContextHolder ctxHolder;
+  private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    @Override
-    public void handle(RecordAuditEventCommand command) {
-        var ctxOpt = Optional.ofNullable(ctxHolder.get());
+  @Override
+  public void handle(RecordAuditEventCommand command) {
+    var ctxOpt = Optional.ofNullable(ctxHolder.get());
 
-        var userOpt = ctxOpt.map(TchRequestContext::userId);
-        var createdBy = userOpt.orElse(null);
-        var actorId = createdBy;
-        var actorType = userOpt.isPresent() ? AuditActorType.USER : AuditActorType.SYSTEM;
-        var ip = ctxOpt.map(TchRequestContext::clientIp).orElse(null);
-        var userAgent = ctxOpt.map(TchRequestContext::userAgent).orElse(null);
+    var userOpt = ctxOpt.map(TchRequestContext::userId);
+    var createdBy = userOpt.orElse(null);
+    var actorId = createdBy;
+    var actorType = userOpt.isPresent() ? AuditActorType.USER : AuditActorType.SYSTEM;
+    var ip = ctxOpt.map(TchRequestContext::clientIp).orElse(null);
+    var userAgent = ctxOpt.map(TchRequestContext::userAgent).orElse(null);
 
-        var details = Optional.ofNullable(command.details())
-            .map(HashMap::new)
-            .orElseGet(HashMap::new);
+    var details = Optional.ofNullable(command.details()).map(HashMap::new).orElseGet(HashMap::new);
 
-        ctxOpt.map(TchRequestContext::requestId)
-            .ifPresent(requestId -> details.putIfAbsent("requestId", requestId));
+    ctxOpt
+        .map(TchRequestContext::requestId)
+        .ifPresent(requestId -> details.putIfAbsent("requestId", requestId));
 
-        var json = Optional.of(details)
-            .map(d -> {
-                try {
+    var json =
+        Optional.of(details)
+            .map(
+                d -> {
+                  try {
                     return objectMapper.writeValueAsString(d);
-                } catch (Exception ex) {
+                  } catch (Exception ex) {
                     log.error("Failed to serialize audit details", ex);
                     return "{}";
-                }
-            })
+                  }
+                })
             .orElse("{}");
 
-        var event = new AuditEvent(
+    var event =
+        new AuditEvent(
             null,
             null, // tenantId
             Instant.now(),
@@ -69,16 +69,16 @@ public class RecordAuditEventCommandHandler implements VoidCommandHandler<Record
             ip,
             userAgent);
 
-        writerPort.save(event);
-    }
+    writerPort.save(event);
+  }
 
-    private UUID safeUuid(String s) {
-        if (s == null) return null;
-        try {
-            return java.util.UUID.fromString(s);
-        } catch (Exception ex) {
-            log.error("Failed to deserialize UUID from String", ex);
-            return null;
-        }
+  private UUID safeUuid(String s) {
+    if (s == null) return null;
+    try {
+      return java.util.UUID.fromString(s);
+    } catch (Exception ex) {
+      log.error("Failed to deserialize UUID from String", ex);
+      return null;
     }
+  }
 }

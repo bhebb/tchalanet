@@ -37,7 +37,10 @@ public interface DrawAdminWebMapper {
     @Mapping(target = "channelCode", source = "request.channelCode"),
     @Mapping(target = "channelName", constant = ""),
     @Mapping(target = "status", constant = "SCHEDULED"),
-    @Mapping(target = "drawTime", expression = "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().atOffset(java.time.ZoneOffset.UTC))"),
+    @Mapping(
+        target = "drawTime",
+        expression =
+            "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().atOffset(java.time.ZoneOffset.UTC))"),
     @Mapping(target = "cutoffTime", ignore = true),
     @Mapping(target = "isNext", constant = "false"),
     @Mapping(target = "active", constant = "true"),
@@ -49,7 +52,10 @@ public interface DrawAdminWebMapper {
     @Mapping(target = "channelCode", source = "request.code"),
     @Mapping(target = "channelName", source = "request.name"),
     @Mapping(target = "status", constant = "SCHEDULED"),
-    @Mapping(target = "drawTime", expression = "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().atOffset(java.time.ZoneOffset.UTC))"),
+    @Mapping(
+        target = "drawTime",
+        expression =
+            "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().atOffset(java.time.ZoneOffset.UTC))"),
     @Mapping(target = "cutoffTime", ignore = true),
     @Mapping(target = "isNext", constant = "false"),
     @Mapping(target = "active", constant = "true"),

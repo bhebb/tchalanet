@@ -6,4 +6,3 @@ import java.nio.file.Path;
 public interface PayoutReportPort {
   Path generate(GeneratePayoutReportQuery query);
 }
-

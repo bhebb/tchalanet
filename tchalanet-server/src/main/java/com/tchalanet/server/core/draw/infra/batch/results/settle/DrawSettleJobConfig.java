@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.Job;
@@ -14,8 +15,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.util.UUID;
-
 @Configuration
 @EnableBatchProcessing
 @RequiredArgsConstructor
@@ -29,9 +28,7 @@ public class DrawSettleJobConfig {
 
   @Bean
   public Job settleDrawsJob() {
-    return new JobBuilder("settle_draws", jobRepository)
-        .start(settleStep())
-        .build();
+    return new JobBuilder("settle_draws", jobRepository).start(settleStep()).build();
   }
 
   @Bean

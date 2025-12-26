@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.ledger.application.command.model;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.Command;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
-
 import java.time.Instant;
 import java.util.UUID;
 
-public record ReverseTransactionCommand(TenantId tenantId, LedgerRefType refType, UUID refId, Instant occurredAt) implements Command<Void> {
-}
+public record ReverseTransactionCommand(
+    TenantId tenantId, LedgerRefType refType, UUID refId, Instant occurredAt)
+    implements Command<Void> {}

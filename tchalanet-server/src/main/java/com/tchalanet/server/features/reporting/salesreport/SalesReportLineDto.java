@@ -9,5 +9,4 @@ public record SalesReportLineDto(
     long ticketsSold,
     BigDecimal totalSales,
     BigDecimal totalPayout,
-    BigDecimal netRevenue
-) { }
+    BigDecimal netRevenue) {}

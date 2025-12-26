@@ -11,13 +11,14 @@ import org.springframework.data.domain.PageRequest;
 
 @UseCase
 @RequiredArgsConstructor
-public class ListAllUsersQueryHandler implements QueryHandler<PagedListAllUsersQuery, Page<AppUser>> {
+public class ListAllUsersQueryHandler
+    implements QueryHandler<PagedListAllUsersQuery, Page<AppUser>> {
 
-    private final UserReaderPort userReaderPort;
+  private final UserReaderPort userReaderPort;
 
-    @Override
-    public Page<AppUser> handle(PagedListAllUsersQuery query) {
-        var pageable = PageRequest.of(query.page(), query.size());
-        return userReaderPort.findAll(pageable);
-    }
+  @Override
+  public Page<AppUser> handle(PagedListAllUsersQuery query) {
+    var pageable = PageRequest.of(query.page(), query.size());
+    return userReaderPort.findAll(pageable);
+  }
 }

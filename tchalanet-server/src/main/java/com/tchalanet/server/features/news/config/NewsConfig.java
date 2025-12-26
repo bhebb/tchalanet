@@ -5,5 +5,4 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(NewsConfigProperties.class)
-public class NewsConfig {
-}
+public class NewsConfig {}

@@ -1,5 +1,4 @@
 package com.tchalanet.server.core.user.infra.web.dto;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import java.util.UUID;
 
@@ -12,6 +11,4 @@ public record MeResponse(
     String firstName,
     String lastName,
     String displayName,
-    boolean isNew
-) {}
-
+    boolean isNew) {}

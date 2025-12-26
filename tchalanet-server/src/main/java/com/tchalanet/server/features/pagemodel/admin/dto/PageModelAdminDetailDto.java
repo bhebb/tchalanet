@@ -13,7 +13,4 @@ public record PageModelAdminDetailDto(
     Integer schemaVersion,
     PageModel model,
     Instant createdAt,
-    Instant updatedAt
-) {
-}
-
+    Instant updatedAt) {}

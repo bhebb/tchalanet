@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class RestoreOfflineDataOnNewDeviceCommandHandler implements VoidCommandHandler<RestoreOfflineDataOnNewDeviceCommand> {
+public class RestoreOfflineDataOnNewDeviceCommandHandler
+    implements VoidCommandHandler<RestoreOfflineDataOnNewDeviceCommand> {
 
   @Override
   public void handle(RestoreOfflineDataOnNewDeviceCommand command) {
     // TODO: restore data
-    throw new UnsupportedOperationException("RestoreOfflineDataOnNewDeviceCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "RestoreOfflineDataOnNewDeviceCommandHandler not implemented yet");
   }
 }
-

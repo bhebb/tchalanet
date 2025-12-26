@@ -9,10 +9,8 @@ public record OutletSummaryDto(
     String outletName,
     String address,
     BigDecimal totalSalesToday,
-    BigDecimal totalPayoutToday
-) {
-    public static OutletSummaryDto empty() {
-        return new OutletSummaryDto(null, null, null, null, BigDecimal.ZERO, BigDecimal.ZERO);
-    }
+    BigDecimal totalPayoutToday) {
+  public static OutletSummaryDto empty() {
+    return new OutletSummaryDto(null, null, null, null, BigDecimal.ZERO, BigDecimal.ZERO);
+  }
 }
-

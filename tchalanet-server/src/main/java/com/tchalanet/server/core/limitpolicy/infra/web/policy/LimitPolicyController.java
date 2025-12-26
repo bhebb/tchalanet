@@ -1,17 +1,16 @@
 package com.tchalanet.server.core.limitpolicy.infra.web.policy;
-import com.tchalanet.server.common.types.id.TenantId;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.limitpolicy.application.command.model.CreateLimitDefinitionCommand;
 import com.tchalanet.server.core.limitpolicy.application.command.model.DeleteLimitDefinitionCommand;
 import com.tchalanet.server.core.limitpolicy.application.command.model.UpdateLimitDefinitionCommand;
 import com.tchalanet.server.core.limitpolicy.application.query.model.GetLimitDefinitionsQuery;
 import com.tchalanet.server.core.limitpolicy.application.query.model.GetLimitDefinitionsResult;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tenant/limits")
@@ -32,8 +31,16 @@ public class LimitPolicyController {
   }
 
   @PutMapping("/{id}")
-  public Object updateDefinition(@PathVariable UUID id, @RequestBody UpdateLimitDefinitionCommand cmd) {
-    return commandBus.send(new UpdateLimitDefinitionCommand(id, cmd.enabled(), cmd.onBreach(), cmd.params(), cmd.betTypes(), cmd.selectionPattern()));
+  public Object updateDefinition(
+      @PathVariable UUID id, @RequestBody UpdateLimitDefinitionCommand cmd) {
+    return commandBus.send(
+        new UpdateLimitDefinitionCommand(
+            id,
+            cmd.enabled(),
+            cmd.onBreach(),
+            cmd.params(),
+            cmd.betTypes(),
+            cmd.selectionPattern()));
   }
 
   @DeleteMapping("/{id}")

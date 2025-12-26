@@ -8,5 +8,4 @@ public record Address(
     String country,
     String postalCode,
     Double latitude,
-    Double longitude
-) {}
+    Double longitude) {}

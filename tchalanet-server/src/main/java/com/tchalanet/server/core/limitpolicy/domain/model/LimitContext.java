@@ -7,7 +7,6 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -28,14 +27,13 @@ public record LimitContext(
     BigDecimal ticketStakeTotal,
     int linesCount,
     Instant now,
-    ZoneId timezone
-) {
+    ZoneId timezone) {
   public record BetLine(
       BetType betType,
       String selectionKey,
       BigDecimal stake,
       BigDecimal optionalMultiplier // default 1
-  ) {
+      ) {
     public BetLine(BetType betType, String selectionKey, BigDecimal stake) {
       this(betType, selectionKey, stake, BigDecimal.ONE);
     }

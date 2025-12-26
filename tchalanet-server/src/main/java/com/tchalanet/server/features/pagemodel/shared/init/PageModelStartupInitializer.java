@@ -9,11 +9,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PageModelStartupInitializer implements ApplicationRunner {
 
-    private final PageModelBootstrapService bootstrapService;
+  private final PageModelBootstrapService bootstrapService;
 
-    @Override
-    public void run(ApplicationArguments args) {
-        bootstrapService.seedDefaultsForDefaultTenant();
-    }
+  @Override
+  public void run(ApplicationArguments args) {
+    bootstrapService.seedDefaultsForDefaultTenant();
+  }
 }
-

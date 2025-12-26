@@ -6,14 +6,13 @@ import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.tchalanet.server.features.news.shared.LotteryNewsModels.LotteryNewsArticle;
 import com.tchalanet.server.features.news.shared.LotteryNewsModels.LotteryNewsFeedSnapshot;
+import com.tchalanet.server.features.news.shared.NewsStatus;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import com.tchalanet.server.features.news.shared.NewsStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,9 +34,7 @@ public class RomeNewsMapper {
     Instant publishedAt =
         entry.getPublishedDate() != null
             ? entry.getPublishedDate().toInstant()
-            : (entry.getUpdatedDate() != null
-                ? entry.getUpdatedDate().toInstant()
-                : Instant.now());
+            : (entry.getUpdatedDate() != null ? entry.getUpdatedDate().toInstant() : Instant.now());
 
     String author = entry.getAuthor();
     if (author == null || author.isBlank()) {
@@ -103,4 +100,3 @@ public class RomeNewsMapper {
     return "";
   }
 }
-

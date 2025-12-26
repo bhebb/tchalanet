@@ -10,6 +10,4 @@ public record PublicHomeResponse(
     List<String> langs,
     PageModel pageModel,
     PublicPageDynamicPayload dynamic,
-    Map<String, Object> i18n
-) {
-}
+    Map<String, Object> i18n) {}

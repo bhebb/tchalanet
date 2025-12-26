@@ -8,6 +8,5 @@ public record PublicPageDynamicPayload(
     FeaturesBlock features,
     PlansBlock plans,
     NewsBlock news,
-    ResultsByGameBlock resultsByGame
-) implements TchalaBlock {
-}
+    ResultsByGameBlock resultsByGame)
+    implements TchalaBlock {}

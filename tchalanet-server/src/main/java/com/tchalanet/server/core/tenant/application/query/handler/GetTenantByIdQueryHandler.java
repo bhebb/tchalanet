@@ -11,21 +11,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GetTenantByIdQueryHandler implements QueryHandler<GetTenantByIdQuery, TenantDto> {
 
-    private final TenantReaderPort repo;
+  private final TenantReaderPort repo;
 
-    @Override
-    public TenantDto handle(GetTenantByIdQuery q) {
-        var t = repo.findById(q.tenantId()).orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
-        return new TenantDto(
-            t.id().value(),
-            t.code(),
-            t.name(),
-            t.type(),
-            t.timezone(),
-            t.currency(),
-            t.status(),
-            t.activeThemeId(),
-            t.addressId()
-        );
-    }
+  @Override
+  public TenantDto handle(GetTenantByIdQuery q) {
+    var t =
+        repo.findById(q.tenantId())
+            .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+    return new TenantDto(
+        t.id().value(),
+        t.code(),
+        t.name(),
+        t.type(),
+        t.timezone(),
+        t.currency(),
+        t.status(),
+        t.activeThemeId(),
+        t.addressId());
+  }
 }

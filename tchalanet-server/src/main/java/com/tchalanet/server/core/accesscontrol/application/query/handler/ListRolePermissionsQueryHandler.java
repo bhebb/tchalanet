@@ -19,4 +19,3 @@ public class ListRolePermissionsQueryHandler
     return rolePermissionAdminPort.listPermissionCodes(query.roleId());
   }
 }
-

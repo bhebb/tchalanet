@@ -54,6 +54,6 @@ public class PlanJpaEntity extends BaseEntity {
 
   // inverse: subscriptions referencing this plan
   @OneToMany(mappedBy = "plan", fetch = FetchType.LAZY)
-  private List<com.tchalanet.server.core.billing.infra.persistence.SubscriptionJpaEntity> subscriptions = new ArrayList<>();
+  private List<com.tchalanet.server.core.billing.infra.persistence.SubscriptionJpaEntity>
+      subscriptions = new ArrayList<>();
 }
-

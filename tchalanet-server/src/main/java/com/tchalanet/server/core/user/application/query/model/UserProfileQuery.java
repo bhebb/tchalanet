@@ -1,12 +1,11 @@
 package com.tchalanet.server.core.user.application.query.model;
+
+import com.tchalanet.server.common.types.enums.ThemeMode;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-
-import com.tchalanet.server.common.types.enums.ThemeMode;
 
 public class UserProfileQuery {
   public UUID id;

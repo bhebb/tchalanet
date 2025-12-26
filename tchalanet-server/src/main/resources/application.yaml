@@ -48,11 +48,12 @@ spring:
       org.hibernate.envers.revision_type_field_name: "revtype"
       org.hibernate.envers.revision_listener: "com.tchalanet.server.common.infra.persistence.audit.TchRevisionListener"
 
-    batch:
-      jdbc:
-        initialize-schema: never   # on laisse Flyway créer les tables
-      job:
-        enabled: false             # pas de job auto au démarrage (on les lance via API / schedulers)
+  batch:
+    jdbc:
+      initialize-schema: never   # on laisse Flyway créer les tables
+    job:
+      enabled: false             # pas de job auto au démarrage (on les lance via API / schedulers)
+
   # --- Database Migration ---
   flyway:
     enabled: true

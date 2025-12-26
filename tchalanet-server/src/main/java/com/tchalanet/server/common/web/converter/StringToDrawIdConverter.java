@@ -12,4 +12,3 @@ public class StringToDrawIdConverter implements Converter<String, DrawId> {
     return DrawId.of(source);
   }
 }
-

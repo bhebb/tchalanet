@@ -8,6 +8,4 @@ public record OutletConfigPatch(
     Boolean receiptPrintingEnabled,
     String receiptHeaderMessage,
     String receiptFooterMessage,
-    Boolean requireOpeningFloat
-) {}
-
+    Boolean requireOpeningFloat) {}

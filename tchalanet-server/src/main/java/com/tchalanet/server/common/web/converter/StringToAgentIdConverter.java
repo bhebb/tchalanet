@@ -12,4 +12,3 @@ public class StringToAgentIdConverter implements Converter<String, AgentId> {
     return AgentId.of(source);
   }
 }
-

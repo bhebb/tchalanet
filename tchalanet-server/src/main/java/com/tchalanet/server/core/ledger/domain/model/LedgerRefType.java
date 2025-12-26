@@ -10,5 +10,7 @@ public enum LedgerRefType {
   PAYOUT_REVERSAL,
   REVERSAL;
 
-  public String code() { return name(); }
+  public String code() {
+    return name();
+  }
 }

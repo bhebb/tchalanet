@@ -11,9 +11,7 @@ public record TimeWindow(LocalDateTime start, LocalDateTime end) {
     if (start.isAfter(end)) throw new IllegalArgumentException("TimeWindow.start is after end");
   }
 
-  /**
-   * Static factory for TimeWindow.
-   */
+  /** Static factory for TimeWindow. */
   public static TimeWindow of(LocalDateTime start, LocalDateTime end) {
     return new TimeWindow(start, end);
   }

@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class ResolveSyncConflictCommandHandler implements VoidCommandHandler<ResolveSyncConflictCommand> {
+public class ResolveSyncConflictCommandHandler
+    implements VoidCommandHandler<ResolveSyncConflictCommand> {
 
   @Override
   public void handle(ResolveSyncConflictCommand command) {
     // TODO: apply resolution chosen by supervisor or automatic rule
-    throw new UnsupportedOperationException("ResolveSyncConflictCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "ResolveSyncConflictCommandHandler not implemented yet");
   }
 }
-

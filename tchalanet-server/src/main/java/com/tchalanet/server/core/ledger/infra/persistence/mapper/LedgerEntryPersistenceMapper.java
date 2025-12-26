@@ -8,21 +8,26 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface LedgerEntryPersistenceMapper {
 
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "tenantId", expression = "java(domain.tenantId() == null ? null : domain.tenantId().uuid())")
-    @Mapping(target = "refType", source = "refType")
-    @Mapping(target = "refId", source = "refId")
-    @Mapping(target = "amount", source = "amount")
-    @Mapping(target = "direction", source = "direction")
-    @Mapping(target = "occurredAt", source = "occurredAt")
-    LedgerEntryJpaEntity toEntity(LedgerEntry domain);
+  @Mapping(target = "id", source = "id")
+  @Mapping(
+      target = "tenantId",
+      expression = "java(domain.tenantId() == null ? null : domain.tenantId().uuid())")
+  @Mapping(target = "refType", source = "refType")
+  @Mapping(target = "refId", source = "refId")
+  @Mapping(target = "amount", source = "amount")
+  @Mapping(target = "direction", source = "direction")
+  @Mapping(target = "occurredAt", source = "occurredAt")
+  LedgerEntryJpaEntity toEntity(LedgerEntry domain);
 
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "tenantId", expression = "java(entity.getTenantId() == null ? null : com.tchalanet.server.common.types.id.TenantId.of(entity.getTenantId()))")
-    @Mapping(target = "refType", source = "refType")
-    @Mapping(target = "refId", source = "refId")
-    @Mapping(target = "amount", source = "amount")
-    @Mapping(target = "direction", source = "direction")
-    @Mapping(target = "occurredAt", source = "occurredAt")
-    LedgerEntry toDomain(LedgerEntryJpaEntity entity);
+  @Mapping(target = "id", source = "id")
+  @Mapping(
+      target = "tenantId",
+      expression =
+          "java(entity.getTenantId() == null ? null : com.tchalanet.server.common.types.id.TenantId.of(entity.getTenantId()))")
+  @Mapping(target = "refType", source = "refType")
+  @Mapping(target = "refId", source = "refId")
+  @Mapping(target = "amount", source = "amount")
+  @Mapping(target = "direction", source = "direction")
+  @Mapping(target = "occurredAt", source = "occurredAt")
+  LedgerEntry toDomain(LedgerEntryJpaEntity entity);
 }

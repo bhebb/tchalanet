@@ -21,9 +21,10 @@ public class ApproveUserCommandHandler implements CommandHandler<ApproveUserComm
   public Void handle(ApproveUserCommand command) {
     var now = Instant.now(); // TODO: injecter une Clock commune si disponible
 
-    var user = userReaderPort
-        .findById(command.userId())
-        .orElseThrow(() -> new IllegalStateException("User not found: " + command.userId()));
+    var user =
+        userReaderPort
+            .findById(command.userId())
+            .orElseThrow(() -> new IllegalStateException("User not found: " + command.userId()));
 
     var approved = user.approve(now, command.approvedBy());
     var saved = userWriterPort.save(approved);
@@ -34,8 +35,7 @@ public class ApproveUserCommandHandler implements CommandHandler<ApproveUserComm
           saved.getFirstName(),
           saved.getLastName(),
           saved.getEmail(),
-          saved.getLocale()
-      );
+          saved.getLocale());
     }
 
     return null;

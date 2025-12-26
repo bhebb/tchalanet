@@ -13,5 +13,4 @@ public record TenantDto(
     String currency,
     TenantStatus status,
     UUID activeThemeId,
-    UUID addressId
-) {}
+    UUID addressId) {}

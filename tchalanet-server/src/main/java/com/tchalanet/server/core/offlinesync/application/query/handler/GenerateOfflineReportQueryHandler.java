@@ -10,12 +10,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GenerateOfflineReportQueryHandler implements QueryHandler<GenerateOfflineReportQuery, Path> {
+public class GenerateOfflineReportQueryHandler
+    implements QueryHandler<GenerateOfflineReportQuery, Path> {
 
   @Override
   public Path handle(GenerateOfflineReportQuery query) {
     // TODO: generate offline report
-    throw new UnsupportedOperationException("GenerateOfflineReportQueryHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "GenerateOfflineReportQueryHandler not implemented yet");
   }
 }
-

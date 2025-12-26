@@ -9,4 +9,3 @@ import java.util.List;
 public interface SessionLookupPort {
   List<SessionId> findSessionIds(TenantId tenantId, OutletId outletId, Instant from, Instant to);
 }
-

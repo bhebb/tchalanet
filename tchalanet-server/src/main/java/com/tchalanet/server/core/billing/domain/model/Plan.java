@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.billing.domain.model;
 
 import com.tchalanet.server.common.types.id.PlanId;
-
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -14,5 +13,4 @@ public record Plan(
     String currency,
     BillingFrequency billingFrequency,
     boolean publicPlan,
-    Map<String, Object> features) {
-}
+    Map<String, Object> features) {}

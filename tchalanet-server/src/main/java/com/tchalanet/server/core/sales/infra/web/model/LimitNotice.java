@@ -8,6 +8,4 @@ public record LimitNotice(
     String targetApplied,
     String selectionKey,
     BigDecimal currentValue,
-    BigDecimal limitValue
-) {
-}
+    BigDecimal limitValue) {}

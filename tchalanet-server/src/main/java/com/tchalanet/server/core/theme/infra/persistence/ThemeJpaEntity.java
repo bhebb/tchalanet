@@ -55,5 +55,4 @@ public class ThemeJpaEntity extends BaseTenantEntity {
 
   @Column(name = "theme_version", nullable = false)
   private int themeVersion;
-
 }

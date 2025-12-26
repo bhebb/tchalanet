@@ -11,4 +11,3 @@ public class CloseOutletDayPayload {
   CloseDayMode mode;
   String reason;
 }
-

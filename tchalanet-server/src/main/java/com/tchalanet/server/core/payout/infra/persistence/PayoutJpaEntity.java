@@ -2,19 +2,18 @@ package com.tchalanet.server.core.payout.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "payout")
 @Audited
 @Getter
 @Setter
-public class PayoutJpaEntity  extends BaseTenantEntity {
+public class PayoutJpaEntity extends BaseTenantEntity {
 
   @Column(name = "ticket_id", nullable = false)
   private UUID ticketId;
@@ -45,7 +44,6 @@ public class PayoutJpaEntity  extends BaseTenantEntity {
 
   @Column(name = "status", nullable = false)
   private String status;
-
 
   @Column(name = "approved_at")
   private Instant approvedAt;

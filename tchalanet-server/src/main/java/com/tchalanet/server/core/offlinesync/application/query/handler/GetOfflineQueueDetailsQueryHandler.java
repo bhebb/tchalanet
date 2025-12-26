@@ -10,12 +10,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GetOfflineQueueDetailsQueryHandler implements QueryHandler<GetOfflineQueueDetailsQuery, List<Object>> {
+public class GetOfflineQueueDetailsQueryHandler
+    implements QueryHandler<GetOfflineQueueDetailsQuery, List<Object>> {
 
   @Override
   public List<Object> handle(GetOfflineQueueDetailsQuery query) {
     // TODO: return paginated queue details
-    throw new UnsupportedOperationException("GetOfflineQueueDetailsQueryHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "GetOfflineQueueDetailsQueryHandler not implemented yet");
   }
 }
-

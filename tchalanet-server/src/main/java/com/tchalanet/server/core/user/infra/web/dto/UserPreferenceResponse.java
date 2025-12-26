@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.user.infra.web.dto;
-import com.tchalanet.server.common.types.enums.ThemeMode;
-import com.tchalanet.server.common.types.id.UserId;
 
+import com.tchalanet.server.common.types.enums.ThemeMode;
 import java.util.UUID;
 
 public record UserPreferenceResponse(

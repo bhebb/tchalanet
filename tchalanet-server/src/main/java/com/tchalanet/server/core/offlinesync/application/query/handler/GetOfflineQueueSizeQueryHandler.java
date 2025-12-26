@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GetOfflineQueueSizeQueryHandler implements QueryHandler<GetOfflineQueueSizeQuery, Integer> {
+public class GetOfflineQueueSizeQueryHandler
+    implements QueryHandler<GetOfflineQueueSizeQuery, Integer> {
 
   @Override
   public Integer handle(GetOfflineQueueSizeQuery query) {
@@ -17,4 +18,3 @@ public class GetOfflineQueueSizeQueryHandler implements QueryHandler<GetOfflineQ
     throw new UnsupportedOperationException("GetOfflineQueueSizeQueryHandler not implemented yet");
   }
 }
-

@@ -18,9 +18,10 @@ public class SuspendUserCommandHandler implements CommandHandler<SuspendUserComm
 
   @Override
   public Void handle(SuspendUserCommand command) {
-    var user = userReaderPort
-        .findById(command.userId())
-        .orElseThrow(() -> new IllegalStateException("User not found: " + command.userId()));
+    var user =
+        userReaderPort
+            .findById(command.userId())
+            .orElseThrow(() -> new IllegalStateException("User not found: " + command.userId()));
 
     var suspended = user.suspend();
     var saved = userWriterPort.save(suspended);
@@ -32,4 +33,3 @@ public class SuspendUserCommandHandler implements CommandHandler<SuspendUserComm
     return null;
   }
 }
-

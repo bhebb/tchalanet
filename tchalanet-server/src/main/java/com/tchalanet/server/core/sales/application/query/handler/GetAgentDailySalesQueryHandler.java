@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class GetAgentDailySalesQueryHandler implements QueryHandler<GetAgentDailySalesQuery, Optional<AgentDailySalesDto>> {
+public class GetAgentDailySalesQueryHandler
+    implements QueryHandler<GetAgentDailySalesQuery, Optional<AgentDailySalesDto>> {
 
   private final TicketReaderPort ticketReader;
   private final Clock clock;
@@ -25,8 +26,7 @@ public class GetAgentDailySalesQueryHandler implements QueryHandler<GetAgentDail
     Instant from = query.date().atStartOfDay(clock.getZone()).toInstant();
     Instant to = query.date().plusDays(1).atStartOfDay(clock.getZone()).toInstant();
 
-    return ticketReader.getAgentDailySales(query.tenantId(), from, to)
-        .stream()
+    return ticketReader.getAgentDailySales(query.tenantId(), from, to).stream()
         .filter(dto -> dto.agentId().equals(query.agentId()))
         .findFirst();
   }

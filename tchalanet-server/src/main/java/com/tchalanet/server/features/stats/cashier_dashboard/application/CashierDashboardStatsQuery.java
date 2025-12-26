@@ -4,9 +4,4 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 public record CashierDashboardStatsQuery(
-    UUID tenantId,
-    UUID cashierId,
-    LocalDate fromDate,
-    LocalDate toDate
-) {}
-
+    UUID tenantId, UUID cashierId, LocalDate fromDate, LocalDate toDate) {}

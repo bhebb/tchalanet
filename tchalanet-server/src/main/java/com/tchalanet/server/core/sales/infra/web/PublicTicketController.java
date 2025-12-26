@@ -10,20 +10,20 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PublicTicketController {
 
-    private final QueryBus queryBus;
+  private final QueryBus queryBus;
 
-    @GetMapping("/ticket/{publicCode}")
-    public ResponseEntity<?> verify(@PathVariable String publicCode) {
-        var q = new VerifyPublicTicketQuery(publicCode, java.time.Instant.now());
-        var res = queryBus.send(q); // TicketVerificationResult
+  @GetMapping("/ticket/{publicCode}")
+  public ResponseEntity<?> verify(@PathVariable String publicCode) {
+    var q = new VerifyPublicTicketQuery(publicCode, java.time.Instant.now());
+    var res = queryBus.send(q); // TicketVerificationResult
 
-        if (res == null) {
-            return ResponseEntity.status(404).build();
-        }
-
-        return ResponseEntity.ok()
-            .header("X-Robots-Tag", "noindex, nofollow")
-            .header("Cache-Control", "no-store")
-            .body(res);
+    if (res == null) {
+      return ResponseEntity.status(404).build();
     }
+
+    return ResponseEntity.ok()
+        .header("X-Robots-Tag", "noindex, nofollow")
+        .header("Cache-Control", "no-store")
+        .body(res);
+  }
 }

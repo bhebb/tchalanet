@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.domain.model;
 
 import com.tchalanet.server.common.types.enums.BetType;
-
 import java.math.BigDecimal;
 import java.util.Objects;
 

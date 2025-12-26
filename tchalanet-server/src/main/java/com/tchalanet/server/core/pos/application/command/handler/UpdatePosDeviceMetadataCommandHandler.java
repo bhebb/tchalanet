@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class UpdatePosDeviceMetadataCommandHandler implements CommandHandler<UpdateTerminalMetadataCommand, Terminal> {
+public class UpdatePosDeviceMetadataCommandHandler
+    implements CommandHandler<UpdateTerminalMetadataCommand, Terminal> {
 
   private final TerminalReaderPort reader;
   private final TerminalWriterPort writer;
@@ -22,19 +23,30 @@ public class UpdatePosDeviceMetadataCommandHandler implements CommandHandler<Upd
 
   @Override
   public Terminal handle(UpdateTerminalMetadataCommand cmd) {
-    var t = reader.findById(cmd.tenantId(), cmd.terminalId())
-        .orElseThrow(() -> new IllegalStateException("Terminal not found"));
+    var t =
+        reader
+            .findById(cmd.tenantId(), cmd.terminalId())
+            .orElseThrow(() -> new IllegalStateException("Terminal not found"));
     var now = Instant.now(clock);
 
     var updated = t.mergeMetadata(cmd.metadataPatch(), now);
 
     if (cmd.heartbeatAlso()) {
-      updated = new Terminal(
-          updated.id(), updated.tenantId(), updated.outletId(), updated.state(),
-          now, updated.meta(), updated.version(), updated.registeredAt(),
-          updated.unregisteredAt(), updated.lockedAt(), updated.lockedBy(),
-          updated.lockReason(), updated.deletedAt()
-      );
+      updated =
+          new Terminal(
+              updated.id(),
+              updated.tenantId(),
+              updated.outletId(),
+              updated.state(),
+              now,
+              updated.meta(),
+              updated.version(),
+              updated.registeredAt(),
+              updated.unregisteredAt(),
+              updated.lockedAt(),
+              updated.lockedBy(),
+              updated.lockReason(),
+              updated.deletedAt());
     }
 
     return writer.save(updated);

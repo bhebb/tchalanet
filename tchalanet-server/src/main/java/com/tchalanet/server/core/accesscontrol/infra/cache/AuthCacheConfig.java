@@ -20,4 +20,3 @@ public class AuthCacheConfig {
             CacheSpec.of("role-permissions", Duration.ofMinutes(45)));
   }
 }
-

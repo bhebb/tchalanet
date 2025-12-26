@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class BackupOfflineDataToLocalStorageCommandHandler implements VoidCommandHandler<BackupOfflineDataToLocalStorageCommand> {
+public class BackupOfflineDataToLocalStorageCommandHandler
+    implements VoidCommandHandler<BackupOfflineDataToLocalStorageCommand> {
 
   @Override
   public void handle(BackupOfflineDataToLocalStorageCommand command) {
     // TODO: backup offline queue to local storage
-    throw new UnsupportedOperationException("BackupOfflineDataToLocalStorageCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "BackupOfflineDataToLocalStorageCommandHandler not implemented yet");
   }
 }
-

@@ -9,12 +9,13 @@ import org.springframework.stereotype.Component;
 @UseCase
 @RequiredArgsConstructor
 @Component
-public class UpdateOfflineSyncSettingsCommandHandler implements VoidCommandHandler<UpdateOfflineSyncSettingsCommand> {
+public class UpdateOfflineSyncSettingsCommandHandler
+    implements VoidCommandHandler<UpdateOfflineSyncSettingsCommand> {
 
   @Override
   public void handle(UpdateOfflineSyncSettingsCommand command) {
     // TODO: update settings
-    throw new UnsupportedOperationException("UpdateOfflineSyncSettingsCommandHandler not implemented yet");
+    throw new UnsupportedOperationException(
+        "UpdateOfflineSyncSettingsCommandHandler not implemented yet");
   }
 }
-

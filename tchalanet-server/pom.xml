@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
     <relativePath/>
   </parent>
   <groupId>com.tchalanet</groupId>
@@ -18,7 +18,7 @@
     <java.version>25</java.version>
     <!-- Plugin versions chosen for stability and compatibility -->
     <spotless.plugin.version>3.1.0</spotless.plugin.version>
-    <googlejavaformat.version>1.28.0</googlejavaformat.version>
+    <googlejavaformat.version>1.33.0</googlejavaformat.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
     <checkstyle.config>checkstyle/google_checks.xml</checkstyle.config>
     <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
@@ -31,9 +31,9 @@
     <mapstruct.version>1.6.3</mapstruct.version>
     <mapstruct.processor.version>${mapstruct.version}</mapstruct.processor.version>
     <caffeine.version>3.2.3</caffeine.version>
-    <lombok.version>1.18.40</lombok.version>
-    <hibernate.version>6.6.37.Final</hibernate.version>
-    <testcontainers.version>1.20.3</testcontainers.version>
+    <lombok.version>1.18.42</lombok.version>
+    <hibernate.version>6.6.40.Final</hibernate.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
     <springdoc.version>3.0.0</springdoc.version>
     <rome.version>2.1.0</rome.version>
 

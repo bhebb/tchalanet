@@ -17,4 +17,3 @@ public class RetryFailedSyncCommandHandler implements VoidCommandHandler<RetryFa
     throw new UnsupportedOperationException("RetryFailedSyncCommandHandler not implemented yet");
   }
 }
-

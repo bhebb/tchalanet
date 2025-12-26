@@ -15,7 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class GetLatestDrawResultsQueryHandler implements QueryHandler<GetLatestDrawResultsQuery, List<DrawResult>> {
+public class GetLatestDrawResultsQueryHandler
+    implements QueryHandler<GetLatestDrawResultsQuery, List<DrawResult>> {
 
   private final DrawResultReaderPort drawResultReaderPort;
   private final Clock clock;
@@ -23,10 +24,15 @@ public class GetLatestDrawResultsQueryHandler implements QueryHandler<GetLatestD
   @Override
   public List<DrawResult> handle(GetLatestDrawResultsQuery query) {
     var now = ZonedDateTime.now(clock);
-    var criteria = DrawResultsSearchCriteria.lastDays(query.tenantId(), query.channelCode(), now, query.days());
+    var criteria =
+        DrawResultsSearchCriteria.lastDays(
+            query.tenantId(), query.channelCode(), now, query.days());
     var results = drawResultReaderPort.findByCriteria(criteria);
-    log.debug("uslottery: returning {} results for tenant={} channel={}", results.size(), query.tenantId(), query.channelCode());
+    log.debug(
+        "uslottery: returning {} results for tenant={} channel={}",
+        results.size(),
+        query.tenantId(),
+        query.channelCode());
     return results;
   }
 }
-

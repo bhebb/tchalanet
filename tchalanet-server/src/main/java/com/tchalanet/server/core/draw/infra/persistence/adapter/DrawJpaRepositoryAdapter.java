@@ -11,15 +11,13 @@ import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -29,12 +27,12 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort 
   private final DrawMapper mapper;
 
   @Override
-  public Optional<Draw> findById( DrawId drawId) {
+  public Optional<Draw> findById(DrawId drawId) {
     return jpa.findById(drawId.uuid()).map(mapper::toDomain);
   }
 
   @Override
-  public List<Draw> findClosableDraws( TenantId tenantId, ZonedDateTime now) {
+  public List<Draw> findClosableDraws(TenantId tenantId, ZonedDateTime now) {
     Instant inst = now.toInstant();
     return jpa
         .findByStatusAndScheduledAtBeforeAndDeletedAtIsNullAndLockedFalse("CLOSED", inst)
@@ -45,7 +43,7 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort 
   }
 
   @Override
-  public List<Draw> findResultedUnsettled( TenantId tenantId, ZonedDateTime now) {
+  public List<Draw> findResultedUnsettled(TenantId tenantId, ZonedDateTime now) {
     return jpa
         .findByStatusAndScheduledAtBeforeAndDeletedAtIsNullAndLockedFalse(
             "RESULTED", now.toInstant())

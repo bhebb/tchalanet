@@ -9,9 +9,7 @@ public record UserId(UUID value) {
     if (value == null) throw new IllegalArgumentException("UserId.value is null");
   }
 
-  /**
-   * Static factory from UUID.
-   */
+  /** Static factory from UUID. */
   public static UserId of(UUID value) {
     return new UserId(value);
   }
@@ -19,10 +17,13 @@ public record UserId(UUID value) {
   /**
    * Return a UserId for the given UUID or null if the uuid is null. Useful for optional mappings.
    */
-  public static UserId nullableOf(UUID id) { return id == null ? null : new UserId(id); }
+  public static UserId nullableOf(UUID id) {
+    return id == null ? null : new UserId(id);
+  }
 
   /**
    * Static factory from String representation of UUID.
+   *
    * @throws IllegalArgumentException if the string is not a valid UUID
    */
   public static UserId of(String id) {
@@ -39,5 +40,7 @@ public record UserId(UUID value) {
     return value.toString();
   }
 
-  public UUID uuid() { return value; }
+  public UUID uuid() {
+    return value;
+  }
 }

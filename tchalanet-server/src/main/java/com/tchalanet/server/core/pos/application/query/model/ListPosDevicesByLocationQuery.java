@@ -6,4 +6,5 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pos.domain.model.Terminal;
 import java.util.List;
 
-public record ListPosDevicesByLocationQuery(TenantId tenantId, OutletId outletId) implements Query<List<Terminal>> {}
+public record ListPosDevicesByLocationQuery(TenantId tenantId, OutletId outletId)
+    implements Query<List<Terminal>> {}
