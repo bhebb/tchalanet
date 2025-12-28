@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,9 +33,18 @@ public class PageModelBootstrapService {
 
   public void seedDefaultsForTenant(UUID tenantId) {
     for (PageModelType type : PageModelType.values()) {
-      var existing = repository.findAllByTenantIdAndLogicalId(tenantId, type.logicalId());
-      if (existing.isEmpty()) {
-        ensureTemplateAndCreateInstance(tenantId, type);
+      try {
+        var existing = repository.findAllByTenantIdAndLogicalId(tenantId, type.logicalId());
+        if (existing.isEmpty()) {
+          ensureTemplateAndCreateInstance(tenantId, type);
+        }
+      } catch (DataAccessException dae) {
+        // Could be that the table hasn't been created yet (Flyway hasn't run). Skip seeding.
+        // Log at debug to keep startup logs clean.
+        System.out.println(
+            "PageModelBootstrapService: skipping seed because repository access failed: "
+                + dae.getMessage());
+        return;
       }
     }
   }

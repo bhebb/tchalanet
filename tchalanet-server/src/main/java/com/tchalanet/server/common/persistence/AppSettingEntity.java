@@ -11,7 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
@@ -20,7 +19,6 @@ import org.hibernate.envers.Audited;
 @Audited
 @Getter
 @Setter
-@NoArgsConstructor
 @EntityListeners({AppSettingCacheEvictListener.class})
 public class AppSettingEntity extends BaseEntity {
 

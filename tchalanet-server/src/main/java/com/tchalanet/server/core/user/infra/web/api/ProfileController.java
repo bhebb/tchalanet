@@ -21,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/v1/profile")
+@RestController("profileApiController")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
@@ -55,7 +55,7 @@ public class ProfileController {
       return ResponseEntity.status(500).build();
     }
 
-    String tenantCode =
+    var tenantCode =
         ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : ctx.originalTenantCode();
 
     var cmd =

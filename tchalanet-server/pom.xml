@@ -32,10 +32,11 @@
     <mapstruct.processor.version>${mapstruct.version}</mapstruct.processor.version>
     <caffeine.version>3.2.3</caffeine.version>
     <lombok.version>1.18.42</lombok.version>
-    <hibernate.version>6.6.40.Final</hibernate.version>
+    <!--    <hibernate.version>6.6.40.Final</hibernate.version>-->
     <testcontainers.version>1.21.4</testcontainers.version>
     <springdoc.version>3.0.0</springdoc.version>
     <rome.version>2.1.0</rome.version>
+    <querydsl.version>5.1.0</querydsl.version>
 
     <!-- SonarQube (à ajuster) -->
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
@@ -83,6 +84,12 @@
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-envers</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Postgres -->
@@ -93,6 +100,10 @@
     </dependency>
 
     <!-- Flyway -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
@@ -136,16 +147,33 @@
       <artifactId>spring-boot-starter-data-rest</artifactId>
     </dependency>
 
+    <!-- HATEOAS starter (fournit HateoasProperties) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-hateoas</artifactId>
+    </dependency>
+
     <!-- QueryDSL JPA pour les requêtes complexes (rapports, filtres) -->
     <dependency>
       <groupId>com.querydsl</groupId>
       <artifactId>querydsl-jpa</artifactId>
+      <version>${querydsl.version}</version>
+      <classifier>jakarta</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.querydsl</groupId>
       <artifactId>querydsl-apt</artifactId>
+      <version>${querydsl.version}</version>
+      <classifier>jakarta</classifier>
       <scope>provided</scope>
     </dependency>
+
     <!-- cache config-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -217,31 +245,6 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.hibernate.orm.tooling</groupId>
-        <artifactId>hibernate-enhance-maven-plugin</artifactId>
-        <version>${hibernate.version}</version>
-        <executions>
-          <execution>
-            <id>enhance</id>
-            <goals>
-              <goal>enhance</goal>
-            </goals>
-            <configuration>
-              <enableLazyInitialization>true</enableLazyInitialization>
-              <enableDirtyTracking>true</enableDirtyTracking>
-              <enableAssociationManagement>true</enableAssociationManagement>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.18.1</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.graalvm.buildtools</groupId>

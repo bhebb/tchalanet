@@ -4,22 +4,19 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor
 public class SalesReportRepository {
 
-  @PersistenceContext private final EntityManager em;
+  @PersistenceContext private EntityManager em;
 
   public List<SalesReportLineDto> findSalesByPeriodAndGame(GetSalesReportByPeriodAndGameQuery q) {
-    LocalDate fromDate = q.fromDate();
-    LocalDate toExclusive = q.toDate().plusDays(1);
+    var fromDate = q.fromDate();
+    var toExclusive = q.toDate().plusDays(1);
 
-    String sql =
+    var sql =
         """
             select
                 date_trunc('day', t.sold_at)::date                as date,

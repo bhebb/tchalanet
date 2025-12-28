@@ -5,13 +5,11 @@ import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RequiredArgsConstructor
 public class GetTenantKpisRepository {
-  @PersistenceContext private final EntityManager em;
+  @PersistenceContext private EntityManager em;
 
   public KpisDto computeTenantKpis(UUID tenantId, LocalDate fromDate, LocalDate toDate) {
     // TODO: adapte table/colonnes (ticket, ticket_payout, etc.)

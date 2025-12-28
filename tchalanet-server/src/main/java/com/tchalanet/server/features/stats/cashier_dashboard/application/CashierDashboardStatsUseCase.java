@@ -122,7 +122,7 @@ public class CashierDashboardStatsUseCase {
               .orElseGet(
                   () ->
                       new CashierInfoProjection(
-                          row.cashierId(), "Cashier " + row.cashierId(), row.outletId(), null));
+                          row.cashierId(), "Cashier " + row.cashierId(), null, null));
 
       boolean hasOpenSession =
           cashierSessionReadRepository.hasOpenSession(tenantId, row.cashierId());

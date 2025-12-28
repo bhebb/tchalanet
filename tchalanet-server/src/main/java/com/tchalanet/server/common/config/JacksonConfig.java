@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,8 @@ public class JacksonConfig {
     ObjectMapper mapper = new ObjectMapper();
     mapper.findAndRegisterModules();
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     return mapper;
   }
 }

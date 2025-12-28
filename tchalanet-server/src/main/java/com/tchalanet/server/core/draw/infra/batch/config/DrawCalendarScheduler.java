@@ -9,12 +9,16 @@ import com.tchalanet.server.core.draw.application.port.out.TenantDrawCalendarQue
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "app.scheduling.enabled", havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class DrawCalendarScheduler {
@@ -28,8 +32,19 @@ public class DrawCalendarScheduler {
   private final TenantDrawCalendarQueryPort tenantPort;
   private final CommandBus commandBus;
 
+  // Guard to allow disabling scheduled methods per-profile (kept for runtime safety)
+  @Value("${app.scheduling.enabled:true}")
+  private boolean appSchedulingEnabled;
+
+  @PostConstruct
+  public void postConstruct() {
+    log.info("DrawCalendarScheduler created: app.scheduling.enabled={}", appSchedulingEnabled);
+  }
+
   @Scheduled(cron = "0 0 5 * * *", zone = "America/Toronto")
   public void generateNext7Days() {
+    if (!appSchedulingEnabled) return;
+
     var from = LocalDate.now(DEFAULT_TENANT_ZONE);
     var to = from.plusDays(7);
     for (TenantId tenantId : tenantPort.listActiveTenantIdsForDrawCalendar()) {
@@ -44,6 +59,8 @@ public class DrawCalendarScheduler {
 
   @Scheduled(cron = "0 * * * * *")
   public void openDueDraws() {
+    if (!appSchedulingEnabled) return;
+
     var now = Instant.now();
     commandBus.send(
         new OpenDueDrawsCommand(
@@ -52,6 +69,8 @@ public class DrawCalendarScheduler {
 
   @Scheduled(cron = "30 * * * * *")
   public void closeDueDraws() {
+    if (!appSchedulingEnabled) return;
+
     var now = Instant.now();
     commandBus.send(new CloseDueDrawsCommand(now, DEFAULT_LIMIT, DEFAULT_DRY_RUN));
   }

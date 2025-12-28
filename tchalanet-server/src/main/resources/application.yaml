@@ -7,7 +7,7 @@ app:
   base-path: ${APP_BASE_PATH:/api}
   api-base-url: ${APP_API_BASEURL:http://localhost:8083}
   auth-url: ${TCH_KC_ISSUER}
-  default-tenant: ${APP_DEFAULT_TENANT:default}
+  default-tenant: ${APP_DEFAULT_TENANT:tchalanet}
   cors:
     # use a comma-separated env var (APP_CORS_ALLOWED_ORIGINS) which Spring will bind to a List<String>
     allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:https://app.localtest.me}
@@ -40,13 +40,14 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    defer-datasource-initialization: true
     open-in-view: false
     properties:
       org.hibernate.envers.audit_table_suffix: "_aud"
       org.hibernate.envers.store_data_at_delete: true
       org.hibernate.envers.revision_field_name: "rev"
       org.hibernate.envers.revision_type_field_name: "revtype"
-      org.hibernate.envers.revision_listener: "com.tchalanet.server.common.infra.persistence.audit.TchRevisionListener"
+      org.hibernate.envers.revision_listener: "com.tchalanet.server.core.audit.infra.persistence.envers.TchRevisionListener"
 
   batch:
     jdbc:
@@ -76,6 +77,8 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000
+      repositories:
+        enabled: false
     rest:
       base-path: /admin
       enabled: true
@@ -85,13 +88,13 @@ spring:
 tch:
   cache:
     redis:
-      enabled: true
+      enabled: false
 
   notification:
-   node:
-     base-path: /notifications
-     enabled: true
-     timeout: 500
+    node:
+      base-path: /notifications
+      enabled: true
+      timeout: 500
   # News provider / cache configuration
   news:
     provider:

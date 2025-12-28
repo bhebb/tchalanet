@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
@@ -19,7 +18,6 @@ import org.hibernate.envers.Audited;
 @Table(name = "app_role")
 @Getter
 @Setter
-@NoArgsConstructor
 @Audited
 public class AppRoleEntity extends BaseTenantEntity {
 

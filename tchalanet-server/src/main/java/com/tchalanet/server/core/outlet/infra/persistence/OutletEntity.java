@@ -7,14 +7,12 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalTime;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "outlet")
 @Getter
 @Setter
-@NoArgsConstructor
 public class OutletEntity extends BaseTenantEntity {
 
   @Column(name = "name", nullable = false)

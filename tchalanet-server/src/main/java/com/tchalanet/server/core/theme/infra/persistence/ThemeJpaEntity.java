@@ -13,7 +13,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import java.util.Map;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
@@ -22,7 +21,6 @@ import org.hibernate.envers.Audited;
 @Getter
 @Setter
 @Audited
-@NoArgsConstructor
 public class ThemeJpaEntity extends BaseTenantEntity {
   @Column(name = "base_preset_id", nullable = false, length = 128)
   private String basePresetId;

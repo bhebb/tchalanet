@@ -1,7 +1,6 @@
 package com.tchalanet.server.features.reporting.outletperformance;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,33 +12,33 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class OutletPerformanceRepository {
 
-  @PersistenceContext private final EntityManager em;
+  private final EntityManager em;
 
   public List<OutletPerformanceLineDto> findOutletPerformance(
       UUID tenantId, LocalDate fromDate, LocalDate toDate, String gameCode // null => tous jeux
       ) {
     LocalDate toExclusive = toDate.plusDays(1);
 
-    String sql =
+    var sql =
         """
-            select
-                o.id                                        as outlet_id,
-                o.code                                      as outlet_code,
-                o.name                                      as outlet_name,
-                t.game_code                                 as game_code,
-                count(*)                                    as tickets_sold,
-                coalesce(sum(t.total_amount), 0)           as total_sales,
-                coalesce(sum(t.total_payout), 0)           as total_payout,
-                coalesce(sum(t.total_amount - t.total_payout), 0) as net_revenue
-            from ticket t
-            join outlet o on o.id = t.outlet_id
-            where t.tenant_id = :tenantId
-              and t.sold_at >= :fromDate
-              and t.sold_at < :toExclusive
-              and (:gameCode is null or t.game_code = :gameCode)
-            group by o.id, o.code, o.name, t.game_code
-            order by total_sales desc
-            """;
+                select
+                    o.id                                        as outlet_id,
+                    o.code                                      as outlet_code,
+                    o.name                                      as outlet_name,
+                    t.game_code                                 as game_code,
+                    count(*)                                    as tickets_sold,
+                    coalesce(sum(t.total_amount), 0)           as total_sales,
+                    coalesce(sum(t.total_payout), 0)           as total_payout,
+                    coalesce(sum(t.total_amount - t.total_payout), 0) as net_revenue
+                from ticket t
+                join outlet o on o.id = t.outlet_id
+                where t.tenant_id = :tenantId
+                  and t.sold_at >= :fromDate
+                  and t.sold_at < :toExclusive
+                  and (:gameCode is null or t.game_code = :gameCode)
+                group by o.id, o.code, o.name, t.game_code
+                order by total_sales desc
+                """;
 
     var query = em.createNativeQuery(sql);
     query.setParameter("tenantId", tenantId);

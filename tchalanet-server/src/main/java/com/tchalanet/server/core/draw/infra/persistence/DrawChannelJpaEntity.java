@@ -7,7 +7,6 @@ import jakarta.persistence.Table;
 import java.time.LocalTime;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
@@ -16,7 +15,6 @@ import org.hibernate.envers.Audited;
 @Audited
 @Getter
 @Setter
-@NoArgsConstructor
 public class DrawChannelJpaEntity extends BaseTenantEntity {
 
   @Column(name = "tenant_game_id", nullable = false)

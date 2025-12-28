@@ -3,15 +3,16 @@ package com.tchalanet.server.core.draw.infra.persistence;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.TenantDrawCalendarQueryPort;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class TenantDrawCalendarJpaAdapter implements TenantDrawCalendarQueryPort {
 
-  @PersistenceContext private EntityManager em;
+  private final EntityManager em;
 
   @Override
   public List<TenantId> listActiveTenantIdsForDrawCalendar() {

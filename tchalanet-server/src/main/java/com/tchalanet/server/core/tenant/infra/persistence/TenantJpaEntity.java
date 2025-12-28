@@ -7,7 +7,6 @@ import com.tchalanet.server.core.tenant.infra.cache.TenantCacheEvictListener;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
@@ -17,7 +16,6 @@ import org.hibernate.envers.Audited;
 @Audited
 @Getter
 @Setter
-@NoArgsConstructor
 public class TenantJpaEntity extends BaseEntity {
 
   @Column(name = "code", nullable = false, length = 64, unique = true)

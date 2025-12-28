@@ -22,13 +22,14 @@ public class TenantUserDirectoryJpaAdapter implements TenantUserDirectoryPort {
     if (tenantId == null || userId == null) {
       return Optional.empty();
     }
-    return tenantUserRepository.findByTenantIdAndUserId(tenantId.uuid(), userId.uuid()).stream()
+    String userIdStr = userId.toString();
+    return tenantUserRepository.findByTenantIdAndUserId(tenantId.uuid(), userIdStr).stream()
         .filter(entity -> entity.getDeletedAt() == null)
         .findFirst()
         .map(
             entity ->
                 new TenantUserSnapshot(
-                    entity.getTenantId(),
+                    TenantId.of(entity.getTenantId()),
                     UserId.of(entity.getUserId()),
                     RoleId.of(entity.getRoleId()),
                     AutonomyLevel.valueOf(entity.getAutonomyLevel()),
@@ -37,7 +38,8 @@ public class TenantUserDirectoryJpaAdapter implements TenantUserDirectoryPort {
 
   @Override
   public List<RoleId> getUserRolesInTenant(UserId userId, TenantId tenantId) {
-    return tenantUserRepository.findByTenantIdAndUserId(tenantId.uuid(), userId.uuid()).stream()
+    String userIdStr = userId == null ? null : userId.toString();
+    return tenantUserRepository.findByTenantIdAndUserId(tenantId.uuid(), userIdStr).stream()
         .map(TenantUserEntity::getRoleId)
         .map(RoleId::of)
         .toList();

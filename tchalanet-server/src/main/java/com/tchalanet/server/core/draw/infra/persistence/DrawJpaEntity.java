@@ -5,7 +5,6 @@ import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 
@@ -19,7 +18,6 @@ import org.hibernate.envers.Audited;
 @Audited
 @Getter
 @Setter
-@NoArgsConstructor
 public class DrawJpaEntity extends BaseTenantEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)

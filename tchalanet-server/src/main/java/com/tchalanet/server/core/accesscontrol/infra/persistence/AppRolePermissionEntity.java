@@ -8,17 +8,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "role_permission")
+@Audited
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class AppRolePermissionEntity extends AuditableEntity {
 
   @EmbeddedId private AppRolePermissionId id;

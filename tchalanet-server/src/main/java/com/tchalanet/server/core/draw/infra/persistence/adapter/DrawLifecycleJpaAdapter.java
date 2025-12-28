@@ -21,7 +21,8 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   @Override
   public List<OpenableDrawRow> findOpenable(
       Instant now, int limit, int openHorizonHours, int openLagHours) {
-    return repo.findOpenable(now, limit, openHorizonHours, openLagHours).stream()
+    long nowEpoch = now == null ? Instant.now().getEpochSecond() : now.getEpochSecond();
+    return repo.findOpenable(nowEpoch, limit, openHorizonHours, openLagHours).stream()
         .map(this::mapOpenableRow)
         .toList();
   }
@@ -51,8 +52,9 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
 
   @Override
   public List<DueToCloseRow> findDueToClose(Instant now, int limit) {
+    long nowEpoch = now == null ? Instant.now().getEpochSecond() : now.getEpochSecond();
     // repo returns Object[] rows: [tenantId, drawId, locked]
-    return repo.findDueToClose(null, now, limit).stream().map(this::mapDueToCloseRow).toList();
+    return repo.findDueToClose(null, nowEpoch, limit).stream().map(this::mapDueToCloseRow).toList();
   }
 
   private DueToCloseRow mapDueToCloseRow(Object[] row) {

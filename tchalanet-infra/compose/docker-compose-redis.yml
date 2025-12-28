@@ -1,7 +1,7 @@
 services:
   redis:
     # Alpine pour une image plus légère, dernière version stable
-    image: ${REDIS_IMAGE:-redis:8.2.3}
+    image: ${REDIS_IMAGE:-redis:8.4.0}
     container_name: ${REDIS_CONTAINER:-${DOCKER_PREFIX:-tchl}-redis}-${ENV}
     env_file:
       - ../envs/${ENV}/.env.merged

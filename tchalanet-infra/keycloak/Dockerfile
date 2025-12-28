@@ -5,7 +5,7 @@ WORKDIR /build
 COPY tchalanet-keycloak-provider/ .
 RUN mvn -q -DskipTests clean package && echo "✔ Provider JAR built"
 
-FROM quay.io/keycloak/keycloak:26.4.0
+FROM quay.io/keycloak/keycloak:26.4.7
 
 # Activer mgmt port pour /health et /metrics
 ENV KC_HEALTH_ENABLED=true \

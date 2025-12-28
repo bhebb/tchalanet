@@ -39,8 +39,8 @@ Mettre le code dans les packages suivants :
   - `com.tchalanet.server.features.pagemodel.shared.block`
 
 - Dashboards privés (nouvelle slice / sous-slice) :
-  - `com.tchalanet.server.features.private_dashboard.block`
-  - `com.tchalanet.server.features.private_dashboard.dynamic`
+  - `com.tchalanet.server.features.privatedashboard.block`
+  - `com.tchalanet.server.features.privatedashboard.dynamic`
 
 - Reporting existant (à consommer, ne pas déplacer) :
   - `com.tchalanet.server.features.reporting.salesreport`
@@ -57,7 +57,7 @@ Mettre le code dans les packages suivants :
 Étape 1 – Payload dynamique commun
 -----------------------------------
 1. Créer un record `PrivateDashboardDynamicPayload` dans
-   `com.tchalanet.server.features.private_dashboard.block` :
+   `com.tchalanet.server.features.privatedashboard.block` :
 
    - Contient des sous-blocs pour chaque rôle et fonctionnalité :
      - `SuperadminOverviewBlock superadminOverview`
@@ -92,7 +92,7 @@ L’objectif est d’avoir une structure prête, même si le contenu réel est r
 Étape 2 – Service d’orchestration par rôle
 -------------------------------------------
 Créer la classe `PrivateDashboardDynamicDataService` dans
-`com.tchalanet.server.features.private_dashboard.dynamic`.
+`com.tchalanet.server.features.privatedashboard.dynamic`.
 
 - Annoter avec `@Service` + `@RequiredArgsConstructor`.
 - Injecter les services par rôle :

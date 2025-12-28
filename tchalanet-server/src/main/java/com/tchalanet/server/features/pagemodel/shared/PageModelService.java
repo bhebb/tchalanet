@@ -66,18 +66,36 @@ public class PageModelService {
   }
 
   private PageModel loadFromTemplate(String logicalId) {
-    // Convention : resources/pages/<logicalId>.json
-    String path = "pages/" + logicalId + ".json";
-    ClassPathResource resource = new ClassPathResource(path);
-    if (!resource.exists()) {
-      throw new IllegalStateException(
-          "No effective PageModel found and no template for logicalId=" + logicalId);
+    // Try multiple conventional locations (older code used "pages/", project uses "pagemodel/")
+    String[] candidatePaths = new String[] {"pagemodel/" + logicalId + ".json"};
+
+    ClassPathResource resource = null;
+    String foundPath = null;
+    for (String path : candidatePaths) {
+      ClassPathResource r = new ClassPathResource(path);
+      if (r.exists()) {
+        resource = r;
+        foundPath = path;
+        break;
+      }
     }
+
+    if (resource == null) {
+      throw new IllegalStateException(
+          "No effective PageModel found and no template for logicalId="
+              + logicalId
+              + ". Attempted paths: pages/"
+              + logicalId
+              + ".json, pagemodel/"
+              + logicalId
+              + ".json");
+    }
+
     try (InputStream is = resource.getInputStream()) {
       return objectMapper.readValue(is, PageModel.class);
     } catch (IOException e) {
       throw new IllegalStateException(
-          "Unable to load PageModel template from resources: " + path, e);
+          "Unable to load PageModel template from resources: " + foundPath, e);
     }
   }
 

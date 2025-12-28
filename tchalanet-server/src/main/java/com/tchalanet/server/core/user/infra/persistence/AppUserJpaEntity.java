@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -18,12 +17,7 @@ import org.hibernate.envers.NotAudited;
 @Audited
 @Getter
 @Setter
-@NoArgsConstructor
 public class AppUserJpaEntity extends BaseTenantEntity {
-
-  @Version
-  @Column(name = "version", nullable = false)
-  private long version;
 
   @Column(name = "keycloak_id", nullable = false, updatable = false)
   private UUID keycloakId;

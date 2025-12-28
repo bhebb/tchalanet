@@ -51,7 +51,8 @@ public class DrawStoreJpaAdapter implements DrawStorePort {
 
   @Override
   public List<DueToCloseRow> findDueToClose(Instant now, int limit) {
-    return repo.findDueToClose(null, now, limit).stream()
+    long nowEpoch = now == null ? Instant.now().getEpochSecond() : now.getEpochSecond();
+    return repo.findDueToClose(null, nowEpoch, limit).stream()
         .map(
             p ->
                 new DueToCloseRow(

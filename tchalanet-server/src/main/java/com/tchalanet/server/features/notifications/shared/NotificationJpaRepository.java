@@ -28,7 +28,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationEnt
         update NotificationEntity n
            set n.read = true,
                n.readAt = :now
-         where n.tenant_id = :tenantId
+         where n.tenantId = :tenantId
            and n.userId = :userId
            and n.read = false
         """)

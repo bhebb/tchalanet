@@ -20,7 +20,7 @@ public class ResolveTenantIdByCodeQueryHandler
   private final TenantCache cache;
 
   @Override
-  @Cacheable(value = "tenantCodeToId", unless = "#result==null || #result.isEmpty()")
+  @Cacheable(value = "tenantCodeToId", unless = "#result==null")
   public Optional<UUID> handle(ResolveTenantIdByCodeQuery tenantCodeQuery) {
     String codeLower = tenantCodeQuery.code().trim().toLowerCase();
 

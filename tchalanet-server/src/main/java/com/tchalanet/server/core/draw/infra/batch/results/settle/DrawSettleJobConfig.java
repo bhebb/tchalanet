@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.Job;
@@ -22,9 +22,9 @@ public class DrawSettleJobConfig {
 
   private final JobRepository jobRepository;
   private final PlatformTransactionManager batchTxManager;
-  private final ItemReader<UUID> settleableDrawIdsReader;
-  private final ItemProcessor<UUID, UUID> settleProcessor;
-  private final ItemWriter<UUID> settleWriter;
+  private final ItemReader<DrawId> settleableDrawIdsReader;
+  private final ItemProcessor<DrawId, DrawId> settleProcessor;
+  private final ItemWriter<DrawId> settleWriter;
 
   @Bean
   public Job settleDrawsJob() {
@@ -34,7 +34,7 @@ public class DrawSettleJobConfig {
   @Bean
   public Step settleStep() {
     return new StepBuilder("settleDrawsStep", jobRepository)
-        .<UUID, UUID>chunk(10)
+        .<DrawId, DrawId>chunk(10)
         .transactionManager(batchTxManager)
         .reader(settleableDrawIdsReader)
         .processor(settleProcessor)

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.fetch;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.Job;
@@ -23,8 +23,8 @@ public class DrawResultsJobConfig {
 
   private final JobRepository jobRepository;
   private final PlatformTransactionManager batchTxManager;
-  private final ItemReader<UUID> fetchableDrawIdsReader;
-  private final ItemProcessor<UUID, ApplyResultRow> fetchExternalResultProcessor;
+  private final ItemReader<DrawId> fetchableDrawIdsReader;
+  private final ItemProcessor<DrawId, ApplyResultRow> fetchExternalResultProcessor;
   private final ItemWriter<ApplyResultRow> applyResultWriter;
 
   @Value("${app.batch.fetch.chunk-size:10}")
@@ -38,7 +38,7 @@ public class DrawResultsJobConfig {
   @Bean
   public Step fetchStep() {
     return new StepBuilder("fetchDrawResultsStep", jobRepository)
-        .<UUID, ApplyResultRow>chunk(chunkSize)
+        .<DrawId, ApplyResultRow>chunk(chunkSize)
         .transactionManager(batchTxManager)
         .reader(fetchableDrawIdsReader)
         .processor(fetchExternalResultProcessor)

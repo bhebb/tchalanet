@@ -51,8 +51,7 @@ public class SecurityConfig {
                         "/api/v1/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/api/v1/openapi/**",
-                        "/api/v1/configs/i18n/**",
-                        "/api/v1/pages/home-public")
+                        "/api/v1/public/**")
                     .permitAll()
                     .requestMatchers("/api/platform/**")
                     .hasRole("SUPER_ADMIN")

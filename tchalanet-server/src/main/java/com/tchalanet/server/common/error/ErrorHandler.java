@@ -4,6 +4,7 @@ import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -12,7 +13,9 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,45 +24,69 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ErrorHandler {
 
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  private static MediaType negotiate(HttpServletRequest req) {
+    var accept = req.getHeader("Accept");
+    if (accept != null && accept.contains("application/vnd.hal+json")) {
+      return MediaType.parseMediaType("application/vnd.hal+json");
+    }
+    // prefer RFC7807 problem+json
+    return MediaType.APPLICATION_PROBLEM_JSON;
+  }
+
+  private static ResponseEntity<?> buildResponse(ProblemDetail pd, HttpServletRequest req, HttpStatus status) {
+    MediaType mediaType = negotiate(req);
+    if (MediaType.parseMediaType("application/vnd.hal+json").isCompatibleWith(mediaType)) {
+      try {
+        String json = OBJECT_MAPPER.writeValueAsString(pd);
+        return ResponseEntity.status(status).contentType(mediaType).body(json);
+      } catch (Exception e) {
+        log.warn("Failed to serialize ProblemDetail to HAL media type, falling back to application/problem+json", e);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+      }
+    }
+    return ResponseEntity.status(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+  }
+
   /** Exceptions “métier” levées via ProblemRestException (déjà porteuse d’un ProblemDetail). */
   @ExceptionHandler(ProblemRestException.class)
-  public ProblemDetail handleProblemRest(ProblemRestException ex, HttpServletRequest req) {
+  public ResponseEntity<?> handleProblemRest(ProblemRestException ex, HttpServletRequest req) {
     var pd = ex.getProblem();
     decorate(pd, req, ex, false);
     // Log au niveau approprié (4xx = warn, 5xx = error)
     if (pd.getStatus() >= 500) {
-      log.error("[{}] {} {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), ex);
+      log.error("[{}] {} {} {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), ex);
     } else {
-      log.warn(
-          "[{}] {} {} – {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), pd.getDetail());
+      log.warn("[{}] {} {} – {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), pd.getDetail());
     }
-    return pd;
+    return buildResponse(pd, req, HttpStatus.valueOf(pd.getStatus()));
   }
 
   /** 404 “classique” JPA */
   @ExceptionHandler(EntityNotFoundException.class)
-  public ProblemDetail handleNotFound(EntityNotFoundException ex, HttpServletRequest req) {
+  public ResponseEntity<?> handleNotFound(EntityNotFoundException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     pd.setTitle("Resource not found");
     decorate(pd, req, ex, true);
     log.warn("[404] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
-    return pd;
+    return buildResponse(pd, req, HttpStatus.NOT_FOUND);
   }
 
   /** 422 règles métier simples */
   @ExceptionHandler(IllegalStateException.class)
-  public ProblemDetail handleBusiness(IllegalStateException ex, HttpServletRequest req) {
+  public ResponseEntity<?> handleBusiness(IllegalStateException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
     pd.setTitle("Business rule violation");
     pd.setDetail(ex.getMessage());
     decorate(pd, req, ex, true);
     log.warn("[422] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
-    return pd;
+    return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   /** 400 – @Valid sur @RequestBody */
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ProblemDetail handleBadRequest(
+  public ResponseEntity<?> handleBadRequest(
       MethodArgumentNotValidException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     pd.setTitle("Validation failed");
@@ -70,24 +97,24 @@ public class ErrorHandler {
             .orElse("Invalid request"));
     decorate(pd, req, ex, true);
     log.warn("[400] {} {} – {}", req.getMethod(), req.getRequestURI(), pd.getDetail());
-    return pd;
+    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
 
   /** 400 – @Validated sur query/path params */
   @ExceptionHandler(ConstraintViolationException.class)
-  public ProblemDetail handleConstraintViolation(
+  public ResponseEntity<?> handleConstraintViolation(
       ConstraintViolationException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     pd.setTitle("Constraint violation");
     pd.setDetail(ex.getMessage());
     decorate(pd, req, ex, true);
     log.warn("[400] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
-    return pd;
+    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
 
   /** 403 – permissions manquantes (accesscontrol) */
   @ExceptionHandler(PermissionsDeniedException.class)
-  public ProblemDetail handlePermissionsDenied(
+  public ResponseEntity<?> handlePermissionsDenied(
       PermissionsDeniedException ex, HttpServletRequest req) {
 
     var pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
@@ -111,18 +138,18 @@ public class ErrorHandler {
         ex.getTenantId(),
         ex.getUserId());
 
-    return pd;
+    return buildResponse(pd, req, HttpStatus.FORBIDDEN);
   }
 
   /** Fallback 500 – toujours renvoyer ProblemDetail */
   @ExceptionHandler(Exception.class)
-  public ProblemDetail handleAny(Exception ex, HttpServletRequest req) {
+  public ResponseEntity<?> handleAny(Exception ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     pd.setTitle("Unexpected error");
     pd.setDetail("An unexpected error occurred");
     decorate(pd, req, ex, false);
     log.error("[500] {} {}", req.getMethod(), req.getRequestURI(), ex);
-    return pd;
+    return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   /**

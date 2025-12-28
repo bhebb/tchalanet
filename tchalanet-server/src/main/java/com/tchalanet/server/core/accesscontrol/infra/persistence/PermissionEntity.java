@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "permission")
 @Getter
 @Setter
+@Audited
 public class PermissionEntity extends AuditableEntity {
 
   @Id

@@ -4,13 +4,20 @@ app:
   cors:
     allowed-origins: https://app.localtest.me,https://auth.localtest.me,http://localhost:4200
   apiBaseUrl: ${APP_API_BASEURL:http://localhost:8083}
+# Feature flag to disable scheduled tasks inside the app even if @EnableScheduling is present
+  scheduling:
+    enabled: false
 
 spring:
+  # Disable scheduling globally for this profile (stops @Scheduled methods)
+  scheduling:
+    enabled: false
+
   main:
     allow-bean-definition-overriding: true
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
   security:
     oauth2:
       resourceserver:
@@ -23,3 +30,8 @@ spring:
       host: localhost
       port: 6379
       password: devredis
+
+  # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
+  batch:
+    job:
+      enabled: false

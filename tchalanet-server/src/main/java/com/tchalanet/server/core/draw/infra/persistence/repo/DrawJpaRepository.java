@@ -50,9 +50,11 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
   List<DrawJpaEntity> findByStatusAndScheduledAtBefore(DrawStatus status, Instant before);
 
   @Query(
-      "SELECT d FROM DrawJpaEntity d WHERE d.tenantId = :tenantId AND d.status = 'SCHEDULED' AND (d.scheduledAt - d.cutoffSec * 1000) < :now")
+      value =
+          "SELECT d.* FROM draw d WHERE d.tenant_id = :tenantId AND d.status = 'SCHEDULED' AND (EXTRACT(EPOCH FROM d.scheduled_at) - d.cutoff_sec) < :nowEpoch",
+      nativeQuery = true)
   List<DrawJpaEntity> findScheduledDrawsPastCutoff(
-      @Param("tenantId") UUID tenantId, @Param("now") Instant now);
+      @Param("tenantId") UUID tenantId, @Param("nowEpoch") long nowEpoch);
 
   List<DrawJpaEntity>
       findByTenantIdAndDrawChannelCodeAndStatusAndScheduledAtAfterOrderByScheduledAtAsc(
@@ -85,13 +87,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             where d.deleted_at is null
               and d.locked=false
               and d.status in ('SCHEDULED','OPEN')
-              and (d.scheduled_at - (d.cutoff_sec || ' seconds')::interval) <= :now
+              and (EXTRACT(EPOCH FROM d.scheduled_at) - d.cutoff_sec) <= :nowEpoch
             order by d.scheduled_at asc
             limit :limit
             """,
       nativeQuery = true)
   List<Object[]> findDueToClose(
-      @Param("tenantId") UUID tenantId, @Param("now") Instant now, @Param("limit") int limit);
+      @Param("tenantId") UUID tenantId, @Param("nowEpoch") long nowEpoch, @Param("limit") int limit);
 
   @Modifying
   @Transactional
@@ -119,15 +121,15 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             where d.deleted_at is null
               and d.locked=false
               and d.status='SCHEDULED'
-              and (d.scheduled_at - (d.cutoff_sec || ' seconds')::interval) > :now
-              and d.scheduled_at <= (:now + (:openHorizonHours || ' hours')::interval)
-              and d.scheduled_at >= (:now - (:openLagHours || ' hours')::interval)
+              and (EXTRACT(EPOCH FROM d.scheduled_at) - d.cutoff_sec) > :nowEpoch
+              and EXTRACT(EPOCH FROM d.scheduled_at) <= (:nowEpoch + (:openHorizonHours * 3600))
+              and EXTRACT(EPOCH FROM d.scheduled_at) >= (:nowEpoch - (:openLagHours * 3600))
             order by d.scheduled_at asc
             limit :limit
             """,
       nativeQuery = true)
   List<Object[]> findOpenable(
-      @Param("now") Instant now,
+      @Param("nowEpoch") long nowEpoch,
       @Param("limit") int limit,
       @Param("openHorizonHours") int openHorizonHours,
       @Param("openLagHours") int openLagHours);

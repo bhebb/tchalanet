@@ -6,14 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "audit_event")
 @Getter
 @Setter
-@NoArgsConstructor
 public class AuditEventJpaEntity extends BaseTenantEntity {
 
   @Column(name = "occurred_at", nullable = false)

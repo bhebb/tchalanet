@@ -39,8 +39,8 @@ Cibles principales :
 
 - Dashboards privés :
 
-  - `com.tchalanet.server.features.private_dashboard.block`
-  - `com.tchalanet.server.features.private_dashboard.dynamic`
+  - `com.tchalanet.server.features.privatedashboard.block`
+  - `com.tchalanet.server.features.privatedashboard.dynamic`
 
 - Reporting existant (à consommer) :
 
@@ -55,7 +55,7 @@ Cibles principales :
 
 ## Étape 1 – Payload dynamique commun
 
-Créer `PrivateDashboardDynamicPayload` (record) dans `com.tchalanet.server.features.private_dashboard.block` :
+Créer `PrivateDashboardDynamicPayload` (record) dans `com.tchalanet.server.features.privatedashboard.block` :
 
 Champs recommandés (sous‑blocs) :
 
@@ -91,7 +91,7 @@ Préférence : utiliser des `record` immuables (Java 17+) et retourner des blocs
 
 ## Étape 2 – Service d’orchestration par rôle
 
-Créer `PrivateDashboardDynamicDataService` dans `com.tchalanet.server.features.private_dashboard.dynamic` :
+Créer `PrivateDashboardDynamicDataService` dans `com.tchalanet.server.features.privatedashboard.dynamic` :
 
 - Annoter `@Service` + `@RequiredArgsConstructor`.
 - Injecter : `SuperadminDashboardService`, `TenantAdminDashboardService`, `CashierDashboardService`.
