@@ -7,13 +7,15 @@ import jakarta.persistence.MappedSuperclass;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @MappedSuperclass
 @EntityListeners({TenantEntityListener.class})
 @Getter
 @Setter
+@Audited
 public abstract class BaseTenantEntity extends BaseEntity {
 
-  @Column(name = "tenant_id", nullable = true)
+  @Column(name = "tenant_id", nullable = false, updatable = false, columnDefinition = "uuid")
   private UUID tenantId;
 }

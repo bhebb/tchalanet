@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RolePermissionRepositoryPort;
 import com.tchalanet.server.core.accesscontrol.domain.model.Permission;
 import java.util.Collections;

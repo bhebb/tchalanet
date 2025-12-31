@@ -1,15 +1,15 @@
-package com.tchalanet.server.core.game.application.command;
+package com.tchalanet.server.core.game.application.command.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
+import com.tchalanet.server.common.types.id.GameId;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public record UpdateTenantGameCommand(
-    UUID gameId,
+    GameId gameId,
     Boolean enabled,
     String displayName,
     BigDecimal minStake,
     BigDecimal maxStake,
-    JsonNode flags) implements Command<Boolean> {}
-
+    JsonNode flags)
+    implements Command<Boolean> {}

@@ -6,11 +6,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "ticket_line")
 @Getter
 @Setter
+@Audited
 public class TicketLineEntity extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)

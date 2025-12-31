@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tenant/limits")
+@RequestMapping("/tenant/limits")
 @RequiredArgsConstructor
 public class LimitPolicyController {
 

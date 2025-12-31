@@ -18,8 +18,8 @@ import org.hibernate.envers.RevisionTimestamp;
 public class TchRevisionEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rev_seq")
-  @SequenceGenerator(name = "rev_seq", sequenceName = "hibernate_sequence", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tch_revinfo_seq")
+  @SequenceGenerator(name = "tch_revinfo_seq", sequenceName = "tch_revinfo_seq", allocationSize = 1)
   @RevisionNumber
   @Column(name = "rev")
   private Integer id;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.reporting.outletperformance;
 
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/reports/outlet-performance")
+@RequestMapping("/platform/reports/outlet-performance")
 @RequiredArgsConstructor
 public class GetOutletPerformanceReportController {
 
   private final GetOutletPerformanceReportHandler handler;
-  private final TchRequestContextHolder contextHolder;
+  private final TchContextResolver contextResolver;
   private final Clock clock;
 
   @GetMapping
@@ -27,9 +27,10 @@ public class GetOutletPerformanceReportController {
     var toDate = (to != null) ? to : today;
     var fromDate = (from != null) ? from : toDate.minusDays(6); // défaut : 7 jours
 
-    var query =
-        new GetOutletPerformanceReportQuery(
-            contextHolder.get().tenantUuid(), fromDate, toDate, gameCode);
+    var holder = contextResolver.currentOrNull();
+    var tenantUuid = holder != null ? holder.tenantUuid() : null;
+
+    var query = new GetOutletPerformanceReportQuery(tenantUuid, fromDate, toDate, gameCode);
 
     return handler.handle(query);
   }

@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.reporting.salesreport;
 
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/reports/sales-by-period-and-game")
+@RequestMapping("/platform/reports/sales-by-period-and-game")
 @RequiredArgsConstructor
 public class GetSalesReportByPeriodAndGameController {
 
   private final GetSalesReportByPeriodAndGameHandler handler;
-  private final TchRequestContextHolder contextHolder;
-  private Clock cLock;
+  private final TchContextResolver contextResolver;
+  private final Clock cLock;
 
   @GetMapping
   public SalesReportResponse getSalesReport(
@@ -27,9 +27,10 @@ public class GetSalesReportByPeriodAndGameController {
     var toDate = (to != null) ? to : today;
     var fromDate = (from != null) ? from : toDate.minusDays(6); // default 7 jours
 
-    var query =
-        new GetSalesReportByPeriodAndGameQuery(
-            contextHolder.get().tenantUuid(), fromDate, toDate, gameCode);
+    var holder = contextResolver.currentOrNull();
+    var tenantUuid = holder != null ? holder.tenantUuid() : null;
+
+    var query = new GetSalesReportByPeriodAndGameQuery(tenantUuid, fromDate, toDate, gameCode);
 
     return handler.handle(query);
   }

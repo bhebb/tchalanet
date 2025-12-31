@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.reporting.tenantkpis;
 
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/reports/tenant-kpis")
+@RequestMapping("/platform/reports/tenant-kpis")
 @RequiredArgsConstructor
 public class GetTenantKpisController {
 
-  private final TchRequestContextHolder contextHolder;
+  private final TchContextResolver contextResolver;
   private final GetTenantKpisUseCase useCase;
   private final Clock clockPort;
 
@@ -64,6 +64,8 @@ public class GetTenantKpisController {
       fromDate = (from != null) ? from : toDate.minusDays(6);
     }
 
-    return new GetTenantKpisQuery(contextHolder.get().tenantUuid(), fromDate, toDate);
+    var holder = contextResolver.currentOrNull();
+    var tenantUuid = holder != null ? holder.tenantUuid() : null;
+    return new GetTenantKpisQuery(tenantUuid, fromDate, toDate);
   }
 }

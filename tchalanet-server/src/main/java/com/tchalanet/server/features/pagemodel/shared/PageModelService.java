@@ -1,7 +1,9 @@
 package com.tchalanet.server.features.pagemodel.shared;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.tchalanet.server.common.constant.CommonConstants.DEFAULT_TENANT_UUID;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.features.pagemodel.shared.template.PageModelTemplateEntity;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,21 +13,19 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PageModelService {
 
   private final PageModelRepository repository;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
-  private static final UUID DEFAULT_TENANT_UUID =
-      UUID.fromString("00000000-0000-0000-0000-000000000000");
-
-  public PageModel loadByLogicalId(UUID tenantId, String logicalId) {
+  public PageModel loadByLogicalId(String logicalId) {
     PageModelEntity entity =
         repository
-            .findByTenantIdAndLogicalIdAndDeletedAtIsNull(tenantId, logicalId)
+            .findByLogicalIdAndDeletedAtIsNull(logicalId)
             .orElseThrow(
                 () ->
                     new IllegalArgumentException("PageModel not found for logicalId=" + logicalId));
@@ -35,7 +35,7 @@ public class PageModelService {
   public PageModel loadByTenantScopeSlug(UUID tenantId, String scope, String slug) {
     PageModelEntity entity =
         repository
-            .findByTenantIdAndScopeAndSlugAndDeletedAtIsNull(tenantId, scope, slug)
+            .findByScopeAndSlugAndDeletedAtIsNull(scope, slug)
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(
@@ -51,15 +51,13 @@ public class PageModelService {
   public PageModel loadEffectiveModel(UUID tenantId, String logicalId) {
     // 1) PUBLISHED pour le tenant courant
     return repository
-        .findByTenantIdAndLogicalIdAndStatusAndDeletedAtIsNull(
-            tenantId, logicalId, PageStatus.PUBLISHED)
+        .findByLogicalIdAndStatusAndDeletedAtIsNull(logicalId, PageStatus.PUBLISHED)
         .map(this::toDomain)
         // 2) PUBLISHED pour le tenant "default"
         .or(
             () ->
                 repository
-                    .findByTenantIdAndLogicalIdAndStatusAndDeletedAtIsNull(
-                        DEFAULT_TENANT_UUID, logicalId, PageStatus.PUBLISHED)
+                    .findByLogicalIdAndStatusAndDeletedAtIsNull(logicalId, PageStatus.PUBLISHED)
                     .map(this::toDomain))
         // 3) fallback sur template JSON embarqué
         .orElseGet(() -> loadFromTemplate(logicalId));
@@ -92,7 +90,7 @@ public class PageModelService {
     }
 
     try (InputStream is = resource.getInputStream()) {
-      return objectMapper.readValue(is, PageModel.class);
+      return jsonUtils.readValue(is, PageModel.class);
     } catch (IOException e) {
       throw new IllegalStateException(
           "Unable to load PageModel template from resources: " + foundPath, e);
@@ -100,33 +98,28 @@ public class PageModelService {
   }
 
   public PageModel toDomain(PageModelEntity entity) {
-    try {
-      return objectMapper.readValue(entity.getModel(), PageModel.class);
-    } catch (JsonProcessingException e) {
-      throw new IllegalStateException("Unable to deserialize PageModel JSON", e);
-    }
+    return jsonUtils.treeToValue(entity.getModel(), PageModel.class);
   }
 
   // --- New helper methods to manage templateId ---
 
-  public PageModelEntity createFromTemplate(
-      UUID tenantId, PageModelEntity template, boolean publish, UUID actorId) {
-    PageModelEntity e = new PageModelEntity();
-    e.setTenantId(tenantId);
+  public PageModelEntity createFromTemplate(PageModelTemplateEntity template, boolean publish) {
+    // Provide a minimal TchRequestContext for startup seeding to satisfy RLS and auditing
+    var e = new PageModelEntity();
+    // default tenant for system templates
+    e.setTenantId(DEFAULT_TENANT_UUID);
+    e.setCode(template.getCode());
     e.setLogicalId(template.getLogicalId());
-    // derive scope/slug from logicalId or template metadata - for now keep logical mapping
-    // try to infer scope/slug if present in template.model ?? TODO
+    e.setName(template.getName());
+    e.setScope("TENANT");
+    e.setSlug(template.getLogicalId());
     e.setSchemaVersion(template.getSchemaVersion());
-    e.setModel(template.getModel());
-    e.setTemplateId(template.getTemplateId());
+    // ensure non-null JSON
+    e.setSchema(template.getSchema() == null ? jsonUtils.emptyObjectNode() : template.getSchema());
+    e.setModel(template.getModel() == null ? jsonUtils.emptyObjectNode() : template.getModel());
+    e.setTemplateId(template.getId());
     e.setStatus(publish ? PageStatus.PUBLISHED : PageStatus.DRAFT);
-    if (publish) {
-      e.setPublishedAt(Instant.now());
-    }
-    e.setCreatedAt(Instant.now());
-    e.setUpdatedAt(Instant.now());
-    e.setCreatedBy(actorId);
-    e.setUpdatedBy(actorId);
+    if (publish) e.setPublishedAt(Instant.now());
     return repository.save(e);
   }
 
@@ -134,11 +127,14 @@ public class PageModelService {
       UUID tenantId, PageModelTemplateEntity template, boolean publish, UUID actorId) {
     PageModelEntity e = new PageModelEntity();
     e.setTenantId(tenantId);
+    e.setCode(template.getCode());
     e.setLogicalId(template.getLogicalId());
+    e.setName(template.getName());
     e.setScope(null);
     e.setSlug(null);
     e.setSchemaVersion(template.getSchemaVersion());
-    e.setModel(template.getModelJson());
+    e.setSchema(template.getSchema() == null ? jsonUtils.emptyObjectNode() : template.getSchema());
+    e.setModel(template.getModel() == null ? jsonUtils.emptyObjectNode() : template.getModel());
     e.setTemplateId(template.getId());
     e.setStatus(publish ? PageStatus.PUBLISHED : PageStatus.DRAFT);
     if (publish) {
@@ -177,12 +173,13 @@ public class PageModelService {
     return repository.findAllByTemplateIdAndDeletedAtIsNull(templateId);
   }
 
+  @Transactional
   public void applyTemplateToInstances(
-      UUID templateId, String modelJson, int schemaVersion, UUID actorId, boolean setDraft) {
+      UUID templateId, JsonNode modelJson, int schemaVersion, UUID actorId, boolean setDraft) {
     List<PageModelEntity> instances = repository.findAllByTemplateIdAndDeletedAtIsNull(templateId);
     Instant now = Instant.now();
     for (PageModelEntity inst : instances) {
-      inst.setModel(modelJson);
+      inst.setModel(modelJson == null ? jsonUtils.emptyObjectNode() : modelJson);
       inst.setSchemaVersion(schemaVersion);
       if (setDraft) {
         inst.setStatus(PageStatus.DRAFT);
@@ -190,7 +187,7 @@ public class PageModelService {
       }
       inst.setUpdatedAt(now);
       inst.setUpdatedBy(actorId);
-      repository.save(inst);
     }
+    repository.saveAll(instances);
   }
 }

@@ -8,11 +8,13 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "terminal")
 @Getter
 @Setter
+@Audited
 public class TerminalJpaEntity extends BaseTenantEntity {
 
   @Column(name = "outlet_id", nullable = false)

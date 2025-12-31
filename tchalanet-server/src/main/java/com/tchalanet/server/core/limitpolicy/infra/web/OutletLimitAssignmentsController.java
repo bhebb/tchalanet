@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tenant/outlets/{outletId}/limit-assignments")
+@RequestMapping("/tenant/outlets/{outletId}/limit-assignments")
 @RequiredArgsConstructor
 public class OutletLimitAssignmentsController {
 

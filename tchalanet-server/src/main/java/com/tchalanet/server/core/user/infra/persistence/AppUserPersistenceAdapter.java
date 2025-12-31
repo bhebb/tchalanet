@@ -53,7 +53,7 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
     } else {
       entity = UserMapper.toNewEntity(user);
     }
-    AppUserJpaEntity saved = jpa.save(entity);
+    var saved = jpa.save(entity);
     return UserMapper.toDomain(saved);
   }
 
@@ -76,7 +76,7 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
 
   @Override
   public Page<AppUser> findByTenantId(TenantId tenantId, Pageable pageable) {
-    var page = jpa.findByTenantId(tenantId.uuid(), pageable);
+    var page = jpa.findAll(pageable);
     var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
     return new PageImpl<>(content, pageable, page.getTotalElements());
   }
@@ -90,9 +90,7 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
 
   @Override
   public Page<AppUser> findAllActiveUsersByTenant(TenantId tenantId, Pageable pageable) {
-    var page =
-        jpa.findByTenantIdAndStatusAndDeletedAtIsNull(
-            tenantId.uuid(), UserStatus.ACTIVE.name(), pageable);
+    var page = jpa.findByStatusAndDeletedAtIsNull(UserStatus.ACTIVE.name(), pageable);
     var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
     return new PageImpl<>(content, pageable, page.getTotalElements());
   }

@@ -7,11 +7,13 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "limit_assignment")
 @Getter
 @Setter
+@Audited
 public class LimitAssignmentJpaEntity extends BaseTenantEntity {
 
   @Id

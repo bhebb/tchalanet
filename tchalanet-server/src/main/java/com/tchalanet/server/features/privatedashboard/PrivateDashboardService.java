@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.privatedashboard;
 
-import com.tchalanet.server.common.context.TchRequestContextHolder;
-import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiNotice;
@@ -29,15 +29,16 @@ public class PrivateDashboardService {
 
   private final PageModelService pageModelService;
   private final LangResolver langResolver;
-  private final TchRequestContextHolder tenantContext;
+  private final TchContextResolver contextResolver;
   private final TenantI18nOverrideService i18nOverrideService;
   private final PrivateDashboardDynamicDataService dynamicDataService;
   private final PageModelTypeResolver pageModelTypeResolver;
 
   public ApiResponse<PrivateDashboardResponse> getDashboard(
       Optional<String> langFromUrl, UserId userId, String userPreferredLang) {
-    var tenantId = TenantId.of(tenantContext.get().tenantUuid());
-    var role = tenantContext.get().currentRole();
+    var holder = contextResolver.currentOrNull();
+    var tenantId = holder != null ? TenantId.of(holder.tenantUuid()) : null;
+    var role = holder != null ? holder.currentRole() : null;
     var type = pageModelTypeResolver.forDashboard(role);
     var pageModel = pageModelService.loadEffectiveModel(tenantId.uuid(), type.logicalId());
 

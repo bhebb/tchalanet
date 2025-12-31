@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.user.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.external.port.out.KeycloakUserProvisioningPort;
 import com.tchalanet.server.core.user.application.command.model.CreateUserCommand;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
@@ -24,7 +23,7 @@ public class CreateUserCommandHandler implements CommandHandler<CreateUserComman
   private final UserReaderPort userReaderPort;
   private final UserWriterPort userWriterPort;
   private final KeycloakUserProvisioningPort keycloakProvisioningPort;
-  private final TchRequestContextHolder requestContextHolder;
+  private final TchContextResolver contextResolver;
 
   @Override
   @Transactional
@@ -41,10 +40,12 @@ public class CreateUserCommandHandler implements CommandHandler<CreateUserComman
     var now = Instant.now(); // TODO: injecter une Clock commune si disponible
     var timeZone = inferTimeZoneFromLocale(command.locale());
 
-    var ctx = requestContextHolder.get();
-    var tenantId = ctx.tenantUuid();
+    var ctx = contextResolver.currentOrNull();
+    var tenantId = ctx != null ? ctx.tenantUuid() : null;
     var tenantCode =
-        ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : ctx.originalTenantCode();
+        ctx != null && ctx.effectiveTenantCode() != null
+            ? ctx.effectiveTenantCode()
+            : ctx != null ? ctx.originalTenantCode() : null;
 
     if (tenantId == null || tenantCode == null || tenantCode.trim().isEmpty()) {
       throw new IllegalStateException("Missing tenant context on request");
@@ -54,8 +55,6 @@ public class CreateUserCommandHandler implements CommandHandler<CreateUserComman
         AppUser.createNew(
             null,
             keycloakId,
-            TenantId.nullableOf(tenantId),
-            tenantCode,
             resolveUsername(command),
             command.email(),
             command.phone(),

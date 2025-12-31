@@ -44,31 +44,40 @@ public class SecurityConfig {
         .cors(withDefaults())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(
+                auth
+                    // PUBLIC scope: fully public endpoints (health, swagger, public API)
+                    .requestMatchers(
                         "/actuator/health",
                         "/swagger-ui.html",
-                        "/swagger-ui/**",
                         "/api/v1/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
                         "/v3/api-docs/**",
+                        "/openapi/**",          // si tu utilises /openapi
+                        "/api/v1/swagger-ui/**",
+                        "/api/v1/v3/api-docs/**",
                         "/api/v1/openapi/**",
-                        "/api/v1/public/**")
+                        "/api/v1/public/**",
+                        // also permit public endpoints without servlet prefix (helpers, local testing)
+                        "/public/**")
                     .permitAll()
-                    .requestMatchers("/api/platform/**")
+
+                    // PLATFORM scope: platform-level APIs (no tenant): require SUPER_ADMIN
+                    .requestMatchers("/api/v1/platform/**")
                     .hasRole("SUPER_ADMIN")
-                    .requestMatchers("/api/admin/**")
+
+                    // ADMIN scope: tenant-administration APIs (tenant context required)
+                    .requestMatchers("/api/v1/admin/**")
                     .hasAnyRole("TENANT_ADMIN", "SUPER_ADMIN")
-                    // secure app-settings, i18n-overrides, games, themes, agents, roles,
-                    // permissions, tenant-users
-                    .requestMatchers(
-                        "/admin/app-settings/**",
-                        "/admin/i18n-overrides/**",
-                        "/admin/games/**",
-                        "/admin/themes/**",
-                        "/admin/agents/**",
-                        "/admin/roles/**",
-                        "/admin/permissions/**",
-                        "/admin/tenant-users/**")
-                    .hasAnyRole("SUPER_ADMIN", "ADMIN_TENANT")
+
+                    // TENANT scope: tenant business APIs (authenticated users within a tenant)
+                    .requestMatchers("/api/v1/tenant/**")
+                    .authenticated()
+
+                    // Any other request must be authenticated. Do not try to secure individual
+                    // Spring Data REST subroutes here;
+                    // secure by prefix and rely on method-level @PreAuthorize for fine-grained
+                    // control.
                     .anyRequest()
                     .authenticated())
         .oauth2ResourceServer(

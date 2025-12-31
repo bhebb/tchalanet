@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.user.infra.persistence;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.id.UserStatus;
 import com.tchalanet.server.core.user.domain.model.AppUser;
 
 final class UserMapper {
@@ -13,8 +11,6 @@ final class UserMapper {
     return AppUser.restore(
         UserId.of(e.getId()),
         e.getKeycloakId(),
-        TenantId.of(e.getTenantId()),
-        e.getTenantCode(),
         e.getUsername(),
         e.getEmail(),
         e.getPhone(),
@@ -24,7 +20,7 @@ final class UserMapper {
         e.getAvatarUrl(),
         e.getLocale(),
         e.getTimeZone(),
-        UserStatus.valueOf(e.getStatus().name()),
+        e.getStatus(),
         e.getApprovedAt(),
         e.getApprovedBy(),
         e.getLastLoginAt(),
@@ -45,8 +41,6 @@ final class UserMapper {
 
   private static void apply(AppUserJpaEntity e, AppUser u) {
     e.setKeycloakId(u.getKeycloakId());
-    if (u.getTenantId() != null) e.setTenantId(u.getTenantId().uuid());
-    e.setTenantCode(u.getTenantCode());
     e.setUsername(u.getUsername());
     e.setEmail(u.getEmail());
     e.setPhone(u.getPhone());
@@ -56,7 +50,7 @@ final class UserMapper {
     e.setAvatarUrl(u.getAvatarUrl());
     e.setLocale(u.getLocale());
     e.setTimeZone(u.getTimeZone());
-    e.setStatus(com.tchalanet.server.common.types.enums.UserStatus.valueOf(u.getStatus().name()));
+    e.setStatus(u.getStatus());
     e.setApprovedAt(u.getApprovedAt());
     e.setApprovedBy(u.getApprovedBy());
     e.setLastLoginAt(u.getLastLoginAt());

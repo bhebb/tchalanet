@@ -1,8 +1,7 @@
 package com.tchalanet.server.core.user.domain.model;
 
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.enums.UserStatus;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.id.UserStatus;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -12,9 +11,6 @@ public final class AppUser {
 
   private final UserId id;
   private final UUID keycloakId;
-  private final TenantId tenantId;
-
-  private final String tenantCode;
   private final String username;
 
   private final String email;
@@ -33,13 +29,12 @@ public final class AppUser {
   private final UUID approvedBy;
 
   private final Instant lastLoginAt;
+
   private final long version;
 
   private AppUser(
       UserId id,
       UUID keycloakId,
-      TenantId tenantId,
-      String tenantCode,
       String username,
       String email,
       String phone,
@@ -56,8 +51,6 @@ public final class AppUser {
       long version) {
     this.id = id;
     this.keycloakId = keycloakId;
-    this.tenantId = tenantId;
-    this.tenantCode = tenantCode;
     this.username = username;
     this.email = email;
     this.phone = phone;
@@ -78,8 +71,6 @@ public final class AppUser {
   public static AppUser createNew(
       UserId id,
       UUID keycloakId,
-      TenantId tenantId,
-      String tenantCode,
       String username,
       String email,
       String phone,
@@ -91,9 +82,6 @@ public final class AppUser {
       String timeZone,
       Instant now) {
     if (keycloakId == null) throw new IllegalArgumentException("keycloakId is required");
-    if (tenantId == null) throw new IllegalArgumentException("tenantId is required");
-    if (tenantCode == null || tenantCode.isBlank())
-      throw new IllegalArgumentException("tenantCode is required");
     if (username == null || username.isBlank())
       throw new IllegalArgumentException("username is required");
     if (now == null) throw new IllegalArgumentException("now is required");
@@ -101,8 +89,6 @@ public final class AppUser {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        tenantCode,
         username,
         email,
         phone,
@@ -123,8 +109,6 @@ public final class AppUser {
   public static AppUser restore(
       UserId id,
       UUID keycloakId,
-      TenantId tenantId,
-      String tenantCode,
       String username,
       String email,
       String phone,
@@ -142,8 +126,6 @@ public final class AppUser {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        tenantCode,
         username,
         email,
         phone,
@@ -171,13 +153,10 @@ public final class AppUser {
       String displayName,
       String avatarUrl,
       String locale,
-      String timeZone,
-      String tenantCode) {
+      String timeZone) {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        (tenantCode != null && !tenantCode.isBlank()) ? tenantCode : this.tenantCode,
         (username != null && !username.isBlank()) ? username : this.username,
         (email != null && !email.isBlank()) ? email : this.email,
         (phone != null && !phone.isBlank()) ? phone : this.phone,
@@ -191,7 +170,7 @@ public final class AppUser {
         approvedAt,
         approvedBy,
         lastLoginAt,
-        version);
+        this.version);
   }
 
   public AppUser touchLogin(Instant now) {
@@ -199,8 +178,6 @@ public final class AppUser {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        tenantCode,
         username,
         email,
         phone,
@@ -214,7 +191,7 @@ public final class AppUser {
         approvedAt,
         approvedBy,
         now,
-        version);
+        this.version);
   }
 
   public AppUser approve(Instant now, UUID approvedBy) {
@@ -225,8 +202,6 @@ public final class AppUser {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        tenantCode,
         username,
         email,
         phone,
@@ -240,7 +215,7 @@ public final class AppUser {
         now,
         approvedBy,
         lastLoginAt,
-        version);
+        this.version);
   }
 
   public AppUser suspend() {
@@ -248,8 +223,6 @@ public final class AppUser {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        tenantCode,
         username,
         email,
         phone,
@@ -263,7 +236,7 @@ public final class AppUser {
         approvedAt,
         approvedBy,
         lastLoginAt,
-        version);
+        this.version);
   }
 
   public AppUser reactivate() {
@@ -271,8 +244,6 @@ public final class AppUser {
     return new AppUser(
         id,
         keycloakId,
-        tenantId,
-        tenantCode,
         username,
         email,
         phone,
@@ -286,6 +257,6 @@ public final class AppUser {
         approvedAt,
         approvedBy,
         lastLoginAt,
-        version);
+        this.version);
   }
 }

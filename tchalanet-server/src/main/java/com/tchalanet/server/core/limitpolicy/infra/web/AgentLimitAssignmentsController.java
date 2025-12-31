@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tenant/agents/{agentId}/limit-assignments")
+@RequestMapping("/tenant/agents/{agentId}/limit-assignments")
 @RequiredArgsConstructor
 public class AgentLimitAssignmentsController {
 

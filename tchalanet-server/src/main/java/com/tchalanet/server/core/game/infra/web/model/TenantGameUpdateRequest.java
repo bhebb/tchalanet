@@ -1,16 +1,12 @@
-package com.tchalanet.server.core.game.infra.web;
+package com.tchalanet.server.core.game.infra.web.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.math.BigDecimal;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import java.math.BigDecimal;
 
-@Data
-public class TenantGameUpdateRequest {
-  private Boolean enabled;
-  @Size(max = 128)
-  private String displayName;
-  private BigDecimal minStake;
-  private BigDecimal maxStake;
-  private JsonNode flags;
-}
+public record TenantGameUpdateRequest(
+    Boolean enabled,
+    @Size(max = 128) String displayName,
+    BigDecimal minStake,
+    BigDecimal maxStake,
+    JsonNode flags) {}

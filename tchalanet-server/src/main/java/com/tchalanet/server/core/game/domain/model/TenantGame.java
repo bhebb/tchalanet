@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.game.application.model;
+package com.tchalanet.server.core.game.domain.model;
 
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantGameId;

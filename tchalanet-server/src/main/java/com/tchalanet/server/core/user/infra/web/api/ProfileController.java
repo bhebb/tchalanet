@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController("profileApiController")
-@RequestMapping("/profile")
+@RequestMapping("/admin/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
@@ -112,7 +112,6 @@ public class ProfileController {
         new UserResponse(
             UserId.nullableOf(details.id),
             details.keycloakId,
-            details.tenantId,
             details.username,
             details.email,
             details.firstName,

@@ -25,7 +25,7 @@ public class TenantCreatedInitListener {
   @Transactional
   public void onTenantCreated(TenantCreatedEvent e) {
     var tenantId = e.tenantId().value();
-    pageModelBootstrapService.bootstrapForTenant(tenantId);
+    pageModelBootstrapService.bootstrapForDefaultTenant();
 
     // Seed tenant-level defaults only if missing
     createTenantSettings(e.tenantId());

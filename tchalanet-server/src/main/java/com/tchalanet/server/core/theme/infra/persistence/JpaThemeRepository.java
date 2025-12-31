@@ -7,20 +7,17 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@Repository
+@RepositoryRestResource(exported = false)
 public interface JpaThemeRepository extends JpaRepository<ThemeJpaEntity, UUID> {
 
   Optional<ThemeJpaEntity> findById(UUID id);
 
   // Return all themes for a tenant (non-paginated) - exposed as /all-by-tenant
-  @RestResource(path = "all-by-tenant", rel = "all-by-tenant")
   List<ThemeJpaEntity> findByTenantId(UUID tenantId);
 
   // Return paged themes for a tenant - exposed as /by-tenant
-  @RestResource(path = "by-tenant", rel = "by-tenant")
   Page<ThemeJpaEntity> findByTenantId(UUID tenantId, Pageable pageable);
 
   List<ThemeJpaEntity> findByTenantIdAndStatusAndDeletedAtIsNull(UUID tenantId, ThemeStatus status);

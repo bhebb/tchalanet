@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "ticket")
 @Getter
+@Audited
 @Setter
 public class TicketEntity extends BaseTenantEntity {
 

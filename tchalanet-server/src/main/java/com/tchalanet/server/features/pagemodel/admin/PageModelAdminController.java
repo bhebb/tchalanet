@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/pagemodels")
+@RequestMapping("/admin/pagemodels")
 @RequiredArgsConstructor
 public class PageModelAdminController {
 
@@ -46,7 +46,7 @@ public class PageModelAdminController {
       @RequestBody PageModelAdminUpsertRequest request) {
     PageModelAdminDetailDto created = service.upsert(request);
     // On suppose que le DTO contient l'ID
-    URI location = URI.create("/api/admin/pagemodels/" + created.id());
+    URI location = URI.create("/admin/pagemodels/" + created.id());
     return ResponseEntity.created(location).body(created);
   }
 

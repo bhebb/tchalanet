@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.accesscontrol.infra.web.mapper;
 
-import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.core.accesscontrol.application.port.out.PermissionCatalogAdminPort.PermissionSummary;
 import com.tchalanet.server.core.accesscontrol.infra.web.model.PermissionResponse;
 import com.tchalanet.server.core.accesscontrol.infra.web.model.RoleAdminResponse;

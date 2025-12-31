@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin/audit")
+@RequestMapping("/admin/audit")
 public class AuditEventRestController {
 
   // Disabled dependency on AuditQueryService until the query layer is implemented.

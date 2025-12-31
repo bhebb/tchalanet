@@ -46,7 +46,6 @@ public interface StatsDailyJpaRepository
         from StatsDailyEntity s
         join AppUserJpaEntity c on c.id = s.dimensionId
         where s.dimensionType = 'cashier'
-          and c.tenantId = :tenantId
           and s.refDate between :from and :to
         group by s.dimensionId
         order by sum(s.netRevenueCents) desc

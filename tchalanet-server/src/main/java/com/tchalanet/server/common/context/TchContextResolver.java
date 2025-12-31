@@ -1,0 +1,21 @@
+package com.tchalanet.server.common.context;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Component
+@Slf4j
+public class TchContextResolver {
+
+  public TchRequestContext currentOrNull() {
+    return TchContext.currentOrNull();
+  }
+
+  public TchRequestContext currentOrThrow() {
+    var ctx = currentOrNull();
+    if (ctx == null) {
+      throw new IllegalStateException("No TchRequestContext bound to current thread");
+    }
+    return ctx;
+  }
+}

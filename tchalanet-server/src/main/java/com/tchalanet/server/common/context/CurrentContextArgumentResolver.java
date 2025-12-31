@@ -15,8 +15,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @RequiredArgsConstructor
 public class CurrentContextArgumentResolver implements HandlerMethodArgumentResolver {
 
-  private final TchRequestContextHolder requestContextHolder;
-
   @Override
   public boolean supportsParameter(MethodParameter p) {
     return p.hasParameterAnnotation(CurrentContext.class)
@@ -30,17 +28,16 @@ public class CurrentContextArgumentResolver implements HandlerMethodArgumentReso
       NativeWebRequest webRequest,
       WebDataBinderFactory binderFactory) {
 
-    // 1) priorité au holder request-scope
-    TchRequestContext ctx = requestContextHolder.get();
-    if (ctx != null) {
-      return ctx;
+    // 1) Fallback request attribute (works even if ThreadLocal not set for some reason)
+    HttpServletRequest req = webRequest.getNativeRequest(HttpServletRequest.class);
+    if (req != null) {
+      Object attr = req.getAttribute(REQUEST_CONTEXT);
+      if (attr instanceof TchRequestContext ctx) {
+        return ctx;
+      }
     }
 
-    // 2) fallback sur l'attribut de requête (au cas où)
-    HttpServletRequest req = webRequest.getNativeRequest(HttpServletRequest.class);
-    if (req == null) {
-      return null;
-    }
-    return req.getAttribute(REQUEST_CONTEXT);
+    // 2) ThreadLocal (normal path: set by TchContextFilter)
+    return TchContext.currentOrNull();
   }
 }

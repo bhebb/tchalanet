@@ -5,8 +5,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -17,15 +15,7 @@ public class ApiWebConfig implements WebMvcConfigurer {
   private final ApiProperties apiProperties;
   private final CurrentContextArgumentResolver resolver;
 
-  @Override
-  public void configurePathMatch(
-      org.springframework.web.servlet.config.annotation.PathMatchConfigurer configurer) {
-    //    configurer.setUseSuffixPatternMatch(false);
-    var base = this.apiProperties.basePath().replaceAll("/+$", "");
-    var version = this.apiProperties.apiVersion().replaceAll("/+$", "");
-    var prefix = base + "/" + version;
-    configurer.addPathPrefix(prefix, HandlerTypePredicate.forAnnotation(RestController.class));
-  }
+  // removed configurePathMatch: servlet path will provide the API prefix (/api/v1)
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> rs) {

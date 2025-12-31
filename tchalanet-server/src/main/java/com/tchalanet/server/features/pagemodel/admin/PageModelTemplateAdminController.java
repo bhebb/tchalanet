@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/page-model-templates")
+@RequestMapping("/admin/page-model-templates")
 @RequiredArgsConstructor
 public class PageModelTemplateAdminController {
 
@@ -52,9 +52,8 @@ public class PageModelTemplateAdminController {
   public ResponseEntity<PageModelTemplateResponse> create(
       @RequestBody PageModelTemplateRequest req,
       @RequestHeader(value = "X-User-Id", required = false) UserId userId) {
-    PageModelTemplateEntity created =
-        service.create(mapper.toEntity(req), userId == null ? null : userId.uuid());
-    URI location = URI.create("/api/admin/page-model-templates/" + created.getId());
+    PageModelTemplateEntity created = service.create(mapper.toEntity(req));
+    URI location = URI.create("/admin/page-model-templates/" + created.getId());
     return ResponseEntity.created(location).body(mapper.toResponse(created));
   }
 

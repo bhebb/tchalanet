@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/admin-api/tenants")
+@RequestMapping("/platform/tenants")
 @RequiredArgsConstructor
 public class TenantAdminController {
 

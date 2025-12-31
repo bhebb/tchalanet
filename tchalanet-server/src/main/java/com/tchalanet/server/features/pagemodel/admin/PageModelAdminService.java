@@ -1,8 +1,9 @@
 package com.tchalanet.server.features.pagemodel.admin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminDetailDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminListItemDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminUpsertRequest;
@@ -23,19 +24,20 @@ public class PageModelAdminService {
 
   private final PageModelRepository repository;
   private final ObjectMapper objectMapper;
-  private final TchRequestContextHolder requestContextHolder;
+  private final TchContextResolver contextResolver;
 
   public List<PageModelAdminListItemDto> list(UUID tenantId, String scope, String logicalId) {
-    return repository.findByTenantIdAndDeletedAtIsNull(tenantId).stream()
+    return repository.findByDeletedAtIsNull().stream()
         .map(this::toListItemDto)
         .collect(Collectors.toList());
   }
 
   public PageModelAdminDetailDto get(UUID id) {
-    UUID tenantId = requestContextHolder.get().tenantUuid();
+    var holder = contextResolver.currentOrNull();
+    UUID tenantId = holder != null ? holder.tenantUuid() : null;
     PageModelEntity entity =
         repository
-            .findByIdAndTenantIdAndDeletedAtIsNull(id, tenantId)
+            .findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new IllegalArgumentException("PageModel not found: " + id));
     return toDetailDto(entity);
   }
@@ -45,10 +47,11 @@ public class PageModelAdminService {
    * veut travailler "par type" de page.
    */
   public PageModelAdminDetailDto getByLogicalId(String logicalId) {
-    UUID tenantId = requestContextHolder.get().tenantUuid();
+    var holder = contextResolver.currentOrNull();
+    UUID tenantId = holder != null ? holder.tenantUuid() : null;
     PageModelEntity entity =
         repository
-            .findByTenantIdAndLogicalIdAndDeletedAtIsNull(tenantId, logicalId)
+            .findByLogicalIdAndDeletedAtIsNull(logicalId)
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(
@@ -57,14 +60,13 @@ public class PageModelAdminService {
   }
 
   public PageModelAdminDetailDto upsert(PageModelAdminUpsertRequest request) {
-    UUID tenantId = requestContextHolder.get().tenantUuid();
+    var holder = contextResolver.currentOrNull();
+    UUID tenantId = holder != null ? holder.tenantUuid() : null;
     Instant now = Instant.now();
 
     PageModelEntity entity =
         request.id() != null
-            ? repository
-                .findByIdAndTenantIdAndDeletedAtIsNull(request.id(), tenantId)
-                .orElseGet(PageModelEntity::new)
+            ? repository.findByIdAndDeletedAtIsNull(request.id()).orElseGet(PageModelEntity::new)
             : new PageModelEntity();
 
     if (entity.getId() == null) {
@@ -87,10 +89,9 @@ public class PageModelAdminService {
   }
 
   public void delete(UUID id) {
-    UUID tenantId = requestContextHolder.get().tenantUuid();
     PageModelEntity entity =
         repository
-            .findByIdAndTenantIdAndDeletedAtIsNull(id, tenantId)
+            .findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new IllegalArgumentException("PageModel not found: " + id));
     Instant now = Instant.now();
     entity.setDeletedAt(now);
@@ -103,7 +104,7 @@ public class PageModelAdminService {
 
     var source =
         repository
-            .findByIdAndTenantIdAndDeletedAtIsNull(id, tenantId)
+            .findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new IllegalArgumentException("PageModel not found: " + id));
 
     var clone = new PageModelEntity();
@@ -121,20 +122,17 @@ public class PageModelAdminService {
   }
 
   public PageModelAdminDetailDto preview(UUID id) {
-    UUID tenantId = requestContextHolder.get().tenantUuid();
+    var holder = contextResolver.currentOrNull();
+    UUID tenantId = holder != null ? holder.tenantUuid() : null;
     PageModelEntity entity =
         repository
-            .findByIdAndTenantIdAndDeletedAtIsNull(id, tenantId)
+            .findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new IllegalArgumentException("PageModel not found: " + id));
     return toDetailDto(entity);
   }
 
-  private String serializeModel(PageModel model) {
-    try {
-      return objectMapper.writeValueAsString(model);
-    } catch (JsonProcessingException e) {
-      throw new IllegalStateException("Unable to serialize PageModel", e);
-    }
+  private JsonNode serializeModel(PageModel model) {
+    return objectMapper.valueToTree(model);
   }
 
   private PageModelAdminListItemDto toListItemDto(PageModelEntity e) {
@@ -165,19 +163,20 @@ public class PageModelAdminService {
         e.getUpdatedAt());
   }
 
-  private PageModel deserializeModel(String json) {
+  private PageModel deserializeModel(JsonNode json) {
     try {
-      return objectMapper.readValue(json, PageModel.class);
+      return objectMapper.treeToValue(json, PageModel.class);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException("Unable to deserialize PageModel", e);
     }
   }
 
   public PageModelAdminDetailDto publish(UUID id) {
-    var tenantId = requestContextHolder.get().tenantUuid();
+    var holder = contextResolver.currentOrNull();
+    var tenantId = holder != null ? holder.tenantUuid() : null;
     var entity =
         repository
-            .findByIdAndTenantIdAndDeletedAtIsNull(id, tenantId)
+            .findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new IllegalArgumentException("PageModel not found: " + id));
     entity.setStatus(PageStatus.PUBLISHED);
     var saved = repository.save(entity);

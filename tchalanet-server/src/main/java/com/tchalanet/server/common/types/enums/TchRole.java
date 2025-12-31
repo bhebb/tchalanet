@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.security;
+package com.tchalanet.server.common.types.enums;
 
 /**
  * Rôles "système" Tchalanet, mappés aux rôles globaux (is_system=true dans app_role). Utilisé

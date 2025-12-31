@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/admin/jobs")
+@RequestMapping("/admin/jobs")
 public class BatchJobController {
 
   private final ApplicationContext ctx;

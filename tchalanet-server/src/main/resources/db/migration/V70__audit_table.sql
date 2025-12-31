@@ -1,13 +1,17 @@
+CREATE SEQUENCE IF NOT EXISTS tch_revinfo_seq START WITH 1 INCREMENT BY 1;
+
 -- DROP TABLE public.revinfo;
 
 CREATE TABLE public.revinfo (
-                                rev int4 NOT NULL,
+                                rev bigint PRIMARY KEY DEFAULT nextval('tch_revinfo_seq'),
                                 tenant_id uuid NULL,
                                 rev_timestamp int8 NOT NULL,
-                                user_id uuid NULL,
-                                CONSTRAINT revinfo_pkey PRIMARY KEY (rev)
+                                user_id uuid NULL
 );
 
+-- Optionnel: index pour requêtes
+CREATE INDEX IF NOT EXISTS idx_revinfo_tenant_id ON revinfo(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_revinfo_user_id ON revinfo(user_id);
 -- Permissions
 
 ALTER TABLE public.revinfo OWNER TO app_user;
@@ -23,11 +27,11 @@ CREATE TABLE public.app_role_aud (
                                      id uuid NOT NULL,
                                      rev int4 NOT NULL,
                                      revtype int2 NULL,
+                                     version bigint NULL,
+                                     tenant_id uuid NULL,
                                      code varchar(64) NULL,
-                                     description varchar(255) NULL,
                                      "name" varchar(128) NULL,
-                                     parent_role_id uuid NULL,
-                                     is_system bool NULL,
+                                     description text NULL,
                                      CONSTRAINT app_role_aud_pkey PRIMARY KEY (id, rev),
                                      CONSTRAINT fkhd8msl9b8usp6k1q9mk6drg4v FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
@@ -79,25 +83,24 @@ CREATE TABLE public.app_user_aud (
                                      id uuid NOT NULL,
                                      rev int4 NOT NULL,
                                      revtype int2 NULL,
-                                     tenant_id uuid NULL,
-                                     approved_at timestamptz(6) NULL,
-                                     approved_by uuid NULL,
-                                     avatar_url varchar(255) NULL,
-                                     display_name varchar(255) NULL,
+                                     version bigint NULL,
+                                     keycloak_sub uuid NULL,
+                                     username text NULL,
                                      email varchar(255) NULL,
-                                     first_name varchar(255) NULL,
-                                     keycloak_id uuid NULL,
-                                     last_login_at timestamptz(6) NULL,
-                                     last_name varchar(255) NULL,
-                                     locale varchar(255) NULL,
-                                     phone varchar(255) NULL,
-                                     status varchar(255) NULL,
-                                     tenant_code varchar(255) NULL,
-                                     time_zone varchar(255) NULL,
-                                     username varchar(255) NULL,
+                                     phone text NULL,
+                                     first_name text NULL,
+                                     last_name text NULL,
+                                     display_name text NULL,
+                                     avatar_url text NULL,
+                                     locale varchar(8) NULL,
+                                     time_zone varchar(64) NULL,
+                                     status varchar(32) NULL,
+                                     approved_at timestamptz NULL,
+                                     approved_by uuid NULL,
+                                     last_login_at timestamptz NULL,
                                      CONSTRAINT app_user_aud_pkey PRIMARY KEY (id, rev),
-                                     CONSTRAINT app_user_aud_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING_APPROVAL'::character varying, 'ACTIVE'::character varying, 'SUSPENDED'::character varying, 'INVITED'::character varying])::text[]))),
-	CONSTRAINT fklrwde4gab1o0jmxy358bobg55 FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+                                     CONSTRAINT app_user_aud_status_check CHECK (((status)::text = ANY ((ARRAY['INVITED'::character varying, 'PENDING_APPROVAL'::character varying, 'ACTIVE'::character varying, 'SUSPENDED'::character varying])::text[]))),
+    CONSTRAINT fklrwde4gab1o0jmxy358bobg55 FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
 
 -- Permissions
@@ -258,17 +261,29 @@ CREATE TABLE public.page_model_aud (
                                        id uuid NOT NULL,
                                        rev int4 NOT NULL,
                                        revtype int2 NULL,
+                                       -- columns from page_model (V12) copied here so audit table matches the entity
+                                       tenant_id uuid NULL,
+                                       code varchar(128) NULL,
                                        logical_id varchar(255) NULL,
+                                       name varchar(255) NULL,
                                        model jsonb NULL,
                                        published_at timestamptz(6) NULL,
+                                       schema jsonb NULL,
                                        schema_version int4 NULL,
                                        "scope" varchar(255) NULL,
                                        slug varchar(255) NULL,
                                        status varchar(255) NULL,
                                        template_id uuid NULL,
+                                       version bigint NULL,
+                                       active boolean NULL,
+                                       created_at timestamptz NULL,
+                                       created_by uuid NULL,
+                                       updated_at timestamptz NULL,
+                                       updated_by uuid NULL,
+                                       deleted_at timestamptz NULL,
                                        CONSTRAINT page_model_aud_pkey PRIMARY KEY (id, rev),
                                        CONSTRAINT page_model_aud_status_check CHECK (((status)::text = ANY ((ARRAY['DRAFT'::character varying, 'PUBLISHED'::character varying, 'ARCHIVED'::character varying])::text[]))),
-	CONSTRAINT fk9s11d58873ncny4anx6xy4p4i FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+    	CONSTRAINT fk9s11d58873ncny4anx6xy4p4i FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
 
 -- Permissions
@@ -287,14 +302,24 @@ CREATE TABLE public.page_model_template_aud (
                                                 id uuid NOT NULL,
                                                 rev int4 NOT NULL,
                                                 revtype int2 NULL,
-                                                description varchar(255) NULL,
-                                                is_default bool NULL,
-                                                is_system bool NULL,
-                                                "label" varchar(255) NULL,
+                                                -- columns from page_model_template (V12) copied so audit table matches the entity
+                                                code varchar(128) NULL,
                                                 logical_id varchar(255) NULL,
+                                                name varchar(255) NULL,
+                                                label varchar(255) NULL,
+                                                description varchar(255) NULL,
+                                                schema jsonb NULL,
                                                 model jsonb NULL,
                                                 schema_version int4 NULL,
+                                                is_default bool NULL,
+                                                is_system bool NULL,
                                                 tenant_id uuid NULL,
+                                                version bigint NULL,
+                                                created_at timestamptz NULL,
+                                                created_by uuid NULL,
+                                                updated_at timestamptz NULL,
+                                                updated_by uuid NULL,
+                                                deleted_at timestamptz NULL,
                                                 CONSTRAINT page_model_template_aud_pkey PRIMARY KEY (id, rev),
                                                 CONSTRAINT fk1fte8c6kyc1erajy2x83visw3 FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
@@ -349,9 +374,9 @@ CREATE TABLE public.permission_aud (
                                        code varchar(128) NOT NULL,
                                        rev int4 NOT NULL,
                                        revtype int2 NULL,
-                                       category varchar(64) NULL,
-                                       description varchar(255) NULL,
-                                       "name" varchar(128) NULL,
+                                       name varchar(128) NULL,
+                                       description text NULL,
+                                       version bigint NULL,
                                        CONSTRAINT permission_aud_pkey PRIMARY KEY (code, rev),
                                        CONSTRAINT fk8p00qhf8aau42hacp13k6x5hh FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
@@ -455,35 +480,10 @@ GRANT ALL ON TABLE public.pos_session_totals_aud TO app_user;
 
 -- Drop table
 
--- DROP TABLE public.role_permission;
-
-CREATE TABLE public.role_permission (
-                                        permission_code varchar(255) NOT NULL,
-                                        created_at timestamptz(6) NULL,
-                                        created_by uuid NULL,
-                                        deleted_at timestamptz(6) NULL,
-                                        updated_at timestamptz(6) NULL,
-                                        updated_by uuid NULL,
-                                        "version" int8 NOT NULL,
-                                        role_id uuid NOT NULL,
-                                        CONSTRAINT role_permission_pkey PRIMARY KEY (permission_code, role_id),
-                                        CONSTRAINT fk54dlsmecjg5cjcuyxjspj6coo FOREIGN KEY (permission_code) REFERENCES public."permission"(code)
-);
-
--- Permissions
-
-ALTER TABLE public.role_permission OWNER TO app_user;
-GRANT ALL ON TABLE public.role_permission TO app_user;
-
-
--- public.role_permission_aud definition
-
--- Drop table
-
 -- DROP TABLE public.role_permission_aud;
 
 CREATE TABLE public.role_permission_aud (
-                                            permission_code varchar(255) NOT NULL,
+                                            permission_code varchar(128) NOT NULL,
                                             role_id uuid NOT NULL,
                                             rev int4 NOT NULL,
                                             revtype int2 NULL,
@@ -567,11 +567,12 @@ CREATE TABLE public.tenant_user_aud (
                                         id uuid NOT NULL,
                                         rev int4 NOT NULL,
                                         revtype int2 NULL,
-                                        autonomy_level varchar(255) NULL,
-                                        is_owner bool NULL,
-                                        role_id uuid NULL,
+                                        version bigint NULL,
                                         tenant_id uuid NULL,
-                                        user_id varchar(255) NULL,
+                                        user_id uuid NULL,
+                                        role_id uuid NULL,
+                                        autonomy_level varchar(16) NULL,
+                                        is_owner bool NULL,
                                         CONSTRAINT tenant_user_aud_pkey PRIMARY KEY (id, rev),
                                         CONSTRAINT fk973hy275rjrqvddjivk7vd1jx FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
@@ -637,11 +638,218 @@ ALTER TABLE public.user_preference_aud OWNER TO app_user;
 GRANT ALL ON TABLE public.user_preference_aud TO app_user;
 
 
+-- public.ticket_aud definition
+
+-- DROP TABLE public.ticket_aud;
+
+CREATE TABLE public.ticket_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  tenant_id uuid NULL,
+  terminal_id uuid NULL,
+  draw_id uuid NULL,
+  session_id uuid NULL,
+  ticket_code text NULL,
+  public_code varchar(32) NULL,
+  created_at timestamptz NULL,
+  status varchar(16) NULL,
+  total_amount numeric(14,2) NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT ticket_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fkticketaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.ticket_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.ticket_aud TO app_user;
 
 
--- Permissions
-GRANT ALL ON SCHEMA public TO pg_database_owner;
-GRANT USAGE ON SCHEMA public TO public;
-GRANT ALL ON SCHEMA public TO app_user;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT DELETE, INSERT, TRIGGER, SELECT, TRUNCATE, UPDATE, REFERENCES, MAINTAIN ON TABLES TO app_user;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT, USAGE, UPDATE ON SEQUENCES TO app_user;
+-- public.ticket_line_aud definition
+
+-- DROP TABLE public.ticket_line_aud;
+
+CREATE TABLE public.ticket_line_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  ticket_id uuid NULL,
+  game_code varchar(32) NULL,
+  selection text NULL,
+  stake numeric(12,2) NULL,
+  odds_snapshot numeric(12,4) NULL,
+  potential_payout numeric(14,2) NULL,
+  bet_type varchar(20) NULL,
+  version bigint NULL,
+  created_at timestamptz NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT ticket_line_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fkticketlineaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.ticket_line_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.ticket_line_aud TO app_user;
+
+
+-- public.terminal_aud definition
+
+-- DROP TABLE public.terminal_aud;
+
+CREATE TABLE public.terminal_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  version bigint NULL,
+  tenant_id uuid NULL,
+  outlet_id uuid NULL,
+  state varchar(16) NULL,
+  label varchar(128) NULL,
+  inventory_tag varchar(64) NULL,
+  last_seen timestamptz NULL,
+  registered_at timestamptz NULL,
+  unregistered_at timestamptz NULL,
+  locked_at timestamptz NULL,
+  locked_by uuid NULL,
+  lock_reason varchar(255) NULL,
+  metadata jsonb NULL,
+  created_at timestamptz NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT terminal_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fkterminalaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.terminal_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.terminal_aud TO app_user;
+
+
+-- public.outlet_aud definition
+
+-- DROP TABLE public.outlet_aud;
+
+CREATE TABLE public.outlet_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  version bigint NULL,
+  tenant_id uuid NULL,
+  name text NULL,
+  slug citext NULL,
+  day_closed boolean NULL,
+  sales_blocked boolean NULL,
+  sales_block_reason text NULL,
+  sales_blocked_at timestamptz NULL,
+  timezone varchar(64) NULL,
+  business_day_cutoff time NULL,
+  receipt_printing_enabled boolean NULL,
+  receipt_header_message text NULL,
+  receipt_footer_message text NULL,
+  require_opening_float boolean NULL,
+  created_at timestamptz NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT outlet_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fkoutletaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.outlet_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.outlet_aud TO app_user;
+
+
+-- public.limit_definition_aud definition
+
+-- DROP TABLE public.limit_definition_aud;
+
+CREATE TABLE public.limit_definition_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  version bigint NULL,
+  tenant_id uuid NULL,
+  rule_key varchar(64) NULL,
+  enabled boolean NULL,
+  on_breach varchar(16) NULL,
+  params jsonb NULL,
+  applies_to jsonb NULL,
+  created_at timestamptz NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT limit_definition_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fklimitdefaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.limit_definition_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.limit_definition_aud TO app_user;
+
+
+-- public.limit_assignment_aud definition
+
+-- DROP TABLE public.limit_assignment_aud;
+
+CREATE TABLE public.limit_assignment_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  version bigint NULL,
+  tenant_id uuid NULL,
+  limit_definition_id uuid NULL,
+  target_type varchar(16) NULL,
+  target_id uuid NULL,
+  enabled boolean NULL,
+  starts_at timestamptz NULL,
+  ends_at timestamptz NULL,
+  created_at timestamptz NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT limit_assignment_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fklimitassignaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.limit_assignment_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.limit_assignment_aud TO app_user;
+
+
+-- public.tenant_game_aud definition
+
+-- DROP TABLE public.tenant_game_aud;
+
+CREATE TABLE public.tenant_game_aud (
+  id uuid NOT NULL,
+  rev int4 NOT NULL,
+  revtype int2 NULL,
+  version bigint NULL,
+  tenant_id uuid NULL,
+  game_id uuid NULL,
+  enabled boolean NULL,
+  display_name varchar(128) NULL,
+  min_stake numeric(12,2) NULL,
+  max_stake numeric(12,2) NULL,
+  flags jsonb NULL,
+  created_at timestamptz NULL,
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT tenant_game_aud_pkey PRIMARY KEY (id, rev),
+  CONSTRAINT fktenantgameaud_rev FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
+);
+
+ALTER TABLE public.tenant_game_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.tenant_game_aud TO app_user;
+
+-- End added audit tables
+
+-- (V71 changes merged into CREATE TABLE definitions above; no ALTER statements needed)

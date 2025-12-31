@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.accesscontrol.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
-import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RoleReaderPort;
 import com.tchalanet.server.core.accesscontrol.application.query.model.ListRolesQuery;

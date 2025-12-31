@@ -45,7 +45,6 @@ public class GetCurrentUserQueryHandler
     UserProfileQuery p = new UserProfileQuery();
     p.id = user.getId().uuid();
     p.keycloakId = user.getKeycloakId();
-    p.tenantId = user.getTenantId();
     p.username = user.getUsername();
     p.email = user.getEmail();
     p.firstName = user.getFirstName();

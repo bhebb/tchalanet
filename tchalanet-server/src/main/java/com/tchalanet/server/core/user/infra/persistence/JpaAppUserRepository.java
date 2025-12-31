@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.user.infra.persistence;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -19,23 +18,9 @@ public interface JpaAppUserRepository extends JpaRepository<AppUserJpaEntity, UU
 
   Optional<AppUserJpaEntity> findByEmailOrPhone(String email, String phone);
 
-  @RestResource(path = "all-by-status", rel = "all-by-status")
-  List<AppUserJpaEntity> findByStatusAndDeletedAtIsNull(String status);
-
-  @RestResource(path = "all-by-tenant-and-status", rel = "all-by-tenant-and-status")
-  List<AppUserJpaEntity> findByTenantIdAndStatusAndDeletedAtIsNull(UUID tenantId, String status);
-
-  Optional<AppUserJpaEntity> findByKeycloakIdAndDeletedAtIsNull(UUID keycloakId);
-
   // Paged
   Page<AppUserJpaEntity> findAll(Pageable pageable);
 
-  Page<AppUserJpaEntity> findByTenantId(UUID tenantId, Pageable pageable);
-
   @RestResource(path = "by-status", rel = "by-status")
   Page<AppUserJpaEntity> findByStatusAndDeletedAtIsNull(String status, Pageable pageable);
-
-  @RestResource(path = "by-tenant-and-status", rel = "by-tenant-and-status")
-  Page<AppUserJpaEntity> findByTenantIdAndStatusAndDeletedAtIsNull(
-      UUID tenantId, String status, Pageable pageable);
 }

@@ -1,40 +1,35 @@
 package com.tchalanet.server.core.audit.infra.persistence.envers;
 
-import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.envers.RevisionListener;
 import org.springframework.stereotype.Component;
 
-/** Listener Envers : remplit tenantId et userId dans revinfo à partir du TchRequestContext. */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class TchRevisionListener implements RevisionListener {
 
-  private final TchRequestContextHolder ctxHolder;
+  private final TchContextResolver resolver;
 
   @Override
   public void newRevision(Object revisionEntity) {
-    TchRevisionEntity rev = (TchRevisionEntity) revisionEntity;
+    var rev = (TchRevisionEntity) revisionEntity;
 
-    TchRequestContext ctx = ctxHolder.get();
-    if (ctx != null) {
+    try {
+      var ctx = resolver.currentOrNull();
+      if (ctx == null) return;
+
       if (ctx.tenantUuid() != null) {
-        try {
-          rev.setTenantId(ctx.tenantUuid());
-        } catch (IllegalArgumentException ignore) {
-          log.error("Tenant uuid not found");
-        }
+        rev.setTenantId(ctx.tenantUuid());
       }
-      if (ctx.userId() != null) {
-        try {
-          rev.setUserId(ctx.userUuid());
-        } catch (IllegalArgumentException ignore) {
-          log.error("User uuid not found");
-        }
+      if (ctx.userUuid() != null) {
+        rev.setUserId(ctx.userUuid());
       }
+
+    } catch (Exception e) {
+      log.debug("Revision context resolution failed", e);
     }
   }
 }

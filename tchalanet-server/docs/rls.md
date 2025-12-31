@@ -1,173 +1,195 @@
-# Row-Level Security (RLS) — Tchalanet
+# Architecture RLS (Row-Level Security) — Tchalanet
 
 ## 1. Objectif
 
-Le RLS garantit qu’un utilisateur ne voit que les données de _son tenant_ + gère la visibilité des soft deletes.
+Tchalanet est une plateforme multi‑tenant stricte : toute requête SQL doit être automatiquement isolée par tenant, sans dépendre de filtres applicatifs (no @Where, no filters au niveau du code). La sécurité est déléguée à PostgreSQL via Row‑Level Security (RLS).
 
-RLS repose sur **2 variables de session** :
-
-| Variable                 | Type                              | Rôle                            |
-| ------------------------ | --------------------------------- | ------------------------------- |
-| `app.current_tenant`     | UUID                              | Filtrer les données d’un tenant |
-| `app.deleted_visibility` | text (`active`, `deleted`, `all`) | Filtrer soft delete             |
+👉 Principe : laisser le moteur SQL (PostgreSQL) garantir l'isolation, l'application ne fait que renseigner le contexte (tenant + visibilité supprimés) sur la connexion JDBC.
 
 ---
 
-## 2. Fonctions SQL
+## 2. Qu'est‑ce que le RLS (PostgreSQL)
 
-### set_current_tenant
+RLS permet d'appliquer des règles au niveau des lignes selon :
+- l'utilisateur (role),
+- des variables de session (current_setting),
+- ou des fonctions SQL.
 
-```sql
-CREATE OR REPLACE FUNCTION set_current_tenant(p uuid)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
-BEGIN
-  PERFORM set_config('app.current_tenant', p::text, true);
-END $$;
-```
+Dans Tchalanet nous utilisons principalement deux variables de session :
 
-### current_tenant
+- `app.current_tenant` — UUID du tenant courant
+- `app.deleted_visibility` — `active` | `deleted` | `all`
 
-```sql
-CREATE OR REPLACE FUNCTION current_tenant()
-RETURNS uuid LANGUAGE sql STABLE AS
-$$ SELECT current_setting('app.current_tenant', true)::uuid; $$;
-```
-
-### set_deleted_visibility
-
-```sql
-CREATE OR REPLACE FUNCTION set_deleted_visibility(p text)
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
-BEGIN
-  IF p NOT IN ('active','deleted','all') THEN
-    PERFORM set_config('app.deleted_visibility','active',true);
-  ELSE
-    PERFORM set_config('app.deleted_visibility',p,true);
-  END IF;
-END $$;
-```
+Ainsi, toute requête (JPA/Hibernate, JDBC, native, Batch, scheduler...) est automatiquement filtrée par les policies RLS côté base.
 
 ---
 
-## 3. Politiques RLS
+## 3. Principe global dans Tchalanet (récapitulatif)
 
-Chaque table tenant applique :
+Variables session utilisées
 
-```sql
-tenant_id = current_setting('app.current_tenant')::uuid
+| Variable | Rôle |
+|---|---|
+| `app.current_tenant` | UUID du tenant actif |
+| `app.deleted_visibility` | `active` / `deleted` / `all` |
+
+Comportement attendu
+- Les variables sont posées au moment où une connexion est empruntée (DataSource wrapper).
+- Les variables sont réinitialisées automatiquement quand la connexion est rendue au pool (safety for pooled connections).
+
+---
+
+## 4. Vue d'ensemble technique
+
+HTTP Request
+↓
+`RequestUserContextFilter` (construit `TchRequestContext`)
+↓
+`TchRequestContextHolder` (RequestScope)
+↓
+`RlsAwareDataSource` (DelegatingDataSource) — central
+↓
+PostgreSQL RLS policies
+
+---
+
+## 5. Composants clés
+
+### 5.1 `TchRequestContext`
+
+Contient le contexte per‑request :
+- `originalTenantCode`, `effectiveTenantCode`
+- `originalTenantUuid`, `effectiveTenantUuid` (peut être null au début)
+- `deletedVisibility` (valeur demandée par l'utilisateur / SA)
+
+⚠️ Le `tenantUuid` peut être résolu plus tard : la résolution finale peut se faire dans le `RlsAwareDataSource` si l'UUID n'est pas connu au moment de la construction du context.
+
+### 5.2 `RlsAwareDataSource` (composant central)
+
+- Type : `DelegatingDataSource` (wrapper autour du `DataSource` brut).
+- Comportement :
+  - Intercepte `getConnection()` (et `getConnection(user,pw)`), lit le `TchRequestContext` si le scope request est actif.
+  - Si `tenantUuid` inconnu, effectue un lookup du tenant UUID *sur la même connexion* (query sur la table `tenant`) pour éviter des connexions additionnelles et des cycles Spring.
+  - Applique les variables session en exécutant des `SET` via `set_config(...)` (ou via fonctions helper si vous préférez) :
+    - `select set_config('app.current_tenant', ?, true)`
+    - `select set_config('app.deleted_visibility', ?, true)`
+  - Wrappe la connexion retournée dans `ResetOnCloseConnection` qui réinitialise la session au `close()`.
+
+Bénéfices :
+- Fonctionne pour Hibernate bootstrap, Flyway, Batch, scheduler.
+- Évite les cycles d'initialisation Spring (en faisant la résolution tenant UUID *dans* la connexion).
+- Pas d'appel JPA pour résoudre le tenant dans le DataSource ; lookup SQL direct sur la même connexion.
+
+### 5.3 Pourquoi le lookup tenant UUID est fait dans le DataSource
+
+- Évite les cycles de dépendances Spring (bean A dépend de DataSource qui dépend de bean A).
+- Évite d’ouvrir des connexions supplémentaires ou d’appeler des repositories JPA dans la phase d’acquisition de connexion.
+- Garantit que la première requête exécutée sur la connexion sera déjà isolée.
+
+⚠️ La table `tenant` NE DOIT PAS être protégée par RLS (sinon le lookup échouera).
+
+### 5.4 `ResetOnCloseConnection`
+
+- Wrapper de `Connection` qui intercepte `close()` et exécute :
+  - `SELECT reset_rls_context()` (implémentée en SQL dans V1), ou utilise `set_config('app.current_tenant','',true)` + `set_config('app.deleted_visibility','active',true)`.
+- Empêche la fuite de contexte entre connexions dans le pool (HikariCP, etc.).
+
+---
+
+## 6. Fonctions SQL (migrations Flyway)
+
+Dans `V1__extensions_and_functions.sql` on ajoute :
+- `deleted_visibility()` — getter safe (whitelist)
+- `set_deleted_visibility(p text)` — setter safe
+- `set_current_tenant(p uuid)` — setter safe
+- `current_tenant()` — getter retournant uuid ou null
+- `reset_rls_context()` — remet `app.current_tenant` et `app.deleted_visibility` à une valeur neutre (utilisé par `ResetOnCloseConnection`)
+
+> Remarque : l'application Java n'appelle pas directement ces fonctions sauf `reset_rls_context()` via le ResetOnClose wrapper — la mise en session se fait via `set_config(...)` pour garantir la portée session/connexion.
+
+---
+
+## 7. Policies RLS (exemples)
+
+### 7.1 Tables multi‑tenant + soft delete
+
+Condition typique :
+
+```
+tenant_id = current_tenant()::uuid
 AND (
-    visibility = 'all'
- OR (visibility='active'  AND deleted_at IS NULL)
- OR (visibility='deleted' AND deleted_at IS NOT NULL)
+  deleted_visibility() = 'all'
+  OR (deleted_visibility() = 'active' AND deleted_at IS NULL)
+  OR (deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL)
 )
 ```
 
----
+### 7.2 Tables multi‑tenant sans soft delete
 
-## 4. Côté Spring
-
-### RequestUserContextFilter
-
-Extrait :
-
-- tenant du JWT
-- rôles (SYSTEM + CUSTOM)
-- override possible pour SUPER_ADMIN
-
-### DbAppRlsFilter
-
-Applique :
-
-```sql
-SELECT set_current_tenant(?);
-SELECT set_deleted_visibility(?);
+```
+tenant_id = current_tenant()::uuid
 ```
 
 ---
 
-## 5. Tests
+## 8. Checklist OBLIGATOIRE pour ajouter une nouvelle entité
 
-En test JUnit/JDBC :
+1) Identifier le type de table :
+   - Global (pas de RLS) — ex: `tenant`, `country`, `currency`.
+   - Multi‑tenant — ex: `ticket`, `outlet`.
+   - Multi‑tenant + soft delete — la plupart des tables métier.
 
-```sql
-SELECT set_current_tenant('tenant-dev');
-SELECT set_deleted_visibility('all');
-```
+2) Colonnes requises :
+   - `tenant_id UUID NOT NULL` pour une table multi‑tenant.
+   - `deleted_at timestamptz` si soft‑delete.
+
+3) Mise à jour des migrations RLS
+   - Dans `V50__rls_policies.sql` (ou votre script RLS central) ajouter la table :
+     - `soft_tables := ARRAY['new_table_name'];` ou
+     - `tenant_only_tables := ARRAY['new_table_name'];`
+   - Le script vérifie la présence des colonnes et applique la policy.
+
+4) Ne JAMAIS filtrer par tenant côté JPA
+   - ❌ Mauvais : `where tenant_id = :tenantId` dans le code
+   - ✅ Correct : `findByStatus(...)` — laisser PostgreSQL appliquer le filtre via RLS
 
 ---
 
-## 6. Jobs et batchs
+## 9. Règles d'or (à ne jamais violer)
 
-En batch :
-
-- Appliquer explicitement le tenant
-- Pas de filtrage par deleted sauf si nécessaire
+- ❌ Ne pas utiliser `@Where(tenant_id = ...)` ou filtres Hibernate globaux pour le tenant.
+- ❌ Ne pas créer un DataSource par tenant.
+- ❌ Ne pas faire un lookup tenant via JPA à l'intérieur du DataSource.
+- ✅ Une seule source de vérité : PostgreSQL via RLS.
 
 ---
 
-## 7. Résumé
+## 10. Bénéfices clés
 
-✔ Multi‑tenant sécurisé via PostgreSQL  
-✔ Support soft delete nativement  
-✔ Override super‑admin  
-✔ Compatible Testcontainers/Batch
+- Isolation forte et centralisée côté DB.
+- Impossible d'oublier un filtre côté applicatif.
+- Batch / API / Admin protégés de façon homogène.
+- Compatible audit & reporting.
+- Scalable pour du multi‑tenant réel.
 
-# Row-Level Security (RLS) — Tchalanet
+---
 
-Ce document décrit la configuration RLS mise en place, l'API pour renseigner la session (tenant + deleted_visibility), et les recommandations d'usage.
+## 11. Résumé exécutif
 
-## Principe
+Dans Tchalanet le tenant n'est pas une option applicative : c'est une propriété du moteur SQL.
+Chaque ligne sait à qui elle appartient, chaque requête est filtrée par défaut. Le code métier reste simple et sécurisé.
 
-- On utilise PostgreSQL Row-Level Security pour garantir qu'une connexion/transaction ne voit que les données du `tenant` courant et selon la visibilité `deleted`/`active`/`all`.
-- Deux variables session sont utilisées :
-  - `app.current_tenant` (uuid)
-  - `app.deleted_visibility` (text) values: `active` | `deleted` | `all`
+---
 
-## Fonctions SQL
+## 12. Useful actions (propositions)
 
-- `set_current_tenant(p uuid)` — configure la variable de session `app.current_tenant` (use `set_config(..., true)` pour être local à la transaction/session).
-- `current_tenant()` — renvoie le `uuid` de `app.current_tenant`.
-- `set_deleted_visibility(p text)` — configure `app.deleted_visibility` (valeurs acceptées: `active` (default), `deleted`, `all`).
+- Générer `ARCHITECTURE.md` prêt à commit (si souhaité).
+- Générer une checklist PR « nouvelle entité » (script/template) pour automatiser la vérification.
+- Ajouter des tests unitaires/integration pour :
+  - `RlsAwareDataSource` (mock DataSource/Connection)
+  - `ResetOnCloseConnection` (vérifier reset au close)
+  - migration SQL (Testcontainers + Flyway)
 
-Ces fonctions sont déclarées dans `src/main/resources/db/migration/V2__rls_helpers.sql`.
+---
 
-## Politiques RLS (V8)
-
-- Les politiques RLS sont créées pour chaque table listée dans `V8__rls_init_policies.sql`.
-- La policy `*_rls_all` applique :
-  - `tenant_id = current_setting('app.current_tenant', true)::uuid`
-  - et filtre sur `deleted_at` selon `app.deleted_visibility`
-- `WITH CHECK` garantit l'insertion/UPDATE n'échappe pas la contrainte tenant.
-
-## Configuration côté application
-
-- `DbAppRlsFilter` (Spring `OncePerRequestFilter`) applique, pour chaque requête:
-  - lecture du `TchRequestContext` (via `RequestContextHolder`) -> `tenantId` et `systemRoles`
-  - application des variables via JDBC `Connection`/`Statement`: `SELECT set_deleted_visibility('active')` et `SELECT set_current_tenant('<uuid>')`.
-- Ce filtre doit s'exécuter après le filtre qui construit `TchRequestContext` (JWT parser `RequestUserContextFilter`).
-
-## Overrides & Super-admin
-
-- Seul un utilisateur avec le rôle `SUPER_ADMIN` peut passer l'override `X-Deleted-Visibility` ou `X-Tenant-Id`.
-- `DbAppRlsFilter` vérifie le rôle dans le `TchRequestContext`.
-
-## Cas spéciaux
-
-- Jobs batch / CLI: pas de contexte HTTP. Les jobs doivent explicitement appeler `SELECT set_current_tenant(...)` dans leur logique ou utiliser une API utilitaire (helper) pour "s'installer" sur un tenant avant d'exécuter des opérations.
-- Tests d'intégration: utiliser Testcontainers et appeler `set_current_tenant()` dans la session JDBC du test.
-
-## Debugging
-
-- Pour debug, tu peux exécuter dans la session SQL (psql) :
-
-```sql
-SELECT current_setting('app.current_tenant', true), current_setting('app.deleted_visibility', true);
-```
-
-- Vérifie les logs SQL (hibernate SQL) pour t'assurer que la variable est définie avant les requêtes critiques.
-
-## Recommandations
-
-- Centraliser la résolution du tenant (ne pas faire un lookup DB per query). Résoudre une fois dans `RequestUserContextFilter`.
-- Utiliser `afterCommit` pour l'enregistrement d'audit non critique (audit_event) si tu veux t'assurer que l'audit est seulement persisté quand la transaction principale commit.
-- Documenter dans les runbooks comment lancer des jobs multi-tenant (set_current_tenant per job run).
+Fin de la documentation RLS mise à jour.

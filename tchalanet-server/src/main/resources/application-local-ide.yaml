@@ -24,7 +24,9 @@ spring:
         jwt:
           issuer-uri: https://auth.localtest.me/realms/tchalanet
   datasource:
-    url: jdbc:postgresql://localhost:5432/tchalanet_db
+    hikari:
+      maximum-pool-size: 10
+      jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
   data:
     redis:
       host: localhost

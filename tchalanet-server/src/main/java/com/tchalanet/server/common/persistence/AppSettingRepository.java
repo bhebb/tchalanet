@@ -7,8 +7,14 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 
-@RepositoryRestResource(path = "admin-app-settings", collectionResourceRel = "app-settings")
+// Platform settings should not be auto-exposed by Spring Data REST; controllers will serve
+// /platform/*
+@RepositoryRestResource(
+    exported = false,
+    path = "app-settings",
+    collectionResourceRel = "app-settings")
 public interface AppSettingRepository extends JpaRepository<AppSettingEntity, UUID> {
   List<AppSettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
       AppSettingLevel level, Collection<String> namespaces);
@@ -32,4 +38,10 @@ public interface AppSettingRepository extends JpaRepository<AppSettingEntity, UU
           UUID terminalId,
           String namespace,
           String settingKey);
+
+  @RestResource(path = "global", rel = "global")
+  default List<AppSettingEntity> findGlobalByNamespace(Collection<String> namespaces) {
+    return findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
+        AppSettingLevel.GLOBAL, namespaces);
+  }
 }

@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.command.model.PrintTicketCommand;
 import com.tchalanet.server.core.sales.application.port.out.PrintTicketModels;
@@ -17,7 +16,6 @@ public class PrintTicketCommandHandler implements CommandHandler<PrintTicketComm
 
   private final TicketReaderPort ticketRepository;
   private final TicketPrinterPort ticketPrinterPort;
-  private TchRequestContextHolder contextHolder;
 
   @Override
   public String handle(PrintTicketCommand cmd) {

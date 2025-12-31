@@ -5,5 +5,5 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "admin-payouts", collectionResourceRel = "payouts")
+    @RepositoryRestResource(path = "payouts", collectionResourceRel = "payouts")
 public interface PayoutRestRepository extends JpaRepository<PayoutJpaEntity, UUID> {}

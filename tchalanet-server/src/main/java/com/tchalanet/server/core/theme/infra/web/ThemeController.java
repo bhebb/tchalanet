@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** REST API pour gérer les thèmes d'un tenant. */
 @RestController
-@RequestMapping("/api/v1/themes")
+@RequestMapping("/admin/themes")
 @RequiredArgsConstructor
 public class ThemeController {
 

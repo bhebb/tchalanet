@@ -6,8 +6,10 @@ import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
 import jakarta.persistence.*;
 import java.util.Map;
+import org.hibernate.envers.Audited;
 
 @Entity
+@Audited
 @Table(name = "limit_definition")
 public class LimitDefinitionJpaEntity extends BaseTenantEntity {
 

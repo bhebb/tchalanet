@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.audit.domain.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
@@ -21,33 +22,34 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AuditEventFactory {
 
-  private final TchRequestContextHolder ctxHolder;
-  private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+  private final TchContextResolver contextResolver;
+  private final ObjectMapper objectMapper;
 
   public AuditEvent build(
       AuditEntityType entityType,
       String entityId,
       AuditAction action,
       Map<String, Object> details) {
-    var ctxOpt = Optional.ofNullable(ctxHolder.get());
 
-    var tenantId = ctxOpt.map(TchRequestContext::tenantUuid).orElse(null);
-    var userOpt = ctxOpt.map(TchRequestContext::userUuid);
-    var createdBy = userOpt.orElse(null);
-    var actorId = userOpt.orElse(null);
-    var actorType = userOpt.isPresent() ? AuditActorType.USER : AuditActorType.SYSTEM;
-    var ip = ctxOpt.map(TchRequestContext::clientIp).orElse(null);
-    var userAgent = ctxOpt.map(TchRequestContext::userAgent).orElse(null);
+    TchRequestContext ctx = contextResolver.currentOrNull();
 
-    var entityUuid = Optional.ofNullable(entityId).map(UUID::fromString).orElse(null);
-    var detailsJson =
+    UUID tenantUuid = (ctx != null) ? ctx.tenantUuid() : null;
+    UUID userUuid = (ctx != null) ? ctx.userUuid() : null;
+
+    AuditActorType actorType = (userUuid != null) ? AuditActorType.USER : AuditActorType.SYSTEM;
+    String ip = (ctx != null) ? ctx.clientIp() : null;
+    String userAgent = (ctx != null) ? ctx.userAgent() : null;
+
+    UUID entityUuid = Optional.ofNullable(entityId).map(UUID::fromString).orElse(null);
+
+    String detailsJson =
         Optional.ofNullable(details)
             .map(
                 d -> {
                   try {
                     return objectMapper.writeValueAsString(d);
                   } catch (Exception ex) {
-                    log.error(ex.getMessage(), ex);
+                    log.error("Failed to serialize audit details", ex);
                     return "{}";
                   }
                 })
@@ -55,11 +57,11 @@ public class AuditEventFactory {
 
     return new AuditEvent(
         null,
-        TenantId.of(tenantId),
+        TenantId.nullableOf(tenantUuid), // ✅ safe for platform/system
         Instant.now(),
-        createdBy,
+        userUuid, // createdBy (must be null if SYSTEM)
         actorType,
-        actorId,
+        userUuid, // actorId (required if USER)
         entityType,
         entityUuid,
         action,

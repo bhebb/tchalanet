@@ -18,7 +18,6 @@ public class CashierReadRepositoryAdapter implements CashierReadRepository {
   public Optional<CashierInfoProjection> findInfoById(UUID tenantId, UUID cashierId) {
     return jpaAppUserRepository
         .findById(cashierId)
-        .filter(u -> u.getTenantId() != null && u.getTenantId().equals(tenantId))
         .map(
             u ->
                 new CashierInfoProjection(

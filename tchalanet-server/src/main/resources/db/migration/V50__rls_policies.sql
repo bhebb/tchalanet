@@ -1,6 +1,14 @@
 -- V50__rls_policies.sql
 -- RLS multi-tenant + soft delete visibility via app.deleted_visibility ('active'|'deleted'|'all')
--- Uses app.current_tenant (uuid) set via set_config('app.current_tenant', ...)
+-- Safer version: never casts current_setting(...)::uuid directly.
+-- Relies on helper functions:
+--   - current_tenant() -> uuid|null  (safe)
+--   - deleted_visibility() -> text (safe default 'active')
+
+
+-- --------------------------------------------------------------------
+-- Policies
+-- --------------------------------------------------------------------
 DO $$
 DECLARE
 t text;
@@ -68,7 +76,7 @@ SELECT EXISTS (
       AND c.column_name = 'deleted_at'
 ) INTO has_deleted_at;
 
--- Skip if required columns are missing (keeps migration robust across environments)
+-- Skip if required columns are missing
 IF NOT has_tenant_id OR NOT has_deleted_at THEN
       CONTINUE;
 END IF;
@@ -83,23 +91,20 @@ EXECUTE format('DROP POLICY IF EXISTS %I ON %s', policy_name, tbl);
 sql_stmt := format($f$
       CREATE POLICY %1$I ON %2$s
       FOR ALL
-      USING (
-        tenant_id = current_setting('app.current_tenant', true)::uuid
-        AND (
-          COALESCE(current_setting('app.deleted_visibility', true), 'active') = 'all'
-          OR (
-            COALESCE(current_setting('app.deleted_visibility', true), 'active') = 'active'
-            AND deleted_at IS NULL
-          )
-          OR (
-            COALESCE(current_setting('app.deleted_visibility', true), 'active') = 'deleted'
-            AND deleted_at IS NOT NULL
+        USING (
+          public.current_tenant() IS NOT NULL
+          AND tenant_id = public.current_tenant()
+          AND (
+            public.deleted_visibility() = 'all'
+            OR (public.deleted_visibility() = 'active'  AND deleted_at IS NULL)
+            OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL)
           )
         )
-      )
-      WITH CHECK (
-        tenant_id = current_setting('app.current_tenant', true)::uuid
-      );
+        WITH CHECK (
+          public.current_tenant() IS NOT NULL
+          AND tenant_id = public.current_tenant()
+        );
+
     $f$, policy_name, tbl);
 
 EXECUTE sql_stmt;
@@ -133,15 +138,17 @@ EXECUTE format('ALTER TABLE %s FORCE ROW LEVEL SECURITY', tbl);
 EXECUTE format('DROP POLICY IF EXISTS %I ON %s', policy_name, tbl);
 
 sql_stmt := format($f$
-      CREATE POLICY %1$I ON %2$s
-      FOR ALL
-      USING (
-        tenant_id = current_setting('app.current_tenant', true)::uuid
-      )
-      WITH CHECK (
-        tenant_id = current_setting('app.current_tenant', true)::uuid
-      );
-    $f$, policy_name, tbl);
+  CREATE POLICY %1$I ON %2$s
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+  )
+  WITH CHECK (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+  );
+$f$, policy_name, tbl);
 
 EXECUTE sql_stmt;
 END LOOP;

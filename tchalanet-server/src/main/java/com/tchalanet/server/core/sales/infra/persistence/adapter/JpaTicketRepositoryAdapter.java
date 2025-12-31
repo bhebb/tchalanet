@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -38,7 +38,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   private final SpringTicketJpaRepository jpaRepository;
   private final TicketMapper mapper;
   private final Clock clock;
-  private final TchRequestContextHolder contextHolder;
+  private final TchContextResolver contextResolver;
 
   @Override
   public Ticket save(Ticket ticket) {
@@ -111,8 +111,10 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   @Override
   @Transactional(readOnly = true)
   public Optional<Ticket> findWithLinesById(TicketId ticketId) {
+    var holder = contextResolver.currentOrNull();
+    var tenantUuid = holder != null ? holder.tenantUuid() : null;
     return jpaRepository
-        .findWithLinesByTenantIdAndId(contextHolder.get().tenantUuid(), ticketId.uuid())
+        .findWithLinesByTenantIdAndId(tenantUuid, ticketId.uuid())
         .map(mapper::toDomain);
   }
 

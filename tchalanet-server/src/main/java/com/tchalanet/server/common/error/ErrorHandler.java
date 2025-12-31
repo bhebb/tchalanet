@@ -3,14 +3,15 @@ package com.tchalanet.server.common.error;
 import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,9 +23,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 public class ErrorHandler {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private final JsonUtils jsonUtils;
 
   private static MediaType negotiate(HttpServletRequest req) {
     var accept = req.getHeader("Accept");
@@ -35,15 +37,20 @@ public class ErrorHandler {
     return MediaType.APPLICATION_PROBLEM_JSON;
   }
 
-  private static ResponseEntity<?> buildResponse(ProblemDetail pd, HttpServletRequest req, HttpStatus status) {
+  private ResponseEntity<?> buildResponse(
+      ProblemDetail pd, HttpServletRequest req, HttpStatus status) {
     MediaType mediaType = negotiate(req);
     if (MediaType.parseMediaType("application/vnd.hal+json").isCompatibleWith(mediaType)) {
       try {
-        String json = OBJECT_MAPPER.writeValueAsString(pd);
+        String json = jsonUtils.toJson(pd);
         return ResponseEntity.status(status).contentType(mediaType).body(json);
       } catch (Exception e) {
-        log.warn("Failed to serialize ProblemDetail to HAL media type, falling back to application/problem+json", e);
-        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+        log.warn(
+            "Failed to serialize ProblemDetail to HAL media type, falling back to application/problem+json",
+            e);
+        return ResponseEntity.status(status)
+            .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+            .body(pd);
       }
     }
     return ResponseEntity.status(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
@@ -56,9 +63,17 @@ public class ErrorHandler {
     decorate(pd, req, ex, false);
     // Log au niveau approprié (4xx = warn, 5xx = error)
     if (pd.getStatus() >= 500) {
-      log.error("[{}] {} {} {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), ex);
+      // message + throwable (throwable passed as last parameter)
+      log.error(
+          "[{}] {} {} - {}",
+          pd.getStatus(),
+          req.getMethod(),
+          req.getRequestURI(),
+          ex.getMessage(),
+          ex);
     } else {
-      log.warn("[{}] {} {} – {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), pd.getDetail());
+      log.warn(
+          "[{}] {} {} – {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), pd.getDetail());
     }
     return buildResponse(pd, req, HttpStatus.valueOf(pd.getStatus()));
   }
@@ -97,7 +112,9 @@ public class ErrorHandler {
             .orElse("Invalid request"));
     decorate(pd, req, ex, true);
     log.warn("[400] {} {} – {}", req.getMethod(), req.getRequestURI(), pd.getDetail());
-    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+        .body(pd);
   }
 
   /** 400 – @Validated sur query/path params */

@@ -93,7 +93,9 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             """,
       nativeQuery = true)
   List<Object[]> findDueToClose(
-      @Param("tenantId") UUID tenantId, @Param("nowEpoch") long nowEpoch, @Param("limit") int limit);
+      @Param("tenantId") UUID tenantId,
+      @Param("nowEpoch") long nowEpoch,
+      @Param("limit") int limit);
 
   @Modifying
   @Transactional

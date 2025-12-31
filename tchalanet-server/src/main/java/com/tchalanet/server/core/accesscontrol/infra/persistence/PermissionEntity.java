@@ -13,6 +13,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Entity
 @Table(name = "permission")
@@ -40,5 +41,6 @@ public class PermissionEntity extends AuditableEntity {
       fetch = FetchType.LAZY,
       cascade = CascadeType.ALL,
       orphanRemoval = true)
+  @NotAudited
   private List<AppRolePermissionEntity> rolePermissions = new ArrayList<>();
 }

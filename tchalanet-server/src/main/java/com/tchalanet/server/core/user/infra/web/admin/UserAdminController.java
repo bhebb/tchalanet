@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin-api/users")
+@RequestMapping("/admin/users")
 @RequiredArgsConstructor
 public class UserAdminController {
 
@@ -76,7 +76,6 @@ public class UserAdminController {
         new UserResponse(
             UserId.of(details.id),
             details.keycloakId,
-            details.tenantId,
             details.username,
             details.email,
             details.firstName,
@@ -103,7 +102,6 @@ public class UserAdminController {
                     new UserResponse(
                         u.getId(),
                         u.getKeycloakId(),
-                        u.getTenantId(),
                         u.getUsername(),
                         u.getEmail(),
                         u.getFirstName(),
@@ -130,7 +128,6 @@ public class UserAdminController {
                     new UserResponse(
                         u.getId(),
                         u.getKeycloakId(),
-                        u.getTenantId(),
                         u.getUsername(),
                         u.getEmail(),
                         u.getFirstName(),

@@ -1,10 +1,11 @@
 package com.tchalanet.server.core.audit.application.command.handler;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.AuditActorType;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.audit.application.command.model.RecordAuditEventCommand;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
@@ -21,12 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 public class RecordAuditEventCommandHandler implements VoidCommandHandler<RecordAuditEventCommand> {
 
   private final AuditEventWriterPort writerPort;
-  private final TchRequestContextHolder ctxHolder;
+  private final TchContextResolver contextResolver;
   private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
   @Override
   public void handle(RecordAuditEventCommand command) {
-    var ctxOpt = Optional.ofNullable(ctxHolder.get());
+    var ctx = contextResolver.currentOrNull();
+    var ctxOpt = Optional.ofNullable(ctx);
 
     var userOpt = ctxOpt.map(TchRequestContext::userId);
     var createdBy = userOpt.orElse(null);
@@ -54,14 +56,17 @@ public class RecordAuditEventCommandHandler implements VoidCommandHandler<Record
                 })
             .orElse("{}");
 
+    UUID createdByUuid = createdBy != null ? createdBy.uuid() : null;
+    UUID actorIdUuid = actorId != null ? actorId.uuid() : null;
+
     var event =
         new AuditEvent(
             null,
-            null, // tenantId
+            TenantId.nullableOf(ctx != null ? ctx.tenantUuid() : null),
             Instant.now(),
-            createdBy.uuid(),
+            createdByUuid,
             actorType,
-            actorId.uuid(),
+            actorIdUuid,
             command.entityType(),
             UUID.fromString(command.entityId()),
             command.action(),

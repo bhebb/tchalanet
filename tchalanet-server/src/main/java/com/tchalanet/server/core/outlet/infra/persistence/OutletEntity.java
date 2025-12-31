@@ -8,11 +8,13 @@ import java.time.Instant;
 import java.time.LocalTime;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "outlet")
 @Getter
 @Setter
+@Audited
 public class OutletEntity extends BaseTenantEntity {
 
   @Column(name = "name", nullable = false)

@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/tenant/agents/{agentId}/autonomy")
+@RequestMapping("/admin/agents/{agentId}/autonomy")
 @RequiredArgsConstructor
 public class AgentAutonomyController {
 

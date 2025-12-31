@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.publichome;
 
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
@@ -16,23 +16,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PublicHomeService {
 
   public static final String GLOBAL_FALLBACK_LANG = "fr";
   private final PageModelService pageModelService;
   private final LangResolver langResolver;
-  private final TchRequestContextHolder tenantContext;
+  private final TchContextResolver contextResolver;
   private final TenantI18nOverrideService i18nOverrideService;
   private final PublicHomeDynamicDataService dynamicDataService;
   private final PageModelTypeResolver pageModelTypeResolver;
 
   public ApiResponse<PublicHomeResponse> getPublicHome(Optional<String> langFromUrl) {
-    var tenantId = tenantContext.get().tenantUuid();
+    var holder = contextResolver.currentOrNull();
+    var tenantId = holder != null ? holder.tenantUuid() : null;
     var type = pageModelTypeResolver.forPublicHome();
     PageModel pageModel = pageModelService.loadEffectiveModel(tenantId, type.logicalId());
     var meta = pageModel.meta();
@@ -56,8 +59,9 @@ public class PublicHomeService {
     try {
       dynamic = dynamicDataService.buildDynamicData(pageModel, currentLang);
     } catch (Exception e) {
+      log.error("Failed to load dynamic data", e);
       // Service failure - return partial response
-      dynamic = null; // or empty payload
+      dynamic = null;
       services =
           List.of(
               new ServiceStatus(

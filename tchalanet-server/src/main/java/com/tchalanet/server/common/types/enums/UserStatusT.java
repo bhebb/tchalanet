@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.types.enums;
 
-public enum UserStatus {
+public enum UserStatusT {
   PENDING_APPROVAL,
   ACTIVE,
   SUSPENDED,

@@ -42,8 +42,7 @@ public class UpdateUserProfileCommandHandler
             updatedFirstName + " " + updatedLastName,
             existing.getAvatarUrl(),
             updatedLocale,
-            existing.getTimeZone(),
-            existing.getTenantCode());
+            existing.getTimeZone());
 
     var saved = userWriter.save(updated);
 

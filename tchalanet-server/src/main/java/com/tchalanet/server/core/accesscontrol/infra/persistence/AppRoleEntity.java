@@ -1,25 +1,26 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.tchalanet.server.common.persistence.BaseEntity;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Entity
-@Table(name = "app_role")
+@Table(
+    name = "app_role",
+    indexes = {@Index(name = "ix_app_role_tenant", columnList = "tenant_id")})
+@Audited
 @Getter
 @Setter
-@Audited
-public class AppRoleEntity extends BaseTenantEntity {
+public class AppRoleEntity extends BaseEntity {
+
+  @Column(name = "tenant_id", columnDefinition = "uuid")
+  private UUID tenantId; // null = system role
 
   @Column(name = "code", nullable = false, length = 64)
   private String code;
@@ -30,18 +31,15 @@ public class AppRoleEntity extends BaseTenantEntity {
   @Column(name = "description")
   private String description;
 
-  @Column(name = "parent_role_id")
+  @Column(name = "parent_role_id", columnDefinition = "uuid")
   private UUID parentRoleId;
 
-  @Column(name = "is_system", nullable = false)
-  private boolean system;
-
-  // Inverse side of the role -> permission mapping (role_permission)
   @OneToMany(
       mappedBy = "role",
       fetch = FetchType.LAZY,
       cascade = CascadeType.ALL,
       orphanRemoval = true)
+  @NotAudited
   private List<AppRolePermissionEntity> rolePermissions = new ArrayList<>();
 
   // Explicit accessors to help static analysis tools that may not resolve Lombok-generated methods
@@ -51,13 +49,5 @@ public class AppRoleEntity extends BaseTenantEntity {
 
   public void setId(UUID id) {
     super.setId(id);
-  }
-
-  public UUID getTenantId() {
-    return super.getTenantId();
-  }
-
-  public void setTenantId(UUID tenantId) {
-    super.setTenantId(tenantId);
   }
 }

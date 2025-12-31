@@ -12,7 +12,7 @@ public class PublicTicketController {
 
   private final QueryBus queryBus;
 
-  @GetMapping("/ticket/{publicCode}")
+  @GetMapping("/public/tickets/verify/{publicCode}")
   public ResponseEntity<?> verify(@PathVariable String publicCode) {
     var q = new VerifyPublicTicketQuery(publicCode, java.time.Instant.now());
     var res = queryBus.send(q); // TicketVerificationResult

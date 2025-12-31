@@ -32,17 +32,29 @@ app:
 # SPRING FRAMEWORK
 # ===========================
 spring:
+  # --- servlet path: ensure all MVC and Spring Data REST endpoints are prefixed with /api/v1 ---
+  mvc:
+    servlet:
+      path: ${app.base-path}/${app.api-version}
+
   # --- Datasource & JPA ---
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
-    username: ${SPRING_DATASOURCE_USERNAME:app_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:devpass}
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
+#    username: ${SPRING_DATASOURCE_USERNAME:app_user}
+#    password: ${SPRING_DATASOURCE_PASSWORD:devpass}
+    hikari:
+      maximum-pool-size: 10
+      jdbc-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
+      username: ${SPRING_DATASOURCE_USERNAME:app_user}
+      password: ${SPRING_DATASOURCE_PASSWORD:devpass}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
     defer-datasource-initialization: true
     open-in-view: false
     properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       org.hibernate.envers.audit_table_suffix: "_aud"
       org.hibernate.envers.store_data_at_delete: true
       org.hibernate.envers.revision_field_name: "rev"
@@ -199,3 +211,9 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,scheduledtasks,loggers,threaddump,env,beans

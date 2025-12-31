@@ -2,7 +2,7 @@ package com.tchalanet.server.core.session.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.session.application.command.model.RecomputePosSessionTotalsCommand;
@@ -14,19 +14,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/sessions")
+@RequestMapping("/tenant/sessions")
 @RequiredArgsConstructor
 public class PosSessionTotalsController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
-  private final TchRequestContextHolder ctxHolder;
+  private final TchContextResolver contextResolver;
 
   /** Read totals for one session (optional endpoint). */
   @GetMapping("/{sessionId}/totals")
   @RequiresPermission("session.read")
   public ResponseEntity<PosSessionTotals> getTotals(@PathVariable SessionId sessionId) {
-    var tenantId = ctxHolder.get().tenantid();
+    var ctx = contextResolver.currentOrNull();
+    var tenantId = ctx != null ? ctx.tenantid() : null;
 
     Optional<PosSessionTotals> opt = queryBus.send(new GetSessionTotalsQuery(tenantId, sessionId));
 
@@ -37,7 +38,8 @@ public class PosSessionTotalsController {
   @PostMapping("/{sessionId}/totals/recompute")
   @RequiresPermission("session.totals.recompute") // admin/manager only
   public ResponseEntity<PosSessionTotals> recompute(@PathVariable SessionId sessionId) {
-    var tenantId = ctxHolder.get().tenantid();
+    var ctx = contextResolver.currentOrNull();
+    var tenantId = ctx != null ? ctx.tenantid() : null;
 
     var totals = commandBus.send(new RecomputePosSessionTotalsCommand(tenantId, sessionId));
 

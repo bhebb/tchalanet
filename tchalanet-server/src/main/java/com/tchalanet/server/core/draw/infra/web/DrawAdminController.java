@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
@@ -31,17 +31,13 @@ public class DrawAdminController {
   private final CommandBus commandBus;
   private final QueryBus queryBus;
   private final DrawAdminWebMapper mapper;
-  private final TchRequestContextHolder contextHolder;
+  private final TchContextResolver contextResolver;
 
   @GetMapping
   public ResponseEntity<List<DrawSummaryResponse>> listDraws() {
-    List<DrawSummary> summaries =
-        queryBus.send(
-            new ListDrawsQuery(
-                com.tchalanet.server.common.types.id.TenantId.of(contextHolder.get().tenantUuid()),
-                null,
-                null,
-                null));
+    var holder = contextResolver.currentOrNull();
+    var tenantId = TenantId.of(holder != null ? holder.tenantUuid() : null);
+    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tenantId, null, null, null));
     var responses = summaries.stream().map(mapper::toDrawSummaryResponse).toList();
     return ResponseEntity.ok(responses);
   }
@@ -49,14 +45,9 @@ public class DrawAdminController {
   @PostMapping
   public ResponseEntity<DrawSummaryResponse> createDraw(@RequestBody CreateDrawRequest request) {
     CreateDrawCommand command = mapper.toCreateDrawCommand(request);
+    TenantId tid = TenantId.of(request.tenantId());
     com.tchalanet.server.common.types.id.DrawId drawId = commandBus.send(command);
-    List<DrawSummary> summaries =
-        queryBus.send(
-            new ListDrawsQuery(
-                com.tchalanet.server.common.types.id.TenantId.of(request.tenantId()),
-                null,
-                null,
-                null));
+    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tid, null, null, null));
     Optional<DrawSummaryResponse> summary =
         summaries.stream()
             .filter(s -> s.id().equals(drawId))

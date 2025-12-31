@@ -42,12 +42,7 @@ public class PageModelTemplateService {
     return repository.findById(id).filter(e -> e.getDeletedAt() == null);
   }
 
-  public PageModelTemplateEntity create(PageModelTemplateEntity tpl, UUID actorId) {
-    Instant now = Instant.now();
-    tpl.setCreatedAt(now);
-    tpl.setUpdatedAt(now);
-    tpl.setCreatedBy(actorId);
-    tpl.setUpdatedBy(actorId);
+  public PageModelTemplateEntity create(PageModelTemplateEntity tpl) {
     // version handling left to JPA / DB
     return repository.save(tpl);
   }
@@ -64,7 +59,7 @@ public class PageModelTemplateService {
 
     existing.setLabel(dto.getLabel());
     existing.setDescription(dto.getDescription());
-    existing.setModelJson(dto.getModelJson());
+    existing.setModel(dto.getModel());
     existing.setSchemaVersion(dto.getSchemaVersion());
     // use Lombok-generated setters for boolean fields
     existing.setSystem(dto.isSystem());
@@ -86,7 +81,7 @@ public class PageModelTemplateService {
     if (propagate) {
       // applique le JSON du template à toutes les instances liées et les met en DRAFT
       pageModelService.applyTemplateToInstances(
-          updated.getId(), updated.getModelJson(), updated.getSchemaVersion(), actorId, true);
+          updated.getId(), updated.getModel(), updated.getSchemaVersion(), actorId, true);
     }
     return updated;
   }

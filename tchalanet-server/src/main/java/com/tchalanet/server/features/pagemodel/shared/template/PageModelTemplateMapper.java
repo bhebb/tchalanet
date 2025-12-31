@@ -1,11 +1,20 @@
 package com.tchalanet.server.features.pagemodel.shared.template;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.features.pagemodel.shared.template.dto.PageModelTemplateRequest;
 import com.tchalanet.server.features.pagemodel.shared.template.dto.PageModelTemplateResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class PageModelTemplateMapper {
+
+  private final ObjectMapper objectMapper;
 
   public PageModelTemplateEntity toEntity(PageModelTemplateRequest req) {
     if (req == null) return null;
@@ -15,7 +24,11 @@ public class PageModelTemplateMapper {
     e.setLabel(req.getLabel());
     e.setDescription(req.getDescription());
     e.setSchemaVersion(req.getSchemaVersion());
-    e.setModelJson(req.getModelJson());
+    try {
+      e.setModel(objectMapper.readTree(req.getModelJson()));
+    } catch (JsonProcessingException ex) {
+      log.error("Unable to parse model JSON", ex);
+    }
     if (req.getIsDefault() != null) e.setDefault(req.getIsDefault());
     if (req.getIsSystem() != null) e.setSystem(req.getIsSystem());
     return e;
@@ -30,7 +43,7 @@ public class PageModelTemplateMapper {
         e.getLabel(),
         e.getDescription(),
         e.getSchemaVersion(),
-        e.getModelJson(),
+        getModeledJson(e.getModel()),
         e.isDefault(),
         e.isSystem(),
         e.getCreatedAt(),
@@ -39,5 +52,14 @@ public class PageModelTemplateMapper {
         e.getUpdatedBy(),
         e.getDeletedAt(),
         e.getVersion());
+  }
+
+  private String getModeledJson(JsonNode model) {
+    try {
+      return objectMapper.writeValueAsString(model);
+    } catch (JsonProcessingException e) {
+      log.error("Unable to convert model JSON to PageModel object", e);
+      return null;
+    }
   }
 }

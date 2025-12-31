@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.accesscontrol.infra.persistence;
 
-import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.accesscontrol.application.port.out.RoleReaderPort;
 import java.util.List;
@@ -24,7 +24,7 @@ public class RoleReaderJpaAdapter implements RoleReaderPort {
             : appRoleRepository.findAllForTenantOrGlobal(tenantId.uuid());
 
     return entities.stream()
-        .filter(AppRoleEntity::isSystem)
+        .filter(r -> r.getTenantId() == null)
         .map(
             e -> {
               try {

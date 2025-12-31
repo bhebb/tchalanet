@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/tenant/autonomy")
+@RequestMapping("/tenant/autonomy")
 @RequiredArgsConstructor
 public class TenantAutonomyController {
 

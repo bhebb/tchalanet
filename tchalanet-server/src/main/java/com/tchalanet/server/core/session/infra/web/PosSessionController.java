@@ -2,7 +2,7 @@ package com.tchalanet.server.core.session.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchRequestContextHolder;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -25,18 +25,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/sessions")
+@RequestMapping("/tenant/sessions")
 @RequiredArgsConstructor
 public class PosSessionController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
-  private final TchRequestContextHolder contextHolder;
+  private final TchContextResolver contextResolver;
 
   @PostMapping("/open")
   public ResponseEntity<PosSession> open(
       @jakarta.validation.Valid @RequestBody OpenSessionRequest body) {
-    var ctx = contextHolder.get();
+    var ctx = contextResolver.currentOrNull();
     var tenantId = TenantId.of(ctx.tenantUuid());
     var userId = com.tchalanet.server.common.types.id.UserId.of(ctx.userUuid()); // source of truth
 
@@ -56,7 +56,8 @@ public class PosSessionController {
   public ResponseEntity<PosSession> close(
       @PathVariable SessionId sessionId,
       @jakarta.validation.Valid @RequestBody CloseSessionRequest body) {
-    var tenantId = TenantId.of(contextHolder.get().tenantUuid());
+    var ctx = contextResolver.currentOrNull();
+    var tenantId = TenantId.of(ctx.tenantUuid());
 
     var session =
         commandBus.send(new CloseSessionCommand(tenantId, sessionId, body.closingAmount()));
@@ -66,7 +67,8 @@ public class PosSessionController {
 
   @GetMapping("/current")
   public ResponseEntity<PosSession> current(@RequestParam TerminalId terminalId) {
-    var tenantId = TenantId.of(contextHolder.get().tenantUuid());
+    var ctx = contextResolver.currentOrNull();
+    var tenantId = TenantId.of(ctx.tenantUuid());
 
     var result = queryBus.send(new GetCurrentSessionQuery(tenantId, terminalId));
 

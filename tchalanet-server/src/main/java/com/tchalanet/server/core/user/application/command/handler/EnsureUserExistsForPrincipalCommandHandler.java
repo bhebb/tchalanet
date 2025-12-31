@@ -31,10 +31,6 @@ public class EnsureUserExistsForPrincipalCommandHandler
     if (existingOpt.isPresent()) {
       var user = existingOpt.get();
 
-      if (!user.getTenantId().equals(tenantId)) {
-        throw new IllegalStateException("Tenant mismatch for user " + user.getId());
-      }
-
       var updated =
           user.syncProfile(
                   command.username(),
@@ -45,8 +41,7 @@ public class EnsureUserExistsForPrincipalCommandHandler
                   command.displayName(),
                   null, // avatarUrl non fourni dans la command V1
                   command.locale(),
-                  command.timeZone(),
-                  command.tenantCode())
+                  command.timeZone())
               .touchLogin(now);
 
       var saved = userWriterPort.save(updated);
@@ -57,8 +52,6 @@ public class EnsureUserExistsForPrincipalCommandHandler
         AppUser.createNew(
             null,
             command.keycloakId(),
-            tenantId,
-            command.tenantCode(),
             command.username(),
             command.email(),
             command.phone(),

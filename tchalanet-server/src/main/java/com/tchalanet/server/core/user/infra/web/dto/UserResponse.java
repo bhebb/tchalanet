@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.user.infra.web.dto;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.util.UUID;
 
@@ -8,7 +7,6 @@ import java.util.UUID;
 public record UserResponse(
     UserId id,
     UUID keycloakId,
-    TenantId tenantId,
     String username,
     String email,
     String firstName,

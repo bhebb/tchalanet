@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.batch.config;
+package com.tchalanet.server.common.config.batch;
 
 import jakarta.annotation.PostConstruct;
 import java.time.LocalTime;

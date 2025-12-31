@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.context;
 
-import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.util.Locale;
@@ -21,7 +21,9 @@ public record TchRequestContext(
     Locale locale,
     String requestId, // correlation id for logs
     String clientIp,
-    boolean tenantOverridden // true if SA override applied
+    String userAgent, // HTTP User-Agent header value (nullable) - moved here
+    boolean tenantOverridden, // true if SA override applied
+    String deletedVisibility // new: requested deleted visibility (active|deleted|all)
     ) {
 
   /** Return the effective tenant UUID when available, otherwise the original one. */
@@ -30,9 +32,7 @@ public record TchRequestContext(
   }
 
   public TenantId tenantid() {
-    return effectiveTenantUuid != null
-        ? TenantId.of(effectiveTenantUuid)
-        : TenantId.of(originalTenantUuid);
+    return TenantId.nullableOf(tenantUuid());
   }
 
   /**
@@ -56,14 +56,13 @@ public record TchRequestContext(
         return UUID.fromString(keycloakUserId);
       }
     } catch (IllegalArgumentException e) {
-      log.debug("Keycloak subject is not a UUID: '{}'", keycloakUserId, e);
+      log.error("Keycloak subject is not a UUID: '{}'", keycloakUserId, e);
     }
     return null;
   }
 
   public String userAgent() {
-    // user agent get it
-    return null;
+    return userAgent;
   }
 
   /**
@@ -85,5 +84,51 @@ public record TchRequestContext(
 
     // Sinon, on considère que l'utilisateur est au moins caissier
     return TchRole.CASHIER;
+  }
+
+  public String deletedVisibilitySafe() {
+    String v = (deletedVisibility == null ? "active" : deletedVisibility.trim().toLowerCase());
+    return (v.equals("active") || v.equals("deleted") || v.equals("all")) ? v : "active";
+  }
+
+  public boolean isSuperAdmin() {
+    return systemRoles != null && systemRoles.contains(TchRole.SUPER_ADMIN);
+  }
+
+  /** Convenience builder to return a new TchRequestContext with a different deletedVisibility. */
+  public TchRequestContext withDeletedVisibility(String visibility) {
+    return new TchRequestContext(
+        this.originalTenantCode,
+        this.originalTenantUuid,
+        this.effectiveTenantCode,
+        this.effectiveTenantUuid,
+        this.keycloakUserId,
+        this.appUserId,
+        this.systemRoles,
+        this.customRoles,
+        this.locale,
+        this.requestId,
+        this.clientIp,
+        this.userAgent,
+        this.tenantOverridden,
+        visibility);
+  }
+
+  public TchRequestContext withEffectiveTenantUuid(UUID tenantUuid) {
+    return new TchRequestContext(
+        this.originalTenantCode,
+        this.originalTenantUuid,
+        this.effectiveTenantCode,
+        tenantUuid,
+        this.keycloakUserId,
+        this.appUserId,
+        this.systemRoles,
+        this.customRoles,
+        this.locale,
+        this.requestId,
+        this.clientIp,
+        this.userAgent,
+        this.tenantOverridden,
+        this.deletedVisibility);
   }
 }
