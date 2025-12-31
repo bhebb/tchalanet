@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.types.id;
+package com.tchalanet.server.common.types.enums;
 
 public enum UserStatus {
   PENDING_APPROVAL,
