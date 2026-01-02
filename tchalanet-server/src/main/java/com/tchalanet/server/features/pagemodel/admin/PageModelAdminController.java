@@ -3,6 +3,9 @@ package com.tchalanet.server.features.pagemodel.admin;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminDetailDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminListItemDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminUpsertRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/pagemodels")
 @RequiredArgsConstructor
+@Tags({@Tag(name = "Admin • PageModel")})
 public class PageModelAdminController {
 
   private final PageModelAdminService service;
@@ -21,6 +25,7 @@ public class PageModelAdminController {
    * Liste les PageModel avec filtres optionnels : - tenantId : null => global / tous - scope :
    * "public" / "private" (optionnel) - logicalId: ex. "public.home", "private.tenant_dashboard"
    */
+  @Operation(summary = "List page models (admin)")
   @GetMapping
   public ResponseEntity<List<PageModelAdminListItemDto>> list(
       @RequestParam(value = "tenantId", required = false) UUID tenantId,
@@ -30,6 +35,7 @@ public class PageModelAdminController {
     return ResponseEntity.ok(items);
   }
 
+  @Operation(summary = "Get a page model detail (admin)")
   @GetMapping("/{id}")
   public ResponseEntity<PageModelAdminDetailDto> get(@PathVariable("id") UUID id) {
     try {
@@ -41,6 +47,7 @@ public class PageModelAdminController {
     }
   }
 
+  @Operation(summary = "Create a new page model (admin)")
   @PostMapping
   public ResponseEntity<PageModelAdminDetailDto> create(
       @RequestBody PageModelAdminUpsertRequest request) {
@@ -50,6 +57,7 @@ public class PageModelAdminController {
     return ResponseEntity.created(location).body(created);
   }
 
+  @Operation(summary = "Update a page model (admin)")
   @PutMapping("/{id}")
   public ResponseEntity<PageModelAdminDetailDto> update(
       @PathVariable("id") UUID id, @RequestBody PageModelAdminUpsertRequest request) {
@@ -65,6 +73,7 @@ public class PageModelAdminController {
     return ResponseEntity.ok(updated);
   }
 
+  @Operation(summary = "Delete a page model (admin)")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
     try {
@@ -76,6 +85,7 @@ public class PageModelAdminController {
   }
 
   /** Duplique un PageModel : - newLogicalId / newSlug optionnels (sinon générés par le service). */
+  @Operation(summary = "Duplicate a page model (admin)")
   @PostMapping("/{id}/duplicate")
   public ResponseEntity<PageModelAdminDetailDto> duplicate(
       @PathVariable("id") UUID id,
@@ -94,6 +104,7 @@ public class PageModelAdminController {
    * Preview "brute" du PageModel tel qu'il serait renvoyé au BFF, pratique pour le backoffice
    * visuel.
    */
+  @Operation(summary = "Preview a page model (admin)")
   @GetMapping("/{id}/preview")
   public ResponseEntity<PageModelAdminDetailDto> preview(@PathVariable("id") UUID id) {
     try {
@@ -108,6 +119,7 @@ public class PageModelAdminController {
    * Publie une version (draft -> published). Règle métier: une seule version "published" par
    * logicalId/tenant/scope.
    */
+  @Operation(summary = "Publish a page model (admin)")
   @PostMapping("/{id}/publish")
   public ResponseEntity<PageModelAdminDetailDto> publish(@PathVariable("id") UUID id) {
     try {

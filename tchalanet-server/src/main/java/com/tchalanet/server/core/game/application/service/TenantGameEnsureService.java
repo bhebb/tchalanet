@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.game.application.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.core.game.infra.persistence.GameJpaRepository;
 import com.tchalanet.server.core.game.infra.persistence.TenantGameJpaEntity;
 import com.tchalanet.server.core.game.infra.persistence.TenantGameJpaRepository;
@@ -18,7 +17,6 @@ public class TenantGameEnsureService {
 
   private final GameJpaRepository gameRepo;
   private final TenantGameJpaRepository tenantGameRepo;
-  private final ObjectMapper objectMapper;
 
   public record EnsureResult(
       List<String> requestedCodes, List<String> createdCodes, List<String> alreadyAssignedCodes) {}

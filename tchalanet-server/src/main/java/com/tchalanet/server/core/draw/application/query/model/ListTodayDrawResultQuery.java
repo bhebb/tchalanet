@@ -5,5 +5,6 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import java.util.List;
 
-public record ListTodayDrawResultQuery(TenantId tenantId, String channelCode)
+public record ListTodayDrawResultQuery(
+    TenantId tenantId, String channelCode, Integer page, Integer size)
     implements Query<List<DrawResult>> {}

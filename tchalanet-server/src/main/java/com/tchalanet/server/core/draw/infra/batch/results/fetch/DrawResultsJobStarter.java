@@ -27,15 +27,18 @@ public class DrawResultsJobStarter {
   }
 
   private JobParameters buildJobParameters(Map<String, String> params) {
-    // required
-    require(params, "tenant_id");
-    require(params, "channel_code");
+    // require either channel_code or channel_codes
+    if ((params.get("channel_code") == null || params.get("channel_code").isBlank())
+        && (params.get("channel_codes") == null || params.get("channel_codes").isBlank())) {
+      throw new IllegalArgumentException("channel_code or channel_codes is required");
+    }
 
     var builder = new JobParametersBuilder();
     builder.addLong("ts", parseLongOrNow(params.get("ts")), true);
 
     addString(builder, "tenant_id", params.get("tenant_id"));
     addString(builder, "channel_code", params.get("channel_code"));
+    addString(builder, "channel_codes", params.get("channel_codes"));
     addLong(builder, "days_back", params.get("days_back"));
     addLong(builder, "max_draws", params.get("max_draws"));
     addString(builder, "force", params.getOrDefault("force", "false"));

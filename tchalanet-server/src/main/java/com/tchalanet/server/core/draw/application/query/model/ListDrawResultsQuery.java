@@ -7,5 +7,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ListDrawResultsQuery(
-    TenantId tenantId, String channelCode, LocalDate from, LocalDate to)
+    TenantId tenantId, String channelCode, LocalDate from, LocalDate to, Integer page, Integer size)
     implements Query<List<DrawResult>> {}

@@ -57,7 +57,8 @@ public class SharedResultsByGameAggregator {
     for (var channel : channels) {
       var results =
           listLastDaysDrawResultsHandler.handle(
-              new ListLastDaysDrawResultsQuery(tenantId, channel.channelCode(), lastDays));
+              new ListLastDaysDrawResultsQuery(
+                  tenantId, channel.channelCode(), lastDays, null, null));
 
       if (results == null || results.isEmpty()) {
         continue;

@@ -1,5 +1,7 @@
 package com.tchalanet.server.common.web;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.Map;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/jobs")
+@Tag(name = "Ops • Batch")
 public class BatchJobController {
 
   private final ApplicationContext ctx;
@@ -22,6 +25,7 @@ public class BatchJobController {
   }
 
   @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @Operation(summary = "Launch a named Spring Batch job (ops)")
   @PostMapping("/launch")
   public ResponseEntity<?> launch(@RequestBody Map<String, String> body) {
     String jobName = body.get("jobName");

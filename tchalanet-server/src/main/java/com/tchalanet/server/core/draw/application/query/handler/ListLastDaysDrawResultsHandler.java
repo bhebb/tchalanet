@@ -24,9 +24,11 @@ public class ListLastDaysDrawResultsHandler
   @Override
   public List<DrawResult> handle(ListLastDaysDrawResultsQuery query) {
     ZonedDateTime now = ZonedDateTime.now(clock);
+    Integer page = query.page() == null ? 0 : query.page();
+    Integer size = query.size() == null ? 50 : query.size();
     var criteria =
-        DrawResultsSearchCriteria.lastDays(
-            query.tenantId(), query.channelCode(), now, query.days());
+        DrawResultsSearchCriteria.lastDays(query.tenantId(), query.channelCode(), now, query.days())
+            .withPageAndSize(page, size);
     return drawResultReaderPort.findByCriteria(criteria);
   }
 }

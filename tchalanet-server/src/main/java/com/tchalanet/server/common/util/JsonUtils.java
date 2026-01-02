@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,6 +38,14 @@ public class JsonUtils {
       return mapper.readValue(json, clazz);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read JSON from String", e);
+    }
+  }
+
+  public <T> T readValue(String json, TypeReference<T> typeRef) {
+    try {
+      return mapper.readValue(json, typeRef);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read JSON from String with TypeReference", e);
     }
   }
 

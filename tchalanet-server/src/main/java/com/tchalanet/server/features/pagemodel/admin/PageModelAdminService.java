@@ -1,9 +1,7 @@
 package com.tchalanet.server.features.pagemodel.admin;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminDetailDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminListItemDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminUpsertRequest;
@@ -23,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class PageModelAdminService {
 
   private final PageModelRepository repository;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
   private final TchContextResolver contextResolver;
 
   public List<PageModelAdminListItemDto> list(UUID tenantId, String scope, String logicalId) {
@@ -131,8 +129,8 @@ public class PageModelAdminService {
     return toDetailDto(entity);
   }
 
-  private JsonNode serializeModel(PageModel model) {
-    return objectMapper.valueToTree(model);
+  private com.fasterxml.jackson.databind.JsonNode serializeModel(PageModel model) {
+    return jsonUtils.valueToTree(model);
   }
 
   private PageModelAdminListItemDto toListItemDto(PageModelEntity e) {
@@ -163,12 +161,8 @@ public class PageModelAdminService {
         e.getUpdatedAt());
   }
 
-  private PageModel deserializeModel(JsonNode json) {
-    try {
-      return objectMapper.treeToValue(json, PageModel.class);
-    } catch (JsonProcessingException e) {
-      throw new IllegalStateException("Unable to deserialize PageModel", e);
-    }
+  private PageModel deserializeModel(com.fasterxml.jackson.databind.JsonNode json) {
+    return jsonUtils.treeToValue(json, PageModel.class);
   }
 
   public PageModelAdminDetailDto publish(UUID id) {

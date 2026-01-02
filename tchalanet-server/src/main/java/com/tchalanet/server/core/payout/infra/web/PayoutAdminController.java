@@ -14,6 +14,9 @@ import com.tchalanet.server.core.payout.application.command.model.ExecutePayoutC
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutCommand;
 import com.tchalanet.server.core.payout.application.command.model.RejectPayoutCommand;
 import com.tchalanet.server.core.payout.application.query.model.GeneratePayoutReportQuery;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/admin/payouts")
+@Tags({@Tag(name = "Admin • Payouts"), @Tag(name = "Tenant • Payouts")})
 public class PayoutAdminController {
 
   private final CommandBus commandBus;
@@ -51,6 +55,7 @@ public class PayoutAdminController {
   // ExecutePayoutCommand(TenantId tenantId, TicketId ticketId, SessionId payingSessionId, UserId
   // paidBy)
 
+  @Operation(summary = "Execute a payout (pay a winning ticket)")
   @PostMapping("/execute")
   public void execute(@RequestBody ExecutePayoutRequest body) {
     Objects.requireNonNull(body, "body");
@@ -66,6 +71,7 @@ public class PayoutAdminController {
   // --------------------------------------------------------------------------
   // Register payout (create REQUESTED) - optional if you do create-on-execute
   // --------------------------------------------------------------------------
+  @Operation(summary = "Register a payout request")
   @PostMapping("/request")
   public void request(@RequestBody RegisterPayoutRequest body) {
     Objects.requireNonNull(body, "body");
@@ -94,6 +100,7 @@ public class PayoutAdminController {
   // --------------------------------------------------------------------------
   // Approve payout (REQUESTED -> APPROVED)
   // --------------------------------------------------------------------------
+  @Operation(summary = "Approve a payout request")
   @PostMapping("/{payoutId}/approve")
   public void approve(@PathVariable PayoutId payoutId, @RequestBody ApprovePayoutRequest body) {
     Objects.requireNonNull(body, "body");
@@ -106,6 +113,7 @@ public class PayoutAdminController {
   // --------------------------------------------------------------------------
   // Reject payout (REQUESTED -> REJECTED)
   // --------------------------------------------------------------------------
+  @Operation(summary = "Reject a payout request")
   @PostMapping("/{payoutId}/reject")
   public void reject(@PathVariable PayoutId payoutId, @RequestBody RejectPayoutRequest body) {
     Objects.requireNonNull(body, "body");
@@ -124,6 +132,7 @@ public class PayoutAdminController {
   // Report export
   // --------------------------------------------------------------------------
   // Returns a file download (CSV/PDF/XLSX depending on your report port).
+  @Operation(summary = "Export payout report for a tenant (CSV/XLSX/PDF)")
   @GetMapping("/report")
   public ResponseEntity<Resource> report(
       @RequestParam TenantId tenantId,

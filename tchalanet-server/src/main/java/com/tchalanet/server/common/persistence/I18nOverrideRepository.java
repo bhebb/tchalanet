@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-@RepositoryRestResource(path = "admin-i18n-overrides", collectionResourceRel = "i18n-overrides")
+@RepositoryRestResource(exported = true, path = "i18n-overrides")
 public interface I18nOverrideRepository extends JpaRepository<I18nOverrideEntity, UUID> {
 
   @RestResource(path = "all-by-tenant", rel = "all-by-tenant")

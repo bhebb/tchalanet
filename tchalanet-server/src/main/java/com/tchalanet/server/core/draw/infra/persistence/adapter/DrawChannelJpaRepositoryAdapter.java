@@ -77,7 +77,27 @@ public class DrawChannelJpaRepositoryAdapter
 
   @Override
   public List<DrawChannelSummary> findByCriteria(DrawChannelSearchCriteria criteria) {
-    return List.of();
+    if (criteria == null || criteria.tenantId() == null) return List.of();
+
+    var tenantUuid = criteria.tenantId().uuid();
+    List<com.tchalanet.server.core.draw.infra.persistence.DrawChannelJpaEntity> entities;
+    if (Boolean.TRUE.equals(criteria.activeOnly())) {
+      entities = repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantUuid);
+    } else {
+      entities = repo.findByTenantIdOrderBySortOrderAsc(tenantUuid);
+    }
+
+    return entities.stream()
+        .map(
+            e -> {
+              String code = e.getCode();
+              String name = e.getName() == null ? code : e.getName();
+              boolean active = Boolean.TRUE.equals(e.getActive());
+              // We don't have scheduled draw instants here; leave times/status empty and lastResult
+              // empty.
+              return new DrawChannelSummary(code, name, null, null, null, false, active, List.of());
+            })
+        .toList();
   }
 
   public List<DrawChannel> findByTenant(com.tchalanet.server.common.types.id.TenantId tenantId) {

@@ -15,17 +15,19 @@ import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.OverrideDrawResultRequest;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+// @PreAuthorize("hasAuthority('SUPER_ADMIN')") //todo remove testing
+@Tag(name = "Admin • Draws")
 public class DrawAdminController {
 
   private final CommandBus commandBus;
@@ -33,6 +35,7 @@ public class DrawAdminController {
   private final DrawAdminWebMapper mapper;
   private final TchContextResolver contextResolver;
 
+  @Operation(summary = "List draws (admin)")
   @GetMapping
   public ResponseEntity<List<DrawSummaryResponse>> listDraws() {
     var holder = contextResolver.currentOrNull();
@@ -42,6 +45,7 @@ public class DrawAdminController {
     return ResponseEntity.ok(responses);
   }
 
+  @Operation(summary = "Create a draw (admin)")
   @PostMapping
   public ResponseEntity<DrawSummaryResponse> createDraw(@RequestBody CreateDrawRequest request) {
     CreateDrawCommand command = mapper.toCreateDrawCommand(request);
@@ -59,6 +63,7 @@ public class DrawAdminController {
             () -> ResponseEntity.status(201).body(mapper.toDrawSummaryResponseFallback(request)));
   }
 
+  @Operation(summary = "Update a draw (admin)")
   @PutMapping("/{drawId}")
   public ResponseEntity<DrawSummaryResponse> updateDraw(
       @PathVariable DrawId drawId,
@@ -83,6 +88,7 @@ public class DrawAdminController {
         .orElseGet(() -> ResponseEntity.ok(mapper.toDrawSummaryResponseFallback(request)));
   }
 
+  @Operation(summary = "Override draw result (admin)")
   @PostMapping("/{drawId}/override-result")
   public ResponseEntity<Void> overrideResult(
       @PathVariable DrawId drawId,

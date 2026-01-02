@@ -59,7 +59,12 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
               .uri(
                   uriBuilder -> {
                     var b =
-                        uriBuilder.queryParam("$limit", 7).queryParam("$order", "draw_date DESC");
+                        uriBuilder
+                            .queryParam("$limit", 7)
+                            .queryParam(
+                                "$select",
+                                "draw_date,midday_daily,evening_daily,midday_win_4,evening_win_4")
+                            .queryParam("$order", "draw_date DESC");
                     if (appToken != null && !appToken.isBlank())
                       b = b.queryParam("app_token", appToken);
                     return b.build();
@@ -70,7 +75,7 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
 
       if (response == null) return results;
 
-      Instant fetchedAt = Instant.now();
+      var fetchedAt = Instant.now();
 
       for (NyResultDto row : response) {
         LocalDate date = LocalDate.parse(row.drawDate().substring(0, 10));

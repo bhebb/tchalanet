@@ -32,7 +32,6 @@ public class DrawCalendarScheduler {
   private final TenantDrawCalendarQueryPort tenantPort;
   private final CommandBus commandBus;
 
-  // Guard to allow disabling scheduled methods per-profile (kept for runtime safety)
   @Value("${app.scheduling.enabled:true}")
   private boolean appSchedulingEnabled;
 

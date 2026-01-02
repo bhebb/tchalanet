@@ -76,6 +76,36 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
       @Param("force") boolean force,
       @Param("maxDraws") int maxDraws);
 
+  // --- Multi-channel variant: same day window applied to all channel codes ---
+  @Query(
+      value =
+          """
+          select d.id
+          from draw d
+          join draw_channel dc on dc.id = d.draw_channel_id
+          left join draw_result dr on dr.tenant_id = d.tenant_id and dr.draw_id = d.id
+          where d.tenant_id = :tenantId
+            and d.deleted_at is null and dc.deleted_at is null
+            and dc.active=true
+            and d.locked=false
+            and d.status='CLOSED'
+            and d.scheduled_at <= :eligibleBeforeUtc
+            and d.scheduled_at >= :dayStartUtc and d.scheduled_at < :dayEndUtc
+            and (dr.id is null or :force=true)
+            and dc.code in (:channelCodes)
+          order by d.scheduled_at asc
+          limit :maxDraws
+          """,
+      nativeQuery = true)
+  List<UUID> findClosedDrawIdsForSlotMulti(
+      @Param("tenantId") UUID tenantId,
+      @Param("channelCodes") List<String> channelCodes,
+      @Param("dayStartUtc") Instant dayStartUtc,
+      @Param("dayEndUtc") Instant dayEndUtc,
+      @Param("eligibleBeforeUtc") Instant eligibleBeforeUtc,
+      @Param("force") boolean force,
+      @Param("maxDraws") int maxDraws);
+
   // --- Copie de la méthode findSettleableDrawIds depuis SettleableDrawIdsJpaRepository ---
   @Query(
       value =

@@ -2,6 +2,7 @@ package com.tchalanet.server.core.billing.infra.web;
 
 import com.tchalanet.server.core.billing.infra.persistence.PlanJpaEntity;
 import com.tchalanet.server.core.billing.infra.service.PlatformPlanService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/plans")
 @RequiredArgsConstructor
+@Tag(name = "Platform • Plans")
 public class PlatformPlanController {
 
   private final PlatformPlanService service;

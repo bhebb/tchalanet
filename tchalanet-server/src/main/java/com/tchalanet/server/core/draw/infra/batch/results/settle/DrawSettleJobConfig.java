@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
+import com.tchalanet.server.common.batch.BatchTchContextJobListener;
 import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
 @RequiredArgsConstructor
 public class DrawSettleJobConfig {
 
@@ -25,10 +24,14 @@ public class DrawSettleJobConfig {
   private final ItemReader<DrawId> settleableDrawIdsReader;
   private final ItemProcessor<DrawId, DrawId> settleProcessor;
   private final ItemWriter<DrawId> settleWriter;
+  private final BatchTchContextJobListener listener;
 
   @Bean
   public Job settleDrawsJob() {
-    return new JobBuilder("settle_draws", jobRepository).start(settleStep()).build();
+    return new JobBuilder("settle_draws", jobRepository)
+        .listener(listener)
+        .start(settleStep())
+        .build();
   }
 
   @Bean

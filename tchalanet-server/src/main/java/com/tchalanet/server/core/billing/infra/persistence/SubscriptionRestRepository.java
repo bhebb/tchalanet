@@ -4,5 +4,5 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "subscriptions", collectionResourceRel = "subscriptions")
+@RepositoryRestResource(exported = true)
 public interface SubscriptionRestRepository extends JpaRepository<SubscriptionJpaEntity, UUID> {}

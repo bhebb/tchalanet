@@ -6,7 +6,7 @@
   "supportedLocales": ["fr", "en", "ht"],
   "loginTheme": "keycloak",
   "roles": {
-    "realm": [{ "name": "SUPER_ADMIN" }, { "name": "ADMIN" }, { "name": "AGENT" }]
+    "realm": [{ "name": "SUPER_ADMIN" }, { "name": "TENANT_ADMIN" }, { "name": "OPERATOR" }, { "name": "CASHIER" }]
   },
 
   "groups": [
@@ -15,16 +15,16 @@
       "path": "/tenants",
       "subGroups": [
         {
-          "name": "default",
-          "path": "/tenants/default",
+          "name": "tchalanet",
+          "path": "/tenants/tchalanet",
           "subGroups": [
             {
               "name": "admins",
-              "path": "/tenants/default/admins"
+              "path": "/tenants/tchalanet/admins"
             },
             {
               "name": "agents",
-              "path": "/tenants/default/agents"
+              "path": "/tenants/tchalanet/agents"
             }
           ]
         }
@@ -250,7 +250,7 @@
       "groups": [],
       "attributes": {
         "locale": ["fr"],
-        "tenant_code": ["default"],
+        "tenant_code": ["tchalanet"],
         "plan": ["free"],
         "featureSetId": ["base"]
       }
@@ -267,11 +267,11 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["ADMIN"],
-      "groups": ["/tenants/default/admins"],
+      "realmRoles": ["TENANT_ADMIN"],
+      "groups": ["/tenants/tchalanet/admins"],
       "attributes": {
         "locale": ["fr"],
-        "tenant_code": ["default"],
+        "tenant_code": ["tchalanet"],
         "plan": ["pro"],
         "featureSetId": ["base"]
       }
@@ -288,11 +288,11 @@
           "temporary": false
         }
       ],
-      "realmRoles": ["AGENT"],
-      "groups": ["/tenants/default/agents"],
+      "realmRoles": ["OPERATOR"],
+      "groups": ["/tenants/tchalanet/agents"],
       "attributes": {
         "locale": ["fr"],
-        "tenant_code": ["default"],
+        "tenant_code": ["tchalanet"],
         "plan": ["free"],
         "featureSetId": ["base"]
       }

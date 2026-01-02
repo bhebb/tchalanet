@@ -15,11 +15,15 @@ import com.tchalanet.server.core.pos.application.query.model.GetPosDeviceByIdQue
 import com.tchalanet.server.core.pos.application.query.model.GetPosDeviceStatusQuery;
 import com.tchalanet.server.core.pos.application.query.model.ListPosDevicesByLocationQuery;
 import com.tchalanet.server.core.pos.domain.model.Terminal;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+    name = "Admin • Terminals",
+    description = "Tenant administration of POS terminals: register, lock/unlock, metadata")
 @RestController
 @RequestMapping("/admin/tenants/{tenantId}/terminals")
 @RequiredArgsConstructor

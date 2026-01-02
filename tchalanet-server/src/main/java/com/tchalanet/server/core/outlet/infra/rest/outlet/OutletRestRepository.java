@@ -5,5 +5,5 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(path = "outlets", collectionResourceRel = "outlets")
+@RepositoryRestResource(exported = true, path = "outlets")
 public interface OutletRestRepository extends JpaRepository<OutletEntity, UUID> {}

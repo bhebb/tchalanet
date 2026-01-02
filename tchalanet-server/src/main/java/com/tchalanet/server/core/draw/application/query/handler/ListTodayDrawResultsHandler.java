@@ -24,7 +24,11 @@ public class ListTodayDrawResultsHandler
   @Override
   public List<DrawResult> handle(ListTodayDrawResultQuery query) {
     ZonedDateTime now = ZonedDateTime.now(clock);
-    var criteria = DrawResultsSearchCriteria.today(query.tenantId(), query.channelCode(), now);
+    Integer page = query.page() == null ? 0 : query.page();
+    Integer size = query.size() == null ? 50 : query.size();
+    var criteria =
+        DrawResultsSearchCriteria.today(query.tenantId(), query.channelCode(), now)
+            .withPageAndSize(page, size);
     return drawResultReaderPort.findByCriteria(criteria);
   }
 }

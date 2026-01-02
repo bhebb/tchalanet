@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.news.publicnews;
 
 import com.tchalanet.server.features.news.shared.LotteryNewsModels;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/public/news")
 @RequiredArgsConstructor
+@Tag(name = "Public • News")
 public class PublicNewsController {
 
   private final PublicNewsService listPublicNewsUseCase;

@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.game.infra.adapter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.game.application.command.model.UpdateTenantGameCommand;
 import com.tchalanet.server.core.game.application.port.out.TenantGameWritePort;
 import com.tchalanet.server.core.game.infra.persistence.TenantGameJpaEntity;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Repository;
 public class TenantGameWriteJpaAdapter implements TenantGameWritePort {
 
   private final TenantGameJpaRepository repo;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   @Override
   public boolean updateByGameId(UUID gameId, UpdateTenantGameCommand cmd) {
@@ -32,7 +31,10 @@ public class TenantGameWriteJpaAdapter implements TenantGameWritePort {
     if (cmd.minStake() != null) entity.setMinStake(cmd.minStake());
     if (cmd.maxStake() != null) entity.setMaxStake(cmd.maxStake());
     if (cmd.flags() != null) {
-      Map<String, Object> flags = objectMapper.convertValue(cmd.flags(), new TypeReference<>() {});
+      // convert value using JsonUtils -> map via serialization roundtrip
+      @SuppressWarnings("unchecked")
+      Map<String, Object> flags =
+          (Map<String, Object>) jsonUtils.readValue(jsonUtils.toJson(cmd.flags()), Map.class);
       entity.setFlags(flags);
     }
 

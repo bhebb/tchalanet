@@ -9,10 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-// Platform settings should not be auto-exposed by Spring Data REST; controllers will serve
-// /platform/*
+// Platform settings exposed via SDR (per user request)
 @RepositoryRestResource(
-    exported = false,
+    exported = true,
     path = "app-settings",
     collectionResourceRel = "app-settings")
 public interface AppSettingRepository extends JpaRepository<AppSettingEntity, UUID> {

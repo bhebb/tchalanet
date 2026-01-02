@@ -1,8 +1,6 @@
 package com.tchalanet.server.features.pagemodel.shared.template;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.features.pagemodel.shared.template.dto.PageModelTemplateRequest;
 import com.tchalanet.server.features.pagemodel.shared.template.dto.PageModelTemplateResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class PageModelTemplateMapper {
 
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   public PageModelTemplateEntity toEntity(PageModelTemplateRequest req) {
     if (req == null) return null;
@@ -25,8 +23,8 @@ public class PageModelTemplateMapper {
     e.setDescription(req.getDescription());
     e.setSchemaVersion(req.getSchemaVersion());
     try {
-      e.setModel(objectMapper.readTree(req.getModelJson()));
-    } catch (JsonProcessingException ex) {
+      e.setModel(jsonUtils.parse(req.getModelJson()));
+    } catch (Exception ex) {
       log.error("Unable to parse model JSON", ex);
     }
     if (req.getIsDefault() != null) e.setDefault(req.getIsDefault());
@@ -54,10 +52,10 @@ public class PageModelTemplateMapper {
         e.getVersion());
   }
 
-  private String getModeledJson(JsonNode model) {
+  private String getModeledJson(com.fasterxml.jackson.databind.JsonNode model) {
     try {
-      return objectMapper.writeValueAsString(model);
-    } catch (JsonProcessingException e) {
+      return jsonUtils.toJson(model);
+    } catch (Exception e) {
       log.error("Unable to convert model JSON to PageModel object", e);
       return null;
     }

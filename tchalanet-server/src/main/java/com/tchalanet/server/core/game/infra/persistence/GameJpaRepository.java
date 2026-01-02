@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RepositoryRestResource(exported = false, path = "games", collectionResourceRel = "games")
+@RepositoryRestResource(exported = true, path = "games", collectionResourceRel = "games")
 public interface GameJpaRepository extends JpaRepository<GameJpaEntity, UUID> {
   List<GameJpaEntity> findByActiveTrueOrderBySortOrder();
 

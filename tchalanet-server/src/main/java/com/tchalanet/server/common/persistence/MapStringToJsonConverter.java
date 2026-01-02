@@ -1,25 +1,23 @@
 package com.tchalanet.server.common.persistence;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.common.config.ObjectMapperHolder;
+import com.tchalanet.server.common.util.JsonUtils;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.Collections;
 import java.util.Map;
 
-@Converter(autoApply = false)
+@Converter
 public class MapStringToJsonConverter implements AttributeConverter<Map<String, String>, String> {
 
-  private static ObjectMapper mapper() {
-    return ObjectMapperHolder.get();
+  private static JsonUtils json() {
+    return JsonUtilsHolder.get();
   }
 
   @Override
   public String convertToDatabaseColumn(Map<String, String> attribute) {
     try {
-      ObjectMapper m = mapper();
-      return m.writeValueAsString(attribute == null ? Collections.emptyMap() : attribute);
+      return json().toJson(attribute == null ? Collections.emptyMap() : attribute);
     } catch (Exception e) {
       return "{}";
     }
@@ -29,8 +27,7 @@ public class MapStringToJsonConverter implements AttributeConverter<Map<String, 
   public Map<String, String> convertToEntityAttribute(String dbData) {
     try {
       if (dbData == null) return Collections.emptyMap();
-      ObjectMapper m = mapper();
-      return m.readValue(dbData, new TypeReference<Map<String, String>>() {});
+      return json().readValue(dbData, new TypeReference<>() {});
     } catch (Exception e) {
       return Collections.emptyMap();
     }

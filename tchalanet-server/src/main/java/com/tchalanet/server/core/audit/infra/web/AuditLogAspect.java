@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.audit.infra.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 public class AuditLogAspect {
 
   private final AuditLoggingCommandHandler handler;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
   private final ExpressionParser parser = new SpelExpressionParser();
 
   @Around("@annotation(com.tchalanet.server.core.audit.infra.web.AuditLog)")
@@ -104,7 +104,7 @@ public class AuditLogAspect {
       Object v = parser.parseExpression(expr).getValue(ctx);
       if (v != null) {
         if (v instanceof Map<?, ?> m) {
-          details = objectMapper.convertValue(m, Map.class);
+          details = jsonUtils.readValue(jsonUtils.toJson(m), Map.class);
         } else {
           details = Map.of("value", v.toString());
         }

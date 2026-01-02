@@ -53,12 +53,12 @@ public class TenantAdminDashboardService {
       @SuppressWarnings("unused") PageModel pageModel) {
     // use pageModel parameter to avoid unused-parameter warnings (it may be used later)
     var tenantStats = tenantDashboardStatsUseCase.getStats(tenantId, null, null);
-    KpiBlock kpiGlobal = buildGlobalKpis(tenantId, currentLang);
-    KpiBlock kpiDraws = buildDrawKpis(tenantStats);
-    KpiBlock kpiSales = buildSalesKpis(tenantStats);
+    var kpiGlobal = buildGlobalKpis(tenantId, currentLang);
+    var kpiDraws = buildDrawKpis(tenantStats);
+    var kpiSales = buildSalesKpis(tenantStats);
 
-    ValidationsBlock validations = buildValidations(tenantId, currentLang);
-    ActivityFeedBlock recentActivity = buildActivity(tenantId, userId, currentLang);
+    var validations = buildValidations(tenantId, currentLang);
+    var recentActivity = buildActivity(tenantId, userId, currentLang);
     var overview = buildOverview(tenantId, userId, currentLang, tenantStats);
 
     return new PrivateDashboardDynamicPayload(

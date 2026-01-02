@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.pos.application.command.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.pos.application.command.model.SendPosHeartbeatCommand;
 import com.tchalanet.server.core.pos.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.pos.application.port.out.TerminalWriterPort;
@@ -19,7 +18,7 @@ public class SendPosHeartbeatCommandHandler implements VoidCommandHandler<SendPo
 
   private final TerminalReaderPort readerPort;
   private final TerminalWriterPort writerPort;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   @Override
   public void handle(SendPosHeartbeatCommand command) {
@@ -38,8 +37,8 @@ public class SendPosHeartbeatCommandHandler implements VoidCommandHandler<SendPo
               "batteryPercent", command.batteryPercent(),
               "appVersion", command.appVersion(),
               "extras", command.extras());
-      metaDelta = objectMapper.writeValueAsString(map);
-    } catch (JsonProcessingException e) {
+      metaDelta = jsonUtils.toJson(map);
+    } catch (Exception e) {
       // ignore
     }
     terminal.heartbeat(command.lastSeenAt(), metaDelta);

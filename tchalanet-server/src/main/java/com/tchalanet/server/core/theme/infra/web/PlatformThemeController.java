@@ -3,6 +3,7 @@ package com.tchalanet.server.core.theme.infra.web;
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
 import com.tchalanet.server.core.theme.infra.persistence.ThemeJpaEntity;
 import com.tchalanet.server.core.theme.infra.service.PlatformThemeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/themes")
 @RequiredArgsConstructor
+@Tag(name = "Platform • Themes")
 public class PlatformThemeController {
 
   private final PlatformThemeService service;

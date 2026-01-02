@@ -1,22 +1,23 @@
 package com.tchalanet.server.core.draw.infra.web.ops;
 
-import com.tchalanet.server.common.context.CurrentContext;
-import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.core.draw.infra.batch.results.fetch.DrawResultsJobStarter;
-import com.tchalanet.server.core.uslottery.infra.config.UsLotteryGameRegistry;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
+import java.security.MessageDigest;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -31,112 +32,143 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
+@Tag(name = "Ops • Scheduler")
 public class DrawResultsOpsController {
 
   private static final DateTimeFormatter YYYY_MM_DD = DateTimeFormatter.ISO_LOCAL_DATE;
 
   private final DrawResultsJobStarter jobStarter;
-  private final UsLotteryGameRegistry usLotteryGameRegistry;
   private final Clock clock;
 
-  @PostMapping("/fetch")
-  @RequiresPermission("uslottery.refresh_results")
-  public ResponseEntity<FetchDrawResultsResponse> fetch(
-      @CurrentContext TchRequestContext ctx,
-      @RequestBody(required = false) FetchDrawResultsRequest req)
-      throws Exception {
+  private final TchContextResolver contextResolver;
 
+  @Operation(summary = "Trigger fetch of draw results (ops)")
+  @PostMapping("/fetch")
+  //    @RequiresPermission("uslottery.refresh_results") //todo revert
+  public ResponseEntity<FetchDrawResultsResponse> fetch(
+      @RequestBody(required = false) FetchDrawResultsRequest req) throws Exception {
+
+    var ctx = contextResolver.currentOrNull();
     if (req == null) {
-      req = new FetchDrawResultsRequest();
+      req = new FetchDrawResultsRequest(List.of(), null, false, 0, 500, false);
     }
 
-    if (req.channelCode() == null || req.channelCode().isBlank()) {
-      throw new IllegalArgumentException("channel_code is required");
+    if (req.channelCodes() == null || req.channelCodes().isEmpty()) {
+      throw new IllegalArgumentException("channelCodes is required");
     }
 
     // Caps stricts
-    int daysBack = Math.clamp(req.daysBack(), 0, 14);
-    int maxDraws = Math.clamp(req.maxDraws(), 1, 5000);
+    int daysBackVar = Math.clamp(req.daysBack(), 0, 14);
+    int maxDrawsVar = Math.clamp(req.maxDraws(), 1, 5000);
 
-    Map<String, String> baseParams = new HashMap<>();
+    // normalize + dedupe
+    final List<String> channelCodesNormalized = req.channelCodes().stream()
+        .filter(Objects::nonNull)
+        .map(s -> s.trim().toUpperCase(Locale.ROOT))
+        .filter(s -> !s.isBlank())
+        .distinct()
+        .toList();
+
+    if (channelCodesNormalized.isEmpty()) throw new IllegalArgumentException("channelCodes is required");
+    if (channelCodesNormalized.size() > 80) throw new IllegalArgumentException("channelCodes too large (max 80)");
+
+    final boolean forceFlag = req.force();
+    final boolean dryRunFlag = req.dryRun();
+
+    var baseParams = new HashMap<String, String>();
     baseParams.put("ops_trigger", "true");
-    baseParams.put("channel_code", req.channelCode());
-    baseParams.put("max_draws", Integer.toString(maxDraws));
-    baseParams.put("dry_run", Boolean.toString(req.dryRun()));
-    baseParams.put("force", Boolean.toString(req.force()));
+    baseParams.put("max_draws", Integer.toString(maxDrawsVar));
+    baseParams.put("dry_run", Boolean.toString(dryRunFlag));
+    baseParams.put("force", Boolean.toString(forceFlag));
 
-    if (ctx.effectiveTenantUuid() != null) {
+    // pass list once as CSV + hash
+    String csv = String.join(",", channelCodesNormalized);
+    baseParams.put("channel_codes", csv);
+    baseParams.put("channel_codes_hash", sha256Hex(csv));
+
+    if (ctx != null && ctx.effectiveTenantUuid() != null) {
       baseParams.put("tenant_id", ctx.effectiveTenantUuid().toString());
     }
-    if (ctx.userUuid() != null) {
+    if (ctx != null && ctx.userUuid() != null) {
       baseParams.put("triggered_by", ctx.userUuid().toString());
     }
-    if (ctx.requestId() != null) {
+    if (ctx != null && ctx.requestId() != null) {
       baseParams.put("request_id", ctx.requestId());
     }
 
-    // draw_date: si fourni => base, sinon today dans timezone du channel
-    LocalDate baseDate = resolveBaseDate(req.channelCode(), req.drawDate());
+    // baseDate: if drawDate not provided -> today UTC
+    final LocalDate baseDateVar =
+        (req.drawDate() != null && !req.drawDate().isBlank())
+            ? LocalDate.parse(req.drawDate(), YYYY_MM_DD)
+            : ZonedDateTime.now(clock).toLocalDate();
 
-    List<Long> executionIds = new ArrayList<>();
+    var executionIds =
+        IntStream.rangeClosed(0, daysBackVar)
+            .mapToObj(
+                i -> {
+                  var date = baseDateVar.minusDays(i);
+                  var params = new HashMap<>(baseParams);
+                  params.put("ts", Long.toString(System.currentTimeMillis()));
+                  params.put("draw_date", date.format(YYYY_MM_DD));
+                  params.put("days_back", "0"); // controller loops by days
 
-    for (int i = 0; i <= daysBack; i++) {
-      LocalDate date = baseDate.minusDays(i);
+                  if (ctx != null) {
+                    log.info(
+                        "OPS fetch_draw_results triggered: requestId={}, user={}, tenant={}, channelCount={}, drawDate={}, force={}, maxDraws={}, dryRun= {}",
+                        ctx.requestId(),
+                        ctx.userUuid(),
+                        ctx.effectiveTenantUuid(),
+                        channelCodesNormalized.size(),
+                        params.get("draw_date"),
+                        forceFlag,
+                        maxDrawsVar,
+                        dryRunFlag);
+                  } else {
+                    log.info(
+                        "OPS fetch_draw_results triggered for anonymous context: channelCount={}, drawDate={}",
+                        channelCodesNormalized.size(),
+                        date);
+                  }
 
-      Map<String, String> params = new HashMap<>(baseParams);
-      params.put("ts", Long.toString(System.currentTimeMillis()));
-      params.put("draw_date", date.format(YYYY_MM_DD));
-      params.put("days_back", "0"); // strict: la boucle est côté controller
+                  try {
+                    var execution = jobStarter.startFetchDrawResultsJob(params);
+                    return execution == null ? null : execution.getId();
+                  } catch (Exception ex) {
+                    log.warn("Failed to start job for date {}: {}", date, ex.getMessage());
+                    return null;
+                  }
+                })
+            .filter(Objects::nonNull)
+            .toList();
 
-      log.info(
-          "OPS fetch_draw_results triggered: requestId={}, user={}, tenant={}, channelCode={}, drawDate={}, force={}, maxDraws={}, dryRun={}",
-          ctx.requestId(),
-          ctx.userUuid(),
-          ctx.effectiveTenantUuid(),
-          req.channelCode(),
-          params.get("draw_date"),
-          req.force(),
-          maxDraws,
-          req.dryRun());
-
-      var execution = jobStarter.startFetchDrawResultsJob(params);
-      executionIds.add(execution.getId());
-    }
-
-    String jobName = "fetch_draw_results";
+    var jobName = "fetch_draw_results";
 
     var response =
-        new FetchDrawResultsResponse(jobName, true, ctx.requestId(), baseParams, -1L, executionIds);
+        new FetchDrawResultsResponse(
+            jobName, true, ctx == null ? null : ctx.requestId(), baseParams, -1L, executionIds);
 
     return ResponseEntity.accepted().body(response);
   }
 
-  private LocalDate resolveBaseDate(String channelCode, String drawDate) {
-    if (drawDate != null && !drawDate.isBlank()) {
-      return LocalDate.parse(drawDate, YYYY_MM_DD);
+  private static String sha256Hex(String s) {
+    try {
+      var md = MessageDigest.getInstance("SHA-256");
+      byte[] dig = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      var sb = new StringBuilder();
+      for (byte b : dig) sb.append(String.format("%02x", b));
+      return sb.toString();
+    } catch (Exception e) {
+      throw new IllegalStateException("sha256 failed", e);
     }
-
-    ZoneId zone = ZoneId.of("UTC");
-    var infoOpt = usLotteryGameRegistry.resolve(channelCode);
-    if (infoOpt.isPresent()) {
-      zone = infoOpt.get().timezone();
-    }
-    return ZonedDateTime.now(clock).withZoneSameInstant(zone).toLocalDate();
   }
 
   public record FetchDrawResultsRequest(
-      String channelCode,
-      @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "drawDate must be YYYY-MM-DD")
-          String drawDate,
+      List<String> channelCodes,
+      @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "drawDate must be YYYY-MM-DD") String drawDate,
       boolean force,
       @Min(0) @Max(14) int daysBack,
       @Min(1) @Max(5000) int maxDraws,
-      boolean dryRun) {
-
-    public FetchDrawResultsRequest() {
-      this(null, null, false, 0, 500, false);
-    }
-  }
+      boolean dryRun) {}
 
   public record FetchDrawResultsResponse(
       String jobName,

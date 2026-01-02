@@ -37,11 +37,12 @@ spring:
     servlet:
       path: ${app.base-path}/${app.api-version}
 
+  # global web security debug flag (default false)
+  websecurity:
+    debug: false
+
   # --- Datasource & JPA ---
   datasource:
-#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
-#    username: ${SPRING_DATASOURCE_USERNAME:app_user}
-#    password: ${SPRING_DATASOURCE_PASSWORD:devpass}
     hikari:
       maximum-pool-size: 10
       jdbc-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
@@ -92,8 +93,9 @@ spring:
       repositories:
         enabled: false
     rest:
-      base-path: /admin
       enabled: true
+      base-path: /_sdr
+      detection-strategy: annotated
 
 
 
@@ -207,10 +209,14 @@ logging:
   config: classpath:logback-spring.xml
   level:
     root: INFO
-    com.tchalanet.server: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.tchalanet.server: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+    org.springframework.security.oauth2.jwt: INFO
+    org.springframework.security.oauth2.server.resource: INFO
+    org.hibernate.SQL: INFO
+
 
 management:
   endpoints:

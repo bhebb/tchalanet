@@ -2,6 +2,8 @@ package com.tchalanet.server.features.reporting.tenantkpis;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/platform/reports/tenant-kpis")
 @RequiredArgsConstructor
+@Tag(name = "Platform • Reports")
 public class GetTenantKpisController {
 
   private final TchContextResolver contextResolver;
   private final GetTenantKpisUseCase useCase;
   private final Clock clockPort;
 
+  @Operation(summary = "Get tenant KPIs report (platform)")
   @GetMapping
   @RequiresPermission("reporting:view")
   public KpisResponse get(

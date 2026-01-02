@@ -40,6 +40,9 @@ public class TicketEntity extends BaseTenantEntity {
   @Column(name = "total_amount", nullable = false, precision = 14, scale = 2)
   private BigDecimal totalAmount;
 
+  @Column(name = "total_payout", nullable = false, precision = 14, scale = 2)
+  private BigDecimal totalPayout;
+
   @OneToMany(
       mappedBy = "ticket",
       cascade = CascadeType.ALL,

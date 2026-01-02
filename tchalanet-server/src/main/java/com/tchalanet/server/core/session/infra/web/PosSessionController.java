@@ -11,6 +11,8 @@ import com.tchalanet.server.core.session.application.command.model.CloseSessionC
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
 import com.tchalanet.server.core.session.application.query.model.GetCurrentSessionQuery;
 import com.tchalanet.server.core.session.domain.model.PosSession;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -27,12 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/sessions")
 @RequiredArgsConstructor
+@Tag(name = "Tenant • Sessions")
 public class PosSessionController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
   private final TchContextResolver contextResolver;
 
+  @Operation(summary = "Open a POS session (tenant)")
   @PostMapping("/open")
   public ResponseEntity<PosSession> open(
       @jakarta.validation.Valid @RequestBody OpenSessionRequest body) {
@@ -52,6 +56,7 @@ public class PosSessionController {
     return ResponseEntity.status(201).body(session);
   }
 
+  @Operation(summary = "Close a POS session (tenant)")
   @PostMapping("/{sessionId}/close")
   public ResponseEntity<PosSession> close(
       @PathVariable SessionId sessionId,
@@ -65,6 +70,7 @@ public class PosSessionController {
     return ResponseEntity.ok(session);
   }
 
+  @Operation(summary = "Get current session for a terminal (tenant)")
   @GetMapping("/current")
   public ResponseEntity<PosSession> current(@RequestParam TerminalId terminalId) {
     var ctx = contextResolver.currentOrNull();

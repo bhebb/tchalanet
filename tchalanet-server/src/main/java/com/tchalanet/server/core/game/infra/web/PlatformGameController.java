@@ -2,6 +2,7 @@ package com.tchalanet.server.core.game.infra.web;
 
 import com.tchalanet.server.core.game.infra.persistence.GameJpaEntity;
 import com.tchalanet.server.core.game.infra.service.PlatformGameService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/games")
 @RequiredArgsConstructor
+@Tag(name = "Platform • Games")
 public class PlatformGameController {
 
   private final PlatformGameService service;

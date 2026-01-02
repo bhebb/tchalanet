@@ -42,17 +42,17 @@ public class PublicHomeDynamicDataService {
               .collect(Collectors.toSet());
     }
 
-    HeroBlock hero =
+    var hero =
         sources.contains("hero") ? heroProvider.buildHeroBlock(pageModel, currentLang) : null;
     var features =
         sources.contains("features")
             ? featuresProvider.buildFeaturesBlock(pageModel, currentLang)
             : null;
-    PlansBlock plans =
+    var plans =
         sources.contains("plans") ? plansProvider.buildPlansBlock(pageModel, currentLang) : null;
-    NewsBlock news =
+    var news =
         sources.contains("news") ? newsProvider.buildNewsBlock(pageModel, currentLang) : null;
-    ResultsByGameBlock resultsByGame =
+    var resultsByGame =
         sources.contains("results_by_game")
             ? resultsProvider.buildResultsBlock(pageModel, currentLang)
             : null;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.security;
 
 import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
-import static com.tchalanet.server.common.constant.SecurityClaims.TENANT_ID_CLAIMS;
+import static com.tchalanet.server.common.constant.SecurityClaims.TENANT_CODE;
 import static com.tchalanet.server.common.constant.TchHeaders.*;
 
 import com.tchalanet.server.common.bootstrap.tenant.TenantBootstrapLookup;
@@ -32,14 +32,22 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * Publishes a per-request context (tenant, user, roles, request metadata) for downstream layers.
+ *
+ * <p>- Reads tenant from JWT claim "tenant_code" (no retro-compat). - Reads roles via RoleUtils
+ * (supports Keycloak realm_access.roles + root roles claim). - Stores Keycloak user id = JWT "sub"
+ * (jwt.getSubject()). - SUPER_ADMIN can override tenant via X-Tenant-Id (or ?tenantId=...).
+ *
+ * <p>Order: runs late so SecurityContext is already populated by BearerTokenAuthenticationFilter.
+ */
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 20)
+@Order(Ordered.LOWEST_PRECEDENCE - 50)
 @RequiredArgsConstructor
 @Slf4j
 public class TchContextFilter extends OncePerRequestFilter {
 
   private final ApiProperties props;
-
   private final TenantBootstrapLookup tenantLookup;
 
   private final TenantCodeToUuidCache tenantCache = new TenantCodeToUuidCache();
@@ -51,44 +59,26 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     TchRequestContext ctx = null;
     try {
-      var scope = ApiScopeResolver.resolve(req);
+      ApiScope scope = ApiScopeResolver.resolve(req);
 
-      // default tenant allowed ONLY for PUBLIC (per your decision)
+      // default tenant allowed ONLY for PUBLIC
       String defaultTenant =
           ApiScopeResolver.allowDefaultTenant(req) ? props.defaultTenant() : null;
 
       ctx = buildBaseContext(req, defaultTenant);
 
-      // tenant required only for TENANT scope
+      // Tenant UUID resolution rules:
+      // - TENANT scope: tenant is required (from JWT tenant_code or defaultTenant for PUBLIC-only)
+      // - PUBLIC scope: resolve if present (to enable RLS even on public if you want)
       if (scope == ApiScope.TENANT) {
-        String code = ctx.effectiveTenantCode();
-        if (StringUtils.isBlank(code)) {
-          res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant required");
-          return;
-        }
-        Optional<UUID> uuid = resolveTenantUuid(code.trim());
-        if (uuid.isEmpty()) {
-          res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
-          return;
-        }
-        ctx = ctx.withEffectiveTenantUuid(uuid.get());
-      }
-
-      // OPTIONAL: if PUBLIC has default tenant, you may want to resolve UUID too (to enable RLS for
-      // public)
-      if (scope == ApiScope.PUBLIC) {
-        String code = ctx.effectiveTenantCode();
-        if (StringUtils.isNotBlank(code) && ctx.tenantUuid() == null) {
-          resolveTenantUuid(code.trim())
-              .ifPresent(
-                  uuid -> {
-                    // note: needs effectively final; easiest is to rebuild below after resolve
-                  });
-          Optional<UUID> uuid = resolveTenantUuid(code.trim());
-          if (uuid.isPresent()) {
-            ctx = ctx.withEffectiveTenantUuid(uuid.get());
-          }
-        }
+        ctx = requireAndResolveTenant(req, res, ctx);
+        if (ctx == null) return; // response already written
+      } else if (scope == ApiScope.PUBLIC) {
+        ctx = optionallyResolveTenant(ctx);
+      } else {
+        // ADMIN / PLATFORM: typically tenant comes from JWT claim and is optional at this stage,
+        // but if your app requires it for ADMIN, just call requireAndResolveTenant() here too.
+        ctx = optionallyResolveTenant(ctx);
       }
 
       // publish context
@@ -97,32 +87,64 @@ public class TchContextFilter extends OncePerRequestFilter {
       putMdc(ctx);
 
       chain.doFilter(req, res);
-
     } finally {
       MDC.clear();
       TchContext.clear();
     }
   }
 
-  private TchRequestContext buildBaseContext(HttpServletRequest req, String defaultTenant) {
-    var requestId =
-        Optional.ofNullable(req.getHeader(X_REQUEST_ID))
-            .orElseGet(() -> UUID.randomUUID().toString());
-    var clientIp =
-        Optional.ofNullable(req.getHeader(X_FORWARDED_FOR)).orElseGet(req::getRemoteAddr);
-    var locale = req.getLocale();
+  private TchRequestContext requireAndResolveTenant(
+      HttpServletRequest req, HttpServletResponse res, TchRequestContext ctx) throws IOException {
 
-    var authData = extractAuthData(req, defaultTenant);
-    var deletedVisibility =
+    String code = ctx.effectiveTenantCode();
+    if (StringUtils.isBlank(code)) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant required");
+      return null;
+    }
+
+    Optional<UUID> uuid = resolveTenantUuid(code.trim());
+    if (uuid.isEmpty()) {
+      res.sendError(HttpServletResponse.SC_FORBIDDEN, "Tenant not found");
+      return null;
+    }
+    return ctx.withEffectiveTenantUuid(uuid.get());
+  }
+
+  private TchRequestContext optionallyResolveTenant(TchRequestContext ctx) {
+    String code = ctx.effectiveTenantCode();
+    if (StringUtils.isBlank(code)) return ctx;
+
+    if (ctx.tenantUuid() != null) return ctx;
+
+    Optional<UUID> uuid = resolveTenantUuid(code.trim());
+    return uuid.map(ctx::withEffectiveTenantUuid).orElse(ctx);
+  }
+
+  private TchRequestContext buildBaseContext(HttpServletRequest req, String defaultTenant) {
+    String requestId =
+        Optional.ofNullable(req.getHeader(X_REQUEST_ID))
+            .filter(StringUtils::isNotBlank)
+            .orElseGet(() -> UUID.randomUUID().toString());
+
+    String clientIp =
+        Optional.ofNullable(req.getHeader(X_FORWARDED_FOR))
+            .filter(StringUtils::isNotBlank)
+            .orElseGet(req::getRemoteAddr);
+
+    var locale = req.getLocale();
+    String userAgent = Optional.ofNullable(req.getHeader("User-Agent")).orElse(null);
+
+    AuthData authData = extractAuthData(req, defaultTenant);
+
+    String deletedVisibility =
         resolveDeletedVisibility(req, authData.systemRoles.contains(TchRole.SUPER_ADMIN));
-    var userAgent = Optional.ofNullable(req.getHeader("User-Agent")).orElse(null);
 
     return new TchRequestContext(
         authData.originalTenantCode,
-        null, // originalTenantUuid resolved later (not needed for now)
+        null, // originalTenantUuid resolved later (optional)
         authData.effectiveTenantCode,
         null, // effectiveTenantUuid resolved later
-        authData.keycloakUserId,
+        authData.keycloakUserId, // <-- Keycloak "sub" (UUID string)
         null, // appUserId filled later via bootstrap
         authData.systemRoles,
         authData.customRoles,
@@ -135,11 +157,14 @@ public class TchContextFilter extends OncePerRequestFilter {
   }
 
   private AuthData extractAuthData(HttpServletRequest req, String defaultTenant) {
+    // Defaults (PUBLIC only)
     String originalTenantCode = defaultTenant;
     String effectiveTenantCode = defaultTenant;
+
+    // Persist this in your DB (Keycloak Admin API expects this id)
     String keycloakUserId = null;
 
-    var systemRoles = new HashSet<TchRole>();
+    Set<TchRole> systemRoles = new HashSet<>();
     Set<String> customRoles = new HashSet<>();
     boolean overridden = false;
 
@@ -165,22 +190,23 @@ public class TchContextFilter extends OncePerRequestFilter {
           customRoles);
     }
 
+    // 0) Keycloak user id (sub)
     keycloakUserId = jwt.getSubject();
 
-    // 1) tenant from JWT claim
-    String jwtTenant = jwt.getClaimAsString(TENANT_ID_CLAIMS);
+    // 1) tenant from JWT claim (no retro-compat)
+    String jwtTenant = jwt.getClaimAsString(TENANT_CODE);
     if (StringUtils.isNotBlank(jwtTenant)) {
-      originalTenantCode = jwtTenant;
-      effectiveTenantCode = jwtTenant;
+      originalTenantCode = jwtTenant.trim();
+      effectiveTenantCode = jwtTenant.trim();
     }
 
     // 2) roles
-    var rawRoles = RoleUtils.collectRoles(jwt);
-    var split = RoleUtils.splitRoles(rawRoles);
+    Set<String> rawRoles = RoleUtils.collectRoles(jwt);
+    RoleUtils.RoleSplit split = RoleUtils.splitRoles(rawRoles);
     systemRoles.addAll(split.system);
-    customRoles = split.custom;
+    customRoles.addAll(split.custom);
 
-    // 3) SA override
+    // 3) SUPER_ADMIN override via header/query
     if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
       String overrideTenant =
           Optional.ofNullable(req.getHeader(X_TENANT_ID)).orElse(req.getParameter("tenantId"));
@@ -235,7 +261,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     MDC.put("tenant_original", valueOrDash(ctx.originalTenantCode()));
     MDC.put("tenant_effective", valueOrDash(ctx.effectiveTenantCode()));
     MDC.put("tenant_overridden", String.valueOf(ctx.tenantOverridden()));
-    MDC.put("user", valueOrDash(ctx.keycloakUserId()));
+    MDC.put("kc_user_id", valueOrDash(ctx.keycloakUserId()));
     MDC.put("reqId", valueOrDash(ctx.requestId()));
   }
 

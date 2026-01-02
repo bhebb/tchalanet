@@ -6,6 +6,8 @@ import com.tchalanet.server.common.settings.query.ResolveAppSettingsQuery;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/settings")
 @RequiredArgsConstructor
+@Tag(name = "Admin • App Settings")
 public class AppSettingsController {
 
   private final QueryBus queryBus;
 
+  @Operation(summary = "Resolve app settings for a tenant/outlet/terminal (admin)")
   @GetMapping("/resolve")
   public ResponseEntity<List<ResolvedSettingDto>> resolve(
       @RequestParam UUID tenantId,

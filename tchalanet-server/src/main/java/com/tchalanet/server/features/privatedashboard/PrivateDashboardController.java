@@ -5,6 +5,8 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.privatedashboard.block.PrivateDashboardDynamicPayload;
 import com.tchalanet.server.features.privatedashboard.dynamic.PrivateDashboardDynamicDataService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/private/dashboard")
+@RequestMapping("/admin/private/dashboard")
 @RequiredArgsConstructor
+@Tag(name = "Tenant • Dashboard")
 public class PrivateDashboardController {
 
   private final PrivateDashboardService service;
   private final PrivateDashboardDynamicDataService dynamicDataService;
 
+  @Operation(summary = "Get private dashboard for current user (tenant)")
   @GetMapping
   public ResponseEntity<ApiResponse<PrivateDashboardResponse>> getDashboard(
       @RequestParam(name = "lang", required = false) String lang,
@@ -37,7 +41,8 @@ public class PrivateDashboardController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/tenant/{tenantId}")
+  @Operation(summary = "Get tenant dashboard for superadmin (tenant view)")
+  @GetMapping("/{tenantId}")
   public ResponseEntity<ApiResponse<PrivateDashboardDynamicPayload>>
       getTenantDashboardForSuperadmin(
           @PathVariable TenantId tenantId,
@@ -50,6 +55,7 @@ public class PrivateDashboardController {
     return ResponseEntity.ok(response);
   }
 
+  @Operation(summary = "Get cashier dashboard for superadmin (tenant view)")
   @GetMapping("/tenant/{tenantId}/cashier/{cashierId}")
   public ResponseEntity<ApiResponse<PrivateDashboardDynamicPayload>>
       getCashierDashboardForSuperadmin(

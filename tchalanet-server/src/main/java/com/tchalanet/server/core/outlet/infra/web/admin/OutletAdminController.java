@@ -9,6 +9,9 @@ import com.tchalanet.server.core.outlet.application.query.model.GenerateOutletRe
 import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
 import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
 import com.tchalanet.server.core.outlet.infra.web.model.CloseOutletDayRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,11 +28,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/outlets")
 @RequiredArgsConstructor
+@Tags({@Tag(name = "Admin • Outlets")})
 public class OutletAdminController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
+  @Operation(summary = "Patch outlet configuration (admin)")
   @PatchMapping("/{id}/config")
   public ResponseEntity<Void> updateConfig(
       @PathVariable OutletId id,
@@ -39,6 +44,7 @@ public class OutletAdminController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Close outlet day (admin)")
   @PostMapping("/{id}/close-day")
   public ResponseEntity<Void> closeDay(
       @PathVariable OutletId id,
@@ -53,6 +59,7 @@ public class OutletAdminController {
     return ResponseEntity.accepted().build();
   }
 
+  @Operation(summary = "Reopen outlet day (admin)")
   @PostMapping("/{id}/reopen-day")
   public ResponseEntity<Void> reopenDay(
       @PathVariable OutletId id, @RequestHeader("X-Tenant-Id") TenantId tenantId) {
@@ -60,6 +67,7 @@ public class OutletAdminController {
     return ResponseEntity.accepted().build();
   }
 
+  @Operation(summary = "Get outlet daily summary (admin)")
   @GetMapping("/{id}/daily-summary")
   public ResponseEntity<OutletDailySummary> dailySummary(
       @PathVariable OutletId id,
@@ -70,6 +78,7 @@ public class OutletAdminController {
     return ResponseEntity.ok(summary);
   }
 
+  @Operation(summary = "Generate outlet report (admin)")
   @GetMapping("/{id}/report")
   public ResponseEntity<String> generateReport(
       @PathVariable OutletId id,
@@ -83,6 +92,7 @@ public class OutletAdminController {
     return ResponseEntity.ok(path.toString());
   }
 
+  @Operation(summary = "Download outlet report (admin)")
   @GetMapping("/{id}/report/download")
   public ResponseEntity<Resource> downloadReport(
       @PathVariable OutletId id,

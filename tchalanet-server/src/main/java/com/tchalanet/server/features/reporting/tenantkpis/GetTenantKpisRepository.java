@@ -31,7 +31,7 @@ public class GetTenantKpisRepository {
     var query = em.createNativeQuery(sql);
     query.setParameter("tenantId", tenantId);
     query.setParameter("fromDate", LocalDate.from(fromDate));
-    query.setParameter("toDate", LocalDate.from(fromDate));
+    query.setParameter("toDate", LocalDate.from(toDate));
 
     Object[] row = (Object[]) query.getSingleResult();
 

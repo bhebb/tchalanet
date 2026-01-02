@@ -9,6 +9,8 @@ import com.tchalanet.server.core.sales.application.command.model.*;
 import com.tchalanet.server.core.sales.application.query.model.*;
 import com.tchalanet.server.core.sales.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.infra.web.model.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
+@Tag(name = "Tenant • Tickets")
 public class TicketController {
 
   private final CommandBus commandBus;
@@ -25,6 +28,7 @@ public class TicketController {
   private final TicketWebMapper mapper;
 
   // --- SELL ---
+  @Operation(summary = "Sell a ticket (tenant)")
   @PostMapping
   public ResponseEntity<TicketResponse> sell(@Valid @RequestBody SellTicketRequest request) {
     var cmd = mapper.toSellCommand(request);
@@ -39,6 +43,7 @@ public class TicketController {
   }
 
   // --- LIST ---
+  @Operation(summary = "List tickets for tenant with filters")
   @GetMapping
   public ResponseEntity<PagedResponse<TicketSummaryResponse>> list(
       @RequestParam(required = false) TerminalId terminalId,
@@ -55,6 +60,7 @@ public class TicketController {
   }
 
   // --- DETAILS ---
+  @Operation(summary = "Get ticket details (tenant)")
   @GetMapping("/{ticketId}")
   public ResponseEntity<TicketResponse> details(@PathVariable TicketId ticketId) {
     GetTicketDetailsQuery q = new GetTicketDetailsQuery(ticketId);
@@ -65,6 +71,7 @@ public class TicketController {
     return ResponseEntity.ok(mapper.toTicketResponse(dto));
   }
 
+  @Operation(summary = "Cancel a ticket (tenant)")
   @PatchMapping("/{ticketId}/cancel")
   public ResponseEntity<CancelSaleResponse> cancel(
       @PathVariable TicketId ticketId, @Valid @RequestBody CancelTicketRequest request) {
@@ -75,6 +82,7 @@ public class TicketController {
   }
 
   // --- PAYMENT PENDING ---
+  @Operation(summary = "Mark ticket payment pending (tenant)")
   @PatchMapping("/{ticketId}/payment-pending")
   public ResponseEntity<TicketResponse> paymentPending(
       @PathVariable TicketId ticketId, @Valid @RequestBody MarkPaymentPendingRequest request) {
@@ -84,6 +92,7 @@ public class TicketController {
   }
 
   // --- PAID ---
+  @Operation(summary = "Mark ticket paid (tenant)")
   @PatchMapping("/{ticketId}/paid")
   public ResponseEntity<TicketResponse> paid(
       @PathVariable TicketId ticketId, @Valid @RequestBody MarkPaidRequest request) {
@@ -93,6 +102,7 @@ public class TicketController {
   }
 
   // --- PRINT ---
+  @Operation(summary = "Get printable ticket content (tenant)")
   @GetMapping("/{ticketId}/print")
   public ResponseEntity<String> print(@PathVariable TicketId ticketId) {
     var cmd = new PrintTicketCommand(ticketId);

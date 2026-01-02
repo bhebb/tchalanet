@@ -68,6 +68,6 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   public int bulkClose(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) return 0;
     UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
-    return repo.bulkClose(null, ids);
+    return repo.bulkClose(ids);
   }
 }

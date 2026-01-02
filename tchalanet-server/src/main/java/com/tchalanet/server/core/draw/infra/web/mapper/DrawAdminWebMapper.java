@@ -23,6 +23,20 @@ public interface DrawAdminWebMapper {
 
   OverrideDrawResultCommand toOverrideDrawResultCommand(OverrideDrawResultRequest request);
 
+  @Mapping(target = "channelCode", source = "summary.channelCode")
+  @Mapping(target = "channelName", source = "summary.channelName")
+  @Mapping(target = "status", source = "summary.status")
+  @Mapping(
+      target = "drawTime",
+      expression =
+          "java(summary.scheduledAt() == null ? null : summary.scheduledAt().toOffsetDateTime())")
+  @Mapping(
+      target = "cutoffTime",
+      expression =
+          "java(summary.cutoffTime() == null ? null : summary.cutoffTime().toOffsetDateTime())")
+  @Mapping(target = "isNext", source = "summary.isNext")
+  @Mapping(target = "active", source = "summary.active")
+  @Mapping(target = "lastResult", source = "summary.lastResult")
   DrawSummaryResponse toDrawSummaryResponse(DrawSummary summary);
 
   default DrawId mapDrawId(UUID value) {

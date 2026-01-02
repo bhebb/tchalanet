@@ -11,6 +11,7 @@ import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutono
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleQuery;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleResult;
 import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/agents/{agentId}/autonomy")
 @RequiredArgsConstructor
+@Tag(
+    name = "Admin • Agent Autonomy",
+    description = "Manage autonomy policy for a tenant agent (admin)")
 public class AgentAutonomyController {
 
   private final CommandBus commandBus;

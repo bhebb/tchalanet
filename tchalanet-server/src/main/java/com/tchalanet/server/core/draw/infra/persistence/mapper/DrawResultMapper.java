@@ -24,7 +24,7 @@ public interface DrawResultMapper {
         DrawSource.valueOf(e.getSource()),
         numbersMain,
         numbersExtra,
-        e.getCreatedAt() == null ? Instant.now() : e.getCreatedAt(),
+        e.getOccurredAt() == null ? Instant.now() : e.getOccurredAt(),
         e.getRawPayload() == null ? null : e.getRawPayload().toString(),
         e.getOverriddenAt() != null,
         e.getOverrideReason());
@@ -38,7 +38,12 @@ public interface DrawResultMapper {
     e.setStatus(d.overridden() ? "OVERRIDDEN" : "VALID");
     e.setNumbersMain(d.numbersMain() == null ? null : List.copyOf(d.numbersMain()));
     e.setNumbersExtra(d.numbersExtra() == null ? null : List.copyOf(d.numbersExtra()));
+    // raw payload in entity is a json map; store the raw string under key 'raw' for compatibility
     e.setRawPayload(Map.of("raw", d.rawPayload()));
+    // occurredAt should be persisted if provided
+    if (d.occurredAt() != null) {
+      e.setOccurredAt(d.occurredAt());
+    }
     if (d.overridden()) {
       e.setOverriddenAt(Instant.now());
       e.setOverrideReason(d.overrideReason());

@@ -10,6 +10,8 @@ import com.tchalanet.server.core.limitpolicy.application.command.model.DeleteLim
 import com.tchalanet.server.core.limitpolicy.application.query.model.GetLimitAssignmentsQuery;
 import com.tchalanet.server.core.limitpolicy.application.query.model.GetLimitAssignmentsResult;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/tenant/agents/{agentId}/limit-assignments")
 @RequiredArgsConstructor
+@Tag(name = "Tenant • Limits")
 public class AgentLimitAssignmentsController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
+  @Operation(summary = "Get limit assignments for an agent (tenant)")
   @GetMapping
   public GetLimitAssignmentsResult getAssignments(
       @PathVariable AgentId agentId, @RequestParam TenantId tenantId) {
     return queryBus.send(new GetLimitAssignmentsQuery(tenantId, TargetType.AGENT, agentId.uuid()));
   }
 
+  @Operation(summary = "Create limit assignment for an agent (tenant)")
   @PostMapping
   public LimitAssignment createAssignment(
       @PathVariable AgentId agentId,
@@ -45,6 +50,7 @@ public class AgentLimitAssignmentsController {
     return commandBus.send(cmd);
   }
 
+  @Operation(summary = "Delete a limit assignment for an agent (tenant)")
   @DeleteMapping("/{assignmentId}")
   public void deleteAssignment(
       @PathVariable AgentId agentId,

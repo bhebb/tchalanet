@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.audit.domain.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
 import java.time.Instant;
 import java.util.Map;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class AuditEventFactory {
 
   private final TchContextResolver contextResolver;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   public AuditEvent build(
       AuditEntityType entityType,
@@ -47,7 +47,7 @@ public class AuditEventFactory {
             .map(
                 d -> {
                   try {
-                    return objectMapper.writeValueAsString(d);
+                    return jsonUtils.toJson(d);
                   } catch (Exception ex) {
                     log.error("Failed to serialize audit details", ex);
                     return "{}";

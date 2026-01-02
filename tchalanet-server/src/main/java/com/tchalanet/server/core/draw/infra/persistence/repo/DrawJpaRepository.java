@@ -18,6 +18,12 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
   List<DrawJpaEntity> findByTenantIdAndScheduledAtBetweenOrderByScheduledAt(
       UUID tenantId, Instant from, Instant to);
 
+  // JPQL variant that fetches drawChannel to avoid LazyInitializationException in adapters
+  @Query(
+      "select d from DrawJpaEntity d left join fetch d.drawChannel ch where d.tenantId = :tenantId and d.scheduledAt between :from and :to order by d.scheduledAt asc")
+  List<DrawJpaEntity> findByTenantIdAndScheduledAtBetweenFetchChannelOrderByScheduledAt(
+      @Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
+
   // finds draws ready to be settled: status = 'CLOSED' and scheduled_at <= before
   List<DrawJpaEntity> findByStatusAndScheduledAtBeforeAndDeletedAtIsNull(
       String status, Instant before);
@@ -33,17 +39,16 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
   @Transactional
   @Query(
       value =
-          "INSERT INTO draw (id, tenant_id, draw_channel_id, game_code, scheduled_at, cutoff_sec, status, result_payload, created_at, updated_at, version) VALUES (:id, :tenantId, :drawChannelId, :gameCode, :scheduledAt, :cutoffSec, :status, CAST(:resultPayload AS jsonb), now(), now(), 0) ON CONFLICT (tenant_id, draw_channel_id, scheduled_at) DO NOTHING",
+          "INSERT INTO draw (id, tenant_id, draw_channel_id, scheduled_at, cutoff_sec, status, draw_source, created_at, updated_at, version) VALUES (:id, :tenantId, :drawChannelId, :scheduledAt, :cutoffSec, :status, :drawSource, now(), now(), 0) ON CONFLICT (tenant_id, draw_channel_id, scheduled_at) WHERE deleted_at IS NULL DO NOTHING",
       nativeQuery = true)
   int insertIfNotExists(
       @Param("id") UUID id,
       @Param("tenantId") UUID tenantId,
       @Param("drawChannelId") UUID drawChannelId,
-      @Param("gameCode") String gameCode,
       @Param("scheduledAt") Instant scheduledAt,
       @Param("cutoffSec") Integer cutoffSec,
       @Param("status") String status,
-      @Param("resultPayload") String resultPayload);
+      @Param("drawSource") String drawSource);
 
   List<DrawJpaEntity> findByTenantIdAndScheduledAtBetween(UUID tenantId, Instant from, Instant to);
 
@@ -104,14 +109,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
           """
             update draw
             set status='CLOSED', updated_at=now()
-            where tenant_id=:tenantId
-              and deleted_at is null
+            where deleted_at is null
               and locked=false
               and id = any(:ids)
               and status in ('SCHEDULED','OPEN')
             """,
       nativeQuery = true)
-  int bulkClose(@Param("tenantId") UUID tenantId, @Param("ids") UUID[] ids);
+  int bulkClose(@Param("ids") UUID[] ids);
 
   // --- lifecycle queries migrated from DrawLifecycleJpaRepository ---
 

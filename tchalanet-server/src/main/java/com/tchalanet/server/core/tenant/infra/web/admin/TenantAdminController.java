@@ -10,6 +10,7 @@ import com.tchalanet.server.core.tenant.application.command.model.CreateTenantCo
 import com.tchalanet.server.core.tenant.application.command.model.DeactivateTenantCommand;
 import com.tchalanet.server.core.tenant.application.query.model.GetTenantByIdQuery;
 import com.tchalanet.server.core.tenant.application.query.model.ResolveTenantIdByCodeQuery;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Platform • Tenants")
 @RestController
 @RequestMapping("/platform/tenants")
 @RequiredArgsConstructor

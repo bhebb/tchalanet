@@ -14,6 +14,8 @@ import com.tchalanet.server.core.draw.infra.web.model.CreateDrawChannelRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawChannelResponse;
 import com.tchalanet.server.core.draw.infra.web.model.DrawChannelSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawChannelRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +34,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/draw-channels")
 @RequiredArgsConstructor
 @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@Tag(name = "Admin • Draw Channels")
 public class DrawChannelController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
   private final DrawChannelWebMapper mapper;
 
+  @Operation(summary = "List draw channels (admin)")
   @GetMapping
   public List<DrawChannelSummaryResponse> list(
       @RequestParam TenantId tenantId, @RequestParam(required = false) Boolean activeOnly) {
@@ -53,6 +57,7 @@ public class DrawChannelController {
     }
   }
 
+  @Operation(summary = "Get draw channel by id (admin)")
   @GetMapping("/{id}")
   public ResponseEntity<DrawChannelResponse> get(
       @PathVariable DrawChannelId id, @RequestParam TenantId tenantId) {
@@ -64,6 +69,7 @@ public class DrawChannelController {
     }
   }
 
+  @Operation(summary = "Create a draw channel (admin)")
   @PostMapping
   public ResponseEntity<DrawChannelResponse> create(@RequestBody CreateDrawChannelRequest request) {
     var command = mapper.toCreateCommand(request);
@@ -71,6 +77,7 @@ public class DrawChannelController {
     return ResponseEntity.ok(mapper.toResponse(saved));
   }
 
+  @Operation(summary = "Update a draw channel (admin)")
   @PutMapping
   public ResponseEntity<DrawChannelResponse> update(@RequestBody UpdateDrawChannelRequest request) {
     var command = mapper.toUpdateCommand(request);

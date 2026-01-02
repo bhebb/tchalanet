@@ -17,6 +17,8 @@ import com.tchalanet.server.core.accesscontrol.infra.web.model.PermissionRespons
 import com.tchalanet.server.core.accesscontrol.infra.web.model.RoleAdminResponse;
 import com.tchalanet.server.core.accesscontrol.infra.web.model.UpdateRolePermissionsRequest;
 import com.tchalanet.server.core.accesscontrol.infra.web.model.UpsertRoleRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@Tag(name = "Admin • Access Control")
 public class AccessControlAdminController {
 
   private final CommandBus commandBus;
@@ -42,6 +45,7 @@ public class AccessControlAdminController {
 
   // --- ROLES ---
 
+  @Operation(summary = "List roles (admin)")
   @GetMapping("/roles")
   @RequiresPermission("roles.manage")
   public List<RoleAdminResponse> listRoles(@RequestParam(required = false) TenantId tenantId) {
@@ -51,6 +55,7 @@ public class AccessControlAdminController {
         .collect(Collectors.toList());
   }
 
+  @Operation(summary = "Create or update a role (admin)")
   @PostMapping("/roles")
   @RequiresPermission("roles.manage")
   public UUID upsertRole(@Valid @RequestBody UpsertRoleRequest request) {
@@ -78,6 +83,7 @@ public class AccessControlAdminController {
 
   // --- PERMISSIONS ---
 
+  @Operation(summary = "List permissions (admin)")
   @GetMapping("/permissions")
   @RequiresPermission("roles.manage")
   public List<PermissionResponse> listPermissions() {
@@ -87,12 +93,14 @@ public class AccessControlAdminController {
         .collect(Collectors.toList());
   }
 
+  @Operation(summary = "Get role permissions (admin)")
   @GetMapping("/roles/{roleId}/permissions")
   @RequiresPermission("roles.manage")
   public Set<String> getRolePermissions(@PathVariable RoleId roleId) {
     return queryBus.send(new ListRolePermissionsQuery(roleId));
   }
 
+  @Operation(summary = "Update role permissions (admin)")
   @PutMapping("/roles/{roleId}/permissions")
   @RequiresPermission("roles.manage")
   public void updateRolePermissions(

@@ -4,6 +4,8 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Map;
 import org.springframework.cache.CacheManager;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/platform/cache")
+@Tag(name = "Ops • Cache")
 public class CacheAdminController {
 
   private final CacheManager cacheManager;
@@ -27,6 +30,7 @@ public class CacheAdminController {
     this.audit = audit;
   }
 
+  @Operation(summary = "List cache names (ops)")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   @GetMapping("/list")
   public ResponseEntity<List<String>> listCaches() {
@@ -34,6 +38,7 @@ public class CacheAdminController {
     return ResponseEntity.ok(names);
   }
 
+  @Operation(summary = "Clear a named cache (ops)")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   @DeleteMapping("/clear/{cacheName}")
   public ResponseEntity<Void> clearCache(@PathVariable("cacheName") String cacheName) {
@@ -49,6 +54,7 @@ public class CacheAdminController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Clear all caches (ops)")
   @PreAuthorize("hasRole('SUPER_ADMIN')")
   @DeleteMapping("/clear-all")
   public ResponseEntity<Void> clearAll() {

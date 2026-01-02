@@ -86,8 +86,9 @@ public abstract class DrawMapper {
     entity.setId(domain.id().value());
     entity.setTenantId(domain.tenantId().uuid());
 
-    // map drawChannel domain -> entity using DrawChannelMapper
-    entity.setDrawChannel(drawChannelMapper.toEntity(domain.drawChannel()));
+    // map drawChannel domain -> entity using DrawChannelMapper (default helper ensures key fields)
+    var channelEntity = drawChannelMapper.toEntityDefault(domain.drawChannel());
+    entity.setDrawChannel(channelEntity);
 
     // only set fields that exist on domain.Draw
     entity.setScheduledAt(java.time.Instant.from(domain.scheduledAt()));

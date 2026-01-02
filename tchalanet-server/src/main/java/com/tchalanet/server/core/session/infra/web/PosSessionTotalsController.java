@@ -8,6 +8,8 @@ import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPe
 import com.tchalanet.server.core.session.application.command.model.RecomputePosSessionTotalsCommand;
 import com.tchalanet.server.core.session.application.query.model.GetSessionTotalsQuery;
 import com.tchalanet.server.core.session.domain.model.PosSessionTotals;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/tenant/sessions")
 @RequiredArgsConstructor
+@Tag(name = "Tenant • Sessions")
 public class PosSessionTotalsController {
 
   private final CommandBus commandBus;
@@ -23,6 +26,7 @@ public class PosSessionTotalsController {
   private final TchContextResolver contextResolver;
 
   /** Read totals for one session (optional endpoint). */
+  @Operation(summary = "Get session totals (tenant)")
   @GetMapping("/{sessionId}/totals")
   @RequiresPermission("session.read")
   public ResponseEntity<PosSessionTotals> getTotals(@PathVariable SessionId sessionId) {
@@ -35,6 +39,7 @@ public class PosSessionTotalsController {
   }
 
   /** Force recompute totals projection from source of truth (sales/payout or ledger later). */
+  @Operation(summary = "Recompute session totals (tenant, restricted)")
   @PostMapping("/{sessionId}/totals/recompute")
   @RequiresPermission("session.totals.recompute") // admin/manager only
   public ResponseEntity<PosSessionTotals> recompute(@PathVariable SessionId sessionId) {

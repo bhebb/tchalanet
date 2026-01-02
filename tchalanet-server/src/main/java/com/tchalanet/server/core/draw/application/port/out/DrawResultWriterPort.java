@@ -6,7 +6,7 @@ import com.tchalanet.server.core.draw.application.query.model.DrawResultOverride
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 
 public interface DrawResultWriterPort {
-  DrawResult save(DrawResult result);
+  DrawResult save(TenantId tenantId, DrawResult result);
 
   DrawResult save(TenantId tenantId, DrawId drawId, DrawResult result);
 

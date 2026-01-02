@@ -7,7 +7,10 @@
     },
     {
       "clientId": "tchalanet-swagger",
-      "redirectUris": ["https://api.stg.tchalanet.com/swagger-ui/oauth2-redirect.html"],
+      "redirectUris": [
+        "https://api.stg.tchalanet.com/swagger-ui/oauth2-redirect.html",
+        "https://api.stg.tchalanet.com/api/v1/swagger-ui/oauth2-redirect.html"
+      ],
       "webOrigins": ["https://api.stg.tchalanet.com"]
     }
   ]

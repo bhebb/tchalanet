@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@RepositoryRestResource(path = "tenant-users", collectionResourceRel = "tenant-users")
+@RepositoryRestResource(exported = true, path = "tenant-users")
 public interface TenantUserRepository extends JpaRepository<TenantUserEntity, UUID> {
 
   List<TenantUserEntity> findByTenantIdAndUserId(UUID tenantId, String userId);

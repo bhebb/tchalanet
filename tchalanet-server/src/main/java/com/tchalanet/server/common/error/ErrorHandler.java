@@ -3,7 +3,6 @@ package com.tchalanet.server.common.error;
 import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
-import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +12,7 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -26,82 +26,74 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RequiredArgsConstructor
 public class ErrorHandler {
 
-  private final JsonUtils jsonUtils;
+  private static final MediaType PROBLEM_JSON = MediaType.APPLICATION_PROBLEM_JSON;
 
-  private static MediaType negotiate(HttpServletRequest req) {
-    var accept = req.getHeader("Accept");
-    if (accept != null && accept.contains("application/vnd.hal+json")) {
-      return MediaType.parseMediaType("application/vnd.hal+json");
-    }
-    // prefer RFC7807 problem+json
-    return MediaType.APPLICATION_PROBLEM_JSON;
-  }
-
-  private ResponseEntity<?> buildResponse(
+  /** Toujours RFC7807. Même si le client demande HAL, on renvoie problem+json. */
+  private ResponseEntity<ProblemDetail> buildResponse(
       ProblemDetail pd, HttpServletRequest req, HttpStatus status) {
-    MediaType mediaType = negotiate(req);
-    if (MediaType.parseMediaType("application/vnd.hal+json").isCompatibleWith(mediaType)) {
-      try {
-        String json = jsonUtils.toJson(pd);
-        return ResponseEntity.status(status).contentType(mediaType).body(json);
-      } catch (Exception e) {
-        log.warn(
-            "Failed to serialize ProblemDetail to HAL media type, falling back to application/problem+json",
-            e);
-        return ResponseEntity.status(status)
-            .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-            .body(pd);
-      }
+
+    // sécurité : status cohérent
+    pd.setStatus(status.value());
+
+    var headers = new HttpHeaders();
+    headers.setContentType(PROBLEM_JSON);
+
+    // utile: exposer traceId dans un header aussi (optionnel)
+    var traceId = headerOrNull(req, X_REQUEST_ID);
+    if (traceId != null) {
+      headers.add(X_REQUEST_ID, traceId);
     }
-    return ResponseEntity.status(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+
+    return new ResponseEntity<>(pd, headers, status);
   }
 
-  /** Exceptions “métier” levées via ProblemRestException (déjà porteuse d’un ProblemDetail). */
   @ExceptionHandler(ProblemRestException.class)
-  public ResponseEntity<?> handleProblemRest(ProblemRestException ex, HttpServletRequest req) {
+  public ResponseEntity<ProblemDetail> handleProblemRest(
+      ProblemRestException ex, HttpServletRequest req) {
     var pd = ex.getProblem();
     decorate(pd, req, ex, false);
-    // Log au niveau approprié (4xx = warn, 5xx = error)
-    if (pd.getStatus() >= 500) {
-      // message + throwable (throwable passed as last parameter)
+
+    var status = HttpStatus.resolve(pd.getStatus());
+    if (status == null) status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    if (status.is5xxServerError()) {
       log.error(
           "[{}] {} {} - {}",
-          pd.getStatus(),
+          status.value(),
           req.getMethod(),
           req.getRequestURI(),
           ex.getMessage(),
           ex);
     } else {
       log.warn(
-          "[{}] {} {} – {}", pd.getStatus(), req.getMethod(), req.getRequestURI(), pd.getDetail());
+          "[{}] {} {} - {}", status.value(), req.getMethod(), req.getRequestURI(), pd.getDetail());
     }
-    return buildResponse(pd, req, HttpStatus.valueOf(pd.getStatus()));
+    return buildResponse(pd, req, status);
   }
 
-  /** 404 “classique” JPA */
   @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<?> handleNotFound(EntityNotFoundException ex, HttpServletRequest req) {
+  public ResponseEntity<ProblemDetail> handleNotFound(
+      EntityNotFoundException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     pd.setTitle("Resource not found");
     decorate(pd, req, ex, true);
-    log.warn("[404] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.warn("[404] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
     return buildResponse(pd, req, HttpStatus.NOT_FOUND);
   }
 
-  /** 422 règles métier simples */
   @ExceptionHandler(IllegalStateException.class)
-  public ResponseEntity<?> handleBusiness(IllegalStateException ex, HttpServletRequest req) {
+  public ResponseEntity<ProblemDetail> handleBusiness(
+      IllegalStateException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
     pd.setTitle("Business rule violation");
     pd.setDetail(ex.getMessage());
     decorate(pd, req, ex, true);
-    log.warn("[422] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
     return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
-  /** 400 – @Valid sur @RequestBody */
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<?> handleBadRequest(
+  public ResponseEntity<ProblemDetail> handleBadRequest(
       MethodArgumentNotValidException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     pd.setTitle("Validation failed");
@@ -111,44 +103,35 @@ public class ErrorHandler {
             .findFirst()
             .orElse("Invalid request"));
     decorate(pd, req, ex, true);
-    log.warn("[400] {} {} – {}", req.getMethod(), req.getRequestURI(), pd.getDetail());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-        .body(pd);
+    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), pd.getDetail());
+    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
 
-  /** 400 – @Validated sur query/path params */
   @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<?> handleConstraintViolation(
+  public ResponseEntity<ProblemDetail> handleConstraintViolation(
       ConstraintViolationException ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     pd.setTitle("Constraint violation");
     pd.setDetail(ex.getMessage());
     decorate(pd, req, ex, true);
-    log.warn("[400] {} {} – {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
     return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
   }
 
-  /** 403 – permissions manquantes (accesscontrol) */
   @ExceptionHandler(PermissionsDeniedException.class)
-  public ResponseEntity<?> handlePermissionsDenied(
+  public ResponseEntity<ProblemDetail> handlePermissionsDenied(
       PermissionsDeniedException ex, HttpServletRequest req) {
-
     var pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
     pd.setTitle("Forbidden");
-    // Tu peux garder le message exact ou le rendre plus générique selon ce que tu veux exposer
     pd.setDetail("You are not allowed to perform this action.");
-
-    // Métadonnées génériques (traceId, path, method, errorId, etc.)
     decorate(pd, req, ex, true);
 
-    // Infos techniques supplémentaires éventuellement utiles au front/admin
     pd.setProperty("missingPermissions", ex.getMissingPermissions());
-    pd.setProperty("tenantId", ex.getTenantId().toString());
-    pd.setProperty("userId", ex.getUserId().toString());
+    pd.setProperty("tenantId", ex.getTenantId() != null ? ex.getTenantId().toString() : null);
+    pd.setProperty("userId", ex.getUserId() != null ? ex.getUserId().toString() : null);
 
     log.warn(
-        "[403] {} {} – missingPermissions={} tenantId={} userId={}",
+        "[403] {} {} - missingPermissions={} tenantId={} userId={}",
         req.getMethod(),
         req.getRequestURI(),
         ex.getMissingPermissions(),
@@ -158,9 +141,8 @@ public class ErrorHandler {
     return buildResponse(pd, req, HttpStatus.FORBIDDEN);
   }
 
-  /** Fallback 500 – toujours renvoyer ProblemDetail */
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<?> handleAny(Exception ex, HttpServletRequest req) {
+  public ResponseEntity<ProblemDetail> handleAny(Exception ex, HttpServletRequest req) {
     var pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     pd.setTitle("Unexpected error");
     pd.setDetail("An unexpected error occurred");
@@ -169,13 +151,8 @@ public class ErrorHandler {
     return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  /**
-   * Ajoute des métadonnées utiles au ProblemDetail (trace, path, method, ts, version). Si
-   * verbose=false, on évite d’exposer la cause/stack au client.
-   */
   private static void decorate(
       ProblemDetail pd, HttpServletRequest req, Throwable ex, boolean verbose) {
-    // type = URI pseudo-stable par status
     if (pd.getType() == null) {
       pd.setType(URI.create("about:blank"));
     }
@@ -183,12 +160,10 @@ public class ErrorHandler {
     pd.setProperty("method", req.getMethod());
     pd.setProperty("path", req.getRequestURI());
 
-    // Propager un traceId si présent ; sinon générer un errorId
     String traceId = headerOrNull(req, X_REQUEST_ID);
     if (traceId != null) pd.setProperty("traceId", traceId);
     pd.setProperty("errorId", UUID.randomUUID().toString());
 
-    // Versionnement de payload d’erreur (si tu veux le garder)
     String ver = req.getHeader(APP_ERROR_VERSION);
     if (ver != null) pd.setProperty("version", ver);
 

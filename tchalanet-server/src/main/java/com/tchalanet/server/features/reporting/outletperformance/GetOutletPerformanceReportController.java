@@ -1,6 +1,8 @@
 package com.tchalanet.server.features.reporting.outletperformance;
 
 import com.tchalanet.server.common.context.TchContextResolver;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/platform/reports/outlet-performance")
 @RequiredArgsConstructor
+@Tag(name = "Platform • Reports")
 public class GetOutletPerformanceReportController {
 
   private final GetOutletPerformanceReportHandler handler;
   private final TchContextResolver contextResolver;
   private final Clock clock;
 
+  @Operation(summary = "Get outlet performance report (platform)")
   @GetMapping
   public OutletPerformanceReportResponse getOutletPerformance(
       @RequestParam(name = "from", required = false) LocalDate from,

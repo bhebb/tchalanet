@@ -37,11 +37,10 @@ public class DrawStoreJpaAdapter implements DrawStorePort {
                 r.id().uuid(),
                 r.tenantId().uuid(),
                 r.drawChannelId(),
-                r.gameCode(),
                 r.scheduledAt(),
                 r.cutoffSec(),
                 r.status(),
-                r.resultPayload());
+                r.drawSource());
       } catch (DataIntegrityViolationException e) {
         log.warn(e.getMessage(), e);
       }
@@ -64,6 +63,6 @@ public class DrawStoreJpaAdapter implements DrawStorePort {
   public int bulkClose(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) return 0;
     UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
-    return repo.bulkClose(null, ids);
+    return repo.bulkClose(ids);
   }
 }

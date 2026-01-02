@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.draw.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,4 +51,7 @@ public class DrawChannelJpaEntity extends BaseTenantEntity {
 
   @Column(name = "external_channel_code")
   private String externalChannelCode;
+
+  @OneToMany(mappedBy = "drawChannel", fetch = FetchType.LAZY)
+  private List<DrawJpaEntity> draws;
 }

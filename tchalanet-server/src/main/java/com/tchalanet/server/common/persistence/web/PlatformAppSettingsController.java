@@ -2,6 +2,7 @@ package com.tchalanet.server.common.persistence.web;
 
 import com.tchalanet.server.common.persistence.AppSettingEntity;
 import com.tchalanet.server.common.persistence.service.PlatformAppSettingsService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/platform/app-settings")
 @RequiredArgsConstructor
+@Tag(name = "Platform • App Settings")
 public class PlatformAppSettingsController {
 
   private final PlatformAppSettingsService service;

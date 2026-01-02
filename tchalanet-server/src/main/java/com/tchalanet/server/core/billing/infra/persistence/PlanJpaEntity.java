@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.billing.infra.persistence;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.common.persistence.MapToJsonConverter;
 import com.tchalanet.server.core.billing.domain.model.BillingFrequency;
@@ -53,6 +54,7 @@ public class PlanJpaEntity extends BaseEntity {
   private Map<String, Object> features;
 
   // inverse: subscriptions referencing this plan
+  @JsonIgnore
   @OneToMany(mappedBy = "plan", fetch = FetchType.LAZY)
   private List<com.tchalanet.server.core.billing.infra.persistence.SubscriptionJpaEntity>
       subscriptions = new ArrayList<>();

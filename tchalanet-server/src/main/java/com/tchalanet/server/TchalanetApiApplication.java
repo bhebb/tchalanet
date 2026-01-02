@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync // Enable Spring's asynchronous method execution capability
 public class TchalanetApiApplication {
 
-  public static void main(String[] args) {
+    static void main(String[] args) {
     SpringApplication.run(TchalanetApiApplication.class, args);
   }
 }

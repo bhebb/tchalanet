@@ -53,6 +53,9 @@ public class DrawResultJpaEntity extends BaseTenantEntity {
   @Column(name = "raw_payload", columnDefinition = "jsonb")
   private Map<String, Object> rawPayload;
 
+  @Column(name = "occurred_at")
+  private Instant occurredAt;
+
   @Column(name = "overridden_at")
   private Instant overriddenAt;
 

@@ -11,6 +11,9 @@ import com.tchalanet.server.core.theme.application.query.model.GetThemeByIdQuery
 import com.tchalanet.server.core.theme.application.query.model.ListThemesQuery;
 import com.tchalanet.server.core.theme.application.query.model.ThemeView;
 import com.tchalanet.server.core.theme.domain.model.ThemeStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/admin/themes")
 @RequiredArgsConstructor
+@Tags({@Tag(name = "Admin • Themes"), @Tag(name = "Tenant • Themes")})
 public class ThemeController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
+  @Operation(summary = "List themes for tenant (admin)")
   @GetMapping
   @PreAuthorize("hasAuthority('TENANT_READ')")
   public ResponseEntity<List<ThemeView>> listThemes(
@@ -48,6 +53,7 @@ public class ThemeController {
     return ResponseEntity.ok(views);
   }
 
+  @Operation(summary = "Get theme by id (tenant)")
   @GetMapping("/{id}")
   @PreAuthorize("hasAuthority('TENANT_READ')")
   public ResponseEntity<ThemeView> getTheme(
@@ -59,6 +65,7 @@ public class ThemeController {
     return ResponseEntity.ok(theme);
   }
 
+  @Operation(summary = "Publish theme version (tenant)")
   @PostMapping("/{id}/publish")
   @PreAuthorize("hasAuthority('TENANT_ADMIN')")
   public ResponseEntity<Void> publishTheme(
@@ -73,6 +80,7 @@ public class ThemeController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Archive theme (tenant)")
   @DeleteMapping("/{id}")
   @PreAuthorize("hasAuthority('TENANT_ADMIN')")
   public ResponseEntity<Void> archiveTheme(

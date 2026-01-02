@@ -1,6 +1,8 @@
 package com.tchalanet.server.features.reporting.salesreport;
 
 import com.tchalanet.server.common.context.TchContextResolver;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/platform/reports/sales-by-period-and-game")
 @RequiredArgsConstructor
+@Tag(name = "Platform • Reports")
 public class GetSalesReportByPeriodAndGameController {
 
   private final GetSalesReportByPeriodAndGameHandler handler;
   private final TchContextResolver contextResolver;
   private final Clock cLock;
 
+  @Operation(summary = "Get sales report by period and game (platform)")
   @GetMapping
   public SalesReportResponse getSalesReport(
       @RequestParam(name = "from", required = false) LocalDate from,

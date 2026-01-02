@@ -13,6 +13,8 @@ import com.tchalanet.server.core.game.domain.model.TenantGame;
 import com.tchalanet.server.core.game.infra.web.model.EnsureTenantGamesRequest;
 import com.tchalanet.server.core.game.infra.web.model.EnsureTenantGamesResponse;
 import com.tchalanet.server.core.game.infra.web.model.TenantGameUpdateRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -22,23 +24,27 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/tenant/games")
 @RequiredArgsConstructor
+@Tag(name = "Admin • Tenant Games")
 public class TenantGameAdminController {
 
   private final QueryBus queryBus;
   private final CommandBus commandBus;
 
+  @Operation(summary = "List all tenant games (admin)")
   @GetMapping
   public ApiResponse<List<TenantGame>> listAll() {
     var data = queryBus.send(new ListTenantGamesQuery());
     return ApiResponse.success(data);
   }
 
+  @Operation(summary = "List enabled tenant games (admin)")
   @GetMapping("/enabled")
   public ApiResponse<List<TenantGame>> listEnabled() {
     var data = queryBus.send(new ListEnabledTenantGamesQuery());
     return ApiResponse.success(data);
   }
 
+  @Operation(summary = "Ensure tenant games exist (admin)")
   @PostMapping("/ensure")
   public ApiResponse<EnsureTenantGamesResponse> ensure(
       @RequestBody(required = false) EnsureTenantGamesRequest req) {
@@ -50,6 +56,7 @@ public class TenantGameAdminController {
     return ApiResponse.success(resp);
   }
 
+  @Operation(summary = "Update tenant game flags (admin)")
   @PatchMapping("/{gameId}")
   public ApiResponse<TenantGame> update(
       @PathVariable("gameId") GameId gameId, @RequestBody @Valid TenantGameUpdateRequest req) {

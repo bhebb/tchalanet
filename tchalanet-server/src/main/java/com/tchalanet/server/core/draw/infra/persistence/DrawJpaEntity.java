@@ -19,7 +19,6 @@ import org.hibernate.envers.Audited;
 @Getter
 @Setter
 public class DrawJpaEntity extends BaseTenantEntity {
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "draw_channel_id", nullable = false)
   private DrawChannelJpaEntity drawChannel;

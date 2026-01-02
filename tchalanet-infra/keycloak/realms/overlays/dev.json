@@ -9,6 +9,7 @@
       "clientId": "tchalanet-swagger",
       "redirectUris": [
         "http://localhost:8081/swagger-ui/oauth2-redirect.html",
+        "http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html",
         "http://localhost:8083/swagger-ui/oauth2-redirect.html",
         "http://api.localtest.me/swagger-ui/oauth2-redirect.html",
         "https://api.localtest.me/swagger-ui/oauth2-redirect.html"
