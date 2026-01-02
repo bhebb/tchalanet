@@ -91,16 +91,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             from draw d
             where d.deleted_at is null
               and d.locked=false
-              and d.status in ('SCHEDULED','OPEN')
+              and d.status = 'OPEN'
               and (EXTRACT(EPOCH FROM d.scheduled_at) - d.cutoff_sec) <= :nowEpoch
             order by d.scheduled_at asc
             limit :limit
             """,
       nativeQuery = true)
-  List<Object[]> findDueToClose(
-      @Param("tenantId") UUID tenantId,
-      @Param("nowEpoch") long nowEpoch,
-      @Param("limit") int limit);
+  List<Object[]> findDueToClose(@Param("nowEpoch") long nowEpoch, @Param("limit") int limit);
 
   @Modifying
   @Transactional

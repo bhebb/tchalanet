@@ -62,15 +62,18 @@ public class DrawResultsOpsController {
     int maxDrawsVar = Math.clamp(req.maxDraws(), 1, 5000);
 
     // normalize + dedupe
-    final List<String> channelCodesNormalized = req.channelCodes().stream()
-        .filter(Objects::nonNull)
-        .map(s -> s.trim().toUpperCase(Locale.ROOT))
-        .filter(s -> !s.isBlank())
-        .distinct()
-        .toList();
+    final List<String> channelCodesNormalized =
+        req.channelCodes().stream()
+            .filter(Objects::nonNull)
+            .map(s -> s.trim().toUpperCase(Locale.ROOT))
+            .filter(s -> !s.isBlank())
+            .distinct()
+            .toList();
 
-    if (channelCodesNormalized.isEmpty()) throw new IllegalArgumentException("channelCodes is required");
-    if (channelCodesNormalized.size() > 80) throw new IllegalArgumentException("channelCodes too large (max 80)");
+    if (channelCodesNormalized.isEmpty())
+      throw new IllegalArgumentException("channelCodes is required");
+    if (channelCodesNormalized.size() > 80)
+      throw new IllegalArgumentException("channelCodes too large (max 80)");
 
     final boolean forceFlag = req.force();
     final boolean dryRunFlag = req.dryRun();
@@ -164,7 +167,8 @@ public class DrawResultsOpsController {
 
   public record FetchDrawResultsRequest(
       List<String> channelCodes,
-      @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "drawDate must be YYYY-MM-DD") String drawDate,
+      @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "drawDate must be YYYY-MM-DD")
+          String drawDate,
       boolean force,
       @Min(0) @Max(14) int daysBack,
       @Min(1) @Max(5000) int maxDraws,

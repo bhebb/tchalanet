@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.persistence.service;
 
-import com.tchalanet.server.common.persistence.AppSettingEntity;
-import com.tchalanet.server.common.persistence.AppSettingRepository;
+import com.tchalanet.server.core.settings.infra.persistence.AppSettingEntity;
+import com.tchalanet.server.core.settings.infra.persistence.AppSettingRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

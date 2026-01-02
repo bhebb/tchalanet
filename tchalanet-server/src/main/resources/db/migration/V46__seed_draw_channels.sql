@@ -35,11 +35,11 @@ FROM t
     ('US_NY_NUM4_MID','US_NY_PICK4','NY Pick 4 Midday','America/New_York','14:30',300,'MON-SUN',true,20,'NY','WIN4','MID'),
     ('US_NY_NUM4_EVE','US_NY_PICK4','NY Pick 4 Evening','America/New_York','22:30',300,'MON-SUN',true,21,'NY','WIN4','EVE'),
     ('US_NY_TAKE5_EVE','US_NY_TAKE5','NY Take 5 Evening','America/New_York','22:30',300,'MON-SUN',true,30,'NY','TAKE 5','EVE'),
-    ('US_FL_PICK3_MID','US_FL_PICK3','FL Pick 3 Midday','America/New_York','13:30',400,'MON-SUN',true,40,'FLORIDA','PICK3','MID'),
-    ('US_FL_PICK3_EVE','US_FL_PICK3','FL Pick 3 Evening','America/New_York','22:45',500,'MON-SUN',true,41,'FLORIDA','PICK3','EVE'),
-    ('US_FL_PICK4_MID','US_FL_PICK4','FL Pick 4 Midday','America/New_York','13:30',400,'MON-SUN',true,50,'FLORIDA','PICK4','MID'),
-    ('US_FL_PICK4_EVE','US_FL_PICK4','FL Pick 4 Evening','America/New_York','22:45',500,'MON-SUN',true,51,'FLORIDA','PICK4','EVE'),
-    ('US_FL_LOTTO','US_FL_LOTTO','Florida Lotto','America/New_York','23:15',200,'WED-SAT',true,60,'FLORIDA','FLORIDA LOTTO','EVE')
+    ('US_FL_PICK3_MID','US_FL_PICK3','FL Pick 3 Midday','America/New_York','13:30',400,'MON-SUN',true,40,'FL','PICK3','MID'),
+    ('US_FL_PICK3_EVE','US_FL_PICK3','FL Pick 3 Evening','America/New_York','22:45',500,'MON-SUN',true,41,'FL','PICK3','EVE'),
+    ('US_FL_PICK4_MID','US_FL_PICK4','FL Pick 4 Midday','America/New_York','13:30',400,'MON-SUN',true,50,'FL','PICK4','MID'),
+    ('US_FL_PICK4_EVE','US_FL_PICK4','FL Pick 4 Evening','America/New_York','22:45',500,'MON-SUN',true,51,'FL','PICK4','EVE'),
+    ('US_FL_LOTTO','US_FL_LOTTO','Florida Lotto','America/New_York','23:15',200,'WED-SAT',true,60,'FL','FL_LOTTO','EVE')
     ) AS v(code, game_code, name, timezone, draw_time, cutoff_sec, days_of_week, active, sort_order, external_provider, external_game_key, external_channel_code)
 ON TRUE
     JOIN tg ON tg.game_code = v.game_code

@@ -28,7 +28,6 @@ t text;
     'tenant_game',
     'draw_channel',
     'draw',
-    'draw_result',
     'odds',
     'limit_policy_config',
     'limit_definition',

@@ -72,12 +72,7 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
           raw.put("draw_date", String.valueOf(d.drawDate()));
 
           return ExternalDrawResult.found(
-              "FOUND",
-              toStrings(d.numbers()),
-              toStrings(d.extras()),
-              occurredAt,
-              d.quality(),
-              raw);
+              "FOUND", toStrings(d.numbers()), toStrings(d.extras()), occurredAt, d.quality(), raw);
         }
       } catch (Exception e) {
         log.warn("uslottery-adapter: provider {} failed: {}", provider.provider(), e.toString());
@@ -97,7 +92,7 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
             .map(s -> s.trim().toUpperCase(Locale.ROOT))
             .filter(s -> !s.isBlank())
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
 
     if (channelCodes.isEmpty()) return Map.of();
 
@@ -124,7 +119,7 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
     Map<String, ExternalDrawResult> out = new LinkedHashMap<>();
 
     for (var entry : byProvider.entrySet()) {
-      String providerKey = entry.getKey(); // "ny" / "florida" (selon ton yaml)
+      var providerKey = entry.getKey(); // "ny" / "florida" (selon ton yaml)
       List<Resolved> wanted = entry.getValue();
 
       var provider = findProvider(providerKey);
@@ -170,12 +165,7 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
         out.put(
             r.channelCode(),
             ExternalDrawResult.found(
-                "FOUND",
-                toStrings(d.numbers()),
-                toStrings(d.extras()),
-                occurredAt,
-                quality,
-                raw));
+                "FOUND", toStrings(d.numbers()), toStrings(d.extras()), occurredAt, quality, raw));
       }
     }
 
@@ -190,7 +180,10 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
       if (p.provider().name().equalsIgnoreCase(providerKeyFromRegistry)) return p;
     }
     for (var p : providers) {
-      if (p.provider().name().replace("_", "").equalsIgnoreCase(providerKeyFromRegistry.replace("_", ""))) return p;
+      if (p.provider()
+          .name()
+          .replace("_", "")
+          .equalsIgnoreCase(providerKeyFromRegistry.replace("_", ""))) return p;
     }
     // si tu as une mapping propre: providerKey -> enum, tu remplaces ça par un switch.
     return null;

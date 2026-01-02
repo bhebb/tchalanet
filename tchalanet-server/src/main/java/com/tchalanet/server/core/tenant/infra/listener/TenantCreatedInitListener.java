@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.tenant.infra.listener;
 
-import com.tchalanet.server.common.persistence.AppSettingEntity;
-import com.tchalanet.server.common.persistence.AppSettingRepository;
-import com.tchalanet.server.common.settings.AppSettingLevel;
-import com.tchalanet.server.common.settings.registry.AppSettingKey;
-import com.tchalanet.server.common.settings.registry.AppSettingRegistry;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.settings.AppSettingLevel;
+import com.tchalanet.server.core.settings.infra.persistence.AppSettingEntity;
+import com.tchalanet.server.core.settings.infra.persistence.AppSettingRepository;
+import com.tchalanet.server.core.settings.registry.AppSettingKey;
+import com.tchalanet.server.core.settings.registry.AppSettingRegistry;
 import com.tchalanet.server.core.tenant.domain.event.TenantCreatedEvent;
 import com.tchalanet.server.features.pagemodel.shared.init.PageModelBootstrapService;
 import lombok.RequiredArgsConstructor;

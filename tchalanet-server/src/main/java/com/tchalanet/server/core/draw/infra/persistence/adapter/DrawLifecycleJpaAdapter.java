@@ -54,7 +54,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   public List<DueToCloseRow> findDueToClose(Instant now, int limit) {
     long nowEpoch = now == null ? Instant.now().getEpochSecond() : now.getEpochSecond();
     // repo returns Object[] rows: [tenantId, drawId, locked]
-    return repo.findDueToClose(null, nowEpoch, limit).stream().map(this::mapDueToCloseRow).toList();
+    return repo.findDueToClose(nowEpoch, limit).stream().map(this::mapDueToCloseRow).toList();
   }
 
   private DueToCloseRow mapDueToCloseRow(Object[] row) {

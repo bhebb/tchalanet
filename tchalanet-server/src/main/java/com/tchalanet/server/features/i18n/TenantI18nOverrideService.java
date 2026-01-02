@@ -1,7 +1,5 @@
 package com.tchalanet.server.features.i18n;
 
-import com.tchalanet.server.common.persistence.I18nOverrideEntity;
-import com.tchalanet.server.common.persistence.I18nOverrideRepository;
 import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

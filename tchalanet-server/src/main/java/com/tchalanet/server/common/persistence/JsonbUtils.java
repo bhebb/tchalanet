@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.persistence;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,43 @@ public class JsonbUtils {
       return n != null;
     } catch (Exception ex) {
       return false;
+    }
+  }
+
+  // --- convenience parsing helpers used by external providers ---
+  public JsonNode readTree(String json) {
+    if (json == null) return null;
+    try {
+      return objectMapper.readTree(json);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to parse JSON", e);
+    }
+  }
+
+  public <T> T fromJson(String json, Class<T> clazz) {
+    if (json == null) return null;
+    try {
+      return objectMapper.readValue(json, clazz);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to deserialize JSON to " + clazz.getName(), e);
+    }
+  }
+
+  public <T> T fromJson(String json, TypeReference<T> typeRef) {
+    if (json == null) return null;
+    try {
+      return objectMapper.readValue(json, typeRef);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to deserialize JSON to TypeReference", e);
+    }
+  }
+
+  public <T> T convertValue(Object fromValue, TypeReference<T> toTypeRef) {
+    if (fromValue == null) return null;
+    try {
+      return objectMapper.convertValue(fromValue, toTypeRef);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to convert value to target type", e);
     }
   }
 }

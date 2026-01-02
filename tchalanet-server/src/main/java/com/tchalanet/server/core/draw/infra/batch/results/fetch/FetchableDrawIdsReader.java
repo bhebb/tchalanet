@@ -56,16 +56,19 @@ public class FetchableDrawIdsReader extends IteratorItemReader<DrawId> {
 
     var drawDateStr = jp.getString("draw_date");
 
-    final ZoneId zone = (channelCode != null && !channelCode.isBlank())
-        ? drawChannelJpaRepository.findByTenantIdAndCode(tenantId, channelCode)
-            .map(ch -> ZoneId.of(ch.getTimezone().trim()))
-            .orElse(ZoneId.of("UTC"))
-        : ZoneId.of("UTC");
+    final ZoneId zone =
+        (channelCode != null && !channelCode.isBlank())
+            ? drawChannelJpaRepository
+                .findByTenantIdAndCode(tenantId, channelCode)
+                .map(ch -> ZoneId.of(ch.getTimezone().trim()))
+                .orElse(ZoneId.of("UTC"))
+            : ZoneId.of("UTC");
 
-    final LocalDate drawDateLocal = Optional.ofNullable(drawDateStr)
-        .filter(s -> !s.isBlank())
-        .map(LocalDate::parse)
-        .orElseGet(() -> ZonedDateTime.ofInstant(now, zone).toLocalDate());
+    final LocalDate drawDateLocal =
+        Optional.ofNullable(drawDateStr)
+            .filter(s -> !s.isBlank())
+            .map(LocalDate::parse)
+            .orElseGet(() -> ZonedDateTime.ofInstant(now, zone).toLocalDate());
 
     var dayStartUtc = ZonedDateTime.of(drawDateLocal.atStartOfDay(), zone).toInstant();
     var dayEndUtc = ZonedDateTime.of(drawDateLocal.plusDays(1).atStartOfDay(), zone).toInstant();
@@ -82,7 +85,8 @@ public class FetchableDrawIdsReader extends IteratorItemReader<DrawId> {
                 .toList();
 
         return drawBatchQueryRepository
-            .findClosedDrawIdsForSlotMulti(tenantId, channelCodes, dayStartUtc, dayEndUtc, now, force, maxDraws)
+            .findClosedDrawIdsForSlotMulti(
+                tenantId, channelCodes, dayStartUtc, dayEndUtc, now, force, maxDraws)
             .stream()
             .map(DrawId::of)
             .toList();

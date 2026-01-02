@@ -1,10 +1,9 @@
 package com.tchalanet.server.common.cache;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import jakarta.annotation.Nullable;
 import java.time.LocalDate;
 import java.util.UUID;
-
-import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -68,26 +67,21 @@ public final class CacheKeyBuilder {
     return "tch:%s:%s:roles:matrix".formatted(env, tenantId);
   }
 
-    public String usLotteryProviderRawKey(
-        String provider,
-        LocalDate drawDate,
-        @Nullable String queryHash
-    ) {
-        if (provider == null || provider.isBlank()) throw new IllegalArgumentException("provider");
-        if (drawDate == null) throw new IllegalArgumentException("drawDate");
+  public String usLotteryProviderRawKey(
+      String provider, LocalDate drawDate, @Nullable String queryHash) {
+    if (provider == null || provider.isBlank()) throw new IllegalArgumentException("provider");
+    if (drawDate == null) throw new IllegalArgumentException("drawDate");
 
-        var key =
-            "tch:%s:uslottery:raw:v1:%s:%s"
-                .formatted(env, provider.trim().toUpperCase(), drawDate);
+    var key =
+        "tch:%s:uslottery:raw:v1:%s:%s".formatted(env, provider.trim().toUpperCase(), drawDate);
 
-        if (queryHash != null && !queryHash.isBlank()) {
-            key += ":" + queryHash;
-        }
-        return key;
+    if (queryHash != null && !queryHash.isBlank()) {
+      key += ":" + queryHash;
     }
+    return key;
+  }
 
-
-    public String globalSearchKey(String queryHash) {
+  public String globalSearchKey(String queryHash) {
     return "tch:%s:-:search:query:%s".formatted(env, queryHash);
   }
 

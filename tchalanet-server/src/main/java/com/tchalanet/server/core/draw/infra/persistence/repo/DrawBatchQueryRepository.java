@@ -25,7 +25,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
       dc.timezone as timezone
     from draw d
     join draw_channel dc on dc.id = d.draw_channel_id
-    left join draw_result dr on dr.tenant_id = d.tenant_id and dr.draw_id = d.id
+    left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
     where d.status = 'CLOSED'
       and d.scheduled_at <= (:maxScheduledAt)
       and dc.active = true
@@ -53,7 +53,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           select d.id
           from draw d
           join draw_channel dc on dc.id = d.draw_channel_id
-          left join draw_result dr on dr.tenant_id=d.tenant_id and dr.draw_id=d.id
+          left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
           where d.tenant_id=:tenantId
             and dc.code=:channelCode
             and d.deleted_at is null and dc.deleted_at is null
@@ -83,7 +83,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           select d.id
           from draw d
           join draw_channel dc on dc.id = d.draw_channel_id
-          left join draw_result dr on dr.tenant_id = d.tenant_id and dr.draw_id = d.id
+          left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
           where d.tenant_id = :tenantId
             and d.deleted_at is null and dc.deleted_at is null
             and dc.active=true
@@ -113,7 +113,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           select d.id
           from draw d
           join draw_channel dc on dc.id = d.draw_channel_id
-          left join draw_result dr on dr.tenant_id = d.tenant_id and dr.draw_id = d.id
+          left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
           where (:tenantId is null or d.tenant_id = :tenantId)
             and d.deleted_at is null and dc.deleted_at is null
             and d.locked = false

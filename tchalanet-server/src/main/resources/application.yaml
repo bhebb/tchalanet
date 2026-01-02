@@ -161,7 +161,7 @@ tch:
             external_key: "TAKE 5"
             draw_time: "22:30"
 
-      florida:
+      fl:
         enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
         base-url: ${TCH_US_LOTTERY_FL_BASEURL:https://apim-website-prod-eastus.azure-api.net}
         latest-path: /drawgamesapp/getLatestDrawGames

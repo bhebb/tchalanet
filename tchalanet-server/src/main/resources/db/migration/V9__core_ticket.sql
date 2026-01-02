@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS ticket (
     created_at timestamptz NOT NULL DEFAULT now(),
     status varchar(16) NOT NULL,
     total_amount numeric(14, 2) NOT NULL,
+    total_payout numeric(14,2) NOT NULL DEFAULT 0,
 
     created_by uuid,
     updated_at timestamptz NOT NULL DEFAULT now(),

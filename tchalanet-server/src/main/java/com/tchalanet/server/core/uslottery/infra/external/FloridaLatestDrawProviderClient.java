@@ -2,130 +2,158 @@ package com.tchalanet.server.core.uslottery.infra.external;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.persistence.JsonbUtils;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.application.port.out.LatestDrawProviderClient;
-import com.tchalanet.server.core.uslottery.domain.model.*;
+import com.tchalanet.server.core.uslottery.domain.model.DrawExtras;
+import com.tchalanet.server.core.uslottery.domain.model.DrawMain;
+import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
+import com.tchalanet.server.core.uslottery.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
-@RequiredArgsConstructor
+@Slf4j
 @ConditionalOnProperty(
     prefix = "tch.us-lottery.providers.florida",
     name = "enabled",
     havingValue = "true",
     matchIfMissing = true)
-@Slf4j
 public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient {
 
-  private final WebClient floridaLotteryWebClient;
+  private final org.springframework.web.client.RestClient floridaRestClient;
   private final UsLotteryProperties props;
-  private final ObjectMapper objectMapper;
+  private final JsonbUtils jsonbUtils;
+
+  private final UsLotteryProviderRawCache cacheManager;
+
+  public FloridaLatestDrawProviderClient(
+      @Qualifier("floridaLotteryRestClient")
+          org.springframework.web.client.RestClient floridaRestClient,
+      UsLotteryProperties props,
+      JsonbUtils jsonbUtils,
+      UsLotteryProviderRawCache cacheManager) {
+    this.floridaRestClient = floridaRestClient;
+    this.props = props;
+    this.jsonbUtils = jsonbUtils;
+    this.cacheManager = cacheManager;
+  }
 
   @Override
   public UsLotteryProvider provider() {
-    return UsLotteryProvider.FLORIDA;
+    return UsLotteryProvider.FL; // assure-toi que l'enum s'appelle vraiment FL
   }
 
   @Override
   public List<LatestDraw> fetchLatestDraws() {
+    var providerCfg = props.getProviders() != null ? props.getProviders().get("fl") : null;
+    var tz = providerCfg != null ? providerCfg.getTimezone() : "America/New_York";
+    var requestFlDrawResults =
+        providerCfg != null ? providerCfg.getBaseUrl() + providerCfg.getLatestPath() : null;
+    var zone = ZoneId.of(tz);
+
+    // Florida renvoie "latest" (souvent aujourd'hui). On cache par "drawDateLocal = today(zone)".
+    var drawDate = ZonedDateTime.now(zone).toLocalDate();
+
+    // use requestFlDrawResults as query identity (could be improved)
+    var queryHash = sha256(requestFlDrawResults == null ? "latest" : requestFlDrawResults);
+
+    var body =
+        cacheManager.getOrFetch(
+            provider().name(),
+            drawDate,
+            queryHash,
+            () -> {
+              try {
+                return floridaRestClient
+                    .get()
+                    .uri(requestFlDrawResults)
+                    .retrieve()
+                    .body(String.class);
+              } catch (Exception ex) {
+                log.warn("fl-latest-client: fetch failed: {}", ex.getMessage(), ex);
+                return null;
+              }
+            });
+
+    if (body == null || body.isBlank()) return List.of();
+
+    return parseFloridaBody(body, requestFlDrawResults, zone);
+  }
+
+  private List<LatestDraw> parseFloridaBody(String body, String latestPath, ZoneId zone) {
     List<LatestDraw> results = new ArrayList<>();
-
-    var providerCfg = props.getProviders() != null ? props.getProviders().get("florida") : null;
-    String tz = providerCfg != null ? providerCfg.getTimezone() : "America/New_York";
-    String latestPath =
-        providerCfg != null ? providerCfg.getLatestPath() : "/drawgamesapp/getLatestDrawGames";
-    ZoneId zone = ZoneId.of(tz);
-
     try {
-      // Fetch raw body as String because provider may return either an object { DrawResults: [...]
-      // }
-      // or a raw array [ {...}, {...} ]
-      String body =
-          floridaLotteryWebClient.get().uri(latestPath).retrieve().bodyToMono(String.class).block();
+      JsonNode root = jsonbUtils.readTree(body);
 
-      if (body == null || body.isBlank()) return results;
-
-      // parse into JsonNode to detect array vs object
-      JsonNode root = objectMapper.readTree(body);
-      log.debug(
-          "fl-latest-client: fetched body length={} rootType={}",
-          body.length(),
-          root.isArray() ? "array" : root.isObject() ? "object" : root.getNodeType());
-
-      // Parse into flat entries where each entry represents one draw row
-      List<FloridaEntryDto> entries = new ArrayList<>();
-
-      if (root.isArray()) {
-        entries = objectMapper.readValue(body, new TypeReference<>() {});
-      } else if (root.isObject()) {
-        JsonNode dr = root.get("DrawResults");
+      List<FloridaEntryDto> entries;
+      if (root != null && root.isArray()) {
+        entries =
+            jsonbUtils.fromJson(
+                body,
+                new com.fasterxml.jackson.core.type.TypeReference<List<FloridaEntryDto>>() {});
+      } else {
+        JsonNode dr = root == null ? null : root.get("DrawResults");
         if (dr != null && dr.isArray()) {
-          entries = objectMapper.convertValue(dr, new TypeReference<>() {});
+          entries =
+              jsonbUtils.convertValue(
+                  dr,
+                  new com.fasterxml.jackson.core.type.TypeReference<List<FloridaEntryDto>>() {});
         } else {
           entries = List.of();
         }
       }
 
-      if (entries == null || entries.isEmpty()) {
-        log.debug("fl-latest-client: no entries parsed from provider (path={})", latestPath);
-        return results;
-      }
-
       Instant fetchedAt = Instant.now();
-      log.debug("fl-latest-client: parsed {} entries from provider", entries.size());
-
       for (FloridaEntryDto e : entries) {
-        processEntry(results, e, latestPath, zone, fetchedAt);
+        processEntry(results, e, latestPath, zone, fetchedAt, body);
       }
-    } catch (Exception e) {
-      log.warn("fl-latest-client: failed: {}", e.toString());
+    } catch (Exception ex) {
+      log.warn("fl-latest-client: parse failed: {}", ex.toString());
     }
-
     return results;
   }
-
-  // Parse result holder
-  private record ParseResult(
-      List<String> main, List<Integer> extraNumbers, Map<String, String> attributes) {}
 
   private void processEntry(
       List<LatestDraw> results,
       FloridaEntryDto e,
       String latestPath,
       ZoneId zone,
-      Instant fetchedAt) {
-    String gameKey = normalizeGameKey(e.gameName()); // "PICK3" / "PICK4"
-    if (!("PICK3".equals(gameKey) || "PICK4".equals(gameKey) || "LOTTO".equals(gameKey))) return;
-
-    String drawType = normalize(e.drawType()); // MIDDAY / EVENING
-    if (drawType == null) return;
+      Instant fetchedAt,
+      String rawBody // pour hash
+      ) {
+    String gameKey = normalizeGameKey(e.gameName());
+    if (!Set.of("PICK3", "PICK4", "LOTTO").contains(gameKey)) return;
 
     LocalDate date = parseFloridaDate(e.drawDate());
     if (date == null) return;
 
+    // ✅ LOTTO: drawType souvent pas utile -> on accepte null et on force DEFAULT
+    String drawType = normalize(e.drawType());
+    if ("LOTTO".equals(gameKey) && (drawType == null || drawType.isBlank())) {
+      drawType = "DEFAULT";
+    }
+    if (drawType == null) return; // pour PICK3/4 on garde strict
+
     String channelCode = mapChannelCode(gameKey, drawType);
     if (channelCode == null) return;
 
-    ParseResult pr = parseDigits(e.drawNumbers(), gameKey);
+    ParseResult pr = parseNumbers(e.drawNumbers(), gameKey);
     if (pr.main().isEmpty()) return;
 
     OffsetDateTime occurredAt = date.atStartOfDay(zone).toOffsetDateTime();
 
     DrawExtras extras = new DrawExtras(pr.extraNumbers(), pr.attributes());
+
+    // ✅ Hash stable (payload utile). Ici: body complet (MVP) – tu peux améliorer plus tard.
+    String sourceHash = sha256(rawBody);
 
     buildAndAddLatestDraw(
         results,
@@ -137,15 +165,170 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
         fetchedAt,
         pr.main(),
         extras,
-        latestPath);
+        latestPath,
+        sourceHash);
   }
 
-  private String normalizeGameKey(String gameName) {
+  // ---- LOTTO FIXES ----
+
+  private String mapChannelCode(String gameKey, String drawType) {
+    return switch (gameKey) {
+      case "PICK3" ->
+          switch (drawType) {
+            case "MIDDAY" -> "US_FL_PICK3_MID";
+            case "EVENING" -> "US_FL_PICK3_EVE";
+            default -> null;
+          };
+      case "PICK4" ->
+          switch (drawType) {
+            case "MIDDAY" -> "US_FL_PICK4_MID";
+            case "EVENING" -> "US_FL_PICK4_EVE";
+            default -> null;
+          };
+      case "LOTTO" -> "US_FL_LOTTO"; // ✅ un seul channel
+      default -> null;
+    };
+  }
+
+  private ParseResult parseNumbers(List<FloridaNumberDto> drawNumbers, String gameKey) {
+    if (drawNumbers == null || drawNumbers.isEmpty())
+      return new ParseResult(List.of(), List.of(), Map.of());
+
+    int expected =
+        switch (gameKey) {
+          case "PICK3" -> 3;
+          case "PICK4" -> 4;
+          case "LOTTO" -> 6; // ✅ LOTTO typique
+          default -> 0;
+        };
+
+    record Wn(int idx, String val) {}
+    List<Wn> wn = new ArrayList<>();
+    List<Integer> extraNums = new ArrayList<>();
+    Map<String, String> attrs = new HashMap<>();
+
+    for (FloridaNumberDto n : drawNumbers) {
+      if (n == null) continue;
+      String type = n.numberType();
+      String pick = n.numberPick() == null ? "" : n.numberPick().trim();
+      if (pick.isBlank()) continue;
+
+      String t = type == null ? "" : type.trim().toLowerCase(Locale.ROOT);
+
+      // main numbers
+      if (t.startsWith("wn")) {
+        int idx = 99;
+        try {
+          idx = Integer.parseInt(t.substring(2));
+        } catch (Exception ignored) {
+        }
+        wn.add(new Wn(idx, pick));
+        continue;
+      }
+
+      // extras
+      try {
+        extraNums.add(Integer.parseInt(pick));
+      } catch (NumberFormatException ignored) {
+      }
+      attrs.merge(t.isBlank() ? "extra" : t, pick, (a, b) -> a + "," + b);
+    }
+
+    wn.sort(Comparator.comparingInt(Wn::idx));
+    List<String> main = new ArrayList<>();
+    for (Wn x : wn) {
+      main.add(x.val());
+      if (main.size() == expected) break;
+    }
+
+    return new ParseResult(List.copyOf(main), List.copyOf(extraNums), Map.copyOf(attrs));
+  }
+
+  private void buildAndAddLatestDraw(
+      List<LatestDraw> results,
+      String gameKey,
+      String drawType,
+      String channelCode,
+      LocalDate date,
+      OffsetDateTime occurredAt,
+      Instant fetchedAt,
+      List<String> digits,
+      DrawExtras extras,
+      String latestPath,
+      String sourceHash) {
+    try {
+      DrawMain main = new DrawMain(digits);
+
+      int expected =
+          switch (gameKey) {
+            case "PICK3" -> 3;
+            case "PICK4" -> 4;
+            case "LOTTO" -> 6;
+            default -> digits.size();
+          };
+      main.requireSize(expected, gameKey + "_" + drawType);
+
+      results.add(
+          new LatestDraw(
+              provider(),
+              gameKey,
+              drawType,
+              channelCode,
+              date,
+              occurredAt,
+              fetchedAt,
+              main,
+              extras,
+              ResultQuality.COMPLETE,
+              "FL_APIM",
+              Map.of("path", latestPath, "hash", sourceHash)));
+    } catch (Exception ex) {
+      results.add(
+          new LatestDraw(
+              provider(),
+              gameKey,
+              drawType,
+              channelCode,
+              date,
+              occurredAt,
+              fetchedAt,
+              new DrawMain(digits),
+              extras,
+              ResultQuality.SUSPECT,
+              "FL_APIM",
+              Map.of("path", latestPath, "hash", sourceHash, "error", ex.getMessage())));
+    }
+  }
+
+  private static String sha256(String s) {
+    try {
+      var md = java.security.MessageDigest.getInstance("SHA-256");
+      byte[] dig =
+          md.digest((s == null ? "" : s).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      var sb = new StringBuilder(dig.length * 2);
+      for (byte b : dig) sb.append(String.format("%02x", b));
+      return sb.toString();
+    } catch (Exception e) {
+      return "NO_HASH";
+    }
+  }
+
+  // ---- helpers + DTOs ----
+  private record ParseResult(
+      List<String> main, List<Integer> extraNumbers, Map<String, String> attributes) {}
+
+  private static String normalizeGameKey(String gameName) {
     if (gameName == null) return null;
     return gameName.trim().toUpperCase(Locale.ROOT).replaceAll("\\s+", "");
   }
 
-  private LocalDate parseFloridaDate(String raw) {
+  private static String normalize(String s) {
+    if (s == null) return null;
+    String t = s.trim().toUpperCase(Locale.ROOT);
+    return t.isBlank() ? null : t;
+  }
+
+  private static LocalDate parseFloridaDate(String raw) {
     if (raw == null || raw.isBlank()) return null;
     String datePart = raw.length() >= 10 ? raw.substring(0, 10) : raw;
     try {
@@ -160,138 +343,6 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
     }
   }
 
-  private ParseResult parseDigits(List<FloridaNumberDto> drawNumbers, String gameKey) {
-    if (drawNumbers == null || drawNumbers.isEmpty())
-      return new ParseResult(List.of(), List.of(), Map.of());
-
-    int expected = "PICK3".equals(gameKey) ? 3 : 4;
-
-    record Wn(int idx, String val) {}
-    List<Wn> wn = new ArrayList<>();
-
-    List<Integer> extraNums = new ArrayList<>();
-    Map<String, String> attrs = new HashMap<>();
-
-    for (FloridaNumberDto n : drawNumbers) {
-      if (n == null) continue;
-      String type = n.numberType();
-      String pickRaw = n.numberPick();
-      String pickTrim = pickRaw == null ? "" : pickRaw.trim();
-      if (type == null) {
-        // treat as extra if no type
-        if (!pickTrim.isBlank()) {
-          try {
-            extraNums.add(Integer.parseInt(pickTrim));
-          } catch (NumberFormatException ignored) {
-          }
-        }
-        continue;
-      }
-
-      String t = type.trim().toLowerCase(Locale.ROOT);
-      if (!t.startsWith("wn")) {
-        // extra
-        if (!pickTrim.isBlank()) {
-          try {
-            extraNums.add(Integer.parseInt(pickTrim));
-          } catch (NumberFormatException ignored) {
-          }
-          if (attrs.containsKey(t)) attrs.put(t, attrs.get(t) + "," + pickTrim);
-          else attrs.put(t, pickTrim);
-        }
-        continue;
-      }
-
-      int idx = 99;
-      try {
-        idx = Integer.parseInt(t.substring(2));
-      } catch (Exception ignored) {
-      }
-      if (!pickTrim.isEmpty()) wn.add(new Wn(idx, pickTrim));
-    }
-
-    wn.sort(Comparator.comparingInt(Wn::idx));
-    List<String> main = new ArrayList<>();
-    for (Wn x : wn) {
-      main.add(x.val());
-      if (main.size() == expected) break;
-    }
-
-    return new ParseResult(List.copyOf(main), List.copyOf(extraNums), Map.copyOf(attrs));
-  }
-
-  private static String normalize(String s) {
-    if (s == null) return null;
-    String t = s.trim().toUpperCase();
-    if (t.isBlank()) return null;
-    return t;
-  }
-
-  private String mapChannelCode(String externalGameKey, String externalDrawType) {
-    return switch (externalGameKey + "_" + externalDrawType) {
-      case "PICK3_MIDDAY" -> "US_FL_PICK3_MID";
-      case "PICK3_EVENING" -> "US_FL_PICK3_EVE";
-      case "PICK4_MIDDAY" -> "US_FL_PICK4_MID";
-      case "PICK4_EVENING" -> "US_FL_PICK4_EVE";
-      default -> null;
-    };
-  }
-
-  private void buildAndAddLatestDraw(
-      List<LatestDraw> results,
-      String externalGameKey,
-      String externalDrawType,
-      String channelCode,
-      LocalDate date,
-      OffsetDateTime occurredAtUtc,
-      Instant fetchedAt,
-      List<String> digits,
-      DrawExtras extras,
-      String latestPath) {
-    try {
-      DrawMain main = new DrawMain(digits);
-      int expected = externalGameKey.equals("PICK3") ? 3 : 4;
-      main.requireSize(expected, externalGameKey + "_" + externalDrawType);
-
-      results.add(
-          new LatestDraw(
-              UsLotteryProvider.FLORIDA,
-              externalGameKey,
-              externalDrawType,
-              channelCode,
-              date,
-              occurredAtUtc,
-              fetchedAt,
-              main,
-              extras,
-              ResultQuality.COMPLETE,
-              "FL_APIM",
-              Map.of("path", latestPath)));
-    } catch (Exception ex) {
-      log.debug(
-          "florida: suspect row ignored: game={} type={} date={} err= {}",
-          externalGameKey,
-          externalDrawType,
-          date,
-          ex.toString());
-      results.add(
-          new LatestDraw(
-              UsLotteryProvider.FLORIDA,
-              externalGameKey,
-              externalDrawType,
-              channelCode,
-              date,
-              occurredAtUtc,
-              fetchedAt,
-              new DrawMain(digits), // may throw if digits invalid; otherwise ok
-              extras,
-              ResultQuality.SUSPECT,
-              "FL_APIM",
-              Map.of("path", latestPath, "error", ex.getMessage())));
-    }
-  }
-
-  // ---- DTOs ----
   @JsonIgnoreProperties(ignoreUnknown = true)
   private record FloridaEntryDto(
       @JsonProperty("GameName") String gameName,
@@ -301,6 +352,6 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   private record FloridaNumberDto(
-      @JsonProperty("NumberPick") String numberPick, // String to preserve leading zeros
+      @JsonProperty("NumberPick") String numberPick,
       @JsonProperty("NumberType") String numberType) {}
 }

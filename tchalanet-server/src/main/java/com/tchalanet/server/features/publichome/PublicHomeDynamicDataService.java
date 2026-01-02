@@ -1,11 +1,7 @@
 package com.tchalanet.server.features.publichome;
 
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
-import com.tchalanet.server.features.pagemodel.shared.block.HeroBlock;
-import com.tchalanet.server.features.pagemodel.shared.block.NewsBlock;
-import com.tchalanet.server.features.pagemodel.shared.block.PlansBlock;
 import com.tchalanet.server.features.pagemodel.shared.block.PublicPageDynamicPayload;
-import com.tchalanet.server.features.pagemodel.shared.block.ResultsByGameBlock;
 import com.tchalanet.server.features.pagemodel.shared.dynamic.NewsProvider;
 import com.tchalanet.server.features.pagemodel.shared.dynamic.PlansProvider;
 import com.tchalanet.server.features.pagemodel.shared.dynamic.ResultsByGameProvider;

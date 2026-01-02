@@ -26,11 +26,7 @@ public class UsLotteryProviderRawCache {
   private static final Logger log = LoggerFactory.getLogger(UsLotteryProviderRawCache.class);
 
   public String getOrFetch(
-      String provider,
-      LocalDate drawDate,
-      String queryHash,
-      Supplier<String> fetcher
-  ) {
+      String provider, LocalDate drawDate, String queryHash, Supplier<String> fetcher) {
     if (provider == null) throw new IllegalArgumentException("provider is required");
     if (drawDate == null) throw new IllegalArgumentException("drawDate is required");
     if (queryHash == null) throw new IllegalArgumentException("queryHash is required");
@@ -38,20 +34,20 @@ public class UsLotteryProviderRawCache {
 
     Cache cache = cacheManager.getCache(CACHE_NAME);
     if (cache == null) {
-      log.debug("Cache '{}' not configured, calling fetcher directly", CACHE_NAME);
+      log.info("Cache '{}' not configured, calling fetcher directly", CACHE_NAME);
       return fetcher.get();
     }
 
     String key = keyBuilder.usLotteryProviderRawKey(provider, drawDate, queryHash);
     if (key == null) {
-      log.debug("Cache key builder returned null, calling fetcher directly");
+      log.info("Cache key builder returned null, calling fetcher directly");
       return fetcher.get();
     }
 
     // first fast-path: try to read without locking
     String existing = cache.get(key, String.class);
     if (existing != null) {
-      log.debug("Cache hit for provider={} date={} key={}", provider, drawDate, key);
+      log.info("Cache hit for provider={} date={} key={}", provider, drawDate, key);
       return existing;
     }
 
@@ -62,21 +58,21 @@ public class UsLotteryProviderRawCache {
         // double-check after acquiring lock
         existing = cache.get(key, String.class);
         if (existing != null) {
-          log.debug("Cache filled by other thread for key={}", key);
+          log.info("Cache filled by other thread for key={}", key);
           return existing;
         }
 
-        log.debug("Cache miss for key={}, invoking fetcher", key);
+        log.info("Cache miss for key={}, invoking fetcher", key);
         String value = fetcher.get();
         if (value != null) {
           try {
             cache.put(key, value);
-            log.debug("Stored value in cache for key={}", key);
+            log.info("Stored value in cache for key={}", key);
           } catch (Exception e) {
             log.warn("Failed to put value into cache for key={}: {}", key, e.getMessage());
           }
         } else {
-          log.debug("Fetcher returned null for key={}; not caching", key);
+          log.info("Fetcher returned null for key={}; not caching", key);
         }
         return value;
       } finally {
@@ -96,33 +92,41 @@ public class UsLotteryProviderRawCache {
   }
 
   /**
-   * Put a value in the cache for the given provider/drawDate/queryHash.
-   * Does nothing if cache not configured, key cannot be built or value is null.
+   * Put a value in the cache for the given provider/drawDate/queryHash. Does nothing if cache not
+   * configured, key cannot be built or value is null.
    */
   public void put(String provider, LocalDate drawDate, String queryHash, String value) {
     if (provider == null || drawDate == null || queryHash == null) {
       throw new IllegalArgumentException("provider, drawDate and queryHash are required");
     }
     if (value == null) {
-      log.debug("Not caching null value for provider={} date={} queryHash={}", provider, drawDate, queryHash);
+      log.info(
+          "Not caching null value for provider={} date={} queryHash={}",
+          provider,
+          drawDate,
+          queryHash);
       return;
     }
 
     Cache cache = cacheManager.getCache(CACHE_NAME);
     if (cache == null) {
-      log.debug("Cache '{}' not configured, skipping put for provider={} date={}", CACHE_NAME, provider, drawDate);
+      log.info(
+          "Cache '{}' not configured, skipping put for provider={} date={}",
+          CACHE_NAME,
+          provider,
+          drawDate);
       return;
     }
 
     String key = keyBuilder.usLotteryProviderRawKey(provider, drawDate, queryHash);
     if (key == null) {
-      log.debug("Cache key builder returned null, skipping put");
+      log.info("Cache key builder returned null, skipping put");
       return;
     }
 
     try {
       cache.put(key, value);
-      log.debug("Put value in cache for key={}", key);
+      log.info("Put value in cache for key={}", key);
     } catch (Exception e) {
       log.warn("Failed to put value into cache for key={}: {}", key, e.getMessage());
     }
@@ -137,7 +141,7 @@ public class UsLotteryProviderRawCache {
     if (key == null) return;
     try {
       cache.evict(key);
-      log.debug("Evicted cache key={}", key);
+      log.info("Evicted cache key={}", key);
     } catch (Exception e) {
       log.warn("Failed to evict cache key={}: {}", key, e.getMessage());
     }

@@ -13,7 +13,8 @@ public record DrawMain(List<String> ordered) {
     if (cleaned.isEmpty()) throw new IllegalArgumentException("main numbers empty");
 
     for (String s : cleaned) {
-      if (s.length() != 1 || s.charAt(0) < '0' || s.charAt(0) > '9') {
+      // accept multi-digit numbers (e.g. "24"), but ensure all characters are digits
+      if (!s.matches("\\d+")) {
         throw new IllegalArgumentException("invalid digit: " + s);
       }
     }

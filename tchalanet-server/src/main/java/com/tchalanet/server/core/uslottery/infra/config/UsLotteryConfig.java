@@ -1,13 +1,13 @@
 package com.tchalanet.server.core.uslottery.infra.config;
 
+import com.tchalanet.server.common.http.RestClientFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 @EnableConfigurationProperties(UsLotteryProperties.class)
@@ -15,14 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class UsLotteryConfig {
 
   @Bean
-  public WebClient.Builder webClientBuilder() {
-    int maxSize = 10 * 1024 * 1024; // 5MB
-
-    var strategies =
-        ExchangeStrategies.builder()
-            .codecs(c -> c.defaultCodecs().maxInMemorySize(maxSize))
-            .build();
-    return WebClient.builder().exchangeStrategies(strategies);
+  public RestClient.Builder restClientBuilder(RestClientFactory factory) {
+    return factory.builder();
   }
 
   @Bean
@@ -31,13 +25,12 @@ public class UsLotteryConfig {
       name = "enabled",
       havingValue = "true",
       matchIfMissing = true)
-  public WebClient nyLotteryWebClient(WebClient.Builder builder, UsLotteryProperties props) {
+  public RestClient nyLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
     var provider = props.getProviders() != null ? props.getProviders().get("ny") : null;
     String baseUrl = provider != null ? provider.getBaseUrl() : null;
-    if (baseUrl == null || baseUrl.isBlank()) {
-      return builder.build();
-    }
-    return builder.baseUrl(baseUrl).build();
+    return (baseUrl == null || baseUrl.isBlank())
+        ? builder.build()
+        : builder.baseUrl(baseUrl).build();
   }
 
   @Bean
@@ -46,21 +39,14 @@ public class UsLotteryConfig {
       name = "enabled",
       havingValue = "true",
       matchIfMissing = true)
-  public WebClient floridaLotteryWebClient(WebClient.Builder builder, UsLotteryProperties props) {
+  public RestClient floridaLotteryRestClient(
+      RestClient.Builder builder, UsLotteryProperties props) {
     var provider = props.getProviders() != null ? props.getProviders().get("florida") : null;
     String baseUrl = provider != null ? provider.getBaseUrl() : null;
-    if (baseUrl == null || baseUrl.isBlank()) {
-      return builder
-          .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-          .defaultHeader("x-partner", "web")
-          .defaultHeader(HttpHeaders.ORIGIN, "https://floridalottery.com")
-          .defaultHeader(HttpHeaders.REFERER, "https://floridalottery.com/")
-          .defaultHeader(HttpHeaders.USER_AGENT, "Tchalanet/1.0 (+https://tchalanet.com)")
-          .build();
-    }
-    return builder
-        .baseUrl(baseUrl)
-        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+
+    var b = (baseUrl == null || baseUrl.isBlank()) ? builder : builder.baseUrl(baseUrl);
+
+    return b.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader("x-partner", "web")
         .defaultHeader(HttpHeaders.ORIGIN, "https://floridalottery.com")
         .defaultHeader(HttpHeaders.REFERER, "https://floridalottery.com/")

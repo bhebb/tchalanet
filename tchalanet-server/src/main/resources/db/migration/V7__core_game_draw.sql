@@ -99,79 +99,129 @@ BEGIN
   END IF;
 END $$;
 
+
+-- DRAW_RESULT
+CREATE TABLE draw_result (
+                             id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                             version bigint NOT NULL DEFAULT 0,
+
+                             channel_code varchar(64) NOT NULL,
+                             draw_date date NOT NULL,
+
+                             occurred_at timestamptz,
+                             numbers_main jsonb NOT NULL,
+                             numbers_extra jsonb,
+
+                             quality varchar(16) NOT NULL,
+                             status varchar(16) NOT NULL DEFAULT 'VALID',
+                             source varchar(32) NOT NULL,
+
+                             source_hash varchar(64),
+                             raw_payload jsonb,
+
+                             override_reason text,
+
+                             fetched_at timestamptz NOT NULL DEFAULT now(),
+                             created_at timestamptz NOT NULL DEFAULT now(),
+                             created_by uuid,
+                             updated_at timestamptz,
+                             updated_by uuid,
+                             deleted_at timestamptz,
+                             CONSTRAINT uq_draw_result_channel_date UNIQUE (channel_code, draw_date)
+);
+
+CREATE INDEX ix_draw_result_channel_date ON draw_result(channel_code, draw_date);
+CREATE INDEX ix_draw_result_status ON draw_result(status);
+CREATE INDEX ix_draw_result_quality ON draw_result(quality);
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_draw_result_updated_at') THEN
+CREATE TRIGGER trg_draw_result_updated_at
+    BEFORE UPDATE ON draw_result
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+END IF;
+END $$;
+
+
 -- DRAW
+C-- DRAW
 CREATE TABLE IF NOT EXISTS draw (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                                    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     version bigint NOT NULL DEFAULT 0,
+
     tenant_id uuid NOT NULL REFERENCES tenant(id),
+
     draw_channel_id uuid NOT NULL REFERENCES draw_channel(id),
+    -- FK vers résultat canonique (non-tenant) - null tant que pas RESULTED
+    draw_result_id uuid REFERENCES draw_result(id),
+
+    -- clé métier stable (jour local du channel)
+    draw_date date NOT NULL,
+
+    -- timestamps de planification
     scheduled_at timestamptz NOT NULL,
     cutoff_sec int NOT NULL DEFAULT 120,
-    status varchar(16) NOT NULL, -- SCHEDULED/CLOSED/RESULTED/SETTLED/CANCELED
+    cutoff_at timestamptz NOT NULL,
+
+    -- lifecycle timestamps (audit)
+    opened_at timestamptz,
+    closed_at timestamptz,
+    resulted_at timestamptz,
+    settled_at timestamptz,
+    canceled_at timestamptz,
+    cancel_reason text,
+
+    status varchar(16) NOT NULL CHECK (status IN ('SCHEDULED','OPEN','CLOSED','RESULTED','SETTLED','CANCELED','ARCHIVED')),
     draw_source varchar(32),
+
     system_generated boolean NOT NULL DEFAULT true,
     locked boolean NOT NULL DEFAULT false,
+
     created_at timestamptz NOT NULL DEFAULT now(),
     created_by uuid,
     updated_at timestamptz NOT NULL DEFAULT now(),
     updated_by uuid,
     deleted_at timestamptz
-);
+    );
 
-ALTER TABLE draw
-    DROP CONSTRAINT IF EXISTS chk_draw_status;
-ALTER TABLE draw
-    ADD CONSTRAINT chk_draw_status
-      CHECK (status IN ('SCHEDULED','CLOSED','RESULTED','SETTLED','CANCELED'));
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_draw_unique_instance
-    ON draw (tenant_id, draw_channel_id, scheduled_at)
+-- Unicité stable: 1 draw par (tenant, channel, date)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_draw_unique_day
+    ON draw (tenant_id, draw_channel_id, draw_date)
     WHERE deleted_at IS NULL;
+
+-- Accélère les listings / ops
+CREATE INDEX IF NOT EXISTS ix_draw_tenant_date
+    ON draw (tenant_id, draw_date DESC);
+
 CREATE INDEX IF NOT EXISTS ix_draw_tenant_scheduled
     ON draw (tenant_id, scheduled_at);
-CREATE INDEX IF NOT EXISTS ix_draw_status_sched
-    ON draw (status, scheduled_at);
+
+-- OpenDue: status=SCHEDULED + window sur scheduled_at
+CREATE INDEX IF NOT EXISTS ix_draw_status_scheduled_at
+    ON draw (status, scheduled_at)
+    WHERE deleted_at IS NULL AND locked = false;
+
+-- CloseDue: status=OPEN + cutoff_at <= now
+CREATE INDEX IF NOT EXISTS ix_draw_status_cutoff_at
+    ON draw (status, cutoff_at)
+    WHERE deleted_at IS NULL AND locked = false;
+
+-- Attach/Apply: status=CLOSED + draw_result_id IS NULL (optionnel mais utile)
+CREATE INDEX IF NOT EXISTS ix_draw_closed_missing_result
+    ON draw (tenant_id, draw_channel_id, draw_date)
+    WHERE deleted_at IS NULL AND status = 'CLOSED' AND draw_result_id IS NULL;
+
+-- Settle: status=RESULTED + not locked
+CREATE INDEX IF NOT EXISTS ix_draw_resulted_to_settle
+    ON draw (tenant_id, draw_date)
+    WHERE deleted_at IS NULL AND status = 'RESULTED' AND locked = false;
 
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_draw_updated_at') THEN
-    CREATE TRIGGER trg_draw_updated_at
-      BEFORE UPDATE ON draw
-      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-  END IF;
-END $$;
-
--- DRAW_RESULT
-CREATE TABLE IF NOT EXISTS draw_result (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    version bigint NOT NULL DEFAULT 0,
-    tenant_id uuid NOT NULL,
-    draw_id uuid NOT NULL REFERENCES draw(id),
-    source varchar(32) NOT NULL,                 -- EXTERNAL / MANUAL / ADMIN_OVERRIDE
-    status varchar(32) NOT NULL DEFAULT 'VALID', -- VALID / OVERRIDDEN / INVALIDATED
-    numbers_main jsonb NOT NULL,
-    numbers_extra jsonb,
-    raw_payload jsonb,
-    overridden_at timestamptz,
-    overridden_by uuid,
-    override_reason text,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    created_by uuid,
-    updated_at timestamptz,
-    updated_by uuid,
-    deleted_at timestamptz,
-    CONSTRAINT uq_draw_result_tenant_draw UNIQUE (tenant_id, draw_id)
-);
-
-CREATE INDEX IF NOT EXISTS ix_draw_result_tenant ON draw_result (tenant_id);
-CREATE INDEX IF NOT EXISTS ix_draw_result_tenant_status ON draw_result (tenant_id, status);
-
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_draw_result_updated_at') THEN
-    CREATE TRIGGER trg_draw_result_updated_at
-      BEFORE UPDATE ON draw_result
-      FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-  END IF;
+CREATE TRIGGER trg_draw_updated_at
+    BEFORE UPDATE ON draw
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+END IF;
 END $$;
 

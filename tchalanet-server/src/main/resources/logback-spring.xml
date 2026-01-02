@@ -5,7 +5,7 @@
 
   <!-- Read Spring Boot / application.yml logging.level.* into logback -->
   <springProperty scope="context" name="ROOT_LEVEL" source="logging.level.root" defaultValue="INFO"/>
-  <springProperty scope="context" name="APP_LEVEL" source="logging.level.com.tchalanet.server" defaultValue="INFO"/>
+  <springProperty scope="context" name="APP_LEVEL" source="logging.level.com.tchalanet.server" defaultValue="DEBUG"/>
   <springProperty scope="context" name="WEB_LEVEL" source="logging.level.org.springframework.web" defaultValue="INFO"/>
   <springProperty scope="context" name="SEC_LEVEL" source="logging.level.org.springframework.security" defaultValue="INFO"/>
   <springProperty scope="context" name="OAUTH2_LEVEL" source="logging.level.org.springframework.security.oauth2" defaultValue="INFO"/>

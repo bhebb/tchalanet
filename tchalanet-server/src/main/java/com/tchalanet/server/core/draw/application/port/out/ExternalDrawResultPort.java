@@ -30,7 +30,14 @@ public interface ExternalDrawResultPort {
       Map<String, Object> rawPayload) {
 
     public static ExternalDrawResult notFound(String status, Map<String, Object> raw) {
-      return new ExternalDrawResult(false, status, List.of(), List.of(), null, com.tchalanet.server.common.types.enums.ResultQuality.SUSPECT, raw);
+      return new ExternalDrawResult(
+          false,
+          status,
+          List.of(),
+          List.of(),
+          null,
+          com.tchalanet.server.common.types.enums.ResultQuality.SUSPECT,
+          raw);
     }
 
     public static ExternalDrawResult found(
@@ -48,19 +55,15 @@ public interface ExternalDrawResultPort {
   record DrawExternalBulkQuery(
       List<String> channelCodes,
       LocalDate drawDateLocal,
-      Instant executedAtUtc,
+      int daysBack,
       boolean force,
-      boolean dryRun,
-      int maxDraws) {
+      boolean dryRun) {
     public DrawExternalBulkQuery {
       if (channelCodes == null) throw new IllegalArgumentException("channelCodes required");
       if (drawDateLocal == null) throw new IllegalArgumentException("drawDateLocal required");
-      if (executedAtUtc == null) throw new IllegalArgumentException("executedAtUtc required");
     }
   }
 
-  /**
-   * Retourne une map: channelCode -> résultat (si trouvé).
-   */
+  /** Retourne une map: channelCode -> résultat (si trouvé). */
   Map<String, ExternalDrawResult> fetchExternalResults(DrawExternalBulkQuery query);
 }

@@ -15,3 +15,4 @@ CREATE TABLE IF NOT EXISTS stats_draw (
 CREATE INDEX IF NOT EXISTS ix_stats_draw_tenant_date ON stats_draw(tenant_id, draw_date);
 CREATE INDEX IF NOT EXISTS ix_stats_draw_draw_id ON stats_draw(draw_id);
 
+

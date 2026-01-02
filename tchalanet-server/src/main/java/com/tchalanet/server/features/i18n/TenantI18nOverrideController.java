@@ -2,7 +2,6 @@ package com.tchalanet.server.features.i18n;
 
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.persistence.I18nOverrideEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
