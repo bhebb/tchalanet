@@ -1,0 +1,17 @@
+curl 'http://localhost:8083/api/v1/tenant/tickets/88b69c83-7a82-4a65-8905-3962ce197698/print.pdf' \
+  -H 'Accept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7' \
+  -H 'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJMOU5obVROM1IxOHZOQUxxeDlNRGdxSEFXcnpNSm5IZ3ktYnJTUE1Nem1jIn0.eyJleHAiOjE3Njc1NDk3MjgsImlhdCI6MTc2NzU0OTQyOCwianRpIjoib25ydGFjOjBkYmY3NTE5LWQ3YzktNzIxMy1iYTVhLTYzODBmMWZhYmJkNiIsImlzcyI6Imh0dHBzOi8vYXV0aC5sb2NhbHRlc3QubWUvcmVhbG1zL3RjaGFsYW5ldCIsInN1YiI6ImE3ODgyNzBiLWVkMjUtNDFlZi05Nzk2LTU5NGM5OTQwOTc3OCIsInR5cCI6IkJlYXJlciIsImF6cCI6InRjaGFsYW5ldC1zd2FnZ2VyIiwic2lkIjoiNTYxZGJmZDEtYTRmNi0yNzU0LTI5NWUtNzcwMGVmNTlhYjVmIiwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCB0Y2ggcm9sZXMgYmFzaWMiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicm9sZXMiOlsiVEVOQU5UX0FETUlOIl0sInRjaCI6eyJwbGFuIjoicHJvIiwiZmVhdHVyZVNldElkIjoiYmFzZSJ9LCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbiIsImxvY2FsZSI6ImZyIiwiZW1haWwiOiJhZG1pbkBsb2NhbCIsInRlbmFudF9jb2RlIjoidGNoYWxhbmV0In0.plKwtLtRDWjqOfzOdwyo1tASi8qlnKaVmsra_mJGEv2hUSknBk3njtd60uscq_dnQODhbqDv_FYoz-O4AfXRF80xYfkZH36KyJg1DxZF3qH5yWqAdUtlVY_vMlIRWf4ipuCixslH2Gh0eSe10pMoKH2A1osTQBI1Ds_aqoCvZpwfRukeTaC1-7emYdcpttIqxayje2soDvAoGYTXnXChqU5ZXSIdz_Xxpl2J8FkuGFLjz6pTEnfMk5aQ3TUyW8M-NrQvkDuF5v9_c6cyzZ2zEYbOktLTCT-uWaHMHYclQwUmYxN40AVV-Ab66w8NnIilLq-dr-lM8arFX0O-eR_cQg' \
+  -H 'Cache-Control: no-cache' \
+  -H 'Connection: keep-alive' \
+  -H 'Pragma: no-cache' \
+  -H 'Referer: http://localhost:8083/api/v1/swagger-ui/index.html?urls.primaryName=tenant' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-origin' \
+  -H 'Sec-GPC: 1' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36' \
+  -H 'accept: application/pdf' \
+  -H 'sec-ch-ua: "Chromium";v="142", "Brave";v="142", "Not_A Brand";v="99"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+--output ticket.pdf
