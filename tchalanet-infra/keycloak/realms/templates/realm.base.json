@@ -197,7 +197,7 @@
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
-      "defaultClientScopes": ["email", "profile", "tch", "tch-groups", "web-origins", "roles"],
+      "defaultClientScopes": ["basic", "email", "profile", "tch", "tch-groups", "web-origins", "roles"],
       "optionalClientScopes": ["offline_access"],
       "protocolMappers": [
         {
@@ -229,7 +229,7 @@
       "standardFlowEnabled": true,
       "redirectUris": ["http://localhost:8081/swagger-ui/oauth2-redirect.html"],
       "webOrigins": ["http://localhost:8081"],
-      "defaultClientScopes": ["email", "profile", "roles", "tch", "web-origins"]
+      "defaultClientScopes": ["basic", "profile", "email", "roles", "tch", "web-origins"]
     }
   ],
 
