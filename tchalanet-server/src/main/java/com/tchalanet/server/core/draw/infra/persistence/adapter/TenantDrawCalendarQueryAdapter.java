@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.draw.infra.persistence;
+package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.TenantDrawCalendarQueryPort;
