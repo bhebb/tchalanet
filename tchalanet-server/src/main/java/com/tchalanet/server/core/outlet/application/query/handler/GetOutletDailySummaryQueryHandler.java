@@ -23,7 +23,7 @@ public class GetOutletDailySummaryQueryHandler
 
   @Override
   public OutletDailySummary handle(GetOutletDailySummaryQuery query) {
-    var outlet = outletReader.getRequired(query.tenantId(), query.outletId());
+    var outlet = outletReader.getRequired(query.outletId(), query.tenantId());
 
     var zone = ZoneId.of(outlet.timezone());
     var from = query.date().atStartOfDay(zone).toInstant();

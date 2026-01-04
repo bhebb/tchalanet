@@ -5,9 +5,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.outlet.application.command.model.*;
-import com.tchalanet.server.core.outlet.application.query.model.GenerateOutletReportQuery;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
-import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
+import com.tchalanet.server.core.outlet.application.query.model.*;
 import com.tchalanet.server.core.outlet.infra.web.model.CloseOutletDayRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -121,5 +120,22 @@ public class OutletAdminController {
     } catch (Exception e) {
       return ResponseEntity.status(500).build();
     }
+  }
+
+  @Operation(summary = "Create outlet (admin)")
+  @PostMapping
+  public ResponseEntity<Map<String, Object>> create(
+      @RequestHeader("X-Tenant-Id") TenantId tenantId, @RequestBody CreateOutletRequest req) {
+    java.util.UUID id =
+        commandBus.send(new CreateOutletCommand(tenantId, req.name(), req.slug(), req.address()));
+    return ResponseEntity.ok(Map.of("id", id));
+  }
+
+  @Operation(summary = "Get outlet by id (admin)")
+  @GetMapping("/{id}")
+  public ResponseEntity<OutletDto> get(
+      @PathVariable OutletId id, @RequestHeader("X-Tenant-Id") TenantId tenantId) {
+    var dto = queryBus.send(new GetOutletByIdQuery(tenantId, id));
+    return ResponseEntity.ok(dto);
   }
 }

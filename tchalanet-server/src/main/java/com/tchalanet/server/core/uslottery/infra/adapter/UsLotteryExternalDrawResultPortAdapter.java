@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 @Primary
@@ -138,7 +139,7 @@ public class UsLotteryExternalDrawResultPortAdapter implements ExternalDrawResul
         continue;
       }
 
-      if (latest == null || latest.isEmpty()) continue;
+      if (CollectionUtils.isEmpty(latest)) continue;
 
       for (Resolved r : wanted) {
         Optional<LatestDraw> match =

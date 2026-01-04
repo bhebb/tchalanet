@@ -4,9 +4,11 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsResult;
-import com.tchalanet.server.core.draw.application.port.out.DrawStorePort;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,28 +18,42 @@ import lombok.extern.slf4j.Slf4j;
 public class CloseDueDrawsCommandHandler
     implements CommandHandler<CloseDueDrawsCommand, CloseDueDrawsResult> {
 
-  private final DrawStorePort drawStorePort;
+  private static final int LOG_SAMPLE_IDS = 10;
 
+  private final DrawLifecyclePort drawLifecyclePort;
+
+  @Override
   public CloseDueDrawsResult handle(CloseDueDrawsCommand command) {
     validateCommand(command);
 
-    var due = drawStorePort.findDueToClose(command.now(), command.limit());
-    var skippedLocked = (int) due.stream().filter(DueToCloseRow::locked).count();
-    var ids = due.stream().filter(row -> !row.locked()).map(row -> row.drawId()).toList();
+    var due = drawLifecyclePort.findDueToClose(command.now(), command.limit());
+    int dueCount = due.size();
+
+    int skippedLocked = (int) due.stream().filter(DueToCloseRow::locked).count();
+    var ids = due.stream().filter(r -> !r.locked()).map(DueToCloseRow::drawId).toList();
 
     if (command.dryRun()) {
       log.info(
-          "closeDueDraws(dryRun=true) now={} wouldClose={} skippedLocked={}",
+          "draw.close_due dryRun=true now={} limit={} due={} wouldClose={} skippedLocked={} sampleIds={}",
           command.now(),
+          command.limit(),
+          dueCount,
           ids.size(),
-          skippedLocked);
+          skippedLocked,
+          sample(ids));
       return new CloseDueDrawsResult(0, skippedLocked);
     }
 
-    var closed = drawStorePort.bulkClose(ids);
+    int closed = drawLifecyclePort.bulkClose(ids);
 
     log.info(
-        "closeDueDraws now={} closed={} skippedLocked={}", command.now(), closed, skippedLocked);
+        "draw.close_due now={} limit={} due={} closed={} skippedLocked={} sampleIds={}",
+        command.now(),
+        command.limit(),
+        dueCount,
+        closed,
+        skippedLocked,
+        sample(ids));
 
     return new CloseDueDrawsResult(closed, skippedLocked);
   }
@@ -45,8 +61,11 @@ public class CloseDueDrawsCommandHandler
   private static void validateCommand(CloseDueDrawsCommand command) {
     Objects.requireNonNull(command, "command is required");
     Objects.requireNonNull(command.now(), "now is required");
-    if (command.limit() <= 0) {
-      throw new IllegalArgumentException("limit must be > 0");
-    }
+    if (command.limit() <= 0) throw new IllegalArgumentException("limit must be > 0");
+  }
+
+  private static List<String> sample(List<?> ids) {
+    if (ids == null || ids.isEmpty()) return List.of();
+    return ids.stream().limit(LOG_SAMPLE_IDS).map(Object::toString).collect(Collectors.toList());
   }
 }

@@ -132,6 +132,20 @@ public final class Tenant {
     this.version = version;
   }
 
+  public Tenant withAddressId(java.util.UUID addressId) {
+    return new Tenant(
+        this.id,
+        this.code,
+        this.name,
+        this.type,
+        this.timezone,
+        this.currency,
+        this.status,
+        this.activeThemeId,
+        addressId,
+        this.version);
+  }
+
   private static String normalizeCode(String code) {
     String v = requireNonBlank(code, "code").trim().toLowerCase();
     if (v.length() > 64) throw new IllegalArgumentException("code too long");

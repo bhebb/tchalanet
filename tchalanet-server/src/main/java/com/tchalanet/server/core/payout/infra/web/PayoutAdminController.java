@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/admin/payouts")
-@Tags({@Tag(name = "Admin • Payouts"), @Tag(name = "Tenant • Payouts")})
+@Tags({@Tag(name = "Admin • Payouts")})
 public class PayoutAdminController {
 
   private final CommandBus commandBus;

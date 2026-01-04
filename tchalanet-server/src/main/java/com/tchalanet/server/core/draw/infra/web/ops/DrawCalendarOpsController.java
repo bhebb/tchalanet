@@ -8,52 +8,53 @@ import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsFor
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
 import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsResult;
+import com.tchalanet.server.core.draw.infra.web.ops.model.CloseDueDrawsRequest;
+import com.tchalanet.server.core.draw.infra.web.ops.model.GenerateDrawsRequest;
+import com.tchalanet.server.core.draw.infra.web.ops.model.OpenDueDrawsRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.time.Instant;
-import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/platform/ops/draws")
 @RequiredArgsConstructor
-// @PreAuthorize("hasAuthority('SUPER_ADMIN')") todo reactivate
+// @PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Ops • Scheduler")
 public class DrawCalendarOpsController {
 
   private final CommandBus commandBus;
+  private final com.tchalanet.server.common.batch.BatchGate batchGate;
 
   @Operation(summary = "Generate draws for a date range (ops)")
   @PostMapping("/generate")
-  public GenerateDrawsForRangeResult generate(
-      @RequestParam TenantId tenantId,
-      @RequestParam LocalDate from,
-      @RequestParam LocalDate to,
-      @RequestParam(defaultValue = "false") boolean dryRun,
-      @RequestParam(defaultValue = "false") boolean force) {
-    return commandBus.send(new GenerateDrawsForRangeCommand(tenantId, from, to, dryRun, force));
+  public GenerateDrawsForRangeResult generate(@Valid @RequestBody GenerateDrawsRequest req) {
+    batchGate.assertCanRunOrThrow("generate");
+    return commandBus.send(
+        new GenerateDrawsForRangeCommand(
+            TenantId.of(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force()));
   }
 
   @Operation(summary = "Open due draws (ops)")
   @PostMapping("/open-due")
-  public OpenDueDrawsResult openDue(
-      @RequestParam(defaultValue = "2000") int limit,
-      @RequestParam(defaultValue = "12") int openHorizonHours,
-      @RequestParam(defaultValue = "6") int openLagHours,
-      @RequestParam(defaultValue = "false") boolean dryRun) {
+  public OpenDueDrawsResult openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
+    batchGate.assertCanRunOrThrow("open");
+    Instant now = req.now() == null ? Instant.now() : req.now();
     return commandBus.send(
-        new OpenDueDrawsCommand(Instant.now(), limit, openHorizonHours, openLagHours, dryRun));
+        new OpenDueDrawsCommand(
+            now, req.limit(), req.openHorizonHours(), req.openLagHours(), req.dryRun()));
   }
 
   @Operation(summary = "Close due draws (ops)")
   @PostMapping("/close-due")
-  public CloseDueDrawsResult closeDue(
-      @RequestParam(defaultValue = "2000") int limit,
-      @RequestParam(defaultValue = "false") boolean dryRun) {
-    return commandBus.send(new CloseDueDrawsCommand(Instant.now(), limit, dryRun));
+  public CloseDueDrawsResult closeDue(@Valid @RequestBody CloseDueDrawsRequest req) {
+    batchGate.assertCanRunOrThrow("close");
+    Instant now = req.now() == null ? Instant.now() : req.now();
+    return commandBus.send(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
   }
 }

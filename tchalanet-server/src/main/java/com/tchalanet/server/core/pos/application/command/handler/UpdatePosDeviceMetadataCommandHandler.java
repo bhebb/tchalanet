@@ -46,7 +46,9 @@ public class UpdatePosDeviceMetadataCommandHandler
               updated.lockedAt(),
               updated.lockedBy(),
               updated.lockReason(),
-              updated.deletedAt());
+              updated.deletedAt(),
+              updated.label(),
+              updated.inventoryTag());
     }
 
     return writer.save(updated);

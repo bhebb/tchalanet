@@ -94,7 +94,7 @@ public class Ticket {
         publicCode,
         List.copyOf(lines),
         total,
-        TicketStatus.SOLD,
+        TicketStatus.PENDING,
         createdAt,
         createdAt);
   }
@@ -141,8 +141,8 @@ public class Ticket {
 
   public void voidTicket(Instant when) {
     requireWhen(when);
-    ensureStatus(TicketStatus.SOLD);
-    this.status = TicketStatus.VOIDED;
+    ensureStatus(TicketStatus.PENDING);
+    this.status = TicketStatus.VOID;
     this.updatedAt = when;
   }
 
@@ -151,24 +151,23 @@ public class Ticket {
     Objects.requireNonNull(winningAmount, "winningAmount");
     if (winningAmount.signum() < 0)
       throw new IllegalArgumentException("winningAmount cannot be negative");
-    ensureStatus(TicketStatus.SOLD);
+    ensureStatus(TicketStatus.PENDING);
 
     this.winningAmount = winningAmount;
-    this.status =
-        winningAmount.signum() > 0 ? TicketStatus.RESULTED_WIN : TicketStatus.RESULTED_LOSS;
+    this.status = winningAmount.signum() > 0 ? TicketStatus.WON : TicketStatus.LOST;
     this.updatedAt = when;
   }
 
   public void markPaymentPending(Instant when) {
     requireWhen(when);
-    ensureStatus(TicketStatus.RESULTED_WIN);
-    this.status = TicketStatus.PAYMENT_PENDING;
+    ensureStatus(TicketStatus.WON);
+    this.status = TicketStatus.PENDING;
     this.updatedAt = when;
   }
 
   public void markAsPaid(Instant when) {
     requireWhen(when);
-    if (this.status != TicketStatus.RESULTED_WIN && this.status != TicketStatus.PAYMENT_PENDING) {
+    if (this.status != TicketStatus.WON && this.status != TicketStatus.PENDING) {
       throw new IllegalStateException(
           "PAID allowed only from RESULTED_WIN or PAYMENT_PENDING. status=" + this.status);
     }

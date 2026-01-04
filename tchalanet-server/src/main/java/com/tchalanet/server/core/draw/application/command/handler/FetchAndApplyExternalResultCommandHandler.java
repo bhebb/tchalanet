@@ -6,9 +6,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.draw.application.command.model.FetchAndApplyExternalResultCommand;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.application.port.out.ExternalDrawResultPort;
 import com.tchalanet.server.core.draw.domain.event.DrawResultedEvent;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
@@ -31,11 +31,11 @@ public class FetchAndApplyExternalResultCommandHandler
     implements VoidCommandHandler<FetchAndApplyExternalResultCommand> {
 
   private final DrawReaderPort drawReaderPort;
-  private final DrawWriterPort drawWriterPort;
   private final DrawResultWriterPort drawResultWriterPort;
   private final ExternalDrawResultPort externalDrawResultPort;
   private final DomainEventPublisher publisher;
   private final Clock clock;
+  private final DrawLifecyclePort drawWriterPort;
 
   @Override
   @TchTx

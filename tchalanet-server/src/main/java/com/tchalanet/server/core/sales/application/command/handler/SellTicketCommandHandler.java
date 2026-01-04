@@ -312,8 +312,8 @@ public class SellTicketCommandHandler
         occurredAt,
         saved.getTenantId(),
         saved.getId(),
-        null, // outletId (not stored on ticket aggregate)
-        session.userId().uuid(), // cashier UUID
+        session.outletId(),
+        session.userId().uuid(),
         session.id(),
         saved.getDrawId(),
         firstGameCode,

@@ -2,11 +2,11 @@ package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawChannelCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelWriterPort;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import java.time.DayOfWeek;
 import java.time.LocalTime;

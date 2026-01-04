@@ -10,20 +10,25 @@ import org.springframework.stereotype.Component;
 public class TerminalMapper {
 
   public Terminal toDomain(TerminalJpaEntity entity) {
-    return new Terminal(
-        entity.getId(),
-        TenantId.nullableOf(entity.getTenantId()),
-        OutletId.nullableOf(entity.getOutletId()),
-        Terminal.TerminalState.valueOf(entity.getState()),
-        entity.getLastSeen(),
-        entity.getMeta(),
-        entity.getVersion(),
-        entity.getRegisteredAt(),
-        entity.getUnregisteredAt(),
-        entity.getLockedAt(),
-        entity.getLockedBy(),
-        entity.getLockReason(),
-        entity.getDeletedAt());
+    var t =
+        new Terminal(
+            entity.getId(),
+            TenantId.nullableOf(entity.getTenantId()),
+            OutletId.nullableOf(entity.getOutletId()),
+            Terminal.TerminalState.valueOf(entity.getState()),
+            entity.getLastSeen(),
+            // domain.meta maps to entity.metadataJson
+            entity.getMetadataJson(),
+            entity.getVersion(),
+            entity.getRegisteredAt(),
+            entity.getUnregisteredAt(),
+            entity.getLockedAt(),
+            entity.getLockedBy(),
+            entity.getLockReason(),
+            entity.getDeletedAt());
+    t.setLabel(entity.getLabel());
+    t.setInventoryTag(entity.getInventoryTag());
+    return t;
   }
 
   public TerminalJpaEntity toEntity(Terminal domain) {
@@ -33,7 +38,10 @@ public class TerminalMapper {
     entity.setOutletId(domain.outletId().uuid());
     entity.setState(domain.state().name());
     entity.setLastSeen(domain.lastSeen());
-    entity.setMeta(domain.meta());
+    // map domain.meta to entity.metadataJson
+    entity.setMetadataJson(domain.meta());
+    entity.setLabel(domain.label());
+    entity.setInventoryTag(domain.inventoryTag());
     entity.setVersion(domain.version());
     entity.setRegisteredAt(domain.registeredAt());
     entity.setUnregisteredAt(domain.unregisteredAt());

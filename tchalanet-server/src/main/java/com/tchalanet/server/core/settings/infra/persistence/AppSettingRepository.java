@@ -6,14 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.stereotype.Repository;
 
-// Platform settings exposed via SDR (per user request)
-@RepositoryRestResource(
-    exported = true,
-    path = "app-settings",
-    collectionResourceRel = "app-settings")
+@Repository
 public interface AppSettingRepository extends JpaRepository<AppSettingEntity, UUID> {
   List<AppSettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
       AppSettingLevel level, Collection<String> namespaces);
@@ -38,7 +33,6 @@ public interface AppSettingRepository extends JpaRepository<AppSettingEntity, UU
           String namespace,
           String settingKey);
 
-  @RestResource(path = "global", rel = "global")
   default List<AppSettingEntity> findGlobalByNamespace(Collection<String> namespaces) {
     return findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
         AppSettingLevel.GLOBAL, namespaces);

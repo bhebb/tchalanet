@@ -4,6 +4,7 @@ import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver
 import com.tchalanet.server.core.draw.application.print.DrawOccurrenceLabelResolver;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
+import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
@@ -24,31 +25,32 @@ public class TicketPrintViewMapper {
     this.occurrenceLabelResolver = occurrenceLabelResolver;
   }
 
-  public TicketPrintView map(Ticket ticket, Draw draw, DrawChannel channel, Locale locale) {
+  public TicketPrintView map(
+      Ticket ticket, Outlet outlet, Draw draw, DrawChannel channel, Locale locale) {
     String channelCode = channel != null ? channel.code() : null;
     String channelLabel = channelLabelResolver.resolve(channel, locale);
     String whenLabel = occurrenceLabelResolver.resolve(draw, channel, locale);
 
-    var lines = ticket.lines().stream()
-        .map(l -> new TicketPrintLine(
-            l.gameCode(),
-            l.selection(),
-            l.stake(),
-            l.potentialPayout()))
-        .collect(Collectors.toList());
+    var lines =
+        ticket.getLines().stream()
+            .map(
+                l ->
+                    new TicketPrintLine(
+                        l.gameCode(), l.selection(), l.stake(), l.potentialPayout()))
+            .collect(Collectors.toList());
 
     return new TicketPrintView(
-        ticket.id().uuid(),
-        ticket.ticketCode(),
-        ticket.publicCode(),
-        ticket.terminalId().uuid(),
-        ticket.drawId().uuid(),
-        ticket.createdAt(),
-        ticket.totalAmount(),
+        ticket.getId().uuid(),
+        ticket.getTicketCode(),
+        ticket.getPublicCode(),
+        ticket.getTerminalId().uuid(),
+        ticket.getDrawId().uuid(),
+        ticket.getCreatedAt(),
+        ticket.getTotalAmount(),
+        outlet.name(),
         channelCode,
         channelLabel,
         whenLabel,
-        lines
-    );
+        lines);
   }
 }

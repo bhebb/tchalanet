@@ -6,14 +6,18 @@ import com.tchalanet.server.common.web.api.ApiStatus;
 import com.tchalanet.server.common.web.api.ServiceStatus;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,8 +35,40 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
   public boolean supports(
       @Nonnull MethodParameter returnType,
       @Nonnull Class<? extends HttpMessageConverter<?>> converterType) {
-    // Don't wrap if already ApiResponse or ProblemDetail
+
+    // Avoid wrapping when the selected message converter is handling Strings/bytes/resources
+    // — do this early to prevent inspecting generics and avoid wrapping into ApiResponse which
+    // would later be passed to a String converter and cause ClassCastException.
+    if (StringHttpMessageConverter.class.isAssignableFrom(converterType)) {
+      return false;
+    }
+    if (ByteArrayHttpMessageConverter.class.isAssignableFrom(converterType)) {
+      return false;
+    }
+    if (ResourceHttpMessageConverter.class.isAssignableFrom(converterType)) {
+      return false;
+    }
+
+    // Determine the actual response type. If controller method returns ResponseEntity<T>
+    // we want to inspect T.
     Class<?> paramType = returnType.getParameterType();
+
+    if (ResponseEntity.class.isAssignableFrom(paramType)) {
+      Type gen = returnType.getGenericParameterType();
+      if (gen instanceof ParameterizedType pt) {
+        Type arg = pt.getActualTypeArguments()[0];
+        if (arg instanceof Class<?>) {
+          paramType = (Class<?>) arg;
+        } else {
+          // Can't determine generic type concretely - don't wrap to be safe
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    // Don't wrap if already ApiResponse or ProblemDetail
     if (ApiResponse.class.isAssignableFrom(paramType)
         || ProblemDetail.class.isAssignableFrom(paramType)) {
       return false;
@@ -44,11 +80,8 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
       return false;
     }
 
-    // Don't wrap raw binary responses (byte[]) or when the selected converter handles bytes
+    // Don't wrap raw binary responses (byte[])
     if (paramType.isArray() && paramType.getComponentType() == byte.class) {
-      return false;
-    }
-    if (ByteArrayHttpMessageConverter.class.isAssignableFrom(converterType)) {
       return false;
     }
 
@@ -56,7 +89,7 @@ public class ApiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     if (Resource.class.isAssignableFrom(paramType)) {
       return false;
     }
-    if (ResourceHttpMessageConverter.class.isAssignableFrom(converterType)) {
+    if (String.class.isAssignableFrom(paramType)) {
       return false;
     }
 

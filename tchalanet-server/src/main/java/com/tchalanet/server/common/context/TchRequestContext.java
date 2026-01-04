@@ -131,4 +131,22 @@ public record TchRequestContext(
         this.tenantOverridden,
         this.deletedVisibility);
   }
+
+  public TchRequestContext withAppUserId(UUID appUserId) {
+    return new TchRequestContext(
+        this.originalTenantCode,
+        this.originalTenantUuid,
+        this.effectiveTenantCode,
+        this.effectiveTenantUuid,
+        this.keycloakUserId,
+        appUserId,
+        this.systemRoles,
+        this.customRoles,
+        this.locale,
+        this.requestId,
+        this.clientIp,
+        this.userAgent,
+        this.tenantOverridden,
+        this.deletedVisibility);
+  }
 }

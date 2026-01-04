@@ -17,6 +17,7 @@ public class PosSessionTotalsWriterAdapter implements PosSessionTotalsWriterPort
   @Override
   public PosSessionTotals upsert(PosSessionTotals totals) {
     var entity = mapper.toEntity(totals);
+
     var saved = repository.save(entity);
     return mapper.toDomain(saved);
   }

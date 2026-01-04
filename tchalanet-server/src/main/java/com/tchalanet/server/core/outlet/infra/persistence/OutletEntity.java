@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
@@ -52,6 +53,9 @@ public class OutletEntity extends BaseTenantEntity {
 
   @Column(name = "require_opening_float", nullable = false)
   private boolean requireOpeningFloat = true;
+
+  @Column(name = "address_id")
+  private UUID addressId;
 
   // Keep entity as simple JPA bean. Conversions to/from domain happen in adapters.
 }

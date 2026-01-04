@@ -37,4 +37,11 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
         .map(mapper::toDomain)
         .toList();
   }
+
+  @Override
+  public List<Terminal> listByTenant(TenantId tenantId, PageRequest pageRequest) {
+    return jpaRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId.uuid(), pageRequest).stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
 }

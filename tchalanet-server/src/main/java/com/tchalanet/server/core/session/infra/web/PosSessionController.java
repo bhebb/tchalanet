@@ -3,28 +3,21 @@ package com.tchalanet.server.core.session.infra.web;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SessionId;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.*;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.session.application.command.model.CloseSessionCommand;
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
 import com.tchalanet.server.core.session.application.query.model.GetCurrentSessionQuery;
-import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.core.session.infra.web.model.PosSessionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/tenant/sessions")
@@ -38,27 +31,28 @@ public class PosSessionController {
 
   @Operation(summary = "Open a POS session (tenant)")
   @PostMapping("/open")
-  public ResponseEntity<PosSession> open(
+  @ResponseStatus(HttpStatus.CREATED)
+  public ApiResponse<PosSessionResponse> open(
       @jakarta.validation.Valid @RequestBody OpenSessionRequest body) {
     var ctx = contextResolver.currentOrNull();
     var tenantId = TenantId.of(ctx.tenantUuid());
-    var userId = com.tchalanet.server.common.types.id.UserId.of(ctx.userUuid()); // source of truth
+    var userId = ctx.userUuid() == null ? null : UserId.of(ctx.userUuid()); // source of truth
 
     var session =
         commandBus.send(
             new OpenSessionCommand(
                 tenantId,
-                body.outletId(), // V1 ok; handler must validate terminal->outlet
-                body.terminalId(),
+                OutletId.of(body.outletId()), // V1 ok; handler must validate terminal->outlet
+                TerminalId.of(body.terminalId()),
                 userId,
                 body.openingFloat()));
 
-    return ResponseEntity.status(201).body(session);
+    return ApiResponse.<PosSessionResponse>created(PosSessionResponse.fromDomain(session));
   }
 
   @Operation(summary = "Close a POS session (tenant)")
   @PostMapping("/{sessionId}/close")
-  public ResponseEntity<PosSession> close(
+  public ResponseEntity<PosSessionResponse> close(
       @PathVariable SessionId sessionId,
       @jakarta.validation.Valid @RequestBody CloseSessionRequest body) {
     var ctx = contextResolver.currentOrNull();
@@ -67,23 +61,25 @@ public class PosSessionController {
     var session =
         commandBus.send(new CloseSessionCommand(tenantId, sessionId, body.closingAmount()));
 
-    return ResponseEntity.ok(session);
+    return ResponseEntity.ok(PosSessionResponse.fromDomain(session));
   }
 
   @Operation(summary = "Get current session for a terminal (tenant)")
   @GetMapping("/current")
-  public ResponseEntity<PosSession> current(@RequestParam TerminalId terminalId) {
+  public ResponseEntity<PosSessionResponse> current(@RequestParam TerminalId terminalId) {
     var ctx = contextResolver.currentOrNull();
     var tenantId = TenantId.of(ctx.tenantUuid());
 
     var result = queryBus.send(new GetCurrentSessionQuery(tenantId, terminalId));
 
-    return result.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+    return result
+        .map(s -> ResponseEntity.ok(PosSessionResponse.fromDomain(s)))
+        .orElseGet(() -> ResponseEntity.noContent().build());
   }
 
   public record OpenSessionRequest(
-      @NotNull OutletId outletId,
-      @NotNull TerminalId terminalId,
+      @NotNull String outletId,
+      @NotNull String terminalId,
       @DecimalMin("0.00") BigDecimal openingFloat) {}
 
   public record CloseSessionRequest(@DecimalMin("0.00") BigDecimal closingAmount) {}

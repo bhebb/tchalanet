@@ -28,7 +28,7 @@ public class TenantUserEntity extends BaseEntity {
   private UUID tenantId;
 
   @Column(name = "user_id", nullable = false, length = 128)
-  private String userId; // keycloak_sub
+  private String userId;
 
   @Column(name = "role_id", nullable = false, columnDefinition = "uuid")
   private UUID roleId;

@@ -31,18 +31,19 @@ public class OpenApiConfig {
 
   @Bean
   public OpenAPI customOpenAPI() {
-    String prefix = normalizePrefix(basePath);
-    String serverUrl = normalizeUrl(apiBaseUrl + prefix + "/" + apiVersion);
+    var prefix = normalizePrefix(basePath);
+    var serverUrl = normalizeUrl(apiBaseUrl + prefix + "/" + apiVersion);
 
     // --- Keycloak endpoints (issuer already includes /realms/<realm>)
-    String issuer =
+    var issuer =
         issuerUri.endsWith("/") ? issuerUri.substring(0, issuerUri.length() - 1) : issuerUri;
-    String authorizationEndpoint = issuer + "/protocol/openid-connect/auth";
-    String tokenEndpoint = issuer + "/protocol/openid-connect/token";
+    var authorizationEndpoint = issuer + "/protocol/openid-connect/auth";
+    var tokenEndpoint = issuer + "/protocol/openid-connect/token";
 
     // --- OAuth2 (authorization code) scopes
-    Scopes oauthScopes =
+    var oauthScopes =
         new Scopes()
+            .addString("basic", "OpenID scope")
             .addString("openid", "OpenID scope")
             .addString("profile", "Profile scope")
             .addString("email", "Email scope")
@@ -50,26 +51,26 @@ public class OpenApiConfig {
             .addString("roles", "Roles scope")
             .addString("tch", "Tchalanet API scope");
 
-    OAuthFlow authCodeFlow =
+    var authCodeFlow =
         new OAuthFlow()
             .authorizationUrl(authorizationEndpoint)
             .tokenUrl(tokenEndpoint)
             .scopes(oauthScopes);
 
-    OAuthFlows flows = new OAuthFlows().authorizationCode(authCodeFlow);
+    var flows = new OAuthFlows().authorizationCode(authCodeFlow);
 
-    SecurityScheme oauth2Scheme =
+    var oauth2Scheme =
         new SecurityScheme().type(SecurityScheme.Type.OAUTH2).flows(flows).name("oauth2");
 
     // --- Bearer JWT (recommended for Swagger Try-it-out reliability)
-    SecurityScheme bearerScheme =
+    var bearerScheme =
         new SecurityScheme()
             .type(SecurityScheme.Type.HTTP)
             .scheme("bearer")
             .bearerFormat("JWT")
             .name("bearerAuth");
 
-    Components components =
+    var components =
         new Components()
             .addSecuritySchemes("bearerAuth", bearerScheme)
             .addSecuritySchemes("oauth2", oauth2Scheme);
@@ -77,7 +78,7 @@ public class OpenApiConfig {
     // Apply security globally:
     // 1) bearerAuth (paste token)
     // 2) oauth2 (login flow)
-    SecurityRequirement security =
+    var security =
         new SecurityRequirement()
             .addList("bearerAuth")
             .addList("oauth2", List.of("openid", "profile", "email", "roles", "tch"));
@@ -90,7 +91,7 @@ public class OpenApiConfig {
 
   private static String normalizePrefix(String basePath) {
     if (basePath == null || basePath.isBlank()) return "";
-    String p = basePath.startsWith("/") ? basePath : "/" + basePath;
+    var p = basePath.startsWith("/") ? basePath : "/" + basePath;
     return p.endsWith("/") ? p.substring(0, p.length() - 1) : p;
   }
 

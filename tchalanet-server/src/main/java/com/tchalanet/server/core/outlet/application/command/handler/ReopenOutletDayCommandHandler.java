@@ -19,7 +19,7 @@ public class ReopenOutletDayCommandHandler implements VoidCommandHandler<ReopenO
   @Override
   @TchTx
   public void handle(ReopenOutletDayCommand cmd) {
-    Outlet outlet = reader.getRequired(cmd.tenantId(), cmd.outletId());
+    Outlet outlet = reader.getRequired(cmd.outletId(), cmd.tenantId());
     Outlet updated = outlet.reopenDay();
     writer.save(updated);
   }

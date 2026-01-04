@@ -65,7 +65,7 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
       throw new IllegalStateException("Ticket not found for payout: " + payout.getTicketId());
     }
     Ticket ticket = optTicket.get();
-    if (ticket.getStatus() != TicketStatus.RESULTED_WIN) {
+    if (ticket.getStatus() != TicketStatus.WON) {
       throw new IllegalStateException("Ticket is not in WON/RESULTED_WIN state: " + ticket.getId());
     }
 

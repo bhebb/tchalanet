@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringTicketJpaRepository
     extends JpaRepository<TicketEntity, UUID>, JpaSpecificationExecutor<TicketEntity> {
+
+  @EntityGraph(attributePaths = "lines")
   Optional<TicketEntity> findByPublicCode(String publicCode);
 
   @Modifying
@@ -33,6 +35,7 @@ public interface SpringTicketJpaRepository
 
   Optional<TicketEntity> findByTenantIdAndId(UUID tenantId, UUID id);
 
+  @EntityGraph(attributePaths = "lines")
   Optional<TicketEntity> findByTenantIdAndPublicCode(UUID tenantId, String publicCode);
 
   Optional<TicketEntity> findByTenantIdAndTicketCode(UUID tenantId, String ticketCode);

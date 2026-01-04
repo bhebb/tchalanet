@@ -1,19 +1,20 @@
 package com.tchalanet.server.core.draw.application.query.projection;
 
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
-import java.util.UUID;
+import java.time.LocalDate;
 
 public record NewDrawRow(
-    DrawId id,
+    DrawId drawId,
     TenantId tenantId,
-    UUID drawChannelId,
-    String gameCode,
+    DrawChannelId channelId,
+    String channelCode,
+    LocalDate drawDate,
     Instant scheduledAt,
-    int cutoffSec,
+    Instant cutoffAt,
     String status,
-    String resultPayload,
     String drawSource,
     boolean systemGenerated,
     boolean locked) {}

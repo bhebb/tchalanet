@@ -29,7 +29,7 @@ public class FilesystemOutletReportAdapter implements OutletReportPort {
   @Override
   public Path generateDailyReport(TenantId tenantId, OutletId outletId, LocalDate date) {
     // Build summary
-    var outlet = outletReader.getRequired(tenantId, outletId);
+    var outlet = outletReader.getRequired(outletId, tenantId);
     var zone = ZoneId.of(outlet.timezone());
     var from = date.atStartOfDay(zone).toInstant();
     var to = date.plusDays(1).atStartOfDay(zone).toInstant();

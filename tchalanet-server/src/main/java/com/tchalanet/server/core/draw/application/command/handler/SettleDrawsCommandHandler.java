@@ -10,9 +10,9 @@ import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
 import java.time.Clock;
 import java.time.Instant;
@@ -34,7 +34,7 @@ public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawC
 
   private final DrawReaderPort drawReaderPort;
   private final DrawResultReaderPort drawResultReaderPort;
-  private final DrawWriterPort drawWriterPort;
+  private final DrawLifecyclePort drawWriterPort;
   private final DomainEventPublisher publisher;
   private final Clock clock;
 

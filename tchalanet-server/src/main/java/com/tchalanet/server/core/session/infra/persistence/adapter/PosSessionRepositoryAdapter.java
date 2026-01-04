@@ -31,7 +31,10 @@ public class PosSessionRepositoryAdapter implements PosSessionReaderPort, PosSes
   @Override
   public Optional<PosSession> findOpenByTerminal(TenantId tenantId, TerminalId terminalId) {
     return jpaRepository
-        .findByTenantIdAndTerminalIdAndStatus(tenantId.uuid(), terminalId.uuid(), "OPEN")
+        .findByTenantIdAndTerminalIdAndStatus(
+            tenantId.uuid(),
+            terminalId.uuid(),
+            com.tchalanet.server.core.session.domain.model.PosSessionStatus.OPENED)
         .map(mapper::toDomain);
   }
 

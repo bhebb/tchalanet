@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.sales.infra.persistence.repo;
+package com.tchalanet.server.core.sales.infra.persistence.repository;
 
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import java.util.UUID;

@@ -26,8 +26,14 @@ public class TerminalJpaEntity extends BaseTenantEntity {
   @Column(name = "last_seen")
   private Instant lastSeen;
 
-  @Column(name = "meta", columnDefinition = "text")
-  private String meta; // or JsonNode, but for simplicity String
+  @Column(name = "label", length = 128)
+  private String label;
+
+  @Column(name = "inventory_tag", length = 64)
+  private String inventoryTag;
+
+  @Column(name = "metadata", columnDefinition = "jsonb", nullable = false)
+  private String metadataJson = "{}"; // stored as jsonb
 
   @Column(name = "registered_at")
   private Instant registeredAt;

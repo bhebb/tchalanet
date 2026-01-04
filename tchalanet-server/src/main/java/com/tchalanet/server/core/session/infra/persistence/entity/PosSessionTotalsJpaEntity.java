@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.session.infra.persistence.entity;
 
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,20 +13,18 @@ import org.hibernate.envers.Audited;
 @Getter
 @Setter
 @Audited
-public class PosSessionTotalsJpaEntity {
+public class PosSessionTotalsJpaEntity extends BaseTenantEntity {
 
-  @Id
-  @Column(name = "session_id", nullable = false)
+  // Identifiant standard hérité de BaseEntity (id)
+
+  // Colonne FK vers la table pos_session
+  @Column(name = "session_id", nullable = false, columnDefinition = "uuid")
   private UUID sessionId;
 
-  @OneToOne(fetch = FetchType.LAZY, optional = false)
-  @MapsId // <-- session_id = id de PosSession
-  @JoinColumn(name = "session_id", nullable = false)
+  // Relation vers la session, lecture seule côté JPA (la colonne session_id est gérée directement)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "session_id", insertable = false, updatable = false)
   private PosSessionJpaEntity session;
-
-  // On garde tenant_id comme colonne (utile pour filtres/RLS/index)
-  @Column(name = "tenant_id", nullable = false)
-  private UUID tenantId;
 
   @Column(name = "total_tickets", nullable = false)
   private long totalTickets;
@@ -39,24 +37,4 @@ public class PosSessionTotalsJpaEntity {
 
   @Column(name = "gross_margin", nullable = false, precision = 14, scale = 2)
   private BigDecimal grossMargin;
-
-  // audit
-  @Column(name = "created_at", updatable = false, nullable = false)
-  private Instant createdAt;
-
-  @Column(name = "created_by")
-  private UUID createdBy;
-
-  @Column(name = "updated_at", nullable = false)
-  private Instant updatedAt;
-
-  @Column(name = "updated_by")
-  private UUID updatedBy;
-
-  @Column(name = "deleted_at")
-  private Instant deletedAt;
-
-  @Version
-  @Column(name = "version", nullable = false)
-  private long version;
 }

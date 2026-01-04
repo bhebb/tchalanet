@@ -29,6 +29,11 @@ ALTER TABLE ticket
 CREATE INDEX IF NOT EXISTS ix_ticket_tenant_created
     ON ticket (tenant_id, created_at);
 
+CREATE INDEX IF NOT EXISTS ix_ticket_tenant_draw_status
+    ON ticket (tenant_id, draw_id, status)
+    WHERE deleted_at IS NULL;
+
+
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_ticket_updated_at') THEN

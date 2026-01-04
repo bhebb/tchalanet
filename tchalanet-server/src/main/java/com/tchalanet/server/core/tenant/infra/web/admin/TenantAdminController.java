@@ -36,10 +36,11 @@ public class TenantAdminController {
 
   @PostMapping
   public ResponseEntity<Map<String, Object>> create(@RequestBody CreateTenantRequest req) {
+    // todo update request add adresse
     java.util.UUID id =
         commandBus.send(
             new CreateTenantCommand(
-                req.code(), req.name(), req.type(), req.timezone(), req.currency()));
+                req.code(), req.name(), req.type(), req.timezone(), req.currency(), null));
     return ResponseEntity.ok(Map.of("id", id));
   }
 

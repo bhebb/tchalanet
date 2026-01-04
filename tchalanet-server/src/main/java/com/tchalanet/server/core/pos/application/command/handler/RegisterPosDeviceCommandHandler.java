@@ -44,6 +44,8 @@ public class RegisterPosDeviceCommandHandler
             null,
             null,
             null,
+            null,
+            command.label(),
             null);
     writerPort.save(terminal);
     return deviceId;

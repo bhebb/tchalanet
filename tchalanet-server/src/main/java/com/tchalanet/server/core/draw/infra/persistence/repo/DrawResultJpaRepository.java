@@ -35,4 +35,58 @@ public interface DrawResultJpaRepository extends JpaRepository<DrawResultJpaEnti
       @Param("numbersExtra") String numbersExtraJson,
       @Param("rawPayload") String rawPayload,
       @Param("occurredAt") Instant occurredAt);
+
+  @Modifying
+  @Transactional
+  @Query(
+      value =
+          """
+        insert into draw_result (
+          id, version,
+          channel_code, draw_date,
+          occurred_at,
+          numbers_main, numbers_extra,
+          quality, status, source,
+          source_hash,
+          raw_payload,
+          fetched_at,
+          created_at, updated_at
+        )
+        values (
+          :id, 0,
+          :channelCode, :drawDate,
+          :occurredAt,
+          cast(:numbersMainJson as jsonb), cast(:numbersExtraJson as jsonb),
+          :quality, :status, :source,
+          :sourceHash,
+          cast(:rawPayloadJson as jsonb),
+          now(),
+          now(), now()
+        )
+        on conflict (channel_code, draw_date)
+        do update set
+          occurred_at   = excluded.occurred_at,
+          numbers_main  = excluded.numbers_main,
+          numbers_extra = excluded.numbers_extra,
+          quality       = excluded.quality,
+          status        = excluded.status,
+          source        = excluded.source,
+          source_hash   = excluded.source_hash,
+          raw_payload   = excluded.raw_payload,
+          fetched_at    = now(),
+          updated_at    = now()
+        """,
+      nativeQuery = true)
+  int upsertResult(
+      @Param("id") UUID id,
+      @Param("channelCode") String channelCode,
+      @Param("drawDate") LocalDate drawDate,
+      @Param("occurredAt") Instant occurredAt,
+      @Param("numbersMainJson") String numbersMainJson,
+      @Param("numbersExtraJson") String numbersExtraJson,
+      @Param("quality") String quality,
+      @Param("status") String status,
+      @Param("source") String source,
+      @Param("sourceHash") String sourceHash,
+      @Param("rawPayloadJson") String rawPayloadJson);
 }

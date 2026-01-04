@@ -1,11 +1,12 @@
 package com.tchalanet.server.core.draw.application.query.projection;
 
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import java.time.LocalTime;
-import java.util.UUID;
 
 public record DrawChannelCalendarRow(
-    UUID channelId,
-    UUID tenantGameId,
+    DrawChannelId channelId,
+    TenantGameId tenantGameId,
     String code,
     String timezone,
     LocalTime drawTime,

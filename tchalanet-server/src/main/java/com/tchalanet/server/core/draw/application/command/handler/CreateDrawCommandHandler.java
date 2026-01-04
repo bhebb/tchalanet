@@ -5,7 +5,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CreateDrawCommandHandler implements CommandHandler<CreateDrawCommand, DrawId> {
 
-  private final DrawWriterPort drawWriterPort;
+  private final DrawLifecyclePort drawWriterPort;
   private final DrawChannelReaderPort drawChannelReaderPort;
 
   @Override

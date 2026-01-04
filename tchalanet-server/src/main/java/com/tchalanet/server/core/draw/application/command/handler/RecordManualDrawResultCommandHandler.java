@@ -4,9 +4,9 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.RecordManualDrawResultCommand;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
 import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import java.time.Instant;
@@ -20,7 +20,7 @@ public class RecordManualDrawResultCommandHandler
     implements VoidCommandHandler<RecordManualDrawResultCommand> {
 
   private final DrawReaderPort drawReaderPort;
-  private final DrawWriterPort drawWriterPort;
+  private final DrawLifecyclePort drawWriterPort;
   private final DrawResultWriterPort drawResultWriterPort;
 
   @Override

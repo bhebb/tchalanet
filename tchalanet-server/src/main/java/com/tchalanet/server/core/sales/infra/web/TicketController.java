@@ -5,15 +5,21 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.application.command.model.*;
-import com.tchalanet.server.core.sales.application.query.model.*;
+import com.tchalanet.server.core.sales.application.query.model.GetTicketDetailsQuery;
+import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintEscPosQuery;
+import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintPdfQuery;
+import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
 import com.tchalanet.server.core.sales.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.infra.web.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,10 +109,31 @@ public class TicketController {
 
   // --- PRINT ---
   @Operation(summary = "Get printable ticket content (tenant)")
-  @GetMapping("/{ticketId}/print")
-  public ResponseEntity<String> print(@PathVariable TicketId ticketId) {
-    var cmd = new PrintTicketCommand(ticketId);
-    var printable = commandBus.send(cmd);
-    return ResponseEntity.ok(printable);
+  @GetMapping(path = "/{ticketId}/print")
+  public ResponseEntity<String> print(@PathVariable TicketId ticketId, HttpServletResponse res) {
+    res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
+
+    // reuse the existing PDF printer via QueryBus so behavior matches /print.pdf
+    byte[] pdf = queryBus.send(new GetTicketPrintPdfQuery(ticketId));
+    String asBase64 = Base64.getEncoder().encodeToString(pdf);
+    return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(asBase64);
+  }
+
+  // --- PRINT ESC/POS ---
+  @Operation(summary = "Get ESC/POS printable bytes for a ticket (tenant)")
+  @GetMapping(value = "/{ticketId}/print.escpos", produces = "application/octet-stream")
+  public byte[] printEscpos(@PathVariable TicketId ticketId, HttpServletResponse res) {
+    res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
+    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".bin");
+    return queryBus.send(new GetTicketPrintEscPosQuery(ticketId));
+  }
+
+  // --- PRINT PDF ---
+  @Operation(summary = "Get PDF printable for a ticket (tenant)")
+  @GetMapping(value = "/{ticketId}/print.pdf", produces = "application/pdf")
+  public byte[] printPdf(@PathVariable TicketId ticketId, HttpServletResponse res) {
+    res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
+    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".pdf");
+    return queryBus.send(new GetTicketPrintPdfQuery(ticketId));
   }
 }

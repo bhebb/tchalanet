@@ -144,7 +144,7 @@ END $$;
 
 
 -- DRAW
-C-- DRAW
+-- DRAW
 CREATE TABLE IF NOT EXISTS draw (
                                     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     version bigint NOT NULL DEFAULT 0,

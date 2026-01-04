@@ -3,6 +3,7 @@ package com.tchalanet.server.common.error;
 import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
+import com.tchalanet.server.common.batch.BatchDisabledException;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -149,6 +150,24 @@ public class ErrorHandler {
     decorate(pd, req, ex, false);
     log.error("[500] {} {}", req.getMethod(), req.getRequestURI(), ex);
     return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(BatchDisabledException.class)
+  public ResponseEntity<ProblemDetail> handleBatchDisabled(
+      BatchDisabledException ex, HttpServletRequest req) {
+    var pd = ProblemDetail.forStatus(HttpStatus.LOCKED);
+    pd.setTitle("Batch job disabled");
+    pd.setDetail(ex.getMessage());
+    decorate(pd, req, ex, true);
+
+    pd.setProperty("jobKey", ex.jobKey());
+
+    log.warn(
+        "[423] {} {} - batch disabled jobKey={}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.jobKey());
+    return buildResponse(pd, req, HttpStatus.LOCKED);
   }
 
   private static void decorate(

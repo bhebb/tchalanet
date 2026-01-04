@@ -4,14 +4,12 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawQuery;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawsQuery;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
-import com.tchalanet.server.core.draw.infra.persistence.DrawChannelJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
@@ -30,7 +28,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort {
+public class DrawJpaRepositoryAdapter implements DrawReaderPort {
 
   private final DrawJpaRepository jpa;
   private final DrawMapper mapper;
@@ -194,66 +192,5 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort, DrawWriterPort 
   @Override
   public List<Draw> findNextForChannels(GetNextDrawsQuery query) {
     return List.of();
-  }
-
-  @Override
-  public Draw save(Draw draw) {
-    var entity = mapper.toEntity(draw);
-    ensureManagedRelations(entity);
-    var saved = jpa.save(entity);
-    return mapper.toDomain(saved);
-  }
-
-  @Override
-  public List<Draw> saveAll(List<Draw> draws) {
-    var entities = draws.stream().map(mapper::toEntity).collect(Collectors.toList());
-    entities.forEach(this::ensureManagedRelations);
-    var saved = jpa.saveAll(entities);
-    return saved.stream().map(mapper::toDomain).collect(Collectors.toList());
-  }
-
-  @Override
-  public List<Draw> updateDraws(List<Draw> draws) {
-    var entities = draws.stream().map(mapper::toEntity).collect(Collectors.toList());
-    entities.forEach(this::ensureManagedRelations);
-    var saved = jpa.saveAll(entities);
-    return saved.stream().map(mapper::toDomain).collect(Collectors.toList());
-  }
-
-  private void ensureManagedRelations(DrawJpaEntity entity) {
-    if (entity == null) return;
-    var ch = entity.getDrawChannel();
-    if (ch == null) return;
-
-    // If ID present, prefer getReference
-    if (ch.getId() != null) {
-      try {
-        var ref = em.getReference(DrawChannelJpaEntity.class, ch.getId());
-        entity.setDrawChannel(ref);
-        return;
-      } catch (Exception ex) {
-        // ignore and try fallback
-      }
-    }
-
-    // Fallback: try to resolve by tenantId+code if available
-    var tenantId = entity.getTenantId();
-    var code = ch.getCode();
-    if (tenantId != null && code != null && !code.isBlank()) {
-      var opt = channelRepo.findByTenantIdAndCode(tenantId, code);
-      if (opt.isPresent()) {
-        var ref = em.getReference(DrawChannelJpaEntity.class, opt.get().getId());
-        entity.setDrawChannel(ref);
-        return;
-      }
-    }
-
-    // Could not resolve channel => fail fast with descriptive error
-    throw new IllegalStateException(
-        "Cannot resolve DrawChannel for draw (tenantId="
-            + entity.getTenantId()
-            + ", code="
-            + (code == null ? "<null>" : code)
-            + ")");
   }
 }

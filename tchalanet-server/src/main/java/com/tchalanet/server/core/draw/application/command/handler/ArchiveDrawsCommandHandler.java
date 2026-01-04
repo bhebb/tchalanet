@@ -8,9 +8,9 @@ import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.ArchiveDrawCommand;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +22,7 @@ public class ArchiveDrawsCommandHandler implements VoidCommandHandler<ArchiveDra
 
   private final DrawReaderPort drawReaderPort;
   private final DrawResultReaderPort drawResultReaderPort;
-  private final DrawWriterPort drawWriterPort;
+  private final DrawLifecyclePort drawWriterPort;
 
   // private final DrawSettlementPort settlementPort; // vers sales/ledger
 

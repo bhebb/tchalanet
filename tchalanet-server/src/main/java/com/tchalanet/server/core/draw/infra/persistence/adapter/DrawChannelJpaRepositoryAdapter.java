@@ -2,15 +2,18 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelWriterPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawChannelSearchCriteria;
+import com.tchalanet.server.core.draw.application.query.projection.DrawChannelCalendarRow;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
+import com.tchalanet.server.core.draw.infra.persistence.DrawChannelJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawChannelMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import java.util.List;
@@ -124,5 +127,28 @@ public class DrawChannelJpaRepositoryAdapter
       // ignore audit failures
     }
     repo.deleteById(id.value());
+  }
+
+  @Override
+  public List<DrawChannelCalendarRow> listActiveCalendarRows(TenantId tenantId) {
+    return repo
+        .findByTenantIdAndActiveTrueAndDeletedAtIsNullOrderBySortOrderAsc(tenantId.uuid())
+        .stream()
+        .map(this::toRow)
+        .toList();
+  }
+
+  private DrawChannelCalendarRow toRow(DrawChannelJpaEntity e) {
+    return new DrawChannelCalendarRow(
+        DrawChannelId.of(e.getId()),
+        TenantGameId.of(e.getTenantGameId()),
+        e.getCode(),
+        e.getTimezone(),
+        e.getDrawTime(),
+        e.getCutoffSec() == null ? 0 : e.getCutoffSec(),
+        e.getDaysOfWeek(),
+        null,
+        Boolean.TRUE.equals(e.getActive()),
+        e.getSortOrder() == null ? 0 : e.getSortOrder());
   }
 }

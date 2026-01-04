@@ -39,8 +39,6 @@ t text;
     'app_role',
     'tenant_user',
     'page_model',
-    'i18n_override',
-    'app_setting',
     'payout'
   ];
 

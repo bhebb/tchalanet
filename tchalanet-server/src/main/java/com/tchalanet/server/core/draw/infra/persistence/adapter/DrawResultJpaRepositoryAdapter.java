@@ -1,23 +1,28 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
-import com.tchalanet.server.common.persistence.JsonbUtils;
+import static com.tchalanet.server.core.draw.domain.model.DrawResultUpsertResult.*;
+
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonbUtils;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.draw.application.port.out.ExternalDrawResultPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawResultsSearchCriteria;
 import com.tchalanet.server.core.draw.domain.model.DrawResult;
+import com.tchalanet.server.core.draw.domain.model.DrawResultRef;
+import com.tchalanet.server.core.draw.domain.model.DrawResultUpsertResult;
+import com.tchalanet.server.core.draw.infra.batch.results.common.QueryHashCalculator;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawResultMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
+import com.tchalanet.server.core.draw.infra.persistence.repo.DrawResultJdbcRepository;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.time.*;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -32,6 +37,7 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   private final DrawResultMapper mapper;
   private final JsonbUtils jsonbUtils;
   private final EntityManager em;
+  private final DrawResultJdbcRepository drawResultJdbcRepository;
 
   @Override
   public Optional<DrawResult> findByDrawId(TenantId tenantId, DrawId drawId) {
@@ -50,12 +56,18 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   }
 
   @Override
+  public Optional<DrawResultRef> findByChannelCodeAndDate(String channelCode, LocalDate drawDate) {
+    var ex = drawResultJdbcRepository.findExisting(channelCode, drawDate);
+    if (ex == null) return Optional.empty();
+    return Optional.of(new DrawResultRef(ex.id(), ex.quality()));
+  }
+
+  @Override
   public java.util.List<DrawResult> findByTenantAndDateRange(
       TenantId tenantId, java.time.LocalDate from, java.time.LocalDate to) {
     // keep behaviour: query draws for tenant and map via join on draw->channel -> draw_date ->
     // result
     if (tenantId == null || from == null || to == null) return java.util.List.of();
-    var utc = java.time.ZoneId.of("UTC");
 
     String jpql =
         "select dr from DrawResultJpaEntity dr where dr.drawDate >= :fromDate and dr.drawDate <= :toDate order by dr.drawDate desc";
@@ -166,5 +178,121 @@ public class DrawResultJpaRepositoryAdapter implements DrawResultReaderPort, Dra
   @Override
   public DrawResult invalidateResult(TenantId tenantId, DrawId drawId, String reason) {
     return null;
+  }
+
+  @Override
+  public DrawResultUpsertResult upsertFromExternal(
+      String channelCode,
+      LocalDate drawDate,
+      ExternalDrawResultPort.ExternalDrawResult ext,
+      boolean force) {
+    if (channelCode == null || channelCode.isBlank()) {
+      throw new IllegalArgumentException("channelCode is required");
+    }
+    if (drawDate == null) {
+      throw new IllegalArgumentException("drawDate is required");
+    }
+    if (ext == null) {
+      throw new IllegalArgumentException("ext is required");
+    }
+
+    // normalize channel
+    String ch = channelCode.trim().toUpperCase(Locale.ROOT);
+
+    // incoming quality
+    String incomingQuality = (ext.quality() == null) ? "SUSPECT" : ext.quality().name();
+
+    // POLICY #1: refuse SUSPECT unless force
+    if (!force && !"COMPLETE".equalsIgnoreCase(incomingQuality)) {
+      return SKIPPED;
+    }
+
+    // Prepare payloads
+    var main = (ext.numbers() == null) ? java.util.List.<String>of() : ext.numbers();
+    var extra = ext.numbersExtra();
+    var raw = (ext.rawPayload() == null) ? Map.<String, Object>of() : ext.rawPayload();
+
+    String numbersMainJson = jsonbUtils.toJsonOrEmptyArray(main);
+    String numbersExtraJson = jsonbUtils.toJsonOrNull(extra);
+    String rawPayloadJson = jsonbUtils.toJsonOrEmptyObject(raw);
+
+    // Determine source (EXTERNAL by default, or origin from payload)
+    String source = "EXTERNAL";
+    Object origin = raw.get("origin");
+    if (origin != null && !origin.toString().isBlank()) {
+      source = origin.toString();
+    }
+
+    Instant occurredAt = (ext.occurredAt() == null) ? Instant.now() : ext.occurredAt();
+
+    // canonical hash
+    String canonical =
+        "channel="
+            + ch
+            + "|draw_date="
+            + drawDate
+            + "|numbers_main="
+            + (numbersMainJson == null ? "[]" : numbersMainJson)
+            + "|numbers_extra="
+            + (numbersExtraJson == null ? "null" : numbersExtraJson)
+            + "|occurred_at="
+            + occurredAt
+            + "|source="
+            + source;
+
+    String incomingHash = QueryHashCalculator.sha256Hex(canonical);
+
+    // read existing (for downgrade/idempotence decisions)
+    Optional<com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaEntity> existingOpt =
+        repo.findByChannelCodeIgnoreCaseAndDrawDate(ch, drawDate);
+
+    if (existingOpt.isPresent()) {
+      var existing = existingOpt.get();
+
+      String existingQuality = existing.getQuality();
+      String existingHash = existing.getSourceHash();
+
+      // POLICY #2: never downgrade COMPLETE -> SUSPECT
+      if ("COMPLETE".equalsIgnoreCase(existingQuality)
+          && "SUSPECT".equalsIgnoreCase(incomingQuality)) {
+        return SKIPPED;
+      }
+
+      // POLICY #3: idempotence COMPLETE+same hash => NOOP
+      if ("COMPLETE".equalsIgnoreCase(existingQuality)
+          && "COMPLETE".equalsIgnoreCase(incomingQuality)
+          && existingHash != null
+          && existingHash.equalsIgnoreCase(incomingHash)) {
+        return NOOP;
+      }
+    }
+
+    // status : MVP => VALID
+    String status = "VALID";
+
+    // do upsert (keep existing id if present, else new)
+    UUID id =
+        existingOpt
+            .map(com.tchalanet.server.core.draw.infra.persistence.DrawResultJpaEntity::getId)
+            .orElseGet(UUID::randomUUID);
+
+    repo.upsertResult(
+        id,
+        ch,
+        drawDate,
+        occurredAt,
+        numbersMainJson,
+        numbersExtraJson,
+        incomingQuality,
+        status,
+        source,
+        incomingHash,
+        rawPayloadJson);
+
+    // determine INSERTED vs UPDATED
+    if (existingOpt.isEmpty()) {
+      return INSERTED;
+    }
+    return UPDATED;
   }
 }

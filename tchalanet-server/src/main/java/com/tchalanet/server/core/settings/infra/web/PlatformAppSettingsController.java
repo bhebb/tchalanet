@@ -1,6 +1,5 @@
-package com.tchalanet.server.common.persistence.web;
+package com.tchalanet.server.core.settings.infra.web;
 
-import com.tchalanet.server.common.persistence.service.PlatformAppSettingsService;
 import com.tchalanet.server.core.settings.infra.persistence.AppSettingEntity;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

@@ -59,7 +59,7 @@ public class RegisterPayoutCommandHandler
     Ticket ticket = optTicket.get();
 
     // Validate ticket state
-    if (ticket.getStatus() != TicketStatus.RESULTED_WIN) {
+    if (ticket.getStatus() != TicketStatus.WON) {
       throw new IllegalStateException("Ticket is not in RESULTED_WIN state: " + ticket.getId());
     }
 

@@ -18,6 +18,10 @@ public record ApiResponse<T>(
     return new ApiResponse<>(ApiStatus.SUCCESS_WITH_WARNINGS, data, notices, List.of());
   }
 
+  public static <T> ApiResponse<T> created(T data) {
+    return new ApiResponse<>(ApiStatus.CREATED, data, List.of(), List.of());
+  }
+
   public static <T> ApiResponse<T> pending(List<ApiNotice> notices) {
     return new ApiResponse<>(ApiStatus.PENDING, null, notices, List.of());
   }

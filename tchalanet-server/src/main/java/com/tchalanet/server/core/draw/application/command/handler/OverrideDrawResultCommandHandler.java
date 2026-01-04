@@ -9,10 +9,10 @@ import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPe
 import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import com.tchalanet.server.core.draw.application.command.model.OverrideDrawResultCommand;
+import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawWriterPort;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class OverrideDrawResultCommandHandler
     implements VoidCommandHandler<OverrideDrawResultCommand> {
 
   private final DrawReaderPort drawReaderPort;
-  private final DrawWriterPort drawWriterPort;
+  private final DrawLifecyclePort drawWriterPort;
   private final DrawResultReaderPort drawResultReaderPort;
   private final DrawResultWriterPort drawResultWriterPort;
   private final AuditLoggingCommandHandler audit;

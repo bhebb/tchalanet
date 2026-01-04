@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.outlet.application.command.model;
 
+import com.tchalanet.server.core.address.application.dto.AddressDto;
+
 public record OutletConfigPatch(
     Boolean salesBlocked,
     String salesBlockReason,
@@ -8,4 +10,5 @@ public record OutletConfigPatch(
     Boolean receiptPrintingEnabled,
     String receiptHeaderMessage,
     String receiptFooterMessage,
-    Boolean requireOpeningFloat) {}
+    Boolean requireOpeningFloat,
+    AddressDto address) {}

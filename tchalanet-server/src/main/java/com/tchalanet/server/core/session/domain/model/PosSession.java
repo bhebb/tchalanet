@@ -1,13 +1,8 @@
 package com.tchalanet.server.core.session.domain.model;
 
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SessionId;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.*;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Objects;
 
 public record PosSession(
@@ -24,7 +19,7 @@ public record PosSession(
     BigDecimal totalStake,
     Long totalTickets,
     BigDecimal totalPayout,
-    Map<String, Object> meta,
+    String meta,
     long version) {
 
   public static PosSession open(
@@ -56,7 +51,7 @@ public record PosSession(
         BigDecimal.ZERO,
         0L,
         BigDecimal.ZERO,
-        Map.of(),
+        null,
         0L);
   }
 
@@ -97,7 +92,7 @@ public record PosSession(
       BigDecimal totalStake,
       Long totalTickets,
       BigDecimal totalPayout,
-      Map<String, Object> meta,
+      String meta,
       long version) {
     return new PosSession(
         id,

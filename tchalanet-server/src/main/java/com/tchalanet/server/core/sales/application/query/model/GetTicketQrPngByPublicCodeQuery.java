@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.sales.application.query;
+package com.tchalanet.server.core.sales.application.query.model;
 
 import com.tchalanet.server.common.bus.Query;
 import jakarta.validation.constraints.NotBlank;

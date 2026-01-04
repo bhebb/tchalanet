@@ -5,6 +5,7 @@ import static com.tchalanet.server.common.constant.SecurityClaims.TENANT_CODE;
 import static com.tchalanet.server.common.constant.TchHeaders.*;
 
 import com.tchalanet.server.common.bootstrap.tenant.TenantBootstrapLookup;
+import com.tchalanet.server.common.bootstrap.user.UserBootstrapLookup;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -49,8 +50,10 @@ public class TchContextFilter extends OncePerRequestFilter {
 
   private final ApiProperties props;
   private final TenantBootstrapLookup tenantLookup;
+  private final UserBootstrapLookup userLookup;
 
   private final TenantCodeToUuidCache tenantCache = new TenantCodeToUuidCache();
+  private final UserSubToUuidCache userCache = new UserSubToUuidCache();
 
   @Override
   protected void doFilterInternal(
@@ -80,6 +83,9 @@ public class TchContextFilter extends OncePerRequestFilter {
         // but if your app requires it for ADMIN, just call requireAndResolveTenant() here too.
         ctx = optionallyResolveTenant(ctx);
       }
+
+      // resolve app user id from keycloak sub (bootstrap lookup bypassing RLS)
+      ctx = resolveAppUserId(ctx);
 
       // publish context
       req.setAttribute(REQUEST_CONTEXT, ctx);
@@ -111,32 +117,32 @@ public class TchContextFilter extends OncePerRequestFilter {
   }
 
   private TchRequestContext optionallyResolveTenant(TchRequestContext ctx) {
-    String code = ctx.effectiveTenantCode();
+    var code = ctx.effectiveTenantCode();
     if (StringUtils.isBlank(code)) return ctx;
 
     if (ctx.tenantUuid() != null) return ctx;
 
-    Optional<UUID> uuid = resolveTenantUuid(code.trim());
+    var uuid = resolveTenantUuid(code.trim());
     return uuid.map(ctx::withEffectiveTenantUuid).orElse(ctx);
   }
 
   private TchRequestContext buildBaseContext(HttpServletRequest req, String defaultTenant) {
-    String requestId =
+    var requestId =
         Optional.ofNullable(req.getHeader(X_REQUEST_ID))
             .filter(StringUtils::isNotBlank)
             .orElseGet(() -> UUID.randomUUID().toString());
 
-    String clientIp =
+    var clientIp =
         Optional.ofNullable(req.getHeader(X_FORWARDED_FOR))
             .filter(StringUtils::isNotBlank)
             .orElseGet(req::getRemoteAddr);
 
     var locale = req.getLocale();
-    String userAgent = Optional.ofNullable(req.getHeader("User-Agent")).orElse(null);
+    var userAgent = Optional.ofNullable(req.getHeader("User-Agent")).orElse(null);
 
-    AuthData authData = extractAuthData(req, defaultTenant);
+    var authData = extractAuthData(req, defaultTenant);
 
-    String deletedVisibility =
+    var deletedVisibility =
         resolveDeletedVisibility(req, authData.systemRoles.contains(TchRole.SUPER_ADMIN));
 
     return new TchRequestContext(
@@ -158,8 +164,8 @@ public class TchContextFilter extends OncePerRequestFilter {
 
   private AuthData extractAuthData(HttpServletRequest req, String defaultTenant) {
     // Defaults (PUBLIC only)
-    String originalTenantCode = defaultTenant;
-    String effectiveTenantCode = defaultTenant;
+    var originalTenantCode = defaultTenant;
+    var effectiveTenantCode = defaultTenant;
 
     // Persist this in your DB (Keycloak Admin API expects this id)
     String keycloakUserId = null;
@@ -168,7 +174,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     Set<String> customRoles = new HashSet<>();
     boolean overridden = false;
 
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    var auth = SecurityContextHolder.getContext().getAuthentication();
     if (!isJwtAuthentication(auth)) {
       return new AuthData(
           originalTenantCode,
@@ -179,7 +185,8 @@ public class TchContextFilter extends OncePerRequestFilter {
           customRoles);
     }
 
-    Jwt jwt = (Jwt) auth.getPrincipal();
+    var jwt = (Jwt) auth.getPrincipal();
+
     if (jwt == null) {
       return new AuthData(
           originalTenantCode,
@@ -191,10 +198,10 @@ public class TchContextFilter extends OncePerRequestFilter {
     }
 
     // 0) Keycloak user id (sub)
-    keycloakUserId = jwt.getSubject();
+    keycloakUserId = jwt.getClaimAsString("sub");
 
     // 1) tenant from JWT claim (no retro-compat)
-    String jwtTenant = jwt.getClaimAsString(TENANT_CODE);
+    var jwtTenant = jwt.getClaimAsString(TENANT_CODE);
     if (StringUtils.isNotBlank(jwtTenant)) {
       originalTenantCode = jwtTenant.trim();
       effectiveTenantCode = jwtTenant.trim();
@@ -208,7 +215,7 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     // 3) SUPER_ADMIN override via header/query
     if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
-      String overrideTenant =
+      var overrideTenant =
           Optional.ofNullable(req.getHeader(X_TENANT_ID)).orElse(req.getParameter("tenantId"));
       if (StringUtils.isNotBlank(overrideTenant)) {
         effectiveTenantCode = overrideTenant.trim();
@@ -231,10 +238,10 @@ public class TchContextFilter extends OncePerRequestFilter {
 
   private String resolveDeletedVisibility(HttpServletRequest req, boolean isSuperAdmin) {
     if (!isSuperAdmin) return "active";
-    String requested = req.getHeader(X_DELETED_VISIBILITY);
+    var requested = req.getHeader(X_DELETED_VISIBILITY);
     if (StringUtils.isBlank(requested)) requested = req.getParameter("deletedVisibility");
     if (requested == null) return "active";
-    String v = requested.trim().toLowerCase();
+    var v = requested.trim().toLowerCase();
     return (v.equals("active") || v.equals("deleted") || v.equals("all")) ? v : "active";
   }
 
@@ -255,6 +262,27 @@ public class TchContextFilter extends OncePerRequestFilter {
     Optional<UUID> resolved = tenantLookup.findTenantUuidByCode(codeOrUuid);
     tenantCache.put(codeOrUuid, resolved);
     return resolved;
+  }
+
+  private TchRequestContext resolveAppUserId(TchRequestContext ctx) {
+    if (ctx.keycloakUserId() == null) return ctx;
+    if (ctx.appUserId() != null) return ctx;
+
+    // if keycloakUserId is not a UUID string, skip
+    UUID sub;
+    try {
+      sub = UUID.fromString(ctx.keycloakUserId());
+    } catch (IllegalArgumentException e) {
+      return ctx;
+    }
+
+    // cache lookup by sub string
+    var cached = userCache.getFresh(sub.toString());
+    if (cached.isPresent()) return cached.map(ctx::withAppUserId).orElse(ctx);
+
+    Optional<UUID> resolved = userLookup.findAppUserIdByKeycloakSub(sub);
+    userCache.put(sub.toString(), resolved);
+    return resolved.map(ctx::withAppUserId).orElse(ctx);
   }
 
   private void putMdc(TchRequestContext ctx) {

@@ -5,6 +5,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.pos.application.command.model.LockTerminalCommand;
 import com.tchalanet.server.core.pos.application.command.model.RegisterPosDeviceCommand;
 import com.tchalanet.server.core.pos.application.command.model.SendPosHeartbeatCommand;
@@ -14,11 +15,16 @@ import com.tchalanet.server.core.pos.application.command.model.UpdateTerminalMet
 import com.tchalanet.server.core.pos.application.query.model.GetPosDeviceByIdQuery;
 import com.tchalanet.server.core.pos.application.query.model.GetPosDeviceStatusQuery;
 import com.tchalanet.server.core.pos.application.query.model.ListPosDevicesByLocationQuery;
+import com.tchalanet.server.core.pos.application.query.model.ListPosDevicesByTenantQuery;
 import com.tchalanet.server.core.pos.domain.model.Terminal;
+import com.tchalanet.server.core.pos.infra.web.model.TerminalResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
@@ -63,66 +69,88 @@ public class TerminalController {
   }
 
   @PostMapping("/{id}/lock")
-  public Terminal lockDevice(
+  public ApiResponse<TerminalResponse> lockDevice(
       @PathVariable TenantId tenantId,
       @PathVariable TerminalId id,
       @RequestBody LockRequest request) {
     var cmd = new LockTerminalCommand(tenantId, id, request.actorId(), request.reason());
-    return commandBus.send(cmd);
+    Terminal res = commandBus.send(cmd);
+    if (res == null) return ApiResponse.success(null);
+    var dto = TerminalResponse.fromDomain(res);
+    return ApiResponse.success(dto);
   }
 
   @PostMapping("/{id}/unlock")
-  public Terminal unlockDevice(
+  public ApiResponse<TerminalResponse> unlockDevice(
       @PathVariable TenantId tenantId,
       @PathVariable TerminalId id,
       @RequestBody UnlockRequest request) {
     var cmd = new UnlockTerminalCommand(tenantId, id, request.actorId());
-    return commandBus.send(cmd);
+    Terminal res = commandBus.send(cmd);
+    if (res == null) return ApiResponse.success(null);
+    var dto = TerminalResponse.fromDomain(res);
+    return ApiResponse.success(dto);
   }
 
   @PutMapping("/{id}/metadata")
-  public Terminal updateMetadata(
+  public ApiResponse<TerminalResponse> updateMetadata(
       @PathVariable TenantId tenantId,
       @PathVariable TerminalId id,
       @RequestBody UpdateMetadataRequest request) {
     var cmd =
         new UpdateTerminalMetadataCommand(
             tenantId, id, request.actorId(), request.metadataPatch(), request.heartbeatAlso());
-    return commandBus.send(cmd);
+    Terminal res = commandBus.send(cmd);
+    if (res == null) return ApiResponse.success(null);
+    var dto = TerminalResponse.fromDomain(res);
+    return ApiResponse.success(dto);
   }
 
   @DeleteMapping("/{id}")
-  public Terminal unregisterDevice(
+  public ApiResponse<TerminalResponse> unregisterDevice(
       @PathVariable TenantId tenantId,
       @PathVariable TerminalId id,
       @RequestBody UnregisterRequest request) {
     var cmd = new UnregisterTerminalCommand(tenantId, id, request.actorId(), request.reason());
-    return commandBus.send(cmd);
+    Terminal res = commandBus.send(cmd);
+    if (res == null) return ApiResponse.success(null);
+    var dto = TerminalResponse.fromDomain(res);
+    return ApiResponse.success(dto);
   }
 
   @GetMapping("/{id}")
-  @SuppressWarnings("unchecked")
-  public java.util.Optional<com.tchalanet.server.core.pos.domain.model.Terminal> getDevice(
+  public ApiResponse<TerminalResponse> getDevice(
       @PathVariable TenantId tenantId, @PathVariable TerminalId id) {
     var query = new GetPosDeviceByIdQuery(tenantId, id);
-    return (java.util.Optional<com.tchalanet.server.core.pos.domain.model.Terminal>)
-        (java.lang.Object) queryBus.send(query);
+    Optional<Terminal> opt = queryBus.send(query);
+    if (opt.isEmpty()) return ApiResponse.success(null);
+    var dto = TerminalResponse.fromDomain(opt.get());
+    return ApiResponse.success(dto);
   }
 
   @GetMapping("/{id}/status")
-  public java.util.Map<String, Object> getDeviceStatus(
+  public Map<String, Object> getDeviceStatus(
       @PathVariable TenantId tenantId, @PathVariable TerminalId id) {
     var query = new GetPosDeviceStatusQuery(tenantId, id);
     return queryBus.send(query);
   }
 
   @GetMapping("/outlets/{outletId}")
-  @SuppressWarnings("unchecked")
-  public java.util.List<com.tchalanet.server.core.pos.domain.model.Terminal> listDevicesByOutlet(
+  public ApiResponse<List<TerminalResponse>> listDevicesByOutlet(
       @PathVariable TenantId tenantId, @PathVariable OutletId outletId) {
     var query = new ListPosDevicesByLocationQuery(tenantId, outletId);
-    return (java.util.List<com.tchalanet.server.core.pos.domain.model.Terminal>)
-        (java.lang.Object) queryBus.send(query);
+    var terminals = queryBus.send(query);
+    var dtos = terminals.stream().map(TerminalResponse::fromDomain).toList();
+    return ApiResponse.success(dtos);
+  }
+
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  public ApiResponse<List<TerminalResponse>> listDevicesByTenant(@PathVariable TenantId tenantId) {
+    var query = new ListPosDevicesByTenantQuery(tenantId);
+    var terminals = queryBus.send(query);
+    var dtos = terminals.stream().map(TerminalResponse::fromDomain).toList();
+    return ApiResponse.success(dtos);
   }
 
   // Request DTOs

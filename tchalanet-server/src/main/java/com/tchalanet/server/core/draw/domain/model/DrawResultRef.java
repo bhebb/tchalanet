@@ -1,4 +1,5 @@
 package com.tchalanet.server.core.draw.domain.model;
 
-public record test() {
-}
+import java.util.UUID;
+
+public record DrawResultRef(UUID id, String quality) {}

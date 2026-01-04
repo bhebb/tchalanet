@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.persistence.service;
+package com.tchalanet.server.core.settings.infra.web;
 
 import com.tchalanet.server.core.settings.infra.persistence.AppSettingEntity;
 import com.tchalanet.server.core.settings.infra.persistence.AppSettingRepository;

@@ -17,17 +17,19 @@ public interface PosSessionJpaRepository extends JpaRepository<PosSessionJpaEnti
   Optional<PosSessionJpaEntity> findByTenantIdAndTerminalIdAndStatus(
       @Param("tenantId") UUID tenantId,
       @Param("terminalId") UUID terminalId,
-      @Param("status") String status);
+      @Param("status") com.tchalanet.server.core.session.domain.model.PosSessionStatus status);
 
   /** Finds all open sessions for a cashier. */
   @Query(
-      "SELECT s FROM PosSessionJpaEntity s WHERE s.tenantId = :tenantId AND s.userId = :userId AND s.status = 'OPEN'")
+      "SELECT s FROM PosSessionJpaEntity s WHERE s.tenantId = :tenantId AND s.userId = :userId AND s.status = 'OPENED'")
   java.util.List<PosSessionJpaEntity> findOpenByCashier(
       @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
 
   // Find by tenant + outlet + status
   List<PosSessionJpaEntity> findByTenantIdAndOutletIdAndStatus(
-      UUID tenantId, UUID outletId, String status);
+      UUID tenantId,
+      UUID outletId,
+      com.tchalanet.server.core.session.domain.model.PosSessionStatus status);
 
   // Find session ids by tenant + outlet + openedAt between
   @Query(

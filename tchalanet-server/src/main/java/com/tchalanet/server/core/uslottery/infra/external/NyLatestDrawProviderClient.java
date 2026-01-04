@@ -2,9 +2,9 @@ package com.tchalanet.server.core.uslottery.infra.external;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tchalanet.server.common.persistence.JsonbUtils;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
+import com.tchalanet.server.common.util.JsonbUtils;
 import com.tchalanet.server.core.uslottery.application.port.out.LatestDrawProviderClient;
 import com.tchalanet.server.core.uslottery.domain.model.DrawExtras;
 import com.tchalanet.server.core.uslottery.domain.model.DrawMain;
@@ -66,7 +66,12 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
 
     // default: fetch all known NY channel codes
     var channelCodes =
-        List.of("US_NY_NUM3_MID", "US_NY_NUM3_EVE", "US_NY_NUM4_MID", "US_NY_NUM4_EVE");
+        List.of(
+            "US_NY_NUM3_MID",
+            "US_NY_NUM3_EVE",
+            "US_NY_NUM4_MID",
+            "US_NY_NUM4_EVE",
+            "US_NY_TAKE5_EVE");
 
     int maxDraws = 500; // default bulk limit
     var drawDate = LocalDate.now(zone);

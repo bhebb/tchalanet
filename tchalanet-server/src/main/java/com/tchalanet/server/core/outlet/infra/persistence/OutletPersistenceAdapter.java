@@ -6,9 +6,7 @@ import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,13 +22,6 @@ public class OutletPersistenceAdapter
     return repo.findById(id.uuid())
         .filter(e -> tenantId.uuid().equals(e.getTenantId()))
         .map(this::toDomain);
-  }
-
-  @Override
-  public List<Outlet> findByTenantId(TenantId tenantId) {
-    return repo.findByTenantId(tenantId.uuid()).stream()
-        .map(this::toDomain)
-        .collect(Collectors.toList());
   }
 
   @Override
@@ -65,7 +56,8 @@ public class OutletPersistenceAdapter
         e.isReceiptPrintingEnabled(),
         e.getReceiptHeaderMessage(),
         e.getReceiptFooterMessage(),
-        e.isRequireOpeningFloat());
+        e.isRequireOpeningFloat(),
+        e.getAddressId());
   }
 
   private OutletEntity toEntity(Outlet o) {
@@ -84,6 +76,7 @@ public class OutletPersistenceAdapter
     e.setReceiptHeaderMessage(o.receiptHeaderMessage());
     e.setReceiptFooterMessage(o.receiptFooterMessage());
     e.setRequireOpeningFloat(o.requireOpeningFloat());
+    e.setAddressId(o.addressId());
     return e;
   }
 }

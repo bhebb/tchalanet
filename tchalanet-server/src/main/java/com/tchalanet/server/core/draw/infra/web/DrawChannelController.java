@@ -2,12 +2,12 @@ package com.tchalanet.server.core.draw.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawChannelQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListActiveDrawChannelsQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawChannelsQuery;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
 import com.tchalanet.server.core.draw.infra.web.mapper.DrawChannelWebMapper;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawChannelRequest;

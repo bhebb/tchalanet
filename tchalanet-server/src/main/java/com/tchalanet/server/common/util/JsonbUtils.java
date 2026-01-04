@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.persistence;
+package com.tchalanet.server.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

@@ -37,6 +37,11 @@
     <springdoc.version>3.0.0</springdoc.version>
     <rome.version>2.1.0</rome.version>
     <querydsl.version>5.1.0</querydsl.version>
+    <keycloak.admin.client.version>26.0.7</keycloak.admin.client.version>
+    <!-- ZXing version centralised -->
+    <zxing.version>3.5.3</zxing.version>
+    <!-- Apache PDFBox version centralised -->
+    <pdfbox.version>3.0.3</pdfbox.version>
 
     <!-- SonarQube (à ajuster) -->
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
@@ -218,6 +223,32 @@
       <artifactId>postgresql</artifactId>
       <version>${testcontainers.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- Keycloak Admin Client for bootstrap sync (optional) -->
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-admin-client</artifactId>
+      <version>${keycloak.admin.client.version}</version>
+    </dependency>
+
+    <!-- ZXing barcode generation/reading libraries -->
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>core</artifactId>
+      <version>${zxing.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>javase</artifactId>
+      <version>${zxing.version}</version>
+    </dependency>
+
+    <!-- Apache PDFBox (for PDF generation/processing) -->
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>${pdfbox.version}</version>
     </dependency>
 
   </dependencies>

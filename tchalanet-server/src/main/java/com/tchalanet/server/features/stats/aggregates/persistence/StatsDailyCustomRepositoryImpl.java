@@ -13,7 +13,7 @@ public class StatsDailyCustomRepositoryImpl implements StatsDailyCustomRepositor
   @PersistenceContext private EntityManager em;
 
   @Override
-  @Transactional
+  @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
   public void upsertAndIncrement(
       String dimensionType,
       UUID dimensionId,

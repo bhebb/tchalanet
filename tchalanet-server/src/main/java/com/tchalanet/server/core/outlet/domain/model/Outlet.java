@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.UUID;
 
 public final class Outlet {
   private final OutletId id;
@@ -20,6 +21,7 @@ public final class Outlet {
   private final String receiptHeaderMessage;
   private final String receiptFooterMessage;
   private final boolean requireOpeningFloat;
+  private final UUID addressId;
 
   public Outlet(OutletId id, TenantId tenantId, String name, String slug) {
     this(
@@ -36,7 +38,8 @@ public final class Outlet {
         true,
         null,
         null,
-        true);
+        true,
+        null);
   }
 
   public Outlet(
@@ -53,7 +56,8 @@ public final class Outlet {
       boolean receiptPrintingEnabled,
       String receiptHeaderMessage,
       String receiptFooterMessage,
-      boolean requireOpeningFloat) {
+      boolean requireOpeningFloat,
+      UUID addressId) {
     this.id = id;
     this.tenantId = tenantId;
     this.name = name;
@@ -68,6 +72,7 @@ public final class Outlet {
     this.receiptHeaderMessage = receiptHeaderMessage;
     this.receiptFooterMessage = receiptFooterMessage;
     this.requireOpeningFloat = requireOpeningFloat;
+    this.addressId = addressId;
   }
 
   public OutletId id() {
@@ -126,6 +131,10 @@ public final class Outlet {
     return requireOpeningFloat;
   }
 
+  public UUID addressId() {
+    return addressId;
+  }
+
   public Outlet closeDay() {
     if (this.dayClosed) return this; // already closed
     return new Outlet(
@@ -142,7 +151,8 @@ public final class Outlet {
         this.receiptPrintingEnabled,
         this.receiptHeaderMessage,
         this.receiptFooterMessage,
-        this.requireOpeningFloat);
+        this.requireOpeningFloat,
+        this.addressId);
   }
 
   public Outlet reopenDay() {
@@ -161,7 +171,8 @@ public final class Outlet {
         this.receiptPrintingEnabled,
         this.receiptHeaderMessage,
         this.receiptFooterMessage,
-        this.requireOpeningFloat);
+        this.requireOpeningFloat,
+        this.addressId);
   }
 
   public Outlet applyConfigPatch(
@@ -205,7 +216,8 @@ public final class Outlet {
         newReceiptPrintingEnabled,
         newHeader,
         newFooter,
-        newRequireOpeningFloat);
+        newRequireOpeningFloat,
+        this.addressId);
   }
 
   public Outlet withSalesBlocked(boolean blocked, String reason, Instant when) {
@@ -227,7 +239,8 @@ public final class Outlet {
         this.receiptPrintingEnabled,
         this.receiptHeaderMessage,
         this.receiptFooterMessage,
-        this.requireOpeningFloat);
+        this.requireOpeningFloat,
+        this.addressId);
   }
 
   public Outlet withReceiptSettings(boolean enabled, String header, String footer) {
@@ -245,7 +258,8 @@ public final class Outlet {
         enabled,
         header,
         footer,
-        this.requireOpeningFloat);
+        this.requireOpeningFloat,
+        this.addressId);
   }
 
   public Outlet withRequireOpeningFloat(boolean requireOpeningFloat) {
@@ -263,7 +277,27 @@ public final class Outlet {
         this.receiptPrintingEnabled,
         this.receiptHeaderMessage,
         this.receiptFooterMessage,
-        requireOpeningFloat);
+        requireOpeningFloat,
+        this.addressId);
+  }
+
+  public Outlet withAddressId(java.util.UUID addressId) {
+    return new Outlet(
+        this.id,
+        this.tenantId,
+        this.name,
+        this.slug,
+        this.dayClosed,
+        this.salesBlocked,
+        this.salesBlockReason,
+        this.salesBlockedAt,
+        this.timezone,
+        this.businessDayCutoff,
+        this.receiptPrintingEnabled,
+        this.receiptHeaderMessage,
+        this.receiptFooterMessage,
+        this.requireOpeningFloat,
+        addressId);
   }
 
   public static Outlet createNew(TenantId tenantId, String name, String slug, OutletId newId) {

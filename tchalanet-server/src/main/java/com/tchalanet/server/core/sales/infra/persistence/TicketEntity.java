@@ -12,7 +12,16 @@ import lombok.Setter;
 import org.hibernate.envers.Audited;
 
 @Entity
-@Table(name = "ticket")
+@Table(
+    name = "ticket",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "ux_ticket_tenant_ticket_code",
+          columnNames = {"tenant_id", "ticket_code"}),
+      @UniqueConstraint(
+          name = "ux_ticket_tenant_public_code",
+          columnNames = {"tenant_id", "public_code"})
+    })
 @Getter
 @Audited
 @Setter

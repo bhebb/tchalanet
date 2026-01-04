@@ -32,16 +32,16 @@ public class SalesTicketAdminAdapter implements SalesTicketAdminPort {
             tenantId.uuid(), sessionUuids, from, to);
     long sold =
         repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.SOLD);
+            tenantId.uuid(), sessionUuids, from, to, TicketStatus.PENDING);
     long voided =
         repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.VOIDED);
+            tenantId.uuid(), sessionUuids, from, to, TicketStatus.VOID);
     long resultedWin =
         repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.RESULTED_WIN);
+            tenantId.uuid(), sessionUuids, from, to, TicketStatus.WON);
     long resultedLoss =
         repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.RESULTED_LOSS);
+            tenantId.uuid(), sessionUuids, from, to, TicketStatus.LOST);
     long paid =
         repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
             tenantId.uuid(), sessionUuids, from, to, TicketStatus.PAID);

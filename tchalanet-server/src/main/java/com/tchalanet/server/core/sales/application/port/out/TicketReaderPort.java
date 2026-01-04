@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PagedResult;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,6 @@ public interface TicketReaderPort {
   List<AgentDailySalesDto> getAgentDailySales(TenantId tenantId, Instant from, Instant to);
 
   byte[] exportDailySalesCsv(TenantId tenantId, Instant dayStart, Instant dayEnd);
+
+  TicketPrintView getTicketPrintView(@NotNull TicketId ticketId);
 }

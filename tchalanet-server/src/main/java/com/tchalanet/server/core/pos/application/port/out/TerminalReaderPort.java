@@ -13,4 +13,7 @@ public interface TerminalReaderPort {
   Optional<Terminal> findById(TenantId tenantId, TerminalId terminalId);
 
   List<Terminal> listByOutlet(TenantId tenantId, OutletId outletId, PageRequest pageRequest);
+
+  // list all terminals for a tenant (paged)
+  List<Terminal> listByTenant(TenantId tenantId, PageRequest pageRequest);
 }

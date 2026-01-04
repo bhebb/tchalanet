@@ -29,7 +29,7 @@ public class SessionAdminAdapter implements SessionAdminPort, SessionLookupPort 
   public boolean hasOpenSessions(TenantId tenantId, OutletId outletId) {
     var found =
         repo.findByTenantIdAndOutletIdAndStatus(
-            tenantId.uuid(), outletId.uuid(), PosSessionStatus.OPENED.name());
+            tenantId.uuid(), outletId.uuid(), PosSessionStatus.OPENED);
     return !found.isEmpty();
   }
 
@@ -37,7 +37,7 @@ public class SessionAdminAdapter implements SessionAdminPort, SessionLookupPort 
   public long closeAllOpenSessions(TenantId tenantId, OutletId outletId, String reason) {
     var entities =
         repo.findByTenantIdAndOutletIdAndStatus(
-            tenantId.uuid(), outletId.uuid(), PosSessionStatus.OPENED.name());
+            tenantId.uuid(), outletId.uuid(), PosSessionStatus.OPENED);
     long count = 0;
     for (var e : entities) {
       PosSession session = mapper.toDomain(e);

@@ -5,7 +5,11 @@ import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Terminal {
 
   private final UUID id;
@@ -22,6 +26,44 @@ public class Terminal {
   private String lockReason;
   private Instant deletedAt;
 
+  // New fields
+  private String label;
+  private String inventoryTag;
+
+  public Terminal(
+      UUID id,
+      TenantId tenantId,
+      OutletId outletId,
+      TerminalState state,
+      Instant lastSeen,
+      String meta,
+      long version,
+      Instant registeredAt,
+      Instant unregisteredAt,
+      Instant lockedAt,
+      UUID lockedBy,
+      String lockReason,
+      Instant deletedAt,
+      String label,
+      String inventoryTag) {
+    this.id = id;
+    this.tenantId = tenantId;
+    this.outletId = outletId;
+    this.state = state;
+    this.lastSeen = lastSeen;
+    this.meta = meta;
+    this.version = version;
+    this.registeredAt = registeredAt;
+    this.unregisteredAt = unregisteredAt;
+    this.lockedAt = lockedAt;
+    this.lockedBy = lockedBy;
+    this.lockReason = lockReason;
+    this.deletedAt = deletedAt;
+    this.label = label;
+    this.inventoryTag = inventoryTag;
+  }
+
+  // Backward-compatible constructor (pre-label fields)
   public Terminal(
       UUID id,
       TenantId tenantId,
@@ -36,19 +78,22 @@ public class Terminal {
       UUID lockedBy,
       String lockReason,
       Instant deletedAt) {
-    this.id = id;
-    this.tenantId = tenantId;
-    this.outletId = outletId;
-    this.state = state;
-    this.lastSeen = lastSeen;
-    this.meta = meta;
-    this.version = version;
-    this.registeredAt = registeredAt;
-    this.unregisteredAt = unregisteredAt;
-    this.lockedAt = lockedAt;
-    this.lockedBy = lockedBy;
-    this.lockReason = lockReason;
-    this.deletedAt = deletedAt;
+    this(
+        id,
+        tenantId,
+        outletId,
+        state,
+        lastSeen,
+        meta,
+        version,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        deletedAt,
+        null,
+        null);
   }
 
   // Behaviors
@@ -60,9 +105,7 @@ public class Terminal {
   public void heartbeat(Instant now, String metaDelta) {
     this.lastSeen = now;
     if (metaDelta != null) {
-      // Merge meta, assuming meta is mutable or handle merge
-      // For simplicity, replace or merge as needed
-      this.meta = metaDelta; // TODO: proper merge
+      this.meta = metaDelta; // TODO: merge
     }
   }
 
@@ -90,7 +133,9 @@ public class Terminal {
         now,
         by,
         reason,
-        deletedAt);
+        deletedAt,
+        label,
+        inventoryTag);
   }
 
   public Terminal unlock(UUID by, Instant now) {
@@ -107,7 +152,9 @@ public class Terminal {
         null,
         null,
         null,
-        deletedAt);
+        deletedAt,
+        label,
+        inventoryTag);
   }
 
   public Terminal unregister(UUID by, Instant now) {
@@ -124,7 +171,9 @@ public class Terminal {
         lockedAt,
         lockedBy,
         lockReason,
-        now);
+        now,
+        label,
+        inventoryTag);
   }
 
   public Terminal mergeMetadata(Map<String, Object> patch, Instant now) {
@@ -143,7 +192,9 @@ public class Terminal {
         lockedAt,
         lockedBy,
         lockReason,
-        deletedAt);
+        deletedAt,
+        label,
+        inventoryTag);
   }
 
   // Getters
@@ -197,6 +248,14 @@ public class Terminal {
 
   public Instant deletedAt() {
     return deletedAt;
+  }
+
+  public String label() {
+    return label;
+  }
+
+  public String inventoryTag() {
+    return inventoryTag;
   }
 
   public enum TerminalState {

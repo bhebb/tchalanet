@@ -6,6 +6,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.address.application.dto.AddressDto;
+import com.tchalanet.server.core.address.application.port.out.AddressWriterPort;
+import com.tchalanet.server.core.address.domain.model.Address;
 import com.tchalanet.server.core.tenant.application.command.model.CreateTenantCommand;
 import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
 import com.tchalanet.server.core.tenant.application.port.out.TenantWriterPort;
@@ -22,6 +25,7 @@ public class CreateTenantCommandHandler implements CommandHandler<CreateTenantCo
 
   private final TenantWriterPort tenantWriterPort;
   private final TenantReaderPort tenantReaderPort;
+  private final AddressWriterPort addressWriter;
   private final DomainEventPublisher publisher;
   private final Clock clock;
 
@@ -41,6 +45,30 @@ public class CreateTenantCommandHandler implements CommandHandler<CreateTenantCo
             cmd.type(),
             cmd.timezone(),
             cmd.currency());
+
+    // handle address: either address.id provided, or address dto provided
+    UUID addressId = null;
+    AddressDto aDto = cmd.address();
+    if (aDto != null) addressId = aDto.id();
+
+    if (addressId == null && aDto != null) {
+      var domain =
+          new Address(
+              null,
+              aDto.line1(),
+              aDto.line2(),
+              aDto.city(),
+              aDto.region(),
+              aDto.country(),
+              aDto.postalCode(),
+              aDto.latitude(),
+              aDto.longitude());
+      addressId = addressWriter.save(domain);
+    }
+
+    if (addressId != null) {
+      tenant = tenant.withAddressId(addressId);
+    }
 
     var saved = tenantWriterPort.save(tenant);
 

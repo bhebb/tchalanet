@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.draw.infra.persistence.mapper;
 
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.draw.domain.model.DrawChannelId;
 import com.tchalanet.server.core.draw.infra.persistence.DrawChannelJpaEntity;
 import java.time.DayOfWeek;
 import java.time.ZoneId;

@@ -5,6 +5,7 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
 import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
 import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
@@ -48,7 +49,7 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
 
     var session =
         PosSession.open(
-            com.tchalanet.server.common.types.id.SessionId.random(),
+            SessionId.random(),
             command.tenantId(),
             command.outletId(),
             command.terminalId(),

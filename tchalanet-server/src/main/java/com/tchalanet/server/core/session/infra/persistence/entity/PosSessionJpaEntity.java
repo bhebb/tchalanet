@@ -1,14 +1,16 @@
 package com.tchalanet.server.core.session.infra.persistence.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.session.domain.model.PosSessionStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "pos_session")
@@ -26,9 +28,12 @@ public class PosSessionJpaEntity extends BaseTenantEntity {
   @Column(name = "user_id", nullable = false)
   private UUID userId;
 
-  @Enumerated(EnumType.STRING)
+  @Convert(
+      converter =
+          com.tchalanet.server.core.session.infra.persistence.converter.PosSessionStatusConverter
+              .class)
   @Column(name = "status", nullable = false, length = 16)
-  private PosSessionStatus status;
+  private com.tchalanet.server.core.session.domain.model.PosSessionStatus status;
 
   @Column(name = "opened_at", nullable = false)
   private Instant openedAt;
@@ -42,6 +47,7 @@ public class PosSessionJpaEntity extends BaseTenantEntity {
   @Column(name = "closing_amount", precision = 14, scale = 2)
   private BigDecimal closingAmount;
 
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "meta", columnDefinition = "jsonb", nullable = false)
-  private String metaJson = "{}";
+  private JsonNode meta;
 }

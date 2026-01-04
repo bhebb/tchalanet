@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.settings.web;
+package com.tchalanet.server.core.settings.infra.web;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;

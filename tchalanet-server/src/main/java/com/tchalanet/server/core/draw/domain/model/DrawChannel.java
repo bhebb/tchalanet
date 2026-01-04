@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.domain.model;
 
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -10,6 +11,13 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * DrawChannel (tenant-scoped)
+ *
+ * <p>Représente un canal de tirage (ex: US_NY_NUM3_MID) avec son calendrier et le mapping vers un
+ * provider externe. Définit quand les draws doivent exister et leurs règles simples (cutoff,
+ * timezone, jours activés).
+ */
 @EqualsAndHashCode(of = "id")
 @ToString(of = {"id", "name", "tenantId"})
 @AllArgsConstructor

@@ -8,6 +8,7 @@ import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
 import com.tchalanet.server.core.tenant.application.port.out.TenantWriterPort;
 import com.tchalanet.server.core.tenant.domain.model.Tenant;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -94,7 +95,7 @@ public class TenantRepositoryAdapter
   }
 
   @Override
-  public java.util.List<TenantId> listActiveTenantIds() {
+  public List<TenantId> listActiveTenantIds() {
     return repo.findAll().stream()
         .filter(e -> e.getDeletedAt() == null && e.getStatus() == TenantStatus.ACTIVE)
         .map(com.tchalanet.server.core.tenant.infra.persistence.TenantJpaEntity::getId)
