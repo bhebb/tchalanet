@@ -36,6 +36,31 @@ public class DrawChannelLabelResolver {
     return sb.toString();
   }
 
+  /** Short label (e.g. "Midi" / "Soir") extracted from channel name. Returns null if not found. */
+  public String shortLabel(String channelName, Locale locale) {
+    if (channelName == null) return null;
+    String lower = channelName.toLowerCase(locale == null ? Locale.ENGLISH : locale);
+
+    boolean fr = locale != null && "fr".equals(locale.getLanguage());
+
+    // Matches commonly used tokens in channel names
+    if (lower.contains("mid") || lower.contains("noon") || lower.contains("midi")) {
+      return fr ? "Midi" : "Midday";
+    }
+    if (lower.contains("even") || lower.contains("soir") || lower.contains("eve")) {
+      return fr ? "Soir" : "Evening";
+    }
+    if (lower.contains("morning") || lower.contains("matin")) {
+      return fr ? "Matin" : "Morning";
+    }
+    if (lower.contains("afternoon") || lower.contains("apres") || lower.contains("pm")) {
+      return fr ? "Après-midi" : "Afternoon";
+    }
+
+    // Nothing detected
+    return null;
+  }
+
   private String localizeSlotInName(String name, Locale locale) {
     if (name == null) return null;
     boolean fr = locale != null && "fr".equals(locale.getLanguage());

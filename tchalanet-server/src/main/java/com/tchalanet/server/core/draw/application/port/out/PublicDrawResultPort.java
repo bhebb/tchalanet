@@ -8,7 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface PublicDrawResultPort {
-  Page<PublicDrawResultRow> search(String channelCode, LocalDate from, LocalDate to, Pageable pageable);
+  Page<PublicDrawResultRow> search(
+      String channelCode, LocalDate from, LocalDate to, Pageable pageable);
 
   Optional<PublicDrawResultRow> findOne(String channelCode, LocalDate drawDate);
 

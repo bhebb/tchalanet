@@ -1,102 +1,105 @@
 package com.tchalanet.server.features.pagemodel.shared.dynamic;
 
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.application.query.handler.GetNextDrawsHandler;
-import com.tchalanet.server.core.draw.application.query.handler.ListActiveDrawChannelsHandler;
-import com.tchalanet.server.core.draw.application.query.handler.ListLastDaysDrawResultsHandler;
-import com.tchalanet.server.core.draw.application.query.model.GetNextDrawsQuery;
-import com.tchalanet.server.core.draw.application.query.model.ListActiveDrawChannelsQuery;
-import com.tchalanet.server.core.draw.application.query.model.ListLastDaysDrawResultsQuery;
-import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
-import com.tchalanet.server.core.draw.domain.model.DrawResult;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
+import com.tchalanet.server.core.draw.application.query.model.GetLatestPublicDrawResultsQuery;
+import com.tchalanet.server.core.draw.infra.web.model.PublicDrawResultItemResponse;
+import com.tchalanet.server.core.draw.infra.web.model.PublicLatestDrawResultsResponse;
 import com.tchalanet.server.features.pagemodel.shared.block.ResultsByGameBlock;
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class SharedResultsByGameAggregator {
 
-  private final ListActiveDrawChannelsHandler listActiveDrawChannelsHandler;
-  private final ListLastDaysDrawResultsHandler listLastDaysDrawResultsHandler;
-  private final GetNextDrawsHandler getNextDrawsHandler;
-  private final Clock clock;
+  private final QueryBus queryBus;
+  private final DrawChannelLabelResolver channelLabelResolver;
+  private static final Logger log = LoggerFactory.getLogger(SharedResultsByGameAggregator.class);
 
-  public ResultsByGameBlock buildResultsBlock(TenantId tenantId) {
-    // 1) Channels actifs
-    var channels = listActiveDrawChannelsHandler.handle(new ListActiveDrawChannelsQuery(tenantId));
+  public ResultsByGameBlock buildResultsBlock(String currentLang) {
+    Locale locale =
+        currentLang == null || currentLang.isBlank()
+            ? Locale.getDefault()
+            : Locale.forLanguageTag(currentLang);
 
-    if (channels.isEmpty()) {
-      return new ResultsByGameBlock(List.of());
+    // 1) Derniers résultats : utiliser le handler public pour obtenir les derniers résultats par
+    // canal
+    int limitPerChannel = 1; // on ne veut que le dernier résultat
+    List<PublicLatestDrawResultsResponse> latestResponses =
+        queryBus.send(new GetLatestPublicDrawResultsQuery(limitPerChannel));
+
+    if (latestResponses != null) {
+      latestResponses.forEach(
+          latest -> {
+            if (latest.nextScheduledAt() == null) {
+              log.warn(
+                  "No nextScheduledAt for channel {} (drawTime={})",
+                  latest.channelCode(),
+                  latest.drawTime());
+            } else {
+              log.debug(
+                  "NextScheduledAt for channel {} = {}", latest.channelCode(), latest.nextScheduledAt());
+            }
+          });
     }
 
-    var channelCodes =
-        channels.stream()
-            .map(DrawChannelSummary::channelCode) // adapte au vrai nom
-            .toList();
-
-    // 2) Next draws pour tous ces channels
-    var nextDraws =
-        getNextDrawsHandler.handle(new GetNextDrawsQuery(tenantId, ZonedDateTime.now(clock), 10));
-
-    var nextByChannel =
-        nextDraws.stream().collect(Collectors.toMap(d -> d.drawChannel().id(), d -> d));
-
-    // 3) Last result par channel (sur X jours)
-    int lastDays = 7; // param configurable plus tard
-    List<ResultsByGameBlock.GameResults> games = new ArrayList<>();
-
-    for (var channel : channels) {
-      var results =
-          listLastDaysDrawResultsHandler.handle(
-              new ListLastDaysDrawResultsQuery(
-                  tenantId, channel.channelCode(), lastDays, null, null));
-
-      if (results == null || results.isEmpty()) {
-        continue;
-      }
-
-      var last =
-          results.stream()
-              .max(Comparator.comparing(DrawResult::occurredAt)) // adapte getter
-              .orElseThrow();
-
-      var next = nextByChannel.get(channel.channelCode());
-
-      games.add(toGameResults(channel, last, next));
-    }
+    List<ResultsByGameBlock.GameResults> games =
+        (latestResponses == null) ? List.of() : toGameResults(latestResponses, locale);
 
     return new ResultsByGameBlock(games);
   }
 
-  private ResultsByGameBlock.GameResults toGameResults(
-      DrawChannelSummary channel, DrawResult last, Draw next) {
-    var nextInfo =
-        next != null
-            ? new ResultsByGameBlock.NextDrawInfo(
-                next.scheduledAt().toInstant(), // adapte
-                null, // ex: "Midi"/"Soir"
-                next.status() == DrawStatus.OPEN, // ou statut == OPEN
-                false // isClosingSoon: TODO plus tard
-                )
-            : null;
+  private List<ResultsByGameBlock.GameResults> toGameResults(
+      List<PublicLatestDrawResultsResponse> latestResponses, Locale locale) {
+    return latestResponses.stream()
+        .filter(latest -> latest != null && latest.results() != null && !latest.results().isEmpty())
+        .map(latest -> toGameResultsFromLatest(latest, latest.results().stream().findFirst().get(), locale))
+        .collect(Collectors.toList());
+  }
+
+  private ResultsByGameBlock.GameResults toGameResultsFromLatest(
+      PublicLatestDrawResultsResponse latest, PublicDrawResultItemResponse item, Locale locale) {
+    // parse draw time if available (expected format HH:mm)
+    LocalTime drawTimeLocal = null;
+    if (latest.drawTime() != null && !latest.drawTime().isBlank()) {
+      try {
+        drawTimeLocal = LocalTime.parse(latest.drawTime());
+      } catch (Exception ignore) {
+        // ignore parse errors and keep null
+      }
+    }
+
+    String channelLabel = channelLabelResolver.resolve(latest.channelName(), drawTimeLocal, locale);
+
+    String historyUrl = "/public/results/" + latest.channelCode();
+
+    List<String> main = item.numbersMain() == null ? List.of() : item.numbersMain().stream().map(Object::toString).collect(Collectors.toList());
+    List<String> extra = item.numbersExtra() == null ? List.of() : item.numbersExtra().stream().map(Object::toString).collect(Collectors.toList());
+
+    // build nextInfo from latest response if provided
+    var nextInfo = (latest.nextScheduledAt() == null) ? null : new com.tchalanet.server.features.pagemodel.shared.block.ResultsByGameBlock.NextDrawInfo(
+        latest.nextScheduledAt(),
+        latest.nextDrawLabel(),
+        Boolean.TRUE.equals(latest.nextIsOpen()),
+        Boolean.TRUE.equals(latest.nextIsClosingSoon())
+    );
 
     return new ResultsByGameBlock.GameResults(
-        channel.channelCode(),
-        channel.channelName(), // clé i18n
-        last.occurredAt(), // adapte
-        last.numbersMain(),
-        last.numbersExtra(),
-        null, // si dispo
-        null, // ou via tenant
+        latest.channelCode(),
+        channelLabel,
+        item.occurredAt(),
+        main,
+        extra,
+        null,
+        null,
+        historyUrl,
         nextInfo);
   }
 }

@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.draw.application.query.handler;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
 import com.tchalanet.server.core.draw.application.port.out.PublicDrawResultPort;
+import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
 import com.tchalanet.server.core.draw.application.query.model.GetPublicDrawResultQuery;
 import com.tchalanet.server.core.draw.infra.web.model.PublicDrawResultItemResponse;
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Collections;
 import java.util.List;
@@ -24,12 +24,14 @@ public class GetPublicDrawResultQueryHandler
 
   @Override
   public PublicDrawResultItemResponse handle(GetPublicDrawResultQuery query) {
-    return port
-        .findOne(query.channelCode(), query.drawDate())
+    return port.findOne(query.channelCode(), query.drawDate())
         .map(
             row -> {
-              String channelLabel = channelLabelResolver.resolve(
-                  row.getChannelName(), row.getChannelDrawTime(), java.util.Locale.getDefault());
+              String channelLabel =
+                  channelLabelResolver.resolve(
+                      row.getChannelName(),
+                      row.getChannelDrawTime(),
+                      java.util.Locale.getDefault());
 
               return new PublicDrawResultItemResponse(
                   row.getChannelCode(),

@@ -1,11 +1,10 @@
 package com.tchalanet.server.core.draw.infra.persistence.repo;
 
+import com.tchalanet.server.core.draw.infra.persistence.PublicDrawResultRow;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.tchalanet.server.core.draw.infra.persistence.PublicDrawResultRow;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,6 +35,7 @@ public interface PublicDrawResultRepository
               AND (:channelCode IS NULL OR dr.channel_code = :channelCode)
               AND (:from IS NULL OR dr.draw_date >= :from)
               AND (:to IS NULL OR dr.draw_date <= :to)
+            ORDER BY dr.draw_date DESC, dc.draw_time DESC
             """,
       countQuery =
           """
@@ -76,8 +76,7 @@ public interface PublicDrawResultRepository
             LIMIT 1
             """)
   Optional<PublicDrawResultRow> findOne(
-      @Param("channelCode") String channelCode,
-      @Param("drawDate") LocalDate drawDate);
+      @Param("channelCode") String channelCode, @Param("drawDate") LocalDate drawDate);
 
   @Query(
       nativeQuery = true,
@@ -95,7 +94,7 @@ public interface PublicDrawResultRepository
                     dr.numbers_extra as numbersExtraJson,
                     dr.quality as quality,
                     dr.source as source,
-                    ROW_NUMBER() OVER (PARTITION BY dr.channel_code ORDER BY dr.draw_date DESC) as rn
+                    ROW_NUMBER() OVER (PARTITION BY dr.channel_code ORDER BY dr.draw_date DESC, dc.draw_time DESC) as rn
                 FROM draw_result dr
                 JOIN draw_channel dc ON dr.channel_code = dc.code
                 WHERE dr.status = 'VALID'
@@ -103,7 +102,7 @@ public interface PublicDrawResultRepository
             SELECT *
             FROM ranked_results
             WHERE rn <= :limitPerChannel
-            ORDER BY channelCode, drawDate DESC
+            ORDER BY channelCode, drawDate DESC, channelDrawTime DESC
             """)
   List<PublicDrawResultRow> latest(@Param("limitPerChannel") int limitPerChannel);
 }

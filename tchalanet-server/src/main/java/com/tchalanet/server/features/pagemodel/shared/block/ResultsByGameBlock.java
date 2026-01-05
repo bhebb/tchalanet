@@ -17,6 +17,9 @@ public record ResultsByGameBlock(List<GameResults> games) {
       Long lastJackpotAmount,
       String currencyCode,
 
+      // link to history
+      String historyUrl,
+
       // next draw / countdown
       NextDrawInfo nextDraw) {}
 

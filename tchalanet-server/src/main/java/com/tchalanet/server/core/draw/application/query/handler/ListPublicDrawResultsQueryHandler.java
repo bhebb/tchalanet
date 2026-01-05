@@ -1,14 +1,14 @@
 package com.tchalanet.server.core.draw.application.query.handler;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
 import com.tchalanet.server.core.draw.application.port.out.PublicDrawResultPort;
+import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
 import com.tchalanet.server.core.draw.application.query.model.ListPublicDrawResultsQuery;
 import com.tchalanet.server.core.draw.infra.persistence.PublicDrawResultRow;
 import com.tchalanet.server.core.draw.infra.web.model.PublicDrawResultItemResponse;
 import com.tchalanet.server.core.draw.infra.web.model.PublicDrawResultPageResponse;
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +48,8 @@ public class ListPublicDrawResultsQueryHandler
 
   private PublicDrawResultItemResponse mapToItemResponse(PublicDrawResultRow row) {
     String channelLabel =
-        channelLabelResolver.resolve(row.getChannelName(), row.getChannelDrawTime(), java.util.Locale.getDefault());
+        channelLabelResolver.resolve(
+            row.getChannelName(), row.getChannelDrawTime(), java.util.Locale.getDefault());
 
     return new PublicDrawResultItemResponse(
         row.getChannelCode(),

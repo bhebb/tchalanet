@@ -139,6 +139,10 @@ tch:
 
   # US Lottery API configuration
   us-lottery:
+    common:
+      holidays:
+       - "01-01"   # New Year
+       - "12-25"   # Christmas
     providers:
       ny:
         enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
@@ -161,6 +165,8 @@ tch:
           - code: "US_NY_TAKE5_EVE"
             external_key: "TAKE 5"
             draw_time: "22:30"
+        holidays:
+          - "07-04" # Independence Day (NY specific)
 
       fl:
         enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
@@ -184,6 +190,7 @@ tch:
           - code: "US_FL_LOTTO"
             external_key: "FLORIDA LOTTO"
             draw_time: "23:15"
+        holidays: []
 
 
 # ===========================
