@@ -45,7 +45,9 @@ public class SharedResultsByGameAggregator {
                   latest.drawTime());
             } else {
               log.debug(
-                  "NextScheduledAt for channel {} = {}", latest.channelCode(), latest.nextScheduledAt());
+                  "NextScheduledAt for channel {} = {}",
+                  latest.channelCode(),
+                  latest.nextScheduledAt());
             }
           });
     }
@@ -60,7 +62,10 @@ public class SharedResultsByGameAggregator {
       List<PublicLatestDrawResultsResponse> latestResponses, Locale locale) {
     return latestResponses.stream()
         .filter(latest -> latest != null && latest.results() != null && !latest.results().isEmpty())
-        .map(latest -> toGameResultsFromLatest(latest, latest.results().stream().findFirst().get(), locale))
+        .map(
+            latest ->
+                toGameResultsFromLatest(
+                    latest, latest.results().stream().findFirst().get(), locale))
         .collect(Collectors.toList());
   }
 
@@ -80,16 +85,25 @@ public class SharedResultsByGameAggregator {
 
     String historyUrl = "/public/results/" + latest.channelCode();
 
-    List<String> main = item.numbersMain() == null ? List.of() : item.numbersMain().stream().map(Object::toString).collect(Collectors.toList());
-    List<String> extra = item.numbersExtra() == null ? List.of() : item.numbersExtra().stream().map(Object::toString).collect(Collectors.toList());
+    List<String> main =
+        item.numbersMain() == null
+            ? List.of()
+            : item.numbersMain().stream().map(Object::toString).collect(Collectors.toList());
+    List<String> extra =
+        item.numbersExtra() == null
+            ? List.of()
+            : item.numbersExtra().stream().map(Object::toString).collect(Collectors.toList());
 
     // build nextInfo from latest response if provided
-    var nextInfo = (latest.nextScheduledAt() == null) ? null : new com.tchalanet.server.features.pagemodel.shared.block.ResultsByGameBlock.NextDrawInfo(
-        latest.nextScheduledAt(),
-        latest.nextDrawLabel(),
-        Boolean.TRUE.equals(latest.nextIsOpen()),
-        Boolean.TRUE.equals(latest.nextIsClosingSoon())
-    );
+    var nextInfo =
+        (latest.nextScheduledAt() == null)
+            ? null
+            : new com.tchalanet.server.features.pagemodel.shared.block.ResultsByGameBlock
+                .NextDrawInfo(
+                latest.nextScheduledAt(),
+                latest.nextDrawLabel(),
+                Boolean.TRUE.equals(latest.nextIsOpen()),
+                Boolean.TRUE.equals(latest.nextIsClosingSoon()));
 
     return new ResultsByGameBlock.GameResults(
         latest.channelCode(),

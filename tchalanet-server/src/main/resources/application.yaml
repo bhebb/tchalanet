@@ -170,7 +170,7 @@ tch:
 
       fl:
         enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
-        base-url: ${TCH_US_LOTTERY_FL_BASEURL:https://apim-website-prod-eastus.azure-api.net}
+        base-url: ${TCH_US_FL_LOTTERY_BASEURL:https://apim-website-prod-eastus.azure-api.net}
         latest-path: /drawgamesapp/getLatestDrawGames
         alert-path: /site/services/alert
         timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
@@ -190,6 +190,34 @@ tch:
           - code: "US_FL_LOTTO"
             external_key: "FLORIDA LOTTO"
             draw_time: "23:15"
+        holidays: []
+
+      ga:
+        enabled: ${TCH_US_GA_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_GA_LOTTERY_BASEURL:https://www.galottery.com}
+        latest-path: /api/v2/draw-games/draws/?previous-draws=2&game-names=CASH+3%2CCASH+4%2CCASH+POP%2CKENO!%2CMEGA+MILLIONS%2CPOWERBALL%2CFANTASY+5%2CCASH4LIFE%2CGEORGIA+FIVE
+        timezone: ${TCH_US_GA_TIMEZONE:America/New_York}
+        games:
+          - code: "US_GA_CASH3_MID"
+            external_key: "CASH3"
+            draw_time: "13:30"
+          - code: "US_GA_CASH3_EVE"
+            external_key: "CASH3"
+            draw_time: "22:00"
+        holidays: []
+
+      tn:
+        enabled: ${TCH_US_TN_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_TN_LOTTERY_BASEURL:https://dotcom-headless.jackpocket.com}
+        latest-path: /api/lottery-results?location_code=TN&per_page=9&end_date=2026-01-05&page=1&start_date=2016-01-01
+        timezone: ${TCH_US_TN_TIMEZONE:America/Chicago}
+        games:
+          - code: "US_TN_PICK3_MID"
+            external_key: "PICK3"
+            draw_time: "13:30"
+          - code: "US_TN_PICK3_EVE"
+            external_key: "PICK3"
+            draw_time: "22:00"
         holidays: []
 
 

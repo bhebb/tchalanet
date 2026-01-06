@@ -22,25 +22,24 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @ConditionalOnProperty(
-    prefix = "tch.us-lottery.providers.fl",
+    prefix = "tch.us-lottery.providers.ga",
     name = "enabled",
     havingValue = "true",
     matchIfMissing = true)
-public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient {
+public class GaLatestDrawProviderClient implements LatestDrawProviderClient {
 
-  private final org.springframework.web.client.RestClient floridaRestClient;
+  private final org.springframework.web.client.RestClient gaRestClient;
   private final UsLotteryProperties props;
   private final JsonbUtils jsonbUtils;
 
   private final UsLotteryProviderRawCache cacheManager;
 
-  public FloridaLatestDrawProviderClient(
-      @Qualifier("floridaLotteryRestClient")
-          org.springframework.web.client.RestClient floridaRestClient,
+  public GaLatestDrawProviderClient(
+      @Qualifier("gaLotteryRestClient") org.springframework.web.client.RestClient gaRestClient,
       UsLotteryProperties props,
       JsonbUtils jsonbUtils,
       UsLotteryProviderRawCache cacheManager) {
-    this.floridaRestClient = floridaRestClient;
+    this.gaRestClient = gaRestClient;
     this.props = props;
     this.jsonbUtils = jsonbUtils;
     this.cacheManager = cacheManager;
@@ -48,22 +47,21 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
 
   @Override
   public UsLotteryProvider provider() {
-    return UsLotteryProvider.FL; // assure-toi que l'enum s'appelle vraiment FL
+    return UsLotteryProvider.GA;
   }
 
   @Override
   public List<LatestDraw> fetchLatestDraws() {
-    var providerCfg = props.getProviders() != null ? props.getProviders().get("fl") : null;
+    var providerCfg = props.getProviders() != null ? props.getProviders().get("ga") : null;
     var tz = providerCfg != null ? providerCfg.getTimezone() : "America/New_York";
-    var requestFlDrawResults =
+    var requestUrl =
         providerCfg != null ? providerCfg.getBaseUrl() + providerCfg.getLatestPath() : null;
+    if (requestUrl == null || requestUrl.isBlank()) return List.of();
     var zone = ZoneId.of(tz);
 
-    // Florida renvoie "latest" (souvent aujourd'hui). On cache par "drawDateLocal = today(zone)".
     var drawDate = ZonedDateTime.now(zone).toLocalDate();
 
-    // use requestFlDrawResults as query identity (could be improved)
-    var queryHash = sha256(requestFlDrawResults == null ? "latest" : requestFlDrawResults);
+    var queryHash = sha256(requestUrl);
 
     var body =
         cacheManager.getOrFetch(
@@ -72,92 +70,112 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
             queryHash,
             () -> {
               try {
-                return floridaRestClient
-                    .get()
-                    .uri(requestFlDrawResults)
-                    .retrieve()
-                    .body(String.class);
+                return gaRestClient.get().uri(requestUrl).retrieve().body(String.class);
               } catch (Exception ex) {
-                log.warn("fl-latest-client: fetch failed: {}", ex.getMessage(), ex);
+                log.warn("ga-latest-client: fetch failed: {}", ex.getMessage(), ex);
                 return null;
               }
             });
 
     if (body == null || body.isBlank()) return List.of();
 
-    return parseFloridaBody(body, requestFlDrawResults, zone);
+    return parseGaBody(body, requestUrl, zone);
   }
 
-  private List<LatestDraw> parseFloridaBody(String body, String latestPath, ZoneId zone) {
+  private List<LatestDraw> parseGaBody(String body, String latestPath, ZoneId zone) {
     List<LatestDraw> results = new ArrayList<>();
     try {
       JsonNode root = jsonbUtils.readTree(body);
-
-      List<FloridaEntryDto> entries;
+      // Georgia API returns an array of draws or an object with a 'results' array.
+      List<GaEntryDto> entries;
       if (root != null && root.isArray()) {
         entries =
-            jsonbUtils.fromJson(
-                body,
-                new com.fasterxml.jackson.core.type.TypeReference<List<FloridaEntryDto>>() {});
+            jsonbUtils.fromJson(body, new com.fasterxml.jackson.core.type.TypeReference<>() {});
       } else {
-        JsonNode dr = root == null ? null : root.get("DrawResults");
-        if (dr != null && dr.isArray()) {
+        JsonNode resultsNode = root == null ? null : root.get("results");
+        if (resultsNode != null && resultsNode.isArray()) {
           entries =
               jsonbUtils.convertValue(
-                  dr,
-                  new com.fasterxml.jackson.core.type.TypeReference<List<FloridaEntryDto>>() {});
+                  resultsNode, new com.fasterxml.jackson.core.type.TypeReference<>() {});
         } else {
           entries = List.of();
         }
       }
 
       Instant fetchedAt = Instant.now();
-      for (FloridaEntryDto e : entries) {
+      for (GaEntryDto e : entries) {
         processEntry(results, e, latestPath, zone, fetchedAt, body);
       }
     } catch (Exception ex) {
-      log.warn("fl-latest-client: parse failed: {}", ex.toString());
+      log.warn("ga-latest-client: parse failed: {}", ex.toString());
     }
     return results;
   }
 
   private void processEntry(
       List<LatestDraw> results,
-      FloridaEntryDto e,
+      GaEntryDto e,
       String latestPath,
       ZoneId zone,
       Instant fetchedAt,
-      String rawBody // pour hash
-      ) {
+      String rawBody) {
     String gameKey = normalizeGameKey(e.gameName());
-    if (!Set.of("PICK3", "PICK4", "LOTTO").contains(gameKey)) return;
+    if (gameKey == null) return;
 
-    LocalDate date = parseFloridaDate(e.drawDate());
+    // map some common game keys
+    // CASH 3 -> CASH3 -> PICK3 semantics, CASH 4 -> PICK4, etc.
+    String mappedKey =
+        switch (gameKey) {
+          case "CASH3", "CASH 3" -> "PICK3";
+          case "CASH4", "CASH 4" -> "PICK4";
+          case "CASHPOP", "CASH POP" -> "POP";
+          default -> gameKey;
+        };
+
+    // prefer top-level name (ex: "NIGHT", "MIDDAY", "EVENING")
+    String drawType = normalize(e.name());
+    var firstResult = e.results() == null ? null : e.results().stream().findFirst().orElse(null);
+    if (drawType == null && firstResult != null) {
+      drawType = normalize(firstResult.drawType());
+    }
+
+    // prefer drawTime millis if provided, otherwise try drawDate string
+    LocalDate date;
+    if (e.drawTime() != null) {
+      try {
+        date = Instant.ofEpochMilli(e.drawTime()).atZone(zone).toLocalDate();
+      } catch (Exception ex) {
+        // fallback
+        date = parseGaDate(e.drawDate());
+      }
+    } else {
+      date = parseGaDate(e.drawDate());
+    }
+
     if (date == null) return;
 
-    // ✅ LOTTO: drawType souvent pas utile -> on accepte null et on force DEFAULT
-    String drawType = normalize(e.drawType());
-    if ("LOTTO".equals(gameKey) && (drawType == null || drawType.isBlank())) {
-      drawType = "DEFAULT";
-    }
-    if (drawType == null) return; // pour PICK3/4 on garde strict
-
-    String channelCode = mapChannelCode(gameKey, drawType);
+    String channelCode = mapChannelCode(mappedKey, drawType);
     if (channelCode == null) return;
 
-    ParseResult pr = parseNumbers(e.drawNumbers(), gameKey);
+    ParseResult pr = parseNumbersFromResult(e);
     if (pr.main().isEmpty()) return;
 
-    OffsetDateTime occurredAt = date.atStartOfDay(zone).toOffsetDateTime();
-
+    OffsetDateTime occurredAt;
+    if (e.drawTime() != null) {
+      try {
+        occurredAt = Instant.ofEpochMilli(e.drawTime()).atZone(zone).toOffsetDateTime();
+      } catch (Exception ex) {
+        occurredAt = date.atStartOfDay(zone).toOffsetDateTime();
+      }
+    } else {
+      occurredAt = date.atStartOfDay(zone).toOffsetDateTime();
+    }
     DrawExtras extras = new DrawExtras(pr.extraNumbers(), pr.attributes());
-
-    // ✅ Hash stable (payload utile). Ici: body complet (MVP) – tu peux améliorer plus tard.
     String sourceHash = sha256(rawBody);
 
     buildAndAddLatestDraw(
         results,
-        gameKey,
+        mappedKey,
         drawType,
         channelCode,
         date,
@@ -169,79 +187,40 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
         sourceHash);
   }
 
-  // ---- LOTTO FIXES ----
-
   private String mapChannelCode(String gameKey, String drawType) {
     return switch (gameKey) {
       case "PICK3" ->
           switch (drawType) {
-            case "MIDDAY" -> "US_FL_PICK3_MID";
-            case "EVENING" -> "US_FL_PICK3_EVE";
+            case "MIDDAY" -> "US_GA_CASH3_MID";
+            case "EVENING", "NIGHT" -> "US_GA_CASH3_EVE";
             default -> null;
           };
       case "PICK4" ->
           switch (drawType) {
-            case "MIDDAY" -> "US_FL_PICK4_MID";
-            case "EVENING" -> "US_FL_PICK4_EVE";
+            case "MIDDAY" -> "US_GA_CASH4_MID";
+            case "EVENING", "NIGHT" -> "US_GA_CASH4_EVE";
             default -> null;
           };
-      case "LOTTO" -> "US_FL_LOTTO"; // ✅ un seul channel
       default -> null;
     };
   }
 
-  private ParseResult parseNumbers(List<FloridaNumberDto> drawNumbers, String gameKey) {
-    if (drawNumbers == null || drawNumbers.isEmpty())
+  private ParseResult parseNumbersFromResult(GaEntryDto e) {
+    if (e == null || e.results() == null || e.results().isEmpty())
       return new ParseResult(List.of(), List.of(), Map.of());
+    var r = e.results().stream().findFirst().orElse(null);
+    List<String> main = r == null || r.primary() == null ? List.of() : new ArrayList<>(r.primary());
 
-    int expected =
-        switch (gameKey) {
-          case "PICK3" -> 3;
-          case "PICK4" -> 4;
-          case "LOTTO" -> 6; // ✅ LOTTO typique
-          default -> 0;
-        };
-
-    record Wn(int idx, String val) {}
-    List<Wn> wn = new ArrayList<>();
-    List<Integer> extraNums = new ArrayList<>();
-    Map<String, String> attrs = new HashMap<>();
-
-    for (FloridaNumberDto n : drawNumbers) {
-      if (n == null) continue;
-      String type = n.numberType();
-      String pick = n.numberPick() == null ? "" : n.numberPick().trim();
-      if (pick.isBlank()) continue;
-
-      String t = type == null ? "" : type.trim().toLowerCase(Locale.ROOT);
-
-      // main numbers
-      if (t.startsWith("wn")) {
-        int idx = 99;
-        try {
-          idx = Integer.parseInt(t.substring(2));
-        } catch (Exception ignored) {
-        }
-        wn.add(new Wn(idx, pick));
-        continue;
-      }
-
-      // extras
-      try {
-        extraNums.add(Integer.parseInt(pick));
-      } catch (NumberFormatException ignored) {
-      }
-      attrs.merge(t.isBlank() ? "extra" : t, pick, (a, b) -> a + "," + b);
+    // validate numeric content and trim
+    List<String> validatedMain = new ArrayList<>();
+    for (String s : main) {
+      if (s == null) continue;
+      String t = s.trim();
+      if (t.isEmpty()) continue;
+      validatedMain.add(t);
     }
 
-    wn.sort(Comparator.comparingInt(Wn::idx));
-    List<String> main = new ArrayList<>();
-    for (Wn x : wn) {
-      main.add(x.val());
-      if (main.size() == expected) break;
-    }
-
-    return new ParseResult(List.copyOf(main), List.copyOf(extraNums), Map.copyOf(attrs));
+    return new ParseResult(List.copyOf(validatedMain), List.of(), Map.of());
   }
 
   private void buildAndAddLatestDraw(
@@ -263,7 +242,6 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
           switch (gameKey) {
             case "PICK3" -> 3;
             case "PICK4" -> 4;
-            case "LOTTO" -> 6;
             default -> digits.size();
           };
       main.requireSize(expected, gameKey + "_" + drawType);
@@ -280,7 +258,7 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
               main,
               extras,
               ResultQuality.COMPLETE,
-              "FL_APIM",
+              "GA_API",
               Map.of("path", latestPath, "hash", sourceHash)));
     } catch (Exception ex) {
       results.add(
@@ -295,7 +273,7 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
               new DrawMain(digits),
               extras,
               ResultQuality.SUSPECT,
-              "FL_APIM",
+              "GA_API",
               Map.of("path", latestPath, "hash", sourceHash, "error", ex.getMessage())));
     }
   }
@@ -328,30 +306,31 @@ public class FloridaLatestDrawProviderClient implements LatestDrawProviderClient
     return t.isBlank() ? null : t;
   }
 
-  private static LocalDate parseFloridaDate(String raw) {
+  private static LocalDate parseGaDate(String raw) {
     if (raw == null || raw.isBlank()) return null;
-    String datePart = raw.length() >= 10 ? raw.substring(0, 10) : raw;
+    // GA API may provide date-only or ISO date/time; try parse the date part
     try {
-      var f = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
-      return LocalDate.parse(datePart, f);
-    } catch (Exception ignored) {
+      return LocalDate.parse(raw.substring(0, 10));
+    } catch (Exception ex) {
       try {
-        return LocalDate.parse(datePart);
-      } catch (Exception ex) {
+        return LocalDate.parse(raw);
+      } catch (Exception e) {
         return null;
       }
     }
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private record FloridaEntryDto(
-      @JsonProperty("GameName") String gameName,
-      @JsonProperty("DrawDate") String drawDate,
-      @JsonProperty("DrawType") String drawType,
-      @JsonProperty("DrawNumbers") List<FloridaNumberDto> drawNumbers) {}
+  private record GaEntryDto(
+      @JsonProperty("drawDate") String drawDate,
+      @JsonProperty("gameName") String gameName,
+      @JsonProperty("name") String name,
+      @JsonProperty("drawTime") Long drawTime,
+      @JsonProperty("results") List<GaResultDto> results) {}
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private record FloridaNumberDto(
-      @JsonProperty("NumberPick") String numberPick,
-      @JsonProperty("NumberType") String numberType) {}
+  private record GaResultDto(
+      @JsonProperty("primary") List<String> primary,
+      @JsonProperty("primaryRevealOrder") List<String> primaryRevealOrder,
+      @JsonProperty("drawType") String drawType) {}
 }

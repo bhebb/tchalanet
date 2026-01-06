@@ -53,4 +53,44 @@ public class UsLotteryConfig {
         .defaultHeader(HttpHeaders.USER_AGENT, "Tchalanet/1.0 (+https://tchalanet.com)")
         .build();
   }
+
+  @Bean
+  @ConditionalOnProperty(
+      prefix = "tch.us-lottery.providers.ga",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public RestClient gaLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    var provider = props.getProviders() != null ? props.getProviders().get("ga") : null;
+    String baseUrl = provider != null ? provider.getBaseUrl() : null;
+
+    var b = (baseUrl == null || baseUrl.isBlank()) ? builder : builder.baseUrl(baseUrl);
+
+    return b.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        .defaultHeader("x-partner", "web")
+        .defaultHeader(HttpHeaders.ORIGIN, "https://www.galottery.com")
+        .defaultHeader(HttpHeaders.REFERER, "https://www.galottery.com/")
+        .defaultHeader(HttpHeaders.USER_AGENT, "Tchalanet/1.0 (+https://tchalanet.com)")
+        .build();
+  }
+
+  @Bean
+  @ConditionalOnProperty(
+      prefix = "tch.us-lottery.providers.tn",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public RestClient tnLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
+    var provider = props.getProviders() != null ? props.getProviders().get("tn") : null;
+    String baseUrl = provider != null ? provider.getBaseUrl() : null;
+
+    var b = (baseUrl == null || baseUrl.isBlank()) ? builder : builder.baseUrl(baseUrl);
+
+    return b.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        .defaultHeader("x-partner", "web")
+        .defaultHeader(HttpHeaders.ORIGIN, "https://jackpocket.com")
+        .defaultHeader(HttpHeaders.REFERER, "https://jackpocket.com/")
+        .defaultHeader(HttpHeaders.USER_AGENT, "Tchalanet/1.0 (+https://tchalanet.com)")
+        .build();
+  }
 }

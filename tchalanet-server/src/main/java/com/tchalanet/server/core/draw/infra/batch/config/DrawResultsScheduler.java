@@ -33,6 +33,17 @@ public class DrawResultsScheduler {
         false);
   }
 
+  @Scheduled(cron = "0 50,55,59 22 * * *", zone = "America/New_York")
+  public void nyEveRefresh() {
+    refresh(
+        "NY_EVE",
+        DefaultTimeZone.AMERICA_NEW_YORK,
+        List.of("US_NY_NUM3_EVE", "US_NY_NUM4_EVE"),
+        10500,
+        false,
+        false);
+  }
+
   @Scheduled(cron = "0 35,40,45,50,55 13 * * *", zone = "America/New_York")
   @Scheduled(cron = "0 0 14 * * *", zone = "America/New_York")
   public void flMiddayRefresh() {

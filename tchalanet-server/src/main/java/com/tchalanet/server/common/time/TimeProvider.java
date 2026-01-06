@@ -24,4 +24,3 @@ public class TimeProvider {
     return now(zone).toLocalDate();
   }
 }
-
