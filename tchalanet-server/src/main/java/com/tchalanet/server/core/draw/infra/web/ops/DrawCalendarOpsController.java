@@ -1,16 +1,14 @@
 package com.tchalanet.server.core.draw.infra.web.ops;
 
+import com.tchalanet.server.common.batch.BatchGate;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
-import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsResult;
-import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
-import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
-import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsCommand;
-import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsResult;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.draw.application.command.model.*;
 import com.tchalanet.server.core.draw.infra.web.ops.model.CloseDueDrawsRequest;
 import com.tchalanet.server.core.draw.infra.web.ops.model.GenerateDrawsRequest;
 import com.tchalanet.server.core.draw.infra.web.ops.model.OpenDueDrawsRequest;
+import com.tchalanet.server.core.drawresult.infra.web.ops.DrawResultsOpsController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DrawCalendarOpsController {
 
   private final CommandBus commandBus;
-  private final com.tchalanet.server.common.batch.BatchGate batchGate;
+  private final BatchGate batchGate;
 
   @Operation(summary = "Generate draws for a date range (ops)")
   @PostMapping("/generate")
@@ -56,5 +54,25 @@ public class DrawCalendarOpsController {
     batchGate.assertCanRunOrThrow("close");
     Instant now = req.now() == null ? Instant.now() : req.now();
     return commandBus.send(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
+  }
+
+  @Operation(summary = "Apply draw_result to draw.draw_result_id (slot-first)")
+  @PostMapping("/apply")
+  public ApiResponse<ApplyExternalResultsWindowResult> apply(
+      @RequestBody DrawResultsOpsController.WindowRequest req) {
+    if (!batchGate.canRun("results.apply"))
+      throw new IllegalStateException("Batch gate: results.apply=false");
+    var tenantId = TenantId.of(req.tenantId());
+    var res =
+        commandBus.send(
+            new ApplyExternalResultsWindowCommand(
+                tenantId,
+                req.baseDate(),
+                req.daysBack(),
+                req.slotKeys(),
+                req.force(),
+                req.dryRun(),
+                req.maxSlots()));
+    return ApiResponse.success(res);
   }
 }

@@ -1,0 +1,29 @@
+Type,Class,Method,Occurrences,SamplePaths,PotentialDuplicate,Notes
+Repo,PublicDrawResultRepository,search,3,".../PublicDrawResultRepository.java; .../PublicDrawResultRepositoryAdapter.java; .../ListPublicDrawResultsQueryHandler.java",no,"Used by PublicDrawResultRepositoryAdapter -> exposed via port"
+Repo,PublicDrawResultRepository,findOne,3,".../PublicDrawResultRepository.java; .../PublicDrawResultRepositoryAdapter.java; .../GetPublicDrawResultQueryHandler.java",no,
+Repo,PublicDrawResultRepository,latest,3,".../PublicDrawResultRepository.java; .../PublicDrawResultRepositoryAdapter.java; .../GetLatestPublicDrawResultsQueryHandler.java",no,
+Repo,DrawResultJpaRepository,findByChannelCodeIgnoreCaseAndDrawDate,4,".../DrawResultJpaRepository.java; .../DrawResultJpaRepositoryAdapter.java; .../DrawResultJpaRepositoryAdapter.java",yes,"Alternative: DrawResultJdbcRepository.findExisting performs similar lookup (JDBC) — consider consolidating"
+Repo,DrawResultJpaRepository,upsertResult,4,".../DrawResultJpaRepository.java; .../DrawResultJpaRepositoryAdapter.java",yes,"Overlaps with DrawResultJdbcRepository.upsertReturnId (JDBC upsert). Consider choosing single upsert path or document roles (JPA for simple, JDBC for stricter control)."
+Repo,DrawResultJdbcRepository,findExisting,3,".../DrawResultJdbcRepository.java; .../DrawResultJpaRepositoryAdapter.java",yes,"Similar to repo.findByChannelCodeIgnoreCaseAndDrawDate — used for light-weight existence/quality checks"
+Repo,DrawResultJdbcRepository,upsertReturnId,2,".../DrawResultJdbcRepository.java; .../some callers) ",yes,"JDBC upsert returning id duplicates JPA upsertResult semantics"
+Repo,DrawJpaRepository,findByTenantIdAndScheduledAtBetweenFetchChannelOrderByScheduledAt,3,".../DrawJpaRepository.java; .../DrawJpaRepositoryAdapter.java; .../DrawJpaRepositoryAdapter.java",no,
+Repo,DrawJpaRepository,findByTenantIdAndScheduledAtBetween,2,".../DrawJpaRepository.java; .../DrawJpaRepository.java",yes,"Two similar methods exist (with and without fetchChannel). Consider removing exact duplicate declaration or clarifying usage"
+Repo,DrawJpaRepository,findByStatusAndScheduledAtBeforeAndDeletedAtIsNull,2,".../DrawJpaRepository.java; .../DrawJpaRepositoryAdapter.java",yes,"Overloaded variants exist (String vs DrawStatus). Consider standardizing on one type or named methods"
+Repo,DrawJpaRepository,insertIfNotExists,1,".../DrawJpaRepository.java",no,
+Repo,DrawJpaRepository,findDueToClose,2,".../DrawJpaRepository.java; .../DrawLifecycleJpaAdapter.java",no,
+Repo,DrawJpaRepository,bulkClose,2,".../DrawJpaRepository.java; .../DrawLifecycleJpaAdapter.java",no,
+Adapter,PublicDrawResultRepositoryAdapter,search,3,".../PublicDrawResultRepositoryAdapter.java; .../ListPublicDrawResultsQueryHandler.java; .../GetLatestPublicDrawResultsQueryHandler.java",no,
+Adapter,PublicDrawResultRepositoryAdapter,findOne,2,".../PublicDrawResultRepositoryAdapter.java; .../GetPublicDrawResultQueryHandler.java",no,
+Adapter,PublicDrawResultRepositoryAdapter,latest,2,".../PublicDrawResultRepositoryAdapter.java; .../GetLatestPublicDrawResultsQueryHandler.java",no,
+Adapter,DrawResultJpaRepositoryAdapter,findByDrawId,1,".../DrawResultJpaRepositoryAdapter.java",no,
+Adapter,DrawResultJpaRepositoryAdapter,findByTenantAndDateRange,1,".../DrawResultJpaRepositoryAdapter.java",no,
+Adapter,DrawResultJpaRepositoryAdapter,findByCriteria,1,".../DrawResultJpaRepositoryAdapter.java",no,
+Adapter,DrawResultJpaRepositoryAdapter,save,2,".../DrawResultJpaRepositoryAdapter.java (two overloads)",no,
+Adapter,DrawResultJpaRepositoryAdapter,upsertFromExternal,1,".../DrawResultJpaRepositoryAdapter.java",no,"Wrapper around repo.upsertResult; coordinates logic and policies"
+Adapter,DrawJpaRepositoryAdapter,findById,4,".../DrawJpaRepositoryAdapter.java; .../various handlers",no,
+Adapter,DrawJpaRepositoryAdapter,findByCriteria,4,".../DrawJpaRepositoryAdapter.java; .../ListDrawsHandler.java; .../ListTodayDrawsHandler.java",no,
+Adapter,DrawChannelJpaRepositoryAdapter,findById,3,".../DrawChannelJpaRepositoryAdapter.java; .../GetDrawChannelHandler.java",no,
+Adapter,DrawChannelJpaRepositoryAdapter,findByCode,2,".../DrawChannelJpaRepositoryAdapter.java; .../DrawChannelController.java",no,
+Adapter,DrawChannelJpaRepositoryAdapter,findActiveByTenant,1,".../DrawChannelJpaRepositoryAdapter.java",no,
+Adapter,DrawChannelJpaRepositoryAdapter,save,2,".../DrawChannelJpaRepositoryAdapter.java; .../CreateDrawChannelCommandHandler.java",no
+

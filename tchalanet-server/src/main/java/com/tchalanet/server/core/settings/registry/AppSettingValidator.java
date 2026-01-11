@@ -12,7 +12,7 @@ public class AppSettingValidator {
 
     var reg = AppSettingRegistry.byFullKey().get(full);
     if (reg == null) {
-      throw new IllegalArgumentException("Unknown app_setting key: " + full);
+      throw new IllegalArgumentException("Unknown app_setting slotKey: " + full);
     }
     if (reg.type() != type) {
       throw new IllegalArgumentException(

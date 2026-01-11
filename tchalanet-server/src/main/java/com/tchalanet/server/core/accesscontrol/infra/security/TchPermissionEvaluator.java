@@ -65,12 +65,12 @@ public class TchPermissionEvaluator implements PermissionEvaluator {
     return hasPermission;
   }
 
-  /** Helper record that holds the principal and the normalized permission key. */
+  /** Helper record that holds the principal and the normalized permission slotKey. */
   private record PermissionEvalContext(TchRequestContext principal, String permissionKey) {}
 
   /**
    * Validate input authentication and permission, returning a context with the principal and
-   * permission key. Returns null when validation fails (logs are emitted by this method).
+   * permission slotKey. Returns null when validation fails (logs are emitted by this method).
    */
   private PermissionEvalContext prepareContext(Authentication authentication, Object permission) {
     if (authentication == null

@@ -1,0 +1,22 @@
+  curl 'https://www.usatoday.com/lottery/api/games' \
+    -H 'accept: application/json' \
+    -H 'accept-language: fr-FR,fr;q=0.5' \
+    -H 'cache-control: no-cache' \
+    -H 'content-type: application/json' \
+    -b 'gup_anonid=56673866-588a-480d-8e91-4f43168dce40; gup_clientid=14a7e8e3-1dec-416f-988b-bc64fcb566cc; gnt_ub=81; gnt_sb=17; gnt_i=05588500173022422830*577*CA~QC; _ga=GA1.1.1747165948.1767837323; gca_rs=search; _parsely_session={%22sid%22:1%2C%22surl%22:%22https://www.usatoday.com/lottery/us-tn%22%2C%22sref%22:%22https://www.google.com/%22%2C%22sts%22:1767837327143%2C%22slts%22:0}; _parsely_visitor={%22id%22:%22pid=8b9dd44d-5bd2-4f8d-9f20-02c6768f0df6%22%2C%22session_count%22:1%2C%22last_session_ts%22:1767837327143}; gnt_eid=(null)' \
+    -H 'fastly-debug: 1' \
+    -H 'origin: https://www.usatoday.com' \
+    -H 'pragma: no-cache' \
+    -H 'priority: u=1, i' \
+    -H 'referer: https://www.usatoday.com/lottery/us-tn' \
+    -H 'sec-ch-ua: "Brave";v="143", "Chromium";v="143", "Not A(Brand";v="24"' \
+    -H 'sec-ch-ua-mobile: ?0' \
+    -H 'sec-ch-ua-platform: "macOS"' \
+    -H 'sec-fetch-dest: empty' \
+    -H 'sec-fetch-mode: cors' \
+    -H 'sec-fetch-site: same-origin' \
+    -H 'sec-gpc: 1' \
+    -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36' \
+    -H 'x-api-slotKey: public/request' \
+    -H 'x-sitecode: USAT' \
+    --data-raw $'{"query":"query findLottoResultsByLocation($location:String\u0021$count:Int$cursor:String$includePayouts:Boolean=false){__typename lotto:findLottoResultsByLocation(location:$location count:$count cursor:$cursor){__typename cursor results:lottoResults{__typename ...lotteryResults}}}fragment lotteryResults on LottoResults{__typename id gameID drawDate gameName nextDrawDate estimatedJackpot bonusNumbers{__typename slotKey value}drawNumbersParsed payouts@include(if:$includePayouts){__typename area prizes{__typename match prize numberOfWinners}}}","variables":{"count":6,"location":"US-TN"},"operationName":"findLottoResultsByLocation"}'

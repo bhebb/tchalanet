@@ -4,23 +4,25 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
+import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
 import com.tchalanet.server.core.draw.application.query.projection.OpenableDrawRow;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
-import com.tchalanet.server.core.draw.infra.persistence.projection.DueToCloseProjection;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,6 +31,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
 
   private final DrawJpaRepository repo;
   private final DrawMapper mapper;
+  private final JdbcTemplate jdbc;
 
   @Override
   public List<OpenableDrawRow> findOpenable(
@@ -46,6 +49,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     Boolean locked = p.getLocked() == null ? Boolean.FALSE : p.getLocked();
     Instant scheduledAt = p.getScheduledAt();
     Instant cutoffAt = p.getCutoffAt();
+    // preserve existing shape of OpenableDrawRow
     return new OpenableDrawRow(tenantId, drawId, locked, scheduledAt, cutoffAt);
   }
 
@@ -56,101 +60,75 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     return repo.bulkOpen(ids);
   }
 
-  private DueToCloseRow mapDueToCloseRow(DueToCloseProjection p) {
-    var tenantId = TenantId.of(p.getTenantId());
-    var drawId = DrawId.of(p.getDrawId());
-    var locked = p.getLocked() == null ? Boolean.FALSE : p.getLocked();
-    return new DueToCloseRow(tenantId, drawId, locked);
-  }
-
-  private final JdbcTemplate jdbc;
-
-  @Override
-  public boolean existsByDate(TenantId tenantId, UUID drawChannelId, LocalDate drawDate) {
-    return repo.existsByTenantIdAndDrawChannelIdAndDrawDateAndDeletedAtIsNull(
-        tenantId.uuid(), drawChannelId, drawDate);
-  }
-
   @Override
   public int bulkInsert(List<NewDrawRow> rows) {
     if (rows == null || rows.isEmpty()) return 0;
 
-    // JDBC batch insert + ON CONFLICT DO NOTHING (Postgres)
-    String sql =
-        """
-            INSERT INTO draw (
-              id, tenant_id, draw_channel_id,
-              draw_date, scheduled_at, cutoff_at,
-              cutoff_sec, status, draw_source,
-              system_generated, locked,
-              created_at, updated_at
-            )
-            SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now()
-            WHERE NOT EXISTS (
-              SELECT 1 FROM draw d2
-              WHERE d2.tenant_id = ? AND d2.draw_channel_id = ? AND d2.draw_date = ?
-            )
-            """;
+    final String sql =
+        "INSERT INTO draw ("
+            + "id, tenant_id, draw_channel_id, "
+            + "draw_date, scheduled_at, cutoff_at, "
+            + "cutoff_sec, status, draw_source, "
+            + "system_generated, locked, "
+            + "created_at, updated_at) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now()) "
+            + "ON CONFLICT (tenant_id, draw_channel_id, draw_date) DO NOTHING";
 
-    var rowsList = rows; // capture
-
-    int[] counts =
-        jdbc.batchUpdate(
-            sql,
-            new BatchPreparedStatementSetter() {
-              @Override
-              public void setValues(PreparedStatement ps, int i) throws SQLException {
-                NewDrawRow r = rowsList.get(i);
-                ps.setObject(1, r.drawId().uuid());
-                ps.setObject(2, r.tenantId().uuid());
-                ps.setObject(3, r.channelId().uuid());
-
-                // draw_date -> DATE
-                if (r.drawDate() != null) ps.setObject(4, r.drawDate());
-                else ps.setNull(4, Types.DATE);
-
-                // scheduled_at -> TIMESTAMP/TIMESTAMPTZ
-                if (r.scheduledAt() != null) {
-                  ps.setTimestamp(5, Timestamp.from(r.scheduledAt()));
-                } else {
-                  ps.setNull(5, Types.TIMESTAMP);
-                }
-
-                // cutoff_at -> TIMESTAMP/TIMESTAMPTZ
-                if (r.cutoffAt() != null) {
-                  ps.setTimestamp(6, Timestamp.from(r.cutoffAt()));
-                } else {
-                  ps.setNull(6, Types.TIMESTAMP);
-                }
-
-                // compute cutoff_sec as seconds difference
-                Integer cutoffSec = null;
-                if (r.cutoffAt() != null && r.scheduledAt() != null) {
-                  long diff = r.scheduledAt().getEpochSecond() - r.cutoffAt().getEpochSecond();
-                  cutoffSec = (int) Math.max(0, diff);
-                }
-                if (cutoffSec == null) ps.setNull(7, java.sql.Types.INTEGER);
-                else ps.setInt(7, cutoffSec);
-                ps.setString(8, r.status());
-                ps.setString(9, r.drawSource());
-                ps.setBoolean(10, r.systemGenerated());
-                ps.setBoolean(11, r.locked());
-
-                // duplicate keys for WHERE NOT EXISTS (tenant_id, draw_channel_id, draw_date)
-                ps.setObject(12, r.tenantId().uuid());
-                ps.setObject(13, r.channelId().uuid());
-                if (r.drawDate() != null) ps.setObject(14, r.drawDate());
-                else ps.setNull(14, Types.DATE);
-              }
-
-              @Override
-              public int getBatchSize() {
-                return rowsList.size();
-              }
-            });
-
+    final int chunkSize = 200;
     int created = 0;
-    for (int c : counts) created += c; // Postgres renvoie 1 si insert, 0 si conflict
+
+    for (int start = 0; start < rows.size(); start += chunkSize) {
+      int end = Math.min(rows.size(), start + chunkSize);
+      List<NewDrawRow> chunk = rows.subList(start, end);
+
+      int[] counts =
+          jdbc.batchUpdate(
+              sql,
+              new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                  NewDrawRow r = chunk.get(i);
+
+                  ps.setObject(1, r.drawId().uuid());
+                  ps.setObject(2, r.tenantId().uuid());
+                  ps.setObject(3, r.drawChannelId().uuid());
+
+                  if (r.drawDate() != null) ps.setObject(4, r.drawDate());
+                  else ps.setNull(4, Types.DATE);
+
+                  // timestamptz: prefer setObject(Instant)
+                  if (r.scheduledAt() != null) ps.setObject(5, r.scheduledAt());
+                  else ps.setNull(5, Types.TIMESTAMP_WITH_TIMEZONE);
+
+                  if (r.cutoffAt() != null) ps.setObject(6, r.cutoffAt());
+                  else ps.setNull(6, Types.TIMESTAMP_WITH_TIMEZONE);
+
+                  Integer cutoffSec = null;
+                  if (r.cutoffAt() != null && r.scheduledAt() != null) {
+                    long diff = r.scheduledAt().getEpochSecond() - r.cutoffAt().getEpochSecond();
+                    cutoffSec = (int) Math.max(0, diff);
+                  }
+                  if (cutoffSec == null) ps.setNull(7, Types.INTEGER);
+                  else ps.setInt(7, cutoffSec);
+
+                  ps.setString(8, r.status());
+
+                  if (r.drawSource() != null) ps.setString(9, r.drawSource());
+                  else ps.setNull(9, Types.VARCHAR);
+
+                  ps.setBoolean(10, r.systemGenerated());
+                  ps.setBoolean(11, r.locked());
+                }
+
+                @Override
+                public int getBatchSize() {
+                  return chunk.size();
+                }
+              });
+
+      for (int c : counts) created += c; // 1 insert, 0 conflict
+    }
+
     return created;
   }
 
@@ -178,5 +156,17 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     if (drawIds == null || drawIds.isEmpty()) return 0;
     UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
     return repo.bulkClose(ids);
+  }
+
+  @Override
+  public Set<ExistingDrawKey> findExistingKeys(TenantId tenantId, LocalDate from, LocalDate to) {
+    String sql =
+        "SELECT draw_channel_id, draw_date FROM draw WHERE deleted_at IS NULL AND tenant_id = ? AND draw_date BETWEEN ? AND ?";
+    RowMapper<ExistingDrawKey> mapper =
+        (rs, rowNum) ->
+            new ExistingDrawKey(
+                (UUID) rs.getObject("draw_channel_id"), rs.getDate("draw_date").toLocalDate());
+    List<ExistingDrawKey> list = jdbc.query(sql, new Object[] {tenantId.uuid(), from, to}, mapper);
+    return new HashSet<>(list);
   }
 }

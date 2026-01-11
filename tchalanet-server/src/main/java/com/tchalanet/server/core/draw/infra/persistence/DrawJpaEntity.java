@@ -2,9 +2,21 @@ package com.tchalanet.server.core.draw.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import jakarta.persistence.*;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
@@ -12,6 +24,10 @@ import org.hibernate.envers.Audited;
 @Entity
 @Table(
     name = "draw",
+    uniqueConstraints =
+        @UniqueConstraint(
+            name = "uq_draw_tenant_channel_date",
+            columnNames = {"tenant_id", "draw_channel_id", "draw_date"}),
     indexes = {
       @Index(name = "ix_draw_tenant_date", columnList = "tenant_id, draw_date"),
       @Index(name = "ix_draw_tenant_scheduled", columnList = "tenant_id, scheduled_at"),
@@ -26,33 +42,20 @@ import org.hibernate.envers.Audited;
 public class DrawJpaEntity extends BaseTenantEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "draw_channel_id", nullable = false)
+  @JoinColumn(
+      name = "draw_channel_id",
+      nullable = false,
+      foreignKey = @ForeignKey(name = "fk_draw_channel"))
   private DrawChannelJpaEntity drawChannel;
 
-  /** Résultat attaché à ce draw (canonique global). Null tant que pas RESULTED. */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "draw_result_id")
-  private DrawResultJpaEntity drawResult;
-
-  /** Jour métier (date locale du channel) — clé stable pour l'unicité. */
   @Column(name = "draw_date", nullable = false)
   private LocalDate drawDate;
 
-  /** Instant planifié (calculé depuis draw_date + draw_time + timezone du channel). */
   @Column(name = "scheduled_at", nullable = false)
   private Instant scheduledAt;
 
-  /** Config de cutoff (secondes avant scheduled_at). */
-  @Column(name = "cutoff_sec", nullable = false)
-  private Integer cutoffSec;
-
-  /** Instant de cutoff calculé à la génération: scheduled_at - cutoff_sec. */
   @Column(name = "cutoff_at", nullable = false)
   private Instant cutoffAt;
-
-  // --------------------
-  // Lifecycle timestamps (audit)
-  // --------------------
 
   @Column(name = "opened_at")
   private Instant openedAt;
@@ -72,20 +75,27 @@ public class DrawJpaEntity extends BaseTenantEntity {
   @Column(name = "cancel_reason")
   private String cancelReason;
 
-  // --------------------
-  // Status / meta
-  // --------------------
-
-  @Column(name = "status", nullable = false)
+  @Column(name = "status", nullable = false, length = 16)
   @Enumerated(EnumType.STRING)
   private DrawStatus status;
 
-  @Column(name = "draw_source")
-  private String drawSource;
+  // raw FK column (authoritative storage of the link)
+  @Column(name = "draw_result_id")
+  private UUID drawResultId;
 
   @Column(name = "system_generated", nullable = false)
-  private Boolean systemGenerated = Boolean.TRUE;
+  private boolean systemGenerated = true;
 
   @Column(name = "locked", nullable = false)
-  private Boolean locked = Boolean.FALSE;
+  private boolean locked = false;
+
+  @Column(name = "result_source", length = 16)
+  @Enumerated(EnumType.STRING)
+  private DrawSource resultSource;
+
+  @Column(name = "result_override_reason")
+  private String resultOverrideReason;
+
+  @Column(name = "result_overridden_at")
+  private Instant resultOverriddenAt;
 }

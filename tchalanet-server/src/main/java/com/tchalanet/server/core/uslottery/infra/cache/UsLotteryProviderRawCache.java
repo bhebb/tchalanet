@@ -40,39 +40,39 @@ public class UsLotteryProviderRawCache {
 
     String key = keyBuilder.usLotteryProviderRawKey(provider, drawDate, queryHash);
     if (key == null) {
-      log.info("Cache key builder returned null, calling fetcher directly");
+      log.info("Cache slotKey builder returned null, calling fetcher directly");
       return fetcher.get();
     }
 
     // first fast-path: try to read without locking
     String existing = cache.get(key, String.class);
     if (existing != null) {
-      log.info("Cache hit for provider={} date={} key={}", provider, drawDate, key);
+      log.info("Cache hit for provider={} date={} slotKey={}", provider, drawDate, key);
       return existing;
     }
 
-    // avoid stampede: per-key lock
+    // avoid stampede: per-slotKey lock
     Object lock = locks.computeIfAbsent(key, k -> new Object());
     synchronized (lock) {
       try {
         // double-check after acquiring lock
         existing = cache.get(key, String.class);
         if (existing != null) {
-          log.info("Cache filled by other thread for key={}", key);
+          log.info("Cache filled by other thread for slotKey={}", key);
           return existing;
         }
 
-        log.info("Cache miss for key={}, invoking fetcher", key);
+        log.info("Cache miss for slotKey={}, invoking fetcher", key);
         String value = fetcher.get();
         if (value != null) {
           try {
             cache.put(key, value);
-            log.info("Stored value in cache for key={}", key);
+            log.info("Stored value in cache for slotKey={}", key);
           } catch (Exception e) {
-            log.warn("Failed to put value into cache for key={}: {}", key, e.getMessage());
+            log.warn("Failed to put value into cache for slotKey={}: {}", key, e.getMessage());
           }
         } else {
-          log.info("Fetcher returned null for key={}; not caching", key);
+          log.info("Fetcher returned null for slotKey={}; not caching", key);
         }
         return value;
       } finally {
@@ -93,7 +93,7 @@ public class UsLotteryProviderRawCache {
 
   /**
    * Put a value in the cache for the given provider/drawDate/queryHash. Does nothing if cache not
-   * configured, key cannot be built or value is null.
+   * configured, slotKey cannot be built or value is null.
    */
   public void put(String provider, LocalDate drawDate, String queryHash, String value) {
     if (provider == null || drawDate == null || queryHash == null) {
@@ -120,15 +120,15 @@ public class UsLotteryProviderRawCache {
 
     String key = keyBuilder.usLotteryProviderRawKey(provider, drawDate, queryHash);
     if (key == null) {
-      log.info("Cache key builder returned null, skipping put");
+      log.info("Cache slotKey builder returned null, skipping put");
       return;
     }
 
     try {
       cache.put(key, value);
-      log.info("Put value in cache for key={}", key);
+      log.info("Put value in cache for slotKey={}", key);
     } catch (Exception e) {
-      log.warn("Failed to put value into cache for key={}: {}", key, e.getMessage());
+      log.warn("Failed to put value into cache for slotKey={}: {}", key, e.getMessage());
     }
   }
 
@@ -141,9 +141,9 @@ public class UsLotteryProviderRawCache {
     if (key == null) return;
     try {
       cache.evict(key);
-      log.info("Evicted cache key={}", key);
+      log.info("Evicted cache slotKey={}", key);
     } catch (Exception e) {
-      log.warn("Failed to evict cache key={}: {}", key, e.getMessage());
+      log.warn("Failed to evict cache slotKey={}: {}", key, e.getMessage());
     }
   }
 }

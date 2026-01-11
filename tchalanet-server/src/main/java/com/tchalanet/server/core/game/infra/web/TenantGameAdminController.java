@@ -1,14 +1,11 @@
 package com.tchalanet.server.core.game.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.game.api.TenantGameCatalog;
 import com.tchalanet.server.core.game.application.command.model.EnsureTenantGamesCommand;
 import com.tchalanet.server.core.game.application.command.model.UpdateTenantGameCommand;
-import com.tchalanet.server.core.game.application.query.model.FindTenantGameByIdQuery;
-import com.tchalanet.server.core.game.application.query.model.ListEnabledTenantGamesQuery;
-import com.tchalanet.server.core.game.application.query.model.ListTenantGamesQuery;
 import com.tchalanet.server.core.game.domain.model.TenantGame;
 import com.tchalanet.server.core.game.infra.web.model.EnsureTenantGamesRequest;
 import com.tchalanet.server.core.game.infra.web.model.EnsureTenantGamesResponse;
@@ -19,29 +16,33 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/tenant/games")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Tenant Games")
 public class TenantGameAdminController {
+  private final TenantGameCatalog tenantGameCatalog;
 
-  private final QueryBus queryBus;
   private final CommandBus commandBus;
 
   @Operation(summary = "List all tenant games (admin)")
   @GetMapping
   public ApiResponse<List<TenantGame>> listAll() {
-    var data = queryBus.send(new ListTenantGamesQuery());
-    return ApiResponse.success(data);
+    return ApiResponse.success(tenantGameCatalog.listAll());
   }
 
   @Operation(summary = "List enabled tenant games (admin)")
   @GetMapping("/enabled")
   public ApiResponse<List<TenantGame>> listEnabled() {
-    var data = queryBus.send(new ListEnabledTenantGamesQuery());
-    return ApiResponse.success(data);
+    return ApiResponse.success(tenantGameCatalog.listEnabled());
   }
 
   @Operation(summary = "Ensure tenant games exist (admin)")
@@ -70,7 +71,7 @@ public class TenantGameAdminController {
       return ApiResponse.success(null);
     }
 
-    Optional<TenantGame> updated = queryBus.send(new FindTenantGameByIdQuery(gameId.uuid()));
+    Optional<TenantGame> updated = tenantGameCatalog.findByGameId(gameId);
     return ApiResponse.success(updated.orElse(null));
   }
 }

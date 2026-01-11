@@ -51,7 +51,7 @@ public record LatestDraw(
   public LatestDraw {
     Objects.requireNonNull(provider);
     requireNonBlank(externalGameKey, "externalGameKey");
-    requireNonBlank(channelCode, "channelCode");
+    requireNonBlank(channelCode, "drawChannelCode");
     Objects.requireNonNull(drawDate, "drawDate");
     Objects.requireNonNull(fetchedAtUtc, "fetchedAtUtc");
     Objects.requireNonNull(numbers, "numbers");

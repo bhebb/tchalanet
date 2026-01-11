@@ -55,7 +55,7 @@ public class ApplyCandidateDrawJdbcRepository {
     return jdbc.queryForObject(
         sql,
         (rs, i) ->
-            new DrawKey(rs.getString("channelCode"), rs.getObject("drawDate", LocalDate.class)),
+            new DrawKey(rs.getString("drawChannelCode"), rs.getObject("drawDate", LocalDate.class)),
         drawId);
   }
 

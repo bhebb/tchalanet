@@ -4,6 +4,8 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
+import java.time.Clock;
+import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.Chunk;
@@ -18,6 +20,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
   private final DrawReaderPort drawReaderPort;
   private final DrawLifecyclePort drawWriterPort;
   private final TicketSettlementQueryPort ticketQuery;
+  private final Clock clock;
 
   @Override
   public void write(Chunk<? extends DrawId> chunks) throws Exception {
@@ -35,7 +38,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
                     != com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED) return;
 
                 // 2) pas de result => never
-                if (draw.result() == null) {
+                if (draw.drawResultId() == null) {
                   log.warn(
                       "settle.skip: draw={} tenant={} reason=no_result", drawId, draw.tenantId());
                   return;
@@ -53,7 +56,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
                 }
 
                 // call domain method settle() and persist via writer port
-                draw.settle();
+                draw.settle(ZonedDateTime.now(clock));
                 drawWriterPort.save(draw);
               } catch (Exception e) {
                 log.error(

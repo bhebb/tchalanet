@@ -2,6 +2,7 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
+/** Identifiant pour Game (wrapper autour de UUID). */
 public record GameId(UUID value) {
   public GameId {
     if (value == null) throw new IllegalArgumentException("GameId.value is null");

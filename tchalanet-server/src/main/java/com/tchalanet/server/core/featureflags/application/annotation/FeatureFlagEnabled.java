@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface FeatureFlagEnabled {
-  String value(); // The key of the feature flag, e.g., "ff.new_feature"
+  String value(); // The slotKey of the feature flag, e.g., "ff.new_feature"
 
   String tenantIdSpEL() default ""; // SpEL expression to extract tenantId from method arguments
 

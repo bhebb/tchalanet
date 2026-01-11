@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.draw.domain.model;
 
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -35,7 +37,7 @@ public final class Draw {
   private ZonedDateTime cutoffAt;
   private DrawStatus status;
   private final DrawSource source;
-  private DrawResult result; // peut être null tant que pas RESULTED
+  private DrawResultId drawResultId; // référence vers le résultat global (id) — peut être null
 
   // audit timestamps
   private ZonedDateTime openedAt;
@@ -57,7 +59,7 @@ public final class Draw {
       ZonedDateTime cutoffAt,
       DrawStatus status,
       DrawSource source,
-      DrawResult result) {
+      DrawResultId drawResultId) {
     this.id = Objects.requireNonNull(id);
     this.tenantId = Objects.requireNonNull(tenantId);
     this.drawChannel = Objects.requireNonNull(drawChannel);
@@ -65,7 +67,7 @@ public final class Draw {
     this.cutoffAt = Objects.requireNonNull(cutoffAt);
     this.status = Objects.requireNonNull(status);
     this.source = Objects.requireNonNull(source);
-    this.result = result;
+    this.drawResultId = drawResultId;
   }
 
   public DrawId id() {
@@ -92,8 +94,8 @@ public final class Draw {
     return status;
   }
 
-  public DrawResult result() {
-    return result;
+  public DrawResultId drawResultId() {
+    return drawResultId;
   }
 
   public DrawSource source() {
@@ -101,7 +103,7 @@ public final class Draw {
   }
 
   /**
-   * Compute local draw date based on the drawChannel timezone. This matches the DB business key
+   * Compute local draw date based on the drawChannel timezone. This matches the DB business slotKey
    * draw_date.
    */
   public java.time.LocalDate drawDate() {
@@ -110,33 +112,32 @@ public final class Draw {
   }
 
   // --- state machine methods ---
-
-  public void open() {
+  public void open(ZonedDateTime now) {
     DrawStatusTransition.check(this.status, DrawStatus.OPEN);
     this.status = DrawStatus.OPEN;
-    this.openedAt = ZonedDateTime.now();
+    this.openedAt = Objects.requireNonNull(now);
   }
 
-  public void close() {
+  public void close(ZonedDateTime now) {
     DrawStatusTransition.check(this.status, DrawStatus.CLOSED);
     this.status = DrawStatus.CLOSED;
-    this.closedAt = ZonedDateTime.now();
+    this.closedAt = Objects.requireNonNull(now);
   }
 
-  public void applyResult(DrawResult result) {
+  // Remplace l'attachement d'un objet DrawResult par l'attachement d'un identifiant DrawResultId
+  public void attachResult(DrawResultId resultId, ZonedDateTime now) {
     DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
-    this.result = Objects.requireNonNull(result);
+    this.drawResultId = Objects.requireNonNull(resultId);
     this.status = DrawStatus.RESULTED;
-    this.resultedAt = ZonedDateTime.now();
+    this.resultedAt = Objects.requireNonNull(now);
   }
 
-  public void settle() {
+  public void settle(ZonedDateTime now) {
     DrawStatusTransition.check(this.status, DrawStatus.SETTLED);
-    if (this.result == null) {
+    if (this.drawResultId == null)
       throw new IllegalStateException("Cannot settle draw without result");
-    }
     this.status = DrawStatus.SETTLED;
-    this.settledAt = ZonedDateTime.now();
+    this.settledAt = Objects.requireNonNull(now);
   }
 
   public void cancel(String reason) {
@@ -160,6 +161,7 @@ public final class Draw {
   }
 
   public ZonedDateTime openedAt() {
+
     return openedAt;
   }
 

@@ -15,6 +15,6 @@ public class UpdateTenantGameCommandHandler
 
   @Override
   public Boolean handle(UpdateTenantGameCommand command) {
-    return writePort.updateByGameId(command.gameId().uuid(), command);
+    return writePort.updateByGameId(command.gameId(), command);
   }
 }

@@ -8,8 +8,8 @@ import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.draw.domain.model.DrawSource;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
   @Override
   public DrawId handle(CreateDrawCommand command) {
     log.info(
-        "CreateDrawCommandHandler.handle - creating draw for tenant={}, channelCode={}, scheduledDate={}",
+        "CreateDrawCommandHandler.handle - creating draw for tenant={}, drawChannelCode={}, scheduledDate={}",
         command.tenantId(),
         command.channelCode(),
         command.scheduledDate());

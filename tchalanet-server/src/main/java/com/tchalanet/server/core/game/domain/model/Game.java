@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.game.domain.model;
 
+import com.tchalanet.server.common.types.id.GameId;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,6 +20,4 @@ public class Game {
   private Integer sortOrder;
   private Instant createdAt;
   private Instant updatedAt;
-
-  public record GameId(UUID value) {}
 }

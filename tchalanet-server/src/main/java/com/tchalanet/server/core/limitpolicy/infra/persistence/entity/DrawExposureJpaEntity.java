@@ -56,7 +56,7 @@ public class DrawExposureJpaEntity {
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
 
-  // Composite key class used by @IdClass
+  // Composite slotKey class used by @IdClass
   public static class DrawExposureId implements Serializable {
     private UUID tenantId;
     private UUID drawId;

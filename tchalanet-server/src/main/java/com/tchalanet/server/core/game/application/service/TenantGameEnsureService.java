@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.game.application.service;
 
-import com.tchalanet.server.core.game.infra.persistence.GameJpaRepository;
-import com.tchalanet.server.core.game.infra.persistence.TenantGameJpaEntity;
-import com.tchalanet.server.core.game.infra.persistence.TenantGameJpaRepository;
+import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.core.game.internal.infra.persistence.GameJpaRepository;
+import com.tchalanet.server.core.game.internal.infra.persistence.TenantGameJpaEntity;
+import com.tchalanet.server.core.game.internal.infra.persistence.TenantGameRepository;
 import jakarta.transaction.Transactional;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Service;
 public class TenantGameEnsureService {
 
   private final GameJpaRepository gameRepo;
-  private final TenantGameJpaRepository tenantGameRepo;
+  private final TenantGameRepository tenantGameRepo;
+  private final JsonUtils jsonUtils;
 
   public record EnsureResult(
       List<String> requestedCodes, List<String> createdCodes, List<String> alreadyAssignedCodes) {}
@@ -29,15 +31,12 @@ public class TenantGameEnsureService {
     }
 
     // 1) Load all games by code (strict validation)
-    var gamesByCode = new HashMap<String, UUID>(requested.size());
     var unknown = new ArrayList<String>();
 
     for (String code : requested) {
       var gOpt = gameRepo.findByCode(code);
       if (gOpt.isEmpty()) {
         unknown.add(code);
-      } else {
-        gamesByCode.put(code, gOpt.get().getId());
       }
     }
 
@@ -51,7 +50,7 @@ public class TenantGameEnsureService {
     var already = new ArrayList<String>();
 
     for (String code : requested) {
-      var exists = tenantGameRepo.findByGame_CodeAndDeletedAtIsNull(code).isPresent();
+      var exists = tenantGameRepo.findByGameCode(code).isPresent();
       if (exists) {
         already.add(code);
         continue;
@@ -63,7 +62,7 @@ public class TenantGameEnsureService {
       tg.setGame(g);
       tg.setEnabled(true);
       tg.setDisplayName(g.getName());
-      tg.setFlags(Collections.emptyMap());
+      tg.setFlags(jsonUtils.emptyObjectNode());
 
       try {
         tenantGameRepo.save(tg);

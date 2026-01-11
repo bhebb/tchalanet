@@ -23,7 +23,9 @@ public enum ResultQuality {
    *
    * <p>→ Ne doit PAS être appliqué automatiquement.
    */
-  INVALID,
+  INVALID;
 
-  PARTIAL
+  public boolean canAutoApply() {
+    return this == COMPLETE;
+  }
 }

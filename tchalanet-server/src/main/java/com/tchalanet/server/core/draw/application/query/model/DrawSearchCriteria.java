@@ -74,7 +74,7 @@ public final class DrawSearchCriteria {
     return "DrawSearchCriteria{"
         + "tenantId="
         + tenantId
-        + ", channelCode='"
+        + ", drawChannelCode='"
         + channelCode
         + '\''
         + ", from="

@@ -50,7 +50,9 @@ public class TenantCache {
     Cache c = cacheManager.getCache(CACHE_TENANT_BY_CODE);
     if (c == null) {
       log.debug(
-          "Cache '{}' not configured, skipping put for key={}", CACHE_TENANT_BY_CODE, codeLower);
+          "Cache '{}' not configured, skipping put for slotKey={}",
+          CACHE_TENANT_BY_CODE,
+          codeLower);
       return;
     }
     c.put(codeLower.trim().toLowerCase(), tenantId.value());

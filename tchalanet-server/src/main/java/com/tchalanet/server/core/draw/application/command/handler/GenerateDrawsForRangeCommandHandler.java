@@ -2,19 +2,23 @@ package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.time.DaysOfWeekParser;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.query.projection.DrawChannelCalendarRow;
+import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
-import com.tchalanet.server.core.draw.application.util.DaysOfWeekParser;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,33 +75,61 @@ public class GenerateDrawsForRangeCommandHandler
     int alreadyExists = 0;
     var rows = new ArrayList<NewDrawRow>();
 
+    // Preload existing keys to avoid N+1 DB calls (unless forced)
+    final Set<ExistingDrawKey> existingKeys;
+    if (command.force()) {
+      existingKeys = Set.of();
+    } else {
+      existingKeys =
+          drawLifecyclePort.findExistingKeys(command.tenantId(), command.from(), command.to());
+    }
+
+    // Parse daysOfWeek once per channel
+    Map<java.util.UUID, EnumSet<DayOfWeek>> daysCache = new HashMap<>();
+    for (var c : channels) {
+      var parsed = DaysOfWeekParser.parse(c.daysOfWeek());
+      daysCache.put(c.channelId().value(), parsed);
+    }
+
     LocalDate date = command.from();
     while (!date.isAfter(command.to())) {
       for (var c : channels) {
-        var decision = shouldCreate(command, c, date);
-        if (decision == Decision.CREATE) {
-          var zone = ZoneId.of(c.timezone());
-          var scheduledZdt = ZonedDateTime.of(date, c.drawTime(), zone);
-          var scheduledAt = scheduledZdt.toInstant();
-          var cutoffAt = scheduledAt.minusSeconds(Math.max(0, c.cutoffSec()));
+        // compute scheduled time in channel timezone and derive local draw date
+        var zone = ZoneId.of(c.timezone());
+        var scheduledZdt = ZonedDateTime.of(date, c.drawTime(), zone);
+        var drawDateLocal = scheduledZdt.toLocalDate();
 
-          rows.add(
-              new NewDrawRow(
-                  DrawId.random(),
-                  command.tenantId(),
-                  c.channelId(),
-                  c.code(),
-                  date, // draw_date (déjà chez toi)
-                  scheduledAt,
-                  cutoffAt,
-                  "SCHEDULED",
-                  c.defaultSource(), // peut être null au MVP
-                  true,
-                  false));
-        } else {
-          if (decision == Decision.SKIP_NOT_A_DRAW_DAY) skippedNotDay++;
-          if (decision == Decision.SKIP_ALREADY_EXISTS) alreadyExists++;
+        EnumSet<DayOfWeek> allowed =
+            daysCache.getOrDefault(c.channelId().value(), EnumSet.noneOf(DayOfWeek.class));
+        if (!allowed.contains(drawDateLocal.getDayOfWeek())) {
+          skippedNotDay++;
+          continue;
         }
+
+        // check existing using preloaded keys
+        if (!command.force()) {
+          var key = new ExistingDrawKey(c.channelId().value(), drawDateLocal);
+          if (existingKeys.contains(key)) {
+            alreadyExists++;
+            continue;
+          }
+        }
+
+        var scheduledAt = scheduledZdt.toInstant();
+        var cutoffAt = scheduledAt.minusSeconds(Math.max(0, c.cutoffSec()));
+
+        rows.add(
+            new NewDrawRow(
+                DrawId.random(),
+                command.tenantId(),
+                c.channelId(),
+                drawDateLocal, // draw_date computed in channel local timezone
+                scheduledAt,
+                cutoffAt,
+                "SCHEDULED",
+                c.defaultSource(), // may be null
+                true,
+                false));
       }
       date = date.plusDays(1);
     }
@@ -106,24 +138,6 @@ public class GenerateDrawsForRangeCommandHandler
   }
 
   private record Acc(List<NewDrawRow> rows, int skippedNotDay, int alreadyExists) {}
-
-  private enum Decision {
-    CREATE,
-    SKIP_NOT_A_DRAW_DAY,
-    SKIP_ALREADY_EXISTS
-  }
-
-  private Decision shouldCreate(
-      GenerateDrawsForRangeCommand command, DrawChannelCalendarRow c, LocalDate date) {
-    EnumSet<DayOfWeek> allowed = DaysOfWeekParser.parse(c.daysOfWeek());
-    if (!allowed.contains(date.getDayOfWeek())) return Decision.SKIP_NOT_A_DRAW_DAY;
-
-    if (!command.force()
-        && drawLifecyclePort.existsByDate(command.tenantId(), c.channelId().value(), date)) {
-      return Decision.SKIP_ALREADY_EXISTS;
-    }
-    return Decision.CREATE;
-  }
 
   private void validate(GenerateDrawsForRangeCommand command) {
     if (command == null) throw new IllegalArgumentException("command is required");

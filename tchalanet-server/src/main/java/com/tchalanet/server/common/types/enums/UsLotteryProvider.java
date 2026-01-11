@@ -4,5 +4,6 @@ public enum UsLotteryProvider {
   NY,
   FL,
   GA,
-  TN
+  TN,
+  TX
 }

@@ -1,76 +1,130 @@
 package com.tchalanet.server.core.uslottery.infra.config;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/** Registry construit depuis application.yaml (tch.us-lottery.providers.*.games). */
 @Component
 @RequiredArgsConstructor
 public class UsLotteryGameRegistry {
 
-  private final UsLotteryProperties properties;
+  private final UsLotteryProperties props;
 
-  public Optional<GameInfo> resolve(String channelCode) {
-    String lookup = normalize(channelCode);
-    if (lookup.isBlank()) return Optional.empty();
+  public Optional<GameInfo> resolve(String gameCode) {
+    String code = norm(gameCode);
+    if (code.isBlank()) return Optional.empty();
+    if (props == null || !props.isEnabled()) return Optional.empty();
 
-    Map<String, UsLotteryProperties.ProviderProperties> providers = properties.getProviders();
+    var providers = props.getProviders();
     if (providers == null || providers.isEmpty()) return Optional.empty();
 
-    for (Map.Entry<String, UsLotteryProperties.ProviderProperties> entry : providers.entrySet()) {
-      Optional<GameInfo> match = tryResolveInProvider(entry.getKey(), entry.getValue(), lookup);
-      if (match.isPresent()) return match;
-    }
+    for (var e : providers.entrySet()) {
+      String providerKey = norm(e.getKey()).toLowerCase(Locale.ROOT);
+      var p = e.getValue();
+      if (p == null || !p.isEnabled()) continue;
 
-    return Optional.empty();
-  }
+      ZoneId tz = parseZone(p.getTimezone());
+      List<UsLotteryProperties.GameProps> games = p.getGames();
+      if (games == null) continue;
 
-  private Optional<GameInfo> tryResolveInProvider(
-      String providerKey, UsLotteryProperties.ProviderProperties providerProps, String lookup) {
-    if (providerProps == null || !providerProps.isEnabled() || providerProps.getGames() == null)
-      return Optional.empty();
-
-    for (UsLotteryProperties.GameProps g : providerProps.getGames()) {
-      if (g == null) continue;
-      if (lookup.equalsIgnoreCase(normalize(g.getCode()))) {
-        ZoneId zone = parseZone(providerProps.getTimezone());
-        LocalTime drawTime = parseLocalTime(g.getDrawTime());
-        return Optional.of(new GameInfo(providerKey, safe(g.getExternalKey()), drawTime, zone));
+      for (var g : games) {
+        if (g == null || !g.isActive()) continue;
+        if (code.equals(norm(g.getCode()))) {
+          return Optional.of(
+              new GameInfo(
+                  providerKey,
+                  safe(g.getExternalKey()),
+                  parseTime(g.getDrawTime()),
+                  tz,
+                  true,
+                  parseDays(g.getDays())));
+        }
       }
     }
-
     return Optional.empty();
   }
 
-  private String normalize(String s) {
+  public List<GameInfo> listByProvider(String providerKey) {
+    String pk = norm(providerKey).toLowerCase(Locale.ROOT);
+    if (pk.isBlank()) return List.of();
+    if (props == null || !props.isEnabled()) return List.of();
+
+    var providers = props.getProviders();
+    var p = providers == null ? null : providers.get(pk);
+    if (p == null || !p.isEnabled() || p.getGames() == null) return List.of();
+
+    ZoneId tz = parseZone(p.getTimezone());
+    List<GameInfo> out = new ArrayList<>();
+    for (var g : p.getGames()) {
+      if (g == null || !g.isActive()) continue;
+      out.add(
+          new GameInfo(
+              pk,
+              safe(g.getExternalKey()),
+              parseTime(g.getDrawTime()),
+              tz,
+              true,
+              parseDays(g.getDays())));
+    }
+    return List.copyOf(out);
+  }
+
+  private static String norm(String s) {
     return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
   }
 
-  private ZoneId parseZone(String timezone) {
-    String tz = safe(timezone);
-    return tz.isBlank() ? ZoneId.of("UTC") : ZoneId.of(tz);
-  }
-
-  private LocalTime parseLocalTime(String time) {
-    String t = safe(time);
-    return t.isBlank() ? null : LocalTime.parse(t);
-  }
-
-  private String safe(String s) {
+  private static String safe(String s) {
     return s == null ? "" : s.trim();
   }
 
-  public record GameInfo(String provider, String externalKey, LocalTime drawTime, ZoneId timezone) {
-    public GameInfo {
-      Objects.requireNonNull(provider, "provider required");
-      Objects.requireNonNull(externalKey, "externalKey required");
-      Objects.requireNonNull(timezone, "timezone required");
+  private static ZoneId parseZone(String tz) {
+    try {
+      return (tz == null || tz.isBlank()) ? ZoneId.of("UTC") : ZoneId.of(tz);
+    } catch (Exception ex) {
+      return ZoneId.of("UTC");
     }
   }
+
+  private static LocalTime parseTime(String t) {
+    try {
+      return (t == null || t.isBlank()) ? null : LocalTime.parse(t);
+    } catch (Exception ex) {
+      return null;
+    }
+  }
+
+  private static Set<DayOfWeek> parseDays(List<String> days) {
+    if (days == null || days.isEmpty()) return Set.of();
+    EnumSet<DayOfWeek> out = EnumSet.noneOf(DayOfWeek.class);
+    for (String d : days) {
+      if (d == null) continue;
+      String x = d.trim().toUpperCase(Locale.ROOT);
+      try {
+        out.add(DayOfWeek.valueOf(x));
+      } catch (Exception ignored) {
+        // allow "MON" etc. if you ever use it
+        switch (x) {
+          case "MON" -> out.add(DayOfWeek.MONDAY);
+          case "TUE" -> out.add(DayOfWeek.TUESDAY);
+          case "WED" -> out.add(DayOfWeek.WEDNESDAY);
+          case "THU" -> out.add(DayOfWeek.THURSDAY);
+          case "FRI" -> out.add(DayOfWeek.FRIDAY);
+          case "SAT" -> out.add(DayOfWeek.SATURDAY);
+          case "SUN" -> out.add(DayOfWeek.SUNDAY);
+        }
+      }
+    }
+    return Collections.unmodifiableSet(out);
+  }
+
+  public record GameInfo(
+      String providerKey, // "ny", "fl", "ga", "tx" (lower)
+      String externalKey, // provider-specific key
+      LocalTime drawTime, // from YAML if present
+      ZoneId timezone, // from provider config
+      boolean active,
+      Set<DayOfWeek> days) {}
 }

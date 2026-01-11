@@ -1,20 +1,21 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
-import com.tchalanet.server.core.draw.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawQuery;
 import com.tchalanet.server.core.draw.application.query.model.GetNextDrawsQuery;
+import com.tchalanet.server.core.draw.application.util.HaitiResultExtractors;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
-import jakarta.persistence.EntityManager;
+import com.tchalanet.server.core.drawresult.api.DrawResultCatalog;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -32,9 +33,7 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort {
 
   private final DrawJpaRepository jpa;
   private final DrawMapper mapper;
-  private final DrawResultReaderPort drawResultReaderPort;
-  private final EntityManager em;
-  private final DrawChannelJpaRepository channelRepo;
+  private final DrawResultCatalog drawResultCatalog;
 
   @Override
   public Optional<Draw> findById(DrawId drawId) {
@@ -86,95 +85,41 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort {
   }
 
   @Override
-  public List<DrawSummary> findByCriteria(DrawSearchCriteria drawSearchCriteria) {
-    if (drawSearchCriteria == null || drawSearchCriteria.tenantId() == null) return List.of();
+  public List<DrawSummary> findByCriteria(DrawSearchCriteria criteria) {
+    if (criteria == null || criteria.tenantId() == null) return List.of();
 
-    UUID tenantUuid = drawSearchCriteria.tenantId().uuid();
-    var fromDate = drawSearchCriteria.from();
-    var toDate = drawSearchCriteria.to();
-    // compute instants: from start of day UTC (inclusive), to end of day UTC (inclusive)
+    UUID tenantUuid = criteria.tenantId().uuid();
+    var fromDate = criteria.from();
+    var toDate = criteria.to();
+
     ZoneId utc = ZoneId.of("UTC");
+
     Instant fromInstant =
         (fromDate == null) ? Instant.EPOCH : fromDate.atStartOfDay(utc).toInstant();
+
     Instant toInstant =
         (toDate == null)
             ? Instant.ofEpochSecond(Long.MAX_VALUE)
             : toDate.plusDays(1).atStartOfDay(utc).toInstant().minusNanos(1);
 
-    var summaries =
-        jpa
-            .findByTenantIdAndScheduledAtBetweenFetchChannelOrderByScheduledAt(
-                tenantUuid, fromInstant, toInstant)
-            .stream()
+    var rows =
+        jpa.findSummariesWithChannelAndResult(tenantUuid, fromInstant, toInstant).stream()
             .filter(
                 e -> {
-                  String code = drawSearchCriteria.channelCode();
+                  String code = criteria.channelCode();
                   if (code == null || code.isBlank()) return true;
                   var ch = e.getDrawChannel();
                   return ch != null && code.equalsIgnoreCase(ch.getCode());
                 })
-            .map(
-                e -> {
-                  var ch = e.getDrawChannel();
-                  String chCode = ch == null ? null : ch.getCode();
-                  String chName =
-                      ch == null ? null : (ch.getName() == null ? ch.getCode() : ch.getName());
-                  ZonedDateTime scheduled = ZonedDateTime.ofInstant(e.getScheduledAt(), utc);
-                  ZonedDateTime cutoff = null;
-                  if (e.getCutoffSec() != null) {
-                    cutoff = scheduled.minusSeconds(e.getCutoffSec());
-                  }
-                  boolean active = ch != null && Boolean.TRUE.equals(ch.getActive());
-                  // lastResult loaded above if available
-                  java.util.List<Integer> lastResult = java.util.List.of();
-                  try {
-                    if (drawResultReaderPort != null) {
-                      var maybe =
-                          drawResultReaderPort.findByDrawId(
-                              TenantId.of(e.getTenantId()), DrawId.of(e.getId()));
-                      if (maybe != null && maybe.isPresent()) {
-                        var dr = maybe.get();
-                        if (dr != null && dr.numbersMain() != null) {
-                          var parsed =
-                              dr.numbersMain().stream()
-                                  .map(
-                                      s -> {
-                                        try {
-                                          return Integer.valueOf(Integer.parseInt(s));
-                                        } catch (Exception ex) {
-                                          return null;
-                                        }
-                                      })
-                                  .filter(java.util.Objects::nonNull)
-                                  .toList();
-                          if (!parsed.isEmpty()) lastResult = parsed;
-                        }
-                      }
-                    }
-                  } catch (Exception ex) {
-                    // best-effort: ignore result loading failures and keep empty lastResult
-                  }
-                  boolean isNext = false; // will set later
-                  DrawStatus status = e.getStatus() == null ? DrawStatus.SCHEDULED : e.getStatus();
-                  return new DrawSummary(
-                      new DrawId(e.getId()),
-                      chCode,
-                      chName,
-                      scheduled,
-                      cutoff,
-                      status,
-                      isNext,
-                      active,
-                      lastResult);
-                })
-            .sorted(Comparator.comparing(DrawSummary::scheduledAt))
+            .map(e -> toSummary(e, utc))
             .collect(Collectors.toList());
 
-    if (summaries.isEmpty()) return List.of();
-    // mark the earliest scheduled draw as next
-    int idx = 0; // already sorted ascending
-    var first = summaries.get(idx);
-    var marked =
+    if (rows.isEmpty()) return List.of();
+
+    // rows already sorted by scheduledAt asc (query ORDER BY). Mark first as next
+    var first = rows.get(0);
+    rows.set(
+        0,
         new DrawSummary(
             first.id(),
             first.channelCode(),
@@ -184,9 +129,46 @@ public class DrawJpaRepositoryAdapter implements DrawReaderPort {
             first.status(),
             true,
             first.active(),
-            first.lastResult());
-    summaries.set(idx, marked);
-    return summaries;
+            first.lastResult()));
+
+    return rows;
+  }
+
+  private DrawSummary toSummary(DrawJpaEntity e, ZoneId fallbackZone) {
+    var ch = e.getDrawChannel();
+
+    String chCode = ch == null ? null : ch.getCode();
+    String chName = ch == null ? null : (ch.getName() == null ? ch.getCode() : ch.getName());
+    boolean active = ch != null && ch.isActive();
+
+    // ✅ meilleur affichage: timezone du channel si dispo, sinon fallback
+    ZoneId zone = fallbackZone;
+    try {
+      if (ch != null && ch.getTimezone() != null && !ch.getTimezone().isBlank()) {
+        zone = ZoneId.of(ch.getTimezone());
+      }
+    } catch (Exception ignore) {
+    }
+
+    ZonedDateTime scheduled = ZonedDateTime.ofInstant(e.getScheduledAt(), zone);
+    ZonedDateTime cutoff =
+        e.getCutoffAt() == null ? null : ZonedDateTime.ofInstant(e.getCutoffAt(), zone);
+
+    DrawStatus status = e.getStatus() == null ? DrawStatus.SCHEDULED : e.getStatus();
+
+    // ✅ lastResult : depuis la relation draw.drawResult (pas de catalog)
+    var last = List.<Integer>of();
+    if (e.getDrawResultId() != null) {
+      try {
+        DrawResult dr = drawResultCatalog.getById(DrawResultId.of(e.getDrawResultId()));
+        last = HaitiResultExtractors.lastPick3(dr.haitiResult());
+      } catch (Exception ex) {
+        // ignore missing/parse errors and keep empty list
+      }
+    }
+
+    return new DrawSummary(
+        DrawId.of(e.getId()), chCode, chName, scheduled, cutoff, status, false, active, last);
   }
 
   @Override

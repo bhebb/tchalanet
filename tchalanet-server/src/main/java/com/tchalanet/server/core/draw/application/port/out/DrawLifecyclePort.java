@@ -9,7 +9,7 @@ import com.tchalanet.server.core.draw.domain.model.Draw;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
+import java.util.Set;
 
 public interface DrawLifecyclePort {
   List<OpenableDrawRow> findOpenable(
@@ -21,9 +21,11 @@ public interface DrawLifecyclePort {
 
   int bulkClose(List<DrawId> drawIds);
 
-  boolean existsByDate(TenantId tenantId, UUID channelId, LocalDate drawDate);
-
   int bulkInsert(List<NewDrawRow> rows);
 
   Draw save(Draw draw);
+
+  // New: fetch existing draw keys to avoid N+1 checks when generating draws
+  Set<com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey> findExistingKeys(
+      TenantId tenantId, LocalDate from, LocalDate to);
 }

@@ -6,11 +6,15 @@ import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import java.time.LocalDate;
 
+/**
+ * Write-optimized row used for bulk insert of draws.
+ *
+ * <p>Note: drawChannelCode is for logging/debug and read-model needs; insert uses drawChannelId.
+ */
 public record NewDrawRow(
     DrawId drawId,
     TenantId tenantId,
-    DrawChannelId channelId,
-    String channelCode,
+    DrawChannelId drawChannelId,
     LocalDate drawDate,
     Instant scheduledAt,
     Instant cutoffAt,

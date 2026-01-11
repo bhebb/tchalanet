@@ -1,13 +1,10 @@
 package com.tchalanet.server.core.draw.infra.persistence.repo;
 
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.projection.DueToCloseProjection;
 import com.tchalanet.server.core.draw.infra.persistence.projection.OpenableDrawProjection;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,8 +15,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
-  List<DrawJpaEntity> findByTenantIdAndScheduledAtBetweenOrderByScheduledAt(
-      UUID tenantId, Instant from, Instant to);
+
+  @Query(
+      """
+          select d
+          from DrawJpaEntity d
+          join fetch d.drawChannel ch
+          where d.tenantId = :tenantId
+            and d.deletedAt is null
+            and d.scheduledAt between :from and :to
+          order by d.scheduledAt asc
+        """)
+  List<DrawJpaEntity> findSummariesWithChannelAndResult(
+      @Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
 
   // JPQL variant that fetches drawChannel to avoid LazyInitializationException in adapters
   @Query(
@@ -27,81 +35,22 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
   List<DrawJpaEntity> findByTenantIdAndScheduledAtBetweenFetchChannelOrderByScheduledAt(
       @Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
 
-  // finds draws ready to be settled: status = 'CLOSED' and scheduled_at <= before
-  List<DrawJpaEntity> findByStatusAndScheduledAtBeforeAndDeletedAtIsNull(
-      String status, Instant before);
-
-  boolean existsByTenantIdAndDrawChannelIdAndScheduledAt(
-      UUID tenantId, UUID drawChannelId, Instant scheduledAt);
-
   // Find draws to settle, excluding locked entries (manual checks are performed before update)
   List<DrawJpaEntity> findByStatusAndScheduledAtBeforeAndDeletedAtIsNullAndLockedFalse(
       String status, Instant before);
 
-  @Modifying
-  @Transactional
-  @Query(
-      value =
-          "INSERT INTO draw (id, tenant_id, draw_channel_id, scheduled_at, cutoff_sec, status, draw_source, created_at, updated_at, version) VALUES (:id, :tenantId, :drawChannelId, :scheduledAt, :cutoffSec, :status, :drawSource, now(), now(), 0) ON CONFLICT (tenant_id, draw_channel_id, scheduled_at) WHERE deleted_at IS NULL DO NOTHING",
-      nativeQuery = true)
-  int insertIfNotExists(
-      @Param("id") UUID id,
-      @Param("tenantId") UUID tenantId,
-      @Param("drawChannelId") UUID drawChannelId,
-      @Param("scheduledAt") Instant scheduledAt,
-      @Param("cutoffSec") Integer cutoffSec,
-      @Param("status") String status,
-      @Param("drawSource") String drawSource);
-
-  List<DrawJpaEntity> findByTenantIdAndScheduledAtBetween(UUID tenantId, Instant from, Instant to);
-
-  List<DrawJpaEntity> findByStatusAndScheduledAtBefore(DrawStatus status, Instant before);
-
-  @Query(
-      value =
-          "SELECT d.* FROM draw d WHERE d.tenant_id = :tenantId AND d.status = 'SCHEDULED' AND (EXTRACT(EPOCH FROM d.scheduled_at) - d.cutoff_sec) < :nowEpoch",
-      nativeQuery = true)
-  List<DrawJpaEntity> findScheduledDrawsPastCutoff(
-      @Param("tenantId") UUID tenantId, @Param("nowEpoch") long nowEpoch);
-
-  List<DrawJpaEntity>
-      findByTenantIdAndDrawChannelCodeAndStatusAndScheduledAtAfterOrderByScheduledAtAsc(
-          UUID tenantId, String drawChannelId, String status, Instant scheduledAtAfter);
-
-  @Query(
-      """
-              select d from DrawJpaEntity d
-              where d.tenantId = :tenantId
-                and d.scheduledAt between :from and :to
-              order by d.scheduledAt asc
-            """)
-  List<DrawJpaEntity> listByRange(UUID tenantId, Instant from, Instant to);
-
-  @Query(
-      """
-              select d from DrawJpaEntity d
-              where d.tenantId = :tenantId and d.id = :id
-            """)
-  Optional<DrawJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
-
-  boolean existsByTenantIdAndDrawChannel_IdAndScheduledAtAndDeletedAtIsNull(
-      UUID tenantId, UUID drawChannelId, Instant scheduledAt);
-
-  boolean existsByTenantIdAndDrawChannelIdAndDrawDateAndDeletedAtIsNull(
-      UUID tenantId, UUID drawChannelId, LocalDate drawDate);
-
   @Query(
       value =
           """
-                select d.tenant_id as tenantId, d.id as drawId, d.locked as locked
-                from draw d
-                where d.deleted_at is null
-                  and d.locked=false
-                  and d.status = 'OPEN'
-                  and EXTRACT(EPOCH FROM d.cutoff_at) <= :nowEpoch
-                order by d.cutoff_at asc
-                limit :limit
-                 """,
+                  select d.tenant_id as tenantId, d.id as drawId, d.locked as locked
+                  from draw d
+                  where d.deleted_at is null
+                    and d.status = 'OPEN'
+                    and d.cutoff_at <= to_timestamp(:nowEpoch)
+                    and d.locked = false
+                  order by d.cutoff_at asc
+                  limit :limit
+                """,
       nativeQuery = true)
   List<DueToCloseProjection> findDueToClose(
       @Param("nowEpoch") long nowEpoch, @Param("limit") int limit);
@@ -113,7 +62,7 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
           """
                 update draw
                 set status='CLOSED',
-                    closed_at = coalesce(closed_at, now()),
+                    closed_at = now(),
                     updated_at=now()
                 where deleted_at is null
                   and locked=false
@@ -128,20 +77,20 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
   @Query(
       value =
           """
-                select d.tenant_id as tenantId,
-                       d.id as drawId,
-                       d.locked as locked,
-                       d.scheduled_at as scheduledAt,
-                       d.cutoff_at as cutoffAt
-                from draw d
-                where d.deleted_at is null
-                  and d.locked=false
-                  and d.status='SCHEDULED'
-                  and d.scheduled_at <= (to_timestamp(:nowEpoch) + (:openHorizonHours || ' hours')::interval)
-                  and d.scheduled_at >= (to_timestamp(:nowEpoch) - (:openLagHours || ' hours')::interval)
-                  and d.cutoff_at > to_timestamp(:nowEpoch)
-                order by d.scheduled_at asc
-                limit :limit
+                  select d.tenant_id as tenantId,
+                         d.id as drawId,
+                         d.locked as locked,
+                         d.scheduled_at as scheduledAt,
+                         d.cutoff_at as cutoffAt
+                  from draw d
+                  where d.deleted_at is null
+                    and d.status='SCHEDULED'
+                    and d.locked=false
+                    and d.scheduled_at <= (to_timestamp(:nowEpoch) + make_interval(hours => :openHorizonHours))
+                    and d.scheduled_at >= (to_timestamp(:nowEpoch) - make_interval(hours => :openLagHours))
+                    and d.cutoff_at > to_timestamp(:nowEpoch)
+                  order by d.scheduled_at asc
+                  limit :limit
                 """,
       nativeQuery = true)
   List<OpenableDrawProjection> findOpenable(
@@ -157,7 +106,7 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
           """
                 update draw
                 set status='OPEN',
-                    opened_at = coalesce(opened_at, now()),
+                    opened_at = now(),
                     updated_at=now()
                 where deleted_at is null
                   and locked=false

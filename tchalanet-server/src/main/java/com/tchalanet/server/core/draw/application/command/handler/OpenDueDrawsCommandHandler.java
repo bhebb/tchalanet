@@ -33,7 +33,11 @@ public class OpenDueDrawsCommandHandler
     int openableCount = openable.size();
 
     int skippedLocked = (int) openable.stream().filter(OpenableDrawRow::locked).count();
-    var ids = openable.stream().filter(r -> !r.locked()).map(OpenableDrawRow::drawId).toList();
+
+    // For logging we keep the non-locked sample/counts as before, but we pass ALL ids to the DB
+    var nonLockedIds =
+        openable.stream().filter(r -> !r.locked()).map(OpenableDrawRow::drawId).toList();
+    var allIds = openable.stream().map(OpenableDrawRow::drawId).toList();
 
     if (command.dryRun()) {
       log.info(
@@ -43,13 +47,14 @@ public class OpenDueDrawsCommandHandler
           command.openHorizonHours(),
           command.openLagHours(),
           openableCount,
-          ids.size(),
+          nonLockedIds.size(),
           skippedLocked,
-          sample(ids));
+          sample(nonLockedIds));
       return new OpenDueDrawsResult(0, skippedLocked, 0);
     }
 
-    int opened = port.bulkOpen(ids);
+    // Pass all ids to the port. The DB-side update is idempotent and filters locked/status rows.
+    int opened = port.bulkOpen(allIds);
 
     log.info(
         "draw.open_due now={} limit={} horizonHours={} lagHours={} openable={} opened={} skippedLocked={} sampleIds={}",
@@ -60,7 +65,7 @@ public class OpenDueDrawsCommandHandler
         openableCount,
         opened,
         skippedLocked,
-        sample(ids));
+        sample(nonLockedIds));
 
     return new OpenDueDrawsResult(opened, skippedLocked, 0);
   }

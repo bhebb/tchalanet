@@ -32,7 +32,7 @@ public class ListCashierOpenSessionsHandler
             s ->
                 new CashierSessionDto(
                     s.id(),
-                    null, // channelCode not available
+                    null, // drawChannelCode not available
                     s.openedAt(),
                     s.totalStake(), // assuming totalStake is totalSales
                     s.totalTickets() != null ? s.totalTickets() : 0L))

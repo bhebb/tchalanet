@@ -24,7 +24,7 @@ public class AppSettingsResolver {
     List<String> namespaces =
         (q.namespaces() == null || q.namespaces().isEmpty()) ? List.of() : q.namespaces();
 
-    // map key = namespace + '\u0000' + settingKey
+    // map slotKey = namespace + '\u0000' + settingKey
     Map<String, ResolvedSettingDto> resolved = new LinkedHashMap<>();
 
     // 1) GLOBAL

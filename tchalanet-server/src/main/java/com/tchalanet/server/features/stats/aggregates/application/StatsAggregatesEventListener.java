@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.stats.aggregates.application;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.core.draw.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;

@@ -19,7 +19,7 @@ public interface DrawChannelMapper {
 
   DrawChannelJpaEntity toEntity(DrawChannel d);
 
-  // provide an explicit mapping for toEntity to ensure key fields are present
+  // provide an explicit mapping for toEntity to ensure slotKey fields are present
   default DrawChannelJpaEntity toEntityDefault(DrawChannel d) {
     if (d == null) return null;
     var e = new DrawChannelJpaEntity();

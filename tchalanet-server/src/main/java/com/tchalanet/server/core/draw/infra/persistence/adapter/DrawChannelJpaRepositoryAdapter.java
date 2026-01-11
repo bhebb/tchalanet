@@ -3,7 +3,6 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
@@ -95,25 +94,12 @@ public class DrawChannelJpaRepositoryAdapter
             e -> {
               String code = e.getCode();
               String name = e.getName() == null ? code : e.getName();
-              boolean active = Boolean.TRUE.equals(e.getActive());
+              boolean active = e.isActive();
               // We don't have scheduled draw instants here; leave times/status empty and lastResult
               // empty.
               return new DrawChannelSummary(code, name, null, null, null, false, active, List.of());
             })
         .toList();
-  }
-
-  public List<DrawChannel> findByTenant(com.tchalanet.server.common.types.id.TenantId tenantId) {
-    if (tenantId == null) return List.of();
-    return repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantId.uuid()).stream()
-        .map(mapper::toDomain)
-        .collect(Collectors.toList());
-  }
-
-  public List<DrawChannel> findAllActive() {
-    return repo.findByActiveTrueOrderBySortOrder().stream()
-        .map(mapper::toDomain)
-        .collect(Collectors.toList());
   }
 
   public void deleteById(DrawChannelId id) {
@@ -141,14 +127,17 @@ public class DrawChannelJpaRepositoryAdapter
   private DrawChannelCalendarRow toRow(DrawChannelJpaEntity e) {
     return new DrawChannelCalendarRow(
         DrawChannelId.of(e.getId()),
-        TenantGameId.of(e.getTenantGameId()),
+        /* tenantGameId not available on DrawChannelJpaEntity in this schema */
+        null,
         e.getCode(),
         e.getTimezone(),
         e.getDrawTime(),
-        e.getCutoffSec() == null ? 0 : e.getCutoffSec(),
+        e.getCutoffSec(),
         e.getDaysOfWeek(),
         null,
-        Boolean.TRUE.equals(e.getActive()),
-        e.getSortOrder() == null ? 0 : e.getSortOrder());
+        e.isActive(),
+        e.isActive(),
+        e.getSortOrder(),
+        null);
   }
 }

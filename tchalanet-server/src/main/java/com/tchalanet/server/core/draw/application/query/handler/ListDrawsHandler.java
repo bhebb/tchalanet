@@ -20,7 +20,7 @@ public class ListDrawsHandler implements QueryHandler<ListDrawsQuery, List<DrawS
   @Override
   public List<DrawSummary> handle(ListDrawsQuery query) {
     log.debug(
-        "Handling ListDrawsQuery for tenantId={}, channelCode={}, from={}, to={}",
+        "Handling ListDrawsQuery for tenantId={}, drawChannelCode={}, from={}, to={}",
         query.tenantId(),
         query.channelCode(),
         query.from(),

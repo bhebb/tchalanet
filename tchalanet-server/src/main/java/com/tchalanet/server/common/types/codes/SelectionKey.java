@@ -5,7 +5,7 @@ public record SelectionKey(String key) {
 
   public SelectionKey {
     if (key == null || key.isBlank()) {
-      throw new IllegalArgumentException("SelectionKey.key is null or blank");
+      throw new IllegalArgumentException("SelectionKey.slotKey is null or blank");
     }
   }
 

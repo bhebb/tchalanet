@@ -43,6 +43,9 @@
     <!-- Apache PDFBox version centralised -->
     <pdfbox.version>3.0.3</pdfbox.version>
 
+    <!-- ArchUnit version -->
+    <archunit.version>1.4.1</archunit.version>
+
     <!-- SonarQube (à ajuster) -->
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
     <sonar.projectName>tchalanet-server</sonar.projectName>
@@ -222,6 +225,14 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
       <version>${testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- ArchUnit for architecture tests -->
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <version>${archunit.version}</version>
       <scope>test</scope>
     </dependency>
 

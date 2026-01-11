@@ -1,0 +1,36 @@
+tch:
+  draw:
+    results:
+      active: ${TCH_DRAW_RESULTS_ACTIVE:true}
+
+      limits:
+        hard_max_slots: ${TCH_RESULTS_HARD_MAX_SLOTS:200}
+        hard_days_back: ${TCH_RESULTS_HARD_DAYS_BACK:14}
+
+      defaults:
+        days_back: ${TCH_RESULTS_DEFAULT_DAYS_BACK:0}
+        max_slots: ${TCH_RESULTS_DEFAULT_MAX_SLOTS:200}
+
+      # Scheduler tick unique
+      scheduler:
+        active: ${TCH_RESULTS_SCHEDULER_ACTIVE:true}
+        tick_cron: ${TCH_RESULTS_TICK_CRON:0 */5 * * * *}     # toutes les 5 minutes
+        due:
+          min_minutes_after_draw: ${TCH_RESULTS_DUE_MIN_MINUTES:3}
+          max_minutes_after_draw: ${TCH_RESULTS_DUE_MAX_MINUTES:25}
+        cooldown_minutes: ${TCH_RESULTS_COOLDOWN_MINUTES:20}
+
+  # gates batch génériques (si tu utilises BatchGate)
+  batch:
+    gates:
+      results:
+        fetch:
+          enabled: ${TCH_GATE_RESULTS_FETCH:true}
+        apply:
+          enabled: ${TCH_GATE_RESULTS_APPLY:true}
+        refresh:
+          enabled: ${TCH_GATE_RESULTS_REFRESH:true}
+        manual:
+          enabled: ${TCH_GATE_RESULTS_MANUAL:true}
+        override:
+          enabled: ${TCH_GATE_RESULTS_OVERRIDE:true}

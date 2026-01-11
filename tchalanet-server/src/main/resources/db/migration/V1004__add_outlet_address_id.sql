@@ -1,10 +1,10 @@
--- Add optional foreign key to address for physical outlets
+-- Add optional foreign slotKey to address for physical outlets
 -- Adds address_id uuid column referencing address(id)
 
 ALTER TABLE outlet
   ADD COLUMN IF NOT EXISTS address_id uuid;
 
--- Add foreign key constraint if not exists
+-- Add foreign slotKey constraint if not exists
 DO $$
 BEGIN
   IF NOT EXISTS (

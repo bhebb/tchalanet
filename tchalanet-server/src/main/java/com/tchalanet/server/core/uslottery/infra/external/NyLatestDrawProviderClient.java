@@ -2,21 +2,18 @@ package com.tchalanet.server.core.uslottery.infra.external;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tchalanet.server.common.crypto.Hashing;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
 import com.tchalanet.server.common.util.JsonbUtils;
-import com.tchalanet.server.core.uslottery.application.port.out.LatestDrawProviderClient;
+import com.tchalanet.server.core.uslottery.application.port.out.ProviderDrawQuery;
+import com.tchalanet.server.core.uslottery.application.port.out.UsLotteryProviderClient;
 import com.tchalanet.server.core.uslottery.domain.model.DrawExtras;
 import com.tchalanet.server.core.uslottery.domain.model.DrawMain;
 import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
 import com.tchalanet.server.core.uslottery.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -33,23 +30,25 @@ import org.springframework.web.util.UriBuilder;
     havingValue = "true",
     matchIfMissing = true)
 @Slf4j
-public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
+public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
 
   private static final String ORIGIN = "NY_OPEN_DATA";
-  private final RestClient nyLotteryRestClient;
+  private static final String QUERY_SHAPE = "NY/soql/v2";
+
+  private final RestClient nyRestClient;
   private final UsLotteryProperties props;
-  private final UsLotteryProviderRawCache cacheManager;
-  private final JsonbUtils jsonbUtils;
+  private final UsLotteryProviderRawCache cache;
+  private final JsonbUtils json;
 
   public NyLatestDrawProviderClient(
-      @Qualifier("nyLotteryRestClient") RestClient nyLotteryRestClient,
+      @Qualifier("nyLotteryRestClient") RestClient nyRestClient,
       UsLotteryProperties props,
-      UsLotteryProviderRawCache cacheManager,
-      JsonbUtils jsonbUtils) {
-    this.nyLotteryRestClient = nyLotteryRestClient;
-    this.props = props;
-    this.cacheManager = cacheManager;
-    this.jsonbUtils = jsonbUtils;
+      UsLotteryProviderRawCache cache,
+      JsonbUtils json) {
+    this.nyRestClient = Objects.requireNonNull(nyRestClient);
+    this.props = Objects.requireNonNull(props);
+    this.cache = Objects.requireNonNull(cache);
+    this.json = Objects.requireNonNull(json);
   }
 
   @Override
@@ -58,154 +57,182 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
   }
 
   @Override
-  public List<LatestDraw> fetchLatestDraws() {
-    var providerCfg = props.getProviders() != null ? props.getProviders().get("ny") : null;
-    var tz = providerCfg != null ? providerCfg.getTimezone() : "America/New_York";
-    var appToken = providerCfg != null ? providerCfg.getAppToken() : null;
-    var zone = ZoneId.of(tz);
+  public List<LatestDraw> fetchDraws(ProviderDrawQuery query) {
+    Objects.requireNonNull(query, "query required");
 
-    // default: fetch all known NY channel codes
-    var channelCodes =
-        List.of(
-            "US_NY_NUM3_MID",
-            "US_NY_NUM3_EVE",
-            "US_NY_NUM4_MID",
-            "US_NY_NUM4_EVE",
-            "US_NY_TAKE5_EVE");
+    var cfg = props.getProviders() != null ? props.getProviders().get("ny") : null;
+    if (cfg == null || !cfg.isEnabled()) return List.of();
 
-    int maxDraws = 500; // default bulk limit
-    var drawDate = LocalDate.now(zone);
+    ZoneId zone = ZoneId.of(blank(cfg.getTimezone()) ? "America/New_York" : cfg.getTimezone());
+    String appToken = cfg.getAppToken();
 
-    // build SOQL
-    var select = buildSelect(channelCodes);
-    var where = "draw_date <= '" + drawDate + "T23:59:59.000'";
+    // If caller didn't specify channels, take default
+    Set<String> wantedCodes =
+        (query.channelCodes() == null || query.channelCodes().isEmpty())
+            ? new LinkedHashSet<>(defaultNyCodes())
+            : new LinkedHashSet<>(query.channelCodes());
 
-    // query identity: include select + where so cache distinguishes queries
-    var queryHash = sha256(select + "|" + where + "|" + maxDraws);
+    int max = clamp(query.maxDraws(), 1, 500);
 
-    var body =
-        cacheManager.getOrFetch(
+    // SOQL select only required cols
+    String select = buildSelect(wantedCodes);
+    String where = "draw_date <= '" + query.drawDate() + "T23:59:59.000'";
+
+    String canonical =
+        "v2|provider=NY"
+            + "|date="
+            + query.drawDate()
+            + "|shape="
+            + QUERY_SHAPE
+            + "|select="
+            + select
+            + "|where="
+            + where
+            + "|limit="
+            + max
+            + "|token="
+            + (StringUtils.isBlank(appToken) ? "0" : "1")
+            + "|codes="
+            + String.join(",", wantedCodes.stream().sorted().toList());
+
+    String queryHash = Hashing.sha256Hex(canonical);
+
+    String body =
+        cache.getOrFetch(
             provider().name(),
-            drawDate,
+            query.drawDate(),
             queryHash,
             () -> {
               try {
-                return nyLotteryRestClient
+                return nyRestClient
                     .get()
                     .uri(
                         (UriBuilder ub) -> {
                           var b =
-                              ub.queryParam("$limit", maxDraws)
+                              ub.queryParam("$limit", max)
                                   .queryParam("$select", select)
                                   .queryParam("$where", where)
                                   .queryParam("$order", "draw_date DESC");
-                          if (appToken != null && !appToken.isBlank()) {
+                          if (!StringUtils.isBlank(appToken))
                             b = b.queryParam("app_token", appToken);
-                          }
                           return b.build();
                         })
                     .retrieve()
                     .body(String.class);
               } catch (Exception ex) {
-                log.warn("ny-latest-client: fetch failed: {}", ex.getMessage(), ex);
+                log.warn("ny-client fetch failed date={} err={}", query.drawDate(), ex.toString());
                 return null;
               }
             });
 
-    if (StringUtils.isBlank(body)) {
+    if (blank(body)) return List.of();
+
+    String sourceHash = Hashing.sha256Hex(body);
+    Instant fetchedAt = Instant.now();
+
+    // Parse rows
+    NyRow[] rows;
+    try {
+      rows = json.fromJson(body, NyRow[].class);
+    } catch (Exception ex) {
+      log.warn("ny-client parse failed: {}", ex.toString());
       return List.of();
     }
+    if (rows == null || rows.length == 0) return List.of();
 
-    return parseNyBody(body, zone);
-  }
+    List<LatestDraw> out = new ArrayList<>(16);
 
-  private List<LatestDraw> parseNyBody(String body, ZoneId zone) {
-    List<LatestDraw> out = new ArrayList<>();
-    try {
-      NyResultDto[] rows = jsonbUtils.fromJson(body, NyResultDto[].class);
+    for (NyRow r : rows) {
+      if (r == null || blank(r.drawDate()) || r.drawDate().length() < 10) continue;
 
-      if (rows == null) return List.of();
-
-      var hash = sha256(body);
-      var fetchedAt = Instant.now();
-
-      for (var row : rows) {
-        if (row == null || row.drawDate() == null || row.drawDate().length() < 10) continue;
-
-        var date = LocalDate.parse(row.drawDate().substring(0, 10));
-        var occurredAtUtc = date.atStartOfDay(zone).toOffsetDateTime();
-
-        // NUM3
-        addIfValid(
-            out,
-            "NUMBERS",
-            "MIDDAY",
-            "US_NY_NUM3_MID",
-            date,
-            occurredAtUtc,
-            fetchedAt,
-            splitDigits(row.middayDaily()),
-            3,
-            hash);
-        addIfValid(
-            out,
-            "NUMBERS",
-            "EVENING",
-            "US_NY_NUM3_EVE",
-            date,
-            occurredAtUtc,
-            fetchedAt,
-            splitDigits(row.eveningDaily()),
-            3,
-            hash);
-
-        // NUM4
-        addIfValid(
-            out,
-            "WIN4",
-            "MIDDAY",
-            "US_NY_NUM4_MID",
-            date,
-            occurredAtUtc,
-            fetchedAt,
-            splitDigits(row.middayWin4()),
-            4,
-            hash);
-        addIfValid(
-            out,
-            "WIN4",
-            "EVENING",
-            "US_NY_NUM4_EVE",
-            date,
-            occurredAtUtc,
-            fetchedAt,
-            splitDigits(row.eveningWin4()),
-            4,
-            hash);
+      LocalDate date;
+      try {
+        date = LocalDate.parse(r.drawDate().substring(0, 10));
+      } catch (Exception ignored) {
+        continue;
       }
-    } catch (Exception e) {
-      log.warn("ny-latest-client: parse failed: {}", e.toString());
+
+      // IMPORTANT: occurredAt = date + drawTime (approx)
+      addIfWanted(
+          out,
+          wantedCodes,
+          "US_NY_NUM3_MID",
+          date,
+          zone,
+          LocalTime.of(14, 30),
+          fetchedAt,
+          sourceHash,
+          "NUMBERS",
+          "MIDDAY",
+          digits(r.middayDaily()),
+          3);
+      addIfWanted(
+          out,
+          wantedCodes,
+          "US_NY_NUM3_EVE",
+          date,
+          zone,
+          LocalTime.of(22, 30),
+          fetchedAt,
+          sourceHash,
+          "NUMBERS",
+          "EVENING",
+          digits(r.eveningDaily()),
+          3);
+
+      addIfWanted(
+          out,
+          wantedCodes,
+          "US_NY_NUM4_MID",
+          date,
+          zone,
+          LocalTime.of(14, 30),
+          fetchedAt,
+          sourceHash,
+          "WIN4",
+          "MIDDAY",
+          digits(r.middayWin4()),
+          4);
+      addIfWanted(
+          out,
+          wantedCodes,
+          "US_NY_NUM4_EVE",
+          date,
+          zone,
+          LocalTime.of(22, 30),
+          fetchedAt,
+          sourceHash,
+          "WIN4",
+          "EVENING",
+          digits(r.eveningWin4()),
+          4);
     }
-    return out;
+
+    return filterAndLimit(out, query);
   }
 
-  private void addIfValid(
+  private void addIfWanted(
       List<LatestDraw> out,
-      String externalGameKey,
-      String externalDrawType,
+      Set<String> wanted,
       String channelCode,
       LocalDate date,
-      OffsetDateTime occurredAtUtc,
-      Instant fetchedAtUtc,
-      List<String> digits,
-      int expectedSize,
-      String sourceHash) {
+      ZoneId zone,
+      LocalTime drawTime,
+      Instant fetchedAt,
+      String sourceHash,
+      String externalGameKey,
+      String externalDrawType,
+      List<String> mainDigits,
+      int expected) {
 
-    if (digits == null || digits.isEmpty()) return;
+    if (!wanted.isEmpty() && !wanted.contains(channelCode)) return;
+    if (mainDigits == null || mainDigits.isEmpty()) return;
+
+    OffsetDateTime occurredAt = date.atTime(drawTime).atZone(zone).toOffsetDateTime();
 
     try {
-      var main = new DrawMain(digits);
-      main.requireSize(expectedSize, externalGameKey + "_" + externalDrawType);
+      DrawMain main = new DrawMain(mainDigits);
+      main.requireSize(expected, externalGameKey + "_" + externalDrawType);
 
       out.add(
           new LatestDraw(
@@ -214,8 +241,8 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
               externalDrawType,
               channelCode,
               date,
-              occurredAtUtc,
-              fetchedAtUtc,
+              occurredAt,
+              fetchedAt,
               main,
               DrawExtras.empty(),
               ResultQuality.COMPLETE,
@@ -229,9 +256,9 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
               externalDrawType,
               channelCode,
               date,
-              occurredAtUtc,
-              fetchedAtUtc,
-              new DrawMain(digits),
+              occurredAt,
+              fetchedAt,
+              new DrawMain(mainDigits),
               DrawExtras.empty(),
               ResultQuality.SUSPECT,
               ORIGIN,
@@ -239,94 +266,76 @@ public class NyLatestDrawProviderClient implements LatestDrawProviderClient {
     }
   }
 
-  // ---------- SOQL helpers ----------
+  private static List<LatestDraw> filterAndLimit(List<LatestDraw> all, ProviderDrawQuery query) {
+    if (all == null || all.isEmpty()) return List.of();
 
-  private static String buildSelect(List<String> channelCodes) {
-    // always need draw_date
+    var wantedDate = query.drawDate();
+    var wantedCodes = normalizeSet(query.channelCodes());
+    var stream = all.stream().filter(Objects::nonNull).filter(d -> wantedDate.equals(d.drawDate()));
+
+    if (!wantedCodes.isEmpty()) {
+      stream =
+          stream.filter(
+              d -> d.channelCode() != null && wantedCodes.contains(norm(d.channelCode())));
+    }
+    return stream.limit(Math.max(1, query.maxDraws())).toList();
+  }
+
+  private static String buildSelect(Set<String> wantedCodes) {
     var cols = new LinkedHashSet<String>();
     cols.add("draw_date");
-
-    for (String cc : channelCodes) {
+    for (String cc : wantedCodes) {
       switch (cc) {
         case "US_NY_NUM3_MID" -> cols.add("midday_daily");
         case "US_NY_NUM3_EVE" -> cols.add("evening_daily");
         case "US_NY_NUM4_MID" -> cols.add("midday_win_4");
         case "US_NY_NUM4_EVE" -> cols.add("evening_win_4");
         default -> {
-          /* ignore non-NY codes */
+          /* ignore */
         }
       }
     }
-
+    if (cols.size() == 1) { // only draw_date -> still need at least one result col
+      cols.add("midday_daily");
+      cols.add("evening_daily");
+      cols.add("midday_win_4");
+      cols.add("evening_win_4");
+    }
     return String.join(",", cols);
   }
 
-  private static String selectSignature(List<String> channelCodes) {
-    // stable signature for cache key (sorted)
-    var ny = channelCodes.stream().filter(c -> c.startsWith("US_NY_")).sorted().toList();
-    return String.join("|", ny);
+  private static List<String> defaultNyCodes() {
+    return List.of("US_NY_NUM3_MID", "US_NY_NUM3_EVE", "US_NY_NUM4_MID", "US_NY_NUM4_EVE");
   }
 
-  private static List<String> normalizeCodes(List<String> codes) {
-    if (codes == null) return List.of();
-    return codes.stream()
-        .filter(Objects::nonNull)
-        .map(s -> s.trim().toUpperCase(Locale.ROOT))
-        .filter(s -> !s.isBlank())
-        .distinct()
-        .toList();
+  private static List<String> digits(String s) {
+    if (blank(s)) return List.of();
+    String t = s.trim();
+    // "123" => ["1","2","3"]
+    return Arrays.stream(t.split("")).filter(p -> !p.isBlank()).toList();
+  }
+
+  private static Set<String> normalizeSet(Set<String> s) {
+    if (s == null || s.isEmpty()) return Set.of();
+    var out = new LinkedHashSet<String>();
+    for (String x : s) out.add(norm(x));
+    return out;
+  }
+
+  private static String norm(String s) {
+    return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
+  }
+
+  private static boolean blank(String s) {
+    return s == null || s.trim().isEmpty();
   }
 
   private static int clamp(int v, int min, int max) {
     return Math.max(min, Math.min(max, v));
   }
 
-  private static List<String> splitDigits(String s) {
-    if (s == null) return List.of();
-    String trimmed = s.trim();
-    if (trimmed.isEmpty()) return List.of();
-    return Arrays.stream(trimmed.split("")).filter(p -> !p.isBlank()).toList();
-  }
-
-  private static String sha256(String s) {
-    try {
-      MessageDigest md = MessageDigest.getInstance("SHA-256");
-      byte[] dig = md.digest((s == null ? "" : s).getBytes(StandardCharsets.UTF_8));
-      StringBuilder sb = new StringBuilder(dig.length * 2);
-      for (byte b : dig) sb.append(String.format("%02x", b));
-      return sb.toString();
-    } catch (Exception e) {
-      return "NO_HASH";
-    }
-  }
-
-  private static String buildAbsoluteUri(String baseUrl, String pathOrQuery) {
-    if (pathOrQuery == null) throw new IllegalArgumentException("pathOrQuery is null");
-    String trimmed = pathOrQuery.trim();
-    if (trimmed.matches("^[a-zA-Z][a-zA-Z0-9+\\-.]*://.*")) return trimmed;
-
-    String base = (baseUrl == null || baseUrl.isBlank()) ? "https://data.ny.gov" : baseUrl.trim();
-    if (!base.matches("^[a-zA-Z][a-zA-Z0-9+\\-.]*://.*")) {
-      base = "https://" + base;
-    }
-
-    // if pathOrQuery starts with '?', append to base
-    if (trimmed.startsWith("?")) {
-      return base + (base.contains("?") ? "&" : "") + trimmed.substring(1);
-    }
-
-    // else ensure single slash between base and path/query
-    if (base.endsWith("/") && trimmed.startsWith("/")) {
-      return base + trimmed.substring(1);
-    } else if (!base.endsWith("/") && !trimmed.startsWith("/")) {
-      return base + "/" + trimmed;
-    } else {
-      return base + trimmed;
-    }
-  }
-
   @JsonIgnoreProperties(ignoreUnknown = true)
-  private record NyResultDto(
+  private record NyRow(
       @JsonProperty("draw_date") String drawDate,
       @JsonProperty("midday_daily") String middayDaily,
       @JsonProperty("evening_daily") String eveningDaily,

@@ -5,6 +5,9 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
 import com.tchalanet.server.common.batch.BatchDisabledException;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
+import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaEntryException;
+import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaLangException;
+import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaNumberException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -82,15 +85,52 @@ public class ErrorHandler {
     return buildResponse(pd, req, HttpStatus.NOT_FOUND);
   }
 
+  @ExceptionHandler(InvalidTchalaNumberException.class)
+  public ResponseEntity<ProblemDetail> handleInvalidTchalaNumber(
+      InvalidTchalaNumberException ex, HttpServletRequest req) {
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    pd.setTitle("Invalid tchala number");
+    decorate(pd, req, ex, true);
+    log.warn(
+        "[400] {} {} - invalid tchala number: {}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getMessage());
+    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidTchalaLangException.class)
+  public ResponseEntity<ProblemDetail> handleInvalidTchalaLang(
+      InvalidTchalaLangException ex, HttpServletRequest req) {
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    pd.setTitle("Invalid tchala language");
+    decorate(pd, req, ex, true);
+    log.warn(
+        "[400] {} {} - invalid tchala lang: {}",
+        req.getMethod(),
+        req.getRequestURI(),
+        ex.getMessage());
+    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidTchalaEntryException.class)
+  public ResponseEntity<ProblemDetail> handleInvalidTchalaEntry(
+      InvalidTchalaEntryException ex, HttpServletRequest req) {
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(422), ex.getMessage());
+    pd.setTitle("Invalid tchala entry");
+    decorate(pd, req, ex, true);
+    log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    return buildResponse(pd, req, HttpStatus.valueOf(422));
+  }
+
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ProblemDetail> handleBusiness(
       IllegalStateException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(422), ex.getMessage());
     pd.setTitle("Business rule violation");
-    pd.setDetail(ex.getMessage());
     decorate(pd, req, ex, true);
     log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
-    return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
+    return buildResponse(pd, req, HttpStatus.valueOf(422));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

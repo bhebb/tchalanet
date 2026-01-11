@@ -55,7 +55,7 @@ say "cacerts:   ${CACERTS_SRC}"
 
 say "[3/8] Génération certificat SAN mkcert pour: ${DOMAINS[*]}"
 # Génère un cert leaf (serveur) + clé privée pour tes domaines dev
-mkcert -cert-file "${CERT_NAME}.crt" -key-file "${CERT_NAME}.key" "${DOMAINS[@]}"
+mkcert -cert-file "${CERT_NAME}.crt" -slotKey-file "${CERT_NAME}.key" "${DOMAINS[@]}"
 
 say "[4/8] Conversion en PKCS#12 (Keycloak / proxies) => ${CERT_NAME}.p12"
 openssl pkcs12 -export \

@@ -69,7 +69,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
       nativeQuery = true)
   List<UUID> findClosedDrawIdsForSlot(
       @Param("tenantId") UUID tenantId,
-      @Param("channelCode") String channelCode,
+      @Param("drawChannelCode") String channelCode,
       @Param("dayStartUtc") Instant dayStartUtc,
       @Param("dayEndUtc") Instant dayEndUtc,
       @Param("eligibleBeforeUtc") Instant eligibleBeforeUtc,
@@ -131,7 +131,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
       @Param("tenantId") UUID tenantId,
       @Param("source") String source,
       @Param("provider") String provider,
-      @Param("channelCode") String channelCode,
+      @Param("drawChannelCode") String channelCode,
       @Param("fromTs") Instant fromTs,
       @Param("toTs") Instant toTs,
       @Param("maxDraws") Long maxDraws,

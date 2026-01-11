@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.draw.domain.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -34,6 +36,10 @@ public final class DrawChannel {
   private Boolean active;
   private Integer sortOrder;
   private DrawSource defaultSource; // EXTERNAL_NY, MANUAL_HT, etc.
+  private JsonNode flags;
+
+  // new: enabled game codes for this channel (populated by adapter)
+  private List<String> enabledGameCodes;
 
   public DrawChannelId id() {
     return id;
@@ -81,6 +87,20 @@ public final class DrawChannel {
 
   public DrawSource defaultSource() {
     return defaultSource;
+  }
+
+  public JsonNode flags() {
+    return flags;
+  }
+
+  // new accessor for enabled games
+  public List<String> enabledGameCodes() {
+    return enabledGameCodes == null ? List.of() : enabledGameCodes;
+  }
+
+  // new mutator used by adapters to populate enabled games
+  public void setEnabledGameCodes(List<String> codes) {
+    this.enabledGameCodes = codes;
   }
 
   public void rename(String newLabel) {
