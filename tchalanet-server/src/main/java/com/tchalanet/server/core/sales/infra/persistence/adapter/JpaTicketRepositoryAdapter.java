@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
@@ -48,7 +48,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   private final TicketMapper mapper;
   private final Clock clock;
   private final TchContextResolver contextResolver;
-  private final DrawReaderPort drawReader;
+  private final DrawLookupPort drawReader;
   private final TicketPrintViewMapper ticketPrintViewMapper;
   private final OutletReaderPort outletReaderPort;
   private final PosSessionReaderPort posSessionReaderPort;

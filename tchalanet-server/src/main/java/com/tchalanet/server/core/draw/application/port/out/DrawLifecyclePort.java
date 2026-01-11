@@ -3,6 +3,7 @@ package com.tchalanet.server.core.draw.application.port.out;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
+import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
 import com.tchalanet.server.core.draw.application.query.projection.OpenableDrawRow;
 import com.tchalanet.server.core.draw.domain.model.Draw;
@@ -26,6 +27,5 @@ public interface DrawLifecyclePort {
   Draw save(Draw draw);
 
   // New: fetch existing draw keys to avoid N+1 checks when generating draws
-  Set<com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey> findExistingKeys(
-      TenantId tenantId, LocalDate from, LocalDate to);
+  Set<ExistingDrawKey> findExistingKeys(TenantId tenantId, LocalDate from, LocalDate to);
 }

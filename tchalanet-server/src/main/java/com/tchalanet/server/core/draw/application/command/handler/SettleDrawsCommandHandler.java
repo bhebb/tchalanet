@@ -11,7 +11,7 @@ import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPe
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
 import java.time.Clock;
 import java.time.Instant;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawCommand> {
 
-  private final DrawReaderPort drawReaderPort;
+  private final DrawLookupPort drawReaderPort;
   private final DrawLifecyclePort drawWriterPort;
   private final DomainEventPublisher publisher;
   private final Clock clock;

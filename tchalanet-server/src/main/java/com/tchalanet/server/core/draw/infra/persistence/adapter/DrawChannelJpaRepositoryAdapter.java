@@ -17,7 +17,6 @@ import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawChannelMapper
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawChannelJpaRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -45,13 +44,6 @@ public class DrawChannelJpaRepositoryAdapter
     return mapper.toDomain(saved);
   }
 
-  @Override
-  public List<DrawChannel> saveAll(List<DrawChannel> channels) {
-    var entities = channels.stream().map(mapper::toEntity).collect(Collectors.toList());
-    var saved = repo.saveAll(entities);
-    return saved.stream().map(mapper::toDomain).collect(Collectors.toList());
-  }
-
   public Optional<DrawChannel> findById(DrawChannelId id) {
     if (id == null) return Optional.empty();
     return repo.findById(id.value()).map(mapper::toDomain);
@@ -68,13 +60,6 @@ public class DrawChannelJpaRepositoryAdapter
   @Override
   public Optional<DrawChannel> findByCode(TenantId tenantId, String code) {
     return repo.findByTenantIdAndCode(tenantId.uuid(), code).map(mapper::toDomain);
-  }
-
-  @Override
-  public List<DrawChannel> findActiveByTenant(TenantId tenantId) {
-    return repo.findByTenantIdAndActiveTrueOrderBySortOrderAsc(tenantId.uuid()).stream()
-        .map(mapper::toDomain)
-        .collect(Collectors.toList());
   }
 
   @Override

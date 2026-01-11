@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.UpdateDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UpdateDrawCommandHandler implements VoidCommandHandler<UpdateDrawCommand> {
 
-  private final DrawReaderPort drawReaderPort;
+  private final DrawLookupPort drawReaderPort;
   private final DrawLifecyclePort drawWriterPort;
 
   @Override

@@ -14,8 +14,6 @@ public interface DrawChannelReaderPort {
 
   Optional<DrawChannel> findByCode(TenantId tenantId, String code);
 
-  List<DrawChannel> findActiveByTenant(TenantId tenantId);
-
   List<DrawChannelSummary> findByCriteria(DrawChannelSearchCriteria criteria);
 
   List<DrawChannelCalendarRow> listActiveCalendarRows(TenantId tenantId);

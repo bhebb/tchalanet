@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SettleWriter implements ItemWriter<DrawId> {
 
-  private final DrawReaderPort drawReaderPort;
+  private final DrawLookupPort drawReaderPort;
   private final DrawLifecyclePort drawWriterPort;
   private final TicketSettlementQueryPort ticketQuery;
   private final Clock clock;
