@@ -9,12 +9,13 @@ import org.junit.jupiter.api.Test;
 class ArchitectureTest {
 
   @Test
-  void no_one_should_use_internal_packages() {
+  void noOneShouldUseInternalPackages() {
     var classes = new ClassFileImporter().importPackages("com.tchalanet.server");
 
-    forbidInternal("core.resultslot", classes);
-    forbidInternal("core.game", classes);
-    forbidInternal("core.drawresult", classes);
+    forbidInternal("catalog.resultslot", classes);
+    forbidInternal("catalog.game", classes);
+    forbidInternal("catalog.drawresult", classes);
+    forbidInternal("catalog.pricing", classes);
   }
 
   private static void forbidInternal(String domainPath, JavaClasses classes) {

@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.publicdraw.infra.persistence;
 
 import com.tchalanet.server.common.types.enums.ResultQuality;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.catalog.drawresult.domain.model.DrawResultStatus;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;

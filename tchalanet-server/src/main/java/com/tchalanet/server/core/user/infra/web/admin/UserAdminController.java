@@ -4,6 +4,8 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.user.application.command.model.*;
 import com.tchalanet.server.core.user.application.query.model.GetUserDetailsQuery;
 import com.tchalanet.server.core.user.application.query.model.UserProfileQuery;
@@ -98,8 +100,10 @@ public class UserAdminController {
   @GetMapping("/tenant/{tenantId}/active")
   public ResponseEntity<Page<UserResponse>> listActiveUsersByTenant(
       @PathVariable TenantId tenantId,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "20") int size) {
+      @TchPaging TchPageRequest pageReq) {
+
+    int page = pageReq.pageable().getPageNumber();
+    int size = pageReq.pageable().getPageSize();
 
     Page<AppUser> pageResult =
         queryBus.send(
@@ -125,8 +129,10 @@ public class UserAdminController {
 
   @Operation(summary = "List all users (admin)")
   @GetMapping
-  public ResponseEntity<Page<UserResponse>> listAllUsers(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+  public ResponseEntity<Page<UserResponse>> listAllUsers(@TchPaging TchPageRequest pageReq) {
+
+    int page = pageReq.pageable().getPageNumber();
+    int size = pageReq.pageable().getPageSize();
 
     Page<AppUser> pageResult =
         queryBus.send(

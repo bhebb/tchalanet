@@ -20,6 +20,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.8.0",
+    "@fission-ai/openspec": "^0.20.0",
     "@ionic/angular": "^8.7.3",
     "@ngrx/operators": "^20.0.1",
     "@ngrx/store-devtools": "^20.0.1",

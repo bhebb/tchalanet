@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.application.query.model;
 
-import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.time.Instant;

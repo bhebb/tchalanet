@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.publicdraw.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
-import com.tchalanet.server.core.resultslot.api.ResultSlotCatalog;
-import com.tchalanet.server.core.resultslot.api.ResultSlotView;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.features.publicdraw.application.port.out.PublicDrawResultPort;
 import com.tchalanet.server.features.publicdraw.application.query.model.GetLatestPublicDrawResultsQuery;
 import com.tchalanet.server.features.publicdraw.application.service.NextDrawCalculator;

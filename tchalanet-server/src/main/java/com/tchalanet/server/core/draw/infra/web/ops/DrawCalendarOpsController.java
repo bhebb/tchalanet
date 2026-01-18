@@ -8,7 +8,7 @@ import com.tchalanet.server.core.draw.application.command.model.*;
 import com.tchalanet.server.core.draw.infra.web.ops.model.CloseDueDrawsRequest;
 import com.tchalanet.server.core.draw.infra.web.ops.model.GenerateDrawsRequest;
 import com.tchalanet.server.core.draw.infra.web.ops.model.OpenDueDrawsRequest;
-import com.tchalanet.server.core.drawresult.infra.web.ops.DrawResultsOpsController;
+import com.tchalanet.server.catalog.drawresult.infra.web.ops.DrawResultsOpsController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

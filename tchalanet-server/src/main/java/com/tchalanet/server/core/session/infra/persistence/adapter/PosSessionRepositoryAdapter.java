@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.session.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -24,8 +25,8 @@ public class PosSessionRepositoryAdapter implements PosSessionReaderPort, PosSes
   private final PosSessionMapper mapper;
 
   @Override
-  public Optional<PosSession> findById(UUID id) {
-    return jpaRepository.findById(id).map(mapper::toDomain);
+  public Optional<PosSession> findById(SessionId id) {
+    return jpaRepository.findById(id.uuid()).map(mapper::toDomain);
   }
 
   @Override

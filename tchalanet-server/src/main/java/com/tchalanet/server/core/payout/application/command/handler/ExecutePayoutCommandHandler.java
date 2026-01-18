@@ -4,7 +4,6 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
 import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
 import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;

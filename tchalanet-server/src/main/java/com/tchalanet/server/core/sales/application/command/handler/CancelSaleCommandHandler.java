@@ -21,149 +21,171 @@ import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class CancelSaleCommandHandler
-    implements CommandHandler<CancelSaleCommand, CancelSaleResult> {
+public class CancelSaleCommandHandler implements CommandHandler<CancelSaleCommand, CancelSaleResult> {
 
-  private final TicketReaderPort ticketReader;
-  private final TicketWritterPort ticketWriter;
-  private final DomainEventPublisher publisher;
-  private final Clock clock;
-  private final LimitPolicyFacade limitPolicyFacade;
-  private final AutonomyResolver autonomyResolver;
+    private final TicketReaderPort ticketReader;
+    private final TicketWritterPort ticketWriter;
+    private final DomainEventPublisher publisher;
+    private final Clock clock;
 
-  @Override
-  @TchTx
-  public CancelSaleResult handle(CancelSaleCommand cmd) {
-    var ticket =
-        ticketReader
-            .findWithLinesById(cmd.ticketId())
-            .orElseThrow(() -> ProblemRestException.notFound("Ticket not found"));
+    private final LimitPolicyFacade limitPolicyFacade;
+    private final AutonomyResolver autonomyResolver;
+    private final PosSessionReaderPort posSessionReaderPort;
 
-    // Limits and autonomy validation
-    LimitEvaluationResult limitResult = validateLimitsAndAutonomy(cmd, ticket);
+    @Override
+    @TchTx
+    public CancelSaleResult handle(CancelSaleCommand cmd) {
 
-    var now = Instant.now(clock);
-    ticket.voidTicket(now); // SOLD -> VOIDED
-    var saved = ticketWriter.save(ticket);
+        Ticket ticket =
+            ticketReader
+                .findWithLinesById(cmd.ticketId())
+                .orElseThrow(() -> ProblemRestException.notFound("Ticket not found"));
 
-    long totalStakeCents = saved.getTotalAmount().movePointRight(2).longValue();
+        Instant now = Instant.now(clock);
 
-    var event =
-        new TicketCancelledEvent(
-            UUID.randomUUID(),
-            now,
-            new com.tchalanet.server.common.types.id.TenantId(saved.getTenantId().uuid()),
-            saved.getId(),
-            saved.getTerminalId(),
-            saved.getSessionId(),
-            cmd.performedBy().uuid(), // ou ctx user id
-            cmd.reason(),
-            totalStakeCents,
-            cmd.currency());
+        // derive outletId if possible (for autonomy + limits context)
+        var outletId =
+            ticket.getSessionId() == null
+                ? null
+                : posSessionReaderPort.findById(ticket.getSessionId()).map(s -> s.outletId()).orElse(null);
 
-    AfterCommit.run(() -> publisher.publish(event));
-    log.info("Ticket voided ticketId={} tenantId={}", saved.getId(), saved.getTenantId());
+        // limits + autonomy
+        LimitEvaluationResult limitResult = evaluateCancelLimits(cmd, ticket, outletId, now);
+        enforceCancelDecisionMatrix(cmd, ticket, outletId, limitResult, now);
 
-    List<LimitNotice> warnings =
-        limitResult.details().stream()
-            .map(
-                d ->
-                    new LimitNotice(
-                        d.ruleKey(),
-                        d.outcome(),
-                        d.message(),
-                        d.targetApplied(),
-                        d.selectionKey(),
-                        d.currentValue(),
-                        d.limitValue()))
-            .toList();
+        // domain transition
+        ticket.voidTicket(now);
 
-    String status =
-        limitResult.overallOutcome() == BreachOutcome.WARN ? "SUCCESS_WITH_WARNINGS" : "SUCCESS";
-    return new CancelSaleResult(saved, status, warnings);
-  }
+        // persist
+        Ticket saved = ticketWriter.save(ticket);
 
-  private LimitEvaluationResult validateLimitsAndAutonomy(CancelSaleCommand cmd, Ticket ticket) {
-    Instant now = Instant.now(clock);
+        // event payload
+        long totalStakeCents = cents(saved.getTotalAmount());
+        String currency = saved.getCurrency() != null ? saved.getCurrency() : (cmd.currency() != null ? cmd.currency() : "HTG");
 
-    // Build limit context for cancel
-    BigDecimal ticketStakeTotal = ticket.getTotalAmount();
+        var event =
+            new TicketCancelledEvent(
+                UUID.randomUUID(),
+                now,
+                saved.getTenantId(),
+                saved.getId(),
+                saved.getTerminalId(),
+                saved.getSessionId(),
+                cmd.performedBy().uuid(),
+                cmd.reason(),
+                totalStakeCents,
+                currency,
+                saved.getDrawId());
 
-    List<LimitContext.BetLine> betLines =
-        ticket.getLines().stream()
-            .map(l -> new LimitContext.BetLine(l.betType(), l.selection(), l.stake()))
-            .collect(Collectors.toList());
+        AfterCommit.run(() -> publisher.publish(event));
 
-    LimitContext context =
-        new LimitContext(
-            cmd.tenantId(),
-            ticket.getDrawId(),
-            null, // drawChannelId
-            AgentId.of(cmd.performedBy().uuid()), // agentId
-            ticket.getTerminalId(),
-            null, // outletId - not available
-            null, // zoneId
-            List.of(), // rangeIds
-            null, // gameCode
-            OperationType.CANCEL,
-            betLines,
-            ticketStakeTotal,
-            betLines.size(),
-            now,
-            java.time.ZoneId.systemDefault());
+        log.info("Ticket voided ticketId={} tenantId={} drawId={}", saved.getId(), saved.getTenantId(), saved.getDrawId());
 
-    // Evaluate limits
-    LimitEvaluationResult limitResult = limitPolicyFacade.evaluate(OperationType.CANCEL, context);
+        List<LimitNotice> warnings = toLimitNotices(limitResult);
 
-    // Resolve autonomy
+        var outcome =
+            limitResult.overallOutcome() == BreachOutcome.WARN
+                ? CancelSaleResult.CancelOutcome.SUCCESS_WITH_WARNINGS
+                : CancelSaleResult.CancelOutcome.SUCCESS;
 
-    // Apply decision matrix V1
-    if (limitResult.overallOutcome() == BreachOutcome.ALLOW) {
-      // EXECUTE
-    } else if (limitResult.overallOutcome() == BreachOutcome.WARN) {
-      // EXECUTE + log
-      log.warn("Limit breach (WARN) tenantId={} details={}", cmd.tenantId(), limitResult.details());
-    } else if (limitResult.overallOutcome() == BreachOutcome.BLOCK) {
-      var autonomyPolicy =
-          autonomyResolver.resolve(
-              cmd.tenantId(),
-              AgentId.of(cmd.performedBy().uuid()),
-              ticket.getTerminalId(),
-              null,
-              now);
-      // REJECT - for cancel, always block if limits breached
-      List<LimitNotice> notices =
-          limitResult.details().stream()
-              .map(
-                  d ->
-                      new LimitNotice(
-                          d.ruleKey(),
-                          d.outcome(),
-                          d.message(),
-                          d.targetApplied(),
-                          d.selectionKey(),
-                          d.currentValue(),
-                          d.limitValue()))
-              .toList();
-      throw ProblemRest.limitBlocked(
-          "Limit breach blocked",
-          OperationType.CANCEL,
-          notices,
-          autonomyPolicy.requireApprovalOnBlock(),
-          autonomyPolicy.approvalRole());
+        return new CancelSaleResult(saved, outcome, warnings);
     }
-    return limitResult;
-  }
+
+    private LimitEvaluationResult evaluateCancelLimits(
+        CancelSaleCommand cmd, Ticket ticket, Object outletId, Instant now) {
+
+        BigDecimal ticketStakeTotal = ticket.getTotalAmount();
+
+        List<LimitContext.BetLine> betLines =
+            ticket.getLines().stream()
+                .map(l -> new LimitContext.BetLine(l.betType(), l.selection(), l.stake(), l.betOption()))
+                .toList();
+
+        LimitContext context =
+            new LimitContext(
+                cmd.tenantId(),
+                ticket.getDrawId(),
+                null, // drawChannelId
+                AgentId.of(cmd.performedBy().uuid()),
+                ticket.getTerminalId(),
+                (com.tchalanet.server.common.types.id.OutletId) outletId, // cast if your type exists; else change signature
+                null,
+                List.of(),
+                null,
+                OperationType.CANCEL,
+                betLines,
+                ticketStakeTotal,
+                betLines.size(),
+                now,
+                java.time.ZoneId.systemDefault());
+
+        return limitPolicyFacade.evaluate(OperationType.CANCEL, context);
+    }
+
+    private void enforceCancelDecisionMatrix(
+        CancelSaleCommand cmd,
+        Ticket ticket,
+        Object outletId,
+        LimitEvaluationResult limitResult,
+        Instant now) {
+
+        if (limitResult.overallOutcome() == BreachOutcome.ALLOW) {
+            return;
+        }
+
+        if (limitResult.overallOutcome() == BreachOutcome.WARN) {
+            log.warn("Cancel limit WARN tenantId={} ticketId={} details={}",
+                cmd.tenantId(), ticket.getId(), limitResult.details());
+            return;
+        }
+
+        // BLOCK
+        var autonomyPolicy =
+            autonomyResolver.resolve(
+                cmd.tenantId(),
+                AgentId.of(cmd.performedBy().uuid()),
+                ticket.getTerminalId(),
+                (com.tchalanet.server.common.types.id.OutletId) outletId,
+                now);
+
+        List<LimitNotice> notices = toLimitNotices(limitResult);
+
+        throw ProblemRest.limitBlocked(
+            "Limit breach blocked",
+            OperationType.CANCEL,
+            notices,
+            autonomyPolicy.requireApprovalOnBlock(),
+            autonomyPolicy.approvalRole());
+    }
+
+    private static List<LimitNotice> toLimitNotices(LimitEvaluationResult limitResult) {
+        if (limitResult == null || limitResult.details() == null) return List.of();
+        return limitResult.details().stream()
+            .map(d -> new LimitNotice(
+                d.ruleKey(),
+                d.outcome(),
+                d.message(),
+                d.targetApplied(),
+                d.selectionKey(),
+                d.currentValue(),
+                d.limitValue()))
+            .toList();
+    }
+
+    private static long cents(BigDecimal amount) {
+        if (amount == null) return 0L;
+        return amount.movePointRight(2).longValue();
+    }
 }

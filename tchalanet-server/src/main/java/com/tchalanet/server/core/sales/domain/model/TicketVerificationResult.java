@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.domain.model;
 
-import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.address.domain.model.Address;

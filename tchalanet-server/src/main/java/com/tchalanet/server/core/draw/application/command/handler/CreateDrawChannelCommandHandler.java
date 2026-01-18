@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawChannelCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelWriterPort;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
-import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;

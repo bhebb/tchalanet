@@ -3,7 +3,7 @@ package com.tchalanet.server.features.publicdraw.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.paging.TchPages;
-import com.tchalanet.server.core.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.features.publicdraw.application.port.out.PublicDrawResultPort;
 import com.tchalanet.server.features.publicdraw.application.query.model.ListPublicDrawResultsQuery;
 import com.tchalanet.server.features.publicdraw.application.service.NextDrawCalculator;

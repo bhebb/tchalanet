@@ -1,151 +1,81 @@
-# Domaine Sales / Tickets
+# Domaine core.sales — Tickets & Ventes
 
-> Domaine implémenté avec architecture hexagonale (CQRS léger).  
-> Gestion des tickets de jeu : vente, annulation, paiement, impression et consultation.
+> Gère le cycle de vie des tickets: émission, annulation, statut public, sync offline. Domaine critique argent.
+
+> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/sales.md`
 
 ---
 
 ## 1. Rôle du domaine
 
-**Responsabilité principale**
-
-Assurer la création, la gestion et le cycle de vie des tickets de jeu (vente, annulation, consultation) pour un tenant donné, en les liant aux tirages (`draw`), aux points de vente et aux sessions POS. Le domaine maintient l'intégrité des tickets et publie des événements pour les intégrations cross-domaines (ex: ledger).
-
-**Ce que le domaine fait**
-
-- **Vente de tickets** : Création de tickets avec lignes de jeu, génération de code public sécurisé, validation des limites.
-- **Annulation de tickets** : Annulation avec raison, publication d'événements.
-- **Gestion des paiements** : Marquage comme paiement en attente ou payé, avec audit.
-- **Impression** : Génération de texte plain pour impression des tickets.
-- **Consultation** : Liste paginée, détails complets, vérification publique par code.
-- **Intégrations** : Événements pour ledger (enregistrement des ventes/paiements).
+- Émettre/canceller des tickets payés.
+- Exposer statuts et vues tickets.
+- Publier events métier (Issued/Cancelled/Settled).
 
 **Ce que le domaine ne fait pas**
 
-- Gestion des tirages (domaine `draw`).
-- Gestion des sessions POS (domaine `session`).
-- Authentification/autorisation (domaine `accesscontrol`).
-- Stockage physique (infrastructure).
+- Calcul des gains (payout).
+- Écritures comptables (ledger).
 
 ---
 
-## 2. Modèle de domaine
+## 2. Modèle & invariants
 
-### Agrégats principaux
-
-- **Ticket** : Agrégat racine représentant un ticket de jeu.
-  - États : `CREATED`, `RESULTED_WIN`, `RESULTED_LOSS`, `PAYMENT_PENDING`, `PAID`, `CANCELLED`.
-  - Transitions : Vente → Résultat → Paiement → Payé, ou Annulation à tout moment.
-  - Lignes : Liste de `TicketLine` (gameCode, selection, stake, potentialPayout).
-
-### Événements domaine
-
-- `TicketPlacedEvent` : Publication lors de la vente (pour ledger).
-- `TicketVoidedEvent` : Publication lors d'annulation.
-- `TicketPaymentPendingEvent` : Publication lors de marquage paiement en attente.
-- `TicketPaidEvent` : Publication lors de paiement.
+- `Ticket` aggregate: id, tenant, lines, amountPaid, status (ISSUED/CANCELLED/SETTLED/EXPIRED), publicCode.
+- Invariants:
+  - `CANCELLED` est terminal.
+  - Annulation seulement si fenêtres/règles respectées.
+  - `publicCode` signé → jamais mappé en ID interne public.
 
 ---
 
-## 3. Architecture hexagonale
+## 3. Use Cases (ports d’entrée)
 
-### Ports d'entrée (application)
-
-- **Commandes** :
-  - `SellTicketCommand` → `SellTicketCommandHandler` (crée ticket, génère codes, publie événement).
-  - `CancelTicketCommand` → `CancelTicketCommandHandler` (annule ticket).
-  - `MarkPaymentPendingCommand` → `MarkPaymentPendingCommandHandler` (marque paiement en attente).
-  - `MarkTicketPaidCommand` → `MarkTicketPaidCommand` (marque payé).
-  - `PrintTicketCommand` → `PrintTicketUseCaseHandler` (génère texte d'impression).
-
-- **Requêtes** :
-  - `ListTicketsQuery` → `ListTicketsQueryHandler` (liste paginée avec filtres).
-  - `GetTicketDetailsQuery` → `GetTicketDetailsQueryHandler` (détails complets).
-  - `VerifyPublicTicketQuery` → `VerifyPublicTicketQueryHandler` (vérification publique).
-
-### Ports de sortie (infrastructure)
-
-- **TicketWriterPort** : Sauvegarde des tickets.
-- **TicketReaderPort** : Lecture des tickets (avec filtres, pagination).
-- **TicketNumberGeneratorPort** : Génération de code interne.
-- **TicketPublicCodeGeneratorPort** : Génération de code public sécurisé (Crockford base32).
-- **TicketPrinterPort** : Rendu texte plain pour impression.
-- **TicketEventPublisherPort** : Publication d'événements Spring.
-
-### Adaptateurs infrastructure
-
-- **JpaTicketRepositoryAdapter** : Implémentation JPA pour lecture/écriture.
-- **LogOnlyTicketPrinterAdapter** : Stub pour impression (log seulement).
-- **SpringApplicationEventPublisherAdapter** : Publication d'événements.
+- `IssueTicketCommandHandler`
+- `CancelTicketCommandHandler`
+- `VerifyTicketPublicQueryHandler`
 
 ---
 
-## 4. Contraintes métier
+## 4. Ports (out)
 
-- **Tenant-scoped** : Tous les accès filtrés par tenant (via RLS ou contexte).
-- **Append-only** : Pas de suppression physique, seulement marquage annulé.
-- **Codes uniques** : `ticketCode` unique par tenant, `publicCode` unique global.
-- **Validation** : Stake > 0, limites par jeu/tenant (via `limitpolicy`).
-- **Audit** : Tous changements tracés avec `performedBy`.
+- `TicketRepoPort` (Reader/Writer)
+- `TicketCodeGeneratorPort`
+- `PrinterPort` (si besoin)
 
 ---
 
-## 5. Points d'intégration
+## 5. Mapping & DTOs
 
-- **Ledger** : Écoute `TicketPlacedEvent` pour enregistrer les ventes (CRÉDIT).
-- **Audit** : Logs des actions sensibles.
-- **LimitPolicy** : Validation des limites avant vente.
-- **Draw** : Référence aux tirages pour validation.
+- MapStruct pour DTO `TicketResponse` / `IssueTicketRequest`.
+- Controllers utilisent wrappers d’ID (TicketId, TenantId).
 
 ---
 
-## 6. Endpoints API
+## 6. Événements
 
-### Contrôleur privé (`TicketController`)
-
-- `POST /api/tickets` : Vente de ticket.
-- `GET /api/tickets` : Liste paginée (avec filtres : terminal, draw, status, dates).
-- `GET /api/tickets/{id}` : Détails ticket.
-- `PATCH /api/tickets/{id}/cancel` : Annulation.
-- `PATCH /api/tickets/{id}/payment-pending` : Paiement en attente.
-- `PATCH /api/tickets/{id}/paid` : Marqué payé.
-- `GET /api/tickets/{id}/print` : Impression.
-
-### Contrôleur public (`PublicTicketController`)
-
-- `GET /ticket/{publicCode}` : Vérification publique (avec headers sécurité).
+- Publier `TicketIssuedEvent`, `TicketCancelledEvent`, `TicketSettledEvent` via `AfterCommit`.
+- Idempotence requise sur certaines commandes.
 
 ---
 
-## 7. Qualité & tests
+## 7. Intégrations
 
-- **Tests unitaires** : Handlers, mappers, domaine.
-- **Tests d'intégration** : Endpoints, événements.
-- **Validation** : Bean validation sur requests, domaine invariants.
-
----
-
-## 8. Évolution future
-
-- Support offline (synchro tickets hors ligne).
-- Ré-impression avec historique.
-- Exports CSV/PDF.
-- Intégration payouts pour gains élevés.
+- `core.payout` ouvre les claims quand SETTLED.
+- `core.ledger` consomme les events pour comptabiliser.
 
 ---
 
-## 9. Domaines existants (référence)
+## 8. Notes techniques
 
-À titre indicatif, les domaines actuellement présents dans Tchalanet :
+- Multi-tenant strict; RLS appliqué via datasource.
+- Idempotency-Key recommandé pour issue.
+- Envers si audit.
 
-- `accesscontrol` — permissions & rôles par tenant.
-- `audit` — audit applicatif & révisions.
-- `draw` — tirages & résultats.
-- `ledger` — comptabilité append-only.
-- `limitpolicy` — limites de jeu par tenant/joueur.
-- `pagemodel` — configuration dynamique des pages publiques/privées.
-- `payout` — gestion des paiements de gains.
-- `sales` / `ticket` — **(ce domaine)** création & gestion des tickets.
-- `session` — sessions POS & vendeurs.
-- `tenantconfig` — configuration de tenant (limites, odds, etc.).
-- `user` — utilisateurs & profils (hors auth Keycloak).
+---
+
+## 9. Incohérences / TODO
+
+- Confirmer fenêtres d’annulation exactes et limites (LimitPolicyFacade).
+- Vérifier naming des statuses (ISSUED/OPEN, EXPIRED optionnel).
+- S’assurer que public verify ne retourne pas d’ID interne.

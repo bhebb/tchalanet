@@ -10,7 +10,7 @@ CREATE TABLE pos_session (
                              terminal_id uuid NOT NULL REFERENCES terminal(id),
                              user_id uuid NOT NULL REFERENCES app_user(id),
 
-                             status varchar(16) NOT NULL CHECK (status IN ('OPEN', 'CLOSED')),
+                             status varchar(16) NOT NULL CHECK (status IN ('OPEN','CLOSED','SETTLED')),
                              opened_at timestamptz NOT NULL DEFAULT now(),
                              closed_at timestamptz,
 
@@ -49,7 +49,8 @@ END $$;
 DROP TABLE IF EXISTS pos_session_totals CASCADE;
 
 CREATE TABLE pos_session_totals (
-                                    session_id uuid PRIMARY KEY REFERENCES pos_session(id) ON DELETE CASCADE,
+                                    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                                    session_id uuid NOT NULL REFERENCES pos_session(id) ON DELETE CASCADE,
                                     tenant_id uuid NOT NULL REFERENCES tenant(id),
 
                                     total_tickets bigint NOT NULL DEFAULT 0,
@@ -64,10 +65,12 @@ CREATE TABLE pos_session_totals (
                                     updated_at timestamptz NOT NULL DEFAULT now(),
                                     updated_by uuid,
                                     deleted_at timestamptz
-);
+ );
 
-CREATE INDEX ix_pos_session_totals_tenant ON pos_session_totals(tenant_id);
-CREATE INDEX ix_pos_session_totals_tenant_session ON pos_session_totals(tenant_id, session_id);
+ CREATE UNIQUE INDEX IF NOT EXISTS ux_pos_session_totals_session_id ON pos_session_totals(session_id);
+
+ CREATE INDEX ix_pos_session_totals_tenant ON pos_session_totals(tenant_id);
+ CREATE INDEX ix_pos_session_totals_tenant_session ON pos_session_totals(tenant_id, session_id);
 
 DO $$
 BEGIN

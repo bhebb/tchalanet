@@ -13,12 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GetDrawHandler implements QueryHandler<GetDrawQuery, Draw> {
 
-  private final DrawLookupPort drawReaderPort;
+    private final DrawLookupPort drawReaderPort;
 
-  @Override
-  public Draw handle(GetDrawQuery query) {
-    return drawReaderPort
-        .findById(query.drawId())
-        .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + query.drawId()));
-  }
+    @Override
+    public Draw handle(GetDrawQuery query) {
+        return drawReaderPort
+            .findById(query.drawId())
+            .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + query.drawId()));
+    }
 }

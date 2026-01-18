@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
@@ -36,6 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +73,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   }
 
   @Override
-  public PagedResult<Ticket> search(TicketFilter filter, PageRequest pageRequest) {
+  public TchPage<Ticket> search(TicketFilter filter, Pageable pageRequest) {
     Specification<TicketEntity> spec =
         (root, query, cb) -> {
           List<Predicate> predicates = new ArrayList<>();
@@ -101,8 +103,8 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
 
     org.springframework.data.domain.PageRequest springPageRequest =
         org.springframework.data.domain.PageRequest.of(
-            pageRequest.page(),
-            pageRequest.size(),
+            pageRequest.getPageNumber(),
+            pageRequest.getPageSize(),
             org.springframework.data.domain.Sort.by(
                 org.springframework.data.domain.Sort.Order.desc("createdAt"),
                 org.springframework.data.domain.Sort.Order.desc("id")));
@@ -112,7 +114,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     List<Ticket> tickets =
         page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList());
 
-    return new PagedResult<>(
+    return TchPage.of(
         tickets, page.getTotalElements(), page.getTotalPages(), page.getNumber());
   }
 

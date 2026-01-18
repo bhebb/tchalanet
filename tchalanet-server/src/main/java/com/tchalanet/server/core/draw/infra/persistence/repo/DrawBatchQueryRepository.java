@@ -19,19 +19,20 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
       d.tenant_id as tenantId,
       d.scheduled_at as scheduledAt,
       dc.code as channelCode,
-      dc.external_provider as externalProvider,
+      rs.provider as provider,
       dc.external_game_key as externalGameKey,
       dc.external_channel_code as externalChannelCode,
       dc.timezone as timezone
     from draw d
     join draw_channel dc on dc.id = d.draw_channel_id
+    join result_slot rs on rs.id = dc.result_slot_id
     left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
     where d.status = 'CLOSED'
       and d.scheduled_at <= (:maxScheduledAt)
       and dc.active = true
       and dc.deleted_at is null
       and (dr.id is null or :force = true)
-      and dc.external_provider is not null
+      and rs.provider is not null
       and dc.external_game_key is not null
       and dc.external_channel_code is not null
     order by d.scheduled_at asc
@@ -53,6 +54,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           select d.id
           from draw d
           join draw_channel dc on dc.id = d.draw_channel_id
+          join result_slot rs on rs.id = dc.result_slot_id
           left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
           where d.tenant_id=:tenantId
             and dc.code=:channelCode
@@ -83,6 +85,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           select d.id
           from draw d
           join draw_channel dc on dc.id = d.draw_channel_id
+          join result_slot rs on rs.id = dc.result_slot_id
           left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
           where d.tenant_id = :tenantId
             and d.deleted_at is null and dc.deleted_at is null
@@ -113,6 +116,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
           select d.id
           from draw d
           join draw_channel dc on dc.id = d.draw_channel_id
+          join result_slot rs on rs.id = dc.result_slot_id
           left join draw_result dr on dr.channel_code = dc.code and dr.draw_date = (d.scheduled_at at time zone dc.timezone)::date
           where (:tenantId is null or d.tenant_id = :tenantId)
             and d.deleted_at is null and dc.deleted_at is null
@@ -120,7 +124,7 @@ public interface DrawBatchQueryRepository extends Repository<DrawJpaEntity, UUID
             and d.status in ('RESULTED','PENDING')
             and d.scheduled_at >= :fromTs and d.scheduled_at < :toTs
             and (:channelCode is null or dc.code = :channelCode)
-            and (:provider is null or dc.external_provider = :provider)
+            and (:provider is null or rs.provider = :provider)
             and (:source is null or d.draw_source = :source)
             and (:force = true or dr.id is null)
           order by d.scheduled_at asc

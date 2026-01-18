@@ -3,7 +3,7 @@ package com.tchalanet.server.core.draw.domain.model;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 

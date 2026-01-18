@@ -11,6 +11,7 @@ Tchalanet est une plateforme multi‑tenant stricte : toute requête SQL doit ê
 ## 2. Qu'est‑ce que le RLS (PostgreSQL)
 
 RLS permet d'appliquer des règles au niveau des lignes selon :
+
 - l'utilisateur (role),
 - des variables de session (current_setting),
 - ou des fonctions SQL.
@@ -28,12 +29,13 @@ Ainsi, toute requête (JPA/Hibernate, JDBC, native, Batch, scheduler...) est aut
 
 Variables session utilisées
 
-| Variable | Rôle |
-|---|---|
-| `app.current_tenant` | UUID du tenant actif |
+| Variable                 | Rôle                         |
+| ------------------------ | ---------------------------- |
+| `app.current_tenant`     | UUID du tenant actif         |
 | `app.deleted_visibility` | `active` / `deleted` / `all` |
 
 Comportement attendu
+
 - Les variables sont posées au moment où une connexion est empruntée (DataSource wrapper).
 - Les variables sont réinitialisées automatiquement quand la connexion est rendue au pool (safety for pooled connections).
 
@@ -58,6 +60,7 @@ PostgreSQL RLS policies
 ### 5.1 `TchRequestContext`
 
 Contient le contexte per‑request :
+
 - `originalTenantCode`, `effectiveTenantCode`
 - `originalTenantUuid`, `effectiveTenantUuid` (peut être null au début)
 - `deletedVisibility` (valeur demandée par l'utilisateur / SA)
@@ -69,15 +72,16 @@ Contient le contexte per‑request :
 - Type : `DelegatingDataSource` (wrapper autour du `DataSource` brut).
 - Comportement :
   - Intercepte `getConnection()` (et `getConnection(user,pw)`), lit le `TchRequestContext` si le scope request est actif.
-  - Si `tenantUuid` inconnu, effectue un lookup du tenant UUID *sur la même connexion* (query sur la table `tenant`) pour éviter des connexions additionnelles et des cycles Spring.
+  - Si `tenantUuid` inconnu, effectue un lookup du tenant UUID _sur la même connexion_ (query sur la table `tenant`) pour éviter des connexions additionnelles et des cycles Spring.
   - Applique les variables session en exécutant des `SET` via `set_config(...)` (ou via fonctions helper si vous préférez) :
     - `select set_config('app.current_tenant', ?, true)`
     - `select set_config('app.deleted_visibility', ?, true)`
   - Wrappe la connexion retournée dans `ResetOnCloseConnection` qui réinitialise la session au `close()`.
 
 Bénéfices :
+
 - Fonctionne pour Hibernate bootstrap, Flyway, Batch, scheduler.
-- Évite les cycles d'initialisation Spring (en faisant la résolution tenant UUID *dans* la connexion).
+- Évite les cycles d'initialisation Spring (en faisant la résolution tenant UUID _dans_ la connexion).
 - Pas d'appel JPA pour résoudre le tenant dans le DataSource ; lookup SQL direct sur la même connexion.
 
 ### 5.3 Pourquoi le lookup tenant UUID est fait dans le DataSource
@@ -99,6 +103,7 @@ Bénéfices :
 ## 6. Fonctions SQL (migrations Flyway)
 
 Dans `V1__extensions_and_functions.sql` on ajoute :
+
 - `deleted_visibility()` — getter safe (whitelist)
 - `set_deleted_visibility(p text)` — setter safe
 - `set_current_tenant(p uuid)` — setter safe
@@ -134,22 +139,25 @@ tenant_id = current_tenant()::uuid
 
 ## 8. Checklist OBLIGATOIRE pour ajouter une nouvelle entité
 
-1) Identifier le type de table :
+1. Identifier le type de table :
+
    - Global (pas de RLS) — ex: `tenant`, `country`, `currency`.
    - Multi‑tenant — ex: `ticket`, `outlet`.
    - Multi‑tenant + soft delete — la plupart des tables métier.
 
-2) Colonnes requises :
+2. Colonnes requises :
+
    - `tenant_id UUID NOT NULL` pour une table multi‑tenant.
    - `deleted_at timestamptz` si soft‑delete.
 
-3) Mise à jour des migrations RLS
-   - Dans `V50__rls_policies.sql` (ou votre script RLS central) ajouter la table :
+3. Mise à jour des migrations RLS
+
+   - Dans `V40__rls_policies.sql` (ou votre script RLS central) ajouter la table :
      - `soft_tables := ARRAY['new_table_name'];` ou
      - `tenant_only_tables := ARRAY['new_table_name'];`
    - Le script vérifie la présence des colonnes et applique la policy.
 
-4) Ne JAMAIS filtrer par tenant côté JPA
+4. Ne JAMAIS filtrer par tenant côté JPA
    - ❌ Mauvais : `where tenant_id = :tenantId` dans le code
    - ✅ Correct : `findByStatus(...)` — laisser PostgreSQL appliquer le filtre via RLS
 

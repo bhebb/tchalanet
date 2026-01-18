@@ -1,191 +1,349 @@
 package com.tchalanet.server.core.sales.domain.model;
 
-import com.tchalanet.server.common.types.enums.TicketStatus;
+import com.tchalanet.server.common.types.enums.TicketResultStatus;
+import com.tchalanet.server.common.types.enums.TicketSaleStatus;
+import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import lombok.Getter;
+import java.util.UUID;
 
-/**
- * Aggregate Root for the Ticket domain. It encapsulates the state and business rules for a ticket,
- * ensuring its consistency.
- */
 @Getter
 public class Ticket {
 
-  private final TicketId id;
-  private final TenantId tenantId;
-  private final TerminalId terminalId;
-  private final SessionId sessionId;
-  private final DrawId drawId;
-  private final String ticketCode;
-  private final String publicCode;
+    private final TicketId id;
+    private final TenantId tenantId;
+    private final TerminalId terminalId;
+    private final SessionId sessionId; // nullable (backfills)
+    private final DrawId drawId;
 
-  private TicketStatus status;
-  private final BigDecimal totalAmount;
+    private final String ticketCode; // per-tenant unique
+    private final String publicCode; // nullable; when present globally unique
 
-  private final Instant createdAt;
-  private Instant updatedAt;
+    private final String currency;
 
-  private final List<TicketLine> lines;
-  private BigDecimal winningAmount;
+    private TicketSaleStatus saleStatus;
+    private TicketResultStatus resultStatus;
+    private TicketSettlementStatus settlementStatus;
 
-  private Ticket(
-      TicketId id,
-      TenantId tenantId,
-      TerminalId terminalId,
-      SessionId sessionId,
-      DrawId drawId,
-      String ticketCode,
-      String publicCode,
-      List<TicketLine> lines,
-      BigDecimal totalAmount,
-      TicketStatus status,
-      Instant createdAt,
-      Instant updatedAt) {
-    this.id = id;
-    this.tenantId = tenantId;
-    this.terminalId = terminalId;
-    this.sessionId = sessionId;
-    this.drawId = drawId;
-    this.ticketCode = ticketCode;
-    this.publicCode = publicCode;
-    this.lines = lines;
-    this.totalAmount = totalAmount;
-    this.status = status;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
+    private final BigDecimal totalAmount;
 
-  public static Ticket create(
-      TenantId tenantId,
-      TerminalId terminalId,
-      SessionId sessionId,
-      DrawId drawId,
-      String ticketCode,
-      String publicCode,
-      List<TicketLine> lines,
-      Instant createdAt) {
-    Objects.requireNonNull(tenantId);
-    Objects.requireNonNull(terminalId);
-    Objects.requireNonNull(drawId);
-    Objects.requireNonNull(ticketCode);
-    Objects.requireNonNull(publicCode);
-    Objects.requireNonNull(createdAt);
-    if (lines == null || lines.isEmpty())
-      throw new IllegalArgumentException("ticket must have >= 1 line");
+    private final Instant createdAt;
+    private Instant updatedAt;
 
-    BigDecimal total =
-        lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
+    // nullable until resulted
+    private BigDecimal winningAmount; // null when NOT_RESULTED
+    private Instant resultedAt;       // null when NOT_RESULTED
 
-    return new Ticket(
-        TicketId.random(),
-        tenantId,
-        terminalId,
-        sessionId,
-        drawId,
-        ticketCode,
-        publicCode,
-        List.copyOf(lines),
-        total,
-        TicketStatus.PENDING,
-        createdAt,
-        createdAt);
-  }
+    private final UUID approvalRequestId; // nullable; present when PENDING_APPROVAL
 
-  /** Rehydrate from persistence */
-  public static Ticket rehydrate(
-      TicketId id,
-      TenantId tenantId,
-      TerminalId terminalId,
-      SessionId sessionId,
-      DrawId drawId,
-      String ticketCode,
-      String publicCode,
-      List<TicketLine> lines,
-      BigDecimal totalAmount,
-      TicketStatus status,
-      Instant createdAt,
-      Instant updatedAt) {
-    Objects.requireNonNull(id);
-    Objects.requireNonNull(tenantId);
-    Objects.requireNonNull(terminalId);
-    Objects.requireNonNull(drawId);
-    Objects.requireNonNull(ticketCode);
-    Objects.requireNonNull(status);
-    Objects.requireNonNull(createdAt);
-    Objects.requireNonNull(updatedAt);
+    private final List<TicketLine> lines;
 
-    return new Ticket(
-        id,
-        tenantId,
-        terminalId,
-        sessionId,
-        drawId,
-        ticketCode,
-        publicCode,
-        lines == null ? List.of() : List.copyOf(lines),
-        totalAmount == null ? BigDecimal.ZERO : totalAmount,
-        status,
-        createdAt,
-        updatedAt);
-  }
+    private Ticket(
+        TicketId id,
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
+        String ticketCode,
+        String publicCode,
+        String currency,
+        TicketSaleStatus saleStatus,
+        TicketResultStatus resultStatus,
+        TicketSettlementStatus settlementStatus,
+        BigDecimal totalAmount,
+        BigDecimal winningAmount,
+        Instant resultedAt,
+        List<TicketLine> lines,
+        UUID approvalRequestId,
+        Instant createdAt,
+        Instant updatedAt) {
 
-  // ---------- State machine methods ----------
+        this.id = Objects.requireNonNull(id, "id");
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
+        this.terminalId = Objects.requireNonNull(terminalId, "terminalId");
+        this.sessionId = sessionId;
+        this.drawId = Objects.requireNonNull(drawId, "drawId");
 
-  public void voidTicket(Instant when) {
-    requireWhen(when);
-    ensureStatus(TicketStatus.PENDING);
-    this.status = TicketStatus.VOID;
-    this.updatedAt = when;
-  }
+        this.ticketCode = requireNonBlank(ticketCode, "ticketCode");
+        this.publicCode = publicCode; // nullable
 
-  public void recordResult(BigDecimal winningAmount, Instant when) {
-    requireWhen(when);
-    Objects.requireNonNull(winningAmount, "winningAmount");
-    if (winningAmount.signum() < 0)
-      throw new IllegalArgumentException("winningAmount cannot be negative");
-    ensureStatus(TicketStatus.PENDING);
+        this.currency = requireNonBlank(currency, "currency");
 
-    this.winningAmount = winningAmount;
-    this.status = winningAmount.signum() > 0 ? TicketStatus.WON : TicketStatus.LOST;
-    this.updatedAt = when;
-  }
+        this.saleStatus = Objects.requireNonNull(saleStatus, "saleStatus");
+        this.resultStatus = Objects.requireNonNull(resultStatus, "resultStatus");
+        this.settlementStatus = Objects.requireNonNull(settlementStatus, "settlementStatus");
 
-  public void markPaymentPending(Instant when) {
-    requireWhen(when);
-    ensureStatus(TicketStatus.WON);
-    this.status = TicketStatus.PENDING;
-    this.updatedAt = when;
-  }
+        this.lines = List.copyOf(Objects.requireNonNull(lines, "lines"));
+        if (this.lines.isEmpty()) throw new IllegalArgumentException("ticket must have >= 1 line");
 
-  public void markAsPaid(Instant when) {
-    requireWhen(when);
-    if (this.status != TicketStatus.WON && this.status != TicketStatus.PENDING) {
-      throw new IllegalStateException(
-          "PAID allowed only from RESULTED_WIN or PAYMENT_PENDING. status=" + this.status);
+        this.totalAmount = requireNonNeg(Objects.requireNonNull(totalAmount, "totalAmount"), "totalAmount");
+
+        this.approvalRequestId = approvalRequestId; // nullable
+
+        this.createdAt = Objects.requireNonNull(createdAt, "createdAt");
+        this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt");
+
+        // --- normalize/enforce result invariants
+        if (this.resultStatus == TicketResultStatus.NOT_RESULTED) {
+            if (winningAmount != null || resultedAt != null) {
+                throw new IllegalArgumentException("Result fields must be null when NOT_RESULTED");
+            }
+            this.winningAmount = null;
+            this.resultedAt = null;
+            if (this.settlementStatus == TicketSettlementStatus.SETTLED) {
+                throw new IllegalArgumentException("Cannot be SETTLED when NOT_RESULTED");
+            }
+        } else {
+            this.winningAmount = requireNonNeg(
+                Objects.requireNonNull(winningAmount, "winningAmount"), "winningAmount");
+            this.resultedAt = Objects.requireNonNull(resultedAt, "resultedAt");
+        }
     }
-    this.status = TicketStatus.PAID;
-    this.updatedAt = when;
-  }
 
-  private void ensureStatus(TicketStatus expected) {
-    if (this.status != expected) {
-      throw new IllegalStateException("Expected status " + expected + " but was " + this.status);
+    // ---- Factory: SOLD directly
+    public static Ticket sell(
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
+        String ticketCode,
+        String publicCode,
+        String currency,
+        List<TicketLine> lines,
+        Instant now) {
+
+        Objects.requireNonNull(now, "now");
+        Objects.requireNonNull(lines, "lines");
+        BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new Ticket(
+            TicketId.random(),
+            tenantId,
+            terminalId,
+            sessionId,
+            drawId,
+            ticketCode,
+            publicCode,
+            currency,
+            TicketSaleStatus.SOLD,
+            TicketResultStatus.NOT_RESULTED,
+            TicketSettlementStatus.UNSETTLED,
+            total,
+            null,
+            null,
+            lines,
+            null,
+            now,
+            now);
     }
-  }
 
-  private static void requireWhen(Instant when) {
-    Objects.requireNonNull(when, "when");
-  }
+    // ---- Factory: PENDING_APPROVAL
+    public static Ticket pendingApproval(
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
+        String ticketCode,
+        String publicCode,
+        String currency,
+        List<TicketLine> lines,
+        Instant now) {
 
-  public List<TicketLine> getLines() {
-    return List.copyOf(lines);
-  }
+        Objects.requireNonNull(now, "now");
+        Objects.requireNonNull(lines, "lines");
+        BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new Ticket(
+            TicketId.random(),
+            tenantId,
+            terminalId,
+            sessionId,
+            drawId,
+            ticketCode,
+            publicCode,
+            currency,
+            TicketSaleStatus.PENDING_APPROVAL,
+            TicketResultStatus.NOT_RESULTED,
+            TicketSettlementStatus.UNSETTLED,
+            total,
+            null,
+            null,
+            lines,
+            null,
+            now,
+            now);
+    }
+
+    // ---- Factory: PENDING_APPROVAL with approval request id
+    public static Ticket requestApproval(
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
+        String ticketCode,
+        String publicCode,
+        String currency,
+        List<TicketLine> lines,
+        Instant now,
+        UUID approvalRequestId) {
+
+        Objects.requireNonNull(now, "now");
+        Objects.requireNonNull(approvalRequestId, "approvalRequestId");
+        Objects.requireNonNull(lines, "lines");
+        BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new Ticket(
+            TicketId.random(),
+            tenantId,
+            terminalId,
+            sessionId,
+            drawId,
+            ticketCode,
+            publicCode,
+            currency,
+            TicketSaleStatus.PENDING_APPROVAL,
+            TicketResultStatus.NOT_RESULTED,
+            TicketSettlementStatus.UNSETTLED,
+            total,
+            null,
+            null,
+            lines,
+            approvalRequestId,
+            now,
+            now);
+    }
+
+    // ---- Rehydrate
+    public static Ticket rehydrate(
+        TicketId id,
+        TenantId tenantId,
+        TerminalId terminalId,
+        SessionId sessionId,
+        DrawId drawId,
+        String ticketCode,
+        String publicCode,
+        String currency,
+        TicketSaleStatus saleStatus,
+        TicketResultStatus resultStatus,
+        TicketSettlementStatus settlementStatus,
+        BigDecimal totalAmount,
+        BigDecimal winningAmount,
+        Instant resultedAt,
+        List<TicketLine> lines,
+        UUID approvalRequestId,
+        Instant createdAt,
+        Instant updatedAt) {
+
+        return new Ticket(
+            id,
+            tenantId,
+            terminalId,
+            sessionId,
+            drawId,
+            ticketCode,
+            publicCode,
+            currency,
+            saleStatus,
+            resultStatus,
+            settlementStatus,
+            totalAmount == null ? BigDecimal.ZERO : totalAmount,
+            winningAmount,
+            resultedAt,
+            lines == null ? List.of() : lines,
+            approvalRequestId,
+            createdAt,
+            updatedAt);
+    }
+
+    // ---- State transitions
+
+    public void approve(Instant when) {
+        requireSaleStatus(TicketSaleStatus.PENDING_APPROVAL);
+        this.saleStatus = TicketSaleStatus.SOLD;
+        touch(when);
+    }
+
+    public void reject(Instant when) {
+        requireSaleStatus(TicketSaleStatus.PENDING_APPROVAL);
+        this.saleStatus = TicketSaleStatus.REJECTED;
+        touch(when);
+    }
+
+    public void voidTicket(Instant when) {
+        if (saleStatus != TicketSaleStatus.SOLD && saleStatus != TicketSaleStatus.PENDING_APPROVAL) {
+            throw new IllegalStateException(
+                "Only SOLD or PENDING_APPROVAL can be voided. saleStatus=" + saleStatus);
+        }
+        this.saleStatus = TicketSaleStatus.VOID;
+        touch(when);
+    }
+
+    public void markResulted(BigDecimal payout, Instant when) {
+        Objects.requireNonNull(payout, "payout");
+        if (payout.signum() < 0) throw new IllegalArgumentException("payout must be >= 0");
+        requireSaleStatus(TicketSaleStatus.SOLD);
+
+        this.winningAmount = payout;
+        this.resultedAt = Objects.requireNonNull(when, "when");
+        this.resultStatus = payout.signum() > 0 ? TicketResultStatus.WON : TicketResultStatus.LOST;
+
+        // payout domain later; sales keeps it UNSETTLED
+        this.settlementStatus = TicketSettlementStatus.UNSETTLED;
+        touch(when);
+    }
+
+    public void forceResult(BigDecimal payout, Instant when) {
+        Objects.requireNonNull(payout, "payout");
+        if (payout.signum() < 0) throw new IllegalArgumentException("payout must be >= 0");
+        if (saleStatus == TicketSaleStatus.VOID) {
+            throw new IllegalStateException("Cannot override result for VOID ticket");
+        }
+
+        this.winningAmount = payout;
+        this.resultedAt = Objects.requireNonNull(when, "when");
+        this.resultStatus = TicketResultStatus.OVERRIDDEN;
+        this.settlementStatus = TicketSettlementStatus.UNSETTLED;
+        touch(when);
+    }
+
+    public void settle(Instant when) {
+        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
+            throw new IllegalStateException("Only resulted tickets can be settled");
+        }
+        this.settlementStatus = TicketSettlementStatus.SETTLED;
+        touch(when);
+    }
+
+    private void requireSaleStatus(TicketSaleStatus expected) {
+        if (this.saleStatus != expected) {
+            throw new IllegalStateException("Expected " + expected + " but was " + saleStatus);
+        }
+    }
+
+    private void touch(Instant when) {
+        this.updatedAt = Objects.requireNonNull(when, "when");
+    }
+
+    public List<TicketLine> getLines() {
+        return List.copyOf(lines);
+    }
+
+    private static String requireNonBlank(String v, String field) {
+        if (v == null || v.isBlank()) throw new IllegalArgumentException(field + " must be non-blank");
+        return v;
+    }
+
+    private static BigDecimal requireNonNeg(BigDecimal v, String field) {
+        if (v.signum() < 0) throw new IllegalArgumentException(field + " must be >= 0");
+        return v;
+    }
 }

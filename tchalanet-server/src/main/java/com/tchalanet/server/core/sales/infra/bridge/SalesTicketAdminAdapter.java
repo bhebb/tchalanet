@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.infra.bridge;
 
-import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.TenantId;

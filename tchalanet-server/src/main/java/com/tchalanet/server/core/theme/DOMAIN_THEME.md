@@ -1,3 +1,5 @@
+> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/catalog.md` (theme overview)
+
 # Domaine Theme
 
 ## 1. Rôle du domaine

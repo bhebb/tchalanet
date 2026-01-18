@@ -24,7 +24,7 @@ public class PublicTicketController {
   @GetMapping("/verify/{publicCode}")
   public ResponseEntity<?> verify(@PathVariable String publicCode) {
     var q = new VerifyPublicTicketQuery(publicCode, java.time.Instant.now());
-    var res = queryBus.send(q); // TicketVerificationResult
+    var res = queryBus.send(q);
 
     if (res == null) {
       return ResponseEntity.status(404).build();

@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.pos.infra.persistence;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +9,9 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "terminal")
@@ -32,8 +35,9 @@ public class TerminalJpaEntity extends BaseTenantEntity {
   @Column(name = "inventory_tag", length = 64)
   private String inventoryTag;
 
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata", columnDefinition = "jsonb", nullable = false)
-  private String metadataJson = "{}"; // stored as jsonb
+  private JsonNode metadataJson; // stored as jsonb in DB
 
   @Column(name = "registered_at")
   private Instant registeredAt;

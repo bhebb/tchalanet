@@ -14,8 +14,6 @@
 --   - link all games to all channels
 -- ============================================
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 -- =========================
 -- 1) game (global)
 -- =========================
@@ -106,7 +104,7 @@ CREATE TABLE IF NOT EXISTS result_slot (
     provider varchar(16) NOT NULL,            -- NY/FL/GA/TN/TX
     timezone varchar(64) NOT NULL,            -- America/New_York, America/Chicago, ...
     draw_time time NOT NULL,                  -- heure locale du slot
-    days_of_week varchar(32) NOT NULL DEFAULT 'MON-SUN', -- convention simple MVP
+    days_of_week varchar(64) NOT NULL DEFAULT 'MON-SUN', -- convention simple MVP
 
     active boolean NOT NULL DEFAULT true,
     sort_order int NOT NULL DEFAULT 0,
@@ -117,6 +115,9 @@ CREATE TABLE IF NOT EXISTS result_slot (
 
     -- projection Haïti (global, par slot) - MVP
     projection_cfg jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+    -- optional label key for i18n translation lookup
+    label_key varchar(256),
 
     notes text,
 
@@ -402,6 +403,6 @@ CREATE INDEX IF NOT EXISTS ix_draw_resulted_to_settle
 -- ============================================
 -- SEED BASE (moved)
 -- The seed data (games, tenant_game, result_slot, draw_channel, draw_channel_game)
--- was extracted and moved to V46__seed_core_game_draw.sql to separate structure and data migrations.
--- Apply V46__seed_core_game_draw.sql after V7 to populate seed data.
+-- was extracted and moved to V34__seed_core_game_draw.sql to separate structure and data migrations.
+-- Apply V34__seed_core_game_draw.sql after V7 to populate seed data.
 -- ============================================

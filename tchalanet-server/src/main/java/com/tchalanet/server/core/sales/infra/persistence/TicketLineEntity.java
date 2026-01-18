@@ -22,7 +22,7 @@ public class TicketLineEntity extends BaseEntity {
   @Column(name = "game_code", nullable = false, length = 32)
   private String gameCode;
 
-  @Column(name = "selection", nullable = false)
+  @Column(name = "selection", nullable = false, length = 32)
   private String selection;
 
   @Column(name = "stake", nullable = false, precision = 12, scale = 2)
@@ -34,7 +34,10 @@ public class TicketLineEntity extends BaseEntity {
   @Column(name = "potential_payout", nullable = false, precision = 14, scale = 2)
   private BigDecimal potentialPayout;
 
+  @Column(name = "bet_option")
+  private Short betOption;
+
   @Enumerated(EnumType.STRING)
-  @Column(name = "bet_type", nullable = false)
+  @Column(name = "bet_type", nullable = false, length = 32)
   private BetType betType;
 }

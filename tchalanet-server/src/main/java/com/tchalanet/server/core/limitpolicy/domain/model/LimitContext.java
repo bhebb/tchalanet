@@ -32,10 +32,10 @@ public record LimitContext(
       BetType betType,
       String selectionKey,
       BigDecimal stake,
-      BigDecimal optionalMultiplier // default 1
+      Short betOption // nullable; matches TicketLine.betOption
       ) {
     public BetLine(BetType betType, String selectionKey, BigDecimal stake) {
-      this(betType, selectionKey, stake, BigDecimal.ONE);
+      this(betType, selectionKey, stake, null);
     }
   }
 }

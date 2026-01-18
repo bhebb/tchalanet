@@ -1,17 +1,20 @@
 package com.tchalanet.server.core.sales.application.query.model;
 
 import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import org.springframework.data.domain.Pageable;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
 /** Query to list tickets. */
-public record ListTicketsQuery(TicketFilter filter, PageRequest pageRequest)
-    implements Query<ListTicketsQuery.PagedResult<ListTicketsQuery.TicketSummaryDto>> {
+public record ListTicketsQuery(TicketFilter filter, Pageable pageRequest)
+    implements Query<TchPage<ListTicketsQuery.TicketSummaryDto>> {
 
   /** Filter for tickets. */
   public record TicketFilter(
@@ -23,17 +26,11 @@ public record ListTicketsQuery(TicketFilter filter, PageRequest pageRequest)
       Instant to // optional
       ) {}
 
-  /** Page request. */
-  public record PageRequest(
-      int page, // 0-based
-      int size) {}
-
   /** Paged result. */
-  public record PagedResult<T>(List<T> items, long totalItems, int totalPages, int currentPage) {}
 
   /** DTO for ticket summary. */
   public record TicketSummaryDto(
-      com.tchalanet.server.common.types.id.TicketId id,
+      TicketId id,
       String ticketCode,
       String publicCode,
       TicketStatus status,

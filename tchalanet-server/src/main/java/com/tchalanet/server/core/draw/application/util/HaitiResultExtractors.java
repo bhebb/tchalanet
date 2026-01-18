@@ -35,3 +35,4 @@ public final class HaitiResultExtractors {
     return n.isTextual() ? n.asText() : n.toString();
   }
 }
+

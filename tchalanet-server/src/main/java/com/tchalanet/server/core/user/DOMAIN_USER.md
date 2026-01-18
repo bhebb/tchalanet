@@ -1,5 +1,7 @@
 # DOMAIN_USER.md — Domaine User (core.user)
 
+> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/accesscontrol.md` (user/access interplay)
+
 ## 1) Scope
 
 ### Responsabilité principale
@@ -250,3 +252,59 @@ Consumers potentiels (features):
 - [ ] keycloak_id unique, app_user.id généré DB
 - [ ] Preferences CRUD sans invariants (sinon CQRS)
 - [ ] Aucun accès direct aux repos accesscontrol depuis user
+
+# Domaine core.user — Profils & Identités (hors auth)
+
+> Gère les profils utilisateur (métadonnées, rôles par tenant) indépendamment d’auth Keycloak.
+
+---
+
+## 1. Rôle du domaine
+
+- Gérer meta/profil utilisateur.
+- Associer rôles/permissions par tenant.
+
+**Ne fait pas**
+
+- Auth (Keycloak).
+
+---
+
+## 2. Modèle & invariants
+
+- `UserProfile`: id, name, email, phone, status.
+- Invariants:
+  - Email normalisé; phone validé.
+
+---
+
+## 3. Use Cases
+
+- `CreateUserProfileCommandHandler`
+- `AssignUserRoleCommandHandler`
+- `ListTenantUsersQueryHandler`
+
+---
+
+## 4. Ports
+
+- `UserProfileRepoPort`
+- `UserTenantRoleRepoPort`
+
+---
+
+## 5. Intégrations
+
+- accesscontrol pour vérification.
+
+---
+
+## 6. Notes techniques
+
+- Multi-tenant; wrappers ID.
+
+---
+
+## 7. Incohérences / TODO
+
+- Alignement avec Keycloak (sync, mapping champs).

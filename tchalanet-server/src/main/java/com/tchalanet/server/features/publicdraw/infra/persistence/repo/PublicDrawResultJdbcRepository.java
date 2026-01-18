@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.publicdraw.infra.persistence.repo;
 
+import com.tchalanet.server.catalog.drawresult.domain.model.DrawResultStatus;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.features.publicdraw.infra.persistence.PublicDrawResultRow;
 import java.sql.Date;
@@ -436,11 +437,11 @@ public class PublicDrawResultJdbcRepository implements PublicDrawResultRepositor
     }
 
     @Override
-    public com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus getStatus() {
+    public DrawResultStatus getStatus() {
       // si ton interface PublicDrawResultRow attend un enum, convertis ici
       return status == null
           ? null
-          : com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus.valueOf(status);
+          : DrawResultStatus.valueOf(status);
     }
 
     @Override

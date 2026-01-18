@@ -20,8 +20,7 @@ import org.hibernate.type.SqlTypes;
             name = "uq_draw_channel_tenant_code",
             columnNames = {"tenant_id", "code"}),
     indexes = {
-      @Index(name = "ix_draw_channel_tenant_active", columnList = "tenant_id, active, sort_order"),
-      @Index(name = "ix_draw_channel_provider", columnList = "external_provider")
+      @Index(name = "ix_draw_channel_tenant_active", columnList = "tenant_id, active, sort_order")
     })
 @Getter
 @Setter
@@ -51,16 +50,13 @@ public class DrawChannelJpaEntity extends BaseTenantEntity {
   @Column(name = "sort_order", nullable = false)
   private int sortOrder = 0;
 
-  @Column(name = "external_provider", nullable = false, length = 32)
-  private String externalProvider; // NY/FL/GA/TN
+   @Column(name = "flags", nullable = false, columnDefinition = "jsonb")
+   @JdbcTypeCode(SqlTypes.JSON)
+   private JsonNode flags;
 
-  @Column(name = "flags", nullable = false, columnDefinition = "jsonb")
-  @JdbcTypeCode(SqlTypes.JSON)
-  private JsonNode flags;
+   @Column(name = "notes")
+   private String notes;
 
-  @Column(name = "notes")
-  private String notes;
-
-  @Column(name = "result_slot_id", nullable = false)
-  private UUID resultSlotId; // FK vers result_slot.id
-}
+   @Column(name = "result_slot_id", nullable = false)
+   private UUID resultSlotId; // FK vers result_slot.id
+ }

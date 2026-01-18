@@ -12,6 +12,9 @@ CREATE TABLE outlet (
 
   tenant_id  uuid NOT NULL REFERENCES tenant(id),
 
+  -- optional address reference for physical outlets
+  address_id uuid,
+
   name       text   NOT NULL,
   slug       citext NOT NULL,
 
@@ -54,6 +57,24 @@ CREATE INDEX IF NOT EXISTS ix_outlet_tenant_active
 CREATE INDEX IF NOT EXISTS ix_outlet_tenant_sales_blocked
   ON outlet(tenant_id, sales_blocked)
   WHERE deleted_at IS NULL;
+
+-- Index on address_id for faster lookups
+CREATE INDEX IF NOT EXISTS ix_outlet_address_id ON outlet(address_id);
+
+-- Foreign key to address table (if present)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'address') THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu
+        ON tc.constraint_name = kcu.constraint_name
+      WHERE tc.table_name = 'outlet' AND tc.constraint_type = 'FOREIGN KEY'
+        AND kcu.column_name = 'address_id') THEN
+      ALTER TABLE outlet ADD CONSTRAINT fk_outlet_address_id FOREIGN KEY (address_id) REFERENCES address(id);
+    END IF;
+  END IF;
+END$$;
 
 -- Trigger updated_at (si tu as la fonction utilitaire)
 DO $$

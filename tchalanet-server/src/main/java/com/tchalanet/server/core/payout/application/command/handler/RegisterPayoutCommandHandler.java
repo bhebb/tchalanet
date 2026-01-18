@@ -7,7 +7,6 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
-import com.tchalanet.server.common.types.enums.TicketStatus;
 import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
 import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;

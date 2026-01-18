@@ -1,20 +1,6 @@
 # Domaine Tenant — Tchalanet
 
-## Table des matières
-
-1. [Rôle du domaine Tenant](#r%C3%B4le-du-domaine-tenant)
-2. [Responsabilités](#responsabilit%C3%A9s)
-3. [Modèle métier (Domain Model)](#mod%C3%A8le-m%C3%A9tier-domain-model)
-4. [Cycle de vie (State Machine)](#cycle-de-vie-state-machine)
-5. [Persistance (table tenant)](#persistance-table-tenant)
-6. [Ports & Adapters (Hexagonal)](#ports--adapters-hexagonal)
-7. [Événements de domaine](#%C3%A9v%C3%A9nements-de-domaine)
-8. [Cache](#cache)
-9. [AppSettings & Tenant](#appsettings--tenant)
-10. [API Web (Admin)](#api-web-admin)
-11. [Ce que le domaine Tenant ne fera jamais](#ce-que-le-domaine-tenant-ne-fera-jamais)
-
----
+> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/catalog.md` (tenant overview)
 
 ## 1. Rôle du domaine Tenant
 
@@ -219,4 +205,60 @@ Exemples d'endpoints :
 
 ---
 
-_Document réorganisé pour lisibilité — contenu inchangé._
+# Domaine core.tenant — Tenants & Config
+
+> Gère les tenants (identité, codes, statut) et leurs configurations (thèmes, i18n overrides, limites). Domaine transversal.
+
+---
+
+## 1. Rôle du domaine
+
+- CRUD tenant (admin).
+- Fournir `TenantConfig` (limits, theme, i18n, games mapping).
+
+**Ne fait pas**
+
+- Auth (Keycloak).
+- RLS infra (géré en common).
+
+---
+
+## 2. Modèle & invariants
+
+- `Tenant`: id, code, name, status.
+- `TenantConfig`: params.
+- Invariants:
+  - `code` unique.
+
+---
+
+## 3. Use Cases
+
+- `CreateTenantCommandHandler`
+- `UpdateTenantConfigCommandHandler`
+- `GetTenantConfigQueryHandler`
+
+---
+
+## 4. Ports
+
+- `TenantRepoPort`
+- `TenantConfigRepoPort`
+
+---
+
+## 5. Intégrations
+
+- theme/i18n/catalog/game/limitpolicy.
+
+---
+
+## 6. Notes techniques
+
+- Multi-tenant; wrappers ID; MapStruct.
+
+---
+
+## 7. Incohérences / TODO
+
+- Confirmer structure `TenantConfig` et séparation par modules.
