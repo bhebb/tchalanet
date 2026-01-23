@@ -5,13 +5,13 @@ import com.tchalanet.server.catalog.theme.internal.cache.ThemeCacheNames;
 import com.tchalanet.server.catalog.theme.internal.mapper.ThemePresetMapper;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaEntity;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaRepository;
+import com.tchalanet.server.common.types.id.ThemePresetId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +35,8 @@ public class ThemePresetAdminService {
 
     @Transactional
     @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
-    public ThemePresetView update(UUID id, ThemePresetUpdateRequest req) {
-        var e = repo.findById(id).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
+    public ThemePresetView update(ThemePresetId id, ThemePresetUpdateRequest req) {
+        var e = repo.findById(id.value()).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
         if (req.code() != null) e.setCode(req.code());
         if (req.vendor() != null) e.setVendor(req.vendor());
         if (req.configAsString() != null) e.setConfig(req.configAsString());
@@ -48,8 +48,8 @@ public class ThemePresetAdminService {
 
     @Transactional
     @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
-    public void softDelete(UUID id) {
-        var e = repo.findById(id).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
+    public void softDelete(ThemePresetId id) {
+        var e = repo.findById(id.value()).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
         e.setDeletedAt(Instant.now());
         e.setActive(false); // archive: mark inactive as well
         repo.save(e);

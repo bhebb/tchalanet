@@ -4,12 +4,12 @@ import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService
 import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService.ThemePresetCreateRequest;
 import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService.ThemePresetUpdateRequest;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
+import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/platform/theme-presets")
@@ -26,13 +26,13 @@ public class ThemeAdminController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<ThemePresetView> update(@PathVariable UUID id, @RequestBody ThemePresetUpdateRequest req) {
+    public ApiResponse<ThemePresetView> update(@PathVariable ThemePresetId id, @RequestBody ThemePresetUpdateRequest req) {
         var updated = admin.update(id, req);
         return ApiResponse.success(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable UUID id) {
+    public ApiResponse<Void> delete(@PathVariable ThemePresetId id) {
         admin.softDelete(id);
         return ApiResponse.success(null);
     }
