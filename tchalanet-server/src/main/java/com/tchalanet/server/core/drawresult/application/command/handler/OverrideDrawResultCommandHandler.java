@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.application.command.handler;
+package com.tchalanet.server.core.drawresult.application.command.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -6,12 +6,12 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.contracts.results.SourceFlags;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.ResultQuality;
-import com.tchalanet.server.catalog.drawresult.application.command.model.OverrideDrawResultCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.OverrideDrawResultResult;
-import com.tchalanet.server.catalog.drawresult.application.service.ResultSlotTimes;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResultStatus;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultResult;
+import com.tchalanet.server.core.drawresult.application.service.ResultSlotTimes;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import java.time.Instant;
 import java.util.Locale;

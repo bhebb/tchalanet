@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.infra.web.model;
+package com.tchalanet.server.core.drawresult.infra.web.model;
 
 import java.util.List;
 

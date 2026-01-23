@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.resultslot.internal.infra.persistence;
+package com.tchalanet.server.catalog.resultslot.internal.persistence;
 
 import java.util.List;
 import java.util.Optional;

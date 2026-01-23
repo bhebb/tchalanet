@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.application.command.handler;
+package com.tchalanet.server.core.drawresult.application.command.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,13 +9,13 @@ import com.tchalanet.server.common.contracts.results.ExternalResultOutput;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
-import com.tchalanet.server.catalog.drawresult.application.command.model.FetchExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.FetchExternalResultsWindowResult;
-import com.tchalanet.server.catalog.drawresult.application.port.out.ExternalResultsFetchPort;
-import com.tchalanet.server.catalog.drawresult.infra.config.DrawResultsProperties;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.HaitiProjectionConfigPort;
-import com.tchalanet.server.catalog.drawresult.internal.util.SourceResultBuilder;
+import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.application.port.out.ExternalResultsFetchPort;
+import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.drawresult.internal.util.SourceResultBuilder;
 import com.tchalanet.server.core.haiti.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import java.time.Clock;

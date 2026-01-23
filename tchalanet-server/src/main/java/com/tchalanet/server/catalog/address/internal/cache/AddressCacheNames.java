@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.address.cache;
+package com.tchalanet.server.catalog.address.internal.cache;
 
 public final class AddressCacheNames {
   private AddressCacheNames() {}

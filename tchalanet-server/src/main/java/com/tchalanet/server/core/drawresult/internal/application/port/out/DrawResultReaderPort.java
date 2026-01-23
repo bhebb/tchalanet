@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.internal.application.port.out;
+package com.tchalanet.server.core.drawresult.internal.application.port.out;
 
 /**
  * Deprecated internal location. Use `catalog.drawresult.api.DrawResultReaderPort` from outside the module.

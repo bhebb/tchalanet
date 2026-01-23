@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

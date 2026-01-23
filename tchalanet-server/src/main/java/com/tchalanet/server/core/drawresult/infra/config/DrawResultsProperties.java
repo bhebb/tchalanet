@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.infra.config;
+package com.tchalanet.server.core.drawresult.infra.config;
 
 import lombok.Getter;
 import lombok.Setter;

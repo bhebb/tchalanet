@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.application.event;
 
-import com.tchalanet.server.catalog.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;

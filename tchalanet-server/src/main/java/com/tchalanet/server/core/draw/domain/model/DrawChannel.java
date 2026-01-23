@@ -3,7 +3,7 @@ package com.tchalanet.server.core.draw.domain.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;

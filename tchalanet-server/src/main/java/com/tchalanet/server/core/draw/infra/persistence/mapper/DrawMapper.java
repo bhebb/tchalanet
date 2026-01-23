@@ -6,7 +6,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import org.mapstruct.Mapper;

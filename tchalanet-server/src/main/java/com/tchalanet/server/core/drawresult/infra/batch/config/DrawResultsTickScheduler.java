@@ -1,9 +1,9 @@
-package com.tchalanet.server.catalog.drawresult.infra.batch.config;
+package com.tchalanet.server.core.drawresult.infra.batch.config;
 
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.infra.config.DrawResultsProperties;
+import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import java.time.*;
 import java.util.*;

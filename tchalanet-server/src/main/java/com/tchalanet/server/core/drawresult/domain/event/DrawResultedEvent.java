@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.domain.event;
+package com.tchalanet.server.core.drawresult.domain.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.types.id.TenantId;

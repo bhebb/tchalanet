@@ -1,9 +1,9 @@
-package com.tchalanet.server.catalog.drawresult.infra.web.mapper;
+package com.tchalanet.server.core.drawresult.infra.web.mapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
-import com.tchalanet.server.catalog.drawresult.infra.web.model.DrawResultResponse;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
+import com.tchalanet.server.core.drawresult.infra.web.model.DrawResultResponse;
 import org.springframework.stereotype.Component;
 
 @Component

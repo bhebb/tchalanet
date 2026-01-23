@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.pricing;
 
-import com.tchalanet.server.catalog.pricing.cache.PricingCacheNames;
+import com.tchalanet.server.catalog.pricing.internal.cache.PricingCacheNames;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

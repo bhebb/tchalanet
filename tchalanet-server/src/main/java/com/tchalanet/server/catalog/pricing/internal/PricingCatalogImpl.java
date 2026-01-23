@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.pricing.internal;
 
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
-import com.tchalanet.server.catalog.pricing.cache.PricingCacheNames;
+import com.tchalanet.server.catalog.pricing.internal.cache.PricingCacheNames;
 import com.tchalanet.server.catalog.pricing.internal.persistence.PricingOddsEntity;
 import com.tchalanet.server.catalog.pricing.internal.persistence.PricingOddsJpaRepository;
 import com.tchalanet.server.common.types.enums.BetType;

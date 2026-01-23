@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.infra.web.ops.model;
+package com.tchalanet.server.core.drawresult.infra.web.ops.model;
 
 import java.time.LocalDate;
 import java.util.List;

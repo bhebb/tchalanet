@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.internal.util;
+package com.tchalanet.server.core.drawresult.internal.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

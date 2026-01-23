@@ -10,7 +10,7 @@ import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.stats.aggregates.application;
 
-import com.tchalanet.server.catalog.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawEntity;

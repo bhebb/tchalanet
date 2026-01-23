@@ -1,14 +1,14 @@
-package com.tchalanet.server.catalog.drawresult.internal.infra.persistence.adapter;
+package com.tchalanet.server.core.drawresult.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.catalog.drawresult.api.DrawResultsCriteria;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.mapper.DrawResultMapper;
-import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.repo.DrawResultJdbcRepository;
-import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.repo.DrawResultJpaRepository;
+import com.tchalanet.server.core.drawresult.api.DrawResultsCriteria;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.mapper.DrawResultMapper;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJdbcRepository;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.pricing.cache;
+package com.tchalanet.server.catalog.pricing.internal.cache;
 
 /** Noms de cache publics pour le catalogue pricing. */
 public final class PricingCacheNames {

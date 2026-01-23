@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.resultslot.cache;
+package com.tchalanet.server.catalog.resultslot.internal.cache;
 
 /** Noms de cache publics pour le catalog resultslot. */
 public final class ResultSlotCacheNames {

@@ -1,9 +1,9 @@
-package com.tchalanet.server.catalog.drawresult.internal.infra.persistence.repo;
+package com.tchalanet.server.core.drawresult.internal.infra.persistence.repo;
 
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResultStatus;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.DrawResultJpaEntity;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.DrawResultJpaEntity;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

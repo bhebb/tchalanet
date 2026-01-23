@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.api;
+package com.tchalanet.server.core.drawresult.api;
 
 import java.time.LocalDate;
 import org.springframework.data.domain.Pageable;

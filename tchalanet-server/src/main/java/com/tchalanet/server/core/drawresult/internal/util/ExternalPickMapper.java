@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.internal.util;
+package com.tchalanet.server.core.drawresult.internal.util;
 
 import com.tchalanet.server.common.contracts.results.ExternalResultOutput;
 import com.tchalanet.server.core.haiti.domain.lottery.model.ExternalPick;

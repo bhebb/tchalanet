@@ -1,12 +1,12 @@
-package com.tchalanet.server.catalog.drawresult.application.command.handler;
+package com.tchalanet.server.core.drawresult.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.FetchExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RefreshExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowResult;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 

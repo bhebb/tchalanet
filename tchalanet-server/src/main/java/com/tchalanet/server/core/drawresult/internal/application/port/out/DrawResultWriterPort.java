@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.internal.application.port.out;
+package com.tchalanet.server.core.drawresult.internal.application.port.out;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawResultId;

@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.application.command.model;
+package com.tchalanet.server.core.drawresult.application.command.model;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
 

@@ -1,6 +1,6 @@
-package com.tchalanet.server.catalog.drawresult.internal.infra.persistence.repo;
+package com.tchalanet.server.core.drawresult.internal.infra.persistence.repo;
 
-import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.DrawResultJpaEntity;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.DrawResultJpaEntity;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

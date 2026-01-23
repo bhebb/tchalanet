@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.application.command.handler;
+package com.tchalanet.server.core.drawresult.application.command.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,13 +8,13 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RecordManualDrawResultCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RecordManualDrawResultResult;
-import com.tchalanet.server.catalog.drawresult.application.service.ResultSlotTimes;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResultStatus;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawSource;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.drawresult.application.command.model.RecordManualDrawResultCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.RecordManualDrawResultResult;
+import com.tchalanet.server.core.drawresult.application.service.ResultSlotTimes;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.haiti.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.domain.lottery.model.ExternalPick;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;

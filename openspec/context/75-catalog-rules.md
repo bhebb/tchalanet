@@ -1,176 +1,324 @@
-# Conventions — Catalogs (CRUD & Exposure)
+# OpenSpec — Catalog Rules (75)
 
-## Goal
-
-Catalogs are **reference / lookup** domains:
-
-- read-mostly
-- small or bounded datasets
-- stable contracts for other layers
-- minimal business logic (ideally none)
-
-Catalogs MUST remain safe to consume and MUST NOT leak internal persistence.
+> **Scope**: Backend (`tchalanet-server`)
+> **Applies to**: all modules under `com.tchalanet.server.catalog.*`
+> **Status**: NORMATIVE
+> **Purpose**: structural + technical rules (NOT functional)
 
 ---
 
-## 1) Spring Data REST is forbidden
+## 1. What a Catalog IS (definition)
 
-**Spring Data REST (SDR)** MUST NOT be used for catalogs.
+A **Catalog** is a **reference data module**.
 
-### Forbidden
+It provides:
+
+- stable identifiers
+- lookup data
+- configuration or registries
+- read-mostly datasets
+
+Catalogs are **not business domains**.
+
+They do **not**:
+
+- enforce business invariants
+- manage lifecycles
+- orchestrate flows
+- emit domain events
+- own transactional rules
+
+👉 Functional meaning lives in `DOMAIN_*.md`, not here.
+
+---
+
+## 2. What a Catalog is NOT
+
+A catalog is NOT:
+
+- a core domain
+- a workflow engine
+- a state machine
+- a transaction boundary
+- an integration orchestrator
+
+If a module:
+
+- reacts to events
+- drives lifecycle changes
+- creates or mutates business entities
+
+➡️ it belongs in **`core/`**, not in `catalog/`.
+
+---
+
+## 3. Mandatory Read / Write separation (KEY RULE)
+
+Catalogs **MUST separate read and write responsibilities**.
+
+### 3.1 Read side = Catalog API
+
+**Read access** is exposed via a **Catalog API**.
+
+**Location**:
+
+- `catalog/<name>/api`
+
+**Contains**:
+
+- `XCatalog` (interface)
+- `XView` (DTO)
+- optional `XSearchCriteria`
+
+**Rules**:
+
+- read-only
+- side-effect free
+- cache-friendly
+- consumed by `core/` and `features/`
+- MUST NOT depend on `internal/*`
+
+**Example**:
+
+```java
+public interface AddressCatalog {
+  List<AddressView> listActive();
+  Optional<AddressView> findById(AddressId id);
+}
+```
+
+### 3.2 Read implementation = CatalogImpl
+
+Implementation of the read contract.
+
+**Location**:
+
+- `catalog/<name>/internal/read`
+
+**Rules**:
+
+- implements `XCatalog`
+- reads from persistence
+- applies filtering (`active`, `deleted_at`)
+- performs caching
+- maps Entity → View
+- NEVER performs writes
+- NEVER emits events
+- NEVER exposed as a controller
+
+**Naming**:
+
+- `XCatalogImpl` (MANDATORY)
+
+### 3.3 Write side = Admin Service
+
+All writes go through a write-only service.
+
+**Location**:
+
+- `catalog/<name>/internal/write`
+
+**Rules**:
+
+- create / update / delete
+- validation
+- soft-delete when applicable
+- cache eviction
+- mapping to View (if returning data)
+- NOT used by `core/` or `features/`
+- ONLY called by admin controllers
+
+**Naming**:
+
+- `XAdminService` (preferred) or `XWriteService`
+
+---
+
+## 4. Controllers (Admin CRUD only)
+
+Catalogs MUST NOT expose repositories or entities directly.
+
+**Controllers**:
+
+- `catalog/<name>/internal/web`
+
+**Rules**:
+
+- admin only (`SUPER_ADMIN` / `TENANT_ADMIN`)
+- thin controllers
+- no persistence access
+- no mapping logic
+- no cache logic
+- delegate to write services
+
+**Controllers MUST**:
+
+- call write service
+- return `ApiResponse<T>`
+- never return JPA entities
+
+---
+
+## 5. Mapping (STRICT)
+
+Mapping is internal-only.
+
+**Location**:
+
+- `catalog/<name>/internal/mapper`
+
+**Rules**:
+
+- Entity → View mapping only
+- API MUST NOT contain mapping code
+- Controllers MUST NOT map entities
+- Services MAY call mappers
+- Prefer MapStruct
+- Reuse `CommonIdMapper` for ID wrappers
+
+**Required mapper methods**:
+
+- `XView toView(XJpaEntity e);`
+- `List<XView> toViews(List<XJpaEntity> entities);`
+
+---
+
+## 6. Persistence
+
+Persistence is internal.
+
+**Location**:
+
+- `catalog/<name>/internal/persistence`
+
+**Rules**:
+
+- JPA entities only
+- repositories internal-only
+- soft-delete preferred
+- no Spring Data REST
+
+🚫 FORBIDDEN:
 
 - `@RepositoryRestResource`
-- `@RestResource`
-- exposing JPA entities directly through SDR endpoints
-
-### Rationale
-
-- leaks internal JPA structure (`internal.infra.persistence.*`)
-- bypasses validation, authorization, and cache eviction rules
-- makes API evolution and security harder
-- creates hidden surface area (endpoints you did not design)
-
-**Conclusion**: DO NOT use Spring Data REST for the Catalogs.
+- exposing repositories as HTTP APIs
 
 ---
 
-## 2) Read contract (public API)
+## 7. Cache rules (INTERNAL ONLY)
 
-Each catalog MUST expose a **read-only contract** under the package:
+Cache is an implementation detail.
 
-```
-com.tchalanet.server.catalog.<name>.api
-```
+**Location**:
 
-Example:
+- `catalog/<name>/internal/cache`
 
-- `ResultSlotCatalog`
-- `ResultSlotView`
+**Rules**:
 
-Rules:
+- cache names defined here
+- read side uses `@Cacheable`
+- write side performs `@CacheEvict`
+- API MUST NOT reference cache
 
-- methods are **side-effect free**
-- methods MUST NOT emit domain events
-- methods MUST NOT perform orchestration
-- DTOs are flat, immutable, cache-friendly
-- internal details are not leaked (entities/ports/adapters remain internal)
+**Recommended cache names**:
 
-Typical shape:
-
-```java
-public interface XCatalog {
-  List<XView> listActive();
-  Optional<XView> findByKey(String key);
-  XView requireByKey(String key);
-}
-```
+- `catalog:<name>:active`
+- `catalog:<name>:by_id`
+- `catalog:<name>:by_key`
 
 ---
 
-## 3) Internal persistence and implementation
+## 8. LIST vs PAGE (important)
 
-Persistence belongs to internal packages, for example:
+**Default rule**:
 
-- `catalog.<name>.internal.infra.persistence`
-- `catalog.<name>.internal.*`
+Catalogs MUST expose LIST APIs by default.
 
-Guidelines:
+Paging is NOT automatic.
 
-- `JpaRepository` implementations are allowed and remain internal-only.
-- Repositories MUST NOT be exposed via SDR.
-- Paging is not required unless the dataset is truly large (in which case an ADR is required).
+**Paging is allowed ONLY if**:
+
+- dataset can grow large
+- search criteria exist
+- justified in domain documentation
+
+**Examples**:
+
+- Address → PAGE allowed
+- ResultSlot, Game, Pricing → LIST only
+
+**Paging requires**:
+
+- `TchPage<T>`
+- `TchPageRequest`
+- justification in `DOMAIN_<X>.md`
 
 ---
 
-## 4) Write side (admin CRUD)
+## 9. Dependency rules (STRICT)
 
-Catalog writes MUST be implemented via a Controller (web boundary) + Service (write logic).
+- `catalog/*/api` MUST NOT depend on `internal/*`
+- `core/` MAY read from catalog APIs
+- `catalog/` MUST NOT emit domain events
+- `catalog/` MUST NOT depend on `core/`
+- `features/` MAY orchestrate catalog + core
 
-**NOT** via repository exposure (SDR).
+**Allowed graph**:
 
-Recommended packages:
-
-- Controller: `catalog.<name>.internal.infra.web`
-- Service: `catalog.<name>.internal.admin` (or `internal.application`)
-
-Write rules:
-
-- Validate input in controller/service (do not rely on DB errors for validation).
-- Enforce authorization (e.g. `SUPER_ADMIN` or `TENANT_ADMIN` depending on catalog scope).
-- Use soft-delete when applicable (`deleted_at`).
-- Perform cache eviction on write handlers/services (create/update/delete).
-- Admin endpoints MUST return the standard `ApiResponse<T>` wrapper for all 2xx responses.
-
-Example pattern (simplified):
-
-```java
-@RestController
-@RequestMapping("/platform/x")
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
-class XAdminController {
-  private final XAdminService admin;
-
-  @GetMapping("/active")
-  public ApiResponse<List<XView>> listActive() {
-    return ApiResponse.success(admin.listActive());
-  }
-
-  @PostMapping
-  public ApiResponse<XView> create(@RequestBody @Valid CreateXRequest req) {
-    var created = admin.create(req);
-    return ApiResponse.created(mapper.toView(created));
-  }
-}
+```
+common
+↑
+catalog     core
+↑       ↑
+└── features
 ```
 
 ---
 
-## 5) Cache policy
+## 10. Documentation split (VERY IMPORTANT)
 
-- Catalog reads SHOULD be cached (long TTL recommended).
-- Recommended cache names:
-  - `catalog:<name>:active`
-  - `catalog:<name>:by_key`
+This file (75):
 
-Eviction:
+- structure
+- layering
+- responsibilities
+- technical constraints
 
-- MUST happen on write handlers/services (create/update/delete).
-- Read implementations MUST remain side-effect free.
+`DOMAIN_<X>.md`:
 
-Cache constants location:
+- functional meaning
+- business intent
+- examples
+- data semantics
+- lifecycle explanations (if any)
 
-- Constants MAY live under `catalog.<name>.internal.cache` to avoid cross-domain coupling.
-
----
-
-## 6) Testing expectations
-
-Minimum expected tests:
-
-- Unit tests for read mapping and filtering (e.g. `listActive()` filters `active` and `deleted_at`).
-- Unit or slice tests verifying soft-delete filtering behavior.
-- Verify presence of `@CacheEvict` on write handlers (unit test or lightweight integration).
-- ArchUnit rules to prevent dependencies on `internal.*` packages from outside the catalog.
+Never mix both.
 
 ---
 
-## 7) Summary (non-negotiables)
+## 11. Enforcement (required)
 
-- ✅ Catalog = reference data (read‑mostly)
-- ✅ Public contract = `catalog.<name>.api`
-- ✅ Writes via Controller + Service (not SDR)
-- ✅ Repositories remain internal-only
-- ✅ Read via cache + evict on writes
-- ❌ No Spring Data REST
-- ❌ No JPA entities exposed as HTTP responses
+Add ArchUnit rules to enforce:
 
----
+- no `catalog.api` → `internal`
+- no controller returning JPA entities
+- no SDR annotations in `catalog.*`
+- controllers cannot access repositories
 
-## Enforcement / follow-up
+**Violations require**:
 
-- Add ArchUnit rules and CI checks that:
-  - prevent `@RepositoryRestResource` usage in `catalog.*`
-  - detect controllers returning JPA types from `internal.infra.persistence`
-- Document the controller/service pattern and examples in `tchalanet-server/docs/conventions/`.
+- refactor OR
+- explicit ADR
 
 ---
+
+## 12. Mental model (TL;DR)
+
+- `XCatalog` = read contract
+- `XCatalogImpl` = read provider
+- `XAdminService` = write handler
+- `Controller` = HTTP boundary
+- `Mapper` = Entity → View
+- `Catalog` = reference data only
+
+If a class does not clearly fit one of these roles → it is misplaced.

@@ -1,6 +1,6 @@
-package com.tchalanet.server.catalog.drawresult.internal.adapter;
+package com.tchalanet.server.core.drawresult.internal.adapter;
 
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiLot;
 import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionConfig;
 import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionToken;

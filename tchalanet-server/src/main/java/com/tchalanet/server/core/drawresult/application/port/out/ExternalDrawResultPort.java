@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.application.port.out;
+package com.tchalanet.server.core.drawresult.application.port.out;
 
 import java.time.Instant;
 import java.time.LocalDate;

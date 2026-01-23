@@ -1,8 +1,8 @@
-package com.tchalanet.server.catalog.drawresult.api;
+package com.tchalanet.server.core.drawresult.api;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.catalog.drawresult.api.DrawResultReaderPort;
 import java.time.Instant;
 import java.util.Optional;

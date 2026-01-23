@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.event;
 
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
-import com.tchalanet.server.catalog.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

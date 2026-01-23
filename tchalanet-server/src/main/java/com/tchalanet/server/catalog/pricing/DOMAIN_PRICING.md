@@ -1,83 +1,202 @@
-# Domaine Catalog Pricing
+# DOMAIN — Pricing (Catalog)
 
-> Référentiel des grilles de prix et paramètres associés (stakes, limits, coefficients) pour les opérations de vente. Lookup utilisé par `core.sales`.
-
----
-
-## 1. Rôle du domaine
-
-**Responsabilité principale**
-
-> Maintenir des tables de prix/paramètres (read-mostly) pour alimenter la vente et la validation.
-
-**Ce que le domaine fait**
-
-- Catalogue de pricing (règles statiques ou semi-statiques).
-- Expose lookup pour la vente (validation stake, affichage UI).
-- (Optionnel) Variantes tenantisées si nécessaire.
-
-**Ce que le domaine ne fait pas**
-
-- Calcul de gains (payout/winning) — core.payout.
-- Règles de limites dynamiques — core.limitpolicy.
+> **Module**: `catalog.pricing`  
+> **Type**: Catalog (reference data)  
+> **Status**: STABLE  
+> **Layer**: `catalog/`  
+> **Audience**: Backend, Product, Ops
 
 ---
 
-## 2. Modèle métier (agrégats / entités)
+## 1. Purpose
 
-### Entités / agrégats principaux
+The **Pricing catalog** defines the **odds, multipliers, and pricing parameters** used to calculate ticket payouts.
 
-- `PricingTable` — (id, code, name, jsonSpec, status).
-- (Optionnel) `TenantPricing` — mapping tenant ↔ pricing.
+It acts as a **reference table** consumed by core domains at runtime.
 
-### Invariants métier
+Pricing data is:
 
-- `code` unique.
-
-> Valeur métier clé :
-> Servir de référentiel pour la cohérence des prix et des validations côté vente.
-
----
-
-## 3. Cas d’utilisation (ports d’entrée)
-
-- `ListPricingTablesQuery` — lister.
-- `GetPricingTableQuery` — obtenir par code.
-- (Admin) `CreateOrUpdatePricingTableCommand` — maintenir le catalogue.
+- read-mostly
+- tenant-scoped
+- stable during a selling window
+- mutable only via admin configuration
 
 ---
 
-## 4. Ports de sortie (dépendances externes)
+## 2. Responsibilities
 
-- `PricingReaderPort` — lecture.
-- `PricingWriterPort` — écriture (admin).
+### What Pricing DOES
 
----
+- Store odds / multipliers per:
+  - tenant
+  - game
+  - bet type
+  - bet option
+- Provide a **read-only lookup API** for pricing resolution
+- Support **admin CRUD** for updating pricing tables
+- Allow versioned or flagged pricing configurations (future)
 
-## 5. Mapping & DTOs (convention)
+### What Pricing DOES NOT do
 
-- MapStruct pour mapping entity ↔ projection `PricingResponse`.
-- DTO d’entrée admin: `PricingRequest`.
-- IDs wrappers côté web; UUID en JPA.
+- Calculate winnings
+- Apply business rules
+- Validate tickets
+- Perform settlements
+- Emit domain events
 
----
-
-## 6. Règles métier importantes
-
-- Le JSON spec doit être validé par schéma.
-- Les changements doivent être auditables.
-
----
-
-## 7. Intégration avec les autres domaines
-
-Dépend de : aucun.
-
-Utilisé par : `core.sales`, features UI.
+All monetary logic remains in **core.sales / core.payout**.
 
 ---
 
-## 8. Notes techniques
+## 3. Conceptual model
 
-- Scoping: global (BaseEntity) ou tenant-scoped si mapping tenant.
-- SDR possible (`/_sdr/pricing`).
+### Pricing dimensions
+
+Pricing entries are uniquely defined by:
+
+- `tenant`
+- `gameCode`
+- `betType`
+- `betOption`
+
+Each entry yields:
+
+- an **odds value** or **multiplier**
+- an `active` flag
+
+### Conceptual invariant
+
+> At most one **active pricing row** exists for a given `(tenant, gameCode, betType, betOption)`.
+
+Enforcement is done at:
+
+- database level (unique constraints / soft-delete)
+- admin service validation
+
+---
+
+## 4. Read access (catalog role)
+
+Pricing is consumed as **lookup data**.
+
+Typical usage:
+
+- resolve odds at ticket placement
+- resolve multipliers at payout computation
+
+Read access must be:
+
+- deterministic
+- side-effect free
+- cacheable
+
+Example usage (conceptual):
+
+```java
+pricingCatalog.oddsFor(tenantId, gameCode, betType, betOption);
+```
+
+---
+
+## 5. Write access (admin only)
+
+Pricing configuration is updated by:
+
+- platform admins
+- tenant admins (depending on deployment rules)
+
+Write operations include:
+
+- create pricing entry
+- update odds
+- deactivate previous pricing
+- soft-delete obsolete rows
+
+Changes are not retroactive by default — already sold tickets retain their pricing context.
+
+---
+
+## 6. Multi-tenancy
+
+Pricing is tenant-scoped.
+
+Rules:
+
+- no global pricing rows
+- each tenant owns its pricing table
+- reads always require `TenantId`
+
+---
+
+## 7. Caching expectations
+
+Pricing lookups are:
+
+- high-frequency
+- low-cardinality
+- latency-sensitive
+
+Therefore:
+
+- aggressive caching is expected
+- eviction occurs only on admin writes
+
+Cache semantics are implementation details (defined in `catalog/pricing/internal/cache`).
+
+---
+
+## 8. Lifecycle & stability
+
+Pricing data:
+
+- changes infrequently
+- must be stable during a draw window
+- is not event-driven
+
+Any future need for:
+
+- pricing versioning
+- historical pricing replay
+- time-based pricing
+
+MUST be introduced via:
+
+- explicit schema changes
+- an ADR
+- likely migration toward core responsibility
+
+---
+
+## 9. Out of scope (explicit)
+
+- Promotions
+- Dynamic pricing
+- Risk management
+- Limits
+- Bonus or discount systems
+
+These belong to core or feature modules, not the Pricing catalog.
+
+---
+
+## 10. Summary
+
+| Aspect         | Decision                  |
+| -------------- | ------------------------- |
+| Type           | Catalog (reference data)  |
+| Reads          | High-frequency lookup     |
+| Writes         | Admin only                |
+| Events         | ❌ None                   |
+| Business logic | ❌ None                   |
+| Tenancy        | Tenant-scoped             |
+| Caching        | ✅ Yes                    |
+| Paging         | ❌ No                     |
+
+---
+
+## 11. Related documents
+
+- `openspec/context/75-catalog-rules.md`
+- `AGENTS.md`
+- `ARCHITECTURE.md`
+

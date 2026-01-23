@@ -1,12 +1,12 @@
-package com.tchalanet.server.catalog.drawresult.infra.web;
+package com.tchalanet.server.core.drawresult.infra.web;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.catalog.drawresult.application.query.model.ListDrawResultsQuery;
-import com.tchalanet.server.catalog.drawresult.infra.web.mapper.DrawResultWebMapper;
-import com.tchalanet.server.catalog.drawresult.infra.web.model.DrawResultResponse;
+import com.tchalanet.server.core.drawresult.application.query.model.ListDrawResultsQuery;
+import com.tchalanet.server.core.drawresult.infra.web.mapper.DrawResultWebMapper;
+import com.tchalanet.server.core.drawresult.infra.web.model.DrawResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;

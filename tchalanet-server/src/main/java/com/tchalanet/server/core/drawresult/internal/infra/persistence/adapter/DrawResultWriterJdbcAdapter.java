@@ -1,12 +1,12 @@
-package com.tchalanet.server.catalog.drawresult.internal.infra.persistence.adapter;
+package com.tchalanet.server.core.drawresult.internal.infra.persistence.adapter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.catalog.drawresult.internal.infra.cache.DrawResultCacheEvictor;
-import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.repo.DrawResultJdbcRepository;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.internal.infra.cache.DrawResultCacheEvictor;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJdbcRepository;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

@@ -1,11 +1,11 @@
-package com.tchalanet.server.catalog.drawresult.application.query.handler;
+package com.tchalanet.server.core.drawresult.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.catalog.drawresult.api.DrawResultsCriteria;
-import com.tchalanet.server.catalog.drawresult.application.query.model.ListDrawResultsQuery;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
+import com.tchalanet.server.core.drawresult.api.DrawResultsCriteria;
+import com.tchalanet.server.core.drawresult.application.query.model.ListDrawResultsQuery;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.catalog.drawresult.api.DrawResultReaderPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

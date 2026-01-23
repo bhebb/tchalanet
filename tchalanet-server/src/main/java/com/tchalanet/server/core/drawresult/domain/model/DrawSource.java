@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.domain.model;
+package com.tchalanet.server.core.drawresult.domain.model;
 
 /** Source d'un tirage: interne système, US Lottery, ou saisie manuelle. */
 public enum DrawSource {

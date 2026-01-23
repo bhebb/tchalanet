@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.drawresult.domain.model;
+package com.tchalanet.server.core.drawresult.domain.model;
 
 import static com.tchalanet.server.common.types.enums.ResultQuality.COMPLETE;
 import static com.tchalanet.server.common.types.enums.ResultQuality.SUSPECT;

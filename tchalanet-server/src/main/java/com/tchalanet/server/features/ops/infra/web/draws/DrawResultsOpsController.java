@@ -1,13 +1,13 @@
 package com.tchalanet.server.features.ops.infra.web.draws;
 
-import com.tchalanet.server.catalog.drawresult.application.command.model.FetchExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.FetchExternalResultsWindowResult;
-import com.tchalanet.server.catalog.drawresult.application.command.model.OverrideDrawResultCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.OverrideDrawResultResult;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RecordManualDrawResultCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RecordManualDrawResultResult;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
-import com.tchalanet.server.catalog.drawresult.application.command.model.RefreshExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultResult;
+import com.tchalanet.server.core.drawresult.application.command.model.RecordManualDrawResultCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.RecordManualDrawResultResult;
+import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowResult;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.bus.CommandBus;

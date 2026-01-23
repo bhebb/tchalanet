@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
-import com.tchalanet.server.catalog.drawresult.api.DrawResultCatalogBack;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
+import com.tchalanet.server.core.drawresult.api.DrawResultCatalogBack;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
