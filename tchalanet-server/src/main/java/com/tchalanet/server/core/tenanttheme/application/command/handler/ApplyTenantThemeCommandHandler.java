@@ -3,7 +3,9 @@ package com.tchalanet.server.core.tenanttheme.application.command.handler;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.tenanttheme.application.command.model.ApplyTenantThemeCommand;
 import com.tchalanet.server.core.tenanttheme.application.event.TenantThemeUpdatedEvent;
 import com.tchalanet.server.core.tenanttheme.application.port.out.TenantThemePersistencePort;
@@ -14,7 +16,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Handler for ApplyTenantThemeCommand.
@@ -32,7 +33,7 @@ public class ApplyTenantThemeCommandHandler
   private final Clock clock;
 
   @Override
-  @Transactional
+  @TchTx
   public void handle(ApplyTenantThemeCommand cmd) {
     // T3: Validate preset exists and is active
     ThemePresetView preset =
@@ -67,15 +68,16 @@ public class ApplyTenantThemeCommandHandler
 
     var saved = persistencePort.save(tenantTheme);
 
-    // T4: Publish event after commit (Spring will publish after tx)
-    var event =
-        new TenantThemeUpdatedEvent(
-            saved.tenantId(),
-            saved.presetCode(),
-            saved.version(),
-            saved.updatedAt(),
-            saved.createdBy());
-
-    eventPublisher.publishEvent(event);
+    // T4: Publish event AFTER COMMIT
+    AfterCommit.run(() -> {
+      var event =
+          new TenantThemeUpdatedEvent(
+              saved.tenantId(),
+              saved.presetCode(),
+              saved.version(),
+              saved.updatedAt(),
+              saved.createdBy());
+      eventPublisher.publishEvent(event);
+    });
   }
 }

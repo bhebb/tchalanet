@@ -64,9 +64,9 @@ Infra adapters:
 package com.tchalanet.server.core.sales.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.tx.TchTx;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.application.command.model.CancelTicketCommand;
 import com.tchalanet.server.core.sales.application.command.model.CancelTicketResult;

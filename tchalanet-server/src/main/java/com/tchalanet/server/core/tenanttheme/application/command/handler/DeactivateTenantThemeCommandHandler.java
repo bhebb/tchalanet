@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.tenanttheme.application.command.handler;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.tenanttheme.application.command.model.DeactivateTenantThemeCommand;
 import com.tchalanet.server.core.tenanttheme.application.event.TenantThemeUpdatedEvent;
 import com.tchalanet.server.core.tenanttheme.application.port.out.TenantThemePersistencePort;
@@ -10,7 +12,6 @@ import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Handler for DeactivateTenantThemeCommand.
@@ -27,7 +28,7 @@ public class DeactivateTenantThemeCommandHandler
   private final Clock clock;
 
   @Override
-  @Transactional
+  @TchTx
   public void handle(DeactivateTenantThemeCommand cmd) {
     // Check if theme exists
     var existing = readerPort.findByTenantId(cmd.tenantId());
@@ -40,16 +41,17 @@ public class DeactivateTenantThemeCommandHandler
     // Deactivate
     persistencePort.deactivate(cmd.tenantId());
 
-    // Publish event
+    // Publish event AFTER COMMIT
     var theme = existing.get();
-    var event =
-        new TenantThemeUpdatedEvent(
-            theme.tenantId(),
-            null, // deactivated
-            theme.version() + 1,
-            Instant.now(clock),
-            "system");
-
-    eventPublisher.publishEvent(event);
+    AfterCommit.run(() -> {
+      var event =
+          new TenantThemeUpdatedEvent(
+              theme.tenantId(),
+              null, // deactivated
+              theme.version() + 1,
+              Instant.now(clock),
+              "system");
+      eventPublisher.publishEvent(event);
+    });
   }
 }
