@@ -2,57 +2,81 @@
 
 ## Purpose
 
-TBD - created by archiving change catalog-theme-presets. Update Purpose after archive.
+This specification defines the tenant-scoped theme lifecycle. It governs how a Theme Preset (from `catalog/theme`) is applied, persisted, versioned, and exposed as an effective theme for a tenant.
+
+Theme preset definition and storage are explicitly out of scope and handled by `catalog/theme`.
+
+---
 
 ## Requirements
 
 ### Requirement: T1 — Apply tenant theme
 
-Le système MUST permettre l'application d'un ThemePreset pour un tenant via une commande `ApplyTenantThemeCommand`.
+The system MUST allow applying a Theme Preset to a tenant via the command `ApplyTenantThemeCommand`.
 
-- Command handler: `core/tenanttheme/application/command/handler/ApplyTenantThemeCommandHandler` MUST valider l'existence et la disponibilité du preset via `ThemePresetCatalog` avant de persister.
-- Le handler MUST persister une entité `TenantTheme` tenant-scoped (table `tenant_theme`) et incrémenter la version.
-- Après commit, le handler MUST publier un événement `TenantThemeUpdatedEvent`.
+- Command handler:
+  `core/tenanttheme/application/command/handler/ApplyTenantThemeCommandHandler`
+  MUST validate the existence and availability of the preset via `ThemeCatalog`
+  (lookup by `presetCode`) before persisting.
+- The handler MUST persist a tenant-scoped entity `TenantTheme`
+  (table `tenant_theme`) and increment the version.
+- After successful commit, the handler MUST publish a
+  `TenantThemeUpdatedEvent`.
 
 #### Scenario: appliquer un preset valide
 
 - Given : un tenant T et un preset code `dark-v1` actif dans `catalog/theme`
 - When : `ApplyTenantThemeCommand(tenantId=T, presetCode=dark-v1)` est envoyé
-- Then : `tenant_theme` contient une ligne associant T ↔ preset, version incrémentée, et `TenantThemeUpdatedEvent` est publié
+- Then :
+  - une ligne existe dans `tenant_theme` pour T
+  - `preset_code = dark-v1`
+  - la version est incrémentée
+  - `TenantThemeUpdatedEvent` est publié après commit
 
 #### Scenario: preset invalide
 
-- Given : preset `archived-theme` est soft-deleted dans `catalog/theme`
-- When : `ApplyTenantThemeCommand` pointe vers `archived-theme`
-- Then : le handler MUST rejeter la commande avec une erreur lisible (ex: NotFound/BadRequest) sans persister
+- Given : le preset `archived-theme` est soft-deleted dans `catalog/theme`
+- When : `ApplyTenantThemeCommand` référence `archived-theme`
+- Then :
+  - la commande est rejetée avec une erreur lisible
+  - aucune écriture n'est effectuée
+  - aucun événement n'est publié
 
 ---
 
 ### Requirement: T2 — TenantTheme persistence & RLS
 
-La persistance des associations tenant → preset MUST être tenant-scoped et respecter la politique RLS (Row-Level Security) appropriée.
+Tenant theme persistence MUST be tenant-scoped and enforce Row-Level Security.
 
-- Table attendue : `tenant_theme` (tenant_id, theme_preset_id, metadata JSONB, version, created_at, updated_at, created_by)
-- Les accès en lecture/écriture MUST être contrôlés par RLS policies côté base.
+- Expected table: `tenant_theme`
+  - `tenant_id`
+  - `preset_code` (or preset_id if chosen internally)
+  - `metadata` (JSONB: mode, density, overrides, etc.)
+  - `version`
+  - `created_at`, `updated_at`, `created_by`
+- All read/write access MUST be protected by Postgres RLS policies.
 
 #### Scenario: persistance tenant-scoped
 
-- Given : Postgres avec RLS activé pour `tenant_theme`
-- When : `ApplyTenantThemeCommand` écrit pour tenant T
-- Then : la ligne est insérée et visible uniquement aux sessions autorisées pour T
+- Given : Postgres with RLS enabled on `tenant_theme`
+- When : `ApplyTenantThemeCommand` writes for tenant T
+- Then :
+  - the row is inserted successfully
+  - the row is visible only to authorized sessions for tenant T
 
 ---
 
 ### Requirement: T3 — Validation & consistency
 
-Avant toute écriture, le module MUST valider que :
+Before persisting, the module MUST validate that:
 
-- le preset référencé existe et est actif dans `ThemePresetCatalog` ;
-- la commande contient un tenantId valide.
+- the referenced preset exists and is active in `ThemeCatalog`
+- the provided tenantId is valid and resolvable
 
 #### Scenario: validation cross-module
 
-- Given : catalogue contient `modern-light`; tenantId est valide
+- Given : `ThemeCatalog` contient `modern-light`
+- And : tenantId is valid
 - When : handler valide la commande
 - Then : la persistance continue
 
@@ -60,29 +84,72 @@ Avant toute écriture, le module MUST valider que :
 
 ### Requirement: T4 — Events & idempotence
 
-Les handlers MUST publier `TenantThemeUpdatedEvent` après commit et garantir l'idempotence des commandes (réessai sans duplication de state).
+Handlers MUST publish `TenantThemeUpdatedEvent` after commit and guarantee command idempotence.
 
-- Event payload : tenantId, themePresetId, version, timestamp, initiator
+- Event payload MUST include:
+  - `tenantId`
+  - `presetCode`
+  - `version`
+  - `timestamp`
+  - `initiator`
+
+Idempotence MUST be ensured via one of the following (implementation choice):
+
+- optimistic locking on `(tenant_id, version)`
+- compare-and-set on `(tenant_id, preset_code)`
+- command id / deduplication key
 
 #### Scenario: commande réessayée
 
-- Given : ApplyTenantThemeCommand a été traité partiellement (timeout avant ack)
-- When : même commande est renvoyée
-- Then : le handler doit être idempotent et produire le même état sans doublon d'événement final (ou publish de façon sûre)
+- Given : `ApplyTenantThemeCommand` was processed but client timed out
+- When : the same command is retried
+- Then :
+  - no duplicate state is created
+  - the resulting tenant theme state is consistent
+  - no duplicate final event is emitted (or emission is safely deduplicated)
 
 ---
 
-### Requirement: T5 — API porteuse (ports & handlers)
+### Requirement: T5 — Deactivate tenant theme
 
-Le module MUST exposer :
+The system MUST support deactivation or reset of a tenant theme via `DeactivateTenantThemeCommand`.
 
-- ports/out pour `TenantThemePersistencePort` (utilisé par adapters infra)
-- un contrat de commande `ApplyTenantThemeCommand` et `DeactivateTenantThemeCommand` avec handlers
+- Behavior:
+  - removes or deactivates the tenant-specific theme
+  - reverts to platform default resolution
+  - increments version
+  - publishes `TenantThemeUpdatedEvent`
+
+#### Scenario: reset tenant theme
+
+- Given : tenant T has an applied theme
+- When : `DeactivateTenantThemeCommand(tenantId=T)` is executed
+- Then :
+  - tenant-specific theme is removed or marked inactive
+  - default resolution applies
+  - an update event is published
+
+---
+
+### Requirement: T6 — API surface (ports, commands, queries)
+
+The module MUST expose:
+
+- Command contracts:
+  - `ApplyTenantThemeCommand`
+  - `DeactivateTenantThemeCommand`
+- Query contract:
+  - `ResolveTenantThemeQuery` returning the effective tenant theme
+- Outgoing ports:
+  - `TenantThemePersistencePort`
+  - (read) `TenantThemeReaderPort`
+
+Handlers MUST depend on ports only; infrastructure adapters MUST enforce RLS.
 
 #### Scenario: port abstraction
 
-- Given : impl infra pour Postgres
-- When : handler appelle `TenantThemePersistencePort.save`
-- Then : l'adapter persiste selon la politique RLS
+- Given : a Postgres persistence adapter
+- When : handler calls `TenantThemePersistencePort.save`
+- Then : the adapter persists data according to RLS policies
 
 ---
