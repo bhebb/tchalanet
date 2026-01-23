@@ -1,0 +1,213 @@
+# Theme Preset Deletion Policy Specification
+
+## Purpose
+
+This specification defines the normative policy for handling `TenantTheme` references when a `ThemePreset` is retired (soft-deleted or deactivated) in `catalog/theme`.
+
+Goal: ensure **no tenant is broken**, maintain traceability, and make "preset unavailable" state visible.
+
+---
+
+## ADDED Requirements
+
+### Requirement: DP1 — No hard delete of ThemePreset
+
+The system MUST NOT provide hard delete functionality for `ThemePreset` entities.
+
+- Allowed operations:
+  - `active=false` (depublication/deactivation)
+  - `deleted_at != NULL` (definitive retirement via soft-delete)
+- All read operations MUST filter `deleted_at IS NULL`
+- `listActive()` MUST filter `deleted_at IS NULL AND active=true`
+
+#### Scenario: admin attempts to permanently delete preset
+
+- Given: a `ThemePreset` exists with code `old-preset`
+- When: admin attempts to permanently delete the preset
+- Then: the operation is rejected (no hard delete method exists)
+- And: admin must use `deactivate()` or `softDelete()` instead
+
+#### Scenario: soft-deleted preset is filtered from reads
+
+- Given: a preset with code `archived` has `deleted_at != NULL`
+- When: `ThemeCatalog.findByCode("archived")` is called
+- Then: `Optional.empty()` is returned (filtered out)
+
+---
+
+### Requirement: DP2 — No automatic tenant theme cleanup
+
+When a preset is retired or depublished, the system MUST NOT automatically modify `tenant_theme` entries.
+
+- No cascade delete
+- No implicit reset
+- Preservation for audit, debug, and reversibility purposes
+
+#### Scenario: preset deactivation does not modify tenant themes
+
+- Given: tenant T has `tenant_theme.preset_code = "dark-v1"`
+- And: preset "dark-v1" is active
+- When: admin calls `deactivate("dark-v1")` (sets `active=false`)
+- Then: `tenant_theme` entry for tenant T remains unchanged
+- And: `tenant_theme.preset_code` still equals "dark-v1"
+
+#### Scenario: preset soft-delete does not modify tenant themes
+
+- Given: tenant T has `tenant_theme.preset_code = "old-preset"`
+- When: admin calls `softDelete("old-preset")`
+- Then: `tenant_theme` entry for tenant T remains unchanged
+- And: audit trail is preserved
+
+---
+
+### Requirement: DP3 — Mandatory fallback resolution
+
+`core/tenanttheme` MUST apply a fallback when resolving the effective theme if the referenced preset is unavailable.
+
+**Unavailable** = (preset not found) OR (preset soft-deleted) OR (preset inactive)
+
+**Fallback cascade** (in order):
+
+1. Tenant default (if `tenant.default_theme_preset_code` configured)
+2. Platform default (preset marked as default or conventional code `default-light`)
+3. Hardcoded safe preset (last resort: `default-light`)
+
+The module MUST emit a warning notice when fallback is applied:
+
+- Code: `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED`
+- Metadata: `{ tenantId, requestedPresetCode, fallbackPresetCode, timestamp }`
+
+#### Scenario: resolve theme with active preset (happy path)
+
+- Given: tenant T has `tenant_theme.preset_code = "dark-v1"`
+- And: preset "dark-v1" exists and `active=true`
+- When: `ResolveTenantThemeQuery(tenantId=T)` is executed
+- Then: the theme is resolved with preset "dark-v1"
+- And: no fallback is applied
+- And: no warning notice is emitted
+
+#### Scenario: resolve theme with inactive preset triggers fallback
+
+- Given: tenant T has `tenant_theme.preset_code = "old-preset"`
+- And: preset "old-preset" exists but `active=false`
+- And: platform default "default-light" exists and is active
+- When: `ResolveTenantThemeQuery(tenantId=T)` is executed
+- Then: fallback service is invoked
+- And: platform default "default-light" is returned
+- And: warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` is emitted
+- And: notice contains `requestedPresetCode="old-preset"`, `fallbackPresetCode="default-light"`
+
+#### Scenario: resolve theme with soft-deleted preset triggers fallback
+
+- Given: tenant T has `tenant_theme.preset_code = "archived"`
+- And: preset "archived" has `deleted_at != NULL` (filtered by reads)
+- And: tenant has no default configured
+- And: platform default "default-light" is active
+- When: `ResolveTenantThemeQuery(tenantId=T)` is executed
+- Then: fallback returns "default-light"
+- And: warning notice is emitted
+
+#### Scenario: resolve theme with not found preset triggers fallback
+
+- Given: tenant T has `tenant_theme.preset_code = "missing"`
+- And: no preset with code "missing" exists
+- And: hardcoded safe preset "default-light" is the last resort
+- When: `ResolveTenantThemeQuery(tenantId=T)` is executed
+- Then: fallback returns "default-light"
+- And: warning notice is emitted
+
+---
+
+### Requirement: DP4 — Explicit remediation opt-in
+
+The system MAY provide explicit remediation actions (future enhancement, out of MVP scope):
+
+- Admin action "migrate preset X → Y"
+- Admin action "reset tenant themes using preset X"
+- Batch migration job
+
+Such remediation MUST be **opt-in** and never implicit at the moment of preset retirement.
+
+#### Scenario: no automatic migration on preset retirement
+
+- Given: 100 tenants reference preset "old-preset"
+- When: admin retires preset "old-preset"
+- Then: no automatic migration is triggered
+- And: tenant themes remain unchanged
+- And: fallback is applied at resolution time for each tenant
+
+---
+
+## MODIFIED Requirements
+
+### Requirement: theme-preset R2 (modified) — Admin writes (internal)
+
+The catalog MUST provide an internal admin service for management operations (create / update / **deactivate** / soft-delete).
+
+- Service: `catalog/theme/internal/write/ThemePresetAdminService`
+- Return type: `ThemePresetView` (mapping via MapStruct)
+- Operations:
+  - `create(...)` → new preset
+  - `update(...)` → modify preset
+  - **`deactivate(ThemePresetId)` → set `active=false` only**
+  - `softDelete(ThemePresetId)` → set `deleted_at=now()` AND `active=false`
+- **Hard delete operation MUST NOT exist**
+- Cache invalidation MUST evict:
+  - `catalog.theme.cache.ACTIVE_PRESETS`
+  - `catalog.theme.cache.PRESET_BY_CODE`
+
+#### Scenario: deactivate preset (depublication)
+
+- Given: preset "test-preset" exists with `active=true`
+- When: admin calls `deactivate("test-preset")`
+- Then: preset has `active=false`
+- And: `deleted_at` remains `NULL`
+- And: caches are invalidated
+
+#### Scenario: soft-delete preset (retirement)
+
+- Given: preset "old-preset" exists
+- When: admin calls `softDelete("old-preset")`
+- Then: preset has `deleted_at != NULL` AND `active=false`
+- And: caches are invalidated
+- And: preset is filtered from all read operations
+
+---
+
+## Non-Functional Requirements
+
+### NF1 — Observability
+
+- Fallback events MUST be logged with structured format (JSON)
+- Log level: WARN
+- Log marker: `TENANT_THEME_FALLBACK`
+- Log payload MUST include: `tenantId`, `requestedPresetCode`, `fallbackPresetCode`, `timestamp`
+
+### NF2 — Performance
+
+- Fallback resolution MUST NOT introduce significant latency (< 50ms additional)
+- Fallback cascade MUST be short (max 3 lookups)
+- `ThemeCatalog` reads SHOULD be cached (already implemented)
+
+### NF3 — Audit
+
+- Retirement of presets MUST preserve audit trail (`deleted_at`, Envers history)
+- Tenant theme entries MUST remain unmodified for audit purposes
+
+---
+
+## Acceptance Criteria
+
+- [ ] Hard delete functionality does not exist in `catalog/theme`
+- [ ] Tenant referencing retired preset obtains effective theme via fallback
+- [ ] Warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` is emitted and observable (logs)
+- [ ] No `tenant_theme` entry is modified automatically when preset is retired
+- [ ] Tests cover all 4 scenarios (active, inactive, soft-deleted, not found)
+
+---
+
+## Out of Scope
+
+- Mass remediation (batch migration) implementation
+- Database schema changes (no FK cascade)
+- Automatic correction scheduler/batch
