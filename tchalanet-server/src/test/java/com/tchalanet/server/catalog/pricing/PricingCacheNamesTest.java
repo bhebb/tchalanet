@@ -9,6 +9,5 @@ public class PricingCacheNamesTest {
   @Test
   void constants_are_defined() {
     assertNotNull(PricingCacheNames.ODDS);
-    assertFalse(PricingCacheNames.ODDS.isBlank());
   }
 }

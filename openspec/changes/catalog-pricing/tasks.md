@@ -4,7 +4,7 @@ Change-id: catalog-pricing
 
 ## Tasks (checklist)
 
-- [ ] Review existing pricing code and docs (`DOMAIN_PRICING.md`, repo, DTOs).
+- [x] Review existing pricing code and docs (`DOMAIN_PRICING.md`, repo, DTOs).
 
 - [x] Ensure public catalog API exists: `PricingCatalog` with method `BigDecimal oddsFor(TenantId, String gameCode, BetType, Short betOption)` (use existing interface if present).
 
@@ -31,9 +31,9 @@ Change-id: catalog-pricing
 
 - [ ] Add integration/slice tests for controller (optional but recommended).
 
-- [ ] Update docs: add a short `catalog/pricing/README.md` describing API endpoints, cache names, and example requests.
+- [x] Update docs: add a short `catalog/pricing/README.md` describing API endpoints, cache names, and example requests.
 
-- [ ] Run openspec validation:
+- [x] Run openspec validation:
 
   - `./node_modules/.bin/openspec validate catalog-pricing --strict --no-interactive`
 
