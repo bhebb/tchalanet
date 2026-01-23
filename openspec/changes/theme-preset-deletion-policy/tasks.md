@@ -8,13 +8,13 @@ Implémenter la politique de gestion des presets retirés avec fallback automati
 
 ## Phase 1 — Spec updates
 
-- [ ] 1.1 Mettre à jour `openspec/specs/theme-preset/spec.md`
+- [x] 1.1 Mettre à jour `openspec/specs/theme-preset/spec.md`
 
   - Ajouter requirement interdisant hard delete
   - Clarifier différence entre dépublication (`active=false`) et retrait (`deleted_at != NULL`)
   - Documenter que reads filtrent toujours `deleted_at IS NULL`
 
-- [ ] 1.2 Mettre à jour `openspec/specs/tenanttheme/spec.md`
+- [x] 1.2 Mettre à jour `openspec/specs/tenanttheme/spec.md`
   - Ajouter requirement T7 "Fallback resolution"
   - Spécifier cascade de fallback (tenant default → platform default → hardcoded safe)
   - Spécifier warning notice obligatoire lors du fallback
@@ -23,31 +23,31 @@ Implémenter la politique de gestion des presets retirés avec fallback automati
 
 ## Phase 2 — Catalog/theme (admin service)
 
-- [ ] 2.1 Supprimer méthode `hardDelete` si elle existe dans `ThemePresetAdminService`
-- [ ] 2.2 S'assurer que `softDelete(ThemePresetId)` fait bien :
+- [x] 2.1 Supprimer méthode `hardDelete` si elle existe dans `ThemePresetAdminService`
+- [x] 2.2 S'assurer que `softDelete(ThemePresetId)` fait bien :
   - `deleted_at = now()`
   - `active = false`
-- [ ] 2.3 Ajouter méthode `deactivate(ThemePresetId)` (set `active=false` seulement)
-- [ ] 2.4 Vérifier que `ThemeAdminController` n'expose pas de hard delete
+- [x] 2.3 Ajouter méthode `deactivate(ThemePresetId)` (set `active=false` seulement)
+- [x] 2.4 Vérifier que `ThemeAdminController` n'expose pas de hard delete
 
 ---
 
 ## Phase 3 — Core/tenanttheme (fallback logic)
 
-- [ ] 3.1 Créer `TenantThemeFallbackService` dans `core/tenanttheme/application/service`
+- [x] 3.1 Créer `TenantThemeFallbackService` dans `core/tenanttheme/application/service`
 
   - Input: `TenantId`, `requestedPresetCode`
   - Output: `String fallbackPresetCode`
   - Logic: tenant default → platform default → hardcoded ("default-light")
 
-- [ ] 3.2 Modifier `ResolveTenantThemeQueryHandler`
+- [x] 3.2 Modifier `ResolveTenantThemeQueryHandler`
 
   - Appeler `ThemeCatalog.findByCode(presetCode)`
   - Si `Optional.empty()` OU `!active` → appeler fallback service
   - Émettre warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED`
   - Retourner `TenantThemeView` avec le preset de fallback
 
-- [ ] 3.3 Créer `TenantThemeNotice` (record)
+- [x] 3.3 Créer `TenantThemeNotice` (record)
 
   - `code: String` (ex: "THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED")
   - `tenantId: TenantId`
@@ -55,7 +55,7 @@ Implémenter la politique de gestion des presets retirés avec fallback automati
   - `fallbackPresetCode: String`
   - `timestamp: Instant`
 
-- [ ] 3.4 Intégrer notice publisher (log structuré ou event)
+- [x] 3.4 Intégrer notice publisher (log structuré ou event)
   - Utiliser logger avec marker ou publier via `ApplicationEventPublisher`
 
 ---
@@ -95,10 +95,10 @@ Implémenter la politique de gestion des presets retirés avec fallback automati
 
 ## Critères d'acceptation
 
-- [ ] Hard delete n'existe plus dans `catalog/theme`
-- [ ] `ResolveTenantThemeQuery` retourne toujours un thème valide (via fallback si nécessaire)
-- [ ] Warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` est émis et observable (logs)
-- [ ] Aucune modification automatique de `tenant_theme` lors du retrait d'un preset
+- [x] Hard delete n'existe plus dans `catalog/theme`
+- [x] `ResolveTenantThemeQuery` retourne toujours un thème valide (via fallback si nécessaire)
+- [x] Warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` est émis et observable (logs)
+- [x] Aucune modification automatique de `tenant_theme` lors du retrait d'un preset
 - [ ] Tests couvrent les 4 cas (actif, inactive, soft-deleted, not found)
 
 ---
