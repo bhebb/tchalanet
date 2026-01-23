@@ -55,6 +55,14 @@ public class ThemePresetAdminService {
         repo.save(e);
     }
 
+    @Transactional
+    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
+    public void deactivate(ThemePresetId id) {
+        var e = repo.findById(id.value()).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
+        e.setActive(false);
+        repo.save(e);
+    }
+
     public record ThemePresetCreateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
     public record ThemePresetUpdateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
 }
