@@ -136,13 +136,13 @@ The warning notice MUST be emitted through the standard API notice mechanism (e.
 
 ### Requirement: DP4 — Explicit remediation opt-in
 
-The system MAY provide explicit remediation actions (future enhancement, out of MVP scope):
+If the system provides explicit remediation actions, such remediation MUST be opt-in and MUST NOT be implicit at the moment of preset retirement.
+
+Potential explicit remediation actions (future enhancement, out of MVP scope) MAY include:
 
 - Admin action "migrate preset X → Y"
 - Admin action "reset tenant themes using preset X"
 - Batch migration job
-
-Such remediation MUST be opt-in and MUST NOT be implicit at the moment of preset retirement.
 
 #### Scenario: no automatic migration on preset retirement
 
