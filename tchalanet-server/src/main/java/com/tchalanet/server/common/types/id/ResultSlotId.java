@@ -2,23 +2,32 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-public final class ResultSlotId {
-  private final UUID value;
+/** Typed identifier for ResultSlot. */
+public record ResultSlotId(UUID value) {
 
-  private ResultSlotId(UUID value) {
-    this.value = value;
+  public ResultSlotId {
+    if (value == null) throw new IllegalArgumentException("ResultSlotId.value is null");
   }
 
-  public static ResultSlotId of(UUID u) {
-    return u == null ? null : new ResultSlotId(u);
+  public static ResultSlotId of(UUID value) {
+    return new ResultSlotId(value);
   }
 
-  public UUID uuid() {
-    return value;
+  /** Convenience for mappers: returns null if raw is null. */
+  public static ResultSlotId nullableOf(UUID raw) {
+    return raw == null ? null : new ResultSlotId(raw);
+  }
+
+  /** Parse from UUID string (web/input). */
+  public static ResultSlotId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("ResultSlotId string is required");
+    }
+    return new ResultSlotId(UUID.fromString(raw));
   }
 
   @Override
   public String toString() {
-    return value == null ? null : value.toString();
+    return value.toString();
   }
 }

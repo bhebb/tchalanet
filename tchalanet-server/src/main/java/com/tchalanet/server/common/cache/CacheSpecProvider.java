@@ -2,8 +2,10 @@ package com.tchalanet.server.common.cache;
 
 import java.util.List;
 
-/** Contrat pour qu'un module métier déclare les caches qu'il utilise (nom + TTL L2). */
+/**
+ * Contrat pour déclarer les caches utilisés (cacheName + TTL L1/L2).
+ */
 public interface CacheSpecProvider {
 
-  List<CacheSpec> cacheSpecs();
+    List<CacheSpec> cacheSpecs();
 }

@@ -20,7 +20,7 @@ import org.hibernate.envers.Audited;
 @AllArgsConstructor
 public class I18nOverrideEntity extends BaseEntity {
 
-  @Column(name = "tenant_id", nullable = false)
+  @Column(name = "tenantId", nullable = false)
   private UUID tenantId;
 
   @Column(name = "locale", nullable = false)

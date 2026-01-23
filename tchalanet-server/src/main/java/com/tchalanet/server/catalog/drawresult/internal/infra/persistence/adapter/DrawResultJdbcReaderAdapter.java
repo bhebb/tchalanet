@@ -3,7 +3,7 @@ package com.tchalanet.server.catalog.drawresult.internal.infra.persistence.adapt
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.catalog.drawresult.api.DrawResultsSearchCriteria;
+import com.tchalanet.server.catalog.drawresult.api.DrawResultsCriteria;
 import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.catalog.drawresult.internal.infra.persistence.mapper.DrawResultMapper;
@@ -42,7 +42,7 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
   }
 
   @Override
-  public TchPage<DrawResult> findByCriteria(DrawResultsSearchCriteria criteria) {
+  public TchPage<DrawResult> findByCriteria(DrawResultsCriteria criteria) {
     var pageable =
         criteria == null || criteria.pageable() == null
             ? org.springframework.data.domain.PageRequest.of(0, 20)

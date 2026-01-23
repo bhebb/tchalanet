@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.sales.domain.service;
 
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.sales.application.port.out.TicketNumberGeneratorPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketPublicCodeGeneratorPort;
@@ -22,6 +24,7 @@ public class TicketSaleFactory {
 
     private final TicketNumberGeneratorPort numberGenerator;
     private final TicketPublicCodeGeneratorPort publicCodeGenerator;
+    private final IdGenerator idGenerator;
 
     public Ticket newSoldTicket(
         TenantId tenantId,
@@ -35,6 +38,7 @@ public class TicketSaleFactory {
         String publicCode = publicCodeGenerator.generate();
 
         return Ticket.sell(
+            TicketId.of(idGenerator.newUuid()),
             tenantId,
             terminalId,
             session.id(),
@@ -57,6 +61,7 @@ public class TicketSaleFactory {
         String publicCode = publicCodeGenerator.generate();
 
         return Ticket.pendingApproval(
+            TicketId.of(idGenerator.newUuid()),
             tenantId,
             terminalId,
             session.id(),

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.outlet.application.command.model;
 
-import com.tchalanet.server.core.address.application.dto.AddressDto;
+import com.tchalanet.server.catalog.address.application.dto.AddressDto;
 
 public record OutletConfigPatch(
     Boolean salesBlocked,

@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.haiti.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.TchalaEntryId;
 import com.tchalanet.server.core.haiti.application.command.model.SubmitTchalaSuggestionCommand;
 import com.tchalanet.server.core.haiti.application.command.model.SubmitTchalaSuggestionResult;
 import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
@@ -27,6 +29,7 @@ public class SubmitTchalaSuggestionCommandHandler
 
   private final TchalaEntryRepositoryPort repo;
   private final Clock clock;
+  private final IdGenerator idGenerator;
   private static final Pattern SPLIT = Pattern.compile("[^0-9]+");
 
   @Override
@@ -41,7 +44,13 @@ public class SubmitTchalaSuggestionCommandHandler
     Instant now = Instant.now(clock);
     TchalaEntry entry =
         TchalaEntry.newSuggestion(
-            lang, dream, numbers, command.note(), canonical.map(TchalaEntry::id), now);
+            TchalaEntryId.of(idGenerator.newUuid()),
+            lang,
+            dream,
+            numbers,
+            command.note(),
+            canonical.map(TchalaEntry::id),
+            now);
     TchalaEntry saved = repo.save(entry);
     return new SubmitTchalaSuggestionResult(
         saved.id().value(), saved.status().name(), canonical.isPresent(), conflictId.orElse(null));

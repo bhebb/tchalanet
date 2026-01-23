@@ -3,6 +3,7 @@ package com.tchalanet.server.core.draw.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
@@ -22,6 +23,7 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
 
   private final DrawLifecyclePort drawWriterPort;
   private final DrawChannelReaderPort drawChannelReaderPort;
+  private final IdGenerator idGenerator;
 
   @Override
   public DrawId handle(CreateDrawCommand command) {
@@ -41,7 +43,7 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
                         "Draw channel not found: " + command.channelCode()));
 
     // Generate draw id
-    DrawId drawId = DrawId.random();
+    DrawId drawId = DrawId.of(idGenerator.newUuid());
 
     // Set scheduledAt to start of day in system default zone
     ZonedDateTime scheduledAt = command.scheduledDate().atStartOfDay(ZoneId.systemDefault());

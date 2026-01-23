@@ -1,17 +1,23 @@
 package com.tchalanet.server.core.draw.infra.batch.config;
 
+import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_SETTLE;
 import static com.tchalanet.server.common.time.DefaultTimeZone.AMERICA_NEW_YORK;
 
-import com.tchalanet.server.common.batch.BatchGate;
+import com.tchalanet.server.common.batch.gate.BatchGate;
+import com.tchalanet.server.common.batch.key.JobKey;
+import com.tchalanet.server.common.batch.launch.BatchJobStarter;
+import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.config.batch.BatchWindowsConfig;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.infra.batch.results.settle.DrawSettleJobStarter;
 import com.tchalanet.server.core.tenant.application.port.out.TenantReaderPort;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,62 +25,68 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DrawSettleScheduler {
 
-  private final DrawSettleJobStarter jobStarter;
-  private final Clock clock;
-  private final TenantReaderPort tenantReaderPort;
 
-  private final BatchGate gate;
-  private final BatchWindowsConfig windows;
+    // optionnel: provider-level switches
+    private static final JobKey SWITCH_NY = JobKey.of("draw:settle:provider:ny");
+    private static final JobKey SWITCH_FL = JobKey.of("draw:settle:provider:fl");
 
-  //  @Scheduled(cron = "0 */5 * * * *", zone = "America/New_York")
-  public void tick() {
-    if (!gate.enabled("draw.settle.enabled", null)) return;
+    private final BatchJobStarter batchJobStarter;
+    private final Clock clock;
+    private final TenantReaderPort tenantReaderPort;
+    private final BatchGate gate;
+    private final BatchWindowsConfig windows;
 
-    var nowLocal = LocalTime.now(AMERICA_NEW_YORK);
-    if (!windows.isInSettleDrawsWindow(nowLocal)) return;
+    @Scheduled(cron = "0 */5 * * * *", zone = "America/New_York")
+    public void tick() {
+        // global switch
+        if (!gate.enabled(DRAW_SETTLE, null)) return;
 
-    for (var tenantId : tenantReaderPort.listActiveTenantIds()) {
-      // per-tenant override possible later
-      if (!gate.enabled("draw.settle.enabled", tenantId)) continue;
+        var nowLocal = LocalTime.now(AMERICA_NEW_YORK);
+        if (!windows.isInSettleDrawsWindow(nowLocal)) return;
 
-      // settle NY + FL in same tick (simple)
-      startSettle(tenantId, "NY", 1, 700, false, false);
-      startSettle(tenantId, "FL", 1, 900, false, false);
+        Instant now = Instant.now(clock);
+
+        for (TenantId tenantId : tenantReaderPort.listActiveTenantIds()) {
+            if (!gate.enabled(DRAW_SETTLE, tenantId)) continue;
+
+            startForProvider(now, tenantId, "NY", SWITCH_NY, 1, 700, false, false);
+            startForProvider(now, tenantId, "FL", SWITCH_FL, 1, 900, false, false);
+        }
     }
-  }
 
-  private void startSettle(
-      TenantId tenantId,
-      String provider,
-      int daysBack,
-      int maxDraws,
-      boolean force,
-      boolean dryRun) {
-    // provider-level switch
-    if (!gate.enabled("draw.settle.provider." + provider.toLowerCase() + ".enabled", tenantId))
-      return;
+    private void startForProvider(
+        Instant now,
+        TenantId tenantId,
+        String provider,
+        JobKey providerSwitch,
+        int daysBack,
+        int maxDraws,
+        boolean force,
+        boolean dryRun
+    ) {
+        // provider-level switch (optional)
+        if (!gate.enabled(providerSwitch, tenantId)) return;
 
-    long ts = java.time.Instant.now(clock).toEpochMilli();
+        var params = new HashMap<String, String>();
+        params.put(BatchParamKeys.TENANT_ID, tenantId.toString());
 
-    var params = new HashMap<String, String>();
-    params.put("ts", Long.toString(ts));
-    params.put("tenant_id", tenantId.toString());
-    params.put("provider", provider);
-    params.put("days_back", Integer.toString(daysBack));
-    params.put("max_draws", Integer.toString(maxDraws));
-    params.put("force", Boolean.toString(force));
-    params.put("dry_run", Boolean.toString(dryRun));
+        // request tracing
+        params.put(BatchParamKeys.REQUEST_ID, "tick-" + now.toEpochMilli() + "-" + UUID.randomUUID());
+        params.put(BatchParamKeys.ACTOR, "scheduler");
+        params.put(BatchParamKeys.DRY_RUN, Boolean.toString(dryRun));
 
-    log.info(
-        "batch.scheduler: job=settle_draws tenantId={} provider={} daysBack={} maxDraws={} force={} dryRun={} ts={}",
-        tenantId,
-        provider,
-        daysBack,
-        maxDraws,
-        force,
-        dryRun,
-        ts);
+        // settle-specific params (snake_case)
+        params.put(BatchParamKeys.PROVIDER, provider);
+        params.put(BatchParamKeys.DAYS_BACK, Integer.toString(daysBack));
+        params.put(BatchParamKeys.MAX_DRAWS, Integer.toString(maxDraws));
+        params.put(BatchParamKeys.FORCE, Boolean.toString(force));
 
-    jobStarter.startSettleDrawsJob(params);
-  }
+        // NOTE: do NOT set ts here unless you really want deterministic ts
+        // BatchJobStarter will add identifying ts if missing.
+
+        var exec = batchJobStarter.start(DRAW_SETTLE, params);
+
+        log.info("batch.scheduler.started jobKey={} tenantId={} provider={} executionId={}",
+            DRAW_SETTLE, tenantId, provider, exec.getId());
+    }
 }

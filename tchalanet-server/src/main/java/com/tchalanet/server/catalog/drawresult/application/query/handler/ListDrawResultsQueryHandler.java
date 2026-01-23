@@ -3,10 +3,10 @@ package com.tchalanet.server.catalog.drawresult.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.catalog.drawresult.api.DrawResultsSearchCriteria;
+import com.tchalanet.server.catalog.drawresult.api.DrawResultsCriteria;
 import com.tchalanet.server.catalog.drawresult.application.query.model.ListDrawResultsQuery;
 import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.catalog.drawresult.api.DrawResultReaderPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ public class ListDrawResultsQueryHandler
   @Override
   public TchPage<DrawResult> handle(ListDrawResultsQuery query) {
     var criteria =
-        new DrawResultsSearchCriteria(
+        new DrawResultsCriteria(
             query.provider(), query.slotKey(), query.from(), query.to(), query.pageable());
     return drawResultReaderPort.findByCriteria(criteria);
   }

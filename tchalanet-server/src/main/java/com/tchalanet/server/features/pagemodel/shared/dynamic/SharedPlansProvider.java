@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.pagemodel.shared.dynamic;
 
-import com.tchalanet.server.core.billing.application.query.handler.GetAvailablePlansQueryHandler;
-import com.tchalanet.server.core.billing.domain.model.Plan;
+import com.tchalanet.server.catalog.billing.application.query.handler.GetAvailablePlansQueryHandler;
+import com.tchalanet.server.catalog.billing.domain.model.Plan;
 import com.tchalanet.server.features.pagemodel.shared.PageModel;
 import com.tchalanet.server.features.pagemodel.shared.block.PlansBlock;
 import java.util.List;

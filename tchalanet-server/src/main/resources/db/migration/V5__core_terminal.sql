@@ -37,7 +37,7 @@ CREATE INDEX ix_terminal_tenant_last_seen ON terminal (tenant_id, last_seen DESC
 
 -- Ensure one active terminal label per outlet (optional)
 -- CREATE UNIQUE INDEX ux_terminal_outlet_label
---   ON terminal(tenant_id, outlet_id, label)
+--   ON terminal(tenantId, outlet_id, label)
 --   WHERE deleted_at IS NULL AND label IS NOT NULL;
 
 DO $$

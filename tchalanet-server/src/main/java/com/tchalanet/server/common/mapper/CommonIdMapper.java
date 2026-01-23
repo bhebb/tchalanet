@@ -13,91 +13,91 @@ public class CommonIdMapper {
 
   // TenantId
   public UUID mapFromTenantId(TenantId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public TenantId mapToTenantId(UUID id) {
-    return id == null ? null : TenantId.of(id);
+    return TenantId.nullableOf(id);
   }
 
   // UserId
   public UUID mapFromUserId(UserId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public UserId mapToUserId(UUID id) {
-    return id == null ? null : UserId.of(id);
+    return UserId.nullableOf(id);
   }
 
   // DrawId
   public UUID mapFromDrawId(DrawId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public DrawId mapToDrawId(UUID id) {
-    return id == null ? null : DrawId.of(id);
+    return DrawId.nullableOf(id);
   }
 
   // OutletId
   public UUID mapFromOutletId(OutletId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public OutletId mapToOutletId(UUID id) {
-    return id == null ? null : OutletId.of(id);
+    return OutletId.nullableOf(id);
   }
 
   // TerminalId
   public UUID mapFromTerminalId(TerminalId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public TerminalId mapToTerminalId(UUID id) {
-    return id == null ? null : TerminalId.of(id);
+    return TerminalId.nullableOf(id);
   }
 
   // TicketId
   public UUID mapFromTicketId(TicketId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public TicketId mapToTicketId(UUID id) {
-    return id == null ? null : TicketId.of(id);
+    return TicketId.nullableOf(id);
   }
 
   // PayoutId
   public UUID mapFromPayoutId(PayoutId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public PayoutId mapToPayoutId(UUID id) {
-    return id == null ? null : PayoutId.of(id);
+    return PayoutId.nullableOf(id);
   }
 
   // AgentId
   public UUID mapFromAgentId(AgentId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public AgentId mapToAgentId(UUID id) {
-    return id == null ? null : AgentId.of(id);
+    return AgentId.nullableOf(id);
   }
 
   // RoleId
   public UUID mapFromRoleId(RoleId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public RoleId mapToRoleId(UUID id) {
-    return id == null ? null : RoleId.of(id);
+    return RoleId.nullableOf(id);
   }
 
   // SessionId
   public UUID mapFromSessionId(SessionId id) {
-    return id == null ? null : id.uuid();
+    return id == null ? null : id.value();
   }
 
   public SessionId mapToSessionId(UUID id) {
-    return id == null ? null : SessionId.of(id);
+    return SessionId.nullableOf(id);
   }
 }

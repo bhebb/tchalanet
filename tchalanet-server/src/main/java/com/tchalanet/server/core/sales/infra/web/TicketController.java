@@ -126,9 +126,28 @@ public class TicketController {
         return ApiResponse.success(mapper.toTicketResponse(res.ticket()));
     }
 
+    /**
+     * List tickets for tenant with filters and pagination.
+     *
+     * PAGINATION: Default 20, max 100 (offset-based via @TchPaging).
+     * AUDIT: Automatically logged by query handler (v1 decision: list operations are audited).
+     * RATE LIMITING: Not applied to tenant-scoped endpoints (v1 decision).
+     *
+     * @param terminalId Filter by terminal (optional)
+     * @param outletId Filter by outlet (optional)
+     * @param agentId Filter by agent (optional)
+     * @param drawId Filter by draw (optional)
+     * @param status Filter by status (optional)
+     * @param from Filter by creation date from (optional, inclusive)
+     * @param to Filter by creation date to (optional, inclusive)
+     * @param pageReq Pagination parameters
+     * @return Page of ticket summaries
+     * @throws ResponseStatusException 400 if date range invalid (to < from)
+     */
     @Operation(summary = "List tickets for tenant with filters")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
     public ApiResponse<TchPage<TicketSummaryResponse>> list(
         @RequestParam(required = false) TerminalId terminalId,
         @RequestParam(required = false) OutletId outletId,
@@ -139,24 +158,45 @@ public class TicketController {
         @RequestParam(required = false) Instant to,
         @TchPaging(allowedSort = {"createdAt", "totalAmount", "ticketCode"},
             defaultSort = {"createdAt,DESC"}) TchPageRequest pageReq) {
+
+        // Validate date range: created_to must be >= created_from
+        if (from != null && to != null && to.isBefore(from)) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "created_to must be greater than or equal to created_from"
+            );
+        }
+
         int page = pageReq.pageable().getPageNumber();
         int size = pageReq.pageable().getPageSize();
         ListTicketsQuery q =
             mapper.toListTicketsQuery(terminalId, drawId, status, from, to, page, size);
         var result = queryBus.send(q);
-        var paged = (com.tchalanet.server.common.web.paging.TchPage<ListTicketsQuery.TicketSummaryDto>) result;
-        return ApiResponse.success(mapper.toPagedSummaryResponse(paged));
+        return ApiResponse.success(mapper.toPagedSummaryResponse(result));
     }
 
-    // --- DETAILS ---
+    /**
+     * Get ticket details by ID.
+     *
+     * AUDIT: Not logged (v1 decision: read-one is low risk, reduces log volume).
+     * RATE LIMITING: Not applied to tenant-scoped endpoints (v1 decision).
+     *
+     * @param ticketId Ticket ID (typed ID)
+     * @return Full ticket detail including lines and settlement info
+     * @throws ResponseStatusException 404 if ticket not found
+     */
     @Operation(summary = "Get ticket details (tenant)")
     @GetMapping("/{ticketId}")
     @ResponseStatus(HttpStatus.OK)
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
     public ApiResponse<TicketResponse> details(@PathVariable TicketId ticketId) {
         GetTicketDetailsQuery q = new GetTicketDetailsQuery(ticketId);
         var dto = queryBus.send(q);
         if (dto == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Ticket not found with id: " + ticketId
+            );
         }
         return ApiResponse.success(mapper.toTicketResponse(dto));
     }

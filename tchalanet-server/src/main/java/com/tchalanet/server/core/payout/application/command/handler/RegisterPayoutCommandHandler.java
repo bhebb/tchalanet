@@ -7,6 +7,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
 import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
@@ -45,6 +46,7 @@ public class RegisterPayoutCommandHandler
   private final Clock clock;
   private final LimitPolicyFacade limitPolicyFacade;
   private final AutonomyResolver autonomyResolver;
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
@@ -80,7 +82,13 @@ public class RegisterPayoutCommandHandler
       // Payout.createRequested expects amountCents and currency (domain uses cents)
       long amountCents = payoutAmount.movePointRight(2).longValue();
       Payout payout =
-          Payout.createRequested(command.tenantId(), command.ticketId(), amountCents, "HTG", now);
+          Payout.createRequested(
+              PayoutId.of(idGenerator.newUuid()),
+              command.tenantId(),
+              command.ticketId(),
+              amountCents,
+              "HTG",
+              now);
       Payout saved = payoutWriterPort.save(payout);
 
       // Decide auto-approval via policy

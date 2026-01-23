@@ -20,7 +20,7 @@ import org.hibernate.type.SqlTypes;
 @Table(
     name = "page_model",
     uniqueConstraints = {
-      @jakarta.persistence.UniqueConstraint(columnNames = {"tenant_id", "code"})
+      @jakarta.persistence.UniqueConstraint(columnNames = {"tenantId", "code"})
     })
 @Getter
 @Setter

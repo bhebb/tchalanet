@@ -24,7 +24,7 @@ public class PageModelTemplateEntity extends BaseEntity {
   @Column(name = "code", nullable = false, length = 128)
   private String code;
 
-  @Column(name = "tenant_id")
+  @Column(name = "tenantId")
   private UUID tenantId;
 
   @Column(name = "logical_id")

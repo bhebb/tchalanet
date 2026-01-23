@@ -95,7 +95,7 @@ VALUES
     ('reporting.view', 'Reporting View', 'View tenant reports')
     ON CONFLICT (code) DO NOTHING;
 
--- system roles (tenant_id NULL)
+-- system roles (tenantId NULL)
 INSERT INTO app_role (id, tenant_id, code, name, description)
 VALUES
     ('00000000-0000-0000-0000-000000000301'::uuid, NULL, 'SUPER_ADMIN', 'Super Admin', 'System super administrator'),

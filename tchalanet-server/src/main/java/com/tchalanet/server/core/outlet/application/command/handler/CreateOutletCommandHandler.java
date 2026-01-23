@@ -3,11 +3,12 @@ package com.tchalanet.server.core.outlet.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.address.application.dto.AddressDto;
-import com.tchalanet.server.core.address.application.port.out.AddressWriterPort;
-import com.tchalanet.server.core.address.domain.model.Address;
+import com.tchalanet.server.catalog.address.application.dto.AddressDto;
+import com.tchalanet.server.catalog.address.application.port.out.AddressWriterPort;
+import com.tchalanet.server.catalog.address.domain.model.Address;
 import com.tchalanet.server.core.outlet.application.command.model.CreateOutletCommand;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
@@ -20,11 +21,12 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
 
   private final OutletWriterPort writer;
   private final AddressWriterPort addressWriter;
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
   public UUID handle(CreateOutletCommand cmd) {
-    UUID newId = OutletId.random().uuid();
+    UUID newId = idGenerator.newUuid();
     Outlet o =
         Outlet.createNew(
             TenantId.of(cmd.tenantId().uuid()), cmd.name(), cmd.slug(), OutletId.of(newId));

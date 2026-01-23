@@ -23,12 +23,14 @@ public record TchalaEntry(
     Instant updatedAt) {
 
   public static TchalaEntry newSuggestion(
+      TchalaEntryId id,
       TchalaLang lang,
       DreamText dream,
       List<TchalaNumber> numbers,
       String note,
       Optional<TchalaEntryId> conflictWith,
       Instant now) {
+    Objects.requireNonNull(id);
     Objects.requireNonNull(lang);
     Objects.requireNonNull(dream);
     Objects.requireNonNull(numbers);
@@ -42,7 +44,7 @@ public record TchalaEntry(
     String n = note == null ? "" : note.trim();
     DedupeKey key = DedupeKey.from(lang, dream);
     return new TchalaEntry(
-        TchalaEntryId.newId(),
+        id,
         lang,
         dream,
         key,
@@ -58,12 +60,14 @@ public record TchalaEntry(
 
   // Factory for import-based suggestions (source = IMPORT)
   public static TchalaEntry newSuggestionFromImport(
+      TchalaEntryId id,
       TchalaLang lang,
       DreamText dream,
       List<TchalaNumber> numbers,
       String note,
       Optional<TchalaEntryId> conflictWith,
       Instant now) {
+    Objects.requireNonNull(id);
     Objects.requireNonNull(lang);
     Objects.requireNonNull(dream);
     Objects.requireNonNull(numbers);
@@ -77,7 +81,7 @@ public record TchalaEntry(
     String n = note == null ? "" : note.trim();
     DedupeKey key = DedupeKey.from(lang, dream);
     return new TchalaEntry(
-        TchalaEntryId.newId(),
+        id,
         lang,
         dream,
         key,
@@ -92,12 +96,14 @@ public record TchalaEntry(
   }
 
   public static TchalaEntry newCanonical(
+      TchalaEntryId id,
       TchalaLang lang,
       DreamText dream,
       List<TchalaNumber> numbers,
       String note,
       TchalaEntrySource source,
       Instant now) {
+    Objects.requireNonNull(id);
     Objects.requireNonNull(lang);
     Objects.requireNonNull(dream);
     Objects.requireNonNull(numbers);
@@ -112,7 +118,7 @@ public record TchalaEntry(
     String n = note == null ? "" : note.trim();
     DedupeKey key = DedupeKey.from(lang, dream);
     return new TchalaEntry(
-        TchalaEntryId.newId(),
+        id,
         lang,
         dream,
         key,

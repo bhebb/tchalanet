@@ -114,7 +114,7 @@ CREATE TRIGGER trg_permission_updated_at
 
 
 -- ---------------------------------------------------------------------
--- ROLES (system roles: tenant_id NULL)
+-- ROLES (system roles: tenantId NULL)
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS app_role (
                                         id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

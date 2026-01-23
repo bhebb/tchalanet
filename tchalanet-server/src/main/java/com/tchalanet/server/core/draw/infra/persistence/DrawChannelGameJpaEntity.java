@@ -25,10 +25,10 @@ import org.hibernate.type.SqlTypes;
     uniqueConstraints =
         @UniqueConstraint(
             name = "uq_draw_channel_game",
-            columnNames = {"tenant_id", "draw_channel_id", "game_id"}),
+            columnNames = {"tenantId", "draw_channel_id", "game_id"}),
     indexes = {
-      @Index(name = "ix_dcg_tenant_channel", columnList = "tenant_id, draw_channel_id"),
-      @Index(name = "ix_dcg_tenant_game", columnList = "tenant_id, game_id")
+      @Index(name = "ix_dcg_tenant_channel", columnList = "tenantId, draw_channel_id"),
+      @Index(name = "ix_dcg_tenant_game", columnList = "tenantId, game_id")
     })
 @Getter
 @Setter

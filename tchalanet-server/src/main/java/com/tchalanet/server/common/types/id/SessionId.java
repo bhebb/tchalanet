@@ -1,9 +1,8 @@
 package com.tchalanet.server.common.types.id;
 
-import java.util.Objects;
 import java.util.UUID;
 
-/** Value object identifier for Session. */
+/** Typed identifier for Session. */
 public record SessionId(UUID value) {
 
   public SessionId {
@@ -11,29 +10,24 @@ public record SessionId(UUID value) {
   }
 
   public static SessionId of(UUID value) {
-    return new SessionId(Objects.requireNonNull(value, "session id is required"));
+    return new SessionId(value);
   }
 
-  /** Return SessionId or null if id is null */
-  public static SessionId nullableOf(UUID id) {
-    return id == null ? null : new SessionId(id);
+  /** Convenience for mappers: returns null if raw is null. */
+  public static SessionId nullableOf(UUID raw) {
+    return raw == null ? null : new SessionId(raw);
   }
 
-  public static SessionId of(String id) {
-    if (id == null) throw new IllegalArgumentException("session id string is required");
-    return new SessionId(UUID.fromString(id));
-  }
-
-  public static SessionId random() {
-    return new SessionId(UUID.randomUUID());
+  /** Parse from UUID string (web/input). */
+  public static SessionId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("SessionId string is required");
+    }
+    return new SessionId(UUID.fromString(raw));
   }
 
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  public UUID uuid() {
-    return value;
   }
 }

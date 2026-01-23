@@ -28,7 +28,7 @@ public class TchRevisionEntity {
   @Column(name = "rev_timestamp", nullable = false)
   private long timestamp;
 
-  @Column(name = "tenant_id")
+  @Column(name = "tenantId")
   private UUID tenantId;
 
   @Column(name = "user_id")

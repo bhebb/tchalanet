@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.outlet.application.query.model;
 
-import com.tchalanet.server.core.address.application.dto.AddressDto;
+import com.tchalanet.server.catalog.address.application.dto.AddressDto;
 import java.util.UUID;
 
 public record OutletDto(

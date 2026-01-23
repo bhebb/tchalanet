@@ -1,67 +1,71 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
-import java.time.Clock;
-import java.time.ZonedDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class SettleWriter implements ItemWriter<DrawId> {
 
-  private final DrawLookupPort drawReaderPort;
-  private final DrawLifecyclePort drawWriterPort;
-  private final TicketSettlementQueryPort ticketQuery;
-  private final Clock clock;
+    private final DrawLookupPort drawReaderPort;
+    private final DrawLifecyclePort drawWriterPort;
+    private final TicketSettlementQueryPort ticketQuery;
+    private final Clock clock;
 
-  @Override
-  public void write(Chunk<? extends DrawId> chunks) throws Exception {
-    chunks
-        .getItems()
-        .forEach(
-            drawId -> {
-              var drawOpt = drawReaderPort.findById(drawId);
-              if (drawOpt.isEmpty()) return;
+    @Override
+    public void write(Chunk<? extends DrawId> chunk) {
+        Instant now = Instant.now(clock);
 
-              var draw = drawOpt.get();
-              try {
-                // only settle if status is RESULTED
-                if (draw.status()
-                    != com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED) return;
+        ZoneId tenantZone =
+            TchContext.get() != null && TchContext.get().tenantZoneId() != null
+                ? TchContext.get().tenantZoneId()
+                : ZoneId.of("UTC");
 
-                // 2) pas de result => never
+        ZonedDateTime settledAt = now.atZone(tenantZone);
+
+        for (DrawId drawId : chunk.getItems()) {
+            var drawOpt = drawReaderPort.findById(drawId);
+            if (drawOpt.isEmpty()) continue;
+
+            var draw = drawOpt.get();
+            try {
+                if (draw.status() != com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED) {
+                    continue;
+                }
+
                 if (draw.drawResultId() == null) {
-                  log.warn(
-                      "settle.skip: draw={} tenant={} reason=no_result", drawId, draw.tenantId());
-                  return;
+                    log.warn("settle.skip draw={} tenant={} reason=no_result", drawId, draw.tenantId());
+                    continue;
                 }
 
-                // 3) business block: tickets not finalized
                 if (ticketQuery.existsPendingByDrawId(draw.tenantId(), draw.id())) {
-                  long pending = ticketQuery.countPendingByDrawId(draw.tenantId(), draw.id());
-                  log.info(
-                      "settle.skip: draw={} tenant={} pendingTickets={}",
-                      drawId,
-                      draw.tenantId(),
-                      pending);
-                  return;
+                    long pending = ticketQuery.countPendingByDrawId(draw.tenantId(), draw.id());
+                    log.info("settle.skip draw={} tenant={} pendingTickets={}", drawId, draw.tenantId(), pending);
+                    continue;
                 }
 
-                // call domain method settle() and persist via writer port
-                draw.settle(ZonedDateTime.now(clock));
+                // Source truth = Instant now; conversion explicit via tenantZone
+                draw.settle(settledAt);
+
                 drawWriterPort.save(draw);
-              } catch (Exception e) {
-                log.error(
-                    "SettleWriter: failed to settle draw={} cause={}", drawId, e.getMessage());
-              }
-            });
-  }
+            } catch (Exception e) {
+                log.error("settle.fail draw={} tenant={} cause={}", drawId, draw.tenantId(), e.getMessage(), e);
+            }
+        }
+    }
+
 }

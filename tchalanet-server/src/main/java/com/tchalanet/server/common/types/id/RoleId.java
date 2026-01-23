@@ -1,26 +1,33 @@
 package com.tchalanet.server.common.types.id;
 
-import java.util.Objects;
 import java.util.UUID;
 
-public record RoleId(UUID uuid) {
+/** Typed identifier for Role. */
+public record RoleId(UUID value) {
+
   public RoleId {
-    Objects.requireNonNull(uuid, "role id");
+    if (value == null) throw new IllegalArgumentException("RoleId.value is null");
   }
 
-  public static RoleId of(UUID id) {
-    return new RoleId(Objects.requireNonNull(id));
+  public static RoleId of(UUID value) {
+    return new RoleId(value);
   }
 
-  /**
-   * Create a RoleId or return null if the given UUID is null. Useful for optional parentRoleId
-   * mappings.
-   */
-  public static RoleId nullableOf(UUID id) {
-    return id == null ? null : new RoleId(id);
+  /** Convenience for mappers: returns null if raw is null. */
+  public static RoleId nullableOf(UUID raw) {
+    return raw == null ? null : new RoleId(raw);
   }
 
-  public UUID uuid() {
-    return uuid;
+  /** Parse from UUID string (web/input). */
+  public static RoleId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("RoleId string is required");
+    }
+    return new RoleId(UUID.fromString(raw));
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

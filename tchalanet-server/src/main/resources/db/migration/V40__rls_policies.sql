@@ -18,7 +18,7 @@ t text;
   policy_name text;
   sql_stmt text;
 
-  -- Tables multi-tenant + soft delete (require tenant_id + deleted_at)
+  -- Tables multi-tenant + soft delete (require tenantId + deleted_at)
   soft_tables text[] := ARRAY[
     'outlet',
     'terminal',
@@ -42,7 +42,7 @@ t text;
     'pricing_odds'
   ];
 
-  -- Tables multi-tenant only (require tenant_id; no deleted_at required)
+  -- Tables multi-tenant only (require tenantId; no deleted_at required)
   tenant_only_tables text[] := ARRAY[
     'ledger_entry',
     'stats_draw',
@@ -62,7 +62,7 @@ SELECT EXISTS (
     FROM information_schema.columns c
     WHERE c.table_schema = 'public'
       AND c.table_name = t
-      AND c.column_name = 'tenant_id'
+      AND c.column_name = 'tenantId'
 ) INTO has_tenant_id;
 
 SELECT EXISTS (
@@ -120,7 +120,7 @@ SELECT EXISTS (
     FROM information_schema.columns c
     WHERE c.table_schema = 'public'
       AND c.table_name = t
-      AND c.column_name = 'tenant_id'
+      AND c.column_name = 'tenantId'
 ) INTO has_tenant_id;
 
 IF NOT has_tenant_id THEN

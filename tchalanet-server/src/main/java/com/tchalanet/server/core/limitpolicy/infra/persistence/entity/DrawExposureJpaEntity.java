@@ -19,7 +19,7 @@ import lombok.Setter;
 public class DrawExposureJpaEntity {
 
   @Id
-  @Column(name = "tenant_id", nullable = false)
+  @Column(name = "tenantId", nullable = false)
   private UUID tenantId;
 
   @Id

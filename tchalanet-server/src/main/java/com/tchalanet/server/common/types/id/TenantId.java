@@ -2,7 +2,9 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
+/** Typed identifier for Tenant. */
 public record TenantId(UUID value) {
+
   public TenantId {
     if (value == null) throw new IllegalArgumentException("TenantId.value is null");
   }
@@ -11,26 +13,21 @@ public record TenantId(UUID value) {
     return new TenantId(value);
   }
 
-  /** Return TenantId or null if id is null */
-  public static TenantId nullableOf(UUID id) {
-    return id == null ? null : new TenantId(id);
+  /** Convenience for mappers: returns null if raw is null. */
+  public static TenantId nullableOf(UUID raw) {
+    return raw == null ? null : new TenantId(raw);
   }
 
-  public static TenantId of(String id) {
-    if (id == null) throw new IllegalArgumentException("tenant id string is required");
-    return new TenantId(UUID.fromString(id));
+  /** Parse from UUID string (web/input). */
+  public static TenantId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("TenantId string is required");
+    }
+    return new TenantId(UUID.fromString(raw));
   }
 
-  public static TenantId random() {
-    return new TenantId(UUID.randomUUID());
-  }
-
-  /** Return the underlying UUID value */
-  public UUID uuid() {
-    return value;
-  }
-
-  public UUID value() {
-    return value;
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

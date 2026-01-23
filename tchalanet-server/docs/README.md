@@ -1,64 +1,172 @@
-# Documentation Backend (tchalanet-server)
+# Tchalanet — Server Documentation
 
-...existing code...
+Ce dossier contient la **documentation canonique** du backend **tchalanet-server**.
 
-## 🔧 Détails Techniques
+Son objectif est de :
 
-...existing code...
-
-### Conventions backend (nouveaux documents)
-
-- Pagination (canonique): `conventions/PAGINATION.md`
-- Web API (conventions & style): `conventions/web_api.md`
-- Cache (ajout/modification): `conventions/cache.md`
-- Batch (jobs/schedulers): `conventions/batch.md`
-
-Ces documents sont des références projet pour normaliser les contrôleurs, la pagination, et les aspects transverses cache/batch.
+- stabiliser l'architecture,
+- éviter le _vibe coding_,
+- guider les développeurs **et** les agents IA,
+- permettre d'écrire des specs (OpenSpec) **sans rediscuter les bases**.
 
 ---
 
-## 🧱 Entities vs Persistence — Séparation requise
+## 🚦 Ordre de priorité (source de vérité)
 
-- Entities (JPA) **MUST** rester dans `infra/persistence` de chaque domaine et étendre les bases (`BaseEntity` / `BaseTenantEntity`).
-- Persistence **MUST** implémenter des ports du domaine (adapters JPA/JDBC) sans faire fuiter les entities vers le domaine.
-- Le domaine **MUST NOT** dépendre des entities JPA.
-- Les mappings Domain ↔ Entity sont gérés via **MapStruct**.
+En cas de conflit entre documents :
 
-Voir: `persistence.md` (bases JPA, Envers, UUID vs wrappers) et `DOMAIN_TEMPLATE.md`.
+1. **ARCHITECTURE.md**  
+   → Frontières, responsabilités, règles structurantes (constitution)
 
----
+2. **PLAYBOOK.md**  
+   → Comment travailler, livrer une feature, Definition of Done
 
-## ✅ Conformité (Context, Audit, RLS)
+3. **conventions/**  
+   → Règles techniques **normatives** (API, pagination, cache, RLS, etc.)
 
-- Context: Conforme — `TchContextFilter` publie `TchRequestContext`, usage via `@CurrentContext` et `TchContext.currentOrNull()`. Règles de résolution tenant centralisées.
-- Audit: Conforme — Envers activé via base classes; audit domain events via `AfterCommit` + `DomainEventPublisher` selon besoin.
-- RLS: Conforme — `RlsAwareDataSource` applique `set_config('app.current_tenant', ...)` et `app.deleted_visibility`; reset via proxy; policies DB appliquées.
+4. **OpenSpec**  
+   → Contrat dérivé (jamais source de vérité)
 
-Références longues: `rls.md`, `ARCHITECTURE.md`, `API_RESPONSE_STANDARDIZATION.md`.
-
----
-
-## 📖 Documentation Métier
-
-...existing code...
-
-## 🔗 Références Externes
-
-...existing code...
-
-## 🚀 Quick Start
-
-...existing code...
-
-## 📊 Statut Documentation
-
-- ✅ Pas de doublons majeurs (nettoyés 2026-01-17)
-- ✅ Conventions backend ajoutées (pagination, web API, cache, batch)
-- ✅ Entities vs Persistence clarifié (séparation requise)
-- ✅ Context, Audit, RLS: conformes
-- 🟡 Migration conventions/ vers docs longues: partielle (liens en place)
+> ⚠️ OpenSpec ne redéfinit jamais l'architecture ni les conventions.
 
 ---
 
-**Maintenu par**: équipe Tchalanet  
-**Dernière mise à jour**: 2026-01-17
+## 🧭 Start here (nouvel arrivant / IA)
+
+Si tu découvres le projet :
+
+1. Lire **ARCHITECTURE.md**
+2. Lire **PLAYBOOK.md**
+3. Parcourir **conventions/** selon ton besoin (API, pagination, cache…)
+
+C'est suffisant pour contribuer sans poser de questions d'architecture.
+
+---
+
+## 🧱 Documents racine
+
+### ARCHITECTURE.md
+
+- Structure globale (`common / catalog / core / features`)
+- Frontières et dépendances
+- Règles **non négociables**
+- API versioning (`/api/v1`)
+- Contexte, sécurité, RLS
+- Cache, batch, after-commit
+
+👉 À lire **avant** toute implémentation structurante.
+
+---
+
+### PLAYBOOK.md
+
+- Règles de contribution
+- Do / Don't
+- Definition of Done backend
+- Guide opératoire (ajouter une API, un handler, un batch, etc.)
+- Contrat IA (ce que Copilot/IA doit et ne doit pas faire)
+
+👉 À suivre **à chaque feature**.
+
+---
+
+## 📐 conventions/ — Normes techniques (NORMATIF)
+
+Le dossier `conventions/` contient des règles **obligatoires**.
+Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
+
+### Organisation logique
+
+#### 🌐 HTTP / API
+
+- `web_api.md` — règles controllers, scopes, erreurs
+- `api_response.md` — `ApiResponse<T>` (2xx)
+- `pagination.md` — pagination standard
+- `routing_and_path.md` — paths, scopes, `/api/v1`
+
+#### ⚙️ Exécution / CQRS
+
+- `command_query_handlers.md` — Command/Query/Bus/Handlers
+- `idempotency.md` — idempotency commands & batch
+- `batch.md` — jobs & orchestration
+
+#### 🎨 Conventions générales
+
+- `NAMING.md` — conventions de nommage (classes, méthodes, variables)
+
+#### 🔐 Sécurité / Contexte / RLS
+
+- `context.md` — `TchRequestContext`
+- `security_permissions.md` — permissions & rôles
+- `rls.md` — Row Level Security (dernière ligne de défense)
+
+#### 💾 Persistence / Data
+
+- `persistence.md` — règles DB & Flyway
+- `jpa_entities.md` — entités JPA
+- `typed_ids.md` — wrappers d'ID (règle structurante)
+
+#### ⚡ Platform
+
+- `cache.md` — Caffeine + Redis
+- `audit.md` — audit actions & Envers
+- `testing.md` — standards de tests
+
+---
+
+## 🗺️ Où chercher quoi ?
+
+| Besoin                         | Document                                |
+| ------------------------------ | --------------------------------------- |
+| Où placer mon code ?           | `ARCHITECTURE.md`                       |
+| Comment ajouter une feature ?  | `PLAYBOOK.md`                           |
+| Comment écrire un controller ? | `conventions/web_api.md`                |
+| Format des réponses HTTP       | `conventions/api_response.md`           |
+| Pagination                     | `conventions/pagination.md`             |
+| Erreurs / ProblemDetail        | `conventions/web_api.md`                |
+| CQRS / handlers                | `conventions/command_query_handlers.md` |
+| Conventions de nommage         | `NAMING.md`                             |
+| Cache                          | `conventions/cache.md`                  |
+| Batch                          | `conventions/batch.md`                  |
+| Sécurité / RLS                 | `conventions/context.md` + `rls.md`     |
+| Typed IDs                      | `conventions/typed_ids.md`              |
+
+---
+
+## 🤖 Contrat IA (résumé)
+
+Tout agent IA contribuant au repo doit :
+
+- Lire **ARCHITECTURE.md** et **PLAYBOOK.md** en premier
+- Respecter **toutes** les conventions
+- Utiliser les wrappers d'ID
+- Passer par CommandBus / QueryBus
+- Publier les événements after-commit
+- Ne jamais inventer de patterns
+- Ne jamais bypasser RLS
+
+Les règles détaillées sont dans `AGENTS.md`.
+
+---
+
+## 📝 Modifier ou ajouter une convention
+
+Quand une nouvelle règle est nécessaire :
+
+1. Ajouter / modifier un fichier dans `conventions/`
+2. Mettre à jour **ARCHITECTURE.md** si la règle est structurante
+3. Mettre à jour **PLAYBOOK.md** si l'impact est opérationnel
+4. Ajouter une note si cela affecte OpenSpec
+
+Aucune règle implicite n'est acceptée.
+
+---
+
+## ✅ Résumé
+
+- **ARCHITECTURE** = quoi et pourquoi
+- **PLAYBOOK** = comment faire
+- **conventions/** = règles techniques détaillées
+- **OpenSpec** = specs dérivées (jamais source)
+
+Toute contribution suit ces documents, sans exception.

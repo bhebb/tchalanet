@@ -45,7 +45,7 @@ BEGIN
     RETURN;
   END IF;
 
-  -- Trouver un user associé au tenant via tenant_user (app_user n'a pas de colonne tenant_id)
+  -- Trouver un user associé au tenant via tenant_user (app_user n'a pas de colonne tenantId)
   SELECT tu.user_id INTO u
   FROM tenant_user tu
   JOIN app_user au ON au.id = tu.user_id

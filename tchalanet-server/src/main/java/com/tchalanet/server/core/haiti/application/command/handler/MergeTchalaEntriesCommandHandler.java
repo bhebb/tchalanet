@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.haiti.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TchalaEntryId;
 import com.tchalanet.server.core.haiti.application.command.model.MergeTchalaEntriesCommand;
 import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
@@ -28,6 +29,7 @@ public class MergeTchalaEntriesCommandHandler
 
   private final TchalaEntryRepositoryPort repo;
   private final Clock clock;
+  private final IdGenerator idGenerator;
 
   @Override
   public UUID handle(MergeTchalaEntriesCommand command) {
@@ -49,7 +51,13 @@ public class MergeTchalaEntriesCommandHandler
     // Create a new canonical entry representing the merged canonical state.
     TchalaEntry newInto =
         TchalaEntry.newCanonical(
-            into.lang(), into.dream(), merged, into.note(), into.source(), now);
+            TchalaEntryId.of(idGenerator.newUuid()),
+            into.lang(),
+            into.dream(),
+            merged,
+            into.note(),
+            into.source(),
+            now);
 
     repo.save(newInto);
 

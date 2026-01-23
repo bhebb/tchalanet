@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.sales.infra.web.model.TicketStatus;
 import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
@@ -21,12 +22,11 @@ public record ListTicketsQuery(TicketFilter filter, Pageable pageRequest)
       TenantId tenantId,
       TerminalId terminalId, // optional
       DrawId drawId, // optional
-      TicketStatus status, // optional
+      TicketStatus status, // optional - composite status
       Instant from, // optional
       Instant to // optional
       ) {}
 
-  /** Paged result. */
 
   /** DTO for ticket summary. */
   public record TicketSummaryDto(

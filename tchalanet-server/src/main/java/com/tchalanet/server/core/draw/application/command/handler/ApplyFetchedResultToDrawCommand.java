@@ -9,7 +9,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowResult;
 import com.tchalanet.server.core.draw.application.port.out.DrawApplyPort;
-import com.tchalanet.server.catalog.drawresult.api.DrawResultCatalog;
+import com.tchalanet.server.catalog.drawresult.api.DrawResultCatalogBack;
 import com.tchalanet.server.catalog.drawresult.domain.event.DrawResultedEvent;
 import com.tchalanet.server.catalog.drawresult.infra.config.DrawResultsProperties;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ApplyFetchedResultToDrawCommand
     implements CommandHandler<ApplyExternalResultsWindowCommand, ApplyExternalResultsWindowResult> {
 
-  private final DrawResultCatalog drawResultCatalog;
+  private final DrawResultCatalogBack drawResultCatalog;
   private final ResultSlotCatalog resultSlotReader;
   private final DrawApplyPort drawApply;
   private final DrawResultsProperties props;

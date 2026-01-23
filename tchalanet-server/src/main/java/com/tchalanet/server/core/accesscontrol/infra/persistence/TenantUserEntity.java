@@ -14,9 +14,9 @@ import org.hibernate.envers.Audited;
     uniqueConstraints =
         @UniqueConstraint(
             name = "ux_tenant_user_tenant_user",
-            columnNames = {"tenant_id", "user_id"}),
+            columnNames = {"tenantId", "user_id"}),
     indexes = {
-      @Index(name = "ix_tenant_user_tenant", columnList = "tenant_id"),
+      @Index(name = "ix_tenant_user_tenant", columnList = "tenantId"),
       @Index(name = "ix_tenant_user_user", columnList = "user_id")
     })
 @Audited
@@ -24,7 +24,7 @@ import org.hibernate.envers.Audited;
 @Setter
 public class TenantUserEntity extends BaseEntity {
 
-  @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
+  @Column(name = "tenantId", nullable = false, columnDefinition = "uuid")
   private UUID tenantId;
 
   @Column(name = "user_id", nullable = false, length = 128)

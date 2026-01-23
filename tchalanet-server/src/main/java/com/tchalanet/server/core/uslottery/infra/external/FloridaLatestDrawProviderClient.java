@@ -15,7 +15,6 @@ import com.tchalanet.server.core.uslottery.domain.model.DrawMain;
 import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
 import com.tchalanet.server.core.uslottery.infra.cache.ProviderQueryHash;
 import com.tchalanet.server.core.uslottery.infra.cache.UsLotteryProviderRawCache;
-import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

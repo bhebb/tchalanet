@@ -1,4 +1,4 @@
--- V43: seed system themes (tenant_id IS NULL)
+-- V43: seed system themes (tenantId IS NULL)
 DO $$ BEGIN
   RAISE NOTICE 'V43__seed_theme_system: seeding system themes';
 END $$;

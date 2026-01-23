@@ -5,7 +5,7 @@ CREATE TABLE draw_exposure (
   tenant_id uuid NOT NULL REFERENCES tenant(id),
   draw_id uuid NOT NULL REFERENCES draw(id),
   scope_type varchar(16) NOT NULL CHECK (scope_type IN ('TENANT', 'AGENT', 'TERMINAL', 'OUTLET', 'ZONE', 'RANGE')),
-  scope_id uuid NOT NULL, -- for TENANT, use tenant_id
+  scope_id uuid NOT NULL, -- for TENANT, use tenantId
   bet_type varchar(32), -- NULL for total
   selection_key varchar(64), -- NULL for total
   stake_total numeric(14,2) NOT NULL DEFAULT 0,

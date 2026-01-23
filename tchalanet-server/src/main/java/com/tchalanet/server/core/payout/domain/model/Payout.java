@@ -55,7 +55,13 @@ public class Payout {
   }
 
   public static Payout createRequested(
-      TenantId tenantId, TicketId ticketId, long amountCents, String currency, Instant createdAt) {
+      PayoutId id,
+      TenantId tenantId,
+      TicketId ticketId,
+      long amountCents,
+      String currency,
+      Instant createdAt) {
+    Objects.requireNonNull(id, "id");
     Objects.requireNonNull(tenantId, "tenantId");
     Objects.requireNonNull(ticketId, "ticketId");
     Objects.requireNonNull(currency, "currency");
@@ -63,7 +69,7 @@ public class Payout {
     if (amountCents <= 0) throw new IllegalArgumentException("amountCents must be positive");
 
     return new Payout(
-        PayoutId.random(),
+        id,
         tenantId,
         ticketId,
         amountCents,

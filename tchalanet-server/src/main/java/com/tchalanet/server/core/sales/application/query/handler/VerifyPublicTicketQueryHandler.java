@@ -1,18 +1,24 @@
 package com.tchalanet.server.core.sales.application.query.handler;
 
+import com.tchalanet.server.catalog.address.domain.model.Address;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.address.application.port.out.AddressReaderPort;
+import com.tchalanet.server.catalog.address.application.port.out.AddressReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.pos.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.query.model.VerifyPublicTicketQuery;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketVerificationResult;
+import com.tchalanet.server.catalog.settings.AppSettingsResolver;
+import com.tchalanet.server.catalog.settings.registry.AppSettingRegistry;
+import com.tchalanet.server.catalog.settings.query.ResolveAppSettingsQuery;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,27 +36,67 @@ public class VerifyPublicTicketQueryHandler
   private final TerminalReaderPort terminalReader;
   private final OutletReaderPort outletReader;
   private final AddressReaderPort addressReader;
-
-  // TODO: replace with tenant config visibility window days (7–30)
-  private static final Duration DEFAULT_VISIBILITY = Duration.ofDays(30);
+  private final AppSettingsResolver appSettingsResolver;
 
   @Override
   public TicketVerificationResult handle(VerifyPublicTicketQuery query) {
     Instant now = query.now() != null ? query.now() : Instant.now();
-
-    var ticket =
+    var optTicket =
         ticketReader
-            .findByPublicCode(query.publicCode())
-            .filter(t -> isVisible(t, now))
-            .flatMap(t -> ticketReader.findWithLinesById(t.getId()));
+            .findByPublicCode(query.publicCode());
 
-    return ticket.map(this::toResult).orElse(null);
+    if (optTicket.isEmpty()) {
+      // unknown code → 404 handled by controller (return null here)
+      return null;
+    }
+
+    var baseTicket = optTicket.get();
+    var visibilityDays = resolveVisibilityDays(baseTicket.getTenantId());
+    var visible = isVisible(baseTicket, now, visibilityDays);
+
+    var ticketWithLines = ticketReader.findWithLinesById(baseTicket.getId()).orElse(baseTicket);
+    var result = toResult(ticketWithLines);
+
+    if (!visible) {
+      // existing but outside window → EXPIRED (not 404)
+      return new TicketVerificationResult(
+          result.ticketId(),
+          result.publicCode(),
+          com.tchalanet.server.core.sales.domain.model.TicketStatus.EXPIRED,
+          result.drawId(),
+          result.terminalMasked(),
+          result.createdAt(),
+          result.totalAmount(),
+          result.potentialTotalPayout(),
+          result.payoutStatus(),
+          result.outletName(),
+          result.outletAddress(),
+          result.lines());
+    }
+
+    return result;
   }
 
-  private boolean isVisible(Ticket ticket, Instant now) {
+  private int resolveVisibilityDays(TenantId tenantId) {
+    try {
+      var settings =
+          appSettingsResolver.resolve(
+              new ResolveAppSettingsQuery(tenantId, List.of(AppSettingRegistry.TICKET_PUBLIC_VISIBILITY_DAYS.namespace())));
+      return settings.stream()
+          .filter(s -> AppSettingRegistry.TICKET_PUBLIC_VISIBILITY_DAYS.matches(s.namespace(), s.key()))
+          .findFirst()
+          .map(s -> (Integer) s.value())
+          .orElse(AppSettingRegistry.TICKET_PUBLIC_VISIBILITY_DAYS.defaultValue());
+    } catch (Exception e) {
+      return AppSettingRegistry.TICKET_PUBLIC_VISIBILITY_DAYS.defaultValue();
+    }
+  }
+
+  private boolean isVisible(Ticket ticket, Instant now, int visibilityDays) {
     var createdAt = ticket.getCreatedAt();
     if (createdAt == null) return false;
-    return createdAt.plus(DEFAULT_VISIBILITY).isAfter(now);
+    var window = Duration.ofDays(Math.max(1, visibilityDays));
+    return createdAt.plus(window).isAfter(now);
   }
 
   private TicketVerificationResult toResult(Ticket ticket) {
@@ -71,7 +117,7 @@ public class VerifyPublicTicketQueryHandler
 
     // try to resolve outlet and its address from terminal -> outlet
     String outletName = null;
-    var outletAddress = (com.tchalanet.server.core.address.domain.model.Address) null;
+    var outletAddress = (Address) null;
     try {
       var terminalOpt =
           terminalReader.findById(

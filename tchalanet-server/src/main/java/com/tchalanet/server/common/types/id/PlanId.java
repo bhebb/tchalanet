@@ -2,8 +2,9 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Value Object for a Plan's unique identifier. */
+/** Typed identifier for Plan. */
 public record PlanId(UUID value) {
+
   public PlanId {
     if (value == null) throw new IllegalArgumentException("PlanId.value is null");
   }
@@ -12,26 +13,21 @@ public record PlanId(UUID value) {
     return new PlanId(value);
   }
 
-  /** Return PlanId or null if id is null */
-  public static PlanId nullableOf(UUID id) {
-    return id == null ? null : new PlanId(id);
+  /** Convenience for mappers: returns null if raw is null. */
+  public static PlanId nullableOf(UUID raw) {
+    return raw == null ? null : new PlanId(raw);
   }
 
-  public static PlanId of(String id) {
-    if (id == null) throw new IllegalArgumentException("plan id string is required");
-    return new PlanId(UUID.fromString(id));
-  }
-
-  public static PlanId random() {
-    return new PlanId(UUID.randomUUID());
+  /** Parse from UUID string (web/input). */
+  public static PlanId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("PlanId string is required");
+    }
+    return new PlanId(UUID.fromString(raw));
   }
 
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  public UUID uuid() {
-    return value;
   }
 }

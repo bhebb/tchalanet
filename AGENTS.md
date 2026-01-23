@@ -1,3 +1,25 @@
+<!-- OPENSPEC:START -->
+
+# OpenSpec Instructions
+
+These instructions are for AI assistants working in this project.
+
+Always open `@/openspec/AGENTS.md` when the request:
+
+- Mentions planning or proposals (words like proposal, spec, change, plan)
+- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
+- Sounds ambiguous and you need the authoritative spec before coding
+
+Use `@/openspec/AGENTS.md` to learn:
+
+- How to create and apply change proposals
+- Spec format and conventions
+- Project structure and guidelines
+
+Keep this managed block so 'openspec update' can refresh the instructions.
+
+<!-- OPENSPEC:END -->
+
 # AGENTS.md — Tchalanet (Monorepo Source of Truth)
 
 Ce fichier est la source de vérité pour toute IA (Copilot inclus) et tout contributeur.
@@ -11,6 +33,17 @@ Ce fichier couvre TOUS les scopes :
 - mobile (Ionic)
 - infra / DevOps
 - edge-service
+
+---
+
+## OpenSpec integration (MANDATORY)
+
+For planning, architectural changes, refactors, or new domains:
+
+- Agents MUST follow the OpenSpec workflow
+- See: `openspec/AGENTS.md`
+- Changes MUST be proposed under `openspec/changes/`
+- Direct implementation without proposal is forbidden
 
 ---
 
@@ -33,9 +66,10 @@ Avant de coder ou générer quoi que ce soit :
    - Backend domain : `tchalanet-server/src/**/DOMAIN_*.md`
    - Backend feature : `tchalanet-server/src/**/FEATURE_*.md`
    - Backend conventions : `tchalanet-server/docs/conventions/*`
+   - Backend naming : `tchalanet-server/docs/NAMING.md`
    - Web : `apps/tchalanet-web/README.md` + `libs/**/README.md`
    - Infra : `tchalanet-infra/docs/**`
-10. Ne PAS inventer de pattern s’il en existe déjà un
+10. Ne PAS inventer de pattern s'il en existe déjà un
 
 Si une règle doit être cassée → **ADR obligatoire** (`tchalanet-docs/docs/03-adr/`).
 

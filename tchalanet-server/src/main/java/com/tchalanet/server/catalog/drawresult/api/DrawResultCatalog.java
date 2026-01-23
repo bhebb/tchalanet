@@ -2,31 +2,17 @@ package com.tchalanet.server.catalog.drawresult.api;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import com.tchalanet.server.catalog.drawresult.domain.model.DrawResult;
-import com.tchalanet.server.catalog.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+
 import java.time.Instant;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-public class DrawResultCatalog {
+public interface DrawResultCatalog {
 
-  private final DrawResultReaderPort reader;
+    Optional<DrawResultId> findIdByResultSlotIdAndOccurredAt(ResultSlotId resultSlotId, Instant occurredAt);
 
-  @Cacheable(
-      cacheNames = "drawresult.id.bySlotOccurred",
-      key = "#resultSlotId.uuid().toString() + '|' + #occurredAt.getEpochSecond()")
-  public Optional<DrawResultId> findByResulSlotIdAndOccurredAt(
-      ResultSlotId resultSlotId, Instant occurredAt) {
-    if (resultSlotId == null || occurredAt == null) return Optional.empty();
-    return reader.findByResultSlotIdAndOccurredAt(resultSlotId, occurredAt);
-  }
+    DrawResultView getById(DrawResultId id);
 
-  @Cacheable(cacheNames = "drawresult.id.byId", key = "#id.uuid().toString()")
-  public DrawResult getById(DrawResultId id) {
-    return reader.getById(id);
-  }
+    TchPage<DrawResultView> search(DrawResultsCriteria criteria, TchPageRequest pageReq);
 }

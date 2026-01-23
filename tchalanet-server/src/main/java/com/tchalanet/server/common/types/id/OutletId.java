@@ -2,43 +2,32 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Value object identifier for Outlet. */
+/** Typed identifier for Outlet. */
 public record OutletId(UUID value) {
 
   public OutletId {
     if (value == null) throw new IllegalArgumentException("OutletId.value is null");
   }
 
-  /** Static factory from UUID. */
   public static OutletId of(UUID value) {
     return new OutletId(value);
   }
 
-  /** Return OutletId or null if id is null */
-  public static OutletId nullableOf(UUID id) {
-    return id == null ? null : new OutletId(id);
+  /** Convenience for mappers: returns null if raw is null. */
+  public static OutletId nullableOf(UUID raw) {
+    return raw == null ? null : new OutletId(raw);
   }
 
-  /**
-   * Static factory from String representation of UUID.
-   *
-   * @throws IllegalArgumentException if the string is not a valid UUID
-   */
-  public static OutletId of(String id) {
-    if (id == null) throw new IllegalArgumentException("outlet id string is required");
-    return new OutletId(UUID.fromString(id));
-  }
-
-  public static OutletId random() {
-    return new OutletId(UUID.randomUUID());
+  /** Parse from UUID string (web/input). */
+  public static OutletId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("OutletId string is required");
+    }
+    return new OutletId(UUID.fromString(raw));
   }
 
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  public UUID uuid() {
-    return value;
   }
 }

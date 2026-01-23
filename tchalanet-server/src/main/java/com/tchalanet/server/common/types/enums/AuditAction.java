@@ -14,5 +14,6 @@ public enum AuditAction {
   CACHE_CLEAR,
   SETTLE,
   ARCHIVE,
+  LIST,  // v1 decision: audit read-many operations
   OTHER
 }

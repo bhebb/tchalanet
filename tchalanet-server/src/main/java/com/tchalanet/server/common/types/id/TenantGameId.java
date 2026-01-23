@@ -2,7 +2,9 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
+/** Typed identifier for TenantGame. */
 public record TenantGameId(UUID value) {
+
   public TenantGameId {
     if (value == null) throw new IllegalArgumentException("TenantGameId.value is null");
   }
@@ -11,26 +13,21 @@ public record TenantGameId(UUID value) {
     return new TenantGameId(value);
   }
 
-  /** Return TenantGameId or null if id is null */
-  public static TenantGameId nullableOf(UUID id) {
-    return id == null ? null : new TenantGameId(id);
+  /** Convenience for mappers: returns null if raw is null. */
+  public static TenantGameId nullableOf(UUID raw) {
+    return raw == null ? null : new TenantGameId(raw);
   }
 
-  public static TenantGameId of(String id) {
-    if (id == null) throw new IllegalArgumentException("tenant game id string is required");
-    return new TenantGameId(UUID.fromString(id));
+  /** Parse from UUID string (web/input). */
+  public static TenantGameId parse(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("TenantGameId string is required");
+    }
+    return new TenantGameId(UUID.fromString(raw));
   }
 
-  public static TenantGameId random() {
-    return new TenantGameId(UUID.randomUUID());
-  }
-
-  /** Return the underlying UUID value */
-  public UUID uuid() {
-    return value;
-  }
-
-  public UUID value() {
-    return value;
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

@@ -5,6 +5,7 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
 import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
@@ -26,6 +27,7 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
   private final PosSessionWriterPort sessionWriter;
   private final DomainEventPublisher domainEventPublisher;
   private final Clock clock;
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
@@ -49,7 +51,7 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
 
     var session =
         PosSession.open(
-            SessionId.random(),
+            SessionId.of(idGenerator.newUuid()),
             command.tenantId(),
             command.outletId(),
             command.terminalId(),

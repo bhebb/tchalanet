@@ -4,6 +4,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DaysOfWeekParser;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
 import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
@@ -32,6 +33,7 @@ public class GenerateDrawsForRangeCommandHandler
 
   private final DrawChannelReaderPort drawChannelQueryPort;
   private final DrawLifecyclePort drawLifecyclePort;
+  private final IdGenerator idGenerator;
 
   @Override
   public GenerateDrawsForRangeResult handle(GenerateDrawsForRangeCommand command) {
@@ -120,7 +122,7 @@ public class GenerateDrawsForRangeCommandHandler
 
         rows.add(
             new NewDrawRow(
-                DrawId.random(),
+                DrawId.of(idGenerator.newUuid()),
                 command.tenantId(),
                 c.channelId(),
                 drawDateLocal, // draw_date computed in channel local timezone

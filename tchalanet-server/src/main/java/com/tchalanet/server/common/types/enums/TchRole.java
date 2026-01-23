@@ -5,8 +5,9 @@ package com.tchalanet.server.common.types.enums;
  * surtout pour le mapping avec Keycloak / configuration.
  */
 public enum TchRole {
-  SUPER_ADMIN, // plateforme entière
-  TENANT_ADMIN, // admin d'un tenant
-  OPERATOR, // chef de PDV / opérateur
-  CASHIER // caissier POS
+    SUPER_ADMIN, // plateforme entière
+    TENANT_ADMIN, // admin d'un tenant
+    OPERATOR, // chef de PDV / opérateur
+    CASHIER, // caissier POS
+    SYSTEM; // rôles système
 }

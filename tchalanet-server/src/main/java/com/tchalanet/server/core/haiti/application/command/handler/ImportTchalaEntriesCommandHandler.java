@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.haiti.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.TchalaEntryId;
 import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand;
 import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand.ImportRow;
 import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
@@ -25,12 +27,14 @@ public final class ImportTchalaEntriesCommandHandler
   private final TchalaImportSourcePort importPort;
   private final TchalaEntryRepositoryPort repo;
   private final Clock clock;
+  private final IdGenerator idGenerator;
 
   public ImportTchalaEntriesCommandHandler(
-      TchalaImportSourcePort importPort, TchalaEntryRepositoryPort repo, Clock clock) {
+      TchalaImportSourcePort importPort, TchalaEntryRepositoryPort repo, Clock clock, IdGenerator idGenerator) {
     this.importPort = Objects.requireNonNull(importPort);
     this.repo = Objects.requireNonNull(repo);
     this.clock = Objects.requireNonNull(clock);
+    this.idGenerator = Objects.requireNonNull(idGenerator);
   }
 
   @Override
@@ -77,12 +81,14 @@ public final class ImportTchalaEntriesCommandHandler
             com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry e =
                 com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry
                     .newSuggestionFromImport(
+                        TchalaEntryId.of(idGenerator.newUuid()),
                         lang, dream, numbers, r.note(), Optional.empty(), Instant.now(clock));
             repo.save(e);
             createdPending++;
           } else {
             com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry e =
                 com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry.newCanonical(
+                    TchalaEntryId.of(idGenerator.newUuid()),
                     lang,
                     dream,
                     numbers,
@@ -105,6 +111,7 @@ public final class ImportTchalaEntriesCommandHandler
               var pending =
                   com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry
                       .newSuggestionFromImport(
+                          TchalaEntryId.of(idGenerator.newUuid()),
                           lang,
                           dream,
                           numbers,
@@ -123,6 +130,7 @@ public final class ImportTchalaEntriesCommandHandler
                           .UNION_NUMBERS);
               var newCanon =
                   com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry.newCanonical(
+                      TchalaEntryId.of(idGenerator.newUuid()),
                       canonical.lang(),
                       canonical.dream(),
                       merged,

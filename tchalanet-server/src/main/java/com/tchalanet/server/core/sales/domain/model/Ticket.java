@@ -111,6 +111,7 @@ public class Ticket {
 
     // ---- Factory: SOLD directly
     public static Ticket sell(
+        TicketId id,
         TenantId tenantId,
         TerminalId terminalId,
         SessionId sessionId,
@@ -121,12 +122,13 @@ public class Ticket {
         List<TicketLine> lines,
         Instant now) {
 
+        Objects.requireNonNull(id, "id");
         Objects.requireNonNull(now, "now");
         Objects.requireNonNull(lines, "lines");
         BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new Ticket(
-            TicketId.random(),
+            id,
             tenantId,
             terminalId,
             sessionId,
@@ -148,6 +150,7 @@ public class Ticket {
 
     // ---- Factory: PENDING_APPROVAL
     public static Ticket pendingApproval(
+        TicketId id,
         TenantId tenantId,
         TerminalId terminalId,
         SessionId sessionId,
@@ -158,12 +161,13 @@ public class Ticket {
         List<TicketLine> lines,
         Instant now) {
 
+        Objects.requireNonNull(id, "id");
         Objects.requireNonNull(now, "now");
         Objects.requireNonNull(lines, "lines");
         BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new Ticket(
-            TicketId.random(),
+            id,
             tenantId,
             terminalId,
             sessionId,
@@ -185,6 +189,7 @@ public class Ticket {
 
     // ---- Factory: PENDING_APPROVAL with approval request id
     public static Ticket requestApproval(
+        TicketId id,
         TenantId tenantId,
         TerminalId terminalId,
         SessionId sessionId,
@@ -196,13 +201,14 @@ public class Ticket {
         Instant now,
         UUID approvalRequestId) {
 
+        Objects.requireNonNull(id, "id");
         Objects.requireNonNull(now, "now");
         Objects.requireNonNull(approvalRequestId, "approvalRequestId");
         Objects.requireNonNull(lines, "lines");
         BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new Ticket(
-            TicketId.random(),
+            id,
             tenantId,
             terminalId,
             sessionId,

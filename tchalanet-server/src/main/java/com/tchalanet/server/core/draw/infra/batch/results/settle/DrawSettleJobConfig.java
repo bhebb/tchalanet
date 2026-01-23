@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
-import com.tchalanet.server.common.batch.BatchTchContextJobListener;
+import com.tchalanet.server.common.batch.context.BatchJobExecutionListener;
 import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.Job;
@@ -19,29 +19,31 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class DrawSettleJobConfig {
 
-  private final JobRepository jobRepository;
-  private final PlatformTransactionManager batchTxManager;
-  private final ItemReader<DrawId> settleableDrawIdsReader;
-  private final ItemProcessor<DrawId, DrawId> settleProcessor;
-  private final ItemWriter<DrawId> settleWriter;
-  private final BatchTchContextJobListener listener;
+    private final JobRepository jobRepository;
+    private final PlatformTransactionManager batchTxManager;
 
-  @Bean
-  public Job settleDrawsJob() {
-    return new JobBuilder("settle_draws", jobRepository)
-        .listener(listener)
-        .start(settleStep())
-        .build();
-  }
+    private final ItemReader<DrawId> settleableDrawIdsReader;
+    private final ItemProcessor<DrawId, DrawId> settleProcessor;
+    private final ItemWriter<DrawId> settleWriter;
 
-  @Bean
-  public Step settleStep() {
-    return new StepBuilder("settleDrawsStep", jobRepository)
-        .<DrawId, DrawId>chunk(10)
-        .transactionManager(batchTxManager)
-        .reader(settleableDrawIdsReader)
-        .processor(settleProcessor)
-        .writer(settleWriter)
-        .build();
-  }
+    private final BatchJobExecutionListener listener;
+
+    @Bean(name = "settleDrawsJob") // must match JobRegistry springJobBeanName
+    public Job settleDrawsJob() {
+        return new JobBuilder("settle_draws", jobRepository)
+            .listener(listener)
+            .start(settleStep())
+            .build();
+    }
+
+    @Bean
+    public Step settleStep() {
+        return new StepBuilder("settleDrawsStep", jobRepository)
+            .<DrawId, DrawId>chunk(10)          // ✅ SB6: use chunk(int)
+            .transactionManager(batchTxManager) // ✅ SB6: set tx manager here
+            .reader(settleableDrawIdsReader)
+            .processor(settleProcessor)
+            .writer(settleWriter)
+            .build();
+    }
 }

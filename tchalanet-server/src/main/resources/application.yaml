@@ -37,7 +37,7 @@ spring:
     import:
       - optional:classpath:application-draw.yml
       - optional:classpath:application-uslottery.yml
-      -
+
   # --- servlet path: ensure all MVC and Spring Data REST endpoints are prefixed with /api/v1 ---
   mvc:
     servlet:

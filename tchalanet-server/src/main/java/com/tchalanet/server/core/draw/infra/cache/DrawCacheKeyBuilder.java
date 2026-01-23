@@ -10,10 +10,6 @@ public class DrawCacheKeyBuilder {
   @Value("${app.env:dev}")
   private String env;
 
-  public String last7d(TenantId tenantId) {
-    return String.format("tch:%s:%s:draws:last7d", env, tenantId);
-  }
-
   public String today(TenantId tenantId) {
     return String.format("tch:%s:%s:draws:today", env, tenantId);
   }

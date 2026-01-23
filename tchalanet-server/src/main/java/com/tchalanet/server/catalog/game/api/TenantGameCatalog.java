@@ -2,7 +2,7 @@ package com.tchalanet.server.catalog.game.api;
 
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.catalog.game.domain.model.TenantGame;
-import com.tchalanet.server.catalog.game.internal.application.port.out.ListTenantGamesPort;
+import com.tchalanet.server.catalog.game.api.ListTenantGamesPort;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
