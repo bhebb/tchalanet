@@ -1,5 +1,7 @@
 package com.tchalanet.server.catalog.theme.api;
 
+import com.tchalanet.server.common.types.id.ThemePresetId;
+
 import java.util.List;
 import java.util.Optional;
 

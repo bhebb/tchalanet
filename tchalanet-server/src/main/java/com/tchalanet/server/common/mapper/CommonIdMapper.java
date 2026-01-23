@@ -21,11 +21,17 @@ public class CommonIdMapper {
         return TenantId.nullableOf(id);
     }
 
-    // UserId
+
+    //address
     public UUID mapFromAddressId(AddressId id) {
         return id == null ? null : id.value();
     }
 
+    public AddressId mapToAddressId(UUID id) {
+        return AddressId.nullableOf(id);
+    }
+
+    // UserId
     public UUID mapFromUserId(UserId id) {
         return id == null ? null : id.value();
     }
