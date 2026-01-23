@@ -9,6 +9,6 @@ public class StringToUserIdConverter implements Converter<String, UserId> {
   @Override
   public UserId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return UserId.of(source);
+    return UserId.parse(source);
   }
 }

@@ -9,6 +9,6 @@ public class StringToTerminalIdConverter implements Converter<String, TerminalId
   @Override
   public TerminalId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return TerminalId.of(source);
+    return TerminalId.parse(source);
   }
 }

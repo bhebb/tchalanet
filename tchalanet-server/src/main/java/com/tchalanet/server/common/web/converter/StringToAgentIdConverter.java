@@ -9,6 +9,6 @@ public class StringToAgentIdConverter implements Converter<String, AgentId> {
   @Override
   public AgentId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return AgentId.of(source);
+    return AgentId.parse(source);
   }
 }

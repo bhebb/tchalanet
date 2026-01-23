@@ -9,6 +9,6 @@ public class StringToRoleIdConverter implements Converter<String, RoleId> {
   @Override
   public RoleId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return RoleId.of(java.util.UUID.fromString(source));
+    return RoleId.parse(source);
   }
 }

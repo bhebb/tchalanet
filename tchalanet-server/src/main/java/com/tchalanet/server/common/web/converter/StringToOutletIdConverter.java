@@ -9,6 +9,6 @@ public class StringToOutletIdConverter implements Converter<String, OutletId> {
   @Override
   public OutletId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return OutletId.of(source);
+    return OutletId.parse(source);
   }
 }

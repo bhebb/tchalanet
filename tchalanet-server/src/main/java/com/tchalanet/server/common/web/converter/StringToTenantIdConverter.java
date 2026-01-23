@@ -9,6 +9,6 @@ public class StringToTenantIdConverter implements Converter<String, TenantId> {
   @Override
   public TenantId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return TenantId.of(source);
+    return TenantId.parse(source);
   }
 }

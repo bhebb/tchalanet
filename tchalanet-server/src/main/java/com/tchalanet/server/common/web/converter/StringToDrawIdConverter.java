@@ -9,6 +9,6 @@ public class StringToDrawIdConverter implements Converter<String, DrawId> {
   @Override
   public DrawId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return DrawId.of(source);
+    return DrawId.parse(source);
   }
 }

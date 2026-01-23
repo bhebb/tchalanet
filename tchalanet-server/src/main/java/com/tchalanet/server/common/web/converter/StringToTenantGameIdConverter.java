@@ -9,6 +9,6 @@ public class StringToTenantGameIdConverter implements Converter<String, TenantGa
   @Override
   public TenantGameId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return TenantGameId.of(java.util.UUID.fromString(source));
+    return TenantGameId.parse(source);
   }
 }

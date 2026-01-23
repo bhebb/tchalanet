@@ -9,6 +9,6 @@ public class StringToTicketIdConverter implements Converter<String, TicketId> {
   @Override
   public TicketId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return TicketId.of(source);
+    return TicketId.parse(source);
   }
 }

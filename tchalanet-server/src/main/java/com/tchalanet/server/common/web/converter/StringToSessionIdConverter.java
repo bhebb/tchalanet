@@ -9,6 +9,6 @@ public class StringToSessionIdConverter implements Converter<String, SessionId> 
   @Override
   public SessionId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return SessionId.of(source);
+    return SessionId.parse(source);
   }
 }
