@@ -1,11 +1,11 @@
 package com.tchalanet.server.catalog.theme.api;
 
-import java.time.Instant;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.time.Instant;
 
 public record ThemePresetView(
-    UUID id,
+    ThemePresetId id,
     String code,
     String vendor,
     JsonNode config,

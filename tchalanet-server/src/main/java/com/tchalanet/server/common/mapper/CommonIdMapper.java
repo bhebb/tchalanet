@@ -105,4 +105,13 @@ public class CommonIdMapper {
     public SessionId mapToSessionId(UUID id) {
         return SessionId.nullableOf(id);
     }
+
+    // ThemePresetId
+    public UUID mapFromThemePresetId(ThemePresetId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ThemePresetId mapToThemePresetId(UUID id) {
+        return ThemePresetId.nullableOf(id);
+    }
 }

@@ -21,7 +21,7 @@ public class ThemePresetAdminService {
     private final ThemePresetMapper mapper;
 
     @Transactional
-    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE, ThemeCacheNames.BY_CODE}, allEntries = true)
+    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
     public ThemePresetView create(ThemePresetCreateRequest req) {
         var e = new ThemePresetJpaEntity();
         e.setCode(req.code());
@@ -34,7 +34,7 @@ public class ThemePresetAdminService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE, ThemeCacheNames.BY_CODE}, allEntries = true)
+    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
     public ThemePresetView update(UUID id, ThemePresetUpdateRequest req) {
         var e = repo.findById(id).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
         if (req.code() != null) e.setCode(req.code());
@@ -47,13 +47,14 @@ public class ThemePresetAdminService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE, ThemeCacheNames.BY_CODE}, allEntries = true)
+    @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
     public void softDelete(UUID id) {
         var e = repo.findById(id).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
         e.setDeletedAt(Instant.now());
+        e.setActive(false); // archive: mark inactive as well
         repo.save(e);
     }
 
-    public static record ThemePresetCreateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
-    public static record ThemePresetUpdateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
+    public record ThemePresetCreateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
+    public record ThemePresetUpdateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
 }

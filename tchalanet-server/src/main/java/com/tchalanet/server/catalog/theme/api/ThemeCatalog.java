@@ -3,8 +3,12 @@ package com.tchalanet.server.catalog.theme.api;
 import java.util.List;
 import java.util.Optional;
 
-/** Public contract for accessing ThemePreset catalog (read-only). */
-public interface ThemePresetCatalog {
+/**
+ * Backwards-compatible alias matching the spec name `ThemeCatalog`.
+ * The implementation may use ThemePresetCatalog internally; this interface
+ * is the public contract referenced by the spec.
+ */
+public interface ThemeCatalog {
 
     List<ThemePresetView> listActive();
 

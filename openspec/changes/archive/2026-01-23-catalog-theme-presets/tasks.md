@@ -44,6 +44,7 @@ Phase 1 — Catalogue (catalog/theme)
 
    - [x] Tests unitaires pour `ThemePresetMapper`.
    - [x] Tests d'intégration H2 pour `ThemePresetCatalogImpl` (list/findById/findByCode, filtre deleted_at).
+   - [ ] Tests de sécurité pour controller admin (permissions).
    - [x] Ajouter ArchUnit tests :
      - [x] `catalog.*.api` ne doit pas dépendre de `catalog.*.internal`
      - [ ] `catalog.*.internal.*.web` ne doit pas exposer JPA entities
@@ -52,7 +53,7 @@ Phase 1 — Catalogue (catalog/theme)
    - [ ] `DOMAIN_THEME.md` (résumé du domaine et du split)
    - [ ] Mettre à jour docs d'architecture et README de module
 
-Phase 2 — Core tenanttheme
+Phase 2 — Core tenanttheme (spec ajouté)
 
 1. Scaffolding core/tenanttheme
 
@@ -60,7 +61,7 @@ Phase 2 — Core tenanttheme
 
 2. Domain & Commands
 
-   - [ ] `ApplyTenantThemeCommand`, `DeactivateTenantThemeCommand` et handlers en deplacant les handlers/port/domaine de catalog/theme
+   - [ ] `ApplyTenantThemeCommand`, `DeactivateTenantThemeCommand` et handlers
    - [ ] Command handlers doivent valider le preset via `ThemePresetCatalog` (read API)
 
 3. Persistence & events
@@ -69,7 +70,7 @@ Phase 2 — Core tenanttheme
    - [ ] Publier `TenantThemeUpdatedEvent` après commit
 
 4. Tests
-   - [ ] Unit tests pour handlers
+   - [ ] Unit/Integration tests pour handlers
 
 Phase 3 — cleanup
 

@@ -2,21 +2,20 @@ package com.tchalanet.server.catalog.theme.internal.mapper;
 
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaEntity;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
 public abstract class ThemePresetMapper {
-
-    public static final ThemePresetMapper INSTANCE = Mappers.getMapper(ThemePresetMapper.class);
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @Autowired
+    protected CommonIdMapper idMapper;
 
     public ThemePresetView toView(ThemePresetJpaEntity e) {
         JsonNode configNode = null;
@@ -26,7 +25,7 @@ public abstract class ThemePresetMapper {
             // ignore; return null config
         }
         return new ThemePresetView(
-            e.getId(),
+            idMapper.mapToThemePresetId(e.getId()),
             e.getCode(),
             e.getVendor(),
             configNode,
