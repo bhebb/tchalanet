@@ -4,7 +4,7 @@
 
 This specification defines the normative policy for handling `TenantTheme` references when a `ThemePreset` is retired (soft-deleted or deactivated) in `catalog/theme`.
 
-Goal: ensure **no tenant is broken**, maintain traceability, and make "preset unavailable" state visible.
+Goal: ensure **no tenant is broken**, maintain traceability, and make "preset unavailable" states visible and observable.
 
 ---
 
@@ -14,11 +14,18 @@ Goal: ensure **no tenant is broken**, maintain traceability, and make "preset un
 
 The system MUST NOT provide hard delete functionality for `ThemePreset` entities.
 
-- Allowed operations:
-  - `active=false` (depublication/deactivation)
-  - `deleted_at != NULL` (definitive retirement via soft-delete)
+Allowed operations:
+
+- `active=false` (depublication / deactivation)
+- `deleted_at != NULL` (definitive retirement via soft-delete)
+
+Read behavior:
+
 - All read operations MUST filter `deleted_at IS NULL`
 - `listActive()` MUST filter `deleted_at IS NULL AND active=true`
+- `findByCode` and `findById` MUST return presets even when `active=false`
+  (as long as `deleted_at IS NULL`) and MUST expose the `active` flag
+  in `ThemePresetView`
 
 #### Scenario: admin attempts to permanently delete preset
 
@@ -64,18 +71,28 @@ When a preset is retired or depublished, the system MUST NOT automatically modif
 
 `core/tenanttheme` MUST apply a fallback when resolving the effective theme if the referenced preset is unavailable.
 
-**Unavailable** = (preset not found) OR (preset soft-deleted) OR (preset inactive)
+**Unavailable** means:
 
-**Fallback cascade** (in order):
+- preset not found
+- preset soft-deleted
+- preset inactive (`active=false`)
 
-1. Tenant default (if `tenant.default_theme_preset_code` configured)
-2. Platform default (preset marked as default or conventional code `default-light`)
-3. Hardcoded safe preset (last resort: `default-light`)
+Fallback cascade (in order):
+
+1. Tenant default (if configured via tenant configuration/registry)
+2. Platform default (the single preset flagged as default; MUST be unique)
+   - If none is flagged, fall back to conventional code `default-light`
+3. Hardcoded safe preset (`default-light`) as last resort
+
+Tenant default resolution source is implementation-defined (e.g. `TenantConfig` or `TenantCatalog` registry), but MUST be stable and deterministic.
 
 The module MUST emit a warning notice when fallback is applied:
 
 - Code: `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED`
-- Metadata: `{ tenantId, requestedPresetCode, fallbackPresetCode, timestamp }`
+- Metadata:
+  `{ tenantId, requestedPresetCode, fallbackPresetCode, timestamp }`
+
+The warning notice MUST be emitted through the standard API notice mechanism (e.g. ApiResponse notices) and MUST also be logged (see NF1).
 
 #### Scenario: resolve theme with active preset (happy path)
 
@@ -92,15 +109,14 @@ The module MUST emit a warning notice when fallback is applied:
 - And: preset "old-preset" exists but `active=false`
 - And: platform default "default-light" exists and is active
 - When: `ResolveTenantThemeQuery(tenantId=T)` is executed
-- Then: fallback service is invoked
+- Then: fallback is applied
 - And: platform default "default-light" is returned
 - And: warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` is emitted
-- And: notice contains `requestedPresetCode="old-preset"`, `fallbackPresetCode="default-light"`
 
 #### Scenario: resolve theme with soft-deleted preset triggers fallback
 
 - Given: tenant T has `tenant_theme.preset_code = "archived"`
-- And: preset "archived" has `deleted_at != NULL` (filtered by reads)
+- And: preset "archived" has `deleted_at != NULL`
 - And: tenant has no default configured
 - And: platform default "default-light" is active
 - When: `ResolveTenantThemeQuery(tenantId=T)` is executed
@@ -126,7 +142,7 @@ The system MAY provide explicit remediation actions (future enhancement, out of 
 - Admin action "reset tenant themes using preset X"
 - Batch migration job
 
-Such remediation MUST be **opt-in** and never implicit at the moment of preset retirement.
+Such remediation MUST be opt-in and MUST NOT be implicit at the moment of preset retirement.
 
 #### Scenario: no automatic migration on preset retirement
 
@@ -142,19 +158,25 @@ Such remediation MUST be **opt-in** and never implicit at the moment of preset r
 
 ### Requirement: theme-preset R2 (modified) — Admin writes (internal)
 
-The catalog MUST provide an internal admin service for management operations (create / update / **deactivate** / soft-delete).
+The catalog MUST provide an internal admin service for management operations: create, update, deactivate, and soft-delete.
 
-- Service: `catalog/theme/internal/write/ThemePresetAdminService`
-- Return type: `ThemePresetView` (mapping via MapStruct)
-- Operations:
-  - `create(...)` → new preset
-  - `update(...)` → modify preset
-  - **`deactivate(ThemePresetId)` → set `active=false` only**
-  - `softDelete(ThemePresetId)` → set `deleted_at=now()` AND `active=false`
-- **Hard delete operation MUST NOT exist**
-- Cache invalidation MUST evict:
-  - `catalog.theme.cache.ACTIVE_PRESETS`
-  - `catalog.theme.cache.PRESET_BY_CODE`
+Service:
+
+- `catalog/theme/internal/write/ThemePresetAdminService`
+
+Operations:
+
+- `create(...)` → new preset
+- `update(...)` → modify preset
+- `deactivate(ThemePresetId)` → set `active=false`
+- `softDelete(ThemePresetId)` → set `deleted_at=now()` AND `active=false`
+
+Hard delete MUST NOT exist.
+
+Cache invalidation MUST evict:
+
+- `catalog.theme.cache.ACTIVE_PRESETS`
+- `catalog.theme.cache.PRESET_BY_CODE`
 
 #### Scenario: deactivate preset (depublication)
 
@@ -178,21 +200,24 @@ The catalog MUST provide an internal admin service for management operations (cr
 
 ### NF1 — Observability
 
-- Fallback events MUST be logged with structured format (JSON)
+- Fallback events MUST be logged in structured JSON format
 - Log level: WARN
 - Log marker: `TENANT_THEME_FALLBACK`
-- Log payload MUST include: `tenantId`, `requestedPresetCode`, `fallbackPresetCode`, `timestamp`
+- Log payload MUST include:
+  `tenantId`, `requestedPresetCode`, `fallbackPresetCode`, `timestamp`
 
 ### NF2 — Performance
 
-- Fallback resolution MUST NOT introduce significant latency (< 50ms additional)
-- Fallback cascade MUST be short (max 3 lookups)
-- `ThemeCatalog` reads SHOULD be cached (already implemented)
+- Fallback resolution MUST NOT introduce significant latency
+- Target: < 50ms additional latency under warm cache conditions
+- Fallback cascade MUST be limited to a maximum of 3 lookups
+- `ThemeCatalog` reads SHOULD be cached
 
 ### NF3 — Audit
 
-- Retirement of presets MUST preserve audit trail (`deleted_at`, Envers history)
-- Tenant theme entries MUST remain unmodified for audit purposes
+- Retirement of presets MUST preserve audit trail
+  (`deleted_at`, audit columns, history if enabled)
+- `tenant_theme` entries MUST remain unmodified for audit purposes
 
 ---
 
@@ -200,9 +225,11 @@ The catalog MUST provide an internal admin service for management operations (cr
 
 - [ ] Hard delete functionality does not exist in `catalog/theme`
 - [ ] Tenant referencing retired preset obtains effective theme via fallback
-- [ ] Warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` is emitted and observable (logs)
+- [ ] Warning notice `THEME_PRESET_UNAVAILABLE_FALLBACK_APPLIED` is emitted
+      and observable (API notices + logs)
 - [ ] No `tenant_theme` entry is modified automatically when preset is retired
-- [ ] Tests cover all 4 scenarios (active, inactive, soft-deleted, not found)
+- [ ] Tests cover all resolution cases:
+      active, inactive, soft-deleted, not found
 
 ---
 
@@ -210,4 +237,12 @@ The catalog MUST provide an internal admin service for management operations (cr
 
 - Mass remediation (batch migration) implementation
 - Database schema changes (no FK cascade)
-- Automatic correction scheduler/batch
+- Automatic correction scheduler or batch
+
+---
+
+## Notes
+
+- Remediation is intentionally explicit and opt-in
+- Fallback is transparent to tenants
+- Historical tenant theme state is preserved for traceability
