@@ -60,6 +60,7 @@ public class ApplyTenantThemeCommandHandler
             cmd.tenantId(),
             cmd.presetCode(),
             new HashMap<>(), // metadata can be extended later
+            false, // isDefault
             newVersion,
             existing.map(TenantTheme::createdAt).orElse(now),
             now,

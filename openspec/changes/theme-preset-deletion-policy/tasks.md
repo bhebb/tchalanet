@@ -83,13 +83,13 @@ Implémenter la politique de gestion des presets retirés avec fallback automati
 
 ## Phase 5 — Documentation
 
-- [ ] 5.1 Ajouter section dans `DOMAIN_THEME.md` (ou créer si absent)
+- [x] 5.1 Ajouter section dans `DOMAIN_THEME.md` (ou créer si absent)
 
   - Expliquer politique de retrait
   - Expliquer cascade de fallback
   - Expliquer notice warning
 
-- [ ] 5.2 Mettre à jour `README.md` ou `PLAYBOOK.md` si nécessaire
+- [x] 5.2 Mettre à jour `README.md` ou `PLAYBOOK.md` si nécessaire
 
 ---
 

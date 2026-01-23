@@ -12,6 +12,7 @@ public record TenantTheme(
     TenantId tenantId,
     String presetCode,
     Map<String, String> metadata,
+    boolean isDefault,
     long version,
     Instant createdAt,
     Instant updatedAt,

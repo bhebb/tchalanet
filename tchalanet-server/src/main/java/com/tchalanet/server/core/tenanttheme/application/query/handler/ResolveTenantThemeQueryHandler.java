@@ -54,7 +54,7 @@ public class ResolveTenantThemeQueryHandler
     // Preset available → return as-is
     var t = tenantTheme.get();
     return new TenantThemeView(
-        t.tenantId(), t.presetCode(), t.metadata(), t.version(), t.updatedAt());
+        t.tenantId(), t.presetCode(), t.metadata(), t.isDefault(), t.version(), t.updatedAt());
   }
 
   private TenantThemeView applyFallback(
@@ -67,6 +67,7 @@ public class ResolveTenantThemeQueryHandler
         tenantId,
         fallbackCode,
         java.util.Map.of(), // empty metadata for fallback
+        false, // isDefault = false for fallback
         0L, // version 0 for fallback
         Instant.now(clock));
   }

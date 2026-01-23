@@ -30,11 +30,8 @@ public class TenantThemePersistenceAdapter
     entity.setTenantId(tenantTheme.tenantId().value());
     entity.setPresetCode(tenantTheme.presetCode());
     entity.setMetadata(tenantTheme.metadata());
-    entity.setCreatedBy(tenantTheme.createdBy());
-
-    if (entity.getVersion() == null) {
-      entity.setVersion(0L);
-    }
+    entity.setDefaultTheme(tenantTheme.isDefault());
+    // Note: version and createdBy are managed by JPA (@Version) and AuditableEntity
 
     var saved = repository.save(entity);
     return toDomain(saved);
@@ -55,9 +52,10 @@ public class TenantThemePersistenceAdapter
         TenantId.of(entity.getTenantId()),
         entity.getPresetCode(),
         entity.getMetadata(),
-        entity.getVersion() != null ? entity.getVersion() : 0L,
+        entity.isDefaultTheme(),
+        entity.getVersion(),
         entity.getCreatedAt(),
         entity.getUpdatedAt(),
-        entity.getCreatedBy());
+        entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "system");
   }
 }

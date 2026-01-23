@@ -11,5 +11,6 @@ public record TenantThemeView(
     TenantId tenantId,
     String presetCode,
     Map<String, String> metadata,
+    boolean isDefault,
     long version,
     Instant updatedAt) {}

@@ -31,6 +31,7 @@ public abstract class ThemePresetMapper {
             configNode,
             e.getLabelKey(),
             e.isActive(),
+            e.isDefaultPreset(),
             e.getCreatedAt(),
             e.getUpdatedAt()
         );

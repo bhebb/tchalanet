@@ -11,6 +11,7 @@ public record ThemePresetView(
     JsonNode config,
     String labelKey,
     boolean active,
+    boolean isDefault,
     Instant createdAt,
     Instant updatedAt
 ) {}

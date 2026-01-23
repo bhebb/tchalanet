@@ -31,4 +31,7 @@ public class ThemePresetJpaEntity extends BaseEntity {
 
     @Column(name = "active", nullable = false)
     private boolean active = true;
+
+    @Column(name = "is_default", nullable = false)
+    private boolean defaultPreset = false;
 }
