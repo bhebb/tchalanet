@@ -1,33 +1,32 @@
 package com.tchalanet.server.core.tenantgame.infra.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
-import com.tchalanet.server.common.infra.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+/**
+ * JPA entity for tenant-scoped game configuration.
+ * Stores game_id as UUID (FK reference to catalog/game, not as JPA relation).
+ * Per inter_domain_calls.md: core/tenantgame depends on GameCatalog API only,
+ * not on catalog/game internal entities (GameJpaEntity).
+ * Validation of game existence happens at application layer via GameCatalog.
+ */
 @Entity
 @Table(name = "tenant_game")
 @Getter
 @Setter
 public class TenantGameJpaEntity extends BaseTenantEntity {
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(
-      name = "game_id",
-      nullable = false,
-      foreignKey = @ForeignKey(name = "fk_tenant_game_game"))
-  private GameJpaEntity game;
+  @Column(name = "game_id", nullable = false)
+  private UUID gameId;
 
   @Column(name = "enabled", nullable = false)
   private boolean enabled = true;
