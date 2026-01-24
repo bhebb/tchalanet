@@ -166,6 +166,12 @@ Writes MUST be authorized:
 
 Reads needed for bootstrap MUST be permitted for authenticated tenant users.
 
+#### Scenario: tenant admin can apply plan
+
+- Given: user has `TENANT_ADMIN` authority for tenant T
+- When: user executes `ApplyTenantPlanCommand(tenantId=T, ...)`
+- Then: command is allowed
+
 ---
 
 ## Non-Functional Requirements

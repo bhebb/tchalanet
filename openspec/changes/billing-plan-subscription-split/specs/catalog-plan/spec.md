@@ -108,10 +108,9 @@ The `code` property MUST be globally unique.
 
 ### Requirement: P5 — Cache
 
-Catalog read methods SHOULD be cached.
+Catalog read methods SHOULD be cached. Cache names MUST live in `internal/cache/PlanCacheNames`.
 
-- Cache names MUST live in `internal/cache/PlanCacheNames`.
-- Writes MUST evict relevant caches (e.g. ACTIVE list + BY_CODE lookups).
+Writes MUST evict relevant caches (e.g. ACTIVE list + BY_CODE lookups).
 
 #### Scenario: cache eviction on write
 
