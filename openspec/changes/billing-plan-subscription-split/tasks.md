@@ -184,6 +184,38 @@ Implémenter la séparation architecturale catalog/plan (référentiel) + core/s
 
   - `tenantId` (TenantId)
   - `planCode` (String)
+
+- [ ] B4.3 Créer `ChangePlanCommand` + handler
+
+  - Change le plan d'un tenant existant
+  - Valide que le nouveau plan existe et est actif
+  - Mettre à jour `plan_code` + `version++`
+  - Publish `TenantSubscriptionUpdatedEvent(action=PLAN_CHANGED)`
+
+- [ ] B4.4 Créer `CancelSubscriptionCommand` + handler
+
+  - Annule la subscription d'un tenant
+  - Mettre à jour `status = CANCELED`, `canceled_at = now()`
+  - Publish `TenantSubscriptionCanceledEvent`
+
+- [ ] B4.5 Créer `RenewSubscriptionCommand` + handler
+
+  - Renouvelle une subscription (prolonge `ends_at`)
+  - Mettre à jour `ends_at`, `version++`
+  - Publish `TenantSubscriptionRenewedEvent`
+
+- [ ] B4.6 Créer `ResumeSubscriptionCommand` + handler
+
+  - Reprend une subscription suspendue
+  - Mettre à jour `status = ACTIVE`
+  - Publish `TenantSubscriptionResumedEvent`
+
+- [ ] B4.7 Créer `SuspendSubscriptionCommand` + handler (optionnel)
+
+  - Suspend une subscription active
+  - Mettre à jour `status = SUSPENDED`
+  - Publish `TenantSubscriptionSuspendedEvent`
+
   - `effectiveAt` (Instant, nullable)
   - `idempotencyKey` (String, nullable) — future idempotence
 

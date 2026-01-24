@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.shared.block;
 
-import com.tchalanet.server.catalog.billing.domain.model.BillingFrequency;
+import com.tchalanet.server.core.subscription.domain.model.BillingFrequency;
 import com.tchalanet.server.catalog.billing.domain.model.Plan;
 import java.math.BigDecimal;
 import java.util.List;

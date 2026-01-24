@@ -103,6 +103,15 @@ public class CommonIdMapper {
         return RoleId.nullableOf(id);
     }
 
+    // PlanId
+    public UUID mapFromPlanId(PlanId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PlanId mapToPlanId(UUID id) {
+        return PlanId.nullableOf(id);
+    }
+
     // SessionId
     public UUID mapFromSessionId(SessionId id) {
         return id == null ? null : id.value();
