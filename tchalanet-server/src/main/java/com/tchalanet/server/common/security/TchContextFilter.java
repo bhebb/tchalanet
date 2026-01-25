@@ -1,7 +1,8 @@
 package com.tchalanet.server.common.security;
 
+import com.tchalanet.server.catalog.tenant.api.TenantBootstrapView;
+import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bootstrap.tenant.TenantBootstrapInfo;
-import com.tchalanet.server.common.bootstrap.tenant.TenantBootstrapLookup;
 import com.tchalanet.server.common.bootstrap.user.UserBootstrapLookup;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchContext;
@@ -54,12 +55,22 @@ import static com.tchalanet.server.common.constant.TchHeaders.*;
 public class TchContextFilter extends OncePerRequestFilter {
 
     private final ApiProperties props;
-    private final TenantBootstrapLookup tenantLookup;
+    private final TenantCatalog tenantCatalog;
     private final UserBootstrapLookup userLookup;
     private final Clock clock;
 
-    private final TenantCodeToContextInfoCache tenantCache = new TenantCodeToContextInfoCache(clock);
+    private TenantCodeToContextInfoCache tenantCache;
     private final UserSubToUuidCache userCache = new UserSubToUuidCache();
+
+    /**
+     * Lazy initialization of tenantCache to avoid circular dependency with @RequiredArgsConstructor.
+     */
+    private TenantCodeToContextInfoCache getTenantCache() {
+        if (tenantCache == null) {
+            tenantCache = new TenantCodeToContextInfoCache(clock);
+        }
+        return tenantCache;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -270,7 +281,7 @@ public class TchContextFilter extends OncePerRequestFilter {
         var trimmed = codeOrUuid.trim();
 
         // If we already have a cached TenantContextInfo for this code, return it
-        var cachedByCode = tenantCache.getFresh(trimmed);
+        var cachedByCode = getTenantCache().getFresh(trimmed);
         if (cachedByCode.isPresent()) {
             return cachedByCode;
         }
@@ -279,11 +290,13 @@ public class TchContextFilter extends OncePerRequestFilter {
         Optional<TenantBootstrapInfo> resolved = Optional.empty();
         try {
             var maybeUuid = UUID.fromString(trimmed);
-            // try by id
-            resolved = tenantLookup.findTenantInfoById(TenantId.of(maybeUuid));
+            // try by id via catalog
+            resolved = tenantCatalog.findBootstrapById(TenantId.of(maybeUuid))
+                .map(this::toTenantBootstrapInfo);
         } catch (IllegalArgumentException ignored) {
             // not a UUID -> try by code
-            resolved = tenantLookup.findTenantInfoByCode(trimmed);
+            resolved = tenantCatalog.findBootstrapByCode(trimmed)
+                .map(this::toTenantBootstrapInfo);
         }
 
         if (resolved.isEmpty()) {
@@ -293,7 +306,7 @@ public class TchContextFilter extends OncePerRequestFilter {
                 UUID.fromString(trimmed);
                 // was a UUID and not found -> don't cache
             } catch (IllegalArgumentException e) {
-                tenantCache.put(trimmed, null);
+                getTenantCache().put(trimmed, null);
             }
             return Optional.empty();
         }
@@ -307,7 +320,7 @@ public class TchContextFilter extends OncePerRequestFilter {
         );
 
         // cache by tenant code (primary human identifier)
-        tenantCache.put(tenantBootstrap.tenantCode(), tenantContext);
+        getTenantCache().put(tenantBootstrap.tenantCode(), tenantContext);
 
         return Optional.of(tenantContext);
     }
@@ -347,6 +360,19 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     private String valueOrDash(String value) {
         return value != null ? value : "-";
+    }
+
+    /**
+     * Convert TenantBootstrapView (from catalog) to TenantBootstrapInfo (legacy format).
+     * Per migration: catalog/tenant now provides ZoneId and Currency directly.
+     */
+    private TenantBootstrapInfo toTenantBootstrapInfo(TenantBootstrapView view) {
+        return new TenantBootstrapInfo(
+            view.code(),
+            view.tenantId(),
+            view.timezone(),
+            view.currency()
+        );
     }
 
     private record AuthData(

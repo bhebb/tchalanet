@@ -16,7 +16,7 @@ public class AddressDedupeKeyFactory {
    * @param normalizedAddress output of AddressNormalizer.normalize()
    * @return 64-char hex string (SHA-256)
    */
-  public static String generateKey(String normalizedAddress) {
+  public static String sha256Hex(String normalizedAddress) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] encoded = digest.digest(normalizedAddress.getBytes(StandardCharsets.UTF_8));
@@ -42,6 +42,6 @@ public class AddressDedupeKeyFactory {
    */
   public static String generateKeyFromFields(String line1, String line2, String city, String region, String country, String postalCode) {
     String normalized = AddressNormalizer.normalize(line1, line2, city, region, country, postalCode);
-    return generateKey(normalized);
+    return sha256Hex(normalized);
   }
 }

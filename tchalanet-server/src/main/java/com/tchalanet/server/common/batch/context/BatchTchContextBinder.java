@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.batch.context;
 
-import com.tchalanet.server.common.bootstrap.tenant.TenantBootstrapLookup;
+import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TenantContextInfo;
@@ -21,7 +22,7 @@ import java.util.UUID;
 /**
  * Binds JobParameters to TchRequestContext for TENANT-scoped batch jobs.
  *
- * Source of truth for tenantZoneId/tenantCurrency is TenantBootstrapLookup (not job parameters).
+ * Source of truth for tenantZoneId/tenantCurrency is TenantCatalog (not job parameters).
  * Job parameters may optionally include tenant_zone_id/tenant_currency for safety checks, but they
  * are not used to override tenant settings.
  */
@@ -30,7 +31,7 @@ import java.util.UUID;
 @Slf4j
 public class BatchTchContextBinder {
 
-    private final TenantBootstrapLookup tenantLookup;
+    private final TenantCatalog tenantCatalog;
 
     /**
      * Bind JobParameters to thread-local context.
@@ -46,11 +47,11 @@ public class BatchTchContextBinder {
         var requestId = defaultStr(jp.getString(BatchParamKeys.REQUEST_ID), UUID.randomUUID().toString());
         var actor = defaultStr(jp.getString(BatchParamKeys.ACTOR), "batch");
 
-        // Load tenant info (source of truth) - includes tenantCode
-        var info = tenantLookup.findTenantInfoById(tenantId)
+        // Load tenant info (source of truth) via catalog - includes tenantCode, ZoneId, Currency
+        var info = tenantCatalog.findBootstrapById(tenantId)
             .orElseThrow(() -> new IllegalArgumentException("Unknown tenant_id: " + tenantId));
 
-        ZoneId effectiveZone = info.tenantZoneId();
+        ZoneId effectiveZone = info.timezone();
         var effectiveCurrency = info.currency();
 
         // Optional safety checks (do NOT override)
@@ -84,9 +85,9 @@ public class BatchTchContextBinder {
 
         // Build TchRequestContext using the tenant code (from bootstrap info)
         var ctx = new TchRequestContext(
-            info.tenantCode(),                   // originalTenantCode
+            info.code(),                         // originalTenantCode
             tenantId.value(),                    // originalTenantUuid
-            info.tenantCode(),                   // effectiveTenantCode
+            info.code(),                         // effectiveTenantCode
             tenantId.value(),                    // effectiveTenantUuid
             actor,                               // keycloakUserId / actor id
             null,                                // appUserId (not applicable)
@@ -94,10 +95,10 @@ public class BatchTchContextBinder {
             customRoles,
             locale,
             requestId,
-            "batch",                            // clientIp (not applicable)
-            "batch",                            // userAgent
+            "batch",                             // clientIp (not applicable)
+            "batch",                             // userAgent
             false,                               // tenantOverridden
-            "active",                           // deletedVisibility
+            "active",                            // deletedVisibility
             null,                                // idempotencyKey
             tenantCtx.tenantId(),                // runtime tenantId
             tenantCtx.tenantZoneId(),            // runtime tenantZoneId
@@ -107,7 +108,7 @@ public class BatchTchContextBinder {
         TchContext.set(ctx);
 
         // MDC for logs: include both code and uuid
-        MDC.put("tenant_code", info.tenantCode());
+        MDC.put("tenant_code", info.code());
         MDC.put("tenant_uuid", tenantId.value().toString());
         MDC.put("tz", tenantCtx.tenantZoneId().getId());
         MDC.put("ccy", tenantCtx.currency().getCurrencyCode());
@@ -115,7 +116,7 @@ public class BatchTchContextBinder {
         MDC.put("actor", actor);
 
         log.debug("batch.context.bind tenantCode={} tenantId={} requestId={} actor={}",
-            info.tenantCode(), tenantId, requestId, actor);
+            info.code(), tenantId, requestId, actor);
     }
 
     /**

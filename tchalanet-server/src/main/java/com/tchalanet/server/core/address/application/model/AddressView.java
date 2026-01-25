@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.address.application.model;
 
 import com.tchalanet.server.common.types.id.AddressId;
+import com.tchalanet.server.core.address.domain.Address;
 
 /**
  * View DTO for address read operations.
@@ -15,4 +16,20 @@ public record AddressView(
     String region,
     String country,
     String postalCode
-) {}
+) {
+
+  /**
+   * Factory: convert domain Address to view.
+   */
+  public static AddressView fromDomain(Address address) {
+    return new AddressView(
+        address.id(),
+        address.line1(),
+        address.line2(),
+        address.city(),
+        address.region(),
+        address.country(),
+        address.postalCode()
+    );
+  }
+}
