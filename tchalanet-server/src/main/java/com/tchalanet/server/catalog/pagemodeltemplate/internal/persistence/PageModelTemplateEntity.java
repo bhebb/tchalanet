@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.pagemodel.shared.template;
+package com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseEntity;
@@ -13,9 +13,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
 
 @Entity
-@Table(
-    name = "page_model_template",
-    uniqueConstraints = {@jakarta.persistence.UniqueConstraint(columnNames = {"code"})})
+@Table(name = "page_model_template")
 @Getter
 @Setter
 @Audited
@@ -24,7 +22,7 @@ public class PageModelTemplateEntity extends BaseEntity {
   @Column(name = "code", nullable = false, length = 128)
   private String code;
 
-  @Column(name = "tenantId")
+  @Column(name = "tenant_id")
   private UUID tenantId;
 
   @Column(name = "logical_id")
