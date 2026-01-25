@@ -90,21 +90,43 @@ public class SettingsCatalogImpl implements SettingsCatalog {
   // ========================================
 
   private List<SettingEntity> loadGlobal(List<String> namespaces) {
-    // ...existing code...
+    if (namespaces.isEmpty()) {
+      // Special handling: load ALL active global settings
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.GLOBAL);
+    }
+    return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
+        SettingLevel.GLOBAL, namespaces);
   }
 
   private List<SettingEntity> loadForTenant(TenantId tenantId, List<String> namespaces) {
-    // ...existing code...
+    if (namespaces.isEmpty()) {
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantId(
+          SettingLevel.TENANT, tenantId.value());
+    }
+    return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceIn(
+        SettingLevel.TENANT, tenantId.value(), namespaces);
   }
 
   private List<SettingEntity> loadForOutlet(
       TenantId tenantId, OutletId outletId, List<String> namespaces) {
-    // ...existing code...
+    if (namespaces.isEmpty()) {
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletId(
+          SettingLevel.OUTLET, tenantId.value(), outletId.value());
+    }
+    return repository
+        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndNamespaceIn(
+            SettingLevel.OUTLET, tenantId.value(), outletId.value(), namespaces);
   }
 
   private List<SettingEntity> loadForTerminal(
       TenantId tenantId, TerminalId terminalId, List<String> namespaces) {
-    // ...existing code...
+    if (namespaces.isEmpty()) {
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalId(
+          SettingLevel.TERMINAL, tenantId.value(), terminalId.value());
+    }
+    return repository
+        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalIdAndNamespaceIn(
+            SettingLevel.TERMINAL, tenantId.value(), terminalId.value(), namespaces);
   }
 
   // ========================================
@@ -115,7 +137,12 @@ public class SettingsCatalogImpl implements SettingsCatalog {
       Map<String, ResolvedSettingView> merged,
       List<SettingEntity> entities,
       SettingLevel effectiveLevel) {
-    // ...existing code...
+
+    for (SettingEntity entity : entities) {
+      String key = makeKey(entity.getNamespace(), entity.getSettingKey());
+      // Later levels overwrite earlier levels (more specific wins)
+      merged.put(key, mapper.toResolvedView(entity, effectiveLevel));
+    }
   }
 
   private static String makeKey(String namespace, String key) {
