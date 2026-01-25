@@ -69,10 +69,10 @@ public class DrawAdminController {
       @PathVariable DrawId drawId,
       @RequestParam TenantId tenantId,
       @RequestBody UpdateDrawRequest request) {
-    if (!drawId.uuid().equals(request.drawId())) {
+    if (!drawId.value().equals(request.drawId())) {
       return ResponseEntity.badRequest().build();
     }
-    if (!tenantId.uuid().equals(request.tenantId())) {
+    if (!tenantId.value().equals(request.tenantId())) {
       return ResponseEntity.badRequest().build();
     }
     UpdateDrawCommand command = mapper.toUpdateDrawCommand(request);

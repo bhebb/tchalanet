@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.i18n.api;
+package com.tchalanet.server.catalog.i18n.internal.web.model;
 
 /**
  * Update I18n Override Request

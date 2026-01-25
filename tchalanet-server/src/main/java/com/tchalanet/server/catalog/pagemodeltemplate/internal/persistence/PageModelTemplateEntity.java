@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -17,13 +18,10 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @Setter
 @Audited
-public class PageModelTemplateEntity extends BaseEntity {
+public class PageModelTemplateEntity extends BaseTenantEntity {
 
   @Column(name = "code", nullable = false, length = 128)
   private String code;
-
-  @Column(name = "tenant_id")
-  private UUID tenantId;
 
   @Column(name = "logical_id")
   private String logicalId;

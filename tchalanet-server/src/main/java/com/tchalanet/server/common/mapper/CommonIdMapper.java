@@ -138,4 +138,22 @@ public class CommonIdMapper {
     public SettingId mapToSettingId(UUID id) {
         return SettingId.nullableOf(id);
     }
+
+    // I18nOverrideId
+    public UUID mapFromI18nOverrideId(I18nOverrideId id) {
+        return id == null ? null : id.value();
+    }
+
+    public I18nOverrideId mapToI18nOverrideId(UUID id) {
+        return I18nOverrideId.nullableOf(id);
+    }
+
+    // PageModelTemplateId
+    public UUID mapFromPageModelTemplateId(PageModelTemplateId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PageModelTemplateId mapToPageModelTemplateId(UUID id) {
+        return PageModelTemplateId.nullableOf(id);
+    }
 }

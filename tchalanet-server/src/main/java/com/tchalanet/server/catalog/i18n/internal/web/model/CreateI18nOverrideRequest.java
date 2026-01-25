@@ -1,4 +1,4 @@
-package com.tchalanet.server.catalog.i18n.api;
+package com.tchalanet.server.catalog.i18n.internal.web.model;
 
 import com.tchalanet.server.common.types.id.TenantId;
 
