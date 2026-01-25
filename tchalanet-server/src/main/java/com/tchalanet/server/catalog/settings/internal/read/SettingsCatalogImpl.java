@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.read;
 
+import com.tchalanet.server.catalog.settings.api.ResolveSettingsCriteria;
 import com.tchalanet.server.catalog.settings.api.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
@@ -38,9 +39,12 @@ public class SettingsCatalogImpl implements SettingsCatalog {
   @Override
   @Cacheable(
       value = SettingsCacheNames.RESOLVED_SETTINGS,
-      key = "T(com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheKey).of(#tenantId, #outletId, #terminalId, #namespaces)")
-  public List<ResolvedSettingView> resolve(
-      TenantId tenantId, OutletId outletId, TerminalId terminalId, List<String> namespaces) {
+      key = "T(com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheKey).of(#criteria)")
+  public List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria) {
+    TenantId tenantId = criteria.tenantId();
+    OutletId outletId = criteria.outletId();
+    TerminalId terminalId = criteria.terminalId();
+    List<String> namespaces = criteria.namespaces();
 
     log.debug(
         "Resolving settings for tenant={}, outlet={}, terminal={}, namespaces={}",
@@ -50,9 +54,8 @@ public class SettingsCatalogImpl implements SettingsCatalog {
         namespaces);
 
     // Handle empty namespace filter (= all namespaces)
-    List<String> effectiveNamespaces = (namespaces == null || namespaces.isEmpty())
-        ? List.of()
-        : namespaces;
+    List<String> effectiveNamespaces =
+        (namespaces == null || namespaces.isEmpty()) ? List.of() : namespaces;
 
     // Map to store merged settings (namespace.key → resolved view)
     Map<String, ResolvedSettingView> merged = new LinkedHashMap<>();
@@ -87,43 +90,21 @@ public class SettingsCatalogImpl implements SettingsCatalog {
   // ========================================
 
   private List<SettingEntity> loadGlobal(List<String> namespaces) {
-    if (namespaces.isEmpty()) {
-      // Special handling: load ALL active global settings
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.GLOBAL);
-    }
-    return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
-        SettingLevel.GLOBAL, namespaces);
+    // ...existing code...
   }
 
   private List<SettingEntity> loadForTenant(TenantId tenantId, List<String> namespaces) {
-    if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantId(
-          SettingLevel.TENANT, tenantId.value());
-    }
-    return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceIn(
-        SettingLevel.TENANT, tenantId.value(), namespaces);
+    // ...existing code...
   }
 
   private List<SettingEntity> loadForOutlet(
       TenantId tenantId, OutletId outletId, List<String> namespaces) {
-    if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletId(
-          SettingLevel.OUTLET, tenantId.value(), outletId.value());
-    }
-    return repository
-        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndNamespaceIn(
-            SettingLevel.OUTLET, tenantId.value(), outletId.value(), namespaces);
+    // ...existing code...
   }
 
   private List<SettingEntity> loadForTerminal(
       TenantId tenantId, TerminalId terminalId, List<String> namespaces) {
-    if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalId(
-          SettingLevel.TERMINAL, tenantId.value(), terminalId.value());
-    }
-    return repository
-        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalIdAndNamespaceIn(
-            SettingLevel.TERMINAL, tenantId.value(), terminalId.value(), namespaces);
+    // ...existing code...
   }
 
   // ========================================
@@ -134,12 +115,7 @@ public class SettingsCatalogImpl implements SettingsCatalog {
       Map<String, ResolvedSettingView> merged,
       List<SettingEntity> entities,
       SettingLevel effectiveLevel) {
-
-    for (SettingEntity entity : entities) {
-      String key = makeKey(entity.getNamespace(), entity.getSettingKey());
-      // Later levels overwrite earlier levels (more specific wins)
-      merged.put(key, mapper.toResolvedView(entity, effectiveLevel));
-    }
+    // ...existing code...
   }
 
   private static String makeKey(String namespace, String key) {

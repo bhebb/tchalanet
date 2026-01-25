@@ -42,7 +42,7 @@ public record TchRequestContext(
         return effectiveTenantUuid != null ? effectiveTenantUuid : originalTenantUuid;
     }
 
-    public TenantId tenantid() {
+    public TenantId tenantId() {
         return TenantId.nullableOf(tenantUuid());
     }
 

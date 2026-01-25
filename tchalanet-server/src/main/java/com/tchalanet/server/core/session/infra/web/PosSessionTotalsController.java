@@ -31,7 +31,7 @@ public class PosSessionTotalsController {
   @RequiresPermission("session.read")
   public ResponseEntity<PosSessionTotals> getTotals(@PathVariable SessionId sessionId) {
     var ctx = contextResolver.currentOrNull();
-    var tenantId = ctx != null ? ctx.tenantid() : null;
+    var tenantId = ctx != null ? ctx.tenantId() : null;
 
     Optional<PosSessionTotals> opt = queryBus.send(new GetSessionTotalsQuery(tenantId, sessionId));
 
@@ -44,7 +44,7 @@ public class PosSessionTotalsController {
   @RequiresPermission("session.totals.recompute") // admin/manager only
   public ResponseEntity<PosSessionTotals> recompute(@PathVariable SessionId sessionId) {
     var ctx = contextResolver.currentOrNull();
-    var tenantId = ctx != null ? ctx.tenantid() : null;
+    var tenantId = ctx != null ? ctx.tenantId() : null;
 
     var totals = commandBus.send(new RecomputePosSessionTotalsCommand(tenantId, sessionId));
 

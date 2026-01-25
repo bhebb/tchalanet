@@ -29,7 +29,7 @@ public class MarkAllNotificationsReadController {
   public ResponseEntity<Void> markAllRead(
       @RequestParam("userId") UserId userId, @CurrentContext TchRequestContext requestContext) {
     var command =
-        new MarkAllNotificationsReadCommand(requestContext.tenantid(), userId, Instant.now());
+        new MarkAllNotificationsReadCommand(requestContext.tenantId(), userId, Instant.now());
     markAllNotificationsReadService.handle(command);
     return ResponseEntity.noContent().build();
   }

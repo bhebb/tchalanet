@@ -1,7 +1,9 @@
 package com.tchalanet.server.catalog.settings.internal.web;
 
+import com.tchalanet.server.catalog.settings.api.ResolveSettingsCriteria;
 import com.tchalanet.server.catalog.settings.api.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -36,12 +38,13 @@ public class TenantSettingsController {
           "Get effective settings for a tenant context with optional outlet/terminal overrides")
   @GetMapping("/resolve")
   public ApiResponse<List<ResolvedSettingView>> resolve(
-      @RequestParam TenantId tenantId,
+      @CurrentContext com.tchalanet.server.common.context.TchRequestContext ctx,
       @RequestParam(required = false) OutletId outletId,
       @RequestParam(required = false) TerminalId terminalId,
       @RequestParam(required = false, defaultValue = "") List<String> namespaces) {
 
-    List<ResolvedSettingView> resolved = settingsCatalog.resolve(tenantId, outletId, terminalId, namespaces);
+    var criteria = new ResolveSettingsCriteria(ctx.tenantId(), outletId, terminalId, namespaces);
+    List<ResolvedSettingView> resolved = settingsCatalog.resolve(criteria);
     return ApiResponse.success(resolved);
   }
 }
