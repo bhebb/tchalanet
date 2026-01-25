@@ -2,8 +2,8 @@ package com.tchalanet.server.common.batch.gate;
 
 import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.catalog.settings.AppSettingLevel;
-import com.tchalanet.server.catalog.settings.infra.persistence.AppSettingRepository;
+import com.tchalanet.server.catalog.settings_bk.AppSettingLevel;
+import com.tchalanet.server.catalog.settings_bk.infra.persistence.AppSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

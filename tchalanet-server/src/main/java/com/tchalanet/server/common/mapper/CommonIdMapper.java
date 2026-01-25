@@ -129,4 +129,13 @@ public class CommonIdMapper {
     public ThemePresetId mapToThemePresetId(UUID id) {
         return ThemePresetId.nullableOf(id);
     }
+
+    // SettingId
+    public UUID mapFromSettingId(SettingId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SettingId mapToSettingId(UUID id) {
+        return SettingId.nullableOf(id);
+    }
 }

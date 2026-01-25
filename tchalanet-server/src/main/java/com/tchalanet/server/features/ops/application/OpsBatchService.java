@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.ops.application;
 
-import com.tchalanet.server.catalog.settings.AppSettingLevel;
-import com.tchalanet.server.catalog.settings.AppSettingValueType;
-import com.tchalanet.server.catalog.settings.infra.persistence.AppSettingEntity;
-import com.tchalanet.server.catalog.settings.infra.persistence.AppSettingRepository;
+import com.tchalanet.server.catalog.settings_bk.AppSettingLevel;
+import com.tchalanet.server.catalog.settings_bk.AppSettingValueType;
+import com.tchalanet.server.catalog.settings_bk.infra.persistence.AppSettingEntity;
+import com.tchalanet.server.catalog.settings_bk.infra.persistence.AppSettingRepository;
 import com.tchalanet.server.common.batch.gate.BatchGateCache;
 import com.tchalanet.server.common.batch.gate.BatchGateResolver;
 import com.tchalanet.server.common.batch.key.JobKey;
