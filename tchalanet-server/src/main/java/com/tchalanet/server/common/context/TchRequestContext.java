@@ -3,6 +3,7 @@ package com.tchalanet.server.common.context;
 import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.constant.CommonConstants;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneId;
@@ -210,6 +211,32 @@ public record TchRequestContext(
             info.tenantId(),
             info.tenantZoneId(),
             info.currency()
+        );
+    }
+
+    /**
+     * Factory for a minimal startup/batch tenant context. Use for non-HTTP threads.
+     */
+    public static TchRequestContext startupTenant(UUID tenantUuid, String requestId) {
+        return new TchRequestContext(
+            "tchalanet",
+            tenantUuid,
+            "tchalanet",
+            tenantUuid,
+            null,
+            null,
+            java.util.EnumSet.noneOf(TchRole.class),
+            java.util.Set.of(),
+            Locale.getDefault(),
+            requestId == null ? "startup" : requestId,
+            "127.0.0.1",
+            null,
+            false,
+            "active",
+            null,
+            TenantId.nullableOf(tenantUuid),
+            ZoneId.systemDefault(),
+            Currency.getInstance(CommonConstants.DEFAULT_CURRENCY)
         );
     }
 

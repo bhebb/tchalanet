@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.catalog.plan.internal.persistence.PlanJpaEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class PlanMapper {
 
   @Autowired
-  protected ObjectMapper objectMapper;
+  protected JsonUtils jsonUtils;
 
   @Autowired
   protected CommonIdMapper idMapper;
@@ -31,8 +32,8 @@ public abstract class PlanMapper {
       return null;
     }
 
-    JsonNode limitsNode = parseJson(entity.getLimitsJson());
-    JsonNode featuresNode = parseJson(entity.getFeaturesJson());
+    JsonNode limitsNode = jsonUtils.valueToTree(entity.getLimitsJson());
+    JsonNode featuresNode = jsonUtils.valueToTree(entity.getFeaturesJson());
 
     return new PlanView(
         idMapper.mapToPlanId(entity.getId()),
@@ -52,14 +53,6 @@ public abstract class PlanMapper {
   }
 
   private JsonNode parseJson(String json) {
-    if (json == null || json.isBlank()) {
-      return objectMapper.createObjectNode();
-    }
-    try {
-      return objectMapper.readTree(json);
-    } catch (Exception e) {
-      // Log warning and return empty node
-      return objectMapper.createObjectNode();
-    }
+      return jsonUtils.valueToTree(json);
   }
 }

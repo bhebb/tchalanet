@@ -56,7 +56,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   @Override
   public int bulkOpen(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) return 0;
-    UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
+    UUID[] ids = drawIds.stream().map(DrawId::value).toArray(UUID[]::new);
     return repo.bulkOpen(ids);
   }
 
@@ -89,9 +89,9 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                   NewDrawRow r = chunk.get(i);
 
-                  ps.setObject(1, r.drawId().uuid());
-                  ps.setObject(2, r.tenantId().uuid());
-                  ps.setObject(3, r.drawChannelId().uuid());
+                  ps.setObject(1, r.drawId().value());
+                  ps.setObject(2, r.tenantId().value());
+                  ps.setObject(3, r.drawChannelId().value());
 
                   if (r.drawDate() != null) ps.setObject(4, r.drawDate());
                   else ps.setNull(4, Types.DATE);
@@ -154,7 +154,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
   @Override
   public int bulkClose(List<DrawId> drawIds) {
     if (drawIds == null || drawIds.isEmpty()) return 0;
-    UUID[] ids = drawIds.stream().map(DrawId::uuid).toArray(UUID[]::new);
+    UUID[] ids = drawIds.stream().map(DrawId::value).toArray(UUID[]::new);
     return repo.bulkClose(ids);
   }
 
@@ -166,7 +166,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         (rs, rowNum) ->
             new ExistingDrawKey(
                 (UUID) rs.getObject("draw_channel_id"), rs.getDate("draw_date").toLocalDate());
-    List<ExistingDrawKey> list = jdbc.query(sql, new Object[] {tenantId.uuid(), from, to}, mapper);
+    List<ExistingDrawKey> list = jdbc.query(sql, new Object[] {tenantId.value(), from, to}, mapper);
     return new HashSet<>(list);
   }
 }

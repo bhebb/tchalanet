@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.draw.infra.web.mapper;
 
 import com.tchalanet.server.common.mapper.CommonIdMapper;
-import com.tchalanet.server.core.draw.application.command.model.CreateDrawChannelCommand;
-import com.tchalanet.server.core.draw.application.command.model.UpdateDrawChannelCommand;
 import com.tchalanet.server.core.draw.domain.model.DrawChannelSummary;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawChannelRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawChannelResponse;

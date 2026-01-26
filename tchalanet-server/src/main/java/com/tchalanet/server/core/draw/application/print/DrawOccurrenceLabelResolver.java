@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.application.print;
 
 import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.draw.domain.model.DrawChannel;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;

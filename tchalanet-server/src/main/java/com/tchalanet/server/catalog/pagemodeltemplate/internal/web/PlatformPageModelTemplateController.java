@@ -1,49 +1,77 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.web;
 
-import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateView;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/platform/page-model-templates")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Platform • PageModel Template")
 public class PlatformPageModelTemplateController {
 
-  private final PageModelTemplateAdminService adminService;
+    private final PageModelTemplateCatalog catalog;
+    private final PageModelTemplateAdminService admin;
 
-  @Operation(summary = "Get a template by id (platform admin)")
-  @GetMapping("/{id}")
-  public ApiResponse<PageModelTemplateView> getById(@PathVariable PageModelTemplateId id) {
-    return ApiResponse.success(adminService.findViewById(id).orElse(null));
-  }
+    @Operation(summary = "List templates visible under RLS")
+    @GetMapping("/visible")
+    public ApiResponse<java.util.List<PageModelTemplateView>> visible() {
+        return ApiResponse.success(catalog.listVisible());
+    }
 
-  @Operation(summary = "Create a template (platform admin)")
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<PageModelTemplateView> create(@RequestBody PageModelTemplateView view) {
-    var response = adminService.createFromView(view);
-    return ApiResponse.success(response);
-  }
+    @Operation(summary = "Search templates (paged)")
+    @GetMapping
+    public ApiResponse<TchPage<PageModelTemplateView>> search(
+        @RequestParam(required = false) String logicalIdContains,
+        @RequestParam(required = false) String nameContains,
+        @TchPaging(allowedSort = {"updatedAt","createdAt","logicalId","name"}, defaultSort = {"updatedAt,DESC"})
+        TchPageRequest pageReq
+    ) {
+        return ApiResponse.success(catalog.search(logicalIdContains, nameContains, pageReq));
+    }
 
-  @Operation(summary = "Update a template (platform admin)")
-  @PutMapping("/{id}")
-  public ApiResponse<PageModelTemplateView> update(
-      @PathVariable PageModelTemplateId id, @RequestBody PageModelTemplateView view) {
-    var response = adminService.updateFromView(id, view, null);
-    return ApiResponse.success(response);
-  }
+    @Operation(summary = "Get by id")
+    @GetMapping("/{id}")
+    public ApiResponse<PageModelTemplateView> get(@PathVariable PageModelTemplateId id) {
+        return ApiResponse.success(catalog.findById(id).orElse(null));
+    }
 
-  @Operation(summary = "Soft-delete a template (platform admin)")
-  @DeleteMapping("/{id}")
-  public ApiResponse<Void> delete(@PathVariable PageModelTemplateId id) {
-    adminService.softDelete(id.value(), null);
-    return ApiResponse.success(null);
-  }
+    @Operation(summary = "Create")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<PageModelTemplateView> create(@RequestBody PageModelTemplateView view) {
+        return ApiResponse.success(admin.createFromView(view));
+    }
+
+    @Operation(summary = "Update")
+    @PutMapping("/{id}")
+    public ApiResponse<PageModelTemplateView> update(
+        @PathVariable PageModelTemplateId id, @RequestBody PageModelTemplateView view) {
+        return ApiResponse.success(admin.updateFromView(id, view));
+    }
+
+    @Operation(summary = "Soft delete")
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable PageModelTemplateId id) {
+        admin.softDelete(id);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "Set default (optional)")
+    @PostMapping("/{id}/default")
+    public ApiResponse<PageModelTemplateView> setDefault(@PathVariable PageModelTemplateId id) {
+        return ApiResponse.success(admin.setDefault(id));
+    }
 }

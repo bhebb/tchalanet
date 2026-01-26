@@ -8,7 +8,6 @@ import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -22,9 +21,9 @@ public class PricingCatalogImpl implements PricingCatalog {
   @Override
   @Cacheable(cacheNames = PricingCacheNames.ODDS, key = "#tenantId + ':' + #gameCode + ':' + #betType + ':' + #betOption")
   public BigDecimal oddsFor(TenantId tenantId, String gameCode, BetType betType, Short betOption) {
-    UUID tenant = tenantId == null ? null : tenantId.value();
-    Optional<PricingOddsEntity> opt = repo.findFirstByTenantIdAndGameCodeAndBetTypeAndBetOptionAndActiveIsTrueAndDeletedAtIsNull(
-        tenant, gameCode, betType, betOption);
+    // RLS will scope results to the current tenant; do not pass tenantId in SQL from read-side
+    Optional<PricingOddsEntity> opt = repo.findFirstByGameCodeAndBetTypeAndBetOptionAndActiveIsTrue(
+        gameCode, betType, betOption);
     return opt.map(PricingOddsEntity::getOdds).orElse(BigDecimal.ONE);
   }
 }

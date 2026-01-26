@@ -1,23 +1,22 @@
 package com.tchalanet.server.catalog.i18n.internal.write;
 
+import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import com.tchalanet.server.catalog.i18n.internal.web.model.CreateI18nOverrideRequest;
-import com.tchalanet.server.catalog.i18n.api.I18nOverrideView;
-import com.tchalanet.server.catalog.i18n.internal.web.model.SearchI18nOverridesCriteria;
+import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.internal.web.model.UpdateI18nOverrideRequest;
 import com.tchalanet.server.catalog.i18n.internal.cache.I18nOverridesCacheNames;
 import com.tchalanet.server.catalog.i18n.internal.mapper.I18nOverrideMapper;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideRepository;
 import com.tchalanet.server.common.types.id.I18nOverrideId;
-import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.common.web.paging.TchPageRequest;
+
 import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,10 +53,11 @@ public class I18nOverridesAdminService {
       allEntries = true)
   public I18nOverrideView create(CreateI18nOverrideRequest request) {
     log.info(
-        "Creating i18n override: tenant={}, locale={}, key={}",
+        "Creating i18n override: tenant={}, locale={}, key={}, level={}",
         request.tenantId(),
         request.locale(),
-        request.i18nKey());
+        request.i18nKey(),
+        request.level());
 
     // Validate required fields
     validateRequest(request);
@@ -66,20 +66,32 @@ public class I18nOverridesAdminService {
     checkUniqueness(request);
 
     // Create entity
-    var entity = new I18nOverrideEntity();
-    entity.setTenantId(request.tenantId().value());
-    entity.setLocale(request.locale());
-    entity.setI18nKey(request.i18nKey());
-    entity.setI18nValue(request.i18nValue());
-    entity.setActive(true);
+      var entity = createI18nOverrideEntity(request);
 
-    entity = repository.save(entity);
+      entity = repository.save(entity);
     log.info("Created i18n override with ID: {}", entity.getId());
 
     return mapper.toView(entity);
   }
 
-  /**
+    private static @NonNull I18nOverrideEntity createI18nOverrideEntity(CreateI18nOverrideRequest request) {
+        var entity = new I18nOverrideEntity();
+        entity.setId(UUID.randomUUID());
+        entity.setLevel(request.level());
+        // tenantId must be null for GLOBAL level
+        if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.GLOBAL) {
+          entity.setTenantId(null);
+        } else {
+          entity.setTenantId(request.tenantId().value());
+        }
+        entity.setLocale(request.locale());
+        entity.setI18nKey(request.i18nKey());
+        entity.setI18nValue(request.i18nValue());
+        entity.setActive(true);
+        return entity;
+    }
+
+    /**
    * Update an existing i18n override.
    *
    * @param id override ID
@@ -102,6 +114,15 @@ public class I18nOverridesAdminService {
         repository
             .findByIdAndDeletedAtIsNull(id.value())
             .orElseThrow(() -> new IllegalArgumentException("I18n override not found: " + id));
+
+    // Update level (if provided)
+    if (request.level() != null) {
+      entity.setLevel(request.level());
+      // adjust tenantId according to level
+      if (request.level() == I18nOverrideLevel.GLOBAL) {
+        entity.setTenantId(null);
+      }
+    }
 
     // Update value (if provided)
     if (request.i18nValue() != null && !request.i18nValue().isBlank()) {
@@ -136,7 +157,7 @@ public class I18nOverridesAdminService {
   public void delete(I18nOverrideId id) {
     log.info("Deleting i18n override ID: {}", id);
 
-    I18nOverrideEntity entity =
+    var entity =
         repository
             .findByIdAndDeletedAtIsNull(id.value())
             .orElseThrow(() -> new IllegalArgumentException("I18n override not found: " + id));
@@ -154,9 +175,15 @@ public class I18nOverridesAdminService {
   // ========================================
 
   private void validateRequest(CreateI18nOverrideRequest request) {
-    if (request.tenantId() == null) {
-      throw new IllegalArgumentException("tenantId is required");
+    if (request.level() == null) {
+      throw new IllegalArgumentException("level is required");
     }
+
+    if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.TENANT
+        && request.tenantId() == null) {
+      throw new IllegalArgumentException("tenantId is required for TENANT level");
+    }
+
     if (request.locale() == null || request.locale().isBlank()) {
       throw new IllegalArgumentException("locale is required");
     }
@@ -175,9 +202,14 @@ public class I18nOverridesAdminService {
   }
 
   private void checkUniqueness(CreateI18nOverrideRequest request) {
-    var existing =
-        repository.findFirstByTenantIdAndLocaleAndI18nKeyAndActiveTrueAndDeletedAtIsNull(
-            request.tenantId().value(), request.locale(), request.i18nKey());
+    // For tenant level we check tenant/locale/key uniqueness; for global we check locale/key/level
+    Optional<I18nOverrideEntity> existing;
+    if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.TENANT) {
+      existing = repository.findFirstByTenantIdAndLocaleAndI18nKeyAndActiveTrue(
+          request.tenantId().value(), request.locale(), request.i18nKey());
+    } else {
+      existing = repository.findFirstByLocaleAndI18nKeyAndLevel(request.locale(), request.i18nKey(), request.level());
+    }
 
     if (existing.isPresent()) {
       throw new IllegalArgumentException(

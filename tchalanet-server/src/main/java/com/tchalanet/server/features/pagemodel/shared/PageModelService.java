@@ -3,6 +3,7 @@ package com.tchalanet.server.features.pagemodel.shared;
 import static com.tchalanet.server.common.constant.CommonConstants.DEFAULT_TENANT_UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.features.pagemodel.shared.template.PageModelTemplateEntity;
 import java.io.IOException;
@@ -103,39 +104,39 @@ public class PageModelService {
 
   // --- New helper methods to manage templateId ---
 
-  public PageModelEntity createFromTemplate(PageModelTemplateEntity template, boolean publish) {
+  public PageModelEntity createFromTemplate(PageModelTemplateView template, boolean publish) {
     // Provide a minimal TchRequestContext for startup seeding to satisfy RLS and auditing
     var e = new PageModelEntity();
     // default tenant for system templates
     e.setTenantId(DEFAULT_TENANT_UUID);
-    e.setCode(template.getCode());
-    e.setLogicalId(template.getLogicalId());
-    e.setName(template.getName());
-    e.setScope("TENANT");
-    e.setSlug(template.getLogicalId());
-    e.setSchemaVersion(template.getSchemaVersion());
+    e.setCode(template.code());
+    e.setLogicalId(template.logicalId());
+    e.setName(template.name());
+    e.setScope(template.level().name());
+    e.setSlug(template.logicalId());
+    e.setSchemaVersion(template.schemaVersion());
     // ensure non-null JSON
-    e.setSchema(template.getSchema() == null ? jsonUtils.emptyObjectNode() : template.getSchema());
-    e.setModel(template.getModel() == null ? jsonUtils.emptyObjectNode() : template.getModel());
-    e.setTemplateId(template.getId());
+    e.setSchema(template.schema() == null ? jsonUtils.emptyObjectNode() : template.schema());
+    e.setModel(template.model() == null ? jsonUtils.emptyObjectNode() : template.model());
+    e.setTemplateId(template.id().value());
     e.setStatus(publish ? PageStatus.PUBLISHED : PageStatus.DRAFT);
     if (publish) e.setPublishedAt(Instant.now());
     return repository.save(e);
   }
 
   public PageModelEntity createFromTemplate(
-      UUID tenantId, PageModelTemplateEntity template, boolean publish, UUID actorId) {
+      UUID tenantId, PageModelTemplateView template, boolean publish, UUID actorId) {
     PageModelEntity e = new PageModelEntity();
     e.setTenantId(tenantId);
-    e.setCode(template.getCode());
-    e.setLogicalId(template.getLogicalId());
-    e.setName(template.getName());
+    e.setCode(template.code());
+    e.setLogicalId(template.logicalId());
+    e.setName(template.name());
     e.setScope(null);
     e.setSlug(null);
-    e.setSchemaVersion(template.getSchemaVersion());
-    e.setSchema(template.getSchema() == null ? jsonUtils.emptyObjectNode() : template.getSchema());
-    e.setModel(template.getModel() == null ? jsonUtils.emptyObjectNode() : template.getModel());
-    e.setTemplateId(template.getId());
+    e.setSchemaVersion(template.schemaVersion());
+    e.setSchema(template.schema() == null ? jsonUtils.emptyObjectNode() : template.schema());
+    e.setModel(template.model() == null ? jsonUtils.emptyObjectNode() : template.model());
+    e.setTemplateId(template.id().value());
     e.setStatus(publish ? PageStatus.PUBLISHED : PageStatus.DRAFT);
     if (publish) {
       e.setPublishedAt(Instant.now());

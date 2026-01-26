@@ -7,9 +7,9 @@ package com.tchalanet.server.catalog.tenant.internal.cache;
 public final class TenantCacheNames {
     private TenantCacheNames() {}
 
-    public static final String TENANT_BY_ID = "catalog.tenant.cache.TENANT_BY_ID";
-    public static final String TENANT_BY_CODE = "catalog.tenant.cache.TENANT_BY_CODE";
-    public static final String BOOTSTRAP_BY_ID = "catalog.tenant.cache.BOOTSTRAP_BY_ID";
-    public static final String BOOTSTRAP_BY_CODE = "catalog.tenant.cache.BOOTSTRAP_BY_CODE";
-    public static final String ACTIVE_TENANT_IDS = "catalog.tenant.cache.ACTIVE_TENANT_IDS";
+    public static final String TENANT_BY_ID = "catalog:tenant:tenant_by_id";
+    public static final String TENANT_BY_CODE = "catalog:tenant:tenant_by_code";
+    public static final String BOOTSTRAP_BY_ID = "catalog:tenant:bootstrap_by_id";
+    public static final String BOOTSTRAP_BY_CODE = "catalog:tenant:bootstrap_by_code";
+    public static final String ACTIVE_TENANT_IDS = "catalog:tenant:active_tenant_ids";
 }

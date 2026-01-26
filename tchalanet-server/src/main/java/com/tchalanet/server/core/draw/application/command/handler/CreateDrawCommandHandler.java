@@ -1,14 +1,14 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
-import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.ZoneId;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CreateDrawCommandHandler implements CommandHandler<CreateDrawCommand, DrawId> {
 
   private final DrawLifecyclePort drawWriterPort;
-  private final DrawChannelReaderPort drawChannelReaderPort;
+  private final DrawChannelCatalog drawChannelCatalog;
   private final IdGenerator idGenerator;
 
   @Override
@@ -34,9 +34,9 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
         command.scheduledDate());
 
     // Find the draw channel
-    DrawChannel channel =
-        drawChannelReaderPort
-            .findByCode(command.tenantId(), command.channelCode())
+    DrawChannelView channel =
+        drawChannelCatalog
+            .findByTenantAndCode(command.tenantId(), command.channelCode())
             .orElseThrow(
                 () ->
                     new IllegalArgumentException(

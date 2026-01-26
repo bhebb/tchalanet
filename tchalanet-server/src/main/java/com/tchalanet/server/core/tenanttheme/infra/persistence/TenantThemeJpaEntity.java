@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.tenanttheme.infra.persistence;
 
-import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -20,18 +20,15 @@ import java.util.Map;
 @Table(name = "tenant_theme")
 @Getter
 @Setter
-public class TenantThemeJpaEntity extends BaseEntity {
-
-    @Column(name = "tenant_id", nullable = false, updatable = false)
-    private java.util.UUID tenantId;
+public class TenantThemeJpaEntity extends BaseTenantEntity {
 
     @Column(name = "preset_code", nullable = false, length = 128)
     private String presetCode;
 
-  @JdbcTypeCode(SqlTypes.JSON)
-  @Column(name = "metadata", columnDefinition = "jsonb")
-  private Map<String, String> metadata;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    private Map<String, String> metadata;
 
-  @Column(name = "is_default", nullable = false)
-  private boolean defaultTheme = false;
+    @Column(name = "is_default", nullable = false)
+    private boolean defaultTheme = false;
 }

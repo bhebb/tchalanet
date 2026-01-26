@@ -24,38 +24,36 @@ public interface SettingRepository
   // Resolution queries (read catalog)
   // ========================================
 
-  // Global (no namespace filter)
+  // Global / generic by level (no tenant param) - already used for GLOBAL but also usable for other levels
   List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel level);
 
-  // Global (with namespace filter)
+  // Level + namespace (no tenant param)
   List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
       SettingLevel level, Collection<String> namespaces);
 
-  // Tenant (no namespace filter)
+  // Tenant-scoped queries (legacy/admin) - kept for admin flows
   List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantId(
       SettingLevel level, UUID tenantId);
 
-  // Tenant (with namespace filter)
   List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceIn(
       SettingLevel level, UUID tenantId, Collection<String> namespaces);
 
-  // Outlet (no namespace filter)
-  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletId(
-      SettingLevel level, UUID tenantId, UUID outletId);
+  // Outlet variants WITHOUT tenantId (new): RLS will scope to current tenant;
+  // these are intended for the read-side (SettingsCatalogImpl) to call without passing tenantId.
+  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletId(
+      SettingLevel level, UUID outletId);
 
-  // Outlet (with namespace filter)
   List<SettingEntity>
-      findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndNamespaceIn(
-          SettingLevel level, UUID tenantId, UUID outletId, Collection<String> namespaces);
+      findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletIdAndNamespaceIn(
+          SettingLevel level, UUID outletId, Collection<String> namespaces);
 
-  // Terminal (no namespace filter)
-  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalId(
-      SettingLevel level, UUID tenantId, UUID terminalId);
+  // Terminal variants WITHOUT tenantId (new)
+  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalId(
+      SettingLevel level, UUID terminalId);
 
-  // Terminal (with namespace filter)
   List<SettingEntity>
-      findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalIdAndNamespaceIn(
-          SettingLevel level, UUID tenantId, UUID terminalId, Collection<String> namespaces);
+      findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalIdAndNamespaceIn(
+          SettingLevel level, UUID terminalId, Collection<String> namespaces);
 
   // ========================================
   // Admin queries (search/uniqueness)

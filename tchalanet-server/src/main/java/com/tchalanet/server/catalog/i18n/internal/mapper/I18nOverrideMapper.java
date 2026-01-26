@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.i18n.internal.mapper;
 
-import com.tchalanet.server.catalog.i18n.api.I18nOverrideView;
+import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
 import java.util.List;

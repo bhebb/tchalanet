@@ -268,7 +268,7 @@ Ops → Batch :
 ---
 
 Le script de migration SB6 est disponible dans :
-`src/main/resources/db/migration/V41__spring_batch_schema.sql`.
+`src/main/resources/db/migration/V42__spring_batch_schema.sql`.
 
 Principaux points :
 

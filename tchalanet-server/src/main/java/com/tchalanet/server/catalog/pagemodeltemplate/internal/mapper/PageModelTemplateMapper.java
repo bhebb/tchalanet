@@ -1,15 +1,56 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.mapper;
 
-import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateView;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence.PageModelTemplateEntity;
-import com.tchalanet.server.common.mapper.CommonIdMapper;
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
-import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
-public interface PageModelTemplateMapper {
+@Component
+@RequiredArgsConstructor
+public class PageModelTemplateMapper {
 
-  PageModelTemplateView toView(PageModelTemplateEntity e);
+    private final JsonUtils jsonUtils;
 
-  List<PageModelTemplateView> toViews(List<PageModelTemplateEntity> entities);
+    public PageModelTemplateView toView(PageModelTemplateEntity e) {
+        if (e == null) return null;
+        return new PageModelTemplateView(
+            PageModelTemplateId.of(e.getId()),
+            e.getCode(),
+            e.getLogicalId(),
+            e.getName(),
+            e.getLabel(),
+            e.getDescription(),
+            jsonUtils.valueToTree(e.getSchema()),
+            jsonUtils.valueToTree(e.getModel()),
+            e.getSchemaVersion(),
+            e.isDefault(),
+            e.getLevel(),
+            e.getTenantId() == null ? null : TenantId.of(e.getTenantId()),
+            e.getCreatedAt(),
+            e.getUpdatedAt()
+        );
+    }
+
+    public List<PageModelTemplateView> toViews(List<PageModelTemplateEntity> list) {
+        return list == null ? List.of() : list.stream().map(this::toView).toList();
+    }
+
+    public void applyView(PageModelTemplateEntity e, PageModelTemplateView v) {
+        e.setCode(v.code());
+        e.setLogicalId(v.logicalId());
+        e.setName(v.name());
+        e.setLabel(v.label());
+        e.setDescription(v.description());
+        e.setSchema(jsonUtils.toJson(v.schema()));
+        e.setModel(jsonUtils.toJson(v.model()));
+        e.setSchemaVersion(v.schemaVersion() == null ? 1 : v.schemaVersion());
+        e.setDefault(v.isDefault());
+        e.setLevel(v.level()); // kept, not “used” in v1 logic
+        e.setTenantId(v.tenantId() == null ? null : v.tenantId().value());
+    }
 }

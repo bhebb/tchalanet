@@ -8,7 +8,7 @@ public final class GameCacheNames {
 
   private GameCacheNames() {}
 
-  public static final String ACTIVE_GAMES = "catalog.game.cache.ACTIVE_GAMES";
-  public static final String GAME_BY_CODE = "catalog.game.cache.GAME_BY_CODE";
-  public static final String GAME_BY_ID = "catalog.game.cache.GAME_BY_ID";
+  public static final String ACTIVE_GAMES = "catalog:game:active_games";
+  public static final String GAME_BY_CODE = "catalog:game:game_by_code";
+  public static final String GAME_BY_ID = "catalog:game:game_by_id";
 }

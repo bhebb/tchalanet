@@ -15,5 +15,5 @@ public final class SettingsCacheNames {
    *
    * <p>Key format: "t={tenantId}|o={outletId}|m={terminalId}|ns={namespaces}"
    */
-  public static final String RESOLVED_SETTINGS = "catalog.settings.cache.RESOLVED_SETTINGS";
+  public static final String RESOLVED_SETTINGS = "catalog:settings:resolved_settings";
 }

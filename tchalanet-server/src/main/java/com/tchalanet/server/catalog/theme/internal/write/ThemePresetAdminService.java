@@ -63,6 +63,8 @@ public class ThemePresetAdminService {
         repo.save(e);
     }
 
+
+
     public record ThemePresetCreateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
     public record ThemePresetUpdateRequest(String code, String vendor, String configAsString, String labelKey, Boolean active) {}
 }

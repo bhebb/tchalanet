@@ -8,7 +8,10 @@ import java.util.UUID;
 
 public interface PricingOddsJpaRepository extends JpaRepository<PricingOddsEntity, UUID> {
 
-    Optional<PricingOddsEntity> findFirstByTenantIdAndGameCodeAndBetTypeAndBetOptionAndActiveIsTrueAndDeletedAtIsNull(
+    Optional<PricingOddsEntity> findFirstByTenantIdAndGameCodeAndBetTypeAndBetOptionAndActiveIsTrue(
         UUID tenantId, String gameCode, BetType betType, Short betOption);
-}
 
+    // Tenant-agnostic (read-side) - rely on RLS to scope by current tenant
+    Optional<PricingOddsEntity> findFirstByGameCodeAndBetTypeAndBetOptionAndActiveIsTrue(
+        String gameCode, BetType betType, Short betOption);
+}

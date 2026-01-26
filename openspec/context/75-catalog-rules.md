@@ -1,8 +1,7 @@
 # OpenSpec — Catalog Rules (75)
 
 > **Scope**: Backend (`tchalanet-server`)
-> **Applies to**: all modules under `com.tchalanet.server.catalog.*`
-> **Status**: NORMATIVE
+> **Applies to**: all modules under `com.tchalanet.server.catalog.*` > **Status**: NORMATIVE
 > **Purpose**: structural + technical rules (NOT functional)
 
 ---
@@ -67,8 +66,7 @@ Catalogs **MUST separate read and write responsibilities**.
 **Contains**:
 
 - `XCatalog` (interface)
-- `XView` (DTO)
-- optional `XSearchCriteria`
+- **NO data classes directly** (see 3.1.1)
 
 **Rules**:
 
@@ -85,6 +83,47 @@ public interface AddressCatalog {
   List<AddressView> listActive();
   Optional<AddressView> findById(AddressId id);
 }
+```
+
+### 3.1.1 Catalog API Models (MANDATORY)
+
+All **read DTOs** exposed by a catalog MUST live in a dedicated `api.model` package.
+
+**Location**:
+
+- `catalog/<name>/api/model`
+
+**Includes**:
+
+- `*View` (detailed projection)
+- `*SummaryView` (list projection)
+- `*Row` (use-case specific projection, e.g. calendar/scheduler)
+- `*SearchCriteria` / `*Filter`
+
+**Rules**:
+
+- DTOs MUST be immutable (records preferred)
+- DTOs MUST NOT depend on `internal.*`
+- DTOs MAY use typed IDs (`DrawChannelId`, `GameId`, etc.)
+- DTOs MUST NOT contain persistence annotations
+
+**Naming conventions**:
+
+- `XView` → full read projection
+- `XSummaryView` → lightweight list projection
+- `XRow` → specialized read model for a specific use-case
+- `XSearchCriteria` → paging/search filters
+
+**Example**:
+
+```
+catalog/drawchannel/api/model
+  - DrawChannelView
+  - DrawChannelSummaryView
+  - DrawChannelCalendarRow
+  - DrawChannelGameView
+  - GameSummaryView
+  - DrawChannelSearchCriteria
 ```
 
 ### 3.2 Read implementation = CatalogImpl

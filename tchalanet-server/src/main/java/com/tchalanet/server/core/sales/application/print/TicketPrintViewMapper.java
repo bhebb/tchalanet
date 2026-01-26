@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.application.print;
 import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
 import com.tchalanet.server.core.draw.application.print.DrawOccurrenceLabelResolver;
 import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;

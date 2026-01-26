@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.domain.model;
 
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -31,7 +32,7 @@ public final class Draw {
 
   private final DrawId id;
   private final TenantId tenantId;
-  private final DrawChannel drawChannel;
+  private final DrawChannelView drawChannel;
 
   private ZonedDateTime scheduledAt;
   private ZonedDateTime cutoffAt;
@@ -54,7 +55,7 @@ public final class Draw {
   public Draw(
       DrawId id,
       TenantId tenantId,
-      DrawChannel drawChannel,
+      DrawChannelView drawChannel,
       ZonedDateTime scheduledAt,
       ZonedDateTime cutoffAt,
       DrawStatus status,
@@ -78,7 +79,7 @@ public final class Draw {
     return tenantId;
   }
 
-  public DrawChannel drawChannel() {
+  public DrawChannelView drawChannel() {
     return drawChannel;
   }
 

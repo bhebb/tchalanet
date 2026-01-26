@@ -50,7 +50,7 @@ public class ApplyFetchedResultToDrawCommand
         final String slotKey = normalizeKey(slotKeyRaw);
 
         try {
-          var slotOpt = resultSlotReader.findBySlotKey(slotKey);
+          var slotOpt = resultSlotReader.findByKey(slotKey);
           if (slotOpt.isEmpty()) {
             notFound++;
             continue;
@@ -94,7 +94,7 @@ public class ApplyFetchedResultToDrawCommand
                     cmd.tenantId(),
                     date,
                     slot.slotKey(),
-                    drawResultId.uuid());
+                    drawResultId.value());
 
             AfterCommit.run(() -> publisher.publish(event));
 

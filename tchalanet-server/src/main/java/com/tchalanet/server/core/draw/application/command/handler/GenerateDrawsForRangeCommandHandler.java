@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DaysOfWeekParser;
@@ -7,11 +8,11 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
-import com.tchalanet.server.core.draw.application.port.out.DrawChannelReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.query.projection.DrawChannelCalendarRow;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelCalendarRow;
 import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
+
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class GenerateDrawsForRangeCommandHandler
 
   private static final int MAX_RANGE_DAYS = 31;
 
-  private final DrawChannelReaderPort drawChannelQueryPort;
+  private final DrawChannelCatalog drawChannelCatalog;
   private final DrawLifecyclePort drawLifecyclePort;
   private final IdGenerator idGenerator;
 
@@ -39,7 +40,7 @@ public class GenerateDrawsForRangeCommandHandler
   public GenerateDrawsForRangeResult handle(GenerateDrawsForRangeCommand command) {
     validate(command);
 
-    var channels = drawChannelQueryPort.listActiveCalendarRows(command.tenantId());
+    var channels = drawChannelCatalog.listCalendarRows(command.tenantId(), true, null);
     var acc = generateRows(command, channels);
 
     if (command.dryRun()) {

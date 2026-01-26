@@ -23,7 +23,7 @@ public class PricingCatalogImpl implements PricingCatalog {
   @Cacheable(cacheNames = PricingCacheNames.ODDS, key = "#tenantId + ':' + #gameCode + ':' + #betType + ':' + #betOption")
   public BigDecimal oddsFor(TenantId tenantId, String gameCode, BetType betType, Short betOption) {
     UUID tenant = tenantId == null ? null : tenantId.value();
-    Optional<PricingOddsEntity> opt = repo.findFirstByTenantIdAndGameCodeAndBetTypeAndBetOptionAndActiveIsTrueAndDeletedAtIsNull(
+    Optional<PricingOddsEntity> opt = repo.findFirstByTenantIdAndGameCodeAndBetTypeAndBetOptionAndActiveIsTrue(
         tenant, gameCode, betType, betOption);
     return opt.map(PricingOddsEntity::getOdds).orElse(BigDecimal.ONE);
   }

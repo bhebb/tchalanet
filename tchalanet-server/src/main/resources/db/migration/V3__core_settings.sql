@@ -1,5 +1,6 @@
 -- V1003__core_settings_i18n.sql
--- Core settings & i18n overrides (requires tenant from V2)
+-- app_setting + i18n_override with GLOBAL/TENANT levels
+-- Requires tenant table exists
 
 -- =========================
 -- app_setting
@@ -36,7 +37,6 @@ CREATE TABLE IF NOT EXISTS app_setting (
     CONSTRAINT ck_app_setting_value_type
     CHECK (value_type IN ('STRING', 'INT', 'BOOLEAN', 'JSON')),
 
-    -- Enforce coherence between level and target ids
     CONSTRAINT ck_app_setting_target
     CHECK (
 (level = 'GLOBAL'   AND tenant_id IS NULL     AND outlet_id IS NULL      AND terminal_id IS NULL)
@@ -46,28 +46,28 @@ CREATE TABLE IF NOT EXISTS app_setting (
     )
     );
 
--- Unicity for active, non-deleted rows (avoid ambiguous overrides)
--- NOTE: Unique index (partial) allows re-creating a setting after soft-delete or deactivation.
+-- Unicity for active, non-deleted rows
 CREATE UNIQUE INDEX IF NOT EXISTS ux_app_setting_target_key_active
     ON app_setting (level, tenant_id, terminal_id, outlet_id, namespace, setting_key)
     WHERE active = true AND deleted_at IS NULL;
 
--- Fast lookup for resolver (tenant/outlet/terminal + namespaces)
-CREATE INDEX IF NOT EXISTS ix_app_setting_resolve_global
+-- Helpful lookup indexes
+CREATE INDEX IF NOT EXISTS ix_app_setting_global
     ON app_setting (namespace, setting_key)
     WHERE level = 'GLOBAL' AND active = true AND deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS ix_app_setting_resolve_tenant
+CREATE INDEX IF NOT EXISTS ix_app_setting_tenant
     ON app_setting (tenant_id, namespace, setting_key)
     WHERE level = 'TENANT' AND active = true AND deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS ix_app_setting_resolve_outlet
+CREATE INDEX IF NOT EXISTS ix_app_setting_outlet
     ON app_setting (tenant_id, outlet_id, namespace, setting_key)
     WHERE level = 'OUTLET' AND active = true AND deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS ix_app_setting_resolve_terminal
+CREATE INDEX IF NOT EXISTS ix_app_setting_terminal
     ON app_setting (tenant_id, terminal_id, namespace, setting_key)
     WHERE level = 'TERMINAL' AND active = true AND deleted_at IS NULL;
+
 
 -- =========================
 -- i18n_override
@@ -76,26 +76,52 @@ CREATE TABLE IF NOT EXISTS i18n_override (
                                              id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     version bigint NOT NULL DEFAULT 0,
 
-    tenant_id uuid NOT NULL REFERENCES tenant(id),
-    locale text NOT NULL,               -- fr / en / ht (tu peux durcir plus tard)
+    level text NOT NULL DEFAULT 'TENANT', -- GLOBAL / TENANT
+    tenant_id uuid,                       -- NULL for GLOBAL
+
+    locale text NOT NULL,                 -- fr/en/ht
     i18n_key text NOT NULL,
     i18n_value text NOT NULL,
+
+    active boolean NOT NULL DEFAULT true,
 
     created_at timestamptz NOT NULL DEFAULT now(),
     created_by uuid,
     updated_at timestamptz NOT NULL DEFAULT now(),
     updated_by uuid,
-    deleted_at timestamptz
+    deleted_at timestamptz,
+
+    CONSTRAINT fk_i18n_override_tenant
+    FOREIGN KEY (tenant_id) REFERENCES tenant(id),
+
+    CONSTRAINT ck_i18n_override_level
+    CHECK (level IN ('GLOBAL', 'TENANT')),
+
+    CONSTRAINT ck_i18n_override_target
+    CHECK (
+(level = 'GLOBAL' AND tenant_id IS NULL)
+    OR (level = 'TENANT' AND tenant_id IS NOT NULL)
+    )
     );
 
--- Unique per tenant+locale+key for non-deleted rows
-CREATE UNIQUE INDEX IF NOT EXISTS ux_i18n_override_tenant_locale_key
-    ON i18n_override (tenant_id, locale, i18n_key)
-    WHERE deleted_at IS NULL;
+-- Unique GLOBAL (no tenant)
+CREATE UNIQUE INDEX IF NOT EXISTS ux_i18n_override_global_locale_key
+    ON i18n_override (level, locale, i18n_key)
+    WHERE level = 'GLOBAL' AND active = true AND deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS ix_i18n_override_lookup
-    ON i18n_override (tenant_id, locale)
-    WHERE deleted_at IS NULL;
+-- Unique TENANT
+CREATE UNIQUE INDEX IF NOT EXISTS ux_i18n_override_tenant_locale_key
+    ON i18n_override (level, tenant_id, locale, i18n_key)
+    WHERE level = 'TENANT' AND active = true AND deleted_at IS NULL;
+
+-- Lookup indexes
+CREATE INDEX IF NOT EXISTS ix_i18n_override_global_lookup
+    ON i18n_override (locale, i18n_key)
+    WHERE level = 'GLOBAL' AND active = true AND deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS ix_i18n_override_tenant_lookup
+    ON i18n_override (tenant_id, locale, i18n_key)
+    WHERE level = 'TENANT' AND active = true AND deleted_at IS NULL;
 
 
 -- =========================

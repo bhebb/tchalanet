@@ -1,17 +1,27 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.api;
 
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface PageModelTemplateCatalog {
 
-  Optional<PageModelTemplateView> findById(PageModelTemplateId id);
+    Optional<PageModelTemplateView> findById(PageModelTemplateId id);
 
-  Optional<PageModelTemplateView> findSystemDefaultByLogicalId(String logicalId);
+    Optional<PageModelTemplateView> findByLogicalId(String logicalId);
 
-  List<PageModelTemplateView> listByTenant(TenantId tenantId);
+    /**
+     * List templates visible under current RLS context.
+     * (GLOBAL + TENANT for current tenant, based on DB policy)
+     */
+    List<PageModelTemplateView> listVisible();
 
-  List<PageModelTemplateView> listSystemTemplates();
+    /**
+     * Optional: paged search if you need admin screens.
+     */
+    TchPage<PageModelTemplateView> search(String logicalIdContains, String nameContains, TchPageRequest pageReq);
 }

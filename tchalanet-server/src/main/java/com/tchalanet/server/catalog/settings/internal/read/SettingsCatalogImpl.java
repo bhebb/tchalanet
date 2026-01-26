@@ -64,19 +64,18 @@ public class SettingsCatalogImpl implements SettingsCatalog {
     mergeLevel(merged, loadGlobal(effectiveNamespaces), SettingLevel.GLOBAL);
 
     // 2. TENANT level (tenant overrides)
-    mergeLevel(merged, loadForTenant(tenantId, effectiveNamespaces), SettingLevel.TENANT);
+    mergeLevel(merged, loadForTenant(effectiveNamespaces), SettingLevel.TENANT);
 
     // 3. OUTLET level (outlet overrides, if outlet provided)
     if (outletId != null) {
-      mergeLevel(
-          merged, loadForOutlet(tenantId, outletId, effectiveNamespaces), SettingLevel.OUTLET);
+      mergeLevel(merged, loadForOutlet(outletId, effectiveNamespaces), SettingLevel.OUTLET);
     }
 
     // 4. TERMINAL level (terminal overrides, if terminal provided)
     if (terminalId != null) {
       mergeLevel(
           merged,
-          loadForTerminal(tenantId, terminalId, effectiveNamespaces),
+          loadForTerminal(terminalId, effectiveNamespaces),
           SettingLevel.TERMINAL);
     }
 
@@ -98,35 +97,34 @@ public class SettingsCatalogImpl implements SettingsCatalog {
         SettingLevel.GLOBAL, namespaces);
   }
 
-  private List<SettingEntity> loadForTenant(TenantId tenantId, List<String> namespaces) {
+  private List<SettingEntity> loadForTenant(List<String> namespaces) {
+    // RLS will scope by current tenant; do NOT pass tenantId explicitly
     if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantId(
-          SettingLevel.TENANT, tenantId.value());
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.TENANT);
     }
-    return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndNamespaceIn(
-        SettingLevel.TENANT, tenantId.value(), namespaces);
+    return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndNamespaceIn(
+        SettingLevel.TENANT, namespaces);
   }
 
-  private List<SettingEntity> loadForOutlet(
-      TenantId tenantId, OutletId outletId, List<String> namespaces) {
+  private List<SettingEntity> loadForOutlet(OutletId outletId, List<String> namespaces) {
+    // Use outlet-only repository methods; RLS ensures tenant scoping
     if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletId(
-          SettingLevel.OUTLET, tenantId.value(), outletId.value());
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletId(
+          SettingLevel.OUTLET, outletId.value());
     }
     return repository
-        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndNamespaceIn(
-            SettingLevel.OUTLET, tenantId.value(), outletId.value(), namespaces);
+        .findByActiveTrueAndDeletedAtIsNullAndLevelAndOutletIdAndNamespaceIn(
+            SettingLevel.OUTLET, outletId.value(), namespaces);
   }
 
-  private List<SettingEntity> loadForTerminal(
-      TenantId tenantId, TerminalId terminalId, List<String> namespaces) {
+  private List<SettingEntity> loadForTerminal(TerminalId terminalId, List<String> namespaces) {
     if (namespaces.isEmpty()) {
-      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalId(
-          SettingLevel.TERMINAL, tenantId.value(), terminalId.value());
+      return repository.findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalId(
+          SettingLevel.TERMINAL, terminalId.value());
     }
     return repository
-        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndTerminalIdAndNamespaceIn(
-            SettingLevel.TERMINAL, tenantId.value(), terminalId.value(), namespaces);
+        .findByActiveTrueAndDeletedAtIsNullAndLevelAndTerminalIdAndNamespaceIn(
+            SettingLevel.TERMINAL, terminalId.value(), namespaces);
   }
 
   // ========================================

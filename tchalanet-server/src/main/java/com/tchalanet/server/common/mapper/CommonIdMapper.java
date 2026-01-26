@@ -156,4 +156,40 @@ public class CommonIdMapper {
     public PageModelTemplateId mapToPageModelTemplateId(UUID id) {
         return PageModelTemplateId.nullableOf(id);
     }
+
+    // DrawChannelId
+    public UUID mapFromDrawChannelId(com.tchalanet.server.common.types.id.DrawChannelId id) {
+        return id == null ? null : id.value();
+    }
+
+    public com.tchalanet.server.common.types.id.DrawChannelId mapToDrawChannelId(UUID id) {
+        return com.tchalanet.server.common.types.id.DrawChannelId.nullableOf(id);
+    }
+
+    // ResultSlotId
+    public UUID mapFromResultSlotId(com.tchalanet.server.common.types.id.ResultSlotId id) {
+        return id == null ? null : id.value();
+    }
+
+    public com.tchalanet.server.common.types.id.ResultSlotId mapToResultSlotId(UUID id) {
+        return com.tchalanet.server.common.types.id.ResultSlotId.nullableOf(id);
+    }
+
+    // GameId
+    public UUID mapFromGameId(com.tchalanet.server.common.types.id.GameId id) {
+        return id == null ? null : id.value();
+    }
+
+    public com.tchalanet.server.common.types.id.GameId mapToGameId(UUID id) {
+        return com.tchalanet.server.common.types.id.GameId.nullableOf(id);
+    }
+
+    // DrawChannelGameId
+    public UUID mapFromDrawChannelGameId(com.tchalanet.server.common.types.id.DrawChannelGameId id) {
+        return id == null ? null : id.value();
+    }
+
+    public com.tchalanet.server.common.types.id.DrawChannelGameId mapToDrawChannelGameId(UUID id) {
+        return com.tchalanet.server.common.types.id.DrawChannelGameId.nullableOf(id);
+    }
 }

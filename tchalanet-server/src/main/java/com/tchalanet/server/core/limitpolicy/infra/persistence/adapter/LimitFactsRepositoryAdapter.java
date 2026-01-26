@@ -29,7 +29,7 @@ public class LimitFactsRepositoryAdapter implements LimitFactsProvider {
       String selectionKey) {
     DrawExposureJpaEntity drawExposureJpaEntity =
         exposureRepo.findByKey(
-            tenantId.uuid(), drawId.uuid(), scopeType, scopeId, betType, selectionKey);
+            tenantId.value(), drawId.value(), scopeType, scopeId, betType, selectionKey);
     if (drawExposureJpaEntity == null) {
       return new SelectionExposure(BigDecimal.ZERO, 0, BigDecimal.ZERO);
     }
@@ -42,7 +42,7 @@ public class LimitFactsRepositoryAdapter implements LimitFactsProvider {
   @Override
   public BigDecimal getDrawTotalStake(
       TenantId tenantId, DrawId drawId, ScopeType scopeType, UUID scopeId) {
-    return exposureRepo.sumStakeForDraw(tenantId.uuid(), drawId.uuid(), scopeType, scopeId);
+    return exposureRepo.sumStakeForDraw(tenantId.value(), drawId.value(), scopeType, scopeId);
   }
 
   @Override

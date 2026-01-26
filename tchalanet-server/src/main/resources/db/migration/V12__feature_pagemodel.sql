@@ -35,7 +35,6 @@ CREATE TABLE IF NOT EXISTS page_model_template (
   model jsonb NOT NULL DEFAULT '{}'::jsonb,
   schema_version integer NOT NULL DEFAULT 1,
   is_default boolean NOT NULL DEFAULT false,
-  is_system boolean NOT NULL DEFAULT false,
   tenant_id uuid,
   version bigint NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -55,8 +54,13 @@ BEGIN
   END IF;
 END $$;
 
+ALTER TABLE page_model_template
+    ADD CONSTRAINT ck_pmt_level_target
+        CHECK (
+            (level = 'GLOBAL' AND tenant_id IS NULL)
+                OR
+            (level = 'TENANT' AND tenant_id IS NOT NULL)
+            );
+
 -- Indexes
-CREATE INDEX IF NOT EXISTS ix_page_model_tenant_logical_id ON page_model (tenant_id, logical_id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS ix_page_model_template_logical_id ON page_model_template (logical_id) WHERE deleted_at IS NULL;
-
-

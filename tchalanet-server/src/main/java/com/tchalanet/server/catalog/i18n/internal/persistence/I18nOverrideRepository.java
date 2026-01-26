@@ -1,13 +1,15 @@
 package com.tchalanet.server.catalog.i18n.internal.persistence;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * I18n Override Repository (INTERNAL)
@@ -17,26 +19,28 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface I18nOverrideRepository
     extends JpaRepository<I18nOverrideEntity, UUID>,
-        JpaSpecificationExecutor<I18nOverrideEntity> {
+    JpaSpecificationExecutor<I18nOverrideEntity> {
 
-  // ========================================
-  // Catalog queries (read catalog)
-  // ========================================
 
-  Optional<I18nOverrideEntity> findByIdAndDeletedAtIsNull(UUID id);
+    List<I18nOverrideEntity> findByLocaleAndLevelAndActiveTrueAndDeletedAtIsNull(
+        String locale, I18nOverrideLevel level);
+    // ========================================
+    // Catalog queries (read catalog)
+    // ========================================
 
-  List<I18nOverrideEntity> findByTenantIdAndLocaleAndActiveTrueAndDeletedAtIsNull(
-      UUID tenantId, String locale);
+    Optional<I18nOverrideEntity> findByIdAndDeletedAtIsNull(UUID id);
 
-  List<I18nOverrideEntity> findByTenantIdAndActiveTrueAndDeletedAtIsNull(UUID tenantId);
+    // Tenant-aware first-by-key (admin/write flows)
+    Optional<I18nOverrideEntity>
+    findFirstByTenantIdAndLocaleAndI18nKeyAndActiveTrue(
+        UUID tenantId, String locale, String i18nKey);
 
-  // ========================================
-  // Admin queries (pagination)
-  // ========================================
 
-  Page<I18nOverrideEntity> findByActiveTrueAndDeletedAtIsNull(Pageable pageable);
+    // ========================================
+    // Admin queries (pagination)
+    // ========================================
 
-  Optional<I18nOverrideEntity>
-      findFirstByTenantIdAndLocaleAndI18nKeyAndActiveTrueAndDeletedAtIsNull(
-          UUID tenantId, String locale, String i18nKey);
+    Page<I18nOverrideEntity> findByActiveTrue(Pageable pageable);
+
+    Optional<I18nOverrideEntity> findFirstByLocaleAndI18nKeyAndLevel(String loc, String key, I18nOverrideLevel i18nOverrideLevel);
 }

@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.draw.application.print;
 
-import com.tchalanet.server.core.draw.domain.model.DrawChannel;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;

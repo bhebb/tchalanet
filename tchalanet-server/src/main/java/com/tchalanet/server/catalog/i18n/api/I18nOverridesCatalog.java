@@ -1,12 +1,12 @@
 package com.tchalanet.server.catalog.i18n.api;
 
-import com.tchalanet.server.catalog.i18n.internal.web.model.SearchI18nOverridesCriteria;
-import com.tchalanet.server.common.types.id.I18nOverrideId;
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
+import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
+import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,16 +22,6 @@ import java.util.Optional;
  */
 public interface I18nOverridesCatalog {
 
-    /**
-     * Find override by ID.
-     *
-     * @param id override ID
-     * @return override view if found
-     */
-    Optional<I18nOverrideView> findById(I18nOverrideId id);
-
-    I18nOverrideView getById(I18nOverrideId id);
-
     TchPage<I18nOverrideView> search(
         SearchI18nOverridesCriteria criteria, TchPageRequest pageRequest);
 
@@ -40,23 +30,12 @@ public interface I18nOverridesCatalog {
      *
      * <p>Find a specific i18n override by tenant, locale, and key.
      *
-     * @param tenantId tenant ID (required)
-     * @param locale   locale code (required, e.g., "fr", "en", "ht")
-     * @param i18nKey  translation key (required, e.g., "common.save")
+     * @param locale  locale code (required, e.g., "fr", "en", "ht")
+     * @param i18nKey translation key (required, e.g., "common.save")
      * @return override view if found
      */
-    Optional<I18nOverrideView> findByKey(TenantId tenantId, String locale, String i18nKey);
+    Optional<I18nOverrideView> findByKey(String locale, String i18nKey);
 
-    /**
-     * List active overrides for a tenant and locale.
-     *
-     * <p>This is the main method for loading tenant-specific translations.
-     *
-     * @param tenantId tenant ID (required)
-     * @param locale   locale code (required, e.g., "fr", "en", "ht")
-     * @return list of active overrides
-     */
-    List<I18nOverrideView> listByTenantAndLocale(TenantId tenantId, String locale);
 
     /**
      * Get overrides as a map (key → value) for a tenant and locale.
@@ -67,13 +46,12 @@ public interface I18nOverridesCatalog {
      * @param locale   locale code (required)
      * @return map of i18nKey → i18nValue
      */
-    Map<String, String> getOverridesMap(TenantId tenantId, String locale);
-
     /**
-     * List all active overrides for a tenant (all locales).
-     *
-     * @param tenantId tenant ID (required)
-     * @return list of active overrides across all locales
+     * Resolve effective overrides for a locale.
+     * Returns a map where tenant overrides overwrite global ones.
+     * <p>
+     * key = i18n_key
+     * value = i18n_value
      */
-    List<I18nOverrideView> listByTenant(TenantId tenantId);
+    Map<String, String> resolveLocale(String locale, @CurrentContext TchRequestContext ctx);
 }
