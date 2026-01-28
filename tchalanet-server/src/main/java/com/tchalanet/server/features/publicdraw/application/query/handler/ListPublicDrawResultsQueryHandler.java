@@ -2,7 +2,7 @@ package com.tchalanet.server.features.publicdraw.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.web.paging.TchPages;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.features.publicdraw.application.port.out.PublicDrawResultPort;
 import com.tchalanet.server.features.publicdraw.application.query.model.ListPublicDrawResultsQuery;
@@ -26,14 +26,14 @@ public class ListPublicDrawResultsQueryHandler
   public PublicDrawResultListResponse handle(ListPublicDrawResultsQuery q) {
     var page = port.search(q.slotKey(), q.provider(), q.from(), q.to(), q.pageable());
 
-    var pageDto = TchPages.map(page, mapper::toItem);
+    var pageDto = TchPageMapper.map(page, mapper::toItem);
 
     // next draws : selon le filtre slotKey/provider si fourni, sinon tous active
     var slots =
         (q.slotKey() != null && !q.slotKey().isBlank())
             ? slotReader
-                .findBySlotKey(q.slotKey())
-                .map(java.util.List::of)
+                .findByKey(q.slotKey())
+                .map(s -> java.util.List.of(s))
                 .orElse(java.util.List.of())
             : slotReader.listActive();
 

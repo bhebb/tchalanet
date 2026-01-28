@@ -18,9 +18,6 @@ CREATE TABLE IF NOT EXISTS app_user (
     display_name text,
     avatar_url text,
 
-    locale varchar(8),
-    time_zone varchar(64),
-
     status varchar(32) NOT NULL DEFAULT 'PENDING_APPROVAL',
     approved_at timestamptz,
     approved_by uuid,
@@ -71,6 +68,8 @@ CREATE TABLE IF NOT EXISTS user_preference (
     theme_mode varchar(10),
     density smallint,
     locale varchar(8),
+    time_zone varchar(64),
+    currency char(3),
 
     created_at timestamptz NOT NULL DEFAULT now(),
     created_by uuid,

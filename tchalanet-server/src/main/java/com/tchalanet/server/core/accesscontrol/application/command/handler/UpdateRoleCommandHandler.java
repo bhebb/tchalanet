@@ -18,14 +18,14 @@ public class UpdateRoleCommandHandler implements CommandHandler<UpdateRoleComman
   public UUID handle(UpdateRoleCommand command) {
     AppRoleEntity entity =
         appRoleRepository
-            .findById(command.id().uuid())
+            .findById(command.id().value())
             .orElseThrow(() -> new IllegalArgumentException("Role not found: " + command.id()));
     entity.setCode(command.code());
     entity.setName(command.name());
     entity.setDescription(command.description());
-    entity.setTenantId(command.tenantId().uuid());
+    entity.setTenantId(command.tenantId().value());
     // parentRoleId may be null when not provided by the client
-    entity.setParentRoleId(command.parentRoleId() == null ? null : command.parentRoleId().uuid());
+    entity.setParentRoleId(command.parentRoleId() == null ? null : command.parentRoleId().value());
     AppRoleEntity saved = appRoleRepository.save(entity);
     return saved.getId();
   }

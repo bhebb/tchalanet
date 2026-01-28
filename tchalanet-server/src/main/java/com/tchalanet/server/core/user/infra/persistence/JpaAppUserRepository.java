@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaAppUserRepository extends JpaRepository<AppUserJpaEntity, UUID> {
-  Optional<AppUserJpaEntity> findByKeycloakId(UUID keycloakId);
+  Optional<AppUserJpaEntity> findByKeycloakSub(UUID keycloakSub);
 
   Optional<AppUserJpaEntity> findByEmail(String email);
 

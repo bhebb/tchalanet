@@ -1,6 +1,5 @@
 package com.tchalanet.server.common.bootstrap.tenant;
 
-import com.tchalanet.server.common.security.TenantCodeToContextInfoCache;
 import com.tchalanet.server.common.types.id.TenantId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

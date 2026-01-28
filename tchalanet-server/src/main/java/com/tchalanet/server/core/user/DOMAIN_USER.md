@@ -1,310 +1,340 @@
-# DOMAIN_USER.md — Domaine User (core.user)
+# DOMAIN_USER.md — Domaine User (`core.user`)
 
-> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/accesscontrol.md` (user/access interplay)
+> **Type**: Functional Domain Specification  
+> **Scope**: Core (`com.tchalanet.server.core.user`)  
+> **Related**: `OpenSpec — Core Rules (80)`  
+> **External reference (MkDocs)**:  
+> `tchalanet-docs/docs/02-functional/domains/accesscontrol.md`  
+> _(user / accesscontrol interplay)_
 
-## 1) Scope
+---
 
-### Responsabilité principale
+## 1. Scope
 
-Gérer le **profil applicatif** d’un utilisateur (AppUser) et ses **préférences UI** (UserPreference), tout en restant compatible avec une identité externe (Keycloak).
+### 1.1 Responsabilité principale
 
-### Ce que le domaine fait
+Le domaine **User** gère le **profil applicatif** d’un utilisateur (`AppUser`) et ses
+**préférences UI** (`UserPreference`), tout en restant compatible avec une identité
+externe fournie par **Keycloak**.
+
+---
+
+### 1.2 Ce que le domaine fait
 
 - Upsert / synchronisation d’un utilisateur lors du login (bootstrap depuis JWT Keycloak).
-- Lifecycle applicatif : create / approve / suspend / reactivate / delete.
-- Mise à jour du profil applicatif (nom, email, locale, timezone, avatar…).
-- Gestion des préférences utilisateur (theme_mode, density, locale) via ports + persistence.
+- Gestion du lifecycle applicatif utilisateur :
+  - create
+  - approve
+  - suspend
+  - reactivate
+  - delete
+- Mise à jour du profil applicatif :
+  - nom, email, téléphone
+  - locale, timezone
+  - avatar
+- Gestion des préférences utilisateur :
+  - `theme_mode`
+  - `density`
+  - `locale`
 
-### Ce que le domaine ne fait pas
+---
+
+### 1.3 Ce que le domaine ne fait PAS
 
 - Authentification / login (Keycloak).
-- Rôles & permissions (core.accesscontrol).
-- Résolution du tenant à partir d’un code (fait par le filtre/contexte; pas un port tenant dans user).
-- Logique UI/BFF : l’assemblage “me + preferences” est fait dans l’adapter web (mini BFF), pas dans le domaine.
+- Gestion des rôles et permissions (→ `core.accesscontrol`).
+- Résolution du tenant à partir d’un code (déjà résolu par le contexte).
+- Logique UI ou BFF complexe :
+  - l’assemblage `me + preferences` est fait **dans l’adapter web**, pas dans le domaine.
 
 ---
 
-## 2) Tables & Index
+## 2. Tables & Index
 
-### Table `app_user`
+### 2.1 Table `app_user`
 
-- Clé primaire: `id` (UUID généré par Postgres)
-- Identité externe: `keycloak_id` (UUID, unique, indexé)
-- Champs profil: username, email, phone, first_name, last_name, display_name, avatar_url, locale, time_zone
-- Multi-tenant: `tenant_id` (tenant principal optionnel), `tenant_code` (claim / contexte)
-- Lifecycle: `status` (enum) + timestamps (last_login_at, approved_at, … si présents)
-- Versioning/audit: `version`, `created_at`, `updated_at`, `deleted_at` (si utilisé)
+**Clé primaire**
 
-Index recommandés:
+- `id` UUID (généré par PostgreSQL)
 
-- `ux_app_user_keycloak_id` UNIQUE WHERE keycloak_id IS NOT NULL
-- `ux_app_user_email` UNIQUE WHERE email IS NOT NULL
-- `ux_app_user_phone` UNIQUE WHERE phone IS NOT NULL
-- `idx_app_user_tenant_code` (si utilisé par recherche)
-- `idx_app_user_tenant_id` (si requêtes fréquentes)
+**Identité externe**
 
-> Décision: `app_user.id` n’est **pas** le keycloak_id. Keycloak reste dans `keycloak_id`.
+- `keycloak_id` UUID (unique, nullable)
 
-### Table `user_preference`
+**Profil**
 
-- Clé primaire: `id` (UUID)
-- FK: `user_id -> app_user(id)`
-- Champs: theme_mode, density, locale
-- Versioning/audit: `version`, `created_at`, `updated_at`, `deleted_at`
+- `username`
+- `email`
+- `phone`
+- `first_name`
+- `last_name`
+- `display_name`
+- `avatar_url`
+- `locale`
+- `time_zone`
+
+**Multi-tenant**
+
+- `tenant_id` (tenant principal, optionnel)
+- `tenant_code` (issu du contexte / claim)
+
+**Lifecycle**
+
+- `status` (enum `UserStatus`)
+- `last_login_at`
+- `approved_at`
+
+**Audit / versioning**
+
+- `version`
+- `created_at`
+- `updated_at`
+- `deleted_at` (si soft-delete technique)
+
+#### Index recommandés
+
+- `ux_app_user_keycloak_id` UNIQUE WHERE `keycloak_id IS NOT NULL`
+- `ux_app_user_email` UNIQUE WHERE `email IS NOT NULL`
+- `ux_app_user_phone` UNIQUE WHERE `phone IS NOT NULL`
+- `idx_app_user_tenant_code`
+- `idx_app_user_tenant_id`
+
+> **Décision**  
+> `app_user.id` **n’est pas** le `keycloak_id`.  
+> Keycloak reste une identité externe référencée.
 
 ---
 
-## 3) Modèle de domaine
+### 2.2 Table `user_preference`
 
-### Aggregate Root
+- `id` UUID (PK)
+- `user_id` → FK vers `app_user(id)`
+- `theme_mode`
+- `density`
+- `locale`
+- `version`
+- `created_at`
+- `updated_at`
+- `deleted_at`
 
-#### `AppUser`
+---
 
-- Champs métier (profil applicatif + status)
-- Méthodes métier (exemples):
-  - `approve(approvedBy, approvedAt)`
-  - `suspend(reason?, performedBy, at)`
-  - `reactivate(reason?, performedBy, at)`
-  - `updateProfile(...)`
-  - `touchLogin(at)`
+## 3. Modèle de domaine
 
-> Pas de champs UI/projection dans l’aggregate. Le domaine ne renvoie pas de DTO web.
+### 3.1 Aggregate Root — `AppUser`
 
-### Préférences
+Responsable du **lifecycle applicatif**.
 
-#### `UserPreference`
+#### Méthodes métier (exemples)
 
-- Valeurs simples: theme_mode, density, locale
-- Associé à `AppUser` par `userId`
+- `approve(approvedBy, approvedAt)`
+- `suspend(reason?, performedBy, at)`
+- `reactivate(reason?, performedBy, at)`
+- `updateProfile(...)`
+- `touchLogin(at)`
 
-### Enum `UserStatus` (V1)
+> L’aggregate **ne contient aucun DTO web**, aucune logique UI, aucun mapping.
 
-État recommandé:
+---
 
-- `INVITED` (créé par admin, pas encore approuvé)
+### 3.2 Préférences utilisateur — `UserPreference`
+
+- Valeurs simples (pas d’invariants complexes)
+- Associées à `AppUser` par `userId`
+
+Si un jour des règles métier apparaissent → bascule CQRS.
+
+---
+
+### 3.3 Enum `UserStatus` (V1)
+
+États autorisés :
+
+- `INVITED`
 - `ACTIVE`
 - `SUSPENDED`
 
-> `DELETED` n’est pas un status : la suppression correspond à un delete DB (ou deleted_at si tu gardes un soft-delete technique, mais pas piloté par status).
-> `ARCHIVED` = process ultérieur (batch / cleanup), hors cycle métier.
+Notes :
+
+- `DELETED` n’est **pas** un status (suppression DB).
+- `ARCHIVED` = futur batch / cleanup (hors métier).
 
 ---
 
-## 4) Commands (CQRS)
+## 4. Commands (CQRS)
 
-Emplacement:
+**Emplacement**
 
 - `core.user.application.command.model`
-- handlers: `core.user.application.command.handler`
+- `core.user.application.command.handler`
 
-### Liste V1 (implémentée dans la nouvelle monture)
+### Liste V1
 
-- `CreateUserCommand`  
-  Crée un `AppUser` (souvent `INVITED`) et associe l’identité Keycloak si provisioning admin est utilisé (via core.external).
-- `ApproveUserCommand`  
-  Transition `INVITED -> ACTIVE`.
-- `SuspendUserCommand`  
-  Transition `ACTIVE -> SUSPENDED`.
-- `ReactivateUserCommand`  
-  Transition `SUSPENDED -> ACTIVE`.
-- `DeleteUserCommand`  
-  Suppression applicative (DB) + action Keycloak (disable / delete selon policy).
-- `EnsureUserExistsForPrincipalCommand`  
-  Upsert idempotent depuis le JWT Keycloak (bootstrap).
-- `UpdateUserProfileCommand`  
-  Mise à jour du profil applicatif (et éventuellement synchro Keycloak via port core.external, si appliqué).
+- `CreateUserCommand`
+- `ApproveUserCommand`
+- `SuspendUserCommand`
+- `ReactivateUserCommand`
+- `DeleteUserCommand`
+- `EnsureUserExistsForPrincipalCommand`
+- `UpdateUserProfileCommand`
 
-Règles:
+#### Règles
 
 - 1 command = 1 intention
 - Pas de `UpdateUserStatusCommand` générique
-- Utiliser `ClockPort` dans les handlers (pas de `Instant.now()`)
+- `ClockPort` obligatoire dans les handlers
+- Commands idempotentes si invoquées par bootstrap
 
 ---
 
-## 5) Queries (CQRS)
+## 5. Queries (CQRS)
 
-Emplacement:
+**Emplacement**
 
 - `core.user.application.query.model`
-- handlers: `core.user.application.query.handler`
+- `core.user.application.query.handler`
 
-### Liste V1 (alignée sur la monture)
+### Liste V1
 
-- `GetCurrentUserQuery(keycloakId)` -> `UserDetails` (read model)
-- `GetUserDetailsQuery(userId)` -> `UserDetails`
-- `GetUserQuery(userId)` -> `UserRow` (ou domaine minimal)
-- `ListAllUsersQuery` / `PagedListAllUsersQuery` -> `Page<UserRow>`
-- `ListTenantUsersQuery` / `PagedListTenantUsersQuery` -> `Page<UserRow>`
+- `GetCurrentUserQuery(keycloakId)` → `UserDetails`
+- `GetUserDetailsQuery(userId)` → `UserDetails`
+- `GetUserQuery(userId)` → `UserRow`
+- `ListAllUsersQuery` / `PagedListAllUsersQuery`
+- `ListTenantUsersQuery` / `PagedListTenantUsersQuery`
 
-> Les queries retournent des read models, pas l’aggregate complet si possible.
+> Les queries retournent des **read models**, pas l’aggregate.
 
 ---
 
-## 6) Ports (hexagonal)
+## 6. Ports (Hexagonal)
 
-Emplacement:
+**Emplacement**
 
 - `core.user.application.port.out`
 
-### Ports user
+### Ports utilisateur
 
 - `UserReaderPort`
-  - findById, findByKeycloakId, list/paging...
 - `UserWriterPort`
-  - save/update...
 
-### Ports preferences
+### Ports préférences
 
 - `UserPreferenceReaderPort`
 - `UserPreferenceWriterPort`
 
-> Le domaine `user` ne dépend pas de `accesscontrol` repos. Les liens tenant/roles sont gérés ailleurs.
+---
 
-### Intégration Keycloak (dépendance externe)
+### Intégration Keycloak
 
 - Via `core.external.ports.KeycloakUserProvisioningPort`
-- Appelé par certains handlers user (Create/Approve/Suspend/Reactivate/Delete/UpdateProfile) selon policy.
+- Appelé par certains handlers selon la policy :
+  - approve
+  - suspend
+  - reactivate
+  - delete
+  - update profile
+
+Le domaine **ne dépend pas** de `accesscontrol` repositories.
 
 ---
 
-## 7) Infra (persistence + web)
+## 7. Infrastructure
 
-### Persistence
+### 7.1 Persistence
 
-Emplacement: `core.user.infra.persistence`
+**Emplacement**
 
-- `AppUserJpaEntity`, `UserPreferenceJpaEntity`
-- `JpaAppUserRepository`, `JpaUserPreferenceRepository`
-- `UserMapper` (Option B: mapping manuel)
-- `AppUserPersistenceAdapter` implémente ports out
+- `core.user.infra.persistence`
 
-### Web / mini BFF profile
+Contenu :
 
-- `core.user.infra.web.api.ProfileController`
-  - Expose un endpoint “me” / “bootstrap”
-  - Peut agréger `UserDetails + UserPreference` dans une réponse (mini BFF)
-  - Ne contient aucune logique métier (uniquement assemblage + mapping)
-
-> Spring Data REST peut être utilisé pour `user_preference` si et seulement si l’accès est “self-only”.
+- `AppUserJpaEntity`
+- `UserPreferenceJpaEntity`
+- `JpaAppUserRepository`
+- `JpaUserPreferenceRepository`
+- `AppUserPersistenceAdapter`
 
 ---
 
-## 8) Events & consumers
+### 7.2 Web / Mini-BFF profile
 
-V1:
+**Emplacement**
 
-- Pas d’obligation d’events métier pour user.
-- Si nécessaire plus tard:
-  - `UserApprovedEvent`
-  - `UserSuspendedEvent`
-  - `UserReactivatedEvent`
-  - `UserDeletedEvent`
-  - `UserBootstrappedEvent` (technique)
+- `core.user.infra.web.api`
 
-Consumers potentiels (features):
+- `ProfileController`
+  - endpoint `/me`
+  - endpoint bootstrap
+  - agrégation `UserDetails + UserPreference`
+  - aucune logique métier
 
-- stats / reporting
+> Spring Data REST autorisé **uniquement** pour `user_preference`
+> et **self-only**.
+
+---
+
+## 8. Events & Consumers
+
+### V1
+
+Aucun event métier obligatoire.
+
+### Events possibles (V2+)
+
+- `UserApprovedEvent`
+- `UserSuspendedEvent`
+- `UserReactivatedEvent`
+- `UserDeletedEvent`
+- `UserBootstrappedEvent` (technique)
+
+Consumers potentiels :
+
 - notifications
-- provisioning POS (si besoin)
+- reporting
+- provisioning POS
 
 ---
 
-## 9) Failure modes & fallback
+## 9. Failure modes & fallback
 
-- JWT Keycloak subject non-UUID: le handler bootstrap doit accepter le cas (ou refuser proprement).
-- Keycloak indisponible:
-  - sur actions admin (approve/suspend/reactivate/delete): fail fast + log + retry manuel
-- Conflits unique (email/phone/keycloak_id):
-  - errors explicites + tests
+- JWT `sub` non UUID → rejet explicite ou mapping contrôlé
+- Keycloak indisponible :
+  - actions admin → fail fast + log
+- Violations d’unicité (email / phone / keycloak_id) :
+  - erreurs explicites
+  - tests obligatoires
 
 ---
 
-## 10) Tests (Definition of Done)
+## 10. Tests — Definition of Done
 
-### Domain unit tests
+### Domain
 
-- transitions autorisées:
-  - INVITED -> ACTIVE
-  - ACTIVE -> SUSPENDED
-  - SUSPENDED -> ACTIVE
-- transitions interdites (ex: approve sur ACTIVE)
+- transitions autorisées :
+  - `INVITED → ACTIVE`
+  - `ACTIVE → SUSPENDED`
+  - `SUSPENDED → ACTIVE`
+- transitions interdites testées
 
-### Application tests
+### Application
 
-- handlers happy path
-- idempotence bootstrap (`EnsureUserExistsForPrincipal` appelé 2 fois)
-- keycloak failure handling (si utilisé)
+- happy paths des handlers
+- idempotence bootstrap
+- gestion des erreurs Keycloak
 
-### Integration tests
+### Integration
 
-- repo adapter + contraintes uniques
+- contraintes uniques
 - paging queries
 
 ---
 
-## 11) Mini-checklist
+## 11. Mini-checklist finale
 
-- [ ] Pas de DTO web dans core.user.domain/application
-- [ ] Pas de logique métier dans controllers
-- [ ] Pas de UpdateStatus générique
-- [ ] ClockPort dans handlers
-- [ ] keycloak_id unique, app_user.id généré DB
-- [ ] Preferences CRUD sans invariants (sinon CQRS)
-- [ ] Aucun accès direct aux repos accesscontrol depuis user
-
-# Domaine core.user — Profils & Identités (hors auth)
-
-> Gère les profils utilisateur (métadonnées, rôles par tenant) indépendamment d’auth Keycloak.
-
----
-
-## 1. Rôle du domaine
-
-- Gérer meta/profil utilisateur.
-- Associer rôles/permissions par tenant.
-
-**Ne fait pas**
-
-- Auth (Keycloak).
-
----
-
-## 2. Modèle & invariants
-
-- `UserProfile`: id, name, email, phone, status.
-- Invariants:
-  - Email normalisé; phone validé.
-
----
-
-## 3. Use Cases
-
-- `CreateUserProfileCommandHandler`
-- `AssignUserRoleCommandHandler`
-- `ListTenantUsersQueryHandler`
-
----
-
-## 4. Ports
-
-- `UserProfileRepoPort`
-- `UserTenantRoleRepoPort`
-
----
-
-## 5. Intégrations
-
-- accesscontrol pour vérification.
-
----
-
-## 6. Notes techniques
-
-- Multi-tenant; wrappers ID.
-
----
-
-## 7. Incohérences / TODO
-
-- Alignement avec Keycloak (sync, mapping champs).
+- [ ] Aucun DTO web dans `domain/` ou `application/`
+- [ ] Aucune logique métier dans les controllers
+- [ ] Pas de command générique de status
+- [ ] `ClockPort` utilisé partout
+- [ ] `keycloak_id` unique, `app_user.id` DB-generated
+- [ ] Préférences simples (CQRS si invariants)
+- [ ] Aucun accès direct à `accesscontrol` repos

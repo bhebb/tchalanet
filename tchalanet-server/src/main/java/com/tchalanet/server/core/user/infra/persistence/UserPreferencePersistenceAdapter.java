@@ -5,6 +5,9 @@ import com.tchalanet.server.core.user.application.port.out.UserPreferenceReaderP
 import com.tchalanet.server.core.user.application.port.out.UserPreferenceWriterPort;
 import com.tchalanet.server.core.user.domain.model.UserPreference;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Currency;
+import java.util.Locale;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,43 +21,97 @@ public class UserPreferencePersistenceAdapter
 
   @Override
   public Optional<UserPreference> findByUserId(UserId id) {
-    return jpaRepository.findById(id.uuid()).map(this::toDomain);
+    return jpaRepository.findById(id.value()).map(this::toDomain);
   }
 
-  @Override
+  // Backward-compatible helper (not part of the interface)
   public Optional<UserPreference> findActiveByUserId(UserId userId) {
-    // For now, reuse findById
     return findByUserId(userId);
   }
 
-  @Override
+  // Basic save helper (not part of the interface)
   public UserPreference save(UserPreference preference) {
-    return null;
+    UserPreferenceJpaEntity e = toEntity(preference);
+    var saved = jpaRepository.save(e);
+    return toDomain(saved);
   }
 
-  @Override
-  public void softDelete(UserId userId, Instant when) {}
+  // Soft-delete helper (not part of the interface)
+  public void softDelete(UserId userId, Instant when) {
+    jpaRepository.findById(userId.value()).ifPresent(e -> {
+      e.setDeletedAt(when);
+      jpaRepository.save(e);
+    });
+  }
 
+  // Backward-compatible upsert helper that accepts locale/timeZone/currency as strings
+  public void upsert(UserId userId, String themeMode, Short density, String locale, String timeZone, String currency) {
+    Locale loc = locale == null ? null : Locale.forLanguageTag(locale);
+    ZoneId zid = timeZone == null ? null : ZoneId.of(timeZone);
+    Currency cur = currency == null ? null : Currency.getInstance(currency);
+    upsert(userId, themeMode, density, loc, zid, cur);
+  }
+
+  // New upsert with typed Locale/ZoneId/Currency (not part of the port interface)
+  public void upsert(UserId userId, String themeMode, Short density, Locale locale, ZoneId timeZone, Currency currency) {
+    var entityOpt = jpaRepository.findById(userId.value());
+    UserPreferenceJpaEntity e = entityOpt.orElseGet(() -> {
+      UserPreferenceJpaEntity ne = new UserPreferenceJpaEntity();
+      AppUserJpaEntity user = new AppUserJpaEntity();
+      user.setId(userId.value());
+      ne.setUser(user);
+      return ne;
+    });
+
+    e.setThemeMode(themeMode == null ? null : com.tchalanet.server.common.types.enums.ThemeMode.valueOf(themeMode));
+    e.setDensity(density);
+    e.setLocale(locale);
+    e.setTimeZone(timeZone);
+    e.setCurrency(currency);
+
+    jpaRepository.save(e);
+  }
+
+  // Implement writer port convenience: upsert(UserPreference pref)
   @Override
-  public void upsert(UserId userId, String themeMode, Short density, String locale) {}
+  public UserPreference upsert(UserPreference pref) {
+    if (pref == null || pref.userId() == null) throw new IllegalArgumentException("pref.userId is required");
+    // delegate to typed upsert
+    Locale locale = pref.locale();
+    ZoneId zid = pref.timeZone();
+    Currency cur = pref.currency();
+
+    upsert(pref.userId(), pref.themeMode() == null ? null : pref.themeMode().name(), pref.density(), locale, zid, cur);
+    // return the saved domain object (read back)
+    return findByUserId(pref.userId()).orElse(pref);
+  }
 
   private UserPreference toDomain(UserPreferenceJpaEntity e) {
-    UserPreference pref = new UserPreference();
-    pref.setUserId(UserId.of(e.getUser().getId()));
-    pref.setThemeMode(e.getThemeMode());
-    pref.setDensity(e.getDensity());
-    pref.setLocale(e.getLocale() != null ? java.util.Locale.forLanguageTag(e.getLocale()) : null);
-    return pref;
+    // domain record uses typed Locale/ZoneId/Currency
+    Locale locale = e.getLocale();
+    ZoneId tz = e.getTimeZone();
+    Currency cur = e.getCurrency();
+
+    return new UserPreference(
+        UserId.of(e.getUser().getId()),
+        e.getThemeMode(),
+        e.getDensity(),
+        locale,
+        tz,
+        cur);
   }
 
   private UserPreferenceJpaEntity toEntity(UserPreference pref) {
     UserPreferenceJpaEntity e = new UserPreferenceJpaEntity();
     AppUserJpaEntity user = new AppUserJpaEntity();
-    user.setId(pref.getUserId().uuid());
+    user.setId(pref.userId().value());
     e.setUser(user);
-    e.setThemeMode(pref.getThemeMode());
-    e.setDensity(pref.getDensity());
-    e.setLocale(pref.getLocale() != null ? pref.getLocale().toLanguageTag() : null);
+    e.setThemeMode(pref.themeMode());
+    e.setDensity(pref.density());
+    // domain fields are typed already (Locale/ZoneId/Currency)
+    e.setLocale(pref.locale());
+    e.setTimeZone(pref.timeZone());
+    e.setCurrency(pref.currency());
     return e;
   }
 }

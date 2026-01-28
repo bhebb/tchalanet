@@ -1,163 +1,208 @@
-# Domaine core.audit — Audit applicatif & révisions
+# Domaine Audit — `core.audit`
 
-> Enregistre des audits applicatifs (actions), et s’appuie sur Envers pour l’historique des entités JPA.
+> Type: Functional Domain Specification  
+> Scope: `com.tchalanet.server.core.audit`  
+> Criticalité: HIGH (Conformité / Sécurité / Traçabilité)
 
 ---
 
-## 1. Rôle du domaine
+## 1. But du domaine
 
-- Publier des `AuditEvent` (tenant, actor, operationType, entityRef, outcome, metadata).
-- Exposer lecture paginée du journal audit.
+Le domaine **Audit** assure la traçabilité applicative des actions métier importantes.
 
-**Ne fait pas**
+Il fournit :
 
-- Décision d’autorisation.
-- Historisation manuelle hors Envers.
+- un journal lisible métier ("qui a fait quoi ?");
+- une API de lecture paginée et filtrée (admin / superadmin);
+- une intégration technique avec Hibernate Envers pour l'historique technique des entités.
+
+### 1.1 Ce que le domaine fait
+
+- Publie des `AuditEvent` applicatifs _après commit_.
+- Persiste les audits métier dans la table `audit_event`.
+- Expose des queries de lecture (filtres tenant/date/actor/entity/action).
+- Centralise les conventions et la factory d'audit.
+
+### 1.2 Ce que le domaine ne fait PAS
+
+- Authentification / login (Keycloak).
+- Historisation manuelle d'entités (usage d'Envers pour les révisions techniques).
+- Log technique ou debug applicatif.
 
 ---
 
 ## 2. Modèle & invariants
 
-- `AuditEvent`: immutable; publié après commit.
-- Invariants:
-  - Audit log read-only; filtrage par tenant.
+### 2.1 `AuditEvent` (concept)
+
+- Objet immuable.
+- Construit à partir du contexte applicatif (`TchRequestContext`) et d'un payload métier.
+- Persisté uniquement _après commit_ (garantie transactionnelle).
+
+Champs logiques recommandés :
+
+- `tenantId`
+- `actorType`
+- `actorId`
+- `entityType`
+- `entityId`
+- `action`
+- `details` (JSON)
+- `occurredAt` (timestamp)
+
+### 2.2 Invariants
+
+- Le journal d'audit est _read-only_ (aucune modification) ;
+- Aucun audit ne doit être écrit si la transaction rollback ;
+- Le filtrage tenant est obligatoire (RLS ou équivalent) pour toute lecture/exposition.
 
 ---
 
-## 3. Use Cases
+## 3. Cas d'utilisation (application layer)
 
-- `PublishAuditEventHandler`
-- `ListAuditEventsQueryHandler`
+**Emplacement** :
 
----
+- `core.audit.application.command`
+- `core.audit.application.query`
 
-## 4. Ports (out)
+### 3.1 Commands
 
-- `AuditEventRepoPort`
+- `PublishAuditEventCommand` : utilisé par les autres domaines via la factory, exécuté _after commit_.
 
----
+### 3.2 Queries
 
-## 5. Intégrations
-
-- `common.tx.AfterCommit` pour publication.
-- Envers: `_aud` tables pour révisions entity.
+- `ListAuditEventsQuery` : filtres (tenant, date, actor, entity, action) + pagination obligatoire.
 
 ---
 
-## 6. Notes techniques
+## 4. Ports (hexagonal)
 
-- Multi-tenant & RLS (si audit tenant-scoped).
-- DTOs MapStruct; wrappers ID.
+**Emplacement** : `core.audit.application.port.out`
+
+Ports requis :
+
+- `AuditEventWriterPort`
+- `AuditEventReaderPort`
+
+Remarque : les autres domaines n'interagissent qu'avec la factory/event publisher, pas directement avec les ports.
 
 ---
 
-## 7. Incohérences / TODO
+## 5. Intégrations techniques
 
-- Confirmer la politique de rétention et les filtres admin.
+### 5.1 Publication after-commit
 
----
+- Utiliser `common.tx.AfterCommit` (ou TransactionSynchronizationManager) pour garantir :
+  - pas d'écriture d'audit si rollback ;
+  - cohérence entre état DB et events persistés.
 
-## 8. Stratégie d’audit (Envers + audit_event)
+Exemple :
 
-Tchalanet utilise deux mécanismes complémentaires :
+```java
+TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+  @Override
+  public void afterCommit() {
+    repo.saveAll(events);
+  }
+});
+```
 
-- Envers: historique complet des entités (reconstitution d’état passé).
-- audit_event: log métier lisible ("qui a fait quoi ?"), stocké en `jsonb`.
+### 5.2 Envers (historique technique)
 
-### 8.1 Objectifs
+- Hibernate Envers est utilisé pour les révisions techniques (`_aud` tables).
+- Envers n'est PAS un substitut à l'audit métier : usage complémentaire.
 
-- Historiser les versions d’entités via Envers.
-- Auditer les actions métier importantes via `audit_event`.
-
-### 8.2 Envers
-
-- Entités de base annotées `@Audited` (sur `BaseEntity` / `BaseTenantEntity`).
-- Paramètres Envers configurés dans `application.yaml`.
-- `TchRevisionListener` enrichit `revinfo` (tenantId, userId, requestId).
-- Le `RevisionListener` doit être autonome (pas d’injection Spring par constructeur) et lire le contexte via `RequestContextHolder.get()`.
-
-Revision table:
+#### Exemple de table de révision (revinfo)
 
 ```sql
 CREATE TABLE revinfo (
-  rev INT PRIMARY KEY,
+  rev           INT PRIMARY KEY,
   rev_timestamp BIGINT NOT NULL,
-  tenant_id UUID,
-  user_id   UUID
+  tenant_id     UUID,
+  user_id       UUID
 );
 ```
 
-Listener (exemple):
-
-```java
-public class TchRevisionListener implements RevisionListener {
-  public void newRevision(Object revisionEntity) {
-     var ctx = RequestContextHolder.get();
-     rev.setTenantId(ctx.tenantId());
-     rev.setUserId(ctx.userId());
-  }
-}
-```
-
-### 8.3 Table `audit_event`
-
-- Stocke événements métier lisibles: actor_type, actor_id, entity_type, entity_id, action, details (jsonb), ip, user_agent.
-
-Schema (exemple):
-
-```sql
-CREATE TABLE audit_event (
-  id bigserial PRIMARY KEY,
-  ts timestamptz NOT NULL DEFAULT now(),
-  tenant_id uuid NOT NULL,
-  actor_type text NOT NULL,
-  actor_id text NOT NULL,
-  entity_type text NOT NULL,
-  entity_id text NOT NULL,
-  action text NOT NULL,
-  details jsonb NOT NULL,
-  ip inet,
-  user_agent text
-);
-```
-
-### 8.4 AuditEventFactory & enregistrement
-
-- `AuditEventFactory` construit les événements à partir du `TchRequestContext` et d’un payload `details`.
-- Persistance recommandée AFTER COMMIT (TransactionSynchronization) pour ne refléter que les transactions commitées.
-
-Exemple factory:
-
-```java
-public AuditEvent event(String entity, String id, String action, Object details) {
-   return new AuditEvent(...);
-}
-```
-
-### 8.5 Implémentation afterCommit
-
-- Collecter des `AuditEvent` (ThreadLocal ou collection).
-- `TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() { @Override public void afterCommit() { repo.saveAll(events); } });`
-
-### 8.6 AuditorAware
-
-- `AuditorAware<UUID>` (ex: `RequestContextAuditorAware`) pour remplir `@CreatedBy` / `@LastModifiedBy`.
-- `getCurrentAuditor()` retourne `Optional<UUID>` depuis `TchRequestContext.userId`.
-
-### 8.7 Bonnes pratiques
-
-- Envers pour historique complet; `audit_event` pour lecture métier.
-- Stocker les détails métier dans `details` (jsonb) via `AuditEventFactory`.
-- Gérer la volumétrie (archiver/synthétiser si besoin).
-
-### 8.8 Tests
-
-- Envers: vérifier `_aud` après modifications.
-- `audit_event` afterCommit: s’assurer que rollback n’enregistre pas l’audit.
+> `TchRevisionListener` enrichit `revinfo` avec le contexte (tenantId, userId) via `RequestContextHolder`.
 
 ---
 
-## 9. Visualisation
+## 6. Schéma métier : `audit_event`
 
-- `_aud`: interne/technique.
-- `audit_event`: exploitable par front admin / BI.
+Stocke des événements lisibles métier.
+
+```sql
+CREATE TABLE audit_event (
+  id          BIGSERIAL PRIMARY KEY,
+  ts          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  tenant_id   UUID NOT NULL,
+  actor_type  TEXT NOT NULL,
+  actor_id    TEXT NOT NULL,
+  entity_type TEXT NOT NULL,
+  entity_id   TEXT NOT NULL,
+  action      TEXT NOT NULL,
+  details     JSONB NOT NULL,
+  ip          INET,
+  user_agent  TEXT
+);
+```
+
+Indexes recommandés : `tenant_id`, `ts`, `entity_type`.
+
+---
+
+## 7. Composants clés
+
+- `AuditEventFactory` : construit les `AuditEvent` à partir du `TchRequestContext` + payload métier.
+- `AuditEventWriterPort` / `AuditEventReaderPort` : ports persistants.
+- `AfterCommit` collector : collecte les events pendant la transaction et les persiste après commit.
+- `AuditorAware<UUID>` : alimente `@CreatedBy` / `@LastModifiedBy`.
+
+---
+
+## 8. RLS & multi-tenant
+
+- `audit_event` est tenant-scoped ; appliquer RLS si la table est exposée en lecture.
+- Le mode superadmin peut permettre override contrôlé du tenant (via RequestContext) — documenter et auditer cette capacité.
+
+---
+
+## 9. Performance & volumétrie
+
+- Les événements d'audit peuvent croître rapidement. Pratiques recommandées :
+  - indexation ciblée (`tenant_id`, `ts`, `entity_type`) ;
+  - archivage / purge planifiée (batch) ;
+  - agrégations/exports pour BI.
+
+---
+
+## 10. Modes de défaillance
+
+- Transaction rollback → aucun audit écrit.
+- Contexte absent → audit rejeté et log sécurité.
+- Volume excessif → prévoir throttling / archivage (hors V1).
+
+---
+
+## 11. Tests — Definition of Done
+
+- Audit métier écrit _après commit_ ;
+- Aucun audit écrit si rollback ;
+- Filtres tenant corrects dans les queries ;
+- Envers génère des révisions `_aud` après update ;
+- `revinfo` enrichi avec `tenantId` et `userId`.
+
+---
+
+## 12. Mini-checklist
+
+- [ ] Aucun audit écrit avant commit
+- [ ] Envers réservé à l'historique technique
+- [ ] `audit_event` pour lecture métier
+- [ ] Factory centralisée (AuditEventFactory)
+- [ ] Aucun audit depuis controllers (utiliser la factory)
+- [ ] RLS actif pour lectures
+
+---
+
+_Document rédigé selon les conventions Tchalanet — voir `docs/conventions` pour la structure attendue._

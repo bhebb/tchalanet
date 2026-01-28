@@ -20,9 +20,9 @@ public class CreateRoleCommandHandler implements CommandHandler<CreateRoleComman
     entity.setCode(command.code());
     entity.setName(command.name());
     entity.setDescription(command.description());
-    entity.setTenantId(command.tenantId().uuid());
+    entity.setTenantId(command.tenantId().value());
     // parentRoleId may be null when not provided by the client
-    entity.setParentRoleId(command.parentRoleId() == null ? null : command.parentRoleId().uuid());
+    entity.setParentRoleId(command.parentRoleId() == null ? null : command.id().value());
     AppRoleEntity saved = appRoleRepository.save(entity);
     return saved.getId();
   }

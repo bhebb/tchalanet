@@ -26,8 +26,8 @@ public class SuspendUserCommandHandler implements CommandHandler<SuspendUserComm
     var suspended = user.suspend();
     var saved = userWriterPort.save(suspended);
 
-    if (saved.getKeycloakId() != null) {
-      keycloakUserProvisioningPort.disableUser(saved.getKeycloakId(), command.reason());
+    if (saved.getKeycloakSub() != null) {
+      keycloakUserProvisioningPort.disableUser(saved.getKeycloakSub(), command.reason());
     }
 
     return null;

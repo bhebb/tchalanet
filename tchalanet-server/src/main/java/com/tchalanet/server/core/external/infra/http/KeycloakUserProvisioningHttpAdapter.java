@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.external.infra.http;
 
 import com.tchalanet.server.core.external.port.out.KeycloakUserProvisioningPort;
+import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -80,8 +80,8 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
 
   @Override
   public void updateUserProfile(
-      UUID keycloakId, String firstName, String lastName, String email, String locale) {
-    String url = adminUrl + USERS_PATH + "/" + keycloakId;
+      KeycloakUserSub keycloakSub, String firstName, String lastName, String email, String locale) {
+    String url = adminUrl + USERS_PATH + "/" + keycloakSub.value();
 
     Map<String, Object> body = new HashMap<>();
     body.put("firstName", firstName);
@@ -101,15 +101,15 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
           .toBodilessEntity()
           .block();
 
-      log.info("Successfully updated profile for user {}", keycloakId);
+      log.info("Successfully updated profile for user {}", keycloakSub);
     } catch (Exception e) {
-      log.error("Keycloak profile update failed for user {}", keycloakId, e);
+      log.error("Keycloak profile update failed for user {}", keycloakSub, e);
     }
   }
 
   @Override
-  public void disableUser(UUID keycloakId, String reason) {
-    String url = adminUrl + USERS_PATH + "/" + keycloakId;
+  public void disableUser(KeycloakUserSub keycloakSub, String reason) {
+    String url = adminUrl + USERS_PATH + "/" + keycloakSub.value();
 
     Map<String, Object> body = new HashMap<>();
     body.put("enabled", false);
@@ -127,9 +127,9 @@ public class KeycloakUserProvisioningHttpAdapter implements KeycloakUserProvisio
           .toBodilessEntity()
           .block();
 
-      log.info("Successfully disabled user {} for reason: {}", keycloakId, reason);
+      log.info("Successfully disabled user {} for reason: {}", keycloakSub, reason);
     } catch (Exception e) {
-      log.error("Keycloak disable user failed for user {}", keycloakId, e);
+      log.error("Keycloak disable user failed for user {}", keycloakSub, e);
     }
   }
 }

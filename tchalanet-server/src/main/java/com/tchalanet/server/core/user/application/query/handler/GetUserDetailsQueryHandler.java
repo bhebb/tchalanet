@@ -5,53 +5,56 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.user.application.port.out.UserPreferenceReaderPort;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
 import com.tchalanet.server.core.user.application.query.model.GetUserDetailsQuery;
-import com.tchalanet.server.core.user.application.query.model.UserProfileQuery;
+import com.tchalanet.server.core.user.application.query.model.UserDetails;
 import com.tchalanet.server.core.user.domain.model.AppUser;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class GetUserDetailsQueryHandler
-    implements QueryHandler<GetUserDetailsQuery, UserProfileQuery> {
+    implements QueryHandler<GetUserDetailsQuery, UserDetails> {
 
   private final UserReaderPort userReaderPort;
   private final UserPreferenceReaderPort userPreferenceReaderPort;
 
   @Override
-  public UserProfileQuery handle(GetUserDetailsQuery query) {
-    var userId = query.keycloakUserId();
+  public UserDetails handle(GetUserDetailsQuery query) {
+    var userId = query.userId();
     var user =
         userReaderPort
-            .findByKeycloakId(userId)
+            .findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-    var profile = toProfile(user);
+    var pref = userPreferenceReaderPort.findByUserId(user.getId()).orElse(null);
 
-    userPreferenceReaderPort
-        .findActiveByUserId(user.getId())
-        .ifPresent(
-            pref -> {
-              profile.themeMode = pref.getThemeMode();
-              profile.density = pref.getDensity();
-              profile.preferenceLocale =
-                  pref.getLocale() != null ? pref.getLocale().toLanguageTag() : null;
-            });
-
-    return profile;
+    return toDetails(user, pref);
   }
 
-  private UserProfileQuery toProfile(AppUser user) {
-    UserProfileQuery p = new UserProfileQuery();
-    p.id = user.getId().uuid();
-    p.keycloakId = user.getKeycloakId();
-    p.username = user.getUsername();
-    p.email = user.getEmail();
-    p.firstName = user.getFirstName();
-    p.lastName = user.getLastName();
-    p.displayName = user.getDisplayName();
-    p.locale = user.getLocale();
-    p.timeZone = user.getTimeZone();
-    p.lastLoginAt = user.getLastLoginAt();
-    return p;
+  private UserDetails toDetails(AppUser user, Object pref) {
+    // pref is UserPreference domain object; cast safely
+    com.tchalanet.server.core.user.domain.model.UserPreference p = null;
+    if (pref instanceof com.tchalanet.server.core.user.domain.model.UserPreference up) p = up;
+
+    return new UserDetails(
+        user.getId(),
+        user.getKeycloakSub(),
+        null, // tenantId not loaded here
+        null, // outletId not loaded here
+        user.getUsername(),
+        user.getDisplayName(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getPhone(),
+        user.getEmail(),
+        user.getStatus().name(),
+        user.getDisplayName(),
+        null,
+        null, // app-user locale removed; use preferenceLocale below
+        null,
+        user.getLastLoginAt(),
+        p == null ? null : p.getThemeMode(),
+        p == null ? null : p.getDensity(),
+        p == null ? null : p.getLocale(),
+        p == null ? null : p.getCurrency());
   }
 }

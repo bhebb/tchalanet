@@ -60,8 +60,7 @@ class ArchitectureTest {
     // Allow dependency on catalog/game/api (public API)
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.core.tenantgame..")
-        .should().dependOnClassesThat()
-        .resideInAPackage("com.tchalanet.server.catalog.game.internal..",
+        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.catalog.game.internal..",
                          "com.tchalanet.server.catalog.game.infra..")
         .as("core/tenantgame must NOT depend on catalog/game/internal or infra; only api is allowed");
 
@@ -88,16 +87,71 @@ class ArchitectureTest {
   }
 
   @Test
-  public void catalogGameMustNotEmitDomainEvents() {
-    JavaClasses classes = new ClassFileImporter()
-        .importPackages("com.tchalanet.server.catalog.game");
+  public void catalogModulesMustNotDependOnTheirInternals_viaApi() {
+    // Enforce: catalog.<name>.api MUST NOT depend on catalog.<name>.internal
+    JavaClasses classes = new ClassFileImporter().importPackages("com.tchalanet.server.catalog..");
 
     ArchRule rule = noClasses()
-        .that().resideInAPackage("com.tchalanet.server.catalog.game..")
-        .should().haveAnyMembersThat().haveSimpleName("publishEvent")
-        .orShould().haveAnyMembersThat().haveSimpleName("emit")
-        .as("catalog/game must NOT emit domain events (pure reference data)");
+        .that().resideInAPackage("com.tchalanet.server.catalog..api..")
+        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.catalog..internal..")
+        .as("catalog.api must not depend on catalog.internal");
 
     rule.check(classes);
   }
+
+  @Test
+  public void catalogControllersMustReturnApiResponseOrResponseEntity() {
+    JavaClasses classes = new ClassFileImporter().importPackages("com.tchalanet.server.catalog..");
+
+    ArchRule rule = methods()
+        .that().areAnnotatedWith(RequestMapping.class)
+        .or().areAnnotatedWith(GetMapping.class)
+        .or().areAnnotatedWith(PostMapping.class)
+        .or().areAnnotatedWith(PutMapping.class)
+        .or().areAnnotatedWith(DeleteMapping.class)
+        .should().haveReturnType(ApiResponse.class)
+        .orShould().haveReturnTypeAssignableTo(ResponseEntity.class)
+        .as("Catalog controllers must return ApiResponse or ResponseEntity");
+
+    rule.check(classes);
+  }
+
+  @Test
+  public void catalogControllersMustNotAccessPersistence() {
+    // Controllers under catalog.*.internal.web must not depend on persistence/repositories directly
+    JavaClasses classes = new ClassFileImporter().importPackages("com.tchalanet.server.catalog..");
+
+    ArchRule rule = noClasses()
+        .that().resideInAPackage("com.tchalanet.server.catalog..internal.web..")
+        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.catalog..internal.persistence..")
+        .as("Catalog controllers must not depend on internal.persistence (repositories)");
+
+    rule.check(classes);
+  }
+
+  @Test
+  public void catalogMustNotEmitDomainEvents() {
+    JavaClasses classes = new ClassFileImporter().importPackages("com.tchalanet.server.catalog..");
+
+    ArchRule rule = noClasses()
+        .that().resideInAPackage("com.tchalanet.server.catalog..")
+        .should().haveAnyMembersThat().haveSimpleName("publishEvent")
+        .orShould().haveAnyMembersThat().haveSimpleName("emit")
+        .as("catalog modules must NOT emit domain events (pure reference data)");
+
+    rule.check(classes);
+  }
+
+  @Test
+  public void catalogModulesMustNotDependOnCore() {
+    JavaClasses classes = new ClassFileImporter().importPackages("com.tchalanet.server.catalog..");
+
+    ArchRule rule = noClasses()
+        .that().resideInAPackage("com.tchalanet.server.catalog..")
+        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.core..")
+        .as("catalog must not depend on core modules");
+
+    rule.check(classes);
+  }
+
 }

@@ -2,7 +2,6 @@ package com.tchalanet.server.common.security;
 
 import com.tchalanet.server.catalog.tenant.api.TenantBootstrapView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.common.bootstrap.tenant.TenantBootstrapInfo;
 import com.tchalanet.server.common.bootstrap.user.UserBootstrapLookup;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchContext;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Clock;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -57,20 +55,8 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final ApiProperties props;
     private final TenantCatalog tenantCatalog;
     private final UserBootstrapLookup userLookup;
-    private final Clock clock;
 
-    private TenantCodeToContextInfoCache tenantCache;
     private final UserSubToUuidCache userCache = new UserSubToUuidCache();
-
-    /**
-     * Lazy initialization of tenantCache to avoid circular dependency with @RequiredArgsConstructor.
-     */
-    private TenantCodeToContextInfoCache getTenantCache() {
-        if (tenantCache == null) {
-            tenantCache = new TenantCodeToContextInfoCache(clock);
-        }
-        return tenantCache;
-    }
 
     @Override
     protected void doFilterInternal(
@@ -273,56 +259,25 @@ public class TchContextFilter extends OncePerRequestFilter {
         return (v.equals("active") || v.equals("deleted") || v.equals("all")) ? v : "active";
     }
 
-    private Optional<TenantContextInfo> resolveTenantContext(String codeOrUuid) {
-        if (StringUtils.isBlank(codeOrUuid)) {
-            return Optional.empty();
-        }
 
+    private Optional<TenantContextInfo> resolveTenantContext(String codeOrUuid) {
+        if (StringUtils.isBlank(codeOrUuid)) return Optional.empty();
         var trimmed = codeOrUuid.trim();
 
-        // If we already have a cached TenantContextInfo for this code, return it
-        var cachedByCode = getTenantCache().getFresh(trimmed);
-        if (cachedByCode.isPresent()) {
-            return cachedByCode;
-        }
-
-        // If input looks like a UUID, try resolving by id first
-        Optional<TenantBootstrapInfo> resolved = Optional.empty();
+        // UUID first
         try {
-            var maybeUuid = UUID.fromString(trimmed);
-            // try by id via catalog
-            resolved = tenantCatalog.findBootstrapById(TenantId.of(maybeUuid))
-                .map(this::toTenantBootstrapInfo);
+            var uuid = UUID.fromString(trimmed);
+            return tenantCatalog.findBootstrapById(TenantId.of(uuid)).map(this::toTenantContextInfo);
         } catch (IllegalArgumentException ignored) {
-            // not a UUID -> try by code
-            resolved = tenantCatalog.findBootstrapByCode(trimmed)
-                .map(this::toTenantBootstrapInfo);
+            // not a UUID
         }
 
-        if (resolved.isEmpty()) {
-            // cache negative result for code if input looks like code
-            // only cache negative for non-UUID inputs (we don't have a code to key if input was UUID)
-            try {
-                UUID.fromString(trimmed);
-                // was a UUID and not found -> don't cache
-            } catch (IllegalArgumentException e) {
-                getTenantCache().put(trimmed, null);
-            }
-            return Optional.empty();
-        }
+        // then code
+        return tenantCatalog.findBootstrapByCode(trimmed).map(this::toTenantContextInfo);
+    }
 
-        var tenantBootstrap = resolved.get();
-
-        var tenantContext = new TenantContextInfo(
-            tenantBootstrap.tenantId(),
-            tenantBootstrap.currency(),
-            tenantBootstrap.tenantZoneId()
-        );
-
-        // cache by tenant code (primary human identifier)
-        getTenantCache().put(tenantBootstrap.tenantCode(), tenantContext);
-
-        return Optional.of(tenantContext);
+    private TenantContextInfo toTenantContextInfo(TenantBootstrapView tenantBootstrapView) {
+        return new TenantContextInfo(tenantBootstrapView.tenantId(), tenantBootstrapView.currency(), tenantBootstrapView.timezone());
     }
 
     private TchRequestContext resolveAppUserId(TchRequestContext ctx) {
@@ -360,19 +315,6 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     private String valueOrDash(String value) {
         return value != null ? value : "-";
-    }
-
-    /**
-     * Convert TenantBootstrapView (from catalog) to TenantBootstrapInfo (legacy format).
-     * Per migration: catalog/tenant now provides ZoneId and Currency directly.
-     */
-    private TenantBootstrapInfo toTenantBootstrapInfo(TenantBootstrapView view) {
-        return new TenantBootstrapInfo(
-            view.code(),
-            view.tenantId(),
-            view.timezone(),
-            view.currency()
-        );
     }
 
     private record AuthData(

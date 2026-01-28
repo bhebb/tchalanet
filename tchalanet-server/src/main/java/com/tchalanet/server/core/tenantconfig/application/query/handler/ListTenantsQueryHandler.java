@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.common.web.paging.TchPages;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.tenantconfig.application.query.model.ListTenantsQuery;
 import com.tchalanet.server.core.tenantconfig.application.query.model.TenantConfigView;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ListTenantsQueryHandler implements QueryHandler<ListTenantsQuery, T
         // Map to TchPage<TenantConfigView> using TchPages helper
         // Note: theme code excluded from list view for performance (null)
         // Frontend can fetch theme details separately if needed
-        return TchPages.map(registryPage, registryView -> new TenantConfigView(
+        return TchPageMapper.map(registryPage, registryView -> new TenantConfigView(
             registryView.tenantId(),
             registryView.code(),
             registryView.name(),

@@ -1,296 +1,260 @@
 # Naming Conventions (Server)
 
 > **Status**: NORMATIVE  
-> **Applies to**: tchalanet-server (common/core/catalog/features)  
-> **Goal**: consistent naming to reduce cognitive load, improve grep-ability, and prevent architecture drift.
+> **Applies to**: `tchalanet-server` (common / core / catalog / features)  
+> **Goal**: cohérence des noms pour réduire la charge cognitive, améliorer la recherche et éviter la dérive d'architecture.
 
 ---
 
-## 1) Principles (MUST)
+## 1) Principes (MUST)
 
-- Names MUST be **searchable** (grep-friendly) and **predictable**.
-- Names MUST encode **intent**, not implementation details.
-- Prefer **domain language** (Ubiquitous Language) over technical slang.
-- Avoid abbreviations unless they are project-standard (ex: RLS, SDR, API).
-- One concept = one term (no synonyms competing in code).
+- Les noms MUST être **searchable** (grep-friendly) et **predictable**.
+- Les noms MUST encoder **l'intention**, pas l'implémentation.
+- Préférer le langage du domaine (Ubiquitous Language).
+- Éviter les abréviations sauf standard du projet (ex : RLS, SDR, API).
+- Un concept = un seul terme (pas de synonymes concurrents).
 
 ---
 
-## 2) Packages & modules
+## 2) Modules & packages
 
-### 2.1 Top-level modules (fixed)
+### 2.1 Top-level modules (fixes)
 
-- `common/` = transversal technical only
-- `catalog/` = read-mostly reference data shared across domains
-- `core/` = critical domains (money/tickets/draw/audit/security/limits)
-- `features/` = orchestration / BFF / multi-domain composition
+- `common/` = transversal technique uniquement
+- `catalog/` = données de référence read-mostly partagées
+- `core/` = domaines critiques (money, tickets, draw, audit, security, limits)
+- `features/` = orchestration / BFF / composition multi-domaines
 
 ### 2.2 Bounded context package naming
 
-Use lowercase, single segment:
-
-- `core.sales`
-- `core.draw`
-- `core.audit`
-- `core.accesscontrol`
-
-Avoid:
-
-- plural packages (`saleses`), mixed separators, or “impl” folders.
+- Utiliser lowercase, un seul segment : `core.sales`, `core.draw`, `core.audit`, `core.accesscontrol`
+- Éviter : pluriels fantaisistes, séparateurs mixtes, dossiers `impl` inutiles.
 
 ---
 
-## 3) Class naming patterns (by responsibility)
+## 3) Nommage par responsabilité
 
 ### 3.1 Commands / Queries
 
-- Commands (write): `XxxCommand`
-- Queries (read): `XxxQuery`
+- Commands (write) : `XxxCommand`
+- Queries (read) : `XxxQuery`
+- Rules : Commands/Queries MUST être `record` et MUST utiliser des typed IDs (pas de UUID bruts).
 
-Examples:
-
-- `SellTicketCommand`
-- `CancelTicketCommand`
-- `GetTicketStatusQuery`
-- `ListDrawsQuery`
-
-Rules:
-
-- Commands/Queries MUST be `record`.
-- MUST use typed IDs (no UUID).
+Exemples : `SellTicketCommand`, `GetTicketStatusQuery`.
 
 ### 3.2 Handlers (use cases)
 
-- Command handler: `XxxCommandHandler`
-- Query handler: `XxxQueryHandler`
-
-Examples:
-
-- `SellTicketCommandHandler`
-- `ListDrawsQueryHandler`
-
-If your project uses the shorter `XxxHandler` today, keep it **only if consistent within the bounded-context**.
-Rule: do not mix both styles in the same BC.
+- Command handler : `XxxCommandHandler`
+- Query handler : `XxxQueryHandler`
+- Si un style court (`XxxHandler`) existe, le conserver uniquement si cohérent dans le BC.
 
 ### 3.3 Ports
 
-- Read port: `XxxReaderPort`
-- Write port: `XxxWriterPort`
-- Repository-like port: `XxxRepositoryPort` (only if it truly represents repository semantics)
-- External systems: `XxxClientPort` / `XxxGatewayPort` (choose one per BC and stick to it)
-
-Examples:
-
-- `TicketReaderPort`, `TicketWriterPort`
-- `AuditEventWriterPort`
-- `ExternalResultsFetchPort`
+- Read port : `XxxReaderPort`
+- Write port : `XxxWriterPort`
+- Repo-like : `XxxRepositoryPort` (si sémantique repo)
+- External systems : `XxxClientPort` / `XxxGatewayPort` (choisir un pattern par BC)
 
 ### 3.4 Adapters (infra)
 
-Prefer explicit suffix:
-
-- JPA adapter: `XxxJpaAdapter`
-- JDBC adapter: `XxxJdbcAdapter`
-- External HTTP adapter: `XxxHttpClient`
-- Cache adapter: `XxxCacheAdapter`
-
-Spring Data repository interface:
-
-- `XxxJpaRepository` (Spring Data interface)
-  JPA entity:
-- `XxxJpaEntity`
-
-Mapper:
-
-- `XxxMapper` (MapStruct mapper)
-- Use `CommonIdMapper` in `uses = ...` (already standardized)
+- JPA adapter : `XxxJpaAdapter`
+- JDBC adapter : `XxxJdbcAdapter`
+- HTTP client : `XxxHttpClient` / `XxxProviderClient`
+- Cache : `XxxCacheAdapter`
+- Spring Data interface : `XxxJpaRepository`
+- JPA entity : `XxxJpaEntity`
+- Mapper : `XxxMapper`, `XxxWebMapper`, `XxxPersistenceMapper`
 
 ### 3.5 Web controllers
 
-- `XxxController` (default)
-- If scope matters: prefix the class name by scope only when needed:
-  - `PublicXxxController`
-  - `AdminXxxController`
-  - `TenantXxxController`
-  - `PlatformXxxController`
+- `XxxController` (par défaut)
+- Si scope : `PublicXxxController`, `AdminXxxController`, `TenantXxxController`, `PlatformXxxController`
+- Les noms doivent rester stables si la route change.
 
-Rule:
+### 3.6 DTOs web
 
-- Controller names should remain stable even if the route changes.
-
-### 3.6 DTOs (web layer)
-
-Requests:
-
-- `XxxRequest`
-  Responses:
-- `XxxResponse`
-  List items:
-- `XxxItemResponse` (for list rows)
-
-Avoid leaking internal “View” naming into web DTOs.
-If you use projections in application/query layer:
-
-- `XxxView` (application-side)
-- `XxxRow` for list rows (optional)
+- Requests : `XxxRequest`
+- Responses : `XxxResponse`
+- List items : `XxxItemResponse`
+- Éviter de fuir le terme "View" dans les DTOs web.
+- Si vous utilisez des projections côté application/query : `XxxView` (application-side) et `XxxRow` pour les lignes de liste.
 
 ---
 
-## 3.7 Scheduling / batch / listeners / external clients naming
-
-### Schedulers
-
-- Name: `XxxScheduler` (or `XxxJobScheduler` if multiple jobs inside)
-- Job trigger methods: `tick()`, `runOnce()`, `schedule...()`
-- Keys: use `jobKey` naming consistently (see BATCH.md)
-
-Examples:
-
-- `ExternalResultsScheduler`
-- `DrawSettlementScheduler`
-
-### Config classes
-
-- Spring config: `XxxConfig`
-- Properties: `XxxProperties`
-- YAML grouping keys MUST match the properties prefix.
-
-Examples:
-
-- `DrawResultsConfig`, `UsLotteryProvidersConfig`
-- `DrawResultsProperties`
-
-### Event listeners
-
-- Listener class: `XxxEventListener`
-- Method names: `onXxx(...)` (past tense event)
-
-Examples:
-
-- `DrawResultAppliedEventListener` with `onDrawResultApplied(...)`
-
-### External clients
-
-- Low-level HTTP client: `XxxProviderClient` or `XxxHttpClient` (pick one and keep it)
-- If multiple providers: `NyUsLotteryClient`, `FlUsLotteryClient` etc.
-- Mapping DTOs:
-  - request: `XxxRequestDto`
-  - response: `XxxResponseDto`
-  - raw provider payload: `XxxProviderDto`
-
-### Domain models
-
-- Aggregates/entities: domain language nouns (`Ticket`, `Draw`, `DrawResult`, `ResultSlot`)
-- Value objects: `Xxx` (no suffix) unless needed (`Money`, `Stake`, `Outcome`)
-- Domain services: `XxxService` only if truly domain-level and pure.
-
-## 4) Routes & scopes naming
+## 4) Routes & scopes
 
 ### 4.1 Controller `@RequestMapping` prefixes
 
-Because `spring.mvc.servlet.path = /api/v1`, controllers MUST NOT include `/api/v1` in mappings.
-
-Use ONLY:
-
-- `/public/...`
-- `/platform/...`
-- `/admin/...`
-- `/tenant/...`
-- `/_sdr/...` (Spring Data REST only)
-
-Example:
-
-- ✅ `@RequestMapping("/tenant/tickets")`
-- ❌ `@RequestMapping("/api/v1/tenant/tickets")`
+- `spring.mvc.servlet.path = /api/v1` ⇒ controllers MUST NOT inclure `/api/v1` dans les mappings.
+- Utiliser uniquement : `/public/...`, `/platform/...`, `/admin/...`, `/tenant/...`, `/_sdr/...`.
 
 ### 4.2 Endpoint naming
 
-- Use **nouns** for resources (`/tickets`, `/draws`, `/outlets`)
-- Use sub-resources for relationships (`/tickets/{id}/cancel`)
-- Prefer explicit action endpoints only when the operation is not CRUD (`/approve`, `/settle`, `/void`)
+- Utiliser des noms de ressources (nouns) : `/tickets`, `/draws`, `/outlets`.
+- Sous-ressources pour relations : `/tickets/{id}/cancel`.
+- Actions explicites uniquement si non-CRUD : `/approve`, `/settle`, `/void`.
 
 ---
 
-## 5) Typed IDs naming (wrappers)
+## 5) Typed IDs (wrappers)
 
-### 5.1 Wrapper names
+### 5.1 Noms
 
-- Suffix MUST be `Id`: `TenantId`, `TicketId`, `PayoutId`, ...
-- File name matches record name.
+- Suffixe MUST être `Id` : `TenantId`, `TicketId`, `PayoutId`.
 
-### 5.2 Wrapper methods (standard)
+### 5.2 Méthodes standards
 
-- `of(UUID)`
-- `nullableOf(UUID)`
-- `parse(String)`
-
-Converters:
-
-- `StringToXxxIdConverter`
-
-MapStruct helper:
-
-- `CommonIdMapper` uses `mapToXxxId` / `mapFromXxxId`
+- `of(UUID)`, `nullableOf(UUID)`, `parse(String)`
+- Fournir `StringToXxxIdConverter`.
+- MapStruct helper : `CommonIdMapper` (mapToXxxId / mapFromXxxId).
 
 ---
 
-## 6) Events naming
+## 6) Events
 
-Domain events:
+### 6.1 Domain events
 
-- Past tense: `XxxCreatedEvent`, `XxxCancelledEvent`, `DrawResultAppliedEvent`
-- Use “Applied/Requested/Approved/Rejected” consistently.
+- Nom au passé : `XxxCreatedEvent`, `XxxCancelledEvent`.
+- Packaging : `core.<domain>.application.event`.
+- Publier **AfterCommit** uniquement.
 
-Publishing rule remains:
+### 6.2 Integration events
 
-- publish `AfterCommit`
+- Versionnés : `XxxHappenedV1`, `XxxExecutedV1`.
+- Packaging : `features.integration.event` ou `core.<domain>.infra.integration.event`.
 
----
+### 6.3 Listeners
 
-## 7) Persistence naming
-
-### 7.1 Tables & columns (SQL)
-
-- Tables: `snake_case`
-- Columns: `snake_case`
-- Foreign keys: `<ref>_id`
-- Tenant column: `tenant_id`
-- Soft delete: `deleted_at`
-- Audit timestamps: `created_at`, `updated_at`
-- Optimistic lock: `version`
-
-### 7.2 Flyway scripts
-
-- `V###__short_snake_case_name.sql`
-
-Examples:
-
-- `V040__rls_policies.sql`
-- `V052__create_page_model.sql`
+- Classe : `XxxEventListener`
+- Méthode : `onXxx(...)` (past tense)
+- Les listeners ne modifient pas l'aggregate source ; ils déclenchent des commands ou des effets secondaires.
 
 ---
 
-## 8) Tests naming
+## 7) Persistence
 
-- Test class: `XxxTest` (unit), `XxxIT` (integration)
-- Test method: camelCase (Java)
-- `@DisplayName("should <expected> when <condition>")` is the canonical description.
+### 7.1 Tables & colonnes SQL
+
+- Tables : `snake_case`
+- Colonnes : `snake_case`
+- FK : `<ref>_id`
+- Tenant column : `tenant_id`
+- Soft delete : `deleted_at`
+- Audit : `created_at`, `updated_at`
+- Optimistic lock : `version`
+
+### 7.2 Flyway
+
+- Nom : `V###__short_snake_case_name.sql` (ex : `V040__rls_policies.sql`).
+
+---
+
+## 8) Tests
+
+- Test class : `XxxTest` (unit), `XxxIT` (integration)
+- Test method : camelCase (Java)
+- `@DisplayName("should <expected> when <condition>")` est canonical.
 
 ---
 
 ## 9) Anti-patterns (forbidden)
 
-- “Impl” suffix everywhere (`TicketServiceImpl`) unless you have an interface that truly needs it.
-- Abbreviations invented locally (`TkCtl`, `TixSvc`).
-- Two different names for the same concept (`Shop` vs `Outlet`).
-- Routes containing `/api/v1` inside controllers.
+- Suffixe `Impl` partout (`TicketServiceImpl`) sauf si interface nécessaire.
+- Abréviations locales inventées (`TkCtl`, `TixSvc`).
+- Deux noms pour même concept (`Shop` vs `Outlet`).
+- Routes contenant `/api/v1` dans les controllers.
 
 ---
 
-## 10) Touchpoints
+## 10) Touchpoints & références
 
-- Routing scopes: `ROUTING_AND_API_PATHS_V1.md`
-- Web API conventions: `WEB_API.md`
-- Typed IDs policy: `TYPED_IDS.md`
-- RLS architecture: `RLS.md`
-- Testing rules: `TESTING.md`
+- `ROUTING_AND_API_PATHS_V1.md`
+- `WEB_API.md`
+- `TYPED_IDS.md`
+- `RLS.md`
+- `TESTING.md`
+
+---
+
+## 11) Batch / Scheduling
+
+### 11.1 Schedulers (MUST)
+
+- Classe : `XxxScheduler` (ou `XxxJobScheduler` si multiples jobs)
+- Méthodes : `tick()`, `runOnce()`
+- Les schedulers ne contiennent AUCUNE logique métier : ils appellent des commands via `CommandBus` uniquement.
+
+### 11.2 Batch Commands
+
+- Scheduler déclenche des commands spécifiques : `RefreshExternalResultsWindowCommand`, `SettleDrawWindowCommand`, `RebuildLedgerCommand`.
+- Règle : `Scheduler → CommandBus.send(Command)` uniquement.
+
+---
+
+## 12) Mapping & transformations entre couches
+
+### 12.1 Mapper naming
+
+- Mapper générique : `XxxMapper`
+- Mapper web : `XxxWebMapper`
+- Mapper persistence : `XxxPersistenceMapper`
+- Un mapper = une responsabilité. Préférer MapStruct.
+
+### 12.2 Directions autorisées
+
+A) Persistence Entity → Application Read Model
+
+- `XxxJpaEntity → XxxRow | XxxDetails | XxxSummary`
+- Lieu : `core.<domain>.infra.persistence.mapper`
+- Autorisé.
+
+B) Read Model → Web Response
+
+- `XxxRow | XxxDetails → XxxResponse | XxxItemResponse`
+- Lieu : `*.infra.web.mapper` ou `features.*.web.mapper`.
+
+C) Web Request → Command
+
+- `XxxRequest → XxxCommand` (controller ou `XxxWebMapper`).
+
+D) Command → Domain (handler)
+
+- Handler charge l'aggregate via ports et exécute la logique.
+- Le domaine ne dépend jamais des commands.
+
+E) Web Request → Query / Criteria
+
+- Patterns : `XxxRequest → XxxQuery` ou `query params → XxxSearchCriteria → XxxQuery`.
+
+### 12.3 Forbidden mappings
+
+- `JpaEntity → WebResponse`
+- `WebRequest → JpaEntity`
+- `WebRequest → Domain Aggregate`
+- `Command → JpaEntity`
+- `Controller → Repository` (direct)
+
+### 12.4 Return types par couche
+
+- Controller : `ApiResponse<T>` ou `ApiResponse<TchPage<T>>`
+- Query handler : `XxxRow | XxxDetails | XxxSummary` ou `TchPage<XxxRow>`
+- Command handler : `Void` ou `XxxResult`
+- Persistence adapter : Domain aggregate ou read projection (si read adapter dédié)
+- Domain : mutations internes uniquement, aucun DTO/response
+
+### 12.5 Model naming clarification
+
+- Web model : `XxxRequest`, `XxxResponse`
+- Application read model : `XxxRow`, `XxxDetails`, `XxxSummary`
+- Catalog model : `XxxView`, `XxxSummaryView`
+- Interdit : `XxxDto` générique, `XxxModel` ambigu.
+
+---
+
+## 13) Anti-drift rule (MUST)
+
+Si une classe ne correspond à aucun pattern défini ici :
+
+- elle est mal nommée ou mal placée → renommer ou déplacer.
+
+➡️ La classe doit être renommée ou déplacée.

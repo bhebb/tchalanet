@@ -2,6 +2,7 @@ package com.tchalanet.server.core.user.domain.model;
 
 import com.tchalanet.server.common.types.enums.UserStatus;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.Getter;
 public final class AppUser {
 
   private final UserId id;
-  private final UUID keycloakId;
+  private final KeycloakUserSub keycloakSub;
   private final String username;
 
   private final String email;
@@ -20,9 +21,6 @@ public final class AppUser {
   private final String lastName;
   private final String displayName;
   private final String avatarUrl;
-
-  private final String locale;
-  private final String timeZone;
 
   private final UserStatus status;
   private final Instant approvedAt;
@@ -34,7 +32,7 @@ public final class AppUser {
 
   private AppUser(
       UserId id,
-      UUID keycloakId,
+      KeycloakUserSub keycloakSub,
       String username,
       String email,
       String phone,
@@ -42,15 +40,13 @@ public final class AppUser {
       String lastName,
       String displayName,
       String avatarUrl,
-      String locale,
-      String timeZone,
       UserStatus status,
       Instant approvedAt,
       UUID approvedBy,
       Instant lastLoginAt,
       long version) {
     this.id = id;
-    this.keycloakId = keycloakId;
+    this.keycloakSub = keycloakSub;
     this.username = username;
     this.email = email;
     this.phone = phone;
@@ -58,8 +54,6 @@ public final class AppUser {
     this.lastName = lastName;
     this.displayName = displayName;
     this.avatarUrl = avatarUrl;
-    this.locale = locale;
-    this.timeZone = timeZone;
     this.status = status;
     this.approvedAt = approvedAt;
     this.approvedBy = approvedBy;
@@ -70,7 +64,7 @@ public final class AppUser {
   // Factory "new" (V1 : PENDING_APPROVAL)
   public static AppUser createNew(
       UserId id,
-      UUID keycloakId,
+      KeycloakUserSub keycloakSub,
       String username,
       String email,
       String phone,
@@ -78,17 +72,15 @@ public final class AppUser {
       String lastName,
       String displayName,
       String avatarUrl,
-      String locale,
-      String timeZone,
       Instant now) {
-    if (keycloakId == null) throw new IllegalArgumentException("keycloakId is required");
+    if (keycloakSub == null) throw new IllegalArgumentException("keycloakSub is required");
     if (username == null || username.isBlank())
       throw new IllegalArgumentException("username is required");
     if (now == null) throw new IllegalArgumentException("now is required");
 
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         username,
         email,
         phone,
@@ -96,8 +88,6 @@ public final class AppUser {
         lastName,
         displayName,
         avatarUrl,
-        locale,
-        timeZone,
         UserStatus.PENDING_APPROVAL,
         null,
         null,
@@ -108,7 +98,7 @@ public final class AppUser {
   // Restore depuis persistence
   public static AppUser restore(
       UserId id,
-      UUID keycloakId,
+      KeycloakUserSub keycloakSub,
       String username,
       String email,
       String phone,
@@ -116,8 +106,6 @@ public final class AppUser {
       String lastName,
       String displayName,
       String avatarUrl,
-      String locale,
-      String timeZone,
       UserStatus status,
       Instant approvedAt,
       UUID approvedBy,
@@ -125,7 +113,7 @@ public final class AppUser {
       long version) {
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         username,
         email,
         phone,
@@ -133,8 +121,6 @@ public final class AppUser {
         lastName,
         displayName,
         avatarUrl,
-        locale,
-        timeZone,
         status,
         approvedAt,
         approvedBy,
@@ -151,12 +137,10 @@ public final class AppUser {
       String firstName,
       String lastName,
       String displayName,
-      String avatarUrl,
-      String locale,
-      String timeZone) {
+      String avatarUrl) {
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         (username != null && !username.isBlank()) ? username : this.username,
         (email != null && !email.isBlank()) ? email : this.email,
         (phone != null && !phone.isBlank()) ? phone : this.phone,
@@ -164,8 +148,6 @@ public final class AppUser {
         (lastName != null) ? lastName : this.lastName,
         (displayName != null) ? displayName : this.displayName,
         (avatarUrl != null) ? avatarUrl : this.avatarUrl,
-        (locale != null && !locale.isBlank()) ? locale : this.locale,
-        (timeZone != null && !timeZone.isBlank()) ? timeZone : this.timeZone,
         status,
         approvedAt,
         approvedBy,
@@ -177,7 +159,7 @@ public final class AppUser {
     if (now == null) throw new IllegalArgumentException("now is required");
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         username,
         email,
         phone,
@@ -185,8 +167,6 @@ public final class AppUser {
         lastName,
         displayName,
         avatarUrl,
-        locale,
-        timeZone,
         status,
         approvedAt,
         approvedBy,
@@ -201,7 +181,7 @@ public final class AppUser {
       throw new IllegalStateException("Cannot approve suspended user");
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         username,
         email,
         phone,
@@ -209,8 +189,6 @@ public final class AppUser {
         lastName,
         displayName,
         avatarUrl,
-        locale,
-        timeZone,
         UserStatus.ACTIVE,
         now,
         approvedBy,
@@ -222,7 +200,7 @@ public final class AppUser {
     if (status == UserStatus.SUSPENDED) return this;
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         username,
         email,
         phone,
@@ -230,8 +208,6 @@ public final class AppUser {
         lastName,
         displayName,
         avatarUrl,
-        locale,
-        timeZone,
         UserStatus.SUSPENDED,
         approvedAt,
         approvedBy,
@@ -243,7 +219,7 @@ public final class AppUser {
     if (status != UserStatus.SUSPENDED) return this;
     return new AppUser(
         id,
-        keycloakId,
+        keycloakSub,
         username,
         email,
         phone,
@@ -251,12 +227,84 @@ public final class AppUser {
         lastName,
         displayName,
         avatarUrl,
-        locale,
-        timeZone,
         UserStatus.ACTIVE,
         approvedAt,
         approvedBy,
         lastLoginAt,
         this.version);
+  }
+
+  public AppUser touchVersion() {
+    return new AppUser(
+        id,
+        keycloakSub,
+        username,
+        email,
+        phone,
+        firstName,
+        lastName,
+        displayName,
+        avatarUrl,
+        status,
+        approvedAt,
+        approvedBy,
+        lastLoginAt,
+        this.version + 1);
+  }
+
+  public UserId getId() {
+    return id;
+  }
+
+  public KeycloakUserSub getKeycloakSub() {
+    return keycloakSub;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
+
+  public String getAvatarUrl() {
+    return avatarUrl;
+  }
+
+  public UserStatus getStatus() {
+    return status;
+  }
+
+  public Instant getApprovedAt() {
+    return approvedAt;
+  }
+
+  public UUID getApprovedBy() {
+    return approvedBy;
+  }
+
+  public Instant getLastLoginAt() {
+    return lastLoginAt;
+  }
+
+  public long getVersion() {
+    return version;
   }
 }

@@ -34,8 +34,8 @@ public class PageModelTemplateAdminService {
         PageModelTemplateCacheNames.SEARCH
     }, allEntries = true)
     public PageModelTemplateView createFromView(PageModelTemplateView view) {
-        // enforce unique logicalId (since you decided it must be unique system-wide)
-        repository.findFirstByLogicalId(view.logicalId())
+        // enforce unique logicalId among non-deleted rows
+        repository.findFirstByLogicalIdAndDeletedAtIsNull(view.logicalId())
             .ifPresent(x -> {
                 throw ProblemRest.conflict("page_model_template.logical_id" + view.logicalId());
             });
@@ -57,9 +57,9 @@ public class PageModelTemplateAdminService {
         var existing = repository.findById(id.value())
             .orElseThrow(() -> new NotFoundException("page_model_template" + id));
 
-        // if logicalId changes, enforce unique
+        // if logicalId changes, enforce unique among non-deleted rows
         if (view.logicalId() != null && !view.logicalId().equals(existing.getLogicalId())) {
-            repository.findFirstByLogicalId(view.logicalId())
+            repository.findFirstByLogicalIdAndDeletedAtIsNull(view.logicalId())
                 .ifPresent(x -> {
                     throw ProblemRest.conflict("page_model_template.logical_id" + view.logicalId());
                 });
@@ -116,7 +116,7 @@ public class PageModelTemplateAdminService {
             throw new IllegalArgumentException("Seed template requires logicalId");
         }
 
-        var existingOpt = repository.findFirstByLogicalId(seed.logicalId());
+        var existingOpt = repository.findFirstByLogicalIdAndDeletedAtIsNull(seed.logicalId());
 
         PageModelTemplateEntity e;
         if (existingOpt.isEmpty()) {

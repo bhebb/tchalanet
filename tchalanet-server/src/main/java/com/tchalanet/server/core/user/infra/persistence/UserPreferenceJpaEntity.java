@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
+import java.util.Currency;
+import java.time.ZoneId;
+import java.util.Locale;
 
 @Entity
 @Table(
@@ -31,5 +34,11 @@ public class UserPreferenceJpaEntity extends BaseEntity {
   private Short density;
 
   @Column(name = "locale", length = 8)
-  private String locale;
+  private Locale locale;
+
+  @Column(name = "time_zone", length = 64)
+  private ZoneId timeZone;
+
+  @Column(name = "currency", length = 3)
+  private Currency currency;
 }

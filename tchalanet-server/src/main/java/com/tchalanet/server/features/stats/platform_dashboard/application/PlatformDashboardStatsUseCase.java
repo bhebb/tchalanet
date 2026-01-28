@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.stats.platform_dashboard.application;
 
-import com.tchalanet.server.core.accesscontrol.infra.persistence.TenantUserRepository;
 import com.tchalanet.server.core.outlet.infra.persistence.OutletSpringRepository;
 import com.tchalanet.server.core.tenant.infra.persistence.TenantJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyEntity;

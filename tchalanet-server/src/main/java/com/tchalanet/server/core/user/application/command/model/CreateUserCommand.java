@@ -1,17 +1,22 @@
 package com.tchalanet.server.core.user.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.user.domain.model.AppUser;
+import com.tchalanet.server.common.types.enums.ThemeMode;
+
+import java.util.Optional;
 import java.util.Set;
 
 public record CreateUserCommand(
-    TenantId tenantIdInitiator,
     String email,
     String phone,
     String firstName,
     String lastName,
-    String locale,
+    Optional<ThemeMode> prefThemeMode,
+    Optional<Short> prefDensity,
+    Optional<String> prefLocale,
+    Optional<String> prefTimeZone,
+    Optional<String> prefCurrency,
     boolean sendInvitation,
     Set<String> initialRoles)
-    implements Command<AppUser> {}
+    implements Command<CreateUserResult> {
+}

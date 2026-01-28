@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.external.port.out;
 
+import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import java.util.Map;
-import java.util.UUID;
 
 public interface KeycloakUserProvisioningPort {
   Map<String, Object> createUser(Map<String, Object> payload);
@@ -9,7 +9,7 @@ public interface KeycloakUserProvisioningPort {
   void resetPassword(String userId, String newPassword);
 
   void updateUserProfile(
-      UUID keycloakId, String firstName, String lastName, String email, String locale);
+      KeycloakUserSub keycloakSub, String firstName, String lastName, String email, String locale);
 
-  void disableUser(UUID keycloakId, String reason);
+  void disableUser(KeycloakUserSub keycloakSub, String reason);
 }

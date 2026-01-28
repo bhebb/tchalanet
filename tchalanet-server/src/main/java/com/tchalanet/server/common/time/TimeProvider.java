@@ -26,6 +26,13 @@ public class TimeProvider {
     }
 
     /**
+     * Return current instant (testable via Clock)
+     */
+    public Instant nowInstant() {
+        return clock.instant();
+    }
+
+    /**
      * Get current time in the specified zone.
      *
      * @param zone target timezone

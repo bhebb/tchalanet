@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.user.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import java.time.ZoneId;
+import java.util.Locale;
 
 public record EnsureUserExistsForPrincipalCommand(
-    UUID keycloakId,
+    KeycloakUserSub keycloakSub,
     String tenantCode,
     String username,
     String email,
@@ -12,6 +14,6 @@ public record EnsureUserExistsForPrincipalCommand(
     String lastName,
     String displayName,
     String phone,
-    String locale,
-    String timeZone)
+    Locale locale,
+    ZoneId timeZone)
     implements Command<EnsureUserExistsForPrincipalResult> {}

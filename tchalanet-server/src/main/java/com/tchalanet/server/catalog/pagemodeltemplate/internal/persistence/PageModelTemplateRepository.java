@@ -14,7 +14,12 @@ public interface PageModelTemplateRepository
 
     Optional<PageModelTemplateEntity> findFirstByLogicalId(String logicalId);
 
-    List<PageModelTemplateEntity> findAllByOrderByLogicalIdAsc();
+    // list all non-deleted ordered by logical id
+    List<PageModelTemplateEntity> findAllByDeletedAtIsNullOrderByLogicalIdAsc();
+
+    // find first by logical id among non-deleted rows
+    Optional<PageModelTemplateEntity> findFirstByLogicalIdAndDeletedAtIsNull(String logicalId);
 
     Page<PageModelTemplateEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);
+
 }

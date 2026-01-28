@@ -4,155 +4,162 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.user.application.command.model.*;
 import com.tchalanet.server.core.user.application.query.model.GetUserDetailsQuery;
-import com.tchalanet.server.core.user.application.query.model.UserProfileQuery;
-import com.tchalanet.server.core.user.domain.model.AppUser;
-import com.tchalanet.server.core.user.infra.web.dto.CreateUserRequest;
-import com.tchalanet.server.core.user.infra.web.dto.UserResponse;
+import com.tchalanet.server.core.user.application.query.model.PagedListAllUsersQuery;
+import com.tchalanet.server.core.user.application.query.model.PagedListTenantUsersQuery;
+import com.tchalanet.server.core.user.application.query.model.UserRow;
+import com.tchalanet.server.core.user.infra.web.model.CreateUserRequest;
+import com.tchalanet.server.core.user.infra.web.model.UserItemResponse;
+import com.tchalanet.server.core.user.infra.web.model.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static java.util.Optional.ofNullable;
 
 @RestController
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Users")
+@PreAuthorize("hasAuthority('TENANT_ADMIN') or hasAuthority('SUPER_ADMIN')")
 public class UserAdminController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+    private final CommandBus commandBus;
+    private final QueryBus queryBus;
 
-  @Operation(summary = "Create a user (admin)")
-  @PostMapping
-  public ResponseEntity<UserId> createUser(@RequestBody CreateUserRequest req) {
-    var command =
-        new CreateUserCommand(
-            req.tenantIdInitiator(),
-            req.email(),
-            req.phone(),
-            req.firstName(),
-            req.lastName(),
-            req.locale(),
-            req.sendInvitation(),
-            req.initialRoles());
-    AppUser saved = commandBus.send(command);
-    return ResponseEntity.ok(saved.getId());
-  }
+    // -------------------------------------------------------------------
+    // Create
+    // -------------------------------------------------------------------
 
-  @Operation(summary = "Approve a pending user (admin)")
-  @PostMapping("/{id}/approve")
-  public ResponseEntity<Void> approveUser(@PathVariable UserId id) {
-    var cmd = new ApproveUserCommand(id, null);
-    commandBus.send(cmd);
-    return ResponseEntity.noContent().build();
-  }
+    @Operation(summary = "Create a user (admin)")
+    @PostMapping
+    public ApiResponse<CreateUserResult> createUser(@RequestBody CreateUserRequest req) {
+        var cmd =
+            new CreateUserCommand(
+                req.email(),
+                req.phone(),
+                req.firstName(),
+                req.lastName(),
+                ofNullable(req.prefThemeMode()),
+                ofNullable(req.prefDensity()),
+                ofNullable(req.prefLocale()),
+                ofNullable(req.prefTimeZone()),
+                ofNullable(req.prefCurrency()),
+                req.sendInvitation(),
+                req.initialRoles());
+        var result = commandBus.send(cmd);
+        return ApiResponse.success(result);
+    }
 
-  @Operation(summary = "Suspend a user (admin)")
-  @PostMapping("/{id}/suspend")
-  public ResponseEntity<Void> suspendUser(@PathVariable UserId id) {
-    var cmd = new SuspendUserCommand(id, "suspended_by_admin");
-    commandBus.send(cmd);
-    return ResponseEntity.noContent().build();
-  }
+    // -------------------------------------------------------------------
+    // Status transitions
+    // -------------------------------------------------------------------
 
-  @Operation(summary = "Reactivate a user (admin)")
-  @PostMapping("/{id}/reactivate")
-  public ResponseEntity<Void> reactivateUser(@PathVariable UserId id) {
-    var cmd = new ReactivateUserCommand(id);
-    commandBus.send(cmd);
-    return ResponseEntity.noContent().build();
-  }
+    @Operation(summary = "Approve a pending user (admin)")
+    @PostMapping("/{id}/approve")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void approveUser(@PathVariable UserId id) {
+        commandBus.send(new ApproveUserCommand(id, null));
+    }
 
-  @Operation(summary = "Delete a user (admin)")
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteUser(@PathVariable UserId id) {
-    commandBus.send(new DeleteUserCommand(id));
-    return ResponseEntity.noContent().build();
-  }
+    @Operation(summary = "Suspend a user (admin)")
+    @PostMapping("/{id}/suspend")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void suspendUser(@PathVariable UserId id) {
+        commandBus.send(new SuspendUserCommand(id, "suspended_by_admin"));
+    }
 
-  @Operation(summary = "Get user details (admin)")
-  @GetMapping("/{id}")
-  public ResponseEntity<UserResponse> getUserDetails(@PathVariable UserId id) {
-    UserProfileQuery details = queryBus.send(new GetUserDetailsQuery(id.uuid()));
-    if (details == null) return ResponseEntity.notFound().build();
-    var res =
-        new UserResponse(
-            UserId.of(details.id),
-            details.keycloakId,
-            details.username,
-            details.email,
-            details.firstName,
-            details.lastName,
-            details.displayName);
+    @Operation(summary = "Reactivate a user (admin)")
+    @PostMapping("/{id}/reactivate")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void reactivateUser(@PathVariable UserId id) {
+        commandBus.send(new ReactivateUserCommand(id));
+    }
 
-    return ResponseEntity.ok(res);
-  }
+    @Operation(summary = "Delete a user (admin)")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable UserId id) {
+        commandBus.send(new DeleteUserCommand(id));
+    }
 
-  @Operation(summary = "List active users for a tenant (admin)")
-  @GetMapping("/tenant/{tenantId}/active")
-  public ResponseEntity<Page<UserResponse>> listActiveUsersByTenant(
-      @PathVariable TenantId tenantId,
-      @TchPaging TchPageRequest pageReq) {
+    // -------------------------------------------------------------------
+    // Read: details
+    // -------------------------------------------------------------------
 
-    int page = pageReq.pageable().getPageNumber();
-    int size = pageReq.pageable().getPageSize();
+    @Operation(summary = "Get user details (admin)")
+    @GetMapping("/{id}")
+    public ApiResponse<UserResponse> getUserDetails(@PathVariable UserId id) {
+        var details = queryBus.send(new GetUserDetailsQuery(id));
+        if (details == null) {
+            throw new UserNotFoundException(id);
+        }
+        return ApiResponse.success(new UserResponse(details.id(), details.keycloakSub(), details.username(), details.email(), details.firstName(), details.lastName(), details.displayName()));
+    }
 
-    Page<AppUser> pageResult =
-        queryBus.send(
-            new com.tchalanet.server.core.user.application.query.model.PagedListTenantUsersQuery(
-                tenantId, page, size));
-    var content =
-        pageResult.getContent().stream()
-            .map(
-                u ->
-                    new UserResponse(
-                        u.getId(),
-                        u.getKeycloakId(),
-                        u.getUsername(),
-                        u.getEmail(),
-                        u.getFirstName(),
-                        u.getLastName(),
-                        u.getDisplayName()))
-            .collect(Collectors.toList());
-    Page<UserResponse> result =
-        new PageImpl<>(content, pageResult.getPageable(), pageResult.getTotalElements());
-    return ResponseEntity.ok(result);
-  }
+    // -------------------------------------------------------------------
+    // Read: list (paged)
+    // -------------------------------------------------------------------
 
-  @Operation(summary = "List all users (admin)")
-  @GetMapping
-  public ResponseEntity<Page<UserResponse>> listAllUsers(@TchPaging TchPageRequest pageReq) {
+    @Operation(summary = "List users (admin)")
+    @GetMapping
+    public ApiResponse<TchPage<UserItemResponse>> listAllUsers(@TchPaging TchPageRequest pageReq) {
+        // Per pagination conventions handlers must return TchPage<UserRow>.
+        TchPage<UserRow> page = queryBus.send(new PagedListAllUsersQuery(pageReq));
+        return ApiResponse.success(TchPageMapper.map(page, this::toUserItemResponse));
+    }
 
-    int page = pageReq.pageable().getPageNumber();
-    int size = pageReq.pageable().getPageSize();
+    @Operation(summary = "List users for a tenant (admin)")
+    @GetMapping("/tenant/{tenantId}")
+    public ApiResponse<TchPage<UserItemResponse>> listUsersByTenant(
+        @PathVariable TenantId tenantId, @TchPaging TchPageRequest pageReq) {
 
-    Page<AppUser> pageResult =
-        queryBus.send(
-            new com.tchalanet.server.core.user.application.query.model.PagedListAllUsersQuery(
-                page, size));
-    var content =
-        pageResult.getContent().stream()
-            .map(
-                u ->
-                    new UserResponse(
-                        u.getId(),
-                        u.getKeycloakId(),
-                        u.getUsername(),
-                        u.getEmail(),
-                        u.getFirstName(),
-                        u.getLastName(),
-                        u.getDisplayName()))
-            .collect(Collectors.toList());
-    Page<UserResponse> result =
-        new PageImpl<>(content, pageResult.getPageable(), pageResult.getTotalElements());
-    return ResponseEntity.ok(result);
-  }
+        TchPage<UserRow> page = queryBus.send(new PagedListTenantUsersQuery(tenantId, pageReq));
+        return ApiResponse.success(TchPageMapper.map(page, this::toUserItemResponse));
+    }
+
+    @Operation(summary = "Search users (admin) - by name, status, created range")
+    @GetMapping("/search")
+    public ApiResponse<TchPage<UserItemResponse>> searchUsers(
+        @RequestParam(required = false, name = "q") String nameLike,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) String createdAfter,
+        @RequestParam(required = false) String createdBefore,
+        @TchPaging(allowedSort = {"createdAt", "username", "email", "status", "displayName"}, defaultSort = {"createdAt,DESC"}) TchPageRequest pageReq) {
+
+        java.time.Instant after = null;
+        java.time.Instant before = null;
+        try {
+            if (createdAfter != null && !createdAfter.isBlank()) after = java.time.Instant.parse(createdAfter);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("createdAfter must be an ISO instant");
+        }
+        try {
+            if (createdBefore != null && !createdBefore.isBlank()) before = java.time.Instant.parse(createdBefore);
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("createdBefore must be an ISO instant");
+        }
+
+        int p = pageReq.pageable().getPageNumber();
+        int s = pageReq.pageable().getPageSize();
+        TchPage<UserRow> page = queryBus.send(new com.tchalanet.server.core.user.application.query.model.SearchUsersQuery(nameLike, status, after, before, p, s));
+        return ApiResponse.success(TchPageMapper.map(page, this::toUserItemResponse));
+    }
+
+    // -------------------------------------------------------------------
+    // Mapping helpers (web only)
+    // -------------------------------------------------------------------
+
+    private UserItemResponse toUserItemResponse(UserRow r) {
+        return new UserItemResponse(r.id(), r.username(), r.email(), r.displayName(), r.status());
+    }
 }
