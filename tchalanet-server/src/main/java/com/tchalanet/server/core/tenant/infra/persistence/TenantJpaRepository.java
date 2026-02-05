@@ -20,4 +20,8 @@ public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID
   @Query(
       "update TenantJpaEntity t set t.activeThemeId = :themeId where t.id = :tenantId and t.deletedAt is null")
   void updateActiveThemeId(@Param("tenantId") UUID tenantId, @Param("themeId") UUID themeId);
+
+  long countByDeletedAtIsNull();
+
+  long countByStatusAndDeletedAtIsNull(com.tchalanet.server.common.types.enums.TenantStatus status);
 }
