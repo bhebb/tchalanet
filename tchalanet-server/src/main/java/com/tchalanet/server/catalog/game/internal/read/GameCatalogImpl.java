@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -55,8 +56,8 @@ public class GameCatalogImpl implements GameCatalog {
     if (limit <= 0) {
       limit = 10;
     }
-    var entities = repo.findTop10ByOrderByUpdatedAtDesc();
-    var summaries = mapper.toSummaryViews(entities);
-    return summaries.stream().limit(limit).toList();
+    var pageable = PageRequest.of(0, limit);
+    var entities = repo.findByOrderByUpdatedAtDesc(pageable);
+    return mapper.toSummaryViews(entities);
   }
 }

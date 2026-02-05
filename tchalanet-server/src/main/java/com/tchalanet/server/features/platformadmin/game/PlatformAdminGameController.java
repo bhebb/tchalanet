@@ -25,13 +25,13 @@ public class PlatformAdminGameController {
     List<GameView> items =
         includeInactive ? gameCatalog.listAll() : gameCatalog.listActive();
 
-    long total = items.size();
-    long active = items.stream().filter(GameView::active).count();
+    // Use efficient stats() method instead of in-memory filtering
+    var stats = gameCatalog.stats();
 
     var view =
         new PlatformGameOverviewView(
             Instant.now(),
-            new PlatformGameOverviewView.Summary(total, active),
+            new PlatformGameOverviewView.Summary(stats.total(), stats.active()),
             items);
 
     return ApiResponse.success(view);
