@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.resultslot.internal.read;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.catalog.resultslot.internal.cache.ResultSlotCacheNames;
 import com.tchalanet.server.catalog.resultslot.internal.mapper.ResultSlotMapper;
@@ -51,5 +52,12 @@ public class ResultSlotCatalogImpl implements ResultSlotCatalog {
         }
         UUID uuid = id.value();
         return repo.findByIdAndDeletedAtIsNull(uuid).map(mapper::toView);
+    }
+
+    @Override
+    public ResultSlotStatsView stats() {
+        long total = repo.countByDeletedAtIsNull();
+        long active = repo.countByActiveTrueAndDeletedAtIsNull();
+        return new ResultSlotStatsView((int) total, (int) active);
     }
 }

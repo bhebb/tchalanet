@@ -12,4 +12,8 @@ public interface ResultSlotJpaRepository extends JpaRepository<ResultSlotJpaEnti
     List<ResultSlotJpaEntity> findByActiveTrueAndDeletedAtIsNullOrderBySortOrderAsc();
 
     Optional<ResultSlotJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    long countByDeletedAtIsNull();
+
+    long countByActiveTrueAndDeletedAtIsNull();
 }

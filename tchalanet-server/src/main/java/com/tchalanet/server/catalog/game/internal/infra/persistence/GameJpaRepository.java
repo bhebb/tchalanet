@@ -12,5 +12,13 @@ import org.springframework.stereotype.Repository;
 public interface GameJpaRepository extends JpaRepository<GameJpaEntity, UUID> {
   List<GameJpaEntity> findByActiveTrueOrderBySortOrder();
 
+  List<GameJpaEntity> findAllByOrderBySortOrderAsc();
+
   Optional<GameJpaEntity> findByCode(String code);
+
+  List<GameJpaEntity> findTop10ByOrderByUpdatedAtDesc();
+
+  long countByDeletedAtIsNull();
+
+  long countByActiveTrueAndDeletedAtIsNull();
 }
