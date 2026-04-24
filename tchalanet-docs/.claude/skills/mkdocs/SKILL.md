@@ -1,9 +1,7 @@
 ---
 name: mkdocs
-description: >
-  Use when adding, moving, or editing documentation pages in tchalanet-docs — covers
-  MkDocs Material configuration, nav structure, numeric prefix conventions, ADR process,
-  sync-ref-docs.sh workflow, and mkdocs serve/build commands.
+description: Use when adding, moving, or editing documentation pages in tchalanet-docs — covers MkDocs Material configuration, nav structure, numeric prefix conventions, ADR process, sync-ref-docs.sh workflow, and mkdocs serve/build commands.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # MkDocs — tchalanet-docs

@@ -1,10 +1,7 @@
 ---
 name: spring-security
-description: >
-  Déclencher pour tout code lié à la sécurité, authentification, autorisation,
-  JWT, OAuth2, Keycloak, rôles, scopes, ou protection d'endpoints.
-  Indispensable si la tâche concerne : @PreAuthorize, SecurityConfig,
-  JwtDecoder, resource server, ou validation de tokens dans Tchalanet.
+description: Use when writing security, authentication, authorization, JWT, OAuth2, Keycloak, roles, scopes, or endpoint protection code in tchalanet-server — covers @PreAuthorize, SecurityConfig, JwtDecoder, resource server, TchContextFilter, and token validation.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Spring Security — Tchalanet

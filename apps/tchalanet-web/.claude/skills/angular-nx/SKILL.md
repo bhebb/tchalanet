@@ -1,15 +1,27 @@
 ---
 name: angular-nx
-description: >
-  Déclencher pour tout code Angular 20, Nx 21, composants standalone, signals,
-  NgRx, routing, lazy loading, Nx generators, affected commands, ou configuration
-  monorepo. Indispensable si la tâche concerne : libs/, apps/tchalanet-web,
-  nx.json, project.json, barrel exports, ou optimisation du build Nx.
+description: Use when writing or reviewing code in apps/tchalanet-web or libs/ — covers Angular 20 standalone components, Nx 21 monorepo, NgRx + signals, lazy routing, theming CSS variables, i18n @ngx-translate, Vitest unit tests, Playwright E2E, Nx generators, and affected commands.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-# Angular 20 + Nx 21 — Tchalanet
+# Angular 20 + Nx 21 — Tchalanet Web
 
-> Angular 20.2.4 · Nx 21.4.1 · Vite 6 · pnpm 10.19.0
+## Stack
+
+| Item            | Valeur                                     |
+| --------------- | ------------------------------------------ |
+| Node            | 20.19.x                                    |
+| Package manager | pnpm 10.19.0 (corepack)                    |
+| Build tool      | Nx 21.4.1 + Vite 6                         |
+| Framework       | Angular 20.2.4                             |
+| UI              | Angular Material 20.2.x                    |
+| State           | NgRx (store + effects + router-store)      |
+| Styling         | SCSS + CSS variables (token-based theming) |
+| i18n            | @ngx-translate (fr / en / ht)              |
+| Tests unitaires | Vitest                                     |
+| Tests E2E       | Playwright                                 |
+
+---
 
 ## Structure monorepo
 
@@ -25,6 +37,8 @@ libs/
 
 **Règle absolue** : toute logique réutilisable dans `libs/`, jamais dans `apps/`.
 
+---
+
 ## Composants — règles Angular 20
 
 ```typescript
@@ -38,9 +52,32 @@ libs/
 })
 export class TicketCardComponent {
   ticket = input.required<TicketSummary>(); // input signal (Angular 17+)
-  selected = output<TicketId>(); // output signal
+  selected = output<TicketId>();            // output signal
+}
+
+// ❌ Jamais
+@NgModule({ declarations: [...] }) // NgModule interdit
+*ngIf="condition"                  // ancienne syntaxe
+*ngFor="let item of items"         // ancienne syntaxe
+```
+
+---
+
+## Control flow moderne — OBLIGATOIRE
+
+```html
+@if (isLoading()) {
+<mat-spinner />
+} @else if (tickets().length === 0) {
+<p>{{ 'ticket.empty_state' | translate }}</p>
+} @else { @for (ticket of tickets(); track ticket.id) {
+<tch-ticket-card [ticket]="ticket" />
+} } @defer (on viewport) {
+<tch-heavy-chart />
 }
 ```
+
+---
 
 ## Signaux — patterns courants
 
@@ -52,37 +89,24 @@ doubled = computed(() => this.count() * 2);
 // Depuis le store → toSignal
 tickets = toSignal(this.store.select(selectActiveTickets), { initialValue: [] });
 
-// Effect pour side-effects
-effect(() => {
-  if (this.tickets().length === 0) this.loadTickets();
-});
-
 // input/output signals (Angular 17+)
 value = input<string>('');
 valueChange = output<string>();
 ```
 
-## Control flow moderne — OBLIGATOIRE
-
-```html
-<!-- ✅ Nouveau control flow -->
-@if (isLoading()) {
-<mat-spinner />
-} @else if (tickets().length === 0) {
-<p>{{ 'ticket.empty_state' | translate }}</p>
-} @else { @for (ticket of tickets(); track ticket.id) {
-<tch-ticket-card [ticket]="ticket" />
-} } @defer (on viewport) {
-<tch-heavy-chart />
-}
-
-<!-- ❌ Interdit -->
-<div *ngIf="...">
-  <div *ngFor="let t of tickets"></div>
-</div>
-```
+---
 
 ## NgRx — structure par feature
+
+```
+libs/shared/src/lib/store/
+└─ ticket/
+   ├─ ticket.actions.ts
+   ├─ ticket.reducer.ts
+   ├─ ticket.effects.ts
+   ├─ ticket.selectors.ts
+   └─ ticket.facade.ts     ← isole les composants du store
+```
 
 ```typescript
 // Actions
@@ -95,11 +119,6 @@ export const TicketActions = createActionGroup({
   },
 });
 
-// Selectors
-export const selectActiveTickets = createSelector(selectTicketState, state =>
-  state.tickets.filter(t => t.status === 'PLACED'),
-);
-
 // Facade — les composants n'accèdent JAMAIS au store directement
 @Injectable({ providedIn: 'root' })
 export class TicketFacade {
@@ -109,6 +128,118 @@ export class TicketFacade {
   }
 }
 ```
+
+---
+
+## Theming et styles
+
+```scss
+// ✅ Jamais de couleur hardcodée — CSS variables uniquement
+color: var(--tch-color-primary);
+background: var(--tch-surface-variant);
+
+// ❌ Interdit
+color: #3f51b5;
+background: rgb(255, 255, 255);
+```
+
+```scss
+// Variables CSS définies dans libs/ui/src/lib/theming/
+// Override par tenant via class sur <body>
+body.tenant-abc {
+  --tch-color-primary: #e63946;
+}
+```
+
+Mobile-first : breakpoints 480 / 768 / 1024.
+
+---
+
+## i18n — @ngx-translate
+
+```typescript
+// Clés snake_case avec namespaces — 3 locales obligatoires : fr, en, ht
+// libs/i18n/src/assets/fr.json
+{
+  "ticket": {
+    "list_title": "Mes tickets",
+    "status_active": "Actif",
+    "action_buy": "Acheter"
+  }
+}
+```
+
+```html
+<!-- ✅ Dans le template -->
+{{ 'ticket.list_title' | translate }}
+
+<!-- ❌ Jamais de string hardcodée -->
+<h1>Mes tickets</h1>
+```
+
+---
+
+## Widgets vs Pages
+
+```
+libs/web/src/lib/
+├─ pages/      ← routing, layout, orchestration (thin)
+└─ widgets/    ← blocs UI autonomes avec leur propre state local
+```
+
+- Pages → orchestrent les widgets, pas de logique UI directe
+- Widgets → autonomes, réutilisables, pas de logique dupliquée
+
+---
+
+## Routing — lazy loading
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  {
+    path: 'tickets',
+    loadChildren: () => import('@tchalanet/web/tickets').then(m => m.TICKET_ROUTES),
+  },
+  {
+    path: 'draws',
+    loadChildren: () => import('@tchalanet/web/draws').then(m => m.DRAW_ROUTES),
+  },
+];
+```
+
+---
+
+## Barrel exports — libs/
+
+```typescript
+// libs/ui/src/index.ts — toujours exporter depuis index.ts
+export { TicketCardComponent } from './lib/ticket-card/ticket-card.component';
+
+// Import dans d'autres libs/apps
+import { TicketCardComponent } from '@tchalanet/ui'; // path mapping
+```
+
+---
+
+## Tests
+
+```typescript
+// Vitest pour les tests unitaires
+describe('TicketFacade', () => {
+  it('should return active tickets', () => {
+    expect(facade.tickets()).toHaveLength(3);
+  });
+});
+
+// Playwright pour E2E
+test('should display ticket list', async ({ page }) => {
+  await page.goto('/tenant/tickets');
+  await expect(page.getByRole('list')).toBeVisible();
+});
+```
+
+---
 
 ## Nx — commandes essentielles
 
@@ -120,6 +251,7 @@ nx g @nx/angular:library my-lib --directory=libs/my-lib --standalone
 # Dev
 nx serve tchalanet-web
 nx test tchalanet-web
+nx e2e tchalanet-web-e2e
 nx build tchalanet-web --configuration=production
 
 # Optimisation CI — seulement les projets touchés
@@ -134,46 +266,7 @@ nx graph
 nx reset
 ```
 
-## Nx — project.json essentiel
-
-```json
-{
-  "name": "ui",
-  "targets": {
-    "build": { "executor": "@nx/vite:build" },
-    "test": { "executor": "@nx/vite:test" },
-    "lint": { "executor": "@nx/eslint:lint" }
-  },
-  "tags": ["scope:ui", "type:lib"]
-}
-```
-
-## Barrel exports — libs/
-
-```typescript
-// libs/ui/src/index.ts — toujours exporter depuis index.ts
-export { TicketCardComponent } from './lib/ticket-card/ticket-card.component';
-export { ButtonComponent } from './lib/button/button.component';
-
-// Import dans d'autres libs/apps
-import { TicketCardComponent } from '@tchalanet/ui'; // path mapping
-```
-
-## Routing — lazy loading
-
-```typescript
-// app.routes.ts — lazy loading par feature
-export const routes: Routes = [
-  {
-    path: 'tickets',
-    loadChildren: () => import('@tchalanet/web/tickets').then(m => m.TICKET_ROUTES),
-  },
-  {
-    path: 'draws',
-    loadChildren: () => import('@tchalanet/web/draws').then(m => m.DRAW_ROUTES),
-  },
-];
-```
+---
 
 ## Checklist composant Angular
 
@@ -184,4 +277,5 @@ export const routes: Routes = [
 - [ ] `input()` / `output()` signals (pas `@Input()`/`@Output()`)
 - [ ] 0 couleur hardcodée — CSS variables uniquement
 - [ ] 0 string hardcodée — clés i18n `snake_case`
+- [ ] Mobile-first (480px en base)
 - [ ] Exporté depuis le `index.ts` de sa lib

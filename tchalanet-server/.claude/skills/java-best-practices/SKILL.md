@@ -1,10 +1,7 @@
 ---
 name: java-best-practices
-description: >
-  Déclencher pour toute revue de code Java, refactoring, ou écriture de code
-  Java général. Indispensable si la tâche concerne : records, sealed classes,
-  pattern matching, Optional, streams, concurrence, design patterns,
-  clean code, ou bonnes pratiques Java 21+.
+description: Use when reviewing or writing Java code in tchalanet-server — covers records, sealed classes, pattern matching, Optional, streams, concurrency, immutability, clean code, and modern Java 25 best practices.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Java Best Practices — Tchalanet

@@ -1,7 +1,7 @@
 ---
 name: backend-persistence
-description: >
-  Use when writing Flyway migrations, JPA entities, repositories, soft-delete logic, or any database schema change in tchalanet-server — enforces ddl-auto=validate, UUID scope restrictions, soft-delete patterns, and Flyway naming conventions.
+description: Use when writing Flyway migrations, JPA entities, repositories, soft-delete logic, or any database schema change in tchalanet-server — enforces ddl-auto=validate, UUID scope restrictions, standard column conventions, soft-delete patterns, JpaAdapter pattern, and Flyway naming conventions.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Persistance et Flyway
@@ -13,10 +13,12 @@ description: >
 
 ## Règles fondamentales
 
-- `ddl-auto=validate` **uniquement** — Flyway gère tout le DDL
-- ❌ Jamais `ddl-auto=update` ou `ddl-auto=create`
-- ❌ `@RepositoryRestResource` interdit — pas de Spring Data REST exposé
-- UUID autorisé **uniquement** dans `*JpaEntity` et `*JpaRepository`
+| Règle                          | Détail                                                    |
+| ------------------------------ | --------------------------------------------------------- |
+| `ddl-auto=validate` uniquement | Flyway gère **tout** le DDL                               |
+| UUID                           | Autorisé uniquement dans `*JpaEntity` et `*JpaRepository` |
+| Spring Data REST               | Interdit (`@RepositoryRestResource` banni)                |
+| Filtres tenant                 | Interdits dans les repositories (RLS fait le travail)     |
 
 ---
 
@@ -30,9 +32,39 @@ V###__short_snake_case_name.sql
 
 Exemples : `V040__rls_policies.sql`, `V041__add_outlet_deleted_at.sql`
 
+```sql
+-- ❌ Jamais modifier une migration existante en production
+-- ✅ Toujours créer une nouvelle migration pour corriger
+```
+
 ### Toute modification de schéma = nouvelle migration
 
 Jamais de modification manuelle en base ou de `ALTER TABLE` hors migration.
+
+---
+
+## Colonnes standard obligatoires
+
+```sql
+-- Toutes les tables
+version     BIGINT NOT NULL DEFAULT 0         -- lock optimiste Hibernate
+
+-- Tables avec audit
+created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+
+-- Soft delete
+deleted_at  TIMESTAMPTZ NULL                  -- NULL = actif
+
+-- Tables tenantées
+tenant_id   UUID NOT NULL                     -- géré par RLS
+
+-- Foreign keys
+<ref>_id    UUID NOT NULL / NULL              -- ex: draw_id, outlet_id
+
+-- Conventions SQL
+snake_case  -- tables et colonnes toujours en snake_case
+```
 
 ---
 
@@ -41,23 +73,29 @@ Jamais de modification manuelle en base ou de `ALTER TABLE` hors migration.
 ```java
 // Entity tenantée (hérite BaseTenantEntity)
 @Entity
-@Table(name = "ticket")
+@Table(name = "tickets")
 public class TicketJpaEntity extends BaseTenantEntity {
-  @Id
-  private UUID id;                    // UUID autorisé ici
-  private UUID tenantId;              // requis pour RLS
-  private String code;
-  private Instant deletedAt;          // soft delete
-  // ...
+    @Id
+    private UUID id;
+
+    private UUID drawId;      // FK snake_case → draw_id en DB
+
+    @Enumerated(EnumType.STRING)
+    private TicketStatus status;
+
+    @Version
+    private Long version;     // lock optimiste
+
+    private Instant deletedAt; // soft delete
 }
 
 // Entity non-tenantée (hérite BaseEntity)
 @Entity
-@Table(name = "result_slot")
-public class ResultSlotJpaEntity extends BaseEntity {
-  @Id
-  private UUID id;
-  // ...
+@Table(name = "draw_calendars")
+public class DrawCalendarJpaEntity extends BaseEntity {
+    @Id
+    private UUID id;
+    // ...
 }
 ```
 
@@ -72,19 +110,51 @@ public class ResultSlotJpaEntity extends BaseEntity {
 - Commands : gérer la logique "resurrect / recreate" si nécessaire
 
 ```java
-// Repository read-side (RLS gère le tenant, on filtre seulement le soft-delete)
+// ✅ Toujours filtrer les supprimés côté Java si RLS ne le fait pas
 Optional<TicketJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
+findAllByStatusAndDeletedAtIsNull(TicketStatus status);
+
+// ❌ Jamais supprimer physiquement sauf cas admin explicite
 ```
 
 ---
 
-## Repositories
+## JPA Repository — règles
 
 ```java
-// Spring Data : toujours internal à la couche persistence
 public interface TicketJpaRepository extends JpaRepository<TicketJpaEntity, UUID> {
-  Optional<TicketJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
-  // Pas de findByTenantId — RLS filtre automatiquement
+    Optional<TicketJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
+    List<TicketJpaEntity> findAllByDrawIdAndDeletedAtIsNull(UUID drawId);
+    // Pas de findByTenantId — RLS filtre automatiquement
+    // ❌ Pas de @Query JPQL/SQL sauf si absolument nécessaire
+    // ❌ Pas de @RepositoryRestResource
+}
+```
+
+---
+
+## JpaAdapter — pattern
+
+```java
+// ✅ L'adapter fait UUID ↔ TypedId + mapping domain
+@Component
+@RequiredArgsConstructor
+public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
+
+    private final TicketJpaRepository repo;
+    private final TicketPersistenceMapper mapper;
+
+    @Override
+    public Optional<Ticket> findById(TicketId id) {
+        return repo.findByIdAndDeletedAtIsNull(id.value()) // UUID ici
+                   .map(mapper::toDomain);
+    }
+
+    @Override
+    public Ticket save(Ticket ticket) {
+        var entity = mapper.toEntity(ticket);
+        return mapper.toDomain(repo.save(entity));
+    }
 }
 ```
 
@@ -95,8 +165,8 @@ public interface TicketJpaRepository extends JpaRepository<TicketJpaEntity, UUID
 ```java
 @Mapper(componentModel = "spring", uses = { CommonIdMapper.class })
 public interface TicketPersistenceMapper {
-  TicketJpaEntity toEntity(Ticket domain);
-  Ticket toDomain(TicketJpaEntity entity);
+    TicketJpaEntity toEntity(Ticket domain);
+    Ticket toDomain(TicketJpaEntity entity);
 }
 ```
 
@@ -111,17 +181,19 @@ public interface TicketPersistenceMapper {
 - Read side : `@Cacheable`
 - Write side : `@CacheEvict` (après chaque mutation)
 - Nommage catalog : `catalog:<name>:active`, `catalog:<name>:by_id`, `catalog:<name>:by_key`
-- Cache = détail d'implémentation (jamais exposé via les APIs)
 
 ---
 
 ## Checklist nouvelle table
 
-- [ ] Migration Flyway `V###__<name>.sql`
-- [ ] Table tenantée → `tenant_id UUID NOT NULL REFERENCES tenant(id)` + policy RLS
-- [ ] `deleted_at TIMESTAMPTZ NULL` si soft delete
-- [ ] `created_at`, `updated_at` TIMESTAMPTZ (audit)
-- [ ] `version INTEGER` si lock optimiste
-- [ ] Entity étend `BaseTenantEntity` ou `BaseEntity`
+- [ ] Migration Flyway `V###__short_snake_case.sql`
+- [ ] `ddl-auto=validate` — ne jamais changer
+- [ ] Colonnes standard présentes : `version`, `created_at`, `updated_at`
+- [ ] Si table tenantée : `tenant_id` + policy RLS dans la migration
+- [ ] Si soft delete : colonne `deleted_at`
+- [ ] Entity étend `BaseTenantEntity` (tenantée) ou `BaseEntity` (non-tenantée)
 - [ ] Aucun `UUID.randomUUID()` dans les entities (géré par handler + IdGenerator)
+- [ ] JpaAdapter implémente les ports de `core/port/out/`
 - [ ] Mapper dans `infra/persistence/mapper/`
+- [ ] Aucun filtre `tenant_id` dans les repositories
+- [ ] Jamais modifier une migration existante committée

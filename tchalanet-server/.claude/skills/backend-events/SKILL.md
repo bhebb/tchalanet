@@ -1,7 +1,7 @@
 ---
 name: backend-events
-description: >
-  Use when writing domain events, event publishers, event listeners, or cross-domain side effects in tchalanet-server — enforces after-commit publication, thin listener pattern, idempotence via ProcessedEventPort, and prohibits events from catalog modules.
+description: Use when writing domain events, event publishers, event listeners, or cross-domain side effects in tchalanet-server — enforces after-commit publication, thin listener pattern, idempotence via ProcessedEventPort, naming conventions, and prohibits events from catalog modules.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Events et effets de bord
@@ -10,11 +10,15 @@ description: >
 > Ne pas éditer ce fichier pour changer une règle — modifier la source canonique :
 > 👉 `tchalanet-server/docs/conventions/event_model.md`
 
-## Principes fondamentaux
+## Règles absolues
 
-- Un `DomainEvent` représente un **fait passé** (nommé au passé : `XxxCreatedEvent`, `XxxCancelledEvent`)
-- Les events découplent les domaines et déclenchent des effets secondaires (stats, notifications, cache, payout)
-- Tous les events cross-domain : publiés **after-commit**, consommés **after-commit**, idempotents
+| Règle                              | Détail                                              |
+| ---------------------------------- | --------------------------------------------------- |
+| Un DomainEvent = un **fait passé** | `TicketPlacedEvent` ✅ — `PlaceTicketEvent` ❌      |
+| Publié **uniquement after-commit** | Via `AfterCommit.run(...)` + `DomainEventPublisher` |
+| Listeners cross-domain             | `@TransactionalEventListener(phase = AFTER_COMMIT)` |
+| Listeners = thin                   | log + idempotence + dispatch vers bus uniquement    |
+| `catalog/`                         | **Jamais** de domain events                         |
 
 ---
 
@@ -39,18 +43,23 @@ core.<consumer>.infra.event.*         ← listeners (chez le consommateur)
 ```java
 @TchTx
 public Result handle(SellTicketCommand cmd) {
-  var ticket = ...; // mutations métier dans la transaction
+    // 1. logique métier pure
+    var ticket = ticketDomainService.sell(...);
 
-  AfterCommit.run(() ->
-    domainEventPublisher.publish(new TicketPlacedEvent(
-        EventId.generate(),
-        Instant.now(),
-        cmd.tenantId(),
-        ticket.id()
-    ))
-  );
+    // 2. persister via port
+    ticketWriterPort.save(ticket);
 
-  return result;
+    // 3. publier APRÈS commit uniquement
+    AfterCommit.run(() ->
+        domainEventPublisher.publish(new TicketPlacedEvent(
+            EventId.generate(),
+            Instant.now(),
+            cmd.tenantId(),
+            ticket.id()
+        ))
+    );
+
+    return Result.success(ticket.id());
 }
 ```
 
@@ -61,13 +70,23 @@ public Result handle(SellTicketCommand cmd) {
 ## Consommation — listener pattern
 
 ```java
-// Listener cross-domain : TOUJOURS AFTER_COMMIT
-@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-public void onTicketPlaced(TicketPlacedEvent event) {
-  log.info("Processing event {}", event.eventId());
-  // → idempotence check
-  // → map vers modèle local
-  // → dispatch vers CommandBus si nécessaire
+@Component
+@RequiredArgsConstructor
+public class LimitPolicyExposureProjector {
+
+    private final ProcessedEventPort processedEvent;
+    private final LimitPolicyWriterPort writerPort;
+
+    private static final String HANDLER_KEY = "limitpolicy.exposure"; // domain.projection
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void on(TicketPlacedEvent event) {
+        if (processedEvent.alreadyProcessed(HANDLER_KEY, event.eventId())) return;
+
+        writerPort.updateExposure(event.ticketId(), event.amount()); // logique mince
+
+        processedEvent.markProcessed(HANDLER_KEY, event.eventId());
+    }
 }
 ```
 
@@ -88,23 +107,20 @@ public void onTicketPlaced(TicketPlacedEvent event) {
 
 ## Idempotence des consommateurs (OBLIGATOIRE)
 
-```java
-// Pattern check → apply → mark
-private static final String HANDLER_KEY = "limitpolicy.exposure"; // stable, unique
+Format `HANDLER_KEY` : `"<domain>.<projection>"` ex : `"limitpolicy.exposure"`, `"stats.daily"`.
 
-@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-public void onTicketPlaced(TicketPlacedEvent event) {
-  var eventId = event.eventId().value();
+---
 
-  if (processedEvent.alreadyProcessed(HANDLER_KEY, eventId)) return; // silencieux
+## Naming des events
 
-  projector.applyTicketPlaced(event);
+| Contexte   | Pattern             | Exemple              |
+| ---------- | ------------------- | -------------------- |
+| Création   | `XxxCreatedEvent`   | `TicketCreatedEvent` |
+| Annulation | `XxxCancelledEvent` | `DrawCancelledEvent` |
+| Règlement  | `XxxSettledEvent`   | `PayoutSettledEvent` |
+| Placement  | `XxxPlacedEvent`    | `TicketPlacedEvent`  |
 
-  processedEvent.markProcessed(HANDLER_KEY, eventId);
-}
-```
-
-Format `HANDLER_KEY` : `"<domain>.<projection>"` ex: `"limitpolicy.exposure"`, `"stats.daily"`.
+Toujours au **passé**. Jamais de verbe à l'infinitif ou à l'impératif.
 
 ---
 
@@ -119,10 +135,24 @@ Format `HANDLER_KEY` : `"<domain>.<projection>"` ex: `"limitpolicy.exposure"`, `
 
 ---
 
-## Règles catalog (rappel)
+## Ce qui est interdit
 
-- `catalog/` **n'émet jamais** de domain events métier
-- Les changements catalog (CRUD admin) peuvent déclencher des _application events_ de cache/refresh, jamais de domain events
+```java
+// ❌ Publication avant commit
+domainEventPublisher.publish(new TicketPlacedEvent(...)); // sans AfterCommit
+
+// ❌ Listener avec logique métier lourde
+@TransactionalEventListener
+public void on(TicketPlacedEvent e) {
+    complexBusinessLogic(); // ← déléguer au bus, pas ici
+}
+
+// ❌ Domain event dans catalog/
+// catalog/ ne publie jamais d'events
+
+// ❌ Listener non idempotent
+// tout listener DOIT vérifier ProcessedEventPort
+```
 
 ---
 
@@ -149,6 +179,7 @@ Format `HANDLER_KEY` : `"<domain>.<projection>"` ex: `"limitpolicy.exposure"`, `
 - [ ] Publié via `AfterCommit.run(() -> domainEventPublisher.publish(...))`
 - [ ] Listener annoté `@TransactionalEventListener(phase = AFTER_COMMIT)`
 - [ ] Listener implémente idempotence via `ProcessedEventPort`
-- [ ] `HANDLER_KEY` stable et unique défini comme constante
+- [ ] `HANDLER_KEY` stable et unique défini comme constante (`"<domain>.<projection>"`)
 - [ ] Event vit dans le domaine producteur
 - [ ] Listener vit dans le domaine consommateur
+- [ ] Aucun event dans `catalog/`

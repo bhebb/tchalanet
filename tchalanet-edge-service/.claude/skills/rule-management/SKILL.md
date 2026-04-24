@@ -1,10 +1,7 @@
 ---
 name: rule-management
-description: >
-  Use when creating, modifying, or debugging DecisionSet JSON files in tchalanet-edge-service/rules/,
-  implementing rule evaluation logic with json-rules-engine, or working with the
-  /api/rules/* endpoints. Covers DecisionSet format, conditions syntax, event structure,
-  and the loadDecisionSetForEvent / evaluateDecisionSet APIs.
+description: Use when creating, modifying, or debugging DecisionSet JSON files in tchalanet-edge-service/rules/, implementing rule evaluation with json-rules-engine, or working with the /api/rules/* endpoints — covers DecisionSet format, conditions syntax, event structure, and the loadDecisionSetForEvent/evaluateDecisionSet APIs.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Rule Management — tchalanet-edge-service

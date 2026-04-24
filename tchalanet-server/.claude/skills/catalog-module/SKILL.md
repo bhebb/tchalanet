@@ -1,10 +1,7 @@
 ---
 name: catalog-module
-description: >
-  Déclencher pour toute création ou modification dans la couche catalog/.
-  Indispensable si la tâche concerne : référentiels, lookups, configurations,
-  calendriers, XCatalog, XView, XSummaryView, XRow, XAdminService, XCatalogImpl,
-  projections read-only, ou cache de référentiels.
+description: Use when creating or modifying anything in the catalog/ layer — referentials, lookups, configuration, calendars, XCatalog, XView, XSummaryView, XRow, XAdminService, XCatalogImpl, read-only projections, or referential cache.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Module Catalog — Tchalanet

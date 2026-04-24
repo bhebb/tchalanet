@@ -1,7 +1,7 @@
 ---
 name: backend-rls
-description: >
-  Use when writing database queries, repositories, JPA entities, batch jobs, or any tenant-aware code in tchalanet-server — enforces PostgreSQL Row-Level Security patterns, explains TchContextFilter/RlsAwareDataSource flow, and prevents tenant filter leakage into Java code.
+description: Use when writing database queries, repositories, JPA entities, batch jobs, or any tenant-aware code in tchalanet-server — enforces PostgreSQL Row-Level Security patterns, explains TchContextFilter/RlsAwareDataSource flow, and prevents tenant filter leakage into Java code.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Multi-tenancy et RLS — Row-Level Security

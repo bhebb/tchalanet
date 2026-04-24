@@ -1,10 +1,7 @@
 ---
 name: feature-module
-description: >
-  Déclencher pour toute création ou modification dans la couche features/.
-  Indispensable si la tâche concerne : orchestration multi-domaines, BFF,
-  vertical slices, XxxOrchestrator, XxxService feature, XxxRequest, XxxResponse,
-  composition de core/ et catalog/, ou nouveaux endpoints orientés UI/navigation.
+description: Use when creating or modifying anything in the features/ layer — multi-domain orchestration, BFF, vertical slices, XxxOrchestrator, feature XxxService, XxxRequest, XxxResponse, composition of core/ and catalog/, or new UI/navigation-oriented endpoints.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Module Feature — Tchalanet

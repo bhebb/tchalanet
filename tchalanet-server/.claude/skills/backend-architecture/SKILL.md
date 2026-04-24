@@ -1,10 +1,10 @@
 ---
 name: backend-architecture
-description: >
-  Use when creating, moving, or reviewing Java classes in tchalanet-server — enforces the 4-layer architecture (common/catalog/core/features), package structures for core/catalog/feature modules, dependency graph rules, and the Rule of 3 for sub-packages.
+description: Use when creating, moving, or reviewing Java classes in tchalanet-server — enforces the 4-layer architecture (common/catalog/core/features), package structures, dependency graph rules, CQRS patterns, class naming, and the Rule of 3 for sub-packages.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-# Backend Architecture — Couches et packages
+# Backend Architecture — Couches, packages et CQRS
 
 > ⚠️ **Ce fichier est un résumé actionable pour l'IA.**
 > Ne pas éditer ce fichier pour changer une règle — modifier la source canonique :
@@ -29,10 +29,12 @@ catalog     core
      └── features
 ```
 
-- `core/` ❌ ne dépend jamais de `features/` ni de `catalog/`
-- `catalog/` ❌ jamais de side-effects, jamais de domain events
-- `features/` ✔ orchestre `core/` et lit `catalog/`
-- `common/` ❌ ne dépend jamais du métier
+| Règle       | Détail                                             |
+| ----------- | -------------------------------------------------- |
+| `core/`     | ❌ ne dépend jamais de `features/` ou `catalog/`   |
+| `catalog/`  | ❌ jamais de side-effects, jamais de domain events |
+| `features/` | ✔ orchestre `core/` et lit `catalog/`              |
+| `common/`   | ❌ ne contient jamais de logique métier            |
 
 Toute violation → **ADR obligatoire** (`tchalanet-docs/docs/03-adr/`).
 
@@ -126,6 +128,43 @@ features/<feature_key>/
 
 ---
 
+## Règles CQRS
+
+```java
+// Command = record + typed IDs + intention claire
+public record SellTicketCommand(TicketId ticketId, TenantId tenantId, ...) {}
+
+// Handler = 1 commande = 1 handler, annoté @TchTx
+@TchTx
+public Result handle(SellTicketCommand cmd) { ... }
+
+// Query = record léger
+public record GetTicketQuery(TicketId ticketId) {}
+
+// QueryHandler = lecture seule, pas de side-effects
+public TicketDetails handle(GetTicketQuery query) { ... }
+```
+
+---
+
+## Nommage des classes
+
+| Rôle            | Pattern                                               |
+| --------------- | ----------------------------------------------------- |
+| Command         | `XxxCommand` (record)                                 |
+| Command handler | `XxxCommandHandler`                                   |
+| Query           | `XxxQuery` (record)                                   |
+| Query handler   | `XxxQueryHandler`                                     |
+| Output port     | `XxxReaderPort`, `XxxWriterPort`, `XxxRepositoryPort` |
+| JPA adapter     | `XxxJpaAdapter`                                       |
+| JPA entity      | `XxxJpaEntity`                                        |
+| JPA repository  | `XxxJpaRepository`                                    |
+| Domain event    | `XxxCreatedEvent`, `XxxCancelledEvent` (passé)        |
+| Feature service | `XxxService` / `XxxOrchestrator`                      |
+| Scheduler       | `XxxScheduler` — méthodes `tick()` / `runOnce()`      |
+
+---
+
 ## Mental model (TL;DR)
 
 | Couche      | Rôle                      |
@@ -139,3 +178,14 @@ features/<feature_key>/
 | `catalog/`  | Données de référence      |
 | `features/` | Orchestration UI          |
 | `common/`   | Glue technique            |
+
+---
+
+## Checklist avant de créer une classe
+
+- [ ] Dans quelle couche va-t-elle ? (common / catalog / core / features)
+- [ ] Respecte-t-elle le graphe de dépendances ?
+- [ ] Le nommage suit-il le pattern ci-dessus ?
+- [ ] Si core : la couche domain est-elle framework-free ?
+- [ ] Si handler : est-il annoté `@TchTx` ?
+- [ ] Si sous-package : y a-t-il ≥ 3 classes ?

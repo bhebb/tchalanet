@@ -1,7 +1,7 @@
 ---
 name: edge-service
-description: >
-  Use when writing or reviewing code in tchalanet-edge-service — covers the Node.js/TypeScript Express service for rules evaluation (json-rules-engine), Liquid template rendering, and multi-channel notification dispatch (EMAIL, SMS, WhatsApp, Push, Web).
+description: Use when writing or reviewing code in tchalanet-edge-service — covers the Node.js/TypeScript Express service for rules evaluation (json-rules-engine), Liquid template rendering, and multi-channel notification dispatch (EMAIL, SMS, WhatsApp, Push, Web).
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Edge Service — Conventions

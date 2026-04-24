@@ -1,7 +1,7 @@
 ---
 name: backend-naming
-description: >
-  Use when naming Java classes, methods, routes, SQL tables, or Spring beans in tchalanet-server — covers suffixes for handlers/ports/adapters/controllers/mappers, HTTP scope prefixes, response envelope types, SQL column conventions, and forbidden anti-patterns like XxxDto or XxxImpl.
+description: Use when naming Java classes, methods, routes, SQL tables, or Spring beans in tchalanet-server — covers suffixes for handlers/ports/adapters/controllers/mappers, HTTP scope prefixes, response envelope types, SQL column conventions, and forbidden anti-patterns like XxxDto or XxxImpl.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Conventions de nommage — Backend

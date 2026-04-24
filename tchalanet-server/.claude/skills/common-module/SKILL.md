@@ -1,10 +1,7 @@
 ---
 name: common-module
-description: >
-  Déclencher pour toute création dans la couche common/, ou quand une classe
-  technique transversale est nécessaire. Indispensable si la tâche concerne :
-  bus d'événements, TchContext, ApiResponse, TchPage, typed IDs partagés,
-  IdGenerator, gestion d'erreurs, cache infrastructure, ou utilitaires transverses.
+description: Use when creating anything in the common/ layer or when a cross-cutting technical class is needed — event bus, TchContext, ApiResponse, TchPage, shared typed IDs, IdGenerator, error handling, cache infrastructure, or transverse utilities.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Module Common — Tchalanet

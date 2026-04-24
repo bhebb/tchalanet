@@ -1,7 +1,7 @@
 ---
 name: backend-typed-ids
-description: >
-  Use when writing or reviewing Java code in tchalanet-server that involves IDs, UUIDs, domain models, commands, queries, handlers, controllers, or mappers — enforces typed ID wrappers (TicketId, TenantId, etc.) and bans raw UUID outside the persistence layer.
+description: Use when writing or reviewing Java code in tchalanet-server that involves IDs, UUIDs, domain models, commands, queries, handlers, controllers, or mappers — enforces typed ID wrappers (TicketId, TenantId, etc.) and bans raw UUID outside the persistence layer.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Typed IDs — Wrappers obligatoires

@@ -1,10 +1,7 @@
 ---
 name: flutter
-description: >
-  Déclencher pour tout code Flutter, Dart, widgets, navigation, state management,
-  appels API, ou configuration Android/POS dans apps/tchalanet-mobile.
-  Indispensable si la tâche concerne : Riverpod, GoRouter, dio, Material 3,
-  terminal POS Android, Motorola, ou l'application vendeur Tchalanet.
+description: Use when writing or reviewing Flutter/Dart code in apps/tchalanet-mobile — covers Riverpod state management, GoRouter navigation, Dio HTTP client, Material 3 theming, offline-first patterns, POS Android touch targets, and vendor app features (sale, draw, dashboard).
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Flutter — Tchalanet Mobile Vendeur

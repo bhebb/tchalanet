@@ -1,7 +1,7 @@
 ---
 name: infrastructure
-description: >
-  Use when writing or reviewing Docker Compose files, CI/CD workflows, environment configuration, secret management, or Traefik routing in tchalanet-infra — enforces pinned image versions, declarative environments, no-latest policy, and Doppler secret injection.
+description: Use when writing or reviewing Docker Compose files, CI/CD workflows, environment configuration, secret management, or Traefik routing in tchalanet-infra — enforces pinned image versions, declarative environments, no-latest policy, and Doppler secret injection.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Infrastructure — Règles et conventions

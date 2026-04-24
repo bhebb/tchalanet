@@ -1,10 +1,7 @@
 ---
 name: spring-boot-core
-description: >
-  Déclencher pour toute création de projet, module Spring Boot, configuration,
-  beans, properties, auto-configuration, ou patterns Spring généraux.
-  Indispensable si la tâche concerne : @Configuration, @Bean, profiles, actuator,
-  application.yml, starters, Spring context, ou bootstrap de l'application.
+description: Use when creating or configuring a Spring Boot module, beans, properties, profiles, or general Spring patterns in tchalanet-server — covers @Configuration, @Bean, actuator, application.yml, starters, Spring context bootstrap, constructor injection, Lombok rules, and error handling.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Spring Boot Core — Tchalanet

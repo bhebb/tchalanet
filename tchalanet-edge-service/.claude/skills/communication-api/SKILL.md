@@ -1,10 +1,7 @@
 ---
 name: communication-api
-description: >
-  Use when implementing or debugging multi-channel notification dispatch in tchalanet-edge-service —
-  covers sendNotification(), SendNotificationCommand, ChannelType, Mailgun (EMAIL),
-  Bird (SMS/WhatsApp), LiquidJS template rendering, and the /api/communications/send endpoint.
-  Also relevant when adding a new channel or fixing a delivery failure.
+description: Use when implementing or debugging multi-channel notification dispatch in tchalanet-edge-service — covers sendNotification(), SendNotificationCommand, ChannelType, Mailgun (EMAIL), Bird (SMS/WhatsApp), LiquidJS template rendering, the /api/communications/send endpoint, and adding new channels.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Communication API — tchalanet-edge-service

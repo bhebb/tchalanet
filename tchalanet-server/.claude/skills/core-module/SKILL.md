@@ -1,10 +1,7 @@
 ---
 name: core-module
-description: >
-  Déclencher pour toute création ou modification dans la couche core/.
-  Indispensable si la tâche concerne : domaines métier critiques, aggregates,
-  value objects, domain services, command handlers, query handlers, output ports,
-  JPA adapters, ou tout ce qui touche à ventes, tirages, argent, limites, audit.
+description: Use when creating or modifying anything in the core/ layer — critical business domains, aggregates, value objects, domain services, command handlers, query handlers, output ports, JPA adapters, or anything touching sales, draws, money, limits, or audit.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Module Core — Tchalanet
