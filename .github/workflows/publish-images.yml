@@ -62,7 +62,7 @@ jobs:
           echo "✅ API built successfully"
 
       - name: Build and push API image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./tchalanet-server
           push: true
@@ -76,7 +76,7 @@ jobs:
             org.opencontainers.image.version=${{ steps.tag.outputs.tag }}
 
       - name: Build and push Keycloak image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: ./tchalanet-infra/keycloak
           push: true
