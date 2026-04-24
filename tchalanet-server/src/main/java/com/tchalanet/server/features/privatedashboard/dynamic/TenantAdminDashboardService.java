@@ -6,8 +6,9 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.audit.application.query.handler.ListTenantRecentActivityQueryHandler;
 import com.tchalanet.server.core.audit.application.query.model.AuditEventQuery;
-import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyPolicyRuleQuery;
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.core.autonomy.application.query.model.AutonomyOverviewView;
+import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import com.tchalanet.server.features.privatedashboard.block.ActivityFeedBlock;
 import com.tchalanet.server.features.privatedashboard.block.AlertsBlock;
 import com.tchalanet.server.features.privatedashboard.block.CashierOverviewBlock;
@@ -82,7 +83,7 @@ public class TenantAdminDashboardService {
       var kpisResponse =
           getTenantKpisHandler.handle(
               new com.tchalanet.server.features.reporting.tenantkpis.GetTenantKpisQuery(
-                  tenantId.uuid(), null, null));
+                  tenantId.value(), null, null));
       var snapshot = kpisResponse.snapshot();
       var kpis = snapshot.kpis();
 
@@ -120,6 +121,7 @@ public class TenantAdminDashboardService {
         || statsResponse.stats().gameBreakdown().isEmpty()) {
       return KpiBlock.empty();
     }
+
     var gameBreakdown = statsResponse.stats().gameBreakdown();
     var items = new ArrayList<KpiBlock.KpiItem>();
 
@@ -142,6 +144,7 @@ public class TenantAdminDashboardService {
 
   private KpiBlock buildSalesKpis(TenantDashboardStatsResponse statsResponse) {
     if (statsResponse == null
+        || statsResponse.stats() == null
         || statsResponse.stats().dailySales() == null
         || statsResponse.stats().dailySales().isEmpty()) {
       return KpiBlock.empty();
@@ -175,17 +178,19 @@ public class TenantAdminDashboardService {
   @SuppressWarnings("unused")
   private ValidationsBlock buildValidations(TenantId tenantId, String currentLang) {
     try {
-      var rule =
-          queryBus.send(
-              new GetAutonomyPolicyRuleQuery(tenantId, AutonomyTargetType.TENANT, tenantId.uuid()));
-      if (rule == null) return ValidationsBlock.empty();
+      AutonomyOverviewView overview =
+          queryBus.send(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, tenantId.value()));
+      if (overview == null || overview.rule() == null) return ValidationsBlock.empty();
+
+      var rule = overview.rule();
+      var meta = overview.meta();
 
       var item =
           new ValidationsBlock.ValidationItem(
-              rule.id() != null ? rule.id().toString() : null,
+              meta.ruleId() != null ? meta.ruleId().toString() : null,
               "autonomy.policy.level."
                   + (rule.level() != null ? rule.level().name().toLowerCase() : "unknown"),
-              rule.targetType() != null ? rule.targetType().name().toLowerCase() : null,
+              overview.targetType() != null ? overview.targetType().name().toLowerCase() : null,
               null,
               null,
               rule.startsAt(),
@@ -245,7 +250,7 @@ public class TenantAdminDashboardService {
 
       var outletPerf =
           getOutletPerformanceReportHandler.handle(
-              new GetOutletPerformanceReportQuery(tenantId.uuid(), from, to, null));
+              new GetOutletPerformanceReportQuery(tenantId.value(), from, to, null));
 
       var cashierStats = fetchCashierPreview(tenantId, userId, from, to);
 
@@ -264,7 +269,7 @@ public class TenantAdminDashboardService {
       try {
         var cs =
             cashierDashboardStatsUseCase.handle(
-                new CashierDashboardStatsQuery(tenantId.uuid(), userId.uuid(), from, to));
+                new CashierDashboardStatsQuery(tenantId.value(), userId.value(), from, to));
         result.add(cs);
       } catch (Exception e) {
         // ignore
@@ -277,7 +282,7 @@ public class TenantAdminDashboardService {
       int limit = 3;
       var topSummaries =
           cashierDashboardStatsUseCase.getTopCashierSummaries(
-              tenantId.uuid(),
+              tenantId.value(),
               from != null ? from : LocalDate.now().minusDays(6),
               to != null ? to : LocalDate.now(),
               limit);

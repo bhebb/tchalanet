@@ -30,7 +30,7 @@ public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSal
   public void recordTicketSale(
       TenantId tenantId, TicketId ticketId, long stakeCents, Instant occurredAt) {
     // Idempotency (soft)
-    if (ledgerReader.existsByRef(tenantId, LedgerRefType.TICKET_SALE, ticketId.uuid())) {
+    if (ledgerReader.existsByRef(tenantId, LedgerRefType.TICKET_SALE, ticketId.value())) {
       log.warn(
           "Ledger entry already exists for ticketId={} tenantId={}, skipping", ticketId, tenantId);
       return;
@@ -43,7 +43,7 @@ public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSal
         LedgerEntry.create(
             tenantId,
             LedgerRefType.TICKET_SALE,
-            ticketId.uuid(),
+            ticketId.value(),
             amount,
             LedgerDirection.CREDIT,
             at);

@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.constant.CommonConstants;
+import com.tchalanet.server.common.security.ApiScope;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneId;
@@ -28,6 +29,7 @@ public record TchRequestContext(
     String userAgent, // HTTP User-Agent header value (nullable) - moved here
     boolean tenantOverridden, // true if SA override applied
     String deletedVisibility, // new: requested deleted visibility (active|deleted|all)
+    ApiScope apiScope, // NOW typed as enum
     String idempotencyKey,
     // NEW (tenant defaults)
     TenantId tenantId,
@@ -131,6 +133,7 @@ public record TchRequestContext(
             userAgent,
             tenantOverridden,
             deletedVisibility,
+            apiScope,
             idempotencyKey,
             tenantId,
             tenantZoneId,
@@ -154,6 +157,7 @@ public record TchRequestContext(
             userAgent,
             tenantOverridden,
             deletedVisibility,
+            apiScope,
             idempotencyKey,
             tenantId,
             tenantZoneId,
@@ -178,6 +182,7 @@ public record TchRequestContext(
             userAgent,
             tenantOverridden,
             deletedVisibility,
+            apiScope,
             key,
             tenantId,
             tenantZoneId,
@@ -207,6 +212,7 @@ public record TchRequestContext(
             userAgent,
             tenantOverridden,
             deletedVisibility,
+            apiScope,
             idempotencyKey,
             info.tenantId(),
             info.tenantZoneId(),
@@ -233,11 +239,16 @@ public record TchRequestContext(
             null,
             false,
             "active",
+            ApiScope.TENANT,
             null,
             TenantId.nullableOf(tenantUuid),
             ZoneId.systemDefault(),
             Currency.getInstance(CommonConstants.DEFAULT_CURRENCY)
         );
+    }
+
+    public ApiScope apiScope() {
+        return apiScope;
     }
 
 }

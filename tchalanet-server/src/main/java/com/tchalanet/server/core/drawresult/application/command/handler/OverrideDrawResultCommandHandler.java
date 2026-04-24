@@ -6,12 +6,14 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.contracts.results.SourceFlags;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.util.JsonbUtils;
 import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
 import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultResult;
 import com.tchalanet.server.core.drawresult.application.service.ResultSlotTimes;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import java.time.Instant;
 import java.util.Locale;
@@ -26,7 +28,7 @@ public class OverrideDrawResultCommandHandler
 
   private final ResultSlotCatalog slotReader;
   private final DrawResultWriterPort writer;
-  private final ObjectMapper mapper;
+  private final JsonUtils jsonUtils;
 
   @Override
   public OverrideDrawResultResult handle(OverrideDrawResultCommand command) {
@@ -34,14 +36,14 @@ public class OverrideDrawResultCommandHandler
 
     var slot =
         slotReader
-            .findBySlotKey(slotKey)
+            .findByKey(slotKey)
             .orElseThrow(() -> new IllegalArgumentException("result_slot not found: " + slotKey));
 
     Instant occurredAt =
         ResultSlotTimes.occurredAt(slot.timezone(), command.drawDate(), slot.drawTime());
 
     // source_result (canonique, même pour un override)
-    ObjectNode sourceResult = mapper.createObjectNode();
+    ObjectNode sourceResult = jsonUtils.emptyObjectNode();
     sourceResult.put("mode", "OVERRIDE");
     sourceResult.put("actor", "OPS");
     sourceResult.put("slot_key", slot.slotKey());
@@ -57,7 +59,7 @@ public class OverrideDrawResultCommandHandler
 
     // flags
     SourceFlags flagsObj = SourceFlags.manual("OVERRIDE", "OPS");
-    var flags = mapper.valueToTree(flagsObj);
+    var flags = jsonUtils.valueToTree(flagsObj);
 
     // Status / Source / Quality : on évite les strings libres
     String status = DrawResultStatus.FINAL.name(); // adapte si ton enum diffère

@@ -20,7 +20,6 @@ public class ArchiveTicketsCommandHandler implements VoidCommandHandler<ArchiveT
   @TchTx
   public void handle(ArchiveTicketsCommand command) {
     Objects.requireNonNull(command, "Command cannot be null");
-    Objects.requireNonNull(command.tenantId(), "TenantId cannot be null");
     Objects.requireNonNull(command.cutoffDate(), "Cutoff date cannot be null");
 
     log.info(
@@ -29,8 +28,8 @@ public class ArchiveTicketsCommandHandler implements VoidCommandHandler<ArchiveT
         command.cutoffDate());
 
     int archivedCount =
-        ticketRepository.archiveOldTickets(command.tenantId(), command.cutoffDate());
+        ticketRepository.archiveOldTickets(command.cutoffDate());
 
-    log.info("Successfully archived {} tickets for tenant {}", archivedCount, command.tenantId());
+    log.info("Successfully archived {} tickets", archivedCount);
   }
 }

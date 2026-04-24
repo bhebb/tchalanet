@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.settings.internal.web;
 
-import com.tchalanet.server.catalog.settings.api.*;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.web.model.CreateSettingRequest;
 import com.tchalanet.server.catalog.settings.internal.web.model.SearchSettingsCriteria;
 import com.tchalanet.server.catalog.settings.internal.web.model.UpdateSettingRequest;

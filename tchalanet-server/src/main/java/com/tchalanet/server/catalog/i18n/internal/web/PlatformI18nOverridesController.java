@@ -61,7 +61,7 @@ public class PlatformI18nOverridesController {
         TchPageRequest pageRequest) {
         var i18nLevel = level == null ? null : I18nOverrideLevel.valueOf(level.toUpperCase());
         SearchI18nOverridesCriteria criteria =
-            new SearchI18nOverridesCriteria(locale, i18nKeyContains, active, i18nLevel);
+            new SearchI18nOverridesCriteria(i18nLevel, locale, i18nKeyContains, active, null, "active");
 
         return ApiResponse.success(i18nOverridesCatalog.search(criteria, pageRequest));
     }
@@ -90,7 +90,7 @@ public class PlatformI18nOverridesController {
     }
 
     @Operation(summary = "Resolve effective i18n overrides for a locale (tenant)")
-    @GetMapping("/{locale}")
+    @GetMapping("/resolve/{locale}")
     public ApiResponse<Map<String, String>> resolve(
         @PathVariable String locale,
         @CurrentContext TchRequestContext ctx) {

@@ -44,7 +44,7 @@ public class RecordPayoutLedgerCommandHandler implements RecordLedgerFromPayoutP
     }
 
     // Idempotency (soft)
-    if (ledgerReader.existsByRef(tenantId, LedgerRefType.PAYOUT, payoutId.uuid())) {
+    if (ledgerReader.existsByRef(tenantId, LedgerRefType.PAYOUT, payoutId.value())) {
       log.warn(
           "Ledger entry already exists for payoutId={} tenantId={}, skipping", payoutId, tenantId);
       return;
@@ -54,7 +54,7 @@ public class RecordPayoutLedgerCommandHandler implements RecordLedgerFromPayoutP
 
     var entry =
         LedgerEntry.create(
-            tenantId, LedgerRefType.PAYOUT, payoutId.uuid(), amount, LedgerDirection.DEBIT, at);
+            tenantId, LedgerRefType.PAYOUT, payoutId.value(), amount, LedgerDirection.DEBIT, at);
 
     ledgerWriter.append(entry);
   }

@@ -1,13 +1,13 @@
 package com.tchalanet.server.catalog.tenant.internal.mapper;
 
-import com.tchalanet.server.catalog.tenant.api.TenantBootstrapView;
-import com.tchalanet.server.catalog.tenant.api.TenantRegistryView;
+import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
+import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryJpaEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
-import com.tchalanet.server.common.types.id.TenantId;
+
 import java.time.ZoneId;
 import java.util.Currency;
-import java.util.Optional;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

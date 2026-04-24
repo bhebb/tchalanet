@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.stats.aggregates.application;
 
-import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedAppliedEvent;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
@@ -40,19 +40,19 @@ public class StatsAggregatesEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onTicketPlaced(TicketPlacedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId())) return;
+        if (alreadyProcessed(event.eventId().value())) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applyTicketPlaced(event, refDate);
         markProcessedIfAbsent(event);
-        log.debug("Processed TicketPlacedEvent {}", event.eventId());
+        log.debug("Processed TicketPlacedEvent {}", event.eventId().value());
     }
 
     @EventListener
     @Transactional
     public void onTicketCancelled(TicketCancelledEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId())) return;
+        if (alreadyProcessed(event.eventId().value())) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applyTicketCancelled(event, refDate);
@@ -63,7 +63,7 @@ public class StatsAggregatesEventListener {
     @Transactional
     public void onTicketSettled(TicketResultedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId())) return;
+        if (alreadyProcessed(event.eventId().value())) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applyTicketSettled(event, refDate);
@@ -74,7 +74,7 @@ public class StatsAggregatesEventListener {
     @Transactional
     public void onSessionOpened(SessionOpenedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId())) return;
+        if (alreadyProcessed(event.eventId().value())) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applySessionOpened(event, refDate);
@@ -85,7 +85,7 @@ public class StatsAggregatesEventListener {
     @Transactional
     public void onSessionClosed(SessionClosedEvent event) {
         if (isOldEvent(event.closedAt())) return;
-        if (alreadyProcessed(event.eventId())) return;
+        if (alreadyProcessed(event.eventId().value())) return;
 
         var refDate = LocalDate.ofInstant(event.closedAt(), ZoneOffset.UTC);
         statsDailyUpdater.applySessionClosed(event, refDate);
@@ -94,18 +94,31 @@ public class StatsAggregatesEventListener {
 
     @EventListener
     @Transactional
-    public void onDrawResulted(DrawResultedEvent event) {
+    public void onDrawResulted(DrawResultedAppliedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId())) return;
+        if (alreadyProcessed(event.eventId().value())) return;
 
         statsDrawUpdater.ensureDrawRow(event);
         markProcessedIfAbsent(event);
     }
 
-    private boolean alreadyProcessed(UUID eventId) {
-        return eventLogRepo.existsById(eventId);
+    private boolean alreadyProcessed(Object eventId) {
+        if (eventId == null) return false;
+        if (eventId instanceof com.tchalanet.server.common.types.id.EventId eid) {
+            return eventLogRepo.existsById(eid.value());
+        }
+        if (eventId instanceof UUID u) {
+            return eventLogRepo.existsById(u);
+        }
+        throw new IllegalArgumentException("Unsupported eventId type: " + eventId.getClass());
     }
 
+    private UUID eventIdValue(Object eventId) {
+        if (eventId == null) return null;
+        if (eventId instanceof com.tchalanet.server.common.types.id.EventId eid) return eid.value();
+        if (eventId instanceof UUID u) return u;
+        throw new IllegalArgumentException("Unsupported eventId type: " + eventId.getClass());
+    }
 
     private boolean isOldEvent(Instant occurredAt) {
         var eventDate = LocalDate.ofInstant(occurredAt, ZoneOffset.UTC);
@@ -116,7 +129,7 @@ public class StatsAggregatesEventListener {
     private boolean markProcessedIfAbsent(DomainEvent event) {
         try {
             var e = new StatsEventLogEntity();
-            e.setEventId(event.eventId());
+            e.setEventId(eventIdValue(event.eventId()));
             e.setEventType(event.getClass().getSimpleName());
             e.setProcessedAt(Instant.now(clock));
             eventLogRepo.save(e); // event_id unique

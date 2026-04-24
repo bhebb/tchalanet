@@ -52,8 +52,8 @@ public class SettleWriter implements ItemWriter<DrawId> {
                     continue;
                 }
 
-                if (ticketQuery.existsPendingByDrawId(draw.tenantId(), draw.id())) {
-                    long pending = ticketQuery.countPendingByDrawId(draw.tenantId(), draw.id());
+                if (ticketQuery.existsPendingByDrawId(draw.id())) {
+                    long pending = ticketQuery.countPendingByDrawId(draw.id());
                     log.info("settle.skip draw={} tenant={} pendingTickets={}", drawId, draw.tenantId(), pending);
                     continue;
                 }
@@ -63,7 +63,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
 
                 drawWriterPort.save(draw);
             } catch (Exception e) {
-                log.error("settle.fail draw={} tenant={} cause={}", drawId, draw.tenantId(), e.getMessage(), e);
+                log.error("settle.fail draw={} cause={}", drawId, e.getMessage(), e);
             }
         }
     }

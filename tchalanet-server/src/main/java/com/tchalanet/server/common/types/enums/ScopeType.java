@@ -12,5 +12,5 @@ public enum ScopeType {
   OUTLET,
   AGENT,
   ZONE,
-  RANGE
+    TERMINAL, DRAWCHANNEL, RANGE
 }

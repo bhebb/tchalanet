@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.infra.web.model;
 
 import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.common.types.enums.GameCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
@@ -25,7 +26,7 @@ public record SellTicketRequest(
 ) {
 
     public record LineRequest(
-        @NotBlank String gameCode,
+        @NotNull GameCode gameCode,
         @NotBlank String selection,
         @NotNull @DecimalMin("0.01") BigDecimal stake,
         @NotNull BetType betType,
@@ -36,9 +37,9 @@ public record SellTicketRequest(
 
         @AssertTrue(message = "betOption is required (1..3) for LOTTO4_PATTERN/LOTTO5_PATTERN and must be null for other bet types")
         public boolean isBetOptionValidForBetType() {
-            boolean isPattern = betType == BetType.LOTTO4_PATTERN || betType == BetType.LOTTO5_PATTERN;
-            if (isPattern) {
-                return betOption != null && betOption >= 1 && betOption <= 3;
+            if (betType == null) return false; // validated elsewhere but keep safe
+            if (betType.requiresBetOption()) {
+                return betOption != null && betOption >= betType.betOptionMin() && betOption <= betType.betOptionMax();
             }
             return betOption == null;
         }

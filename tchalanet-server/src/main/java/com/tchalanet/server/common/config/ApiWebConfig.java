@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.config;
 
 import com.tchalanet.server.common.context.CurrentContextArgumentResolver;
-import com.tchalanet.server.common.web.idempotency.RequireIdempotencyInterceptor;
+import com.tchalanet.server.common.idempotency.http.RequireIdempotencyInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.write;
 
-import com.tchalanet.server.catalog.settings.api.*;
+import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheNames;
 import com.tchalanet.server.catalog.settings.internal.mapper.SettingMapper;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;

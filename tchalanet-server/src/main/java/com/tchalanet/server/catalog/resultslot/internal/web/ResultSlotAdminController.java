@@ -6,10 +6,10 @@ import com.tchalanet.server.catalog.resultslot.internal.write.ResultSlotAdminSer
 import com.tchalanet.server.catalog.resultslot.internal.web.model.CreateResultSlotRequest;
 import com.tchalanet.server.catalog.resultslot.internal.web.model.UpdateResultSlotRequest;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -45,14 +45,14 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Update result slot (platform)")
   @PutMapping("/{id}")
-  public ApiResponse<ResultSlotView> update(@PathVariable UUID id, @RequestBody UpdateResultSlotRequest request) {
+  public ApiResponse<ResultSlotView> update(@PathVariable ResultSlotId id, @RequestBody UpdateResultSlotRequest request) {
     var updatedView = admin.update(id, request);
     return ApiResponse.success(updatedView);
   }
 
   @Operation(summary = "Soft-delete result slot (platform)")
   @DeleteMapping("/{id}")
-  public ApiResponse<Void> delete(@PathVariable UUID id) {
+  public ApiResponse<Void> delete(@PathVariable ResultSlotId id) {
     admin.softDelete(id);
     return ApiResponse.success(null);
   }

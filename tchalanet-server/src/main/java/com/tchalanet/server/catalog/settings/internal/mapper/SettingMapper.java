@@ -1,8 +1,8 @@
 package com.tchalanet.server.catalog.settings.internal.mapper;
 
-import com.tchalanet.server.catalog.settings.api.ResolvedSettingView;
-import com.tchalanet.server.catalog.settings.api.SettingLevel;
-import com.tchalanet.server.catalog.settings.api.SettingView;
+import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
 import java.util.List;

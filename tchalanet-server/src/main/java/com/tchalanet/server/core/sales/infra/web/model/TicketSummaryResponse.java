@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.sales.infra.web.model;
 
+import com.tchalanet.server.core.sales.application.model.TicketStatus;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;

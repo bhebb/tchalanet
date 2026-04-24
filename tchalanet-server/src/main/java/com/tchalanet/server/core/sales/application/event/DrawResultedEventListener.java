@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.application.event;
 
-import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedAppliedEvent;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
@@ -21,7 +21,7 @@ public class DrawResultedEventListener {
     private final DrawLookupPort drawLookupPort; // returns Optional<DrawId>
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onDrawResulted(DrawResultedEvent event) {
+    public void onDrawResulted(DrawResultedAppliedEvent event) {
         log.info("DrawResultedEvent received: tenantId={} slotKey={} drawDate={} drawResultId={}",
             event.tenantId(), event.slotKey(), event.drawDate(), event.drawResultId());
 

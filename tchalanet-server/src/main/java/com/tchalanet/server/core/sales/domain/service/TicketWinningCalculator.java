@@ -41,8 +41,8 @@ public class TicketWinningCalculator {
             case MATCH_3_2D -> matchN_2d(selection, twoDigits, 3);
             case MARRIAGE_2D2D -> marriage2d2d(selection, twoDigits);
             case LOTTO3_3D -> exactDigits(selection, result.pick3(), 3);
-            case LOTTO4_PATTERN -> lotto4(selection, line.betOption() == null ? null : line.betOption().shortValue(), result);
-            case LOTTO5_PATTERN -> lotto5(selection, line.betOption() == null ? null : line.betOption().shortValue(), result);
+            case LOTTO4_PATTERN -> lotto4(selection, line.betOption() == null ? null : line.betOption().shortValue(), result, betType.canonicalWidth());
+            case LOTTO5_PATTERN -> lotto5(selection, line.betOption() == null ? null : line.betOption().shortValue(), result, betType.canonicalWidth());
         };
     }
 
@@ -78,8 +78,8 @@ public class TicketWinningCalculator {
 
     // ---------------- LOTTO4 / LOTTO5 ----------------
 
-    private boolean lotto4(String selection, Short option, DrawResultMatchView r) {
-        if (selection.length() != 4) return false;
+    private boolean lotto4(String selection, Short option, DrawResultMatchView r, int expectedLen) {
+        if (selection.length() != expectedLen) return false;
         if (option == null) return false;
 
         String ab = selection.substring(0, 2);
@@ -93,8 +93,8 @@ public class TicketWinningCalculator {
         };
     }
 
-    private boolean lotto5(String selection, Short option, DrawResultMatchView r) {
-        if (selection.length() != 5) return false;
+    private boolean lotto5(String selection, Short option, DrawResultMatchView r, int expectedLen) {
+        if (selection.length() != expectedLen) return false;
         if (option == null) return false;
 
         String pick3 = r.pick3();

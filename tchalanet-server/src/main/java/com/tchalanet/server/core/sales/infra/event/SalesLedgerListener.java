@@ -22,7 +22,7 @@ public class SalesLedgerListener {
     } catch (Exception e) {
       log.error(
           "Ledger recording failed for TicketPlacedEvent eventId={} tenantId={} ticketId={}",
-          event.eventId(),
+          event.eventId().value(),
           event.tenantId().value(),
           event.ticketId(),
           e);

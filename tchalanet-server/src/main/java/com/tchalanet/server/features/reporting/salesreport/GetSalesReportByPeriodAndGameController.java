@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/platform/reports/sales-by-period-and-game")
+@RequestMapping("/tenant/reports/sales-by-period-and-game")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Reports")
 public class GetSalesReportByPeriodAndGameController {

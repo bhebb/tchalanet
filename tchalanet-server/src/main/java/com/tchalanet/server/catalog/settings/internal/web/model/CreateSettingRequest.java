@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.settings.internal.web.model;
 
-import com.tchalanet.server.catalog.settings.api.SettingLevel;
-import com.tchalanet.server.catalog.settings.api.SettingValueType;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;

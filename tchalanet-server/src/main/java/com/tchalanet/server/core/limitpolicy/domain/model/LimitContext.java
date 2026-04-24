@@ -2,11 +2,8 @@ package com.tchalanet.server.core.limitpolicy.domain.model;
 
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.enums.OperationType;
-import com.tchalanet.server.common.types.id.AgentId;
-import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,7 +12,7 @@ import java.util.List;
 public record LimitContext(
     TenantId tenantId,
     DrawId drawId,
-    DrawId drawChannelId, // optional (reuse DrawId for channel id if not present differently)
+    DrawChannelId drawChannelId, // optional (reuse DrawId for channel id if not present differently)
     AgentId agentId,
     TerminalId terminalId,
     OutletId outletId,
@@ -23,6 +20,7 @@ public record LimitContext(
     List<String> rangeIds, // optional
     String gameCode, // optional
     OperationType operationType,
+    LimitScopeRef scope,
     List<BetLine> lines,
     BigDecimal ticketStakeTotal,
     int linesCount,
@@ -32,10 +30,9 @@ public record LimitContext(
       BetType betType,
       String selectionKey,
       BigDecimal stake,
-      Short betOption // nullable; matches TicketLine.betOption
+      Short betOption,
+      BigDecimal potentialPayout
       ) {
-    public BetLine(BetType betType, String selectionKey, BigDecimal stake) {
-      this(betType, selectionKey, stake, null);
-    }
+    // no explicit constructors — use canonical record constructor
   }
 }

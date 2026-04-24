@@ -18,7 +18,6 @@ public interface TicketSettlementJpaRepository extends JpaRepository<TicketEntit
       select t
       from TicketEntity t
       where t.deletedAt is null
-        and t.tenantId = :tenantId
         and t.drawId = :drawId
         and t.saleStatus = :saleStatus
         and t.resultStatus = :resultStatus
@@ -29,7 +28,6 @@ public interface TicketSettlementJpaRepository extends JpaRepository<TicketEntit
       order by t.createdAt asc, t.id asc
       """)
   List<TicketEntity> findBatchForDrawWithLines(
-      @Param("tenantId") UUID tenantId,
       @Param("drawId") UUID drawId,
       @Param("saleStatus") TicketSaleStatus saleStatus,
       @Param("resultStatus") TicketResultStatus resultStatus,

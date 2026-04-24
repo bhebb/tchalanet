@@ -7,17 +7,20 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Use case pour régler un tirage : - charger les tickets, - calculer gains/pertes/commissions, -
@@ -32,45 +35,45 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawCommand> {
 
-  private final DrawLookupPort drawReaderPort;
-  private final DrawLifecyclePort drawWriterPort;
-  private final DomainEventPublisher publisher;
-  private final Clock clock;
+    private final DrawLookupPort drawReaderPort;
+    private final DrawLifecyclePort drawWriterPort;
+    private final DomainEventPublisher publisher;
+    private final Clock clock;
+    private final IdGenerator idGenerator;
+    // private final DrawSettlementPort settlementPort; // vers sales/ledger
 
-  // private final DrawSettlementPort settlementPort; // vers sales/ledger
+    @Override
+    @TchTx
+    @RequiresPermission("draw.settle")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.SETTLE,
+        idExpression = "#command.drawId.toString()")
+    public void handle(SettleDrawCommand command) {
+        var draw =
+            drawReaderPort
+                .findById(command.drawId())
+                .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
 
-  @Override
-  @TchTx
-  @RequiresPermission("draw.settle")
-  @AuditLog(
-      entity = AuditEntityType.DRAW,
-      action = AuditAction.SETTLE,
-      idExpression = "#command.drawId.toString()")
-  public void handle(SettleDrawCommand command) {
-    var draw =
-        drawReaderPort
-            .findById(command.drawId())
-            .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
+        // TODO: appeler les autres BC (tickets, odds, ledger) via un port out
+        // settlementPort.settleDraw(command.tenantId(), draw, result);
 
-    // TODO: appeler les autres BC (tickets, odds, ledger) via un port out
-    // settlementPort.settleDraw(command.tenantId(), draw, result);
+        var wasResulted =
+            draw.status() == com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED;
+        draw.settle(ZonedDateTime.now(clock));
+        drawWriterPort.save(draw);
 
-    var wasResulted =
-        draw.status() == com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED;
-    draw.settle(ZonedDateTime.now(clock));
-    drawWriterPort.save(draw);
-
-    if (wasResulted) {
-      var event =
-          new DrawSettledEvent(
-              java.util.UUID.randomUUID(),
-              Instant.now(clock),
-              draw.tenantId(),
-              draw.id(),
-              draw.drawChannel().code(),
-              draw.scheduledAt().toInstant(),
-              draw.drawChannel().code());
-      AfterCommit.run(() -> publisher.publish(event));
+        if (wasResulted) {
+            var event =
+                new DrawSettledEvent(
+                    EventId.of(idGenerator.newUuid()),
+                    Instant.now(clock),
+                    draw.tenantId(),
+                    draw.id(),
+                    draw.drawChannel().code(),
+                    draw.scheduledAt().toInstant(),
+                    draw.drawChannel().code());
+            AfterCommit.run(() -> publisher.publish(event));
+        }
     }
-  }
 }

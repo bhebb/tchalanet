@@ -18,6 +18,8 @@ import com.tchalanet.server.core.uslottery.infra.cache.UsLotteryProviderRawCache
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

@@ -19,6 +19,6 @@ public class LoggingDomainEventListener {
         "DomainEvent caught (dev): type={} tenant={} id={}",
         event.eventType(),
         event.tenantId(),
-        event.eventId());
+        event.eventId().value());
   }
 }

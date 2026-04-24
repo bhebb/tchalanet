@@ -103,8 +103,8 @@ public class ProfileController {
                 Optional.ofNullable(req.firstName()),
                 Optional.ofNullable(req.lastName()),
                 Optional.ofNullable(req.email()),
-                Optional.ofNullable(req.locale())
-                    .map(java.util.Locale::forLanguageTag));
+                Optional.ofNullable(req.phone()),
+                Optional.ofNullable(req.locale()).map(java.util.Locale::forLanguageTag));
 
         commandBus.send(cmd);
 

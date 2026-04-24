@@ -34,7 +34,7 @@ public final class DefaultHaitiResultProjector implements HaitiResultProjector {
           };
       out.put(lot, value);
     }
-    log.info(
+    log.debug(
         "Projected Haiti result for pick3: {}, pick4: {}, pick: {}, result: {}", p3, p4, pick, out);
     return new HaitiResult(out);
   }

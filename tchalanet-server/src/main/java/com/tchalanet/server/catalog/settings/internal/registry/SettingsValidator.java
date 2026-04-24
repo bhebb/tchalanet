@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tchalanet.server.catalog.settings.api.SettingValueType;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import java.math.BigDecimal;
 import lombok.experimental.UtilityClass;
 

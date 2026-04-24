@@ -1,237 +1,230 @@
-# Autonomy Domain Documentation
+# Autonomy Domain — Documentation (V1)
 
-## Overview
+## 1. Purpose
 
-The Autonomy Domain manages the approval and authorization requirements for financial transactions within the Tchalanet betting system. It implements a hierarchical policy system that determines whether transactions require approval based on user roles, organizational structure, and transaction characteristics.
+The **Autonomy** domain determines **how much freedom an actor has to proceed when an operation is blocked by business rules** (typically limits).
 
-## Key Concepts
+> **Autonomy does NOT decide if an operation is allowed.**  
+> It decides **whether a blocked operation requires human approval, and at which role level**.
 
-### Autonomy Policy Rule
+In short:
 
-An `AutonomyPolicyRule` is the core domain entity that defines approval requirements for a specific target entity (TENANT, OUTLET, TERMINAL, or AGENT).
+- **LimitPolicy** answers: _“Is this operation allowed, warned, or blocked?”_
+- **Autonomy** answers: _“If blocked, can it proceed with approval, and who can approve?”_
 
-**Fields:**
+---
 
-- `id`: Unique identifier
-- `tenantId`: Tenant organization identifier
-- `targetType`: Type of target (TENANT/OUTLET/TERMINAL/AGENT)
-- `targetId`: Specific target entity identifier
-- `level`: Autonomy level (NONE/PARTIAL/FULL)
-- `requireApprovalOnBlock`: Whether blocked transactions need approval
-- `approvalRole`: Required role for approval (OPERATOR/ADMIN)
-- `enabled`: Whether the rule is active
-- `startsAt/endsAt`: Time validity window
-- `version`: Optimistic locking version
+## 2. What Autonomy Is / Is Not
 
-### Autonomy Resolver
+### Autonomy IS
 
-The `AutonomyResolver` service determines the applicable autonomy policy for a given transaction context by following a hierarchical resolution:
+- A **runtime decision helper** used by `sales` and `payout`
+- A **hierarchical policy system**
+- A way to express **organizational trust and delegation**
 
-1. **Agent-specific policy** (most specific)
-2. **Terminal-specific policy**
-3. **Outlet-specific policy**
-4. **Tenant-wide policy**
-5. **Default policy** (PARTIAL autonomy, OPERATOR approval)
+### Autonomy IS NOT
 
-### Resolved Autonomy
+- ❌ A permission or RBAC system
+- ❌ A financial or limit rule engine
+- ❌ UI logic
+- ❌ A replacement for LimitPolicy
 
-`ResolvedAutonomy` represents the effective autonomy settings after policy resolution, containing:
+---
 
-- `level`: Effective autonomy level
-- `requireApprovalOnBlock`: Whether approval is needed for blocked transactions
-- `approvalRole`: Required approval role
+## 3. Core Concept — Autonomy Policy Rule
 
-## Autonomy Levels
+An **AutonomyPolicyRule** defines the autonomy level for **one specific target**.
+
+A rule answers:
+
+> _“If an operation is blocked for this target, does it require approval, and by whom?”_
+
+---
+
+## 4. Targets (Scope of a Rule)
+
+Each rule applies to exactly one target.
+
+| TargetType | Meaning                             |
+| ---------- | ----------------------------------- |
+| TENANT     | Global policy for the entire tenant |
+| OUTLET     | Policy for a specific point of sale |
+| TERMINAL   | Policy for a specific terminal      |
+| AGENT      | Policy for a specific agent         |
+
+---
+
+## 5. Fields of an Autonomy Policy Rule
+
+> ⚠️ `tenant_id` is **not part of the domain model**.  
+> It is enforced by the database via **RLS (Row-Level Security)**.
+
+| Field                  | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| targetType             | Scope of the rule (TENANT / OUTLET / TERMINAL / AGENT) |
+| targetId               | Identifier of the target                               |
+| level                  | Autonomy level                                         |
+| requireApprovalOnBlock | Whether approval is required when blocked              |
+| approvalRole           | Role required to approve                               |
+| enabled                | Whether the rule is active                             |
+| startsAt / endsAt      | Optional time window                                   |
+| version                | Optimistic locking                                     |
+| deletedAt (infra)      | Soft delete (audit/history)                            |
+
+---
+
+## 6. Autonomy Levels
 
 ### NONE
 
-- No autonomy granted
-- All transactions require approval
-- Most restrictive setting
+- No autonomy
+- Every blocked operation requires approval
+- Most restrictive
 
-### PARTIAL
+### PARTIAL (system default)
 
-- Partial autonomy based on other rules
-- Some transactions may proceed without approval
-- Default level for new tenants
+- Partial autonomy
+- Some operations may require approval
+- Default when no rule exists
 
 ### FULL
 
-- Complete autonomy
-- Transactions proceed without approval requirements
-- Least restrictive setting
+- Full autonomy
+- Blocked operations do **not** trigger approval
+- Least restrictive
 
-## Approval Roles
+---
 
-### OPERATOR
+## 7. Approval Roles
 
-- Standard operator role
-- Basic approval permissions
-- Default approval role
+Defines **who is allowed to approve** when approval is required.
 
-### ADMIN
+| Role     | Meaning                          |
+| -------- | -------------------------------- |
+| OPERATOR | Standard operational approval    |
+| ADMIN    | Elevated administrative approval |
 
-- Administrative role
-- Elevated approval permissions
-- Can approve higher-risk transactions
+> `approvalRole` is relevant only when `requireApprovalOnBlock = true`.
 
-## Target Types
+---
 
-### TENANT
+## 8. Hierarchical Resolution (Most Specific Wins)
 
-- Applies to entire tenant organization
-- Broadest scope
-- Affects all users and terminals
+When resolving autonomy, rules are evaluated in this order:
 
-### OUTLET
+AGENT
+↓
+TERMINAL
+↓
+OUTLET
+↓
+TENANT
+↓
+DEFAULT
 
-- Applies to specific physical location
-- Medium scope
-- Affects all terminals at that outlet
+---
 
-### TERMINAL
+The **first active rule** (enabled + valid time window) is applied.
 
-- Applies to specific terminal device
-- Narrow scope
-- Affects transactions from that terminal
+---
 
-### AGENT
+## 9. Default Policy (Fallback)
 
-- Applies to specific user/agent
-- Most specific scope
-- Personal autonomy settings
+If **no rule exists at any level**, the system applies a default policy:
 
-## Integration with Limit Policy
+- `level = PARTIAL`
+- `requireApprovalOnBlock = true`
+- `approvalRole = OPERATOR`
 
-The autonomy system works in conjunction with the limit policy system:
+This guarantees predictable behavior even with no configuration.
 
-1. **Limit Evaluation**: Transactions are first evaluated against financial limits
-2. **Autonomy Resolution**: If limits are breached, autonomy policies determine approval requirements
-3. **Decision Matrix**:
-   - `ALLOW`: Transaction proceeds
-   - `WARN`: Transaction proceeds with notification
-   - `BLOCK + No Approval Required`: Transaction rejected
-   - `BLOCK + Approval Required`: Transaction pending approval
+---
 
-## Usage Examples
+## 10. Runtime Result — ResolvedAutonomy
 
-### Creating an Autonomy Policy
+The resolution produces a **ResolvedAutonomy** object:
 
-```java
-var policy = new AutonomyPolicyRule(
-    null, // auto-generated ID
-    tenantId,
-    AutonomyTargetType.TERMINAL,
-    terminalId,
-    AutonomyLevel.PARTIAL,
-    true, // require approval on block
-    ApprovalRole.OPERATOR,
-    true, // enabled
-    null, // no start time
-    null, // no end time
-    0L   // initial version
-);
-```
+| Field                  | Meaning                             |
+| ---------------------- | ----------------------------------- |
+| level                  | Effective autonomy level            |
+| requireApprovalOnBlock | Whether approval is required        |
+| approvalRole           | Required role for approval          |
+| source                 | Target level that provided the rule |
 
-### Resolving Autonomy for a Transaction
+This result is **used only at runtime** (sales / payout).
 
-```java
-ResolvedAutonomy autonomy = autonomyResolver.resolve(
-    tenantId,
-    agentId,
-    terminalId,
-    outletId,
-    Instant.now()
-);
+---
 
-// Check if approval is needed
-if (limitOutcome == BLOCK && autonomy.requireApprovalOnBlock()) {
-    // Require approval from autonomy.approvalRole()
-}
-```
+## 11. Integration with LimitPolicy
 
-## Database Schema
+### Runtime Flow
 
-### autonomy_policy_rule Table
+1. **LimitPolicy** evaluates the operation  
+   → `ALLOW` / `WARN` / `BLOCK`
 
-```sql
-CREATE TABLE autonomy_policy_rule (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  version bigint NOT NULL DEFAULT 0,
-  tenant_id uuid NOT NULL,
-  target_type varchar(20) NOT NULL,
-  target_id uuid NOT NULL,
-  level varchar(10) NOT NULL,
-  require_approval_on_block boolean NOT NULL DEFAULT true,
-  approval_role varchar(10),
-  enabled boolean NOT NULL DEFAULT true,
-  starts_at timestamptz,
-  ends_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz
-);
-```
+2. If the outcome is `BLOCK`:
 
-### Indexes
+- **Autonomy is resolved**
+- Approval requirements are determined
 
-- Unique index on `(tenant_id, target_type, target_id)` for active policies
-- Lookup index on `(tenant_id, target_type, target_id, enabled)`
+### Decision Matrix
 
-## API Endpoints
+| Limit Outcome          | Autonomy | Result                       |
+| ---------------------- | -------- | ---------------------------- |
+| ALLOW                  | –        | Transaction proceeds         |
+| WARN                   | –        | Proceeds with warning        |
+| BLOCK + approval=false | –        | Transaction rejected         |
+| BLOCK + approval=true  | role     | Transaction pending approval |
 
-### Tenant Autonomy Management
+Autonomy is **never consulted** if the limit is not blocked.
 
-- `GET /api/tenant/autonomy` - Get tenant autonomy policy
-- `PUT /api/tenant/autonomy` - Update tenant autonomy policy
+---
 
-### Agent Autonomy Management
+## 12. Read vs Runtime Semantics
 
-- `GET /api/tenant/agents/{agentId}/autonomy` - Get agent autonomy policy
-- `PUT /api/tenant/agents/{agentId}/autonomy` - Update agent autonomy policy
+### Admin / Ops Read
 
-## Business Rules
+- Used for configuration and overview
+- Respects `deleted_visibility`
+- Super Admin may view deleted rules
 
-1. **Hierarchy Priority**: More specific targets override general ones
-2. **Time Validity**: Policies only apply within their active time windows
-3. **Default Fallback**: System provides sensible defaults when no policy exists
-4. **Soft Deletes**: Policies are soft-deleted to maintain audit trails
-5. **Versioning**: Optimistic locking prevents concurrent modification conflicts
+### Runtime Resolve
 
-## Error Handling
+- Ignores deleted rules
+- Ignores disabled rules
+- Ignores rules outside their time window
+- Always operates in safe mode
 
-### Problem Details
+---
 
-Autonomy-related errors use structured `ProblemDetail` responses:
+## 13. Persistence & RLS Rules
 
-```json
-{
-  "type": "about:blank",
-  "title": "Limit blocked",
-  "status": 409,
-  "detail": "Limit breach blocked",
-  "operationType": "SALE",
-  "limitOutcome": "BLOCK",
-  "limitReasons": [...],
-  "approvalRequired": true,
-  "requiredRole": "OPERATOR"
-}
-```
+- `tenant_id` is enforced by PostgreSQL RLS
+- No `tenantId` is accepted from the client
+- Super Admin may override `deleted_visibility`
+- Runtime always operates with `deleted_visibility = active`
 
-## Testing Considerations
+---
 
-- Test hierarchy resolution with multiple overlapping policies
-- Verify time-based activation/deactivation
-- Test integration with limit policy outcomes
-- Validate approval workflow integration
-- Check proper error responses for blocked transactions
+## 14. API Surfaces
 
-## Future Enhancements
+### Core Autonomy
 
-- **Dynamic Policies**: Time-based or event-driven policy changes
-- **Advanced Targeting**: Geographic or role-based targeting
-- **Approval Workflows**: Multi-level approval chains
-- **Audit Logging**: Comprehensive approval decision tracking
-- **Policy Templates**: Predefined policy configurations
+- Exposes **commands and queries**
+- Controllers are **internal / ops only**
+- Not a public UI contract
+
+### Feature Tenant Admin
+
+- Exposes `/tenant/admin/**`
+- Calls core handlers
+- Returns UI-friendly overview payloads
+
+---
+
+## 15. Mental Model (TL;DR)
+
+> **LimitPolicy says:** “This is too risky.”  
+> **Autonomy says:** “Can someone decide anyway?”
+
+Autonomy exists **only** to define **who is trusted to override a block** — at the agent, terminal, outlet, or tenant level.

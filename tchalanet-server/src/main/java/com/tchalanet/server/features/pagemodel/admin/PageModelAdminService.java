@@ -5,10 +5,10 @@ import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminDetailDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminListItemDto;
 import com.tchalanet.server.features.pagemodel.admin.dto.PageModelAdminUpsertRequest;
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
-import com.tchalanet.server.features.pagemodel.shared.PageModelEntity;
-import com.tchalanet.server.features.pagemodel.shared.PageModelRepository;
-import com.tchalanet.server.features.pagemodel.shared.PageStatus;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
+import com.tchalanet.server.features.pagemodel.PageModelEntity;
+import com.tchalanet.server.features.pagemodel.PageModelRepository;
+import com.tchalanet.server.features.pagemodel.PageStatus;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +32,6 @@ public class PageModelAdminService {
 
   public PageModelAdminDetailDto get(UUID id) {
     var holder = contextResolver.currentOrNull();
-    UUID tenantId = holder != null ? holder.tenantUuid() : null;
     PageModelEntity entity =
         repository
             .findByIdAndDeletedAtIsNull(id)

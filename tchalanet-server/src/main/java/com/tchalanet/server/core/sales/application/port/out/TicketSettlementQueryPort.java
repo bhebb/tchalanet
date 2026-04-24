@@ -8,8 +8,8 @@ public interface TicketSettlementQueryPort {
   /**
    * @return true s'il existe au moins un ticket encore "non-finalisé" pour ce draw
    */
-  boolean existsPendingByDrawId(TenantId tenantId, DrawId drawId);
+  boolean existsPendingByDrawId(DrawId drawId);
 
   /** Optionnel si tu veux de la télémétrie */
-  long countPendingByDrawId(TenantId tenantId, DrawId drawId);
+  long countPendingByDrawId(DrawId drawId);
 }

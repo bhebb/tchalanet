@@ -26,4 +26,11 @@ public class PricingCatalogImpl implements PricingCatalog {
         gameCode, betType, betOption);
     return opt.map(PricingOddsEntity::getOdds).orElse(BigDecimal.ONE);
   }
+
+  @Override
+  public com.tchalanet.server.catalog.pricing.api.model.PricingStatsView stats() {
+    long total = repo.count();
+    long active = repo.findAll().stream().filter(e -> e.isActive()).count();
+    return new com.tchalanet.server.catalog.pricing.api.model.PricingStatsView((int) total, (int) active);
+  }
 }

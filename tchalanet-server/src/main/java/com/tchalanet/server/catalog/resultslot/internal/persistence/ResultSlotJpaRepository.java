@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface ResultSlotJpaRepository extends JpaRepository<ResultSlotJpaEntity, UUID> {
 
@@ -12,4 +13,10 @@ public interface ResultSlotJpaRepository extends JpaRepository<ResultSlotJpaEnti
     List<ResultSlotJpaEntity> findByActiveTrueAndDeletedAtIsNullOrderBySortOrderAsc();
 
     Optional<ResultSlotJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    @Query("select count(r) from ResultSlotJpaEntity r where r.deletedAt is null")
+    long countAllLive();
+
+    @Query("select count(r) from ResultSlotJpaEntity r where r.deletedAt is null and r.active = true")
+    long countActiveLive();
 }

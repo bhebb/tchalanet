@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.security;
 
-import com.tchalanet.server.catalog.tenant.api.TenantBootstrapView;
+import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bootstrap.user.UserBootstrapLookup;
 import com.tchalanet.server.common.config.ApiProperties;
@@ -71,13 +71,13 @@ public class TchContextFilter extends OncePerRequestFilter {
             var defaultTenant =
                 ApiScopeResolver.allowDefaultTenant(req) ? props.defaultTenant() : null;
 
-            ctx = buildBaseContext(req, defaultTenant);
+            ctx = buildBaseContext(req, defaultTenant, scope);
 
             // Tenant UUID resolution rules:
             // - TENANT scope: tenant is required (from JWT tenant_code or defaultTenant for PUBLIC-only)
             // - PUBLIC scope: resolve if present (to enable RLS even on public if you want)
             if (scope == ApiScope.TENANT) {
-                ctx = requireAndResolveTenant(req, res, ctx);
+                ctx = requireAndResolveTenant(res, ctx);
                 if (ctx == null) return; // response already written
             } else if (scope == ApiScope.PUBLIC) {
                 ctx = optionallyResolveTenant(ctx);
@@ -103,7 +103,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     }
 
     private TchRequestContext requireAndResolveTenant(
-        HttpServletRequest req, HttpServletResponse res, TchRequestContext ctx) throws IOException {
+        HttpServletResponse res, TchRequestContext ctx) throws IOException {
 
         var code = ctx.effectiveTenantCode();
         if (StringUtils.isBlank(code)) {
@@ -131,7 +131,7 @@ public class TchContextFilter extends OncePerRequestFilter {
         return tenantContextInfo.map(ctx::withTenantContext).orElse(ctx);
     }
 
-    private TchRequestContext buildBaseContext(HttpServletRequest req, String defaultTenant) {
+    private TchRequestContext buildBaseContext(HttpServletRequest req, String defaultTenant, ApiScope scope) {
         var requestId =
             Optional.ofNullable(req.getHeader(X_REQUEST_ID))
                 .filter(StringUtils::isNotBlank)
@@ -148,32 +148,34 @@ public class TchContextFilter extends OncePerRequestFilter {
                 .map(String::trim)
                 .orElse(null);
         var locale = req.getLocale();
-        var userAgent = Optional.ofNullable(req.getHeader("User-Agent")).orElse(null);
+        String userAgent = req.getHeader("User-Agent");
 
         var authData = extractAuthData(req, defaultTenant);
 
         var deletedVisibility =
             resolveDeletedVisibility(req, authData.systemRoles.contains(TchRole.SUPER_ADMIN));
 
+        // Pass the typed ApiScope enum into the request context
         return new TchRequestContext(
-            authData.originalTenantCode,
-            null, // originalTenantUuid resolved later (optional)
-            authData.effectiveTenantCode,
-            null, // effectiveTenantUuid resolved later
-            authData.keycloakUserId, // <-- Keycloak "sub" (UUID string)
-            null, // appUserId filled later via bootstrap
-            authData.systemRoles,
-            authData.customRoles,
-            locale,
-            requestId,
-            clientIp,
-            userAgent,
-            authData.overridden,
-            deletedVisibility,
-            idempotencyKey,
-            null,
-            null,
-            null);
+             authData.originalTenantCode,
+             null, // originalTenantUuid resolved later (optional)
+             authData.effectiveTenantCode,
+             null, // effectiveTenantUuid resolved later
+             authData.keycloakUserId, // <-- Keycloak "sub" (UUID string)
+             null, // appUserId filled later via bootstrap
+             authData.systemRoles,
+             authData.customRoles,
+             locale,
+             requestId,
+             clientIp,
+             userAgent,
+             authData.overridden,
+             deletedVisibility,
+             scope,
+             idempotencyKey,
+             null,
+             null,
+             null);
     }
 
     private AuthData extractAuthData(HttpServletRequest req, String defaultTenant) {

@@ -25,7 +25,7 @@ public class ExportDailySalesQueryHandler implements QueryHandler<ExportDailySal
     Instant from = query.date().atStartOfDay(ZoneId.systemDefault()).toInstant();
     Instant to = query.date().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-    byte[] csvBytes = ticketReader.exportDailySalesCsv(query.tenantId(), from, to);
+    byte[] csvBytes = ticketReader.exportDailySalesCsv(from, to);
 
     try {
       Path tempFile = Files.createTempFile("daily_sales_", ".csv");

@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.privatedashboard;
 
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import com.tchalanet.server.features.privatedashboard.block.PrivateDashboardDynamicPayload;
 import java.util.List;
 import java.util.Map;

@@ -3,15 +3,12 @@ package com.tchalanet.server.core.sales.domain.model;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
-import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.SessionId;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.*;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -118,7 +115,7 @@ public class Ticket {
         DrawId drawId,
         String ticketCode,
         String publicCode,
-        String currency,
+        Currency currency,
         List<TicketLine> lines,
         Instant now) {
 
@@ -135,7 +132,7 @@ public class Ticket {
             drawId,
             ticketCode,
             publicCode,
-            currency,
+            currency.getCurrencyCode(),
             TicketSaleStatus.SOLD,
             TicketResultStatus.NOT_RESULTED,
             TicketSettlementStatus.UNSETTLED,
@@ -321,12 +318,88 @@ public class Ticket {
         touch(when);
     }
 
+    // New overload: allow specifying explicit resultStatus (WON or LOST) when forcing result
+    public void forceResult(BigDecimal payout, TicketResultStatus resultStatus, Instant when) {
+        Objects.requireNonNull(payout, "payout");
+        Objects.requireNonNull(resultStatus, "resultStatus");
+        if (payout.signum() < 0) throw new IllegalArgumentException("payout must be >= 0");
+        if (saleStatus == TicketSaleStatus.VOID) {
+            throw new IllegalStateException("Cannot override result for VOID ticket");
+        }
+        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
+            throw new IllegalArgumentException("resultStatus must be a resulted status");
+        }
+
+        this.winningAmount = payout;
+        this.resultedAt = Objects.requireNonNull(when, "when");
+        this.resultStatus = resultStatus;
+        this.settlementStatus = TicketSettlementStatus.UNSETTLED;
+        touch(when);
+    }
+
     public void settle(Instant when) {
         if (resultStatus == TicketResultStatus.NOT_RESULTED) {
             throw new IllegalStateException("Only resulted tickets can be settled");
         }
         this.settlementStatus = TicketSettlementStatus.SETTLED;
         touch(when);
+    }
+
+    /**
+     * Mark the ticket as paid (settled) after a payout has been executed.
+     * This is a domain-level alias for settling the ticket and performs basic validation.
+     */
+    public void markAsPaid(Instant when) {
+        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
+            throw new IllegalStateException("Only resulted tickets can be marked as paid");
+        }
+        if (this.settlementStatus == TicketSettlementStatus.SETTLED) {
+            // idempotent
+            touch(when);
+            return;
+        }
+        this.settlementStatus = TicketSettlementStatus.SETTLED;
+        touch(when);
+    }
+
+    /**
+     * Mark payout for this ticket as pending. This is a lightweight domain hint used by the
+     * payout workflow to indicate that a payout has been requested/queued.
+     *
+     * Note: the current model does not have a dedicated payout-status field; this method is a
+     * semantic helper that ensures the ticket is resulted and touches the record (idempotent).
+     */
+    public void markPayoutPending(Instant when) {
+        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
+            throw new IllegalStateException("Only resulted tickets can be marked payout-pending");
+        }
+        // keep settlementStatus as UNSETTLED (no DB column for explicit payout pending state)
+        this.settlementStatus = TicketSettlementStatus.UNSETTLED;
+        touch(when);
+    }
+
+    /**
+     * Mark payout as paid. Alias for settling the ticket after a payout has been executed.
+     * Idempotent: repeated calls are allowed.
+     */
+    public void markPayoutPaid(Instant when) {
+        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
+            throw new IllegalStateException("Only resulted tickets can be marked payout-paid");
+        }
+        if (this.settlementStatus == TicketSettlementStatus.SETTLED) {
+            touch(when);
+            return;
+        }
+        this.settlementStatus = TicketSettlementStatus.SETTLED;
+        touch(when);
+    }
+
+    /**
+     * Return the total payout amount for this ticket (the amount that should be paid).
+     * Currently this is the recorded winningAmount (zero when not won).
+     */
+    public java.math.BigDecimal totalPayout() {
+        return this.winningAmount == null ? java.math.BigDecimal.ZERO : this.winningAmount;
     }
 
     private void requireSaleStatus(TicketSaleStatus expected) {
@@ -352,4 +425,14 @@ public class Ticket {
         if (v.signum() < 0) throw new IllegalArgumentException(field + " must be >= 0");
         return v;
     }
+
+    public void updateSettlementStatus(TicketSettlementStatus ticketSettlementStatus) {
+        this.settlementStatus = ticketSettlementStatus;
+    }
+
+    // Record-style accessors (some legacy code expects .id(), .tenantId() etc.)
+    public TicketId id() { return this.id; }
+    public TenantId tenantId() { return this.tenantId; }
+    public TerminalId terminalId() { return this.terminalId; }
+    public DrawId drawId() { return this.drawId; }
 }

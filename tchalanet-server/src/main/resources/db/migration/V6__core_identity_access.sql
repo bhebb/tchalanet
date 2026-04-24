@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS role_permission (
 --   PRIMARY KEY (role_id, permission_code)
 -- );
 -- DROP TRIGGER IF EXISTS trg_role_permission_updated_at ON role_permission;
--- CREATE TRIGGER trg_role_permission_updated_at
+-- CREATE TRIGGER trg_role_permission_UPDATED_at
 --   BEFORE UPDATE ON role_permission
 --   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
@@ -192,7 +192,10 @@ CREATE TABLE IF NOT EXISTS tenant_user (
     user_id uuid NOT NULL REFERENCES app_user(id),
     role_id uuid NOT NULL REFERENCES app_role(id),
 
-    autonomy_level varchar(16) NOT NULL DEFAULT 'none',
+    -- NEW: workplace fields
+    outlet_id uuid NULL,
+    terminal_id uuid NULL,
+
     is_owner boolean NOT NULL DEFAULT false,
 
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -204,16 +207,21 @@ CREATE TABLE IF NOT EXISTS tenant_user (
     UNIQUE (tenant_id, user_id)
     );
 
-ALTER TABLE tenant_user
-    ADD CONSTRAINT ck_tenant_user_autonomy_level
-        CHECK (autonomy_level IN ('none', 'partial', 'full'));
-
 CREATE INDEX IF NOT EXISTS ix_tenant_user_tenant
     ON tenant_user (tenant_id)
     WHERE deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS ix_tenant_user_user
     ON tenant_user (user_id)
+    WHERE deleted_at IS NULL;
+
+-- Indexes for new workplace fields
+CREATE INDEX IF NOT EXISTS ix_tenant_user_outlet_id
+    ON tenant_user (outlet_id)
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS ix_tenant_user_terminal_id
+    ON tenant_user (terminal_id)
     WHERE deleted_at IS NULL;
 
 DROP TRIGGER IF EXISTS trg_tenant_user_updated_at ON tenant_user;

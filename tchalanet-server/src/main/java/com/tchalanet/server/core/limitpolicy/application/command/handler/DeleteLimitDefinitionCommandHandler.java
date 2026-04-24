@@ -1,27 +1,31 @@
 package com.tchalanet.server.core.limitpolicy.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.limitpolicy.application.command.model.DeleteLimitDefinitionCommand;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.repository.LimitDefinitionJpaRepository;
+import com.tchalanet.server.core.limitpolicy.application.command.model.DeleteLimitDefinitionResult;
+import com.tchalanet.server.core.limitpolicy.application.port.out.LimitAssignmentWriterPort;
+import com.tchalanet.server.core.limitpolicy.application.port.out.LimitDefinitionWriterPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
-@Component
 @RequiredArgsConstructor
 public class DeleteLimitDefinitionCommandHandler
-    implements CommandHandler<DeleteLimitDefinitionCommand, Void> {
+    implements CommandHandler<DeleteLimitDefinitionCommand, DeleteLimitDefinitionResult> {
 
-  private final LimitDefinitionJpaRepository repo;
+  private final LimitDefinitionWriterPort defWriter;
+  private final LimitAssignmentWriterPort asgWriter;
 
   @Override
-  @Transactional
-  public Void handle(DeleteLimitDefinitionCommand cmd) {
-    var entity = repo.findById(cmd.definitionId()).orElseThrow();
-    entity.setDeletedAt(java.time.Instant.now());
-    repo.save(entity);
-    return null;
+  @TchTx
+  public DeleteLimitDefinitionResult handle(DeleteLimitDefinitionCommand c) {
+    // 1) delete assignments first (tenant scoped by RLS)
+    asgWriter.softDeleteByDefinitionId(c.id());
+
+    // 2) delete definition
+    defWriter.softDelete(c.id());
+
+    return new DeleteLimitDefinitionResult(c.id());
   }
 }

@@ -27,15 +27,15 @@ public class FilesystemOutletReportAdapter implements OutletReportPort {
   private final OutletReaderPort outletReader;
 
   @Override
-  public Path generateDailyReport(TenantId tenantId, OutletId outletId, LocalDate date) {
+  public Path generateDailyReport(OutletId outletId, LocalDate date) {
     // Build summary
-    var outlet = outletReader.getRequired(outletId, tenantId);
+    var outlet = outletReader.getRequired(outletId);
     var zone = ZoneId.of(outlet.timezone());
     var from = date.atStartOfDay(zone).toInstant();
     var to = date.plusDays(1).atStartOfDay(zone).toInstant();
 
-    var stats = salesAdmin.getCloseStats(tenantId, outletId, from, to);
-    List<?> sessions = sessionLookup.findSessionIds(tenantId, outletId, from, to);
+    var stats = salesAdmin.getCloseStats(outletId, from, to);
+    List<?> sessions = sessionLookup.findSessionIds(outletId, from, to);
 
     OutletDailySummary summary =
         new OutletDailySummary(

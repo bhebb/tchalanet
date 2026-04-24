@@ -23,14 +23,14 @@ public class GetOutletDailySummaryQueryHandler
 
   @Override
   public OutletDailySummary handle(GetOutletDailySummaryQuery query) {
-    var outlet = outletReader.getRequired(query.outletId(), query.tenantId());
+    var outlet = outletReader.getRequired(query.outletId());
 
     var zone = ZoneId.of(outlet.timezone());
     var from = query.date().atStartOfDay(zone).toInstant();
     var to = query.date().plusDays(1).atStartOfDay(zone).toInstant();
 
-    var stats = salesAdmin.getCloseStats(query.tenantId(), query.outletId(), from, to);
-    var sessions = sessionLookup.findSessionIds(query.tenantId(), query.outletId(), from, to);
+    var stats = salesAdmin.getCloseStats(query.outletId(), from, to);
+    var sessions = sessionLookup.findSessionIds(query.outletId(), from, to);
 
     return new OutletDailySummary(
         query.date(),

@@ -1,11 +1,10 @@
 package com.tchalanet.server.catalog.settings.internal.web;
 
-import com.tchalanet.server.catalog.settings.api.ResolveSettingsCriteria;
-import com.tchalanet.server.catalog.settings.api.ResolvedSettingView;
+import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
+import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

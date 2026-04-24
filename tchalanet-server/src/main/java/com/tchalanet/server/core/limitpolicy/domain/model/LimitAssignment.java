@@ -1,17 +1,37 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
-import com.tchalanet.server.common.types.enums.TargetType;
-import com.tchalanet.server.common.types.id.TenantId;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.tchalanet.server.common.types.id.LimitAssignmentId;
+import com.tchalanet.server.common.types.id.LimitDefinitionId;
+
 import java.time.Instant;
-import java.util.UUID;
 
 public record LimitAssignment(
-    UUID id,
-    TenantId tenantId,
-    UUID limitDefinitionId,
-    TargetType targetType,
-    UUID targetId, // null for TENANT
+    LimitAssignmentId id,
+    LimitDefinitionId limitDefinitionId,
+    LimitTarget target,
     boolean enabled,
     Instant startsAt,
     Instant endsAt,
-    long version) {}
+    JsonNode paramsOverride,
+    JsonNode appliesToOverride,
+    Instant deletedAt) {
+
+  public boolean isDeleted() {
+    return deletedAt != null;
+  }
+
+  public boolean isActiveAt(Instant now) {
+    if (deletedAt != null) return false;
+    if (!enabled) return false;
+    if (startsAt != null && now.isBefore(startsAt)) return false;
+    if (endsAt != null && !now.isBefore(endsAt)) return false;
+    return true;
+  }
+
+  /** Single canonical predicate used by LimitResolver. */
+  public boolean appliesTo(LimitTarget candidateTarget, Instant now) {
+    if (!isActiveAt(now)) return false;
+    return target != null && target.equals(candidateTarget);
+  }
+}

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Endpoint pour marquer une notification comme lue. */
 @RestController
-@RequestMapping("/platform/me/notifications")
+@RequestMapping("/tenant/me/notifications")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Notifications")
 public class MarkNotificationReadController {

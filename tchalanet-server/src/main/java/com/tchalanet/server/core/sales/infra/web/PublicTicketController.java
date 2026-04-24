@@ -37,12 +37,19 @@ public class PublicTicketController {
   }
 
   @GetMapping(value = "/qr/{publicCode}.png", produces = MediaType.IMAGE_PNG_VALUE)
-  public byte[] qrPng(
+  public ResponseEntity<byte[]> qrPng(
       @PathVariable String publicCode,
       @RequestParam(name = "size", defaultValue = "280") int size,
       HttpServletResponse res) {
-    res.setHeader(HttpHeaders.CACHE_CONTROL, "public, max-age=3600");
-
-    return queryBus.send(new GetTicketQrPngByPublicCodeQuery(publicCode, size));
+    try {
+      byte[] png = queryBus.send(new GetTicketQrPngByPublicCodeQuery(publicCode, size));
+      return ResponseEntity.ok()
+          .header("X-Robots-Tag", "noindex, nofollow")
+          .header(HttpHeaders.CACHE_CONTROL, "public, max-age=3600")
+          .contentType(MediaType.IMAGE_PNG)
+          .body(png);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(404).build();
+    }
   }
 }

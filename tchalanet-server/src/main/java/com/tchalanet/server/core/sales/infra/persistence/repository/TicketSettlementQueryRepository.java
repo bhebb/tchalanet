@@ -16,13 +16,12 @@ public interface TicketSettlementQueryRepository extends Repository<TicketEntity
           select 1
           from ticket t
           where t.deleted_at is null
-            and t.tenant_id = :tenantId
             and t.draw_id = :drawId
             and t.status = 'SOLD'
         )
       """,
       nativeQuery = true)
-  boolean existsPending(@Param("tenantId") UUID tenantId, @Param("drawId") UUID drawId);
+  boolean existsPending(@Param("drawId") UUID drawId);
 
   @Query(
       value =
@@ -30,10 +29,9 @@ public interface TicketSettlementQueryRepository extends Repository<TicketEntity
         select count(1)
         from ticket t
         where t.deleted_at is null
-          and t.tenant_id = :tenantId
           and t.draw_id = :drawId
           and t.status = 'SOLD'
       """,
       nativeQuery = true)
-  long countPending(@Param("tenantId") UUID tenantId, @Param("drawId") UUID drawId);
+  long countPending(@Param("drawId") UUID drawId);
 }

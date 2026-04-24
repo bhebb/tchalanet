@@ -5,6 +5,7 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
@@ -63,9 +64,9 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
 
     var event =
         new SessionOpenedEvent(
-            UUID.randomUUID(),
+           EventId.of(idGenerator.newUuid()),
             now,
-            new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().uuid()),
+            new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().value()),
             saved.id(),
             saved.outletId(),
             saved.terminalId(),

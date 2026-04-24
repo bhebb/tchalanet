@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.infra.persistence.adapter;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
@@ -23,7 +22,6 @@ public class TicketSettlementJpaAdapter implements TicketSettlementPort {
 
     @Override
     public List<Ticket> findNextBatchForDraw(
-        TenantId tenantId,
         DrawId drawId,
         Instant afterCreatedAt,
         UUID afterId,
@@ -36,8 +34,7 @@ public class TicketSettlementJpaAdapter implements TicketSettlementPort {
 
         return repo
             .findBatchForDrawWithLines(
-                tenantId.uuid(),
-                drawId.uuid(),
+                drawId.value(),
                 TicketSaleStatus.SOLD,
                 TicketResultStatus.NOT_RESULTED,
                 cursorTime,

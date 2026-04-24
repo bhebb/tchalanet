@@ -1,13 +1,14 @@
 package com.tchalanet.server.core.sales.domain.model;
 
 import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.common.types.enums.GameCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
 public record TicketLine(
-    String gameCode,
+    GameCode gameCode,
     String selection,           // MUST be normalized before creating the line (via BetSelectionNormalizer)
     BigDecimal stake,
     BigDecimal oddsSnapshot,
@@ -17,7 +18,7 @@ public record TicketLine(
 ) {
 
     public TicketLine {
-        gameCode = requireNonBlank(gameCode, "gameCode");
+        if (gameCode == null) throw new IllegalArgumentException("gameCode is required");
         selection = requireNonBlank(selection, "selection");
         Objects.requireNonNull(betType, "betType");
 
@@ -31,13 +32,12 @@ public record TicketLine(
         if (potentialPayout.signum() < 0) throw new IllegalArgumentException("potentialPayout cannot be negative");
 
         // --- betOption invariants
-        boolean isPattern = betType == BetType.LOTTO4_PATTERN || betType == BetType.LOTTO5_PATTERN;
-        if (isPattern) {
+        if (betType.requiresBetOption()) {
             if (betOption == null) {
-                throw new IllegalArgumentException("betOption is required for " + betType + " (1..3)");
+                throw new IllegalArgumentException("betOption is required for " + betType + " (" + betType.betOptionMin() + ".." + betType.betOptionMax() + ")");
             }
-            if (betOption < 1 || betOption > 3) {
-                throw new IllegalArgumentException("betOption must be 1..3 for " + betType + " but was " + betOption);
+            if (betOption < betType.betOptionMin() || betOption > betType.betOptionMax()) {
+                throw new IllegalArgumentException("betOption must be " + betType.betOptionMin() + ".." + betType.betOptionMax() + " for " + betType + " but was " + betOption);
             }
         } else {
             if (betOption != null) {

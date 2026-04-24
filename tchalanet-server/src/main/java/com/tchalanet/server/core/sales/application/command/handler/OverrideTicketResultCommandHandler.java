@@ -37,12 +37,13 @@ public class OverrideTicketResultCommandHandler implements CommandHandler<Overri
     if (cmd.totalPayout() == null || cmd.totalPayout().signum() < 0) {
       throw new IllegalArgumentException("totalPayout must be >= 0");
     }
-    if (cmd.getTicketResultStatus() != RESULTED_WON && cmd.status() != TicketStatus.RESULTED_LOST) {
-      throw new IllegalArgumentException("status must be RESULTED_WON or RESULTED_LOST");
+    var providedResultStatus = cmd.status() != null ? cmd.status().resultStatus() : null;
+    if ((providedResultStatus != com.tchalanet.server.common.types.enums.TicketResultStatus.WON && providedResultStatus != com.tchalanet.server.common.types.enums.TicketResultStatus.LOST)) {
+      throw new IllegalArgumentException("status must be WON or LOST");
     }
 
-    // Domain method: forceResult
-    ticket.forceResult(cmd.totalPayout(), cmd.status(), when);
+    // Domain method: forceResult with explicit result status
+    ticket.forceResult(cmd.totalPayout(), providedResultStatus, when);
 
     var saved = ticketWriter.save(ticket);
 
@@ -50,17 +51,16 @@ public class OverrideTicketResultCommandHandler implements CommandHandler<Overri
         () ->
             publisher.publish(
                 new TicketResultOverriddenEvent(
-                    UUID.randomUUID(),
+                    com.tchalanet.server.common.types.id.EventId.of(UUID.randomUUID()),
                     when,
                     saved.getTenantId(),
                     saved.getId(),
                     saved.getDrawId(),
                     saved.getWinningAmount(),
-                    cmd.status(),
+                    providedResultStatus,
                     cmd.reason(),
                     cmd.performedBy())));
 
     return null;
   }
 }
-

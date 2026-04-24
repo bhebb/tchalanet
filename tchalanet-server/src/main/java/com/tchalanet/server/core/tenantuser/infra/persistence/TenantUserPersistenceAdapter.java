@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -23,9 +22,11 @@ public class TenantUserPersistenceAdapter implements TenantUserWriterPort {
     e.setTenantId(m.tenantId().value());
     e.setUserId(m.userId().value());
     e.setRoleId(m.roleId() == null ? null : m.roleId().value());
-    e.setAutonomyLevel(m.autonomyLevel());
     e.setIsOwner(m.isOwner());
     e.setStatus(m.status());
+    // persist workplace fields
+    e.setOutletId(m.outletId() == null ? null : m.outletId().value());
+    e.setTerminalId(m.terminalId() == null ? null : m.terminalId().value());
     var saved = jpa.save(e);
     return toDomain(saved);
   }
@@ -41,9 +42,10 @@ public class TenantUserPersistenceAdapter implements TenantUserWriterPort {
   private TenantUserMembership toDomain(TenantUserJpaEntity e) {
     var m = TenantUserMembership.of(TenantId.of(e.getTenantId()), UserId.of(e.getUserId()));
     if (e.getRoleId() != null) m.assignRole(com.tchalanet.server.common.types.id.RoleId.of(e.getRoleId()));
-    if (e.getAutonomyLevel() != null) m.changeAutonomy(e.getAutonomyLevel());
     if (e.getIsOwner() != null) m.markOwner(e.getIsOwner());
     if (e.getStatus() != null && e.getStatus() == com.tchalanet.server.common.types.enums.TenantUserStatus.SUSPENDED) m.suspend();
+    if (e.getOutletId() != null) m.assignOutlet(com.tchalanet.server.common.types.id.OutletId.of(e.getOutletId()));
+    if (e.getTerminalId() != null) m.assignTerminal(com.tchalanet.server.common.types.id.TerminalId.of(e.getTerminalId()));
     return m;
   }
   // persistence adapter is write-only; QueryAdapter provides enriched read models (JOINs)

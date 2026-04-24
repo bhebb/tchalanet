@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/platform/reports/outlet-performance")
+@RequestMapping("/tenant/reports/outlet-performance")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Reports")
 public class GetOutletPerformanceReportController {

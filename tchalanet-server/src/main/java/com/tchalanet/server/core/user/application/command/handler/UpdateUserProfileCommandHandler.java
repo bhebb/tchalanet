@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.user.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.external.port.out.KeycloakUserProvisioningPort;
 import com.tchalanet.server.core.user.application.command.model.UpdateUserProfileCommand;
@@ -16,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @UseCase
 @RequiredArgsConstructor
-public class UpdateUserProfileCommandHandler
-    implements CommandHandler<UpdateUserProfileCommand, Void> {
+public class UpdateUserProfileCommandHandler implements VoidCommandHandler<UpdateUserProfileCommand> {
 
   private final UserReaderPort userReader;
   private final UserWriterPort userWriter;
@@ -27,7 +27,7 @@ public class UpdateUserProfileCommandHandler
 
   @Override
   @Transactional
-  public Void handle(UpdateUserProfileCommand command) {
+  public void handle(UpdateUserProfileCommand command) {
     AppUser existing =
         userReader
             .findById(command.userId())
@@ -36,6 +36,7 @@ public class UpdateUserProfileCommandHandler
     String updatedFirstName = command.firstName().orElse(existing.getFirstName());
     String updatedLastName = command.lastName().orElse(existing.getLastName());
     String updatedEmail = command.email().orElse(existing.getEmail());
+    String updatedPhone = command.phone().orElse(existing.getPhone());
 
     // Determine locale: command.locale() (Optional<Locale>) or existing preference
     java.util.Locale existingPrefLocale = null;
@@ -48,7 +49,7 @@ public class UpdateUserProfileCommandHandler
         existing.syncProfile(
             existing.getUsername(),
             updatedEmail,
-            existing.getPhone(),
+            updatedPhone,
             updatedFirstName,
             updatedLastName,
             updatedFirstName + " " + updatedLastName,
@@ -64,7 +65,5 @@ public class UpdateUserProfileCommandHandler
       keycloakIdentityPort.updateUserProfile(
           saved.getKeycloakSub(), updatedFirstName, updatedLastName, updatedEmail, updatedLocale == null ? null : updatedLocale.toLanguageTag());
     }
-
-    return null;
   }
 }

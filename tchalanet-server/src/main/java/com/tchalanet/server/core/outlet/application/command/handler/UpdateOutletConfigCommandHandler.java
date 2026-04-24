@@ -3,18 +3,17 @@ package com.tchalanet.server.core.outlet.application.command.handler;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.catalog.address.application.dto.AddressDto;
-import com.tchalanet.server.catalog.address.application.port.out.AddressWriterPort;
-import com.tchalanet.server.catalog.address.domain.model.Address;
-import com.tchalanet.server.core.outlet.application.command.model.OutletConfigPatch;
+import com.tchalanet.server.core.address.application.AddressCrudService;
+import com.tchalanet.server.core.address.application.model.AddressInput;
+import com.tchalanet.server.core.address.domain.Address;
 import com.tchalanet.server.core.outlet.application.command.model.UpdateOutletConfigCommand;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import lombok.RequiredArgsConstructor;
+
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
@@ -23,14 +22,14 @@ public class UpdateOutletConfigCommandHandler
 
   private final OutletReaderPort reader;
   private final OutletWriterPort writer;
-  private final AddressWriterPort addressWriter;
+  private final AddressCrudService addressService;
 
   @Override
   @TchTx
   public void handle(UpdateOutletConfigCommand cmd) {
-    Outlet outlet = reader.getRequired(cmd.outletId(), cmd.tenantId());
+    var outlet = reader.getRequired(cmd.outletId());
 
-    OutletConfigPatch p = cmd.patch();
+    var p = cmd.patch();
 
     LocalTime cutoff = null;
     if (p.businessDayCutoff() != null && !p.businessDayCutoff().isBlank()) {
@@ -49,23 +48,17 @@ public class UpdateOutletConfigCommandHandler
             p.requireOpeningFloat(),
             Instant.now());
 
-    // handle address in patch (optional)
-    AddressDto a = p.address();
+    // handle address in patch (optional) — p.address() is domain.Address
+    Address a = p.address();
     UUID addressId = null;
-    if (a != null) addressId = a.id();
+    if (a != null && a.id() != null) {
+      addressId = a.id().value();
+    }
+
     if (addressId == null && a != null) {
-      var domain =
-          new Address(
-              null,
-              a.line1(),
-              a.line2(),
-              a.city(),
-              a.region(),
-              a.country(),
-              a.postalCode(),
-              a.latitude(),
-              a.longitude());
-      addressId = addressWriter.save(domain);
+      var input = new AddressInput(a.line1(), a.line2(), a.city(), a.region(), a.country(), a.postalCode());
+      var aid = addressService.upsertTenantPrimary(cmd.tenantId(), input);
+      addressId = aid.value();
     }
 
     if (addressId != null) updated = updated.withAddressId(addressId);

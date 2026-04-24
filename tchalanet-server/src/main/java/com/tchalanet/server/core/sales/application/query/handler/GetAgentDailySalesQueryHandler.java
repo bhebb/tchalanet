@@ -26,8 +26,8 @@ public class GetAgentDailySalesQueryHandler
     Instant from = query.date().atStartOfDay(clock.getZone()).toInstant();
     Instant to = query.date().plusDays(1).atStartOfDay(clock.getZone()).toInstant();
 
-    return ticketReader.getAgentDailySales(query.tenantId(), from, to).stream()
-        .filter(dto -> dto.agentId().equals(query.agentId()))
+    return ticketReader.getAgentDailySales(from, to).stream()
+        .filter(dto -> dto.agentId().equals(query.agentId().value()))
         .findFirst();
   }
 }

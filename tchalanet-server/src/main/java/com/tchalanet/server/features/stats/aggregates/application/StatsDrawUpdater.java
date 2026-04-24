@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.stats.aggregates.application;
 
-import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedAppliedEvent;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawEntity;
@@ -20,7 +20,7 @@ public class StatsDrawUpdater {
     private final DrawLookupPort drawLookupPort;
 
     @Transactional
-    public void ensureDrawRow(DrawResultedEvent event) {
+    public void ensureDrawRow(DrawResultedAppliedEvent event) {
         var drawId =
             drawLookupPort.findDrawIdBySlotId(event.tenantId(), event.drawDate(), ResultSlotId.of(event.drawResultId()));
         if (drawId.isEmpty()) {

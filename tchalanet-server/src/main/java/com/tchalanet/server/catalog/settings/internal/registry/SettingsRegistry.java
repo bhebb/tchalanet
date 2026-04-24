@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
-import com.tchalanet.server.catalog.settings.api.SettingValueType;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

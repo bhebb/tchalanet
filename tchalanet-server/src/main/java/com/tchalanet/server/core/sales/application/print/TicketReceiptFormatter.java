@@ -1,9 +1,10 @@
 package com.tchalanet.server.core.sales.application.print;
 
+import com.tchalanet.server.common.print.receipt.ReceiptModel;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
 
 public interface TicketReceiptFormatter {
-  com.tchalanet.server.common.print.receipt.ReceiptModel formatModel(
+  ReceiptModel formatModel(
       TicketPrintView t, String verifyUrl);
 
   // utile pour debug/logs si tu veux

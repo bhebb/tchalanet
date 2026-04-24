@@ -1,19 +1,22 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.common.types.id.TenantId;
-import java.util.Map;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.LimitDefinitionId;
+
+import java.time.Instant;
 
 public record LimitDefinition(
-    UUID id,
-    TenantId tenantId,
+    LimitDefinitionId id,
     RuleKey ruleKey,
     boolean enabled,
     BreachOutcome onBreach,
-    Map<String, Object> params,
-    AppliesTo appliesTo,
-    long version) {
-  public record AppliesTo(java.util.List<String> betTypes, String selectionPattern) {}
+    JsonNode params,
+    JsonNode appliesTo,
+    Instant deletedAt) {
+
+  public boolean isDeleted() {
+    return deletedAt != null;
+  }
 }

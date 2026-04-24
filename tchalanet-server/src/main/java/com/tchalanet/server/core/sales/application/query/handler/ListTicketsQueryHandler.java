@@ -9,9 +9,9 @@ import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingC
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketSummaryDto;
+import com.tchalanet.server.core.sales.application.query.model.TicketSummaryView;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.infra.web.model.TicketStatus;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,15 +30,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class ListTicketsQueryHandler
-    implements QueryHandler<ListTicketsQuery, TchPage<TicketSummaryDto>> {
+    implements QueryHandler<ListTicketsQuery, TchPage<TicketSummaryView>> {
 
   private final TicketReaderPort ticketRepository;
   private final AuditLoggingCommandHandler auditHandler;
 
   @Override
-  public TchPage<TicketSummaryDto> handle(ListTicketsQuery query) {
+  public TchPage<TicketSummaryView> handle(ListTicketsQuery query) {
     TchPage<Ticket> result = ticketRepository.search(query.filter(), query.pageRequest());
-    var items = result.items().stream().map(this::toDto).collect(Collectors.toList());
+    var items = result.items().stream().map(this::toView).collect(Collectors.toList());
 
     // Create page with all required parameters
     var page = TchPage.of(
@@ -58,7 +58,7 @@ public class ListTicketsQueryHandler
     return page;
   }
 
-  private void emitAuditLog(ListTicketsQuery query, TchPage<TicketSummaryDto> result) {
+  private void emitAuditLog(ListTicketsQuery query, TchPage<TicketSummaryView> result) {
     try {
       Map<String, Object> details = new HashMap<>();
       details.put("action", "list_tickets");
@@ -99,14 +99,14 @@ public class ListTicketsQueryHandler
     }
   }
 
-  private TicketSummaryDto toDto(Ticket ticket) {
-    var status = new TicketStatus(
+  private TicketSummaryView toView(Ticket ticket) {
+    var status = new com.tchalanet.server.core.sales.application.model.TicketStatus(
         ticket.getSaleStatus(),
         ticket.getResultStatus(),
         ticket.getSettlementStatus()
     );
 
-    return new TicketSummaryDto(
+    return new TicketSummaryView(
         ticket.getId(),
         ticket.getTicketCode(),
         ticket.getPublicCode(),

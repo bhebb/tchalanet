@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "autonomy_policy_rule_rule")
+@Table(name = "autonomy_policy_rule")
 @Getter
 @Setter
 public class AutonomyPolicyRuleJpaEntity extends BaseTenantEntity {

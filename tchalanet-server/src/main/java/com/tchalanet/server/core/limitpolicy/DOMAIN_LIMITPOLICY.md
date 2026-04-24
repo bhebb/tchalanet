@@ -1,138 +1,177 @@
-# Domaine Limitpolicy
+# Core – LimitPolicy
 
-> Ce fichier est un **template** pour documenter le domaine backend.
-> Copie/complète les sections ci-dessous (voir `docs/DOMAIN_TEMPLATE.md`).
-> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/limits.md`
+## Vision
 
----
+`LimitPolicy` **ne vend rien**, **ne paye rien**, **ne connaît pas l’UI**.
 
-## 1. Rôle du domaine
+Il fait exactement deux choses :
 
-**Responsabilité principale**
-
-> Valider les tickets et contrôles de vente/payout contre des règles de limites configurables (par période, portée, dimension, bet type), et exposer des décisions de “allow/deny + reason”.
-> **Ce que le domaine fait**
-
-- Définit et évalue des limites (stake, count, exposure, payout) selon période (per_ticket, per_draw, per_day).
-- Cumule des faits (sold_count, sold_stake_total, potential_payout_exposure, daily totals) par AggregationScope.
-- Retourne des décisions structurées pour les handlers de vente/payout.
-  **Ce que le domaine ne fait pas**
-- Ne calcule pas les gains (payout); ne vend pas des tickets (sales).
-- Ne gère pas l’UI; fournit uniquement des décisions.
+1. **Évaluer des règles** sur un ticket  
+   → `ALLOW | WARN | BLOCK` (+ détails)
+2. **Maintenir des facts (exposure)** nécessaires aux règles stateful  
+   → hot number, risque payout, caps
 
 ---
 
-## 2. Modèle métier (agrégats / entités)
+## 1. Responsabilités
 
-### Définitions communes
+### Sales / Payout
 
-- Période (Period): `per_ticket` | `per_draw` | `per_day`
-- Portée d’agrégation (AggregationScope): `AGENT` | `OUTLET` | `ZONE` | `RANGE` | (optionnel) `TENANT`
-- Dimension (Dimension): `line` | `ticket` | `selection` | `total`
-- Canonisation `selection_key`:
-  - 2D: "00".."99" (2 chars)
-  - 3D: "000".."999" (3 chars)
-  - Marriage: "12-34" (trié min-max)
-  - Lotto4/5 pattern: "<pattern>:<digits>" (ex: "x0123xx:0123")
-- Bet Types:
-  - Borlette 2D: `MATCH_1_2D`, `MATCH_2_2D`, `MATCH_3_2D`
-  - Marriage 2D+2D: `MARRIAGE_2D2D`
-  - Lotto: `LOTTO3_3D`, `LOTTO4_PATTERN`, `LOTTO5_PATTERN`
+- Appellent `LimitPolicyRuntimeService` pour évaluer
+- Publient un event **AFTER_COMMIT** pour appliquer les facts
 
-### Entités / agrégats principaux
+### LimitPolicy
 
-- `LimitRule` — définition JSON d’une règle (period, scope, dimension, params, applies_to).
-- `LimitDecision` — résultat (allow/deny, code, message, meta).
-
-### Invariants métier
-
-- Canonisation de `selection_key` obligatoire avant évaluation.
-- Les calculs d’agrégation respectent AggregationScope et Period.
-  > Valeur métier clé :
-  > Protéger la vente et le payout avec des limites tenant-safe et explicites.
+- Évalue et compte
+- Aucune logique UI
+- Aucun side-effect business (vente/paiement)
 
 ---
 
-## 3. Cas d’utilisation (ports d’entrée)
+## 2. Structure
 
-- `EvaluateTicketLimitsQuery` — évalue un ticket (lines, totals, context) et retourne décisions.
-- `EvaluatePayoutLimitsQuery` — évalue un payout (par ligne/ticket/jour).
-- `ListActiveLimitRulesQuery` — liste des règles actives pour un tenant.
-
----
-
-## 4. Ports de sortie (dépendances externes)
-
-- `LimitRuleRepoPort` — lecture des règles.
-- `LimitFactsReaderPort` — lecture des agrégats (= sold_count, sold_stake_total, potential_payout_exposure, daily totals) avec clés `(period, scopeKey, betType, selection_key)`.
-
----
-
-## 5. Mapping & DTOs (convention)
-
-- MapStruct pour mapper infra.web.model ↔ application.command/query.model.
-- Records immuables pour DTO simples.
+core.limitpolicy
+├─ domain
+│ ├─ model
+│ └─ engine
+├─ application
+│ ├─ service
+│ ├─ query
+│ └─ command
+└─ infra
+├─ persistence
+└─ event
 
 ---
 
-## 6. Règles métier importantes
+## 3. Runtime Evaluation
 
-- Décision deny quand `fact + delta > max` (ou `< min`) selon la règle.
-- Support `applies_to`: filtrage par bet_types et pattern selection.
-- Idempotence de la lecture des facts (éviter double-compte dans la transaction en cours).
+`LimitPolicyRuntimeService` est la **façade unique**.
 
----
+Étapes :
 
-## 7. Intégration avec les autres domaines
-
-Dépend de : sales (ticket context), payout (payout context), draw (drawId), user/outlet (scopeKey).
-Utilisé par : sales (avant émission), payout (avant paiement).
-
----
-
-## 8. Notes techniques
-
-- Multi-tenant; RLS; wrappers ID.
-- Les facts sont idéalement lus via projections SQL/JDBC (performants) ou cache L2.
-- Décisions agrégées par scope (AGENT/OUTLET/ZONE/RANGE/TENANT) selon config tenant.
+1. Charger `LimitDefinition`
+2. Charger `LimitAssignment`
+3. Résoudre (`LimitResolver`)
+4. Charger facts (`LimitFactsSnapshot`)
+5. Évaluer (`InProcessLimitEvaluationEngine`)
+6. Retourner `LimitEvaluationResult`
 
 ---
 
-## 9. Catalogue des limites supportées (résumé)
+## 4. Facts & Exposure
 
-- MAX_STAKE_PER_SELECTION_PER_TICKET
-  - Period: per_ticket; Dimension: selection; Facts: aucun; Params: `{max,currency,applies_to}`.
-- MAX_SALES_COUNT_PER_SELECTION_PER_DRAW
-  - Period: per_draw; Dimension: selection; Scope: AGENT|OUTLET|ZONE|RANGE; Facts: `sold_count_so_far`.
-- MAX_EXPOSURE_PER_SELECTION_PER_DRAW
-  - Period: per_draw; Dimension: selection; Scope: AGENT|OUTLET|ZONE|RANGE; Facts: `sold_stake_total_so_far`.
-- MAX_TOTAL_STAKE_PER_DRAW
-  - Period: per_draw; Dimension: total; Scope: AGENT|OUTLET|ZONE|RANGE; Facts: `sold_total_stake_so_far`.
-- MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW
-  - Period: per_draw; Dimension: selection; Scope: OUTLET|ZONE|RANGE|TENANT; Facts: `potential_payout_exposure_so_far`.
-- MAX_STAKE_PER_LINE
-  - Period: per_ticket; Dimension: line; Facts: aucun.
-- MIN_STAKE_PER_LINE
-  - Period: per_ticket; Dimension: line; Facts: aucun.
-- MAX_LINES_PER_TICKET
-  - Period: per_ticket; Dimension: ticket; Facts: aucun.
-- MAX_STAKE_PER_TICKET
-  - Period: per_ticket; Dimension: ticket; Facts: aucun.
-- DAILY_STAKE_CAP
-  - Period: per_day; Scope: AGENT|OUTLET|ZONE|RANGE; Facts: `daily_stake_total_so_far`.
-- MAX_PAYOUT_PER_LINE
-  - Period: per_ticket|per_payout_tx; Dimension: line; Facts: `payoutPerLine`.
-- MAX_PAYOUT_PER_TICKET
-  - Period: per_ticket|per_payout_tx; Dimension: ticket; Facts: `payoutTotal`.
-- DAILY_PAYOUT_CAP
-  - Period: per_day; Scope: AGENT|OUTLET|ZONE|RANGE; Facts: `daily_payout_total_so_far`.
-- MAX_CANCELS_PER_DAY
-  - Period: per_day; Scope: AGENT|OUTLET; Facts: `daily_cancel_count_so_far`.
+### Table `draw_exposure`
+
+Read model incrémental utilisé par les règles stateful.
+
+Dimensions :
+
+- `tenant_id`
+- `draw_id`
+- `scope_type` / `scope_id`
+- `bet_type`
+- `selection_key`
+
+Mesures :
+
+- `stake_total`
+- `sales_count`
+- `potential_payout_total`
 
 ---
 
-## 10. Incohérences / TODO
+## 5. Canonicalisation (obligatoire)
 
-- Définir la stratégie de cache des facts (L2 Redis + invalidation).
-- Spécifier les clés exactes de scope (AGENT:userId, OUTLET:outletId, ZONE:zoneId, RANGE:rangeId, TENANT:tenantId).
-- Valider la canonisation `selection_key` pour patterns complexes.
+Toute écriture de `selection_key` doit passer par :
+common.selection.SelectionKeyCanonicalizer
+
+Formats canoniques :
+
+- `MATCH_1_2D` → `05`
+- `MATCH_2_2D` → `12-34`
+- `MATCH_3_2D` → `12-34-56`
+- `MARRIAGE_2D2D` → `12-34` (trié)
+- `LOTTO3_3D` → `123`
+- `LOTTO4_PATTERN` → `12**`
+
+---
+
+## 6. Apply Exposure (AFTER_COMMIT)
+
+### Flow
+
+1. `Sales` publie `TicketPlacedEvent`
+2. Listener LimitPolicy reçoit l’event
+3. Envoie `ApplyTicketExposureCommand`
+4. Handler applique l’exposition (idempotent)
+
+### Idempotence
+
+Le handler **doit** utiliser :
+-- ProcessedEventPort
+-- handler_key = "limitpolicy.exposure"
+
+Flow :
+
+1. `alreadyProcessed` ⇒ noop
+2. Apply exposure (incréments)
+3. `markProcessed`
+
+---
+
+## 7. Règles Stateful (MVP)
+
+### MAX_EXPOSURE_PER_SELECTION_PER_DRAW
+
+- Compare `stake_total + deltaStake` à la limite
+
+### MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW
+
+- Compare `potential_payout_total + deltaPayout` à la limite
+
+Pattern :
+
+- Grouper par `(betType, selectionKey)`
+- Charger facts
+- Calculer `current + delta`
+- Déclencher breach si dépassement
+
+---
+
+## 8. Dashboard vs Tenant Admin
+
+### Dashboard
+
+- Affiche des **alertes**
+- Top selections par :
+  - stake
+  - payout potentiel
+  - sales_count
+
+### Tenant Admin
+
+- Configure :
+  - `LimitDefinition`
+  - `LimitAssignment`
+  - autonomie
+
+Aucune écriture de limits depuis le dashboard.
+
+---
+
+## 9. RLS (non négociable)
+
+- Aucun `WHERE tenant_id = ?` en persistence
+- `tenant_id` fourni par `TchContext`
+- Jobs async doivent binder un contexte
+
+---
+
+## 10. Checklist (DoD)
+
+- [ ] `LimitPolicyRuntimeService` opérationnel
+- [ ] `draw_exposure` incrémental et audité
+- [ ] Canonicalisation systématique
+- [ ] Apply exposure idempotent
+- [ ] RLS respecté

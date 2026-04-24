@@ -18,6 +18,7 @@ import com.tchalanet.server.core.sales.application.command.model.ApproveTicketSa
 import com.tchalanet.server.core.sales.application.command.model.RejectTicketSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketOutcome;
 import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
+import com.tchalanet.server.core.sales.application.model.TicketStatus;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketDetailsQuery;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintEscPosQuery;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintPdfQuery;
@@ -253,7 +254,11 @@ public class TicketController {
         var cmd = new OverrideTicketResultCommand(
             ticketId,
             request.totalPayout(),
-            request.status(),
+            new TicketStatus(
+                request.status() == null ? null : request.status().saleStatus(),
+                request.status() == null ? null : request.status().resultStatus(),
+                request.status() == null ? null : request.status().settlementStatus()
+            ),
             request.reason(),
             request.performedBy(),
             request.performedAt()

@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.user.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.user.application.command.model.ReactivateUserCommand;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
@@ -9,13 +10,13 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ReactivateUserCommandHandler implements CommandHandler<ReactivateUserCommand, Void> {
+public class ReactivateUserCommandHandler implements VoidCommandHandler<ReactivateUserCommand> {
 
   private final UserReaderPort userReaderPort;
   private final UserWriterPort userWriterPort;
 
   @Override
-  public Void handle(ReactivateUserCommand command) {
+  public void handle(ReactivateUserCommand command) {
     var user =
         userReaderPort
             .findById(command.userId())
@@ -25,7 +26,5 @@ public class ReactivateUserCommandHandler implements CommandHandler<ReactivateUs
     userWriterPort.save(reactivated);
 
     // Optionnel: réactiver aussi l'utilisateur dans Keycloak si tu ajoutes une méthode au port
-
-    return null;
   }
 }

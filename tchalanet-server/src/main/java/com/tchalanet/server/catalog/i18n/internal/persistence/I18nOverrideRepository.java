@@ -43,4 +43,9 @@ public interface I18nOverrideRepository
     Page<I18nOverrideEntity> findByActiveTrue(Pageable pageable);
 
     Optional<I18nOverrideEntity> findFirstByLocaleAndI18nKeyAndLevel(String loc, String key, I18nOverrideLevel i18nOverrideLevel);
+
+    List<I18nOverrideEntity> findByLocaleAndLevelAndTenantIdAndActiveTrueAndDeletedAtIsNull(String loc, I18nOverrideLevel i18nOverrideLevel, UUID tenantId);
+
+    // NEW: list all active global overrides (for stats)
+    List<I18nOverrideEntity> findByLevelAndActiveTrueAndDeletedAtIsNull(I18nOverrideLevel level);
 }

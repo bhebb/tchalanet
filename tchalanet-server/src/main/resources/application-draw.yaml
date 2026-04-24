@@ -17,8 +17,8 @@ tch:
         tick_cron: ${TCH_RESULTS_TICK_CRON:0 */5 * * * *}     # toutes les 5 minutes
         due:
           min_minutes_after_draw: ${TCH_RESULTS_DUE_MIN_MINUTES:3}
-          max_minutes_after_draw: ${TCH_RESULTS_DUE_MAX_MINUTES:25}
-        cooldown_minutes: ${TCH_RESULTS_COOLDOWN_MINUTES:20}
+          max_minutes_after_draw: ${TCH_RESULTS_DUE_MAX_MINUTES:60}
+        cooldown_minutes: ${TCH_RESULTS_COOLDOWN_MINUTES:10}
 
   # gates batch génériques (si tu utilises BatchGate)
   batch:

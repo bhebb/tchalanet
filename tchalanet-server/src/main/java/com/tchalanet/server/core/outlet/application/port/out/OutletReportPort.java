@@ -6,5 +6,5 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 
 public interface OutletReportPort {
-  Path generateDailyReport(TenantId tenantId, OutletId outletId, LocalDate date);
+  Path generateDailyReport(OutletId outletId, LocalDate date);
 }

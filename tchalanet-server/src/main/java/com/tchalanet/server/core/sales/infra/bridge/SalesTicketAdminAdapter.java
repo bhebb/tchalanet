@@ -2,15 +2,15 @@ package com.tchalanet.server.core.sales.infra.bridge;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SessionId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
 import com.tchalanet.server.core.outlet.application.port.out.SessionLookupPort;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -21,40 +21,28 @@ public class SalesTicketAdminAdapter implements SalesTicketAdminPort {
 
   @Override
   public TicketCloseStats getCloseStats(
-      TenantId tenantId, OutletId outletId, Instant from, Instant to) {
-    List<SessionId> sessions = sessionLookup.findSessionIds(tenantId, outletId, from, to);
+      OutletId outletId, Instant from, Instant to) {
+    List<SessionId> sessions = sessionLookup.findSessionIds(outletId, from, to);
     List<java.util.UUID> sessionUuids =
-        sessions.stream().map(SessionId::uuid).collect(Collectors.toList());
+        sessions.stream().map(SessionId::value).collect(Collectors.toList());
 
-    long total =
-        repo.countByTenantIdAndSessionIdInAndCreatedAtBetween(
-            tenantId.uuid(), sessionUuids, from, to);
-    long sold =
-        repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.PENDING);
-    long voided =
-        repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.VOID);
-    long resultedWin =
-        repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.WON);
-    long resultedLoss =
-        repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.LOST);
-    long paid =
-        repo.countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-            tenantId.uuid(), sessionUuids, from, to, TicketStatus.PAID);
+    long total = repo.countBySessionIdInAndCreatedAtBetween(sessionUuids, from, to);
+    long sold = repo.countBySessionIdInAndCreatedAtBetweenAndSaleStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD);
+    long voided = repo.countBySessionIdInAndCreatedAtBetweenAndSaleStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID);
+    long resultedWin = repo.countBySessionIdInAndCreatedAtBetweenAndResultStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketResultStatus.WON);
+    long resultedLoss = repo.countBySessionIdInAndCreatedAtBetweenAndResultStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketResultStatus.LOST);
+    long paid = repo.countBySessionIdInAndCreatedAtBetweenAndSettlementStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED);
 
     return new TicketCloseStats(total, sold, voided, resultedWin, resultedLoss, paid);
   }
 
   @Override
-  public void refuseNewTickets(TenantId tenantId, OutletId outletId) {
-    // TODO: implement gating to prevent new sales; for V1 no-op
+  public void refuseNewTickets(OutletId outletId) {
+    // no-op v1
   }
 
   @Override
-  public void allowNewTickets(TenantId tenantId, OutletId outletId) {
-    // TODO: re-enable ticket creation
+  public void allowNewTickets(OutletId outletId) {
+    // no-op v1
   }
 }

@@ -14,4 +14,6 @@ public interface ResultSlotCatalog {
   ResultSlotView requireByKey(String slotKey);
 
   Optional<ResultSlotView> findById(ResultSlotId id);
+
+  ResultSlotStatsView stats();
 }

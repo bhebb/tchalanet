@@ -1,13 +1,10 @@
 package com.tchalanet.server.core.sales.infra.persistence.mapper;
 
+import com.tchalanet.server.common.selection.SelectionKeyCanonicalizer;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
-import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.SessionId;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
@@ -46,8 +43,16 @@ public class TicketMapper {
     }
 
     private TicketLine toDomainLine(TicketLineEntity le) {
+        // convert persisted String gameCode -> enum GameCode
+        com.tchalanet.server.common.types.enums.GameCode gc;
+        try {
+            gc = com.tchalanet.server.common.types.enums.GameCode.valueOf(le.getGameCode());
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Unknown gameCode in DB: " + le.getGameCode(), ex);
+        }
+
         return new TicketLine(
-            le.getGameCode(),
+            gc,
             le.getSelection(),
             le.getStake(),
             le.getOddsSnapshot(),
@@ -58,11 +63,11 @@ public class TicketMapper {
 
     public TicketEntity toEntity(Ticket domain) {
         TicketEntity e = new TicketEntity();
-        e.setId(domain.getId().uuid());
-        e.setTenantId(domain.getTenantId().uuid());
-        e.setTerminalId(domain.getTerminalId().uuid());
-        e.setSessionId(domain.getSessionId() == null ? null : domain.getSessionId().uuid());
-        e.setDrawId(domain.getDrawId().uuid());
+        e.setId(domain.getId().value());
+        e.setTenantId(domain.getTenantId().value());
+        e.setTerminalId(domain.getTerminalId().value());
+        e.setSessionId(domain.getSessionId() == null ? null : domain.getSessionId().value());
+        e.setDrawId(domain.getDrawId().value());
 
         e.setTicketCode(domain.getTicketCode());
         e.setPublicCode(domain.getPublicCode());
@@ -85,8 +90,10 @@ public class TicketMapper {
 
     private TicketLineEntity toEntityLine(TicketLine line) {
         TicketLineEntity le = new TicketLineEntity();
-        le.setGameCode(line.gameCode());
-        le.setSelection(line.selection());
+        // persist enum as its name/string representation
+        le.setGameCode(line.gameCode().name());
+        // ensure persisted selection is canonical
+        le.setSelection(SelectionKeyCanonicalizer.canonicalize(line.betType(), line.selection()));
         le.setStake(line.stake());
         le.setOddsSnapshot(line.oddsSnapshot());
         le.setPotentialPayout(line.potentialPayout());

@@ -21,7 +21,7 @@ public class PayoutLedgerListener {
     } catch (Exception e) {
       log.error(
           "Ledger recording failed for PayoutRegisteredEvent eventId={} tenantId={} payoutId={}",
-          event.eventId(),
+          event.eventId().value(),
           event.tenantId().value(),
           event.payoutId(),
           e);

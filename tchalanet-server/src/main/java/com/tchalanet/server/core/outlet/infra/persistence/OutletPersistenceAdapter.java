@@ -6,7 +6,9 @@ import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +20,15 @@ public class OutletPersistenceAdapter
   private final OutletSpringRepository repo;
 
   @Override
-  public Optional<Outlet> findById(OutletId id, TenantId tenantId) {
-    return repo.findById(id.uuid())
-        .filter(e -> tenantId.uuid().equals(e.getTenantId()))
-        .map(this::toDomain);
+  public Optional<Outlet> findById(OutletId id) {
+    // RLS enforces tenant scoping at DB level; the tenantId param is kept for audit/clarity but not used in WHERE
+    return repo.findById(id.value()).map(this::toDomain);
+  }
+
+  @Override
+  public List<Outlet> listByTenant() {
+    // Use findAll() and rely on RLS to scope to current tenant
+    return repo.findAll().stream().map(this::toDomain).collect(Collectors.toList());
   }
 
   @Override
@@ -32,11 +39,9 @@ public class OutletPersistenceAdapter
   }
 
   @Override
-  public boolean isSalesBlocked(TenantId tenantId, OutletId outletId) {
-    return repo.findById(outletId.uuid())
-        .filter(e -> tenantId.uuid().equals(e.getTenantId()))
-        .map(OutletEntity::isSalesBlocked)
-        .orElse(false);
+  public boolean isSalesBlocked(OutletId outletId) {
+    // RLS handles tenant scoping
+    return repo.findById(outletId.value()).map(OutletEntity::isSalesBlocked).orElse(false);
   }
 
   private Outlet toDomain(OutletEntity e) {
@@ -62,8 +67,8 @@ public class OutletPersistenceAdapter
 
   private OutletEntity toEntity(Outlet o) {
     OutletEntity e = new OutletEntity();
-    e.setId(o.id().uuid());
-    e.setTenantId(o.tenantId() == null ? null : o.tenantId().uuid());
+    e.setId(o.id().value());
+    e.setTenantId(o.tenantId() == null ? null : o.tenantId().value());
     e.setName(o.name());
     e.setSlug(o.slug());
     e.setDayClosed(o.dayClosed());

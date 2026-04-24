@@ -47,7 +47,7 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
   private LedgerEntryJpaEntity toEntity(LedgerEntry entry) {
     var ledgerEntryJpaEntity = new LedgerEntryJpaEntity();
     ledgerEntryJpaEntity.setId(entry.id());
-    ledgerEntryJpaEntity.setTenantId(entry.tenantId().uuid());
+    ledgerEntryJpaEntity.setTenantId(entry.tenantId().value());
     ledgerEntryJpaEntity.setRefType(entry.refType());
     ledgerEntryJpaEntity.setRefId(entry.refId());
     ledgerEntryJpaEntity.setAmount(entry.amount());
@@ -65,7 +65,7 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
 
   @Override
   public BigDecimal getBalance(TenantId tenantId) {
-    return jpaRepository.computeBalance(tenantId.uuid());
+    return jpaRepository.computeBalance(tenantId.value());
   }
 
   @Override
@@ -73,20 +73,20 @@ public class LedgerRepositoryAdapter implements LedgerWriterPort, LedgerReaderPo
       TenantId tenantId, Instant from, Instant to, int limit, int offset) {
     var entities =
         jpaRepository.findByTenantIdAndOccurredAtBetweenOrderByOccurredAtDesc(
-            tenantId.uuid(), from, to);
+            tenantId.value(), from, to);
     // Note: the repo method doesn't use pageable, so we slice manually
     return entities.stream().skip(offset).limit(limit).map(this::toDomain).toList();
   }
 
   @Override
   public List<LedgerEntry> findByRef(TenantId tenantId, LedgerRefType refType, UUID refId) {
-    return jpaRepository.findByTenantIdAndRefTypeAndRefId(tenantId.uuid(), refType, refId).stream()
+    return jpaRepository.findByTenantIdAndRefTypeAndRefId(tenantId.value(), refType, refId).stream()
         .map(this::toDomain)
         .toList();
   }
 
   @Override
   public boolean existsByRef(TenantId tenantId, LedgerRefType refType, UUID refId) {
-    return jpaRepository.existsByTenantIdAndRefTypeAndRefId(tenantId.uuid(), refType, refId);
+    return jpaRepository.existsByTenantIdAndRefTypeAndRefId(tenantId.value(), refType, refId);
   }
 }

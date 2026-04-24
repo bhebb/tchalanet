@@ -1,15 +1,15 @@
 package com.tchalanet.server.catalog.settings.internal.read;
 
-import com.tchalanet.server.catalog.settings.api.ResolveSettingsCriteria;
-import com.tchalanet.server.catalog.settings.api.ResolvedSettingView;
-import com.tchalanet.server.catalog.settings.api.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
+import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
+import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheNames;
 import com.tchalanet.server.catalog.settings.internal.mapper.SettingMapper;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +42,13 @@ public class SettingsCatalogImpl implements SettingsCatalog {
       value = SettingsCacheNames.RESOLVED_SETTINGS,
       key = "T(com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheKey).of(#criteria)")
   public List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria) {
-    TenantId tenantId = criteria.tenantId();
     OutletId outletId = criteria.outletId();
     TerminalId terminalId = criteria.terminalId();
     List<String> namespaces = criteria.namespaces();
 
     log.debug(
         "Resolving settings for tenant={}, outlet={}, terminal={}, namespaces={}",
-        tenantId,
+        criteria.tenantId(),
         outletId,
         terminalId,
         namespaces);
@@ -145,5 +145,16 @@ public class SettingsCatalogImpl implements SettingsCatalog {
 
   private static String makeKey(String namespace, String key) {
     return namespace + "\u0000" + key;
+  }
+
+  @Override
+  public SettingsCatalogStatsView stats() {
+    // total global settings (GLOBAL level)
+    int totalGlobal = repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.GLOBAL).size();
+    // total tenant settings (TENANT level)
+    int totalTenant = repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.TENANT).size();
+    // total active settings across all levels
+    long totalActive = repository.findByActiveTrueAndDeletedAtIsNull(Pageable.unpaged()).getTotalElements();
+    return new SettingsCatalogStatsView(totalGlobal, totalTenant, totalActive);
   }
 }

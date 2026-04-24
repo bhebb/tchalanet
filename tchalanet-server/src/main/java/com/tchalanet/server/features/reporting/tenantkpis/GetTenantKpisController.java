@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/platform/reports/tenant-kpis")
+@RequestMapping("/tenant/reports/tenant-kpis")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Reports")
 public class GetTenantKpisController {

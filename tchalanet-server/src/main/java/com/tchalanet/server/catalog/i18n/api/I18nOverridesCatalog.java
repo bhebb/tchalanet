@@ -1,9 +1,11 @@
 package com.tchalanet.server.catalog.i18n.api;
 
+import com.tchalanet.server.catalog.i18n.api.model.I18nGlobalKeyStatsView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 
@@ -38,15 +40,6 @@ public interface I18nOverridesCatalog {
 
 
     /**
-     * Get overrides as a map (key → value) for a tenant and locale.
-     *
-     * <p>Convenience method for direct translation lookups.
-     *
-     * @param tenantId tenant ID (required)
-     * @param locale   locale code (required)
-     * @return map of i18nKey → i18nValue
-     */
-    /**
      * Resolve effective overrides for a locale.
      * Returns a map where tenant overrides overwrite global ones.
      * <p>
@@ -54,4 +47,20 @@ public interface I18nOverridesCatalog {
      * value = i18n_value
      */
     Map<String, String> resolveLocale(String locale, @CurrentContext TchRequestContext ctx);
+
+    /**
+     * Convenience: resolve GLOBAL-only (platform scope) when no context is available.
+     */
+    default Map<String, String> resolveLocale(String locale) {
+        return resolveLocale(locale, null);
+    }
+
+    /**
+     * Convenience: resolve merged GLOBAL + TENANT overrides for the specified tenant.
+     */
+    Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId);
+
+    // NEW: platform global stats for i18n keys/overrides
+    I18nGlobalKeyStatsView keyStats();
+
 }

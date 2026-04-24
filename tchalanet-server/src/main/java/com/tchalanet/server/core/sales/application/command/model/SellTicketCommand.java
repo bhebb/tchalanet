@@ -23,7 +23,7 @@ public record SellTicketCommand(
 ) implements Command<SellTicketResult> {
 
     public record LineCommand(
-        String gameCode,
+        com.tchalanet.server.common.types.enums.GameCode gameCode,
         String selection,
         BigDecimal stake,
         BetType betType,

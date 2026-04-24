@@ -14,5 +14,9 @@ import java.util.Optional;
 public interface TenantUserReaderPort {
     TchPage<TenantUserRow> pagedListByTenant(TenantId tenantId, TchPageRequest pageReq);
 
-    Optional<TenantUserMembership> findByTenantIdAndUserId(TenantId tenantId, UserId userId);
+    TchPage<TenantUserRow> searchByTenant(TenantId tenantId, TenantUserSearchCriteria criteria, TchPageRequest pageReq);
+
+    TenantUserDetails getDetails(TenantId tenantId, UserId userId);
+
+    Optional<TenantUserMembership> findByUserId(UserId userId);
 }

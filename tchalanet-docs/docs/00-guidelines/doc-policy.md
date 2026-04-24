@@ -1,6 +1,6 @@
 # Politique documentaire Tchalanet
 
-**Version**: 1.0.0 | **Date**: 2026-01-17
+**Version**: 1.1.0 | **Date**: 2026-04-23
 
 ---
 
@@ -208,6 +208,68 @@ Pour les règles métier sales, voir [Documentation centrale - Domain Sales](../
 
 ---
 
+## Workflow de modification d'une règle
+
+> Quand une règle technique ou métier change, suivre cette cascade dans l'ordre.
+
+### Étape 1 — Modifier la source canonique near-code
+
+C'est **toujours** le premier fichier à modifier.
+
+| Type de règle                               | Fichier à modifier en premier                                  |
+| ------------------------------------------- | -------------------------------------------------------------- |
+| Architecture backend (couches, dépendances) | `tchalanet-server/docs/ARCHITECTURE.md`                        |
+| Nommage Java                                | `tchalanet-server/docs/NAMING.md`                              |
+| Typed IDs                                   | `tchalanet-server/docs/conventions/typed_ids.md`               |
+| RLS / multi-tenant                          | `tchalanet-server/docs/conventions/persistence/rls.md`         |
+| Events / effets de bord                     | `tchalanet-server/docs/conventions/event_model.md`             |
+| Tests                                       | `tchalanet-server/docs/conventions/testing.md`                 |
+| Persistence / Flyway                        | `tchalanet-server/docs/conventions/persistence/persistence.md` |
+| Frontend Angular                            | `apps/tchalanet-web/README.md` ou `libs/**/README.md`          |
+| Infra / Docker                              | `tchalanet-infra/docs/`                                        |
+| Edge service                                | `tchalanet-edge-service/README.md`                             |
+| Domaine métier                              | `tchalanet-server/src/**/DOMAIN_*.md`                          |
+
+### Étape 2 — Mettre à jour le skill IA correspondant
+
+Après avoir modifié la convention near-code, mettre à jour le résumé `.claude/skills/*/SKILL.md` correspondant.
+
+> ⚠️ Ne jamais modifier un skill sans avoir d'abord modifié la convention source.
+
+| Convention modifiée | Skill à mettre à jour                          |
+| ------------------- | ---------------------------------------------- |
+| `ARCHITECTURE.md`   | `.claude/skills/backend-architecture/SKILL.md` |
+| `NAMING.md`         | `.claude/skills/backend-naming/SKILL.md`       |
+| `typed_ids.md`      | `.claude/skills/backend-typed-ids/SKILL.md`    |
+| `rls.md`            | `.claude/skills/backend-rls/SKILL.md`          |
+| `event_model.md`    | `.claude/skills/backend-events/SKILL.md`       |
+| `testing.md`        | `.claude/skills/backend-testing/SKILL.md`      |
+| `persistence.md`    | `.claude/skills/backend-persistence/SKILL.md`  |
+
+### Étape 3 — Mettre à jour la doc fonctionnelle (si impact métier)
+
+Seulement si la règle a un impact visible côté business ou architecture globale :
+
+- Domaine ou workflow → `tchalanet-docs/docs/02-functional/`
+- Décision structurante → `tchalanet-docs/docs/03-adr/` (ADR obligatoire)
+- Architecture map → `tchalanet-docs/docs/01-architecture/`
+
+> ❌ Ne jamais commencer par la doc fonctionnelle.  
+> ❌ Ne jamais commencer par les skills IA.  
+> ✅ Toujours commencer par la source near-code.
+
+### Résumé visuel
+
+```
+1. near-code (convention source)
+        ↓
+2. .claude/skills/ (résumé IA)
+        ↓
+3. tchalanet-docs/docs/ (si impact métier ou archi)
+```
+
+---
+
 ## Workflow contributions
 
 ### Modifier doc centrale (MkDocs)
@@ -263,4 +325,4 @@ cd tchalanet-server  # ou apps/tchalanet-web, tchalanet-infra
 ---
 
 **Maintenu par** : équipe Tchalanet  
-**Dernière mise à jour** : 2026-01-17
+**Dernière mise à jour** : 2026-04-23

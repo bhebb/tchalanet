@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
-import com.tchalanet.server.catalog.settings.api.SettingValueType;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 
 /**
  * Setting Key Definition (INTERNAL)

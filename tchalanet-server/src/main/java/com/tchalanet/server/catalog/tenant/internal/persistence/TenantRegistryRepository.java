@@ -120,6 +120,34 @@ public class TenantRegistryRepository {
   }
 
   /**
+   * Count non-deleted tenants.
+   */
+  public int countAll() {
+    try {
+      Integer v = jdbc.queryForObject("SELECT COUNT(*) FROM tenant WHERE deleted_at IS NULL", Integer.class);
+      return v == null ? 0 : v;
+    } catch (Exception e) {
+      return 0;
+    }
+  }
+
+  /**
+   * Count tenants by status (non-deleted).
+   */
+  public int countByStatus(String status) {
+    if (status == null) return 0;
+    try {
+      Integer v = jdbc.queryForObject(
+          "SELECT COUNT(*) FROM tenant WHERE status = ? AND deleted_at IS NULL",
+          Integer.class,
+          status);
+      return v == null ? 0 : v;
+    } catch (Exception e) {
+      return 0;
+    }
+  }
+
+  /**
    * Build ORDER BY clause from Spring Sort.
    * Supports multiple sort fields.
    */
@@ -166,7 +194,7 @@ public class TenantRegistryRepository {
     entity.setTimezone(rs.getString(6));
     entity.setCurrency(rs.getString(7));
     entity.setAddressId((UUID) rs.getObject(8));
-    entity.setActiveThemeId(rs.getString(9));
+    entity.setActiveThemeId((UUID) rs.getObject(9));
     entity.setDeletedAt(rs.getTimestamp(10) != null ? rs.getTimestamp(10).toInstant() : null);
     entity.setCreatedAt(rs.getTimestamp(11) != null ? rs.getTimestamp(11).toInstant() : null);
     entity.setUpdatedAt(rs.getTimestamp(12) != null ? rs.getTimestamp(12).toInstant() : null);

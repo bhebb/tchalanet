@@ -77,129 +77,72 @@ Si une règle doit être cassée → **ADR obligatoire** (`tchalanet-docs/docs/0
 
 ## 1) Architecture backend (STRICTE)
 
-Le backend respecte **4 couches** immuables :
+> ⚠️ Ce fichier est un **navigateur**, pas une source de contenu.
+> Le contenu détaillé vit dans les sources canoniques listées ci-dessous.
 
-- `common/`  
-  → technique transversal (context, errors, bus, tx, cache infra)  
-  ❌ aucune logique métier
+**4 couches immuables** : `common/` · `catalog/` · `core/` · `features/`
 
-- `catalog/`  
-  → référentiels / lookup / read-mostly  
-  ❌ pas d’events métier, ❌ pas de calculs d’argent
-
-- `core/`  
-  → domaines critiques (hexagonal + CQRS)  
-  ✔ ventes, tirages, résultats, argent, limites, audit, sécurité
-
-- `features/`  
-  → orchestration / BFF / pages / agrégation multi-domaines  
-  ❌ pas de duplication de règles métier critiques
-
-**Règles de dépendances** :
-
-- `core/` ❌ dépend de `features/`
-- `catalog/` ❌ side-effects
-- `features/` ✔ orchestre `core/`, lit `catalog/`
-- `common/` ❌ dépend du métier
+- Règles de dépendances et structures internes :
+  👉 `openspec/context/10-non-negotiables.md` (résumé non-négociable)
+  👉 `tchalanet-server/docs/ARCHITECTURE.md` (source canonique complète)
+  👉 `.claude/skills/backend-architecture/SKILL.md` (fiche IA actionable)
 
 ---
 
 ## 2) Versions Gate + Deprecated Guard (MUST)
 
-### Source de vérité
+**Source unique des versions** : 👉 **`VERSIONS.md` (root)**
 
-👉 **`VERSIONS.md` (root)**
-
-Aucune version (framework, lib, runtime, image Docker) ne change sans :
-
-1. mise à jour de `VERSIONS.md`
-2. mise à jour du wrapper/pin correspondant
-3. mise à jour des images Docker si concerné
-4. note d’impact si prod
-
-### Deprecated Guard
-
-- Interdiction d’introduire des APIs **deprecated**
-- Toujours utiliser les **features de la version pin**
-- Si un deprecated est inévitable :
-  - commenter WHY
-  - ouvrir une ADR ou un ticket
+Aucune version ne change sans mise à jour de `VERSIONS.md`.
+Deprecated guard : 👉 `openspec/context/05-version-guard.md`
 
 ---
 
 ## 3) Backend — règles techniques (MUST)
 
-### Stack
+**Sources canoniques** :
 
-- Java **25**
-- Spring Boot **4.x**
-- Maven (`./mvnw`)
-- MapStruct (mappers)
-- Lombok (boilerplate uniquement, éviter `@Data`)
-- JPA/Hibernate + Flyway
-- Redis + Caffeine
-- Spring Batch
+- `tchalanet-server/docs/ARCHITECTURE.md`
+- `tchalanet-server/docs/conventions/*`
+- `.claude/skills/backend-*/SKILL.md` (checklists IA)
 
-### Règles clés
+Règles clés (résumé) :
 
 - Constructor injection uniquement
 - Controllers thin (validation + mapping + appel handler)
 - Side-effects publiés **after-commit**
 - Flyway obligatoire (`ddl-auto=validate`)
-- Wrappers d’ID partout (UUID brut uniquement dans entities/repos)
-
-### Tests
-
-- AssertJ uniquement
-- `@Nested` pour scénarios
-- Préférer ports in-memory aux mocks lourds
-
-📌 Source de vérité :
-`tchalanet-server/docs/ARCHITECTURE.md`  
-`tchalanet-server/docs/conventions/*`
+- Typed IDs partout sauf persistence
 
 ---
 
 ## 4) Web / Mobile — règles (MUST)
 
-### Stack web
+**Sources canoniques** :
 
-- Node 20.19.x
-- pnpm 10.19.0 (pin via `packageManager`)
-- Nx 21.x
-- Angular 20.x + Material
+- `apps/tchalanet-web/README.md`
+- `libs/**/README.md`
+- `.claude/skills/frontend-web/SKILL.md`
 
-### Règles UI
-
-- Mobile-first (480 / 768 / 1024)
-- i18n fr / en / ht (snake_case, namespaces)
-- Theming :
-  - base SCSS unique
-  - overrides via CSS variables
-  - ❌ aucune couleur hardcodée
-- Widgets/pages :
-  - rendu via renderer
-  - ❌ logique widget dans pages
-
-📌 Source de vérité :
-`apps/tchalanet-web/README.md`  
-`libs/**/README.md`
+Règles clés : mobile-first · i18n fr/en/ht · CSS variables uniquement · ❌ couleurs hardcodées.
 
 ---
 
 ## 5) Infra / Edge (MUST)
 
-- Pas de `:latest`
-- Images Docker pinées
-- Toute image = référencée dans `VERSIONS.md`
-- Config documentée dans `tchalanet-infra/docs/`
-- Edge-service : `tchalanet-edge-service/README.md`
+**Sources canoniques** :
+
+- `tchalanet-infra/docs/`
+- `tchalanet-edge-service/README.md`
+- `.claude/skills/infrastructure/SKILL.md`
+
+Règles clés : pas de `:latest`, images pinées, toute version dans `VERSIONS.md`.
 
 ---
 
 ## 6) Documentation rules (MUST)
 
-- **Une seule source de vérité** par type d’info
+- **Une seule source de vérité** par type d'info
 - Règles stables → `tchalanet-docs/docs/`
 - Détails techniques → docs proches du code
 - SDD / specs en cours → `openspec/`
@@ -212,6 +155,7 @@ Doc hub canonique : **`DOCUMENTATION.md`**
 
 - Versions : `VERSIONS.md`
 - Doc hub : `DOCUMENTATION.md`
+- Politique documentaire : `tchalanet-docs/docs/00-guidelines/doc-policy.md`
 - OpenSpec : `openspec/project.md`, `openspec/context/*`, `openspec/specs/*`
 - Domain truth : `tchalanet-server/src/**/DOMAIN_*.md`
 - Feature truth : `tchalanet-server/src/**/FEATURE_*.md`

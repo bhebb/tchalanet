@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.sales.application.port.out;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import java.time.Instant;
 import java.util.List;
@@ -13,7 +12,6 @@ public interface TicketSettlementPort {
    * Must include lines (for winning calculation).
    */
   List<Ticket> findNextBatchForDraw(
-      TenantId tenantId,
       DrawId drawId,
       Instant afterCreatedAt,
       UUID afterId,

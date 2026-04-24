@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.admin.dto;
 
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import java.util.UUID;
 
 public record PageModelAdminUpsertRequest(

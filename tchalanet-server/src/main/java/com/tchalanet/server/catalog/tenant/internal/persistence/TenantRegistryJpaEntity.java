@@ -1,8 +1,5 @@
 package com.tchalanet.server.catalog.tenant.internal.persistence;
 
-import com.tchalanet.server.common.types.id.TenantId;
-import java.time.Instant;
-import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Read-model JPA entity for tenant registry.
@@ -25,40 +25,40 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TenantRegistryJpaEntity {
 
-  @Id
-  @Column(name = "id")
-  private UUID id;
+    @Id
+    @Column(name = "id")
+    private UUID id;
 
-  @Column(name = "code", nullable = false, unique = true, length = 64)
-  private String code;
+    @Column(name = "code", nullable = false, unique = true, length = 64)
+    private String code;
 
-  @Column(name = "name", length = 256)
-  private String name;
+    @Column(name = "name", length = 256)
+    private String name;
 
-  @Column(name = "status", nullable = false, length = 32)
-  private String status; // ACTIVE, SUSPENDED, ARCHIVED
+    @Column(name = "status", nullable = false, length = 32)
+    private String status; // ACTIVE, SUSPENDED, ARCHIVED
 
-  @Column(name = "type", nullable = false, length = 32)
-  private String type;   // COMMERCIAL, PERSONAL
+    @Column(name = "type", nullable = false, length = 32)
+    private String type;   // COMMERCIAL, PERSONAL
 
-  @Column(name = "timezone", length = 64)
-  private String timezone;
+    @Column(name = "timezone", length = 64)
+    private String timezone;
 
-  @Column(name = "currency", length = 3)
-  private String currency;
+    @Column(name = "currency", length = 3)
+    private String currency;
 
-  @Column(name = "address_id")
-  private UUID addressId;
+    @Column(name = "address_id")
+    private UUID addressId;
 
-  @Column(name = "active_theme_id", length = 64)
-  private String activeThemeId;
+    @Column(name = "active_theme_id", columnDefinition = "UUID")
+    private UUID activeThemeId;
 
-  @Column(name = "deleted_at")
-  private Instant deletedAt;
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
-  @Column(name = "created_at")
-  private Instant createdAt;
+    @Column(name = "created_at")
+    private Instant createdAt;
 
-  @Column(name = "updated_at")
-  private Instant updatedAt;
+    @Column(name = "updated_at")
+    private Instant updatedAt;
 }

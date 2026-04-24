@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.application.service;
 
+import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.domain.service.BetSelectionNormalizer;
@@ -24,58 +24,55 @@ public class TicketLinePreparationService {
 
     public List<SellTicketCommand.LineCommand> normalize(List<SellTicketCommand.LineCommand> lines) {
         return lines.stream()
-            .map(
-                l ->
-                    new SellTicketCommand.LineCommand(
-                        l.gameCode(),
-                        selectionNormalizer.normalize(l.betType(), l.selection()),
-                        l.stake(),
-                        l.betType(),
-                        l.betOption() // keep option
-                    ))
+            .map(l -> {
+                validateOption(l.betType(), l.betOption());
+                var normalizedSelection = selectionNormalizer.normalize(l.betType(), l.selection());
+                return new SellTicketCommand.LineCommand(
+                    l.gameCode(),
+                    normalizedSelection,
+                    requireStake(l.stake()),
+                    l.betType(),
+                    l.betOption()
+                );
+            })
             .toList();
     }
 
-    /**
-     * Merge duplicate (gameCode + betType + betOption + selection) by summing stakes.
-     */
     public List<SellTicketCommand.LineCommand> mergeDuplicates(List<SellTicketCommand.LineCommand> lines) {
-        record Key(String gameCode, String selection, BetType betType, Short betOption) {}
+        record Key(com.tchalanet.server.common.types.enums.GameCode gameCode, String selection, BetType betType, Short betOption) {
+        }
 
         Map<Key, BigDecimal> totals = new LinkedHashMap<>();
         for (var l : lines) {
-            if (l.stake() == null || l.stake().signum() <= 0) {
-                throw new IllegalArgumentException("Stake must be > 0");
-            }
+            validateOption(l.betType(), l.betOption());
             totals.merge(
                 new Key(l.gameCode(), l.selection(), l.betType(), l.betOption()),
-                l.stake(),
-                BigDecimal::add);
+                requireStake(l.stake()),
+                BigDecimal::add
+            );
         }
 
         return totals.entrySet().stream()
-            .map(
-                e ->
-                    new SellTicketCommand.LineCommand(
-                        e.getKey().gameCode(),
-                        e.getKey().selection(),
-                        e.getValue(),
-                        e.getKey().betType(),
-                        e.getKey().betOption()))
+            .map(e -> new SellTicketCommand.LineCommand(
+                e.getKey().gameCode(),
+                e.getKey().selection(),
+                e.getValue(),
+                e.getKey().betType(),
+                e.getKey().betOption()
+            ))
             .toList();
     }
 
-    /**
-     * Pricing snapshot: odds depend on betType + betOption (for pattern types).
-     */
     public List<TicketLine> toTicketLines(TenantId tenantId, List<SellTicketCommand.LineCommand> lines) {
         return lines.stream()
             .map(l -> {
-                BigDecimal stake = l.stake().setScale(2, RoundingMode.UNNECESSARY);
+                validateOption(l.betType(), l.betOption());
+
+                BigDecimal stake = requireStake(l.stake()).setScale(2, RoundingMode.UNNECESSARY);
 
                 BigDecimal odds = pricingCatalog
-                    .oddsFor(tenantId, l.gameCode(), l.betType(), l.betOption())
-                    .setScale(4, RoundingMode.HALF_UP);
+                    .oddsFor(tenantId, canonicalGameCode(l.gameCode()), l.betType(), l.betOption())
+                    .setScale(4, RoundingMode.HALF_UP); // or UNNECESSARY
 
                 BigDecimal potential = stake.multiply(odds).setScale(2, RoundingMode.HALF_UP);
 
@@ -86,10 +83,35 @@ public class TicketLinePreparationService {
                     odds,
                     potential,
                     l.betType(),
-                    l.betOption() // ideally Short later
+                    l.betOption()
                 );
             })
             .toList();
     }
 
+    private static BigDecimal requireStake(BigDecimal stake) {
+        if (stake == null || stake.signum() <= 0) {
+            throw new IllegalArgumentException("Stake must be > 0");
+        }
+        return stake;
+    }
+
+    // With GameCode enum in web/domain, canonicalization is no-op: return enum name
+    private static String canonicalGameCode(com.tchalanet.server.common.types.enums.GameCode gameCode) {
+        if (gameCode == null) throw new IllegalArgumentException("gameCode is required");
+        return gameCode.name();
+    }
+
+    private static void validateOption(BetType betType, Short betOption) {
+        if (betType == null) throw new IllegalArgumentException("betType is required");
+
+        if (betType.requiresBetOption()) {
+            if (betOption == null) throw new IllegalArgumentException("betOption is required for " + betType);
+            if (betOption < betType.betOptionMin() || betOption > betType.betOptionMax()) {
+                throw new IllegalArgumentException("betOption out of range for " + betType);
+            }
+        } else {
+            if (betOption != null) throw new IllegalArgumentException("betOption must be null for " + betType);
+        }
+    }
 }

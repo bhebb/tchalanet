@@ -1,8 +1,13 @@
 package com.tchalanet.server.catalog.tenant.api;
 
+import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
+import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatsView;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Read-only tenant catalog API.
@@ -76,6 +81,12 @@ public interface TenantCatalog {
    * @param pageable pagination and sorting parameters
    * @return page of tenant registry views
    */
-  org.springframework.data.domain.Page<TenantRegistryView> listTenants(
-      org.springframework.data.domain.Pageable pageable);
+  Page<TenantRegistryView> listTenants(Pageable pageable);
+
+  /**
+   * Get tenant statistics.
+   *
+   * @return tenant statistics view
+   */
+  TenantStatsView stats();
 }

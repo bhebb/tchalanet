@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.tenantuser.infra.persistence;
 
-import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
 import com.tchalanet.server.common.types.enums.TenantUserStatus;
 import jakarta.persistence.*;
@@ -15,10 +15,7 @@ import java.util.UUID;
 @Audited
 @Getter
 @Setter
-public class TenantUserJpaEntity extends BaseEntity {
-
-    @Column(name = "tenant_id", nullable = false)
-    private UUID tenantId;
+public class TenantUserJpaEntity extends BaseTenantEntity {
 
     @Column(name = "user_id", nullable = false)
     private java.util.UUID userId;
@@ -27,13 +24,16 @@ public class TenantUserJpaEntity extends BaseEntity {
     private UUID roleId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "autonomy_level", length = 16)
-    private AutonomyLevel autonomyLevel;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 32)
     private TenantUserStatus status;
 
     @Column(name = "is_owner")
     private Boolean isOwner = Boolean.FALSE;
+
+    // NEW: workplace fields
+    @Column(name = "outlet_id")
+    private UUID outletId;
+
+    @Column(name = "terminal_id")
+    private UUID terminalId;
 }

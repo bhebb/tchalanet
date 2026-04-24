@@ -16,6 +16,6 @@ import org.hibernate.envers.Audited;
 @Audited
 public abstract class BaseTenantEntity extends BaseEntity {
 
-  @Column(name = "tenantId", nullable = false, updatable = false, columnDefinition = "uuid")
+  @Column(name = "tenant_id", nullable = false, updatable = false, columnDefinition = "uuid")
   private UUID tenantId;
 }

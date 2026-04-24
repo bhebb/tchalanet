@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.cache;
 
-import com.tchalanet.server.catalog.settings.api.ResolveSettingsCriteria;
+import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;

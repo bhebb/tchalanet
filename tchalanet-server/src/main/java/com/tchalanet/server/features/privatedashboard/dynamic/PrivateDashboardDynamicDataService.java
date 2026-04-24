@@ -3,7 +3,7 @@ package com.tchalanet.server.features.privatedashboard.dynamic;
 import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import com.tchalanet.server.features.privatedashboard.block.PrivateDashboardDynamicPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

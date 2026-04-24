@@ -1,8 +1,8 @@
 package com.tchalanet.server.catalog.settings.internal.persistence;
 
-import com.tchalanet.server.catalog.settings.api.SettingLevel;
-import com.tchalanet.server.catalog.settings.api.SettingValueType;
-import com.tchalanet.server.common.persistence.BaseEntity;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
+import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.*;
 import java.util.UUID;
@@ -15,7 +15,7 @@ import org.hibernate.envers.Audited;
  *
  * <p>This entity is INTERNAL to the catalog and MUST NOT be exposed outside the catalog module.
  *
- * <p>Use {@link com.tchalanet.server.catalog.settings.api.SettingView} for public API.
+ * <p>Use {@link SettingView} for public API.
  */
 @Entity
 @Table(name = "app_setting")

@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.limitpolicy.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.types.enums.TargetType;
-import com.tchalanet.server.common.types.id.TenantId;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.LimitAssignmentId;
+import jakarta.validation.constraints.NotNull;
 
 public record DeleteLimitAssignmentCommand(
-    TenantId tenantId, UUID assignmentId, TargetType targetType, UUID targetId)
-    implements Command<Void> {}
+    @NotNull LimitAssignmentId id
+) implements Command<DeleteLimitAssignmentResult> {}

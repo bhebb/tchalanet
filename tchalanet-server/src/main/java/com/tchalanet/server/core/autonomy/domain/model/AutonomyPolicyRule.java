@@ -3,33 +3,41 @@ package com.tchalanet.server.core.autonomy.domain.model;
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
-import com.tchalanet.server.common.types.id.TenantId;
-import java.time.Instant;
-import java.util.UUID;
+import com.tchalanet.server.core.autonomy.domain.ids.AutonomyPolicyRuleId;
+import com.tchalanet.server.core.autonomy.domain.ids.AutonomyTargetId;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * Represents an autonomy policy rule that defines the approval requirements for transactions based
- * on the target entity (TENANT, OUTLET, TERMINAL, AGENT).
- *
- * <p>An autonomy policy determines whether certain transactions require approval and which role can
- * provide that approval.
- */
-public record AutonomyPolicyRule(
-    UUID id,
-    TenantId tenantId,
-    AutonomyTargetType targetType,
-    UUID targetId,
-    AutonomyLevel level,
-    boolean requireApprovalOnBlock,
-    ApprovalRole approvalRole,
-    boolean enabled,
-    Instant startsAt,
-    Instant endsAt,
-    long version) {
-  public boolean isActiveAt(Instant now) {
-    if (!enabled) return false;
-    if (startsAt != null && now.isBefore(startsAt)) return false;
-    if (endsAt != null && !now.isBefore(endsAt)) return false;
-    return true;
-  }
+import java.time.OffsetDateTime;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class AutonomyPolicyRule {
+
+    private AutonomyPolicyRuleId id;
+    private AutonomyTargetType targetType;
+    private AutonomyTargetId targetId;
+
+    private AutonomyLevel level;
+    private boolean requireApprovalOnBlock;
+    private ApprovalRole approvalRole;
+
+    private boolean enabled;
+    private OffsetDateTime startsAt;
+    private OffsetDateTime endsAt;
+
+    private Long version; // optimistic locking / version
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+
+    private boolean deleted; // soft-delete flag (infra info surfaced for overview)
+
+    // Explicit getter to ensure static analyses (without Lombok processing) see this method
+    public Long getVersion() {
+        return this.version;
+    }
 }

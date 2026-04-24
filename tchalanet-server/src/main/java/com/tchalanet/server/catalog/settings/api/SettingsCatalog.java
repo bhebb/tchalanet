@@ -1,5 +1,10 @@
 package com.tchalanet.server.catalog.settings.api;
 
+import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
+import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
+import com.tchalanet.server.catalog.settings.api.model.SettingView;
+import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
+
 import java.util.List;
 
 /**
@@ -28,4 +33,9 @@ public interface SettingsCatalog {
    * @return list of resolved settings with effective level
    */
   List<ResolvedSettingView> resolve(ResolveSettingsCriteria criteria);
+
+  /**
+   * Global statistics for settings (used by platform admin overview)
+   */
+  SettingsCatalogStatsView stats();
 }

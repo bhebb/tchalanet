@@ -94,8 +94,8 @@ WITH src AS (
               -- =========================
               ('NY_MID','NY','America/New_York','14:30','MON-SUN', true, 10,
                '{
-                 "pick3":{"game_code":"US_NY_NUM3_MID","external_key":"NUMBERS"},
-                 "pick4":{"game_code":"US_NY_NUM4_MID","external_key":"WIN4"}
+                 "pick3":{"external_game_code":"US_NY_NUM3_MID","external_key":"NUMBERS"},
+                 "pick4":{"external_game_code":"US_NY_NUM4_MID","external_key":"WIN4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -105,8 +105,8 @@ WITH src AS (
 
               ('NY_EVE','NY','America/New_York','22:30','MON-SUN', true, 11,
                '{
-                 "pick3":{"game_code":"US_NY_NUM3_EVE","external_key":"NUMBERS"},
-                 "pick4":{"game_code":"US_NY_NUM4_EVE","external_key":"WIN4"}
+                 "pick3":{"external_game_code":"US_NY_NUM3_EVE","external_key":"NUMBERS"},
+                 "pick4":{"external_game_code":"US_NY_NUM4_EVE","external_key":"WIN4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -119,8 +119,8 @@ WITH src AS (
               -- =========================
               ('FL_MID','FL','America/New_York','13:30','MON-SUN', true, 20,
                '{
-                 "pick3":{"game_code":"US_FL_PICK3_MID","external_key":"PICK3"},
-                 "pick4":{"game_code":"US_FL_PICK4_MID","external_key":"PICK4"}
+                 "pick3":{"external_game_code":"US_FL_PICK3_MID","external_key":"PICK3"},
+                 "pick4":{"external_game_code":"US_FL_PICK4_MID","external_key":"PICK4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -130,8 +130,8 @@ WITH src AS (
 
               ('FL_EVE','FL','America/New_York','22:45','MON-SUN', true, 21,
                '{
-                 "pick3":{"game_code":"US_FL_PICK3_EVE","external_key":"PICK3"},
-                 "pick4":{"game_code":"US_FL_PICK4_EVE","external_key":"PICK4"}
+                 "pick3":{"external_game_code":"US_FL_PICK3_EVE","external_key":"PICK3"},
+                 "pick4":{"external_game_code":"US_FL_PICK4_EVE","external_key":"PICK4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -144,8 +144,8 @@ WITH src AS (
               -- =========================
               ('GA_MID','GA','America/New_York','12:29','MON-SUN', true, 30,
                '{
-                 "pick3":{"game_code":"US_GA_CASH3_1229","external_key":"CASH3"},
-                 "pick4":{"game_code":"US_GA_CASH4_1229","external_key":"CASH4"}
+                 "pick3":{"external_game_code":"US_GA_CASH3_1229","external_key":"CASH3"},
+                 "pick4":{"external_game_code":"US_GA_CASH4_1229","external_key":"CASH4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -155,8 +155,8 @@ WITH src AS (
 
               ('GA_EVE','GA','America/New_York','18:59','MON-SUN', true, 31,
                '{
-                 "pick3":{"game_code":"US_GA_CASH3_1859","external_key":"CASH3"},
-                 "pick4":{"game_code":"US_GA_CASH4_1859","external_key":"CASH4"}
+                 "pick3":{"external_game_code":"US_GA_CASH3_1859","external_key":"CASH3"},
+                 "pick4":{"external_game_code":"US_GA_CASH4_1859","external_key":"CASH4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -166,8 +166,8 @@ WITH src AS (
 
               ('GA_LATE','GA','America/New_York','23:34','MON-SUN', true, 32,
                '{
-                 "pick3":{"game_code":"US_GA_CASH3_2334","external_key":"CASH3"},
-                 "pick4":{"game_code":"US_GA_CASH4_2334","external_key":"CASH4"}
+                 "pick3":{"external_game_code":"US_GA_CASH3_2334","external_key":"CASH3"},
+                 "pick4":{"external_game_code":"US_GA_CASH4_2334","external_key":"CASH4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -180,8 +180,8 @@ WITH src AS (
               -- =========================
               ('TN_MID','TN','America/Chicago','12:55','MON-SAT', false, 40,
                '{
-                 "pick3":{"game_code":"US_TN_CASH3_1255","external_key":"CASH3"},
-                 "pick4":{"game_code":"US_TN_CASH4_1255","external_key":"CASH4"}
+                 "pick3":{"external_game_code":"US_TN_CASH3_1255","external_key":"CASH3"},
+                 "pick4":{"external_game_code":"US_TN_CASH4_1255","external_key":"CASH4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -194,8 +194,8 @@ WITH src AS (
               -- =========================
               ('TX_1000','TX','America/Chicago','10:00','MON-SAT', true, 50,
                '{
-                 "pick3":{"game_code":"US_TX_PICK3_1000","external_key":"PICK3"},
-                 "pick4":{"game_code":"US_TX_DAILY4_1000","external_key":"DAILY4"}
+                 "pick3":{"external_game_code":"US_TX_PICK3_1000","external_key":"PICK3"},
+                 "pick4":{"external_game_code":"US_TX_DAILY4_1000","external_key":"DAILY4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -205,8 +205,8 @@ WITH src AS (
 
               ('TX_1227','TX','America/Chicago','12:27','MON-SAT', true, 51,
                '{
-                 "pick3":{"game_code":"US_TX_PICK3_1227","external_key":"PICK3"},
-                 "pick4":{"game_code":"US_TX_DAILY4_1227","external_key":"DAILY4"}
+                 "pick3":{"external_game_code":"US_TX_PICK3_1227","external_key":"PICK3"},
+                 "pick4":{"external_game_code":"US_TX_DAILY4_1227","external_key":"DAILY4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -216,8 +216,8 @@ WITH src AS (
 
               ('TX_1800','TX','America/Chicago','18:00','MON-SAT', true, 52,
                '{
-                 "pick3":{"game_code":"US_TX_PICK3_1800","external_key":"PICK3"},
-                 "pick4":{"game_code":"US_TX_DAILY4_1800","external_key":"DAILY4"}
+                 "pick3":{"external_game_code":"US_TX_PICK3_1800","external_key":"PICK3"},
+                 "pick4":{"external_game_code":"US_TX_DAILY4_1800","external_key":"DAILY4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -227,8 +227,8 @@ WITH src AS (
 
               ('TX_2212','TX','America/Chicago','22:12','MON-SAT', true, 53,
                '{
-                 "pick3":{"game_code":"US_TX_PICK3_2212","external_key":"PICK3"},
-                 "pick4":{"game_code":"US_TX_DAILY4_2212","external_key":"DAILY4"}
+                 "pick3":{"external_game_code":"US_TX_PICK3_2212","external_key":"PICK3"},
+                 "pick4":{"external_game_code":"US_TX_DAILY4_2212","external_key":"DAILY4"}
                }'::jsonb,
                '{
                  "version":1,"rule_set":"DEFAULT",
@@ -276,7 +276,6 @@ FROM src
 -- Seeds draw_channel for default tenant, each channel points to a global result_slot
 -- Tenant default: 00000000-0000-0000-0000-000000000003
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 WITH t AS (
     SELECT '00000000-0000-0000-0000-000000000003'::uuid AS tenant_id

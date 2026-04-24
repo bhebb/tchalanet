@@ -7,5 +7,5 @@ import java.time.Instant;
 import java.util.List;
 
 public interface SessionLookupPort {
-  List<SessionId> findSessionIds(TenantId tenantId, OutletId outletId, Instant from, Instant to);
+  List<SessionId> findSessionIds(OutletId outletId, Instant from, Instant to);
 }

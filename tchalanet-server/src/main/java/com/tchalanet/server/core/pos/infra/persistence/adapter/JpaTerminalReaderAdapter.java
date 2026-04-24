@@ -23,7 +23,7 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
   @Override
   public Optional<Terminal> findById(TenantId tenantId, TerminalId terminalId) {
     return jpaRepository
-        .findByTenantIdAndId(tenantId.uuid(), terminalId.uuid())
+        .findByTenantIdAndId(tenantId.value(), terminalId.value())
         .map(mapper::toDomain);
   }
 
@@ -32,7 +32,7 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
       TenantId tenantId, OutletId outletId, PageRequest pageRequest) {
     return jpaRepository
         .findAllByTenantIdAndOutletIdAndDeletedAtIsNull(
-            tenantId.uuid(), outletId.uuid(), pageRequest)
+            tenantId.value(), outletId.value(), pageRequest)
         .stream()
         .map(mapper::toDomain)
         .toList();
@@ -40,7 +40,7 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
 
   @Override
   public List<Terminal> listByTenant(TenantId tenantId, PageRequest pageRequest) {
-    return jpaRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId.uuid(), pageRequest).stream()
+    return jpaRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId.value(), pageRequest).stream()
         .map(mapper::toDomain)
         .toList();
   }

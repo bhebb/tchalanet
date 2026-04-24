@@ -10,5 +10,6 @@ public record UpdateUserProfileCommand(
     Optional<String> firstName,
     Optional<String> lastName,
     Optional<String> email,
+    Optional<String> phone,
     Optional<Locale> locale)
     implements Command<Void> {}

@@ -2,48 +2,37 @@ package com.tchalanet.server.core.outlet.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.catalog.address.application.dto.AddressDto;
-import com.tchalanet.server.catalog.address.application.port.out.AddressReaderPort;
+import com.tchalanet.server.core.address.application.model.AddressView;
+import com.tchalanet.server.core.address.application.port.AddressReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.query.model.GetOutletByIdQuery;
-import com.tchalanet.server.core.outlet.application.query.model.OutletDto;
+import com.tchalanet.server.core.outlet.application.query.model.OutletView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GetOutletByIdQueryHandler implements QueryHandler<GetOutletByIdQuery, OutletDto> {
+public class GetOutletByIdQueryHandler implements QueryHandler<GetOutletByIdQuery, OutletView> {
 
   private final OutletReaderPort repo;
   private final AddressReaderPort addressReader;
 
   @Override
-  public OutletDto handle(GetOutletByIdQuery q) {
-    var o = repo.getRequired(q.outletId(), q.tenantId());
+  public OutletView handle(GetOutletByIdQuery q) {
+    var o = repo.getRequired(q.outletId());
 
-    AddressDto addressDto = null;
+    AddressView addressView = null;
     if (o.addressId() != null) {
-      var a = addressReader.findById(o.addressId()).orElse(null);
-      if (a != null)
-        addressDto =
-            new AddressDto(
-                a.id(),
-                a.line1(),
-                a.line2(),
-                a.city(),
-                a.region(),
-                a.country(),
-                a.postalCode(),
-                a.latitude(),
-                a.longitude());
+      var a = addressReader.findById(q.tenantId(), com.tchalanet.server.common.types.id.AddressId.of(o.addressId())).orElse(null);
+      if (a != null) addressView = AddressView.fromDomain(a);
     }
 
-    return new OutletDto(
-        o.id().uuid(),
-        o.tenantId().uuid(),
+    return new OutletView(
+        o.id().value(),
+        o.tenantId() == null ? null : o.tenantId().value(),
         o.name(),
         o.slug(),
         o.dayClosed(),
         o.receiptPrintingEnabled(),
-        addressDto);
+        addressView);
   }
 }

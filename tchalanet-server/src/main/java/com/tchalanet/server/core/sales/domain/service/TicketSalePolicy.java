@@ -1,16 +1,19 @@
 package com.tchalanet.server.core.sales.domain.service;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.common.types.id.AgentId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
+import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
+import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
 import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
+import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
+import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
@@ -36,8 +39,8 @@ public class TicketSalePolicy {
     private final PosSessionReaderPort posSessionPort;
     private final OutletLookupPort outletLookupPort;
     private final DrawCutoffRule drawCutoffRule;
-    private final LimitPolicyFacade limitPolicyFacade;
-    private final AutonomyResolver autonomyResolver;
+    private final QueryBus queryBus; // replaced LimitPolicyFacade
+    private final ResolveAutonomyPolicyService resolveAutonomyPolicyService; // replaced AutonomyResolver
     private final TicketLinePreparationService ticketLinePreparationService;
     private final Clock clock;
 
@@ -47,7 +50,7 @@ public class TicketSalePolicy {
         Instant now,
         List<SellTicketCommand.LineCommand> mergedLines,
         List<TicketLine> ticketLines,
-        LimitEvaluationResult limits) {
+        LimitEvaluationView limits) {
     }
 
     /**
@@ -92,13 +95,13 @@ public class TicketSalePolicy {
                 .findOpenByTerminal(tenantId, terminalId)
                 .orElseThrow(() -> new SecurityException("No open session for terminalId=" + terminalId));
 
-        if (outletLookupPort.isSalesBlocked(tenantId, session.outletId())) {
+        if (outletLookupPort.isSalesBlocked(session.outletId())) {
             throw new SecurityException("Outlet sales are temporarily blocked for outletId=" + session.outletId());
         }
         return session;
     }
 
-    private LimitEvaluationResult evaluateLimitsAndAutonomy(
+    private LimitEvaluationView evaluateLimitsAndAutonomy(
         SellTicketCommand command,
         PosSession session,
         Draw draw,
@@ -109,45 +112,58 @@ public class TicketSalePolicy {
             mergedLines.stream().map(SellTicketCommand.LineCommand::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         List<LimitContext.BetLine> betLines =
-            mergedLines.stream().map(l -> new LimitContext.BetLine(l.betType(), l.selection(), l.stake())).collect(Collectors.toList());
+            mergedLines.stream().map(l -> new LimitContext.BetLine(l.betType(), l.selection(), l.stake(), l.betOption(), BigDecimal.ZERO)).collect(Collectors.toList());
+
+        LimitScopeRef scope = new LimitScopeRef.TenantScope(command.tenantId());
 
         LimitContext ctx =
             new LimitContext(
                 command.tenantId(),
                 draw.id(),
                 null,
-                AgentId.of(session.userId().uuid()),
+                AgentId.of(session.userId().value()),
                 session.terminalId(),
                 session.outletId(),
                 null,
                 List.of(),
                 null,
                 OperationType.SALE,
+                scope,
                 betLines,
                 total,
                 betLines.size(),
                 now,
                 java.time.ZoneId.systemDefault());
 
-        LimitEvaluationResult limitResult = limitPolicyFacade.evaluate(OperationType.SALE, ctx);
+        // send query via QueryBus
+        LimitEvaluationView limitView = queryBus.send(new EvaluateLimitPolicyQuery(ctx));
 
-        var autonomyPolicy =
-            autonomyResolver.resolve(
-                command.tenantId(), AgentId.of(session.userId().uuid()), session.terminalId(), session.outletId(), now);
+        // Resolve autonomy using ResolveAutonomyPolicyService
+        var autonomyReq = new AutonomyResolveRequest(
+            AgentId.of(session.userId().value()),
+            session.terminalId(),
+            session.outletId(),
+            now);
 
-        if (limitResult.overallOutcome() == BreachOutcome.BLOCK && !autonomyPolicy.requireApprovalOnBlock()) {
+        var autonomyPolicy = resolveAutonomyPolicyService.resolve(autonomyReq);
+
+        if (limitView.outcome() == BreachOutcome.BLOCK && !autonomyPolicy.requireApprovalOnBlock()) {
             List<LimitNotice> notices =
-                limitResult.details().stream()
-                    .map(
-                        d ->
-                            new LimitNotice(
-                                d.ruleKey(), d.outcome(), d.message(), d.targetApplied(), d.selectionKey(), d.currentValue(), d.limitValue()))
+                limitView.breaches().stream()
+                    .map(d -> new LimitNotice(
+                        d.ruleKey().name(),
+                        d.outcome(),
+                        d.messageKey(),
+                        d.appliedTarget(),
+                        null,
+                        d.currentValue(),
+                        d.limitValue()))
                     .toList();
 
             throw com.tchalanet.server.common.error.ProblemRest.limitBlocked(
                 "Limit breach blocked", OperationType.SALE, notices, true, autonomyPolicy.approvalRole());
         }
 
-        return limitResult;
+        return limitView;
     }
 }

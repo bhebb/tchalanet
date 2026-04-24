@@ -1,7 +1,13 @@
 package com.tchalanet.server.core.sales.application.port.out;
 
+import com.tchalanet.server.common.types.enums.BetType;
 import java.math.BigDecimal;
 
-/** DTO representing a single printable line on a ticket. */
 public record TicketPrintLine(
-    String gameCode, String selection, BigDecimal stake, BigDecimal potentialPayout) {}
+    String gameCode,
+    BetType betType,
+    Short betOption,
+    String selection,
+    BigDecimal stake,
+    BigDecimal potentialPayout
+) {}

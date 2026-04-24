@@ -8,19 +8,26 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+/** JDBC adapter providing draw result minimal view. Returns {@link DrawResultViewPort.DrawResultMinimalView}. */
 @Component
-@RequiredArgsConstructor
 public class DrawResultViewPortJdbcAdapter implements DrawResultViewPort {
 
   private final JdbcTemplate jdbc;
   private final ObjectMapper om;
 
+  public DrawResultViewPortJdbcAdapter(JdbcTemplate jdbc, ObjectProvider<ObjectMapper> omProvider) {
+    this.jdbc = jdbc;
+    // if no ObjectMapper is available from context, create a default one
+    ObjectMapper provided = omProvider != null ? omProvider.getIfAvailable() : null;
+    this.om = (provided != null) ? provided : new ObjectMapper();
+  }
+
   @Override
-  public DrawResultView findById(UUID drawResultId) {
+  public DrawResultMinimalView findById(UUID drawResultId) {
     return jdbc.query(
         """
         select
@@ -37,7 +44,7 @@ public class DrawResultViewPortJdbcAdapter implements DrawResultViewPort {
         drawResultId);
   }
 
-  private DrawResultView mapRow(ResultSet rs) {
+  private DrawResultMinimalView mapRow(ResultSet rs) {
     try {
       UUID id = (UUID) rs.getObject("id");
       String slotKey = rs.getString("slot_key");
@@ -49,15 +56,16 @@ public class DrawResultViewPortJdbcAdapter implements DrawResultViewPort {
       // Prefer Haiti projection if present, else fallback to source
       JsonNode payload = (haiti != null && !haiti.isNull()) ? haiti : source;
 
+      String lot1 = text(payload, "lot1");
+      String lot2 = text(payload, "lot2");
+      String lot3 = text(payload, "lot3");
       String pick3 = text(payload, "pick3");
-      String pick4 = text(payload, "pick4");
-      String pick5 = text(payload, "pick5");
 
       List<String> twoDigits = list(payload, "two_digits");
 
-      return new DrawResultView(id, slotKey, occurredAt, pick3, pick4, pick5, twoDigits);
+      return new DrawResultMinimalView(id, slotKey, occurredAt, lot1, lot2, lot3, pick3, twoDigits);
     } catch (Exception e) {
-      throw new IllegalStateException("Failed to map DrawResultView", e);
+      throw new IllegalStateException("Failed to map DrawResultMinimalView", e);
     }
   }
 
@@ -88,4 +96,3 @@ public class DrawResultViewPortJdbcAdapter implements DrawResultViewPort {
     return out;
   }
 }
-

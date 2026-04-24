@@ -2,7 +2,7 @@ package com.tchalanet.server.features.privatedashboard.dynamic;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import com.tchalanet.server.features.privatedashboard.block.ActivityFeedBlock;
 import com.tchalanet.server.features.privatedashboard.block.AlertsBlock;
 import com.tchalanet.server.features.privatedashboard.block.KpiBlock;

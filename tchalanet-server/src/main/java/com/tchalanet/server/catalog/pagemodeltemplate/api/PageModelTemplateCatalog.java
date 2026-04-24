@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.api;
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateStatsView;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -24,4 +25,7 @@ public interface PageModelTemplateCatalog {
      * Optional: paged search if you need admin screens.
      */
     TchPage<PageModelTemplateView> search(String logicalIdContains, String nameContains, TchPageRequest pageReq);
+
+    // NEW: global stats for console
+    PageModelTemplateStatsView stats();
 }

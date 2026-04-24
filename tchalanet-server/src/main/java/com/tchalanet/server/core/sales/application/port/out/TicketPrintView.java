@@ -18,4 +18,5 @@ public record TicketPrintView(
     String channelCode,
     String drawChannelLabel,
     String drawWhenLabel,
-    List<TicketPrintLine> lines) {}
+    List<TicketPrintLine> lines
+) {}

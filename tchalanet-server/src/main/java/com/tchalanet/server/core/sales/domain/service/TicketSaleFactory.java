@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.Currency;
 import java.util.List;
 
 import static com.tchalanet.server.common.constant.CommonConstants.DEFAULT_CURRENCY;
@@ -32,6 +33,7 @@ public class TicketSaleFactory {
         PosSession session,
         Draw draw,
         List<TicketLine> lines,
+        Currency currency,
         Instant now) {
 
         String ticketCode = numberGenerator.generate();
@@ -45,7 +47,7 @@ public class TicketSaleFactory {
             draw.id(),
             ticketCode,
             publicCode,
-            DEFAULT_CURRENCY,
+            currency,
             lines,
             now);
     }

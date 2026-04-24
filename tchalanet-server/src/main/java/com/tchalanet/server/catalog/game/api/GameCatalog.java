@@ -35,4 +35,10 @@ public interface GameCatalog {
    * Maps to spec G1 (findById).
    */
   Optional<GameView> findById(GameId id);
+
+  // NEW: stats globales (read-only)
+  GameStatsView stats();
+
+  // NEW (optional): recent for console
+  java.util.List<GameSummaryView> listRecent(int limit);
 }

@@ -7,6 +7,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
+import com.tchalanet.server.core.payout.application.command.model.MarkTicketPayoutPaidCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPaidEvent;

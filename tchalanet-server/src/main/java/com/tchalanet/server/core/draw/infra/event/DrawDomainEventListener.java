@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.infra.event;
 
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
-import com.tchalanet.server.core.drawresult.domain.event.DrawResultedEvent;
+import com.tchalanet.server.core.drawresult.domain.event.DrawResultedAppliedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class DrawDomainEventListener {
 
   @EventListener
-  public void onDrawResulted(DrawResultedEvent event) {
+  public void onDrawResulted(DrawResultedAppliedEvent event) {
     log.info(
         "DrawResultedEvent received: tenantId={}, drawId result={}, gameCode={}, drawChannelCode={}",
         event.tenantId(),

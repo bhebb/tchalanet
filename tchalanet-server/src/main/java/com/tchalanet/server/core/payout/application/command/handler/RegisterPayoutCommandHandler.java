@@ -7,11 +7,15 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.autonomy.domain.AutonomyResolver;
-import com.tchalanet.server.core.limitpolicy.application.facade.LimitPolicyFacade;
+import com.tchalanet.server.common.types.id.PayoutId;
+import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
+import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
+import com.tchalanet.server.core.limitpolicy.application.service.LimitPolicyRuntimeService;
+import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitEvaluationResult;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutCommand;
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutResult;
 import com.tchalanet.server.core.payout.application.port.out.PayoutApprovalPolicyPort;
@@ -28,6 +32,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,8 +49,8 @@ public class RegisterPayoutCommandHandler
   private final PayoutApprovalPolicyPort approvalPolicy;
   private final DomainEventPublisher domainEventPublisher;
   private final Clock clock;
-  private final LimitPolicyFacade limitPolicyFacade;
-  private final AutonomyResolver autonomyResolver;
+  private final LimitPolicyRuntimeService limitPolicyService;
+  private final ResolveAutonomyPolicyService resolveAutonomyPolicyService;
   private final IdGenerator idGenerator;
 
   @Override
@@ -60,7 +65,7 @@ public class RegisterPayoutCommandHandler
     Ticket ticket = optTicket.get();
 
     // Validate ticket state
-    if (ticket.getStatus() != TicketStatus.WON) {
+    if (ticket.getResultStatus() != com.tchalanet.server.common.types.enums.TicketResultStatus.WON) {
       throw new IllegalStateException("Ticket is not in RESULTED_WIN state: " + ticket.getId());
     }
 
@@ -75,10 +80,10 @@ public class RegisterPayoutCommandHandler
     }
 
     // Limits and autonomy validation
-    LimitEvaluationResult limitResult = validateLimitsAndAutonomy(command, ticket, payoutAmount);
+    LimitEvaluationView limitView = validateLimitsAndAutonomy(command, ticket, payoutAmount);
 
     // Create payout and persist if allowed
-    if (limitResult.overallOutcome() != BreachOutcome.BLOCK) {
+    if (limitView.outcome() != BreachOutcome.BLOCK) {
       // Payout.createRequested expects amountCents and currency (domain uses cents)
       long amountCents = payoutAmount.movePointRight(2).longValue();
       Payout payout =
@@ -99,7 +104,7 @@ public class RegisterPayoutCommandHandler
         saved = payoutWriterPort.save(saved);
 
         // mark ticket paid and persist
-        ticket.markAsPaid(now);
+        ticket.updateSettlementStatus(TicketSettlementStatus.SETTLED); // placeholder
         ticketWritterPort.save(ticket);
       } else {
         // approve or leave requested based on workflow; for now mark as APPROVED
@@ -110,7 +115,7 @@ public class RegisterPayoutCommandHandler
       // Publish event
       PayoutRegisteredEvent event =
           new PayoutRegisteredEvent(
-              UUID.randomUUID(),
+              com.tchalanet.server.common.types.id.EventId.of(UUID.randomUUID()),
               now,
               command.tenantId(),
               saved.getId(),
@@ -127,15 +132,15 @@ public class RegisterPayoutCommandHandler
           saved.getTicketId());
 
       List<LimitNotice> warnings =
-          limitResult.details().stream()
+          limitView.breaches().stream()
               .map(
                   d ->
                       new LimitNotice(
-                          d.ruleKey(),
+                          d.ruleKey().name(),
                           d.outcome(),
-                          d.message(),
-                          d.targetApplied(),
-                          d.selectionKey(),
+                          d.messageKey(),
+                          d.appliedTarget(),
+                          d.code(),
                           d.currentValue(),
                           d.limitValue()))
               .toList();
@@ -148,11 +153,13 @@ public class RegisterPayoutCommandHandler
     }
   }
 
-  private LimitEvaluationResult validateLimitsAndAutonomy(
+  private LimitEvaluationView validateLimitsAndAutonomy(
       RegisterPayoutCommand command, Ticket ticket, java.math.BigDecimal payoutAmount) {
     Instant now = Instant.now(clock);
 
     // Build limit context for payout
+    LimitScopeRef scope = new LimitScopeRef.TenantScope(command.tenantId());
+
     LimitContext context =
         new LimitContext(
             command.tenantId(),
@@ -165,6 +172,7 @@ public class RegisterPayoutCommandHandler
             List.of(), // rangeIds
             null, // gameCode
             OperationType.PAYOUT,
+            scope,
             List.of(), // betLines - empty for payout
             payoutAmount, // use ticket winning amount
             0, // linesCount
@@ -172,31 +180,31 @@ public class RegisterPayoutCommandHandler
             java.time.ZoneId.systemDefault());
 
     // Evaluate limits
-    LimitEvaluationResult limitResult = limitPolicyFacade.evaluate(OperationType.PAYOUT, context);
+    LimitEvaluationView view = limitPolicyService.evaluate(context);
 
     // Apply decision matrix V1
-    if (limitResult.overallOutcome() == BreachOutcome.ALLOW) {
+    if (view.outcome() == BreachOutcome.ALLOW) {
       // EXECUTE
-    } else if (limitResult.overallOutcome() == BreachOutcome.WARN) {
+    } else if (view.outcome() == BreachOutcome.WARN) {
       // EXECUTE + log
       log.warn(
-          "Limit breach (WARN) tenantId={} details={}", command.tenantId(), limitResult.details());
-    } else if (limitResult.overallOutcome() == BreachOutcome.BLOCK) {
+          "Limit breach (WARN) tenantId={} details={}", command.tenantId(), view.breaches());
+    } else if (view.outcome() == BreachOutcome.BLOCK) {
       // Resolve autonomy - agentId null, so perhaps use terminal or tenant
-      var autonomyPolicy =
-          autonomyResolver.resolve(command.tenantId(), null, ticket.getTerminalId(), null, now);
+      var req = new AutonomyResolveRequest(null, ticket.getTerminalId(), null, now);
+      var autonomyPolicy = resolveAutonomyPolicyService.resolve(req);
       if (!autonomyPolicy.requireApprovalOnBlock()) {
         // REJECT
         List<LimitNotice> notices =
-            limitResult.details().stream()
+            view.breaches().stream()
                 .map(
                     d ->
                         new LimitNotice(
-                            d.ruleKey(),
+                            d.ruleKey().name(),
                             d.outcome(),
-                            d.message(),
-                            d.targetApplied(),
-                            d.selectionKey(),
+                            d.messageKey(),
+                            d.appliedTarget(),
+                            d.code(),
                             d.currentValue(),
                             d.limitValue()))
                 .toList();
@@ -210,6 +218,6 @@ public class RegisterPayoutCommandHandler
       // else PENDING_APPROVAL - return result
     }
 
-    return limitResult;
+    return view;
   }
 }

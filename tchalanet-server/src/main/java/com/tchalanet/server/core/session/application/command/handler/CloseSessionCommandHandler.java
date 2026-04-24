@@ -5,6 +5,7 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.session.application.command.model.CloseSessionCommand;
 import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
 import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
@@ -31,7 +32,7 @@ public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCo
   public PosSession handle(CloseSessionCommand command) {
     var existing =
         sessionReader
-            .findById(command.sessionId().value())
+            .findById(command.sessionId())
             .orElseThrow(
                 () -> new IllegalStateException("PosSession not found: " + command.sessionId()));
 
@@ -48,9 +49,9 @@ public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCo
 
     var event =
         new SessionClosedEvent(
-            UUID.randomUUID(),
+            EventId.of(UUID.randomUUID()),
             now,
-            new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().uuid()),
+            new com.tchalanet.server.common.types.id.TenantId(saved.tenantId().value()),
             saved.id(),
             saved.outletId(),
             saved.userId(),

@@ -16,20 +16,21 @@ import java.util.Optional;
 
 /** Outbound Port for ticket persistence. */
 public interface TicketReaderPort {
+    Optional<Ticket> findById(TicketId ticketId);
+    Optional<Ticket> findByPublicCode(String publicCode);
 
-  Optional<Ticket> findById(TicketId ticketId);
+    Optional<Ticket> findWithLinesById(TicketId ticketId);
 
-  Optional<Ticket> findByPublicCode(String publicCode);
+    TicketPrintView getTicketPrintView(TicketId ticketId);
 
-  TchPage<Ticket> search(TicketFilter filter, Pageable pageRequest);
+    // search tenant-scoped: tenantId supprimé du filter
+    TchPage<Ticket> search(TicketFilter filter, Pageable pageRequest);
 
-  Optional<Ticket> findWithLinesById(TicketId ticketId);
+    // CSV tenant-scoped: pas de tenantId
+    byte[] exportDailySalesCsv(Instant dayStart, Instant dayEnd);
 
-  List<Ticket> listRecentForCashier(UserId cashierId, int limit);
+    List<Ticket> listRecentForCashier(UserId cashierId, int limit);
 
-  List<AgentDailySalesDto> getAgentDailySales(TenantId tenantId, Instant from, Instant to);
-
-  byte[] exportDailySalesCsv(TenantId tenantId, Instant dayStart, Instant dayEnd);
-
-  TicketPrintView getTicketPrintView(@NotNull TicketId ticketId);
+    // idem
+    List<AgentDailySalesDto> getAgentDailySales(Instant from, Instant to);
 }

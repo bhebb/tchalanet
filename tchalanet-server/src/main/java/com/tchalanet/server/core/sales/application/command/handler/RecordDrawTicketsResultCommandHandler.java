@@ -70,7 +70,6 @@ public class RecordDrawTicketsResultCommandHandler
         while (true) {
             var batch =
                 ticketSettlementPort.findNextBatchForDraw(
-                    cmd.tenantId(),
                     cmd.drawId(),
                     cursorCreatedAt,
                     cursorId,
@@ -93,10 +92,10 @@ public class RecordDrawTicketsResultCommandHandler
                 Ticket saved = ticketWriter.save(ticket);
 
                 // d) publish event after commit (use split statuses)
-                UUID eventId = UUID.randomUUID();
+                java.util.UUID rawEventId = java.util.UUID.randomUUID();
                 var event =
-                    new TicketResultedEvent(
-                        eventId,
+                    new com.tchalanet.server.core.sales.domain.event.TicketResultedEvent(
+                        com.tchalanet.server.common.types.id.EventId.of(rawEventId),
                         now,
                         saved.getTenantId(),
                         saved.getId(),
@@ -114,7 +113,7 @@ public class RecordDrawTicketsResultCommandHandler
             // 3) update cursor from last item (keyset)
             Ticket last = batch.get(batch.size() - 1);
             cursorCreatedAt = last.getCreatedAt();
-            cursorId = last.getId().uuid();
+            cursorId = last.getId().value();
 
             if (batch.size() < DEFAULT_BATCH_SIZE) break;
         }

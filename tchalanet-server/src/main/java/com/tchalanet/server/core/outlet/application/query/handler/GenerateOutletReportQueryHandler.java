@@ -18,6 +18,6 @@ public class GenerateOutletReportQueryHandler
 
   @Override
   public Path handle(GenerateOutletReportQuery query) {
-    return reportPort.generateDailyReport(query.tenantId(), query.outletId(), query.from());
+    return reportPort.generateDailyReport(query.outletId(), query.from());
   }
 }

@@ -26,16 +26,15 @@ public interface SpringTicketJpaRepository
 
     @Modifying
     @Query(
-        "UPDATE TicketEntity t SET t.deletedAt = :now WHERE t.tenantId = :tenantId AND t.createdAt < :cutoffDate AND t.deletedAt IS NULL")
+        "UPDATE TicketEntity t SET t.deletedAt = :now WHERE t.createdAt < :cutoffDate AND t.deletedAt IS NULL")
     int archiveOldTickets(
-        @Param("tenantId") UUID tenantId,
         @Param("cutoffDate") Instant cutoffDate,
         @Param("now") Instant now);
 
-    List<TicketEntity> findByTenantIdAndCreatedAtBetween(UUID tenantId, Instant from, Instant to);
+    List<TicketEntity> findByCreatedAtBetween(Instant from, Instant to);
 
     @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findWithLinesByTenantIdAndId(UUID tenantId, UUID id);
+    Optional<TicketEntity> findWithLinesById(UUID id);
 
     List<TicketEntity> findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
         UUID createdBy, Pageable pageable);
@@ -43,26 +42,28 @@ public interface SpringTicketJpaRepository
     @Query(
         "SELECT new com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto(t.createdBy, SUM(t.totalAmount), COUNT(t.id)) "
             + "FROM TicketEntity t "
-            + "WHERE t.tenantId = :tenantId AND t.createdAt BETWEEN :from AND :to AND t.deletedAt IS NULL "
+            + "WHERE t.createdAt BETWEEN :from AND :to AND t.deletedAt IS NULL "
             + "GROUP BY t.createdBy")
-    List<AgentDailySalesDto> findAgentDailySales(
-        @Param("tenantId") UUID tenantId, @Param("from") Instant from, @Param("to") Instant to);
+    List<AgentDailySalesDto> findAgentDailySales(@Param("from") Instant from, @Param("to") Instant to);
 
-    // Counts for CloseDay stats
-    long countByTenantIdAndSessionIdInAndCreatedAtBetween(
-        UUID tenantId, List<UUID> sessionIds, Instant from, Instant to);
+    // Counts for CloseDay stats — NOTE: do NOT filter by tenant (RLS handles tenant isolation)
+    long countBySessionIdInAndCreatedAtBetween(List<UUID> sessionIds, Instant from, Instant to);
 
-    long countByTenantIdAndSessionIdInAndCreatedAtBetweenAndStatus(
-        UUID tenantId, List<UUID> sessionIds, Instant from, Instant to, TicketStatus status);
+    long countBySessionIdInAndCreatedAtBetweenAndSaleStatus(List<UUID> sessionIds, Instant from, Instant to, com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus);
 
+    long countBySessionIdInAndCreatedAtBetweenAndResultStatus(List<UUID> sessionIds, Instant from, Instant to, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
 
-    @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findByTenantIdAndId(UUID tenantId, UUID id);
+    long countBySessionIdInAndCreatedAtBetweenAndSettlementStatus(List<UUID> sessionIds, Instant from, Instant to, com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus);
+
 
     @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findByTenantIdAndPublicCode(UUID tenantId, String publicCode);
-    Page<TicketEntity> findByTenantIdAndCreatedAtBetweenAndDeletedAtIsNullOrderByCreatedAtDesc(
-        UUID tenantId, Instant from, Instant to, Pageable pageable);
+    Optional<TicketEntity> findById(UUID id);
 
-    long countByTenantIdAndDrawIdAndStatusAndDeletedAtIsNull(UUID tenantId, UUID drawId, TicketStatus status);
+    // find by public code already exists above; keep convenience method
+    @EntityGraph(attributePaths = "lines")
+    Optional<TicketEntity> findByPublicCodeAndDeletedAtIsNull(String publicCode);
+
+    Page<TicketEntity> findByCreatedAtBetweenAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(Instant from, Instant to, Pageable pageable);
+
+    long countByDrawIdAndResultStatusAndDeletedAtIsNull(UUID drawId, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
 }

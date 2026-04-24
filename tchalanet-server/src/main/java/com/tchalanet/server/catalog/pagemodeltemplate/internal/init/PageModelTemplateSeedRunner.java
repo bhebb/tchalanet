@@ -5,7 +5,7 @@ import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplat
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.features.pagemodel.shared.PageModelType;
+import com.tchalanet.server.features.pagemodel.PageModelType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -31,6 +31,7 @@ public class PageModelTemplateSeedRunner implements ApplicationRunner {
 
         for (PageModelType type : PageModelType.values()) {
             try {
+                log.info("Seeding logicalId={}", type.logicalId());
                 var createdOrUpdated = upsertFromClasspath(type.logicalId());
                 if (createdOrUpdated != null) {
                     log.info("Seed OK logicalId={} code={} level={}",

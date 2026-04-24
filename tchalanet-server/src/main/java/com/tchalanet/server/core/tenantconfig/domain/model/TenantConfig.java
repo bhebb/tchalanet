@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.tenantconfig.domain.model;
 
-import com.tchalanet.server.catalog.tenant.api.TenantRegistryView;
+import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.common.types.enums.TenantStatus;
 import com.tchalanet.server.common.types.enums.TenantType;
 import com.tchalanet.server.common.types.id.AddressId;

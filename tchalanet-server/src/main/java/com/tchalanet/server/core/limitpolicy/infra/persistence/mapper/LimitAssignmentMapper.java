@@ -1,44 +1,38 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.mapper;
 
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.LimitAssignmentId;
+import com.tchalanet.server.common.types.id.LimitDefinitionId;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.entity.LimitAssignmentJpaEntity;
-import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class LimitAssignmentMapper {
 
-  public LimitAssignment toDomain(LimitAssignmentJpaEntity entity) {
-    return new LimitAssignment(
-        entity.getId(),
-        TenantId.of(entity.getTenantId()),
-        entity.getLimitDefinitionId(),
-        entity.getTargetType(),
-        entity.getTargetId(),
-        entity.isEnabled(),
-        entity.getStartsAt(),
-        entity.getEndsAt(),
-        entity.getVersion());
-  }
+    private final LimitTargetMapper targetMapper;
 
-  public LimitAssignmentJpaEntity toEntity(LimitAssignment domain) {
-    LimitAssignmentJpaEntity entity = new LimitAssignmentJpaEntity();
-    entity.setId(domain.id() != null ? domain.id() : UUID.randomUUID());
-    entity.setTenantId(domain.tenantId().uuid());
-    entity.setLimitDefinitionId(domain.limitDefinitionId());
-    entity.setTargetType(domain.targetType());
-    entity.setTargetId(domain.targetId());
-    entity.setEnabled(domain.enabled());
-    entity.setStartsAt(domain.startsAt());
-    entity.setEndsAt(domain.endsAt());
-    entity.setVersion(domain.version());
-    return entity;
-  }
+    public LimitAssignment toDomain(LimitAssignmentJpaEntity e) {
+        return new LimitAssignment(
+            LimitAssignmentId.of(e.getId()),
+            LimitDefinitionId.of(e.getLimitDefinitionId()),
+            targetMapper.toDomain(e.getTargetType(), e.getTargetId()),
+            e.isEnabled(),
+            e.getStartsAt(),
+            e.getEndsAt()
+        );
+    }
 
-  public void merge(LimitAssignment domain, LimitAssignmentJpaEntity entity) {
-    entity.setEnabled(domain.enabled());
-    entity.setStartsAt(domain.startsAt());
-    entity.setEndsAt(domain.endsAt());
-  }
+    public LimitAssignmentJpaEntity toEntity(LimitAssignment d) {
+        var e = new LimitAssignmentJpaEntity();
+        e.setId(d.id().value());
+        e.setLimitDefinitionId(d.limitDefinitionId().value());
+        e.setTargetType(targetMapper.toType(d.target()));
+        e.setTargetId(targetMapper.toIdOrNull(d.target()));
+        e.setEnabled(d.enabled());
+        e.setStartsAt(d.startsAt());
+        e.setEndsAt(d.endsAt());
+        return e;
+    }
 }

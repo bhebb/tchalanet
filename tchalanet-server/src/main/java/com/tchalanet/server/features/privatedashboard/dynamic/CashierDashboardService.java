@@ -2,10 +2,10 @@ package com.tchalanet.server.features.privatedashboard.dynamic;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.sales.application.query.handler.ListRecentTicketsForCashierHandler;
+import com.tchalanet.server.core.sales.application.query.handler.ListRecentTicketsForCashierQueryHandler;
 import com.tchalanet.server.core.sales.application.query.model.ListRecentTicketsForCashierQuery;
 import com.tchalanet.server.core.session.application.query.handler.ListCashierOpenSessionsHandler;
-import com.tchalanet.server.features.pagemodel.shared.PageModel;
+import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import com.tchalanet.server.features.privatedashboard.block.CashierOverviewBlock;
 import com.tchalanet.server.features.privatedashboard.block.PrivateDashboardDynamicPayload;
 import com.tchalanet.server.features.privatedashboard.block.QuickSalePreloadBlock;
@@ -25,7 +25,7 @@ public class CashierDashboardService {
 
   private final CashierDashboardStatsUseCase cashierDashboardStatsUseCase;
   private final ListCashierOpenSessionsHandler listCashierOpenSessionsHandler;
-  private final ListRecentTicketsForCashierHandler listRecentTicketsForCashierHandler;
+  private final ListRecentTicketsForCashierQueryHandler listRecentTicketsForCashierHandler;
   private final GetOutletPerformanceReportHandler getOutletPerformanceReportHandler;
 
   public PrivateDashboardDynamicPayload build(

@@ -40,7 +40,12 @@ public class ResultSlotCatalogImpl implements ResultSlotCatalog {
 
     @Override
     public ResultSlotView requireByKey(String slotKey) {
-        return findByKey(slotKey).orElseThrow(() -> new EntityNotFoundException("result_slot_not_found with slotKey=" + slotKey));
+        if (slotKey == null || slotKey.isBlank()) {
+            throw new EntityNotFoundException("result_slot_not_found with slotKey=" + slotKey);
+        }
+        return repo.findFirstBySlotKeyIgnoreCaseAndDeletedAtIsNull(slotKey)
+            .map(mapper::toView)
+            .orElseThrow(() -> new EntityNotFoundException("result_slot_not_found with slotKey=" + slotKey));
     }
 
     @Override
@@ -51,5 +56,11 @@ public class ResultSlotCatalogImpl implements ResultSlotCatalog {
         }
         UUID uuid = id.value();
         return repo.findByIdAndDeletedAtIsNull(uuid).map(mapper::toView);
+    }
+
+    public com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView stats() {
+        long total = repo.countAllLive();
+        long active = repo.countActiveLive();
+        return new com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView((int) total, (int) active);
     }
 }

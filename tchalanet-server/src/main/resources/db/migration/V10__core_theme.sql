@@ -1,3 +1,4 @@
+5526122001120829
 -- V9: core theme
 CREATE TABLE IF NOT EXISTS theme (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

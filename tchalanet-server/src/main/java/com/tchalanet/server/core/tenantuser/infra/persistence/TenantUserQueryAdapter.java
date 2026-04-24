@@ -211,7 +211,7 @@ public class TenantUserQueryAdapter implements TenantUserReaderPort {
     }
 
     @Override
-    public Optional<TenantUserMembership> findByTenantIdAndUserId(TenantId tenantId, UserId userId) {
+    public Optional<TenantUserMembership> findByUserId(UserId userId) {
 
         var cb = em.getCriteriaBuilder();
         CriteriaQuery<TenantUserJpaEntity> cq = cb.createQuery(TenantUserJpaEntity.class);
@@ -220,7 +220,6 @@ public class TenantUserQueryAdapter implements TenantUserReaderPort {
         cq.select(tu);
         cq.where(
             cb.and(
-                cb.equal(tu.get("tenantId"), tenantId.value()),
                 cb.equal(tu.get("userId"), userId.value()),
                 cb.isNull(tu.get("deletedAt"))
             )
@@ -231,9 +230,8 @@ public class TenantUserQueryAdapter implements TenantUserReaderPort {
         if (list.isEmpty()) return Optional.empty();
 
         TenantUserJpaEntity e = list.get(0);
-        var m = TenantUserMembership.of(tenantId, userId);
+        var m = TenantUserMembership.of(com.tchalanet.server.common.types.id.TenantId.of(e.getTenantId()), userId);
         if (e.getRoleId() != null) m.assignRole(RoleId.of(e.getRoleId()));
-        if (e.getAutonomyLevel() != null) m.changeAutonomy(e.getAutonomyLevel());
         if (e.getIsOwner() != null && e.getIsOwner()) m.markOwner(true);
         if (e.getStatus() != null && e.getStatus() == com.tchalanet.server.common.types.enums.TenantUserStatus.SUSPENDED) m.suspend();
         return Optional.of(m);

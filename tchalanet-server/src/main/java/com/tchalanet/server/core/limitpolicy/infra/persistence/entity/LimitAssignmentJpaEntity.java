@@ -16,10 +16,6 @@ import org.hibernate.envers.Audited;
 @Audited
 public class LimitAssignmentJpaEntity extends BaseTenantEntity {
 
-  @Id
-  @Column(nullable = false)
-  private UUID id;
-
   @Column(name = "limit_definition_id", nullable = false)
   private UUID limitDefinitionId;
 
@@ -38,7 +34,4 @@ public class LimitAssignmentJpaEntity extends BaseTenantEntity {
 
   @Column(name = "ends_at")
   private Instant endsAt;
-
-  @Column(nullable = false)
-  private long version;
 }

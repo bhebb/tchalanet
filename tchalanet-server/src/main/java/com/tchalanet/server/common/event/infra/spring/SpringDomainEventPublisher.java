@@ -27,7 +27,7 @@ public class SpringDomainEventPublisher implements DomainEventPublisher {
           "DomainEvent published: type={} tenant={} id={}",
           event.eventType(),
           event.tenantId(),
-          event.eventId());
+          event.eventId().value());
     }
   }
 

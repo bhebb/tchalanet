@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.persistence;
 
-import com.tchalanet.server.catalog.settings.api.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

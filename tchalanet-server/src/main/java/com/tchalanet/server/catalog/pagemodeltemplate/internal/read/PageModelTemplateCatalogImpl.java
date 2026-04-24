@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.read;
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateStatsView;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.cache.PageModelTemplateCacheNames;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.mapper.PageModelTemplateMapper;
@@ -80,5 +81,13 @@ public class PageModelTemplateCatalogImpl implements PageModelTemplateCatalog {
             page.hasNext(),
             page.hasPrevious()
         );
+    }
+
+    @Override
+    public PageModelTemplateStatsView stats() {
+        // total = all templates excluding soft-deleted
+        long total = repository.countByDeletedAtIsNull();
+        long active = repository.countByActiveTrueAndDeletedAtIsNull();
+        return new PageModelTemplateStatsView((int) total, (int) active);
     }
 }

@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.theme.internal.read;
 
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
+import com.tchalanet.server.catalog.theme.api.ThemePresetStatsView;
 import com.tchalanet.server.catalog.theme.internal.cache.ThemeCacheNames;
 import com.tchalanet.server.catalog.theme.internal.mapper.ThemePresetMapper;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaRepository;
@@ -40,5 +41,12 @@ public class ThemePresetCatalogImpl implements ThemeCatalog {
         if (id == null) return Optional.empty();
         UUID uuid = id.value();
         return repo.findById(uuid).filter(e -> e.getDeletedAt() == null).map(mapper::toView);
+    }
+
+    @Override
+    public ThemePresetStatsView stats() {
+        long total = repo.count();
+        long active = repo.findAll().stream().filter(e -> e.isActive() && e.getDeletedAt() == null).count();
+        return new ThemePresetStatsView((int) total, (int) active);
     }
 }

@@ -1,10 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
@@ -14,8 +11,6 @@ import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.application.print.TicketPrintViewMapper;
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PageRequest;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.PagedResult;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
@@ -64,7 +59,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
 
   @Override
   public Optional<Ticket> findById(TicketId ticketId) {
-    return jpaRepository.findById(ticketId.uuid()).map(mapper::toDomain);
+    return jpaRepository.findById(ticketId.value()).map(mapper::toDomain);
   }
 
   @Override
@@ -77,18 +72,16 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     Specification<TicketEntity> spec =
         (root, query, cb) -> {
           List<Predicate> predicates = new ArrayList<>();
-          // tenantId is required
-          if (filter.tenantId() != null) {
-            predicates.add(cb.equal(root.get("tenantId"), filter.tenantId().uuid()));
-          }
+          // tenantId is required — removed: RLS ensures tenant isolation
           if (filter.terminalId() != null) {
-            predicates.add(cb.equal(root.get("terminalId"), filter.terminalId().uuid()));
+            predicates.add(cb.equal(root.get("terminalId"), filter.terminalId().value()));
           }
           if (filter.drawId() != null) {
-            predicates.add(cb.equal(root.get("drawId"), filter.drawId().uuid()));
+            predicates.add(cb.equal(root.get("drawId"), filter.drawId().value()));
           }
           if (filter.status() != null) {
-            predicates.add(cb.equal(root.get("status"), filter.status()));
+            // status in filter corresponds to resultStatus
+            predicates.add(cb.equal(root.get("resultStatus"), filter.status()));
           }
           if (filter.from() != null) {
             predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), filter.from()));
@@ -115,21 +108,27 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
         page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList());
 
     return TchPage.of(
-        tickets, page.getTotalElements(), page.getTotalPages(), page.getNumber());
+        tickets,
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages(),
+        page.isLast(),
+        page.hasNext(),
+        page.hasPrevious());
   }
 
   @Override
-  public int archiveOldTickets(TenantId tenantId, Instant cutoffDate) {
-    return jpaRepository.archiveOldTickets(tenantId.uuid(), cutoffDate, Instant.now(clock));
+  public int archiveOldTickets(Instant cutoffDate) {
+    return jpaRepository.archiveOldTickets(cutoffDate, Instant.now(clock));
   }
 
   @Override
   @Transactional(readOnly = true)
   public Optional<Ticket> findWithLinesById(TicketId ticketId) {
     var holder = contextResolver.currentOrNull();
-    var tenantUuid = holder != null ? holder.tenantUuid() : null;
     return jpaRepository
-        .findWithLinesByTenantIdAndId(tenantUuid, ticketId.uuid())
+        .findWithLinesById(ticketId.value())
         .map(mapper::toDomain);
   }
 
@@ -137,16 +136,16 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   public List<Ticket> listRecentForCashier(UserId cashierId, int limit) {
     var pageable = org.springframework.data.domain.PageRequest.of(0, limit);
     return jpaRepository
-        .findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(cashierId.uuid(), pageable)
+        .findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(cashierId.value(), pageable)
         .stream()
         .map(mapper::toDomain)
         .toList();
   }
 
   @Override
-  public byte[] exportDailySalesCsv(TenantId tenantId, Instant dayStart, Instant dayEnd) {
+  public byte[] exportDailySalesCsv(Instant dayStart, Instant dayEnd) {
     List<TicketEntity> tickets =
-        jpaRepository.findByTenantIdAndCreatedAtBetween(tenantId.uuid(), dayStart, dayEnd);
+        jpaRepository.findByCreatedAtBetween(dayStart, dayEnd);
 
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter writer =
@@ -163,7 +162,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
             ticket.getCreatedAt(),
             ticket.getTicketCode(),
             ticket.getPublicCode() != null ? ticket.getPublicCode() : "",
-            ticket.getStatus(),
+            ticket.getResultStatus(),
             ticket.getTotalAmount(),
             ticket.getTerminalId(),
             ticket.getDrawId(),
@@ -184,8 +183,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     // 1. Load Ticket with lines
     var ticket =
         jpaRepository
-            .findWithLinesByTenantIdAndId(
-                contextResolver.currentOrNull().tenantUuid(), ticketId.uuid())
+            .findWithLinesById(ticketId.value())
             .orElseThrow(() -> new EntityNotFoundException("Ticket not found: " + ticketId));
 
     // 2. Load Draw
@@ -194,16 +192,16 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     // 3. Load Channel (via Draw)
     var channel = (draw != null) ? draw.drawChannel() : null;
     Outlet outlet = null;
-    var session = posSessionReaderPort.findById(ticket.getSessionId()).orElse(null);
+    var session = posSessionReaderPort.findById(SessionId.of(ticket.getSessionId())).orElse(null);
     if (session != null) {
-      outlet = outletReaderPort.findById(session.outletId(), session.tenantId()).orElse(null);
+      outlet = outletReaderPort.findById(session.outletId()).orElse(null);
     }
     // TODO: get locale from context or request
     return ticketPrintViewMapper.map(mapper.toDomain(ticket), outlet, draw, channel, Locale.FRENCH);
   }
 
   @Override
-  public List<AgentDailySalesDto> getAgentDailySales(TenantId tenantId, Instant from, Instant to) {
-    return jpaRepository.findAgentDailySales(tenantId.uuid(), from, to);
+  public List<AgentDailySalesDto> getAgentDailySales(Instant from, Instant to) {
+    return jpaRepository.findAgentDailySales(from, to);
   }
 }

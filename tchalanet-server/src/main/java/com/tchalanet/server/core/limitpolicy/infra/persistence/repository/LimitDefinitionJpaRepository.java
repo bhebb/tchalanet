@@ -1,15 +1,17 @@
 package com.tchalanet.server.core.limitpolicy.infra.persistence.repository;
 
+import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.core.limitpolicy.infra.persistence.entity.LimitDefinitionJpaEntity;
-import java.util.List;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface LimitDefinitionJpaRepository
     extends JpaRepository<LimitDefinitionJpaEntity, UUID> {
 
-  @Query(
-      "SELECT e FROM LimitDefinitionJpaEntity e WHERE e.tenantId = :tenantId AND e.enabled = true AND e.deletedAt IS NULL")
-  List<LimitDefinitionJpaEntity> findActiveByTenantId(UUID tenantId);
+    Optional<LimitDefinitionJpaEntity> findByRuleKey(RuleKey ruleKey);
+
+    List<LimitDefinitionJpaEntity> findAllByEnabledIsTrueOrderByRuleKeyAsc();
 }

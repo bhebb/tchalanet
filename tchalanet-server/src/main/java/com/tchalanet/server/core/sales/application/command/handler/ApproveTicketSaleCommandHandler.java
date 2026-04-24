@@ -7,6 +7,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.sales.application.command.model.ApproveTicketSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.TicketApprovedResult;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
@@ -18,6 +19,7 @@ import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPo
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,19 +85,33 @@ public class ApproveTicketSaleCommandHandler
 
         var currency = saved.getCurrency() == null ? "HTG" : saved.getCurrency();
 
+        // build lines
+        List<TicketPlacedEvent.Line> lines = saved.getLines().stream()
+            .map(l -> new TicketPlacedEvent.Line(
+                l.betType(),
+                l.selection(),
+                l.stake().movePointRight(2).longValue(),
+                l.potentialPayout() == null ? 0L : l.potentialPayout().movePointRight(2).longValue(),
+                l.betOption()
+            ))
+            .toList();
+
         var placed =
             new TicketPlacedEvent(
-                UUID.randomUUID(),
+                EventId.of(UUID.randomUUID()),
                 now,
                 saved.getTenantId(),
                 saved.getId(),
                 session != null ? session.outletId() : null,
-                cmd.approvedBy().uuid(),
+                session != null ? com.tchalanet.server.common.types.id.AgentId.of(session.userId().value()) : null,
+                saved.getTerminalId(),
                 saved.getSessionId(),
                 saved.getDrawId(),
-                saved.getLines().isEmpty() ? "" : saved.getLines().get(0).gameCode(),
+                null, // drawChannelId not available in approve flow
+                saved.getLines().isEmpty() ? "" : saved.getLines().get(0).gameCode().name(),
                 saved.getTotalAmount().movePointRight(2).longValue(),
-                currency);
+                currency,
+                lines);
 
         AfterCommit.run(() -> publisher.publish(placed));
 

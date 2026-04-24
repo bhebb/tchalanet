@@ -14,12 +14,12 @@ public class TicketSettlementQueryJpaAdapter implements TicketSettlementQueryPor
   private final TicketSettlementQueryRepository repo;
 
   @Override
-  public boolean existsPendingByDrawId(TenantId tenantId, DrawId drawId) {
-    return repo.existsPending(tenantId.uuid(), drawId.uuid());
+  public boolean existsPendingByDrawId(DrawId drawId) {
+    return repo.existsPending(drawId.value());
   }
 
   @Override
-  public long countPendingByDrawId(TenantId tenantId, DrawId drawId) {
-    return repo.countPending(tenantId.uuid(), drawId.uuid());
+  public long countPendingByDrawId(DrawId drawId) {
+    return repo.countPending(drawId.value());
   }
 }
