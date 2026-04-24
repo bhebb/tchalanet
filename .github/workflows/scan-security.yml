@@ -24,7 +24,7 @@ jobs:
         with:
           args: detect --no-banner --redact --report-format sarif --report-path gitleaks.sarif
       - name: Upload Gitleaks SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: gitleaks.sarif
 
@@ -35,14 +35,14 @@ jobs:
       - name: Trivy FS Scan (repo)
         run: trivy fs --no-progress --format sarif --output trivy-fs.sarif . || true
       - name: Upload Trivy FS SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs.sarif
 
       - name: Trivy Config (Dockerfiles & Compose)
         run: trivy config --no-progress --format sarif --output trivy-config.sarif . || true
       - name: Upload Trivy Config SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-config.sarif
 
