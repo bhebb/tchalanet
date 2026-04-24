@@ -23,7 +23,7 @@
         <maven.surefire.plugin.version>3.5.3</maven.surefire.plugin.version>
         <maven.failsafe.plugin.version>3.5.3</maven.failsafe.plugin.version>
         <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
-        <sonar.maven.plugin.version>5.2.0.4988</sonar.maven.plugin.version>
+        <sonar.maven.plugin.version>5.6.0.6792</sonar.maven.plugin.version>
         <dependencycheck.plugin.version>12.1.3</dependencycheck.plugin.version>
 
         <!-- SonarQube (à ajuster) -->
