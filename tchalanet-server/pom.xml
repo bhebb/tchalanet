@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
-        <spotless.plugin.version>2.43.0</spotless.plugin.version>
+        <spotless.plugin.version>3.4.0</spotless.plugin.version>
         <googlejavaformat.version>1.28.0</googlejavaformat.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
         <checkstyle.config>checkstyle/google_checks.xml</checkstyle.config>
