@@ -33,6 +33,11 @@ public final class ProblemRest {
     return of(HttpStatus.NOT_FOUND, detail);
   }
 
+  /** Convenience overload — appends the id to the detail message. */
+  public static ProblemRestException notFound(String detail, Object id) {
+    return of(HttpStatus.NOT_FOUND, detail + ": " + id);
+  }
+
   public static ProblemRestException conflict(String detail) {
     return of(HttpStatus.CONFLICT, detail);
   }

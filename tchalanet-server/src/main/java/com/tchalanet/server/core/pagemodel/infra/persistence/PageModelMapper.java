@@ -1,14 +1,11 @@
 package com.tchalanet.server.core.pagemodel.infra.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
-import com.tchalanet.server.features.pagemodel.PageStatus;
 
 final class PageModelMapper {
 
-  private static final ObjectMapper M = new ObjectMapper();
 
   static PageModelInstance toDomain(PageModelJpaEntity e) {
     JsonNode node = null;
@@ -50,8 +47,8 @@ final class PageModelMapper {
     e.setLogicalId(d.logicalId());
     e.setScope(d.scope());
     e.setSlug(d.slug());
-    // convert domain status -> feature PageStatus
-    e.setStatus(PageStatus.valueOf(d.status().name()));
+    // [Phase 1] correction: PageStatus inexistant — le type correct est PageModelStatus (analysis §BLOQUANT)
+    e.setStatus(d.status());
     e.setSchemaVersion(d.schemaVersion());
     e.setModel(d.modelJson());
     e.setTemplateId(d.templateId().orElse(null));

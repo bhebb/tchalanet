@@ -1,15 +1,17 @@
 package com.tchalanet.server.core.pagemodel.infra.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelTemplateLoaderPort;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import java.io.InputStream;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ClasspathPageModelTemplateLoader implements PageModelTemplateLoaderPort {
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private final JsonUtils jsonUtils;
 
   @Override
   public PageModelDoc loadFromResources(String logicalId) {
@@ -22,10 +24,9 @@ public class ClasspathPageModelTemplateLoader implements PageModelTemplateLoader
         // return a minimal empty PageModelDoc to avoid NPEs in runtime
         return new PageModelDoc(null, null, null, null);
       }
-      return mapper.readValue(is, PageModelDoc.class);
+      return jsonUtils.readValue(is, PageModelDoc.class);
     } catch (Exception e) {
       throw new RuntimeException("Failed to load PageModel template " + logicalId, e);
     }
   }
 }
-

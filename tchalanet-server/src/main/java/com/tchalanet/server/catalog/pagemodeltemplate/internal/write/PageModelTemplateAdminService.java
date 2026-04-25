@@ -144,5 +144,91 @@ public class PageModelTemplateAdminService {
         return mapper.toView(saved);
     }
 
+    // ------------------------------------------------------------------ preview
+
+    /**
+     * Retourne la vue complète d'un template tel qu'il serait exposé au BFF.
+     * Équivaut à un findById avec exception si absent.
+     */
+    public PageModelTemplateView preview(PageModelTemplateId id) {
+        return repository.findById(id.value())
+            .map(mapper::toView)
+            .orElseThrow(() -> new NotFoundException("page_model_template " + id));
+    }
+
+    // ---------------------------------------------------------------- duplicate
+
+    /**
+     * Duplique un template en créant une copie avec un nouveau logicalId/code.
+     * isDefault est toujours false sur la copie.
+     *
+     * @param newLogicalId logicalId de la copie — si null/blank, suffixe "-copy" appliqué
+     * @param newCode      code de la copie — si null/blank, suffixe "-copy" appliqué
+     */
+    @Transactional
+    @CacheEvict(cacheNames = {
+        PageModelTemplateCacheNames.BY_ID,
+        PageModelTemplateCacheNames.BY_LOGICAL_ID,
+        PageModelTemplateCacheNames.VISIBLE_LIST,
+        PageModelTemplateCacheNames.SEARCH
+    }, allEntries = true)
+    public PageModelTemplateView duplicate(PageModelTemplateId id, String newLogicalId, String newCode) {
+        var source = repository.findById(id.value())
+            .orElseThrow(() -> new NotFoundException("page_model_template " + id));
+
+        String targetLogicalId = (newLogicalId != null && !newLogicalId.isBlank())
+            ? newLogicalId : source.getLogicalId() + "-copy";
+        String targetCode = (newCode != null && !newCode.isBlank())
+            ? newCode : source.getCode() + "-copy";
+
+        // unicité logicalId parmi les non-supprimés
+        repository.findFirstByLogicalIdAndDeletedAtIsNull(targetLogicalId)
+            .ifPresent(x -> {
+                throw ProblemRest.conflict("page_model_template.logical_id " + targetLogicalId);
+            });
+
+        var copy = new PageModelTemplateEntity();
+        copy.setCode(targetCode);
+        copy.setLogicalId(targetLogicalId);
+        copy.setName(source.getName() + " (copy)");
+        copy.setLabel(source.getLabel());
+        copy.setDescription(source.getDescription());
+        copy.setSchema(source.getSchema());
+        copy.setModel(source.getModel());
+        copy.setSchemaVersion(source.getSchemaVersion());
+        copy.setDefault(false);   // la copie n'hérite jamais du flag isDefault
+        copy.setLevel(source.getLevel());
+        copy.setTenantId(source.getTenantId());
+
+        var saved = repository.save(copy);
+        return mapper.toView(saved);
+    }
+
+    // --------------------------------------------------------------------- reset
+
+    /**
+     * Réinitialise le modèle et le schéma d'un template à leurs valeurs vides ({}).
+     * Utilisé pour effacer les personnalisations et repartir d'une page blanche.
+     * La schemaVersion est remise à 1.
+     */
+    @Transactional
+    @CacheEvict(cacheNames = {
+        PageModelTemplateCacheNames.BY_ID,
+        PageModelTemplateCacheNames.BY_LOGICAL_ID,
+        PageModelTemplateCacheNames.VISIBLE_LIST,
+        PageModelTemplateCacheNames.SEARCH
+    }, allEntries = true)
+    public PageModelTemplateView resetToDefaults(PageModelTemplateId id) {
+        var existing = repository.findById(id.value())
+            .orElseThrow(() -> new NotFoundException("page_model_template " + id));
+
+        existing.setModel("{}");
+        existing.setSchema("{}");
+        existing.setSchemaVersion(1);
+        existing.setUpdatedAt(Instant.now());
+
+        var saved = repository.save(existing);
+        return mapper.toView(saved);
+    }
 
 }

@@ -1,4 +1,29 @@
--- V12: feature page model (expanded to include all columns previously added by later migrations V80/V81/V82)
+-- V12: feature page model
+-- level + is_system ajoutes (manquaient de la consolidation V80/V81/V82)
+-- UNIQUE PUBLISHED par (tenant, logicalId) ajoute sur page_model
+-- Ordre : page_model_template en premier (FK depuis page_model)
+
+CREATE TABLE IF NOT EXISTS page_model_template (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code varchar(128) NOT NULL UNIQUE,
+  logical_id text,
+  name varchar(255) NOT NULL,
+  label text,
+  description text,
+  schema jsonb NOT NULL DEFAULT '{}'::jsonb,
+  model jsonb NOT NULL DEFAULT '{}'::jsonb,
+  schema_version integer NOT NULL DEFAULT 1,
+  is_default boolean NOT NULL DEFAULT false,
+  is_system boolean NOT NULL DEFAULT false,
+  level varchar(16) NOT NULL DEFAULT 'GLOBAL',
+  tenant_id uuid,
+  version bigint NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz
+);
 
 CREATE TABLE IF NOT EXISTS page_model (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -13,7 +38,7 @@ CREATE TABLE IF NOT EXISTS page_model (
   scope varchar(64) NOT NULL DEFAULT 'public',
   slug text,
   status varchar(32) NOT NULL DEFAULT 'DRAFT',
-  template_id uuid,
+  template_id uuid REFERENCES page_model_template(id),
   version bigint NOT NULL DEFAULT 0,
   active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -22,26 +47,6 @@ CREATE TABLE IF NOT EXISTS page_model (
   updated_by uuid,
   deleted_at timestamptz,
   UNIQUE (tenant_id, code)
-);
-
-CREATE TABLE IF NOT EXISTS page_model_template (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  code varchar(128) NOT NULL UNIQUE,
-  logical_id text,
-  name varchar(255) NOT NULL,
-  label text,
-  description text,
-  schema jsonb NOT NULL DEFAULT '{}'::jsonb,
-  model jsonb NOT NULL DEFAULT '{}'::jsonb,
-  schema_version integer NOT NULL DEFAULT 1,
-  is_default boolean NOT NULL DEFAULT false,
-  tenant_id uuid,
-  version bigint NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz
 );
 
 DO $$
@@ -64,3 +69,9 @@ ALTER TABLE page_model_template
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS ix_page_model_template_logical_id ON page_model_template (logical_id) WHERE deleted_at IS NULL;
+
+-- Garantit 1 seul PUBLISHED par (tenant, logicalId) -- verrou DB complementaire a PublishPolicy
+CREATE UNIQUE INDEX IF NOT EXISTS ux_page_model_published_per_tenant_logical_id
+  ON page_model (tenant_id, logical_id)
+  WHERE status = 'PUBLISHED' AND deleted_at IS NULL;
+

@@ -20,7 +20,7 @@
       "description": "Interface simplifiée pour le caissier: quick sales, tickets et résumé de session."
     },
     "theme": {
-      "preset": "tchalanet_default",
+      "presetId": "tchalanet_default",
       "mode": "light",
       "density": 0
     },
@@ -136,7 +136,7 @@
           "type": "CashierOverviewWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "overview"
+            "source": "cashier.overview"
           },
           "props": {
             "title_key": "dashboard.cashier.overview.title"

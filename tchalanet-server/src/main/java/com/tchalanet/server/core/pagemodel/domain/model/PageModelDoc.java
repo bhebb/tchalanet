@@ -23,9 +23,10 @@ public record PageModelDoc(
       @JsonProperty("default_lang") String defaultLang) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  public record Theme(@JsonProperty("preset") String preset,
+  public record Theme(@JsonProperty("presetId") String presetId,
                       @JsonProperty("mode") String mode,
-                      @JsonProperty("density") Integer density) {}
+                      @JsonProperty("density") Integer density,
+                      @JsonProperty("overrides") Map<String, String> overrides) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Shell(@JsonProperty("header") ShellSectionConfig header,

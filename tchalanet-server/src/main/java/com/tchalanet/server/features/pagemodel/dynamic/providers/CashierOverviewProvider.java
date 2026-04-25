@@ -1,31 +1,79 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.features.pagemodel.PageModel;
-import com.tchalanet.server.features.pagemodel.PageModelDynamicProvider;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
+import com.tchalanet.server.core.session.application.query.handler.ListCashierOpenSessionsHandler.CashierSessionDto;
+import com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery;
+import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * E.4 — Provider Vue d'ensemble caissier.
+ * Source : "cashier.overview"
+ * Branche sur ListCashierOpenSessionsQuery pour données réelles.
+ */
 @Component
+@RequiredArgsConstructor
 public class CashierOverviewProvider implements PageModelDynamicProvider {
 
-    @Override
-    public boolean supports(String logicalId, String widgetType, String source) {
-        return "private.dashboard.cashier".equals(logicalId) && "overview".equals(source);
+  private final QueryBus queryBus;
+
+  @Override
+  public boolean supports(String logicalId, String widgetType, String source) {
+    return "private.dashboard.cashier".equals(logicalId) && "cashier.overview".equals(source);
+  }
+
+  @Override
+  public Object load(
+      PageModelDoc pageModel,
+      String widgetId,
+      PageModelDoc.WidgetConfig widgetConfig,
+      String lang,
+      TchRequestContext ctx) {
+
+    // Fallback si contexte manquant
+    if (ctx == null || ctx.tenantId() == null || ctx.userId() == null) {
+      return fallback();
     }
 
-    @Override
-    public Object load(PageModel pageModel, String widgetId, PageModel.WidgetConfig widgetConfig, String lang, TchRequestContext ctx) {
-        // V1: payload dummy, on branchera les vrais KPIs ensuite
+    try {
+      List<CashierSessionDto> sessions =
+          queryBus.send(new ListCashierOpenSessionsQuery(ctx.tenantId(), ctx.userId()));
+
+      if (sessions == null || sessions.isEmpty()) {
         return Map.of(
-            "welcome", "Bienvenue",
-            "ticketsToday", 0,
-            "sessionOpen", true
-        );
-    }
+            "ticketsToday", 0L,
+            "totalAmount", BigDecimal.ZERO,
+            "sessionOpen", false);
+      }
 
-    @Override
-    public String providerKey() {
-        return "cashier-overview";
+      // Première session ouverte
+      CashierSessionDto session = sessions.get(0);
+      return Map.of(
+          "ticketsToday", session.ticketsSold(),
+          "totalAmount", session.totalSales() != null ? session.totalSales() : BigDecimal.ZERO,
+          "sessionOpen", true,
+          "sessionId", session.sessionId() != null ? session.sessionId().toString() : "",
+          "openedAt", session.openedAt() != null ? session.openedAt().toString() : "");
+    } catch (Exception e) {
+      return fallback();
     }
+  }
+
+  private Map<String, Object> fallback() {
+    return Map.of(
+        "ticketsToday", 0L,
+        "totalAmount", BigDecimal.ZERO,
+        "sessionOpen", false);
+  }
+
+  @Override
+  public String providerKey() {
+    return "overview";
+  }
 }

@@ -20,7 +20,7 @@
       "description": "Tableau de bord pour le superadmin — accès aux KPIs globaux, gestion des tenants et monitoring."
     },
     "theme": {
-      "preset": "tchalanet_default",
+      "presetId": "tchalanet_default",
       "mode": "light",
       "density": 0
     },
@@ -42,8 +42,16 @@
             { "label_key": "nav.dashboard", "path": "/app/superadmin", "icon": "dashboard" },
             { "label_key": "nav.tenants", "path": "/app/superadmin/tenants", "icon": "apartment" },
             { "label_key": "nav.users", "path": "/app/superadmin/users", "icon": "group" },
-            { "label_key": "nav.platform_health", "path": "/app/superadmin/health", "icon": "monitor_heart" },
-            { "label_key": "nav.releases", "path": "/app/superadmin/releases", "icon": "rocket_launch" }
+            {
+              "label_key": "nav.platform_health",
+              "path": "/app/superadmin/health",
+              "icon": "monitor_heart"
+            },
+            {
+              "label_key": "nav.releases",
+              "path": "/app/superadmin/releases",
+              "icon": "rocket_launch"
+            }
           ]
         },
         "props": {
@@ -55,7 +63,11 @@
         "nav": {
           "primary": [],
           "secondary": [
-            { "label_key": "footer.release_notes", "path": "/app/superadmin/releases", "icon": "article" }
+            {
+              "label_key": "footer.release_notes",
+              "path": "/app/superadmin/releases",
+              "icon": "article"
+            }
           ]
         },
         "props": {}
@@ -100,7 +112,7 @@
       "widgets": {
         "dashboard.superadmin.overview": {
           "type": "SuperadminOverviewWidget",
-          "binding": { "mode": "dynamic", "source": "overview" },
+          "binding": { "mode": "dynamic", "source": "superadmin.overview" },
           "props": { "title_key": "dashboard.superadmin.overview.title" }
         },
         "dashboard.superadmin.kpi_global": {

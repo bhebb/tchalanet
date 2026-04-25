@@ -5,7 +5,7 @@ import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplat
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.features.pagemodel.PageModelType;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;

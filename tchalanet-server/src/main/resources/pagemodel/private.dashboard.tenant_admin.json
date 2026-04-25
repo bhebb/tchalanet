@@ -20,7 +20,7 @@
       "description": "Tableau de bord privé pour l\u2019administrateur du tenant: vue des KPIs, ventes et validations."
     },
     "theme": {
-      "preset": "tchalanet_default",
+      "presetId": "tchalanet_default",
       "mode": "light",
       "density": 0
     },
@@ -156,7 +156,7 @@
           "type": "TenantAdminOverviewWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "overview"
+            "source": "tenant_admin.overview"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.overview.title"

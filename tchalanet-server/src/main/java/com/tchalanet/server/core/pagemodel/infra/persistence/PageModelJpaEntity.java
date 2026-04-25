@@ -2,7 +2,7 @@ package com.tchalanet.server.core.pagemodel.infra.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.features.pagemodel.PageStatus;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +53,7 @@ public class PageModelJpaEntity extends BaseTenantEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
-  private PageStatus status;
+  private PageModelStatus status;
 
   @Column(name = "published_at")
   private Instant publishedAt;

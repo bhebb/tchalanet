@@ -20,7 +20,7 @@
       "description": "Page d'accueil publique — sections hero, draws, features, news et plans."
     },
     "theme": {
-      "preset": "tchalanet_default",
+      "presetId": "tchalanet_default",
       "mode": "light",
       "density": 0
     },

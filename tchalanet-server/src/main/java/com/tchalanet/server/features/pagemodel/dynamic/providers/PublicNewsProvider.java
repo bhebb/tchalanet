@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.features.news.publicnews.PublicNewsService;
-import com.tchalanet.server.features.pagemodel.PageModel;
-import com.tchalanet.server.features.pagemodel.PageModelDynamicProvider;
+import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,11 +16,11 @@ public class PublicNewsProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return "news".equals(source); // simple v1
+    return "news".equals(source);
   }
 
   @Override
-  public Object load(PageModel pageModel, String widgetId, PageModel.WidgetConfig widgetConfig, String lang, TchRequestContext ctx) {
+  public Object load(PageModelDoc pageModel, String widgetId, PageModelDoc.WidgetConfig widgetConfig, String lang, TchRequestContext ctx) {
     int max = readInt(widgetConfig == null ? null : widgetConfig.props(), "max_items", 4);
     return newsService.listAll().stream().limit(max).toList();
   }
@@ -41,4 +41,3 @@ public class PublicNewsProvider implements PageModelDynamicProvider {
     return def;
   }
 }
-

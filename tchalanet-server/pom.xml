@@ -267,6 +267,13 @@
       <version>${pdfbox.version}</version>
     </dependency>
 
+    <!-- JSON Schema validation (for PageModel template validation) -->
+    <dependency>
+      <groupId>com.networknt</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>1.4.3</version>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>

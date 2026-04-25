@@ -1,17 +1,16 @@
 package com.tchalanet.server.core.pagemodel.application.port.out;
 
-import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
+import java.util.List;
 
 public interface PageModelWritePort {
+  PageModelInstance save(PageModelInstance instance);
+  List<PageModelInstance> saveAll(List<PageModelInstance> instances);
 
-  UUID save(PageModelMutation mutation);
-
-  void softDelete(UUID id, UUID actorId);
-
-  void archivePublishedForLogicalId(String logicalId, UUID actorId);
-
-  // Mutation record placeholder
-  public static class PageModelMutation {
-    // minimal placeholder
-  }
+  // [Phase 4C] propagation template → instances DRAFT (analysis §gap — PageModelTemplateUpdatedEvent)
+  void applyTemplateUpdate(PageModelTemplateId templateId, JsonNode newModel,
+      int newSchemaVersion, UserId actorId);
 }

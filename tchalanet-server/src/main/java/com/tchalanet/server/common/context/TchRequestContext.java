@@ -5,7 +5,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.security.ApiScope;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.util.Currency;
@@ -13,7 +14,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-@Slf4j
+// Note : @Slf4j n'est pas compatible avec les records Java (annotation processor ne génère pas
+// le champ statique `log` sur les records). Logger déclaré explicitement ci-dessous.
 public record TchRequestContext(
     String originalTenantCode, // from JWT claim (code like "demo")
     UUID originalTenantUuid, // resolved UUID (may be null)
@@ -37,6 +39,8 @@ public record TchRequestContext(
     Currency tenantCurrency
 
 ) {
+
+  private static final Logger log = LoggerFactory.getLogger(TchRequestContext.class);
 
     /**
      * Return the effective tenant UUID when available, otherwise the original one.
@@ -194,6 +198,17 @@ public record TchRequestContext(
         // priorité au champ typé, sinon fallback sur UUID existants
         if (tenantId != null) return tenantId;
         return TenantId.nullableOf(tenantUuid());
+    }
+
+    /**
+     * Retourne le UserId applicatif courant ou lève une exception 422 si l'utilisateur
+     * n'a pas encore effectué /api/me/bootstrap (appUserId absent).
+     */
+    public UserId currentUserIdRequired() {
+        if (appUserId == null)
+            throw com.tchalanet.server.common.error.ProblemRest.unprocessable(
+                "user.not_bootstrapped: appUserId is required");
+        return UserId.of(appUserId);
     }
 
     public TchRequestContext withTenantContext(TenantContextInfo info) {

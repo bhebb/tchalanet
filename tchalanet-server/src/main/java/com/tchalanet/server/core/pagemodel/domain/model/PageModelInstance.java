@@ -3,6 +3,7 @@ package com.tchalanet.server.core.pagemodel.domain.model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.domain.exception.PageModelNotEditableException;
 import com.tchalanet.server.core.pagemodel.domain.exception.PageModelStateException;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -139,6 +140,37 @@ public final class PageModelInstance {
     if (deletedAt != null) throw new PageModelStateException("Cannot archive a deleted PageModel");
     this.status = PageModelStatus.ARCHIVED;
     this.archivedAt = now;
+    this.updatedAt = now;
+    this.updatedBy = actorId;
+  }
+
+  /**
+   * Réinitialise le modèle JSON depuis la valeur fournie (template catalog ou classpath)
+   * et repasse l'instance en DRAFT pour forcer une republication explicite.
+   * Retourne {@code this} pour un usage fluent dans les handlers.
+   */
+  public PageModelInstance resetToTemplate(JsonNode templateModel, UserId actorId) {
+    if (deletedAt != null) throw new PageModelNotEditableException("Cannot reset a deleted PageModel");
+    this.modelJson = templateModel;
+    this.status = PageModelStatus.DRAFT;
+    this.publishedAt = null;
+    this.updatedAt = Instant.now();
+    this.updatedBy = actorId != null ? actorId.value() : null;
+    return this;
+  }
+
+  /**
+   * Réinitialise le modèle JSON depuis la valeur fournie (template catalog ou classpath)
+   * et repasse l'instance en DRAFT pour forcer une republication explicite.
+   * @deprecated Préférer {@link #resetToTemplate(JsonNode, UserId)} pour les nouveaux handlers.
+   */
+  @Deprecated
+  public void applyReset(JsonNode templateModel, int schemaVersion, Instant now, UUID actorId) {
+    if (deletedAt != null) throw new PageModelNotEditableException("Cannot reset a deleted PageModel");
+    this.modelJson = templateModel;
+    this.schemaVersion = schemaVersion;
+    this.status = PageModelStatus.DRAFT;
+    this.publishedAt = null;
     this.updatedAt = now;
     this.updatedBy = actorId;
   }

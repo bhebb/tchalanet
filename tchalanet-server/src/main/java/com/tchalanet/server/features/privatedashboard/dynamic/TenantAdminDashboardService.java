@@ -8,7 +8,6 @@ import com.tchalanet.server.core.audit.application.query.handler.ListTenantRecen
 import com.tchalanet.server.core.audit.application.query.model.AuditEventQuery;
 import com.tchalanet.server.core.autonomy.application.query.model.AutonomyOverviewView;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
-import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
 import com.tchalanet.server.features.privatedashboard.block.ActivityFeedBlock;
 import com.tchalanet.server.features.privatedashboard.block.AlertsBlock;
 import com.tchalanet.server.features.privatedashboard.block.CashierOverviewBlock;
@@ -25,6 +24,7 @@ import com.tchalanet.server.features.reporting.outletperformance.GetOutletPerfor
 import com.tchalanet.server.features.reporting.tenantkpis.GetTenantKpisHandler;
 import com.tchalanet.server.features.stats.cashier_dashboard.application.CashierDashboardStatsQuery;
 import com.tchalanet.server.features.stats.cashier_dashboard.application.CashierDashboardStatsUseCase;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.features.stats.tenant_dashboard.application.TenantDashboardStatsUseCase;
 import com.tchalanet.server.features.stats.tenant_dashboard.dto.TenantDailySalesPointDto;
 import com.tchalanet.server.features.stats.tenant_dashboard.dto.TenantDashboardStatsResponse;
@@ -51,7 +51,7 @@ public class TenantAdminDashboardService {
       TenantId tenantId,
       UserId userId,
       String currentLang,
-      @SuppressWarnings("unused") PageModel pageModel) {
+      @SuppressWarnings("unused") PageModelDoc pageModel) {
     // use pageModel parameter to avoid unused-parameter warnings (it may be used later)
     var tenantStats = tenantDashboardStatsUseCase.getStats(tenantId, null, null);
     var kpiGlobal = buildGlobalKpis(tenantId, currentLang);

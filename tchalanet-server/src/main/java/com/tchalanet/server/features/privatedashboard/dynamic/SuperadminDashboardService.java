@@ -2,7 +2,7 @@ package com.tchalanet.server.features.privatedashboard.dynamic;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.features.pagemodel_backup.shared.PageModel;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.features.privatedashboard.block.ActivityFeedBlock;
 import com.tchalanet.server.features.privatedashboard.block.AlertsBlock;
 import com.tchalanet.server.features.privatedashboard.block.KpiBlock;
@@ -23,7 +23,7 @@ public class SuperadminDashboardService {
   private final PlatformDashboardStatsUseCase platformStatsUseCase;
 
   public PrivateDashboardDynamicPayload build(
-      TenantId tenantId, UserId userId, String currentLang, PageModel pageModel) {
+      TenantId tenantId, UserId userId, String currentLang, PageModelDoc pageModel) {
     LocalDate to = LocalDate.now();
     LocalDate from = to.minusDays(6);
 

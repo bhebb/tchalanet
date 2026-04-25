@@ -1,31 +1,34 @@
 package com.tchalanet.server.core.pagemodel.application.command.handler;
 
-import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.core.pagemodel.application.command.model.PublishPageModelCommand;
-import com.tchalanet.server.core.pagemodel.application.port.PageModelReadPort;
-import com.tchalanet.server.core.pagemodel.application.port.PageModelWritePort;
+import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWritePort;
+import com.tchalanet.server.common.stereotype.TchTx;
+import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.pagemodel.domain.policy.PublishPolicy;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Component
+// [Phase 2A-2] suppression de TchContext.get() — actorId lu depuis cmd.actorId() (analysis §BLOQUANT)
+// [Phase 3A] @UseCase + VoidCommandHandler pour câblage CQRS (analysis §MAJEUR command_query_handlers.md §3.2)
+@UseCase
 @RequiredArgsConstructor
-public class PublishPageModelHandler {
+public class PublishPageModelHandler implements VoidCommandHandler<PublishPageModelCommand> {
 
   private final Clock clock;
   private final PageModelReadPort readPort;
   private final PageModelWritePort writePort;
   private final PublishPolicy publishPolicy;
 
-  @Transactional
+  @TchTx
+  @Override
   public void handle(PublishPageModelCommand cmd) {
-    var ctx = TchContext.get();
-    var actorId = ctx.userUuid();
+    // actorId provient de la commande, fourni par le controller via TchRequestContext
+    var actorId = cmd.actorId() != null ? cmd.actorId().value() : null;
     var now = clock.instant();
 
-    var toPublish = readPort.findById(cmd.id().uuid()).orElseThrow();
+    var toPublish = readPort.findById(cmd.id()).orElseThrow();
 
     // RLS-scoped list (current tenant)
     var currentPublished = readPort.findAllPublishedByLogicalId(toPublish.logicalId());

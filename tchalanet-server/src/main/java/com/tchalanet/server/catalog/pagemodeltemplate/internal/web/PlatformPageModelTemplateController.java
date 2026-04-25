@@ -74,4 +74,31 @@ public class PlatformPageModelTemplateController {
     public ApiResponse<PageModelTemplateView> setDefault(@PathVariable PageModelTemplateId id) {
         return ApiResponse.success(admin.setDefault(id));
     }
+
+    // ------------------------------------------------------------------ preview
+
+    @Operation(summary = "Preview a template — retourne la vue complète telle qu'exposée au BFF")
+    @GetMapping("/{id}/preview")
+    public ApiResponse<PageModelTemplateView> preview(@PathVariable PageModelTemplateId id) {
+        return ApiResponse.success(admin.preview(id));
+    }
+
+    // ---------------------------------------------------------------- duplicate
+
+    @Operation(summary = "Duplicate a template — crée une copie avec logicalId/code optionnels")
+    @PostMapping("/{id}/duplicate")
+    public ApiResponse<PageModelTemplateView> duplicate(
+        @PathVariable PageModelTemplateId id,
+        @RequestParam(name = "logicalId", required = false) String newLogicalId,
+        @RequestParam(name = "code", required = false) String newCode) {
+        return ApiResponse.success(admin.duplicate(id, newLogicalId, newCode));
+    }
+
+    // --------------------------------------------------------------------- reset
+
+    @Operation(summary = "Reset a template — efface le modèle et le schéma (remet à {})")
+    @PostMapping("/{id}/reset")
+    public ApiResponse<PageModelTemplateView> reset(@PathVariable PageModelTemplateId id) {
+        return ApiResponse.success(admin.resetToDefaults(id));
+    }
 }
