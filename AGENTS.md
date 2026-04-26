@@ -92,6 +92,10 @@ Règles clés (résumé) :
 - Flyway obligatoire (`ddl-auto=validate`)
 - Typed IDs partout sauf persistence
 
+- Catalogs (modules sous `catalog/`) MUST NOT expose or depend on application "ports" or use a global `QueryBus` for their read API.
+  - Les catalogues exposent un contrat `catalog/<name>/api` (interfaces + `api.model`) et ont une implémentation interne (`catalog/<name>/internal/read`).
+  - Toute utilisation de `QueryBus`, `CommandBus` ou d'`application.port` depuis d'autres modules vers un catalogue est interdite — les autres modules doivent appeler le `XCatalog` (interface) uniquement.
+
 ---
 
 ## 4) Web / Mobile — règles (MUST)

@@ -162,3 +162,9 @@ public ApiResponse<List<PublicLatestDrawResultsResponse>> latest(@RequestParam(d
 - Wrappers d’ID en controllers; pas de UUID brut.
 - ApiResponse + TchPage + TchPaging pour listes.
 - Scope public: rate-limit; `noindex` si requis.
+
+---
+
+## 11) Consumed by
+
+- **`features.pagemodel`** : utilise `GetLatestPublicDrawResultsQuery` via `DrawsProvider` pour l'affichage des derniers résultats dans le widget Home.
