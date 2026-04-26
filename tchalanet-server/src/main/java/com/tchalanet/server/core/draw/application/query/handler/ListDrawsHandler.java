@@ -6,6 +6,7 @@ import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawsQuery;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
+import java.time.Clock;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ListDrawsHandler implements QueryHandler<ListDrawsQuery, List<DrawSummary>> {
 
   private final DrawLookupPort drawReaderPort;
+  private final Clock clock;
 
   @Override
   public List<DrawSummary> handle(ListDrawsQuery query) {
@@ -27,6 +29,6 @@ public class ListDrawsHandler implements QueryHandler<ListDrawsQuery, List<DrawS
         query.to());
 
     return drawReaderPort.findByCriteria(
-        DrawSearchCriteria.of(query.tenantId(), query.channelCode(), query.from(), query.to()));
+        DrawSearchCriteria.of(query.tenantId(), query.channelCode(), query.from(), query.to(), clock));
   }
 }

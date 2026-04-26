@@ -2,28 +2,25 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Typed identifier for Ticket. */
 public record TicketId(UUID value) {
-
   public TicketId {
-    if (value == null) throw new IllegalArgumentException("TicketId.value is null");
+    if (value == null) throw new IllegalArgumentException("TicketId value is null");
+  }
+
+  public UUID uuid() {
+    return value;
   }
 
   public static TicketId of(UUID value) {
     return new TicketId(value);
   }
 
-  /** Convenience for mappers: returns null if raw is null. */
-  public static TicketId nullableOf(UUID raw) {
-    return raw == null ? null : new TicketId(raw);
+  public static TicketId nullableOf(UUID value) {
+    return value == null ? null : new TicketId(value);
   }
 
-  /** Parse from UUID string (web/input). */
-  public static TicketId parse(String raw) {
-    if (raw == null || raw.isBlank()) {
-      throw new IllegalArgumentException("TicketId string is required");
-    }
-    return new TicketId(UUID.fromString(raw));
+  public static TicketId parse(String value) {
+    return value == null ? null : new TicketId(UUID.fromString(value));
   }
 
   @Override

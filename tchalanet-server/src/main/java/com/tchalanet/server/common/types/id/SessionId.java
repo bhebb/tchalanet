@@ -2,28 +2,25 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Typed identifier for Session. */
 public record SessionId(UUID value) {
-
   public SessionId {
-    if (value == null) throw new IllegalArgumentException("SessionId.value is null");
+    if (value == null) throw new IllegalArgumentException("SessionId value is null");
+  }
+
+  public UUID uuid() {
+    return value;
   }
 
   public static SessionId of(UUID value) {
     return new SessionId(value);
   }
 
-  /** Convenience for mappers: returns null if raw is null. */
-  public static SessionId nullableOf(UUID raw) {
-    return raw == null ? null : new SessionId(raw);
+  public static SessionId nullableOf(UUID value) {
+    return value == null ? null : new SessionId(value);
   }
 
-  /** Parse from UUID string (web/input). */
-  public static SessionId parse(String raw) {
-    if (raw == null || raw.isBlank()) {
-      throw new IllegalArgumentException("SessionId string is required");
-    }
-    return new SessionId(UUID.fromString(raw));
+  public static SessionId parse(String value) {
+    return value == null ? null : new SessionId(UUID.fromString(value));
   }
 
   @Override

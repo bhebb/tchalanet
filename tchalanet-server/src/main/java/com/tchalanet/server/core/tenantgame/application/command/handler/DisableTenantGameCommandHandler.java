@@ -18,16 +18,22 @@ public class DisableTenantGameCommandHandler {
     var existing = persistencePort.findByTenantIdAndGameCode(command.getTenantId(), command.getGameCode())
         .orElseThrow(() -> new IllegalArgumentException("Tenant game not found"));
 
-    var tenantGame = TenantGame.builder()
-        .tenantId(existing.getTenantId())
-        .gameCode(existing.getGameCode())
-        .enabled(false)
-        .displayName(existing.getDisplayName())
-        .minStake(existing.getMinStake())
-        .maxStake(existing.getMaxStake())
-        .flags(existing.getFlags())
-        .version(existing.getVersion())
-        .build();
+    var tenantGame = new TenantGame(
+        existing.tenantGameId(),
+        existing.tenantId(),
+        existing.gameId(),
+        existing.code(),
+        existing.name(),
+        existing.category(),
+        existing.minDigits(),
+        existing.maxDigits(),
+        existing.combination(),
+        false, // enabled = false
+        existing.displayName(),
+        existing.minStake(),
+        existing.maxStake(),
+        existing.flags()
+    );
 
     persistencePort.save(tenantGame);
   }

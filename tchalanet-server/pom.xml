@@ -16,7 +16,9 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>25</java.version>
-    <!-- Plugin versions chosen for stability and compatibility -->
+
+    <!-- Maven Plugins -->
+    <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
     <spotless.plugin.version>3.1.0</spotless.plugin.version>
     <googlejavaformat.version>1.33.0</googlejavaformat.version>
     <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
@@ -27,45 +29,36 @@
     <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
     <dependencycheck.plugin.version>12.1.9</dependencycheck.plugin.version>
 
-    <!-- Third party versions centralised -->
+    <!-- Core Dependencies -->
     <mapstruct.version>1.6.3</mapstruct.version>
-    <mapstruct.processor.version>${mapstruct.version}</mapstruct.processor.version>
     <caffeine.version>3.2.3</caffeine.version>
     <lombok.version>1.18.42</lombok.version>
-    <!--    <hibernate.version>6.6.40.Final</hibernate.version>-->
     <testcontainers.version>1.21.4</testcontainers.version>
     <springdoc.version>3.0.0</springdoc.version>
     <rome.version>2.1.0</rome.version>
     <querydsl.version>5.1.0</querydsl.version>
     <keycloak.admin.client.version>26.0.7</keycloak.admin.client.version>
-    <!-- ZXing version centralised -->
     <zxing.version>3.5.3</zxing.version>
-    <!-- Apache PDFBox version centralised -->
     <pdfbox.version>3.0.3</pdfbox.version>
     <shedlock.version>6.3.0</shedlock.version>
-
-    <!-- ArchUnit version -->
     <archunit.version>1.4.1</archunit.version>
+    <json-schema-validator.version>1.4.3</json-schema-validator.version>
 
-    <!-- SonarQube (à ajuster) -->
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
     <sonar.projectName>tchalanet-server</sonar.projectName>
     <sonar.host.url>https://sonar.yourcompany.tld</sonar.host.url>
-
   </properties>
+
   <dependencies>
-    <!-- Web MVC -->
+    <!-- Spring Boot Starters -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-
-    <!-- WebFlux (WebClient) for external HTTP adapters -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webflux</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-json</artifactId>
@@ -83,18 +76,49 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
-
-    <!-- JDBC template -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
     </dependency>
-
-    <!-- JPA (optional, if you want entities/repositories too) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-rest</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-hateoas</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-batch</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Persistence & DB -->
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-envers</artifactId>
@@ -105,8 +129,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
-    <!-- Postgres -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
@@ -141,33 +163,30 @@
       <version>${lombok.version}</version>
       <optional>true</optional>
     </dependency>
-
-    <!-- MapStruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
     </dependency>
-
-    <!-- Validation -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>${caffeine.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.rometools</groupId>
+      <artifactId>rome</artifactId>
+      <version>${rome.version}</version>
     </dependency>
 
-    <!-- Spring Data REST pour les CRUD admin -->
+    <!-- API & Documentation -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-rest</artifactId>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>${springdoc.version}</version>
     </dependency>
 
-    <!-- HATEOAS starter (fournit HateoasProperties) -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-hateoas</artifactId>
-    </dependency>
-
-    <!-- QueryDSL JPA pour les requêtes complexes (rapports, filtres) -->
+    <!-- QueryDSL -->
     <dependency>
       <groupId>com.querydsl</groupId>
       <artifactId>querydsl-jpa</artifactId>
@@ -188,33 +207,7 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- cache config-->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-cache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-      <version>${caffeine.version}</version>
-    </dependency>
-    <!-- Redis (lettuce) for distributed caching -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
-    <!-- Spring Batch -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-batch</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.rometools</groupId>
-      <artifactId>rome</artifactId>
-      <version>${rome.version}</version>
-    </dependency>
-
-    <!-- ShedLock for distributed locking -->
+    <!-- Distributed Locking -->
     <dependency>
       <groupId>net.javacrumbs.shedlock</groupId>
       <artifactId>shedlock-spring</artifactId>
@@ -226,13 +219,38 @@
       <version>${shedlock.version}</version>
     </dependency>
 
-    <!-- Tests -->
+    <!-- Keycloak -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-admin-client</artifactId>
+      <version>${keycloak.admin.client.version}</version>
     </dependency>
-    <!-- Testcontainers for integration tests -->
+
+    <!-- Barcode & PDF -->
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>core</artifactId>
+      <version>${zxing.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>javase</artifactId>
+      <version>${zxing.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>${pdfbox.version}</version>
+    </dependency>
+
+    <!-- Validation & Schema -->
+    <dependency>
+      <groupId>com.networknt</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>${json-schema-validator.version}</version>
+    </dependency>
+
+    <!-- Testing -->
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
@@ -245,62 +263,25 @@
       <version>${testcontainers.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <!-- ArchUnit for architecture tests -->
     <dependency>
       <groupId>com.tngtech.archunit</groupId>
       <artifactId>archunit-junit5</artifactId>
       <version>${archunit.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <!-- Spring Security Test (@WithMockUser, jwt() post-processor) -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- Keycloak Admin Client for bootstrap sync (optional) -->
-    <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-admin-client</artifactId>
-      <version>${keycloak.admin.client.version}</version>
-    </dependency>
-
-    <!-- ZXing barcode generation/reading libraries -->
-    <dependency>
-      <groupId>com.google.zxing</groupId>
-      <artifactId>core</artifactId>
-      <version>${zxing.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.zxing</groupId>
-      <artifactId>javase</artifactId>
-      <version>${zxing.version}</version>
-    </dependency>
-
-    <!-- Apache PDFBox (for PDF generation/processing) -->
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-      <version>${pdfbox.version}</version>
-    </dependency>
-
-    <!-- JSON Schema validation (for PageModel template validation) -->
-    <dependency>
-      <groupId>com.networknt</groupId>
-      <artifactId>json-schema-validator</artifactId>
-      <version>1.4.3</version>
-    </dependency>
-
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
+        <version>${maven.compiler.plugin.version}</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -315,14 +296,10 @@
             <path>
               <groupId>org.mapstruct</groupId>
               <artifactId>mapstruct-processor</artifactId>
-              <version>${mapstruct.processor.version}</version>
+              <version>${mapstruct.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.graalvm.buildtools</groupId>
-        <artifactId>native-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -336,8 +313,6 @@
           </excludes>
         </configuration>
       </plugin>
-
-      <!-- Enforcer: Java 25 & Maven minimum -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -360,176 +335,44 @@
           </execution>
         </executions>
       </plugin>
-
-      <!-- Tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven.surefire.plugin.version}</version>
-        <configuration>
-          <useModulePath>false</useModulePath>
-        </configuration>
       </plugin>
-      <!-- Failsafe (tests d’intégration), si tu en as -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>${maven.failsafe.plugin.version}</version>
-        <configuration>
-          <useModulePath>false</useModulePath>
-        </configuration>
-        <!--
-<executions>
-<execution>
-<goals>
-  <goal>integration-test</goal>
-  <goal>verify</goal>
-</goals>
-</execution>
-</executions>
--->
-
       </plugin>
-      <!-- Spotless: formatage automatique du code Java -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless.plugin.version}</version>
         <configuration>
           <java>
-            <googleJavaFormat version="${googlejavaformat.version}"/>
-            <!--                        <removeUnusedImports>true</removeUnusedImports>-->
-            <!--                        <importOrder>java,javax,org,com</importOrder>-->
-            <!-- Optionnel: header licence -->
-            <!-- <licenseHeaderFile>${project.basedir}/checkstyle/license-header.txt</licenseHeaderFile> -->
+            <googleJavaFormat>
+              <version>${googlejavaformat.version}</version>
+              <style>GOOGLE</style>
+            </googleJavaFormat>
           </java>
         </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
-
-      <!-- Checkstyle: vérification des règles de style -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${checkstyle.plugin.version}</version>
-
         <configuration>
           <configLocation>${checkstyle.config}</configLocation>
-          <encoding>${project.build.sourceEncoding}</encoding>
           <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
-          <linkXRef>false</linkXRef>
         </configuration>
-        <executions>
-          <execution>
-            <id>checkstyle-verify</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <!-- Force la version de Guava pour être compatible avec les plugins récents comme Checkstyle -->
-          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.2.0-jre</version>
-          </dependency>
-          <dependency>
-            <groupId>com.puppycrawl.tools</groupId>
-            <artifactId>checkstyle</artifactId>
-            <version>11.0.1</version>
-          </dependency>
-        </dependencies>
       </plugin>
-
-      <!-- JaCoCo (compatible Java 21) -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.plugin.version}</version>
-        <executions>
-          <execution>
-            <id>prepare-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-            <configuration>
-              <output>file</output>
-              <append>true</append>
-              <destFile>${project.build.directory}/jacoco.exec</destFile>
-            </configuration>
-          </execution>
-          <execution>
-            <id>report</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>check</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <rule>
-                  <element>BUNDLE</element>
-                  <limits>
-                    <limit>
-                      <counter>INSTRUCTION</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0.00</minimum>
-                    </limit>
-                  </limits>
-                </rule>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
-      <!-- SonarQube Scanner -->
-      <plugin>
-        <groupId>org.sonarsource.scanner.maven</groupId>
-        <artifactId>sonar-maven-plugin</artifactId>
-        <version>${sonar.maven.plugin.version}</version>
-      </plugin>
-
-      <!-- OWASP Dependency-Check: audit vulnérabilités -->
-      <!--
-                  <plugin>
-                      <groupId>org.owasp</groupId>
-                      <artifactId>dependency-check-maven</artifactId>
-                      <version>${dependencycheck.plugin.version}</version>
-                      <configuration>
-                          <nvdApiKey> 9c7867b0-aca3-4c0b-976f-ff9c16b3c461  </nvdApiKey>
-                          <dataDirectory>/tmp/owasp</dataDirectory>
-                          <format>HTML</format>
-                          <failBuildOnCVSS>7</failBuildOnCVSS>
-                          <suppressionFiles>${project.basedir}/dependency-check-suppressions.xml</suppressionFiles>
-                          &lt;!&ndash; Optionnel: suppression file si nécessaire &ndash;&gt;
-                      </configuration>
-                      <executions>
-                          <execution>
-                              <phase>verify</phase>
-                              <goals>
-                                  <goal>check</goal>
-                              </goals>
-                          </execution>
-                      </executions>
-                  </plugin>
-      -->
-
-
     </plugins>
   </build>
-
 </project>

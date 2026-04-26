@@ -1,19 +1,17 @@
 package com.tchalanet.server.core.draw.infra.web.mapper;
 
-import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.command.model.UpdateDrawCommand;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
-import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
 public interface DrawAdminWebMapper {
   CreateDrawCommand toCreateDrawCommand(CreateDrawRequest request);
 
@@ -37,14 +35,6 @@ public interface DrawAdminWebMapper {
   @Mapping(target = "lastResult", source = "summary.lastResult")
   DrawSummaryResponse toDrawSummaryResponse(DrawSummary summary);
 
-  default DrawId mapDrawId(UUID value) {
-    return value == null ? null : DrawId.of(value);
-  }
-
-  default TenantId mapTenantId(UUID value) {
-    return value == null ? null : TenantId.of(value);
-  }
-
   @Mappings({
     @Mapping(target = "channelCode", source = "request.channelCode"),
     @Mapping(target = "channelName", constant = ""),
@@ -61,7 +51,7 @@ public interface DrawAdminWebMapper {
   DrawSummaryResponse toDrawSummaryResponseFallback(CreateDrawRequest request);
 
   @Mappings({
-    @Mapping(target = "channelCode", source = "request.drawId"), // Dummy mapping to avoid errors, not used in fallback
+    @Mapping(target = "channelCode", constant = ""),
     @Mapping(target = "channelName", constant = ""),
     @Mapping(target = "status", constant = "SCHEDULED"),
     @Mapping(

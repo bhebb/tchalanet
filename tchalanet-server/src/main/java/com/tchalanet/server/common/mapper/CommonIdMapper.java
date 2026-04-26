@@ -1,13 +1,17 @@
 package com.tchalanet.server.common.mapper;
 
 import com.tchalanet.server.common.types.id.*;
+import com.tchalanet.server.common.time.DaysOfWeekFormatter;
 import org.springframework.stereotype.Component;
 
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * Central helper for ID conversions between UUID and domain wrappers. MapStruct can use this via
- * `uses = CommonIdMapper.class` on @Mapper.
+ * Central helper for conversions between UUID/String and domain wrappers or specialized types.
+ * MapStruct can use this via `uses = CommonIdMapper.class` on @Mapper.
  */
 @Component
 public class CommonIdMapper {
@@ -158,38 +162,56 @@ public class CommonIdMapper {
     }
 
     // DrawChannelId
-    public UUID mapFromDrawChannelId(com.tchalanet.server.common.types.id.DrawChannelId id) {
+    public UUID mapFromDrawChannelId(DrawChannelId id) {
         return id == null ? null : id.value();
     }
 
-    public com.tchalanet.server.common.types.id.DrawChannelId mapToDrawChannelId(UUID id) {
-        return com.tchalanet.server.common.types.id.DrawChannelId.nullableOf(id);
+    public DrawChannelId mapToDrawChannelId(UUID id) {
+        return DrawChannelId.nullableOf(id);
     }
 
     // ResultSlotId
-    public UUID mapFromResultSlotId(com.tchalanet.server.common.types.id.ResultSlotId id) {
+    public UUID mapFromResultSlotId(ResultSlotId id) {
         return id == null ? null : id.value();
     }
 
-    public com.tchalanet.server.common.types.id.ResultSlotId mapToResultSlotId(UUID id) {
-        return com.tchalanet.server.common.types.id.ResultSlotId.nullableOf(id);
+    public ResultSlotId mapToResultSlotId(UUID id) {
+        return ResultSlotId.nullableOf(id);
     }
 
     // GameId
-    public UUID mapFromGameId(com.tchalanet.server.common.types.id.GameId id) {
+    public UUID mapFromGameId(GameId id) {
         return id == null ? null : id.value();
     }
 
-    public com.tchalanet.server.common.types.id.GameId mapToGameId(UUID id) {
-        return com.tchalanet.server.common.types.id.GameId.nullableOf(id);
+    public GameId mapToGameId(UUID id) {
+        return GameId.nullableOf(id);
     }
 
     // DrawChannelGameId
-    public UUID mapFromDrawChannelGameId(com.tchalanet.server.common.types.id.DrawChannelGameId id) {
+    public UUID mapFromDrawChannelGameId(DrawChannelGameId id) {
         return id == null ? null : id.value();
     }
 
-    public com.tchalanet.server.common.types.id.DrawChannelGameId mapToDrawChannelGameId(UUID id) {
-        return com.tchalanet.server.common.types.id.DrawChannelGameId.nullableOf(id);
+    public DrawChannelGameId mapToDrawChannelGameId(UUID id) {
+        return DrawChannelGameId.nullableOf(id);
+    }
+
+    // ZoneId
+    public String mapFromZoneId(ZoneId zoneId) {
+        return zoneId == null ? null : zoneId.getId();
+    }
+
+    public ZoneId mapToZoneId(String zoneId) {
+        return (zoneId == null || zoneId.isBlank()) ? null : ZoneId.of(zoneId);
+    }
+
+    // DaysOfWeek (List<DayOfWeek> <-> String)
+    public String mapFromDaysOfWeek(List<DayOfWeek> days) {
+        return days == null ? null : DaysOfWeekFormatter.format(days);
+    }
+
+    public List<DayOfWeek> mapToDaysOfWeek(String days) {
+        return (days == null || days.isBlank()) ? List.of() : DaysOfWeekFormatter.parse(days);
     }
 }

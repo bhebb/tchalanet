@@ -2,6 +2,8 @@ package com.tchalanet.server.features.tenantadmin.config.settings;
 
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.internal.write.SettingsAdminService;
 import com.tchalanet.server.common.context.TchRequestContext;
 import lombok.RequiredArgsConstructor;
@@ -21,15 +23,20 @@ public class TenantAdminSettingsService {
     var criteria = new ResolveSettingsCriteria(ctx.tenantIdSafe(), null, null, List.of(namespace == null ? "" : namespace));
     var resolved = settingsCatalog.resolve(criteria);
     return resolved.stream().map(r -> new com.tchalanet.server.features.tenantadmin.config.settings.model.AdminSettingRow(
-        r.id() == null ? null : r.id().value().toString(), r.namespace(), r.settingKey(), r.valueType().name(), r.settingValue(), r.level().name(), r.active()
+        null, // Resolved view doesn't have ID
+        r.namespace(),
+        r.settingKey(),
+        r.valueType().name(),
+        r.settingValue(),
+        r.effectiveLevel().name(),
+        true // Assume active if resolved
     )).collect(Collectors.toList());
   }
 
   public com.tchalanet.server.features.tenantadmin.config.settings.model.UpsertTenantSettingResult upsert(TchRequestContext ctx, com.tchalanet.server.features.tenantadmin.config.settings.model.UpsertTenantSettingRequest req) {
-    // delegate to catalog write-side admin service. Force tenant level.
     var tenantId = ctx.tenantIdSafe();
     var created = settingsAdmin.create(new com.tchalanet.server.catalog.settings.internal.web.model.CreateSettingRequest(
-        req.namespace(), req.settingKey(), req.settingValue(), com.tchalanet.server.catalog.settings.api.model.SettingValueType.TEXT, com.tchalanet.server.catalog.settings.api.model.SettingLevel.TENANT, tenantId, null, null
+        req.namespace(), req.settingKey(), req.settingValue(), SettingValueType.STRING, SettingLevel.TENANT, tenantId, null, null
     ));
 
     return new com.tchalanet.server.features.tenantadmin.config.settings.model.UpsertTenantSettingResult(created.id() == null ? null : created.id().value().toString());

@@ -4,21 +4,16 @@ import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Domain model for tenant-scoped subscription (rich domain model).
- * Maps to spec requirement S1-S8 (core-subscription spec).
- *
- * CRITICAL CHANGES from catalog/billing (per REFACTORING_GUIDE.md):
- * - planId (UUID) → planCode (String) for soft reference decoupling
- * - Business methods adapted to use planCode instead of Plan entity
- * - Immutable record with business logic methods
  */
 public record Subscription(
     SubscriptionId id,
     TenantId tenantId,
-    String planCode, // ✅ soft reference (not PlanId), validated via PlanCatalog
+    String planCode,
     SubscriptionStatus status,
     Instant startedAt,
     Instant endsAt,

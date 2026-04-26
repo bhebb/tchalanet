@@ -6,16 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface DrawChannelGameRepository extends JpaRepository<DrawChannelGameEntity, UUID> {
-    // RLS: do NOT accept tenantId or filter by deleted_at in repository methods. Tenant scoping
-    // and deleted visibility must be applied by PostgreSQL RLS (set via set_config on the connection).
-    //
-    // The read-side implementation (DrawChannelCatalogImpl) expects a few helper queries. Expose
-    // only those with RLS-friendly signatures (no tenant args). Keep the interface minimal to
-    // avoid unused-method warnings.
 
     List<DrawChannelGameEntity> findByDrawChannelId(UUID drawChannelId);
 
@@ -26,4 +21,9 @@ public interface DrawChannelGameRepository extends JpaRepository<DrawChannelGame
         JOIN game g ON g.id = dcg.game_id
         """, nativeQuery = true)
     List<Object[]> findChannelCodeAndGameRows();
+
+    // Admin/Write methods (using explicit tenantId for double-check security)
+    Optional<DrawChannelGameEntity> findByTenantIdAndDrawChannelIdAndGameIdAndDeletedAtIsNull(UUID tenantId, UUID drawChannelId, UUID gameId);
+
+    List<DrawChannelGameEntity> findByTenantIdAndDrawChannelIdAndGameIdInAndDeletedAtIsNull(UUID tenantId, UUID drawChannelId, List<UUID> gameIds);
 }

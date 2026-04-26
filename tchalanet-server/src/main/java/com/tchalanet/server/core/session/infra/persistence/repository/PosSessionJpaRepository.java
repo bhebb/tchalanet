@@ -19,15 +19,31 @@ public interface PosSessionJpaRepository extends JpaRepository<PosSessionJpaEnti
       @Param("terminalId") UUID terminalId,
       @Param("status") com.tchalanet.server.core.session.domain.model.PosSessionStatus status);
 
+  /** Finds an open POS session for the given terminal. RLS should handle tenant. */
+  Optional<PosSessionJpaEntity> findByTerminalIdAndStatus(
+      @Param("terminalId") UUID terminalId,
+      @Param("status") com.tchalanet.server.core.session.domain.model.PosSessionStatus status);
+
   /** Finds all open sessions for a cashier. */
   @Query(
       "SELECT s FROM PosSessionJpaEntity s WHERE s.tenantId = :tenantId AND s.userId = :userId AND s.status = 'OPENED'")
   java.util.List<PosSessionJpaEntity> findOpenByCashier(
       @Param("tenantId") UUID tenantId, @Param("userId") UUID userId);
 
+  /** Finds all open sessions for a cashier. RLS version. */
+  @Query(
+      "SELECT s FROM PosSessionJpaEntity s WHERE s.userId = :userId AND s.status = 'OPENED'")
+  java.util.List<PosSessionJpaEntity> findOpenByCashier(
+      @Param("userId") UUID userId);
+
   // Find by tenant + outlet + status
   List<PosSessionJpaEntity> findByTenantIdAndOutletIdAndStatus(
       UUID tenantId,
+      UUID outletId,
+      com.tchalanet.server.core.session.domain.model.PosSessionStatus status);
+
+  // Find by outlet + status (RLS version)
+  List<PosSessionJpaEntity> findByOutletIdAndStatus(
       UUID outletId,
       com.tchalanet.server.core.session.domain.model.PosSessionStatus status);
 
@@ -36,6 +52,14 @@ public interface PosSessionJpaRepository extends JpaRepository<PosSessionJpaEnti
       "SELECT s.id FROM PosSessionJpaEntity s WHERE s.tenantId = :tenantId AND s.outletId = :outletId AND s.openedAt >= :from AND s.openedAt < :to")
   List<UUID> findIdsByTenantIdAndOutletIdAndOpenedAtBetween(
       @Param("tenantId") UUID tenantId,
+      @Param("outletId") UUID outletId,
+      @Param("from") Instant from,
+      @Param("to") Instant to);
+
+  // Find session ids by outlet + openedAt between (RLS version)
+  @Query(
+      "SELECT s.id FROM PosSessionJpaEntity s WHERE s.outletId = :outletId AND s.openedAt >= :from AND s.openedAt < :to")
+  List<UUID> findIdsByOutletIdAndOpenedAtBetween(
       @Param("outletId") UUID outletId,
       @Param("from") Instant from,
       @Param("to") Instant to);

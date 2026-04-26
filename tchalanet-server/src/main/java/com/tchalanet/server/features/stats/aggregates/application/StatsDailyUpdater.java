@@ -30,11 +30,12 @@ public class StatsDailyUpdater {
 
     // outlet
     statsDailyRepo.upsertAndIncrement(
-        "outlet", event.outletId().uuid(), refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
+        "outlet", event.outletId().value(), refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
 
-    // cashier
+    // agent (replaces former cashierId)
+    java.util.UUID agentId = event.agentId() != null ? event.agentId().value() : null;
     statsDailyRepo.upsertAndIncrement(
-        "cashier", event.cashierId(), refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
+        "agent", agentId, refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
   }
 
   @Transactional

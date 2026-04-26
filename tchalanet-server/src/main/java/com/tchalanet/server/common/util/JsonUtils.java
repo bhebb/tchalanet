@@ -57,6 +57,10 @@ public class JsonUtils {
     }
   }
 
+  public <T> T convertValue(Object fromValue, TypeReference<T> toValueTypeRef) {
+    return mapper.convertValue(fromValue, toValueTypeRef);
+  }
+
   public JsonNode valueToTree(Object value) {
     return mapper.valueToTree(value);
   }

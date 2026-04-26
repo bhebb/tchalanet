@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.tenantgame.domain;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TenantGameId;
@@ -20,4 +21,4 @@ public record TenantGame(
     String displayName,
     BigDecimal minStake,
     BigDecimal maxStake,
-    Map<String, Object> flags) {}
+    JsonNode flags) {}

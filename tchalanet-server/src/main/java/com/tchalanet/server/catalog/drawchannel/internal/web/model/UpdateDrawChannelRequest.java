@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.drawchannel.internal.web.model;
 
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 

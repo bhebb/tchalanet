@@ -6,6 +6,7 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.payout.application.command.model.MarkTicketPayoutPaidCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
@@ -45,7 +46,7 @@ public class MarkTicketPayoutPaidCommandHandler implements CommandHandler<MarkTi
 
         AfterCommit.run(() -> publisher.publish(
             new TicketPaidEvent(
-                UUID.randomUUID(),
+                EventId.of(UUID.randomUUID()),
                 now,
                 saved.tenantId(),
                 saved.id(),
@@ -61,4 +62,3 @@ public class MarkTicketPayoutPaidCommandHandler implements CommandHandler<MarkTi
         return saved;
     }
 }
-

@@ -2,28 +2,25 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Typed identifier for ResultSlot. */
 public record ResultSlotId(UUID value) {
-
   public ResultSlotId {
-    if (value == null) throw new IllegalArgumentException("ResultSlotId.value is null");
+    if (value == null) throw new IllegalArgumentException("ResultSlotId value is null");
+  }
+
+  public UUID uuid() {
+    return value;
   }
 
   public static ResultSlotId of(UUID value) {
     return new ResultSlotId(value);
   }
 
-  /** Convenience for mappers: returns null if raw is null. */
-  public static ResultSlotId nullableOf(UUID raw) {
-    return raw == null ? null : new ResultSlotId(raw);
+  public static ResultSlotId nullableOf(UUID value) {
+    return value == null ? null : new ResultSlotId(value);
   }
 
-  /** Parse from UUID string (web/input). */
-  public static ResultSlotId parse(String raw) {
-    if (raw == null || raw.isBlank()) {
-      throw new IllegalArgumentException("ResultSlotId string is required");
-    }
-    return new ResultSlotId(UUID.fromString(raw));
+  public static ResultSlotId parse(String value) {
+    return value == null ? null : new ResultSlotId(UUID.fromString(value));
   }
 
   @Override

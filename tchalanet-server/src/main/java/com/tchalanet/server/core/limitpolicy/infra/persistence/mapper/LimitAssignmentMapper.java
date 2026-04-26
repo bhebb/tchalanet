@@ -20,7 +20,10 @@ public class LimitAssignmentMapper {
             targetMapper.toDomain(e.getTargetType(), e.getTargetId()),
             e.isEnabled(),
             e.getStartsAt(),
-            e.getEndsAt()
+            e.getEndsAt(),
+            e.getParamsOverride(),
+            e.getAppliesToOverride(),
+            e.getDeletedAt()
         );
     }
 
@@ -33,6 +36,9 @@ public class LimitAssignmentMapper {
         e.setEnabled(d.enabled());
         e.setStartsAt(d.startsAt());
         e.setEndsAt(d.endsAt());
+        e.setParamsOverride(d.paramsOverride());
+        e.setAppliesToOverride(d.appliesToOverride());
+        e.setDeletedAt(d.deletedAt());
         return e;
     }
 }

@@ -44,7 +44,7 @@ public class RecordDrawTicketsResultCommandHandler
     @TchTx
     public RecordDrawTicketsResultResult handle(RecordDrawTicketsResultCommand cmd) {
         // 1) Load draw result view once (global)
-        DrawResultViewPort.DrawResultMinimalView resultView = drawResultViewPort.findById(cmd.drawResultId());
+        DrawResultViewPort.DrawResultMinimalView resultView = drawResultViewPort.findById(cmd.drawResultId().uuid());
         if (resultView == null) {
             throw new IllegalStateException("DrawResult not found: " + cmd.drawResultId());
         }

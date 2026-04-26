@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.infra.persistence.mapper;
 
+import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMapper;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
@@ -42,7 +43,6 @@ public abstract class DrawMapper {
     DrawSource source =
         entity.getResultSource() == null ? DrawSource.SYSTEM : entity.getResultSource();
 
-    // drawResultId mapping
     var resultId =
         entity.getDrawResultId() == null ? null : DrawResultId.of(entity.getDrawResultId());
 
@@ -62,7 +62,7 @@ public abstract class DrawMapper {
     if (domain == null) return entity;
 
     entity.setId(domain.id().value());
-    entity.setTenantId(domain.tenantId().uuid());
+    entity.setTenantId(domain.tenantId().value());
 
     var channelEntity = drawChannelMapper.toEntityDefault(domain.drawChannel());
     entity.setDrawChannel(channelEntity);
@@ -71,9 +71,8 @@ public abstract class DrawMapper {
     entity.setCutoffAt(domain.cutoffAt() == null ? null : domain.cutoffAt().toInstant());
     entity.setStatus(domain.status());
 
-    // drawResult link géré par apply handler (draw.draw_result_id)
     if (domain.drawResultId() != null) {
-      entity.setDrawResultId(domain.drawResultId().uuid());
+      entity.setDrawResultId(domain.drawResultId().value());
     }
 
     return entity;

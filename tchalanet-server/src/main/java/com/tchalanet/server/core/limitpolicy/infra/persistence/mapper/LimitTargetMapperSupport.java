@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.AgentId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
 
 import java.util.UUID;
 

@@ -8,6 +8,7 @@ import com.tchalanet.server.features.tenantadmin.config.model.ThemeSummaryView;
 import com.tchalanet.server.features.tenantadmin.policies.TenantAdminPoliciesOrchestrator;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +27,11 @@ public class TenantAdminConfigOverviewOrchestrator {
 
     var registry = tenantCatalog.findRegistryById(tenantId).orElseThrow();
 
-    // settings summary (quick): count tenant-level settings
     var resolved = settingsCatalog.resolve(new com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria(tenantId, null, null, List.of()));
     int settingsCount = resolved.size();
 
-    var autonomy = policiesOrchestrator.getAutonomyOverview(ctx, com.tchalanet.server.common.types.enums.AutonomyTargetType.TENANT.valueOf("TENANT"), tenantId.value());
+    // [FIX] Removed ctx argument as per method signature
+    var autonomy = policiesOrchestrator.getAutonomyOverview(AutonomyTargetType.TENANT, tenantId.value());
 
     var theme = new ThemeSummaryView(null, null);
 

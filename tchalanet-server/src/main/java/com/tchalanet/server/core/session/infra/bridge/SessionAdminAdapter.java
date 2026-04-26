@@ -26,18 +26,18 @@ public class SessionAdminAdapter implements SessionAdminPort, SessionLookupPort 
   private final PosSessionWriterPort writer;
 
   @Override
-  public boolean hasOpenSessions(TenantId tenantId, OutletId outletId) {
+  public boolean hasOpenSessions(OutletId outletId) {
     var found =
-        repo.findByTenantIdAndOutletIdAndStatus(
-            tenantId.uuid(), outletId.uuid(), PosSessionStatus.OPENED);
+        repo.findByOutletIdAndStatus(
+            outletId.value(), PosSessionStatus.OPENED);
     return !found.isEmpty();
   }
 
   @Override
-  public long closeAllOpenSessions(TenantId tenantId, OutletId outletId, String reason) {
+  public long closeAllOpenSessions(OutletId outletId, String reason) {
     var entities =
-        repo.findByTenantIdAndOutletIdAndStatus(
-            tenantId.uuid(), outletId.uuid(), PosSessionStatus.OPENED);
+        repo.findByOutletIdAndStatus(
+            outletId.value(), PosSessionStatus.OPENED);
     long count = 0;
     for (var e : entities) {
       PosSession session = mapper.toDomain(e);
@@ -51,10 +51,10 @@ public class SessionAdminAdapter implements SessionAdminPort, SessionLookupPort 
 
   @Override
   public List<SessionId> findSessionIds(
-      TenantId tenantId, OutletId outletId, Instant from, Instant to) {
+      OutletId outletId, Instant from, Instant to) {
     var ids =
-        repo.findIdsByTenantIdAndOutletIdAndOpenedAtBetween(
-            tenantId.uuid(), outletId.uuid(), from, to);
+        repo.findIdsByOutletIdAndOpenedAtBetween(
+            outletId.value(), from, to);
     return ids.stream().map(SessionId::of).collect(Collectors.toList());
   }
 }

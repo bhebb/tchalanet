@@ -33,7 +33,6 @@ public class TenantAdminUsersOrchestrator {
 
 
     public TenantUserDetails getBootstrap(TchRequestContext ctx) {
-        // If no app user id, ensure user exists via core.user EnsureUserExistsForPrincipalCommand
         if (ctx.userId() == null) {
             if (ctx.keycloakUserId() == null) throw ProblemRest.forbidden("Missing Keycloak subject (sub) in token");
             var cmd = new EnsureUserExistsForPrincipalCommand(
@@ -54,7 +53,6 @@ public class TenantAdminUsersOrchestrator {
                 throw ProblemRest.internal("Unable to load user after bootstrap: " + ensureResult.userId());
             return mapCurrentUserToTenantUserDetails(details);
         }
-        // else just return current user
         CurrentUserDetails details = queryBus.send(new GetCurrentUserQuery(ctx.userId()));
         if (details == null) throw ProblemRest.notFound("User not found: " + ctx.userId());
         return mapCurrentUserToTenantUserDetails(details);
@@ -72,56 +70,49 @@ public class TenantAdminUsersOrchestrator {
         TenantUserFilter filter,
         TchPageRequest pageReq
     ) {
-        // MVP: si ton core ne supporte pas encore filter, garde ce query + ajoute filter plus tard
-        var q = new PagedListTenantUsersQuery(ctx.tenantId(), pageReq /* TODO: + filter */);
-        var page = queryBus.send(q); // Page<TenantUserRow>
+        var q = new PagedListTenantUsersQuery(ctx.tenantId(), pageReq);
+        var page = queryBus.send(q);
         return TchPageMapper.map(page, r -> r);
     }
 
     public TenantUserDetails getUserScreen(TchRequestContext ctx, UserId userId) {
-        // MVP: on lit via core.user (à terme: core.tenantuser details view qui joint membership+role)
         CurrentUserDetails details = queryBus.send(new GetCurrentUserQuery(userId));
         if (details == null) throw ProblemRest.notFound("User not found: " + userId);
         return mapCurrentUserToTenantUserDetails(details);
     }
 
     public TenantUserDetails createUserAndAssign(TchRequestContext ctx, CreateUserRequest req) {
-        // 1) core.user - create
         var createCmd = new CreateUserCommand(
             req.email(),
             req.phone(),
             req.firstName(),
             req.lastName(),
-            Optional.empty(), // prefThemeMode
-            Optional.empty(), // density
-            Optional.empty(), // locale
-            Optional.empty(), // timeZone
-            Optional.empty(), // currency
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
             false,
-            java.util.Set.of() // initial roles system-level if you have them (keep empty)
+            java.util.Set.of()
         );
         CreateUserResult createRes = commandBus.send(createCmd);
 
-        // 2) core.tenantuser - membership + assignations
-        // IMPORTANT: outletId required when role=CASHIER (core should also validate)
         var assignCmd = new AssignUserToTenantCommand(
             ctx.tenantId(),
             createRes.userId(),
-            null, // roleId - not set here
-            req.outletId(),     // <— utilise tes champs ici (au lieu de null)
-            req.terminalId(),   // <— optionnel
+            null,
+            req.outletId(),
+            req.terminalId(),
             false
         );
         commandBus.send(assignCmd);
 
-        // 3) core.accesscontrol - mono role
         commandBus.send(new com.tchalanet.server.core.accesscontrol.application.command.model.SetTenantUserRoleCommand(
             ctx.tenantId(),
             createRes.userId(),
             req.role()
         ));
 
-        // 4) read model
         CurrentUserDetails details = queryBus.send(new GetCurrentUserQuery(createRes.userId()));
         if (details == null) throw ProblemRest.internal("Unable to load user after create: " + createRes.userId());
         return mapCurrentUserToTenantUserDetails(details);
@@ -133,7 +124,8 @@ public class TenantAdminUsersOrchestrator {
             Optional.ofNullable(req.firstName()),
             Optional.ofNullable(req.lastName()),
             Optional.ofNullable(req.email()),
-            Optional.ofNullable(req.phone())
+            Optional.ofNullable(req.phone()),
+            Optional.empty() // [FIX] Added missing locale optional
         );
         commandBus.send(cmd);
 
@@ -163,7 +155,6 @@ public class TenantAdminUsersOrchestrator {
     }
 
     public TenantUserDetails upsertMembership(TchRequestContext ctx, UserId userId, UpsertMembershipRequest req) {
-        // Here we reuse AssignUserToTenantCommand as upsert membership/assignations.
         var cmd = new AssignUserToTenantCommand(ctx.tenantId(), userId, null, req.outletId(), req.terminalId(), false);
         commandBus.send(cmd);
 
@@ -181,7 +172,6 @@ public class TenantAdminUsersOrchestrator {
     }
 
     public TenantUserDetails setUserRole(TchRequestContext ctx, UserId userId, TchRole role) {
-        // mono-rôle tenant-scoped
         commandBus.send(new com.tchalanet.server.core.accesscontrol.application.command.model.SetTenantUserRoleCommand(
             ctx.tenantId(),
             userId,

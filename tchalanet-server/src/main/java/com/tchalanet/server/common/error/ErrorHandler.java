@@ -3,6 +3,7 @@ package com.tchalanet.server.common.error;
 import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
+import com.tchalanet.server.common.batch.gate.BatchDisabledException;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
 import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaEntryException;
 import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaLangException;

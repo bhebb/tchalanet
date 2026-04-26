@@ -6,5 +6,9 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import java.util.UUID;
 
 /** Command to mark a ticket as paid. */
-public record MarkTicketPayoutPaidCommand(TicketId ticketId, String reason, UUID performedBy)
+public record MarkTicketPayoutPaidCommand(
+    TicketId ticketId,
+    String reason,
+    UUID performedBy,
+    String currency)
     implements Command<Ticket> {}

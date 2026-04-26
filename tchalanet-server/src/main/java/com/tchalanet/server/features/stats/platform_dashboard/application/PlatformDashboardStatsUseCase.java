@@ -1,7 +1,9 @@
 package com.tchalanet.server.features.stats.platform_dashboard.application;
 
+import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryJpaEntity;
+import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryRepository;
 import com.tchalanet.server.core.outlet.infra.persistence.OutletSpringRepository;
-import com.tchalanet.server.core.tenant.infra.persistence.TenantJpaRepository;
+import com.tchalanet.server.core.tenantuser.infra.persistence.TenantUserJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;
@@ -19,9 +21,9 @@ public class PlatformDashboardStatsUseCase {
 
   private final StatsDailyJpaRepository statsDailyRepo;
   private final StatsDrawJpaRepository statsDrawRepo;
-  private final TenantJpaRepository tenantRepo;
+  private final TenantRegistryRepository tenantRepo;
   private final OutletSpringRepository outletRepo;
-  private final TenantUserRepository tenantUserRepo;
+  private final TenantUserJpaRepository tenantUserRepo;
 
   @Transactional(readOnly = true)
   public PlatformDashboardStatsResponse handle(PlatformDashboardStatsQuery query) {
@@ -54,7 +56,6 @@ public class PlatformDashboardStatsUseCase {
     }
 
     // 2) tenant aggregation across the period
-    // fetch tenant rows in range
     var tenantRows =
         statsDailyRepo.findByDimensionTypeAndDimensionIdAndRefDateBetween("tenant", null, from, to);
 
@@ -77,9 +78,8 @@ public class PlatformDashboardStatsUseCase {
         tenantRepo.findAllById(tenantAgg.keySet()).stream()
             .collect(
                 Collectors.toMap(
-                    com.tchalanet.server.core.tenant.infra.persistence.TenantJpaEntity::getId,
-                    com.tchalanet.server.core.tenant.infra.persistence.TenantJpaEntity::getName));
-    // Note: above fully-qualified references are required in this context
+                    TenantRegistryJpaEntity::getId,
+                    TenantRegistryJpaEntity::getName));
 
     var tenants =
         tenantAgg.entrySet().stream()
@@ -127,8 +127,7 @@ public class PlatformDashboardStatsUseCase {
             .limit(10)
             .toList();
 
-    // 4) game breakdown: use stats_draw or tenant-level breakdown; for now aggregate by game_code
-    // using stats_draw
+    // 4) game breakdown
     var drawRows =
         statsDrawRepo.findByTenantIdAndScheduledAtBetween(
             null,

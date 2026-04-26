@@ -4,8 +4,9 @@ import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
 import com.tchalanet.server.core.ledger.infra.persistence.LedgerEntryJpaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface LedgerEntryPersistenceMapper {
 
   @Mapping(target = "id", source = "id")

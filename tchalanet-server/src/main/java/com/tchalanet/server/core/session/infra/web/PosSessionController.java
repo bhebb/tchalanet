@@ -42,8 +42,8 @@ public class PosSessionController {
         commandBus.send(
             new OpenSessionCommand(
                 tenantId,
-                OutletId.of(body.outletId()), // V1 ok; handler must validate terminal->outlet
-                TerminalId.of(body.terminalId()),
+                OutletId.parse(body.outletId()), // MODIFIÉ: use parse
+                TerminalId.parse(body.terminalId()), // MODIFIÉ: use parse
                 userId,
                 body.openingFloat()));
 

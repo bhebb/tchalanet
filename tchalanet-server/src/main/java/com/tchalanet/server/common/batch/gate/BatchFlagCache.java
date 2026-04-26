@@ -20,7 +20,7 @@ public class BatchFlagCache {
     /**
      * Get a Boolean flag from the cache. Returns null when missing and loader returns null.
      */
-    public @Nullable Boolean getBool(String cacheKey, Supplier<@Nullable Boolean> loaderSupplier) {
+    public @Nullable Boolean getBool(String cacheKey, Supplier<Boolean> loaderSupplier) {
         var cache = cacheManager.getCache(CACHE_NAME);
         if (cache == null) {
             return safeLoad(loaderSupplier);
@@ -45,7 +45,7 @@ public class BatchFlagCache {
         }
     }
 
-    private @Nullable Boolean safeLoad(Supplier<@Nullable Boolean> loaderSupplier) {
+    private @Nullable Boolean safeLoad(Supplier<Boolean> loaderSupplier) {
         try {
             return loaderSupplier.get();
         } catch (Exception ex) {

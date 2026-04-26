@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,9 +15,6 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Repository for tenant registry read access (bypasses RLS via rawDataSource).
- * Per DOMAIN_TENANT_CATALOG.md: provides direct JDBC access to tenant data.
- * Replaces TenantBootstrapLookup with unified catalog API.
- * Uses @Qualifier("rawDataSource") to bypass RLS policies.
  */
 @Repository
 public class TenantRegistryRepository {
@@ -32,9 +30,6 @@ public class TenantRegistryRepository {
     this.jdbc = new JdbcTemplate(rawDataSource);
   }
 
-  /**
-   * Find tenant by code (case-insensitive), excluding soft-deleted.
-   */
   public Optional<TenantRegistryJpaEntity> findByCodeIgnoreCase(String code) {
     if (code == null || code.isBlank()) {
       return Optional.empty();
@@ -52,9 +47,6 @@ public class TenantRegistryRepository {
     }
   }
 
-  /**
-   * Find tenant by ID, excluding soft-deleted.
-   */
   public Optional<TenantRegistryJpaEntity> findByIdNotDeleted(UUID id) {
     if (id == null) {
       return Optional.empty();
@@ -72,9 +64,6 @@ public class TenantRegistryRepository {
     }
   }
 
-  /**
-   * List all active (non-archived, non-deleted) tenant IDs.
-   */
   public List<UUID> findAllActiveTenantIds() {
     try {
       final String sql = "SELECT id FROM tenant WHERE status != ? AND deleted_at IS NULL";
@@ -91,23 +80,15 @@ public class TenantRegistryRepository {
     }
   }
 
-  /**
-   * List ALL tenants (including soft-deleted) with pagination and sorting.
-   * Used for admin listings - includes deleted tenants for audit/reactivation.
-   * Per user request: return all tenants even soft-deleted for audit/reactivation.
-   */
   public org.springframework.data.domain.Page<TenantRegistryJpaEntity> findAll(
       org.springframework.data.domain.Pageable pageable) {
 
-    // Count total (ALL tenants, including soft-deleted)
     final String countSql = "SELECT COUNT(*) FROM tenant";
     Long total = jdbc.queryForObject(countSql, Long.class);
     if (total == null) total = 0L;
 
-    // Build ORDER BY clause from Pageable sort
     String orderByClause = buildOrderByClause(pageable.getSort());
 
-    // Fetch page with dynamic sorting
     final String sql = SELECT_ALL_FIELDS + "FROM tenant " + orderByClause + " LIMIT ? OFFSET ?";
 
     List<TenantRegistryJpaEntity> content = jdbc.query(sql, ps -> {
@@ -119,9 +100,25 @@ public class TenantRegistryRepository {
         content, pageable, total);
   }
 
-  /**
-   * Count non-deleted tenants.
-   */
+  public List<TenantRegistryJpaEntity> findAllById(Set<UUID> ids) {
+    if (ids == null || ids.isEmpty()) return Collections.emptyList();
+
+    // Convert to list for JDBC params
+    List<Object> params = new ArrayList<>(ids);
+    String placeholders = String.join(",", Collections.nCopies(ids.size(), "?"));
+    String sql = SELECT_ALL_FIELDS + "FROM tenant WHERE id IN (" + placeholders + ") AND deleted_at IS NULL";
+
+    return jdbc.query(sql, ps -> {
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+    }, (rs, rowNum) -> mapResultSetToEntity(rs));
+  }
+
+  public long count() {
+    return (long) countAll();
+  }
+
   public int countAll() {
     try {
       Integer v = jdbc.queryForObject("SELECT COUNT(*) FROM tenant WHERE deleted_at IS NULL", Integer.class);
@@ -131,9 +128,6 @@ public class TenantRegistryRepository {
     }
   }
 
-  /**
-   * Count tenants by status (non-deleted).
-   */
   public int countByStatus(String status) {
     if (status == null) return 0;
     try {
@@ -147,13 +141,9 @@ public class TenantRegistryRepository {
     }
   }
 
-  /**
-   * Build ORDER BY clause from Spring Sort.
-   * Supports multiple sort fields.
-   */
   private String buildOrderByClause(org.springframework.data.domain.Sort sort) {
     if (sort.isUnsorted()) {
-      return "ORDER BY created_at DESC"; // Default sort
+      return "ORDER BY created_at DESC";
     }
 
     var orders = new java.util.ArrayList<String>();
@@ -166,24 +156,16 @@ public class TenantRegistryRepository {
     return "ORDER BY " + String.join(", ", orders);
   }
 
-  /**
-   * Map sort field names to actual DB column names.
-   * Per @TchPaging allowedSort: createdAt, code, name, status
-   */
   private String mapSortFieldToColumn(String field) {
     return switch (field) {
       case "createdAt" -> "created_at";
       case "code" -> "code";
       case "name" -> "name";
       case "status" -> "status";
-      default -> "created_at"; // fallback
+      default -> "created_at";
     };
   }
 
-  /**
-   * Helper: map ResultSet row to TenantRegistryJpaEntity.
-   * Handles null values for timestamps and optional fields.
-   */
   private TenantRegistryJpaEntity mapResultSetToEntity(ResultSet rs) throws SQLException {
     var entity = new TenantRegistryJpaEntity();
     entity.setId((UUID) rs.getObject(1));

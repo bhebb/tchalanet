@@ -9,7 +9,13 @@ public record PricingOddsId(UUID value) {
     if (value == null) throw new IllegalArgumentException("PricingOddsId.value is null");
   }
 
+  public UUID uuid() { return value; }
   public static PricingOddsId of(UUID v) { return new PricingOddsId(v); }
   public static PricingOddsId nullableOf(UUID v) { return v == null ? null : new PricingOddsId(v); }
   public static PricingOddsId parse(String s) { return new PricingOddsId(UUID.fromString(s)); }
+
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

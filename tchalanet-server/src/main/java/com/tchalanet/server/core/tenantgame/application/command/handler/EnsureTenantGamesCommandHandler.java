@@ -1,9 +1,12 @@
 package com.tchalanet.server.core.tenantgame.application.command.handler;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.tenantgame.application.command.model.EnsureTenantGamesCommand;
 import com.tchalanet.server.core.tenantgame.application.port.TenantGamePersistencePort;
 import com.tchalanet.server.core.tenantgame.domain.TenantGame;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +17,7 @@ public class EnsureTenantGamesCommandHandler {
 
   private final GameCatalog gameCatalog;
   private final TenantGamePersistencePort persistencePort;
+  private final JsonUtils jsonUtils;
 
   @Transactional
   public void handle(EnsureTenantGamesCommand command) {
@@ -25,11 +29,22 @@ public class EnsureTenantGamesCommandHandler {
       return; // Idempotent
     }
 
-    var tenantGame = TenantGame.builder()
-        .tenantId(command.getTenantId())
-        .gameCode(command.getGameCode())
-        .enabled(true) // Default enabled
-        .build();
+    var tenantGame = new TenantGame(
+        null,
+        command.getTenantId(),
+        game.id(),
+        game.code(),
+        game.name(),
+        game.category(),
+        game.minDigits(),
+        game.maxDigits(),
+        game.combination(),
+        true,
+        game.name(),
+        null,
+        null,
+        jsonUtils.emptyObjectNode()
+     );
 
     persistencePort.save(tenantGame);
   }

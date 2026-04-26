@@ -21,7 +21,7 @@ public class RoleReaderJpaAdapter implements RoleReaderPort {
     var entities =
         tenantId == null
             ? appRoleRepository.findAllGlobalNotDeleted()
-            : appRoleRepository.findAllForTenantOrGlobal(tenantId.uuid());
+            : appRoleRepository.findAllForTenantOrGlobal(tenantId.value());
 
     return entities.stream()
         .filter(r -> r.getTenantId() == null)

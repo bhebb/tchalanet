@@ -38,7 +38,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
       boolean force) {
 
     // Simple upsert: try find id, if found update, else insert and return created
-    var existingId = repo.findByResultSlotIdAndOccurredAt(resultSlotId.uuid(), occurredAt);
+    var existingId = repo.findByResultSlotIdAndOccurredAt(resultSlotId.value(), occurredAt);
     if (existingId != null) {
       // update minimal fields
       var sql =
@@ -65,7 +65,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
     jdbc.update(
         insertSql,
         newId,
-        resultSlotId.uuid(),
+        resultSlotId.value(),
         java.sql.Timestamp.from(occurredAt),
         sourceResult == null ? null : jsonUtils.toJson(sourceResult),
         haitiResult == null ? null : jsonUtils.toJson(haitiResult),

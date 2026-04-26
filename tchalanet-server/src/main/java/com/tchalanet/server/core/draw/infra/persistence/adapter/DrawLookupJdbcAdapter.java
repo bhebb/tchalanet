@@ -1,7 +1,5 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
-import com.tchalanet.server.core.drawresult.api.DrawResultCatalogBack;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
@@ -16,6 +14,8 @@ import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawLookupJdbcRepository;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +35,7 @@ public class DrawLookupJdbcAdapter implements DrawLookupPort {
     private final DrawLookupJdbcRepository repo;
     private final DrawJpaRepository jpa;
     private final DrawMapper mapper;
-    private final DrawResultCatalogBack drawResultCatalog;
+    private final DrawResultReaderPort drawResultReader;
 
     @Override
     public Optional<DrawId> findDrawIdBySlotId(
@@ -126,7 +126,7 @@ public class DrawLookupJdbcAdapter implements DrawLookupPort {
         var last = List.<Integer>of();
         if (e.getDrawResultId() != null) {
             try {
-                DrawResult dr = drawResultCatalog.getById(DrawResultId.of(e.getDrawResultId()));
+                DrawResult dr = drawResultReader.getById(DrawResultId.of(e.getDrawResultId()));
                 last = HaitiResultExtractors.lastPick3(dr.haitiResult());
             } catch (Exception ex) {
                 // ignore missing/parse errors and keep empty list

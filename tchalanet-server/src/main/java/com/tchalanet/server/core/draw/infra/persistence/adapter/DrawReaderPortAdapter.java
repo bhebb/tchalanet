@@ -8,7 +8,7 @@ import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
-import com.tchalanet.server.core.drawresult.api.DrawResultCatalogBack;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import java.time.Clock;
 import java.time.Duration;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 public class DrawReaderPortAdapter implements DrawReaderPort {
 
   private final DrawJpaRepository repository;
-  private final DrawResultCatalogBack drawResultCatalog;
+  private final DrawResultReaderPort drawResultReader;
   private final JdbcTemplate jdbc;
   private final Clock clock; // [D9] Injected clock
 
@@ -88,7 +88,7 @@ public class DrawReaderPortAdapter implements DrawReaderPort {
     var last = List.<Integer>of();
     if (e.getDrawResultId() != null) {
       try {
-        DrawResult dr = drawResultCatalog.getById(DrawResultId.of(e.getDrawResultId()));
+        DrawResult dr = drawResultReader.getById(DrawResultId.of(e.getDrawResultId()));
         last = HaitiResultExtractors.lastPick3(dr.haitiResult());
       } catch (Exception ex) {}
     }

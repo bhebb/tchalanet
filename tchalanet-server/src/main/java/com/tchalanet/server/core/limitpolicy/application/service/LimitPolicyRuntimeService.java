@@ -33,11 +33,11 @@ public class LimitPolicyRuntimeService {
   private final LimitResolver resolver;
 
   public LimitEvaluationView evaluate(LimitContext ctx) {
-    var defs = definitions.listEnabledNotDeleted();
+    var defs = definitions.listActive();
     var assigns = assignments.listActiveForTargets(Collections.emptyList(), Instant.now()); // placeholder
 
     EffectiveLimits resolved = resolver.resolve(defs, assigns, ctx);
-    LimitFactsSnapshot facts = (exposureFacts != null) ? exposureFacts.snapshot(ctx.tenantId(), ctx.drawId(), ctx.scope()) : LimitFactsSnapshot.EMPTY;
+    LimitFactsSnapshot facts = (exposureFacts != null) ? exposureFacts.snapshot(ctx) : LimitFactsSnapshot.EMPTY;
 
     if (engine != null) return engine.evaluate(resolved, facts, ctx);
 

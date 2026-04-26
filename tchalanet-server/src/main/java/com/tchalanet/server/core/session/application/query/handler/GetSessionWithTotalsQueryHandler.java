@@ -20,7 +20,7 @@ public class GetSessionWithTotalsQueryHandler
 
   @Override
   public Optional<SessionWithTotalsDto> handle(GetSessionWithTotalsQuery query) {
-    var sessionOpt = sessionReader.findById(query.sessionId().value());
+    var sessionOpt = sessionReader.findById(query.sessionId());
     if (sessionOpt.isEmpty()) {
       return Optional.empty();
     }

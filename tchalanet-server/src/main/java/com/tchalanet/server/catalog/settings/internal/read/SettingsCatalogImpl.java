@@ -154,7 +154,8 @@ public class SettingsCatalogImpl implements SettingsCatalog {
     // total tenant settings (TENANT level)
     int totalTenant = repository.findByActiveTrueAndDeletedAtIsNullAndLevel(SettingLevel.TENANT).size();
     // total active settings across all levels
-    long totalActive = repository.findByActiveTrueAndDeletedAtIsNull(Pageable.unpaged()).getTotalElements();
+    long totalActiveLong = repository.findByActiveTrueAndDeletedAtIsNull(Pageable.unpaged()).getTotalElements();
+    int totalActive = (int) totalActiveLong; // Cast to int
     return new SettingsCatalogStatsView(totalGlobal, totalTenant, totalActive);
   }
 }

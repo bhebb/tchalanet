@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.tenantgame.application.command.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
 public class EnsureTenantGamesCommand {
-  private final UUID tenantId;
+  private final TenantId tenantId;
   private final String gameCode;
 }

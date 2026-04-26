@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.types.enums;
 
 public enum AuditEntityType {
+  SYSTEM,
   TENANT,
   PLAN,
   SUBSCRIPTION,

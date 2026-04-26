@@ -9,6 +9,10 @@ public record TenantId(UUID value) {
     if (value == null) throw new IllegalArgumentException("TenantId.value is null");
   }
 
+  public UUID uuid() {
+    return value;
+  }
+
   public static TenantId of(UUID value) {
     return new TenantId(value);
   }

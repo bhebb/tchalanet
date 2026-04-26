@@ -2,28 +2,25 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Typed identifier for Agent. */
 public record AgentId(UUID value) {
-
   public AgentId {
-    if (value == null) throw new IllegalArgumentException("AgentId.value is null");
+    if (value == null) throw new IllegalArgumentException("AgentId value is null");
+  }
+
+  public UUID uuid() {
+    return value;
   }
 
   public static AgentId of(UUID value) {
     return new AgentId(value);
   }
 
-  /** Convenience for mappers: returns null if raw is null. */
-  public static AgentId nullableOf(UUID raw) {
-    return raw == null ? null : new AgentId(raw);
+  public static AgentId nullableOf(UUID value) {
+    return value == null ? null : new AgentId(value);
   }
 
-  /** Parse from UUID string (web/input). */
-  public static AgentId parse(String raw) {
-    if (raw == null || raw.isBlank()) {
-      throw new IllegalArgumentException("AgentId string is required");
-    }
-    return new AgentId(UUID.fromString(raw));
+  public static AgentId parse(String value) {
+    return value == null ? null : new AgentId(UUID.fromString(value));
   }
 
   @Override

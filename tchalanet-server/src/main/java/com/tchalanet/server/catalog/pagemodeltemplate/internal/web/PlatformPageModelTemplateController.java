@@ -3,6 +3,8 @@ package com.tchalanet.server.catalog.pagemodeltemplate.internal.web;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
+import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -58,8 +60,10 @@ public class PlatformPageModelTemplateController {
     @Operation(summary = "Update")
     @PutMapping("/{id}")
     public ApiResponse<PageModelTemplateView> update(
-        @PathVariable PageModelTemplateId id, @RequestBody PageModelTemplateView view) {
-        return ApiResponse.success(admin.updateFromView(id, view));
+        @PathVariable PageModelTemplateId id,
+        @RequestBody PageModelTemplateView view,
+        @CurrentContext TchRequestContext ctx) {
+        return ApiResponse.success(admin.updateFromView(id, view, ctx.userId()));
     }
 
     @Operation(summary = "Soft delete")
@@ -75,17 +79,13 @@ public class PlatformPageModelTemplateController {
         return ApiResponse.success(admin.setDefault(id));
     }
 
-    // ------------------------------------------------------------------ preview
-
-    @Operation(summary = "Preview a template — retourne la vue complète telle qu'exposée au BFF")
+    @Operation(summary = "Preview a template")
     @GetMapping("/{id}/preview")
     public ApiResponse<PageModelTemplateView> preview(@PathVariable PageModelTemplateId id) {
         return ApiResponse.success(admin.preview(id));
     }
 
-    // ---------------------------------------------------------------- duplicate
-
-    @Operation(summary = "Duplicate a template — crée une copie avec logicalId/code optionnels")
+    @Operation(summary = "Duplicate a template")
     @PostMapping("/{id}/duplicate")
     public ApiResponse<PageModelTemplateView> duplicate(
         @PathVariable PageModelTemplateId id,
@@ -94,9 +94,7 @@ public class PlatformPageModelTemplateController {
         return ApiResponse.success(admin.duplicate(id, newLogicalId, newCode));
     }
 
-    // --------------------------------------------------------------------- reset
-
-    @Operation(summary = "Reset a template — efface le modèle et le schéma (remet à {})")
+    @Operation(summary = "Reset a template")
     @PostMapping("/{id}/reset")
     public ApiResponse<PageModelTemplateView> reset(@PathVariable PageModelTemplateId id) {
         return ApiResponse.success(admin.resetToDefaults(id));

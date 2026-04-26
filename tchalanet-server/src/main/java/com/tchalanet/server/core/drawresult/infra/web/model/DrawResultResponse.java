@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.drawresult.infra.web.model;
 
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 

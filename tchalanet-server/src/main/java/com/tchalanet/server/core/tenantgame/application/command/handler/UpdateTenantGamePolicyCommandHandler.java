@@ -18,16 +18,22 @@ public class UpdateTenantGamePolicyCommandHandler {
     var existing = persistencePort.findByTenantIdAndGameCode(command.getTenantId(), command.getGameCode())
         .orElseThrow(() -> new IllegalArgumentException("Tenant game not found"));
 
-    var tenantGame = TenantGame.builder()
-        .tenantId(existing.getTenantId())
-        .gameCode(existing.getGameCode())
-        .enabled(existing.isEnabled())
-        .displayName(existing.getDisplayName())
-        .minStake(existing.getMinStake())
-        .maxStake(existing.getMaxStake())
-        .flags(command.getPolicy())
-        .version(existing.getVersion())
-        .build();
+    var tenantGame = new TenantGame(
+        existing.tenantGameId(),
+        existing.tenantId(),
+        existing.gameId(),
+        existing.code(),
+        existing.name(),
+        existing.category(),
+        existing.minDigits(),
+        existing.maxDigits(),
+        existing.combination(),
+        existing.enabled(),
+        existing.displayName(),
+        existing.minStake(),
+        existing.maxStake(),
+        command.getPolicy() // updated flags
+    );
 
     persistencePort.save(tenantGame);
   }

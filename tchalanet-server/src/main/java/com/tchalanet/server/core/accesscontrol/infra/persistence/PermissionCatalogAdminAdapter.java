@@ -40,7 +40,7 @@ public class PermissionCatalogAdminAdapter
   @Transactional(readOnly = true)
   @Cacheable(cacheNames = "role-permissions", key = "#roleId")
   public Set<String> listPermissionCodes(RoleId roleId) {
-    return rolePermissionRepository.findByRoleId(roleId.uuid()).stream()
+    return rolePermissionRepository.findByRoleId(roleId.value()).stream()
         .map(rp -> rp.getPermission().getCode())
         .collect(java.util.stream.Collectors.toUnmodifiableSet());
   }
@@ -60,7 +60,7 @@ public class PermissionCatalogAdminAdapter
     }
 
     var existing =
-        rolePermissionRepository.findByRoleId(roleId.uuid()).stream()
+        rolePermissionRepository.findByRoleId(roleId.value()).stream()
             .anyMatch(rp -> rp.getPermission().getCode().equals(permissionCode));
     if (existing) {
       return false; // idempotent: lien déjà présent
@@ -74,11 +74,11 @@ public class PermissionCatalogAdminAdapter
 
     var role =
         appRoleRepository
-            .findById(roleId.uuid())
+            .findById(roleId.value())
             .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
 
     var link = new AppRolePermissionEntity();
-    link.setId(new AppRolePermissionId(roleId.uuid(), permissionCode));
+    link.setId(new AppRolePermissionId(roleId.value(), permissionCode));
     link.setRole(role);
     link.setPermission(permission);
 
@@ -94,7 +94,7 @@ public class PermissionCatalogAdminAdapter
       throw new IllegalArgumentException("roleId and permissionCode must not be null/blank");
     }
 
-    var links = new HashSet<>(rolePermissionRepository.findByRoleId(roleId.uuid()));
+    var links = new HashSet<>(rolePermissionRepository.findByRoleId(roleId.value()));
     var toRemove =
         links.stream().filter(rp -> rp.getPermission().getCode().equals(permissionCode)).toList();
 

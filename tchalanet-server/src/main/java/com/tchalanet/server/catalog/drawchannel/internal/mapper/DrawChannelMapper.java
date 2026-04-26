@@ -20,6 +20,10 @@ public interface DrawChannelMapper {
   @Mapping(target = "defaultSource", expression = "java((com.tchalanet.server.common.types.enums.DrawSource) null)")
   DrawChannelView toView(DrawChannelEntity e);
 
+  default DrawChannelView toDomain(DrawChannelEntity e) {
+    return toView(e);
+  }
+
   // Map entity -> summary view
   @Mapping(target = "channelCode", expression = "java(e.getCode())")
   @Mapping(target = "channelName", expression = "java(e.getName())")
@@ -56,6 +60,12 @@ public interface DrawChannelMapper {
   @Mapping(target = "daysOfWeek", expression = "java(com.tchalanet.server.common.time.DaysOfWeekFormatter.format(req.daysOfWeek()))")
   @Mapping(target = "sortOrder", expression = "java(req.sortOrder() == null ? 0 : req.sortOrder())")
   DrawChannelEntity toEntity(UpdateDrawChannelRequest req);
+
+  // For DrawMapper.toEntity
+  @Mapping(target = "id", source = "view.id")
+  @Mapping(target = "timezone", expression = "java(view.timezone() == null ? null : view.timezone().toString())")
+  @Mapping(target = "daysOfWeek", expression = "java(com.tchalanet.server.common.time.DaysOfWeekFormatter.format(view.daysOfWeek()))")
+  DrawChannelEntity toEntityDefault(DrawChannelView view);
 
   // Update existing entity in-place from request
   @Mapping(target = "id", ignore = true)

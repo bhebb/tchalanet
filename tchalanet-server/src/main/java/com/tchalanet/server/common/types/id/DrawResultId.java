@@ -2,28 +2,25 @@ package com.tchalanet.server.common.types.id;
 
 import java.util.UUID;
 
-/** Typed identifier for DrawResult. */
 public record DrawResultId(UUID value) {
-
   public DrawResultId {
-    if (value == null) throw new IllegalArgumentException("DrawResultId.value is null");
+    if (value == null) throw new IllegalArgumentException("DrawResultId value is null");
+  }
+
+  public UUID uuid() {
+    return value;
   }
 
   public static DrawResultId of(UUID value) {
     return new DrawResultId(value);
   }
 
-  /** Convenience for mappers: returns null if raw is null. */
-  public static DrawResultId nullableOf(UUID raw) {
-    return raw == null ? null : new DrawResultId(raw);
+  public static DrawResultId nullableOf(UUID value) {
+    return value == null ? null : new DrawResultId(value);
   }
 
-  /** Parse from UUID string (web/input). */
-  public static DrawResultId parse(String raw) {
-    if (raw == null || raw.isBlank()) {
-      throw new IllegalArgumentException("DrawResultId string is required");
-    }
-    return new DrawResultId(UUID.fromString(raw));
+  public static DrawResultId parse(String value) {
+    return value == null ? null : new DrawResultId(UUID.fromString(value));
   }
 
   @Override

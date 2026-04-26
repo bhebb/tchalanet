@@ -19,7 +19,7 @@ public class PrivateDashboardDynamicDataService {
   public PrivateDashboardDynamicPayload buildDynamicData(
       TenantId tenantId, UserId userId, TchRole role, String currentLang, PageModelDoc model) {
     return switch (role) {
-      case SUPER_ADMIN -> superadminDashboardService.build(tenantId, userId, currentLang, model);
+      case SUPER_ADMIN, SYSTEM -> superadminDashboardService.build(tenantId, userId, currentLang, model);
       case TENANT_ADMIN -> tenantAdminDashboardService.build(tenantId, userId, currentLang, model);
       case CASHIER -> cashierDashboardService.build(tenantId, userId, currentLang, model);
       case OPERATOR -> PrivateDashboardDynamicPayload.empty();

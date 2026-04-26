@@ -15,18 +15,20 @@ public class LimitDefinitionMapper {
             e.isEnabled(),
             e.getOnBreach(),
             e.getParams(),
-            e.getAppliesTo()
+            e.getAppliesTo(),
+            e.getDeletedAt()
         );
     }
 
     public LimitDefinitionJpaEntity toEntity(LimitDefinition d) {
         var e = new LimitDefinitionJpaEntity();
-        e.setId(d.id().value()); // UUID only here
+        e.setId(d.id().value());
         e.setRuleKey(d.ruleKey());
         e.setEnabled(d.enabled());
         e.setOnBreach(d.onBreach());
         e.setParams(d.params());
         e.setAppliesTo(d.appliesTo());
+        e.setDeletedAt(d.deletedAt());
         return e;
     }
 }

@@ -1,9 +1,9 @@
 package com.tchalanet.server.common.batch.gate;
 
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
 import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.catalog.settings_bk.AppSettingLevel;
-import com.tchalanet.server.catalog.settings_bk.infra.persistence.AppSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,13 +16,13 @@ public class BatchGateCacheImpl implements BatchGateCache {
     private static final String NAMESPACE = "batch";
 
     private final BatchFlagCache flagCache;
-    private final AppSettingRepository settingRepo;
+    private final SettingRepository settingRepo;
 
     @Override
     public Optional<Boolean> getTenant(JobKey jobKey, TenantId tenantId) {
         String cacheKey = NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value();
         return Optional.ofNullable(
-            flagCache.getBool(cacheKey, () -> loadFromSettings(AppSettingLevel.TENANT, tenantId, jobKey))
+            flagCache.getBool(cacheKey, () -> loadFromSettings(SettingLevel.TENANT, tenantId, jobKey))
         );
     }
 
@@ -30,7 +30,7 @@ public class BatchGateCacheImpl implements BatchGateCache {
     public Optional<Boolean> getGlobal(JobKey jobKey) {
         String cacheKey = NAMESPACE + ":g:" + jobKey.value();
         return Optional.ofNullable(
-            flagCache.getBool(cacheKey, () -> loadFromSettings(AppSettingLevel.GLOBAL, null, jobKey))
+            flagCache.getBool(cacheKey, () -> loadFromSettings(SettingLevel.GLOBAL, null, jobKey))
         );
     }
 
@@ -48,7 +48,7 @@ public class BatchGateCacheImpl implements BatchGateCache {
         flagCache.put(cacheKey, enabled);
     }
 
-    private Boolean loadFromSettings(AppSettingLevel level, TenantId tenantId, JobKey jobKey) {
+    private Boolean loadFromSettings(SettingLevel level, TenantId tenantId, JobKey jobKey) {
         String settingKey = "jobs." + jobKey.value() + ".enabled";
 
         return settingRepo

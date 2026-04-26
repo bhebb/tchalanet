@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.ops.application;
 
-import com.tchalanet.server.catalog.settings_bk.AppSettingLevel;
-import com.tchalanet.server.catalog.settings_bk.AppSettingValueType;
-import com.tchalanet.server.catalog.settings_bk.infra.persistence.AppSettingEntity;
-import com.tchalanet.server.catalog.settings_bk.infra.persistence.AppSettingRepository;
+import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
+import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
+import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
 import com.tchalanet.server.common.batch.gate.BatchGateCache;
 import com.tchalanet.server.common.batch.gate.BatchGateResolver;
 import com.tchalanet.server.common.batch.key.JobKey;
@@ -38,7 +38,7 @@ public class OpsBatchService {
     private final BatchGateResolver gateResolver;
     private final BatchGateCache gateCache;
     private final BatchJobStarter jobStarter;
-    private final AppSettingRepository appSettingRepo;
+    private final SettingRepository appSettingRepo;
     private final JobRepository jobRepository;
 
     public List<JobInfoResponse> listJobs() {
@@ -61,7 +61,6 @@ public class OpsBatchService {
 
         var execution = jobStarter.start(jobKey, request.params());
 
-        // Convert LocalDateTime start to Instant using tenant zone if available, else UTC
         var startLdt = execution.getStartTime();
         TchRequestContext ctxStart = TchContext.currentOrNull();
         ZoneId effectiveZoneStart = (ctxStart != null && ctxStart.tenantZoneId() != null) ? ctxStart.tenantZoneId() : ZoneId.of("UTC");
@@ -75,9 +74,6 @@ public class OpsBatchService {
         );
     }
 
-    /**
-     * Gate status for one job (effective + provenance).
-     */
     public Map<String, Object> getGateStatus(String jobKeyStr, String tenantIdStr) {
         JobKey jobKey = JobKey.of(jobKeyStr);
 
@@ -91,14 +87,11 @@ public class OpsBatchService {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("job_key", jobKey.value());
         out.put("enabled", res.enabled());
-        out.put("scope", res.scope()); // TENANT_OVERRIDE | GLOBAL_FLAG | DEFAULT
+        out.put("scope", res.scope());
         out.put("tenant_id", tenantId != null ? tenantId.toString() : null);
         return out;
     }
 
-    /**
-     * Bulk gate status.
-     */
     public Map<String, Boolean> getGateStatusBulk(List<String> jobKeys, String tenantIdStr) {
         TenantId tenantId = null;
         if (tenantIdStr != null && !tenantIdStr.isBlank()) {
@@ -126,24 +119,23 @@ public class OpsBatchService {
     public void updateGate(String jobKeyStr, GateUpdateRequest request) {
         JobKey jobKey = JobKey.of(jobKeyStr);
 
-        // Prevent writing settings for unknown jobs
         jobRegistry.find(jobKey)
             .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
 
         log.info("ops.batch.gate.update jobKey={} scope={} enabled={} reason={}",
             jobKey, request.scope(), request.enabled(), request.reason());
 
-        AppSettingLevel level;
+        SettingLevel level;
         TenantId tenantId = null;
 
         if ("TENANT".equalsIgnoreCase(request.scope())) {
-            level = AppSettingLevel.TENANT;
+            level = SettingLevel.TENANT;
             if (request.tenant_id() == null || request.tenant_id().isBlank()) {
                 throw new IllegalArgumentException("tenant_id required for TENANT scope");
             }
             tenantId = TenantId.parse(request.tenant_id());
         } else if ("GLOBAL".equalsIgnoreCase(request.scope())) {
-            level = AppSettingLevel.GLOBAL;
+            level = SettingLevel.GLOBAL;
             if (request.tenant_id() != null && !request.tenant_id().isBlank()) {
                 throw new IllegalArgumentException("tenant_id not allowed for GLOBAL scope");
             }
@@ -154,24 +146,23 @@ public class OpsBatchService {
         String settingKey = "jobs." + jobKey.value() + ".enabled";
         UUID tenantUuid = tenantId != null ? tenantId.value() : null;
 
-        Optional<AppSettingEntity> existing = appSettingRepo
+        Optional<SettingEntity> existing = appSettingRepo
             .findFirstByActiveTrueAndDeletedAtIsNullAndLevelAndTenantIdAndOutletIdAndTerminalIdAndNamespaceAndSettingKey(
                 level, tenantUuid, null, null, BATCH_NAMESPACE, settingKey);
 
-        AppSettingEntity entity = existing.orElseGet(AppSettingEntity::new);
+        SettingEntity entity = existing.orElseGet(SettingEntity::new);
         entity.setLevel(level);
         entity.setTenantId(tenantUuid);
         entity.setOutletId(null);
         entity.setTerminalId(null);
         entity.setNamespace(BATCH_NAMESPACE);
         entity.setSettingKey(settingKey);
-        entity.setValueType(AppSettingValueType.BOOLEAN);
+        entity.setValueType(SettingValueType.BOOLEAN);
         entity.setSettingValue(Boolean.toString(request.enabled()));
         entity.setActive(true);
 
         appSettingRepo.save(entity);
 
-        // Update cache immediately (avoid TTL delays)
         if (tenantId != null) {
             gateCache.putTenant(jobKey, tenantId, request.enabled());
         } else {
@@ -181,10 +172,6 @@ public class OpsBatchService {
         log.info("ops.batch.gate.updated jobKey={} scope={} enabled={}",
             jobKey, request.scope(), request.enabled());
     }
-
-    // ----------------------------
-    // Executions (Spring Batch 6)
-    // ----------------------------
 
     public ExecutionResponse getExecution(long executionId) {
         JobExecution exec = jobRepository.getJobExecution(executionId);
@@ -208,7 +195,6 @@ public class OpsBatchService {
 
         String jobName = reg.springJobBeanName();
 
-        // Fetch last N job instances, then flatten executions until limit reached.
         var instances = jobRepository.getJobInstances(jobName, 0, Math.min(50, limit));
         List<ExecutionResponse> out = new ArrayList<>(limit);
 
@@ -228,7 +214,6 @@ public class OpsBatchService {
         LocalDateTime startLdt = execution.getStartTime();
         LocalDateTime endLdt = execution.getEndTime();
 
-        // Determine effective zone: prefer tenant zone from request context, fallback to UTC
         TchRequestContext ctx = TchContext.currentOrNull();
         ZoneId effectiveZone = (ctx != null && ctx.tenantZoneId() != null) ? ctx.tenantZoneId() : ZoneId.of("UTC");
 

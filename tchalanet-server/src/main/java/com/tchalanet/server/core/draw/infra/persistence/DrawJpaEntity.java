@@ -3,6 +3,7 @@ package com.tchalanet.server.core.draw.infra.persistence;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,8 +34,6 @@ import org.hibernate.envers.Audited;
       @Index(name = "ix_draw_tenant_scheduled", columnList = "tenantId, scheduled_at"),
       @Index(name = "ix_draw_status_scheduled_at", columnList = "status, scheduled_at"),
       @Index(name = "ix_draw_status_cutoff_at", columnList = "status, cutoff_at")
-      // NB: indexes partiels (WHERE deleted_at IS NULL AND locked=false) => uniquement en SQL
-      // migration
     })
 @Audited
 @Getter
@@ -46,7 +45,7 @@ public class DrawJpaEntity extends BaseTenantEntity {
       name = "draw_channel_id",
       nullable = false,
       foreignKey = @ForeignKey(name = "fk_draw_channel"))
-  private DrawChannelJpaEntity drawChannel;
+  private DrawChannelEntity drawChannel;
 
   @Column(name = "draw_date", nullable = false)
   private LocalDate drawDate;
@@ -79,7 +78,6 @@ public class DrawJpaEntity extends BaseTenantEntity {
   @Enumerated(EnumType.STRING)
   private DrawStatus status;
 
-  // raw FK column (authoritative storage of the link)
   @Column(name = "draw_result_id")
   private UUID drawResultId;
 

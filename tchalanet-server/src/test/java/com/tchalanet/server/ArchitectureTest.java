@@ -60,7 +60,7 @@ class ArchitectureTest {
     // Allow dependency on catalog/game/api (public API)
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.core.tenantgame..")
-        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.catalog.game.internal..",
+        .should().dependOnClassesThat().resideInAnyPackage("com.tchalanet.server.catalog.game.internal..",
                          "com.tchalanet.server.catalog.game.infra..")
         .as("core/tenantgame must NOT depend on catalog/game/internal or infra; only api is allowed");
 
@@ -79,8 +79,8 @@ class ArchitectureTest {
         .or().areAnnotatedWith(PostMapping.class)
         .or().areAnnotatedWith(PutMapping.class)
         .or().areAnnotatedWith(DeleteMapping.class)
-        .should().haveReturnType(ApiResponse.class)
-        .orShould().haveReturnTypeAssignableTo(ResponseEntity.class)
+        .should().haveRawReturnType(ApiResponse.class)
+        .orShould().haveRawReturnType(ResponseEntity.class)
         .as("Controllers must return ApiResponse or ResponseEntity; never raw domain entities");
 
     rule.check(classes);
@@ -109,8 +109,8 @@ class ArchitectureTest {
         .or().areAnnotatedWith(PostMapping.class)
         .or().areAnnotatedWith(PutMapping.class)
         .or().areAnnotatedWith(DeleteMapping.class)
-        .should().haveReturnType(ApiResponse.class)
-        .orShould().haveReturnTypeAssignableTo(ResponseEntity.class)
+        .should().haveRawReturnType(ApiResponse.class)
+        .orShould().haveRawReturnType(ResponseEntity.class)
         .as("Catalog controllers must return ApiResponse or ResponseEntity");
 
     rule.check(classes);
@@ -123,7 +123,7 @@ class ArchitectureTest {
 
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.catalog..internal.web..")
-        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.catalog..internal.persistence..")
+        .should().dependOnClassesThat().resideInAnyPackage("..persistence..", "..repository..")
         .as("Catalog controllers must not depend on internal.persistence (repositories)");
 
     rule.check(classes);
@@ -135,8 +135,12 @@ class ArchitectureTest {
 
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.catalog..")
-        .should().haveAnyMembersThat().haveSimpleName("publishEvent")
-        .orShould().haveAnyMembersThat().haveSimpleName("emit")
+        .should().callMethodWhere(com.tngtech.archunit.core.domain.JavaMethodCall.Predicates.target(
+            com.tngtech.archunit.core.domain.properties.HasName.Predicates.name("publishEvent")
+        ))
+        .orShould().callMethodWhere(com.tngtech.archunit.core.domain.JavaMethodCall.Predicates.target(
+            com.tngtech.archunit.core.domain.properties.HasName.Predicates.name("publish")
+        ))
         .as("catalog modules must NOT emit domain events (pure reference data)");
 
     rule.check(classes);
