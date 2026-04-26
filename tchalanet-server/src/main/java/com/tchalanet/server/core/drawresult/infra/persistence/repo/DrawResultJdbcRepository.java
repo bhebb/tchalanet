@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.drawresult.infra.persistence.repo;
 
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
-import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.drawresult.infra.persistence.DrawResultJpaEntity;
 import java.time.Instant;

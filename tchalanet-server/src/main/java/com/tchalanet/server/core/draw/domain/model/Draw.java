@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.draw.domain.model;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Objects;

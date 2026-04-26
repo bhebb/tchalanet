@@ -59,13 +59,13 @@ public class DrawAdminController {
       @PathVariable DrawId drawId,
       @RequestParam TenantId tenantId,
       @RequestBody UpdateDrawRequest request) {
-    if (!drawId.value().equals(request.drawId())) {
+    if (drawId != request.drawId())) {
       throw ProblemRest.badRequest("Path drawId does not match body drawId");
     }
-    if (!tenantId.value().equals(request.tenantId())) {
+    if (tenantId != request.tenantId())) {
       throw ProblemRest.badRequest("Path tenantId does not match body tenantId");
     }
-    UpdateDrawCommand command = mapper.toUpdateDrawCommand(request);
+    var command = mapper.toUpdateDrawCommand(request);
     commandBus.send(command);
     DrawSummary summary = queryBus.send(new GetDrawByIdQuery(drawId));
     return ApiResponse.success(mapper.toDrawSummaryResponse(summary));

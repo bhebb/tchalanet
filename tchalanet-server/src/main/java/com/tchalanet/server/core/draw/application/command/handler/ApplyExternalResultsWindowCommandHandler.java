@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
@@ -14,7 +15,6 @@ import com.tchalanet.server.core.draw.application.command.model.ApplyExternalRes
 import com.tchalanet.server.core.draw.application.port.out.DrawApplyPort;
 import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +34,7 @@ public class ApplyExternalResultsWindowCommandHandler
     private final ResultSlotCatalog resultSlotCatalog;
     private final DrawResultReaderPort drawResultReader;
     private final DrawApplyPort drawApply;
-    private final DrawResultsProperties props;
+    private final DrawResultsCommonProperties props;
     private final Clock clock;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;

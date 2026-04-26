@@ -7,10 +7,12 @@ import com.tchalanet.server.common.contracts.results.SourceFlags;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.core.draw.api.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
@@ -20,10 +22,9 @@ import com.tchalanet.server.core.drawresult.application.command.model.OverrideDr
 import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultResult;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.drawresult.application.service.ResultSlotTimes;
 import com.tchalanet.server.core.drawresult.domain.exception.DrawResultOverrideForbiddenException;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
-import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class OverrideDrawResultCommandHandler
   private final DomainEventPublisher publisher;
   private final IdGenerator idGenerator;
   private final JsonUtils jsonUtils;
+  private final Clock clock;
 
   @Override
   public OverrideDrawResultResult handle(OverrideDrawResultCommand command) {
@@ -54,11 +56,11 @@ public class OverrideDrawResultCommandHandler
             .findByKey(slotKey)
             .orElseThrow(() -> new IllegalArgumentException("result_slot not found: " + slotKey));
 
-    Instant occurredAt =
-        ResultSlotTimes.occurredAt(slot.timezone(), command.drawDate(), slot.drawTime());
+    // [D7] Use OccurredAtResolver instead of ResultSlotTimes
+    Instant occurredAt = OccurredAtResolver.resolve(
+        null, command.drawDate(), slot.drawTime(), slot.timezone(), clock);
 
     // [Règle Override refusé post-SETTLED]
-    // 1. Trouver le résultat actuel s'il existe
     resultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt).ifPresent(drId -> {
       if (drawReader.existsSettledDrawForResult(drId)) {
         throw new DrawResultOverrideForbiddenException(drId);
@@ -84,6 +86,7 @@ public class OverrideDrawResultCommandHandler
     SourceFlags flagsObj = SourceFlags.manual("OVERRIDE", "OPS");
     var flags = jsonUtils.valueToTree(flagsObj);
 
+    // [D10] Use enum.name()
     String status = DrawResultStatus.FINAL.name();
     String source = DrawSource.ADMIN_OVERRIDE.name();
     String quality = ResultQuality.COMPLETE.name();
@@ -104,18 +107,16 @@ public class OverrideDrawResultCommandHandler
             command.force());
 
     // [Re-apply après override valide]
-    // Mettre à jour tous les draws (non SETTLED) liés à cet instant de tirage
     var draws = drawReader.findByDrawResultId(res.id());
     for (var summary : draws) {
       if (summary.status() != DrawStatus.SETTLED) {
         var draw = drawLookup.findById(summary.id()).orElseThrow();
-        draw.applyResult(res.id(), Instant.now(), DrawSource.ADMIN_OVERRIDE);
+        draw.applyResult(res.id(), Instant.now(clock), DrawSource.ADMIN_OVERRIDE);
         drawWriter.save(draw);
 
-        // Publication de l'événement de re-apply
         var event = new DrawResultAppliedEvent(
             EventId.of(idGenerator.newUuid()),
-            Instant.now(),
+            Instant.now(clock),
             draw.tenantId(),
             draw.id(),
             slot.id(),

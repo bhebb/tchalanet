@@ -17,6 +17,7 @@ import org.mapstruct.Mappings;
 public interface DrawAdminWebMapper {
   CreateDrawCommand toCreateDrawCommand(CreateDrawRequest request);
 
+  @Mapping(target = "scheduledDate", source = "scheduledDate")
   UpdateDrawCommand toUpdateDrawCommand(UpdateDrawRequest request);
 
 
@@ -60,8 +61,8 @@ public interface DrawAdminWebMapper {
   DrawSummaryResponse toDrawSummaryResponseFallback(CreateDrawRequest request);
 
   @Mappings({
-    @Mapping(target = "channelCode", source = "request.code"),
-    @Mapping(target = "channelName", source = "request.name"),
+    @Mapping(target = "channelCode", source = "request.drawId"), // Dummy mapping to avoid errors, not used in fallback
+    @Mapping(target = "channelName", constant = ""),
     @Mapping(target = "status", constant = "SCHEDULED"),
     @Mapping(
         target = "drawTime",

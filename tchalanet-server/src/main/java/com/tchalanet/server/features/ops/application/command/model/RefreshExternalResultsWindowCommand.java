@@ -1,23 +1,21 @@
-package com.tchalanet.server.core.drawresult.application.command.model;
+package com.tchalanet.server.features.ops.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.command.audit.AuditedForceCommand;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.AssertTrue;
 import java.time.LocalDate;
 import java.util.List;
 
-@AuditedForceCommand
 public record RefreshExternalResultsWindowCommand(
-    TenantId tenantId, // null => global/platform mode
+    TenantId tenantId,
     LocalDate baseDate,
     int daysBack,
     List<String> slotKeys,
     boolean force,
     boolean dryRun,
     int maxSlots,
-    String reason // AJOUTÉ: obligatoire si force=true
-    ) implements Command<RefreshExternalResultsWindowResult> {
+    String reason
+) implements Command<RefreshExternalResultsWindowResult> {
 
   @AssertTrue(message = "reason is required when force is true")
   public boolean isReasonValidForForce() {

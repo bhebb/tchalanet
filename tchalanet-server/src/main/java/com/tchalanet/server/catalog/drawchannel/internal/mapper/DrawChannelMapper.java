@@ -17,7 +17,7 @@ public interface DrawChannelMapper {
 
   // Map entity -> view: fill label from name; other complex fields left null
   @Mapping(target = "label", expression = "java(e.getName())")
-  @Mapping(target = "defaultSource", expression = "java((com.tchalanet.server.core.drawresult.domain.model.DrawSource) null)")
+  @Mapping(target = "defaultSource", expression = "java((com.tchalanet.server.common.types.enums.DrawSource) null)")
   DrawChannelView toView(DrawChannelEntity e);
 
   // Map entity -> summary view

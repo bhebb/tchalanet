@@ -10,6 +10,7 @@ import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
 import com.tchalanet.server.core.drawresult.api.DrawResultCatalogBack;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -28,6 +29,7 @@ public class DrawReaderPortAdapter implements DrawReaderPort {
   private final DrawJpaRepository repository;
   private final DrawResultCatalogBack drawResultCatalog;
   private final JdbcTemplate jdbc;
+  private final Clock clock; // [D9] Injected clock
 
   @Override
   public boolean existsSettledDrawForResult(DrawResultId drawResultId) {
@@ -47,9 +49,8 @@ public class DrawReaderPortAdapter implements DrawReaderPort {
 
   @Override
   public List<DrawSummary> findResultedWithProvisionalOlderThan(Duration duration) {
-    Instant threshold = Instant.now().minus(duration);
+    Instant threshold = Instant.now(clock).minus(duration); // [D9] Use injected clock
 
-    // Using native query for join and performance
     String sql = """
         SELECT d.id
         FROM draw d

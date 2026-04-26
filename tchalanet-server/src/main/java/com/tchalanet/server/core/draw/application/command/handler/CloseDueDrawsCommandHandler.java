@@ -26,7 +26,7 @@ public class CloseDueDrawsCommandHandler
   public CloseDueDrawsResult handle(CloseDueDrawsCommand command) {
     validateCommand(command);
 
-    var due = drawLifecyclePort.findDueToClose(command.now(), command.limit());
+    var due = drawLifecyclePort.findDueToClose(command.now(), command.batchSize());
     int dueCount = due.size();
 
     int skippedLocked = (int) due.stream().filter(DueToCloseRow::locked).count();
@@ -34,9 +34,9 @@ public class CloseDueDrawsCommandHandler
 
     if (command.dryRun()) {
       log.info(
-          "draw.close_due dryRun=true now={} limit={} due={} wouldClose={} skippedLocked={} sampleIds={}",
+          "draw.close_due dryRun=true now={} batchSize={} due={} wouldClose={} skippedLocked={} sampleIds={}",
           command.now(),
-          command.limit(),
+          command.batchSize(),
           dueCount,
           ids.size(),
           skippedLocked,
@@ -47,9 +47,9 @@ public class CloseDueDrawsCommandHandler
     int closed = drawLifecyclePort.bulkClose(ids);
 
     log.info(
-        "draw.close_due now={} limit={} due={} closed={} skippedLocked={} sampleIds={}",
+        "draw.close_due now={} batchSize={} due={} closed={} skippedLocked={} sampleIds={}",
         command.now(),
-        command.limit(),
+        command.batchSize(),
         dueCount,
         closed,
         skippedLocked,
@@ -61,7 +61,7 @@ public class CloseDueDrawsCommandHandler
   private static void validateCommand(CloseDueDrawsCommand command) {
     Objects.requireNonNull(command, "command is required");
     Objects.requireNonNull(command.now(), "now is required");
-    if (command.limit() <= 0) throw new IllegalArgumentException("limit must be > 0");
+    if (command.batchSize() <= 0) throw new IllegalArgumentException("batchSize must be > 0");
   }
 
   private static List<String> sample(List<?> ids) {

@@ -6,42 +6,24 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "tch.draw.results")
+@ConfigurationProperties(prefix = "tch.draw.results.fetch")
 public class DrawResultsProperties {
 
   private boolean active = true;
 
-  private Limits limits = new Limits();
-  private Defaults defaults = new Defaults();
-  private Scheduler scheduler = new Scheduler();
+  // fetch specific properties (URLs, headers, etc. can be added here)
+  private Providers providers = new Providers();
+  private Http http = new Http();
 
   @Getter
   @Setter
-  public static class Limits {
-    private int hardMaxSlots = 200;
-    private int hardDaysBack = 14;
+  public static class Providers {
+    // URLs por provider added via application.yaml
   }
 
   @Getter
   @Setter
-  public static class Defaults {
-    private int daysBack = 0;
-    private int maxSlots = 200;
-  }
-
-  @Getter
-  @Setter
-  public static class Scheduler {
-    private boolean active = true;
-    private String tickCron = "0 */5 * * * *";
-    private Due due = new Due();
-    private int cooldownMinutes = 20;
-
-    @Getter
-    @Setter
-    public static class Due {
-      private int minMinutesAfterDraw = 3;
-      private int maxMinutesAfterDraw = 25;
-    }
+  public static class Http {
+    private int timeoutMs = 5000;
   }
 }

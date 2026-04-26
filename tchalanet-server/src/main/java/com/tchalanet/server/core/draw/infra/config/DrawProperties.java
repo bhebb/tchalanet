@@ -11,6 +11,7 @@ public class DrawProperties {
 
   private Generation generation = new Generation();
   private Cache cache = new Cache();
+  private Lifecycle lifecycle = new Lifecycle();
 
   @Getter
   @Setter
@@ -31,5 +32,13 @@ public class DrawProperties {
       private int todaym = 5;
       private int nexts = 60;
     }
+  }
+
+  @Getter
+  @Setter
+  public static class Lifecycle {
+    private int batchSize = 5000;
+    private int lookaheadHours = 24;
+    private int lagHours = 12;
   }
 }

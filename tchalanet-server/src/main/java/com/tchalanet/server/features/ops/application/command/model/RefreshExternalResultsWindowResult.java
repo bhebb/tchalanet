@@ -1,6 +1,7 @@
-package com.tchalanet.server.core.drawresult.application.command.model;
+package com.tchalanet.server.features.ops.application.command.model;
 
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
 
 public record RefreshExternalResultsWindowResult(
     int fetched, int projectedOk, int projectedFail, int upserted, int applied, int notFound) {
@@ -20,7 +21,6 @@ public record RefreshExternalResultsWindowResult(
     int projectedFail = 0;
 
     if (fetch != null) {
-      // fetched = total processed (inserted + updated + skipped)
       fetched = fetch.inserted() + fetch.updated() + fetch.skipped();
       upserted = fetch.inserted() + fetch.updated();
       notFound += fetch.notFound();
@@ -28,7 +28,6 @@ public record RefreshExternalResultsWindowResult(
     if (apply != null) {
       applied = apply.inserted() + apply.updated();
       notFound += apply.notFound();
-      // errors could be considered projectedFail increment, but keep 0 for now
       projectedFail = apply.errors();
     }
 

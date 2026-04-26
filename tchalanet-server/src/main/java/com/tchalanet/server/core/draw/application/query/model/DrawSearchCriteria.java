@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.application.query.model;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -41,21 +42,21 @@ public final class DrawSearchCriteria {
     return days;
   }
 
-  public static DrawSearchCriteria today(TenantId tenantId, String channelCode) {
-    LocalDate today = LocalDate.now();
+  public static DrawSearchCriteria today(TenantId tenantId, String channelCode, Clock clock) {
+    LocalDate today = LocalDate.now(clock);
     return new DrawSearchCriteria(tenantId, channelCode, today, today, 1);
   }
 
-  public static DrawSearchCriteria lastDays(TenantId tenantId, String channelCode, int days) {
-    LocalDate to = LocalDate.now();
+  public static DrawSearchCriteria lastDays(TenantId tenantId, String channelCode, int days, Clock clock) {
+    LocalDate to = LocalDate.now(clock);
     LocalDate from = to.minusDays(days);
     return new DrawSearchCriteria(tenantId, channelCode, from, to, days);
   }
 
   public static DrawSearchCriteria of(
-      TenantId tenantId, String channelCode, LocalDate from, LocalDate to) {
+      TenantId tenantId, String channelCode, LocalDate from, LocalDate to, Clock clock) {
     // Protect against null dates; use today as default
-    LocalDate now = LocalDate.now();
+    LocalDate now = LocalDate.now(clock);
     LocalDate f = from == null ? now : from;
     LocalDate t = to == null ? now : to;
     // normalize so from <= to

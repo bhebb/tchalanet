@@ -1,18 +1,18 @@
 package com.tchalanet.server.features.ops.infra.web.draws;
 
+import com.tchalanet.server.common.batch.gate.BatchGate;
+import com.tchalanet.server.common.batch.key.BatchJobKeys;
+import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowCommand;
 import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
 import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
 import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultResult;
 import com.tchalanet.server.core.drawresult.application.command.model.RecordManualDrawResultCommand;
 import com.tchalanet.server.core.drawresult.application.command.model.RecordManualDrawResultResult;
-import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowCommand;
-import com.tchalanet.server.core.drawresult.application.command.model.RefreshExternalResultsWindowResult;
-import com.tchalanet.server.common.batch.gate.BatchGate;
-import com.tchalanet.server.common.batch.key.BatchJobKeys;
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.features.ops.application.command.model.RefreshExternalResultsWindowCommand;
+import com.tchalanet.server.features.ops.application.command.model.RefreshExternalResultsWindowResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
@@ -81,8 +81,6 @@ public class DrawResultsOpsController {
   public ApiResponse<OverrideDrawResultResult> override(@RequestBody OverrideRequest req) {
     gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, tenant(req.tenantId()));
     TenantId t = tenant(req.tenantId());
-    // tenant may be null for platform-level overrides depending on design; require it here for
-    // safety
     if (t == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tenantId required");
 
     var cmd =

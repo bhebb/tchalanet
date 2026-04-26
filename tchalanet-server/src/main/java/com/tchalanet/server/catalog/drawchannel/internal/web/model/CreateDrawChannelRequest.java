@@ -1,8 +1,8 @@
 package com.tchalanet.server.catalog.drawchannel.internal.web.model;
 
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;

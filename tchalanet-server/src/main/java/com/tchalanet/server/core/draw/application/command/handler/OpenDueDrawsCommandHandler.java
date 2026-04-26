@@ -28,24 +28,23 @@ public class OpenDueDrawsCommandHandler
 
     var openable =
         port.findOpenable(
-            command.now(), command.limit(), command.openHorizonHours(), command.openLagHours());
+            command.now(), command.batchSize(), command.lookaheadHours(), command.lagHours());
 
     int openableCount = openable.size();
 
     int skippedLocked = (int) openable.stream().filter(OpenableDrawRow::locked).count();
 
-    // For logging we keep the non-locked sample/counts as before, but we pass ALL ids to the DB
     var nonLockedIds =
         openable.stream().filter(r -> !r.locked()).map(OpenableDrawRow::drawId).toList();
     var allIds = openable.stream().map(OpenableDrawRow::drawId).toList();
 
     if (command.dryRun()) {
       log.info(
-          "draw.open_due dryRun=true now={} limit={} horizonHours={} lagHours={} openable={} wouldOpen={} skippedLocked={} sampleIds={}",
+          "draw.open_due dryRun=true now={} batchSize={} lookaheadHours={} lagHours={} openable={} wouldOpen={} skippedLocked={} sampleIds={}",
           command.now(),
-          command.limit(),
-          command.openHorizonHours(),
-          command.openLagHours(),
+          command.batchSize(),
+          command.lookaheadHours(),
+          command.lagHours(),
           openableCount,
           nonLockedIds.size(),
           skippedLocked,
@@ -53,15 +52,14 @@ public class OpenDueDrawsCommandHandler
       return new OpenDueDrawsResult(0, skippedLocked, 0);
     }
 
-    // Pass all ids to the port. The DB-side update is idempotent and filters locked/status rows.
     int opened = port.bulkOpen(allIds);
 
     log.info(
-        "draw.open_due now={} limit={} horizonHours={} lagHours={} openable={} opened={} skippedLocked={} sampleIds={}",
+        "draw.open_due now={} batchSize={} lookaheadHours={} lagHours={} openable={} opened={} skippedLocked={} sampleIds={}",
         command.now(),
-        command.limit(),
-        command.openHorizonHours(),
-        command.openLagHours(),
+        command.batchSize(),
+        command.lookaheadHours(),
+        command.lagHours(),
         openableCount,
         opened,
         skippedLocked,

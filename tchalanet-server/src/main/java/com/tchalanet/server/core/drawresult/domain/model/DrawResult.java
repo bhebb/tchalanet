@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tchalanet.server.common.config.ObjectMapperHolder;
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import java.time.Instant;
 import java.util.List;
@@ -33,38 +34,10 @@ public record DrawResult(
     ) {
 
   public DrawResult {
-    // Relaxed validation: allow some fields to be null for backward compatibility.
     Objects.requireNonNull(occurredAt);
     Objects.requireNonNull(status);
     Objects.requireNonNull(source);
     Objects.requireNonNull(fetchedAt);
-    // sourceResult and haitiResult may be null in compatibility scenarios; callers should
-    // prefer richer constructors.
-  }
-
-  /**
-   * Compatibility constructor used by older code paths that previously constructed a DrawResult
-   * from simple lists and source info.
-   */
-  public DrawResult(
-      DrawSource src,
-      List<String> numbersMain,
-      List<String> numbersExtra,
-      Instant occurredAt,
-      String rawPayload,
-      boolean overridden,
-      String overrideReason) {
-    this(
-        occurredAt,
-        /* status */ DrawResultStatus.VALID,
-        /* source */ src,
-        /* quality */ (numbersMain == null || numbersMain.isEmpty()) ? SUSPECT : COMPLETE,
-        /* sourceHash */ null,
-        /* fetchedAt */ occurredAt == null ? Instant.now() : occurredAt,
-        /* sourceResult */ null,
-        /* haitiResult */ buildHaitiResult(numbersMain, numbersExtra),
-        /* rawPayload */ buildRawPayloadNode(rawPayload),
-        /* overrideReason */ overrideReason);
   }
 
   private static JsonNode buildHaitiResult(List<String> main, List<String> extra) {
@@ -108,7 +81,7 @@ public record DrawResult(
     if (mapper == null) return List.of();
     try {
       if (haitiResult == null) return List.of();
-      if (haitiResult.has("lot1_values") && haitiResult.get("lot1_values").isArray()) {
+      if (haitiResult.get("lot1_values") != null && haitiResult.get("lot1_values").isArray()) {
         ArrayNode arr = (ArrayNode) haitiResult.get("lot1_values");
         List<String> list =
             mapper.convertValue(
@@ -126,7 +99,7 @@ public record DrawResult(
     if (mapper == null) return List.of();
     try {
       if (haitiResult == null) return List.of();
-      if (haitiResult.has("extra_values") && haitiResult.get("extra_values").isArray()) {
+      if (haitiResult.get("extra_values") != null && haitiResult.get("extra_values").isArray()) {
         ArrayNode arr = (ArrayNode) haitiResult.get("extra_values");
         List<String> list =
             mapper.convertValue(

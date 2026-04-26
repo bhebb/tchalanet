@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-04-26
+status: archived
+archived_at: 2026-04-26
+summary: Resolution of technical debt, architectural leaks, and multi-instance gaps in the draw pipeline.

@@ -7,11 +7,12 @@ import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
-import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @RequiredArgsConstructor
@@ -32,25 +32,15 @@ public class ExternalResultsApplyTickScheduler {
     private final BatchGate gate;
     private final TenantCatalog tenantCatalog;
     private final ResultSlotCatalog resultSlotCatalog;
-    private final DrawResultsProperties props;
+    private final DrawResultsCommonProperties props;
     private final Clock clock;
     private final BatchTchContextBinder binder;
 
-    // MVP single-instance guard against overlapping ticks
-    private final AtomicBoolean running = new AtomicBoolean(false);
-
     @Scheduled(cron = "${tch.draw.results.scheduler.apply_cron:30 */5 * * * *}")
+    @SchedulerLock(name = "draw_results_apply_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tickApply() {
-        if (!props.isActive() || !props.getScheduler().isActive()) {
-            log.debug("draw-results.apply.tick: active=OFF");
-            return;
-        }
         if (!gate.enabled(BatchJobKeys.RESULTS_EXTERNAL_APPLY, null)) {
             log.debug("draw-results.apply.tick: gate=OFF");
-            return;
-        }
-        if (!running.compareAndSet(false, true)) {
-            log.debug("draw-results.apply.tick: skipped (already running)");
             return;
         }
 
@@ -93,7 +83,8 @@ public class ExternalResultsApplyTickScheduler {
                             List.of(slot.slotKey()),
                             false,
                             false,
-                            1
+                            1,
+                            null
                         ));
                     }
 
@@ -111,8 +102,8 @@ public class ExternalResultsApplyTickScheduler {
 
             }
 
-        } finally {
-            running.set(false);
+        } catch (Exception e) {
+            log.error("draw-results.apply.tick failed", e);
         }
     }
 }
