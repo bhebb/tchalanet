@@ -2,10 +2,11 @@ package com.tchalanet.server.catalog.resultslot.internal.mapper;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.catalog.resultslot.internal.persistence.ResultSlotJpaEntity;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import org.mapstruct.Mapper;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
 public interface ResultSlotMapper {
 
   ResultSlotView toView(ResultSlotJpaEntity e);

@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.resultslot.internal.read;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView;
 import com.tchalanet.server.catalog.resultslot.internal.cache.ResultSlotCacheNames;
 import com.tchalanet.server.catalog.resultslot.internal.mapper.ResultSlotMapper;
 import com.tchalanet.server.catalog.resultslot.internal.persistence.ResultSlotJpaRepository;
@@ -9,13 +10,17 @@ import com.tchalanet.server.common.types.id.ResultSlotId;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
+/**
+ * Implementation of ResultSlotCatalog (read-only, cacheable).
+ * Maps to spec requirement G1 (read operations).
+ */
+@Service
 @RequiredArgsConstructor
 public class ResultSlotCatalogImpl implements ResultSlotCatalog {
 
@@ -58,9 +63,10 @@ public class ResultSlotCatalogImpl implements ResultSlotCatalog {
         return repo.findByIdAndDeletedAtIsNull(uuid).map(mapper::toView);
     }
 
-    public com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView stats() {
+    @Override
+    public ResultSlotStatsView stats() {
         long total = repo.countAllLive();
         long active = repo.countActiveLive();
-        return new com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView((int) total, (int) active);
+        return new ResultSlotStatsView((int) total, (int) active);
     }
 }

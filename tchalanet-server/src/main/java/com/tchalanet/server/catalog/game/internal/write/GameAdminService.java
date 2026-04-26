@@ -5,6 +5,8 @@ import com.tchalanet.server.catalog.game.internal.cache.GameCacheNames;
 import com.tchalanet.server.catalog.game.internal.mapper.GameMapper;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaRepository;
+import com.tchalanet.server.catalog.game.internal.web.model.GameCreateRequest;
+import com.tchalanet.server.catalog.game.internal.web.model.GameUpdateRequest;
 import com.tchalanet.server.common.types.id.GameId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -80,27 +82,4 @@ public class GameAdminService {
     entity.setActive(false);
     repository.save(entity);
   }
-
-  public record GameCreateRequest(
-      String code,
-      String name,
-      String category,
-      String combination,
-      Integer minDigits,
-      Integer maxDigits,
-      String description,
-      Boolean active,
-      Integer sortOrder
-  ) {}
-
-  public record GameUpdateRequest(
-      String name,
-      String category,
-      String combination,
-      Integer minDigits,
-      Integer maxDigits,
-      String description,
-      Boolean active,
-      Integer sortOrder
-  ) {}
 }
