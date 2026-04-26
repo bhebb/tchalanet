@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.settings.internal.registry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
+import com.tchalanet.server.common.config.ObjectMapperHolder;
 import java.math.BigDecimal;
 import lombok.experimental.UtilityClass;
 
@@ -12,8 +13,6 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class SettingsValidator {
-
-  private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
   /**
    * Validate a setting and throw if invalid.
@@ -68,7 +67,12 @@ public class SettingsValidator {
         case INT -> Integer.parseInt(value);
         case LONG -> Long.parseLong(value);
         case DECIMAL -> new BigDecimal(value);
-        case JSON -> JSON_MAPPER.readTree(value);
+        case JSON -> {
+            ObjectMapper mapper = ObjectMapperHolder.get();
+            if (mapper != null) {
+                mapper.readTree(value);
+            }
+        }
         case STRING -> {
           // No parsing required
         }

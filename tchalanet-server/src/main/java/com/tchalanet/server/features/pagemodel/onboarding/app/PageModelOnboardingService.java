@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.pagemodel.onboarding.app;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.constant.CommonConstants;
@@ -61,7 +60,8 @@ public class PageModelOnboardingService {
         type.slug(),
         tpl.schemaVersion() != null ? tpl.schemaVersion() : 1,
         tpl.model(),
-        Optional.ofNullable(tpl.id() != null ? tpl.id().toString() : null)
+        Optional.ofNullable(tpl.id() != null ? tpl.id().toString() : null),
+        true        // [Phase 5] publish = true pour l'onboarding (analysis §gap — instances PUBLISHED requises)
     );
     commandBus.send(cmd);
     log.info("Seeded PageModel from template logicalId={} for tenant={}", type.logicalId(), tenantId);
@@ -73,4 +73,3 @@ public class PageModelOnboardingService {
     seedDefaults(TenantId.of(CommonConstants.DEFAULT_TENANT_UUID));
   }
 }
-

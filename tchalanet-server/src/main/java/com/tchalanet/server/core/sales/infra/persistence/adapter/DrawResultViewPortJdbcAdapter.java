@@ -1,30 +1,24 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.sales.application.port.out.DrawResultViewPort;
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.beans.factory.ObjectProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /** JDBC adapter providing draw result minimal view. Returns {@link DrawResultViewPort.DrawResultMinimalView}. */
 @Component
+@RequiredArgsConstructor
 public class DrawResultViewPortJdbcAdapter implements DrawResultViewPort {
 
   private final JdbcTemplate jdbc;
-  private final ObjectMapper om;
-
-  public DrawResultViewPortJdbcAdapter(JdbcTemplate jdbc, ObjectProvider<ObjectMapper> omProvider) {
-    this.jdbc = jdbc;
-    // if no ObjectMapper is available from context, create a default one
-    ObjectMapper provided = omProvider != null ? omProvider.getIfAvailable() : null;
-    this.om = (provided != null) ? provided : new ObjectMapper();
-  }
+  private final JsonUtils jsonUtils;
 
   @Override
   public DrawResultMinimalView findById(UUID drawResultId) {
@@ -72,7 +66,7 @@ public class DrawResultViewPortJdbcAdapter implements DrawResultViewPort {
   private JsonNode parseJson(String raw) {
     if (raw == null || raw.isBlank()) return null;
     try {
-      return om.readTree(raw);
+      return jsonUtils.readValue(raw, JsonNode.class);
     } catch (Exception e) {
       // safe fallback: treat as empty
       return null;

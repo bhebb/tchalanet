@@ -1,6 +1,5 @@
 package com.tchalanet.server.catalog.plan.internal.write;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.catalog.plan.internal.cache.PlanCacheNames;
 import com.tchalanet.server.catalog.plan.internal.mapper.PlanMapper;
@@ -26,7 +25,6 @@ public class PlanAdminService {
 
   private final PlanJpaRepository repository;
   private final PlanMapper mapper;
-  private final ObjectMapper objectMapper;
 
   @Transactional
   @CacheEvict(cacheNames = {PlanCacheNames.ACTIVE_PLANS, PlanCacheNames.PLAN_BY_CODE, PlanCacheNames.PLAN_BY_ID}, allEntries = true)

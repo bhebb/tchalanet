@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tchalanet.server.common.config.ObjectMapperHolder;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import java.time.Instant;
 import java.util.List;
@@ -30,7 +31,6 @@ public record DrawResult(
     JsonNode rawPayload, // optional
     String overrideReason // optional
     ) {
-  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   public DrawResult {
     // Relaxed validation: allow some fields to be null for backward compatibility.
@@ -45,9 +45,6 @@ public record DrawResult(
   /**
    * Compatibility constructor used by older code paths that previously constructed a DrawResult
    * from simple lists and source info.
-   *
-   * <p>Signature (old): (DrawSource source, List<String> numbersMain, List<String> numbersExtra,
-   * Instant occurredAt, String rawPayload, boolean overridden, String overrideReason)
    */
   public DrawResult(
       DrawSource src,
@@ -71,16 +68,17 @@ public record DrawResult(
   }
 
   private static JsonNode buildHaitiResult(List<String> main, List<String> extra) {
-    ObjectNode root = MAPPER.createObjectNode();
+    ObjectMapper mapper = ObjectMapperHolder.get();
+    if (mapper == null) return null;
+    ObjectNode root = mapper.createObjectNode();
     try {
       if (main != null && !main.isEmpty()) {
-        // simple mapping: put lot1 as full pick3 value if available
-        ArrayNode arr = MAPPER.createArrayNode();
+        ArrayNode arr = mapper.createArrayNode();
         for (String s : main) arr.add(s);
         root.set("lot1_values", arr);
       }
       if (extra != null && !extra.isEmpty()) {
-        ArrayNode arr2 = MAPPER.createArrayNode();
+        ArrayNode arr2 = mapper.createArrayNode();
         for (String s : extra) arr2.add(s);
         root.set("extra_values", arr2);
       }
@@ -92,11 +90,13 @@ public record DrawResult(
 
   private static JsonNode buildRawPayloadNode(String raw) {
     if (raw == null) return null;
+    ObjectMapper mapper = ObjectMapperHolder.get();
+    if (mapper == null) return null;
     try {
-      return MAPPER.readTree(raw);
+      return mapper.readTree(raw);
     } catch (Exception e) {
       // fallback to string wrapper
-      ObjectNode o = MAPPER.createObjectNode();
+      ObjectNode o = mapper.createObjectNode();
       o.put("raw", raw);
       return o;
     }
@@ -104,13 +104,15 @@ public record DrawResult(
 
   // Backwards-compatible accessors used by legacy code
   public List<String> numbersMain() {
+    ObjectMapper mapper = ObjectMapperHolder.get();
+    if (mapper == null) return List.of();
     try {
       if (haitiResult == null) return List.of();
       if (haitiResult.has("lot1_values") && haitiResult.get("lot1_values").isArray()) {
         ArrayNode arr = (ArrayNode) haitiResult.get("lot1_values");
         List<String> list =
-            MAPPER.convertValue(
-                arr, MAPPER.getTypeFactory().constructCollectionType(List.class, String.class));
+            mapper.convertValue(
+                arr, mapper.getTypeFactory().constructCollectionType(List.class, String.class));
         return List.copyOf(list);
       }
     } catch (Exception e) {
@@ -120,13 +122,15 @@ public record DrawResult(
   }
 
   public List<String> numbersExtra() {
+    ObjectMapper mapper = ObjectMapperHolder.get();
+    if (mapper == null) return List.of();
     try {
       if (haitiResult == null) return List.of();
       if (haitiResult.has("extra_values") && haitiResult.get("extra_values").isArray()) {
         ArrayNode arr = (ArrayNode) haitiResult.get("extra_values");
         List<String> list =
-            MAPPER.convertValue(
-                arr, MAPPER.getTypeFactory().constructCollectionType(List.class, String.class));
+            mapper.convertValue(
+                arr, mapper.getTypeFactory().constructCollectionType(List.class, String.class));
         return List.copyOf(list);
       }
     } catch (Exception e) {

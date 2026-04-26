@@ -11,6 +11,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PageModelId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.pagemodel.application.command.model.UpsertPageModelCommand;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
@@ -76,6 +77,10 @@ public class UpsertPageModelHandler
           now,
           actorId
       );
+    }
+
+    if (cmd.publish()) {
+      inst.markPublished(now, actorId);
     }
 
     return writePort.save(inst);

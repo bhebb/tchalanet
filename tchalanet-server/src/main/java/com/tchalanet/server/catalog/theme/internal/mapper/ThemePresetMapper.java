@@ -3,8 +3,8 @@ package com.tchalanet.server.catalog.theme.internal.mapper;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class ThemePresetMapper {
 
     @Autowired
-    protected ObjectMapper objectMapper;
+    protected JsonUtils jsonUtils;
 
     @Autowired
     protected CommonIdMapper idMapper;
@@ -20,7 +20,7 @@ public abstract class ThemePresetMapper {
     public ThemePresetView toView(ThemePresetJpaEntity e) {
         JsonNode configNode = null;
         try {
-            configNode = objectMapper.readTree(e.getConfig());
+            configNode = jsonUtils.readValue(e.getConfig(), JsonNode.class);
         } catch (Exception ex) {
             // ignore; return null config
         }

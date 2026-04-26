@@ -9,9 +9,12 @@ import com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence.PageM
 import com.tchalanet.server.common.error.NotFoundException;
 import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.core.pagemodel.domain.event.PageModelTemplateUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,7 @@ public class PageModelTemplateAdminService {
     private final PageModelTemplateRepository repository;
     private final PageModelTemplateMapper mapper;
     private final JsonUtils jsonUtils;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @Transactional
@@ -53,7 +57,7 @@ public class PageModelTemplateAdminService {
         PageModelTemplateCacheNames.VISIBLE_LIST,
         PageModelTemplateCacheNames.SEARCH
     }, allEntries = true)
-    public PageModelTemplateView updateFromView(PageModelTemplateId id, PageModelTemplateView view) {
+    public PageModelTemplateView updateFromView(PageModelTemplateId id, PageModelTemplateView view, UserId actorId) {
         var existing = repository.findById(id.value())
             .orElseThrow(() -> new NotFoundException("page_model_template" + id));
 
@@ -66,8 +70,18 @@ public class PageModelTemplateAdminService {
         }
 
         mapper.applyView(existing, view);
-        existing.setUpdatedAt(Instant.now()); // optional, trigger does it too
+        existing.setUpdatedAt(Instant.now());
         var saved = repository.save(existing);
+
+        // [Phase 4C] Propagation template -> instances (analysis §gap)
+        eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
+            id,
+            view.model(),
+            view.schemaVersion() != null ? view.schemaVersion() : 1,
+            actorId,
+            Instant.now()
+        ));
+
         return mapper.toView(saved);
     }
 
@@ -85,10 +99,6 @@ public class PageModelTemplateAdminService {
         repository.save(existing);
     }
 
-    /**
-     * If you keep isDefault, make it "only one default per logicalId" (but logicalId is unique → redundant).
-     * You can keep it for future split (if you later relax logicalId uniqueness).
-     */
     @Transactional
     @CacheEvict(cacheNames = {
         PageModelTemplateCacheNames.BY_ID,
@@ -141,30 +151,25 @@ public class PageModelTemplateAdminService {
         e.setDefault(seed.isDefault());
 
         var saved = repository.save(e);
+
+        // [Phase 4C] Propagation au démarrage ou lors du re-seed (évite les gap post-migration)
+        eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
+            PageModelTemplateId.of(saved.getId()),
+            seed.model(),
+            e.getSchemaVersion(),
+            null, // SYSTEM actorId
+            Instant.now()
+        ));
+
         return mapper.toView(saved);
     }
 
-    // ------------------------------------------------------------------ preview
-
-    /**
-     * Retourne la vue complète d'un template tel qu'il serait exposé au BFF.
-     * Équivaut à un findById avec exception si absent.
-     */
     public PageModelTemplateView preview(PageModelTemplateId id) {
         return repository.findById(id.value())
             .map(mapper::toView)
             .orElseThrow(() -> new NotFoundException("page_model_template " + id));
     }
 
-    // ---------------------------------------------------------------- duplicate
-
-    /**
-     * Duplique un template en créant une copie avec un nouveau logicalId/code.
-     * isDefault est toujours false sur la copie.
-     *
-     * @param newLogicalId logicalId de la copie — si null/blank, suffixe "-copy" appliqué
-     * @param newCode      code de la copie — si null/blank, suffixe "-copy" appliqué
-     */
     @Transactional
     @CacheEvict(cacheNames = {
         PageModelTemplateCacheNames.BY_ID,
@@ -181,7 +186,6 @@ public class PageModelTemplateAdminService {
         String targetCode = (newCode != null && !newCode.isBlank())
             ? newCode : source.getCode() + "-copy";
 
-        // unicité logicalId parmi les non-supprimés
         repository.findFirstByLogicalIdAndDeletedAtIsNull(targetLogicalId)
             .ifPresent(x -> {
                 throw ProblemRest.conflict("page_model_template.logical_id " + targetLogicalId);
@@ -196,7 +200,7 @@ public class PageModelTemplateAdminService {
         copy.setSchema(source.getSchema());
         copy.setModel(source.getModel());
         copy.setSchemaVersion(source.getSchemaVersion());
-        copy.setDefault(false);   // la copie n'hérite jamais du flag isDefault
+        copy.setDefault(false);
         copy.setLevel(source.getLevel());
         copy.setTenantId(source.getTenantId());
 
@@ -204,13 +208,6 @@ public class PageModelTemplateAdminService {
         return mapper.toView(saved);
     }
 
-    // --------------------------------------------------------------------- reset
-
-    /**
-     * Réinitialise le modèle et le schéma d'un template à leurs valeurs vides ({}).
-     * Utilisé pour effacer les personnalisations et repartir d'une page blanche.
-     * La schemaVersion est remise à 1.
-     */
     @Transactional
     @CacheEvict(cacheNames = {
         PageModelTemplateCacheNames.BY_ID,
