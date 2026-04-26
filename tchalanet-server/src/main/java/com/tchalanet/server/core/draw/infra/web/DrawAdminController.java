@@ -21,12 +21,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
-// @PreAuthorize("hasAuthority('SUPER_ADMIN')") //todo remove testing
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Admin • Draws")
 public class DrawAdminController {
 

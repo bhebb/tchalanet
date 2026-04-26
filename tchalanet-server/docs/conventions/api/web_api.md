@@ -268,7 +268,50 @@ Les détails (format, stockage, Envers, RLS de la table d'audit) sont dans `audi
 - [ ] 4xx/5xx = `ProblemDetail` via `ProblemRest`
 - [ ] Pagination standard si liste
 - [ ] Sécurité via annotations
+- [ ] Sécurité : `@PreAuthorize` actif sur tout controller admin/ops
 - [ ] Print/file endpoints non wrappés + headers
+
+---
+
+## 13) Règle ArchUnit — sécurité des scopes protégés
+
+### 13.1 Principe
+
+Tout `@RestController` dont le path `@RequestMapping` commence par `/admin/`, `/platform/`
+ou `/_sdr/` **DOIT** porter `@PreAuthorize` :
+
+- **au niveau classe** (couvre toutes les méthodes) — forme canonique recommandée, **ou**
+- **sur chaque méthode handler publique** individuellement.
+
+La règle est vérifiée automatiquement à chaque build par `SecurityArchTest`
+(package `com.tchalanet.server.arch`).
+
+### 13.2 Prefixes couverts
+
+| Prefix         | Scope                 | Autorité minimale attendue      |
+| -------------- | --------------------- | ------------------------------- |
+| `/admin/**`    | Administration tenant | `SUPER_ADMIN`                   |
+| `/platform/**` | Platform / ops        | `SUPER_ADMIN`                   |
+| `/_sdr/**`     | Spring Data REST      | `TENANT_ADMIN` ou `SUPER_ADMIN` |
+
+### 13.3 Whitelister un endpoint public dans ces scopes
+
+Si un endpoint doit être public **dans** l'un de ces scopes (cas exceptionnel),
+il **DOIT** porter `@PreAuthorize("permitAll()")` explicitement.
+Le bypass silencieux (absence d'annotation) est interdit.
+
+```java
+// ✅ Whitelist explicite obligatoire
+@GetMapping("/health-internal")
+@PreAuthorize("permitAll()")
+public ApiResponse<String> healthCheck() { ... }
+```
+
+### 13.4 Comportement en cas de violation
+
+La règle `SecurityArchTest.protectedScopeControllersMustHavePreAuthorize` échoue
+avec un message indiquant le controller violateur et la liste des méthodes non sécurisées.
+**Ce test bloque le build CI** — aucune PR ne doit le contourner.
 
 ---
 
