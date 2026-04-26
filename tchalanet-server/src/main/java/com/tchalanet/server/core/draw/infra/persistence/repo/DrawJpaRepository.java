@@ -115,4 +115,9 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
                 """,
       nativeQuery = true)
   int bulkOpen(@Param("ids") UUID[] ids);
+
+  // New methods for DrawReaderPort implementation
+  boolean existsByDrawResultIdAndStatusAndDeletedAtIsNull(UUID drawResultId, com.tchalanet.server.core.draw.domain.model.DrawStatus status);
+
+  List<DrawJpaEntity> findByDrawResultIdAndDeletedAtIsNull(UUID drawResultId);
 }

@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.draw.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
+import com.tchalanet.server.common.command.audit.AuditedForceCommand;
 import com.tchalanet.server.common.types.id.TenantId;
+import jakarta.validation.constraints.AssertTrue;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +17,9 @@ import java.util.List;
  * @param force     si {@code true}, réapplique même si le draw est déjà à l'état {@code RESULTED}
  * @param dryRun    si {@code true}, simule sans aucune écriture en base
  * @param maxSlots  nombre maximum de slots traités par appel (garde-fou anti-boucle)
+ * @param reason    obligatoire si force=true
  */
+@AuditedForceCommand
 public record ApplyExternalResultsWindowCommand(
     TenantId tenantId,
     LocalDate baseDate,
@@ -23,5 +27,12 @@ public record ApplyExternalResultsWindowCommand(
     List<String> slotKeys,
     boolean force,
     boolean dryRun,
-    int maxSlots)
-    implements Command<ApplyExternalResultsWindowResult> {}
+    int maxSlots,
+    String reason)
+    implements Command<ApplyExternalResultsWindowResult> {
+
+  @AssertTrue(message = "reason is required when force is true")
+  public boolean isReasonValidForForce() {
+    return !force || (reason != null && !reason.isBlank());
+  }
+}

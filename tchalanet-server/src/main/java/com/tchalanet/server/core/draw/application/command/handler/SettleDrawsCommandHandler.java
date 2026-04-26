@@ -15,6 +15,9 @@ import com.tchalanet.server.core.draw.application.command.model.SettleDrawComman
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
+import com.tchalanet.server.core.draw.domain.exception.DrawResultNotFinalException;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,9 +29,6 @@ import java.time.ZonedDateTime;
  * Use case pour régler un tirage : - charger les tickets, - calculer gains/pertes/commissions, -
  * persister les mouvements et soldes, - marquer le tirage comme SETTLED, - gérer les invalidations
  * / refresh caches.
- *
- * <p>TODO: brancher les ports out (TicketReader/WriterPort, DrawWriterPort, etc.) et implémenter la
- * logique métier.
  */
 @UseCase
 @RequiredArgsConstructor
@@ -37,10 +37,10 @@ public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawC
 
     private final DrawLookupPort drawReaderPort;
     private final DrawLifecyclePort drawWriterPort;
+    private final DrawResultReaderPort drawResultReaderPort;
     private final DomainEventPublisher publisher;
     private final Clock clock;
     private final IdGenerator idGenerator;
-    // private final DrawSettlementPort settlementPort; // vers sales/ledger
 
     @Override
     @TchTx
@@ -55,8 +55,15 @@ public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawC
                 .findById(command.drawId())
                 .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + command.drawId()));
 
-        // TODO: appeler les autres BC (tickets, odds, ledger) via un port out
-        // settlementPort.settleDraw(command.tenantId(), draw, result);
+        if (draw.drawResultId() == null) {
+            throw new IllegalStateException("Draw " + draw.id() + " has no result attached");
+        }
+
+        // [Règle Settle FINAL only]
+        var drawResult = drawResultReaderPort.getById(draw.drawResultId());
+        if (drawResult.status() != DrawResultStatus.FINAL) {
+            throw new DrawResultNotFinalException(draw.id(), draw.drawResultId());
+        }
 
         var wasResulted =
             draw.status() == com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED;

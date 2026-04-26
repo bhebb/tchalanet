@@ -51,7 +51,8 @@ public class DrawResultsOpsController {
                 normalize(req.slotKeys()),
                 req.force(),
                 req.dryRun(),
-                nnInt(req.maxSlots(), 200)));
+                nnInt(req.maxSlots(), 200),
+                req.reason()));
     return ApiResponse.success(res);
   }
 
@@ -70,7 +71,8 @@ public class DrawResultsOpsController {
                 normalize(req.slotKeys()),
                 req.force(),
                 req.dryRun(),
-                nnInt(req.maxSlots(), 200)));
+                nnInt(req.maxSlots(), 200),
+                req.reason()));
     return ApiResponse.success(res);
   }
 
@@ -113,7 +115,8 @@ public class DrawResultsOpsController {
             req.notes(),
             req.pick3(),
             req.pick4(),
-            req.force());
+            req.force(),
+            req.reason());
 
     var res = commandBus.send(cmd);
     return ApiResponse.success(res);
@@ -152,7 +155,8 @@ public class DrawResultsOpsController {
       List<String> slotKeys,
       boolean force,
       boolean dryRun,
-      Integer maxSlots) {}
+      Integer maxSlots,
+      String reason) {}
 
   public record OverrideRequest(
       String tenantId,
@@ -171,5 +175,6 @@ public class DrawResultsOpsController {
       String notes,
       String pick3,
       String pick4,
-      boolean force) {}
+      boolean force,
+      String reason) {}
 }

@@ -1,4 +1,4 @@
-# Feature : Page Model
+\*\*# Feature : Page Model
 
 > Analyse du code existant — 2026-04-24. Aucune modification n'a été faite.
 
@@ -31,29 +31,45 @@ Concrètement :
 ## Comment ça marche (flow simplifié)
 
 ```
-1. Angular app bootstrap
-   → PageEffects.loadPage$(context, tenantId)
-   → PageApi.getPage()  →  GET /api/v1/public/pagemodel/{logicalId}?lang=fr
+1. Angular app bootstrap — deux chargements au démarrage
+   → MergedTranslateLoader.getTranslation(lang)
+       a) GET /assets/i18n/{lang}.json           ← bundle statique ✅
+       b) GET /v1/i18n-overrides?lang={lang}     ← overrides GLOBAL+TENANT ⚠️ ENDPOINT ABSENT
+          (si backendPath configuré — fusionne b sur a, tenant override gagne)
+   → PageApi.getPage()
+      → GET /api/v1/public/pagemodel/{logicalId}?lang=fr
+      ⚠ Route effective = features/pagemodelruntime/PageModelController
+        (3 controllers déclarent la même route — voir § Incomplet #1)
 
 2. Backend : ResolveEffectivePageModelQuery (3-level fallback)
    ├── A. PageModel PUBLISHED pour ce tenant (customisé)
    ├── B. PageModel PUBLISHED pour le tenant "default" (plateforme)
    └── C. JSON embarqué dans resources/ (fallback garanti)
 
-3. Dynamic payload
-   Pour chaque widget avec binding.mode = "dynamic"
-   → PageModelDynamicResolver cherche le provider par source key
+3. Résolution de langue (LangResolver)
+   → currentLang résolu par priorité (URL → préférence user → défaut tenant → meta → fallback)
+   → langs = liste des langues proposées par ce tenant
+
+4. Dynamic payload
+   Pour chaque widget avec binding.mode = "dynamic" uniquement
+   (binding.mode = "static" → données déjà dans le JSON, aucun appel supplémentaire)
+   → PageModelDynamicResolver (features/pagemodel/) cherche le provider par source key
+      ⚠ Pont inter-packages : PageModelRuntimeService (pagemodelruntime/) appelle
+        PageModelDynamicResolver (features/pagemodel/) via conversion toShared() de 150 lignes
    → provider.load() appelle les services métier (news, KPIs, tirages…)
    → result injecté dans PageDynamicPayload.widgets
 
-4. Réponse au client
+5. Réponse au client
    { currentLang, langs, pageModel: PageModelDoc, dynamic: { widgets, errors } }
+   ⚠ Le pagemodel NE porte PAS de i18nOverrides — les surcharges tenant passent par /v1/i18n-overrides (catalog/i18n/)
 
-5. Angular rendu
+6. Angular rendu
+   → I18nEffects.initFromPage$ → translate.use(currentLang) → retrigger MergedTranslateLoader
    → GridLayoutComponent itère sur rows → columns → widgets
    → WidgetRendererComponent instancie le composant Angular par nom (type)
+      → props passées au composant (clés i18n — ex: "hero.welcome.title")
+      → | translate résout la clé : assets bundle + overrides GLOBAL + overrides TENANT
    → Theme appliqué via ThemeService
-   → i18n initialisé via i18nFacade
 ```
 
 ---
@@ -236,7 +252,7 @@ page_model (core — tenantée via BaseTenantEntity)
 - Un `page_model` appartient à un tenant (RLS via `BaseTenantEntity`)
 - Le tenant DEFAULT_TENANT_UUID porte les pagemodels de la plateforme
 
-**RLS** : la table `page_model` est tenantée mais **aucune policy RLS explicite n'apparaît dans V40/V41** pour cette table — à vérifier.
+**RLS** : la table `page_model` est tenantée mais **aucune policy RLS n'a été identifiée** dans les migrations Flyway existantes pour cette table — les migrations V40 et V41 couvrent d'autres tables. À confirmer via `grep -r "page_model" tchalanet-server/src/main/resources/db/migration/`.
 
 ---
 
@@ -289,7 +305,7 @@ page_model (core — tenantée via BaseTenantEntity)
 
 7. **`PageModelBootstrapService`** : service dans `core/infra/init/` qui importe `PageModelRepository` et `PageModelService` depuis `features/pagemodel` — violation de la règle "core/ ne dépend pas de features/".
 
-8. **RLS sur `page_model`** : la table étend `BaseTenantEntity` mais aucune policy RLS apparente dans V40/V41 pour cette table. Si RLS n'est pas configuré, n'importe quel tenant peut lire les pagemodels d'un autre.
+8. **RLS sur `page_model`** : la table étend `BaseTenantEntity` mais aucune policy RLS n'a été identifiée dans les migrations Flyway existantes pour cette table. Si RLS n'est pas configuré, n'importe quel tenant peut lire les pagemodels d'un autre.
 
 9. **`PageModelDynamicResolver.toShared()`** : méthode de conversion manuelle de `core.PageModelDoc` → `features.PageModel` (150 lignes de mapping champ par champ). Résultat d'avoir deux records Java identiques dans deux packages.
 
@@ -314,10 +330,10 @@ page_model (core — tenantée via BaseTenantEntity)
 
 1. **Qui peut customiser un pagemodel en prod ?** Le code actuel ne définit pas clairement si `TENANT_ADMIN` peut modifier son propre pagemodel ou si c'est réservé à la plateforme. `PageModelOrchestrator.resolveTenant()` charge la version effective mais aucun endpoint `TENANT_ADMIN` ne permet de l'éditer.
 
-2. **La table `page_model` a-t-elle une policy RLS dans V40/V41 ?** V40 et V41 contiennent des policies, mais l'analyse n'a pas confirmé si `page_model` y est incluse. À vérifier avant toute modification multi-tenant.
+2. **La table `page_model` a-t-elle une policy RLS dans les migrations Flyway ?** Confirmer via `grep -r "page_model" src/main/resources/db/migration/` avant toute modification multi-tenant.
 
-3. **Quelle est la "vraie" route public ?** Les 3 controllers en conflit doivent être résolus — lequel prend la main n'est pas déterminable par analyse statique.
+3. **Quelle est la "vraie" route public ?** Les 3 controllers en conflit doivent être résolus — lequel prend la main n'est pas déterminable par analyse statique. La route effective est `features/pagemodelruntime/PageModelController` selon ce que le frontend appelle (`GET /api/v1/public/pagemodel/{logicalId}`), mais cela reste à confirmer par boot test.
 
-4. **`PageApi.getPage(context, tenantId)`** : quel endpoint exact appelle-t-il ? Le code frontend appelle `PageApi` mais l'implémentation n'a pas été lue. Détermine quelle route est "officiellement" utilisée par le client.
+4. **`ListPageModelsQueryHandler` — présent ou absent ?** `ListPageModelsQuery` est déclaré dans `core/pagemodel/application/query/model/` mais aucun handler correspondant n'a été identifié dans l'analyse. Gap ou fichier non trouvé ?
 
-5. **Les JSON templates dans `resources/pagemodel/`** sont-ils utilisés par le `PageModelTemplateSeedRunner` ou directement comme fallback ? Les deux chemins semblent actifs mais les rôles ne sont pas formellement séparés.
+5. **Les JSON templates dans `resources/pagemodel/`** sont-ils utilisés par le `PageModelTemplateSeedRunner` ou directement comme fallback ? Les deux chemins semblent actifs mais les rôles ne sont pas formellement séparés.\*\*

@@ -110,8 +110,8 @@ SCHEDULED ───────▶ OPEN ────▶ CLOSED ────▶ R
 ```
 core/draw/
 ├── api/                                # Contrat public (read minimal)
-│   └── (futur — port read-only si sales/stats en a besoin)
-├── domain/                             # Modèle pur, pas de Spring/JPA
+│   └── DrawReaderPort.java            # Port read-only exposé pour le core.drawresult
+├── domain/                             # Modèle pur, pas de Spring, pas de Jackson
 │   ├── model/
 │   │   ├── Draw.java                  # Aggregate
 │   │   ├── DrawStatus.java            # Enum
@@ -123,8 +123,10 @@ core/draw/
 │   │   ├── DrawResultAppliedEvent.java
 │   │   ├── DrawSettledEvent.java
 │   │   └── DrawCanceledEvent.java
-│   └── exception/
-│       └── DrawTransitionException.java
+│   ├── exception/
+│   │   ├── DrawTransitionException.java
+│   │   └── DrawResultNotFinalException.java
+│   └── policy/
 ├── application/
 │   ├── command/
 │   │   ├── model/                     # Commands (records)
@@ -164,7 +166,8 @@ core/draw/
     │   └── job/
     │       └── DrawSettleJobConfig.java
     ├── scheduler/
-    │   └── ExternalResultsApplyTickScheduler.java
+    │   ├── ExternalResultsApplyTickScheduler.java
+    │   └── DrawProvisionalWatchdogScheduler.java
     └── web/
         ├── DrawAdminController.java              # /admin/draws
         ├── mapper/DrawAdminWebMapper.java
@@ -257,23 +260,23 @@ core/draw/
 
 - ✅ **Apply** (`CLOSED → RESULTED`) autorisé dès `draw_result.status IN (PROVISIONAL, FINAL)`.
 - ✅ **Settle** (`RESULTED → SETTLED`) autorisé **uniquement si** `draw_result.status = FINAL`.
-- ⏸️ Si `draw_result` reste `PROVISIONAL` plus de **30 minutes** après l'apply, alerte ops (TODO P3).
+- ✅ **Watchdog** : Si `draw_result` reste `PROVISIONAL` plus de **30 minutes** après l'apply, alerte ops via `DrawProvisionalWatchdogScheduler`.
 
 **Rationale** : on bloque la vente le plus tôt possible (apply rapide) sans payer sur un résultat encore corrigeable.
 
 ### 6.2 Règle Override après SETTLED
 
-- ❌ `OverrideDrawResultCommand` est **refusé** si **au moins un** `Draw` lié est `SETTLED`.
-- ✅ Avant `SETTLED` : override autorisé, le `Draw` revient en `RESULTED` avec le nouveau résultat.
+- ✅ **L'override est refusé** si **au moins un** `Draw` lié est `SETTLED` (payouts émis).
+- ✅ Avant `SETTLED` : override autorisé, le `Draw` est mis à jour avec le nouveau résultat et l'événement `DrawResultAppliedEvent` est republié.
 - 🚧 Cas "correction provider post-settlement" → traité **manuellement** par les ops (escalade, hors automatisation).
 
 ### 6.3 Règle `force=true`
 
-- `force=true` bypasse les contrôles métier non critiques (`UNIQUE`, vérifications de statut).
-- `force=true` **ne bypasse jamais** : règle 6.2 (override post-settled), RLS, authentification.
-- `force=true` **exige** un `reason` non vide.
-- `force=true` est **systématiquement audité** (`audit_log` avec actor + reason + before/after).
-- `force=true` est exposé **uniquement** sur `/platform/ops/**`.
+- ✅ `force=true` bypasse les contrôles métier non critiques (`UNIQUE`, vérifications de statut).
+- ✅ `force=true` **ne bypasse jamais** : règle 6.2 (override post-settled), RLS, authentification.
+- ✅ `force=true` **exige** un `reason` non vide.
+- ✅ `force=true` est **systématiquement audité** via `@AuditedForceCommand`.
+- ✅ `force=true` est exposé **uniquement** sur `/platform/ops/**`.
 
 ### 6.4 Règle `locked` (settlement)
 
@@ -299,6 +302,7 @@ core/draw/
 | `DrawLifeCycleTickScheduler.closeWindowed`     | `0 */15 * * * *`               | CommandBus   | `CloseDueDrawsCommand`              |
 | `ExternalResultsApplyTickScheduler`            | `30 */5 * * * *` (offset +30s) | CommandBus   | `ApplyExternalResultsWindowCommand` |
 | `DrawSettleScheduler`                          | `0 */5 * * * NY`               | Spring Batch | Job `DRAW_SETTLE`                   |
+| `DrawProvisionalWatchdogScheduler`             | `0 */15 * * * *`               | -            | -                                   |
 
 > **Pattern** : lifecycle court → CommandBus ; traitement de masse → Spring Batch.
 
@@ -329,6 +333,7 @@ Chaque scheduler vérifie sa `BatchGate` correspondante avant exécution. Voir `
   - `ix_draw_close_due` (filter `status='OPEN' AND locked=false`)
   - `ix_draw_closed_missing_result` (filter pour apply)
   - `ix_draw_resulted_to_settle` (filter pour settle)
+  - `ix_draw_draw_result_id` (pour performance lookup résultat)
 - Audit : Envers (à activer — TODO P3).
 - Migrations : Flyway, `ddl-auto=validate`.
 
@@ -446,14 +451,14 @@ Voir `jpa_entities.md`, `persistence.md`, `rls.md`.
 | ------------ | ---------------------------- | --------------------------------------------------------------- |
 | D1           | Write commands (8 commandes) | ✅ Generate, Open, Close, Apply, Settle, Cancel, Create, Update |
 | D2           | Read queries                 | ✅ List + à compléter (P1)                                      |
-| D3           | Admin endpoints              | ⚠️ Migrer vers `ApiResponse<T>` (P1)                            |
-| D4           | Events publiés (4)           | ⚠️ Listener pas en `AFTER_COMMIT` (P1)                          |
-| D5           | Business rules               | ⚠️ Override post-SETTLED à implémenter (P1)                     |
-| D6           | Schedulers (5)               | ✅                                                              |
+| D3           | Admin endpoints              | ✅ Migré vers `ApiResponse<T>`                                  |
+| D4           | Events publiés (4)           | ✅ Listener en `AFTER_COMMIT`                                   |
+| D5           | Business rules               | ✅ Override post-SETTLED et force durcis                        |
+| D6           | Schedulers (6)               | ✅                                                              |
 | D7           | Cache                        | ✅                                                              |
-| event_model  | After-commit + idempotence   | ⚠️ Listener à corriger (P1)                                     |
-| api_response | `ApiResponse<T>` partout     | ⚠️ Migration en cours (P1)                                      |
-| security     | `@PreAuthorize` partout      | ❌ Réactiver (P0)                                               |
+| event_model  | After-commit + idempotence   | ✅                                                              |
+| api_response | `ApiResponse<T>` partout     | ✅                                                              |
+| security     | `@PreAuthorize` partout      | ✅ Réactivé                                                     |
 
 ---
 
@@ -461,18 +466,18 @@ Voir `jpa_entities.md`, `persistence.md`, `rls.md`.
 
 ### P0 — Sécurité
 
-- [ ] Réactiver `@PreAuthorize("hasAuthority('SUPER_ADMIN')")` dans `DrawAdminController`.
+- [x] Réactiver `@PreAuthorize("hasAuthority('SUPER_ADMIN')")` dans `DrawAdminController`.
 
 ### P1 — Conformité conventions
 
-- [ ] Migrer `DrawAdminController` vers `ApiResponse<T>`.
-- [ ] Refactor `createDraw` — handler retourne directement le `DrawSummary` (supprimer le pattern "send command + filter list").
-- [ ] Corriger `@EventListener` → `@TransactionalEventListener(AFTER_COMMIT)` dans `DrawDomainEventListener`.
+- [x] Migrer `DrawAdminController` vers `ApiResponse<T>`.
+- [x] Refactor `createDraw` — handler retourne directement le `DrawSummary`.
+- [x] Corriger `@EventListener` → `@TransactionalEventListener(AFTER_COMMIT)` dans `DrawDomainEventListener`.
 - [ ] Créer `GetDrawByIdQuery` et `GetDrawBySlotAndDateQuery`.
-- [ ] Nommer les magic numbers dans les commands (`OpenDueDrawsCommand` 5000/24/12 → champs typés).
-- [ ] Implémenter règle 6.2 (refus override si Draw SETTLED).
-- [ ] Implémenter règle 6.3 (`force=true` avec reason obligatoire + audit).
-- [ ] Retirer `OverrideDrawResultCommand` de `DrawAdminController` (vit dans `features.ops`).
+- [x] Nommer les magic numbers dans les commands (`OpenDueDrawsCommand` 5000/24/12 → champs typés).
+- [x] Implémenter règle 6.2 (refus override si Draw SETTLED).
+- [x] Implémenter règle 6.3 (`force=true` avec reason obligatoire + audit).
+- [x] Retirer `OverrideDrawResultCommand` de `DrawAdminController` (vit dans `features.ops`).
 
 ### P2 — Architecture
 
@@ -482,7 +487,7 @@ Voir `jpa_entities.md`, `persistence.md`, `rls.md`.
 ### P3 — Observabilité
 
 - [ ] Job ops `unlock-stale-draws` (cf. règle 6.4).
-- [ ] Alerte ops si `PROVISIONAL > 30 min` (cf. règle 6.1).
+- [x] Watchdog `PROVISIONAL > 30 min` (cf. règle 6.1).
 - [ ] Activer Envers pour audit complet.
 - [ ] Sort de `ARCHIVED` (cron archivage ? ops only ? purge ?).
 

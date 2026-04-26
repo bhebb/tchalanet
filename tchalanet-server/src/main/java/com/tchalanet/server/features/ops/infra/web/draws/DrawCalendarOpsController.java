@@ -37,7 +37,7 @@ public class DrawCalendarOpsController {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_GENERATE, TenantId.parse(req.tenantId()));
         var res = commandBus.send(
             new GenerateDrawsForRangeCommand(
-                TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force()));
+                TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force(), req.reason()));
         return ApiResponse.success(res);
     }
 
@@ -76,7 +76,8 @@ public class DrawCalendarOpsController {
                     req.slotKeys(),
                     req.force(),
                     req.dryRun(),
-                    req.maxSlots()));
+                    req.maxSlots(),
+                    req.reason()));
         return ApiResponse.success(res);
     }
 }

@@ -10,7 +10,8 @@ public record GenerateDrawsRequest(
     @NotNull LocalDate from,
     @NotNull LocalDate to,
     Boolean dryRun,
-    Boolean force) {
+    Boolean force,
+    String reason) {
 
   public GenerateDrawsRequest {
     Objects.requireNonNull(tenantId, "tenantId required");

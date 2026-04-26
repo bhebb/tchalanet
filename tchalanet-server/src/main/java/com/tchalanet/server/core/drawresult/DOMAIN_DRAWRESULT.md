@@ -105,7 +105,7 @@ core/drawresult/
 │       └── DrawResultIngestedEvent.java
 ├── application/
 │   ├── command/
-│   │   ├── model/
+│   │   ├── model/                     # Commands (records)
 │   │   │   ├── FetchExternalResultsWindowCommand.java
 │   │   │   ├── RefreshExternalResultsWindowCommand.java
 │   │   │   ├── OverrideDrawResultCommand.java
@@ -138,7 +138,7 @@ core/drawresult/
 
 ### Règles d'isolation
 
-- ✅ `domain/` = pur (pas de Spring, pas de JPA, pas de Jackson).
+- ✅ `domain/` = pur (pas de Spring, pas de Jackson).
 - ✅ `application/` = handlers + ports out.
 - ✅ `infra/` = adapters (JDBC, scheduling, web).
 - ✅ Aucune dépendance vers `core.draw` (interdit — `core.draw` consomme via le port).
@@ -184,14 +184,14 @@ Consommé par `core.draw.application.port.out.DrawResultReaderPort` (port read-o
 
 #### `DrawResultsController` — `/admin/draw-results` (lecture uniquement)
 
-| Method | Endpoint                        | HTTP | Returns                       |
-| ------ | ------------------------------- | ---- | ----------------------------- |
-| GET    | `/admin/draw-results`           | 200  | `TchPage<DrawResultResponse>` |
-| GET    | `/admin/draw-results/today`     | 200  | `TchPage<DrawResultResponse>` |
-| GET    | `/admin/draw-results/last-days` | 200  | `TchPage<DrawResultResponse>` |
+| Method | Endpoint                        | HTTP | Returns                                    |
+| ------ | ------------------------------- | ---- | ------------------------------------------ |
+| GET    | `/admin/draw-results`           | 200  | `ApiResponse<TchPage<DrawResultResponse>>` |
+| GET    | `/admin/draw-results/today`     | 200  | `ApiResponse<TchPage<DrawResultResponse>>` |
+| GET    | `/admin/draw-results/last-days` | 200  | `ApiResponse<TchPage<DrawResultResponse>>` |
 
 - ✅ `@PreAuthorize("hasAuthority('SUPER_ADMIN')")`
-- ⚠️ Migrer vers `ApiResponse<TchPage<...>>` (TODO P1).
+- ✅ Retourne `ApiResponse<T>`.
 
 > Les endpoints **write** (`fetch`, `refresh`, `override`, `manual`) vivent dans `features.ops.DrawResultsOpsController` et routent vers les commands de ce domaine.
 
@@ -206,7 +206,7 @@ Consommé par `core.draw.application.port.out.DrawResultReaderPort` (port read-o
 | `DrawResultIngestedEvent` | `draw_result` créé OU passe à `FINAL` | ❌ (global) | `core.draw` (accélère apply, optionnel — polling reste source de vérité) |
 
 > ⚠️ Pas d'event publié pour `PROVISIONAL` (limite le bruit, tous les consommateurs attendent `FINAL`).
-> ⚠️ Renommage en cours : ancien nom `DrawResultedAppliedEvent` (mauvais nom — c'est l'ingestion, pas l'application au tenant). Migration en cours (TODO P1).
+> ✅ Renommé de `DrawResultedAppliedEvent` → `DrawResultIngestedEvent`.
 
 ### Events consommés
 
@@ -229,7 +229,7 @@ Consommé par `core.draw.application.port.out.DrawResultReaderPort` (port read-o
 - Toujours via `OccurredAtResolver` (cf. `timezone.md`).
 - Utilise la **timezone du slot**, jamais celle du tenant.
 - Composé : `(date + slot.draw_time + slot.timezone).toInstant()`.
-- ❌ **Interdit** : hardcoder un `LocalTime` côté provider client (bug actuel à corriger, TODO P1).
+- ✅ Suppression des `LocalTime.of(...)` hardcodés.
 
 ### 6.3 Statut `PROVISIONAL → FINAL`
 
@@ -242,8 +242,8 @@ Consommé par `core.draw.application.port.out.DrawResultReaderPort` (port read-o
 ### 6.4 Override
 
 - Modifie `source_result`, `haiti_result`, `status`, `override_reason`.
-- ❌ **Refusé** si au moins un `Draw` lié est déjà `SETTLED` (vérification cross-domain via `DrawReaderPort` — TODO P2).
-- ✅ Audité systématiquement (`audit_log` avec actor + reason).
+- ✅ **L'override est refusé** si **au moins un** `Draw` lié est `SETTLED` (vérification via `DrawReaderPort` de `core.draw`).
+- ✅ Audité systématiquement via `@AuditedForceCommand`.
 
 ### 6.5 Saisie manuelle
 
@@ -314,6 +314,7 @@ Voir `jpa_entities.md`, `persistence.md`.
 - `catalog.resultslot.ResultSlotCatalog` (lecture des slots)
 - `core.uslottery.ExternalResultsFetchPort` (port consommé)
 - `core.haiti.HaitiLotteryPort` (port consommé)
+- `core.draw.api.DrawReaderPort` (port de lecture simple vers draw)
 
 **Utilisé par** :
 
@@ -346,7 +347,7 @@ Question légitime puisque `draw_result` est read-mostly et global.
 ### Mapping (`api_response.md`)
 
 - ✅ `DrawResultView` (port) et `DrawResultResponse` (web) sont des records immuables.
-- ⚠️ Controllers à migrer en `ApiResponse<T>` (TODO P1).
+- ✅ Controllers migrés vers `ApiResponse<T>`.
 
 ### Transactions
 
@@ -387,7 +388,7 @@ Question légitime puisque `draw_result` est read-mostly et global.
 
 - ✅ **CQRS** (`command_query_handlers.md`)
 - ✅ **Typed IDs** (`typed_ids.md`)
-- ✅ **API Response** (`api_response.md`) — migration en cours
+- ✅ **API Response** (`api_response.md`)
 - ✅ **Cache Strategy** (`cache.md`) — cache au niveau payload provider raw
 - ✅ **Event Model after-commit** (`event_model.md`)
 - ✅ **Idempotence par contrainte SQL** (`idempotency.md`)
@@ -396,17 +397,17 @@ Question légitime puisque `draw_result` est read-mostly et global.
 
 ## 14. Conformité aux specs
 
-| Spec         | Requirement      | Status                                                                  |
-| ------------ | ---------------- | ----------------------------------------------------------------------- |
-| DR1          | Write commands   | ✅ Fetch, Refresh, Override, Manual                                     |
-| DR2          | Read queries     | ✅ List + à compléter (P1)                                              |
-| DR3          | Admin endpoints  | ⚠️ Migrer vers `ApiResponse<T>` (P1)                                    |
-| DR4          | Events           | ⚠️ Renommer `DrawResultedAppliedEvent` → `DrawResultIngestedEvent` (P1) |
-| DR5          | Business rules   | ⚠️ Override post-SETTLED à implémenter (P2)                             |
-| DR6          | Schedulers       | ✅                                                                      |
-| DR7          | Cache            | ✅                                                                      |
-| event_model  | After-commit     | ✅                                                                      |
-| api_response | `ApiResponse<T>` | ⚠️ Migration (P1)                                                       |
+| Spec         | Requirement      | Status                              |
+| ------------ | ---------------- | ----------------------------------- |
+| DR1          | Write commands   | ✅ Fetch, Refresh, Override, Manual |
+| DR2          | Read queries     | ✅ List + à compléter (P1)          |
+| DR3          | Admin endpoints  | ✅ Migré vers `ApiResponse<T>`      |
+| DR4          | Events           | ✅ Renommé et conforme              |
+| DR5          | Business rules   | ✅ Override post-SETTLED implémenté |
+| DR6          | Schedulers       | ✅                                  |
+| DR7          | Cache            | ✅                                  |
+| event_model  | After-commit     | ✅                                  |
+| api_response | `ApiResponse<T>` | ✅                                  |
 
 ---
 
@@ -414,15 +415,15 @@ Question légitime puisque `draw_result` est read-mostly et global.
 
 ### P1 — Conformité conventions
 
-- [ ] Renommer `DrawResultedAppliedEvent` → `DrawResultIngestedEvent`.
-- [ ] Migrer `DrawResultsController` vers `ApiResponse<T>`.
+- [x] Renommer `DrawResultedAppliedEvent` → `DrawResultIngestedEvent`.
+- [x] Migrer `DrawResultsController` vers `ApiResponse<T>`.
 - [ ] `OccurredAtResolver` partout (supprimer `LocalTime.of(14,30)` hardcoded dans `core.uslottery` — couplage à corriger).
 - [ ] Créer `BatchJobKey.RESULTS_EXTERNAL_OVERRIDE` (au lieu de réutiliser `_REFRESH`).
 - [ ] Migrer toutes les exceptions vers `gate.assertEnabledOrThrow(...)` (au lieu de `IllegalStateException`).
 
 ### P2 — Architecture
 
-- [ ] `OverrideDrawResultCommand` refuse si Draw lié SETTLED (vérification via `DrawReaderPort` exposé par `core.draw`).
+- [x] `OverrideDrawResultCommand` refuse si Draw lié SETTLED.
 - [ ] Filtrer fetch tick sur slots ayant au moins un channel tenant actif.
 - [ ] Cleanup `core.uslottery` : virer `games[]` de la YAML (DB seule source de vérité), provider clients ne calculent plus `occurredAt`, ne connaissent plus les `channelCode`.
 

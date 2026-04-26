@@ -5,28 +5,12 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
  * Aggregate root: Draw
- *
- * <p>Rôle du domaine - Responsabilité principale: Gérer le cycle de vie complet des tirages (draws)
- * : planification, ouverture/fermeture des ventes, rattachement des résultats, et clôture
- * financière (settlement).
- *
- * <p>Ce que l'agrégat fait - Maintient le calendrier opérationnel du tirage (issu du DrawChannel).
- * - Pilote les transitions de statut : SCHEDULED → OPEN → CLOSED → RESULTED → SETTLED (+ CANCELED).
- * - Rattache un résultat canonique (DrawResult, global) au tirage tenant. - Stocke les timestamps
- * d'audit (opened_at, closed_at, resulted_at, settled_at, canceled_at) ; chaque transition doit
- * écrire son horodatage.
- *
- * <p>Invariants importants (à respecter dans les handlers/commands) - cutoff_at < scheduled_at
- * (fixés lors de la génération) - draw_date doit être la date locale du DrawChannel.timezone -
- * SETTLED interdit si draw.result == null - CANCELED interdit après SETTLED
- *
- * <p>Le modèle métier complet et les règles de transition sont gérés par DrawStatusTransition
- * utilitaire utilisé par les méthodes d'état de cet agrégat.
  */
 public final class Draw {
 
@@ -37,8 +21,8 @@ public final class Draw {
   private ZonedDateTime scheduledAt;
   private ZonedDateTime cutoffAt;
   private DrawStatus status;
-  private final DrawSource source;
-  private DrawResultId drawResultId; // référence vers le résultat global (id) — peut être null
+  private DrawSource source; // generation source
+  private DrawResultId drawResultId;
 
   // audit timestamps
   private ZonedDateTime openedAt;
@@ -47,6 +31,11 @@ public final class Draw {
   private ZonedDateTime settledAt;
   private ZonedDateTime canceledAt;
   private String cancelReason;
+
+  // Result metadata
+  private DrawSource resultSource; // AUTO / ADMIN_OVERRIDE
+  private String resultOverrideReason;
+  private ZonedDateTime resultOverriddenAt;
 
   // flags
   private boolean locked = false;
@@ -71,48 +60,22 @@ public final class Draw {
     this.drawResultId = drawResultId;
   }
 
-  public DrawId id() {
-    return id;
-  }
+  public DrawId id() { return id; }
+  public TenantId tenantId() { return tenantId; }
+  public DrawChannelView drawChannel() { return drawChannel; }
+  public ZonedDateTime scheduledAt() { return scheduledAt; }
+  public ZonedDateTime cutoffAt() { return cutoffAt; }
+  public DrawStatus status() { return status; }
+  public DrawResultId drawResultId() { return drawResultId; }
+  public DrawSource source() { return source; }
 
-  public TenantId tenantId() {
-    return tenantId;
-  }
-
-  public DrawChannelView drawChannel() {
-    return drawChannel;
-  }
-
-  public ZonedDateTime scheduledAt() {
-    return scheduledAt;
-  }
-
-  public ZonedDateTime cutoffAt() {
-    return cutoffAt;
-  }
-
-  public DrawStatus status() {
-    return status;
-  }
-
-  public DrawResultId drawResultId() {
-    return drawResultId;
-  }
-
-  public DrawSource source() {
-    return source;
-  }
-
-  /**
-   * Compute local draw date based on the drawChannel timezone. This matches the DB business slotKey
-   * draw_date.
-   */
   public java.time.LocalDate drawDate() {
     var zone = drawChannel.timezone() == null ? java.time.ZoneId.of("UTC") : drawChannel.timezone();
     return scheduledAt == null ? null : scheduledAt.withZoneSameInstant(zone).toLocalDate();
   }
 
   // --- state machine methods ---
+
   public void open(ZonedDateTime now) {
     DrawStatusTransition.check(this.status, DrawStatus.OPEN);
     this.status = DrawStatus.OPEN;
@@ -125,12 +88,24 @@ public final class Draw {
     this.closedAt = Objects.requireNonNull(now);
   }
 
-  // Remplace l'attachement d'un objet DrawResult par l'attachement d'un identifiant DrawResultId
-  public void attachResult(DrawResultId resultId, ZonedDateTime now) {
-    DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
+  /**
+   * Applique un résultat au tirage.
+   * Autorisé depuis CLOSED (normal) ou RESULTED (re-apply/override).
+   */
+  public void applyResult(DrawResultId resultId, Instant now, DrawSource resultSource) {
+    // Si déjà RESULTED, on autorise le re-apply (changement de résultat)
+    if (this.status != DrawStatus.RESULTED) {
+      DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
+    }
+
     this.drawResultId = Objects.requireNonNull(resultId);
     this.status = DrawStatus.RESULTED;
-    this.resultedAt = Objects.requireNonNull(now);
+    this.resultedAt = ZonedDateTime.ofInstant(now, scheduledAt.getZone());
+    this.resultSource = resultSource;
+
+    if (resultSource == DrawSource.ADMIN_OVERRIDE) {
+      this.resultOverriddenAt = this.resultedAt;
+    }
   }
 
   public void settle(ZonedDateTime now) {
@@ -148,7 +123,6 @@ public final class Draw {
     this.status = DrawStatus.CANCELED;
   }
 
-  // pour changer l’horaire via admin
   public void reschedule(ZonedDateTime newScheduledAt, ZonedDateTime newCutoffAt) {
     if (status != DrawStatus.SCHEDULED) {
       throw new IllegalStateException("Can only reschedule SCHEDULED draws");
@@ -161,44 +135,23 @@ public final class Draw {
     this.status = DrawStatus.ARCHIVED;
   }
 
-  public ZonedDateTime openedAt() {
+  // Getters
+  public ZonedDateTime openedAt() { return openedAt; }
+  public ZonedDateTime closedAt() { return closedAt; }
+  public ZonedDateTime resultedAt() { return resultedAt; }
+  public ZonedDateTime settledAt() { return settledAt; }
+  public ZonedDateTime canceledAt() { return canceledAt; }
+  public String cancelReason() { return cancelReason; }
+  public boolean isLocked() { return locked; }
+  public void setLocked(boolean locked) { this.locked = locked; }
+  public boolean isSystemGenerated() { return systemGenerated; }
+  public void setSystemGenerated(boolean systemGenerated) { this.systemGenerated = systemGenerated; }
 
-    return openedAt;
-  }
+  public DrawSource resultSource() { return resultSource; }
+  public String resultOverrideReason() { return resultOverrideReason; }
+  public ZonedDateTime resultOverriddenAt() { return resultOverriddenAt; }
 
-  public ZonedDateTime closedAt() {
-    return closedAt;
-  }
-
-  public ZonedDateTime resultedAt() {
-    return resultedAt;
-  }
-
-  public ZonedDateTime settledAt() {
-    return settledAt;
-  }
-
-  public ZonedDateTime canceledAt() {
-    return canceledAt;
-  }
-
-  public String cancelReason() {
-    return cancelReason;
-  }
-
-  public boolean isLocked() {
-    return locked;
-  }
-
-  public void setLocked(boolean locked) {
-    this.locked = locked;
-  }
-
-  public boolean isSystemGenerated() {
-    return systemGenerated;
-  }
-
-  public void setSystemGenerated(boolean systemGenerated) {
-    this.systemGenerated = systemGenerated;
+  public void setOverrideReason(String reason) {
+    this.resultOverrideReason = reason;
   }
 }
