@@ -19,7 +19,7 @@ public class PageModelAdminMapper {
     if (inst == null) return null;
     return new PageModelAdminDetailDto(
         inst.id().toString(),
-        inst.tenantId() != null ? inst.tenantId().toString() : null,
+        inst.tenantId().toString(),
         inst.logicalId(),
         inst.scope(),
         inst.slug(),

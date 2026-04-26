@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.drawresult.infra.web;
 
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
@@ -33,7 +34,7 @@ public class DrawResultsController {
 
     @Operation(summary = "List draw results (admin)")
     @GetMapping
-    public TchPage<DrawResultResponse> list(
+    public ApiResponse<TchPage<DrawResultResponse>> list(
         @RequestParam(required = false) String provider,
         @RequestParam(required = false) String slotKey,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -46,7 +47,7 @@ public class DrawResultsController {
         var page = queryBus.send(new ListDrawResultsQuery(provider, slotKey, from, to, pageReq.pageable()));
         var items = page.items().stream().map(mapper::toResponse).toList();
 
-        return TchPage.of(
+        return ApiResponse.success(TchPage.of(
             items,
             page.page(),
             page.size(),
@@ -54,12 +55,12 @@ public class DrawResultsController {
             page.totalPages(),
             page.last(),
             page.hasNext(),
-            page.hasPrevious());
+            page.hasPrevious()));
     }
 
     @Operation(summary = "List today's draw results (admin)")
     @GetMapping("/today")
-    public TchPage<DrawResultResponse> listToday(
+    public ApiResponse<TchPage<DrawResultResponse>> listToday(
         @RequestParam(required = false) String provider,
         @RequestParam(required = false) String slotKey,
         @TchPaging(
@@ -71,7 +72,7 @@ public class DrawResultsController {
         var page = queryBus.send(new ListDrawResultsQuery(provider, slotKey, today, today, pageReq.pageable()));
         var items = page.items().stream().map(mapper::toResponse).toList();
 
-        return TchPage.of(
+        return ApiResponse.success(TchPage.of(
             items,
             page.page(),
             page.size(),
@@ -79,12 +80,12 @@ public class DrawResultsController {
             page.totalPages(),
             page.last(),
             page.hasNext(),
-            page.hasPrevious());
+            page.hasPrevious()));
     }
 
     @Operation(summary = "List draw results for last N days (admin)")
     @GetMapping("/last-days")
-    public TchPage<DrawResultResponse> listLastDays(
+    public ApiResponse<TchPage<DrawResultResponse>> listLastDays(
         @RequestParam(required = false) String provider,
         @RequestParam(required = false) String slotKey,
         @RequestParam int days,
@@ -100,7 +101,7 @@ public class DrawResultsController {
         var page = queryBus.send(new ListDrawResultsQuery(provider, slotKey, from, to, pageReq.pageable()));
         var items = page.items().stream().map(mapper::toResponse).toList();
 
-        return TchPage.of(
+        return ApiResponse.success(TchPage.of(
             items,
             page.page(),
             page.size(),
@@ -108,7 +109,7 @@ public class DrawResultsController {
             page.totalPages(),
             page.last(),
             page.hasNext(),
-            page.hasPrevious());
+            page.hasPrevious()));
     }
 
     private static int clampDays(int days) {

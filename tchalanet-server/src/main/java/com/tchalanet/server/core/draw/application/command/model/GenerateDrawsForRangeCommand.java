@@ -5,6 +5,15 @@ import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+/**
+ * Génère les tirages planifiés pour une plage de dates donnée.
+ *
+ * @param tenantId identifiant du tenant pour lequel générer les tirages
+ * @param from     début de la plage (inclusif)
+ * @param to       fin de la plage (inclusif) ; doit être ≥ {@code from}
+ * @param dryRun   si {@code true}, simule sans aucune écriture en base
+ * @param force    si {@code true}, re-génère même si les tirages existent déjà
+ */
 public record GenerateDrawsForRangeCommand(
     @NotNull TenantId tenantId,
     @NotNull LocalDate from,

@@ -1,20 +1,11 @@
 package com.tchalanet.server.core.drawresult.domain.event;
 
-import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.common.types.id.*;
-
-import java.time.Instant;
-import java.time.LocalDate;
-
-public record DrawResultedAppliedEvent(
-    EventId eventId,
-    Instant occurredAt,
-    TenantId tenantId,
-    DrawId drawId,
-    DrawChannelId drawChannelId,
-    ResultSlotId resultSlotId,
-    DrawResultId drawResultId,
-    Instant drawResultOccurredAt,
-    LocalDate drawDate)
-    implements DomainEvent {
+/**
+ * @deprecated Remplacé par {@link DrawResultIngestedEvent}. Supprimé dans le cadre du change
+ *     {@code align-draw-events-and-conventions}. Ce fichier sera retiré après vérification que
+ *     tous les usages ont été migrés.
+ */
+@Deprecated(since = "align-draw-events-and-conventions", forRemoval = true)
+final class DrawResultedAppliedEvent {
+  private DrawResultedAppliedEvent() {}
 }

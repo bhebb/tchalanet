@@ -10,23 +10,25 @@ import com.tchalanet.server.core.draw.application.command.model.CreateDrawComman
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.drawresult.domain.model.DrawSource;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class CreateDrawCommandHandler implements CommandHandler<CreateDrawCommand, DrawId> {
+public class CreateDrawCommandHandler implements CommandHandler<CreateDrawCommand, DrawSummary> {
 
   private final DrawLifecyclePort drawWriterPort;
   private final DrawChannelCatalog drawChannelCatalog;
   private final IdGenerator idGenerator;
 
   @Override
-  public DrawId handle(CreateDrawCommand command) {
+  public DrawSummary handle(CreateDrawCommand command) {
     log.info(
         "CreateDrawCommandHandler.handle - creating draw for tenant={}, drawChannelCode={}, scheduledDate={}",
         command.tenantId(),
@@ -63,8 +65,17 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
             DrawSource.SYSTEM,
             null);
 
-    // Save and return id
-    var saved = drawWriterPort.save(draw);
-    return saved.id();
+    drawWriterPort.save(draw);
+
+    return new DrawSummary(
+        drawId,
+        channel.code(),
+        channel.name(),
+        scheduledAt,
+        cutoffAt,
+        DrawStatus.SCHEDULED,
+        false,
+        true,
+        List.of());
   }
 }

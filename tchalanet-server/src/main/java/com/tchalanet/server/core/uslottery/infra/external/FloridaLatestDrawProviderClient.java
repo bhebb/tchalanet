@@ -119,8 +119,8 @@ public class FloridaLatestDrawProviderClient implements UsLotteryProviderClient 
       ParseResult pr = parseNumbers(e.drawNumbers(), gameKey);
       if (pr.main().isEmpty()) continue;
 
-      LocalTime drawTime = resolveDrawTime(gameKey, drawType);
-      OffsetDateTime occurredAt = date.atTime(drawTime).atZone(zone).toOffsetDateTime();
+      // occurredAt est calculé par l'adapter via OccurredAtResolver (slot.drawTime + slot.timezone)
+      OffsetDateTime occurredAt = null;
 
       DrawExtras extras =
           pr.extras().isEmpty() && pr.attrs().isEmpty()
@@ -225,6 +225,12 @@ public class FloridaLatestDrawProviderClient implements UsLotteryProviderClient 
     return List.of();
   }
 
+  /**
+   * @deprecated La résolution de l'heure de tirage est maintenant déléguée à l'adapter
+   *     via {@code OccurredAtResolver} (slot.drawTime + slot.timezone). Cette méthode
+   *     est conservée uniquement pour référence et sera retirée.
+   */
+  @Deprecated(since = "align-draw-events-and-conventions", forRemoval = true)
   private static LocalTime resolveDrawTime(String gameKey, String drawType) {
     // MVP: times approximatifs (à aligner avec tes props si tu veux)
     return switch (gameKey) {

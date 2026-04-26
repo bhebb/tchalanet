@@ -152,14 +152,11 @@ public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
         continue;
       }
 
-      // IMPORTANT: occurredAt = date + drawTime (approx)
       addIfWanted(
           out,
           wantedCodes,
           "US_NY_NUM3_MID",
           date,
-          zone,
-          LocalTime.of(14, 30),
           fetchedAt,
           sourceHash,
           "NUMBERS",
@@ -171,8 +168,6 @@ public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
           wantedCodes,
           "US_NY_NUM3_EVE",
           date,
-          zone,
-          LocalTime.of(22, 30),
           fetchedAt,
           sourceHash,
           "NUMBERS",
@@ -185,8 +180,6 @@ public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
           wantedCodes,
           "US_NY_NUM4_MID",
           date,
-          zone,
-          LocalTime.of(14, 30),
           fetchedAt,
           sourceHash,
           "WIN4",
@@ -198,8 +191,6 @@ public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
           wantedCodes,
           "US_NY_NUM4_EVE",
           date,
-          zone,
-          LocalTime.of(22, 30),
           fetchedAt,
           sourceHash,
           "WIN4",
@@ -216,8 +207,6 @@ public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
       Set<String> wanted,
       String channelCode,
       LocalDate date,
-      ZoneId zone,
-      LocalTime drawTime,
       Instant fetchedAt,
       String sourceHash,
       String externalGameKey,
@@ -228,7 +217,8 @@ public class NyLatestDrawProviderClient implements UsLotteryProviderClient {
     if (!wanted.isEmpty() && !wanted.contains(channelCode)) return;
     if (mainDigits == null || mainDigits.isEmpty()) return;
 
-    OffsetDateTime occurredAt = date.atTime(drawTime).atZone(zone).toOffsetDateTime();
+    // occurredAt est calculé par l'adapter via OccurredAtResolver (slot.drawTime + slot.timezone)
+    OffsetDateTime occurredAt = null;
 
     try {
       DrawMain main = new DrawMain(mainDigits);

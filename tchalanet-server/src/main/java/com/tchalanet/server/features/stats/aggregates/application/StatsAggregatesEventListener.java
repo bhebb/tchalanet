@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.stats.aggregates.application;
 
-import com.tchalanet.server.core.drawresult.domain.event.DrawResultedAppliedEvent;
+import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
@@ -92,9 +92,8 @@ public class StatsAggregatesEventListener {
         markProcessedIfAbsent(event);
     }
 
-    @EventListener
-    @Transactional
-    public void onDrawResulted(DrawResultedAppliedEvent event) {
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onDrawResulted(DrawResultAppliedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (alreadyProcessed(event.eventId().value())) return;
 

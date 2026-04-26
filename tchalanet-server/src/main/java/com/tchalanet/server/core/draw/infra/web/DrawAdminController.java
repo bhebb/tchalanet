@@ -3,24 +3,23 @@ package com.tchalanet.server.core.draw.infra.web;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.command.model.UpdateDrawCommand;
+import com.tchalanet.server.core.draw.application.query.model.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.application.query.model.ListDrawsQuery;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
-import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
-import com.tchalanet.server.core.drawresult.infra.web.model.OverrideDrawResultRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,65 +37,37 @@ public class DrawAdminController {
 
   @Operation(summary = "List draws (admin)")
   @GetMapping
-  public ResponseEntity<List<DrawSummaryResponse>> listDraws() {
+  public ApiResponse<List<DrawSummaryResponse>> listDraws() {
     var holder = contextResolver.currentOrNull();
     var tenantId = TenantId.of(holder != null ? holder.tenantUuid() : null);
     List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tenantId, null, null, null));
     var responses = summaries.stream().map(mapper::toDrawSummaryResponse).toList();
-    return ResponseEntity.ok(responses);
+    return ApiResponse.success(responses);
   }
 
   @Operation(summary = "Create a draw (admin)")
   @PostMapping
-  public ResponseEntity<DrawSummaryResponse> createDraw(@RequestBody CreateDrawRequest request) {
+  public ApiResponse<DrawSummaryResponse> createDraw(@RequestBody CreateDrawRequest request) {
     CreateDrawCommand command = mapper.toCreateDrawCommand(request);
-    TenantId tid = TenantId.of(request.tenantId());
-    com.tchalanet.server.common.types.id.DrawId drawId = commandBus.send(command);
-    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tid, null, null, null));
-    Optional<DrawSummaryResponse> summary =
-        summaries.stream()
-            .filter(s -> s.id().equals(drawId))
-            .findFirst()
-            .map(mapper::toDrawSummaryResponse);
-    return summary
-        .map(s -> ResponseEntity.status(201).body(s))
-        .orElseGet(
-            () -> ResponseEntity.status(201).body(mapper.toDrawSummaryResponseFallback(request)));
+    DrawSummary summary = commandBus.send(command);
+    return ApiResponse.success(mapper.toDrawSummaryResponse(summary));
   }
 
   @Operation(summary = "Update a draw (admin)")
   @PutMapping("/{drawId}")
-  public ResponseEntity<DrawSummaryResponse> updateDraw(
+  public ApiResponse<DrawSummaryResponse> updateDraw(
       @PathVariable DrawId drawId,
       @RequestParam TenantId tenantId,
       @RequestBody UpdateDrawRequest request) {
     if (!drawId.value().equals(request.drawId())) {
-      return ResponseEntity.badRequest().build();
+      throw ProblemRest.badRequest("Path drawId does not match body drawId");
     }
     if (!tenantId.value().equals(request.tenantId())) {
-      return ResponseEntity.badRequest().build();
+      throw ProblemRest.badRequest("Path tenantId does not match body tenantId");
     }
     UpdateDrawCommand command = mapper.toUpdateDrawCommand(request);
     commandBus.send(command);
-    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tenantId, null, null, null));
-    Optional<DrawSummaryResponse> summary =
-        summaries.stream()
-            .filter(s -> s.id().equals(drawId))
-            .findFirst()
-            .map(mapper::toDrawSummaryResponse);
-    return summary
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.ok(mapper.toDrawSummaryResponseFallback(request)));
-  }
-
-  @Operation(summary = "Override draw result (admin)")
-  @PostMapping("/{drawId}/override-result")
-  public ResponseEntity<Void> overrideResult(
-      @PathVariable DrawId drawId,
-      @RequestParam TenantId tenantId,
-      @RequestBody OverrideDrawResultRequest request) {
-    OverrideDrawResultCommand command = mapper.toOverrideDrawResultCommand(request);
-    commandBus.send(command);
-    return ResponseEntity.ok().build();
+    DrawSummary summary = queryBus.send(new GetDrawByIdQuery(drawId));
+    return ApiResponse.success(mapper.toDrawSummaryResponse(summary));
   }
 }

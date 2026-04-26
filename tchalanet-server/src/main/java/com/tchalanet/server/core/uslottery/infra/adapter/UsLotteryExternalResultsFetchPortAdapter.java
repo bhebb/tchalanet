@@ -2,15 +2,18 @@ package com.tchalanet.server.core.uslottery.infra.adapter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.contracts.results.ExternalFetchStatus;
 import com.tchalanet.server.common.contracts.results.ExternalResultOutput;
 import com.tchalanet.server.common.contracts.results.IngestionMode;
 import com.tchalanet.server.common.contracts.results.SourceFlags;
+import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.core.drawresult.application.port.out.ExternalResultsFetchPort;
 import com.tchalanet.server.core.uslottery.application.port.out.ProviderDrawQuery;
 import com.tchalanet.server.core.uslottery.application.port.out.UsLotteryProviderClient;
 import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class UsLotteryExternalResultsFetchPortAdapter implements ExternalResults
 
     private final List<UsLotteryProviderClient> providers;
     private final ResultSlotCatalog resultSlotCatalog;
+    private final Clock clock;
 
     @Override
     public ExternalBundle fetchSlot(ResultSlotFetchQuery q) {
@@ -145,9 +149,9 @@ public class UsLotteryExternalResultsFetchPortAdapter implements ExternalResults
         }
 
         ExternalResultOutput pick3 =
-            buildOutputForChannel(providerKey, pick3ChannelCode, pick3ExternalKey, pick3Active, q, index);
+            buildOutputForChannel(providerKey, pick3ChannelCode, pick3ExternalKey, pick3Active, q, index, slot);
         ExternalResultOutput pick4 =
-            buildOutputForChannel(providerKey, pick4ChannelCode, pick4ExternalKey, pick4Active, q, index);
+            buildOutputForChannel(providerKey, pick4ChannelCode, pick4ExternalKey, pick4Active, q, index, slot);
 
         Map<String, Object> raw = new LinkedHashMap<>();
         raw.put("provider", providerKey);
@@ -183,7 +187,8 @@ public class UsLotteryExternalResultsFetchPortAdapter implements ExternalResults
         String externalKey,
         boolean active,
         ResultSlotFetchQuery q,
-        Map<String, LatestDraw> index) {
+        Map<String, LatestDraw> index,
+        ResultSlotView slot) {
 
         if (!active || safe(channelCode).isBlank()) return null;
 
@@ -204,6 +209,14 @@ public class UsLotteryExternalResultsFetchPortAdapter implements ExternalResults
 
         String sourceHash = "";
         if (d.meta() != null && d.meta().get("hash") != null) sourceHash = String.valueOf(d.meta().get("hash"));
+
+        // D5: occurredAt est calculé ici (adapter), pas dans le client provider
+        Instant resolvedOccurredAt = OccurredAtResolver.resolve(
+            d.occurredAtUtc() == null ? null : d.occurredAtUtc().toInstant(),
+            q.date(),
+            slot != null ? slot.drawTime() : null,
+            slot != null && slot.timezone() != null ? slot.timezone() : java.time.ZoneId.of("UTC"),
+            clock);
 
         var f =
             new SourceFlags(
@@ -231,7 +244,7 @@ public class UsLotteryExternalResultsFetchPortAdapter implements ExternalResults
             d.extras() == null
                 ? List.of()
                 : d.extras().extraNumbers().stream().map(String::valueOf).toList(),
-            d.occurredAtUtc() == null ? null : d.occurredAtUtc().toInstant(),
+            resolvedOccurredAt,
             d.quality(),
             f,
             Map.of(

@@ -12,8 +12,8 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowResult;
 import com.tchalanet.server.core.draw.application.port.out.DrawApplyPort;
+import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.drawresult.domain.event.DrawResultedAppliedEvent;
 import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,18 +101,16 @@ public class ApplyExternalResultsWindowCommandHandler
                         AfterCommit.run(
                             () -> {
                                 for (var d : res.applied()) {
-                                    var ev =
-                                        new DrawResultedAppliedEvent(
+
+                                    var appliedEvent =
+                                        new DrawResultAppliedEvent(
                                             EventId.of(idGenerator.newUuid()),
                                             Instant.now(clock),
                                             cmd.tenantId(),
                                             d.drawId(),
-                                            d.drawChannelId(),
                                             slot.id(),
-                                            drawResultId,
-                                            occurredAt,
-                                            date);
-                                    publisher.publish(ev);
+                                            drawResultId);
+                                    publisher.publish(appliedEvent);
                                 }
                             });
 

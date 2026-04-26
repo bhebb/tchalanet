@@ -41,9 +41,7 @@ public class DrawResultsOpsController {
   @Operation(summary = "Fetch external results into draw_result (slot-first)")
   @PostMapping("/fetch")
   public ApiResponse<FetchExternalResultsWindowResult> fetch(@RequestBody WindowRequest req) {
-    if (!gate.enabled(BatchJobKeys.RESULTS_EXTERNAL_FETCH, tenant(req.tenantId()))) {
-      throw new IllegalStateException("Batch gate: results.fetch=false");
-    }
+    gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_FETCH, tenant(req.tenantId()));
     var res =
         commandBus.send(
             new FetchExternalResultsWindowCommand(
@@ -60,8 +58,7 @@ public class DrawResultsOpsController {
   @Operation(summary = "Refresh (fetch then apply) — orchestrator only")
   @PostMapping("/refresh")
   public ApiResponse<RefreshExternalResultsWindowResult> refresh(@RequestBody WindowRequest req) {
-    if (!gate.enabled(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, tenant(req.tenantId())))
-      throw new IllegalStateException("Batch gate: results.refresh=false");
+    gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, tenant(req.tenantId()));
     TenantId t = tenant(req.tenantId());
     if (t == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tenantId required");
     var res =

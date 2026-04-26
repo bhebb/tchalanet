@@ -8,8 +8,6 @@ import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
 import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
-import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
-import com.tchalanet.server.core.drawresult.infra.web.model.OverrideDrawResultRequest;
 import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,7 +19,6 @@ public interface DrawAdminWebMapper {
 
   UpdateDrawCommand toUpdateDrawCommand(UpdateDrawRequest request);
 
-  OverrideDrawResultCommand toOverrideDrawResultCommand(OverrideDrawResultRequest request);
 
   @Mapping(target = "channelCode", source = "summary.channelCode")
   @Mapping(target = "channelName", source = "summary.channelName")

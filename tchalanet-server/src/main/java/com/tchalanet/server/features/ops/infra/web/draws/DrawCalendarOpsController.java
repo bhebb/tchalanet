@@ -33,29 +33,32 @@ public class DrawCalendarOpsController {
 
     @Operation(summary = "Generate draws for a date range (ops)")
     @PostMapping("/generate")
-    public GenerateDrawsForRangeResult generate(@Valid @RequestBody GenerateDrawsRequest req) {
+    public ApiResponse<GenerateDrawsForRangeResult> generate(@Valid @RequestBody GenerateDrawsRequest req) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_GENERATE, TenantId.parse(req.tenantId()));
-        return commandBus.send(
+        var res = commandBus.send(
             new GenerateDrawsForRangeCommand(
                 TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force()));
+        return ApiResponse.success(res);
     }
 
     @Operation(summary = "Open due draws (ops)")
     @PostMapping("/open-due")
-    public OpenDueDrawsResult openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
+    public ApiResponse<OpenDueDrawsResult> openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_OPEN, null);
         Instant now = req.now() == null ? Instant.now() : req.now();
-        return commandBus.send(
+        var res = commandBus.send(
             new OpenDueDrawsCommand(
                 now, req.limit(), req.openHorizonHours(), req.openLagHours(), req.dryRun()));
+        return ApiResponse.success(res);
     }
 
     @Operation(summary = "Close due draws (ops)")
     @PostMapping("/close-due")
-    public CloseDueDrawsResult closeDue(@Valid @RequestBody CloseDueDrawsRequest req) {
+    public ApiResponse<CloseDueDrawsResult> closeDue(@Valid @RequestBody CloseDueDrawsRequest req) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_CLOSE, null);
         Instant now = req.now() == null ? Instant.now() : req.now();
-        return commandBus.send(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
+        var res = commandBus.send(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
+        return ApiResponse.success(res);
     }
 
     @Operation(summary = "Apply draw_result to draw.draw_result_id (slot-first)")
