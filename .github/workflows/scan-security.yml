@@ -57,7 +57,7 @@ jobs:
           cmd_options: '-a'
       - name: Upload ZAP Report (HTML)
         if: ${{ secrets.ZAP_TARGET != '' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zap-baseline-report
           path: 'zap_report.html'
