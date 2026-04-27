@@ -204,6 +204,7 @@ public class TicketController {
 
     @Operation(summary = "Cancel a ticket (tenant)")
     @PatchMapping("/{ticketId}/cancel")
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<CancelSaleResponse> cancel(
         @PathVariable TicketId ticketId, @Valid @RequestBody CancelTicketRequest request) {
@@ -216,6 +217,7 @@ public class TicketController {
     // --- PRINT ---
     @Operation(summary = "Get printable ticket content (tenant)")
     @GetMapping(path = "/{ticketId}/print")
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
     public ResponseEntity<String> print(@PathVariable TicketId ticketId, HttpServletResponse res) {
         res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
 
@@ -228,6 +230,7 @@ public class TicketController {
     // --- PRINT ESC/POS ---
     @Operation(summary = "Get ESC/POS printable bytes for a ticket (tenant)")
     @GetMapping(value = "/{ticketId}/print.escpos", produces = "application/octet-stream")
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
     public byte[] printEscpos(@PathVariable TicketId ticketId, HttpServletResponse res) {
         res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
         res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".bin");
@@ -237,6 +240,7 @@ public class TicketController {
     // --- PRINT PDF ---
     @Operation(summary = "Get PDF printable for a ticket (tenant)")
     @GetMapping(value = "/{ticketId}/print.pdf", produces = "application/pdf")
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
     public byte[] printPdf(@PathVariable TicketId ticketId, HttpServletResponse res) {
         res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
         res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".pdf");

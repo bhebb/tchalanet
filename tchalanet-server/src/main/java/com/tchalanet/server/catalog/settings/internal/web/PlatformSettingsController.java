@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/platform/settings")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @RequiredArgsConstructor
 @Tag(name = "Platform • Settings", description = "Platform admin CRUD for application settings")
 public class PlatformSettingsController {

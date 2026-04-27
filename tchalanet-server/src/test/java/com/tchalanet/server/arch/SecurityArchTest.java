@@ -10,6 +10,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +21,17 @@ import java.util.List;
 /**
  * ArchUnit rule — Sécurité des scopes protégés.
  *
- * <p>Tout {@link RestController} dont le {@code @RequestMapping} commence par
- * {@code /admin/}, {@code /platform/} ou {@code /_sdr/} DOIT porter
- * {@code @PreAuthorize} au niveau classe OU sur chaque méthode handler publique.
+ * <p>Tout {@link RestController} dont le {@code @RequestMapping} commence par l'un des
+ * préfixes protégés DOIT porter {@code @PreAuthorize} ou {@code @Secured} au niveau classe
+ * OU sur chaque méthode handler publique.
+ *
+ * <p>Préfixes protégés couverts :
+ * <ul>
+ *   <li>{@code /admin/}          — admin endpoints</li>
+ *   <li>{@code /platform/}       — ops / platform endpoints</li>
+ *   <li>{@code /_sdr/}           — Spring Data REST endpoints</li>
+ *   <li>{@code /tenant/tickets/} — POS ticket endpoints (cancel, print, sell, etc.)</li>
+ * </ul>
  *
  * <p>Si un endpoint doit être public dans ces scopes, il DOIT porter
  * {@code @PreAuthorize("permitAll()")} explicitement (whitelist obligatoire).
@@ -31,8 +40,12 @@ import java.util.List;
  */
 class SecurityArchTest {
 
+    /**
+     * Scopes whose controllers MUST declare authorization on every handler.
+     * Add new prefixes here when new protected paths are introduced.
+     */
     private static final List<String> PROTECTED_PREFIXES =
-            List.of("/admin/", "/platform/", "/_sdr/");
+            List.of("/admin/", "/platform/", "/_sdr/", "/tenant/tickets/");
 
     private final JavaClasses classes =
             new ClassFileImporter().importPackages("com.tchalanet.server");
@@ -42,7 +55,7 @@ class SecurityArchTest {
         classes()
                 .that().areAnnotatedWith(RestController.class)
                 .and(new InProtectedScopeCondition())
-                .should(new HavePreAuthorizeCondition())
+                .should(new HaveAuthorizationAnnotationCondition())
                 .check(classes);
     }
 
@@ -51,7 +64,7 @@ class SecurityArchTest {
             extends com.tngtech.archunit.base.DescribedPredicate<JavaClass> {
 
         InProtectedScopeCondition() {
-            super("mapped under a protected scope prefix (/admin/, /platform/, /_sdr/)");
+            super("mapped under a protected scope prefix (/admin/, /platform/, /_sdr/, /tenant/tickets/)");
         }
 
         @Override
@@ -68,26 +81,30 @@ class SecurityArchTest {
         }
     }
 
-    /** Condition : @PreAuthorize présent au niveau classe ou sur chaque méthode handler publique. */
-    private static class HavePreAuthorizeCondition extends ArchCondition<JavaClass> {
+    /**
+     * Condition : {@code @PreAuthorize} or {@code @Secured} present at class level
+     * OR on every public handler method.
+     */
+    private static class HaveAuthorizationAnnotationCondition extends ArchCondition<JavaClass> {
 
-        HavePreAuthorizeCondition() {
+        HaveAuthorizationAnnotationCondition() {
             super(
-                    "have @PreAuthorize at class level or on every public handler method"
+                    "have @PreAuthorize or @Secured at class level or on every public handler method"
                             + " (use @PreAuthorize(\"permitAll()\") to explicitly whitelist public endpoints)");
         }
 
         @Override
         public void check(JavaClass javaClass, ConditionEvents events) {
             boolean classLevelAnnotated =
-                    javaClass.isAnnotatedWith(PreAuthorize.class);
+                    javaClass.isAnnotatedWith(PreAuthorize.class)
+                            || javaClass.isAnnotatedWith(Secured.class);
 
             if (classLevelAnnotated) {
-                // class-level @PreAuthorize covers all handlers — OK
+                // class-level annotation covers all handlers — OK
                 return;
             }
 
-            // Check that every public method carries @PreAuthorize
+            // Check that every public handler method carries @PreAuthorize or @Secured
             List<JavaMethod> handlerMethods =
                     javaClass.getMethods().stream()
                             .filter(m -> m.getModifiers()
@@ -95,7 +112,7 @@ class SecurityArchTest {
                             .filter(m -> !m.isAnnotatedWith(Override.class))
                             .filter(m -> !m.getRawReturnType()
                                     .isEquivalentTo(void.class))
-                            .filter(HavePreAuthorizeCondition::isHandlerMethod)
+                            .filter(HaveAuthorizationAnnotationCondition::isHandlerMethod)
                             .toList();
 
             if (handlerMethods.isEmpty()) {
@@ -105,14 +122,15 @@ class SecurityArchTest {
 
             List<JavaMethod> unsecured =
                     handlerMethods.stream()
-                            .filter(m -> !m.isAnnotatedWith(PreAuthorize.class))
+                            .filter(m -> !m.isAnnotatedWith(PreAuthorize.class)
+                                    && !m.isAnnotatedWith(Secured.class))
                             .toList();
 
             if (!unsecured.isEmpty()) {
                 String detail =
                         "Controller ["
                                 + javaClass.getName()
-                                + "] is in a protected scope but missing @PreAuthorize"
+                                + "] is in a protected scope but missing @PreAuthorize or @Secured"
                                 + " at class level. Unsecured handler methods: "
                                 + unsecured.stream()
                                         .map(JavaMethod::getName)

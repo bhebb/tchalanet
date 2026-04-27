@@ -12,12 +12,14 @@ import com.tchalanet.server.core.user.application.command.model.UpdateUserProfil
 import com.tchalanet.server.core.user.application.query.model.CurrentUserDetails;
 import com.tchalanet.server.core.user.application.query.model.GetCurrentUserQuery;
 import com.tchalanet.server.core.user.infra.web.model.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController("profileApiController")
 @RequestMapping("/admin/profile")
+@PreAuthorize("isAuthenticated()")
 public class ProfileController {
 
     private final QueryBus queryBus;

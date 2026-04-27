@@ -51,4 +51,8 @@ public record ApiResponse<T>(
     public static <T> ApiResponse<T> partial(T data, ServiceStatus service, List<ApiNotice> notices) {
         return partial(data, List.of(service), notices);
     }
+
+    public static <T> ApiResponse<T> notFound(String message) {
+        return new ApiResponse<>(ApiStatus.SUCCESS, null, List.of(ApiNotice.error("NOT_FOUND", message)), List.of());
+    }
 }

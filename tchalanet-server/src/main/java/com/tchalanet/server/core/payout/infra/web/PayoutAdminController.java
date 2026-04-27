@@ -26,6 +26,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
  * TenantId is required in requests (same pattern as your other admin controllers).
  */
 @RestController
+@PreAuthorize("hasAuthority('local')")
 @RequestMapping("/admin/payouts")
 @Tags({@Tag(name = "Admin • Payouts")})
 public class PayoutAdminController {

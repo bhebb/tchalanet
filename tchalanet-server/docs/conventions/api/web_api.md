@@ -277,8 +277,8 @@ Les détails (format, stockage, Envers, RLS de la table d'audit) sont dans `audi
 
 ### 13.1 Principe
 
-Tout `@RestController` dont le path `@RequestMapping` commence par `/admin/`, `/platform/`
-ou `/_sdr/` **DOIT** porter `@PreAuthorize` :
+Tout `@RestController` dont le path `@RequestMapping` commence par l'un des préfixes
+protégés **DOIT** porter `@PreAuthorize` **ou** `@Secured` :
 
 - **au niveau classe** (couvre toutes les méthodes) — forme canonique recommandée, **ou**
 - **sur chaque méthode handler publique** individuellement.
@@ -288,11 +288,16 @@ La règle est vérifiée automatiquement à chaque build par `SecurityArchTest`
 
 ### 13.2 Prefixes couverts
 
-| Prefix         | Scope                 | Autorité minimale attendue      |
-| -------------- | --------------------- | ------------------------------- |
-| `/admin/**`    | Administration tenant | `SUPER_ADMIN`                   |
-| `/platform/**` | Platform / ops        | `SUPER_ADMIN`                   |
-| `/_sdr/**`     | Spring Data REST      | `TENANT_ADMIN` ou `SUPER_ADMIN` |
+| Prefix               | Scope                 | Autorité minimale attendue                         |
+| -------------------- | --------------------- | -------------------------------------------------- |
+| `/admin/**`          | Administration tenant | `SUPER_ADMIN`                                      |
+| `/platform/**`       | Platform / ops        | `SUPER_ADMIN`                                      |
+| `/_sdr/**`           | Spring Data REST      | `TENANT_ADMIN` ou `SUPER_ADMIN`                    |
+| `/tenant/tickets/**` | Opérations POS ticket | `ROLE_CASHIER` / `ROLE_ADMIN` / `ROLE_SUPER_ADMIN` |
+
+> **Note** : les controllers sous `/tenant/tickets/` utilisent `@Secured` (par méthode),
+> cohérent avec le `TicketController` existant. `@EnableMethodSecurity(securedEnabled = true)`
+> est requis dans `SecurityConfig`.
 
 ### 13.3 Whitelister un endpoint public dans ces scopes
 
@@ -312,6 +317,36 @@ public ApiResponse<String> healthCheck() { ... }
 La règle `SecurityArchTest.protectedScopeControllersMustHavePreAuthorize` échoue
 avec un message indiquant le controller violateur et la liste des méthodes non sécurisées.
 **Ce test bloque le build CI** — aucune PR ne doit le contourner.
+
+---
+
+## 14) Rate-limiting — endpoints publics
+
+### 14.1 Principe
+
+Les endpoints sous `/public/tickets/**` sont protégés par un filtre IP-based (`Bucket4j`
+in-memory) pour prévenir l'abus de l'endpoint de vérification publique.
+
+### 14.2 Configuration
+
+| Clé de configuration                                | Défaut | Description                         |
+| --------------------------------------------------- | ------ | ----------------------------------- |
+| `tch.public.tickets.rate-limit.enabled`             | `true` | Active/désactive le filtre          |
+| `tch.public.tickets.rate-limit.requests-per-second` | `10`   | Tokens rechargés par seconde par IP |
+| `tch.public.tickets.rate-limit.burst`               | `30`   | Capacité initiale du bucket par IP  |
+
+### 14.3 Réponse 429
+
+Lorsque le bucket est vide :
+
+- HTTP **429 Too Many Requests**
+- Header **`Retry-After`** : durée en secondes avant de pouvoir réessayer
+- Log **WARN** : `Rate limit exceeded ip={ip} path={path}` (audit/alerting)
+
+### 14.4 Évolution
+
+Pour passer à un rate-limit distribué (multi-instance), remplacer le `ConcurrentHashMap`
+in-memory par un backend Redis via `bucket4j-redis`. Configurable sans changer l'interface.
 
 ---
 
