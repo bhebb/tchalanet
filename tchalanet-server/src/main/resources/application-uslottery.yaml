@@ -1,0 +1,173 @@
+tch:
+  us-lottery:
+    enabled: ${TCH_US_LOTTERY_ENABLED:true}
+
+    common:
+      holidays: [ "01-01", "12-25" ]
+
+    providers:
+      ny:
+        enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov/api/v3/views/hsys-3def/query.json}
+        app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:}
+        headers: {}
+        games:
+          - code: US_NY_NUM3_MID
+            external_key: NUMBERS
+            draw_time: "14:30"
+            active: true
+          - code: US_NY_NUM3_EVE
+            external_key: NUMBERS
+            draw_time: "22:30"
+            active: true
+          - code: US_NY_NUM4_MID
+            external_key: WIN4
+            draw_time: "14:30"
+            active: true
+          - code: US_NY_NUM4_EVE
+            external_key: WIN4
+            draw_time: "22:30"
+            active: true
+
+      fl:
+        enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_FL_LOTTERY_BASEURL:https://apim-website-prod-eastus.azure-api.net}
+        latest-path: ${TCH_US_FL_LATEST_PATH:/drawgamesapp/getLatestDrawGames}
+        alert-path: ${TCH_US_FL_ALERT_PATH:/site/services/alert}
+        headers:
+          Accept: application/json
+          x-partner: web
+          Origin: https://floridalottery.com
+          Referer: https://floridalottery.com/
+          User-Agent: Tchalanet/1.0 (+https://tchalanet.com)
+        games:
+          - code: US_FL_PICK3_MID
+            external_key: PICK3
+            draw_time: "13:30"
+            active: true
+          - code: US_FL_PICK4_MID
+            external_key: PICK4
+            draw_time: "13:30"
+            active: true
+          - code: US_FL_PICK3_EVE
+            external_key: PICK3
+            draw_time: "22:45"
+            active: true
+          - code: US_FL_PICK4_EVE
+            external_key: PICK4
+            draw_time: "22:45"
+            active: true
+
+      ga:
+        enabled: ${TCH_US_GA_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_GA_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_GA_LOTTERY_BASEURL:https://www.galottery.com}
+        latest-path: ${TCH_US_GA_LATEST_PATH:/api/v2/draw-games/draws/?previous-draws=2&game-names=CASH+3%2CCASH+4}
+        headers:
+          Accept: application/json
+          x-partner: web
+          Origin: https://www.galottery.com
+          Referer: https://www.galottery.com/
+          User-Agent: Tchalanet/1.0 (+https://tchalanet.com)
+        games:
+          - code: US_GA_CASH3_1229
+            external_key: CASH3
+            draw_time: "12:29"
+            active: true
+          - code: US_GA_CASH3_1859
+            external_key: CASH3
+            draw_time: "18:59"
+            active: true
+          - code: US_GA_CASH3_2334
+            external_key: CASH3
+            draw_time: "23:34"
+            active: true
+          - code: US_GA_CASH4_1229
+            external_key: CASH4
+            draw_time: "12:29"
+            active: true
+          - code: US_GA_CASH4_1859
+            external_key: CASH4
+            draw_time: "18:59"
+            active: true
+          - code: US_GA_CASH4_2334
+            external_key: CASH4
+            draw_time: "23:34"
+            active: true
+
+      tn:
+        enabled: ${TCH_US_TN_LOTTERY_ENABLED:false}
+        timezone: ${TCH_US_TN_TIMEZONE:America/Chicago}
+        base-url: ${TCH_US_TN_LOTTERY_BASEURL:https://dotcom-headless.jackpocket.com}
+        latest-path: ${TCH_US_TN_LATEST_PATH:/api/lottery-results?location_code=TN&per_page=9&page=1&start_date=2016-01-01}
+        headers:
+          Accept: application/json
+          x-partner: web
+          Origin: https://jackpocket.com
+          Referer: https://jackpocket.com/
+          User-Agent: Tchalanet/1.0 (+https://tchalanet.com)
+        games:
+          - code: US_TN_CASH3_1255
+            external_key: CASH3
+            draw_time: "12:55"
+            days: [ "MON","TUE","WED","THU","FRI","SAT" ]
+            active: true
+          - code: US_TN_CASH4_1255
+            external_key: CASH4
+            draw_time: "12:55"
+            days: [ "MON","TUE","WED","THU","FRI","SAT" ]
+            active: true
+
+      tx:
+        enabled: ${TCH_US_TX_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_TX_TIMEZONE:America/Chicago}
+        base-url: ${TCH_US_TX_LOTTERY_BASEURL:https://www.texaslottery.com}
+        latest-path: ${TCH_US_TX_LATEST_PATH:/export/sites/lottery/Games/Check_Your_Numbers/_functions/results_ajax.json}
+        headers:
+          Accept: application/json
+          Origin: https://www.texaslottery.com
+          Referer: https://www.texaslottery.com/
+          User-Agent: Tchalanet/1.0 (+https://tchalanet.com)
+        games:
+          - code: US_TX_PICK3_1000
+            external_key: PICK3
+            draw_time: "10:00"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_PICK3_1227
+            external_key: PICK3
+            draw_time: "12:27"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_PICK3_1800
+            external_key: PICK3
+            draw_time: "18:00"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_PICK3_2212
+            external_key: PICK3
+            draw_time: "22:12"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_DAILY4_1000
+            external_key: DAILY4
+            draw_time: "10:00"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_DAILY4_1227
+            external_key: DAILY4
+            draw_time: "12:27"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_DAILY4_1800
+            external_key: DAILY4
+            draw_time: "18:00"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true
+          - code: US_TX_DAILY4_2212
+            external_key: DAILY4
+            draw_time: "22:12"
+            days: [ MON, TUE, WED, THU, FRI, SAT ]
+            active: true

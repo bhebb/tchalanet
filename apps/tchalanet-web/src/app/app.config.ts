@@ -1,23 +1,14 @@
-import { MeilisearchConfig } from '@meilisearch/instant-meilisearch';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
 import { provideMarkdown } from 'ngx-markdown';
 
 import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import {
-  APP_INITIALIZER,
-  ApplicationConfig,
-  InjectionToken,
-  provideBrowserGlobalErrorListeners,
-  Provider,
-  provideZoneChangeDetection,
-} from '@angular/core';
+import { ApplicationConfig, InjectionToken, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 
-import { ANALYTICS_CONFIG, provideAnalyticsInit, setupRouterPageViews } from '@tchl/analytics';
 import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
 import { environment } from '@tchl/config';
 import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
@@ -29,14 +20,9 @@ import { I18nMergerService } from '@tchl/utils/i18n';
 import { provideBuiltinWidgets } from '@tchl/web/widgets';
 
 import {
-  InstantSearchClient,
-  MEILISEARCH_CONFIG,
-} from '../../../../libs/shared/api/src/lib/client/instant-search-client';
-import {
   MergedTranslateLoader,
   MergedTranslateLoaderOptions,
 } from '../../../../libs/shared/utils/i18n/src/lib/loader/merged-translate-loader';
-import { SearchIndexInitializerService } from '../../../../libs/web/widgets/src/lib/search-results/search-index-initializer.service';
 
 import { appRoutes } from './app.routes';
 
@@ -44,28 +30,8 @@ export const TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoader
   'TRANSLATE_LOADER_OPTIONS',
 );
 
-export function initAuth(auth: AuthService) {
-  return () => auth.init(); // ← restaure la session si possible, sans déclencher de login
-}
-
-export const authInitializer: Provider = {
-  provide: APP_INITIALIZER,
-  useFactory: initAuth,
-  deps: [AuthService],
-  multi: true,
-};
-
-// Fonction de création du client
-export function createInstantSearchClient(config: MeilisearchConfig): InstantSearchClient {
-  return new InstantSearchClient(config);
-}
-
-// Provider pour le client
-export const INSTANT_SEARCH_CLIENT_PROVIDER: Provider = {
-  provide: InstantSearchClient,
-  useFactory: createInstantSearchClient,
-  deps: [MEILISEARCH_CONFIG],
-};
+// auth initialisation via APP_INITIALIZER removed — we avoid blocking the app bootstrap.
+// AuthService.init() will be called explicitly when appropriate (or via component lifecycle).
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -119,66 +85,52 @@ export const appConfig: ApplicationConfig = {
 
     provideAuth({
       config: {
-        authority: 'https://auth.localtest.me/realms/tchalanet',
-        redirectUrl: 'https://app.localtest.me/auth/callback',
-        postLogoutRedirectUri: 'https://app.localtest.me',
-        clientId: 'tchalanet-web',
+        authority: environment.authUrl,
+        redirectUrl: environment.appUrl + '/auth/callback',
+        postLogoutRedirectUri: environment.appUrl,
+        clientId: environment.authClientId,
         scope: 'openid profile email',
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
         renewTimeBeforeTokenExpiresInSeconds: 30,
         logLevel: LogLevel.Debug,
+        // Important : en dev derrière Traefik, on force l'origin publique et on
+        // évite que angular-auth-oidc-client essaie de découvrir un endpoint
+        // via le proxy Vite (localhost:4200). Tout doit parler directement
+        // à https://auth.localtest.me.
+        //
+        // NOTE : environment.authUrl doit pointer sur
+        //   https://auth.localtest.me/realms/tchalanet
+        // et le client Keycloak doit autoriser
+        //   redirect_uri = https://app.localtest.me/auth/callback
+        //   Web Origins = https://app.localtest.me
+        // pour éviter les erreurs CORS / redirect_uri.
+        ignoreNonceAfterRefresh: true,
       },
     }),
     { provide: AbstractSecurityStorage, useClass: LocalStorageSecurityService },
     provideBuiltinWidgets(),
-    authInitializer,
+    // removed APP_INITIALIZER authInitializer to prevent bootstrap blocking
     THEME_INIT_PROVIDER,
 
-    {
-      provide: ANALYTICS_CONFIG,
-      useValue: {
-        provider: environment.analytics.provider || 'ga',
-        ga: {
-          measurementId: environment.analytics.gaMeasurementId,
-          autoTrack: environment.analytics.autoTrack ?? true,
-        },
-        debug: true,
-      },
-    },
-    provideAnalyticsInit(),
-    // Router → pageviews
-    { provide: 'ANALYTICS_ROUTER_BOOT', useFactory: setupRouterPageViews },
-    {
-      provide: MEILISEARCH_CONFIG,
-      useValue: {
-        host: 'http://localhost:7700',
-        apiKey: 'dev-meili',
-      },
-    },
-    INSTANT_SEARCH_CLIENT_PROVIDER,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (indexInitializer: SearchIndexInitializerService) => () =>
-        indexInitializer.initializeIndexes(),
-      deps: [SearchIndexInitializerService],
-      multi: true,
-    },
     provideMarkdown(),
-
     //features
     { provide: FEATURE_INITIAL, useValue: [] },
 
-    // Contexte d’évaluation (tenant, user, pays…)
+    // Contexte d'évaluation (tenant, user, pays…)
     { provide: FEATURE_CONTEXT, useValue: { appName: 'tchalanet-web', tenantId: 'default' } },
 
-    provideFeatureClient({
-      kind: 'unleash',
-      url: environment.feature.url,
-      clientKey: environment.feature.clientKey,
-      appName: environment.feature.appName,
-      refreshInterval: environment.feature.refresh,
-    }),
+    provideFeatureClient(
+      environment.feature.kind === 'memory'
+        ? { kind: 'memory', initial: [] }
+        : {
+            kind: 'unleash',
+            url: environment.feature.url,
+            clientKey: environment.feature.clientKey,
+            appName: environment.feature.appName,
+            refreshInterval: environment.feature.refresh,
+          }
+    ),
   ],
 };

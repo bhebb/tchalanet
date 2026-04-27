@@ -2,12 +2,9 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 
-import { AnalyticsService } from '@tchl/analytics';
-import { environment } from '@tchl/config';
 import { I18nFacade } from '@tchl/facades';
-import { FeatureService } from '@tchl/feature';
-import { OverlayService } from '@tchl/search'; // you might still reuse for search overlay
 import { HeaderProperties } from '@tchl/types';
 import { ThemeMode, ThemeService } from '@tchl/ui/theme';
 
@@ -18,19 +15,20 @@ import { LangThemeGroupComponent } from '../../lang-theme-group/lang-theme-group
 @Component({
   selector: 'tchl-private-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIconModule, LangThemeGroupComponent, BrandComponent],
+  imports: [CommonModule, RouterModule, MatIconModule, MatMenuModule, LangThemeGroupComponent, BrandComponent],
   templateUrl: './private-header.component.html',
   styleUrl: './private-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivateHeaderComponent {
-  private readonly features = inject(FeatureService);
-
   properties = input.required<HeaderProperties>();
   user = input.required<{
     displayName?: string;
     email?: string;
     avatarUrl?: string;
+    roles?: string[];
+    tenantId?: string;
+    plan?: string;
   }>();
   flags = input<string[]>([]);
   toggleSidebar = output<void>();
@@ -42,12 +40,11 @@ export class PrivateHeaderComponent {
   initials = computed(() => {
     const u = this.user();
     const src = u.displayName || u.email || '';
-    return src
+    const parts = src
       .split(/[^\p{L}\p{N}]+/u)
       .filter(Boolean)
-      .slice(0, 2)
-      .map(w => w[0]!.toUpperCase())
-      .join('');
+      .slice(0, 2);
+    return parts.map(w => w[0].toUpperCase()).join('');
   });
   vm = computed(() => {
     const handset = this.handset();
@@ -57,13 +54,13 @@ export class PrivateHeaderComponent {
     const props = this.properties();
 
     const showSearch = !(
-      !this.flags().includes(props.actions.search?.flag ?? '') && props.actions.search?.flag
+      !this.flags().includes(props.actions?.search?.flag ?? '') && props.actions?.search?.flag
     );
     const showLang = !(
-      !this.flags().includes(props.actions.lang?.flag ?? '') && props.actions.lang?.flag
+      !this.flags().includes(props.actions?.lang?.flag ?? '') && props.actions?.lang?.flag
     );
     const showTheme = !(
-      !this.flags().includes(props.actions.theme?.flag ?? '') && props.actions.theme?.flag
+      !this.flags().includes(props.actions?.theme?.flag ?? '') && props.actions?.theme?.flag
     );
     const showLangTheme = showLang || showTheme;
 
@@ -87,19 +84,17 @@ export class PrivateHeaderComponent {
     };
   });
   // feature flags globals
-  private readonly DEFAULT_FLAG_VALUE = environment.feature.defaultValue;
-  private breakpoint = inject(TchBreakpointService);
+  private readonly breakpoint = inject(TchBreakpointService);
   handset = this.breakpoint.handset;
   tablet = this.breakpoint.tablet;
   desktop = this.breakpoint.desktop;
-  private router = inject(Router);
-  private i18n = inject(I18nFacade);
+  private readonly router = inject(Router);
+  private readonly i18n = inject(I18nFacade);
   currentLang = this.i18n.current;
   availableLangs = this.i18n.available;
-  private theme = inject(ThemeService);
+  private readonly theme = inject(ThemeService);
   themeMode = this.theme.mode;
-  private overlay = inject(OverlayService);
-  private analytics = inject(AnalyticsService);
+  // private readonly analytics = inject(AnalyticsService);
 
   onToggleSidebar() {
     this.toggleSidebar.emit();
@@ -109,34 +104,26 @@ export class PrivateHeaderComponent {
     this.router.navigateByUrl('/app');
   }
 
+  /** Navigation vers la page profil / compte privé */
   onAccountClick() {
-    this.router.navigateByUrl(this.properties().account.private.path);
+    const props = this.properties();
+    const target = props?.account?.private?.path;
+    if (target) {
+      this.router.navigateByUrl(target);
+    }
+  }
+
+  /** Déclenchement du logout vers le shell */
+  onSignOutClick() {
+    this.signOut.emit();
   }
 
   /* ------------------------------------------------------------------
    * Derived UI bits
    * ------------------------------------------------------------------ */
 
-  /** Check feature flag / toggle visibility for nav items or actions */
-  featureOn = (flag?: string | null): boolean => {
-    if (!flag) return true;
-    try {
-      const enabled = this.features.isEnabled(flag);
-      return enabled || this.DEFAULT_FLAG_VALUE; // fallback
-    } catch {
-      return this.DEFAULT_FLAG_VALUE;
-    }
-  };
-
-  onSignOut() {
-    this.signOut.emit();
-  }
-
   onSearchClick() {
     this.searchClick.emit();
-    document.documentElement.classList.add('search-open');
-    this.overlay.show();
-    this.analytics.pageView('open_search_from_button_private');
   }
 
   onChangeLang(lang: string) {

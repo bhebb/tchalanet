@@ -3,7 +3,7 @@ set -euo pipefail
 
 # publish-images.sh
 # Usage: ./scripts/docker/publish-images.sh <org> [tag] [registry]
-# Example: ./scripts/docker/publish-images.sh tchalanet stg-20251114 ghcr.io
+# Example: ./scripts/docker/publish-images.sh bhebb stg-20251114 ghcr.io
 
 ORG="${1:?Organization (eg. tchalanet or your-gh-user)}"
 TAG="${2:-}"

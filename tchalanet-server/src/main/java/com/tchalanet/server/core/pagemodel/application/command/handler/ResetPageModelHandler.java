@@ -1,0 +1,77 @@
+package com.tchalanet.server.core.pagemodel.application.command.handler;
+
+import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
+import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.error.ProblemRest;
+import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.stereotype.TchTx;
+import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.core.pagemodel.application.command.model.ResetPageModelCommand;
+import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReaderPort;
+import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWriterPort;
+import com.tchalanet.server.core.pagemodel.domain.event.PageModelResetEvent;
+import com.tchalanet.server.core.pagemodel.infra.web.PageModelAdminMapper;
+import com.tchalanet.server.core.pagemodel.infra.web.dto.PageModelAdminDetailDto;
+import java.time.Instant;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * Réinitialise un PageModel à partir du modèle par défaut de son template lié.
+ * Si pas de template : remet le modèle à {}.
+ *
+ * Après reset, publie after-commit un PageModelResetEvent
+ * pour invalider le cache BFF public de l'instance.
+ *
+ * Conforme event_model.md §4.1 (AfterCommit) + command_query_handlers.md §3.2.
+ */
+@UseCase
+@RequiredArgsConstructor
+public class ResetPageModelHandler
+    implements CommandHandler<ResetPageModelCommand, PageModelAdminDetailDto> {
+
+  private final PageModelReaderPort reader;
+  private final PageModelWriterPort writer;
+  private final PageModelTemplateCatalog templateCatalog;
+  private final PageModelAdminMapper mapper;
+  private final DomainEventPublisher events;
+  private final IdGenerator idGenerator;
+  private final JsonUtils jsonUtils;
+
+  @Override
+  @TchTx
+  public PageModelAdminDetailDto handle(ResetPageModelCommand cmd) {
+    var instance = reader.findById(cmd.id())
+        .orElseThrow(() -> ProblemRest.notFound("pagemodel.not_found", cmd.id()));
+
+    // Charge le modèle par défaut depuis le template lié (si templateId présent)
+    // ou remet à {} si pas de template (conforme UpsertPageModelHandler — fallback vide)
+    var defaultModel = instance.templateId()
+        .flatMap(tid -> templateCatalog.findById(
+            com.tchalanet.server.common.types.id.PageModelTemplateId.of(tid)))
+        .map(PageModelTemplateView::model)
+        .orElseGet(jsonUtils::emptyObjectNode);
+
+    var reset = instance.resetToTemplate(defaultModel, cmd.actorId());
+    var saved = writer.save(reset);
+
+    // Publish after-commit pour invalidation de cache (conform event_model.md §4 + §3.1)
+    var tenantId = TenantId.nullableOf(saved.tenantId());
+    AfterCommit.run(() ->
+        events.publish(new PageModelResetEvent(
+            EventId.of(idGenerator.newUuid()),
+            Instant.now(),
+            tenantId,
+            cmd.id(),
+            cmd.actorId()
+        ))
+    );
+
+    return mapper.toAdminDetailDto(saved);
+  }
+}

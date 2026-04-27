@@ -1,55 +1,17 @@
 {
-  "realm": "tchalanet",
-  "loginTheme": "tchalanet",
-
   "clients": [
     {
       "clientId": "tchalanet-web",
-      "protocol": "openid-connect",
-      "publicClient": true,
-      "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
-      "implicitFlowEnabled": false,
-      "redirectUris": [
-        "https://*.test.tchalanet.com/*"
-      ],
-      "webOrigins": [
-        "https://*.test.tchalanet.com"
-      ],
-      "attributes": {
-        "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "+"
-      },
-      "defaultClientScopes": ["web-origins","role_list","profile","email","roles","tch-groups"],
-      "protocolMappers": []
+      "redirectUris": ["https://app.stg.tchalanet.com/*"],
+      "webOrigins": ["https://app.stg.tchalanet.com"]
     },
-
-    {
-      "clientId": "tchalanet-api",
-      "protocol": "openid-connect",
-      "bearerOnly": true,
-      "publicClient": false,
-      "standardFlowEnabled": false,
-      "directAccessGrantsEnabled": false
-    },
-
     {
       "clientId": "tchalanet-swagger",
-      "protocol": "openid-connect",
-      "publicClient": true,
-      "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
       "redirectUris": [
-        "https://api.test.tchalanet.com/swagger-ui/oauth2-redirect.html"
+        "https://api.stg.tchalanet.com/swagger-ui/oauth2-redirect.html",
+        "https://api.stg.tchalanet.com/api/v1/swagger-ui/oauth2-redirect.html"
       ],
-      "webOrigins": [
-        "https://api.test.tchalanet.com"
-      ],
-      "attributes": {
-        "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "+"
-      },
-      "defaultClientScopes": ["web-origins","role_list","profile","email","roles"]
+      "webOrigins": ["https://api.stg.tchalanet.com"]
     }
   ]
 }

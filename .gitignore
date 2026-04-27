@@ -47,7 +47,6 @@ venv/
 envs/**/.secrets
 
 # Environnement
-.env
 .env.*
 !.env.example
 
@@ -66,3 +65,11 @@ data/
 volumes/
 pgdata*/
 traefik/dynamic/10-routers.yaml
+site/
+android/
+10-routers.yaml
+cloud-init.yml
+.dedupe*.txt
+*.bak
+*.docs
+*.pdf

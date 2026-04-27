@@ -1,0 +1,48 @@
+{
+  "name": "Ticket-Notifications",
+  "attributes": [
+    {
+      "name": "eventType",
+      "type": "string"
+    },
+    {
+      "name": "tenant.features.sms_ticket_created",
+      "type": "boolean"
+    },
+    {
+      "name": "user.locale",
+      "type": "string"
+    }
+  ],
+  "decisions": [
+    {
+      "conditions": {
+        "all": [
+          {
+            "fact": "eventType",
+            "operator": "equal",
+            "value": "ticket.created"
+          },
+          {
+            "fact": "tenant.features.sms_ticket_created",
+            "operator": "equal",
+            "value": true
+          },
+          {
+            "fact": "user.locale",
+            "operator": "equal",
+            "value": "fr"
+          }
+        ]
+      },
+      "event": {
+        "type": "send_notification",
+        "params": {
+          "channel": "SMS",
+          "provider": "bird",
+          "templateId": "sms_ticket_created_fr"
+        }
+      }
+    }
+  ]
+}

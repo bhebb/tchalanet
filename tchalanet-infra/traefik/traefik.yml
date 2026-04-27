@@ -3,7 +3,7 @@ log:
 
 api:
   dashboard: true
-  insecure: false     # on passe par HTTPS + Host traefik.localtest.me
+  insecure: false     # override en dev via TRAEFIK_API_INSECURE=true
 
 entryPoints:
   web:
@@ -14,6 +14,7 @@ entryPoints:
           to: websecure
           scheme: https
           permanent: true
+
   websecure:
     address: ":443"
 
@@ -24,6 +25,9 @@ providers:
     directory: /etc/traefik/dynamic
     watch: true
 
+ping:
+  entryPoint: "websecure"
+
 # Let's Encrypt pour production
 certificatesResolvers:
   letsencrypt:
@@ -32,4 +36,3 @@ certificatesResolvers:
       storage: /etc/traefik/acme.json
       httpChallenge:
         entryPoint: web
-

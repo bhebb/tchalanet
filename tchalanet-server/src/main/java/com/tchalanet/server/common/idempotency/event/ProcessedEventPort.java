@@ -1,0 +1,8 @@
+package com.tchalanet.server.common.idempotency.event;
+
+import java.util.UUID;
+
+public interface ProcessedEventPort {
+  boolean alreadyProcessed(String handlerKey, UUID eventId);
+  void markProcessed(String handlerKey, UUID eventId);
+}

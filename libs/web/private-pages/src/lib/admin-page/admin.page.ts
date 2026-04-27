@@ -1,8 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'tchl-admin',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './admin.page.html',
   styleUrl: './admin.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

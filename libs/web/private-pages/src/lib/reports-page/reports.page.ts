@@ -1,8 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'tchl-reports',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './reports.page.html',
   styleUrl: './reports.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

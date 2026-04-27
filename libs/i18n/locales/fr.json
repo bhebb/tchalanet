@@ -26,7 +26,21 @@
     "tickets": "Tickets",
     "new_ticket": "Nouveau ticket",
     "my_tickets": "Mes tickets",
-    "reports": "Rapports",
+    "reports": {
+      "title": "Rapports",
+      "sales": "Rapports de ventes",
+      "activity": "Activité"
+    },
+    "locations": {
+      "title": "Points de vente",
+      "list": "Liste des points de vente",
+      "create": "Nouveau point de vente"
+    },
+    "staff": {
+      "title": "Équipe",
+      "agents": "Agents",
+      "managers": "Responsables"
+    },
     "docs": "Documentation",
     "faq": "FAQ",
     "contact": "Contact",

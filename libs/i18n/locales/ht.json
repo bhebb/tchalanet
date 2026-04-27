@@ -14,7 +14,22 @@
     "contact": "Kontak",
     "login": "Konekte",
     "profile": "Pwofil",
-    "dashboard": "Tablo debord"
+    "dashboard": "Tablo debord",
+    "locations": {
+      "_label": "Pwen vant",
+      "list": "Lis pwen vant yo",
+      "create": "Nouvo pwen vant"
+    },
+    "staff": {
+      "_label": "Ekip",
+      "agents": "Ajan yo",
+      "managers": "Responsab yo"
+    },
+    "reports": {
+      "_label": "Rapò",
+      "sales": "Rapò vant yo",
+      "activity": "Aktivite"
+    }
   },
   "cta": {
     "try": "Eseye",

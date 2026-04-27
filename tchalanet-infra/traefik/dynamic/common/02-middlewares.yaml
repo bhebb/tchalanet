@@ -10,13 +10,13 @@ http:
         frameDeny: true
         referrerPolicy: "no-referrer-when-downgrade"
         permissionsPolicy: "geolocation=(), microphone=(), camera=()"
+
     kc-iframe:
       headers:
         frameDeny: false
         customResponseHeaders:
-          # X-Frame-Options ne permet que SAMEORIGIN (ALLOW-FROM est obsolète)
           X-Frame-Options: "SAMEORIGIN"
-        # La directive moderne est CSP frame-ancestors (prend le dessus)
         contentSecurityPolicy: "frame-ancestors 'self' https://app.localtest.me https://*.localtest.me"
+
     gzip:
       compress: {}

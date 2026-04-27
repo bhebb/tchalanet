@@ -16,10 +16,6 @@ export const appRoutes: Routes = [
         path: '',
         loadComponent: () => import('@tchl/web/feature-home-public').then(m => m.HomePublicPage),
       },
-      {
-        path: 'results',
-        loadComponent: () => import('@tchl/search').then(m => m.SearchResultsPage),
-      },
       { path: '404', loadComponent: () => import('@tchl/ui/layout').then(m => m.NotFoundComponent) },
       ...PUBLIC_ROUTES,
     ],

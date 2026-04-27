@@ -1,14 +1,10 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { BreadcrumbComponent } from '@tchl/breadcrumb';
-import { PageFacade } from '@tchl/facades';
+import { PageFacade, SessionFacade } from '@tchl/facades';
+import { AuthService } from '@tchl/shared/auth';
 import { FooterComponent, PrivateHeaderComponent, SidebarNavComponent } from '@tchl/ui/layout';
 import { ShellComponent } from '@tchl/web/shell';
 
@@ -30,6 +26,10 @@ import { ShellComponent } from '@tchl/web/shell';
 })
 export class PrivateShellComponent {
   private readonly pageFacade = inject(PageFacade);
+  private readonly session = inject(SessionFacade);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   page = this.pageFacade.page;
 
   flags = computed(() => this.page()?.flags ?? []);
@@ -42,11 +42,16 @@ export class PrivateShellComponent {
   sideLinks = computed(() => this.page()?.nav?.sidenav ?? []);
 
   userInfo = computed(() => {
-    // TODO brancher ton auth réel
+    const displayName = this.session.displayName();
+    const email = this.session.email();
+    const tch = this.auth.tch();
     return {
-      displayName: 'Jane Doe',
-      email: 'jane@example.com',
+      displayName: displayName || undefined,
+      email: email,
       avatarUrl: '',
+      roles: tch?.roles ?? [],
+      tenantId: tch?.tenantId,
+      plan: tch?.plan,
     };
   });
 
@@ -55,6 +60,6 @@ export class PrivateShellComponent {
   }
 
   onSignOut() {
-    // TODO: déconnexion
+    this.auth.logout();
   }
 }

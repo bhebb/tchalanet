@@ -7,10 +7,12 @@
   "tags": ["type:app", "scope:web"],
   "targets": {
     "build": {
-      "executor": "@angular/build:application",
+      "executor": "@nx/vite:build",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/tchalanet-web",
+        "configFile": "apps/tchalanet-web/vite.config.mts",
+        "index": "apps/tchalanet-web/index.html",
         "browser": "apps/tchalanet-web/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/tchalanet-web/tsconfig.app.json",
@@ -25,8 +27,7 @@
             "glob": "**/*",
             "input": "apps/tchalanet-web/public"
           }
-        ],
-        "styles": ["apps/tchalanet-web/src/styles.scss"]
+        ]
       },
       "configurations": {
         "production": {
@@ -42,12 +43,14 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "mode": "production"
         },
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "sourceMap": true
+          "sourceMap": true,
+          "mode": "development"
         },
         "ci": {
           "optimization": true,
@@ -66,19 +69,34 @@
             { "type": "initial", "maximumWarning": "2.5mb", "maximumError": "3mb" },
             { "type": "anyComponentStyle", "maximumWarning": "400kb", "maximumError": "600kb" }
           ]
+        },
+        "staging": {
+          "mode": "staging"
         }
       },
       "defaultConfiguration": "production"
     },
     "serve": {
       "continuous": true,
-      "executor": "@angular/build:dev-server",
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "tchalanet-web:build",
+        "configFile": "apps/tchalanet-web/vite.config.mts",
+        "host": "0.0.0.0",
+        "port": 4200
+      },
       "configurations": {
-        "production": {
-          "buildTarget": "tchalanet-web:build:production"
-        },
         "development": {
-          "buildTarget": "tchalanet-web:build:development"
+          "buildTarget": "tchalanet-web:build:development",
+          "mode": "development"
+        },
+        "staging": {
+          "buildTarget": "tchalanet-web:build:staging",
+          "mode": "staging"
+        },
+        "production": {
+          "buildTarget": "tchalanet-web:build:production",
+          "mode": "production"
         }
       },
       "defaultConfiguration": "development"

@@ -7,10 +7,3 @@ services:
     ports:
       - "4242:4242"
     # keep the same networks/labels as main compose; compose will merge them
-
-  # Temporary: expose Unleash Edge on host for local debugging (optional)
-  # Use UNLEASH_EDGE_HOST_PORT to override the host port (defaults to 3063)
-  unleash-edge:
-    ports:
-      - "${UNLEASH_EDGE_HOST_PORT:-3063}:3063"
-    # keep the same networks/labels as main compose; compose will merge them

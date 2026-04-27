@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Pre-render Traefik dynamic config
-# Copies: server/traefik/dynamic/env/<env>.yaml -> server/traefik/dynamic/10-routers.yaml
+# Copies: traefik/env/<env>.yaml -> traefik/dynamic/10-routers.yaml
 # Usage:  ./scripts/utils/pre-render-traefik.sh [local.yaml|staging.yaml|prod.yaml]
 # Default: local.yaml
 # ---------------------------------------------------------------------------
@@ -13,14 +13,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"              # go up from scripts/utils -> repo root
 TRAEFIK_DIR="$ROOT_DIR/traefik"
 
-ENV_FILE="${1:-local.yaml}"
-SRC="$TRAEFIK_DIR/dynamic/env/$ENV_FILE"
+ENV_FILE="${1:-dev.yaml}"
+SRC="$TRAEFIK_DIR/env/$ENV_FILE"
 DST="$TRAEFIK_DIR/dynamic/10-routers.yaml"
 
 if [ ! -f "$SRC" ]; then
   echo "✖ Environment file not found: $SRC" >&2
   echo "  Available:" >&2
-  ls -1 "$TRAEFIK_DIR/dynamic/env" >&2 || true
+  ls -1 "$TRAEFIK_DIR/env" >&2 || true
   exit 1
 fi
 

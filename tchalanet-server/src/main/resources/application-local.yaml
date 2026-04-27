@@ -1,9 +1,0 @@
-app:
-  cors:
-    allowed-origins: https://app.localtest.me,https://auth.localtest.me,http://localhost:4200
-  apiBaseUrl: ${APP_API_BASEURL:https://api.localtest.me}
-
-
-spring:
-  main:
-    allow-bean-definition-overriding: true

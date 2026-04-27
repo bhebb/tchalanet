@@ -1,0 +1,138 @@
+package com.tchalanet.server.core.haiti.infra.web.publicapi;
+
+import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.types.id.TchalaEntryId;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.haiti.application.command.model.SubmitTchalaSuggestionCommand;
+import com.tchalanet.server.core.haiti.application.command.model.SubmitTchalaSuggestionResult;
+import com.tchalanet.server.core.haiti.application.query.model.GetTchalaByDreamQuery;
+import com.tchalanet.server.core.haiti.application.query.model.GetTchalaByNumberQuery;
+import com.tchalanet.server.core.haiti.application.query.model.GetTchalaEntryQuery;
+import com.tchalanet.server.core.haiti.application.query.model.SearchTchalaQuery;
+import com.tchalanet.server.core.haiti.domain.tchala.exception.TchalaEntryNotFoundException;
+import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry;
+import com.tchalanet.server.core.haiti.infra.web.model.SubmitSuggestionRequest;
+import com.tchalanet.server.core.haiti.infra.web.model.SubmitSuggestionResponse;
+import com.tchalanet.server.core.haiti.infra.web.model.TchalaEntryResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+/** Public REST API for Tchala catalogue and suggestions. */
+@Validated
+@RestController
+@RequestMapping("/public/tchala")
+@Tag(name = "Public • Tchala")
+@RequiredArgsConstructor
+public class PublicTchalaController {
+
+  private final QueryBus queryBus;
+  private final CommandBus commandBus;
+
+  /**
+   * Get a tchala entry by id (public read). Accepts TchalaEntryId bound via the
+   * String->TchalaEntryId converter.
+   */
+  @GetMapping("/{id}")
+  public ApiResponse<TchalaEntryResponse> getById(@PathVariable @NotNull TchalaEntryId id) {
+    var q = new GetTchalaEntryQuery(id);
+    Optional<TchalaEntry> found = queryBus.send(q);
+    return found
+        .map(e -> ApiResponse.success(TchalaEntryResponse.from(e)))
+        .orElseThrow(() -> new TchalaEntryNotFoundException("Tchala entry not found"));
+  }
+
+  /** Search the catalogue for a text. Returns approved entries. */
+  @GetMapping("/search")
+  public ApiResponse<TchPage<TchalaEntryResponse>> search(
+      @RequestParam(defaultValue = "fr") String lang,
+      @RequestParam(name = "q") @NotBlank String text,
+      @RequestParam(defaultValue = "0") @Min(0) int offset,
+      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit) {
+
+    int size = limit;
+    int page = Math.max(0, offset / size);
+
+    TchPage<TchalaEntry> res = queryBus.send(new SearchTchalaQuery(lang, text, page, size));
+
+    var data =
+        TchPage.of(
+            res.items().stream().map(TchalaEntryResponse::from).toList(),
+            res.page(),
+            res.size(),
+            res.totalElements(),
+            res.totalPages(),
+            res.last(),
+            res.hasNext(),
+            res.hasPrevious());
+
+    return ApiResponse.success(data);
+  }
+
+  /** Find a tchala entry by its dream normalized slotKey. */
+  @GetMapping("/by-dream")
+  public ApiResponse<TchalaEntryResponse> byDream(
+      @RequestParam(defaultValue = "fr") String lang, @RequestParam @NotBlank String dream) {
+
+    var q = new GetTchalaByDreamQuery(lang, dream);
+    Optional<TchalaEntry> found = queryBus.send(q);
+    return found
+        .map(e -> ApiResponse.success(TchalaEntryResponse.from(e)))
+        .orElseThrow(() -> new TchalaEntryNotFoundException("Tchala entry not found"));
+  }
+
+  /** Find tchala entries that contain a given number. */
+  @GetMapping("/by-number")
+  public ApiResponse<TchPage<TchalaEntryResponse>> byNumber(
+      @RequestParam(defaultValue = "fr") String lang,
+      @RequestParam @Min(0) @Max(99) int number,
+      @RequestParam(defaultValue = "0") @Min(0) int offset,
+      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit) {
+
+    int size = limit;
+    int page = Math.max(0, offset / size);
+
+    TchPage<TchalaEntry> res = queryBus.send(new GetTchalaByNumberQuery(lang, number, page, size));
+
+    var data =
+        TchPage.of(
+            res.items().stream().map(TchalaEntryResponse::from).toList(),
+            res.page(),
+            res.size(),
+            res.totalElements(),
+            res.totalPages(),
+            res.last(),
+            res.hasNext(),
+            res.hasPrevious());
+
+    return ApiResponse.success(data);
+  }
+
+  /** Submit a new suggestion. Returns 201 with created entry id and status. */
+  // Création publique (suggestion) — temporaire
+  @PostMapping("/suggestions")
+  @ResponseStatus(HttpStatus.CREATED)
+  public ApiResponse<SubmitSuggestionResponse> submitSuggestion(
+      @RequestBody @Valid SubmitSuggestionRequest body) {
+
+    var cmd =
+        new SubmitTchalaSuggestionCommand(body.lang(), body.dream(), body.numbers(), body.note());
+    SubmitTchalaSuggestionResult res = commandBus.send(cmd);
+
+    var response =
+        new SubmitSuggestionResponse(
+            res.entryId(), res.status(), res.conflictsWithCanonical(), res.conflictWithEntryId());
+
+    return ApiResponse.created(response);
+  }
+}

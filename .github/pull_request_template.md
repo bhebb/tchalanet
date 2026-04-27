@@ -34,3 +34,13 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
+
+---
+
+### Tenant-Admin Feature Checks (if applicable)
+
+- [ ] References OpenSpec change-id (e.g. `82-tenantadmin-users-20260128`) in PR description
+- [ ] Confirm no direct repository/JPA/entity usage under `features/tenantadmin/*`
+- [ ] Controller signatures use typed IDs (no `UUID` in features)
+- [ ] All writes go through core commands (core.user / core.tenantuser)
+- [ ] PR Checklist: `docs/tenant-admin/PR_CHECKLIST.md`

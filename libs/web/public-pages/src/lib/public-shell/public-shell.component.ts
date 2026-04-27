@@ -10,7 +10,6 @@ import {
 import { RouterOutlet } from '@angular/router';
 
 import { PageFacade } from '@tchl/facades';
-import { SearchOverlayComponent } from '@tchl/search';
 import { FooterComponent, OverlayNavComponent,PublicHeaderComponent } from '@tchl/ui/layout';
 import { ShellComponent } from '@tchl/web/shell';
 
@@ -23,7 +22,6 @@ import { ShellComponent } from '@tchl/web/shell';
     ShellComponent,
     FooterComponent,
     OverlayNavComponent,
-    SearchOverlayComponent,
     PublicHeaderComponent,
   ],
   template: `
@@ -40,7 +38,6 @@ import { ShellComponent } from '@tchl/web/shell';
 
       <tchl-footer shell-footer [properties]="page()?.footer?.properties!" />
     </tchl-shell>
-    <tchl-search-overlay></tchl-search-overlay>
     <tchl-overlay-nav
       [open]="overlayOpen()"
       [items]="page()?.header?.properties?.navigation || []"

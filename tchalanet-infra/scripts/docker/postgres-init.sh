@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+unset PGDATABASE PGUSER PGSERVICE PGSERVICEFILE || true
 
 # Création des utilisateurs et bases de données pour Tchalanet
 # Ce script est exécuté automatiquement par PostgreSQL lors de l'initialisation du conteneur
@@ -54,7 +55,7 @@ create_user_and_db() {
 
   echo "[init] Creating $label database and user..."
 
-  psql -v ON_ERROR_STOP=1 --username postgres <<-EOSQL
+  psql -v ON_ERROR_STOP=1 --username "${POSTGRES_USER:-postgres}" --dbname "${POSTGRES_DB:-postgres}" <<-EOSQL
     -- Create user if not exists (idempotent)
     DO \$\$
     BEGIN
@@ -67,14 +68,12 @@ create_user_and_db() {
     END
     \$\$;
 
-    -- Create database if not exists (idempotent)
-    SELECT 'CREATE DATABASE $db_name OWNER $db_user'
-    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$db_name')\gexec
+    -- Create database (on s'en fiche si on recrée le volume à chaque fois en staging)
+    CREATE DATABASE $db_name OWNER $db_user;
 
     -- Grant all privileges
     GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user;
 
-    -- For PostgreSQL 15+: grant schema privileges
     \c $db_name
     GRANT ALL ON SCHEMA public TO $db_user;
     GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $db_user;

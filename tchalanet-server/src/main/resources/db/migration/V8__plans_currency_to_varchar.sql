@@ -1,3 +1,0 @@
-ALTER TABLE plans
-ALTER
-COLUMN currency TYPE VARCHAR(3);

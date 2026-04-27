@@ -1,0 +1,3 @@
+> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/draw.md` (uslottery providers cross-domain)
+
+...existing code...

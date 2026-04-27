@@ -2,17 +2,48 @@ server:
   port: 8083
 app:
   cors:
-    allowed-origins: https://app.localtest.me,https://auth.localtest.me
-  apiBaseUrl: ${APP_API_BASEURL:https://api.localtest.me}
-
+    allowed-origins: https://app.localtest.me,https://auth.localtest.me,http://localhost:4200
+  apiBaseUrl: ${APP_API_BASEURL:http://localhost:8083}
+  security:
+    required-audience: ""
+# Feature flag to disable scheduled tasks inside the app even if @EnableScheduling is present
+  scheduling:
+    enabled: false
 
 spring:
+  # Disable scheduling globally for this profile (stops @Scheduled methods)
+  scheduling:
+    enabled: false
+
   main:
     allow-bean-definition-overriding: true
+  jpa:
+    hibernate:
+      ddl-auto: none
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: https://auth.localtest.me/realms/tchalanet
+          # Explicit JWKS endpoint (use http if your local Keycloak uses self-signed certs
+          # to avoid JVM trust issues). Adjust to https if Keycloak serves valid TLS.
+          jwk-set-uri: https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/certs
   datasource:
-    url: jdbc:postgresql://localhost:5432/tchalanet_db
+    hikari:
+      maximum-pool-size: 10
+      jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: devredis
+
+  # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
+  batch:
+    job:
+      enabled: false
+
+# Swagger / OpenAPI OAuth2 redirect URL (used by Swagger UI Authorize button)
+springdoc:
+  swagger-ui:
+    oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html

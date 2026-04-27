@@ -14,6 +14,12 @@ export class App {
   protected title = 'tchalanet';
 
   constructor(auth: AuthService) {
-    auth.wireOidcEvents(); // pour que silent refresh réhydrate les signals
+    try {
+      auth.wireOidcEvents(); // pour que silent refresh réhydrate les signals
+    } catch (err) {
+      // Avoid breaking bootstrap if auth wiring throws — log for debugging.
+      // eslint-disable-next-line no-console
+      console.error('Auth wiring failed during App construction', err);
+    }
   }
 }

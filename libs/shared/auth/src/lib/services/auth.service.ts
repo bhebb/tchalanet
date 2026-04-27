@@ -1,11 +1,6 @@
-import {
-  EventTypes,
-  LoginResponse,
-  OidcSecurityService,
-  PublicEventsService,
-} from 'angular-auth-oidc-client';
+import { EventTypes, LoginResponse, OidcSecurityService, PublicEventsService } from 'angular-auth-oidc-client';
 
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { finalize, shareReplay, take } from 'rxjs/operators';
 
 import { computed, inject, Injectable, signal } from '@angular/core';
@@ -20,70 +15,58 @@ export type TchClaim = {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private oidc = inject(OidcSecurityService);
-  private events = inject(PublicEventsService);
+  private readonly oidc = inject(OidcSecurityService);
+  private readonly events = inject(PublicEventsService);
 
-  private _isAuth = signal(false);
-  private _access = signal<string | null>(null);
-  private _id = signal<string | null>(null);
-  private _tch = signal<TchClaim | null>(null);
+  private readonly _isAuth = signal(false);
+  private readonly _access = signal<string | null>(null);
+  private readonly _id = signal<string | null>(null);
+  private readonly _tch = signal<TchClaim | null>(null);
 
   // ===== Exposition =====
   isAuthenticated = computed(() => this._isAuth());
-  isAuthenticated$ = this.oidc.isAuthenticated$;
-  accessToken(): string | null {
-    return this._access();
-  }
-  idToken(): string | null {
-    return this._id();
-  }
-  tch(): TchClaim | null {
-    return this._tch();
-  }
+  accessToken(): string | null { return this._access(); }
+  tch(): TchClaim | null { return this._tch(); }
 
   // ===== Single-flight holder =====
   private inflight$?: Observable<LoginResponse>;
 
-  // ===== Boot (APP_INITIALIZER) =====
-  /** Appelé au démarrage: restaure la session si tokens présents, sinon ne fait rien. */
+  /** Boot (APP_INITIALIZER) */
   init(): Promise<void> {
-    return this.checkAuth$()
-      .pipe(take(1))
-      .toPromise()
-      .then(r => this.hydrateFrom(r));
+    return firstValueFrom(this.checkAuth$().pipe(take(1))).then((r: LoginResponse | null | undefined) => this.hydrateFrom(r));
   }
 
-  // ===== Login/Logout =====
-  /** Démarre le flow OIDC; target sera utilisée après callback. */
+  /** Login */
   login(target = '/app') {
     sessionStorage.setItem('login_target', target);
     this.oidc.authorize();
   }
 
+  /** Logout */
   logout() {
-    this.oidc.logoffAndRevokeTokens().subscribe();
+    // Reset local state
     this._isAuth.set(false);
     this._access.set(null);
     this._id.set(null);
     this._tch.set(null);
+    // Déclenche le logout OIDC (redirigera vers postLogoutRedirectUri)
+    this.oidc.logoff();
   }
 
   // ===== Callback / Check =====
   /** checkAuth est idempotent; on le single-flight pour éviter les doublons. */
   checkAuth$(): Observable<LoginResponse> {
-    if (!this.inflight$) {
-      this.inflight$ = this.oidc.checkAuth().pipe(
-        shareReplay({ bufferSize: 1, refCount: false }),
-        finalize(() => {
-          this.inflight$ = undefined;
-        }),
-      );
-    }
+    this.inflight$ ??= this.oidc.checkAuth().pipe(
+      shareReplay({ bufferSize: 1, refCount: false }),
+      finalize(() => {
+        this.inflight$ = undefined;
+      }),
+    );
     return this.inflight$;
   }
 
-  /** Hydrate les signals à partir du résultat OIDC. */
-  hydrateFrom(login: LoginResponse | null | undefined) {
+  /** Hydrate les signals à partir du résultat OIDC. Accepte un LoginResponse partiel. */
+  hydrateFrom(login: Partial<LoginResponse> | null | undefined) {
     const isAuth = !!login?.isAuthenticated;
     this._isAuth.set(isAuth);
     this._access.set(login?.accessToken ?? null);
@@ -118,30 +101,50 @@ export class AuthService {
   // ===== Brancher les événements (silent refresh, etc.) =====
   /** À appeler une seule fois (ex: dans AppComponent constructor) pour suivre les events OIDC. */
   wireOidcEvents() {
+    // Helper pour résoudre une valeur qui peut être Observable<T> ou T directement
+    const resolve = async <T>(val: T | Observable<T>): Promise<T> => {
+      // Type guard pour Observable
+      if (val && typeof val === 'object' && 'subscribe' in val) {
+        return await firstValueFrom(val as Observable<T>);
+      }
+      return val as T;
+    };
     this.events.registerForEvents().subscribe(e => {
       switch (e.type) {
         case EventTypes.CheckSessionReceived: {
-          // rafraîchissement de session / reconnexion implicite
-          // on réhydrate l'état à partir de l'oidc (accès/ID tokens actuels)
-          this.oidc.isAuthenticated$.pipe(take(1)).subscribe(({ isAuthenticated }) => {
+          this.oidc.isAuthenticated$.pipe(take(1)).subscribe(async ({ isAuthenticated }) => {
+            const rawAccess = this.oidc.getAccessToken();
+            const rawId = this.oidc.getIdToken();
+            const rawUser = this.oidc.getUserData();
+            const accessToken: string = (await resolve<string>(rawAccess as string | Observable<string>)) || '';
+            const idToken: string = (await resolve<string>(rawId as string | Observable<string>)) || '';
+            const userData: unknown = await resolve<unknown>(rawUser as unknown | Observable<unknown>);
             this.hydrateFrom({
               isAuthenticated,
-              accessToken: this.oidc.getAccessToken(),
-              idToken: this.oidc.getIdToken(),
-            } as any);
+              accessToken: accessToken || undefined,
+              idToken: idToken || undefined,
+              userData: userData ?? undefined,
+            });
           });
           break;
         }
         case EventTypes.NewAuthenticationResult: {
-          // silent refresh réussi → mettre à jour tokens/signals
-          this.hydrateFrom({
-            isAuthenticated: true,
-            accessToken: this.oidc.getAccessToken(),
-            idToken: this.oidc.getIdToken(),
-          } as any);
+          (async () => {
+            const rawAccess = this.oidc.getAccessToken();
+            const rawId = this.oidc.getIdToken();
+            const rawUser = this.oidc.getUserData();
+            const accessToken: string = (await resolve<string>(rawAccess as string | Observable<string>)) || '';
+            const idToken: string = (await resolve<string>(rawId as string | Observable<string>)) || '';
+            const userData: unknown = await resolve<unknown>(rawUser as unknown | Observable<unknown>);
+            this.hydrateFrom({
+              isAuthenticated: true,
+              accessToken: accessToken || undefined,
+              idToken: idToken || undefined,
+              userData: userData ?? undefined,
+            });
+          })();
           break;
         }
-        // tu peux aussi écouter RefreshSessionError, TokenExpired, etc. selon besoins
       }
     });
   }

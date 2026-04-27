@@ -11,11 +11,9 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
-import { AnalyticsService } from '@tchl/analytics';
 import { environment } from '@tchl/config';
 import { I18nFacade } from '@tchl/facades';
 import { FeatureService } from '@tchl/feature';
-import { OverlayService } from '@tchl/search';
 import { HeaderProperties } from '@tchl/types';
 import { ThemeMode, ThemeService } from '@tchl/ui/theme';
 
@@ -60,8 +58,7 @@ export class PublicHeaderComponent {
   availableLangs = this.i18n.available;
   private readonly theme = inject(ThemeService);
   themeMode = this.theme.mode;
-  private readonly overlay = inject(OverlayService);
-  private readonly analytics = inject(AnalyticsService);
+  // private readonly analytics = inject(AnalyticsService);
 
   /* ------------------------------------------------------------------
    * Derived UI bits
@@ -174,9 +171,6 @@ export class PublicHeaderComponent {
 
   onSearchClick() {
     this.searchClick.emit();
-    document.documentElement.classList.add('search-open');
-    this.overlay.show();
-    this.analytics.pageView('open_search_from_button_public');
   }
 
   onChangeLang(lang: string) {
@@ -190,7 +184,9 @@ export class PublicHeaderComponent {
   }
 
   onAccountClick() {
+    console.log('------------account click--------------')
     const path = this.properties().account?.public?.path;
+    console.log('account clik, path', path)
     if (path) {
       this.router.navigateByUrl(path);
     }

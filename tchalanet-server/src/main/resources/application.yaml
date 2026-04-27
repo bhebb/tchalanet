@@ -1,77 +1,266 @@
+# ===========================
+# APPLICATION PROPERTIES
+# ===========================
+app:
+  version: ${APP_VERSION:0.1.0}
+  api-version: ${API_VERSION:v1}
+  base-path: ${APP_BASE_PATH:/api}
+  api-base-url: ${APP_API_BASEURL:http://localhost:8083}
+  auth-url: ${TCH_KC_ISSUER}
+  default-tenant: ${APP_DEFAULT_TENANT:tchalanet}
+  cors:
+    # use a comma-separated env var (APP_CORS_ALLOWED_ORIGINS) which Spring will bind to a List<String>
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:https://app.localtest.me}
+    allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+    allowed-headers: Authorization,Content-Type,Accept,Origin
+    exposed-headers: Location
+    allow-credentials: true
+  security:
+    required-audience: tchalanet-api
+  batch:
+    fetch-results-windows: "12:00-14:00,20:00-23:00"
+    settle-draws-windows: "12:00-15:00,20:00-23:30"
+    close-draws-windows: "11:30-14:00,19:30-23:00"
+    open-draws-windows: "02:00-06:00"
+    fetch:
+      chunk-size: ${APP_BATCH_FETCH_CHUNK_SIZE:10}
+    settle:
+      chunk-size: ${APP_BATCH_SETTLE_CHUNK_SIZE:50}
+  # default ZoneId used by the application; can be overridden with env var APP_ZONE_ID
+  zone-id: ${APP_ZONE_ID:UTC}
+
+# ===========================
+# SPRING FRAMEWORK
+# ===========================
 spring:
+  config:
+    import:
+      - optional:classpath:application-draw.yml
+      - optional:classpath:application-uslottery.yml
+
+  # --- servlet path: ensure all MVC and Spring Data REST endpoints are prefixed with /api/v1 ---
+  mvc:
+    servlet:
+      path: ${app.base-path}/${app.api-version}
+
+  # global web security debug flag (default false)
+  websecurity:
+    debug: false
+
+  # --- Datasource & JPA ---
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
-    username: ${SPRING_DATASOURCE_USERNAME:app_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:devpass}
+    hikari:
+      maximum-pool-size: 10
+      jdbc-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
+      username: ${SPRING_DATASOURCE_USERNAME:app_user}
+      password: ${SPRING_DATASOURCE_PASSWORD:devpass}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+    defer-datasource-initialization: true
     open-in-view: false
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      org.hibernate.envers.audit_table_suffix: "_aud"
+      org.hibernate.envers.store_data_at_delete: true
+      org.hibernate.envers.revision_field_name: "rev"
+      org.hibernate.envers.revision_type_field_name: "revtype"
+      org.hibernate.envers.revision_listener: "com.tchalanet.server.core.audit.infra.persistence.envers.TchRevisionListener"
+
+  batch:
+    jdbc:
+      initialize-schema: never   # on laisse Flyway créer les tables
+    job:
+      enabled: false             # pas de job auto au démarrage (on les lance via API / schedulers)
+
+  # --- Database Migration ---
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    schemas: public,batch
+
+
+  # --- Security (OAuth2 Resource Server) ---
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak:8080/realms/tchalanet
+
+  # --- Redis Cache ---
   data:
     redis:
       host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
       timeout: 2000
+      repositories:
+        enabled: false
+    rest:
+      enabled: true
+      base-path: /_sdr
+      detection-strategy: annotated
 
-tchalanet:
-  search:
-    meili:
-      host: ${MEILI_HOST:http://meilisearch:7700}
-      masterKey: ${MEILI_MASTER_KEY:dev-meili}
-      index: ${MEILI_INDEX:tch_content}
 
-  web:
-    cors:
-      allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8081,http://localhost:8082}
-      allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
-      allowed-headers: Authorization,Content-Type,Accept,Origin
-      exposed-headers: Location
-      allow-credentials: true
-app:
-  cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200}
-  version: ${APP_VERSION:0.1.0}
-  api-version: ${API_VERSION:v1}
-  api-base-url: ${APP_API_BASEURL:http://localhost:8081}
-  auth-url: ${TCH_KC_ISSUER}
-  base-path: ${APP_BASE_PATH:/api}
-  default-tenant: ${APP_DEFAULT_TENANT:default}
-  security:
-    required-audience: tchalanet-api
 
+tch:
+  cache:
+    redis:
+      enabled: false
+
+  notification:
+    node:
+      base-path: /notifications
+      enabled: true
+      timeout: 500
+  # News provider / cache configuration
+  news:
+    provider:
+      url: ${TCH_NEWS_FEED:https://lotterydaily.com/feed/}
+      apiKey: ""
+    cache:
+      key: ${TCH_NEWS_CACHE_KEY:tch:public:news}
+      cacheName: ${TCH_NEWS_CACHE_NAME:news-latest}
+    ttl:
+      hours: ${TCH_NEWS_TTL_HOURS:24}
+    refresh:
+      cron: ${TCH_NEWS_REFRESH_CRON:0 0 */6 * * *}
+
+  # Draw generation and cache configuration
+  draw:
+    results:
+      # kept alias to old props for backwards compat with env names
+      mode: ${TCH_RESULTS_MODE:api_then_fake}
+    generation:
+      days: ${DRAW_GENERATION_DAYS:14}
+      cron: ${DRAW_GENERATION_CRON:0 5 0 * * *}
+    cache:
+      ttl:
+        last7m: ${DRAW_CACHE_TTL_LAST7M:5}   # minutes
+        todaym: ${DRAW_CACHE_TTL_TODAYM:5}   # minutes
+        nexts: ${DRAW_CACHE_TTL_NEXTS:60}    # seconds
+
+  # US Lottery API configuration
+  us-lottery:
+    common:
+      holidays:
+       - "01-01"   # New Year
+       - "12-25"   # Christmas
+    providers:
+      ny:
+        enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov/api/v3/views/hsys-3def/query.json}
+        app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
+        timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
+        games:
+          - code: "US_NY_NUM3_MID"
+            external_key: "NUMBERS"
+            draw_time: "14:30"
+          - code: "US_NY_NUM3_EVE"
+            external_key: "NUMBERS"
+            draw_time: "22:30"
+          - code: "US_NY_NUM4_MID"
+            external_key: "WIN4"
+            draw_time: "14:30"
+          - code: "US_NY_NUM4_EVE"
+            external_key: "WIN4"
+            draw_time: "22:30"
+          - code: "US_NY_TAKE5_EVE"
+            external_key: "TAKE 5"
+            draw_time: "22:30"
+        holidays:
+          - "07-04" # Independence Day (NY specific)
+
+      fl:
+        enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_FL_LOTTERY_BASEURL:https://apim-website-prod-eastus.azure-api.net}
+        latest-path: /drawgamesapp/getLatestDrawGames
+        alert-path: /site/services/alert
+        timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
+        games:
+          - code: "US_FL_PICK3_MID"
+            external_key: "PICK3"
+            draw_time: "13:30"
+          - code: "US_FL_PICK3_EVE"
+            external_key: "PICK3"
+            draw_time: "22:45"
+          - code: "US_FL_PICK4_MID"
+            external_key: "PICK4"
+            draw_time: "13:30"
+          - code: "US_FL_PICK4_EVE"
+            external_key: "PICK4"
+            draw_time: "22:45"
+          - code: "US_FL_LOTTO"
+            external_key: "FLORIDA LOTTO"
+            draw_time: "23:15"
+        holidays: []
+
+      ga:
+        enabled: ${TCH_US_GA_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_GA_LOTTERY_BASEURL:https://www.galottery.com}
+        latest-path: /api/v2/draw-games/draws/?previous-draws=2&game-names=CASH+3%2CCASH+4%2CCASH+POP%2CKENO!%2CMEGA+MILLIONS%2CPOWERBALL%2CFANTASY+5%2CCASH4LIFE%2CGEORGIA+FIVE
+        timezone: ${TCH_US_GA_TIMEZONE:America/New_York}
+        games:
+          - code: "US_GA_CASH3_MID"
+            external_key: "CASH3"
+            draw_time: "13:30"
+          - code: "US_GA_CASH3_EVE"
+            external_key: "CASH3"
+            draw_time: "22:00"
+        holidays: []
+
+      tn:
+        enabled: ${TCH_US_TN_LOTTERY_ENABLED:true}
+        base-url: ${TCH_US_TN_LOTTERY_BASEURL:https://dotcom-headless.jackpocket.com}
+        latest-path: /api/lottery-results?location_code=TN&per_page=9&end_date=2026-01-05&page=1&start_date=2016-01-01
+        timezone: ${TCH_US_TN_TIMEZONE:America/Chicago}
+        games:
+          - code: "US_TN_PICK3_MID"
+            external_key: "PICK3"
+            draw_time: "13:30"
+          - code: "US_TN_PICK3_EVE"
+            external_key: "PICK3"
+            draw_time: "22:00"
+        holidays: []
+
+
+# ===========================
+# API DOCUMENTATION
+# ===========================
 springdoc:
   api-docs:
     path: /openapi
     enabled: true
   swagger-ui:
     path: /swagger-ui
+    display-operation-id: true
+    try-it-out-enabled: true
+    filter: true
     oauth:
       client-id: ${SWAGGER_CLIENT_ID:tchalanet-swagger}
       use-pkce-with-authorization-code-grant: true
     oauth2-redirect-url: https://auth.localtest.me/swagger-ui/oauth2-redirect.html
-    display-operation-id: true
-    try-it-out-enabled: true
-    filter: true
 
+# ===========================
+# LOGGING
+# ===========================
 logging:
   config: classpath:logback-spring.xml
-  # Default log level for all loggers. (e.g., INFO, DEBUG, WARN, ERROR)
   level:
-    # Set the root logger level
     root: INFO
-    # Set the level for your application's packages
-    com.tchalanet.server: DEBUG
-    # Set the level for specific Spring packages (useful for debugging)
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG # To see generated SQL queries
+    com.tchalanet.server: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+    org.springframework.security.oauth2.jwt: INFO
+    org.springframework.security.oauth2.server.resource: INFO
+    org.hibernate.SQL: INFO
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,scheduledtasks,loggers,threaddump,env,beans

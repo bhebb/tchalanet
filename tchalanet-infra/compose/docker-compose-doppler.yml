@@ -1,6 +1,6 @@
 services:
   doppler:
-    image: ${DOPPLER_IMAGE:-dopplerhq/cli:latest}
+    image: ${DOPPLER_IMAGE:-dopplerhq/cli:3.75.1}
     container_name: ${DOCKER_PREFIX:-tchl}-doppler-${ENV}
     restart: "no"
     entrypoint: ["/bin/sh","-lc"]

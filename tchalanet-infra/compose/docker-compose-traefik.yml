@@ -1,35 +1,36 @@
 services:
   traefik:
     image: ${TRAEFIK_IMAGE:-traefik:v3.5.4}
-    container_name: ${DOCKER_PREFIX:-tchl}-traefik-${ENV}
+    # Use a default value for ENV so container name is stable when not provided
+    container_name: ${DOCKER_PREFIX:-tchl}-traefik-${ENV:-dev}
     entrypoint: [ "/bin/sh", "/entrypoint-custom.sh" ]
-    command:
-      - --log.level=INFO
-      - --api.dashboard=true
-      - --api.insecure=true
-      - --providers.docker=true
-      - --providers.file.directory=/etc/traefik/dynamic
-      - --providers.file.watch=true
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --certificatesresolvers.le.acme.email=${ACME_EMAIL:-frinaytech@gmail.com}
-      - --certificatesresolvers.le.acme.storage=/acme.json
-      - --certificatesresolvers.le.acme.tlschallenge=true
-      - --ping=true                       # dashboard
+    # No command: Traefik will use /etc/traefik/traefik.yml by default
     environment:
       - TZ=UTC
+      - DOCKER_API_VERSION=1.44
+      - ENV=${ENV:-dev}
+      - TRAEFIK_API_DASHBOARD=true
+      - TRAEFIK_API_INSECURE=${TRAEFIK_API_INSECURE:-false}
+      # Force file provider activation (defensive)
+      - TRAEFIK_PROVIDERS_FILE_DIRECTORY=/etc/traefik/dynamic
+      - TRAEFIK_PROVIDERS_FILE_WATCH=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      # Fichiers communs (TLS/middlewares)
+      # Configuration statique Traefik
+      - ../traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      # Mount the whole dynamic directory so Traefik sees common/ and env/
       - ../traefik/dynamic:/etc/traefik/dynamic:ro
-       # Certificats locaux (si tu fais du HTTPS local avec mkcert)
-      - ../traefik/certs:/certs:ro
+      # Certificats locaux
+      - ../traefik/certs:/etc/traefik/certs:ro
       - ../scripts/docker/traefik-entrypoint.sh:/entrypoint-custom.sh:ro
     # Expose les ports host -> container pour permettre l'accès via 127.0.0.1
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080" # dashboard/API (insecure mode)
+    # Permettre à Traefik d'accéder à l'hôte (macOS/Linux)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - edge
     healthcheck:
@@ -47,5 +48,5 @@ services:
 
 networks:
   edge:
-    name: ${DOCKER_NETWORK_EDGE:-edge-${ENV}}
+    name: ${DOCKER_NETWORK_EDGE:-edge-${ENV:-dev}}
     external: true

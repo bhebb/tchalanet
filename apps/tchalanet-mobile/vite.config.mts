@@ -8,6 +8,15 @@ export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/apps/tchalanet-mobile',
   plugins: [angular(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+  server: {
+    host: true,
+    allowedHosts: [
+      'localhost',
+      '.localtest.me',
+      'app.localtest.me',
+      'mob.localtest.me',
+    ],
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

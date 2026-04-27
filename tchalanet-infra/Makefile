@@ -27,7 +27,7 @@ networks:
 # 1) Génère traefik/dynamic/10-routers.yaml depuis env/<ENV>.yaml
 render-traefik:
 	@chmod +x ./scripts/utils/pre-render-traefik.sh || true
-	@./scripts/utils/pre-render-traefik.sh $(if $(filter $(ENV),stg staging),staging.yaml,$(if $(filter $(ENV),prod production),prod.yaml,local.yaml))
+	@./scripts/utils/pre-render-traefik.sh $(if $(filter $(ENV),stg staging),staging.yaml,$(if $(filter $(ENV),prod production),prod.yaml,dev.yaml))
 
 # 2) Génère le realm JSON Keycloak (désactive le scope custom par défaut)
 get-realm:
@@ -39,7 +39,12 @@ mkcert-local:
 	@[ -f ./traefik/certs/local-cert.pem ] && [ -f ./traefik/certs/local-key.pem ] \
 	 || { echo "→ Generating mkcert dev certs"; mkdir -p ./traefik/certs; mkcert -install >/dev/null; \
 	      mkcert -key-file ./traefik/certs/local-key.pem -cert-file ./traefik/certs/local-cert.pem \
-	      traefik.localtest.me auth.localtest.me api.localtest.me flags.localtest.me stats.localtest.me; }
+	      traefik.localtest.me auth.localtest.me api.localtest.me flags.localtest.me stats.localtest.me app.localtest.me mob.localtest.me; }
+
+# Force la régénération des certificats locaux mkcert (dev)
+mkcert-recreate:
+	@rm -f ./traefik/certs/local-cert.pem ./traefik/certs/local-key.pem || true
+	@$(MAKE) mkcert-local
 
 # 3b) (Staging) génère des certificats auto-signés
 certs-staging:
@@ -76,20 +81,40 @@ down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down meilisearch $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
 
 down-all:
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash-edge $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down meilisearch $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
+
+# ============================================================================
+# Rebuild local (dev) - Build images avec Dockerfile locaux
+# ============================================================================
+
+rebuild-keycloak: env-merge get-realm
+	@echo "→ Rebuild de l'image Keycloak locale..."
+	@docker compose -f compose/docker-compose-project.yml \
+	                -f compose/docker-compose.local-build.yml up -d --build keycloak
+	@echo "✅ Keycloak rebuilé et redémarré"
+
+rebuild-api:
+	@echo "→ Build du JAR Spring Boot..."
+	@cd ../tchalanet-server && ./mvnw -q -DskipTests package
+	@echo "→ Rebuild de l'image API locale..."
+	@docker compose -f compose/docker-compose-project.yml \
+	                -f compose/docker-compose.local-build.yml up -d --build api
+	@echo "✅ API rebuildée et redémarrée"
+
+rebuild-all: rebuild-api rebuild-keycloak
+	@echo "✅ API et Keycloak rebuildés"
+
+# ============================================================================
 
 # Per service (legacy, via service-up.sh)
 up-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV)
@@ -97,8 +122,6 @@ down-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(
 up-keycloak: ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
 up-unleash:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up unleash $(ENV)
 down-unleash:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV)
-up-search:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up meilisearch $(ENV)
-down-search:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down meilisearch $(ENV)
 
 logs-%:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" logs $* $(ENV)
@@ -154,29 +177,10 @@ doppler-download-staging:
 doppler-download-prod:
 	@$(MAKE) doppler-download ENV=prod
 
-# Post-install services (Unleash bootstrap & edge)
-post-install-unleash-bootstrap:
-	@echo "→ Installing unleash-bootstrap service..."
-	@chmod +x ./scripts/utils/up-seq.sh || true
-	@docker compose --env-file envs/$(ENV)/compose.env \
-		-f compose/docker-compose-project.yml \
-		-f compose/docker-compose-unleash-host.yml \
-		up --no-start unleash-bootstrap
-
-post-install-unleash-edge:
-	@echo "→ Installing unleash-edge service..."
-	@chmod +x ./scripts/utils/up-seq.sh || true
-	@docker compose --env-file envs/$(ENV)/compose.env \
-		-f compose/docker-compose-project.yml \
-		-f compose/docker-compose-unleash-host.yml \
-		up --no-start unleash-edge
-
-post-install-unleash: post-install-unleash-bootstrap post-install-unleash-edge
-	@echo "✅ Unleash post-install services installed"
-	@echo "   Start manually with: docker compose up -d unleash-bootstrap unleash-edge"
-
-.PHONY: doppler-download doppler-download-staging doppler-download-prod \
-        post-install-unleash-bootstrap post-install-unleash-edge post-install-unleash
+up-all-local: ENV?=dev
+up-all-local: env-merge render-traefik mkcert-local get-realm ensure-exec networks
+	@echo "→ Démarrage stack (build local forcé) ENV=$(ENV)"
+	@LOCAL_BUILD=1 scripts/utils/up-seq.sh $(ENV) --local-build
 
 
-
+.PHONY: doppler-download doppler-download-staging doppler-download-prod
