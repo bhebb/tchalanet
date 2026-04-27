@@ -19,9 +19,10 @@ Ce fichier couvre TOUS les scopes :
 For planning, architectural changes, refactors, or new domains:
 
 - Agents MUST follow the OpenSpec workflow
-- See: `openspec/AGENTS.md`
+- See: `openspec/project.md` + `openspec/context/00-index.md`
 - Changes MUST be proposed under `openspec/changes/`
 - Direct implementation without proposal is forbidden
+- Agent skills (openspec workflow): `.github/skills/` and `.claude/skills/`
 
 ---
 
@@ -31,23 +32,24 @@ Avant de coder ou générer quoi que ce soit :
 
 1. Lire **ce fichier** (`AGENTS.md`)
 2. Lire **`VERSIONS.md`** (versions runtime/build/images)
-3. Load `openspec/context/05-version-guard.md`
-4. Verify:
+3. Lire **`.github/copilot.md`** (checklist IA + pointeurs conventions)
+4. Load `openspec/context/05-version-guard.md`
+5. Verify:
    - language level
    - framework major version
    - available features
-5. Reject deprecated or legacy APIs
-6. Prefer modern constructs supported by the declared versions
-7. Lire **`openspec/project.md`**
-8. Charger **2–4 context packs max** depuis `openspec/context/`
-9. Lire la doc proche du code concerné :
-   - Backend domain : `tchalanet-server/src/**/DOMAIN_*.md`
-   - Backend feature : `tchalanet-server/src/**/FEATURE_*.md`
-   - Backend conventions : `tchalanet-server/docs/conventions/*`
-   - Backend naming : `tchalanet-server/docs/NAMING.md`
-   - Web : `apps/tchalanet-web/README.md` + `libs/**/README.md`
-   - Infra : `tchalanet-infra/docs/**`
-10. Ne PAS inventer de pattern s'il en existe déjà un
+6. Reject deprecated or legacy APIs
+7. Prefer modern constructs supported by the declared versions
+8. Lire **`openspec/project.md`**
+9. Charger **2–4 context packs max** depuis `openspec/context/`
+10. Lire la doc proche du code concerné :
+    - Backend domain : `tchalanet-server/src/**/DOMAIN_*.md`
+    - Backend feature : `tchalanet-server/src/**/FEATURE_*.md`
+    - Backend conventions : `tchalanet-server/docs/conventions/*`
+    - Backend naming : `tchalanet-server/docs/NAMING.md`
+    - Web : `apps/tchalanet-web/README.md` + `libs/**/README.md`
+    - Infra : `tchalanet-infra/docs/**`
+11. Ne PAS inventer de pattern s'il en existe déjà un
 
 Si une règle doit être cassée → **ADR obligatoire** (`tchalanet-docs/docs/03-adr/`).
 
@@ -63,7 +65,7 @@ Si une règle doit être cassée → **ADR obligatoire** (`tchalanet-docs/docs/0
 - Règles de dépendances et structures internes :
   👉 `openspec/context/10-non-negotiables.md` (résumé non-négociable)
   👉 `tchalanet-server/docs/ARCHITECTURE.md` (source canonique complète)
-  👉 `.claude/skills/backend-architecture/SKILL.md` (fiche IA actionable)
+  👉 `tchalanet-server/CLAUDE.md` (checklist IA + commandes)
 
 ---
 
@@ -82,15 +84,17 @@ Deprecated guard : 👉 `openspec/context/05-version-guard.md`
 
 - `tchalanet-server/docs/ARCHITECTURE.md`
 - `tchalanet-server/docs/conventions/*`
-- `.claude/skills/backend-*/SKILL.md` (checklists IA)
+- `tchalanet-server/CLAUDE.md` (Do ✅ / Don't ❌ + commandes Maven)
 
 Règles clés (résumé) :
 
 - Constructor injection uniquement
 - Controllers thin (validation + mapping + appel handler)
+- `ApiResponse<T>` sur tous les controllers JSON ; `TchPage<T>` pour les collections (jamais Spring `Page`)
 - Side-effects publiés **after-commit**
 - Flyway obligatoire (`ddl-auto=validate`)
 - Typed IDs partout sauf persistence
+- ❌ `@Autowired` champ · `@Data` Lombok · `XxxDto` dans features · `/api/v1` dans `@RequestMapping`
 
 - Catalogs (modules sous `catalog/`) MUST NOT expose or depend on application "ports" or use a global `QueryBus` for their read API.
   - Les catalogues exposent un contrat `catalog/<name>/api` (interfaces + `api.model`) et ont une implémentation interne (`catalog/<name>/internal/read`).
@@ -104,9 +108,13 @@ Règles clés (résumé) :
 
 - `apps/tchalanet-web/README.md`
 - `libs/**/README.md`
-- `.claude/skills/frontend-web/SKILL.md`
+- `apps/tchalanet-web/CLAUDE.md` · `apps/tchalanet-mobile/CLAUDE.md`
 
 Règles clés : mobile-first · i18n fr/en/ht · CSS variables uniquement · ❌ couleurs hardcodées.
+
+Web (Angular 20) : composants `standalone: true` + `OnPush` · control flow moderne (`@if`/`@for`) · signaux (`signal()`, `computed()`, `effect()`) · widget renderer (`libs/ui/widget-renderer/`) pour page models.
+
+Mobile : **Ionic/Angular + Capacitor** · Android-first (terminal POS) · offline-first.
 
 ---
 
@@ -116,9 +124,11 @@ Règles clés : mobile-first · i18n fr/en/ht · CSS variables uniquement · ❌
 
 - `tchalanet-infra/docs/`
 - `tchalanet-edge-service/README.md`
-- `.claude/skills/infrastructure/SKILL.md`
+- `tchalanet-infra/CLAUDE.md` · `tchalanet-edge-service/CLAUDE.md`
 
 Règles clés : pas de `:latest`, images pinées, toute version dans `VERSIONS.md`.
+
+Services infra : PostgreSQL · Redis · Keycloak (auth) · Traefik (reverse proxy) · **Unleash 7.4** (feature flags) · **Meilisearch v1.11** (search).
 
 ---
 
@@ -138,8 +148,11 @@ Doc hub canonique : **`DOCUMENTATION.md`**
 - Versions : `VERSIONS.md`
 - Doc hub : `DOCUMENTATION.md`
 - Politique documentaire : `tchalanet-docs/docs/00-guidelines/doc-policy.md`
-- OpenSpec : `openspec/project.md`, `openspec/context/*`, `openspec/specs/*`
+- Copilot context + checklist IA : `.github/copilot.md`
+- OpenSpec : `openspec/project.md`, `openspec/context/*`, `openspec/specs/*`, `openspec/changes/`
+- Agent skills (openspec workflow) : `.github/skills/`, `.claude/skills/`
 - Domain truth : `tchalanet-server/src/**/DOMAIN_*.md`
 - Feature truth : `tchalanet-server/src/**/FEATURE_*.md`
 - Backend conventions : `tchalanet-server/docs/conventions/*`
 - Central docs : `tchalanet-docs/docs/*`
+- Scope CLAUDE.md : `tchalanet-server/CLAUDE.md` · `apps/tchalanet-web/CLAUDE.md` · `apps/tchalanet-mobile/CLAUDE.md` · `tchalanet-infra/CLAUDE.md` · `tchalanet-edge-service/CLAUDE.md` · `tchalanet-docs/CLAUDE.md`

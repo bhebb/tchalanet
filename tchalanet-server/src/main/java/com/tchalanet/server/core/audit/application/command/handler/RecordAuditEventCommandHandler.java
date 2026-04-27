@@ -6,6 +6,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.audit.application.command.model.RecordAuditEventCommand;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
@@ -23,7 +24,7 @@ public class RecordAuditEventCommandHandler implements VoidCommandHandler<Record
 
   private final AuditEventWriterPort writerPort;
   private final TchContextResolver contextResolver;
-  private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   @Override
   public void handle(RecordAuditEventCommand command) {
@@ -45,15 +46,7 @@ public class RecordAuditEventCommandHandler implements VoidCommandHandler<Record
 
     var json =
         Optional.of(details)
-            .map(
-                d -> {
-                  try {
-                    return objectMapper.writeValueAsString(d);
-                  } catch (Exception ex) {
-                    log.error("Failed to serialize audit details", ex);
-                    return "{}";
-                  }
-                })
+            .map(jsonUtils::toJson)
             .orElse("{}");
 
     UUID createdByUuid = createdBy != null ? createdBy.uuid() : null;

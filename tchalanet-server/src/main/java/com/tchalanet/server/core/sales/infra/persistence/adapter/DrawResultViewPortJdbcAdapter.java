@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.sales.application.port.out.DrawResultViewPort;
 import java.sql.ResultSet;
@@ -11,6 +10,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
 
 /** JDBC adapter providing draw result minimal view. Returns {@link DrawResultViewPort.DrawResultMinimalView}. */
 @Component

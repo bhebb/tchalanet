@@ -9,7 +9,7 @@
 | Item            | Valeur                                         |
 | --------------- | ---------------------------------------------- |
 | Java            | 25 (`jakarta.*` uniquement)                    |
-| Spring Boot     | 4.0.1 (`./mvnw`)                               |
+| Spring Boot     | 4.0.3 (`./mvnw`)                               |
 | Architecture    | Hexagonal + CQRS — 4 couches strictes          |
 | ORM / migration | JPA + Hibernate · Flyway (`ddl-auto=validate`) |
 | Mappers         | MapStruct + `CommonIdMapper`                   |

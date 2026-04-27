@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.tenantgame.application.command.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.Builder;
 import lombok.Getter;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Command to enable a game for a tenant.
