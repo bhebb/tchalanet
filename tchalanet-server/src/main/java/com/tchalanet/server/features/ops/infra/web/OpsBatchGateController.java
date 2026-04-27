@@ -26,7 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/platform/ops/batch/gates")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Ops • Batch Gate")
 public class OpsBatchGateController {
 

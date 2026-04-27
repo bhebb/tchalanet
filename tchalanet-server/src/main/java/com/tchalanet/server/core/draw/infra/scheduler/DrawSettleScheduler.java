@@ -9,6 +9,7 @@ import com.tchalanet.server.common.config.batch.BatchWindowsConfig;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,9 @@ public class DrawSettleScheduler {
     // optionnel: provider-level switches
     private static final JobKey SWITCH_NY = JobKey.of("draw:settle:provider:ny");
     private static final JobKey SWITCH_FL = JobKey.of("draw:settle:provider:fl");
+    private static final JobKey SWITCH_GA = JobKey.of("draw:settle:provider:ga");
+    private static final JobKey SWITCH_TX = JobKey.of("draw:settle:provider:tx");
+    private static final JobKey SWITCH_TN = JobKey.of("draw:settle:provider:tn");
 
     private final BatchJobStarter batchJobStarter;
     private final Clock clock;
@@ -38,6 +42,7 @@ public class DrawSettleScheduler {
     private final BatchWindowsConfig windows;
 
     @Scheduled(cron = "0 */5 * * * *", zone = "America/New_York")
+    @SchedulerLock(name = "draw_settle_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tick() {
         // global switch
         if (!gate.enabled(DRAW_SETTLE, null)) return;
@@ -52,6 +57,9 @@ public class DrawSettleScheduler {
 
             startForProvider(now, tenantId, "NY", SWITCH_NY, 1, 700, false, false);
             startForProvider(now, tenantId, "FL", SWITCH_FL, 1, 900, false, false);
+            startForProvider(now, tenantId, "GA", SWITCH_GA, 1, 900, false, false);
+            startForProvider(now, tenantId, "TX", SWITCH_TX, 1, 900, false, false);
+            startForProvider(now, tenantId, "TN", SWITCH_TN, 1, 700, false, false);
         }
     }
 
