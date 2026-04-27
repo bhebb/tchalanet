@@ -1,9 +1,10 @@
 package com.tchalanet.server.core.uslottery.infra.external;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.crypto.Hashing;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
@@ -354,7 +355,7 @@ public class FloridaLatestDrawProviderClient implements UsLotteryProviderClient 
   }
 
   private static String safe(String s) {
-    return s == null ? "" : s;
+    return s == null ? "" : s.trim();
   }
 
   private static boolean blank(String s) {

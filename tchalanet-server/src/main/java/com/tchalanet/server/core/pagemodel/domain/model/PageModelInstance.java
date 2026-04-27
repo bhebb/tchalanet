@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.pagemodel.domain.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.domain.exception.PageModelNotEditableException;
 import com.tchalanet.server.core.pagemodel.domain.exception.PageModelStateException;
 import com.tchalanet.server.common.types.id.UserId;
@@ -201,4 +201,3 @@ public final class PageModelInstance {
   public Optional<Instant> archivedAt() { return Optional.ofNullable(archivedAt); }
   public Optional<Instant> deletedAt() { return Optional.ofNullable(deletedAt); }
 }
-

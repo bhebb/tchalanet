@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.application.command.handler;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;

@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.pos.infra.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,6 +11,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 @Entity
 @Table(name = "terminal")

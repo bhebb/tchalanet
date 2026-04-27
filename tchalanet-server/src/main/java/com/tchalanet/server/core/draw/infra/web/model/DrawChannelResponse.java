@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.draw.infra.web.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Data;
+import tools.jackson.databind.JsonNode;
 
 @Data
 @Builder

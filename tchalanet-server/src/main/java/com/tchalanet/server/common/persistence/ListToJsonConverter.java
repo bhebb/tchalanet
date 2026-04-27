@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.persistence;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.tchalanet.server.common.util.JsonUtils;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

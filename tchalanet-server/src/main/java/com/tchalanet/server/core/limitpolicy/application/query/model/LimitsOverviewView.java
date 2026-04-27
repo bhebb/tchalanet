@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.application.query.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;

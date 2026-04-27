@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.common.types.id.LimitDefinitionId;
+import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 

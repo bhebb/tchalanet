@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.tenantadmin.policies;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -28,6 +27,7 @@ import com.tchalanet.server.common.types.id.LimitDefinitionId;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 import java.util.UUID;

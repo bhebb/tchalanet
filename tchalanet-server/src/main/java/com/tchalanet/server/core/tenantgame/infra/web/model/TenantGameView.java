@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.tenantgame.infra.web.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Data;
+import tools.jackson.databind.JsonNode;
 
 @Data
 @Builder

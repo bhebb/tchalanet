@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.infra.web.mapper;
 
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.command.model.UpdateDrawCommand;
@@ -64,4 +65,9 @@ public interface DrawAdminWebMapper {
     @Mapping(target = "lastResult", expression = "java(java.util.List.of())")
   })
   DrawSummaryResponse toDrawSummaryResponseFallback(UpdateDrawRequest request);
+
+  /** Pass-through mapping for JsonNode (Jackson 3). */
+  default JsonNode map(JsonNode value) {
+    return value;
+  }
 }

@@ -1,7 +1,6 @@
 package com.tchalanet.server.catalog.plan.internal.mapper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.catalog.plan.internal.persistence.PlanJpaEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;

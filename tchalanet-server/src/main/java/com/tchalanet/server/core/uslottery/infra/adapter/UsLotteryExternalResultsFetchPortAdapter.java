@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.infra.adapter;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.contracts.results.ExternalFetchStatus;
@@ -304,7 +304,7 @@ public class UsLotteryExternalResultsFetchPortAdapter implements ExternalResults
     }
 
     private static String norm(String s) {
-        return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
+        return s == null ? "" : s.trim().toUpperCase(java.util.Locale.ROOT);
     }
 
     private static String safe(String s) {

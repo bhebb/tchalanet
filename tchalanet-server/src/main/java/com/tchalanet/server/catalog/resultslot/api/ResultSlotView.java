@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.resultslot.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.LocalTime;
 import java.time.ZoneId;

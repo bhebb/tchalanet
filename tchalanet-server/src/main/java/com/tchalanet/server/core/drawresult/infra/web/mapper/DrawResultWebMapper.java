@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.infra.web.mapper;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.core.drawresult.infra.web.model.DrawResultResponse;
@@ -39,10 +39,10 @@ public class DrawResultWebMapper {
   public DrawResult toDomain(DrawResultResponse response) {
     if (response == null) return null;
     JsonNode sourceResult =
-        response.sourceResult() == null ? null : jsonUtils.parse(response.sourceResult());
+        response.sourceResult() == null ? null : (JsonNode) jsonUtils.parse(response.sourceResult());
     JsonNode haitiResult =
-        response.haitiResult() == null ? null : jsonUtils.parse(response.haitiResult());
-    JsonNode raw = response.rawPayload() == null ? null : jsonUtils.parse(response.rawPayload());
+        response.haitiResult() == null ? null : (JsonNode) jsonUtils.parse(response.haitiResult());
+    JsonNode raw = response.rawPayload() == null ? null : (JsonNode) jsonUtils.parse(response.rawPayload());
 
     return new DrawResult(
         response.occurredAt(),

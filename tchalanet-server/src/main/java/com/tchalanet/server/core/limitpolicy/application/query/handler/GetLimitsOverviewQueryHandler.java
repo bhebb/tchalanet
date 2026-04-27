@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.application.query.handler;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.limitpolicy.application.port.out.LimitAssignmentReaderPort;

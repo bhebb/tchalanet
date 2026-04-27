@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.theme.api;
 
 import com.tchalanet.server.common.types.id.ThemePresetId;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.time.Instant;
 
 public record ThemePresetView(

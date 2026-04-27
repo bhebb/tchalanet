@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.plan.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.PlanId;
 
 import java.math.BigDecimal;

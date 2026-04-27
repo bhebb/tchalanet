@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.application.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
+
 import java.util.List;
 
 public final class HaitiResultExtractors {

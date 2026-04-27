@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.init;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;

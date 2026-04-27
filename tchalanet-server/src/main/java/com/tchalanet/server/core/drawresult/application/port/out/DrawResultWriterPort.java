@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.application.port.out;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import java.time.Instant;

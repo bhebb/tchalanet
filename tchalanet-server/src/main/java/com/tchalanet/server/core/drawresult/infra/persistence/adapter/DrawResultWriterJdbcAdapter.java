@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.drawresult.infra.persistence.adapter;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.util.JsonUtils;
@@ -12,6 +11,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.JsonNode;
 
 @Component
 @RequiredArgsConstructor

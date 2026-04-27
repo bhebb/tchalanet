@@ -1,81 +1,73 @@
 package com.tchalanet.server.common.web.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-
-import java.io.IOException;
 import java.lang.reflect.Method;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 /**
- * Generic serializer for simple typed-id wrapper objects.
+ * Generic serializer for simple typed-id wrapper objects (Jackson 3 / {@link ValueSerializer}).
  *
- * It will try to call a no-arg {@code value()} method by reflection (common in ID wrappers).
- * If that returns a Number, it will be written as a JSON number. Otherwise it will be written
- * as a JSON string. If the value or reflection result is null, a JSON null is written.
+ * <p>It tries to call a no-arg {@code value()} method by reflection (common in our ID wrappers). If
+ * that returns a {@link Number}, it is written as a JSON number. Otherwise the value is written as
+ * a JSON string. {@code null} values produce a JSON null.
  *
  * @param <T> wrapper type
  */
-public final class GenericTypedIdSerializer<T> extends JsonSerializer<T> {
+public final class GenericTypedIdSerializer<T> extends ValueSerializer<T> {
 
-    private final Class<T> target;
-    private final Method valueMethod;
+  private final Class<T> target;
+  private final Method valueMethod;
 
-    public GenericTypedIdSerializer(Class<T> target) {
-        this.target = target;
-        Method m = null;
-        try {
-            m = target.getMethod("value"); // common in your wrappers
-        } catch (NoSuchMethodException ignored) {
-            // no value() method, we'll fallback to toString()
-        }
-        this.valueMethod = m;
+  public GenericTypedIdSerializer(Class<T> target) {
+    this.target = target;
+    Method m = null;
+    try {
+      m = target.getMethod("value");
+    } catch (NoSuchMethodException ignored) {
+      // no value() method — fall back to toString()
+    }
+    this.valueMethod = m;
+  }
+
+  @Override
+  public void serialize(T value, JsonGenerator gen, SerializationContext ctxt) {
+    if (value == null) {
+      gen.writeNull();
+      return;
     }
 
-    @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (value == null) {
-            gen.writeNull();
-            return;
+    try {
+      if (valueMethod != null) {
+        Object raw = valueMethod.invoke(value);
+        if (raw == null) {
+          gen.writeNull();
+          return;
         }
-
-        try {
-            if (valueMethod != null) {
-                Object raw = valueMethod.invoke(value);
-                if (raw == null) {
-                    gen.writeNull();
-                    return;
-                }
-                if (raw instanceof Number) {
-                    // write as JSON number to preserve numeric type
-                    Number n = (Number) raw;
-                    // use appropriate JsonGenerator method
-                    if (n instanceof Integer || n instanceof Short || n instanceof Byte) {
-                        gen.writeNumber(n.intValue());
-                    } else if (n instanceof Long) {
-                        gen.writeNumber(n.longValue());
-                    } else if (n instanceof Float || n instanceof Double) {
-                        gen.writeNumber(n.doubleValue());
-                    } else {
-                        // fallback for BigInteger/BigDecimal and other Number implementations
-                        gen.writeNumber(n.toString());
-                    }
-                    return;
-                }
-                // non-number -> write as string
-                gen.writeString(raw.toString());
-                return;
-            }
-        } catch (Exception e) {
-            // fallthrough to fallback
+        if (raw instanceof Number n) {
+          if (n instanceof Integer || n instanceof Short || n instanceof Byte) {
+            gen.writeNumber(n.intValue());
+          } else if (n instanceof Long) {
+            gen.writeNumber(n.longValue());
+          } else if (n instanceof Float || n instanceof Double) {
+            gen.writeNumber(n.doubleValue());
+          } else {
+            gen.writeNumber(n.toString());
+          }
+          return;
         }
-
-        // fallback: use toString()
-        String s = value.toString();
-        if (s == null) {
-            gen.writeNull();
-        } else {
-            gen.writeString(s);
-        }
+        gen.writeString(raw.toString());
+        return;
+      }
+    } catch (ReflectiveOperationException ignored) {
+      // fall through to toString() fallback
     }
+
+    String s = value.toString();
+    if (s == null) {
+      gen.writeNull();
+    } else {
+      gen.writeString(s);
+    }
+  }
 }

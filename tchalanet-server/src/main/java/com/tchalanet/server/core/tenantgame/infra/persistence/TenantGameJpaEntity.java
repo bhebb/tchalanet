@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.tenantgame.infra.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 /**
  * JPA entity for tenant-scoped game configuration.

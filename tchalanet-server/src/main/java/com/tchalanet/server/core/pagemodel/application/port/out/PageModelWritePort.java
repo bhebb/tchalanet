@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.pagemodel.application.port.out;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;

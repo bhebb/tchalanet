@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.drawresult.infra.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
@@ -13,6 +12,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 @Audited
 @Getter

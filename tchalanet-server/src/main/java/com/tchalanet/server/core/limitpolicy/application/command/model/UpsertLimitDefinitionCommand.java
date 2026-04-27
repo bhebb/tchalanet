@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.application.command.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
@@ -12,4 +12,4 @@ public record UpsertLimitDefinitionCommand(
     @NotNull BreachOutcome onBreach,
     @NotNull JsonNode params,
     @NotNull JsonNode appliesTo
-) implements Command<com.tchalanet.server.core.limitpolicy.application.command.model.UpsertLimitDefinitionResult> {}
+) implements Command<UpsertLimitDefinitionResult> {}

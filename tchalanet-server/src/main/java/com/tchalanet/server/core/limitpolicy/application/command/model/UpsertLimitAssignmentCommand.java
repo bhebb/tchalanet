@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.application.command.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.LimitDefinitionId;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;

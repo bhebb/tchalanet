@@ -2,47 +2,48 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.3</version>
     <relativePath/>
   </parent>
+
   <groupId>com.tchalanet</groupId>
   <artifactId>tchalanet-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>tchalanet-server</name>
   <description>tchalanet-server</description>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>25</java.version>
 
-    <!-- Maven Plugins -->
+    <!-- Library versions -->
+    <archunit.version>1.4.1</archunit.version>
+    <caffeine.version>3.2.3</caffeine.version>
+    <json-schema-validator.version>3.0.2</json-schema-validator.version>
+    <keycloak.version>26.0.9</keycloak.version>
+    <lombok.version>1.18.42</lombok.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
+    <pdfbox.version>3.0.4</pdfbox.version>
+    <querydsl.version>5.1.0</querydsl.version>
+    <shedlock.version>6.3.0</shedlock.version>
+    <springdoc.version>2.8.5</springdoc.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
+    <zxing.version>3.5.3</zxing.version>
+    <rome.version>2.1.0</rome.version>
+    <jackson.version>3.1.1</jackson.version>
+    <!-- Build plugins -->
     <maven.compiler.plugin.version>3.14.0</maven.compiler.plugin.version>
-    <spotless.plugin.version>3.1.0</spotless.plugin.version>
-    <googlejavaformat.version>1.33.0</googlejavaformat.version>
-    <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
-    <checkstyle.config>checkstyle/google_checks.xml</checkstyle.config>
+    <maven.enforcer.plugin.version>3.5.0</maven.enforcer.plugin.version>
     <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
     <maven.failsafe.plugin.version>3.5.4</maven.failsafe.plugin.version>
     <jacoco.plugin.version>0.8.14</jacoco.plugin.version>
+    <spotless.plugin.version>2.44.3</spotless.plugin.version>
+    <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
     <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
-    <dependencycheck.plugin.version>12.1.9</dependencycheck.plugin.version>
-
-    <!-- Core Dependencies -->
-    <mapstruct.version>1.6.3</mapstruct.version>
-    <caffeine.version>3.2.3</caffeine.version>
-    <lombok.version>1.18.42</lombok.version>
-    <testcontainers.version>1.21.4</testcontainers.version>
-    <springdoc.version>3.0.0</springdoc.version>
-    <rome.version>2.1.0</rome.version>
-    <querydsl.version>5.1.0</querydsl.version>
-    <keycloak.admin.client.version>26.0.7</keycloak.admin.client.version>
-    <zxing.version>3.5.3</zxing.version>
-    <pdfbox.version>3.0.3</pdfbox.version>
-    <shedlock.version>6.3.0</shedlock.version>
-    <archunit.version>1.4.1</archunit.version>
-    <json-schema-validator.version>1.4.3</json-schema-validator.version>
 
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
     <sonar.projectName>tchalanet-server</sonar.projectName>
@@ -63,15 +64,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-json</artifactId>
     </dependency>
-
-    <!-- OpenAPI runtime -->
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc.version}</version>
-    </dependency>
-
-    <!-- Security + OAuth2 Resource Server (JWT Keycloak) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -112,11 +104,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
 
     <!-- Persistence & DB -->
     <dependency>
@@ -134,12 +121,6 @@
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
     </dependency>
-
-    <!-- Flyway -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-flyway</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
@@ -150,13 +131,7 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- (Optionnel) Observabilité basique -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-
-    <!-- (Optionnel) Lombok -->
+    <!-- Mapping & Code Gen -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -168,6 +143,8 @@
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
     </dependency>
+
+    <!-- Utils -->
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
@@ -179,6 +156,17 @@
       <version>${rome.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.21</version>
+    </dependency>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>3.1.2</version>
+    </dependency>
+
     <!-- API & Documentation -->
     <dependency>
       <groupId>org.springdoc</groupId>
@@ -186,18 +174,12 @@
       <version>${springdoc.version}</version>
     </dependency>
 
-    <!-- QueryDSL -->
+    <!-- QueryDSL (Jakarta compatible version) -->
     <dependency>
       <groupId>com.querydsl</groupId>
       <artifactId>querydsl-jpa</artifactId>
       <version>${querydsl.version}</version>
       <classifier>jakarta</classifier>
-      <exclusions>
-        <exclusion>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate-core</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.querydsl</groupId>
@@ -223,7 +205,7 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-admin-client</artifactId>
-      <version>${keycloak.admin.client.version}</version>
+      <version>${keycloak.version}</version>
     </dependency>
 
     <!-- Barcode & PDF -->
@@ -243,7 +225,7 @@
       <version>${pdfbox.version}</version>
     </dependency>
 
-    <!-- Validation & Schema -->
+    <!-- JSON Schema (v3 for Jackson 3 support) -->
     <dependency>
       <groupId>com.networknt</groupId>
       <artifactId>json-schema-validator</artifactId>
@@ -251,6 +233,16 @@
     </dependency>
 
     <!-- Testing -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-test-autoconfigure</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
@@ -283,10 +275,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler.plugin.version}</version>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
           <release>${java.version}</release>
-          <fork>true</fork>
+          <parameters>true</parameters>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
@@ -297,6 +287,17 @@
               <groupId>org.mapstruct</groupId>
               <artifactId>mapstruct-processor</artifactId>
               <version>${mapstruct.version}</version>
+            </path>
+            <path>
+              <groupId>com.querydsl</groupId>
+              <artifactId>querydsl-apt</artifactId>
+              <version>${querydsl.version}</version>
+              <classifier>jakarta</classifier>
+            </path>
+            <path>
+              <groupId>jakarta.persistence</groupId>
+              <artifactId>jakarta.persistence-api</artifactId>
+              <version>3.1.0</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
@@ -316,20 +317,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>${maven.enforcer.plugin.version}</version>
         <executions>
           <execution>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
+            <goals><goal>enforce</goal></goals>
             <configuration>
               <rules>
-                <requireJavaVersion>
-                  <version>[25,)</version>
-                </requireJavaVersion>
-                <requireMavenVersion>
-                  <version>[3.9.0,)</version>
-                </requireMavenVersion>
+                <requireJavaVersion><version>[${java.version},)</version></requireJavaVersion>
               </rules>
             </configuration>
           </execution>
@@ -341,20 +335,12 @@
         <version>${maven.surefire.plugin.version}</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${maven.failsafe.plugin.version}</version>
-      </plugin>
-      <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless.plugin.version}</version>
         <configuration>
           <java>
-            <googleJavaFormat>
-              <version>${googlejavaformat.version}</version>
-              <style>GOOGLE</style>
-            </googleJavaFormat>
+            <googleJavaFormat/>
           </java>
         </configuration>
       </plugin>
@@ -364,7 +350,6 @@
         <version>${checkstyle.plugin.version}</version>
         <configuration>
           <configLocation>${checkstyle.config}</configLocation>
-          <consoleOutput>true</consoleOutput>
           <failsOnError>true</failsOnError>
         </configuration>
       </plugin>

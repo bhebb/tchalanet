@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.pagemodel.infra.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;

@@ -59,17 +59,16 @@ public record PageModelDoc(
                           @JsonProperty("label_key") String labelKey,
                           @JsonProperty("columns") List<LayoutColumn> columns) {}
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
   public record LayoutColumn(@JsonProperty("span") int span,
                              @JsonProperty("widgets") List<String> widgets) {}
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
   public record WidgetConfig(@JsonProperty("type") String type,
                               @JsonProperty("binding") WidgetBinding binding,
                               @JsonProperty("props") Map<String, Object> props) {}
 
-  @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
   public record WidgetBinding(@JsonProperty("mode") String mode,
                                @JsonProperty("source") String source) {}
 }
-

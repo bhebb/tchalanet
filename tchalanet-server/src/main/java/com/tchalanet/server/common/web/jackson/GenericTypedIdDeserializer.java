@@ -1,19 +1,20 @@
 package com.tchalanet.server.common.web.jackson;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-
-import java.io.IOException;
 import java.lang.reflect.Method;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 /**
- * Lightweight generic deserializer for typed id wrappers that expose a static parse(String) method.
- * Accepts either a JSON string ("uuid-string") or an object {"value":"uuid-string"}.
+ * Lightweight generic deserializer for typed-id wrappers exposing a static {@code parse(String)}
+ * method (Jackson 3 / {@link ValueDeserializer}). Accepts either a JSON string ("uuid-string") or
+ * an object {@code {"value":"uuid-string"}}.
  */
-public class GenericTypedIdDeserializer<T> extends JsonDeserializer<T> {
+public class GenericTypedIdDeserializer<T> extends ValueDeserializer<T> {
+
   private final Class<T> target;
   private final Method parseMethod;
 
@@ -22,7 +23,7 @@ public class GenericTypedIdDeserializer<T> extends JsonDeserializer<T> {
     Method m = null;
     try {
       m = target.getMethod("parse", String.class);
-    } catch (NoSuchMethodException e) {
+    } catch (NoSuchMethodException ignored) {
       // parse method not found — we'll fail later if needed
     }
     this.parseMethod = m;
@@ -30,20 +31,20 @@ public class GenericTypedIdDeserializer<T> extends JsonDeserializer<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-    if (p.getCurrentToken() == JsonToken.VALUE_NULL) return null;
+  public T deserialize(JsonParser p, DeserializationContext ctxt) {
+    if (p.currentToken() == JsonToken.VALUE_NULL) return null;
 
     String str = null;
-    if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
-      str = p.getText();
+    if (p.currentToken() == JsonToken.VALUE_STRING) {
+      str = p.getString();
     } else {
-      JsonNode node = p.readValueAsTree();
+      JsonNode node = ctxt.readTree(p);
       if (node == null || node.isNull()) return null;
       JsonNode v = node.get("value");
       if (v != null && v.isTextual()) {
-        str = v.asText();
+        str = v.asString();
       } else if (node.isTextual()) {
-        str = node.asText();
+        str = node.asString();
       }
     }
 
@@ -52,12 +53,13 @@ public class GenericTypedIdDeserializer<T> extends JsonDeserializer<T> {
     if (parseMethod != null) {
       try {
         return (T) parseMethod.invoke(null, str.trim());
-      } catch (Exception ex) {
-        throw new IOException("Failed to parse " + target.getSimpleName() + " from '" + str + "'", ex);
+      } catch (ReflectiveOperationException ex) {
+        throw InvalidFormatException.from(
+            p, "Failed to parse " + target.getSimpleName() + " from '" + str + "'", str, target);
       }
     }
 
-    // No parse method available — try to find static of(UUID) or constructor is more complex; prefer explicit deserializer instead.
-    throw new IOException("No parse(String) method found on " + target.getName());
+    throw InvalidFormatException.from(
+        p, "No parse(String) method found on " + target.getName(), str, target);
   }
 }

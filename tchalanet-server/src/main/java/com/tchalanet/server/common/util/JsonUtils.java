@@ -1,26 +1,28 @@
 package com.tchalanet.server.common.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
-/** Utilities around Jackson ObjectMapper to centralize exception handling and common operations. */
+/**
+ * Utilities around the Jackson 3 {@link JsonMapper} to centralize exception handling and common
+ * operations.
+ */
 @Component
 @RequiredArgsConstructor
 public class JsonUtils {
 
-  private final ObjectMapper mapper;
+  private final JsonMapper mapper;
 
   public String toJson(Object value) {
     try {
       return mapper.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to serialize object to JSON", e);
     }
   }
@@ -28,7 +30,7 @@ public class JsonUtils {
   public <T> T readValue(InputStream is, Class<T> clazz) {
     try {
       return mapper.readValue(is, clazz);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to read JSON from InputStream", e);
     }
   }
@@ -36,7 +38,7 @@ public class JsonUtils {
   public <T> T readValue(String json, Class<T> clazz) {
     try {
       return mapper.readValue(json, clazz);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to read JSON from String", e);
     }
   }
@@ -44,7 +46,7 @@ public class JsonUtils {
   public <T> T readValue(String json, TypeReference<T> typeRef) {
     try {
       return mapper.readValue(json, typeRef);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to read JSON from String with TypeReference", e);
     }
   }
@@ -52,7 +54,7 @@ public class JsonUtils {
   public <T> T treeToValue(JsonNode node, Class<T> clazz) {
     try {
       return mapper.treeToValue(node, clazz);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to convert JsonNode to object", e);
     }
   }
@@ -72,7 +74,7 @@ public class JsonUtils {
   public JsonNode parse(String json) {
     try {
       return mapper.readTree(json);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new IllegalStateException("Failed to parse JSON", e);
     }
   }

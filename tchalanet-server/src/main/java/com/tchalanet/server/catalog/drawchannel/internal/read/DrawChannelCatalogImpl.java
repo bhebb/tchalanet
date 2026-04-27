@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.drawchannel.internal.read;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.catalog.drawchannel.api.model.*;
 import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheNames;
@@ -98,7 +98,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
 
       Object rawFlags = r[4];
       JsonNode flags;
-      if (rawFlags == null) flags = jsonUtils.emptyObjectNode();
+      if (rawFlags == null) flags = null;
       else if (rawFlags instanceof JsonNode jn) flags = jn;
       else flags = jsonUtils.parse(rawFlags.toString());
 

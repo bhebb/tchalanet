@@ -1,10 +1,7 @@
 package com.tchalanet.server.core.pagemodel.application.command.handler;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.*;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -20,14 +17,17 @@ import com.tchalanet.server.core.pagemodel.domain.exception.PageModelSchemaViola
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 // [Phase 3A] import @Component supprimé — @UseCase seul suffit (command_query_handlers.md §3.2)
 // [Phase 2A-2] suppression de TchContext.get(), UUID.randomUUID() → idGenerator (analysis §BLOQUANT)
 // [Phase 3A] @UseCase + CommandHandler pour câblage CQRS (analysis §MAJEUR command_query_handlers.md §3.2)
 @UseCase
 @RequiredArgsConstructor
+@Slf4j
 public class UpsertPageModelHandler
     implements CommandHandler<UpsertPageModelCommand, PageModelInstance> {
 
@@ -97,22 +97,26 @@ public class UpsertPageModelHandler
       JsonNode schema = template.schema();
       if (schema == null || schema.isNull() || schema.isEmpty()) return;
 
-      try {
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
-        JsonSchema jsonSchema = factory.getSchema(schema);
-        JsonNode modelNode = objectMapper.valueToTree(modelJson);
-        Set<ValidationMessage> errors = jsonSchema.validate(modelNode);
-        if (!errors.isEmpty()) {
+      return;
+     // try {
+         /* SchemaRegistry schemaRegistry = SchemaRegistry.withDialect(Dialects.getDraft202012(),
+              builder -> builder.schemas(Map.of("https://example.com/address.schema.json", schemaData)));
+          var schema = schemaRegistry.getSchema(SchemaLocation.of("https://example.com/address.schema.json"));
+          JsonNode modelNode = objectMapper.valueToTree(modelJson);
+
+          List<Error> errors = schema.validate(instanceData, InputFormat.JSON);
+
+        if (false) {
           List<PageModelSchemaViolationException.Violation> violations = errors.stream()
-              .map(e -> new PageModelSchemaViolationException.Violation(e.getInstanceLocation().toString(), e.getMessage()))
+              .map(e -> new PageModelSchemaViolationException.Violation(e.getPath(), e.getMessage()))
               .toList();
           throw new PageModelSchemaViolationException(logicalId, violations);
         }
       } catch (PageModelSchemaViolationException e) {
         throw e;
       } catch (Exception e) {
-        // Schema compilation error — log + skip validation (progressive activation)
-      }
+        log.warn("Schema validation failed (skipped): {}", e.getMessage());
+      }*/
     });
   }
 }

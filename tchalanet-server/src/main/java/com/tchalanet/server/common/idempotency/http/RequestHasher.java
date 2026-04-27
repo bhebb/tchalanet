@@ -1,10 +1,10 @@
 package com.tchalanet.server.common.idempotency.http;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.NullNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.tchalanet.server.common.util.JsonUtils;
 
 import java.security.MessageDigest;
@@ -36,7 +36,7 @@ public final class RequestHasher {
     if (node.isObject()) {
       ObjectNode out = JsonNodeFactory.instance.objectNode();
       java.util.List<String> names = new java.util.ArrayList<>();
-      node.fieldNames().forEachRemaining(names::add);
+      node.asArray().iterator().forEachRemaining(n->names.add(n.stringValue()));
       java.util.Collections.sort(names);
 
       for (String name : names) {

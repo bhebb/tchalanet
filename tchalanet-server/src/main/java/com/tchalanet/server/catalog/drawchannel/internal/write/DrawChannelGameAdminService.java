@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.drawchannel.internal.write;
 
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheNames;
 import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelGameMapper;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameEntity;
@@ -32,7 +33,7 @@ public class DrawChannelGameAdminService {
   @Transactional
   @CacheEvict(cacheNames = {DrawChannelCacheNames.BY_TENANT, DrawChannelCacheNames.BY_ID, DrawChannelCacheNames.BY_TENANT_GAME_MAP}, allEntries = true)
   public com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse upsert(
-      TenantId tenantId, DrawChannelId channelId, GameId gameId, boolean enabled, com.fasterxml.jackson.databind.JsonNode flags) {
+      TenantId tenantId, DrawChannelId channelId, GameId gameId, boolean enabled, JsonNode flags) {
 
     var existing = repository.findByTenantIdAndDrawChannelIdAndGameIdAndDeletedAtIsNull(
         tenantId.value(), channelId.value(), gameId.value());

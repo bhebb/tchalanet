@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.common.config.ObjectMapperHolder;
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.tenantgame.infra.web.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
+import tools.jackson.databind.JsonNode;
 
 @Data
 public class UpdatePolicyRequest {

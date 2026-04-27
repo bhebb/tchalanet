@@ -1,15 +1,11 @@
 package com.tchalanet.server.core.drawresult.domain.model;
 
-import static com.tchalanet.server.common.types.enums.ResultQuality.COMPLETE;
-import static com.tchalanet.server.common.types.enums.ResultQuality.SUSPECT;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tchalanet.server.common.config.ObjectMapperHolder;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -40,18 +36,18 @@ public record DrawResult(
     Objects.requireNonNull(fetchedAt);
   }
 
-  private static JsonNode buildHaitiResult(List<String> main, List<String> extra) {
-    ObjectMapper mapper = ObjectMapperHolder.get();
+  private static tools.jackson.databind.node.ObjectNode buildHaitiResult(List<String> main, List<String> extra) {
+    var mapper = ObjectMapperHolder.get();
     if (mapper == null) return null;
-    ObjectNode root = mapper.createObjectNode();
+    var root = mapper.createObjectNode();
     try {
       if (main != null && !main.isEmpty()) {
-        ArrayNode arr = mapper.createArrayNode();
+        var arr = mapper.createArrayNode();
         for (String s : main) arr.add(s);
         root.set("lot1_values", arr);
       }
       if (extra != null && !extra.isEmpty()) {
-        ArrayNode arr2 = mapper.createArrayNode();
+        var arr2 = mapper.createArrayNode();
         for (String s : extra) arr2.add(s);
         root.set("extra_values", arr2);
       }
@@ -63,13 +59,13 @@ public record DrawResult(
 
   private static JsonNode buildRawPayloadNode(String raw) {
     if (raw == null) return null;
-    ObjectMapper mapper = ObjectMapperHolder.get();
+    var mapper = ObjectMapperHolder.get();
     if (mapper == null) return null;
     try {
       return mapper.readTree(raw);
     } catch (Exception e) {
       // fallback to string wrapper
-      ObjectNode o = mapper.createObjectNode();
+      var o = mapper.createObjectNode();
       o.put("raw", raw);
       return o;
     }
@@ -77,12 +73,12 @@ public record DrawResult(
 
   // Backwards-compatible accessors used by legacy code
   public List<String> numbersMain() {
-    ObjectMapper mapper = ObjectMapperHolder.get();
+    var mapper = ObjectMapperHolder.get();
     if (mapper == null) return List.of();
     try {
       if (haitiResult == null) return List.of();
       if (haitiResult.get("lot1_values") != null && haitiResult.get("lot1_values").isArray()) {
-        ArrayNode arr = (ArrayNode) haitiResult.get("lot1_values");
+        var arr = (ArrayNode) haitiResult.get("lot1_values");
         List<String> list =
             mapper.convertValue(
                 arr, mapper.getTypeFactory().constructCollectionType(List.class, String.class));
@@ -95,7 +91,7 @@ public record DrawResult(
   }
 
   public List<String> numbersExtra() {
-    ObjectMapper mapper = ObjectMapperHolder.get();
+    var mapper = ObjectMapperHolder.get();
     if (mapper == null) return List.of();
     try {
       if (haitiResult == null) return List.of();

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.pagemodel.infra.web.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
 import java.time.Instant;
 

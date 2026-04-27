@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaEntity;
 import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 

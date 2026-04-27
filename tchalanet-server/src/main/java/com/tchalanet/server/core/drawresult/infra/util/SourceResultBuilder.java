@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.infra.util;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.tchalanet.server.common.contracts.results.ExternalResultOutput;
 import com.tchalanet.server.common.util.JsonUtils;
 

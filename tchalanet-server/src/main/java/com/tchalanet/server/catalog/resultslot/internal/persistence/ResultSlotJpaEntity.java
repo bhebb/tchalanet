@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.resultslot.internal.persistence;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
