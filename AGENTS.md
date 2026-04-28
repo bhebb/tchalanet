@@ -8,7 +8,7 @@ Ce fichier couvre TOUS les scopes :
 
 - backend (tchalanet-server)
 - frontend web (Nx / Angular)
-- mobile (Ionic)
+- mobile (Flutter)
 - infra / DevOps
 - edge-service
 
@@ -62,9 +62,17 @@ Si une règle doit être cassée → **ADR obligatoire** (`tchalanet-docs/docs/0
 
 **4 couches immuables** : `common/` · `catalog/` · `core/` · `features/`
 
+Dépendances autorisées (enforced) :
+
+- `features/` → `core/` et `catalog/`
+- `core/` MUST NOT dépendre de `features/` ni de `catalog/`
+- `catalog/` MUST NOT émettre d'events ni contenir d'invariants métier
+- `common/` MUST NOT dépendre de `core/`, `features/` ou `catalog/`
+
 - Règles de dépendances et structures internes :
   👉 `openspec/context/10-non-negotiables.md` (résumé non-négociable)
   👉 `tchalanet-server/docs/ARCHITECTURE.md` (source canonique complète)
+  👉 `tchalanet-server/docs/PLAYBOOK.md` (comment livrer une feature, Definition of Done)
   👉 `tchalanet-server/CLAUDE.md` (checklist IA + commandes)
 
 ---
@@ -108,13 +116,13 @@ Règles clés (résumé) :
 
 - `apps/tchalanet-web/README.md`
 - `libs/**/README.md`
-- `apps/tchalanet-web/CLAUDE.md` · `apps/tchalanet-mobile/CLAUDE.md`
+- `apps/tchalanet-web/CLAUDE.md` · `tchalanet-mobile/CLAUDE.md`
 
 Règles clés : mobile-first · i18n fr/en/ht · CSS variables uniquement · ❌ couleurs hardcodées.
 
 Web (Angular 20) : composants `standalone: true` + `OnPush` · control flow moderne (`@if`/`@for`) · signaux (`signal()`, `computed()`, `effect()`) · widget renderer (`libs/ui/widget-renderer/`) pour page models.
 
-Mobile : **Ionic/Angular + Capacitor** · Android-first (terminal POS) · offline-first.
+Mobile : **Flutter** (Dart) + Riverpod + GoRouter · Material 3 · Capacitor (POS) · Android-first (terminal POS Motorola) · offline-first.
 
 ---
 
@@ -129,6 +137,8 @@ Mobile : **Ionic/Angular + Capacitor** · Android-first (terminal POS) · offlin
 Règles clés : pas de `:latest`, images pinées, toute version dans `VERSIONS.md`.
 
 Services infra : PostgreSQL · Redis · Keycloak (auth) · Traefik (reverse proxy) · **Unleash 7.4** (feature flags) · **Meilisearch v1.11** (search).
+
+Edge service : templates Liquid via **LiquidJS** dans `templates/` (convention `{channel}_{eventType}_{locale}.liquid`) · règles dans `rules/{eventType}.json` · canaux : WEB · EMAIL (Mailgun) · SMS (Bird).
 
 ---
 
@@ -154,5 +164,6 @@ Doc hub canonique : **`DOCUMENTATION.md`**
 - Domain truth : `tchalanet-server/src/**/DOMAIN_*.md`
 - Feature truth : `tchalanet-server/src/**/FEATURE_*.md`
 - Backend conventions : `tchalanet-server/docs/conventions/*`
+- Backend playbook : `tchalanet-server/docs/PLAYBOOK.md`
 - Central docs : `tchalanet-docs/docs/*`
-- Scope CLAUDE.md : `tchalanet-server/CLAUDE.md` · `apps/tchalanet-web/CLAUDE.md` · `apps/tchalanet-mobile/CLAUDE.md` · `tchalanet-infra/CLAUDE.md` · `tchalanet-edge-service/CLAUDE.md` · `tchalanet-docs/CLAUDE.md`
+- Scope CLAUDE.md : `tchalanet-server/CLAUDE.md` · `apps/tchalanet-web/CLAUDE.md` · `tchalanet-mobile/CLAUDE.md` · `tchalanet-infra/CLAUDE.md` · `tchalanet-edge-service/CLAUDE.md` · `tchalanet-docs/CLAUDE.md`

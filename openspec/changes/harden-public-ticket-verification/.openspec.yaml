@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-04-26
+status: draft
+summary: Mask outletAddress identifiers, derive payoutStatus from real winningAmount, replace catch-all silent error handling, configure visibility window.
