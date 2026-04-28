@@ -2,8 +2,8 @@
 
 ### Requirement: Endpoint GET /platform/theme-presets/overview dans ThemeAdminController
 
-`ThemeAdminController` (existant dans `catalog/theme/internal/web/`, path `/platform/theme-presets`)
-SHALL exposer `GET /platform/theme-presets/overview`. `ThemeCatalog` SHALL être injecté en plus
+`ThemeAdminController` SHALL exposer `GET /platform/theme-presets/overview` depuis
+`catalog/theme/internal/web/` (path `/platform/theme-presets`). `ThemeCatalog` SHALL être injecté en plus
 de `ThemePresetAdminService`. L'endpoint appelle `ThemeCatalog.stats()` et retourne
 `ApiResponse<ThemePresetStatsView>` (existant : `total`, `active`).
 La sécurité `@PreAuthorize("hasAuthority('SUPER_ADMIN')")` au niveau classe est déjà en place.
@@ -30,8 +30,8 @@ La sécurité `@PreAuthorize("hasAuthority('SUPER_ADMIN')")` au niveau classe es
 
 ### Requirement: Suppression de features/platformadmin/theme/
 
-Le dossier `features/platformadmin/theme/` et la classe `PlatformAdminThemeController`
-SHALL être supprimés après enrichissement de `ThemeAdminController`.
+Le dossier `features/platformadmin/theme/` et la classe `PlatformAdminThemeController` SHALL être supprimés
+après enrichissement de `ThemeAdminController`.
 
 #### Scenario: Le package features/platformadmin/theme n'existe plus
 

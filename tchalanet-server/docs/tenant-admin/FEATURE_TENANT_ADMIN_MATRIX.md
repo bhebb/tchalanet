@@ -12,7 +12,8 @@
 - **Owning core**: the only place allowed to implement invariants + persistence writes.
 - **Core handlers**: commands/queries that must exist in the owning core.
 - **BFF models**: feature-level UI models assembled for screens (no truth).
-- **Feature slice**: `com.tchalanet.server.features.tenantadmin.<slice>`
+- **Feature slice**: `com.tchalanet.server.features.tenantadmin.<slice>` when the screen is a composite BFF.
+- **Admin controller**: `core.<bc>.infra.web.admin.*Controller` when the screen is mono-domain CRUD.
 
 > If a core handler is missing → it MUST be added to the owning core (not to the feature).
 
@@ -20,31 +21,29 @@
 
 ## 1) Tenant Admin Portal — menu matrix
 
-| Menu area (UI)                   | Feature slice                          | Owning core(s)                                            | Core handlers (examples)                                     | BFF payloads (examples)                 |
-| -------------------------------- | -------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------ | --------------------------------------- |
-| Bootstrap (startup)              | `tenantadmin/users` _(or portal root)_ | `core.tenantuser` (+ optional other cores for enrichment) | `GetMeQuery`, `GetBootstrapQuery`                            | `TenantAdminBootstrapView`              |
-| Current user (`/me`)             | `tenantadmin/users`                    | `core.tenantuser`                                         | `GetMeQuery`                                                 | `CurrentUserView` (may extend)          |
-| Users list                       | `tenantadmin/users`                    | `core.tenantuser` (+ `core.user` for identity details)    | `ListTenantUsersQuery`, optional `GetUsersByIdsQuery`        | `TenantUsersListView`                   |
-| User details                     | `tenantadmin/users`                    | `core.user` (+ `core.tenantuser` membership)              | `GetUserQuery`, `GetTenantUserQuery`                         | `TenantUserDetailsView`                 |
-| Create user                      | `tenantadmin/users`                    | `core.user`                                               | `CreateUserCommand`                                          | `CreateUserResponse` / `TenantUserView` |
-| Update user                      | `tenantadmin/users`                    | `core.user`                                               | `UpdateUserCommand`                                          | `UpdateUserResponse`                    |
-| User preferences                 | `tenantadmin/users`                    | `core.user`                                               | `UpdateUserPreferencesCommand`, `GetUserPreferencesQuery`    | `UserPreferencesView`                   |
-| Assign user to tenant            | `tenantadmin/users`                    | `core.tenantuser`                                         | `AssignUserToTenantCommand`                                  | `TenantUserAssignmentView`              |
-| Unassign user                    | `tenantadmin/users`                    | `core.tenantuser`                                         | `UnassignUserFromTenantCommand`                              | `TenantUserAssignmentView`              |
-| Tenant config overview           | `tenantadmin/tenantconfig`             | `core.tenant` and/or policy cores + catalog defaults      | `GetTenantConfigQuery`, `UpdateTenantConfigCommand`          | `TenantConfigOverviewView`              |
-| Branding/theme                   | `tenantadmin/tenantconfig`             | owning core (tenant/theme) + catalog presets              | `GetThemeQuery`, `UpdateThemeCommand`                        | `TenantBrandingView`                    |
-| Feature exposure (flags surface) | `tenantadmin/tenantconfig`             | owning feature-flag core/service                          | `GetFeatureFlagsQuery`, `UpdateFeatureFlagsCommand`          | `TenantFeaturesView`                    |
-| Outlets list                     | `tenantadmin/outlets`                  | `core.outlet` (or existing)                               | `ListOutletsQuery`                                           | `OutletsListView`                       |
-| Outlet create/update             | `tenantadmin/outlets`                  | `core.outlet`                                             | `CreateOutletCommand`, `UpdateOutletCommand`                 | `OutletDetailsView`                     |
-| Outlet details/dashboard         | `tenantadmin/outlets`                  | `core.outlet` (+ optional other cores for metrics)        | `GetOutletQuery`, `GetOutletStatsQuery`                      | `OutletDashboardView`                   |
-| Terminals list                   | `tenantadmin/terminals`                | `core.terminal` (or existing)                             | `ListTerminalsQuery`                                         | `TerminalsListView`                     |
-| Register terminal                | `tenantadmin/terminals`                | `core.terminal`                                           | `RegisterTerminalCommand`                                    | `TerminalSetupView`                     |
-| Pair/activate terminal           | `tenantadmin/terminals`                | `core.terminal`                                           | `PairTerminalCommand`, `ActivateTerminalCommand`             | `TerminalPairingView`                   |
-| Revoke/reset terminal            | `tenantadmin/terminals`                | `core.terminal`                                           | `RevokeTerminalCommand`, `ResetTerminalCommand`              | `TerminalDetailsView`                   |
-| Draw channels list               | `tenantadmin/draws`                    | `core.draw`                                               | `ListDrawChannelsQuery`                                      | `TenantDrawChannelsView`                |
-| Configure draw channel           | `tenantadmin/draws`                    | `core.draw`                                               | `CreateDrawChannelCommand`, `UpdateDrawChannelCommand`       | `DrawChannelDetailsView`                |
-| Activate/deactivate channel      | `tenantadmin/draws`                    | `core.draw`                                               | `ActivateDrawChannelCommand`, `DeactivateDrawChannelCommand` | `DrawChannelStatusView`                 |
-| Draw windows/schedule            | `tenantadmin/draws`                    | `core.draw`                                               | `UpdateDrawWindowCommand`, `ListDrawWindowsQuery`            | `DrawScheduleView`                      |
+| Menu area (UI)         | Feature slice                      | Owning core(s)                                            | Core handlers (examples)                                                     | BFF payloads (examples)   |
+| ---------------------- | ---------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------- |
+| Bootstrap (startup)    | `core.tenantuser.infra.web.admin`  | `core.tenantuser` (+ optional other cores for enrichment) | `GetCurrentUserQuery`                                                        | `TenantUserAdminResponse` |
+| Current user (`/me`)   | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `GetCurrentUserQuery`                                                        | `TenantUserAdminResponse` |
+| Users list             | `core.tenantuser.infra.web.admin`  | `core.tenantuser` (+ `core.user` for identity details)    | `PagedListTenantUsersQuery`                                                  | `TenantUserAdminResponse` |
+| User details           | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `GetCurrentUserQuery`                                                        | `TenantUserAdminResponse` |
+| Create user            | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `CreateUserCommand`, `AssignUserToTenantCommand`, `SetTenantUserRoleCommand` | `TenantUserAdminResponse` |
+| Update user            | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `UpdateUserProfileCommand`                                                   | `TenantUserAdminResponse` |
+| User preferences       | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `UpdateUserPreferencesCommand`                                               | `TenantUserAdminResponse` |
+| Assign user to tenant  | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `AssignUserToTenantCommand`                                                  | `TenantUserAdminResponse` |
+| Unassign user          | `core.tenantuser.infra.web.admin`  | `core.tenantuser`                                         | `UnassignUserFromTenantCommand`                                              | `ApiResponse<Void>`       |
+| Tenant config overview | `tenantadmin/config`               | `core.tenantconfig`, `core.tenanttheme`, catalogs         | Core queries + catalog reads                                                 | `AdminConfigOverviewView` |
+| Branding/theme         | `tenantadmin/config`               | `core.tenanttheme` + `catalog.theme`                      | `ResolveTenantThemeQuery`, theme commands                                    | `ThemeSummaryView`        |
+| Tenant settings        | `tenantadmin/config/settings`      | `catalog.settings`                                        | Settings catalog/admin service calls                                         | `AdminSettingRow`         |
+| Tenant i18n            | `tenantadmin/config/i18n`          | `catalog.i18n`                                            | I18n catalog/admin service calls                                             | `AdminI18nRow`            |
+| Outlets list           | `core.outlet.infra.web.admin`      | `core.outlet`                                             | `ListOutletsByTenantQuery`                                                   | `OutletSummary`           |
+| Outlet create/update   | `core.outlet.infra.web.admin`      | `core.outlet`                                             | `CreateOutletCommand`, `UpdateOutletConfigCommand`                           | `OutletId` / `OutletView` |
+| Terminals list         | `core.terminal.infra.web.admin`    | `core.terminal`                                           | `ListTerminalsQuery`                                                         | `TerminalResponse`        |
+| Register terminal      | `core.terminal.infra.web.admin`    | `core.terminal`                                           | `RegisterTerminalCommand`                                                    | `TerminalId`              |
+| Lock/unlock terminal   | `core.terminal.infra.web.admin`    | `core.terminal`                                           | `LockTerminalCommand`, `UnlockTerminalCommand`                               | `ApiResponse<Void>`       |
+| Limits CRUD            | `core.limitpolicy.infra.web.admin` | `core.limitpolicy`                                        | Limit definition/assignment commands and queries                             | Core limit policy views   |
+| Autonomy CRUD          | `core.autonomy.infra.web.admin`    | `core.autonomy`                                           | `GetAutonomyOverviewQuery`, `UpsertAutonomyPolicyRuleCommand`                | Core autonomy views       |
+| Policies overview      | `tenantadmin/policies`             | `core.limitpolicy` + `core.autonomy`                      | Limit policy queries + autonomy query                                        | `PoliciesOverviewView`    |
 
 ---
 
@@ -65,6 +64,7 @@ When adding a new Tenant Admin screen:
 
 1. Identify **owning core** (single source of truth).
 2. Add/extend **core handlers** needed for that screen.
-3. In `tenantadmin/<slice>`, orchestrate via CommandBus/QueryBus.
-4. Assemble **BFF model** for the screen.
-5. Verify ArchUnit rules: no repo/JPA access from feature, no UUID usage in feature.
+3. If the screen is mono-domain CRUD, expose it from `core/<bc>/infra/web/admin`.
+4. If the screen is composite, orchestrate in `tenantadmin/<slice>` via CommandBus/QueryBus.
+5. Assemble **BFF model** only for composite screens.
+6. Verify ArchUnit rules: no repo/JPA access from feature, no UUID usage in feature.

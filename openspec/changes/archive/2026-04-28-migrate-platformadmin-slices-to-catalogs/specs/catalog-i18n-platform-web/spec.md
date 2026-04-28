@@ -41,8 +41,8 @@ Note : L'endpoint existant `GET /resolve/{locale}` (résolution tenant par conte
 
 ### Requirement: Suppression de features/platformadmin/i18nglobal/
 
-Le dossier `features/platformadmin/i18nglobal/` et sa classe `PlatformAdminI18nGlobalController`
-SHALL être supprimés après enrichissement du controller catalog.
+Le dossier `features/platformadmin/i18nglobal/` et sa classe `PlatformAdminI18nGlobalController` SHALL
+être supprimés après enrichissement du controller catalog.
 
 #### Scenario: Le package features/platformadmin/i18nglobal n'existe plus
 

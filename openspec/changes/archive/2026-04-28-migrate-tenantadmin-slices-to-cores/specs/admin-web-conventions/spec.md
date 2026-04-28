@@ -28,9 +28,9 @@ Tout controller HTTP gérant le CRUD d'un seul bounded context SHALL résider da
 - **WHEN** POST `/admin/outlets` est appelé avec un body valide
 - **THEN** `OutletAdminController` dispatche `CreateOutletCommand` via `CommandBus` et retourne `ApiResponse<OutletId>` (typed ID, pas UUID brut)
 
-### Requirement: TerminalAdminController dans core.pos avec path corrigé
+### Requirement: TerminalAdminController dans core.terminal avec path corrigé
 
-`TerminalAdminController` SHALL être dans `com.tchalanet.server.core.pos.infra.web.admin`, path `/admin/terminals` (valeur littérale, pas `${tch.web.paths.tenant_admin}`). Tous les endpoints DOIVENT retourner `ApiResponse<T>`. Les request DTOs DOIVENT utiliser des typed IDs (`UserId`) au lieu de `UUID` brut pour les champs `actorId`.
+`TerminalAdminController` SHALL être dans `com.tchalanet.server.core.terminal.infra.web.admin`, path `/admin/terminals` (valeur littérale, pas `${tch.web.paths.tenant_admin}`). Tous les endpoints SHALL retourner `ApiResponse<T>`. Les request DTOs SHALL utiliser des typed IDs (`UserId`) au lieu de `UUID` brut pour les champs `actorId`.
 
 #### Scenario: Path fixe /admin/terminals
 
@@ -100,7 +100,7 @@ Tous les endpoints de création, modification et suppression dans les controller
 
 ### Requirement: Suppression des slices features après migration
 
-`features/tenantadmin/outlets/`, `features/tenantadmin/terminals/`, `features/tenantadmin/policies/` (sauf le controller overview) et `features/tenantadmin/users/` DOIVENT être supprimés intégralement après que leurs remplaçants core soient opérationnels et testés.
+`features/tenantadmin/outlets/`, `features/tenantadmin/terminals/`, `features/tenantadmin/policies/` (sauf le controller overview) et `features/tenantadmin/users/` SHALL être supprimés intégralement après que leurs remplaçants core soient opérationnels et testés.
 
 #### Scenario: Aucun import vers les packages supprimés
 

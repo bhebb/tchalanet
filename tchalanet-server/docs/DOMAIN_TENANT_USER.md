@@ -159,7 +159,7 @@ Remarque implémentation
 Web
 
 - Controllers :
-  - `core.tenantuser.infra.web.admin.TenantUserAdminController` — routes `/admin/tenant-users` (tenant-scoped, tenantId depuis ctx)
+  - `core.tenantuser.infra.web.admin.TenantUserAdminController` — routes `/admin/users` (tenant-scoped, tenantId depuis ctx)
   - `core.tenantuser.infra.web.platform.PlatformTenantUserController` — routes `/platform/tenant-users` (superadmin, peut passer tenantId)
 - Responses : `TenantUserItemResponse`, `TenantUserDetailsResponse`.
 - Endpoint responses: `ApiResponse<TchPage<TenantUserItemResponse>>` pour les listes.
@@ -236,7 +236,7 @@ Conserver les conventions de `docs/NAMING.md` :
 - Créer `TenantUserJpaEntity` si requis (utiliser `TenantUserEntity` attachée comme référence et renommer en `TenantUserJpaEntity`).
 - Implémenter `TenantUserPersistenceAdapter` et `TenantUserJpaRepository`.
 - Écrire handlers/commands minimum (Assign, Remove, ChangeRole).
-- Ajouter controllers `/admin/tenant-users` and `/platform/tenant-users` (secure with roles).
+- Ajouter controllers `/admin/users` and `/platform/tenant-users` (secure with roles).
 
 ## Annexes
 
