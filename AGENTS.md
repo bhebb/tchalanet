@@ -12,6 +12,14 @@ Ce fichier couvre TOUS les scopes :
 - infra / DevOps
 - edge-service
 
+Tchalanet est multi-frontend :
+
+- web : Angular / Nx
+- mobile : Flutter (cible future, a preparer sans refactor de logique metier)
+
+Les specs OpenSpec sont la source de verite partagee entre backend, web et mobile.
+Toute feature doit donc etre specifiee avant implementation, de facon agnostique a l'UI.
+
 ---
 
 ## OpenSpec integration (MANDATORY)
@@ -23,6 +31,13 @@ For planning, architectural changes, refactors, or new domains:
 - Changes MUST be proposed under `openspec/changes/`
 - Direct implementation without proposal is forbidden
 - Agent skills (openspec workflow): `.github/skills/` and `.claude/skills/`
+
+Operational guardrails:
+
+- Never code a feature without an OpenSpec change
+- Never push directly to `main`
+- Always work from a dedicated branch, ideally `feature/*` or `chore/*`
+- Always validate with `pnpm ops:check`
 
 ---
 
