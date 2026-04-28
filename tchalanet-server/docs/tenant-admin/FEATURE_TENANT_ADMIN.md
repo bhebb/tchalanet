@@ -12,8 +12,7 @@
 `tenantadmin` is an **umbrella feature** that represents the **Tenant Administration Portal**. It exists **only** because there is an admin UI where a tenant operator can:
 
 - configure the tenant
-- manage users
-- manage outlets and terminals
+- access user, outlet, and terminal administration surfaces owned by their cores
 - configure draws and operational settings
 - access tenant-level dashboards and bootstrap data
 
@@ -50,17 +49,21 @@ There is **no “TenantAdminService” mega-orchestrator**.
 
 ---
 
-## 4. Mandatory decomposition (sub-slices)
+## 4. Active decomposition (sub-slices)
 
-The feature MUST be decomposed as follows (filesystem layout example):
+The feature contains only UI-composition slices. Mono-domain CRUD controllers live in the owning core under `core/<bc>/infra/web/admin`.
+
+Current filesystem layout:
 
 ```
 features/tenantadmin/
-  ├─ users/
-  ├─ tenantconfig/
-  ├─ outlets/
-  ├─ terminals/
-  ├─ draws/
+  ├─ config/
+  │  ├─ identity/
+  │  ├─ i18n/
+  │  └─ settings/
+  ├─ policies/
+  │  ├─ model/
+  │  └─ web/
   └─ FEATURE_TENANT_ADMIN.md
 ```
 
@@ -70,11 +73,23 @@ Each sub-slice:
 - owns its own controllers, orchestration, and models
 - follows **Feature Rules (81)** including the **Rule of 3**
 
+Migrated mono-domain slices:
+
+| Former feature slice                 | Current owner                                                 |
+| ------------------------------------ | ------------------------------------------------------------- |
+| `tenantadmin/outlets`                | `core.outlet.infra.web.admin.OutletAdminController`           |
+| `tenantadmin/terminals`              | `core.terminal.infra.web.admin.TerminalAdminController`       |
+| `tenantadmin/users`                  | `core.tenantuser.infra.web.admin.TenantUserAdminController`   |
+| `tenantadmin/policies` limits CRUD   | `core.limitpolicy.infra.web.admin.LimitPolicyAdminController` |
+| `tenantadmin/policies` autonomy CRUD | `core.autonomy.infra.web.admin.AutonomyAdminController`       |
+
+The remaining `tenantadmin/policies` feature exposes only the composite policies overview because it aggregates limit policy and autonomy data.
+
 ---
 
 ## 5. Ownership matrix (SOURCE OF TRUTH)
 
-### 5.1 Users & Identity (`tenantadmin/users`)
+### 5.1 Users & Identity (`core.tenantuser.infra.web.admin`)
 
 **Owning cores**:
 
@@ -89,8 +104,8 @@ Each sub-slice:
 
 **Feature role**:
 
-- orchestrate identity + membership
-- compose screen models (lists, details, wizards)
+- none for mono-domain CRUD; the tenant-scoped admin API is owned by `core.tenantuser`
+- any future feature layer may only compose data from multiple cores
 
 🚫 The feature MUST NOT:
 
@@ -100,7 +115,7 @@ Each sub-slice:
 
 ---
 
-### 5.2 Tenant configuration (`tenantadmin/tenantconfig`)
+### 5.2 Tenant configuration (`tenantadmin/config`)
 
 **Owning cores / catalogs** (examples):
 
@@ -128,7 +143,7 @@ Examples:
 
 ---
 
-### 5.3 Outlets (`tenantadmin/outlets`)
+### 5.3 Outlets (`core.outlet.infra.web.admin`)
 
 **Owning core**: `core.outlet` (or equivalent)
 
@@ -137,15 +152,15 @@ Examples:
 - outlet lifecycle
 - tenant-scoped outlet configuration
 
-**Feature role**:
+**Admin API role**:
 
 - list outlets
 - create/update via core commands
-- compose outlet dashboards
+- expose tenant-scoped outlet administration endpoints
 
 ---
 
-### 5.4 Terminals (`tenantadmin/terminals`)
+### 5.4 Terminals (`core.terminal.infra.web.admin`)
 
 **Owning core**: `core.terminal` (or equivalent)
 
@@ -155,7 +170,7 @@ Examples:
 - pairing / activation
 - security keys
 
-**Feature role**:
+**Admin API role**:
 
 - expose pairing screens
 - show terminal state
@@ -163,7 +178,30 @@ Examples:
 
 ---
 
-### 5.5 Draw configuration (`tenantadmin/draws`)
+### 5.5 Policies overview (`tenantadmin/policies`)
+
+**Owning cores**:
+
+- `core.limitpolicy`
+- `core.autonomy`
+
+**Owns**:
+
+- limit definitions and assignments in `core.limitpolicy`
+- autonomy rules in `core.autonomy`
+
+**Feature role**:
+
+- expose the composite `GET /admin/policies/overview` payload
+- aggregate limit policy and autonomy read models for the Tenant Admin portal
+
+CRUD endpoints for limit policies and autonomy rules MUST remain in their owning cores.
+
+---
+
+### 5.6 Draw configuration
+
+> Draw tenant-admin implementation is not currently present under `features/tenantadmin`. Add it only through an approved OpenSpec change when the UI composition requires it.
 
 **Owning core**: `core.draw`
 

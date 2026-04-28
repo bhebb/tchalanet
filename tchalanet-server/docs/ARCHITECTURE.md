@@ -12,6 +12,29 @@ Les détails d'implémentation et patterns concrets vivent dans `docs/convention
 - Clarifier le rôle de `catalog/` (référentiels read-mostly)
 - Uniformiser le **contrat HTTP** : 2xx = `ApiResponse<T>` ; erreurs = `ProblemDetail` (RFC7807)
 
+## Admin feature boundaries
+
+Admin controllers follow the same layer ownership rules as the rest of the backend:
+
+- Mono-domain tenant admin CRUD lives in the owning core under `core/<bc>/infra/web/admin`.
+- Mono-catalog platform admin CRUD lives in the owning catalog under `catalog/<bc>/internal/web`.
+- `features/tenantadmin` and `features/platformadmin` are reserved for composite BFF endpoints that aggregate at least two cores/catalogs.
+
+Current notable placements:
+
+| Surface                        | Active placement                                                  |
+| ------------------------------ | ----------------------------------------------------------------- |
+| Tenant admin users             | `core.tenantuser.infra.web.admin.TenantUserAdminController`       |
+| Tenant admin outlets           | `core.outlet.infra.web.admin.OutletAdminController`               |
+| Tenant admin terminals         | `core.terminal.infra.web.admin.TerminalAdminController`           |
+| Tenant admin limits            | `core.limitpolicy.infra.web.admin.LimitPolicyAdminController`     |
+| Tenant admin autonomy          | `core.autonomy.infra.web.admin.AutonomyAdminController`           |
+| Tenant admin policies overview | `features.tenantadmin.policies.web.TenantAdminPoliciesController` |
+| Platform admin i18n            | `catalog.i18n.internal.web.PlatformI18nOverridesController`       |
+| Platform admin settings        | `catalog.settings.internal.web.PlatformSettingsController`        |
+| Platform admin theme presets   | `catalog.theme.internal.web.ThemeAdminController`                 |
+| Platform admin overview        | `features.platformadmin.overview.PlatformAdminOverviewController` |
+
 ## Hiérarchie de documentation (source de vérité)
 
 En cas de conflit :
@@ -463,13 +486,13 @@ m.ID P->## ye## er Prevent Ue ## 1) Goal= PnvID PdiPrev**ID PdiPrent ic ##
 Prevenn. Prevent Ue ## 1) Goalam Per**ne PtoPre`
  Prevsane PtoPrev`
 ne PtoP*J Prevsaneesne PtoPrenv-
-}-Prrs}-Preven*/PaE- coes- comcd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && mv typed_ids_clean.md typed_ids.md
+}-Prrs}-Preven*/PaE- coes- comcd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && mv typed*ids_clean.md typed_ids.md
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && wc -l typed_ids.md && echo "---" && head -40 typed_ids.md
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && mv jpa_entities_clean.md jpa_entities.md && mv persistence_clean.md persistence.md && mv rls_clean.md rls.md
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && wc -l jpa_entities.md persistence.md rls.md && echo "---" && head -20 jpa_entities.md
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && mv handler_command_clean.md handler_command.md && mv security_permissions_clean.md security_permissions.md
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && wc -l handler_command.md security_permissions.md && echo "---" && head -30 handler_command.md
-cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && rm -f _\_clean.md && ls -la _.md | wc -l
+cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && rm -f *\_clean.md && ls -la \_.md | wc -l
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions && echo "Fichiers MD actuels:" && ls -1 \*.md
 cat > /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/conventions/testing_clean.md << 'EOF'
 
@@ -1814,7 +1837,7 @@ Le système i# f## 🎯 ObteLe système i# Fi## 🎯 Objectifs
 Le système de iio## 🎯 Ob
 -Le syst NLe système de i {-Le système de ioi## 🎯 )
 Le syspython3 -c "
-file_path = '/Users/bhebb/Documents/projets/tchalanet/tchalanet-server/src/main/java/com/tchalanet/server/common/cache/CACHE.md'
+file*path = '/Users/bhebb/Documents/projets/tchalanet/tchalanet-server/src/main/java/com/tchalanet/server/common/cache/CACHE.md'
 print(f'File path: {file_path}')
 import os
 print(f'File exists: {os.path.exists(file_path)}')
@@ -1824,7 +1847,7 @@ lines = f.readlines()
 print(f'Current lines: {len(lines)}')
 print(f'Line 110: {lines[109].strip() if len(lines) > 109 else \"N/A\"}')
 "
-cd /Users/bhebb/Documents/projets/tchalanet && echo "=== Vérification des changements ===" && echo "" && echo "1. Références à handler_command.md remplacées par command_query_handlers.md:" && grep -r "command_query_handlers\.md" tchalanet-server/docs --include="_.md" | wc -l && echo "" && echo "2. Références à NAMING.md ajoutées:" && grep -r "NAMING\.md" tchalanet-server/docs --include="_.md" | wc -l && grep -r "NAMING\.md" AGENTS.md | wc -l
+cd /Users/bhebb/Documents/projets/tchalanet && echo "=== Vérification des changements ===" && echo "" && echo "1. Références à handler_command.md remplacées par command_query_handlers.md:" && grep -r "command_query_handlers\.md" tchalanet-server/docs --include="*.md" | wc -l && echo "" && echo "2. Références à NAMING.md ajoutées:" && grep -r "NAMING\.md" tchalanet-server/docs --include="\_.md" | wc -l && grep -r "NAMING\.md" AGENTS.md | wc -l
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs && grep -n "command_query_handlers" README.md ARCHITECTURE.md PLAYBOOK.md conventions/web_api.md 2>/dev/null | head -20
 cat /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/docs/README.md | grep -A 2 -B 2 "handler_command\|command_query_handlers\|NAMING"
 cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-server && find docs -name "\*.md" -type f -exec grep -l "handler_command\|command_query_handlers\|NAMING" {} \; | sort | uniq
