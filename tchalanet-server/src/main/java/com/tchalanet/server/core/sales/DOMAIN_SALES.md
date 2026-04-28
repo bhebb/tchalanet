@@ -82,7 +82,7 @@ Champs : `ticketId, publicCode, saleStatus, resultStatus, settlementStatus, draw
 | `SellTicketCommand`              | `SellTicketCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` côté controller                           | Orchestration via `TicketSalePolicy` (session + cutoff + limits + autonomy + odds) ; outcome `SUCCESS / SUCCESS_WITH_WARNINGS / PENDING_APPROVAL` |
 | `ApproveTicketSaleCommand`       | `ApproveTicketSaleCommandHandler`                    | `@Secured ADMIN/SUPER_ADMIN`                                                   | Re-valide cutoff + session ; transition `PENDING_APPROVAL → SOLD` ; publie `TicketPlacedEvent`                                                    |
 | `RejectTicketSaleCommand`        | `RejectTicketSaleCommandHandler`                     | `@Secured ADMIN/SUPER_ADMIN`                                                   | `PENDING_APPROVAL → REJECTED` ; pas d'event                                                                                                       |
-| `CancelSaleCommand`              | `CancelSaleCommandHandler`                           | (controller `cancel` sans `@Secured`)                                          | Évalue limites (`OperationType.CANCEL`) + autonomy ; `voidTicket` ; publie `TicketCancelledEvent`                                                 |
+| `CancelSaleCommand`              | `CancelSaleCommandHandler`                           | `@Secured CASHIER/ADMIN/SUPER_ADMIN` ✅                                        | Évalue limites (`OperationType.CANCEL`) + autonomy ; `voidTicket` ; publie `TicketCancelledEvent`                                                 |
 | `CancelTicketCommand`            | (mappé en `CancelSaleCommand` par `TicketWebMapper`) | idem                                                                           | Doublon de modèle                                                                                                                                 |
 | `OverrideTicketResultCommand`    | `OverrideTicketResultCommandHandler`                 | `@Secured ADMIN/SUPER_ADMIN` + `@RequiresPermission("ticket.result.override")` | `forceResult(payout, resultStatus, when)` ; publie `TicketResultOverriddenEvent`                                                                  |
 | `RecordDrawTicketsResultCommand` | `RecordDrawTicketsResultCommandHandler`              | (interne — déclenché par `DrawResultedEventListener`)                          | Cursor batch 250 ; calcul gain via `TicketWinningCalculator` ; publie `TicketResultedEvent` par ticket                                            |
@@ -144,15 +144,15 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 - `POST /{id}/reject` — `@Secured ADMIN/SUPER_ADMIN`
 - `GET /` (list filtré paginé) — `@Secured CASHIER/ADMIN/SUPER_ADMIN`
 - `GET /{id}` (details) — `@Secured CASHIER/ADMIN/SUPER_ADMIN`
-- `PATCH /{id}/cancel` — **AUCUN `@Secured`** ⚠
-- `GET /{id}/print[.escpos|.pdf]` — **AUCUN `@Secured`** ⚠
+- `PATCH /{id}/cancel` — `@Secured CASHIER/ADMIN/SUPER_ADMIN` ✅ (corrigé 2026-04-26)
+- `GET /{id}/print[.escpos|.pdf]` — `@Secured CASHIER/ADMIN/SUPER_ADMIN` ✅ (corrigé 2026-04-26)
 - `PATCH /{id}/result/override` — `@Secured ADMIN/SUPER_ADMIN` + `@RequiresPermission("ticket.result.override")`
 
 Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print binaire.
 
 ### `PublicTicketController` — `/public/tickets`
 
-- `GET /verify/{publicCode}` — public ; retourne `ResponseEntity<?>` (non conforme `ApiResponse<T>`) ; headers `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store`.
+- `GET /verify/{publicCode}` — public ; retourne `ResponseEntity<ApiResponse<TicketVerificationResult>>` ✅ (corrigé 2026-04-26) ; headers `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` ; rate-limité par IP (10 req/s, burst 30) ✅ (ajouté 2026-04-26).
 - `GET /qr/{publicCode}.png?size=280` — public ; `byte[]` PNG ; cache HTTP 1h.
 
 ---
@@ -183,9 +183,9 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | ----------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | sales → `core.draw`           | Query + port + event     | `GetDrawQuery`, `DrawLookupPort`, `DrawChannelLabelResolver`, `DrawOccurrenceLabelResolver`, consomme `DrawResultAppliedEvent` |
 | sales → `core.drawresult`     | SQL JOIN brut (anomalie) | `DrawResultViewPortJdbcAdapter` lit `draw_result` + `result_slot` directement                                                  |
-| sales → `core.session`        | Port                     | `PosSessionReaderPort`                                                                                                         |
+| sales → `core.session`        | Port                     | `SalesSessionReaderPort`                                                                                                       |
 | sales → `core.outlet`         | Port + impl              | `OutletReaderPort`, `OutletLookupPort`, `SessionLookupPort` ; expose `SalesTicketAdminPort` via bridge                         |
-| sales → `core.pos`            | Port                     | `TerminalReaderPort`                                                                                                           |
+| sales → `core.terminal`       | Port                     | `TerminalReaderPort`                                                                                                           |
 | sales → `core.address`        | Port                     | `AddressReaderPort`                                                                                                            |
 | sales → `core.limitpolicy`    | Query                    | `EvaluateLimitPolicyQuery`                                                                                                     |
 | sales → `core.autonomy`       | Service                  | `ResolveAutonomyPolicyService`                                                                                                 |
@@ -197,7 +197,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | sales → `catalog.drawchannel` | View                     | `DrawChannelView`                                                                                                              |
 | `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWritterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                        |
 | `core.limitpolicy` → sales    | Event                    | `TicketPlacedEvent`                                                                                                            |
-| `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `PosSessionTotalsProjectionListener`)                                                                 |
+| `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `SalesSessionTotalsProjectionListener`)                                                               |
 | `features.stats` → sales      | Event                    | `TicketPlacedEvent` (×2 listeners)                                                                                             |
 
 ---
@@ -219,10 +219,10 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 ## 9. État connu — Anomalies & TODO (cf. audit 2026-04-26)
 
-**P0 / Sécurité**
+**P0 / Sécurité** ✅ RÉSOLU (2026-04-26 — `secure-sales-ticket-endpoints`)
 
-- `PATCH /tenant/tickets/{id}/cancel` et `GET /tenant/tickets/{id}/print*` sans `@Secured`.
-- `PublicTicketController.verify` retourne `ResponseEntity<?>` raw + aucun rate-limiting effectif.
+- ~~`PATCH /tenant/tickets/{id}/cancel` et `GET /tenant/tickets/{id}/print*` sans `@Secured`~~ → `@Secured(CASHIER/ADMIN/SUPER_ADMIN)` ajouté sur les 4 endpoints. `securedEnabled = true` activé dans `SecurityConfig`.
+- ~~`PublicTicketController.verify` retourne `ResponseEntity<?>` raw + aucun rate-limiting effectif~~ → retourne `ResponseEntity<ApiResponse<TicketVerificationResult>>` + rate-limit IP Bucket4j ajouté.
 
 **P0 / Données**
 
@@ -238,7 +238,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 **P1 / Architecture**
 
 - `DrawResultViewPortJdbcAdapter` : SQL JOIN cross-domain bypassant les ports `core.drawresult.api`.
-- `JpaTicketRepositoryAdapter` : adapter persistence dépendant de 3 autres domaines (`DrawLookupPort`, `OutletReaderPort`, `PosSessionReaderPort`).
+- `JpaTicketRepositoryAdapter` : adapter persistence dépendant de 3 autres domaines (`DrawLookupPort`, `OutletReaderPort`, `SalesSessionReaderPort`).
 - `SalesLedgerListener` : `@EventListener` synchrone au lieu de `@TransactionalEventListener(AFTER_COMMIT)` ; appelle un port-in directement avec catch global qui masque les erreurs.
 
 **P1 / Modélisation**

@@ -20,7 +20,7 @@ import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -43,7 +43,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
 
     private final QueryBus queryBus;
     private final ResolveAutonomyPolicyService resolveAutonomyPolicyService;
-    private final PosSessionReaderPort posSessionReaderPort;
+    private final SalesSessionReaderPort posSessionReaderPort;
 
     @Override
     @TchTx
@@ -60,7 +60,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         var outletId =
             ticket.getSessionId() == null
                 ? null
-                : posSessionReaderPort.findById(ticket.getSessionId()).map(com.tchalanet.server.core.session.domain.model.PosSession::outletId).orElse(null);
+                : posSessionReaderPort.findById(ticket.getSessionId()).map(com.tchalanet.server.core.session.domain.model.SalesSession::outletId).orElse(null);
 
         // limits + autonomy
         LimitEvaluationView limitView = evaluateCancelLimits(cmd, ticket, outletId, now);

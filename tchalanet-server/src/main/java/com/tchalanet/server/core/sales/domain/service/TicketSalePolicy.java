@@ -20,8 +20,8 @@ import com.tchalanet.server.core.sales.application.command.model.SellTicketComma
 import com.tchalanet.server.core.sales.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.application.service.TicketLinePreparationService;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
-import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.session.domain.model.SalesSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketSalePolicy {
 
-    private final PosSessionReaderPort posSessionPort;
+    private final SalesSessionReaderPort posSessionPort;
     private final OutletLookupPort outletLookupPort;
     private final DrawCutoffRule drawCutoffRule;
     private final QueryBus queryBus; // replaced LimitPolicyFacade
@@ -45,7 +45,7 @@ public class TicketSalePolicy {
     private final Clock clock;
 
     public record PreparedSale(
-        PosSession session,
+        SalesSession session,
         Draw draw,
         Instant now,
         List<SellTicketCommand.LineCommand> mergedLines,
@@ -89,8 +89,8 @@ public class TicketSalePolicy {
         return drawCutoffRule.requireBeforeCutoff(drawId);
     }
 
-    public PosSession validateSession(TenantId tenantId, TerminalId terminalId) {
-        PosSession session =
+    public SalesSession validateSession(TenantId tenantId, TerminalId terminalId) {
+        SalesSession session =
             posSessionPort
                 .findOpenByTerminal(tenantId, terminalId)
                 .orElseThrow(() -> new SecurityException("No open session for terminalId=" + terminalId));
@@ -103,7 +103,7 @@ public class TicketSalePolicy {
 
     private LimitEvaluationView evaluateLimitsAndAutonomy(
         SellTicketCommand command,
-        PosSession session,
+        SalesSession session,
         Draw draw,
         List<SellTicketCommand.LineCommand> mergedLines,
         Instant now) {

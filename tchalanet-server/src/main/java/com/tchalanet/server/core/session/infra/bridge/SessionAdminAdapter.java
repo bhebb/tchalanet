@@ -5,11 +5,11 @@ import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.outlet.application.port.out.SessionAdminPort;
 import com.tchalanet.server.core.outlet.application.port.out.SessionLookupPort;
-import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
-import com.tchalanet.server.core.session.domain.model.PosSession;
-import com.tchalanet.server.core.session.domain.model.PosSessionStatus;
-import com.tchalanet.server.core.session.infra.persistence.mapper.PosSessionMapper;
-import com.tchalanet.server.core.session.infra.persistence.repository.PosSessionJpaRepository;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionWriterPort;
+import com.tchalanet.server.core.session.domain.model.SalesSession;
+import com.tchalanet.server.core.session.domain.model.SalesSessionStatus;
+import com.tchalanet.server.core.session.infra.persistence.mapper.SalesSessionMapper;
+import com.tchalanet.server.core.session.infra.persistence.repository.SalesSessionJpaRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -21,15 +21,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SessionAdminAdapter implements SessionAdminPort, SessionLookupPort {
 
-  private final PosSessionJpaRepository repo;
-  private final PosSessionMapper mapper;
-  private final PosSessionWriterPort writer;
+  private final SalesSessionJpaRepository repo;
+  private final SalesSessionMapper mapper;
+  private final SalesSessionWriterPort writer;
 
   @Override
   public boolean hasOpenSessions(OutletId outletId) {
     var found =
         repo.findByOutletIdAndStatus(
-            outletId.value(), PosSessionStatus.OPENED);
+            outletId.value(), SalesSessionStatus.OPENED);
     return !found.isEmpty();
   }
 
@@ -37,12 +37,12 @@ public class SessionAdminAdapter implements SessionAdminPort, SessionLookupPort 
   public long closeAllOpenSessions(OutletId outletId, String reason) {
     var entities =
         repo.findByOutletIdAndStatus(
-            outletId.value(), PosSessionStatus.OPENED);
+            outletId.value(), SalesSessionStatus.OPENED);
     long count = 0;
     for (var e : entities) {
-      PosSession session = mapper.toDomain(e);
+      SalesSession session = mapper.toDomain(e);
       // close with zero amount for now
-      PosSession updated = session.close(BigDecimal.ZERO, Instant.now());
+      SalesSession updated = session.close(BigDecimal.ZERO, Instant.now());
       writer.save(updated);
       count++;
     }

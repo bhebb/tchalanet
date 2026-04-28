@@ -525,13 +525,13 @@ ALTER TABLE public.plan_aud OWNER TO app_user;
 GRANT ALL ON TABLE public.plan_aud TO app_user;
 
 
--- public.pos_session_aud definition
+-- public.sales_session_aud definition
 
 -- Drop table
 
--- DROP TABLE public.pos_session_aud;
+-- DROP TABLE public.sales_session_aud;
 
-CREATE TABLE public.pos_session_aud (
+CREATE TABLE public.sales_session_aud (
                                         id uuid NOT NULL,
                                         rev int4 NOT NULL,
                                         revtype int2 NULL,
@@ -552,24 +552,24 @@ CREATE TABLE public.pos_session_aud (
                                         status varchar(16) NULL,
                                         terminal_id uuid NULL,
                                         user_id uuid NULL,
-                                        CONSTRAINT pos_session_aud_pkey PRIMARY KEY (id, rev),
-                                        CONSTRAINT pos_session_aud_status_check CHECK (((status)::text = ANY ((ARRAY['OPEN'::character varying, 'CLOSED'::character varying, 'SETTLED'::character varying])::text[]))),
+                                        CONSTRAINT sales_session_aud_pkey PRIMARY KEY (id, rev),
+                                        CONSTRAINT sales_session_aud_status_check CHECK (((status)::text = ANY ((ARRAY['OPEN'::character varying, 'CLOSED'::character varying, 'SETTLED'::character varying])::text[]))),
 	CONSTRAINT fksdf6p05vej9ggcr49uiq6vvq4 FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
 
 -- Permissions
 
-ALTER TABLE public.pos_session_aud OWNER TO app_user;
-GRANT ALL ON TABLE public.pos_session_aud TO app_user;
+ALTER TABLE public.sales_session_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.sales_session_aud TO app_user;
 
 
--- public.pos_session_totals_aud definition
+-- public.sales_session_totals_aud definition
 
 -- Drop table
 
--- DROP TABLE public.pos_session_totals_aud;
+-- DROP TABLE public.sales_session_totals_aud;
 
-CREATE TABLE public.pos_session_totals_aud (
+CREATE TABLE public.sales_session_totals_aud (
                                                session_id uuid NOT NULL,
                                                rev int4 NOT NULL,
                                                revtype int2 NULL,
@@ -585,14 +585,14 @@ CREATE TABLE public.pos_session_totals_aud (
                                                total_payout numeric(14, 2) NULL,
                                                total_stake numeric(14, 2) NULL,
                                                total_tickets int8 NULL,
-                                               CONSTRAINT pos_session_totals_aud_pkey PRIMARY KEY (rev, session_id),
+                                               CONSTRAINT sales_session_totals_aud_pkey PRIMARY KEY (rev, session_id),
                                                CONSTRAINT fkb6fuh3vr9yqhowkhb0o2sxdv6 FOREIGN KEY (rev) REFERENCES public.revinfo(rev)
 );
 
 -- Permissions
 
-ALTER TABLE public.pos_session_totals_aud OWNER TO app_user;
-GRANT ALL ON TABLE public.pos_session_totals_aud TO app_user;
+ALTER TABLE public.sales_session_totals_aud OWNER TO app_user;
+GRANT ALL ON TABLE public.sales_session_totals_aud TO app_user;
 
 
 -- public.role_permission_aud definition

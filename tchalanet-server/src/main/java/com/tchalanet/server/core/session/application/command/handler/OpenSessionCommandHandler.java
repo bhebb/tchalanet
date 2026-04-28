@@ -9,10 +9,10 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.core.session.application.command.model.OpenSessionCommand;
-import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
-import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionWriterPort;
 import com.tchalanet.server.core.session.domain.event.SessionOpenedEvent;
-import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.core.session.domain.model.SalesSession;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
@@ -22,17 +22,17 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class OpenSessionCommandHandler implements CommandHandler<OpenSessionCommand, PosSession> {
+public class OpenSessionCommandHandler implements CommandHandler<OpenSessionCommand, SalesSession> {
 
-  private final PosSessionReaderPort sessionReader;
-  private final PosSessionWriterPort sessionWriter;
+  private final SalesSessionReaderPort sessionReader;
+  private final SalesSessionWriterPort sessionWriter;
   private final DomainEventPublisher domainEventPublisher;
   private final Clock clock;
   private final IdGenerator idGenerator;
 
   @Override
   @TchTx
-  public PosSession handle(OpenSessionCommand command) {
+  public SalesSession handle(OpenSessionCommand command) {
     // Refuse si déjà une session OPEN pour ce terminal (scope tenant + terminal)
     sessionReader
         .findOpenByTerminal(command.tenantId(), command.terminalId())
@@ -51,7 +51,7 @@ public class OpenSessionCommandHandler implements CommandHandler<OpenSessionComm
     var now = Instant.now(clock);
 
     var session =
-        PosSession.open(
+        SalesSession.open(
             SessionId.of(idGenerator.newUuid()),
             command.tenantId(),
             command.outletId(),

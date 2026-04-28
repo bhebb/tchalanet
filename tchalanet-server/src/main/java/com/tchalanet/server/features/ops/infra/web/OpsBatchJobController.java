@@ -27,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/platform/ops/batch/jobs")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Ops • Batch Jobs")
 public class OpsBatchJobController {
 

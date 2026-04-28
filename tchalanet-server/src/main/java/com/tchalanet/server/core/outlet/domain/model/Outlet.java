@@ -2,9 +2,9 @@ package com.tchalanet.server.core.outlet.domain.model;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.AddressId;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.util.UUID;
 
 public final class Outlet {
   private final OutletId id;
@@ -21,7 +21,7 @@ public final class Outlet {
   private final String receiptHeaderMessage;
   private final String receiptFooterMessage;
   private final boolean requireOpeningFloat;
-  private final UUID addressId;
+  private final AddressId addressId;
 
   public Outlet(OutletId id, TenantId tenantId, String name, String slug) {
     this(
@@ -57,7 +57,7 @@ public final class Outlet {
       String receiptHeaderMessage,
       String receiptFooterMessage,
       boolean requireOpeningFloat,
-      UUID addressId) {
+      AddressId addressId) {
     this.id = id;
     this.tenantId = tenantId;
     this.name = name;
@@ -131,7 +131,7 @@ public final class Outlet {
     return requireOpeningFloat;
   }
 
-  public UUID addressId() {
+  public AddressId addressId() {
     return addressId;
   }
 
@@ -281,7 +281,7 @@ public final class Outlet {
         this.addressId);
   }
 
-  public Outlet withAddressId(java.util.UUID addressId) {
+  public Outlet withAddressId(AddressId addressId) {
     return new Outlet(
         this.id,
         this.tenantId,

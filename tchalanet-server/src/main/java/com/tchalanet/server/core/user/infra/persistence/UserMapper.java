@@ -21,7 +21,7 @@ final class UserMapper {
         e.getAvatarUrl(),
         e.getStatus(),
         e.getApprovedAt(),
-        e.getApprovedBy(),
+        UserId.nullableOf(e.getApprovedBy()),
         e.getLastLoginAt(),
         e.getVersion());
   }
@@ -50,7 +50,7 @@ final class UserMapper {
     e.setAvatarUrl(u.getAvatarUrl());
     e.setStatus(u.getStatus());
     e.setApprovedAt(u.getApprovedAt());
-    e.setApprovedBy(u.getApprovedBy());
+    e.setApprovedBy(u.getApprovedBy() == null ? null : u.getApprovedBy().uuid());
     e.setLastLoginAt(u.getLastLoginAt());
     e.setVersion(u.getVersion());
   }

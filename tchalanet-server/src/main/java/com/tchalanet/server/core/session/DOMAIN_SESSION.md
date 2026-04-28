@@ -26,7 +26,7 @@
 
 ### Entités / agrégats principaux
 
-- `PosSession` — id, tenantId, outletId, terminalId, userId, openedAt, closedAt?, status.
+- `SalesSession` — id, tenantId, outletId, terminalId, userId, openedAt, closedAt?, status.
 
 ### Invariants métier
 
@@ -48,7 +48,7 @@
 
 ## 4. Ports de sortie (dépendances externes)
 
-- `PosSessionRepoPort` — persistance/lecture des sessions.
+- `SalesSessionRepoPort` — persistance/lecture des sessions.
 
 ---
 

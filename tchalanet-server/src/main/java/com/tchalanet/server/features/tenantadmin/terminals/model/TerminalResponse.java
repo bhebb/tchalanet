@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.tenantadmin.terminals.model;
 
-import com.tchalanet.server.core.pos.domain.model.Terminal;
+import com.tchalanet.server.core.terminal.domain.model.Terminal;
 import java.util.UUID;
 
 public record TerminalResponse(UUID id, UUID outletId, String label, String status) {

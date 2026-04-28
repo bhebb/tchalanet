@@ -26,7 +26,7 @@ providers:
     watch: true
 
 ping:
-  entryPoint: "websecure"
+  entryPoint: "web"   # utilise l'entrypoint HTTP (port 80) pour le healthcheck — évite la dépendance TLS au boot
 
 # Let's Encrypt pour production
 certificatesResolvers:

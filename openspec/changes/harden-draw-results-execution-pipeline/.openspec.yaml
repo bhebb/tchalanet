@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-04-28
+status: draft
+summary: Audit and harden the draw execution pipeline across draw, drawresult, uslottery, catalogs, schedulers, and public exposure.

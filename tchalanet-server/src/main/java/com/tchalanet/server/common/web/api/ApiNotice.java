@@ -8,4 +8,17 @@ public record ApiNotice(
     String message,
     String domain,
     NoticeSeverity severity,
-    Map<String, Object> meta) {}
+    Map<String, Object> meta) {
+
+  public static ApiNotice error(String code, String message) {
+    return new ApiNotice(code, message, null, NoticeSeverity.ERROR, Map.of());
+  }
+
+  public static ApiNotice warn(String code, String message) {
+    return new ApiNotice(code, message, null, NoticeSeverity.WARN, Map.of());
+  }
+
+  public static ApiNotice info(String code, String message) {
+    return new ApiNotice(code, message, null, NoticeSeverity.INFO, Map.of());
+  }
+}

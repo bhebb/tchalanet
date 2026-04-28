@@ -7,10 +7,10 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.session.application.command.model.CloseSessionCommand;
-import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
-import com.tchalanet.server.core.session.application.port.out.PosSessionWriterPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionWriterPort;
 import com.tchalanet.server.core.session.domain.event.SessionClosedEvent;
-import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.core.session.domain.model.SalesSession;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
@@ -20,21 +20,21 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCommand, PosSession> {
+public class CloseSessionCommandHandler implements CommandHandler<CloseSessionCommand, SalesSession> {
 
-  private final PosSessionReaderPort sessionReader;
-  private final PosSessionWriterPort sessionWriter;
+  private final SalesSessionReaderPort sessionReader;
+  private final SalesSessionWriterPort sessionWriter;
   private final DomainEventPublisher domainEventPublisher;
   private final Clock clock;
 
   @Override
   @TchTx
-  public PosSession handle(CloseSessionCommand command) {
+  public SalesSession handle(CloseSessionCommand command) {
     var existing =
         sessionReader
             .findById(command.sessionId())
             .orElseThrow(
-                () -> new IllegalStateException("PosSession not found: " + command.sessionId()));
+                () -> new IllegalStateException("SalesSession not found: " + command.sessionId()));
 
     // idempotent
     if (existing.closedAt() != null) {

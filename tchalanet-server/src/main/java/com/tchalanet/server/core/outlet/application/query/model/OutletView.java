@@ -1,11 +1,12 @@
 package com.tchalanet.server.core.outlet.application.query.model;
 
 import com.tchalanet.server.core.address.application.model.AddressView;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 public record OutletView(
-    UUID id,
-    UUID tenantId,
+    OutletId id,
+    TenantId tenantId,
     String name,
     String slug,
     Boolean dayClosed,

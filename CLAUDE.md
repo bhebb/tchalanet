@@ -34,7 +34,7 @@
 | ------------------------------ | ---------------------------------- |
 | Backend Spring Boot            | `tchalanet-server/CLAUDE.md`       |
 | Frontend Angular               | `apps/tchalanet-web/CLAUDE.md`     |
-| Mobile Flutter / POS           | `apps/tchalanet-mobile/CLAUDE.md`  |
+| Mobile Flutter / POS           | `tchalanet-mobile/CLAUDE.md`       |
 | Infrastructure                 | `tchalanet-infra/CLAUDE.md`        |
 | Edge Service (règles + notifs) | `tchalanet-edge-service/CLAUDE.md` |
 | Documentation (MkDocs)         | `tchalanet-docs/CLAUDE.md`         |

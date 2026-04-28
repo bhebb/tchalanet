@@ -2,8 +2,8 @@ package com.tchalanet.server.core.session.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
-import com.tchalanet.server.core.session.application.port.out.PosSessionTotalsReaderPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionTotalsReaderPort;
 import com.tchalanet.server.core.session.application.query.model.GetSessionWithTotalsQuery;
 import com.tchalanet.server.core.session.application.query.model.SessionWithTotalsDto;
 import java.math.BigDecimal;
@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 public class GetSessionWithTotalsQueryHandler
     implements QueryHandler<GetSessionWithTotalsQuery, Optional<SessionWithTotalsDto>> {
 
-  private final PosSessionReaderPort sessionReader;
-  private final PosSessionTotalsReaderPort totalsReader;
+  private final SalesSessionReaderPort sessionReader;
+  private final SalesSessionTotalsReaderPort totalsReader;
 
   @Override
   public Optional<SessionWithTotalsDto> handle(GetSessionWithTotalsQuery query) {
@@ -31,7 +31,7 @@ public class GetSessionWithTotalsQueryHandler
         totalsOpt
             .map(
                 t ->
-                    new SessionWithTotalsDto.PosSessionTotalsDto(
+                    new SessionWithTotalsDto.SalesSessionTotalsDto(
                         t.totalTickets(),
                         t.totalStake(),
                         t.totalPayout(),

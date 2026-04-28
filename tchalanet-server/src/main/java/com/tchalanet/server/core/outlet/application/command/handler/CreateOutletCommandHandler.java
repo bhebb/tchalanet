@@ -11,12 +11,11 @@ import com.tchalanet.server.core.address.application.model.AddressInput;
 import com.tchalanet.server.core.outlet.application.command.model.CreateOutletCommand;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCommand, UUID> {
+public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCommand, OutletId> {
 
   private final OutletWriterPort writer;
   private final AddressCrudService addressService;
@@ -24,20 +23,15 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
 
   @Override
   @TchTx
-  public UUID handle(CreateOutletCommand cmd) {
-    UUID newId = idGenerator.newUuid();
-    Outlet o =
-        Outlet.createNew(
-            cmd.tenantId(), cmd.name(), cmd.slug(), OutletId.of(newId));
+  public OutletId handle(CreateOutletCommand cmd) {
+    OutletId newId = OutletId.of(idGenerator.newUuid());
+    Outlet o = Outlet.createNew(cmd.tenantId(), cmd.name(), cmd.slug(), newId);
 
-    UUID addressId = null;
-    AddressId provided = cmd.addressId();
-    if (provided != null) addressId = provided.value();
+    AddressId addressId = cmd.addressId();
 
     AddressInput input = cmd.addressInput();
     if (addressId == null && input != null) {
-      var aid = addressService.upsertTenantPrimary(cmd.tenantId(), input);
-      addressId = aid.value();
+      addressId = addressService.upsertTenantPrimary(cmd.tenantId(), input);
     }
 
     if (addressId != null) o = o.withAddressId(addressId);

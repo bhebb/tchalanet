@@ -57,9 +57,9 @@ cat > "$API_ENV_FILE" <<EOF
 # ========================================
 # 🗄️ Postgres (Database)
 # ========================================
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres
-SPRING_DATASOURCE_USERNAME=postgres
-SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/tchalanet_db
+SPRING_DATASOURCE_USERNAME=app_user
+SPRING_DATASOURCE_PASSWORD=${APP_DB_PASSWORD}
 
 # ========================================
 # 🔴 Redis (Cache)
@@ -71,9 +71,9 @@ SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-devredis}
 # ========================================
 # 🔐 Keycloak (Authentication)
 # ========================================
-SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8082/realms/tchalanet-$ENV
-KEYCLOAK_REALM=tchalanet-$ENV
-KEYCLOAK_AUTH_SERVER_URL=http://localhost:8082
+SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://auth.localtest.me/realms/tchalanet
+KEYCLOAK_REALM=tchalanet
+KEYCLOAK_AUTH_SERVER_URL=https://auth.localtest.me
 KEYCLOAK_RESOURCE=tchalanet-api
 KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CLIENT_SECRET:-change-me-in-production}
 
@@ -95,11 +95,11 @@ MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
 # ========================================
 # 🔧 Application Config
 # ========================================
-SERVER_PORT=8081
-SPRING_PROFILES_ACTIVE=$ENV
+SERVER_PORT=8083
+SPRING_PROFILES_ACTIVE=local-ide
 LOGGING_LEVEL_ROOT=INFO
 SPRING_JPA_SHOW_SQL=true
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_HIBERNATE_DDL_AUTO=validate
 
 # ========================================
 # 🌐 CORS (Frontend)

@@ -14,10 +14,12 @@ import com.tchalanet.server.core.tenantuser.application.command.model.AssignUser
 import com.tchalanet.server.core.tenantuser.application.query.model.PagedListTenantUsersQuery;
 import com.tchalanet.server.core.tenantuser.application.query.model.TenantUserRow;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/tenant-users")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class TenantUserAdminController {
 

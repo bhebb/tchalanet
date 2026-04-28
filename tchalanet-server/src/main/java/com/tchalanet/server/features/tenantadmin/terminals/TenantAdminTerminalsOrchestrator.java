@@ -5,9 +5,9 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.pos.application.command.model.*;
-import com.tchalanet.server.core.pos.application.query.model.*;
-import com.tchalanet.server.core.pos.domain.model.Terminal;
+import com.tchalanet.server.core.terminal.application.command.model.*;
+import com.tchalanet.server.core.terminal.application.query.model.*;
+import com.tchalanet.server.core.terminal.domain.model.Terminal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

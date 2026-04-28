@@ -110,6 +110,14 @@ tch:
     redis:
       enabled: false
 
+  # Rate-limiting for public ticket endpoints (/public/tickets/**)
+  public:
+    tickets:
+      rate-limit:
+        enabled: true
+        requests-per-second: 10
+        burst: 30
+
   notification:
     node:
       base-path: /notifications

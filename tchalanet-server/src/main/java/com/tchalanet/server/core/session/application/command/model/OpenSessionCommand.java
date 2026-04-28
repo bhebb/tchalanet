@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.core.session.domain.model.SalesSession;
 import java.math.BigDecimal;
 
 public record OpenSessionCommand(
@@ -14,4 +14,4 @@ public record OpenSessionCommand(
     TerminalId terminalId,
     UserId userId,
     BigDecimal openingFloat)
-    implements Command<PosSession> {}
+    implements Command<SalesSession> {}
