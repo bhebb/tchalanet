@@ -7,7 +7,10 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.core.tenantconfig.application.command.model.*;
+import com.tchalanet.server.core.tenantconfig.application.command.model.ActivateTenantCommand;
+import com.tchalanet.server.core.tenantconfig.application.command.model.ArchiveTenantCommand;
+import com.tchalanet.server.core.tenantconfig.application.command.model.CreateTenantCommand;
+import com.tchalanet.server.core.tenantconfig.application.command.model.SuspendTenantCommand;
 import com.tchalanet.server.core.tenantconfig.application.query.model.GetTenantByCodeQuery;
 import com.tchalanet.server.core.tenantconfig.application.query.model.GetTenantByIdQuery;
 import com.tchalanet.server.core.tenantconfig.application.query.model.ListTenantsQuery;
@@ -85,16 +88,6 @@ public class TenantAdminController {
       @RequestBody(required = false) ReasonRequest body) {
     var reason = body != null && body.reason() != null ? body.reason() : null;
     commandBus.send(new SuspendTenantCommand(id, reason));
-  }
-
-  @Operation(summary = "Deactivate tenant (ACTIVE → SUSPENDED)")
-  @PostMapping("/{id}/deactivate")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deactivate(
-      @PathVariable TenantId id,
-      @RequestBody(required = false) ReasonRequest body) {
-    var reason = body != null && body.reason() != null ? body.reason() : null;
-    commandBus.send(new DeactivateTenantCommand(id, reason));
   }
 
   @Operation(summary = "Archive tenant (any → ARCHIVED)")

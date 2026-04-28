@@ -7,6 +7,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.tenantconfig.application.command.model.ActivateTenantCommand;
 import com.tchalanet.server.core.tenantconfig.application.port.out.TenantConfigWriterPort;
 import com.tchalanet.server.core.tenantconfig.domain.event.TenantStatusChangedEvent;
@@ -15,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Command handler: Activate Tenant (DRAFT → ACTIVE).
@@ -28,6 +28,7 @@ public class ActivateTenantCommandHandler implements VoidCommandHandler<Activate
   private final TenantConfigWriterPort writer;
   private final DomainEventPublisher publisher;
   private final Clock clock;
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
@@ -45,7 +46,7 @@ public class ActivateTenantCommandHandler implements VoidCommandHandler<Activate
 
     if (saved.status() != prevStatus) {
       var evt = new TenantStatusChangedEvent(
-          EventId.of(UUID.randomUUID()),
+          EventId.of(idGenerator.newUuid()),
           now,
           saved.id(),
           prevStatus,
