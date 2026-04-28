@@ -1,9 +1,10 @@
 package com.tchalanet.server.core.user.application.query.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
+import jakarta.annotation.Nullable;
 
 public record TenantContext(
-    UUID tenantId,
+    @Nullable TenantId tenantId,
     String tenantCode,
     String timeZone,
     String currency) {}

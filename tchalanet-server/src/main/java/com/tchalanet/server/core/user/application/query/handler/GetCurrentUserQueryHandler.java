@@ -4,6 +4,7 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.user.application.port.out.UserPreferenceReaderPort;
 import com.tchalanet.server.core.user.application.port.out.UserReaderPort;
 import com.tchalanet.server.core.user.application.query.model.CurrentUserDetails;
@@ -30,7 +31,7 @@ public class GetCurrentUserQueryHandler implements QueryHandler<GetCurrentUserQu
     String tenantTz = ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : null;
     String tenantCurrency = ctx != null && ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : null;
     String tenantCode = ctx != null ? ctx.effectiveTenantCode() : null;
-    java.util.UUID tenantId = ctx != null && ctx.tenantIdSafe() != null ? ctx.tenantIdSafe().value() : null;
+    TenantId tenantId = ctx != null ? ctx.tenantIdSafe() : null;
 
     String requestLocale = ctx != null && ctx.locale() != null ? ctx.locale().toLanguageTag() : null;
 

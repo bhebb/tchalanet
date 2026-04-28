@@ -3,8 +3,8 @@ package com.tchalanet.server.core.user.domain.model;
 import com.tchalanet.server.common.types.enums.UserStatus;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
+import jakarta.annotation.Nullable;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.Getter;
 
 @Getter
@@ -24,7 +24,7 @@ public final class AppUser {
 
   private final UserStatus status;
   private final Instant approvedAt;
-  private final UUID approvedBy;
+  @Nullable private final UserId approvedBy;
 
   private final Instant lastLoginAt;
 
@@ -42,7 +42,7 @@ public final class AppUser {
       String avatarUrl,
       UserStatus status,
       Instant approvedAt,
-      UUID approvedBy,
+      @Nullable UserId approvedBy,
       Instant lastLoginAt,
       long version) {
     this.id = id;
@@ -108,7 +108,7 @@ public final class AppUser {
       String avatarUrl,
       UserStatus status,
       Instant approvedAt,
-      UUID approvedBy,
+      @Nullable UserId approvedBy,
       Instant lastLoginAt,
       long version) {
     return new AppUser(
@@ -174,7 +174,7 @@ public final class AppUser {
         this.version);
   }
 
-  public AppUser approve(Instant now, UUID approvedBy) {
+  public AppUser approve(Instant now, UserId approvedBy) {
     if (now == null) throw new IllegalArgumentException("now is required");
     if (approvedBy == null) throw new IllegalArgumentException("approvedBy is required");
     if (status == UserStatus.SUSPENDED)
@@ -296,7 +296,7 @@ public final class AppUser {
     return approvedAt;
   }
 
-  public UUID getApprovedBy() {
+  public @Nullable UserId getApprovedBy() {
     return approvedBy;
   }
 

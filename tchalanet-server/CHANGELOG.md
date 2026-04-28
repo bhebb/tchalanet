@@ -14,6 +14,8 @@
 
 ### Added
 
+- **REFACTOR** typed IDs `UserId`/`TenantId` dans `AppUser.approvedBy`, `ApproveUserCommand.approvedBy`, `TenantContext.tenantId`, `TenantContextResponse.tenantId` — conformité conventions typed IDs, aucun breaking change HTTP (serialisation Jackson inchangée). ([fix-typed-ids-user-domain])
+
 - `NoticeSeverity.ERROR` enum value added for error-level API notices.
 - `ApiNotice.error(code, message)`, `ApiNotice.warn(code, message)`, `ApiNotice.info(code, message)` factory methods.
 - `ApiResponse.notFound(message)` factory method — returns HTTP-safe 404-compatible `ApiResponse`.
