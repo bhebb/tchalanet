@@ -25,7 +25,7 @@
     <caffeine.version>3.2.3</caffeine.version>
     <json-schema-validator.version>3.0.2</json-schema-validator.version>
     <keycloak.version>26.0.9</keycloak.version>
-    <lombok.version>1.18.42</lombok.version>
+    <lombok.version>1.18.46</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <pdfbox.version>3.0.7</pdfbox.version>
     <querydsl.version>5.1.0</querydsl.version>
