@@ -11,14 +11,11 @@ import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.pagemodel.domain.event.PageModelTemplateUpdatedEvent;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +24,6 @@ public class PageModelTemplateAdminService {
     private final PageModelTemplateRepository repository;
     private final PageModelTemplateMapper mapper;
     private final JsonUtils jsonUtils;
-    private final ApplicationEventPublisher eventPublisher;
 
 
     @Transactional
@@ -72,15 +68,6 @@ public class PageModelTemplateAdminService {
         mapper.applyView(existing, view);
         existing.setUpdatedAt(Instant.now());
         var saved = repository.save(existing);
-
-        // [Phase 4C] Propagation template -> instances (analysis §gap)
-        eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
-            id,
-            view.model(),
-            view.schemaVersion() != null ? view.schemaVersion() : 1,
-            actorId,
-            Instant.now()
-        ));
 
         return mapper.toView(saved);
     }
@@ -151,15 +138,6 @@ public class PageModelTemplateAdminService {
         e.setDefault(seed.isDefault());
 
         var saved = repository.save(e);
-
-        // [Phase 4C] Propagation au démarrage ou lors du re-seed (évite les gap post-migration)
-        eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
-            PageModelTemplateId.of(saved.getId()),
-            seed.model(),
-            e.getSchemaVersion(),
-            null, // SYSTEM actorId
-            Instant.now()
-        ));
 
         return mapper.toView(saved);
     }

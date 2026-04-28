@@ -5,16 +5,17 @@ import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplat
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelType;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -29,31 +30,44 @@ public class PageModelTemplateSeedRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         log.info("Seeding page model templates from classpath...");
 
-        for (PageModelType type : PageModelType.values()) {
+        for (Resource resource : loadTemplateResources()) {
+            var logicalId = logicalIdFrom(resource);
             try {
-                log.info("Seeding logicalId={}", type.logicalId());
-                var createdOrUpdated = upsertFromClasspath(type.logicalId());
-                if (createdOrUpdated != null) {
-                    log.info("Seed OK logicalId={} code={} level={}",
-                        createdOrUpdated.logicalId(),
-                        createdOrUpdated.code(),
-                        createdOrUpdated.level());
-                } else {
-                    log.debug("No seed file for logicalId={}", type.logicalId());
-                }
+                log.info("Seeding logicalId={}", logicalId);
+                var createdOrUpdated = upsertFromClasspath(resource, logicalId);
+                log.info("Seed OK logicalId={} code={} level={}",
+                    createdOrUpdated.logicalId(),
+                    createdOrUpdated.code(),
+                    createdOrUpdated.level());
             } catch (Exception e) {
-                log.error("Seed FAILED logicalId={}", type.logicalId(), e);
+                log.error("Seed FAILED logicalId={}", logicalId, e);
             }
         }
 
         log.info("Page model template seeding complete.");
     }
 
-    private PageModelTemplateView upsertFromClasspath(String logicalId) throws Exception {
-        var path = "pagemodel/" + logicalId + ".json";
-        var resource = new ClassPathResource(path);
-        if (!resource.exists()) return null;
+    private Resource[] loadTemplateResources() {
+        try {
+            var resolver = new PathMatchingResourcePatternResolver();
+            var resources = resolver.getResources("classpath*:pagemodel/*.json");
+            return Arrays.stream(resources)
+                .sorted(Comparator.comparing(Resource::getFilename, Comparator.nullsLast(String::compareTo)))
+                .toArray(Resource[]::new);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to load page model template resources", e);
+        }
+    }
 
+    private String logicalIdFrom(Resource resource) {
+        var filename = resource.getFilename();
+        if (filename == null || !filename.endsWith(".json")) {
+            throw new IllegalArgumentException("Invalid page model template resource: " + resource);
+        }
+        return filename.substring(0, filename.length() - ".json".length());
+    }
+
+    private PageModelTemplateView upsertFromClasspath(Resource resource, String logicalId) throws Exception {
         try (InputStream is = resource.getInputStream()) {
             JsonNode jsonTree = jsonUtils.readValue(is, JsonNode.class);
 
