@@ -127,6 +127,8 @@
     ]
   },
   "scripts": {
+    "ops:check": "openspec validate --strict",
+    "ops:status": "openspec status",
     "start:web": "nx serve tchalanet-web",
     "start:mobile": "nx serve tchalanet-mobile",
     "build:web": "nx build tchalanet-web",
