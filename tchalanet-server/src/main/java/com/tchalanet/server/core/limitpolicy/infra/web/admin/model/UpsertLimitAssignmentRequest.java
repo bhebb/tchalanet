@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.tenantadmin.policies.model;
+package com.tchalanet.server.core.limitpolicy.infra.web.admin.model;
 
 import com.tchalanet.server.common.types.id.LimitDefinitionId;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
@@ -7,7 +7,6 @@ import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 
-/** Feature-level DTO for creating/updating a LimitAssignment. */
 public record UpsertLimitAssignmentRequest(
     @NotNull LimitDefinitionId limitDefinitionId,
     @NotNull LimitTarget target,

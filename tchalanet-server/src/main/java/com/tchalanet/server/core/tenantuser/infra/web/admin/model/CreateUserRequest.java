@@ -1,8 +1,7 @@
-package com.tchalanet.server.features.tenantadmin.users.model;
+package com.tchalanet.server.core.tenantuser.infra.web.admin.model;
 
 import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TerminalId;
 
 public record CreateUserRequest(
@@ -10,7 +9,7 @@ public record CreateUserRequest(
     String phone,
     String firstName,
     String lastName,
-    TchRole role, // ou enum RoleKey
+    TchRole role,
     OutletId outletId,
     TerminalId terminalId
 ) {}

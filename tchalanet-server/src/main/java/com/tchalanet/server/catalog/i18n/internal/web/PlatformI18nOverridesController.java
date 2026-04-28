@@ -98,4 +98,30 @@ public class PlatformI18nOverridesController {
         Map<String, String> map = i18nOverridesCatalog.resolveLocale(locale, ctx);
         return ApiResponse.success(map);
     }
+
+    @Operation(summary = "Global i18n stats (SUPER_ADMIN)")
+    @GetMapping("/overview")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ApiResponse<I18nGlobalOverviewView> overview() {
+        var stats = i18nOverridesCatalog.keyStats();
+        return ApiResponse.success(new I18nGlobalOverviewView(
+            java.time.Instant.now(),
+            new I18nGlobalOverviewView.Summary(stats.totalKeys(), stats.totalLocales(), stats.totalOverrides())));
+    }
+
+    @Operation(summary = "Resolve i18n bundle cross-tenant (SUPER_ADMIN)")
+    @GetMapping("/resolve")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ApiResponse<Map<String, String>> resolvePlatform(
+        @RequestParam String locale,
+        @RequestParam(required = false) com.tchalanet.server.common.types.id.TenantId tenantId) {
+        Map<String, String> resolved = tenantId == null
+            ? i18nOverridesCatalog.resolveLocale(locale)
+            : i18nOverridesCatalog.resolveLocaleForTenant(locale, tenantId);
+        return ApiResponse.success(resolved);
+    }
+
+    public record I18nGlobalOverviewView(java.time.Instant generatedAt, Summary summary) {
+        public record Summary(long totalKeys, long totalLocales, long totalOverrides) {}
+    }
 }

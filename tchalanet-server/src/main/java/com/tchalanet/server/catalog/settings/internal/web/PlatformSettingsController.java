@@ -1,6 +1,8 @@
 package com.tchalanet.server.catalog.settings.internal.web;
 
+import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
+import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.web.model.CreateSettingRequest;
 import com.tchalanet.server.catalog.settings.internal.web.model.SearchSettingsCriteria;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 public class PlatformSettingsController {
 
   private final SettingsAdminService adminService;
+  private final SettingsCatalog settingsCatalog;
 
   @Operation(summary = "Search settings (paginated)", description = "Search settings with filters and pagination")
   @GetMapping
@@ -84,5 +87,11 @@ public class PlatformSettingsController {
   public ApiResponse<Void> delete(@PathVariable SettingId id) {
     adminService.delete(id);
     return ApiResponse.success(null);
+  }
+
+  @Operation(summary = "Global settings stats")
+  @GetMapping("/overview")
+  public ApiResponse<SettingsCatalogStatsView> overview() {
+    return ApiResponse.success(settingsCatalog.stats());
   }
 }
