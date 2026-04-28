@@ -28,3 +28,30 @@
 - Endpoints `features/tenantadmin` qui appellent `findByTenantId` — à vérifier si le contexte tenant est correctement positionné.
 - Tests d'intégration : nouveaux tests RLS à créer.
 - **Aucun breaking change sur l'API HTTP externe.**
+
+---
+
+## Archive Information
+
+**Archived:** 2026-04-28
+**Duration:** 1 day (2026-04-27 → 2026-04-28)
+**Outcome:** Successfully implemented
+
+### Implementation Note
+
+The original design relied on RLS to filter `app_user` by tenant. During implementation it was discovered that `app_user` has no `tenant_id` column and is therefore excluded from V40 RLS policies. The fix was implemented via a `tenant_user` JOIN instead (filtering on `status = 'ACTIVE' AND deleted_at IS NULL`), which is the correct isolation mechanism for this global identity table.
+
+### Files Modified
+
+- `tchalanet-server/src/main/java/com/tchalanet/server/core/user/application/port/out/UserReaderPort.java`
+- `tchalanet-server/src/main/java/com/tchalanet/server/core/user/infra/persistence/JpaAppUserRepository.java`
+- `tchalanet-server/src/main/java/com/tchalanet/server/core/user/infra/persistence/AppUserPersistenceAdapter.java`
+- `tchalanet-server/CHANGELOG.md`
+
+### Files Created
+
+- `tchalanet-server/src/test/java/com/tchalanet/server/core/user/infra/persistence/AppUserTenantMembershipIT.java`
+
+### Specs Updated
+
+- `openspec/specs/user-tenant-isolation/spec.md` — new spec (created from delta)

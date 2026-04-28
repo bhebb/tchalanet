@@ -24,3 +24,28 @@
 - `core.subscription/infra/provider/ExternalBillingProviderAdapter` — fichier à supprimer.
 - Tests : ajouter un test d'intégration `JdbcSubscriptionStatsReaderIT`.
 - **Aucun breaking change sur l'API HTTP.**
+
+---
+
+## Archive Information
+
+**Archived:** 2026-04-28
+**Duration:** 1 day (2026-04-27 → 2026-04-28)
+**Outcome:** Successfully implemented
+
+### Files Modified
+
+- `tchalanet-server/src/main/java/com/tchalanet/server/core/subscription/infra/persistence/read/JdbcSubscriptionStatsReader.java`
+- `tchalanet-server/CHANGELOG.md`
+
+### Files Deleted
+
+- `tchalanet-server/src/main/java/com/tchalanet/server/core/subscription/infra/provider/ExternalBillingProviderAdapter.java`
+
+### Files Created
+
+- `tchalanet-server/src/test/java/com/tchalanet/server/core/subscription/infra/persistence/read/JdbcSubscriptionStatsReaderIT.java`
+
+### Specs Updated
+
+- `openspec/specs/subscription-stats/spec.md` — new spec (created from delta)
