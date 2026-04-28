@@ -28,10 +28,10 @@ import org.hibernate.envers.Audited;
     uniqueConstraints =
         @UniqueConstraint(
             name = "uq_draw_tenant_channel_date",
-            columnNames = {"tenantId", "draw_channel_id", "draw_date"}),
+            columnNames = {"tenant_id", "draw_channel_id", "draw_date"}),
     indexes = {
-      @Index(name = "ix_draw_tenant_date", columnList = "tenantId, draw_date"),
-      @Index(name = "ix_draw_tenant_scheduled", columnList = "tenantId, scheduled_at"),
+      @Index(name = "ix_draw_tenant_date", columnList = "tenant_id, draw_date"),
+      @Index(name = "ix_draw_tenant_scheduled", columnList = "tenant_id, scheduled_at"),
       @Index(name = "ix_draw_status_scheduled_at", columnList = "status, scheduled_at"),
       @Index(name = "ix_draw_status_cutoff_at", columnList = "status, cutoff_at")
     })

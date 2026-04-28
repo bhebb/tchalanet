@@ -29,7 +29,7 @@ public class StatsDrawEntity {
   @Column(name = "draw_id", nullable = false, unique = true, columnDefinition = "uuid")
   private UUID drawId;
 
-  @Column(name = "tenantId", nullable = false, columnDefinition = "uuid")
+  @Column(name = "tenant_id", nullable = false, columnDefinition = "uuid")
   private UUID tenantId;
 
   @Column(name = "game_code", nullable = false)
