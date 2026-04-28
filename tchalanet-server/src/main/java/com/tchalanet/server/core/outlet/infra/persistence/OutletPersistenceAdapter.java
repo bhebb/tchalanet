@@ -2,6 +2,7 @@ package com.tchalanet.server.core.outlet.infra.persistence;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
@@ -62,7 +63,7 @@ public class OutletPersistenceAdapter
         e.getReceiptHeaderMessage(),
         e.getReceiptFooterMessage(),
         e.isRequireOpeningFloat(),
-        e.getAddressId());
+        AddressId.nullableOf(e.getAddressId()));
   }
 
   private OutletEntity toEntity(Outlet o) {
@@ -81,7 +82,7 @@ public class OutletPersistenceAdapter
     e.setReceiptHeaderMessage(o.receiptHeaderMessage());
     e.setReceiptFooterMessage(o.receiptFooterMessage());
     e.setRequireOpeningFloat(o.requireOpeningFloat());
-    e.setAddressId(o.addressId());
+    e.setAddressId(o.addressId() == null ? null : o.addressId().value());
     return e;
   }
 }

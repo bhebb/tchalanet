@@ -22,13 +22,13 @@ public class GetOutletByIdQueryHandler implements QueryHandler<GetOutletByIdQuer
 
     AddressView addressView = null;
     if (o.addressId() != null) {
-      var a = addressReader.findById(q.tenantId(), com.tchalanet.server.common.types.id.AddressId.of(o.addressId())).orElse(null);
+      var a = addressReader.findById(q.tenantId(), o.addressId()).orElse(null);
       if (a != null) addressView = AddressView.fromDomain(a);
     }
 
     return new OutletView(
-        o.id().value(),
-        o.tenantId() == null ? null : o.tenantId().value(),
+        o.id(),
+        o.tenantId(),
         o.name(),
         o.slug(),
         o.dayClosed(),

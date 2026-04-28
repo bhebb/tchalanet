@@ -22,8 +22,8 @@ public class ListOutletsByTenantQueryHandler implements QueryHandler<ListOutlets
   public List<OutletView> handle(ListOutletsByTenantQuery q) {
     var list = reader.listByTenant();
     return list.stream().map(o -> new OutletView(
-        o.id().value(),
-        o.tenantId() == null ? null : o.tenantId().value(),
+        o.id(),
+        o.tenantId(),
         o.name(),
         o.slug(),
         o.dayClosed(),

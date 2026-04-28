@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/admin/outlets")
 @PreAuthorize("hasAnyRole('TENANT_ADMIN','SUPER_ADMIN')")
@@ -35,7 +33,7 @@ public class TenantAdminOutletsController {
   public record CreateOutletReq(String name, String slug, com.tchalanet.server.core.address.application.model.AddressInput address) {}
 
   @PostMapping
-  public ApiResponse<UUID> create(@CurrentContext TchRequestContext ctx, @Valid @RequestBody CreateOutletReq req) {
+  public ApiResponse<OutletId> create(@CurrentContext TchRequestContext ctx, @Valid @RequestBody CreateOutletReq req) {
     var id = orchestrator.create(ctx, req.name, req.slug, req.address);
     return ApiResponse.success(id);
   }

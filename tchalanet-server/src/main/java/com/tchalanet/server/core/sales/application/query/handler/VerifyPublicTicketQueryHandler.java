@@ -117,7 +117,7 @@ public class VerifyPublicTicketQueryHandler
             if (outlet.addressId() != null) {
               outletAddress =
                   addressReader
-                      .findById(ticket.getTenantId(), AddressId.of(outlet.addressId()))
+                      .findById(ticket.getTenantId(), outlet.addressId())
                       .orElse(null);
             }
           }

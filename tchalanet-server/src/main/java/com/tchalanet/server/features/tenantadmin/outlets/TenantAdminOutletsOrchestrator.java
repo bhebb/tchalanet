@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +37,7 @@ public class TenantAdminOutletsOrchestrator {
         return OutletWebMapper.toResponse(dto);
     }
 
-    public UUID create(TchRequestContext ctx, String name, String slug, com.tchalanet.server.core.address.application.model.AddressInput address) {
+    public OutletId create(TchRequestContext ctx, String name, String slug, com.tchalanet.server.core.address.application.model.AddressInput address) {
         TenantId tenantId = ctx.tenantIdSafe();
         CreateOutletCommand cmd = new CreateOutletCommand(tenantId, name, slug, null, address);
         return commandBus.send(cmd);

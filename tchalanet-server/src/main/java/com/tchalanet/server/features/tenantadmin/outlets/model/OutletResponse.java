@@ -1,10 +1,11 @@
 package com.tchalanet.server.features.tenantadmin.outlets.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 
 public record OutletResponse(
-    UUID id,
-    UUID tenantId,
+    OutletId id,
+    TenantId tenantId,
     String name,
     String slug,
     Boolean dayClosed,

@@ -1,8 +1,12 @@
 package com.tchalanet.server.core.outlet.application.command.handler;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.outlet.application.command.model.CloseDayMode;
 import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDayCommand;
 import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDayPayload;
@@ -10,9 +14,11 @@ import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
 import com.tchalanet.server.core.outlet.application.port.out.SessionAdminPort;
+import com.tchalanet.server.core.outlet.domain.event.OutletDayClosedEvent;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -25,6 +31,9 @@ public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOut
     private final SalesTicketAdminPort salesAdmin;
     private final OutletReaderPort outletReader;
     private final OutletWriterPort outletWriter;
+    private final DomainEventPublisher publisher;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
     @Override
     @TchTx
@@ -71,7 +80,12 @@ public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOut
             payload.getReason() == null || payload.getReason().isBlank()
                 ? "closed_by_outlet_day"
                 : payload.getReason();
-        Outlet updated = outlet.closeDay().withSalesBlocked(true, reason, Instant.now());
+        Outlet updated = outlet.closeDay().withSalesBlocked(true, reason, Instant.now(clock));
         outletWriter.save(updated);
+        LocalDate closedDate = payload.getTo() == null ? toDate : payload.getTo();
+        var event =
+            new OutletDayClosedEvent(
+                EventId.of(idGenerator.newUuid()), Instant.now(clock), tenantId, outletId, closedDate);
+        AfterCommit.run(() -> publisher.publish(event));
     }
 }
