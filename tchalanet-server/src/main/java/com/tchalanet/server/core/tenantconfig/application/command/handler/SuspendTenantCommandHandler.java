@@ -7,13 +7,13 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.tenantconfig.application.command.model.SuspendTenantCommand;
 import com.tchalanet.server.core.tenantconfig.application.port.out.TenantConfigWriterPort;
 import com.tchalanet.server.core.tenantconfig.domain.event.TenantStatusChangedEvent;
 import com.tchalanet.server.core.tenantconfig.domain.model.TenantConfig;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
@@ -24,6 +24,7 @@ public class SuspendTenantCommandHandler implements VoidCommandHandler<SuspendTe
   private final TenantConfigWriterPort writer;
   private final DomainEventPublisher publisher;
   private final Clock clock;
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
@@ -43,7 +44,7 @@ public class SuspendTenantCommandHandler implements VoidCommandHandler<SuspendTe
     if (saved.status() != prevStatus) {
       var evt =
           new TenantStatusChangedEvent(
-              EventId.of(UUID.randomUUID()),
+              EventId.of(idGenerator.newUuid()),
               now,
               saved.id(),
               prevStatus,

@@ -8,6 +8,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.address.application.AddressCrudService;
 import com.tchalanet.server.core.tenantconfig.application.command.model.CreateTenantCommand;
 import com.tchalanet.server.core.tenantconfig.application.port.out.TenantConfigWriterPort;
 import com.tchalanet.server.core.tenantconfig.domain.event.TenantStatusChangedEvent;
@@ -21,17 +22,20 @@ import lombok.RequiredArgsConstructor;
 public class CreateTenantCommandHandler implements VoidCommandHandler<CreateTenantCommand> {
 
   private final TenantConfigWriterPort writer;
+  private final AddressCrudService addressCrudService;
   private final DomainEventPublisher publisher;
   private final Clock clock;
-  private final IdGenerator idGenerator; // Inject IdGenerator
+  private final IdGenerator idGenerator;
 
   @Override
   @TchTx
   public void handle(CreateTenantCommand cmd) {
     var now = Instant.now(clock);
-    var newTenantId = TenantId.of(idGenerator.newUuid()); // Generate new TenantId
+    var newTenantId = TenantId.of(idGenerator.newUuid());
+    var addressId =
+        cmd.address() == null ? null : addressCrudService.upsertTenantPrimary(newTenantId, cmd.address());
 
-    var tenant =
+    TenantConfig tenant =
         TenantConfig.createDraft(
             newTenantId,
             cmd.code(),
@@ -39,19 +43,25 @@ public class CreateTenantCommandHandler implements VoidCommandHandler<CreateTena
             cmd.type(),
             cmd.timezone(),
             cmd.currency(),
-            null, // AddressId is not directly in CreateTenantCommand
+            addressId,
             cmd.activeThemeId());
 
+    if (Boolean.TRUE.equals(cmd.activate())) {
+      tenant = tenant.activate(now);
+    }
+
     var saved = writer.create(tenant);
+    var fromStatus = Boolean.TRUE.equals(cmd.activate()) ? com.tchalanet.server.common.types.enums.TenantStatus.DRAFT : null;
+    var reason = Boolean.TRUE.equals(cmd.activate()) ? "activated_on_create" : "tenant_created";
 
     var evt =
         new TenantStatusChangedEvent(
             EventId.of(idGenerator.newUuid()),
             now,
             saved.id(),
-            null,
+            fromStatus,
             saved.status(),
-            "tenant_created");
+            reason);
     AfterCommit.run(() -> publisher.publish(evt));
   }
 }
