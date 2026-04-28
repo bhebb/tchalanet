@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **FIX** `JdbcSubscriptionStatsReader` table name corrected: `subscription` → `tenant_subscription`. Resolves runtime `PSQLException: relation "subscription" does not exist` on all stats queries. ([fix-subscription-stats-table])
+- **FIX** Removed dead class `ExternalBillingProviderAdapter` (`@Deprecated`, empty, referencing non-existent `catalog.billing` package). ([fix-subscription-stats-table])
+
+### Refactor
+
+- **FIXED** `UserAdminController.listUsersByTenant` (`GET /admin/users/tenant/{tenantId}`) was returning all users regardless of the path `tenantId`. `findByTenantId` now executes a JOIN on `tenant_user` to return only users with an active membership in the requested tenant. ([fix-user-tenant-isolation])
+- **REFACTOR** Removed dead `findAllActiveUsersByTenant(TenantId, Pageable)` from `UserReaderPort` — duplicated `findAllActiveUsers(Pageable)` while silently ignoring its `TenantId` parameter. ([fix-user-tenant-isolation])
+
 ### Security
 
 - **FIXED** `TicketController` cancel and print endpoints now require ROLE_CASHIER/ROLE_ADMIN/ROLE_SUPER_ADMIN — previously accessible by any authenticated user. `@EnableMethodSecurity(securedEnabled = true)` activated in `SecurityConfig`. ([secure-sales-ticket-endpoints])

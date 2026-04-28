@@ -22,11 +22,10 @@ public interface UserReaderPort {
   // Paged versions
   Page<AppUser> findAll(Pageable pageable);
 
+  // Returns only users who are active members of the given tenant (via tenant_user join)
   Page<AppUser> findByTenantId(TenantId tenantId, Pageable pageable);
 
   Page<@NotNull AppUser> findAllActiveUsers(Pageable pageable);
-
-  Page<AppUser> findAllActiveUsersByTenant(TenantId tenantId, Pageable pageable);
 
   // Search by criteria
   Page<AppUser> searchByCriteria(String nameLike, String status, Instant createdAfter, Instant createdBefore, Pageable pageable);

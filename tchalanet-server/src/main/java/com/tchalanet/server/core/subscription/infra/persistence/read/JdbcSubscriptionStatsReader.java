@@ -11,24 +11,22 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class JdbcSubscriptionStatsReader implements SubscriptionStatsReaderPort {
 
+  private static final String TABLE = "tenant_subscription";
+
   private final JdbcTemplate jdbc;
 
   @Override
   public PlatformSubscriptionStatsView readPlatformStats() {
 
-    // TODO: adapt table/col names if different in your schema
-    int total = queryCount("select count(*) from subscription");
-    int active = queryCount("select count(*) from subscription where status = 'ACTIVE'");
-    int pastDue = queryCount("select count(*) from subscription where status = 'PAST_DUE'");
-    int canceled = queryCount("select count(*) from subscription where status = 'CANCELED'");
+    int total    = queryCount("select count(*) from " + TABLE);
+    int active   = queryCount("select count(*) from " + TABLE + " where status = 'ACTIVE'");
+    int pastDue  = queryCount("select count(*) from " + TABLE + " where status = 'PAST_DUE'");
+    int canceled = queryCount("select count(*) from " + TABLE + " where status = 'CANCELED'");
 
     List<PlatformSubscriptionStatsView.ByPlanRow> byPlan = jdbc.query(
-        """
-        select plan_code,                count(*) as total,                sum(case when status='ACTIVE' then 1 else 0 end) as active
-          from subscription
-        group by plan_code
-        order by plan_code
-        """,
+        "select plan_code, count(*) as total, sum(case when status='ACTIVE' then 1 else 0 end) as active"
+        + " from " + TABLE
+        + " group by plan_code order by plan_code",
         (rs, i) -> new PlatformSubscriptionStatsView.ByPlanRow(
             rs.getString("plan_code"),
             rs.getInt("total"),

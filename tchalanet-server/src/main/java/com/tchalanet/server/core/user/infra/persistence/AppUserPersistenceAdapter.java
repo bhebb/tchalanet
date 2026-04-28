@@ -84,20 +84,13 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
 
   @Override
   public Page<AppUser> findByTenantId(TenantId tenantId, Pageable pageable) {
-    var page = jpa.findAll(pageable);
+    var page = jpa.findByTenantMembership(tenantId.value(), pageable);
     var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
     return new PageImpl<>(content, pageable, page.getTotalElements());
   }
 
   @Override
   public Page<@NotNull AppUser> findAllActiveUsers(Pageable pageable) {
-    var page = jpa.findByStatusAndDeletedAtIsNull(UserStatus.ACTIVE.name(), pageable);
-    var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
-    return new PageImpl<>(content, pageable, page.getTotalElements());
-  }
-
-  @Override
-  public Page<AppUser> findAllActiveUsersByTenant(TenantId tenantId, Pageable pageable) {
     var page = jpa.findByStatusAndDeletedAtIsNull(UserStatus.ACTIVE.name(), pageable);
     var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
     return new PageImpl<>(content, pageable, page.getTotalElements());
