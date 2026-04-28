@@ -1,15 +1,18 @@
 package com.tchalanet.server.catalog.theme.internal.web;
 
+import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
+import com.tchalanet.server.catalog.theme.api.ThemePresetStatsView;
+import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService;
 import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService.ThemePresetCreateRequest;
 import com.tchalanet.server.catalog.theme.internal.write.ThemePresetAdminService.ThemePresetUpdateRequest;
-import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/platform/theme-presets")
@@ -18,6 +21,17 @@ import org.springframework.web.bind.annotation.*;
 public class ThemeAdminController {
 
     private final ThemePresetAdminService admin;
+    private final ThemeCatalog themeCatalog;
+
+    @GetMapping
+    public ApiResponse<List<ThemePresetView>> listActive() {
+        return ApiResponse.success(themeCatalog.listActive());
+    }
+
+    @GetMapping("/overview")
+    public ApiResponse<ThemePresetStatsView> overview() {
+        return ApiResponse.success(themeCatalog.stats());
+    }
 
     @PostMapping
     public ApiResponse<ThemePresetView> create(@RequestBody ThemePresetCreateRequest req) {

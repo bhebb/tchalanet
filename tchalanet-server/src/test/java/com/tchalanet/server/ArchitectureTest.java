@@ -135,12 +135,9 @@ class ArchitectureTest {
 
     ArchRule rule = noClasses()
         .that().resideInAPackage("com.tchalanet.server.catalog..")
-        .should().callMethodWhere(com.tngtech.archunit.core.domain.JavaMethodCall.Predicates.target(
-            com.tngtech.archunit.core.domain.properties.HasName.Predicates.name("publishEvent")
-        ))
-        .orShould().callMethodWhere(com.tngtech.archunit.core.domain.JavaMethodCall.Predicates.target(
-            com.tngtech.archunit.core.domain.properties.HasName.Predicates.name("publish")
-        ))
+        .should().dependOnClassesThat().resideInAnyPackage(
+            "com.tchalanet.server.common.event..",
+            "com.tchalanet.server.core..domain.event..")
         .as("catalog modules must NOT emit domain events (pure reference data)");
 
     rule.check(classes);

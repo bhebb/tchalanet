@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReaderPort;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWriterPort;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,13 +33,13 @@ public class PageModelPersistenceAdapter implements PageModelReaderPort, PageMod
   @Override
   public Optional<PageModelInstance> findPublishedByLogicalId(String logicalId) {
     // RLS assure l'isolation tenant — pas de filtre tenant_id explicite
-    return repo.findFirstByLogicalIdAndStatusAndDeletedAtIsNull(logicalId, "PUBLISHED")
+    return repo.findFirstByLogicalIdAndStatusAndDeletedAtIsNull(logicalId, PageModelStatus.PUBLISHED)
         .map(PageModelMapper::toDomain);
   }
 
   @Override
   public List<PageModelInstance> findAllPublishedByLogicalId(String logicalId) {
-    return repo.findAllByLogicalIdAndStatusAndDeletedAtIsNull(logicalId, "PUBLISHED")
+    return repo.findAllByLogicalIdAndStatusAndDeletedAtIsNull(logicalId, PageModelStatus.PUBLISHED)
         .stream().map(PageModelMapper::toDomain).toList();
   }
 
@@ -67,21 +68,73 @@ public class PageModelPersistenceAdapter implements PageModelReaderPort, PageMod
     return saved.stream().map(PageModelMapper::toDomain).toList();
   }
 
-  // [Phase 4C] propagation template → instances DRAFT (analysis §gap)
   @Override
-  public void applyTemplateUpdate(PageModelTemplateId templateId, JsonNode newModel,
+  public void applyTemplateUpdate(PageModelTemplateId templateId, String logicalId, JsonNode newModel,
       int newSchemaVersion, UserId actorId) {
     var entities = repo.findAllByTemplateIdAndDeletedAtIsNull(templateId.value());
     var now = java.time.Instant.now();
     UUID actor = actorId != null ? actorId.value() : null;
+    var changed = new ArrayList<PageModelJpaEntity>();
+
     for (var entity : entities) {
-      entity.setModel(newModel);
-      entity.setSchemaVersion(newSchemaVersion);
-      // Repasser en DRAFT : le modèle a changé, une republication explicite est requise
-      entity.setStatus(com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus.DRAFT);
-      entity.setUpdatedAt(now);
-      entity.setUpdatedBy(actor);
+      if (entity.getStatus() == PageModelStatus.DRAFT) {
+        applyTemplateToDraft(entity, newModel, newSchemaVersion, now, actor);
+        changed.add(entity);
+        continue;
+      }
+
+      if (entity.getStatus() == PageModelStatus.PUBLISHED) {
+        var draft = repo.findFirstByTenantIdAndLogicalIdAndStatusAndDeletedAtIsNull(
+            entity.getTenantId(), logicalId, PageModelStatus.DRAFT);
+        if (draft.isPresent()) {
+          applyTemplateToDraft(draft.get(), newModel, newSchemaVersion, now, actor);
+          changed.add(draft.get());
+        } else {
+          changed.add(newDraftFromPublished(entity, newModel, newSchemaVersion, now, actor));
+        }
+      }
     }
-    repo.saveAll(entities);
+
+    repo.saveAll(changed);
+  }
+
+  private static void applyTemplateToDraft(
+      PageModelJpaEntity draft, JsonNode newModel, int newSchemaVersion, java.time.Instant now, UUID actor) {
+    draft.setModel(newModel);
+    draft.setSchemaVersion(newSchemaVersion);
+    draft.setUpdatedAt(now);
+    draft.setUpdatedBy(actor);
+  }
+
+  private static PageModelJpaEntity newDraftFromPublished(
+      PageModelJpaEntity published,
+      JsonNode newModel,
+      int newSchemaVersion,
+      java.time.Instant now,
+      UUID actor) {
+    var draft = new PageModelJpaEntity();
+    draft.setId(UUID.randomUUID());
+    draft.setTenantId(published.getTenantId());
+    draft.setCode(nextDraftCode(published.getCode(), newSchemaVersion));
+    draft.setLogicalId(published.getLogicalId());
+    draft.setName(published.getName() + " new version");
+    draft.setSchema(published.getSchema());
+    draft.setScope(published.getScope());
+    draft.setSlug(published.getSlug());
+    draft.setSchemaVersion(newSchemaVersion);
+    draft.setModel(newModel);
+    draft.setStatus(PageModelStatus.DRAFT);
+    draft.setTemplateId(published.getTemplateId());
+    draft.setActive(true);
+    draft.setCreatedAt(now);
+    draft.setCreatedBy(actor);
+    draft.setUpdatedAt(now);
+    draft.setUpdatedBy(actor);
+    return draft;
+  }
+
+  private static String nextDraftCode(String publishedCode, int schemaVersion) {
+    var base = publishedCode == null || publishedCode.isBlank() ? "page-model" : publishedCode;
+    return base + "-v" + schemaVersion + "-" + UUID.randomUUID().toString().substring(0, 8);
   }
 }

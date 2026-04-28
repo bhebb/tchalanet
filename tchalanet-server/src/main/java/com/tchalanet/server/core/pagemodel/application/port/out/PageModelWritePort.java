@@ -10,7 +10,6 @@ public interface PageModelWritePort {
   PageModelInstance save(PageModelInstance instance);
   List<PageModelInstance> saveAll(List<PageModelInstance> instances);
 
-  // [Phase 4C] propagation template → instances DRAFT (analysis §gap — PageModelTemplateUpdatedEvent)
-  void applyTemplateUpdate(PageModelTemplateId templateId, JsonNode newModel,
+  void applyTemplateUpdate(PageModelTemplateId templateId, String logicalId, JsonNode newModel,
       int newSchemaVersion, UserId actorId);
 }

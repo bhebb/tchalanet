@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.write;
 
+import com.tchalanet.server.catalog.pagemodeltemplate.api.event.PageModelTemplateUpdatedEvent;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.cache.PageModelTemplateCacheNames;
@@ -10,15 +11,14 @@ import com.tchalanet.server.common.error.NotFoundException;
 import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.pagemodel.domain.event.PageModelTemplateUpdatedEvent;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -72,15 +72,16 @@ public class PageModelTemplateAdminService {
         mapper.applyView(existing, view);
         existing.setUpdatedAt(Instant.now());
         var saved = repository.save(existing);
+        var schemaVersion = view.schemaVersion() != null ? view.schemaVersion() : saved.getSchemaVersion();
 
-        // [Phase 4C] Propagation template -> instances (analysis §gap)
-        eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
+        AfterCommit.run(() -> eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
             id,
+            saved.getLogicalId(),
             view.model(),
-            view.schemaVersion() != null ? view.schemaVersion() : 1,
+            schemaVersion == null ? 1 : schemaVersion,
             actorId,
             Instant.now()
-        ));
+        )));
 
         return mapper.toView(saved);
     }
@@ -151,15 +152,6 @@ public class PageModelTemplateAdminService {
         e.setDefault(seed.isDefault());
 
         var saved = repository.save(e);
-
-        // [Phase 4C] Propagation au démarrage ou lors du re-seed (évite les gap post-migration)
-        eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
-            PageModelTemplateId.of(saved.getId()),
-            seed.model(),
-            e.getSchemaVersion(),
-            null, // SYSTEM actorId
-            Instant.now()
-        ));
 
         return mapper.toView(saved);
     }
