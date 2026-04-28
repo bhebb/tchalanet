@@ -5,7 +5,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.core.address.application.port.AddressReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.pos.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.query.model.VerifyPublicTicketQuery;
 import com.tchalanet.server.core.sales.domain.model.Ticket;

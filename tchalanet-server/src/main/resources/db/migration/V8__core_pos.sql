@@ -1,7 +1,7 @@
--- V4__pos_session.sql (recreate table, no ALTER)
-DROP TABLE IF EXISTS pos_session CASCADE;
+-- V4__sales_session.sql (recreate table, no ALTER)
+DROP TABLE IF EXISTS sales_session CASCADE;
 
-CREATE TABLE pos_session (
+CREATE TABLE sales_session (
                              id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                              version bigint NOT NULL DEFAULT 0,
 
@@ -27,30 +27,30 @@ CREATE TABLE pos_session (
 );
 
 -- Un seul OPEN par terminal (unique partiel) -> mieux que UNIQUE(tenant, terminal, status)
-CREATE UNIQUE INDEX ux_pos_session_open_per_terminal
-    ON pos_session(tenant_id, terminal_id)
+CREATE UNIQUE INDEX ux_sales_session_open_per_terminal
+    ON sales_session(tenant_id, terminal_id)
     WHERE status = 'OPEN' AND deleted_at IS NULL;
 
-CREATE INDEX ix_pos_session_tenant_terminal
-    ON pos_session(tenant_id, terminal_id);
+CREATE INDEX ix_sales_session_tenant_terminal
+    ON sales_session(tenant_id, terminal_id);
 
-CREATE INDEX ix_pos_session_tenant_opened_at
-    ON pos_session(tenant_id, opened_at DESC);
+CREATE INDEX ix_sales_session_tenant_opened_at
+    ON sales_session(tenant_id, opened_at DESC);
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_pos_session_updated_at') THEN
-CREATE TRIGGER trg_pos_session_updated_at
-    BEFORE UPDATE ON pos_session
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_sales_session_updated_at') THEN
+CREATE TRIGGER trg_sales_session_updated_at
+    BEFORE UPDATE ON sales_session
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 END IF;
 END $$;
 
-DROP TABLE IF EXISTS pos_session_totals CASCADE;
+DROP TABLE IF EXISTS sales_session_totals CASCADE;
 
-CREATE TABLE pos_session_totals (
+CREATE TABLE sales_session_totals (
                                     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-                                    session_id uuid NOT NULL REFERENCES pos_session(id) ON DELETE CASCADE,
+                                    session_id uuid NOT NULL REFERENCES sales_session(id) ON DELETE CASCADE,
                                     tenant_id uuid NOT NULL REFERENCES tenant(id),
 
                                     total_tickets bigint NOT NULL DEFAULT 0,
@@ -67,16 +67,16 @@ CREATE TABLE pos_session_totals (
                                     deleted_at timestamptz
  );
 
- CREATE UNIQUE INDEX IF NOT EXISTS ux_pos_session_totals_session_id ON pos_session_totals(session_id);
+ CREATE UNIQUE INDEX IF NOT EXISTS ux_sales_session_totals_session_id ON sales_session_totals(session_id);
 
- CREATE INDEX ix_pos_session_totals_tenant ON pos_session_totals(tenant_id);
- CREATE INDEX ix_pos_session_totals_tenant_session ON pos_session_totals(tenant_id, session_id);
+ CREATE INDEX ix_sales_session_totals_tenant ON sales_session_totals(tenant_id);
+ CREATE INDEX ix_sales_session_totals_tenant_session ON sales_session_totals(tenant_id, session_id);
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_pos_session_totals_updated_at') THEN
-CREATE TRIGGER trg_pos_session_totals_updated_at
-    BEFORE UPDATE ON pos_session_totals
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_sales_session_totals_updated_at') THEN
+CREATE TRIGGER trg_sales_session_totals_updated_at
+    BEFORE UPDATE ON sales_session_totals
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 END IF;
 END $$;

@@ -16,7 +16,7 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
-import com.tchalanet.server.core.session.application.port.out.PosSessionReaderPort;
+import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import java.io.ByteArrayOutputStream;
@@ -48,7 +48,7 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   private final DrawLookupPort drawReader;
   private final TicketPrintViewMapper ticketPrintViewMapper;
   private final OutletReaderPort outletReaderPort;
-  private final PosSessionReaderPort posSessionReaderPort;
+  private final SalesSessionReaderPort posSessionReaderPort;
 
   @Override
   public Ticket save(Ticket ticket) {

@@ -1,6 +1,6 @@
--- V47: seed outlet, terminal and optional pos_session for tenant 'tchalanet'
+-- V47: seed outlet, terminal and optional sales_session for tenant 'tchalanet'
 DO $$ BEGIN
-  RAISE NOTICE 'V47__seed_outlet_terminal_pos: seeding outlet, terminal and pos_session for tenant tchalanet';
+  RAISE NOTICE 'V47__seed_outlet_terminal_pos: seeding outlet, terminal and sales_session for tenant tchalanet';
 END $$;
 
 -- Outlet
@@ -35,13 +35,13 @@ WHERE t.code = 'tchalanet'
     SELECT 1 FROM terminal tr WHERE tr.tenant_id = t.id AND tr.outlet_id = '00000000-0000-0000-0000-000000003001'::uuid AND tr.label = 'POS-01' AND tr.deleted_at IS NULL
   );
 
--- POS_SESSION optional (only if an app_user exists)
+-- SALES_SESSION optional (only if an app_user exists)
 DO $$
 DECLARE u uuid; t_id uuid;
 BEGIN
   SELECT id INTO t_id FROM tenant WHERE code = 'tchalanet' LIMIT 1;
   IF t_id IS NULL THEN
-    RAISE NOTICE 'V47__seed_outlet_terminal_pos: tenant tchalanet not found, skipping pos_session';
+    RAISE NOTICE 'V47__seed_outlet_terminal_pos: tenant tchalanet not found, skipping sales_session';
     RETURN;
   END IF;
 
@@ -56,18 +56,18 @@ BEGIN
   LIMIT 1;
 
   IF u IS NULL THEN
-    RAISE NOTICE 'V47__seed_outlet_terminal_pos: no app_user found for tenant, skipping pos_session';
+    RAISE NOTICE 'V47__seed_outlet_terminal_pos: no app_user found for tenant, skipping sales_session';
     RETURN;
   END IF;
 
   IF EXISTS (
-    SELECT 1 FROM pos_session ps WHERE ps.tenant_id = t_id AND ps.terminal_id = '00000000-0000-0000-0000-000000003101'::uuid AND ps.status = 'OPEN' AND ps.deleted_at IS NULL
+    SELECT 1 FROM sales_session ps WHERE ps.tenant_id = t_id AND ps.terminal_id = '00000000-0000-0000-0000-000000003101'::uuid AND ps.status = 'OPEN' AND ps.deleted_at IS NULL
   ) THEN
-    RAISE NOTICE 'V47__seed_outlet_terminal_pos: existing open pos_session found, skipping';
+    RAISE NOTICE 'V47__seed_outlet_terminal_pos: existing open sales_session found, skipping';
     RETURN;
   END IF;
 
-  INSERT INTO pos_session (id, tenant_id, outlet_id, terminal_id, user_id, status, opening_float, closing_amount, meta)
+  INSERT INTO sales_session (id, tenant_id, outlet_id, terminal_id, user_id, status, opening_float, closing_amount, meta)
   VALUES (
     '00000000-0000-0000-0000-000000003201'::uuid,
     t_id,
@@ -80,7 +80,7 @@ BEGIN
     '{}'::jsonb
   );
 
-  RAISE NOTICE 'V47__seed_outlet_terminal_pos: pos_session created for tenant % user %', t_id, u;
+  RAISE NOTICE 'V47__seed_outlet_terminal_pos: sales_session created for tenant % user %', t_id, u;
 END $$;
 
 -- Sanity check

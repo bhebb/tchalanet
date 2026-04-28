@@ -30,7 +30,7 @@ t text;
   sql_sel text;
 
   soft_tables text[] := ARRAY[
-    'outlet','terminal','pos_session','ticket','ticket_line','tenant_game','draw_channel','draw',
+    'outlet','terminal','sales_session','ticket','ticket_line','tenant_game','draw_channel','draw',
     'autonomy_policy_rule','limit_definition','limit_assignment','tenant_subscription','tenant_theme','audit_event',
     'app_user','app_role','tenant_user','page_model','payout','pricing_odds'
   ];

@@ -47,19 +47,105 @@ Actuellement l'état constaté est :
 
 ## Decisions
 
-### D1 – ~~Migrations additives V55–V59~~ → Réécriture des fichiers existants (RÉVISÉ)
+### D1 – Baseline from scratch centralisée par responsabilité
 
-~~On ne modifie PAS les scripts V2–V54 existants.~~
+**Nouvelle décision** : comme l'environnement est recréé from scratch, on remplace les migrations
+historiques divergentes par une baseline courte, lisible et centralisée par responsabilité
+technique. Le problème de checksum Flyway historique n'est pas pertinent si local/dev repartent
+sur une base vide.
 
-**Nouvelle décision** : on modifie directement les fichiers de migration existants (V1–V54).
-Les environnements local et dev seront **recréés from scratch** (`docker compose down -v`), ce qui invalide le problème de checksum Flyway.
+Structure cible :
+
+- `V001__extensions_and_rls_helpers.sql`
+  - extensions PostgreSQL
+  - fonctions RLS communes
+  - helpers `current_tenant()`, `deleted_visibility()`, reset contexte
+- `V100__create_core_tables.sql`
+  - toutes les tables métier
+  - colonnes, PK, UK, CHECK, FK simples
+  - colonnes d'audit standard
+  - éviter `ALTER TABLE` sauf cycles incompressibles
+- `V101__create_audit_tables.sql`
+  - toutes les tables `*_aud`
+  - `revinfo`
+  - nom exact attendu par Envers
+- `V102__create_technical_tables.sql`
+  - `processed_event`
+  - `idempotency_record`
+  - `stats_draw`
+  - `stats_daily`
+  - `stats_event_log`
+  - `shedlock`
+  - autres tables techniques persistées non métier
+- `V103__create_indexes.sql`
+  - tous les index métier
+  - tous les index utiles au RLS, surtout sur `(tenant_id, ...)`
+- `V104__create_triggers.sql`
+  - `set_updated_at()`
+  - autres triggers techniques
+- `V105__configure_rls.sql`
+  - `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`
+  - `CREATE POLICY ...`
+- `V106__configure_permissions.sql`
+  - owner / grants si nécessaires
+- `V107__spring_batch_schema.sql`
+  - tables `BATCH_*`
+  - isolées des tables métier, audit et autres tables techniques
+
 Avantages :
 
-- Schéma final = une seule version linéaire propre, sans couches correctrices
-- Pas de migration V55–V59 qui dupliquent la définition des tables
-- `CREATE TABLE IF NOT EXISTS` + seeds uniquement — aucun `ALTER TABLE`, aucun bloc PL/pgSQL conditionnel
+- Schéma final très lisible
+- Responsabilité nette par fichier
+- Rebuild from scratch simple à auditer
+- Les tables audit sont regroupées logiquement dans un fichier dédié, pas dispersées
 
-**Règle stricte** : chaque migration ne contient que des `CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, `CREATE POLICY`, `ALTER TABLE … ENABLE ROW LEVEL SECURITY` et des `INSERT INTO` (seeds). Aucun `ADD COLUMN`, `DROP TABLE`, `RENAME COLUMN` dans les fichiers révisés.
+**Règle stricte** : chaque fichier reste mono-responsabilité. Les créations de tables métier
+vont dans `V100`, les tables Envers dans `V101`, les tables techniques dans `V102`, les index dans `V103`,
+les triggers dans `V104`, les policies RLS dans `V105`, les permissions dans `V106`, les tables Spring Batch dans `V107`.
+
+Répartition explicite :
+
+- **Core** : tables métier porteuses du modèle fonctionnel
+- **Audit** : tables `*_aud` + `revinfo`
+- **Technique** : tables runtime non métier (`processed_event`, `idempotency_record`, `stats_*`, `shedlock`)
+- **Spring Batch** : tables `BATCH_*` uniquement
+
+**Règle de reconstitution de l'état final** : la baseline n'est pas une copie verbatim des
+migrations historiques, c'est un **fold** de leur résultat final. Toute mutation historique
+(`ALTER TABLE`, `ALTER INDEX`, changement de `DEFAULT`, ajout/suppression de `CHECK`, renommage,
+ajout de colonnes, correction d'un type, modification d'une policy) doit être reflétée dans la
+définition finale centralisée.
+
+Exemple normatif :
+
+- si `status` vaut `'DRAFT'` par défaut dans une migration initiale
+- puis `'ACTIVE'` dans une migration ultérieure
+- alors la baseline doit déclarer directement le `DEFAULT 'ACTIVE'`
+
+Il en va de même pour :
+
+- nullable vs not null
+- types SQL
+- contraintes `CHECK`
+- contraintes d'unicité
+- FK
+- indexes
+- triggers
+- policies RLS
+
+**Règle d'alignement code Java / application** : lorsqu'une colonne métier apparaît, disparaît,
+change de type, de sémantique, de nullabilité ou de valeur par défaut, l'alignement ne s'arrête
+pas à la table SQL. Il faut aussi mettre à jour les éléments impactés côté code :
+
+- entité JPA
+- mapper de persistence
+- repository / adapter JDBC ou JPA
+- read models / projections concernées
+- commands / queries / handlers si la colonne fait partie du métier
+- couche web ou feature si la colonne remonte au contrat applicatif
+
+Si la colonne est purement technique et non exposée au métier, seule la couche persistence peut
+être impactée. Si c'est une colonne métier, la couche application doit être réalignée.
 
 ### D2 – Tables `*_AUD` : créer uniquement là où l'audit a de la valeur (RÉVISÉ)
 
@@ -70,7 +156,7 @@ Avantages :
 - **Valeur haute** → garder `@Audited` : entités de sécurité (accès, rôles, permissions), financières (transactions, paiements), réglementaires (tickets, sessions)
 - **Valeur faible / coût élevé** → retirer `@Audited` : entités de référence read-mostly (catalogues, configurations, presets), entités à fort volume d'écritures sans exigence réglementaire
 
-Pour les entités où `@Audited` est conservé : CREATE TABLE propre dans le fichier de migration concerné.
+Pour les entités où `@Audited` est conservé : `CREATE TABLE` propre dans `V101__create_audit_tables.sql`.
 Pour les entités où `@Audited` est retiré : supprimer l'annotation + supprimer/ne pas créer la table `*_AUD`.
 
 ### D3 – revinfo.rev : conserver INTEGER (int4)
@@ -85,10 +171,10 @@ Conséquence : toutes les FK `_AUD.rev → revinfo(rev)` sont type-safe en `int4
 (insensible à la casse → `tenantid`). La DB a `tenant_id`. Correction dans l'entité Java ET dans
 la migration (renommage de colonne si elle existe, ou création correcte en V57).
 
-### D5 – Tables `*_AUD` manquantes : script complet
+### D5 – Tables `*_AUD` manquantes : script centralisé complet
 
-Pour les 5 tables `_AUD` manquantes, on fournit le SQL complet (toutes les colonnes de la table
-principale + colonnes Envers standards). Format Envers strict :
+Pour les tables `_AUD` manquantes, on fournit le SQL complet dans `V101__create_audit_tables.sql`
+(toutes les colonnes de la table principale + colonnes Envers standards). Format Envers strict :
 
 - `id UUID NOT NULL` (ou clé naturelle)
 - `rev INTEGER NOT NULL` (int4)
@@ -97,10 +183,11 @@ principale + colonnes Envers standards). Format Envers strict :
 - `CONSTRAINT pk_xxx_aud PRIMARY KEY (id, rev)`
 - `CONSTRAINT fk_xxx_aud_rev FOREIGN KEY (rev) REFERENCES revinfo(rev)`
 
-### D6 – Orphans AUD : conserver
+### D6 – Orphans AUD : corriger ou supprimer dans la baseline audit
 
 `subscription_aud`, `plan_aud`, `role_permission_aud`, `result_slot_aud` existent mais avec
-schémas stales. On les renomme ou remplace par les tables correctes.
+schémas stales. On les remplace par les tables correctes dans `V101__create_audit_tables.sql`,
+ou on retire l'audit si la valeur métier ne justifie pas la table.
 `result_slot_aud` (format non-Envers, sans FK revinfo) : à remplacer par une table Envers
 conforme puisque `ResultSlotJpaEntity` est `@Audited`.
 
@@ -109,11 +196,39 @@ conforme puisque `ResultSlotJpaEntity` est `@Audited`.
 Ces entités extends BaseTenantEntity mais ne portent pas `@Audited`. Pas de table \_AUD requise.
 `tenant_game_aud` est orpheline (TenantGameJpaEntity pas @Audited) → documenter comme dette P2.
 
+### D8 – Tables techniques à couvrir explicitement
+
+La baseline doit couvrir non seulement les tables métier et audit, mais aussi les tables
+techniques réellement utilisées par le serveur et créées aujourd'hui par Flyway.
+
+Liste minimale à prendre en compte :
+
+- `processed_event`
+- `idempotency_record`
+- `stats_draw`
+- `stats_daily`
+- `stats_event_log`
+- `shedlock`
+- tables Spring Batch (`BATCH_*`) dans un fichier dédié
+- fonctions SQL techniques comme `increment_draw_exposure(...)`
+
+Ces objets doivent être répartis dans la baseline par responsabilité :
+
+- tables métier dans `V100`
+- tables techniques dans `V102`
+- fonctions helpers dans `V001`
+- fonctions métier/techniques additionnelles dans `V104` si elles alimentent triggers ou logique SQL
+- indexes dans `V103`
+- permissions dans `V106`
+- tables Spring Batch dans `V107`
+
 ## Risks / Trade-offs
 
-| Risque                                                            | Mitigation                                                                |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `DROP _AUD` + `CREATE` efface l'historique Envers existant en dev | Acceptable dev-only ; doc claire pour prod                                |
-| `revinfo.rev` int4 → overflow à ~2 milliards de révisions         | Suffisant pour plusieurs années ; ADR si migration vers bigint nécessaire |
-| `theme_preset` n'est pas encore utilisé en prod                   | Migration idempotente (`CREATE TABLE IF NOT EXISTS`)                      |
-| Migrations V2/V4/V5/V8 gardent leurs `DROP TABLE`                 | Inoffensif from scratch ; risque = altération env partiel = documenté     |
+| Risque                                                            | Mitigation                                                                       |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Un fichier `V100` ou `V101` devient trop gros                     | Garder une structure interne stricte et des sections par domaine                 |
+| Une altération historique est oubliée lors de la consolidation    | Inventaire systématique de tous les `ALTER`, puis intégration de leur état final |
+| `DROP _AUD` + `CREATE` efface l'historique Envers existant en dev | Acceptable dev-only ; doc claire pour prod                                       |
+| `revinfo.rev` int4 → overflow à ~2 milliards de révisions         | Suffisant pour plusieurs années ; ADR si migration vers bigint nécessaire        |
+| Des policies RLS lisent encore `app.tenant_id`                    | Contrat SQL unifié dans `V001` + vérification dédiée dans `V104`                 |
+| Migrations V2/V4/V5/V8 gardent leurs `DROP TABLE`                 | Elles sont remplacées par la baseline centralisée `V100` à `V105`                |

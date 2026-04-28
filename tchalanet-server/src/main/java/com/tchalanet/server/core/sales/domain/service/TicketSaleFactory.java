@@ -9,7 +9,7 @@ import com.tchalanet.server.core.sales.application.port.out.TicketNumberGenerato
 import com.tchalanet.server.core.sales.application.port.out.TicketPublicCodeGeneratorPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.session.domain.model.PosSession;
+import com.tchalanet.server.core.session.domain.model.SalesSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +30,7 @@ public class TicketSaleFactory {
     public Ticket newSoldTicket(
         TenantId tenantId,
         TerminalId terminalId,
-        PosSession session,
+        SalesSession session,
         Draw draw,
         List<TicketLine> lines,
         Currency currency,
@@ -54,7 +54,7 @@ public class TicketSaleFactory {
 
     public Ticket newPendingApprovalTicket(TenantId tenantId,
                                            TerminalId terminalId,
-                                           PosSession session,
+                                           SalesSession session,
                                            Draw draw,
                                            List<TicketLine> lines,
                                            Instant now) {

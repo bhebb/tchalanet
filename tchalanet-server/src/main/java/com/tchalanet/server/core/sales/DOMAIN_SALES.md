@@ -183,9 +183,9 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | ----------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | sales → `core.draw`           | Query + port + event     | `GetDrawQuery`, `DrawLookupPort`, `DrawChannelLabelResolver`, `DrawOccurrenceLabelResolver`, consomme `DrawResultAppliedEvent` |
 | sales → `core.drawresult`     | SQL JOIN brut (anomalie) | `DrawResultViewPortJdbcAdapter` lit `draw_result` + `result_slot` directement                                                  |
-| sales → `core.session`        | Port                     | `PosSessionReaderPort`                                                                                                         |
+| sales → `core.session`        | Port                     | `SalesSessionReaderPort`                                                                                                       |
 | sales → `core.outlet`         | Port + impl              | `OutletReaderPort`, `OutletLookupPort`, `SessionLookupPort` ; expose `SalesTicketAdminPort` via bridge                         |
-| sales → `core.pos`            | Port                     | `TerminalReaderPort`                                                                                                           |
+| sales → `core.terminal`       | Port                     | `TerminalReaderPort`                                                                                                           |
 | sales → `core.address`        | Port                     | `AddressReaderPort`                                                                                                            |
 | sales → `core.limitpolicy`    | Query                    | `EvaluateLimitPolicyQuery`                                                                                                     |
 | sales → `core.autonomy`       | Service                  | `ResolveAutonomyPolicyService`                                                                                                 |
@@ -197,7 +197,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | sales → `catalog.drawchannel` | View                     | `DrawChannelView`                                                                                                              |
 | `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWritterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                        |
 | `core.limitpolicy` → sales    | Event                    | `TicketPlacedEvent`                                                                                                            |
-| `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `PosSessionTotalsProjectionListener`)                                                                 |
+| `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `SalesSessionTotalsProjectionListener`)                                                               |
 | `features.stats` → sales      | Event                    | `TicketPlacedEvent` (×2 listeners)                                                                                             |
 
 ---
@@ -238,7 +238,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 **P1 / Architecture**
 
 - `DrawResultViewPortJdbcAdapter` : SQL JOIN cross-domain bypassant les ports `core.drawresult.api`.
-- `JpaTicketRepositoryAdapter` : adapter persistence dépendant de 3 autres domaines (`DrawLookupPort`, `OutletReaderPort`, `PosSessionReaderPort`).
+- `JpaTicketRepositoryAdapter` : adapter persistence dépendant de 3 autres domaines (`DrawLookupPort`, `OutletReaderPort`, `SalesSessionReaderPort`).
 - `SalesLedgerListener` : `@EventListener` synchrone au lieu de `@TransactionalEventListener(AFTER_COMMIT)` ; appelle un port-in directement avec catch global qui masque les erreurs.
 
 **P1 / Modélisation**

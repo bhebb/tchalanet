@@ -7,8 +7,8 @@ import com.tchalanet.server.core.tenantuser.application.command.model.AssignUser
 import com.tchalanet.server.core.tenantuser.application.command.model.AssignUserToTenantResult;
 import com.tchalanet.server.core.tenantuser.application.port.out.TenantUserReaderPort;
 import com.tchalanet.server.core.tenantuser.application.port.out.TenantUserWriterPort;
-import com.tchalanet.server.core.pos.application.port.out.TerminalReaderPort;
-import com.tchalanet.server.core.pos.domain.model.Terminal;
+import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.domain.model.Terminal;
 import com.tchalanet.server.core.tenantuser.domain.model.TenantUserMembership;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ public class AssignUserToTenantCommandHandler implements CommandHandler<AssignUs
 
     private final TenantUserReaderPort reader;
     private final TenantUserWriterPort writer;
-    private final TerminalReaderPort terminalReader; // from core.pos
+    private final TerminalReaderPort terminalReader; // from core.terminal
 
     @Override
     public AssignUserToTenantResult handle(AssignUserToTenantCommand cmd) {

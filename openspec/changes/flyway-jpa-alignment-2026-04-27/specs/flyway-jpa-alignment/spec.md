@@ -89,6 +89,121 @@ sur ces deux tables.
 
 ---
 
+### Requirement: Naming SQL et Flyway uniforme
+
+La baseline SHALL appliquer des règles de nommage uniformes alignées avec `docs/NAMING.md`.
+
+- tables en `snake_case`
+- colonnes en `snake_case`
+- FK nommées avec la colonne `<ref>_id`
+- colonne tenant toujours `tenant_id`
+- soft delete toujours `deleted_at`
+- colonnes audit toujours `created_at`, `updated_at`
+- index nommés `ix_<table>__<colonnes>`
+- unique constraints nommées `uq_<table>__<colonnes>`
+- foreign keys nommées `fk_<table>__<ref_table>`
+- check constraints nommées `chk_<table>__<rule>`
+- triggers nommés `trg_<table>__<action>`
+- policies RLS nommées `<table>_tenant_isolation` ou `<table>_rls_all`
+- fonctions helpers stables et explicites (`current_tenant`, `deleted_visibility`, `reset_rls_context`)
+
+#### Scenario: Noms de colonnes et tables cohérents
+
+- **WHEN** la baseline est appliquée
+- **THEN** les tables et colonnes suivent `snake_case`
+- **AND** aucune nouvelle colonne ne suit un style camelCase comme `tenantId`
+
+#### Scenario: Noms d'index et contraintes cohérents
+
+- **WHEN** la baseline est appliquée
+- **THEN** les nouveaux index, contraintes et triggers suivent une convention uniforme et searchable
+
+---
+
+### Requirement: L'état final consolidé reflète la dernière migration historique
+
+La baseline SHALL refléter l'état final obtenu après exécution de toutes les migrations
+historiques pertinentes. Toute altération historique (`ALTER TABLE`, changement de `DEFAULT`,
+ajout/modification de `CHECK`, correction de type, ajout d'index, trigger, policy ou permission)
+doit être absorbée dans la définition finale des fichiers `V001`, `V100`, `V101`, `V102`,
+`V103`, `V104`, `V105`, `V106`, `V107`.
+
+#### Scenario: Valeur par défaut modifiée dans une migration ultérieure
+
+- **GIVEN** une colonne définie dans une migration initiale avec une valeur par défaut
+- **AND** cette valeur par défaut est modifiée dans une migration ultérieure
+- **WHEN** la baseline from scratch est appliquée
+- **THEN** la colonne porte directement la valeur par défaut la plus récente
+
+#### Scenario: Colonne ou contrainte modifiée par ALTER
+
+- **GIVEN** une table créée dans une migration initiale
+- **AND** une migration ultérieure modifie son type, sa nullabilité, sa contrainte ou son `CHECK`
+- **WHEN** la baseline from scratch est appliquée
+- **THEN** la définition dans `V100__create_core_tables.sql` reflète directement l'état final consolidé
+
+---
+
+### Requirement: Tables techniques couvertes dans la baseline
+
+La baseline SHALL couvrir toutes les tables techniques réellement nécessaires au runtime,
+en plus des tables métier et des tables audit, dans un fichier séparé des tables core.
+
+Liste minimale attendue :
+
+- `processed_event`
+- `idempotency_record`
+- `stats_draw`
+- `stats_daily`
+- `stats_event_log`
+- `shedlock`
+- tables `BATCH_*` de Spring Batch
+
+#### Scenario: Tables techniques présentes après recreate
+
+- **WHEN** `flyway:migrate` est appliqué sur une DB vide
+- **THEN** les tables techniques requises existent et sont compatibles avec le runtime serveur
+- **AND** elles sont définies dans `V102__create_technical_tables.sql`
+
+#### Scenario: Tables Spring Batch isolées dans leur propre migration
+
+- **WHEN** la baseline est construite
+- **THEN** les tables `BATCH_*` sont définies dans un fichier dédié `V107__spring_batch_schema.sql`
+- **AND** elles ne sont pas mélangées aux tables métier, audit ou autres tables techniques
+
+---
+
+### Requirement: Les tables d'audit reflètent la dernière version des tables métier
+
+Toute table `*_AUD` SHALL être alignée sur la dernière version consolidée de sa table métier
+source. Si une colonne métier a évolué dans l'historique, la table d'audit doit refléter cette
+version finale, pas une version intermédiaire obsolète.
+
+#### Scenario: Table métier modifiée dans une migration ultérieure
+
+- **GIVEN** une table métier créée dans une migration initiale
+- **AND** une migration ultérieure modifie une colonne métier de cette table
+- **WHEN** `V100__create_core_tables.sql` et `V101__create_audit_tables.sql` sont appliquées
+- **THEN** la table métier reflète l'état final consolidé
+- **AND** la table `*_AUD` correspondante reflète la même version finale pour les colonnes métier historisées
+
+---
+
+### Requirement: Le code Java et la couche applicative suivent les colonnes métier consolidées
+
+Si une colonne consolidée est une colonne métier, l'alignement SHALL inclure non seulement le SQL
+mais aussi le code Java et la couche applicative concernée.
+
+#### Scenario: Colonne métier ajoutée ou modifiée
+
+- **GIVEN** une colonne métier ajoutée, supprimée ou modifiée dans la baseline consolidée
+- **WHEN** l'implémentation est finalisée
+- **THEN** l'entité JPA correspondante est à jour
+- **AND** les mappers et adapters de persistence concernés sont à jour
+- **AND** les use cases, read models et couches feature/web impactés sont à jour si cette colonne fait partie du métier
+
+---
+
 ### Requirement: revinfo aligné sur TchRevisionEntity
 
 La table `revinfo` SHALL avoir :
@@ -99,12 +214,12 @@ La table `revinfo` SHALL avoir :
 
 #### Scenario: Colonne rev de type int4
 
-- **WHEN** la migration V57 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `information_schema.columns` retourne `data_type = 'integer'` pour `revinfo.rev`
 
 #### Scenario: Colonne tenant_id nommée correctement
 
-- **WHEN** la migration V57 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `information_schema.columns` retourne une colonne `tenant_id` (et non `tenantid`) dans `revinfo`
 
 #### Scenario: TchRevisionEntity.@Column(name) corrigé
@@ -124,12 +239,14 @@ Chaque table SHALL respecter le format Envers strict :
 - `revtype SMALLINT`,
 - toutes les colonnes de la table principale (nullable),
 - `PRIMARY KEY (id, rev)`.
+- La création SHALL être centralisée dans `V101__create_audit_tables.sql`.
 
 #### Scenario: billing_plan_aud présente et alignée
 
 - **WHEN** `flyway:migrate` est appliqué
 - **THEN** `SELECT COUNT(*) FROM billing_plan_aud` retourne 0 (sans erreur SQL)
 - **AND** `\d billing_plan_aud` liste `rev integer`, `revtype smallint`, `id uuid`, et toutes les colonnes de `billing_plan`
+- **AND** la définition est portée par `V101__create_audit_tables.sql`
 
 #### Scenario: tenant_subscription_aud présente et alignée
 
@@ -159,33 +276,34 @@ Les tables `draw_channel_aud`, `draw_result_aud`, `draw_aud`, `ticket_aud`, et
 `page_model_template_aud` SHALL avoir leurs colonnes alignées avec les colonnes actuelles des
 entités JPA correspondantes. Les colonnes obsolètes SHALL être supprimées.
 Les colonnes manquantes SHALL être ajoutées.
+Le réalignement SHALL être fait dans `V101__create_audit_tables.sql`.
 
 #### Scenario: draw_channel_aud ne contient plus de colonnes stales
 
-- **WHEN** la migration V59 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `draw_channel_aud` ne possède PAS les colonnes `tenant_game_id`, `external_channel_code`, `external_game_key`, `external_provider`
 - **AND** `draw_channel_aud` possède les colonnes `result_slot_id`, `flags`, `notes`, `code`, `name`, `timezone`, `draw_time`, `cutoff_sec`, `days_of_week`, `active`, `sort_order`
 
 #### Scenario: draw_result_aud ne contient plus de colonnes stales
 
-- **WHEN** la migration V59 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `draw_result_aud` ne possède PAS les colonnes `numbers_extra`, `numbers_main`, `channel_code`, `draw_date`
 - **AND** `draw_result_aud` possède les colonnes `source_result`, `haiti_result`, `result_slot_id`, `occurred_at`, `flags`, `quality`, `source`, `source_hash`, `fetched_at`, `override_reason`
 
 #### Scenario: draw_aud contient toutes les colonnes de draw
 
-- **WHEN** la migration V59 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `draw_aud` possède les colonnes `draw_date`, `cutoff_at`, `opened_at`, `closed_at`, `resulted_at`, `settled_at`, `canceled_at`, `cancel_reason`, `draw_result_id`, `result_source`, `result_override_reason`, `result_overridden_at`
 
 #### Scenario: ticket_aud reflète les statuts actuels de ticket
 
-- **WHEN** la migration V59 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `ticket_aud` possède les colonnes `sale_status`, `result_status`, `settlement_status`, `approval_request_id`, `currency`, `ticket_code`
 - **AND** `ticket_aud` ne possède PAS une colonne générique `status` à la place
 
 #### Scenario: page_model_template_aud contient la colonne level
 
-- **WHEN** la migration V59 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `page_model_template_aud` possède la colonne `level varchar(16)`
 
 ---
@@ -195,16 +313,17 @@ Les colonnes manquantes SHALL être ajoutées.
 Les tables `subscription_aud` (référence → entité inexistante) et `plan_aud` (référence → entité
 inexistante avec colonnes stales) SHALL être supprimées ou renommées.
 Les tables `billing_plan_aud` et `tenant_subscription_aud` SHALL les remplacer.
+Le remplacement SHALL être porté par `V101__create_audit_tables.sql`.
 
 #### Scenario: subscription_aud supprimée ou remplacée
 
-- **WHEN** la migration V58 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `SELECT COUNT(*) FROM subscription_aud` retourne une erreur (table does not exist) ou la table est vide/archivée
 - **AND** `SELECT COUNT(*) FROM tenant_subscription_aud` retourne 0 (table existe)
 
 #### Scenario: plan_aud supprimée ou remplacée
 
-- **WHEN** la migration V58 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `SELECT COUNT(*) FROM billing_plan_aud` retourne 0 (table existe)
 
 ---
@@ -217,7 +336,7 @@ pas de PRIMARY KEY) SHALL être remplacée par une table Envers standard pour co
 
 #### Scenario: result_slot_aud au format Envers
 
-- **WHEN** la migration V59 est appliquée
+- **WHEN** `V101__create_audit_tables.sql` est appliquée
 - **THEN** `result_slot_aud` possède `PRIMARY KEY (id, rev)`, `rev integer NOT NULL`, `revtype smallint`
 - **AND** `result_slot_aud.rev` est FK vers `revinfo(rev)`
 - **AND** `result_slot_aud` ne possède PAS la colonne `operation char(1)`
@@ -258,7 +377,7 @@ table `_AUD` est manquante ou si le nom de la table diffère de `<table_principa
 
 #### Scenario: Toutes les entités @Audited existantes ont leur \_AUD — build passe
 
-- **WHEN** toutes les migrations correctives (V55–V59) ont été appliquées
+- **WHEN** la baseline `V001`, `V100`, `V101`, `V102`, `V103`, `V104`, `V105`, `V106`, `V107` a été appliquée
 - **THEN** `FlywayAuditAlignmentArchTest` passe sans erreur
 
 ---
@@ -266,7 +385,7 @@ table `_AUD` est manquante ou si le nom de la table diffère de `<table_principa
 ### Requirement: Procédure de recréation from scratch documentée et fonctionnelle
 
 La commande de recréation from scratch SHALL être : `docker compose down -v`, `docker compose up -d postgres`, `./mvnw flyway:migrate`, `./mvnw -Dspring.jpa.hibernate.ddl-auto=validate test`.
-Cette séquence SHALL terminer sans erreur après application de V55–V59.
+Cette séquence SHALL terminer sans erreur après application de la baseline `V001`, `V100`, `V101`, `V102`, `V103`, `V104`, `V105`, `V106`, `V107`.
 
 #### Scenario: Recréation from scratch complète réussie
 

@@ -20,8 +20,8 @@ public record SessionWithTotalsDto(
     Instant closedAt,
     BigDecimal openingFloat,
     BigDecimal closingAmount,
-    PosSessionTotalsDto totals) {
-  public record PosSessionTotalsDto(
+    SalesSessionTotalsDto totals) {
+  public record SalesSessionTotalsDto(
       long totalTickets,
       BigDecimal totalStake,
       BigDecimal totalPayout,

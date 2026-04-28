@@ -1,0 +1,10 @@
+package com.tchalanet.server.core.terminal.application.query.model;
+
+import com.tchalanet.server.common.bus.Query;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.terminal.domain.model.Terminal;
+import java.util.List;
+
+public record ListPosDevicesByLocationQuery(TenantId tenantId, OutletId outletId)
+    implements Query<List<Terminal>> {}
