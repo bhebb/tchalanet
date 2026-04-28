@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(
     name = "page_model",
     uniqueConstraints = {
-      @jakarta.persistence.UniqueConstraint(columnNames = {"tenantId", "code"})
+      @jakarta.persistence.UniqueConstraint(columnNames = {"tenant_id", "code"})
     })
 @Getter
 @Setter

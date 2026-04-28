@@ -13,13 +13,13 @@ import org.hibernate.envers.NotAudited;
 @Entity
 @Table(
     name = "app_role",
-    indexes = {@Index(name = "ix_app_role_tenant", columnList = "tenantId")})
+    indexes = {@Index(name = "ix_app_role_tenant", columnList = "tenant_id")})
 @Audited
 @Getter
 @Setter
 public class AppRoleEntity extends BaseEntity {
 
-  @Column(name = "tenantId", columnDefinition = "uuid")
+  @Column(name = "tenant_id", columnDefinition = "uuid")
   private UUID tenantId; // null = system role
 
   @Column(name = "code", nullable = false, length = 64)
