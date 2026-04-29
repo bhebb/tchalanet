@@ -109,7 +109,7 @@
 
 ### P2 — Architecture
 
-- [ ] Itérer sur tous les providers actifs dans `DrawSettleScheduler` (au lieu de NY+FL hardcoded).
+- [x] Itérer sur les providers configurés dans `tch.draw.settle.providers` dans `DrawSettleScheduler`.
 - [ ] Ajouter listener `DrawResultIngestedEvent` (accélérateur apply).
 - [x] Utilisation distribuée via `ShedLock` sur les schedulers.
 
@@ -119,3 +119,13 @@
 - [x] Watchdog `PROVISIONAL > 30 min` (cf. règle 6.1).
 - [ ] Activer Envers pour audit complet.
 - [ ] Sort de `ARCHIVED` (cron archivage ? ops only ? purge ?).
+
+## 16. Pipeline final
+
+Le pipeline runtime supporté est `generate -> open -> close -> fetch -> apply -> settle`.
+
+- `generate/open/close` : schedulers tenant-scoped de `core.draw`, gates `DRAW_GENERATE`, `DRAW_OPEN`, `DRAW_CLOSE`.
+- `fetch` : scheduler global de `core.drawresult`, gate `RESULTS_EXTERNAL_FETCH`, lit les `result_slot` actifs.
+- `apply` : scheduler tenant-scoped de `core.draw`, gate `RESULTS_EXTERNAL_APPLY`, lie les draws fermés au `draw_result`.
+- `settle` : scheduler tenant-scoped de `core.draw`, gate `DRAW_SETTLE`, providers issus de `tch.draw.settle.providers`.
+- `watchdog` : `DrawProvisionalWatchdogScheduler`, gate `DRAW_WATCHDOG_PROVISIONAL`, alerte les draws `RESULTED` avec résultat `PROVISIONAL` trop ancien.

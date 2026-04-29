@@ -214,7 +214,22 @@ Dépendance unidirectionnelle :
 
 draw → uslottery
 
-9. État actuel
+9. Configuration active
+
+La source de vérité provider est `application-uslottery.yaml`.
+`application.yaml` ne doit pas dupliquer `tch.us-lottery.providers.*`.
+
+Providers MVP :
+
+- NY : Numbers / Win4
+- FL : Pick 3 / Pick 4
+- GA : Cash 3 / Cash 4 horaires
+- TX : Pick 3 / Daily 4
+- TN : Cash 3 / Cash 4, provider désactivé par défaut dans le seed MVP
+
+GameCodes hors scope MVP : `US_NY_TAKE5_EVE`, `US_FL_LOTTO`.
+
+10. État actuel
 
 ✔ Domaine stable
 ✔ Modèle clair

@@ -16,15 +16,15 @@ idempotence. Schéma Spring Batch V42 vérifié pour compatibilité SB6 et permi
 
 ## 1. Tableau de conformité — Schedulers draws
 
-| Scheduler                                                |         @SchedulerLock         |          BatchGate          |     Clock     |                  Cron externalisé                   |      Idempotent       |      Statut global      |
-| -------------------------------------------------------- | :----------------------------: | :-------------------------: | :-----------: | :-------------------------------------------------: | :-------------------: | :---------------------: |
-| `DrawLifeCycleTickScheduler.generateNext7Days`           | ✅ `draw_generate_next_7_days` |     ✅ `DRAW_GENERATE`      |      ✅       |      ✅ `${tch.draw.lifecycle.generate_cron}`       |    ✅ Tenant-loop     |     ✅ **CONFORME**     |
-| `DrawLifeCycleTickScheduler.openWindowed`                |    ✅ `draw_open_windowed`     |       ✅ `DRAW_OPEN`        |      ✅       |        ✅ `${tch.draw.lifecycle.open_cron}`         | ✅ BatchWindowsConfig |     ✅ **CONFORME**     |
-| `DrawLifeCycleTickScheduler.closeWindowed`               |    ✅ `draw_close_windowed`    |       ✅ `DRAW_CLOSE`       |      ✅       |        ✅ `${tch.draw.lifecycle.close_cron}`        | ✅ BatchWindowsConfig |     ✅ **CONFORME**     |
-| `DrawSettleScheduler.tick`                               |     ✅ `draw_settle_tick`      |      ✅ `DRAW_SETTLE`       |      ✅       |            ❌ `"0 */5 * * * *"` hardcodé            |  ✅ BatchJobStarter   |  ⚠️ **CRON HARDCODÉ**   |
-| `ExternalResultsApplyTickScheduler.tickApply`            |  ✅ `draw_results_apply_tick`  | ✅ `RESULTS_EXTERNAL_APPLY` |      ✅       |                   ⚠️ Path erroné                    |     ✅ CommandBus     | ⚠️ **PATH YAML ERRONÉ** |
-| `ExternalResultsFetchTickScheduler.tickFetch`            |  ✅ `draw_results_fetch_tick`  | ✅ `RESULTS_EXTERNAL_FETCH` |      ✅       | ✅ `${tch.draw.results.shared.scheduler.tick_cron}` | ⚠️ Cooldown in-memory |     ✅ **CONFORME**     |
-| `DrawProvisionalWatchdogScheduler.checkProvisionalStuck` |         ❌ **ABSENT**          |        ❌ **ABSENT**        | ❌ **ABSENT** |     ✅ `${tch.draw.watchdog.provisional_cron}`      |    N/A (read-only)    |   ❌ **NON CONFORME**   |
+| Scheduler                                                |         @SchedulerLock         |           BatchGate            | Clock |                   Cron externalisé                   |      Idempotent       |  Statut global  |
+| -------------------------------------------------------- | :----------------------------: | :----------------------------: | :---: | :--------------------------------------------------: | :-------------------: | :-------------: |
+| `DrawLifeCycleTickScheduler.generateNext7Days`           | ✅ `draw_generate_next_7_days` |       ✅ `DRAW_GENERATE`       |  ✅   |       ✅ `${tch.draw.lifecycle.generate_cron}`       |    ✅ Tenant-loop     | ✅ **CONFORME** |
+| `DrawLifeCycleTickScheduler.openWindowed`                |    ✅ `draw_open_windowed`     |         ✅ `DRAW_OPEN`         |  ✅   |         ✅ `${tch.draw.lifecycle.open_cron}`         | ✅ BatchWindowsConfig | ✅ **CONFORME** |
+| `DrawLifeCycleTickScheduler.closeWindowed`               |    ✅ `draw_close_windowed`    |        ✅ `DRAW_CLOSE`         |  ✅   |        ✅ `${tch.draw.lifecycle.close_cron}`         | ✅ BatchWindowsConfig | ✅ **CONFORME** |
+| `DrawSettleScheduler.tick`                               |     ✅ `draw_settle_tick`      |        ✅ `DRAW_SETTLE`        |  ✅   |             ✅ `${tch.draw.settle.cron}`             |  ✅ BatchJobStarter   | ✅ **CONFORME** |
+| `ExternalResultsApplyTickScheduler.tickApply`            |  ✅ `draw_results_apply_tick`  |  ✅ `RESULTS_EXTERNAL_APPLY`   |  ✅   | ✅ `${tch.draw.results.shared.scheduler.apply_cron}` |     ✅ CommandBus     | ✅ **CONFORME** |
+| `ExternalResultsFetchTickScheduler.tickFetch`            |  ✅ `draw_results_fetch_tick`  |  ✅ `RESULTS_EXTERNAL_FETCH`   |  ✅   | ✅ `${tch.draw.results.shared.scheduler.tick_cron}`  | ⚠️ Cooldown in-memory | ✅ **CONFORME** |
+| `DrawProvisionalWatchdogScheduler.checkProvisionalStuck` | ✅ `draw_provisional_watchdog` | ✅ `DRAW_WATCHDOG_PROVISIONAL` |  ✅   |      ✅ `${tch.draw.watchdog.provisional_cron}`      |    N/A (read-only)    | ✅ **CONFORME** |
 
 ---
 
@@ -174,11 +174,11 @@ tch:
           apply_cron: ${TCH_RESULTS_APPLY_CRON:30 */5 * * * *} # AJOUT
 ```
 
-### Fix 7 — `V44__batch_grants.sql` (nouvelle migration Flyway)
+### Fix 7 — `V209__batch_grants.sql` (nouvelle migration Flyway)
 
 ```sql
--- V44: Grants app_user sur le schéma batch (Spring Batch 6)
--- Correction de V42 qui ne définissait pas les permissions pour app_user
+-- Grants app_user sur le schéma batch (Spring Batch 6)
+-- Correction de V107 qui ne définissait pas les permissions pour app_user
 
 GRANT USAGE ON SCHEMA batch TO app_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA batch TO app_user;

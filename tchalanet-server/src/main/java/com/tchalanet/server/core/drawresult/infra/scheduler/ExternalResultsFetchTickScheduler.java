@@ -70,7 +70,7 @@ public class ExternalResultsFetchTickScheduler {
     }
 
     private boolean enabled() {
-        if (!props.isActive()) { // isActive is fetch-specific
+        if (!props.isActive() || !commonProps.getScheduler().isActive()) {
             log.debug("draw-results.fetch.tick: active=OFF");
             return false;
         }

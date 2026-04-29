@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.drawresult.application.port.out;
 
+import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionConfig;
 
 /**
@@ -8,4 +9,6 @@ import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionConfi
  */
 public interface HaitiProjectionConfigPort {
   HaitiProjectionConfig getDefault();
+
+  HaitiProjectionConfig resolve(JsonNode projectionCfg);
 }

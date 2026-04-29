@@ -41,6 +41,8 @@ public class OpsBatchGateController {
         "results:external:refresh",
         "results:external:fetch",
         "results:external:apply",
+        "results:external:manual",
+        "results:external:override",
         "catalog:search:reindex"
     );
 

@@ -7,6 +7,7 @@ import com.tchalanet.server.common.batch.launch.BatchJobStarter;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.config.batch.BatchWindowsConfig;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.draw.infra.config.DrawProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -17,6 +18,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.UUID;
 
 import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_SETTLE;
@@ -27,21 +29,14 @@ import static com.tchalanet.server.common.time.DefaultTimeZone.AMERICA_NEW_YORK;
 @Slf4j
 public class DrawSettleScheduler {
 
-
-    // optionnel: provider-level switches
-    private static final JobKey SWITCH_NY = JobKey.of("draw:settle:provider:ny");
-    private static final JobKey SWITCH_FL = JobKey.of("draw:settle:provider:fl");
-    private static final JobKey SWITCH_GA = JobKey.of("draw:settle:provider:ga");
-    private static final JobKey SWITCH_TX = JobKey.of("draw:settle:provider:tx");
-    private static final JobKey SWITCH_TN = JobKey.of("draw:settle:provider:tn");
-
     private final BatchJobStarter batchJobStarter;
     private final Clock clock;
     private final TenantCatalog tenantCatalog;
     private final BatchGate gate;
     private final BatchWindowsConfig windows;
+    private final DrawProperties drawProperties;
 
-    @Scheduled(cron = "0 */5 * * * *", zone = "America/New_York")
+    @Scheduled(cron = "${tch.draw.settle.cron:0 */5 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_settle_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tick() {
         // global switch
@@ -52,15 +47,30 @@ public class DrawSettleScheduler {
 
         Instant now = Instant.now(clock);
         var tenantIds = tenantCatalog.listActiveTenantIds();
+        var settle = drawProperties.getSettle();
         for (TenantId tenantId : tenantIds) {
             if (!gate.enabled(DRAW_SETTLE, tenantId)) continue;
 
-            startForProvider(now, tenantId, "NY", SWITCH_NY, 1, 700, false, false);
-            startForProvider(now, tenantId, "FL", SWITCH_FL, 1, 900, false, false);
-            startForProvider(now, tenantId, "GA", SWITCH_GA, 1, 900, false, false);
-            startForProvider(now, tenantId, "TX", SWITCH_TX, 1, 900, false, false);
-            startForProvider(now, tenantId, "TN", SWITCH_TN, 1, 700, false, false);
+            for (String provider : settle.getProviders()) {
+                var normalizedProvider = normalizeProvider(provider);
+                if (normalizedProvider.isBlank()) continue;
+                int maxDraws = settle.getMaxDrawsByProvider()
+                    .getOrDefault(normalizedProvider, settle.getDefaultMaxDraws());
+                startForProvider(
+                    now,
+                    tenantId,
+                    normalizedProvider,
+                    JobKey.of("draw:settle:provider:" + normalizedProvider.toLowerCase(Locale.ROOT)),
+                    settle.getDaysBack(),
+                    maxDraws,
+                    false,
+                    false);
+            }
         }
+    }
+
+    private static String normalizeProvider(String provider) {
+        return provider == null ? "" : provider.trim().toUpperCase(Locale.ROOT);
     }
 
     private void startForProvider(

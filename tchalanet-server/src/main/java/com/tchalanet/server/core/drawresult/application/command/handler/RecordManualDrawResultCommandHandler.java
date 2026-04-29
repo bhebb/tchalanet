@@ -71,7 +71,7 @@ public class RecordManualDrawResultCommandHandler
         var haitiResult =
             haitiLotteryPort.projectResult(
                 ExternalPick.of(command.pick3(), command.pick4()),
-                haitiProjectionConfigPort.getDefault());
+                haitiProjectionConfigPort.resolve(slot.projectionCfg()));
 
         // [D10] Use enum.name()
         String status = DrawResultStatus.FINAL.name();

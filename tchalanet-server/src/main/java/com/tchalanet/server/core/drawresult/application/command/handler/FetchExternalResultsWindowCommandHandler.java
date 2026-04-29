@@ -58,8 +58,6 @@ public class FetchExternalResultsWindowCommandHandler
 
         int daysBack = clampDaysBack(cmd.daysBack());
         List<LocalDate> dates = DateWindows.datesBackInclusive(cmd.baseDate(), daysBack);
-        var projCfg = haitiConfigPort.getDefault();
-
         var slotKeys = cmd.slotKeys().stream()
             .map(FetchExternalResultsWindowCommandHandler::normalizeKey)
             .filter(s -> !s.isBlank())
@@ -88,6 +86,7 @@ public class FetchExternalResultsWindowCommandHandler
 
                     var q = new ExternalResultsFetchPort.ResultSlotFetchQuery(
                         slot.slotKey(), date, cmd.force(), cmd.dryRun(), now);
+                    var projCfg = haitiConfigPort.resolve(slot.projectionCfg());
 
                     var bundle = fetchPort.fetchSlot(q);
 

@@ -38,8 +38,8 @@
 
 - Interdiction : accès direct aux repositories JPA/JDBC de `drawresult` ou `resultslot`.
 - Autorisé :
-  - `com.tchalanet.server.core.resultslot.application.ResultSlotCatalog` (listActive(), findBySlotKey(...), ResultSlotView)
-  - `com.tchalanet.server.catalog.api.drawresult.DrawResultCatalog` (findById, findByDateRange, findByResultSlotIdAndOccurredAt, findRefBySlotKeyAndDate)
+  - `com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog` (listActive(), findByKey(...), ResultSlotView)
+  - `com.tchalanet.server.core.drawresult.api.DrawResultReaderPort` / public query contracts exposés par `core.drawresult`
   - `NextDrawCalculator` (service utilitaire — idéalement dans core.common.time ou core.resultslot.service)
 - Publicdraw contient uniquement du code read-only / projection + transformations DTO.
 
@@ -168,3 +168,11 @@ public ApiResponse<List<PublicLatestDrawResultsResponse>> latest(@RequestParam(d
 ## 11) Consumed by
 
 - **`features.pagemodel`** : utilise `GetLatestPublicDrawResultsQuery` via `DrawsProvider` pour l'affichage des derniers résultats dans le widget Home.
+
+## 12) Pipeline source
+
+Les résultats publics proviennent du pipeline backend `fetch -> apply` :
+
+- `core.drawresult` fetch les providers via `result_slot.source_cfg`, projette Haïti via `result_slot.projection_cfg`, puis persiste `draw_result`.
+- `core.draw` applique le résultat aux draws tenant-scoped.
+- `features.publicdraw` expose uniquement des modèles read-only; aucune logique provider ou projection ne vit ici.

@@ -257,9 +257,10 @@ Consommé par `core.draw.application.port.out.DrawResultReaderPort` (port read-o
 
 ## 7. Schedulers
 
-| Scheduler                           | Cron            | Action                                                          |
-| ----------------------------------- | --------------- | --------------------------------------------------------------- |
-| `ExternalResultsFetchTickScheduler` | `0 */5 * * * *` | Pour chaque slot dû, envoie `FetchExternalResultsWindowCommand` |
+| Scheduler                           | Cron                                              | Action                                                          |
+| ----------------------------------- | ------------------------------------------------- | --------------------------------------------------------------- |
+| `ExternalResultsFetchTickScheduler` | `${tch.draw.results.shared.scheduler.tick_cron}`  | Pour chaque slot dû, envoie `FetchExternalResultsWindowCommand` |
+| `ExternalResultsApplyTickScheduler` | `${tch.draw.results.shared.scheduler.apply_cron}` | Applique les résultats aux draws tenant-scoped                  |
 
 **Filtres du fetch tick** :
 
@@ -418,7 +419,7 @@ Question légitime puisque `draw_result` est read-mostly et global.
 - [x] Renommer `DrawResultedAppliedEvent` → `DrawResultIngestedEvent`.
 - [x] Migrer `DrawResultsController` vers `ApiResponse<T>`.
 - [ ] `OccurredAtResolver` partout (supprimer `LocalTime.of(14,30)` hardcoded dans `core.uslottery` — couplage à corriger).
-- [ ] Créer `BatchJobKey.RESULTS_EXTERNAL_OVERRIDE` (au lieu de réutiliser `_REFRESH`).
+- [x] Créer `BatchJobKey.RESULTS_EXTERNAL_OVERRIDE` et `RESULTS_EXTERNAL_MANUAL` (au lieu de réutiliser `_REFRESH`).
 - [ ] Migrer toutes les exceptions vers `gate.assertEnabledOrThrow(...)` (au lieu de `IllegalStateException`).
 
 ### P2 — Architecture
@@ -437,3 +438,13 @@ Question légitime puisque `draw_result` est read-mostly et global.
 > **Source of truth** : ce document est la référence backend pour le domaine `core.drawresult`.
 > Pour la vue cross-apps (Web/Mobile/API), voir `tchalanet-docs/docs/02-functional/domains/drawresult.md`.
 > Pour le pipeline complet inter-domaines, voir `tchalanet-docs/docs/02-functional/flows/draw-execution.md`.
+
+## 16. Projection par slot
+
+La projection Haïti est résolue par `HaitiProjectionConfigPort.resolve(slot.projectionCfg())`.
+Ordre de priorité :
+
+1. `result_slot.projection_cfg.rules` si complet et valide (`lot1..lot4`).
+2. Configuration globale par défaut si la config slot est absente ou invalide.
+
+Cette règle s'applique au fetch provider et à la saisie manuelle ops.
