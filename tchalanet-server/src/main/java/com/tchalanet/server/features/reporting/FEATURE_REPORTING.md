@@ -21,10 +21,11 @@ Retour: `ApiResponse<TchPage<XxxResponse>>` + endpoints d’agrégats.
 
 ---
 
-## 3. Handlers appelés & agrégation
+## 3. Services appelés & agrégation
 
-- Queries: `ListSalesQuery`, `ListPayoutsQuery`, `ListLedgerEntriesQuery`.
-- Agrégation dans `ReportingResponse`.
+- Services BFF locaux par rapport (`SalesReportService`, `OutletPerformanceReportService`, `GetTenantKpisService`).
+- Critères d'entrée nommés `*Criteria`, modèles de sortie `*Response` / `*Line` / `*View`.
+- Les projections SQL read-only sont encapsulées dans des `*Reader`.
 
 ---
 
@@ -44,7 +45,7 @@ Retour: `ApiResponse<TchPage<XxxResponse>>` + endpoints d’agrégats.
 
 ## 6. Notes techniques
 
-- DTO suffixes; wrappers ID.
+- UI contract suffixes; wrappers ID.
 - Pas de logique métier.
 
 ---

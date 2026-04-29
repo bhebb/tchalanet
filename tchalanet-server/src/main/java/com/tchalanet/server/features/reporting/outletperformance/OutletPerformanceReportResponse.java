@@ -7,4 +7,4 @@ public record OutletPerformanceReportResponse(
     LocalDate fromDate,
     LocalDate toDate,
     String gameCode,
-    List<OutletPerformanceLineDto> outlets) {}
+    List<OutletPerformanceLine> outlets) {}

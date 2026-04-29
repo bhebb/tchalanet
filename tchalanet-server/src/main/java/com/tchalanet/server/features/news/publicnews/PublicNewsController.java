@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Public • News")
 public class PublicNewsController {
 
-  private final PublicNewsService listPublicNewsUseCase;
+  private final PublicNewsService publicNewsService;
 
   @GetMapping("/")
   @ResponseBody
   @ResponseStatus(code = HttpStatus.OK)
   public List<LotteryNewsModels.LotteryNewsArticle> listPublicNews() {
-    return listPublicNewsUseCase.listAll();
+    return publicNewsService.listAll();
   }
 }

@@ -18,23 +18,28 @@
 
 ```
 features/news
+├── CombinedNewsCache.java
+├── LotteryDailyRssClient.java
+├── NewsConfig.java
+├── NewsConfigProperties.java
+├── NewsRefreshScheduler.java
+├── RomeNewsMapper.java
 ├── shared/
 │    ├── LotteryNewsModels.java
+│    ├── NewsCache.java
+│    ├── NewsProvider.java
 │    ├── NewsStatus.java
-│    ├── port/
-│    │    ├── NewsProviderPort.java
-│    │    └── NewsCachePort.java
-│    └── service/
-│         ├── InternalNewsService.java
-│         ├── ExternalNewsService.java
-│         ├── HiddenNewsService.java
-│         └── NewsAggregationService.java
-├── publicview/
+│    ├── InternalNewsService.java
+│    ├── ExternalNewsService.java
+│    ├── HiddenNewsService.java
+│    └── NewsAggregationService.java
+├── publicnews/
 │    ├── PublicNewsService.java
 │    └── PublicNewsController.java
 ├── admin/
 │    ├── AdminNewsService.java
-│    └── AdminNewsController.java
+│    ├── AdminNewsController.java
+│    └── model/
 ```
 
 ---
@@ -50,10 +55,10 @@ record LotteryNewsFeedSnapshot(
 ) {}
 ```
 
-Sources:
+Sources :
 
 - interne → `InternalNewsService`
-- externe → feed RSS (ROME) via `NewsProviderPort`
+- externe → feed RSS (ROME) via `NewsProvider`
 
 ---
 
@@ -75,7 +80,7 @@ public enum NewsStatus {
 
 ## 🗂 Services
 
-- `ExternalNewsService`: fetch RSS via `NewsProviderPort`, parse XML, cache (`newsExternalKey`) 24h
+- `ExternalNewsService`: fetch RSS via `NewsProvider`, parse XML, cache (`newsExternalKey`) 24h
 - `InternalNewsService`: snapshot interne (`newsInternalKey`), `save()`, `changeStatus()`, `findPublished()` (V1: sans DB)
 - `HiddenNewsService`: cache IDs cachés (TTL 24h), `hide(id)`, `show(id)`
 - `NewsAggregationService`: assemblage public (internes `PUBLISHED` puis externes, filtrage `hiddenIds`, tri `publishedAt DESC`)
@@ -114,7 +119,7 @@ Retour: `ApiResponse<TchPage<NewsResponse>>`.
 
 ## 6. Notes techniques
 
-- DTO suffixes; wrappers ID.
+- UI contract suffixes; wrappers ID.
 - Pas de logique métier.
 
 ---

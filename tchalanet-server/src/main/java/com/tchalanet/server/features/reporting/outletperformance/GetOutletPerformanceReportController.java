@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Platform • Reports")
 public class GetOutletPerformanceReportController {
 
-  private final GetOutletPerformanceReportHandler handler;
+  private final OutletPerformanceReportService service;
   private final TchContextResolver contextResolver;
   private final Clock clock;
 
@@ -34,8 +34,8 @@ public class GetOutletPerformanceReportController {
     var holder = contextResolver.currentOrNull();
     var tenantUuid = holder != null ? holder.tenantUuid() : null;
 
-    var query = new GetOutletPerformanceReportQuery(tenantUuid, fromDate, toDate, gameCode);
+    var criteria = new OutletPerformanceReportCriteria(tenantUuid, fromDate, toDate, gameCode);
 
-    return handler.handle(query);
+    return service.getReport(criteria);
   }
 }

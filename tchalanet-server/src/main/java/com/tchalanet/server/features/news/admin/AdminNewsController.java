@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.news.admin;
 
-import com.tchalanet.server.features.news.admin.dto.AdminNewsItemDto;
-import com.tchalanet.server.features.news.admin.dto.AdminNewsListResponse;
-import com.tchalanet.server.features.news.admin.dto.AdminUpsertNewsRequest;
-import com.tchalanet.server.features.news.admin.dto.ChangeStatusRequest;
+import com.tchalanet.server.features.news.admin.model.AdminNewsItem;
+import com.tchalanet.server.features.news.admin.model.AdminNewsListResponse;
+import com.tchalanet.server.features.news.admin.model.AdminUpsertNewsRequest;
+import com.tchalanet.server.features.news.admin.model.ChangeStatusRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
@@ -34,13 +34,13 @@ public class AdminNewsController {
 
   @Operation(summary = "Create or update an admin news item")
   @PostMapping
-  public AdminNewsItemDto upsert(@RequestBody AdminUpsertNewsRequest request) {
+  public AdminNewsItem upsert(@RequestBody AdminUpsertNewsRequest request) {
     return adminNewsService.upsert(request);
   }
 
   @Operation(summary = "Change status of a news item")
   @PostMapping("/{id}/status")
-  public AdminNewsItemDto changeStatus(
+  public AdminNewsItem changeStatus(
       @PathVariable UUID id, @RequestBody ChangeStatusRequest request) {
     return adminNewsService.changeStatus(id, request.status());
   }

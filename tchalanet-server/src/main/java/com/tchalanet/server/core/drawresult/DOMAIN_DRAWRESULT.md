@@ -107,7 +107,6 @@ core/drawresult/
 │   ├── command/
 │   │   ├── model/                     # Commands (records)
 │   │   │   ├── FetchExternalResultsWindowCommand.java
-│   │   │   ├── RefreshExternalResultsWindowCommand.java
 │   │   │   ├── OverrideDrawResultCommand.java
 │   │   │   └── RecordManualDrawResultCommand.java
 │   │   └── handler/                   # @UseCase + @TchTx
@@ -150,14 +149,15 @@ core/drawresult/
 
 ### Commands (write — `CommandBus.send(...)`)
 
-| Command                               | Trigger                      | Effet                                           | Gate                                    |
-| ------------------------------------- | ---------------------------- | ----------------------------------------------- | --------------------------------------- |
-| `FetchExternalResultsWindowCommand`   | scheduler `fetchTick` ou ops | Fetch + projection + upsert `draw_result`       | `RESULTS_EXTERNAL_FETCH`                |
-| `RefreshExternalResultsWindowCommand` | ops uniquement               | Fetch puis Apply (orchestrateur multi-domaines) | `RESULTS_EXTERNAL_REFRESH`              |
-| `OverrideDrawResultCommand`           | ops uniquement               | Modifie un `draw_result` existant               | `RESULTS_EXTERNAL_OVERRIDE` _(à créer)_ |
-| `RecordManualDrawResultCommand`       | ops uniquement               | Saisie manuelle (provider down)                 | `RESULTS_EXTERNAL_MANUAL`               |
+| Command                             | Trigger                      | Effet                                     | Gate                                    |
+| ----------------------------------- | ---------------------------- | ----------------------------------------- | --------------------------------------- |
+| `FetchExternalResultsWindowCommand` | scheduler `fetchTick` ou ops | Fetch + projection + upsert `draw_result` | `RESULTS_EXTERNAL_FETCH`                |
+| `OverrideDrawResultCommand`         | ops uniquement               | Modifie un `draw_result` existant         | `RESULTS_EXTERNAL_OVERRIDE` _(à créer)_ |
+| `RecordManualDrawResultCommand`     | ops uniquement               | Saisie manuelle (provider down)           | `RESULTS_EXTERNAL_MANUAL`               |
 
 **Spec compliance** : DR1 (write commands).
+
+`RESULTS_EXTERNAL_REFRESH` est une orchestration ops : le BFF `features.ops` vérifie le gate puis envoie successivement `FetchExternalResultsWindowCommand` et `ApplyExternalResultsWindowCommand`. Il n'existe pas de command handler de refresh dans `features.ops`.
 
 ### Queries (read — `QueryBus.send(...)`)
 
