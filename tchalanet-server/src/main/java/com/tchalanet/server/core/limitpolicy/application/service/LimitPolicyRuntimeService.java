@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class LimitPolicyRuntimeService {
 
   public LimitEvaluationView evaluate(LimitContext ctx) {
     var defs = definitions.listActive();
-    var assigns = assignments.listActiveForTargets(Collections.emptyList(), Instant.now()); // placeholder
+    var assigns = assignments.listActiveForTargets(ctx.toTargets(), Instant.now());
 
     EffectiveLimits resolved = resolver.resolve(defs, assigns, ctx);
     LimitFactsSnapshot facts = (exposureFacts != null) ? exposureFacts.snapshot(ctx) : LimitFactsSnapshot.EMPTY;

@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 public record LimitContext(
@@ -26,6 +27,17 @@ public record LimitContext(
     int linesCount,
     Instant now,
     ZoneId timezone) {
+
+  public List<LimitTarget> toTargets() {
+    var targets = new ArrayList<LimitTarget>();
+    targets.add(new LimitTarget.TenantTarget());
+    if (outletId != null) targets.add(new LimitTarget.OutletTarget(outletId));
+    if (agentId != null) targets.add(new LimitTarget.AgentTarget(agentId));
+    if (terminalId != null) targets.add(new LimitTarget.TerminalTarget(terminalId));
+    if (drawChannelId != null) targets.add(new LimitTarget.DrawChannelTarget(drawChannelId));
+    return List.copyOf(targets);
+  }
+
   public record BetLine(
       BetType betType,
       String selectionKey,

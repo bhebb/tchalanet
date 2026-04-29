@@ -1,5 +1,8 @@
 package com.tchalanet.server.features.tenantadmin.config.i18n;
 
+import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;
+import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
+import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
 import com.tchalanet.server.catalog.i18n.internal.write.I18nOverridesAdminService;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -10,16 +13,40 @@ import com.tchalanet.server.features.tenantadmin.config.i18n.model.UpsertI18nOve
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class TenantAdminI18nService {
 
+  private final I18nOverridesCatalog i18nOverridesCatalog;
   private final I18nOverridesAdminService adminService;
 
   public TchPage<AdminI18nRow> search(TchRequestContext ctx, String locale, String q, Boolean active, TchPageRequest pageReq) {
-    throw new UnsupportedOperationException("I18n search facade not implemented yet");
+    var criteria = new SearchI18nOverridesCriteria(
+        I18nOverrideLevel.TENANT,
+        locale,
+        q,
+        active,
+        ctx.tenantIdSafe().value(),
+        "active");
+    var page = i18nOverridesCatalog.search(criteria, pageReq);
+    var rows = page.items().stream()
+        .map(view -> new AdminI18nRow(
+            view.id().value().toString(),
+            view.locale(),
+            view.i18nKey(),
+            view.i18nValue(),
+            view.level().name(),
+            view.active()))
+        .toList();
+    return TchPage.of(
+        rows,
+        page.page(),
+        page.size(),
+        page.totalElements(),
+        page.totalPages(),
+        page.last(),
+        page.hasNext(),
+        page.hasPrevious());
   }
 
   public UpsertI18nOverrideResult upsert(TchRequestContext ctx, UpsertI18nOverrideRequest req) {
@@ -34,6 +61,6 @@ public class TenantAdminI18nService {
   }
 
   public java.util.Map<String, String> resolvePreview(TchRequestContext ctx, String locale) {
-    throw new UnsupportedOperationException("I18n resolve preview not implemented: delegate to catalog.i18n read service");
+    return i18nOverridesCatalog.resolveLocale(locale, ctx);
   }
 }

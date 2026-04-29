@@ -91,14 +91,20 @@ public class LimitResolver {
     return null;
   }
 
+  /**
+   * Specificity hierarchy (higher = wins over lower):
+   * Tenant(10) < DrawChannel(40) < Outlet(50) < Agent(60) < Terminal(70).
+   *
+   * <p>A terminal is the most specific POS context: it identifies the exact device. A target that
+   * does not match the current context returns -1 and is excluded.
+   */
   private int score(LimitTarget target, LimitContext ctx) {
-    // higher = more specific
     return switch (target) {
-      case LimitTarget.TenantTarget ignored -> 10;
-      case LimitTarget.OutletTarget t -> (ctx.outletId() != null && ctx.outletId().equals(t.id())) ? 50 : -1;
-      case LimitTarget.AgentTarget t -> (ctx.agentId() != null && ctx.agentId().equals(t.id())) ? 60 : -1;
-      case LimitTarget.TerminalTarget t -> (ctx.terminalId() != null && ctx.terminalId().equals(t.id())) ? 70 : -1;
-      case LimitTarget.DrawChannelTarget t -> (ctx.drawChannelId() != null && ctx.drawChannelId().equals(t.id())) ? 40 : -1;
+      case LimitTarget.TenantTarget ignored -> 10; // INTENTIONAL: tenant fallback.
+      case LimitTarget.OutletTarget t -> (ctx.outletId() != null && ctx.outletId().equals(t.id())) ? 50 : -1; // INTENTIONAL: outlet beats draw channel.
+      case LimitTarget.AgentTarget t -> (ctx.agentId() != null && ctx.agentId().equals(t.id())) ? 60 : -1; // INTENTIONAL: agent beats outlet.
+      case LimitTarget.TerminalTarget t -> (ctx.terminalId() != null && ctx.terminalId().equals(t.id())) ? 70 : -1; // INTENTIONAL: terminal beats agent.
+      case LimitTarget.DrawChannelTarget t -> (ctx.drawChannelId() != null && ctx.drawChannelId().equals(t.id())) ? 40 : -1; // INTENTIONAL: draw channel beats tenant.
     };
   }
 }

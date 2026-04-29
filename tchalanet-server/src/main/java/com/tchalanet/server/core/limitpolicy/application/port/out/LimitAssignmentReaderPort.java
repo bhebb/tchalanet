@@ -22,8 +22,8 @@ public interface LimitAssignmentReaderPort {
 
     List<LimitAssignment> listActiveForTargets(List<LimitTarget> targets, Instant now);
 
-    /** Convenience: list active assignments for tenant (placeholder implementation may be more specific). */
+    /** Convenience: list active assignments for tenant. */
     default List<LimitAssignment> listActive(TenantId tenantId) {
-        return listActiveForTargets(List.of(), Instant.now());
+        return listActiveForTargets(List.of(new LimitTarget.TenantTarget()), Instant.now());
     }
 }
