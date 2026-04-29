@@ -16,4 +16,4 @@ Sessions POS et terminaux (voir Page POS).
 
 ## Pointeurs (source of truth near-code)
 
-- Règles et modèle backend: `99-links/_ref/server/domains/core/pos/DOMAIN_POS.md`
+- Règles et modèle backend: `99-links/_ref/server/domains/core/terminal/DOMAIN_TERMINAL.md`

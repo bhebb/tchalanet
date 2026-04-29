@@ -90,13 +90,6 @@ public class AppUserPersistenceAdapter implements UserReaderPort, UserWriterPort
   }
 
   @Override
-  public Page<@NotNull AppUser> findAllActiveUsers(Pageable pageable) {
-    var page = jpa.findByStatusAndDeletedAtIsNull(UserStatus.ACTIVE.name(), pageable);
-    var content = page.getContent().stream().map(UserMapper::toDomain).collect(Collectors.toList());
-    return new PageImpl<>(content, pageable, page.getTotalElements());
-  }
-
-  @Override
   public void updateStatus(UserId userId, UserStatus userStatus) {
     jpa.findById(userId.value())
         .ifPresent(

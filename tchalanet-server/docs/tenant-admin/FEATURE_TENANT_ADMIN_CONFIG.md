@@ -147,7 +147,32 @@ The slice follows **Feature Rules (81)**:
 
 ---
 
-## 9. TL;DR
+## 9. Active Config Slices
+
+### 9.1 `settings/`
+
+Tenant settings are a BFF facade over `catalog.settings`.
+
+- Reads use `SettingsAdminService.search(...)` with `SettingLevel.TENANT` so admin rows expose real `SettingId` values.
+- Mutations use `SettingsAdminService.create(...)` and `SettingsAdminService.delete(...)`.
+- `SettingsCatalog.resolve(...)` is reserved for effective hierarchical resolution and must not be used for admin inventory rows.
+
+### 9.2 `i18n/`
+
+Tenant i18n overrides are a BFF facade over `catalog.i18n`.
+
+- Reads use the public `I18nOverridesCatalog.search(...)` API.
+- Preview resolution uses `I18nOverridesCatalog.resolveLocale(locale, ctx)`.
+- Mutations use `I18nOverridesAdminService.create(...)` and `I18nOverridesAdminService.delete(...)`.
+
+### 9.3 `identity/`
+
+Tenant identity updates stay delegated to the owning tenant configuration core.
+The feature slice remains orchestration-only and does not own identity rules.
+
+---
+
+## 10. TL;DR
 
 - Config logic lives in cores/catalogs
 - This slice is a UI façade
