@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.SettingId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.features.tenantadmin.config.settings.model.AdminSettingRow;
 import com.tchalanet.server.features.tenantadmin.config.settings.model.UpsertTenantSettingRequest;
 import com.tchalanet.server.features.tenantadmin.config.settings.model.UpsertTenantSettingResult;
@@ -27,9 +28,10 @@ public class TenantAdminSettingsController {
         @CurrentContext TchRequestContext ctx,
         @RequestParam(value = "namespace", required = false) String namespace,
         @RequestParam(value = "settingKey", required = false) String settingKey,
-        @RequestParam(value = "active", required = false) Boolean active
+        @RequestParam(value = "active", required = false) Boolean active,
+        TchPageRequest pageRequest
     ) {
-        return ApiResponse.success(service.search(ctx, namespace, settingKey, active));
+        return ApiResponse.success(service.search(ctx, namespace, settingKey, active, pageRequest));
     }
 
     @PutMapping

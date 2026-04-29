@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **FIX** `LimitPolicyRuntimeService.evaluate()` now loads assignments for the actual context targets instead of an empty placeholder list. ([fix-limitpolicy-evaluate-targets])
+- **DOCS/TEST** `LimitResolver.score()` specificity is documented and covered by precedence tests: `Tenant < DrawChannel < Outlet < Agent < Terminal`. ([fix-limitpolicy-resolver-scoring])
 - **FIX** `JdbcSubscriptionStatsReader` table name corrected: `subscription` → `tenant_subscription`. Resolves runtime `PSQLException: relation "subscription" does not exist` on all stats queries. ([fix-subscription-stats-table])
 - **FIX** Removed dead class `ExternalBillingProviderAdapter` (`@Deprecated`, empty, referencing non-existent `catalog.billing` package). ([fix-subscription-stats-table])
 

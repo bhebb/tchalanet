@@ -90,7 +90,7 @@ UNLEASH_ENVIRONMENT=$ENV
 # 🔍 Meilisearch (Search Engine)
 # ========================================
 MEILI_URL=http://localhost:7700
-MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-dev-meili-master-key}
 
 # ========================================
 # 🔧 Application Config
