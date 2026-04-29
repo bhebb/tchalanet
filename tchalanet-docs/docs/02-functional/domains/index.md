@@ -57,7 +57,7 @@ Règle :
 - [Notification](notification.md) — Notifications tenant, ack.
 - [OfflineSync](offlinesync.md) — Synchronisation offline des ventes.
 - [Outlet](outlet.md) — Points de vente (PDV) par tenant.
-- [POS](pos.md) — Sessions POS et terminaux (devices) liés aux outlets.
+- [POS](terminal.md) — Sessions POS et terminaux (devices) liés aux outlets.
 - [Pricing (Catalog)](pricing.md) — Référentiel de pricing (multipliers, odds).
 - [Payout](payout.md) — Claims & payments (split, reversal) avec idempotence.
 - [ResultSlot (Catalog)](resultslot.md) — Slots globaux (provider/timezone/drawTime/daysOfWeek).
