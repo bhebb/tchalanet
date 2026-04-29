@@ -1,9 +1,14 @@
-## ADDED Requirements
+# draw-provider-config Specification
 
-### Requirement: Toute propriété YAML tch.draw.\* est bindée à un champ Java
+## Purpose
 
-Chaque clé déclarée sous `tch.draw.*` ou `tch.us-lottery.*` dans tout fichier
-`application*.yaml` SHALL avoir un champ correspondant dans une classe
+TBD - created by archiving change align-draw-provider-config-resultslot. Update Purpose after archive.
+
+## Requirements
+
+### Requirement: Toute propriété YAML tch.draw.\* SHALL être bindée à un champ Java
+
+Chaque clé déclarée sous `tch.draw.*` ou `tch.us-lottery.*` dans tout fichier `application*.yaml` SHALL avoir un champ correspondant dans une classe
 `@ConfigurationProperties` enregistrée au démarrage. Aucune clé orpheline.
 
 #### Scenario: Propriété tch.draw.results.mode absente
@@ -45,10 +50,9 @@ Aucun bloc `tch.us-lottery.providers.*` ne doit aparaître dans `application.yam
 
 ---
 
-### Requirement: Staging désactive les providers externes par défaut
+### Requirement: Staging SHALL désactiver les providers externes par défaut
 
-En environnement staging (`SPRING_PROFILES_ACTIVE=staging`), la propriété
-`tch.us-lottery.enabled` SHALL valoir `false` sauf si `TCH_US_LOTTERY_ENABLED=true`
+En environnement staging (`SPRING_PROFILES_ACTIVE=staging`), la propriété `tch.us-lottery.enabled` SHALL valoir `false` sauf si `TCH_US_LOTTERY_ENABLED=true`
 est explicitement positionné dans l'environnement.
 
 #### Scenario: Staging démarre sans calls externes
