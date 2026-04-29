@@ -13,8 +13,11 @@ public final class BatchJobKeys {
     public static final JobKey DRAW_OPEN = JobKey.of("draw:lifecycle:open");
     public static final JobKey DRAW_CLOSE = JobKey.of("draw:lifecycle:close");
     public static final JobKey DRAW_SETTLE = JobKey.of("draw:lifecycle:settle");
+    public static final JobKey DRAW_WATCHDOG_PROVISIONAL = JobKey.of("draw:watchdog:provisional");
 
     public static final JobKey RESULTS_EXTERNAL_APPLY = JobKey.of("results:external:apply");
     public static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
     public static final JobKey RESULTS_EXTERNAL_REFRESH = JobKey.of("results:external:refresh");
+    public static final JobKey RESULTS_EXTERNAL_MANUAL = JobKey.of("results:external:manual");
+    public static final JobKey RESULTS_EXTERNAL_OVERRIDE = JobKey.of("results:external:override");
 }

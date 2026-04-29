@@ -79,7 +79,7 @@ public class DrawResultsOpsController {
   @Operation(summary = "Override a draw result for a slot (OPS)")
   @PostMapping("/override")
   public ApiResponse<OverrideDrawResultResult> override(@RequestBody OverrideRequest req) {
-    gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, tenant(req.tenantId()));
+    gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_OVERRIDE, tenant(req.tenantId()));
     TenantId t = tenant(req.tenantId());
     if (t == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tenantId required");
 
@@ -100,7 +100,7 @@ public class DrawResultsOpsController {
   @Operation(summary = "Record a manual draw result (OPS)")
   @PostMapping("/manual")
   public ApiResponse<RecordManualDrawResultResult> manual(@RequestBody ManualRequest req) {
-    gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, tenant(req.tenantId()));
+    gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_MANUAL, tenant(req.tenantId()));
     TenantId t = tenant(req.tenantId());
     if (t == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tenantId required");
 

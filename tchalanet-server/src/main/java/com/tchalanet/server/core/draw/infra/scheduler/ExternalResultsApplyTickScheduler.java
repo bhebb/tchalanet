@@ -36,7 +36,7 @@ public class ExternalResultsApplyTickScheduler {
     private final Clock clock;
     private final BatchTchContextBinder binder;
 
-    @Scheduled(cron = "${tch.draw.results.scheduler.apply_cron:30 */5 * * * *}")
+    @Scheduled(cron = "${tch.draw.results.shared.scheduler.apply_cron:30 */5 * * * *}")
     @SchedulerLock(name = "draw_results_apply_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tickApply() {
         if (!gate.enabled(BatchJobKeys.RESULTS_EXTERNAL_APPLY, null)) {

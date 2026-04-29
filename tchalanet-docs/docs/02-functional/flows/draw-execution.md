@@ -4,26 +4,27 @@
 
 ---
 
-## Vue d'ensemble (5 phases)
+## Vue d'ensemble (6 phases)
 
 ```
-T-N jours       T-...           T-cutoff       T (tirage)      T+5min
-   │               │                │              │              │
-   ▼               ▼                ▼              ▼              ▼
-┌─────────┐  ┌─────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────┐
-│Generate │→ │  Open   │→ │    Close    │→ │   Apply     │→ │  Settle  │
-│         │  │ (vente) │  │  (cutoff)   │  │  (résultat) │  │ (tickets)│
-└─────────┘  └─────────┘  └─────────────┘  └─────────────┘  └──────────┘
-SCHEDULED      OPEN           CLOSED          RESULTED         SETTLED
+T-N jours       T-...           T-cutoff       T (tirage)      T+5min        T+...
+   │               │                │              │              │             │
+   ▼               ▼                ▼              ▼              ▼             ▼
+┌─────────┐  ┌─────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────┐
+│Generate │→ │  Open   │→ │    Close    │→ │   Fetch     │→ │   Apply     │→ │  Settle  │
+│         │  │ (vente) │  │  (cutoff)   │  │ (provider)  │  │  (résultat) │  │ (tickets)│
+└─────────┘  └─────────┘  └─────────────┘  └─────────────┘  └─────────────┘  └──────────┘
+SCHEDULED      OPEN           CLOSED        draw_result       RESULTED         SETTLED
 ```
 
-| Phase        | Quand                                  | Domaine pivot              | Action                                             |
-| ------------ | -------------------------------------- | -------------------------- | -------------------------------------------------- |
-| **Generate** | J → J+7 (5h UTC daily)                 | `core.draw`                | Crée les `Draw` tenant à partir des `draw_channel` |
-| **Open**     | À l'heure de vente                     | `core.draw`                | `SCHEDULED → OPEN`                                 |
-| **Close**    | Au cutoff (avant tirage)               | `core.draw`                | `OPEN → CLOSED`                                    |
-| **Apply**    | Après tirage (résultat externe arrivé) | `core.draw`                | `CLOSED → RESULTED` (lie au `draw_result`)         |
-| **Settle**   | Après apply (résultat FINAL)           | `core.draw` (Spring Batch) | `RESULTED → SETTLED` (tickets WON/LOST)            |
+| Phase        | Quand                                  | Domaine pivot              | Action                                                       |
+| ------------ | -------------------------------------- | -------------------------- | ------------------------------------------------------------ |
+| **Generate** | J → J+7 (5h UTC daily)                 | `core.draw`                | Crée les `Draw` tenant à partir des `draw_channel`           |
+| **Open**     | À l'heure de vente                     | `core.draw`                | `SCHEDULED → OPEN`                                           |
+| **Close**    | Au cutoff (avant tirage)               | `core.draw`                | `OPEN → CLOSED`                                              |
+| **Fetch**    | Après tirage provider                  | `core.drawresult`          | Lit `result_slot.source_cfg`, fetch provider, projette Haïti |
+| **Apply**    | Après tirage (résultat externe arrivé) | `core.draw`                | `CLOSED → RESULTED` (lie au `draw_result`)                   |
+| **Settle**   | Après apply (résultat FINAL)           | `core.draw` (Spring Batch) | `RESULTED → SETTLED` (tickets WON/LOST)                      |
 
 ---
 
@@ -62,6 +63,7 @@ SCHEDULED      OPEN           CLOSED          RESULTED         SETTLED
 
 - **Apply** dès `draw_result.status IN (PROVISIONAL, FINAL)`.
 - **Settle** uniquement si `draw_result.status = FINAL`.
+- La projection Haïti lit d'abord `result_slot.projection_cfg`, puis utilise le fallback global documenté.
 
 ### Override après SETTLED
 
@@ -125,6 +127,8 @@ SCHEDULED      OPEN           CLOSED          RESULTED         SETTLED
 
 - `POST /platform/ops/draws/generate|open-due|close-due|apply` — orchestration manuelle
 - `POST /platform/ops/draw-results/fetch|refresh|override|manual` — gestion résultats
+
+Gates ops distinctes : fetch, apply, refresh, manual et override peuvent être coupés séparément.
 
 ---
 

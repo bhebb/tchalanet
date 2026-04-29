@@ -1,0 +1,6 @@
+-- Grants pour app_user sur le schema batch (Spring Batch 6)
+GRANT USAGE ON SCHEMA batch TO app_user;
+GRANT ALL ON ALL TABLES IN SCHEMA batch TO app_user;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA batch TO app_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA batch GRANT ALL ON TABLES TO app_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA batch GRANT ALL ON SEQUENCES TO app_user;

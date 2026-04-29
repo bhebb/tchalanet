@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class DrawResultsCommonProperties {
 
   private Limits limits = new Limits();
+  private Defaults defaults = new Defaults();
   private Scheduler scheduler = new Scheduler();
 
   @Getter
@@ -21,7 +22,17 @@ public class DrawResultsCommonProperties {
 
   @Getter
   @Setter
+  public static class Defaults {
+    private int daysBack = 0;
+    private int maxSlots = 200;
+  }
+
+  @Getter
+  @Setter
   public static class Scheduler {
+    private boolean active = true;
+    private String tickCron = "0 */5 * * * *";
+    private String applyCron = "30 */5 * * * *";
     private Due due = new Due();
     private int cooldownMinutes = 20;
 

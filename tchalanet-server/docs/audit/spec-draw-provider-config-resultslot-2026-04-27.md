@@ -18,13 +18,14 @@ ainsi que de la cohérence entre les GameCodes configurés et les entrées `resu
 
 ### 1.1 Propriétés orphelines (configurées mais non bindées)
 
-| Propriété YAML                                | Fichier                    | Classe attendue                         | Statut                                                                                                          |
-| --------------------------------------------- | -------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `tch.draw.results.mode`                       | `application.yaml:143`     | `DrawResultsCommonProperties`           | ❌ **MORT** — aucun champ Java, aucun usage dans le code                                                        |
-| `tch.draw.results.shared.scheduler.active`    | `application-draw.yaml:16` | `DrawResultsCommonProperties.Scheduler` | ❌ **Non bindé** — champ `active` absent de la classe                                                           |
-| `tch.draw.results.shared.scheduler.tick_cron` | `application-draw.yaml:17` | `DrawResultsCommonProperties.Scheduler` | ⚠️ **Partiellement utilisé** — lu via SpEL `@Scheduled(cron = "${...}")` mais pas accessible via l'objet config |
-| `tch.draw.results.shared.defaults.days_back`  | `application-draw.yaml:12` | `DrawResultsCommonProperties`           | ❌ **Non bindé** — inner class `Defaults` absente                                                               |
-| `tch.draw.results.shared.defaults.max_slots`  | `application-draw.yaml:13` | `DrawResultsCommonProperties`           | ❌ **Non bindé** — same                                                                                         |
+| Propriété YAML                                 | Fichier                 | Classe attendue                         | Statut                                    |
+| ---------------------------------------------- | ----------------------- | --------------------------------------- | ----------------------------------------- |
+| `tch.draw.results.mode`                        | `application.yaml`      | N/A                                     | ✅ **Supprimé** — propriété morte retirée |
+| `tch.draw.results.shared.scheduler.active`     | `application-draw.yaml` | `DrawResultsCommonProperties.Scheduler` | ✅ **Bindé**                              |
+| `tch.draw.results.shared.scheduler.tick_cron`  | `application-draw.yaml` | `DrawResultsCommonProperties.Scheduler` | ✅ **Bindé** et lu par le scheduler       |
+| `tch.draw.results.shared.scheduler.apply_cron` | `application-draw.yaml` | `DrawResultsCommonProperties.Scheduler` | ✅ **Bindé** et lu par le scheduler apply |
+| `tch.draw.results.shared.defaults.days_back`   | `application-draw.yaml` | `DrawResultsCommonProperties.Defaults`  | ✅ **Bindé**                              |
+| `tch.draw.results.shared.defaults.max_slots`   | `application-draw.yaml` | `DrawResultsCommonProperties.Defaults`  | ✅ **Bindé**                              |
 
 ### 1.2 Incohérence valeurs par défaut
 
@@ -35,10 +36,8 @@ ainsi que de la cohérence entre les GameCodes configurés et les entrées `resu
 
 ### 1.3 Config providers dupliquée
 
-`application.yaml` définit `tch.us-lottery.providers.ny.games`, `.fl.games`, `.ga.games`, `.tn.games`
-ET `application-uslottery.yaml` définit les mêmes paths. Spring Boot remplace les listes lors
-des imports → **`application-uslottery.yaml` gagne toujours** — les values dans `application.yaml`
-sont effectivement mortes mais masquent la source canonique.
+`application.yaml` ne définit plus `tch.us-lottery.providers.*`. La source canonique est
+`application-uslottery.yaml`.
 
 **Codes dans `application.yaml` qui ne seront jamais bindés :**
 
@@ -59,8 +58,8 @@ doit être renseigné dans Doppler.
 
 ### 1.5 Staging sans isolation
 
-`application-staging.yaml` ne désactive pas `tch.us-lottery.enabled` → en staging,
-tous les providers tentent les appels API externes avec `enabled=true` (défaut).
+`application-staging.yaml` définit `tch.us-lottery.enabled: ${TCH_US_LOTTERY_ENABLED:false}`.
+Le staging ne crée donc pas les clients externes par défaut.
 
 ---
 

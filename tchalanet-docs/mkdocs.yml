@@ -59,7 +59,7 @@ nav:
           - Notification: 02-functional/domains/notification.md
           - OfflineSync: 02-functional/domains/offlinesync.md
           - Outlet: 02-functional/domains/outlet.md
-          - POS: 02-functional/domains/pos.md
+          - POS: 02-functional/domains/terminal.md
           - Pricing (Catalog): 02-functional/domains/pricing.md
           - Payout: 02-functional/domains/payout.md
           - ResultSlot (Catalog): 02-functional/domains/resultslot.md
