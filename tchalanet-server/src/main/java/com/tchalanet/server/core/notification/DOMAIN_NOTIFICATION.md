@@ -7,11 +7,34 @@ Le domaine **notification** gère le besoin métier suivant :
 > Permettre à Tchalanet d’envoyer des messages (notifications) aux utilisateurs / acteurs (vendeurs, admins, joueurs) via différents canaux (IN_APP, email, SMS, WhatsApp, push), en déléguant la partie technique à un **service externe Node**.
 
 Ce domaine **ne décide pas** du design UI (bannière, toast, etc.) et **n’implémente pas** les clients WhatsApp/Email/SMS lui-même.  
-Il décrit **quoi** envoyer, **à qui**, **par quel canal**, et expose un **port unique** pour appeler le service Node.
+Il décrit **quoi** notifier, **à qui**, **par quel canal**, et garde la source de vérité persistée pour les notifications actionnables.
+
+Depuis `add-notification-core-service`, le domaine contient deux niveaux :
+
+- `notification` : notification logique, visible ou actionnable, avec statut `UNREAD`, `READ`, `ARCHIVED`, `EXPIRED`.
+- `notification_delivery` : tentative/statut par canal (`WEB`, `SMS`, `WHATSAPP`, `EMAIL`, `PUSH`).
+
+Les notifications supportent les audiences `USER`, `ROLE`, `TENANT`, `OUTLET`, `TERMINAL`, `PLATFORM`, les sévérités `INFO`, `WARNING`, `ERROR`, `CRITICAL`, et les kinds `INFO`, `WARNING`, `ACTION_REQUIRED`, `SYSTEM_ERROR`.
+
+Les créations passent par `CreateNotificationCommand`. Le champ `dedupeKey` est optionnel mais obligatoire pour les flows rejouables ou after-commit, par exemple les mises à jour de templates PageModel.
 
 ## 2. Modèle conceptuel
 
 ### 2.1 Concepts principaux
+
+#### Notification persistée
+
+- `NotificationSeverity` : niveau d’attention attendu côté UI.
+- `NotificationKind` : comportement fonctionnel (`ACTION_REQUIRED` active une action explicite).
+- `NotificationCategory` : espace fonctionnel (`PAGE_MODEL`, `SALES`, `SYSTEM`, etc.).
+- `NotificationAudienceType` + `audienceValue` : cible logique.
+- `titleKey` / `messageKey` : clés i18n canoniques ; `titleText` / `messageText` restent des fallbacks.
+- `payload` : métadonnées d’action ou de diagnostic, jamais source unique pour appliquer une mutation.
+
+#### Delivery
+
+Les deliveries sont séparées du message logique pour permettre retries, provider metadata et transport externe progressif.
+Le canal `WEB` peut être utilisé pour tracer une notification in-app sans forcer SMS/WhatsApp.
 
 - `NotificationType`  
   Décrit le type métier de la notification :
@@ -66,13 +89,10 @@ Ce handler est appelé par d’autres domaines (ex: `sales`, `limits`) ou par de
   - Ne connaît pas le design UI des notifications IN_APP.
   - Ne fait pas d’appel direct vers WhatsApp/SMTP : il passe par un **port unique** HTTP vers le service Node.
 
-- **Features / notifications (UI)**
-  - Gère l’**affichage** des notifications IN_APP dans l’application Tchalanet.
-  - Introduit la notion de `NotificationDisplayType` (BANNER, TOAST, MODAL, INBOX_ONLY, etc.).
-  - Expose les endpoints :
-    - `ListMyNotifications` (inbox utilisateur),
-    - `MarkNotificationRead`.
-  - Consomme les read-models internes (stockage des notifs IN_APP) et mapppe vers `NotificationDto`.
+- **Core / notification APIs**
+  - Expose les endpoints tenant/admin de résumé, listing, read/archive unitaire et bulk, et diagnostics delivery.
+  - La table `notification` est l’unique source de vérité pour les notifications persistées.
+  - Il n’existe pas de table `user_notification` ni de BFF `features.notifications` séparé.
 
 ### 3.2 Service Node de notifications
 
@@ -98,16 +118,10 @@ Tchalanet ne gère pas ces détails : ils sont considérés comme **concerns inf
   - Portent le contenu principal envoyé par le Node server.
   - Sont pilotées par `core.notification` via `NotificationGatewayPort`.
 
-- **Notifications IN_APP** :
+- **Notifications WEB / IN_APP** :
   - Peuvent être générées en même temps que les notifications externes, ou indépendamment.
-  - Sont stockées dans un read-model côté Tchalanet et exposées via `features.notifications`.
-  - Possèdent un `NotificationDisplayType` qui indique comment les rendre dans l’UI :
-    - `BANNER` : bannière globale (ex: “Mode offline activé”, “Limite dépassée”).
-    - `TOAST` : notification non bloquante.
-    - `MODAL` : demande une action explicite de l’utilisateur.
-    - `INBOX_ONLY` : visible uniquement dans la liste.
-
-Le mapping entre `NotificationType` (métier) et `NotificationDisplayType` (UI) se fait dans la feature `notifications` ou côté front, en fonction des besoins.
+  - Sont stockées dans `notification` et exposées par les controllers `core.notification.infra.web`.
+  - Le rendu UI est dérivé côté frontend à partir de `severity`, `kind`, `category` et `action`, sans champ `displayType` persistant.
 
 ## 5. Interactions typiques
 
@@ -125,8 +139,8 @@ Optionnel : en parallèle, une notification IN_APP est créée pour apparaître 
 ### 5.2 Affichage dans le dashboard
 
 1. L’utilisateur ouvre l’application.
-2. `ListMyNotificationsController` est appelé.
-3. `ListMyNotificationsHandler` retourne les `NotificationDto` avec `displayType` (BANNER, TOAST, etc.).
+2. `TenantNotificationController` est appelé (`/tenant/notifications/summary` ou `/tenant/notifications`).
+3. Les query handlers retournent `NotificationSummaryView` ou `NotificationItemView`.
 4. Le front Angular affiche :
 
 - les bannières globales,
@@ -139,7 +153,7 @@ Optionnel : en parallèle, une notification IN_APP est créée pour apparaître 
 
   - Métier d’envoi dans `core.notification`.
   - Technique provider (WhatsApp/SMTP/SMS) dans un service Node externe.
-  - Affichage UI dans `features.notifications`.
+  - Affichage UI côté front à partir du contrat `core.notification`.
 
 - **Un port unique `NotificationGatewayPort`** pour simplifier :
 

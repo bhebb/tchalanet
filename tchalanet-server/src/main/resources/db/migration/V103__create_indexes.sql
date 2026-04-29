@@ -29,11 +29,18 @@ CREATE INDEX ix_limit_assignment__tenant_target ON limit_assignment (tenant_id, 
 CREATE INDEX ix_draw_exposure__top_stake ON draw_exposure (tenant_id, draw_id, stake_total DESC);
 CREATE INDEX ix_ledger_entry__tenant_occurred ON ledger_entry (tenant_id, occurred_at);
 CREATE INDEX ix_tchala_entry__status ON tchala_entry (status);
-CREATE INDEX ix_user_notification__tenant_user ON user_notification (tenant_id, user_id, is_read, created_at DESC) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_notification__tenant_dedupe
+  ON notification (COALESCE(tenant_id, '00000000-0000-0000-0000-000000000000'::uuid), dedupe_key)
+  WHERE dedupe_key IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX idx_notification_audience_status_created
+  ON notification (tenant_id, audience_type, audience_value, status, created_at DESC);
+CREATE INDEX idx_notification_delivery_notification_channel
+  ON notification_delivery (notification_id, channel);
+CREATE INDEX idx_notification_delivery_status_next
+  ON notification_delivery (status, next_attempt_at);
 CREATE INDEX ix_processed_event__lookup ON processed_event (tenant_id, handler_key, event_id);
 CREATE INDEX ix_idempotency_record__lookup ON idempotency_record (tenant_id, scope, idem_key);
 CREATE INDEX ix_stats_draw__tenant_scheduled ON stats_draw (tenant_id, scheduled_at);
 CREATE INDEX ix_stats_daily__dimension_date ON stats_daily (dimension_type, dimension_id, ref_date);
 CREATE INDEX ix_revinfo__tenant_id ON revinfo (tenant_id);
 CREATE INDEX ix_revinfo__user_id ON revinfo (user_id);
-
