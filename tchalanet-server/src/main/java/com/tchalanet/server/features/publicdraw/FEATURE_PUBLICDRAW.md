@@ -1,6 +1,6 @@
 # Feature PublicDraw (BFF)
 
-> BFF public pour afficher informations de tirages par slot (timezone/drawTime/labels) et résultats publiés. Ce module s’appuie uniquement sur des façades globales (ResultSlotCatalog, DrawResultCatalog, NextDrawCalculator) et n’accède jamais directement aux repos/entités internes.
+> BFF public pour afficher informations de tirages par slot (timezone/drawTime/labels) et résultats publiés. Ce module expose uniquement des modèles read-only pour l'UI publique.
 > Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/features/publicdraw.md`
 
 ---
@@ -41,11 +41,23 @@
   - `com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog` (listActive(), findByKey(...), ResultSlotView)
   - `com.tchalanet.server.core.drawresult.api.DrawResultReaderPort` / public query contracts exposés par `core.drawresult`
   - `NextDrawCalculator` (service utilitaire — idéalement dans core.common.time ou core.resultslot.service)
-- Publicdraw contient uniquement du code read-only / projection + transformations DTO.
+- Publicdraw contient uniquement du code read-only / projection + transformations UI contract.
+
+### Écart documenté : projection SQL publique
+
+`features.publicdraw.persistence.PublicDrawResultJdbcRepository` lit directement `draw_result` et `result_slot` avec `JdbcTemplate` pour produire une projection publique performante (`latest per slot`, historique paginé, tri whiteliste).
+
+Cet écart est borné :
+
+- lecture seule uniquement;
+- aucune entité JPA core ou repository interne core/catalog n'est injecté;
+- aucune écriture, aucun invariant provider/projection, aucune décision de validité résultat;
+- le SQL filtre uniquement les résultats publiables (`dr.status = 'VALID'`) et les slots actifs;
+- migration cible : remplacer cette projection par un contrat public `core.drawresult.api` quand ce contrat couvrira `latest per slot` et l'historique public avec métadonnées slot.
 
 ---
 
-## 4) DTOs recommandés
+## 4) UI contracts recommandés
 
 - `PublicLatestDrawResultsResponse`
 
@@ -97,31 +109,35 @@ Remarque : fournir à la fois `labelKey` (stable, front traduit) et un `channelL
 
 ```
 features/publicdraw
-- application
-  - query
-    - model
-      - GetLatestPublicDrawResultsQuery
-      - ListPublicDrawResultsQuery
-      - (GetPublicDrawResultQuery) optional
-    - handler
-      - GetLatestPublicDrawResultsQueryHandler
-      - ListPublicDrawResultsQueryHandler
-- infra
-  - web
-    - PublicDrawResultController (endpoints)
-    - mapper (mappage domain -> DTO)
-  - persistence (optionnel: projection SQL / JDBC pour performance)
-    - PublicDrawResultJdbcRepository (projections, latest per channel)
+- PublicDrawResultController
+- PublicDrawResultMapper
+- app/
+  - NextDrawCalculator
+  - PublicDrawResultDetailsService
+  - PublicDrawResultReader
+  - PublicDrawResultSearchService
+  - PublicLatestDrawResultsService
+- model/
+  - PublicDrawResultSearchCriteria
+  - GetLatestPublicDrawResultsRequest
+  - ListPublicDrawResultsRequest
+  - PublicLatestDrawResultsResponse
+  - PublicDrawResultItemResponse
+- persistence/
+  - PublicDrawResultJdbcRepository
+  - PublicDrawResultJdbcReader
+  - PublicDrawResultRepositoryReader
+  - PublicDrawResultRow
 ```
 
 ---
 
 ## 7) Rôles & responsabilités
 
-- Controller : parse params, créer Query, renvoyer `ApiResponse`
-- Handler : orchestrer appels à `ResultSlotCatalog` + `DrawResultCatalog` + `NextDrawCalculator`, construire DTOs
+- Controller : parse params, créer un criteria/request si nécessaire, renvoyer `ApiResponse`
+- Services : orchestrer appels à `ResultSlotCatalog` + reader publicdraw + `NextDrawCalculator`, construire UI contracts
 - Mapper : transformer domain -> `PublicDrawResultItemResponse`
-- Projection adapter (optionnel) : SQL optimisé pour latest-per-channel ou historique paginé
+- Projection reader (optionnel) : SQL optimisé pour latest-per-channel ou historique paginé
 
 ---
 
@@ -137,20 +153,12 @@ features/publicdraw
 
 ## 9) Exemples de signatures (Java)
 
-- Query records
-
-```java
-public record GetLatestPublicDrawResultsQuery(int limitPerChannel) implements Query<List<PublicLatestDrawResultsResponse>> {}
-public record ListPublicDrawResultsQuery(String slotKey, String provider, LocalDate from, LocalDate to, int page, int size) implements Query<TchPage<PublicDrawResultItemResponse>> {}
-```
-
 - Controller (exemple)
 
 ```java
 @GetMapping("/public/results/latest")
 public ApiResponse<List<PublicLatestDrawResultsResponse>> latest(@RequestParam(defaultValue="1") int limitPerChannel) {
-  var res = queryBus.send(new GetLatestPublicDrawResultsQuery(limitPerChannel));
-  return ApiResponse.success(res);
+  return ApiResponse.success(latestService.latest(limitPerChannel));
 }
 ```
 
@@ -158,7 +166,7 @@ public ApiResponse<List<PublicLatestDrawResultsResponse>> latest(@RequestParam(d
 
 ## 10) Conventions & sécurité
 
-- DTO suffixes `Request`/`Response`.
+- UI contract suffixes `Request`/`Response`.
 - Wrappers d’ID en controllers; pas de UUID brut.
 - ApiResponse + TchPage + TchPaging pour listes.
 - Scope public: rate-limit; `noindex` si requis.
@@ -167,7 +175,7 @@ public ApiResponse<List<PublicLatestDrawResultsResponse>> latest(@RequestParam(d
 
 ## 11) Consumed by
 
-- **`features.pagemodel`** : utilise `GetLatestPublicDrawResultsQuery` via `DrawsProvider` pour l'affichage des derniers résultats dans le widget Home.
+- **`features.pagemodel`** : utilise `PublicLatestDrawResultsService` via `DrawsProvider` pour l'affichage des derniers résultats dans le widget Home.
 
 ## 12) Pipeline source
 

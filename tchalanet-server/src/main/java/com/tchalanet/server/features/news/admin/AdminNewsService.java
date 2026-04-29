@@ -1,15 +1,15 @@
 package com.tchalanet.server.features.news.admin;
 
 import com.tchalanet.server.common.cache.CacheKeyBuilder;
-import com.tchalanet.server.features.news.admin.dto.AdminNewsItemDto;
-import com.tchalanet.server.features.news.admin.dto.AdminNewsListResponse;
-import com.tchalanet.server.features.news.admin.dto.AdminUpsertNewsRequest;
+import com.tchalanet.server.features.news.admin.model.AdminNewsItem;
+import com.tchalanet.server.features.news.admin.model.AdminNewsListResponse;
+import com.tchalanet.server.features.news.admin.model.AdminUpsertNewsRequest;
 import com.tchalanet.server.features.news.shared.LotteryNewsModels;
 import com.tchalanet.server.features.news.shared.NewsStatus;
-import com.tchalanet.server.features.news.shared.port.NewsCachePort;
-import com.tchalanet.server.features.news.shared.service.ExternalNewsService;
-import com.tchalanet.server.features.news.shared.service.HiddenNewsService;
-import com.tchalanet.server.features.news.shared.service.InternalNewsService;
+import com.tchalanet.server.features.news.shared.NewsCache;
+import com.tchalanet.server.features.news.shared.ExternalNewsService;
+import com.tchalanet.server.features.news.shared.HiddenNewsService;
+import com.tchalanet.server.features.news.shared.InternalNewsService;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Comparator;
@@ -29,7 +29,7 @@ public class AdminNewsService {
   private final InternalNewsService internalNewsService;
   private final ExternalNewsService externalNewsService;
   private final HiddenNewsService hiddenNewsService;
-  private final NewsCachePort newsCachePort;
+  private final NewsCache newsCache;
   private final CacheKeyBuilder cacheKeyBuilder;
 
   /** 1) Liste admin: internes + externes + flag hidden. */
@@ -42,7 +42,7 @@ public class AdminNewsService {
         internalSnapshot.articles().stream()
             .sorted(
                 Comparator.comparing(LotteryNewsModels.LotteryNewsArticle::publishedAt).reversed())
-            .map(a -> toAdminDto(a, hiddenIds.contains(a.id())))
+            .map(a -> toAdminItem(a, hiddenIds.contains(a.id())))
             .toList();
 
     // externes: on prend le snapshot provider (ou cache)
@@ -51,14 +51,14 @@ public class AdminNewsService {
         externalSnapshot.articles().stream()
             .sorted(
                 Comparator.comparing(LotteryNewsModels.LotteryNewsArticle::publishedAt).reversed())
-            .map(a -> toAdminDto(a, hiddenIds.contains(a.id())))
+            .map(a -> toAdminItem(a, hiddenIds.contains(a.id())))
             .toList();
 
     return new AdminNewsListResponse(internalItems, externalItems);
   }
 
   /** 2) Upsert d'une news interne (création / update). */
-  public AdminNewsItemDto upsert(AdminUpsertNewsRequest request) {
+  public AdminNewsItem upsert(AdminUpsertNewsRequest request) {
     var now = Instant.now();
 
     LotteryNewsModels.LotteryNewsArticle article;
@@ -93,7 +93,7 @@ public class AdminNewsService {
     // On considère qu'un upsert interne réinitialise le flag hidden -> pas hidden
     hiddenNewsService.show(saved.id());
 
-    return toAdminDto(saved, false);
+    return toAdminItem(saved, false);
   }
 
   private LotteryNewsModels.LotteryNewsArticle buildInternalArticleForCreate(
@@ -114,12 +114,12 @@ public class AdminNewsService {
   }
 
   /** 3) Changer le statut d'une news interne. */
-  public AdminNewsItemDto changeStatus(UUID id, NewsStatus newStatus) {
+  public AdminNewsItem changeStatus(UUID id, NewsStatus newStatus) {
     var updated = internalNewsService.changeStatus(id, newStatus);
     // si on la repasse en PUBLISHED, on laisse le hidden tel quel (admin peut gérer hide/show)
     var hiddenIds = hiddenNewsService.getHiddenIds();
     boolean hidden = hiddenIds.contains(updated.id());
-    return toAdminDto(updated, hidden);
+    return toAdminItem(updated, hidden);
   }
 
   /** 4) Cacher un article (interne ou externe) via son id. */
@@ -144,7 +144,7 @@ public class AdminNewsService {
 
     // 2) invalider le cache agrégé public (V1: on met un snapshot vide; la prochaine
     //    requête publique va reconstituer à partir d'external + internal)
-    newsCachePort.putLatestNews(
+    newsCache.putLatestNews(
         cacheKeyBuilder.newsExternalKey(), LotteryNewsModels.LotteryNewsFeedSnapshot.empty());
 
     log.info("Admin forced news refresh (external feed + public snapshot)");
@@ -152,8 +152,8 @@ public class AdminNewsService {
 
   // --- mapping ---
 
-  private AdminNewsItemDto toAdminDto(LotteryNewsModels.LotteryNewsArticle a, boolean hidden) {
-    return new AdminNewsItemDto(
+  private AdminNewsItem toAdminItem(LotteryNewsModels.LotteryNewsArticle a, boolean hidden) {
+    return new AdminNewsItem(
         a.id(), a.sourceId(), a.title(), a.description(), a.status(), hidden, a.publishedAt());
   }
 }

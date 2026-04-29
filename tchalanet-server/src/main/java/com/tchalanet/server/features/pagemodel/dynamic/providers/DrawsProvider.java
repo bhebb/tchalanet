@@ -1,11 +1,10 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers;
 
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
-import com.tchalanet.server.features.publicdraw.application.query.model.GetLatestPublicDrawResultsQuery;
-import com.tchalanet.server.features.publicdraw.infra.web.model.PublicLatestDrawResultsResponse;
+import com.tchalanet.server.features.publicdraw.app.PublicLatestDrawResultsService;
+import com.tchalanet.server.features.publicdraw.model.PublicLatestDrawResultsResponse;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Provider des derniers résultats de tirages pour affichage public ou dashboard.
- * Utilise la query BFF officielle {@link GetLatestPublicDrawResultsQuery}.
  *
  * Prop 'limit_per_slot' (int, def 1) : nombre de résultats à retourner pour chaque canal (NY, FL, etc).
  */
@@ -23,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DrawsProvider implements PageModelDynamicProvider {
 
-  private final QueryBus queryBus;
+  private final PublicLatestDrawResultsService latestDrawResultsService;
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
@@ -42,7 +40,7 @@ public class DrawsProvider implements PageModelDynamicProvider {
 
     try {
       List<PublicLatestDrawResultsResponse> results =
-          queryBus.send(new GetLatestPublicDrawResultsQuery(limitPerSlot));
+          latestDrawResultsService.latest(limitPerSlot);
 
       return Map.of("draws", results);
     } catch (Exception e) {

@@ -3,7 +3,6 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
-import com.tchalanet.server.core.session.application.query.handler.ListCashierOpenSessionsHandler.CashierSessionDto;
 import com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import java.math.BigDecimal;
@@ -42,7 +41,7 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
     }
 
     try {
-      List<CashierSessionDto> sessions =
+      var sessions =
           queryBus.send(new ListCashierOpenSessionsQuery(ctx.tenantId(), ctx.userId()));
 
       if (sessions == null || sessions.isEmpty()) {
@@ -53,7 +52,7 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
       }
 
       // Première session ouverte
-      CashierSessionDto session = sessions.get(0);
+      var session = sessions.get(0);
       return Map.of(
           "ticketsToday", session.ticketsSold(),
           "totalAmount", session.totalSales() != null ? session.totalSales() : BigDecimal.ZERO,

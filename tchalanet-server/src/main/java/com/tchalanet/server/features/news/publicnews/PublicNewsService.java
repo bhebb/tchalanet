@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.news.publicnews;
 
 import com.tchalanet.server.features.news.shared.LotteryNewsModels;
-import com.tchalanet.server.features.news.shared.service.NewsAggregationService;
+import com.tchalanet.server.features.news.shared.NewsAggregationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

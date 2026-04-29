@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class GetTenantKpisController {
 
   private final TchContextResolver contextResolver;
-  private final GetTenantKpisUseCase useCase;
-  private final Clock clockPort;
+  private final GetTenantKpisService service;
+  private final Clock clock;
 
   @Operation(summary = "Get tenant KPIs report (platform)")
   @GetMapping
@@ -30,14 +30,14 @@ public class GetTenantKpisController {
       @RequestParam(name = "to", required = false) LocalDate to,
       @RequestParam(name = "range", required = false) KpisRange range) {
 
-    var query = buildGetTenantKpisQuery(range, from, to);
+    var criteria = buildTenantKpisCriteria(range, from, to);
 
-    return useCase.getKpis(query);
+    return service.getKpis(criteria);
   }
 
-  private GetTenantKpisQuery buildGetTenantKpisQuery(
+  private TenantKpisCriteria buildTenantKpisCriteria(
       KpisRange range, LocalDate from, LocalDate to) {
-    var today = LocalDate.now(clockPort);
+    var today = LocalDate.now(clock);
 
     LocalDate fromDate;
     LocalDate toDate;
@@ -70,6 +70,6 @@ public class GetTenantKpisController {
 
     var holder = contextResolver.currentOrNull();
     var tenantUuid = holder != null ? holder.tenantUuid() : null;
-    return new GetTenantKpisQuery(tenantUuid, fromDate, toDate);
+    return new TenantKpisCriteria(tenantUuid, fromDate, toDate);
   }
 }

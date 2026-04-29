@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.stats.aggregates.persistence;
 
-import com.tchalanet.server.features.stats.cashier_dashboard.application.CashierAggregateRow;
+import com.tchalanet.server.features.stats.cashierdashboard.model.CashierAggregateRow;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public interface StatsDailyJpaRepository
   // Pour top caissiers d'un tenant :
   @Query(
       """
-        select new com.tchalanet.server.features.stats.cashier_dashboard.application.CashierAggregateRow(
+        select new com.tchalanet.server.features.stats.cashierdashboard.app.CashierAggregateRow(
             s.dimensionId,
             sum(s.ticketsCount),
             sum(s.stakeSumCents),

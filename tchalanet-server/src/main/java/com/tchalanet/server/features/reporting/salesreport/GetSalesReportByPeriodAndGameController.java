@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Platform • Reports")
 public class GetSalesReportByPeriodAndGameController {
 
-  private final GetSalesReportByPeriodAndGameHandler handler;
+  private final SalesReportService service;
   private final TchContextResolver contextResolver;
   private final Clock cLock;
 
@@ -34,8 +34,8 @@ public class GetSalesReportByPeriodAndGameController {
     var holder = contextResolver.currentOrNull();
     var tenantUuid = holder != null ? holder.tenantUuid() : null;
 
-    var query = new GetSalesReportByPeriodAndGameQuery(tenantUuid, fromDate, toDate, gameCode);
+    var criteria = new SalesReportCriteria(tenantUuid, fromDate, toDate, gameCode);
 
-    return handler.handle(query);
+    return service.getReport(criteria);
   }
 }
