@@ -44,6 +44,30 @@ public class CommonIdMapper {
         return UserId.nullableOf(id);
     }
 
+    public UUID mapFromNotificationId(NotificationId id) {
+        return id == null ? null : id.value();
+    }
+
+    public NotificationId mapToNotificationId(UUID id) {
+        return NotificationId.nullableOf(id);
+    }
+
+    public UUID mapFromNotificationDeliveryId(NotificationDeliveryId id) {
+        return id == null ? null : id.value();
+    }
+
+    public NotificationDeliveryId mapToNotificationDeliveryId(UUID id) {
+        return NotificationDeliveryId.nullableOf(id);
+    }
+
+    public UUID mapFromNotificationPreferenceId(NotificationPreferenceId id) {
+        return id == null ? null : id.value();
+    }
+
+    public NotificationPreferenceId mapToNotificationPreferenceId(UUID id) {
+        return NotificationPreferenceId.nullableOf(id);
+    }
+
     // DrawId
     public UUID mapFromDrawId(DrawId id) {
         return id == null ? null : id.value();

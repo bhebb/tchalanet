@@ -351,9 +351,47 @@ CREATE POLICY ledger_entry_rls_select ON ledger_entry
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
-ALTER TABLE user_notification ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_notification FORCE ROW LEVEL SECURITY;
-CREATE POLICY user_notification_rls_all ON user_notification
+ALTER TABLE notification ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_rls_all ON notification
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
+
+ALTER TABLE notification_delivery ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_delivery FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_delivery_rls_all ON notification_delivery
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
+
+ALTER TABLE notification_preference ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_preference FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_preference_rls_all ON notification_preference
   FOR ALL
   USING (
     public.current_tenant() IS NOT NULL
@@ -363,9 +401,6 @@ CREATE POLICY user_notification_rls_all ON user_notification
       OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
-CREATE POLICY user_notification_rls_select ON user_notification
-  FOR SELECT
-  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
 ALTER TABLE idempotency_record ENABLE ROW LEVEL SECURITY;
 ALTER TABLE idempotency_record FORCE ROW LEVEL SECURITY;
@@ -402,4 +437,3 @@ CREATE POLICY stats_draw_rls_all ON stats_draw
 CREATE POLICY stats_draw_rls_select ON stats_draw
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
-

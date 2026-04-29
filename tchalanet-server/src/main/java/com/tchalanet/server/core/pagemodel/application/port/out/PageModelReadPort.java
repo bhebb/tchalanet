@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.pagemodel.application.port.out;
 
 import com.tchalanet.server.common.types.id.PageModelId;
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
 import java.util.List;
@@ -18,6 +19,9 @@ public interface PageModelReadPort {
 
   /** RLS-scoped: list all PUBLISHED versions for logicalId in current tenant context */
   List<PageModelInstance> findAllPublishedByLogicalId(String logicalId);
+
+  /** RLS-scoped: list PageModels affected by a template. */
+  List<PageModelInstance> findAllByTemplateId(PageModelTemplateId templateId);
 
   // [Phase 3C] list(UUID...) supprimé — UUID interdit dans les ports (typed_ids §2)
   // [Phase 3B] paged search pour ListPageModelsHandler (analysis §gap — ListPageModelsHandler absent)

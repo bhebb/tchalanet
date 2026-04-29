@@ -36,7 +36,9 @@ CREATE TRIGGER trg_limit_assignment__set_updated_at BEFORE UPDATE ON limit_assig
 CREATE TRIGGER trg_draw_exposure__set_updated_at BEFORE UPDATE ON draw_exposure FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_ledger_entry__set_updated_at BEFORE UPDATE ON ledger_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_tchala_entry__set_updated_at BEFORE UPDATE ON tchala_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_user_notification__set_updated_at BEFORE UPDATE ON user_notification FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_notification__set_updated_at BEFORE UPDATE ON notification FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_notification_delivery__set_updated_at BEFORE UPDATE ON notification_delivery FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_notification_preference__set_updated_at BEFORE UPDATE ON notification_preference FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_idempotency_record__set_updated_at BEFORE UPDATE ON idempotency_record FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 CREATE OR REPLACE FUNCTION public.increment_draw_exposure(
@@ -69,4 +71,3 @@ BEGIN
     updated_at = now();
 END;
 $$ LANGUAGE plpgsql;
-

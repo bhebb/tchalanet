@@ -3,6 +3,8 @@ package com.tchalanet.server.features.pagemodel.dashboard.app;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.notification.application.query.model.GetNotificationSummaryQuery;
+import com.tchalanet.server.core.notification.application.query.model.NotificationSummaryView;
 import com.tchalanet.server.core.pagemodel.application.query.model.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
@@ -49,11 +51,17 @@ public class DashboardPageModelService {
                 "fr"));
 
     var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
+    NotificationSummaryView notifications =
+        ctxHolder == null
+            ? null
+            : queryBus.send(
+                new GetNotificationSummaryQuery(
+                    ctxHolder.userId(),
+                    ctxHolder.currentRole() == null ? null : ctxHolder.currentRole().name()));
     List<String> langs =
         doc != null && doc.meta() != null && doc.meta().langs() != null
             ? doc.meta().langs()
             : List.of();
-    return new DashboardPageModelResponse(currentLang, langs, doc, dynamic);
+    return new DashboardPageModelResponse(currentLang, langs, doc, dynamic, notifications);
   }
 }
-

@@ -43,6 +43,12 @@ public class PageModelPersistenceAdapter implements PageModelReaderPort, PageMod
         .stream().map(PageModelMapper::toDomain).toList();
   }
 
+  @Override
+  public List<PageModelInstance> findAllByTemplateId(PageModelTemplateId templateId) {
+    return repo.findAllByTemplateIdAndDeletedAtIsNull(templateId.value()).stream()
+        .map(PageModelMapper::toDomain)
+        .toList();
+  }
 
   @Override
   public Page<PageModelInstance> search(

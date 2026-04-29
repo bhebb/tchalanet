@@ -8,24 +8,24 @@ TBD - created by archiving change flyway-jpa-alignment-2026-04-27. Update Purpos
 
 ### Requirement: Tables manquantes créées en Flyway avant ddl-auto=validate
 
-Les tables `theme_preset` et `user_notification` SHALL être créées by Flyway avant le
+La table `theme_preset` SHALL être créée by Flyway avant le
 démarrage de l'application. `ddl-auto=validate` SHALL réussir sans `SchemaValidationException`
-sur ces deux tables.
+sur cette table.
 
 #### Scenario: Recréation from scratch — theme_preset présente
 
 - **WHEN** `flyway:migrate` est appliqué sur une DB vide
 - **THEN** la table `theme_preset` existe avec colonnes `id`, `code`, `vendor`, `config`, `label_key`, `active`, `is_default` et colonnes d'audit BaseEntity
 
-#### Scenario: Recréation from scratch — user_notification présente
+#### Scenario: Recréation from scratch — notification présente
 
 - **WHEN** `flyway:migrate` est appliqué sur une DB vide
-- **THEN** la table `user_notification` existe avec colonnes `id`, `tenant_id`, `user_id`, `type`, `category`, `display_type`, `channel`, `title`, `body`, `payload_json`, `is_read`, `read_at` et colonnes d'audit BaseTenantEntity
+- **THEN** la table `notification` existe avec colonnes `id`, `tenant_id`, `audience_type`, `audience_value`, `severity`, `kind`, `category`, `status`, `payload`, `read_at`, `archived_at` et colonnes d'audit
 
 #### Scenario: ddl-auto=validate ne lève pas d'exception sur ces tables
 
 - **WHEN** Spring Boot démarre avec `spring.jpa.hibernate.ddl-auto=validate`
-- **THEN** aucune `SchemaValidationException` n'est levée pour `theme_preset` ni `user_notification`
+- **THEN** aucune `SchemaValidationException` n'est levée pour `theme_preset` ni `notification`
 
 ---
 
