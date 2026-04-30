@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.draw.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.command.audit.AuditedForceCommand;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +16,6 @@ import java.time.LocalDate;
  * @param force    si {@code true}, re-génère même si les tirages existent déjà
  * @param reason   obligatoire si force=true
  */
-@AuditedForceCommand
 public record GenerateDrawsForRangeCommand(
     @NotNull TenantId tenantId,
     @NotNull LocalDate from,

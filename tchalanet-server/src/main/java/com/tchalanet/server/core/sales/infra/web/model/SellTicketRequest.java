@@ -16,10 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record SellTicketRequest(
-    @NotNull UUID tenantId,
     @NotNull UUID terminalId,
-    UUID sessionId,
-    @NotNull UUID cashierId,
     @NotNull UUID drawId,
     @NotBlank String currency,
     @NotNull @Size(min = 1) @Valid List<LineRequest> lines

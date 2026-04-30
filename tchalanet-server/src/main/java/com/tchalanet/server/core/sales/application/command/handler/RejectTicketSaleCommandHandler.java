@@ -8,7 +8,7 @@ import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.core.sales.application.command.model.RejectTicketSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.TicketRejectedResult;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +22,7 @@ public class RejectTicketSaleCommandHandler
     implements CommandHandler<RejectTicketSaleCommand, TicketRejectedResult> {
 
     private final TicketReaderPort ticketReader;
-    private final TicketWritterPort ticketWriter;
+    private final TicketWriterPort ticketWriter;
     private final Clock clock;
 
     @Override

@@ -2,103 +2,103 @@
 
 ## 1. Cross-domain SQL leak — `DrawResultProjectionCatalog`
 
-- [ ] 1.1 Créer `core.drawresult.api.DrawResultProjection` (record `id, slotKey, occurredAt, lot1, lot2, lot3, pick3, twoDigits[]`)
-- [ ] 1.2 Créer `core.drawresult.api.DrawResultProjectionCatalog` (interface, `findById(DrawResultId)`)
-- [ ] 1.3 Implémenter `core.drawresult.internal.read.DrawResultProjectionCatalogImpl` (réutilise `DrawResultJdbcReaderAdapter` ou `ResultSlotCatalog` pour assembler — JOIN reste interne au domaine étendu drawresult+catalog.resultslot)
-- [ ] 1.4 Modifier `core.sales.application.port.out.DrawResultViewPort` :
+- [x] 1.1 Créer `core.drawresult.api.DrawResultProjection` (record `id, slotKey, occurredAt, lot1, lot2, lot3, pick3, twoDigits[]`)
+- [x] 1.2 Créer `core.drawresult.api.DrawResultProjectionCatalog` (interface, `findById(DrawResultId)`)
+- [x] 1.3 Implémenter `core.drawresult.internal.read.DrawResultProjectionCatalogImpl` (réutilise `DrawResultJdbcReaderAdapter` ou `ResultSlotCatalog` pour assembler — JOIN reste interne au domaine étendu drawresult+catalog.resultslot)
+- [x] 1.4 Modifier `core.sales.application.port.out.DrawResultViewPort` :
   - Soit supprimer si `DrawResultProjectionCatalog` peut être consommé directement
   - Soit garder comme wrapper qui délègue à `DrawResultProjectionCatalog`
-- [ ] 1.5 Supprimer `core.sales.infra.persistence.adapter.DrawResultViewPortJdbcAdapter`
-- [ ] 1.6 Adapter `RecordDrawTicketsResultCommandHandler` (le seul consommateur) pour le nouveau type
+- [x] 1.5 Supprimer `core.sales.infra.persistence.adapter.DrawResultViewPortJdbcAdapter`
+- [x] 1.6 Adapter `RecordDrawTicketsResultCommandHandler` (le seul consommateur) pour le nouveau type
 - [ ] 1.7 Tests unitaires `DrawResultProjectionCatalogImplTest`
 
 ## 2. Persistence layer pollution — `TicketPrintViewAssembler`
 
-- [ ] 2.1 Créer `core.sales.application.service.TicketPrintViewAssembler` qui prend `(Ticket, Locale)` et orchestre les lookups `DrawLookupPort`, `OutletReaderPort`, `PosSessionReaderPort`
-- [ ] 2.2 Migrer `getTicketPrintView` depuis `JpaTicketRepositoryAdapter` vers `TicketPrintViewAssembler`
-- [ ] 2.3 Supprimer les dépendances `DrawLookupPort`, `OutletReaderPort`, `PosSessionReaderPort` du `JpaTicketRepositoryAdapter`
-- [ ] 2.4 `TicketReaderPort.getTicketPrintView` migre dans un nouveau port `TicketPrintViewPort` ou directement appelé depuis le query handler
+- [x] 2.1 Créer `core.sales.application.service.TicketPrintViewAssembler` qui prend `(Ticket, Locale)` et orchestre les lookups `DrawLookupPort`, `OutletReaderPort`, `PosSessionReaderPort`
+- [x] 2.2 Migrer `getTicketPrintView` depuis `JpaTicketRepositoryAdapter` vers `TicketPrintViewAssembler`
+- [x] 2.3 Supprimer les dépendances `DrawLookupPort`, `OutletReaderPort`, `PosSessionReaderPort` du `JpaTicketRepositoryAdapter`
+- [x] 2.4 `TicketReaderPort.getTicketPrintView` migre dans un nouveau port `TicketPrintViewPort` ou directement appelé depuis le query handler
 - [ ] 2.5 Tests unitaires `TicketPrintViewAssemblerTest`
 
 ## 3. `SalesLedgerListener` refactor
 
-- [ ] 3.1 Créer `core.ledger.application.command.model.RecordTicketSaleLedgerCommand(tenantId, ticketId, stakeCents, occurredAt)` (`Command<Void>`)
-- [ ] 3.2 Créer `core.ledger.application.command.handler.RecordTicketSaleLedgerCommandHandler` (déplace la logique de `recordTicketSale`)
-- [ ] 3.3 Supprimer `core.ledger.application.port.in.RecordLedgerFromSalesPort`
-- [ ] 3.4 Refondre `SalesLedgerListener` : `@TransactionalEventListener(AFTER_COMMIT)` + `commandBus.send(new RecordTicketSaleLedgerCommand(...))` ; pas de catch
+- [x] 3.1 Créer `core.ledger.application.command.model.RecordTicketSaleLedgerCommand(tenantId, ticketId, stakeCents, occurredAt)` (`Command<Void>`)
+- [x] 3.2 Créer `core.ledger.application.command.handler.RecordTicketSaleLedgerCommandHandler` (déplace la logique de `recordTicketSale`)
+- [x] 3.3 Supprimer `core.ledger.application.port.in.RecordLedgerFromSalesPort`
+- [x] 3.4 Refondre `SalesLedgerListener` : `@TransactionalEventListener(AFTER_COMMIT)` + `commandBus.send(new RecordTicketSaleLedgerCommand(...))` ; pas de catch
 - [ ] 3.5 Tests `SalesLedgerListenerTest` (mock `CommandBus`) + `RecordTicketSaleLedgerCommandHandlerTest`
 
 ## 4. Cancel command unification
 
-- [ ] 4.1 Supprimer `core.sales.application.command.model.CancelTicketCommand`
-- [ ] 4.2 `TicketWebMapper.toCancelTicketCommand` → `TicketWebMapper.toCancelSaleCommand` qui retourne directement `CancelSaleCommand`
-- [ ] 4.3 Adapter `TicketController.cancel` si signature change
+- [x] 4.1 Supprimer `core.sales.application.command.model.CancelTicketCommand`
+- [x] 4.2 `TicketWebMapper.toCancelTicketCommand` → `TicketWebMapper.toCancelSaleCommand` qui retourne directement `CancelSaleCommand`
+- [x] 4.3 Adapter `TicketController.cancel` si signature change
 - [ ] 4.4 Renommer `CancelTicketRequest` → `CancelSaleRequest` (ou conserver — décision en review)
-- [ ] 4.5 Vérifier qu'aucun autre consommateur n'utilise `CancelTicketCommand`
+- [x] 4.5 Vérifier qu'aucun autre consommateur n'utilise `CancelTicketCommand`
 
 ## 5. Approve/Reject orphans cleanup
 
-- [ ] 5.1 Supprimer `ApprovePendingTicketSaleCommand`
-- [ ] 5.2 Supprimer `RejectPendingTicketSaleCommand`
-- [ ] 5.3 Vérifier 0 consommateur
+- [x] 5.1 Supprimer `ApprovePendingTicketSaleCommand`
+- [x] 5.2 Supprimer `RejectPendingTicketSaleCommand`
+- [x] 5.3 Vérifier 0 consommateur
 
 ## 6. Dead code — `ExpireTicketsCommand`
 
-- [ ] 6.1 Supprimer `core.sales.application.command.model.ExpireTicketsCommand`
-- [ ] 6.2 Vérifier 0 consommateur
+- [x] 6.1 Supprimer `core.sales.application.command.model.ExpireTicketsCommand`
+- [x] 6.2 Vérifier 0 consommateur
 
 ## 7. `Ticket` API cleanup
 
-- [ ] 7.1 Garder uniquement `Ticket.settle(Instant when)` ; supprimer `markAsPaid`, `markPayoutPaid`, `markPayoutPending`
-- [ ] 7.2 Adapter `core.payout.MarkTicketPayoutPaidCommandHandler` → appel `ticket.settle(now)`
-- [ ] 7.3 Vérifier 0 autre consommateur des méthodes supprimées
-- [ ] 7.4 Supprimer `Ticket.updateSettlementStatus(...)` ; vérifier 0 consommateur (`grep` cross-projet)
+- [x] 7.1 Garder uniquement `Ticket.settle(Instant when)` ; supprimer `markAsPaid`, `markPayoutPaid`, `markPayoutPending`
+- [x] 7.2 Adapter `core.payout.MarkTicketPayoutPaidCommandHandler` → appel `ticket.settle(now)`
+- [x] 7.3 Vérifier 0 autre consommateur des méthodes supprimées
+- [x] 7.4 Supprimer `Ticket.updateSettlementStatus(...)` ; vérifier 0 consommateur (`grep` cross-projet)
 - [ ] 7.5 Supprimer la méthode `Ticket.totalPayout()` ou la renommer `Ticket.winningAmountOrZero()` (clarification du nom)
 - [ ] 7.6 Supprimer les accesseurs `id() / tenantId() / terminalId() / drawId()` redondants avec les getters Lombok (audit consommateurs avant)
 
 ## 8. `SellTicketRequest` body cleanup
 
-- [ ] 8.1 Supprimer `tenantId`, `sessionId`, `cashierId` de `SellTicketRequest`
-- [ ] 8.2 Adapter `TicketWebMapper.toSellCommand` (continue de tirer du contexte)
+- [x] 8.1 Supprimer `tenantId`, `sessionId`, `cashierId` de `SellTicketRequest`
+- [x] 8.2 Adapter `TicketWebMapper.toSellCommand` (continue de tirer du contexte)
 - [ ] 8.3 Adapter les tests existants
 - [ ] 8.4 CHANGELOG : `BREAKING (tenant API)`
 
 ## 9. Typed IDs `performedBy`
 
-- [ ] 9.1 `CancelSaleCommand.performedBy: UserId` (vérifier — peut déjà être typé)
-- [ ] 9.2 `OverrideTicketResultCommand.performedBy: UUID` → `UserId`
-- [ ] 9.3 `TicketCancelledEvent.performedBy: UUID` → `UserId`
-- [ ] 9.4 `TicketResultOverriddenEvent.performedBy: UUID` → `UserId`
-- [ ] 9.5 Adapter les request web (`OverrideTicketResultRequest`, `CancelTicketRequest`)
+- [x] 9.1 `CancelSaleCommand.performedBy: UserId` (vérifier — peut déjà être typé)
+- [x] 9.2 `OverrideTicketResultCommand.performedBy: UUID` → `UserId`
+- [x] 9.3 `TicketCancelledEvent.performedBy: UUID` → `UserId`
+- [x] 9.4 `TicketResultOverriddenEvent.performedBy: UUID` → `UserId`
+- [x] 9.5 Adapter les request web (`OverrideTicketResultRequest`, `CancelTicketRequest`)
 - [ ] 9.6 Vérifier que la sérialisation JSON reste compatible (ou breaking si schéma diffère)
 
 ## 10. Renommage `TicketWritterPort` → `TicketWriterPort`
 
-- [ ] 10.1 Renommer le fichier + interface
-- [ ] 10.2 Refactor IDE pour adapter tous les consommateurs
-- [ ] 10.3 Vérifier compilation
+- [x] 10.1 Renommer le fichier + interface
+- [x] 10.2 Refactor IDE pour adapter tous les consommateurs
+- [x] 10.3 Vérifier compilation
 
 ## 11. Suppression `TicketEventPublisherPort`
 
-- [ ] 11.1 Vérifier 0 consommateur (publication via `DomainEventPublisher` partout)
-- [ ] 11.2 Supprimer le port
+- [x] 11.1 Vérifier 0 consommateur (publication via `DomainEventPublisher` partout)
+- [x] 11.2 Supprimer le port
 
 ## 12. Timezone leak
 
-- [ ] 12.1 `TicketSalePolicy.evaluateLimitsAndAutonomy` — récupérer `draw.drawChannel().timezone()` et passer dans `LimitContext`
-- [ ] 12.2 `CancelSaleCommandHandler.evaluateCancelLimits` — idem (charger le draw via `DrawLookupPort` si pas déjà disponible)
-- [ ] 12.3 Aucun `ZoneId.systemDefault()` ne doit subsister dans `core.sales` (ArchUnit possible)
+- [x] 12.1 `TicketSalePolicy.evaluateLimitsAndAutonomy` — récupérer `draw.drawChannel().timezone()` et passer dans `LimitContext`
+- [x] 12.2 `CancelSaleCommandHandler.evaluateCancelLimits` — idem (charger le draw via `DrawLookupPort` si pas déjà disponible)
+- [x] 12.3 Aucun `ZoneId.systemDefault()` ne doit subsister dans `core.sales` (ArchUnit possible)
 
 ## 13. `LOTTO5_PATTERN` option 3
 
 - [ ] 13.1 Mesurer en prod si des tickets utilisent option 3 (avant déploiement)
-- [ ] 13.2 `TicketWinningCalculator.lotto5` case 3 → `throw new UnsupportedOperationException("LOTTO5_PATTERN option 3 not yet implemented")`
+- [x] 13.2 `TicketWinningCalculator.lotto5` case 3 → `throw new UnsupportedOperationException("LOTTO5_PATTERN option 3 not yet implemented")`
 - [ ] 13.3 Tests `TicketWinningCalculatorTest` mis à jour
 - [ ] 13.4 Le batch settlement (avec idempotence du change `harden-ticket-settlement-integrity`) skip le ticket et log ERROR — vérifier le comportement
 
 ## 14. JPA ↔ migration sync `publicCode`
 
-- [ ] 14.1 `TicketEntity.publicCode` annoter `nullable = false` :
+- [x] 14.1 `TicketEntity.publicCode` annoter `nullable = false` :
   ```java
   @Column(name = "public_code", length = 32, nullable = false)
   private String publicCode;
@@ -108,9 +108,9 @@
 
 ## 15. Locale dynamique sur print
 
-- [ ] 15.1 `TicketPrintViewAssembler` (ou son successeur) reçoit `Locale` en paramètre
-- [ ] 15.2 Le query handler de print extrait `Locale` depuis le contexte web (`Accept-Language` header)
-- [ ] 15.3 Default `Locale.FRENCH` si non fourni
+- [x] 15.1 `TicketPrintViewAssembler` (ou son successeur) reçoit `Locale` en paramètre
+- [x] 15.2 Le query handler de print extrait `Locale` depuis le contexte web (`Accept-Language` header)
+- [x] 15.3 Default `Locale.FRENCH` si non fourni
 - [ ] 15.4 Tests unitaires (FR + EN minimum)
 
 ## 16. Scheduler archive

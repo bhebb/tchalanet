@@ -5,9 +5,9 @@ import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
@@ -25,7 +25,7 @@ import com.tchalanet.server.core.payout.domain.model.Payout;
 import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import java.time.Clock;
 import java.time.Instant;
@@ -45,7 +45,7 @@ public class RegisterPayoutCommandHandler
   private final PayoutReaderPort payoutReaderPort;
   private final PayoutWriterPort payoutWriterPort;
   private final TicketReaderPort ticketReaderPort;
-  private final TicketWritterPort ticketWritterPort;
+  private final TicketWriterPort ticketWritterPort;
   private final PayoutApprovalPolicyPort approvalPolicy;
   private final DomainEventPublisher domainEventPublisher;
   private final Clock clock;
@@ -104,7 +104,7 @@ public class RegisterPayoutCommandHandler
         saved = payoutWriterPort.save(saved);
 
         // mark ticket paid and persist
-        ticket.updateSettlementStatus(TicketSettlementStatus.SETTLED); // placeholder
+        ticket.settle(now);
         ticketWritterPort.save(ticket);
       } else {
         // approve or leave requested based on workflow; for now mark as APPROVED
@@ -123,7 +123,7 @@ public class RegisterPayoutCommandHandler
               ticket.getSessionId(),
               java.math.BigDecimal.valueOf(saved.getAmountCents(), 2));
 
-      domainEventPublisher.publish(event);
+      AfterCommit.run(() -> domainEventPublisher.publish(event));
 
       log.info(
           "Payout {} registered with status={} for ticket {}",

@@ -116,14 +116,30 @@ TransactionSynchronizationManager.registerSynchronization(new TransactionSynchro
 
 ```sql
 CREATE TABLE revinfo (
-  rev           INT PRIMARY KEY,
-  rev_timestamp BIGINT NOT NULL,
-  tenant_id     UUID,
-  user_id       UUID
+  rev               INT PRIMARY KEY,
+  rev_timestamp     BIGINT NOT NULL,
+  tenant_id         UUID,
+  user_id           UUID,
+  request_id        VARCHAR(128),
+  actor_type        VARCHAR(32),
+  api_scope         VARCHAR(32),
+  tenant_overridden BOOLEAN NOT NULL DEFAULT false
 );
 ```
 
-> `TchRevisionListener` enrichit `revinfo` avec le contexte (tenantId, userId) via `RequestContextHolder`.
+> `TchRevisionListener` enrichit `revinfo` avec le contexte canonique via
+> `TchContextResolver`. Il ne dépend pas de `RequestContextHolder` et ne doit jamais
+> empêcher la révision Envers d'être créée si le contexte est absent.
+
+### 5.3 Stratégie des entités historisées
+
+- `@Audited` ne vit pas sur `AuditableEntity`, `BaseEntity` ou `BaseTenantEntity`.
+- Chaque entité historisée doit porter `@Audited` explicitement.
+- Toute nouvelle entité `@Audited` doit ajouter la table `_aud` correspondante via Flyway.
+- `FlywayAuditAlignmentArchTest` vérifie qu'une entité JPA `@Audited` possède une table `_aud`.
+- Les entités historisées prioritaires sont les agrégats et référentiels sensibles :
+  IAM, tenant/user, settings, draw/drawresult, sales tickets, payout, pricing,
+  limits, page models, notifications.
 
 ---
 
@@ -133,21 +149,27 @@ Stocke des événements lisibles métier.
 
 ```sql
 CREATE TABLE audit_event (
-  id          BIGSERIAL PRIMARY KEY,
-  ts          TIMESTAMPTZ NOT NULL DEFAULT now(),
-  tenant_id   UUID NOT NULL,
+  id          UUID PRIMARY KEY,
+  occurred_at TIMESTAMPTZ NOT NULL,
+  tenant_id   UUID,
   actor_type  TEXT NOT NULL,
-  actor_id    TEXT NOT NULL,
+  actor_id    TEXT,
   entity_type TEXT NOT NULL,
   entity_id   TEXT NOT NULL,
   action      TEXT NOT NULL,
-  details     JSONB NOT NULL,
+  details     JSONB,
   ip          INET,
   user_agent  TEXT
 );
 ```
 
-Indexes recommandés : `tenant_id`, `ts`, `entity_type`.
+`tenant_id` est nullable pour les audits platform/global et système. Les indexes
+canoniques sont :
+
+- `(tenant_id, occurred_at desc)`
+- `(entity_type, entity_id)`
+- `(action, occurred_at desc)`
+- `(actor_id, occurred_at desc)`
 
 ---
 
@@ -162,8 +184,10 @@ Indexes recommandés : `tenant_id`, `ts`, `entity_type`.
 
 ## 8. RLS & multi-tenant
 
-- `audit_event` est tenant-scoped ; appliquer RLS si la table est exposée en lecture.
-- Le mode superadmin peut permettre override contrôlé du tenant (via RequestContext) — documenter et auditer cette capacité.
+- `audit_event` accepte les lignes tenant-scoped et platform/global.
+- Les tenants voient leur propre `tenant_id`.
+- Les super-admin platform peuvent consulter les audits cross-tenant et platform selon RLS.
+- Les écritures platform/global peuvent avoir `tenant_id = null`.
 
 ---
 
@@ -179,7 +203,8 @@ Indexes recommandés : `tenant_id`, `ts`, `entity_type`.
 ## 10. Modes de défaillance
 
 - Transaction rollback → aucun audit écrit.
-- Contexte absent → audit rejeté et log sécurité.
+- Contexte absent → audit applicatif global/système possible si le use-case le permet ;
+  Envers crée une révision avec `actor_type=SYSTEM`.
 - Volume excessif → prévoir throttling / archivage (hors V1).
 
 ---
@@ -190,7 +215,7 @@ Indexes recommandés : `tenant_id`, `ts`, `entity_type`.
 - Aucun audit écrit si rollback ;
 - Filtres tenant corrects dans les queries ;
 - Envers génère des révisions `_aud` après update ;
-- `revinfo` enrichi avec `tenantId` et `userId`.
+- `revinfo` enrichi avec `tenantId`, `userId`, `requestId`, `actorType`, `apiScope`.
 
 ---
 

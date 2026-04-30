@@ -346,55 +346,6 @@ public class Ticket {
     }
 
     /**
-     * Mark the ticket as paid (settled) after a payout has been executed.
-     * This is a domain-level alias for settling the ticket and performs basic validation.
-     */
-    public void markAsPaid(Instant when) {
-        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
-            throw new IllegalStateException("Only resulted tickets can be marked as paid");
-        }
-        if (this.settlementStatus == TicketSettlementStatus.SETTLED) {
-            // idempotent
-            touch(when);
-            return;
-        }
-        this.settlementStatus = TicketSettlementStatus.SETTLED;
-        touch(when);
-    }
-
-    /**
-     * Mark payout for this ticket as pending. This is a lightweight domain hint used by the
-     * payout workflow to indicate that a payout has been requested/queued.
-     *
-     * Note: the current model does not have a dedicated payout-status field; this method is a
-     * semantic helper that ensures the ticket is resulted and touches the record (idempotent).
-     */
-    public void markPayoutPending(Instant when) {
-        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
-            throw new IllegalStateException("Only resulted tickets can be marked payout-pending");
-        }
-        // keep settlementStatus as UNSETTLED (no DB column for explicit payout pending state)
-        this.settlementStatus = TicketSettlementStatus.UNSETTLED;
-        touch(when);
-    }
-
-    /**
-     * Mark payout as paid. Alias for settling the ticket after a payout has been executed.
-     * Idempotent: repeated calls are allowed.
-     */
-    public void markPayoutPaid(Instant when) {
-        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
-            throw new IllegalStateException("Only resulted tickets can be marked payout-paid");
-        }
-        if (this.settlementStatus == TicketSettlementStatus.SETTLED) {
-            touch(when);
-            return;
-        }
-        this.settlementStatus = TicketSettlementStatus.SETTLED;
-        touch(when);
-    }
-
-    /**
      * Return the total payout amount for this ticket (the amount that should be paid).
      * Currently this is the recorded winningAmount (zero when not won).
      */
@@ -424,10 +375,6 @@ public class Ticket {
     private static BigDecimal requireNonNeg(BigDecimal v, String field) {
         if (v.signum() < 0) throw new IllegalArgumentException(field + " must be >= 0");
         return v;
-    }
-
-    public void updateSettlementStatus(TicketSettlementStatus ticketSettlementStatus) {
-        this.settlementStatus = ticketSettlementStatus;
     }
 
     // Record-style accessors (some legacy code expects .id(), .tenantId() etc.)

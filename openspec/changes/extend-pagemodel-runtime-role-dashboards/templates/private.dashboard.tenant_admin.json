@@ -1,0 +1,141 @@
+{
+  "code": "private.dashboard.tenant_admin",
+  "logical_id": "private.dashboard.tenant_admin",
+  "name": "Tenant admin dashboard",
+  "label": "tenant admin dashboard",
+  "schema_version": 1,
+  "schema": {},
+  "is_default": true,
+  "is_system": true,
+  "description": "Tableau de bord d'administration tenant: ventes, tirages, points de vente, utilisateurs, limites et alertes.",
+  "model": {
+    "meta": {
+      "id": "private.dashboard.tenant_admin",
+      "scope": "TENANT",
+      "slug": "dashboard",
+      "context": "private_dashboard_tenant_admin",
+      "schema_version": 1,
+      "langs": ["fr", "en", "ht"],
+      "default_lang": "fr",
+      "required_roles": ["TENANT_ADMIN", "SUPER_ADMIN"],
+      "description": "Dashboard d'administration tenant. Utilisé aussi par SUPER_ADMIN en mode tenant override."
+    },
+    "theme": {
+      "presetId": "tchalanet_default",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "header": {
+        "component": "PrivateHeader",
+        "nav": { "primary": [], "secondary": [] },
+        "props": { "show_profile_menu": true, "show_tenant_override_banner": true }
+      },
+      "sidenav": {
+        "component": "PrivateSidenav",
+        "nav": {
+          "primary": [
+            { "label_key": "nav.dashboard", "path": "/app/admin", "icon": "dashboard" },
+            { "label_key": "nav.sales", "path": "/app/admin/sales", "icon": "point_of_sale" },
+            { "label_key": "nav.tickets", "path": "/app/admin/tickets", "icon": "receipt_long" },
+            { "label_key": "nav.draws", "path": "/app/admin/draws", "icon": "event" },
+            { "label_key": "nav.outlets", "path": "/app/admin/outlets", "icon": "storefront" },
+            { "label_key": "nav.terminals", "path": "/app/admin/terminals", "icon": "devices" },
+            { "label_key": "nav.users", "path": "/app/admin/users", "icon": "group" },
+            { "label_key": "nav.limits", "path": "/app/admin/limits", "icon": "rule" },
+            { "label_key": "nav.audit", "path": "/app/admin/audit", "icon": "history" }
+          ],
+          "secondary": []
+        },
+        "props": { "collapsible": true }
+      },
+      "footer": {
+        "component": "PrivateFooter",
+        "nav": {
+          "primary": [],
+          "secondary": [
+            { "label_key": "footer.support", "path": "/support", "icon": "support_agent" }
+          ]
+        },
+        "props": {}
+      }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          {
+            "id": "overview",
+            "label_key": "layout.private_dashboard_tenant_admin.overview",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenant_admin.overview"] }]
+          },
+          {
+            "id": "sales",
+            "label_key": "layout.private_dashboard_tenant_admin.sales",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenant_admin.sales"] }]
+          },
+          {
+            "id": "draws",
+            "label_key": "layout.private_dashboard_tenant_admin.draws",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenant_admin.draws"] }]
+          },
+          {
+            "id": "outlets",
+            "label_key": "layout.private_dashboard_tenant_admin.outlets",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenant_admin.outlets"] }]
+          },
+          {
+            "id": "users_limits",
+            "label_key": "layout.private_dashboard_tenant_admin.users_limits",
+            "columns": [
+              { "span": 6, "widgets": ["dashboard.tenant_admin.users"] },
+              { "span": 6, "widgets": ["dashboard.tenant_admin.limits"] }
+            ]
+          },
+          {
+            "id": "alerts",
+            "label_key": "layout.private_dashboard_tenant_admin.alerts",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenant_admin.alerts"] }]
+          }
+        ]
+      },
+      "widgets": {
+        "dashboard.tenant_admin.overview": {
+          "type": "TenantAdminOverviewWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.overview" },
+          "props": { "title_key": "dashboard.tenant_admin.overview.title" }
+        },
+        "dashboard.tenant_admin.sales": {
+          "type": "TenantAdminSalesWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.sales_summary" },
+          "props": { "title_key": "dashboard.tenant_admin.sales.title" }
+        },
+        "dashboard.tenant_admin.draws": {
+          "type": "TenantAdminDrawsWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.draws_today" },
+          "props": { "title_key": "dashboard.tenant_admin.draws.title" }
+        },
+        "dashboard.tenant_admin.outlets": {
+          "type": "TenantAdminOutletsWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.outlets" },
+          "props": { "title_key": "dashboard.tenant_admin.outlets.title" }
+        },
+        "dashboard.tenant_admin.users": {
+          "type": "TenantAdminUsersWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.users" },
+          "props": { "title_key": "dashboard.tenant_admin.users.title" }
+        },
+        "dashboard.tenant_admin.limits": {
+          "type": "TenantAdminLimitsWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.limits" },
+          "props": { "title_key": "dashboard.tenant_admin.limits.title" }
+        },
+        "dashboard.tenant_admin.alerts": {
+          "type": "TenantAdminAlertsWidget",
+          "binding": { "mode": "dynamic", "source": "tenant_admin.alerts" },
+          "props": { "title_key": "dashboard.tenant_admin.alerts.title" }
+        }
+      }
+    }
+  }
+}

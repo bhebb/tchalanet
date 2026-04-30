@@ -1,0 +1,71 @@
+{
+  "notes": "Patch/reference for normalizing public.home dynamic binding sources. home.check_ticket remains static.",
+  "widgets": {
+    "home.hero": {
+      "type": "HeroWidget",
+      "binding": { "mode": "dynamic", "source": "public.hero" },
+      "props": {
+        "title_key": "home.hero.title",
+        "subtitle_key": "home.hero.subtitle",
+        "primary_cta_key": "cta.try_now",
+        "secondary_cta_key": "cta.request_demo"
+      }
+    },
+    "home.draws": {
+      "type": "DrawsWidget",
+      "binding": { "mode": "dynamic", "source": "public.draws.today" },
+      "props": {
+        "title_key": "home.draws.title",
+        "limit_per_slot": 1
+      }
+    },
+    "home.check_ticket": {
+      "type": "CheckTicketWidget",
+      "binding": { "mode": "static", "source": null },
+      "props": {
+        "title_key": "home.check_ticket.title",
+        "description_key": "home.check_ticket.description",
+        "cta_key": "cta.check_ticket",
+        "route": "/verifier"
+      }
+    },
+    "home.features": {
+      "type": "FeatureGridWidget",
+      "binding": { "mode": "dynamic", "source": "public.features" },
+      "props": {
+        "title_key": "home.features.title",
+        "layout": "LMSS"
+      }
+    },
+    "home.news": {
+      "type": "NewsListWidget",
+      "binding": { "mode": "dynamic", "source": "public.news.latest" },
+      "props": {
+        "title_key": "home.news.title",
+        "max_items": 4
+      }
+    },
+    "home.tchala": {
+      "type": "TchalaWidget",
+      "binding": { "mode": "dynamic", "source": "public.tchala.featured" },
+      "props": {
+        "title_key": "home.tchala.title"
+      }
+    },
+    "home.testimonials": {
+      "type": "TestimonialsWidget",
+      "binding": { "mode": "dynamic", "source": "public.testimonials" },
+      "props": {
+        "title_key": "home.testimonials.title"
+      }
+    },
+    "home.plans": {
+      "type": "PlansWidget",
+      "binding": { "mode": "dynamic", "source": "public.plans" },
+      "props": {
+        "title_key": "home.plans.title",
+        "show_toggle_billing_period": true
+      }
+    }
+  }
+}

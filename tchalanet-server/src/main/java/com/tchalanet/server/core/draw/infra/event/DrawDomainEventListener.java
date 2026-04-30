@@ -23,7 +23,7 @@ public class DrawDomainEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onDrawResultIngested(DrawResultIngestedEvent event) {
-    if (processedEventPort.alreadyProcessed(KEY_CACHE_INVALIDATE, event.eventId().value())) return;
+    if (!processedEventPort.markProcessedIfAbsent(KEY_CACHE_INVALIDATE, event.eventId().value())) return;
 
     log.info(
         "DrawResultIngestedEvent received: tenantId={}, drawId={}, resultSlotId={}, drawDate={}",
@@ -34,13 +34,11 @@ public class DrawDomainEventListener {
 
     cacheEvictor.evictAll();
     log.debug("draw.cache.evicted reason=DrawResultIngested drawId={}", event.drawId());
-
-    processedEventPort.markProcessed(KEY_CACHE_INVALIDATE, event.eventId().value());
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void onDrawSettled(DrawSettledEvent event) {
-    if (processedEventPort.alreadyProcessed(KEY_SETTLED_NOTIFY, event.eventId().value())) return;
+    if (!processedEventPort.markProcessedIfAbsent(KEY_SETTLED_NOTIFY, event.eventId().value())) return;
 
     log.info(
         "DrawSettledEvent received: tenantId={}, drawId={}, gameCode={}, drawChannelCode={}",
@@ -51,7 +49,5 @@ public class DrawDomainEventListener {
 
     cacheEvictor.evictAll();
     log.debug("draw.cache.evicted reason=DrawSettled drawId={}", event.drawId());
-
-    processedEventPort.markProcessed(KEY_SETTLED_NOTIFY, event.eventId().value());
   }
 }

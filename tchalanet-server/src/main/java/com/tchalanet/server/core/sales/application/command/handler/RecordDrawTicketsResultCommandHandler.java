@@ -5,17 +5,15 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.core.drawresult.api.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.api.DrawResultProjectionCatalog;
 import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultResult;
-import com.tchalanet.server.core.sales.application.port.out.DrawResultViewPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
-import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.service.DrawResultMatchView;
 import com.tchalanet.server.core.sales.domain.service.TicketWinningCalculator;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -33,8 +31,8 @@ public class RecordDrawTicketsResultCommandHandler
     private static final int DEFAULT_BATCH_SIZE = 250;
 
     private final TicketSettlementPort ticketSettlementPort;
-    private final DrawResultViewPort drawResultViewPort;
-    private final TicketWritterPort ticketWriter;
+    private final DrawResultProjectionCatalog drawResultProjectionCatalog;
+    private final TicketWriterPort ticketWriter;
     private final TicketWinningCalculator winningCalculator;
 
     private final DomainEventPublisher publisher;
@@ -44,10 +42,10 @@ public class RecordDrawTicketsResultCommandHandler
     @TchTx
     public RecordDrawTicketsResultResult handle(RecordDrawTicketsResultCommand cmd) {
         // 1) Load draw result view once (global)
-        DrawResultViewPort.DrawResultMinimalView resultView = drawResultViewPort.findById(cmd.drawResultId().uuid());
-        if (resultView == null) {
-            throw new IllegalStateException("DrawResult not found: " + cmd.drawResultId());
-        }
+        DrawResultProjection resultView =
+            drawResultProjectionCatalog
+                .findById(cmd.drawResultId())
+                .orElseThrow(() -> new IllegalStateException("DrawResult not found: " + cmd.drawResultId()));
 
         // adapter: port view -> domain DrawResultMatchView
         DrawResultMatchView domainView = toMatchView(resultView);
@@ -130,7 +128,7 @@ public class RecordDrawTicketsResultCommandHandler
     }
 
     // --- adapter: convert port DrawResultMinimalView to DrawResultMatchView used by the calculator ---
-    private static DrawResultMatchView toMatchView(DrawResultViewPort.DrawResultMinimalView v) {
+    private static DrawResultMatchView toMatchView(DrawResultProjection v) {
         if (v == null) return new DrawResultMatchView() {
             @Override public String lot1() { return null; }
             @Override public String lot2() { return null; }

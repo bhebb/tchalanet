@@ -45,6 +45,26 @@ public class BatchFlagCache {
         }
     }
 
+    public void evict(String cacheKey) {
+        var cache = cacheManager.getCache(CACHE_NAME);
+        if (cache == null) return;
+        try {
+            cache.evict(cacheKey);
+        } catch (Exception ex) {
+            log.warn("batch.flagcache.evict.failed cacheKey={} cause={}", cacheKey, ex.toString());
+        }
+    }
+
+    public void clear() {
+        var cache = cacheManager.getCache(CACHE_NAME);
+        if (cache == null) return;
+        try {
+            cache.clear();
+        } catch (Exception ex) {
+            log.warn("batch.flagcache.clear.failed cause={}", ex.toString());
+        }
+    }
+
     private @Nullable Boolean safeLoad(Supplier<Boolean> loaderSupplier) {
         try {
             return loaderSupplier.get();

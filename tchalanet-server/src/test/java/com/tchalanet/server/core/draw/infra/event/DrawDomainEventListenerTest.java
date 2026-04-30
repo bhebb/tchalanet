@@ -58,8 +58,17 @@ class DrawDomainEventListenerTest {
 
     @Override
     public void markProcessed(String handlerKey, UUID eventId) {
+      markProcessedIfAbsent(handlerKey, eventId);
+    }
+
+    @Override
+    public boolean markProcessedIfAbsent(String handlerKey, UUID eventId) {
+      if (processed.contains(eventId)) {
+        return false;
+      }
       processed.add(eventId);
       markProcessedCalls++;
+      return true;
     }
   }
 

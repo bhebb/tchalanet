@@ -7,25 +7,23 @@ import com.tchalanet.server.features.news.NewsConfigProperties;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 @RequiredArgsConstructor
-public class NewsCacheConfig {
+public class NewsCacheConfig implements CacheSpecProvider {
 
   private final NewsConfigProperties newsConfigProperties;
   private final CacheKeyBuilder cacheKeyBuilder;
 
-  @Bean
-  public CacheSpecProvider newsCacheSpecProvider() {
-    return () ->
-        List.of(
-            CacheSpec.of(
-                cacheKeyBuilder.newsExternalKey(),
-                Duration.ofHours(newsConfigProperties.getTtl().getHours())),
-            CacheSpec.of(
-                cacheKeyBuilder.newsInternalKey(),
-                Duration.ofHours(newsConfigProperties.getTtl().getHours())));
+  @Override
+  public List<CacheSpec> cacheSpecs() {
+    return List.of(
+        CacheSpec.of(
+            cacheKeyBuilder.newsExternalKey(),
+            Duration.ofHours(newsConfigProperties.getTtl().getHours())),
+        CacheSpec.of(
+            cacheKeyBuilder.newsInternalKey(),
+            Duration.ofHours(newsConfigProperties.getTtl().getHours())));
   }
 }

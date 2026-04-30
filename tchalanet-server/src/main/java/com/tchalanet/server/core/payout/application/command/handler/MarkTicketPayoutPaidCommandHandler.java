@@ -10,7 +10,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.payout.application.command.model.MarkTicketPayoutPaidCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPaidEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import java.time.Clock;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MarkTicketPayoutPaidCommandHandler implements CommandHandler<MarkTicketPayoutPaidCommand, Ticket> {
 
     private final TicketReaderPort ticketReader;
-    private final TicketWritterPort ticketWriter;
+    private final TicketWriterPort ticketWriter;
     private final DomainEventPublisher publisher;
     private final Clock clock;
 
@@ -38,9 +38,7 @@ public class MarkTicketPayoutPaidCommandHandler implements CommandHandler<MarkTi
 
         Instant now = Instant.now(clock);
 
-        // PAYOUT_PENDING or PAYOUT_PARTIAL -> PAYOUT_PAID
-        // (domain enforces valid transition)
-        ticket.markPayoutPaid(now);
+        ticket.settle(now);
 
         Ticket saved = ticketWriter.save(ticket);
 

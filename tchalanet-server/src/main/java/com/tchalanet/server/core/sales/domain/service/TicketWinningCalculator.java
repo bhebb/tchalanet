@@ -106,7 +106,7 @@ public class TicketWinningCalculator {
         return switch (option) {
             case 1 -> abc.equals(pick3) && de.equals(r.lot2());
             case 2 -> abc.equals(pick3) && de.equals(r.lot3());
-            case 3 -> false; // MVP: option 3 not supported until rule is confirmed
+            case 3 -> throw new UnsupportedOperationException("LOTTO5_PATTERN option 3 not yet implemented");
             default -> false;
         };
     }

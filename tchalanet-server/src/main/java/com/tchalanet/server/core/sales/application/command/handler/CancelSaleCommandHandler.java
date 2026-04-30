@@ -13,17 +13,19 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
+import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleResult;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +39,14 @@ import com.tchalanet.server.core.autonomy.application.service.model.AutonomyReso
 public class CancelSaleCommandHandler implements CommandHandler<CancelSaleCommand, CancelSaleResult> {
 
     private final TicketReaderPort ticketReader;
-    private final TicketWritterPort ticketWriter;
+    private final TicketWriterPort ticketWriter;
     private final DomainEventPublisher publisher;
     private final Clock clock;
 
     private final QueryBus queryBus;
     private final ResolveAutonomyPolicyService resolveAutonomyPolicyService;
     private final SalesSessionReaderPort posSessionReaderPort;
+    private final DrawLookupPort drawLookupPort;
 
     @Override
     @TchTx
@@ -84,7 +87,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
                 saved.getId(),
                 saved.getTerminalId(),
                 saved.getSessionId(),
-                cmd.performedBy().value(),
+                cmd.performedBy(),
                 cmd.reason(),
                 totalStakeCents,
                 currency,
@@ -117,11 +120,16 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         // Use tenant from the ticket (RLS context derived from request); avoid passing tenant from external command
         var scope = new com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef.TenantScope(ticket.getTenantId());
 
+        var draw =
+            drawLookupPort
+                .findById(ticket.getDrawId())
+                .orElseThrow(() -> ProblemRestException.notFound("Draw not found"));
+
         LimitContext context =
             new LimitContext(
                 ticket.getTenantId(),
                 ticket.getDrawId(),
-                null, // drawChannelId
+                draw.drawChannel() == null ? null : draw.drawChannel().id(),
                 com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
                 ticket.getTerminalId(),
                 (com.tchalanet.server.common.types.id.OutletId) outletId, // cast if your type exists; else change signature
@@ -134,9 +142,16 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
                 ticketStakeTotal,
                 betLines.size(),
                 now,
-                java.time.ZoneId.systemDefault());
+                drawZone(draw));
 
         return queryBus.send(new EvaluateLimitPolicyQuery(context));
+    }
+
+    private ZoneId drawZone(com.tchalanet.server.core.draw.domain.model.Draw draw) {
+        if (draw == null || draw.drawChannel() == null || draw.drawChannel().timezone() == null) {
+            return ZoneId.of("UTC");
+        }
+        return draw.drawChannel().timezone();
     }
 
     private void enforceCancelDecisionMatrix(

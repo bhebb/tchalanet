@@ -27,7 +27,7 @@ public class ListTenantRecentActivityQueryHandler {
                     ev.id(),
                     ev.occurredAt(),
                     ev.entityType(),
-                    ev.entityId().toString(),
+                    ev.entityId(),
                     ev.action(),
                     ev.actorType(),
                     ev.actorId().toString(),

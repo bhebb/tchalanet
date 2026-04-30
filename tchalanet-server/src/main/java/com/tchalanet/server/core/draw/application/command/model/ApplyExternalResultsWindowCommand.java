@@ -1,7 +1,6 @@
 package com.tchalanet.server.core.draw.application.command.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.command.audit.AuditedForceCommand;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.AssertTrue;
 import java.time.LocalDate;
@@ -19,7 +18,6 @@ import java.util.List;
  * @param maxSlots  nombre maximum de slots traités par appel (garde-fou anti-boucle)
  * @param reason    obligatoire si force=true
  */
-@AuditedForceCommand
 public record ApplyExternalResultsWindowCommand(
     TenantId tenantId,
     LocalDate baseDate,

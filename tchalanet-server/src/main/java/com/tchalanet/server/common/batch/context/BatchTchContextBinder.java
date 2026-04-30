@@ -1,7 +1,5 @@
 package com.tchalanet.server.common.batch.context;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -36,7 +34,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class BatchTchContextBinder {
 
-    private final TenantCatalog tenantCatalog;
+    private final BatchTenantBootstrapProvider tenantBootstrapProvider;
 
     public void bind(JobParameters jp) {
         String tenantIdRaw = defaultStr(jp.getString(BatchParamKeys.TENANT_ID), null);
@@ -96,8 +94,8 @@ public class BatchTchContextBinder {
         // -------------------------
         TenantId tenantId = TenantId.parse(tenantIdRaw);
 
-        TenantBootstrapView info =
-            tenantCatalog
+        BatchTenantBootstrap info =
+            tenantBootstrapProvider
                 .findBootstrapById(tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown tenant_id: " + tenantId));
 

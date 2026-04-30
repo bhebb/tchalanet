@@ -116,7 +116,7 @@ public class JobRegistry {
         // -----------------------------
         register(map, new RegisteredJob(
             BatchJobKeys.RESULTS_EXTERNAL_REFRESH,
-            "Refresh external results from providers",
+            "Refresh external results orchestration (global fetch + controlled tenant apply)",
             RegisteredJob.JobScope.TENANT,
             Set.of(BatchParamKeys.TENANT_ID),
             Set.of(
@@ -133,13 +133,11 @@ public class JobRegistry {
         register(map, new RegisteredJob(
             BatchJobKeys.RESULTS_EXTERNAL_FETCH,
             "Fetch results for slots",
-            RegisteredJob.JobScope.TENANT,
-            Set.of(BatchParamKeys.TENANT_ID),
+            RegisteredJob.JobScope.GLOBAL,
+            Set.of(),
             Set.of(
                 BatchParamKeys.REQUEST_ID,
                 BatchParamKeys.ACTOR,
-                BatchParamKeys.TENANT_ZONE_ID,     // check-only
-                BatchParamKeys.TENANT_CURRENCY,    // check-only
                 BatchParamKeys.FROM,
                 BatchParamKeys.TO
             ),

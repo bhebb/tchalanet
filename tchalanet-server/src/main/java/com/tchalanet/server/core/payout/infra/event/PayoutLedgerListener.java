@@ -3,8 +3,10 @@ package com.tchalanet.server.core.payout.infra.event;
 import com.tchalanet.server.core.ledger.application.port.in.RecordLedgerFromPayoutPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Component
 @RequiredArgsConstructor
@@ -13,7 +15,7 @@ public class PayoutLedgerListener {
 
   private final RecordLedgerFromPayoutPort ledgerPort;
 
-  @EventListener
+  @TransactionalEventListener(phase = AFTER_COMMIT)
   public void onPayoutRegistered(PayoutRegisteredEvent event) {
     try {
       ledgerPort.recordPayout(

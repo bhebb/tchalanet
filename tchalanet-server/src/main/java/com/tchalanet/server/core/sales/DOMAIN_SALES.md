@@ -118,7 +118,7 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 ### Ports OUT (`application/port/out/`)
 
 - `TicketReaderPort` : `findById`, `findByPublicCode`, `findWithLinesById`, `search`, `getTicketPrintView`, `exportDailySalesCsv`, `listRecentForCashier`, `getAgentDailySales`.
-- `TicketWritterPort` (typo : double 't') : `save`, `archiveOldTickets`.
+- `TicketWriterPort` (typo : double 't') : `save`, `archiveOldTickets`.
 - `TicketSettlementPort` : `findNextBatchForDraw(drawId, cursor, limit)` — cursor keyset (`createdAt`, `id`).
 - `TicketSettlementQueryPort` : `existsPendingByDrawId`, `countPendingByDrawId`.
 - `TicketEventPublisherPort` : `publishTicketPlacedEvent` — défini mais usage via `DomainEventPublisher` direct.
@@ -195,7 +195,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 | sales → `catalog.pricing`     | API                      | `PricingCatalog.oddsFor(...)`                                                                                                  |
 | sales → `catalog.settings`    | API                      | `SettingsCatalog.resolve(...)` (visibilité publique)                                                                           |
 | sales → `catalog.drawchannel` | View                     | `DrawChannelView`                                                                                                              |
-| `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWritterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                        |
+| `core.payout` → sales         | Ports + events           | `TicketReaderPort`, `TicketWriterPort`, `TicketPaidEvent`, `TicketPaymentPendingEvent`                                         |
 | `core.limitpolicy` → sales    | Event                    | `TicketPlacedEvent`                                                                                                            |
 | `core.session` → sales        | Event                    | `TicketPlacedEvent` (via `SalesSessionTotalsProjectionListener`)                                                               |
 | `features.stats` → sales      | Event                    | `TicketPlacedEvent` (×2 listeners)                                                                                             |
@@ -251,7 +251,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 - `ExpireTicketsCommand` sans handler (code mort).
 - `SellTicketRequest.tenantId/cashierId` body écrasés par contexte ; `sessionId` body jamais lu.
 - `CancelTicketCommand.performedBy` et `OverrideTicketResultCommand.performedBy` en `UUID` brut.
-- Typo `TicketWritterPort` (double 't').
+- Typo `TicketWriterPort` (double 't').
 
 **P2 / Comportements MVP**
 

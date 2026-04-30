@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @MappedSuperclass
 @Getter
-@Audited
 @Setter
 public abstract class BaseEntity extends AuditableEntity {
 

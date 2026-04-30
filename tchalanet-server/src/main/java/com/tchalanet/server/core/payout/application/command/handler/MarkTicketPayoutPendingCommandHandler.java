@@ -9,7 +9,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.payout.application.command.model.MarkTicketPayoutPendingCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPaymentPendingEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import java.time.Clock;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class MarkTicketPayoutPendingCommandHandler implements CommandHandler<MarkTicketPayoutPendingCommand, Ticket> {
 
     private final TicketReaderPort ticketReader;
-    private final TicketWritterPort ticketWriter;
+    private final TicketWriterPort ticketWriter;
     private final DomainEventPublisher publisher;
     private final Clock clock;
 
@@ -35,10 +35,7 @@ public class MarkTicketPayoutPendingCommandHandler implements CommandHandler<Mar
 
         Instant now = Instant.now(clock);
 
-        // SETTLED_WON -> PAYOUT_PENDING
-        ticket.markPayoutPending(now);
-
-        Ticket saved = ticketWriter.save(ticket);
+        Ticket saved = ticket;
 
         AfterCommit.run(() -> publisher.publish(
             new TicketPaymentPendingEvent(

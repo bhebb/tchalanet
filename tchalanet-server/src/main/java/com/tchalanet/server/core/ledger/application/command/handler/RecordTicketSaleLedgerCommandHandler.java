@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.ledger.application.command.handler;
 
+import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.ledger.application.port.in.RecordLedgerFromSalesPort;
+import com.tchalanet.server.core.ledger.application.command.model.RecordTicketSaleLedgerCommand;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerReaderPort;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
 import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
@@ -19,7 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSalesPort {
+public class RecordTicketSaleLedgerCommandHandler
+    implements VoidCommandHandler<RecordTicketSaleLedgerCommand> {
 
   private final LedgerWriterPort ledgerWriter;
   private final LedgerReaderPort ledgerReader;
@@ -27,8 +27,9 @@ public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSal
 
   @Override
   @TchTx
-  public void recordTicketSale(
-      TenantId tenantId, TicketId ticketId, long stakeCents, Instant occurredAt) {
+  public void handle(RecordTicketSaleLedgerCommand command) {
+    var tenantId = command.tenantId();
+    var ticketId = command.ticketId();
     // Idempotency (soft)
     if (ledgerReader.existsByRef(tenantId, LedgerRefType.TICKET_SALE, ticketId.value())) {
       log.warn(
@@ -36,8 +37,8 @@ public class RecordTicketSaleLedgerCommandHandler implements RecordLedgerFromSal
       return;
     }
 
-    Instant at = occurredAt != null ? occurredAt : Instant.now(clock);
-    BigDecimal amount = BigDecimal.valueOf(stakeCents).movePointLeft(2);
+    Instant at = command.occurredAt() != null ? command.occurredAt() : Instant.now(clock);
+    BigDecimal amount = BigDecimal.valueOf(command.stakeCents()).movePointLeft(2);
 
     LedgerEntry entry =
         LedgerEntry.create(

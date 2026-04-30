@@ -21,7 +21,7 @@ public abstract class AbstractTicketReceiptFormatter implements TicketReceiptFor
   protected static final int W_WIN = 6;
 
   protected final DateTimeFormatter dt =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.of("UTC"));
 
   protected abstract String title();
 
@@ -218,4 +218,3 @@ public abstract class AbstractTicketReceiptFormatter implements TicketReceiptFor
     return lines == null ? List.of() : lines;
   }
 }
-

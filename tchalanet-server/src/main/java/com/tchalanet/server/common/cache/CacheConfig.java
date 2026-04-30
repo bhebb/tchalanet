@@ -2,13 +2,14 @@ package com.tchalanet.server.common.cache;
 
 import java.time.Duration;
 import java.util.List;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.lang.Nullable;
 
 @Configuration
 @EnableCaching
@@ -23,7 +24,9 @@ public class CacheConfig {
   @Bean
   @Primary
   public CacheManager cacheManager(
-      CaffeineCacheManager caffeineCacheManager, @Nullable CacheManager redisCacheManager) {
+      CaffeineCacheManager caffeineCacheManager,
+      @Qualifier("redisCacheManager") ObjectProvider<CacheManager> redisCacheManagerProvider) {
+    CacheManager redisCacheManager = redisCacheManagerProvider.getIfAvailable();
     if (redisCacheManager != null) {
       return new CombinedCacheManager(caffeineCacheManager, redisCacheManager);
     }

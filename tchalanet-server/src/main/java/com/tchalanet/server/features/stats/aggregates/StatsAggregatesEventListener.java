@@ -38,13 +38,13 @@ public class StatsAggregatesEventListener {
     private final Clock clock;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional
     public void onTicketPlaced(TicketPlacedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId().value())) return;
+        if (!markProcessedIfAbsent(event)) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applyTicketPlaced(event, refDate);
-        markProcessedIfAbsent(event);
         log.debug("Processed TicketPlacedEvent {}", event.eventId().value());
     }
 
@@ -52,64 +52,49 @@ public class StatsAggregatesEventListener {
     @Transactional
     public void onTicketCancelled(TicketCancelledEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId().value())) return;
+        if (!markProcessedIfAbsent(event)) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applyTicketCancelled(event, refDate);
-        markProcessedIfAbsent(event);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     public void onTicketSettled(TicketResultedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId().value())) return;
+        if (!markProcessedIfAbsent(event)) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applyTicketSettled(event, refDate);
-        markProcessedIfAbsent(event);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     public void onSessionOpened(SessionOpenedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId().value())) return;
+        if (!markProcessedIfAbsent(event)) return;
 
         LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applySessionOpened(event, refDate);
-        markProcessedIfAbsent(event);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     public void onSessionClosed(SessionClosedEvent event) {
         if (isOldEvent(event.closedAt())) return;
-        if (alreadyProcessed(event.eventId().value())) return;
+        if (!markProcessedIfAbsent(event)) return;
 
         var refDate = LocalDate.ofInstant(event.closedAt(), ZoneOffset.UTC);
         statsDailyUpdater.applySessionClosed(event, refDate);
-        markProcessedIfAbsent(event);
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional
     public void onDrawResulted(DrawResultAppliedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
-        if (alreadyProcessed(event.eventId().value())) return;
+        if (!markProcessedIfAbsent(event)) return;
 
         statsDrawUpdater.ensureDrawRow(event);
-        markProcessedIfAbsent(event);
-    }
-
-    private boolean alreadyProcessed(Object eventId) {
-        if (eventId == null) return false;
-        if (eventId instanceof com.tchalanet.server.common.types.id.EventId eid) {
-            return eventLogRepo.existsById(eid.value());
-        }
-        if (eventId instanceof UUID u) {
-            return eventLogRepo.existsById(u);
-        }
-        throw new IllegalArgumentException("Unsupported eventId type: " + eventId.getClass());
     }
 
     private UUID eventIdValue(Object eventId) {

@@ -7,8 +7,8 @@ import com.tchalanet.server.common.types.id.SessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
-import java.util.UUID;
 
 public record TicketCancelledEvent(
     EventId eventId,
@@ -17,7 +17,7 @@ public record TicketCancelledEvent(
     TicketId ticketId,
     TerminalId terminalId,
     SessionId sessionId,
-    UUID performedBy,
+    UserId performedBy,
     String reason,
     long totalStakeCents,
     String currency,

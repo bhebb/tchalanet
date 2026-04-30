@@ -11,7 +11,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.sales.application.command.model.ApproveTicketSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.TicketApprovedResult;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.service.TicketSalePolicy;
@@ -30,7 +30,7 @@ public class ApproveTicketSaleCommandHandler
     implements CommandHandler<ApproveTicketSaleCommand, TicketApprovedResult> {
 
     private final TicketReaderPort ticketReader;
-    private final TicketWritterPort ticketWriter;
+    private final TicketWriterPort ticketWriter;
     private final TicketSalePolicy salePolicy;
     private final SalesSessionReaderPort posSessionReaderPort;
 

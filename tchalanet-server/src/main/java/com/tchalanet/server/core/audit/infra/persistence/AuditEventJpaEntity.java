@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.audit.infra.persistence;
 
-import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -12,7 +12,10 @@ import lombok.Setter;
 @Table(name = "audit_event")
 @Getter
 @Setter
-public class AuditEventJpaEntity extends BaseTenantEntity {
+public class AuditEventJpaEntity extends BaseEntity {
+
+  @Column(name = "tenant_id", columnDefinition = "uuid")
+  private java.util.UUID tenantId;
 
   @Column(name = "occurred_at", nullable = false)
   private Instant occurredAt;
@@ -20,7 +23,7 @@ public class AuditEventJpaEntity extends BaseTenantEntity {
   @Column(name = "actor_type", nullable = false, length = 32)
   private String actorType;
 
-  @Column(name = "actor_id", nullable = false)
+  @Column(name = "actor_id")
   private String actorId;
 
   @Column(name = "entity_type", nullable = false, length = 64)

@@ -33,7 +33,7 @@ public class TicketEntity extends BaseTenantEntity {
     @Column(name = "ticket_code", nullable = false)
     private String ticketCode;
 
-    @Column(name = "public_code", length = 32)
+    @Column(name = "public_code", nullable = false, length = 32)
     private String publicCode;
 
     @Enumerated(EnumType.STRING)

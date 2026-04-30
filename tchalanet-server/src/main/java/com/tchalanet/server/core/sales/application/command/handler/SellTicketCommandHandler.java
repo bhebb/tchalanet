@@ -14,7 +14,7 @@ import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketOutcome;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketResult;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.service.TicketSaleFactory;
@@ -35,7 +35,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
 
     private final TicketSalePolicy salePolicy;
     private final TicketSaleFactory ticketFactory;
-    private final TicketWritterPort ticketWriter;
+    private final TicketWriterPort ticketWriter;
     private final DomainEventPublisher publisher;
 
     @Override

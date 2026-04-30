@@ -32,7 +32,7 @@ public final class CacheKeyBuilder {
   }
 
   public String appSettingsKey(UUID tenantId, UUID outletId) {
-    return "tch:%s:%s:outlet:%s".formatted(env, tenantId, outletId);
+    return "tch:%s:%s:settings:app:outlet:%s".formatted(env, tenantId, outletId);
   }
 
   public String tenantTerminalKey(UUID tenantId, UUID terminalId) {
@@ -40,7 +40,7 @@ public final class CacheKeyBuilder {
   }
 
   public String tenantOutletTreeKey(TenantId tenantId) {
-    return "tch:%s:%s:outlet:tree".formatted(env, tenantId);
+    return "tch:%s:%s:outlet:tree".formatted(env, tenantId.value());
   }
 
   public String tenantDrawsSummaryKey(TenantId tenantId) {
@@ -48,15 +48,15 @@ public final class CacheKeyBuilder {
   }
 
   public String tenantDrawsChannelKey(TenantId tenantId, String channelCode, String kind) {
-    return "tch:%s:%s:draws:%s:%s".formatted(env, tenantId, channelCode, kind);
+    return "tch:%s:%s:draws:%s:%s".formatted(env, tenantId.value(), channelCode, kind);
   }
 
   public String tenantDrawPublicKey(TenantId tenantId, String date) {
-    return "tch:%s:%s:draws:public:%s".formatted(env, tenantId, date);
+    return "tch:%s:%s:draws:public:%s".formatted(env, tenantId.value(), date);
   }
 
   public String userPermissionsKey(TenantId tenantId, UUID userId) {
-    return "tch:%s:%s:user:%s:permissions".formatted(env, tenantId, userId);
+    return "tch:%s:%s:user:%s:permissions".formatted(env, tenantId.value(), userId);
   }
 
   public String userProfileKey(UUID tenantId, UUID userId) {

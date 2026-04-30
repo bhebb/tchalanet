@@ -45,4 +45,10 @@ public interface BatchGateCache {
      * @param enabled the flag value
      */
     void putGlobal(JobKey jobKey, boolean enabled);
+
+    void evictTenant(JobKey jobKey, TenantId tenantId);
+
+    void evictGlobal(JobKey jobKey);
+
+    void evictAll();
 }

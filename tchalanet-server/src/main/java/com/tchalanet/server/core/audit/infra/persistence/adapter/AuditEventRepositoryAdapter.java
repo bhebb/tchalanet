@@ -45,11 +45,12 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
     AuditEventJpaEntity e = new AuditEventJpaEntity();
     // id may be null for new entities; keep tenantId + actor info
     e.setId(event.id()); // may be null
-    e.setTenantId(event.tenantId().uuid());
+    e.setTenantId(event.tenantId() == null ? null : event.tenantId().uuid());
+    e.setOccurredAt(event.occurredAt());
     e.setActorType(event.actorType().name());
-    e.setActorId(event.actorId().toString());
+    e.setActorId(event.actorId() == null ? null : event.actorId().toString());
     e.setEntityType(event.entityType().name());
-    e.setEntityId(event.entityId().toString());
+    e.setEntityId(event.entityId());
     e.setAction(event.action().name());
     e.setDetails(event.detailsJson());
     e.setIp(event.ip());
@@ -60,13 +61,13 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
   private AuditEvent toDomain(AuditEventJpaEntity e) {
     return new AuditEvent(
         e.getId(),
-        com.tchalanet.server.common.types.id.TenantId.of(e.getTenantId()),
-        e.getCreatedAt(),
+        com.tchalanet.server.common.types.id.TenantId.nullableOf(e.getTenantId()),
+        e.getOccurredAt(),
         e.getCreatedBy(),
         AuditActorType.valueOf(e.getActorType()),
-        UUID.fromString(e.getActorId()),
+        e.getActorId() == null ? null : UUID.fromString(e.getActorId()),
         AuditEntityType.valueOf(e.getEntityType()),
-        UUID.fromString(e.getEntityId()),
+        e.getEntityId(),
         AuditAction.valueOf(e.getAction()),
         e.getDetails(),
         e.getIp(),
