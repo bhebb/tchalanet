@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -133,7 +134,7 @@ public class TicketSalePolicy {
                 total,
                 betLines.size(),
                 now,
-                java.time.ZoneId.systemDefault());
+                drawZone(draw));
 
         // send query via QueryBus
         LimitEvaluationView limitView = queryBus.send(new EvaluateLimitPolicyQuery(ctx));
@@ -165,5 +166,12 @@ public class TicketSalePolicy {
         }
 
         return limitView;
+    }
+
+    private ZoneId drawZone(Draw draw) {
+        if (draw == null || draw.drawChannel() == null || draw.drawChannel().timezone() == null) {
+            return ZoneId.of("UTC");
+        }
+        return draw.drawChannel().timezone();
     }
 }

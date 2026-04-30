@@ -25,12 +25,10 @@ public class ApplyTicketExposureCommandHandler implements VoidCommandHandler<App
         var e = c.event();
 
         UUID eventId = e.eventId().value();
-        if (processedEvent.alreadyProcessed(HANDLER_KEY, eventId)) {
+        if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY, eventId)) {
             return;
         }
 
         projector.applyTicketPlaced(e);
-
-        processedEvent.markProcessed(HANDLER_KEY, eventId);
     }
 }

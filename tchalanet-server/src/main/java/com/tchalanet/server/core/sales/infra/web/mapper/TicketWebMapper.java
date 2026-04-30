@@ -7,8 +7,10 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.sales.application.command.model.CancelTicketCommand;
+import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
+import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
+import com.tchalanet.server.core.sales.application.model.TicketStatus;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
 import com.tchalanet.server.core.sales.application.query.model.TicketDetailsView;
 import com.tchalanet.server.core.sales.application.query.model.TicketSummaryView;
@@ -37,8 +39,8 @@ public class TicketWebMapper {
             "Missing request context (tenant/user)"
         );
 
-        TenantId tenantId = TenantId.of(ctx.tenantUuid()); // <-- adapte si ton ctx renvoie TenantId direct
-        UserId cashierId = UserId.of(ctx.userUuid());      // <-- adapte
+        TenantId tenantId = ctx.tenantIdSafe();
+        UserId cashierId = ctx.currentUserIdRequired();
 
         return new SellTicketCommand(
             tenantId,
@@ -115,7 +117,7 @@ public class TicketWebMapper {
         );
     }
 
-    public CancelTicketCommand toCancelTicketCommand(
+    public CancelSaleCommand toCancelSaleCommand(
         com.tchalanet.server.common.types.id.TicketId ticketId,
         CancelTicketRequest req
     ) {
@@ -123,7 +125,12 @@ public class TicketWebMapper {
         var ctx = Objects.requireNonNull(contextResolver.currentOrNull(), "Missing request context");
         var performedBy = UserId.of(ctx.userUuid());
 
-        return new CancelTicketCommand(ticketId, req.reason(), performedBy.value());
+        return new CancelSaleCommand(
+            ctx.tenantIdSafe(),
+            ticketId,
+            performedBy,
+            req.reason(),
+            ctx.tenantCurrency() == null ? null : ctx.tenantCurrency().getCurrencyCode());
     }
 
     public CancelSaleResponse toCancelSaleResponse(Object result) {
@@ -131,6 +138,27 @@ public class TicketWebMapper {
             return new CancelSaleResponse(toTicketResponse(ticket), "CANCELLED", java.util.List.of());
         }
         return new CancelSaleResponse(null, "CANCELLED", java.util.List.of());
+    }
+
+    public OverrideTicketResultCommand toOverrideTicketResultCommand(
+        com.tchalanet.server.common.types.id.TicketId ticketId,
+        OverrideTicketResultRequest request
+    ) {
+        var ctx = Objects.requireNonNull(contextResolver.currentOrNull(), "Missing request context");
+        var performedBy =
+            request.performedBy() == null ? ctx.currentUserIdRequired() : UserId.of(request.performedBy());
+
+        return new OverrideTicketResultCommand(
+            ticketId,
+            request.totalPayout(),
+            new TicketStatus(
+                request.status() == null ? null : request.status().saleStatus(),
+                request.status() == null ? null : request.status().resultStatus(),
+                request.status() == null ? null : request.status().settlementStatus()
+            ),
+            request.reason(),
+            performedBy,
+            request.performedAt());
     }
 
     public ListTicketsQuery toListTicketsQuery(

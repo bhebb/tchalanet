@@ -5,11 +5,11 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.UUID;
 
 public record TicketResultOverriddenEvent(
     EventId eventId,
@@ -20,5 +20,5 @@ public record TicketResultOverriddenEvent(
     BigDecimal totalPayout,
     TicketResultStatus resultStatus,
     String reason,
-    UUID performedBy)
+    UserId performedBy)
     implements DomainEvent {}

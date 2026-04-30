@@ -1,15 +1,12 @@
 package com.tchalanet.server.common.persistence.audit;
 
-import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
-
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 @Slf4j
 public class TenantEntityListener {
@@ -59,18 +56,11 @@ public class TenantEntityListener {
 
   private UUID resolveTenantUuidOrNull() {
     try {
-      var attrs = RequestContextHolder.getRequestAttributes();
-      if (attrs == null) return null;
-
-      Object ctx = attrs.getAttribute(REQUEST_CONTEXT, RequestAttributes.SCOPE_REQUEST);
-      if (!(ctx instanceof TchRequestContext tch)) return null;
-
+      TchRequestContext tch = TchContext.currentOrNull();
+      if (tch == null) return null;
       return tch.tenantUuid();
-    } catch (IllegalStateException e) {
-      // “No thread-bound request found”
-      return null;
     } catch (Exception e) {
-      log.debug("Failed to resolve tenant from request context", e);
+      log.debug("Failed to resolve tenant from TchContext", e);
       return null;
     }
   }

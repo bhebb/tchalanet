@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sales.application.command.model.ArchiveTicketsCommand;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ArchiveTicketsCommandHandler implements VoidCommandHandler<ArchiveTicketsCommand> {
 
-  private final TicketWritterPort ticketRepository;
+  private final TicketWriterPort ticketRepository;
 
   @Override
   @TchTx

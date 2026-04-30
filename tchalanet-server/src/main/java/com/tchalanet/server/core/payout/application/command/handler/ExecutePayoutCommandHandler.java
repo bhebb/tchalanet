@@ -4,6 +4,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
@@ -17,7 +18,7 @@ import com.tchalanet.server.core.payout.domain.model.Payout;
 import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
 import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
     private final PayoutWriterPort payoutWriterPort;
 
     private final TicketReaderPort ticketReaderPort;
-    private final TicketWritterPort ticketWritterPort;
+    private final TicketWriterPort ticketWritterPort;
     private final LedgerWriterPort ledgerWriter;
     private final DomainEventPublisher domainEventPublisher;
     private final Clock clock;
@@ -105,7 +106,7 @@ public class ExecutePayoutCommandHandler implements CommandHandler<ExecutePayout
                 saved.getTicketId(),
                 null,
                 amount);
-        domainEventPublisher.publish(event);
+        AfterCommit.run(() -> domainEventPublisher.publish(event));
 
         log.info("Executed payout {} for ticket {}", saved.getId(), saved.getTicketId());
         return saved;

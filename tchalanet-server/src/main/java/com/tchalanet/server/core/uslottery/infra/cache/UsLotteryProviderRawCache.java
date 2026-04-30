@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UsLotteryProviderRawCache {
 
-  private static final String CACHE_NAME = "uslottery_provider_raw";
+  public static final String CACHE_NAME = "infra.uslottery.provider_raw";
 
   private final CacheManager cacheManager;
   private final CacheKeyBuilder keyBuilder;

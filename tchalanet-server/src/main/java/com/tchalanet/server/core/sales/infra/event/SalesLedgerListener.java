@@ -1,31 +1,24 @@
 package com.tchalanet.server.core.sales.infra.event;
 
-import com.tchalanet.server.core.ledger.application.port.in.RecordLedgerFromSalesPort;
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
+
+import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.core.ledger.application.command.model.RecordTicketSaleLedgerCommand;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class SalesLedgerListener {
 
-  private final RecordLedgerFromSalesPort ledgerPort;
+  private final CommandBus commandBus;
 
-  @EventListener
+  @TransactionalEventListener(phase = AFTER_COMMIT)
   public void onTicketPlaced(TicketPlacedEvent event) {
-    try {
-      ledgerPort.recordTicketSale(
-          event.tenantId(), event.ticketId(), event.stakeCents(), event.occurredAt());
-    } catch (Exception e) {
-      log.error(
-          "Ledger recording failed for TicketPlacedEvent eventId={} tenantId={} ticketId={}",
-          event.eventId().value(),
-          event.tenantId().value(),
-          event.ticketId(),
-          e);
-    }
+    commandBus.send(
+        new RecordTicketSaleLedgerCommand(
+            event.tenantId(), event.ticketId(), event.stakeCents(), event.occurredAt()));
   }
 }

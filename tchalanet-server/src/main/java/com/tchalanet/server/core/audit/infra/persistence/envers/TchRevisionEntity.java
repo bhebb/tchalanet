@@ -1,6 +1,7 @@
 // common/infra/audit/TchRevisionEntity.java
 package com.tchalanet.server.core.audit.infra.persistence.envers;
 
+import com.tchalanet.server.common.types.enums.AuditActorType;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -33,6 +34,18 @@ public class TchRevisionEntity {
 
   @Column(name = "user_id")
   private UUID userId;
+
+  @Column(name = "request_id", length = 128)
+  private String requestId;
+
+  @Column(name = "actor_type", length = 32)
+  private String actorType = AuditActorType.SYSTEM.name();
+
+  @Column(name = "api_scope", length = 32)
+  private String apiScope;
+
+  @Column(name = "tenant_overridden", nullable = false)
+  private boolean tenantOverridden;
 
   // helper
   public Instant getInstant() {

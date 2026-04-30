@@ -22,8 +22,8 @@ public class ExportDailySalesQueryHandler implements QueryHandler<ExportDailySal
 
   @Override
   public Path handle(ExportDailySalesQuery query) {
-    Instant from = query.date().atStartOfDay(ZoneId.systemDefault()).toInstant();
-    Instant to = query.date().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+    Instant from = query.date().atStartOfDay(ZoneId.of("UTC")).toInstant();
+    Instant to = query.date().plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
 
     byte[] csvBytes = ticketReader.exportDailySalesCsv(from, to);
 

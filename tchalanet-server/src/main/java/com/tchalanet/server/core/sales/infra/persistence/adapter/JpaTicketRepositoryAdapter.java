@@ -1,23 +1,15 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
-import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
-import com.tchalanet.server.core.sales.application.print.TicketPrintViewMapper;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
-import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -27,7 +19,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -39,16 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketReaderPort {
+public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReaderPort {
 
   private final SpringTicketJpaRepository jpaRepository;
   private final TicketMapper mapper;
   private final Clock clock;
-  private final TchContextResolver contextResolver;
-  private final DrawLookupPort drawReader;
-  private final TicketPrintViewMapper ticketPrintViewMapper;
-  private final OutletReaderPort outletReaderPort;
-  private final SalesSessionReaderPort posSessionReaderPort;
 
   @Override
   public Ticket save(Ticket ticket) {
@@ -126,7 +112,6 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
   @Override
   @Transactional(readOnly = true)
   public Optional<Ticket> findWithLinesById(TicketId ticketId) {
-    var holder = contextResolver.currentOrNull();
     return jpaRepository
         .findWithLinesById(ticketId.value())
         .map(mapper::toDomain);
@@ -175,29 +160,6 @@ public class JpaTicketRepositoryAdapter implements TicketWritterPort, TicketRead
     } catch (Exception e) {
       throw new RuntimeException("Failed to generate CSV", e);
     }
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public TicketPrintView getTicketPrintView(TicketId ticketId) {
-    // 1. Load Ticket with lines
-    var ticket =
-        jpaRepository
-            .findWithLinesById(ticketId.value())
-            .orElseThrow(() -> new EntityNotFoundException("Ticket not found: " + ticketId));
-
-    // 2. Load Draw
-    var draw = drawReader.findById(DrawId.of(ticket.getDrawId())).orElse(null);
-
-    // 3. Load Channel (via Draw)
-    var channel = (draw != null) ? draw.drawChannel() : null;
-    Outlet outlet = null;
-    var session = posSessionReaderPort.findById(SessionId.of(ticket.getSessionId())).orElse(null);
-    if (session != null) {
-      outlet = outletReaderPort.findById(session.outletId()).orElse(null);
-    }
-    // TODO: get locale from context or request
-    return ticketPrintViewMapper.map(mapper.toDomain(ticket), outlet, draw, channel, Locale.FRENCH);
   }
 
   @Override

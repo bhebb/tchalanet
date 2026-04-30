@@ -10,7 +10,6 @@ import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,20 +39,10 @@ public class AuditEventFactory {
     String ip = (ctx != null) ? ctx.clientIp() : null;
     String userAgent = (ctx != null) ? ctx.userAgent() : null;
 
-    UUID entityUuid = Optional.ofNullable(entityId).map(UUID::fromString).orElse(null);
-
     String detailsJson =
-        Optional.ofNullable(details)
-            .map(
-                d -> {
-                  try {
-                    return jsonUtils.toJson(d);
-                  } catch (Exception ex) {
-                    log.error("Failed to serialize audit details", ex);
-                    return "{}";
-                  }
-                })
-            .orElse("{}");
+        details == null
+            ? "{}"
+            : serializeDetails(details);
 
     return new AuditEvent(
         null,
@@ -63,10 +52,19 @@ public class AuditEventFactory {
         actorType,
         userUuid, // actorId (required if USER)
         entityType,
-        entityUuid,
+        entityId,
         action,
         detailsJson,
         ip,
         userAgent);
+  }
+
+  private String serializeDetails(Map<String, Object> details) {
+    try {
+      return jsonUtils.toJson(details);
+    } catch (Exception ex) {
+      log.error("Failed to serialize audit details", ex);
+      return "{}";
+    }
   }
 }

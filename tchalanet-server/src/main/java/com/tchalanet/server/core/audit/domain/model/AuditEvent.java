@@ -26,7 +26,7 @@ public final class AuditEvent {
   private final UUID actorId; // nullable si SYSTEM
 
   private final AuditEntityType entityType;
-  private final UUID entityId; // nullable si action pas liée à une entité (rare)
+  private final String entityId; // nullable si action pas liée à une entité (rare)
 
   private final AuditAction action;
 
@@ -44,7 +44,7 @@ public final class AuditEvent {
       AuditActorType actorType,
       UUID actorId,
       AuditEntityType entityType,
-      UUID entityId,
+      String entityId,
       AuditAction action,
       String detailsJson,
       String ip,
@@ -91,7 +91,7 @@ public final class AuditEvent {
       AuditActorType actorType,
       UUID actorId,
       AuditEntityType entityType,
-      UUID entityId,
+      String entityId,
       AuditAction action,
       String detailsJson,
       String ip,
@@ -118,7 +118,7 @@ public final class AuditEvent {
       AuditActorType actorType,
       UUID actorId,
       AuditEntityType entityType,
-      UUID entityId,
+      String entityId,
       AuditAction action,
       String detailsJson,
       String ip,
@@ -166,7 +166,7 @@ public final class AuditEvent {
     return entityType;
   }
 
-  public UUID entityId() {
+  public String entityId() {
     return entityId;
   }
 

@@ -4,19 +4,17 @@ import com.tchalanet.server.common.cache.CacheSpec;
 import com.tchalanet.server.common.cache.CacheSpecProvider;
 import java.time.Duration;
 import java.util.List;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
-public class AuthCacheConfig {
+@Component
+public class AuthCacheConfig implements CacheSpecProvider {
 
-  @Bean
-  public CacheSpecProvider authCacheSpecProvider() {
-    return () ->
-        List.of(
-            // Profil utilisateur de base : 10–30 min, v1 = 20 min
-            CacheSpec.of("user_profile", Duration.ofMinutes(20)),
-            // Matrice rôles → permissions (hiérarchie) : 30–60 min, v1 = 45 min
-            CacheSpec.of("role-permissions", Duration.ofMinutes(45)));
+  @Override
+  public List<CacheSpec> cacheSpecs() {
+    return List.of(
+        // Profil utilisateur de base : 10–30 min, v1 = 20 min
+        CacheSpec.of("user_profile", Duration.ofMinutes(20)),
+        // Matrice rôles → permissions (hiérarchie) : 30–60 min, v1 = 45 min
+        CacheSpec.of("role-permissions", Duration.ofMinutes(45)));
   }
 }

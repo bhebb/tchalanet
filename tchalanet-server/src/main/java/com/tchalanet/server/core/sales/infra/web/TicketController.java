@@ -17,8 +17,6 @@ import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.sales.application.command.model.ApproveTicketSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.RejectTicketSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketOutcome;
-import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
-import com.tchalanet.server.core.sales.application.model.TicketStatus;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketDetailsQuery;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintEscPosQuery;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintPdfQuery;
@@ -208,7 +206,7 @@ public class TicketController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<CancelSaleResponse> cancel(
         @PathVariable TicketId ticketId, @Valid @RequestBody CancelTicketRequest request) {
-        var cmd = mapper.toCancelTicketCommand(ticketId, request);
+        var cmd = mapper.toCancelSaleCommand(ticketId, request);
         var result = commandBus.send(cmd);
         var response = mapper.toCancelSaleResponse(result);
         return ApiResponse.success(response);
@@ -255,18 +253,7 @@ public class TicketController {
     public ApiResponse<Void> overrideResult(
         @PathVariable TicketId ticketId, @Valid @RequestBody OverrideTicketResultRequest request) {
 
-        var cmd = new OverrideTicketResultCommand(
-            ticketId,
-            request.totalPayout(),
-            new TicketStatus(
-                request.status() == null ? null : request.status().saleStatus(),
-                request.status() == null ? null : request.status().resultStatus(),
-                request.status() == null ? null : request.status().settlementStatus()
-            ),
-            request.reason(),
-            request.performedBy(),
-            request.performedAt()
-        );
+        var cmd = mapper.toOverrideTicketResultCommand(ticketId, request);
 
         commandBus.send(cmd);
         return ApiResponse.success(null);

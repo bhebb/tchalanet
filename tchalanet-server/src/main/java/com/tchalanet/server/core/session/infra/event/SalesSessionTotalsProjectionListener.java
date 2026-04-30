@@ -5,8 +5,10 @@ import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
 import com.tchalanet.server.core.session.application.command.model.RecomputeSalesSessionTotalsCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Component
 @RequiredArgsConstructor
@@ -15,20 +17,20 @@ public class SalesSessionTotalsProjectionListener {
 
   private final CommandBus commandBus;
 
-  @EventListener
+  @TransactionalEventListener(phase = AFTER_COMMIT)
   public void onTicketPlaced(com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent e) {
     if (e.sessionId() == null) return;
     commandBus.send(new RecomputeSalesSessionTotalsCommand(e.tenantId(), e.sessionId()));
   }
 
-  @EventListener
+  @TransactionalEventListener(phase = AFTER_COMMIT)
   public void onTicketCancelled(
       com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent e) {
     if (e.sessionId() == null) return;
     commandBus.send(new RecomputeSalesSessionTotalsCommand(e.tenantId(), e.sessionId()));
   }
 
-  @EventListener
+  @TransactionalEventListener(phase = AFTER_COMMIT)
   public void onPayoutRegistered(PayoutRegisteredEvent e) {
     if (e.sessionId() == null) return;
     commandBus.send(new RecomputeSalesSessionTotalsCommand(e.tenantId(), e.sessionId()));

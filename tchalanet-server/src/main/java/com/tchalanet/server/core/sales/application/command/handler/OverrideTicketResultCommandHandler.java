@@ -9,7 +9,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWritterPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketResultOverriddenEvent;
 import java.time.Clock;
 import java.time.Instant;
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class OverrideTicketResultCommandHandler implements CommandHandler<OverrideTicketResultCommand, Void> {
 
   private final TicketReaderPort ticketReader;
-  private final TicketWritterPort ticketWriter;
+  private final TicketWriterPort ticketWriter;
   private final DomainEventPublisher publisher;
   private final Clock clock;
 

@@ -1,11 +1,13 @@
 package com.tchalanet.server.core.audit.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,23 +16,37 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
 
 @Aspect
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class AuditLogAspect {
 
     private final CommandBus commandBus;
     private final JsonUtils jsonUtils;
+    private final TchContextResolver contextResolver;
 
     private final ExpressionParser parser = new SpelExpressionParser();
 
-    @Around("@annotation(com.tchalanet.server.core.audit.infra.web.AuditLog)")
+    public AuditLogAspect(CommandBus commandBus, JsonUtils jsonUtils) {
+        this(commandBus, jsonUtils, null);
+    }
+
+    @Autowired
+    public AuditLogAspect(
+        CommandBus commandBus, JsonUtils jsonUtils, TchContextResolver contextResolver) {
+        this.commandBus = commandBus;
+        this.jsonUtils = jsonUtils;
+        this.contextResolver = contextResolver;
+    }
+
+    @Around("@annotation(com.tchalanet.server.core.audit.infra.web.AuditLog) || @within(com.tchalanet.server.core.audit.infra.web.AuditLog)")
     public Object aroundAudit(ProceedingJoinPoint pjp) throws Throwable {
         Object result = null;
         Throwable error = null;
@@ -44,14 +60,14 @@ public class AuditLogAspect {
         } finally {
             try {
                 var cmd = buildCommandOrNull(pjp, result, error);
-                if (cmd == null) return null;
-
-                // SUCCESS => log AFTER COMMIT (only if transaction commits)
-                if (error == null) {
-                    AfterCommit.run(() -> safeSend(cmd));
-                } else {
-                    // ERROR => log immediately in REQUIRES_NEW (handler decides)
-                    safeSend(cmd);
+                if (cmd != null) {
+                    // SUCCESS => log AFTER COMMIT (only if transaction commits)
+                    if (error == null) {
+                        AfterCommit.run(() -> safeSend(cmd));
+                    } else {
+                        // ERROR => log immediately in REQUIRES_NEW (handler decides)
+                        safeSend(cmd);
+                    }
                 }
             } catch (Exception e) {
                 // audit must never break business flow
@@ -73,7 +89,7 @@ public class AuditLogAspect {
         ProceedingJoinPoint pjp, Object result, Throwable error) {
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
-        AuditLog annotation = signature.getMethod().getAnnotation(AuditLog.class);
+        AuditLog annotation = resolveAnnotation(signature, pjp.getTarget());
         if (annotation == null) return null;
 
         AuditEntityType entityType = annotation.entity();
@@ -125,20 +141,53 @@ public class AuditLogAspect {
             if (v != null) {
                 if (v instanceof Map<?, ?> m) {
                     // normalize to Map<String,Object> (json roundtrip is OK if you want canonical JSON)
-                    details = jsonUtils.readValue(jsonUtils.toJson(m), Map.class);
+                    details = jsonUtils.convertValue(m, new TypeReference<Map<String, Object>>() {});
                 } else {
-                    details = Map.of("value", v.toString());
+                    details = normalizeObjectDetails(v);
                 }
             }
         }
 
+        Map<String, Object> mutable = new HashMap<>(details);
+        addRequestIdIfAvailable(mutable);
+        mutable.put("outcome", error == null ? "SUCCESS" : "FAIL");
         if (error != null) {
-            Map<String, Object> mutable = new HashMap<>(details);
             mutable.put("error", error.getClass().getSimpleName());
             mutable.put("errorMessage", error.getMessage());
-            details = mutable;
         }
 
-        return details;
+        return mutable;
+    }
+
+    private void addRequestIdIfAvailable(Map<String, Object> details) {
+        if (contextResolver == null || details.containsKey("requestId")) {
+            return;
+        }
+        try {
+            var ctx = contextResolver.currentOrNull();
+            if (ctx != null && ctx.requestId() != null && !ctx.requestId().isBlank()) {
+                details.put("requestId", ctx.requestId());
+            }
+        } catch (Exception e) {
+            log.debug("Unable to resolve audit requestId", e);
+        }
+    }
+
+    private Map<String, Object> normalizeObjectDetails(Object value) {
+        try {
+            return jsonUtils.convertValue(value, new TypeReference<Map<String, Object>>() {});
+        } catch (Exception ignored) {
+            return Map.of("value", value);
+        }
+    }
+
+    private AuditLog resolveAnnotation(MethodSignature signature, Object target) {
+        Method method = signature.getMethod();
+        AuditLog annotation = method.getAnnotation(AuditLog.class);
+        if (annotation != null) {
+            return annotation;
+        }
+        Class<?> targetClass = target != null ? target.getClass() : method.getDeclaringClass();
+        return targetClass.getAnnotation(AuditLog.class);
     }
 }

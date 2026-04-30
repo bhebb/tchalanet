@@ -155,7 +155,11 @@ API :
 ```java
 boolean alreadyProcessed(String handlerKey, UUID eventId);
 void markProcessed(String handlerKey, UUID eventId);
+boolean markProcessedIfAbsent(String handlerKey, UUID eventId);
 ```
+
+Les nouveaux consommateurs cross-domain doivent utiliser `markProcessedIfAbsent(...)`
+pour eviter le pattern non atomique `alreadyProcessed(...)` puis `markProcessed(...)`.
 
 #### RLS (non négociable)
 
