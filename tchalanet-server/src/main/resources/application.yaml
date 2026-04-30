@@ -17,6 +17,8 @@ app:
     allow-credentials: true
   security:
     required-audience: tchalanet-api
+    user-bootstrap:
+      default-status: ACTIVE
   batch:
     fetch-results-windows: "12:00-14:00,20:00-23:00"
     settle-draws-windows: "12:00-15:00,20:00-23:30"

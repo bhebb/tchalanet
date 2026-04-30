@@ -35,9 +35,9 @@ public final class ApiScopeResolver {
             return ApiScope.PUBLIC;
         }
 
-        // INTERNAL: Spring Data REST (no tenant) under /api/v1/_sdr
+        // INTERNAL: Spring Data REST under /api/v1/_sdr
         if (path.startsWith("/api/v1/_sdr")) {
-            return ApiScope.PLATFORM;
+            return ApiScope.SDR;
         }
 
         // PLATFORM (no tenant)
@@ -45,8 +45,13 @@ public final class ApiScopeResolver {
             return ApiScope.PLATFORM;
         }
 
-        // TENANT required (tenant/admin are tenant-scoped)
-        if (path.startsWith("/api/v1/tenant") || path.startsWith("/api/v1/admin")) {
+        // ADMIN required (tenant administration endpoints)
+        if (path.startsWith("/api/v1/admin")) {
+            return ApiScope.ADMIN;
+        }
+
+        // TENANT required (tenant business endpoints)
+        if (path.startsWith("/api/v1/tenant")) {
             return ApiScope.TENANT;
         }
 
@@ -55,7 +60,8 @@ public final class ApiScopeResolver {
     }
 
     public static boolean tenantRequired(HttpServletRequest req) {
-        return resolve(req) == ApiScope.TENANT;
+        var scope = resolve(req);
+        return scope == ApiScope.TENANT || scope == ApiScope.ADMIN;
     }
 
     public static boolean allowDefaultTenant(HttpServletRequest req) {

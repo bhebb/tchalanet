@@ -72,7 +72,7 @@ public class TenantGameAdminController {
    */
   @PostMapping("/{gameCode}/enable")
   @ResponseStatus(HttpStatus.CREATED)
-  @PreAuthorize("hasPermission('tenantgame.write')")
+  @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<EnableTenantGameCommandResult> enableGame(
       @PathVariable String gameCode) {
     var tenantId = TchContext.get().tenantId();
@@ -96,7 +96,7 @@ public class TenantGameAdminController {
    * Permission check: tenantgame.write (per security_permissions.md).
    */
   @PostMapping("/{gameCode}/disable")
-  @PreAuthorize("hasPermission('tenantgame.write')")
+  @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<DisableTenantGameCommandResult> disableGame(
       @PathVariable String gameCode) {
     var tenantId = TchContext.get().tenantId();
@@ -119,7 +119,7 @@ public class TenantGameAdminController {
    * Permission check: tenantgame.write (per security_permissions.md).
    */
   @PutMapping("/{gameCode}/policy")
-  @PreAuthorize("hasPermission('tenantgame.write')")
+  @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<Void> updatePolicy(
       @PathVariable String gameCode,
       @RequestBody UpdatePolicyRequest request) {

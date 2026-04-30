@@ -27,7 +27,7 @@ Covers:
 - Keycloak JWT authentication;
 - Spring Security resource-server setup;
 - `ApiScope`;
-- `UserBootstrapFilter` target design;
+- `UserBootstrapFilter`;
 - `TchContextFilter`;
 - `TchRequestContext`;
 - super-admin overrides;

@@ -6,7 +6,6 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
@@ -15,6 +14,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @UseCase
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class OverrideTicketResultCommandHandler implements CommandHandler<Overri
 
   @Override
   @TchTx
-  @RequiresPermission("ticket.result.override")
+  @PreAuthorize("hasPermission('ticket.result.override')")
   public Void handle(OverrideTicketResultCommand cmd) {
     var ticket =
         ticketReader.findWithLinesById(cmd.ticketId())

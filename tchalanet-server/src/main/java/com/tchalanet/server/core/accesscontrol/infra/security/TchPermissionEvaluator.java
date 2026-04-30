@@ -1,8 +1,10 @@
 package com.tchalanet.server.core.accesscontrol.infra.security;
 
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.accesscontrol.application.query.handler.CheckUserPermissionsHandler;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.accesscontrol.application.query.model.CheckUserPermissionsQuery;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
 import jakarta.annotation.Nullable;
@@ -14,82 +16,109 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class TchPermissionEvaluator implements PermissionEvaluator {
 
-  private final CheckUserPermissionsHandler checkUserPermissionsUseCase;
+    private final TchContextResolver contextResolver;
+    private final QueryBus queryBus;
 
-  @Override
-  public boolean hasPermission(
-      @Nullable Authentication authentication,
-      @Nullable Object targetDomainObject,
-      @Nullable Object permission) {
-    return evaluate(authentication, permission);
-  }
-
-  @Override
-  public boolean hasPermission(
-      @Nullable Authentication authentication,
-      @Nullable Serializable targetId,
-      @Nullable String targetType,
-      @Nullable Object permission) {
-    return evaluate(authentication, permission);
-  }
-
-  private boolean evaluate(Authentication authentication, Object permission) {
-    var hasPermission = false;
-
-    var ctx = prepareContext(authentication, permission);
-    if (ctx == null) {
-      return false;
+    @Override
+    public boolean hasPermission(
+        @Nullable Authentication authentication,
+        @Nullable Object targetDomainObject,
+        @Nullable Object permission) {
+        return evaluate(authentication, permission);
     }
 
-    var tenantId = TenantId.of(ctx.principal().tenantUuid());
-    var userId = com.tchalanet.server.common.types.id.UserId.of(ctx.principal().userUuid());
-    String permissionKey = ctx.permissionKey();
-
-    try {
-      checkUserPermissionsUseCase.handle(
-          new CheckUserPermissionsQuery(tenantId, userId, Set.of(permissionKey)));
-      hasPermission = true;
-    } catch (PermissionsDeniedException ex) {
-      log.debug(
-          "Permission denied by domain: tenant={} user={} perm= {}",
-          tenantId,
-          userId,
-          permissionKey,
-          ex);
-    }
-    return hasPermission;
-  }
-
-  /** Helper record that holds the principal and the normalized permission slotKey. */
-  private record PermissionEvalContext(TchRequestContext principal, String permissionKey) {}
-
-  /**
-   * Validate input authentication and permission, returning a context with the principal and
-   * permission slotKey. Returns null when validation fails (logs are emitted by this method).
-   */
-  private PermissionEvalContext prepareContext(Authentication authentication, Object permission) {
-    if (authentication == null
-        || !(authentication.getPrincipal() instanceof TchRequestContext principal)) {
-      log.warn("Permission check denied: no valid principal");
-      return null;
+    @Override
+    public boolean hasPermission(
+        @Nullable Authentication authentication,
+        @Nullable Serializable targetId,
+        @Nullable String targetType,
+        @Nullable Object permission) {
+        return evaluate(authentication, permission);
     }
 
-    if (permission == null) {
-      log.warn("Permission check denied: null permission");
-      return null;
+    private boolean evaluate(Authentication authentication, Object permission) {
+        var eval = prepareContext(authentication, permission);
+        if (eval == null) {
+            return false;
+        }
+
+        try {
+            return Boolean.TRUE.equals(
+                queryBus.send(
+                    new CheckUserPermissionsQuery(
+                        eval.tenantId(), eval.userId(), Set.of(eval.permissionKey()))));
+        } catch (PermissionsDeniedException ex) {
+            log.debug(
+                "Permission denied by domain: tenant={} user={} permission={}",
+                eval.tenantId(),
+                eval.userId(),
+                eval.permissionKey(),
+                ex);
+            return false;
+        } catch (RuntimeException ex) {
+            log.warn(
+                "Permission evaluation failed: tenant={} user={} permission={}",
+                eval.tenantId(),
+                eval.userId(),
+                eval.permissionKey(),
+                ex);
+            return false;
+        }
     }
 
-    String permissionKey = permission.toString().trim();
-    if (permissionKey.isEmpty()) {
-      log.warn("Permission check denied: blank permission");
-      return null;
+    private PermissionEvalContext prepareContext(Authentication authentication, Object permission) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            log.warn("Permission check denied: unauthenticated request");
+            return null;
+        }
+
+        TchRequestContext ctx = contextResolver.currentOrNull();
+        if (ctx == null) {
+            log.warn("Permission check denied: no TchRequestContext bound");
+            return null;
+        }
+
+        String permissionKey = normalizePermission(permission);
+        if (permissionKey == null) {
+            return null;
+        }
+
+        TenantId tenantId = ctx.tenantIdSafe();
+        if (tenantId == null) {
+            log.warn("Permission check denied: missing tenant context permission={}", permissionKey);
+            return null;
+        }
+
+        UserId userId;
+        try {
+            userId = ctx.currentUserIdRequired();
+        } catch (RuntimeException ex) {
+            log.warn("Permission check denied: missing app user permission={}", permissionKey);
+            return null;
+        }
+
+        return new PermissionEvalContext(tenantId, userId, permissionKey);
     }
 
-    return new PermissionEvalContext(principal, permissionKey);
-  }
+    private String normalizePermission(Object permission) {
+        if (permission == null) {
+            log.warn("Permission check denied: null permission");
+            return null;
+        }
+
+        String permissionKey = permission.toString().trim();
+        if (permissionKey.isEmpty()) {
+            log.warn("Permission check denied: blank permission");
+            return null;
+        }
+
+        return permissionKey;
+    }
+
+    private record PermissionEvalContext(TenantId tenantId, UserId userId, String permissionKey) {}
 }

@@ -45,7 +45,7 @@ class SecurityArchTest {
      * Add new prefixes here when new protected paths are introduced.
      */
     private static final List<String> PROTECTED_PREFIXES =
-            List.of("/admin/", "/platform/", "/_sdr/", "/tenant/tickets/");
+            List.of("/admin", "/platform", "/_sdr", "/tenant/tickets");
 
     private final JavaClasses classes =
             new ClassFileImporter().importPackages("com.tchalanet.server");
@@ -77,7 +77,7 @@ class SecurityArchTest {
                             .anyMatch(
                                     path ->
                                             PROTECTED_PREFIXES.stream()
-                                                    .anyMatch(path::startsWith));
+                                                    .anyMatch(prefix -> path.equals(prefix) || path.startsWith(prefix + "/")));
         }
     }
 
@@ -155,4 +155,3 @@ class SecurityArchTest {
         }
     }
 }
-

@@ -7,7 +7,6 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.payout.application.command.model.MarkTicketPayoutPaidCommand;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
@@ -18,6 +17,7 @@ import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @UseCase
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class MarkTicketPayoutPaidCommandHandler implements CommandHandler<MarkTi
 
     @Override
     @TchTx
-    @RequiresPermission("ticket.payout.mark_paid")
+    @PreAuthorize("hasPermission('ticket.payout.mark_paid')")
     public Ticket handle(MarkTicketPayoutPaidCommand cmd) {
         Ticket ticket = ticketReader.findWithLinesById(cmd.ticketId())
             .orElseThrow(() -> ProblemRestException.notFound("Ticket not found"));
