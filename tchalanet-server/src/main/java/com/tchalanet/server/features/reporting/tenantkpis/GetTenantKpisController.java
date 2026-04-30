@@ -1,12 +1,12 @@
 package com.tchalanet.server.features.reporting.tenantkpis;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +24,7 @@ public class GetTenantKpisController {
 
   @Operation(summary = "Get tenant KPIs report (platform)")
   @GetMapping
-  @RequiresPermission("reporting:view")
+  @PreAuthorize("hasPermission('reporting:view')")
   public KpisResponse get(
       @RequestParam(name = "from", required = false) LocalDate from,
       @RequestParam(name = "to", required = false) LocalDate to,

@@ -4,7 +4,6 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.accesscontrol.application.command.model.CreateRoleCommand;
 import com.tchalanet.server.core.accesscontrol.application.command.model.GrantPermissionToRoleCommand;
 import com.tchalanet.server.core.accesscontrol.application.command.model.RevokePermissionFromRoleCommand;
@@ -25,6 +24,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Access Control")
+@PreAuthorize("hasPermission('roles.manage')")
 public class AccessControlAdminController {
 
   private final CommandBus commandBus;
@@ -47,7 +48,6 @@ public class AccessControlAdminController {
 
   @Operation(summary = "List roles (admin)")
   @GetMapping("/roles")
-  @RequiresPermission("roles.manage")
   public List<RoleAdminResponse> listRoles(@RequestParam(required = false) TenantId tenantId) {
     var roles = queryBus.send(new ListRolesQuery(tenantId));
     return roles.stream()
@@ -57,7 +57,6 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Create or update a role (admin)")
   @PostMapping("/roles")
-  @RequiresPermission("roles.manage")
   public UUID upsertRole(@Valid @RequestBody UpsertRoleRequest request) {
     if (request.id() == null) {
       return commandBus.send(
@@ -85,7 +84,6 @@ public class AccessControlAdminController {
 
   @Operation(summary = "List permissions (admin)")
   @GetMapping("/permissions")
-  @RequiresPermission("roles.manage")
   public List<PermissionResponse> listPermissions() {
     var perms = queryBus.send(new ListPermissionsQuery());
     return perms.stream()
@@ -95,14 +93,12 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Get role permissions (admin)")
   @GetMapping("/roles/{roleId}/permissions")
-  @RequiresPermission("roles.manage")
   public Set<String> getRolePermissions(@PathVariable RoleId roleId) {
     return queryBus.send(new ListRolePermissionsQuery(roleId));
   }
 
   @Operation(summary = "Update role permissions (admin)")
   @PutMapping("/roles/{roleId}/permissions")
-  @RequiresPermission("roles.manage")
   public void updateRolePermissions(
       @PathVariable RoleId roleId, @Valid @RequestBody UpdateRolePermissionsRequest request) {
 

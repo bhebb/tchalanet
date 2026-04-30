@@ -31,9 +31,9 @@ Client Web / Mobile / POS
   ↓ Authorization: Bearer <jwt>
 Spring Security Resource Server
   ↓ validates JWT signature / issuer / audience
-UserBootstrapFilter              (NEW — target)
+UserBootstrapFilter
   ↓ guarantees app_user exists + validates status
-TchContextFilter                 (existing, to adjust)
+TchContextFilter
   ↓ builds TchRequestContext + MDC + ThreadLocal
 Controller / CommandBus / QueryBus
   ↓ business/application flow
@@ -63,11 +63,8 @@ Current code already has:
 - `TchContextResolver` helper;
 - `@CurrentContext` argument resolver.
 
-Current missing piece:
-
-- there is no runtime `UserBootstrapFilter` yet;
-- `TchContextFilter` currently looks up `app_user` but does not create/synchronize it;
-- therefore `appUserId` is not guaranteed for authenticated requests.
+Current implementation includes `UserBootstrapFilter`, which creates/synchronizes `app_user`
+before `TchContextFilter` builds the request context.
 
 ---
 
@@ -284,13 +281,13 @@ Current helper methods include:
 - `withTenantContext(...)`;
 - `withAppUserId(...)`.
 
-### 7.4 Target adjustment
+### 7.4 Bootstrap contract
 
-Once `UserBootstrapFilter` exists:
+With `UserBootstrapFilter` in place:
 
-- `appUserId` should be guaranteed for authenticated non-public requests;
+- `appUserId` is guaranteed for authenticated non-public requests;
 - `currentUserIdRequired()` should represent an exceptional bootstrap failure, not a normal user flow;
-- `TchContextFilter` may keep a defensive lookup, but it should treat missing `app_user` as an internal/bootstrap error on protected endpoints.
+- `TchContextFilter` treats missing `app_user` as an internal/bootstrap error on protected endpoints.
 
 ---
 
@@ -493,11 +490,11 @@ Target adjustment:
 
 ## 14. Implementation checklist
 
-- [ ] Introduce `UserBootstrapFilter`.
-- [ ] Register it before `TchContextFilter`.
-- [ ] Ensure `appUserId` is guaranteed on authenticated protected requests.
-- [ ] Introduce `ADMIN` as a distinct `ApiScope`.
-- [ ] Enforce `403` for non-super-admin override headers.
-- [ ] Propagate `app.api_scope` and `app.is_super_admin` to RLS.
-- [ ] Reset all RLS variables on connection close.
+- [x] Introduce `UserBootstrapFilter`.
+- [x] Register it before `TchContextFilter`.
+- [x] Ensure `appUserId` is guaranteed on authenticated protected requests.
+- [x] Introduce `ADMIN` as a distinct `ApiScope`.
+- [x] Enforce `403` for non-super-admin override headers.
+- [x] Propagate `app.api_scope` and `app.is_super_admin` to RLS.
+- [x] Reset all RLS variables on connection close.
 - [ ] Document web/mobile header contract.

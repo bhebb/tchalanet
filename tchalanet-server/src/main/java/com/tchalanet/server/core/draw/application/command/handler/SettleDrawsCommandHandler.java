@@ -9,7 +9,6 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
@@ -20,6 +19,7 @@ import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReade
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -44,7 +44,7 @@ public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawC
 
     @Override
     @TchTx
-    @RequiresPermission("draw.settle")
+    @PreAuthorize("hasPermission('draw.settle')")
     @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.SETTLE,

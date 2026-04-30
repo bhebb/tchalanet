@@ -2,7 +2,6 @@ package com.tchalanet.server.common.security;
 
 import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.common.bootstrap.user.UserBootstrapLookup;
 import com.tchalanet.server.common.config.ApiProperties;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -34,6 +33,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
+import static com.tchalanet.server.common.constant.ContextKeys.BOOTSTRAPPED_APP_USER_ID;
 import static com.tchalanet.server.common.constant.SecurityClaims.TENANT_CODE;
 import static com.tchalanet.server.common.constant.TchHeaders.*;
 
@@ -42,7 +42,7 @@ import static com.tchalanet.server.common.constant.TchHeaders.*;
  *
  * <p>- Reads tenant from JWT claim "tenant_code" (no retro-compat). - Reads roles via RoleUtils
  * (supports Keycloak realm_access.roles + root roles claim). - Stores Keycloak user id = JWT "sub"
- * (jwt.getSubject()). - SUPER_ADMIN can override tenant via X-Tenant-Id (or ?tenantId=...).
+ * (jwt.getSubject()). - SUPER_ADMIN can override tenant via X-Tenant-Id.
  *
  * <p>Order: runs late so SecurityContext is already populated by BearerTokenAuthenticationFilter.
  */
@@ -54,9 +54,6 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     private final ApiProperties props;
     private final TenantCatalog tenantCatalog;
-    private final UserBootstrapLookup userLookup;
-
-    private final UserSubToUuidCache userCache = new UserSubToUuidCache();
 
     @Override
     protected void doFilterInternal(
@@ -76,19 +73,23 @@ public class TchContextFilter extends OncePerRequestFilter {
             // Tenant UUID resolution rules:
             // - TENANT scope: tenant is required (from JWT tenant_code or defaultTenant for PUBLIC-only)
             // - PUBLIC scope: resolve if present (to enable RLS even on public if you want)
-            if (scope == ApiScope.TENANT) {
+            if (!ctx.isSuperAdmin() && hasSensitiveOverrideHeaders(req)) {
+                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin override header forbidden");
+                return;
+            }
+
+            if (ApiScopeResolver.tenantRequired(req)) {
                 ctx = requireAndResolveTenant(res, ctx);
                 if (ctx == null) return; // response already written
             } else if (scope == ApiScope.PUBLIC) {
                 ctx = optionallyResolveTenant(ctx);
             } else {
-                // ADMIN / PLATFORM: typically tenant comes from JWT claim and is optional at this stage,
-                // but if your app requires it for ADMIN, just call requireAndResolveTenant() here too.
+                // PLATFORM / SDR: tenant may be present but is not required.
                 ctx = optionallyResolveTenant(ctx);
             }
 
-            // resolve app user id from keycloak sub (bootstrap lookup bypassing RLS)
-            ctx = resolveAppUserId(ctx);
+            ctx = attachBootstrappedAppUserId(req, res, ctx);
+            if (ctx == null) return;
 
             // publish context
             req.setAttribute(REQUEST_CONTEXT, ctx);
@@ -229,10 +230,9 @@ public class TchContextFilter extends OncePerRequestFilter {
         systemRoles.addAll(split.system);
         customRoles.addAll(split.custom);
 
-        // 3) SUPER_ADMIN override via header/query
+        // 3) SUPER_ADMIN override via header only
         if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
-            var overrideTenant =
-                Optional.ofNullable(req.getHeader(X_TENANT_ID)).orElse(req.getParameter("tenantId"));
+            var overrideTenant = req.getHeader(X_TENANT_ID);
             if (StringUtils.isNotBlank(overrideTenant)) {
                 effectiveTenantCode = overrideTenant.trim();
                 overridden = true;
@@ -255,10 +255,14 @@ public class TchContextFilter extends OncePerRequestFilter {
     private String resolveDeletedVisibility(HttpServletRequest req, boolean isSuperAdmin) {
         if (!isSuperAdmin) return "active";
         var requested = req.getHeader(X_DELETED_VISIBILITY);
-        if (StringUtils.isBlank(requested)) requested = req.getParameter("deletedVisibility");
         if (requested == null) return "active";
         var v = requested.trim().toLowerCase();
         return (v.equals("active") || v.equals("deleted") || v.equals("all")) ? v : "active";
+    }
+
+    private boolean hasSensitiveOverrideHeaders(HttpServletRequest req) {
+        return StringUtils.isNotBlank(req.getHeader(X_TENANT_ID))
+            || StringUtils.isNotBlank(req.getHeader(X_DELETED_VISIBILITY));
     }
 
 
@@ -282,25 +286,20 @@ public class TchContextFilter extends OncePerRequestFilter {
         return new TenantContextInfo(tenantBootstrapView.tenantId(), tenantBootstrapView.currency(), tenantBootstrapView.timezone());
     }
 
-    private TchRequestContext resolveAppUserId(TchRequestContext ctx) {
-        if (ctx.keycloakUserId() == null) return ctx;
-        if (ctx.appUserId() != null) return ctx;
+    private TchRequestContext attachBootstrappedAppUserId(
+        HttpServletRequest req, HttpServletResponse res, TchRequestContext ctx) throws IOException {
+        if (ctx.keycloakUserId() == null || ctx.appUserId() != null) return ctx;
 
-        // if keycloakUserId is not a UUID string, skip
-        UUID sub;
-        try {
-            sub = UUID.fromString(ctx.keycloakUserId());
-        } catch (IllegalArgumentException e) {
-            return ctx;
+        var appUserId = req.getAttribute(BOOTSTRAPPED_APP_USER_ID);
+        if (appUserId instanceof UUID uuid) {
+            return ctx.withAppUserId(uuid);
         }
 
-        // cache lookup by sub string
-        var cached = userCache.getFresh(sub.toString());
-        if (cached.isPresent()) return cached.map(ctx::withAppUserId).orElse(ctx);
-
-        Optional<UUID> resolved = userLookup.findAppUserIdByKeycloakSub(sub);
-        userCache.put(sub.toString(), resolved);
-        return resolved.map(ctx::withAppUserId).orElse(ctx);
+        if (ctx.apiScope() != ApiScope.PUBLIC) {
+            res.sendError(HttpServletResponse.SC_FORBIDDEN, "User bootstrap required");
+            return null;
+        }
+        return ctx;
     }
 
     private void putMdc(TchRequestContext ctx) {

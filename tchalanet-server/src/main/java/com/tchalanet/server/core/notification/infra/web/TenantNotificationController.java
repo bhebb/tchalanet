@@ -8,7 +8,6 @@ import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.core.accesscontrol.application.annotation.RequiresPermission;
 import com.tchalanet.server.core.notification.application.command.model.ArchiveNotificationCommand;
 import com.tchalanet.server.core.notification.application.command.model.ArchiveNotificationsCommand;
 import com.tchalanet.server.core.notification.application.command.model.MarkNotificationReadCommand;
@@ -24,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,20 +36,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/tenant/notifications")
 @RequiredArgsConstructor
 @Tag(name = "Tenant • Notifications")
+@PreAuthorize("hasPermission('notifications:view')")
 public class TenantNotificationController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
 
   @GetMapping("/summary")
-  @RequiresPermission("notifications:view")
   public ApiResponse<?> summary(@CurrentContext TchRequestContext context) {
     return ApiResponse.success(
         queryBus.send(new GetNotificationSummaryQuery(context.userId(), roleCode(context))));
   }
 
   @GetMapping
-  @RequiresPermission("notifications:view")
   public ApiResponse<?> list(
       @RequestParam(required = false) NotificationStatus status,
       @RequestParam(required = false) NotificationCategory category,
@@ -70,7 +69,6 @@ public class TenantNotificationController {
   }
 
   @PostMapping("/{id}/read")
-  @RequiresPermission("notifications:view")
   public ApiResponse<?> markRead(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
     commandBus.send(new MarkNotificationReadCommand(id, context.userId()));
@@ -78,7 +76,6 @@ public class TenantNotificationController {
   }
 
   @PostMapping("/read")
-  @RequiresPermission("notifications:view")
   public ApiResponse<?> markRead(
       @Valid @RequestBody NotificationBulkActionRequest request,
       @CurrentContext TchRequestContext context) {
@@ -89,7 +86,6 @@ public class TenantNotificationController {
   }
 
   @PostMapping("/{id}/archive")
-  @RequiresPermission("notifications:view")
   public ApiResponse<?> archive(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
     commandBus.send(new ArchiveNotificationCommand(id, context.userId()));
@@ -97,7 +93,6 @@ public class TenantNotificationController {
   }
 
   @PostMapping("/archive")
-  @RequiresPermission("notifications:view")
   public ApiResponse<?> archive(
       @Valid @RequestBody NotificationBulkActionRequest request,
       @CurrentContext TchRequestContext context) {

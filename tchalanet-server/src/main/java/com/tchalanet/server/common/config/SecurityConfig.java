@@ -3,6 +3,8 @@ package com.tchalanet.server.common.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import com.tchalanet.server.common.security.TchContextFilter;
+import com.tchalanet.server.common.security.UserBootstrapFilter;
 import jakarta.servlet.DispatcherType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -31,6 +34,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -46,7 +50,12 @@ public class SecurityConfig {
   boolean webSecurityDebug;
 
   @Bean
-  SecurityFilterChain security(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
+  SecurityFilterChain security(
+      HttpSecurity http,
+      JwtDecoder jwtDecoder,
+      UserBootstrapFilter userBootstrapFilter,
+      TchContextFilter tchContextFilter)
+      throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())
         // ✅ API stateless (pas de session)
@@ -82,15 +91,15 @@ public class SecurityConfig {
                     .requestMatchers("/error", "/api/v1/error")
                     .permitAll()
                     .requestMatchers("/_sdr/**", "/api/v1/_sdr/**")
-                    .hasAnyRole("TENANT_ADMIN", "SUPER_ADMIN")
+                    .authenticated()
 
                     // PLATFORM scope: platform-level APIs (no tenant): require SUPER_ADMIN
                     .requestMatchers("/api/v1/platform/**", "/platform/**")
-                    .hasAnyRole("TENANT_ADMIN", "SUPER_ADMIN")
+                    .hasRole("SUPER_ADMIN")
 
                     // ADMIN scope: tenant-administration APIs (tenant context required)
                     .requestMatchers("/api/v1/admin/**", "/admin/**")
-                    .hasAnyRole("TENANT_ADMIN", "SUPER_ADMIN")
+                    .authenticated()
 
                     // TENANT scope: tenant business APIs (authenticated users within a tenant)
                     .requestMatchers("/api/v1/tenant/**", "/tenant/**")
@@ -102,7 +111,9 @@ public class SecurityConfig {
         .oauth2ResourceServer(
             oauth ->
                 oauth.jwt(
-                    jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(this::convert)));
+                    jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(this::convert)))
+        .addFilterAfter(userBootstrapFilter, BearerTokenAuthenticationFilter.class)
+        .addFilterAfter(tchContextFilter, UserBootstrapFilter.class);
 
     return http.build();
   }
@@ -138,27 +149,33 @@ public class SecurityConfig {
     return s.startsWith("ROLE_") ? s : "ROLE_" + s;
   }
 
+  private static String asRawAuthority(Object r) {
+    if (r == null) return null;
+    String s = r.toString().trim();
+    if (s.isEmpty()) return null;
+    return s.startsWith("ROLE_") ? s.substring("ROLE_".length()) : s;
+  }
+
+  private static void addRoleAuthorities(Collection<GrantedAuthority> auths, Object role) {
+    var raw = asRawAuthority(role);
+    var prefixed = asRoleAuthority(role);
+    if (raw != null) auths.add(new SimpleGrantedAuthority(raw));
+    if (prefixed != null) auths.add(new SimpleGrantedAuthority(prefixed));
+  }
+
   private AbstractAuthenticationToken convert(Jwt jwt) {
     Collection<GrantedAuthority> auths = new ArrayList<>();
 
     // realm_access.roles (Keycloak standard)
     Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
     if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
-      roles.stream()
-          .map(SecurityConfig::asRoleAuthority)
-          .filter(java.util.Objects::nonNull)
-          .map(SimpleGrantedAuthority::new)
-          .forEach(auths::add);
+      roles.forEach(role -> addRoleAuthorities(auths, role));
     }
 
     // root roles claim (ton cas)
     List<String> flatRoles = jwt.getClaimAsStringList("roles");
     if (flatRoles != null) {
-      flatRoles.stream()
-          .map(SecurityConfig::asRoleAuthority)
-          .filter(java.util.Objects::nonNull)
-          .map(SimpleGrantedAuthority::new)
-          .forEach(auths::add);
+      flatRoles.forEach(role -> addRoleAuthorities(auths, role));
     }
 
     return new JwtAuthenticationToken(jwt, auths);
@@ -167,5 +184,20 @@ public class SecurityConfig {
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return (web) -> web.debug(webSecurityDebug);
+  }
+
+  @Bean
+  FilterRegistrationBean<UserBootstrapFilter> userBootstrapFilterRegistration(
+      UserBootstrapFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
+  }
+
+  @Bean
+  FilterRegistrationBean<TchContextFilter> tchContextFilterRegistration(TchContextFilter filter) {
+    var registration = new FilterRegistrationBean<>(filter);
+    registration.setEnabled(false);
+    return registration;
   }
 }

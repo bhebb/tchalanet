@@ -50,17 +50,16 @@ Current code already has:
   - `CASHIER`,
   - `SYSTEM`;
 - `MethodSecurityConfig` registering `TchPermissionEvaluator`;
-- `TchPermissionEvaluator` calling `CheckUserPermissionsHandler` directly;
-- `RequiresPermissionAspect` calling `QueryBus`;
+- `TchPermissionEvaluator` calling `QueryBus`;
+- `RequiresPermissionAspect` deprecated as a compatibility shell;
 - `CheckUserPermissionsQuery` / `CheckUserPermissionsHandler` concept;
 - `SecurityConfig` with method security enabled.
 
-Known issues to fix:
+Resolved refactor points:
 
-- `TchPermissionEvaluator` currently expects `Authentication.getPrincipal()` to be `TchRequestContext`, but Spring Security currently uses a `JwtAuthenticationToken` whose principal is `Jwt`;
-- both `@PreAuthorize(...hasPermission...)` and `@RequiresPermission` exist, causing two authorization entrypoints;
-- evaluator should use `QueryBus`, not handler direct injection;
-- tenant/user must come from `TchRequestContext`, not the Spring principal.
+- `TchPermissionEvaluator` resolves tenant/user through `TchContextResolver`, not the Spring principal;
+- `@PreAuthorize(...hasPermission...)` is the canonical authorization entrypoint;
+- evaluator uses `QueryBus`, not handler direct injection.
 
 ---
 
@@ -69,7 +68,7 @@ Known issues to fix:
 ```text
 Controller method
   ↓
-@PreAuthorize("hasPermission('permission.key')")
+@PreAuthorize("hasPermission(null, 'permission.key')")
   ↓
 TchPermissionEvaluator
   ↓
@@ -91,7 +90,7 @@ allow / deny
 The canonical style is Spring Method Security:
 
 ```java
-@PreAuthorize("hasPermission('ticket.read')")
+@PreAuthorize("hasPermission(null, 'ticket.read')")
 @GetMapping
 public ApiResponse<TchPage<TicketResponse>> list(...) {
   ...
@@ -376,7 +375,7 @@ It must not:
 
 Controllers must:
 
-- use `@PreAuthorize("hasPermission('...')")` for protected actions;
+- use `@PreAuthorize("hasPermission(null, '...')")` for protected actions;
 - keep business logic out;
 - inject `@CurrentContext TchRequestContext` when needed for request mapping;
 - delegate to `CommandBus` / `QueryBus`.
