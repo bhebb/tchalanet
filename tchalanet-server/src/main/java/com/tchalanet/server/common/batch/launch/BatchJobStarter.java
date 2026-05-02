@@ -1,14 +1,13 @@
 package com.tchalanet.server.common.batch.launch;
 
-import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.gate.BatchDisabledException;
+import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.batch.params.JobParamsValidator;
-import com.tchalanet.server.common.batch.registry.JobRegistry;
 import com.tchalanet.server.common.batch.registry.RegisteredJob;
+import com.tchalanet.server.common.batch.registry.TchBatchJobRegistry;
 import com.tchalanet.server.common.types.id.TenantId;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.JobExecution;
@@ -27,13 +26,12 @@ import java.util.UUID;
  * Starts batch jobs (Spring Batch 6).
  *
  * Responsibilities:
- * - Allowlist (JobRegistry)
+ * - Allowlist (TchBatchJobRegistry)
  * - Gate (BatchGate)
  * - Params validation (JobParamsValidator)
  * - Build JobParameters (+ ts)
  * - Resolve Job bean
  * - Start via JobOperator.start(Job, JobParameters)
- *
  * Notes:
  * - JobLauncher is deprecated since SB6 in favor of JobOperator.
  * - We intentionally use a unique identifying "ts" parameter so Ops can launch
@@ -41,25 +39,44 @@ import java.util.UUID;
  *   Restart semantics should be handled by dedicated endpoints later if needed.
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class BatchJobStarter {
 
-    private final JobRegistry jobRegistry;
+    private final TchBatchJobRegistry tchBatchJobRegistry;
     private final BatchGate gate;
     private final JobParamsValidator validator;
     private final JobOperator jobOperator;
     private final ApplicationContext applicationContext;
     private final Clock clock;
 
+    public BatchJobStarter(
+        TchBatchJobRegistry tchBatchJobRegistry,
+        BatchGate gate,
+        JobParamsValidator validator,
+        JobOperator jobOperator,
+        ApplicationContext applicationContext,
+        Clock clock
+    ) {
+        this.tchBatchJobRegistry = tchBatchJobRegistry;
+        this.gate = gate;
+        this.validator = validator;
+        this.jobOperator = jobOperator;
+        this.applicationContext = applicationContext;
+        this.clock = clock;
+    }
+
     public JobExecution start(JobKey jobKey, Map<String, String> params) {
-        if (jobKey == null) throw new IllegalArgumentException("jobKey required");
-        if (params == null) throw new IllegalArgumentException("params required");
+        if (jobKey == null) {
+            throw new IllegalArgumentException("jobKey required");
+        }
+        if (params == null) {
+            throw new IllegalArgumentException("params required");
+        }
 
         log.info("batch.start.requested jobKey={} paramsKeys={}", jobKey, params.keySet());
 
         // 1) allowlist
-        var registered = jobRegistry.find(jobKey)
+        var registered = tchBatchJobRegistry.find(jobKey)
             .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
 
         // 2) tenantId if needed

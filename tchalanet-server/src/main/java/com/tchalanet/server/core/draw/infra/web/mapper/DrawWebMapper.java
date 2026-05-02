@@ -19,6 +19,5 @@ public interface DrawWebMapper {
   @Mapping(target = "drawTime", expression = "java(draw.scheduledAt() == null ? null : draw.scheduledAt().toOffsetDateTime())")
   @Mapping(target = "cutoffTime", expression = "java(draw.cutoffAt() == null ? null : draw.cutoffAt().toOffsetDateTime())")
   @Mapping(target = "isNext", constant = "false")
-  @Mapping(target = "lastResult", expression = "java(java.util.List.of())")
   DrawSummaryResponse toDrawSummaryResponse(Draw draw);
 }

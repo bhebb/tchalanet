@@ -5,6 +5,8 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
 
 import com.tchalanet.server.common.batch.gate.BatchDisabledException;
 import com.tchalanet.server.core.accesscontrol.domain.exception.PermissionsDeniedException;
+import com.tchalanet.server.core.draw.application.exception.DrawNotFoundException;
+import com.tchalanet.server.core.drawresult.application.exception.DrawResultNotFoundException;
 import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaEntryException;
 import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaLangException;
 import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaNumberException;
@@ -78,10 +80,27 @@ public class ErrorHandler {
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleNotFound(
       EntityNotFoundException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    return doHandleNotFound(ex.getMessage(), ex, req);
+  }
+
+  @ExceptionHandler(DrawNotFoundException.class)
+  public ResponseEntity<ProblemDetail> handleDrawNotFound(
+      DrawNotFoundException ex, HttpServletRequest req) {
+    return doHandleNotFound(ex.getMessage(), ex, req);
+  }
+
+  @ExceptionHandler(DrawResultNotFoundException.class)
+  public ResponseEntity<ProblemDetail> handleDrawResultNotFound(
+      DrawResultNotFoundException ex, HttpServletRequest req) {
+    return doHandleNotFound(ex.getMessage(), ex, req);
+  }
+
+  private ResponseEntity<ProblemDetail> doHandleNotFound(
+      String message, Exception ex, HttpServletRequest req) {
+    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, message);
     pd.setTitle("Resource not found");
     decorate(pd, req, ex, true);
-    log.warn("[404] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+    log.warn("[404] {} {} - {}", req.getMethod(), req.getRequestURI(), message);
     return buildResponse(pd, req, HttpStatus.NOT_FOUND);
   }
 

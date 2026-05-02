@@ -12,6 +12,7 @@ import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -60,6 +61,10 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     return repo.bulkOpen(ids);
   }
 
+    private static Timestamp ts(Instant i) {
+        return i == null ? null : Timestamp.from(i);
+    }
+
   @Override
   public int bulkInsert(List<NewDrawRow> rows) {
     if (rows == null || rows.isEmpty()) return 0;
@@ -68,11 +73,12 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         "INSERT INTO draw ("
             + "id, tenant_id, draw_channel_id, "
             + "draw_date, scheduled_at, cutoff_at, "
-            + "cutoff_sec, status, draw_source, "
+            + "status, "
             + "system_generated, locked, "
             + "created_at, updated_at) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now()) "
-            + "ON CONFLICT (tenant_id, draw_channel_id, draw_date) DO NOTHING";
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now()) "
+            + "ON CONFLICT (tenant_id, draw_channel_id, draw_date) "
+            + "WHERE deleted_at IS NULL DO NOTHING";
 
     final int chunkSize = 200;
     int created = 0;
@@ -97,27 +103,16 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
                   else ps.setNull(4, Types.DATE);
 
                   // timestamptz: prefer setObject(Instant)
-                  if (r.scheduledAt() != null) ps.setObject(5, r.scheduledAt());
-                  else ps.setNull(5, Types.TIMESTAMP_WITH_TIMEZONE);
+                  if (r.scheduledAt() != null) ps.setTimestamp(5, ts(r.scheduledAt()));
+                  else ps.setNull(5, Types.TIMESTAMP);
 
-                  if (r.cutoffAt() != null) ps.setObject(6, r.cutoffAt());
-                  else ps.setNull(6, Types.TIMESTAMP_WITH_TIMEZONE);
+                  if (r.cutoffAt() != null) ps.setTimestamp(6, ts(r.cutoffAt()));
+                  else ps.setNull(6, Types.TIMESTAMP);
 
-                  Integer cutoffSec = null;
-                  if (r.cutoffAt() != null && r.scheduledAt() != null) {
-                    long diff = r.scheduledAt().getEpochSecond() - r.cutoffAt().getEpochSecond();
-                    cutoffSec = (int) Math.max(0, diff);
-                  }
-                  if (cutoffSec == null) ps.setNull(7, Types.INTEGER);
-                  else ps.setInt(7, cutoffSec);
+                  ps.setString(7, r.status());
 
-                  ps.setString(8, r.status());
-
-                  if (r.drawSource() != null) ps.setString(9, r.drawSource());
-                  else ps.setNull(9, Types.VARCHAR);
-
-                  ps.setBoolean(10, r.systemGenerated());
-                  ps.setBoolean(11, r.locked());
+                  ps.setBoolean(8, r.systemGenerated());
+                  ps.setBoolean(9, r.locked());
                 }
 
                 @Override

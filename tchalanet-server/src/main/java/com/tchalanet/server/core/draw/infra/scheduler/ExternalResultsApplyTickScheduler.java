@@ -7,7 +7,6 @@ import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -32,22 +30,22 @@ public class ExternalResultsApplyTickScheduler {
     private final BatchGate gate;
     private final TenantCatalog tenantCatalog;
     private final ResultSlotCatalog resultSlotCatalog;
-    private final DrawResultsCommonProperties props;
     private final Clock clock;
     private final BatchTchContextBinder binder;
 
-    @Scheduled(cron = "${tch.draw.results.shared.scheduler.apply_cron:30 */5 * * * *}")
+    @Scheduled(cron = "${tch.draw.results.scheduler.apply_cron:30 */5 * * * *}")
     @SchedulerLock(name = "draw_results_apply_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tickApply() {
+        log.info("draw-result.apply.tick fired");
         if (!gate.enabled(BatchJobKeys.RESULTS_EXTERNAL_APPLY, null)) {
-            log.debug("draw-results.apply.tick: gate=OFF");
+            log.info("draw-results.apply.tick: gate=OFF");
             return;
         }
 
         try {
             var tenants = tenantCatalog.listActiveTenantIds();
             if (tenants == null || tenants.isEmpty()) {
-                log.debug("draw-results.apply.tick: tenants=0");
+                log.info("draw-results.apply.tick: tenants=0");
                 return;
             }
 
@@ -56,12 +54,12 @@ public class ExternalResultsApplyTickScheduler {
                 .toList();
 
             if (slots.isEmpty()) {
-                log.debug("draw-results.apply.tick: slots=0");
+                log.info("draw-results.apply.tick: slots=0");
                 return;
             }
 
             for (TenantId tenantId : tenants) {
-                var now = Instant.now(clock);
+                var now = clock.instant();
                 var requestId = "tick-" + now.toEpochMilli() + "-" + UUID.randomUUID();
 
                 var jp = new JobParametersBuilder()

@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.domain.service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface DrawResultMatchView {
 
@@ -10,14 +11,14 @@ public interface DrawResultMatchView {
   String lot3();
 
   // Lotto5 uses pick3 (si applicable)
-  String pick3(); // "000".."999" (nullable)
+  String lot4(); // "000".."999" (nullable)
 
   default Set<String> twoDigits() {
     return Set.of(
         lot1() == null ? "" : lot1(),
         lot2() == null ? "" : lot2(),
         lot3() == null ? "" : lot3()
-    ).stream().filter(s -> s != null && !s.isBlank()).collect(java.util.stream.Collectors.toSet());
+    ).stream().filter(s -> !s.isBlank()).collect(Collectors.toSet());
   }
 }
 

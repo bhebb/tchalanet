@@ -10,7 +10,6 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.pagemodel.application.command.model.ResetPageModelCommand;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReaderPort;
@@ -18,8 +17,10 @@ import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWriterP
 import com.tchalanet.server.core.pagemodel.domain.event.PageModelResetEvent;
 import com.tchalanet.server.core.pagemodel.infra.web.PageModelAdminMapper;
 import com.tchalanet.server.core.pagemodel.infra.web.dto.PageModelAdminDetailDto;
-import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+
+import java.time.Clock;
+import java.time.Instant;
 
 /**
  * Réinitialise un PageModel à partir du modèle par défaut de son template lié.
@@ -42,6 +43,7 @@ public class ResetPageModelHandler
   private final DomainEventPublisher events;
   private final IdGenerator idGenerator;
   private final JsonUtils jsonUtils;
+  private final Clock clock;
 
   @Override
   @TchTx
@@ -52,21 +54,19 @@ public class ResetPageModelHandler
     // Charge le modèle par défaut depuis le template lié (si templateId présent)
     // ou remet à {} si pas de template (conforme UpsertPageModelHandler — fallback vide)
     var defaultModel = instance.templateId()
-        .flatMap(tid -> templateCatalog.findById(
-            com.tchalanet.server.common.types.id.PageModelTemplateId.of(tid)))
+        .flatMap(templateCatalog::findById)
         .map(PageModelTemplateView::model)
         .orElseGet(jsonUtils::emptyObjectNode);
-
-    var reset = instance.resetToTemplate(defaultModel, cmd.actorId());
+        var now = Instant.now(clock);
+    var reset = instance.resetToTemplate(defaultModel, instance.schemaVersion(), now, cmd.actorId());
     var saved = writer.save(reset);
 
     // Publish after-commit pour invalidation de cache (conform event_model.md §4 + §3.1)
-    var tenantId = TenantId.nullableOf(saved.tenantId());
     AfterCommit.run(() ->
         events.publish(new PageModelResetEvent(
             EventId.of(idGenerator.newUuid()),
             Instant.now(),
-            tenantId,
+            saved.tenantId(),
             cmd.id(),
             cmd.actorId()
         ))

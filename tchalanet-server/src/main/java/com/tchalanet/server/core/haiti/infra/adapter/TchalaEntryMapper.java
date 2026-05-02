@@ -17,7 +17,7 @@ final class TchalaEntryMapper {
     var numbers =
         e.getNumbers().stream()
             .filter(n -> e.getLang().equals(n.getLang()))
-            .map(n -> TchalaNumber.of(n.getNumber()))
+            .map(n -> TchalaNumber.of(n.getPk().getNumber()))
             .sorted(Comparator.comparingInt(TchalaNumber::value))
             .toList();
 

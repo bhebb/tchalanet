@@ -37,6 +37,10 @@ Rules:
 - Collections use `TchPage<T>` (not Spring `Page`)
 - Controllers use typed ID wrappers (`TenantId`, `TicketId`, …)
 - Controllers remain thin (mapping, validation, delegation only)
+- Exception handling:
+  - NEVER throw low-level exceptions like `EntityNotFoundException` or `ProblemRest` from domain handlers/use cases.
+  - ALWAYS use domain-specific exceptions (e.g., `DrawNotFoundException`).
+  - Map domain exceptions to `ProblemDetail` (404, 422, etc.) in the global `ErrorHandler`.
 
 ---
 

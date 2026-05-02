@@ -37,6 +37,16 @@ spring:
       host: localhost
       port: 6379
       password: devredis
+tch:
+  draw:
+    # lifecycle:
+      #generate_cron: "*/30 * * * * *"
+    results:
+      scheduler:
+        due:
+          min_minutes_after_draw: 0
+          max_minutes_after_draw: 1440
+          lookback_minutes: 1440
 
   # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
   batch:
@@ -47,3 +57,4 @@ spring:
 springdoc:
   swagger-ui:
     oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html
+

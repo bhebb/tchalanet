@@ -7,25 +7,26 @@ import com.tchalanet.server.common.context.TenantContextInfo;
 import com.tchalanet.server.common.security.ApiScope;
 import com.tchalanet.server.common.types.enums.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
-import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Binds JobParameters to TchRequestContext for batch jobs.
- *
+ * <p>
  * Rules:
  * - If tenant_id is present => TENANT scope (tenant-scoped writes allowed by RLS).
  * - If tenant_id is absent  => PLATFORM scope (no tenant implied; cross-tenant SELECT allowed
- *   only if is_super_admin + api_scope=platform; writes must remain safe/global).
- *
+ * only if is_super_admin + api_scope=platform; writes must remain safe/global).
+ * <p>
  * Timezone/currency are NEVER passed as job parameters.
  * For tenant scope, they are loaded from TenantCatalog bootstrap.
  */
@@ -94,12 +95,12 @@ public class BatchTchContextBinder {
         // -------------------------
         TenantId tenantId = TenantId.parse(tenantIdRaw);
 
-        BatchTenantBootstrap info =
+        var info =
             tenantBootstrapProvider
                 .findBootstrapById(tenantId)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown tenant_id: " + tenantId));
 
-        ZoneId effectiveZone = info.timezone();
+        ZoneId effectiveZone = info.timezone() == null ? ZoneId.of("UTC") : info.timezone();
         var effectiveCurrency = info.currency();
 
         var tenantCtx = new TenantContextInfo(info.tenantId(), effectiveCurrency, effectiveZone);
@@ -132,7 +133,7 @@ public class BatchTchContextBinder {
         MDC.put("tenant_code", info.code());
         MDC.put("tenant_uuid", tenantId.value().toString());
         MDC.put("tz", tenantCtx.tenantZoneId().getId());
-        MDC.put("ccy", tenantCtx.currency().getCurrencyCode());
+        MDC.put("ccy", tenantCtx.currency() == null ? "" : tenantCtx.currency().getCurrencyCode());
         MDC.put("reqId", requestId);
         MDC.put("actor", actor);
 

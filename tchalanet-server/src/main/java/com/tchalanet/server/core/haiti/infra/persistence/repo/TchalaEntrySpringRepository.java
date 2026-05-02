@@ -32,30 +32,30 @@ public interface TchalaEntrySpringRepository extends JpaRepository<TchalaEntryJp
   Page<TchalaEntryJpaEntity> listPending(
       @Param("lang") String lang, @Param("conflictOnly") boolean conflictOnly, Pageable pageable);
 
-  @Query(
-      value =
-          """
-    select distinct e from TchalaEntryJpaEntity e
-    join e.numbers n
-    where e.lang = :lang
-      and e.status = 'APPROVED'
-      and e.canonicalEntryId is null
-      and n.lang = :lang
-      and n.number = :number
-    order by e.updatedAt desc
-  """,
-      countQuery =
-          """
-    select count(distinct e.id) from TchalaEntryJpaEntity e
-    join e.numbers n
-    where e.lang = :lang
-      and e.status = 'APPROVED'
-      and e.canonicalEntryId is null
-      and n.lang = :lang
-      and n.number = :number
-  """)
-  Page<TchalaEntryJpaEntity> findApprovedByNumber(
-      @Param("lang") String lang, @Param("number") short number, Pageable pageable);
+    @Query(
+        value =
+            """
+      select distinct e from TchalaEntryJpaEntity e
+      join e.numbers n
+      where e.lang = :lang
+        and e.status = 'APPROVED'
+        and e.canonicalEntryId is null
+        and n.pk.lang = :lang
+        and n.pk.number = :number
+      order by e.updatedAt desc
+    """,
+        countQuery =
+            """
+      select count(distinct e.id) from TchalaEntryJpaEntity e
+      join e.numbers n
+      where e.lang = :lang
+        and e.status = 'APPROVED'
+        and e.canonicalEntryId is null
+        and n.pk.lang = :lang
+        and n.pk.number = :number
+    """)
+    Page<TchalaEntryJpaEntity> findApprovedByNumber(
+        @Param("lang") String lang, @Param("number") short number, Pageable pageable);
 
   @Query(
       """

@@ -1,11 +1,14 @@
 package com.tchalanet.server.core.drawresult.infra.web;
 
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.drawresult.application.query.model.ListDrawResultsQuery;
+import com.tchalanet.server.core.drawresult.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import com.tchalanet.server.core.drawresult.infra.web.mapper.DrawResultWebMapper;
 import com.tchalanet.server.core.drawresult.infra.web.model.DrawResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,76 +35,102 @@ public class DrawResultsController {
     private final DrawResultWebMapper mapper;
     private final Clock clock;
 
-    @Operation(summary = "List draw results (admin)")
+    @Operation(summary = "List draw results")
     @GetMapping
     public ApiResponse<TchPage<DrawResultResponse>> list(
-        @RequestParam(required = false) String provider,
         @RequestParam(required = false) String slotKey,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+        @RequestParam(required = false) DrawResultStatus status,
+        @RequestParam(required = false) ResultQuality quality,
+        @RequestParam(required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate from,
+        @RequestParam(required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate to,
         @TchPaging(
-            allowedSort = {"occurredAt", "drawDate", "slotKey"},
-            defaultSort = {"occurredAt,DESC"})
-        TchPageRequest pageReq) {
+            allowedSort = {"occurredAt", "slotKey", "status", "quality"},
+            defaultSort = {"occurredAt,DESC"}
+        ) TchPageRequest pageReq
+    ) {
+        var page = queryBus.send(
+            new ListDrawResultsQuery(
+                slotKey,
+                status,
+                quality,
+                from,
+                to,
+                pageReq.pageable()
+            )
+        );
 
-        var page = queryBus.send(new ListDrawResultsQuery(provider, slotKey, from, to, pageReq.pageable()));
-        var items = page.items().stream().map(mapper::toResponse).toList();
-
-        return ApiResponse.success(TchPage.of(
-            items,
-            page.page(),
-            page.size(),
-            page.totalElements(),
-            page.totalPages(),
-            page.last(),
-            page.hasNext(),
-            page.hasPrevious()));
+        return ApiResponse.success(toResponsePage(page));
     }
 
-    @Operation(summary = "List today's draw results (admin)")
+    @Operation(summary = "List today's draw results")
     @GetMapping("/today")
     public ApiResponse<TchPage<DrawResultResponse>> listToday(
-        @RequestParam(required = false) String provider,
         @RequestParam(required = false) String slotKey,
+        @RequestParam(required = false) DrawResultStatus status,
+        @RequestParam(required = false) ResultQuality quality,
         @TchPaging(
-            allowedSort = {"occurredAt", "drawDate", "slotKey"},
-            defaultSort = {"occurredAt,DESC"})
-        TchPageRequest pageReq) {
-
+            allowedSort = {"occurredAt", "slotKey", "status", "quality"},
+            defaultSort = {"occurredAt,DESC"}
+        ) TchPageRequest pageReq
+    ) {
         var today = LocalDate.now(clock);
-        var page = queryBus.send(new ListDrawResultsQuery(provider, slotKey, today, today, pageReq.pageable()));
-        var items = page.items().stream().map(mapper::toResponse).toList();
 
-        return ApiResponse.success(TchPage.of(
-            items,
-            page.page(),
-            page.size(),
-            page.totalElements(),
-            page.totalPages(),
-            page.last(),
-            page.hasNext(),
-            page.hasPrevious()));
+        var page = queryBus.send(
+            new ListDrawResultsQuery(
+                slotKey,
+                status,
+                quality,
+                today,
+                today,
+                pageReq.pageable()
+            )
+        );
+
+        return ApiResponse.success(toResponsePage(page));
     }
 
-    @Operation(summary = "List draw results for last N days (admin)")
+    @Operation(summary = "List draw results for last N days")
     @GetMapping("/last-days")
     public ApiResponse<TchPage<DrawResultResponse>> listLastDays(
-        @RequestParam(required = false) String provider,
         @RequestParam(required = false) String slotKey,
+        @RequestParam(required = false) DrawResultStatus status,
+        @RequestParam(required = false) ResultQuality quality,
         @RequestParam int days,
         @TchPaging(
-            allowedSort = {"occurredAt", "drawDate", "slotKey"},
-            defaultSort = {"occurredAt,DESC"})
-        TchPageRequest pageReq) {
+            allowedSort = {"occurredAt", "slotKey", "status", "quality"},
+            defaultSort = {"occurredAt,DESC"}
+        ) TchPageRequest pageReq
+    ) {
+        var n = clampDays(days);
+        var to = LocalDate.now(clock);
+        var from = to.minusDays(n - 1L);
 
-        int n = clampDays(days);
-        LocalDate to = LocalDate.now(clock);
-        LocalDate from = to.minusDays(n - 1);
+        var page = queryBus.send(
+            new ListDrawResultsQuery(
+                slotKey,
+                status,
+                quality,
+                from,
+                to,
+                pageReq.pageable()
+            )
+        );
 
-        var page = queryBus.send(new ListDrawResultsQuery(provider, slotKey, from, to, pageReq.pageable()));
-        var items = page.items().stream().map(mapper::toResponse).toList();
+        return ApiResponse.success(toResponsePage(page));
+    }
 
-        return ApiResponse.success(TchPage.of(
+    private TchPage<DrawResultResponse> toResponsePage(
+        TchPage<DrawResultView> page
+    ) {
+        var items = page.items().stream()
+            .map(mapper::toResponse)
+            .toList();
+
+        return TchPage.of(
             items,
             page.page(),
             page.size(),
@@ -109,12 +138,11 @@ public class DrawResultsController {
             page.totalPages(),
             page.last(),
             page.hasNext(),
-            page.hasPrevious()));
+            page.hasPrevious()
+        );
     }
 
     private static int clampDays(int days) {
-        // MVP guardrails
-        int x = Math.max(1, days);
-        return Math.min(366, x);
+        return Math.clamp(days, 1, 366);
     }
 }

@@ -4,6 +4,7 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
 import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
@@ -40,6 +41,7 @@ public class ApplyExternalResultsWindowCommandHandler
     private final IdGenerator idGenerator;
 
     @Override
+    @TchTx
     public ApplyExternalResultsWindowResult handle(ApplyExternalResultsWindowCommand cmd) {
         validate(cmd);
 
@@ -125,7 +127,7 @@ public class ApplyExternalResultsWindowCommandHandler
                         cmd.tenantId(),
                         slotKey,
                         date,
-                        e.toString());
+                        e.getLocalizedMessage(), e);
                 }
             }
         }

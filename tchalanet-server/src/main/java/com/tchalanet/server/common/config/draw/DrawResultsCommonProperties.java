@@ -6,9 +6,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "tch.draw.results.shared")
+@ConfigurationProperties(prefix = "tch.draw.results")
 public class DrawResultsCommonProperties {
 
+  private boolean active;
   private Limits limits = new Limits();
   private Defaults defaults = new Defaults();
   private Scheduler scheduler = new Scheduler();

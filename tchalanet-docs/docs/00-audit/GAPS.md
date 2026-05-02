@@ -38,7 +38,7 @@
 | `TicketEntity` + `TicketLineEntity` + schéma V9 | PRÉSENT        | —      |                                                            |
 | `TicketController` + `SellTicketCommandHandler` | PRÉSENT        | —      | Core sales complet côté domain                             |
 | `PublicTicketController`                        | PRÉSENT        | —      | Vérification ticket public                                 |
-| `PosSessionController`                          | PRÉSENT        | —      | Session POS / caissier                                     |
+| `SalesSessionController`                        | PRÉSENT        | —      | Session POS / caissier                                     |
 | `LimitPolicy` + `DrawExposure`                  | PRÉSENT        | —      | V14 + V19, `ApplySaleExposureHandlerTest`                  |
 | Page Angular `/app/tickets`                     | PRÉSENT (stub) | M      | `TicketsPage` existe mais contenu minimal                  |
 | Vente de ticket depuis le POS Flutter           | PARTIEL        | L      | App Flutter présente, intégration POS API à confirmer      |

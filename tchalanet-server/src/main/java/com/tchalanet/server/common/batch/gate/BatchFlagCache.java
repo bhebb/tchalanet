@@ -25,21 +25,30 @@ public class BatchFlagCache {
         if (cache == null) {
             return safeLoad(loaderSupplier);
         }
+
         try {
-            // cache.get(key, Callable) may store null depending on cache impl;
-            // we treat null as "not found".
-            return cache.get(cacheKey, loaderSupplier::get);
+            var cached = cache.get(cacheKey, Boolean.class);
+            if (cached != null) {
+                return cached;
+            }
+
+            var loaded = safeLoad(loaderSupplier);
+            if (loaded != null) {
+                cache.put(cacheKey, loaded);
+            }
+
+            return loaded;
         } catch (Exception ex) {
-            log.warn("batch.flagcache.get.failed cacheKey={} cause={}", cacheKey, ex.toString());
-            return safeLoad(loaderSupplier);
+            log.warn("batch.flagcache.get.failed cacheKey={} cause={}", cacheKey, ex.getLocalizedMessage(), ex);
         }
+        return safeLoad(loaderSupplier);
     }
 
     public void put(String cacheKey, boolean value) {
         var cache = cacheManager.getCache(CACHE_NAME);
         if (cache == null) return;
         try {
-            cache.put(cacheKey, Boolean.valueOf(value));
+            cache.put(cacheKey, value);
         } catch (Exception ex) {
             log.warn("batch.flagcache.put.failed cacheKey={} cause={}", cacheKey, ex.toString());
         }

@@ -14,8 +14,8 @@ public final class DaysOfWeekFormatter {
     if (days == null || days.isEmpty()) return "";
     if (days.size() == 7) return "MON-SUN";
     List<DayOfWeek> sorted = days.stream().distinct().sorted(Comparator.comparingInt(DayOfWeek::getValue)).collect(Collectors.toList());
-    DayOfWeek start = sorted.get(0);
-    DayOfWeek end = sorted.get(sorted.size() - 1);
+    DayOfWeek start = sorted.getFirst();
+    DayOfWeek end = sorted.getLast();
     boolean contiguous = true;
     int expected = start.getValue();
     for (DayOfWeek d : sorted) {
@@ -59,7 +59,7 @@ public final class DaysOfWeekFormatter {
         .collect(Collectors.toList());
   }
 
-  private static DayOfWeek parseToken(String token) {
+  public static DayOfWeek parseToken(String token) {
     String t = token.trim().toUpperCase();
     return switch (t) {
         case "MON" -> DayOfWeek.MONDAY;

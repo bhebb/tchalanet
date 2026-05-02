@@ -6,21 +6,22 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
-import com.tchalanet.server.common.time.OccurredAtResolver;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @RequiredArgsConstructor
@@ -32,6 +33,7 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
   private final ResultSlotCatalog resultSlotCatalog;
   private final IdGenerator idGenerator;
   private final Clock clock;
+  private final JsonUtils jsonUtils;
 
   @Override
   public DrawSummary handle(CreateDrawCommand command) {
@@ -90,6 +92,6 @@ public class CreateDrawCommandHandler implements CommandHandler<CreateDrawComman
         DrawStatus.SCHEDULED,
         false,
         channel.active(),
-        List.of());
+        jsonUtils.emptyObject());
   }
 }

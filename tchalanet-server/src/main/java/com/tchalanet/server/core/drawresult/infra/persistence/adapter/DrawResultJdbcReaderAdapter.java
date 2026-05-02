@@ -3,22 +3,21 @@ package com.tchalanet.server.core.drawresult.infra.persistence.adapter;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultProjection;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultsCriteria;
+import com.tchalanet.server.core.drawresult.application.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
 import com.tchalanet.server.core.drawresult.infra.persistence.mapper.DrawResultMapper;
 import com.tchalanet.server.core.drawresult.infra.persistence.repo.DrawResultJdbcRepository;
 import com.tchalanet.server.core.drawresult.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
 
-/**
- * Read-only adapter for DrawResult using JDBC/JPA for reads.
- */
 @Component
 @RequiredArgsConstructor
 public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
@@ -28,55 +27,72 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
     private final DrawResultMapper mapper;
 
     @Override
-    public Optional<DrawResultId> findByResultSlotIdAndOccurredAt(
-        ResultSlotId resultSlotId, Instant occurredAt) {
-        if (resultSlotId == null || occurredAt == null) return Optional.empty();
-        var id = jdbcRepo.findByResultSlotIdAndOccurredAt(resultSlotId.value(), occurredAt);
-        return Optional.ofNullable(DrawResultId.nullableOf(id));
-    }
-
-    @Override
     public DrawResult getById(DrawResultId id) {
-        var drawResult =
-            jpaRepository
-                .findById(id.value())
-                .orElseThrow(() -> new EntityNotFoundException("DrawResult not found"));
-        return mapper.toDomain(drawResult);
+        var entity = jpaRepository.findById(id.value())
+            .orElseThrow(() -> new EntityNotFoundException("DrawResult not found: " + id.value()));
+        return mapper.toDomain(entity);
     }
 
     @Override
-    public TchPage<DrawResult> findByCriteria(DrawResultsCriteria criteria) {
-        var pageable =
-            criteria == null || criteria.pageable() == null
-                ? org.springframework.data.domain.PageRequest.of(0, 20)
-                : criteria.pageable();
+    public Optional<DrawResultView> findViewById(DrawResultId id) {
+        return id == null ? Optional.empty() : jdbcRepo.findViewById(id.value());
+    }
 
-        int page = pageable.getPageNumber();
-        int size = pageable.getPageSize();
+    @Override
+    public Optional<DrawResultView> findViewBySlotKeyAndOccurredAt(String slotKey, Instant occurredAt) {
+        if (slotKey == null || slotKey.isBlank() || occurredAt == null) return Optional.empty();
+        return jdbcRepo.findViewBySlotKeyAndOccurredAt(slotKey.trim().toUpperCase(), occurredAt);
+    }
 
-        var total =
-            jdbcRepo.countByCriteria(
-                criteria == null ? null : criteria.provider(),
-                criteria == null ? null : criteria.slotKey(),
-                criteria == null ? null : criteria.from(),
-                criteria == null ? null : criteria.to());
+    @Override
+    public Optional<DrawResultProjection> findProjectionById(DrawResultId id) {
+        return id == null ? Optional.empty() : jdbcRepo.findProjectionById(id.value());
+    }
 
-        var rows =
-            jdbcRepo.findByCriteria(
-                criteria == null ? null : criteria.provider(),
-                criteria == null ? null : criteria.slotKey(),
-                criteria == null ? null : criteria.from(),
-                criteria == null ? null : criteria.to(),
-                size,
-                page * size);
+    @Override
+    public Optional<DrawResultProjection> findProjectionBySlotKeyAndOccurredAt(String slotKey, Instant occurredAt) {
+        if (slotKey == null || slotKey.isBlank() || occurredAt == null) return Optional.empty();
+        return jdbcRepo.findProjectionBySlotKeyAndOccurredAt(slotKey.trim().toUpperCase(), occurredAt);
+    }
 
-        var items = rows.stream().map(mapper::toDomain).toList();
+    @Override
+    public Optional<DrawResultId> findByResultSlotIdAndOccurredAt(ResultSlotId resultSlotId, Instant occurredAt) {
+        if (resultSlotId == null || occurredAt == null) return Optional.empty();
+        return Optional.ofNullable(DrawResultId.nullableOf(
+            jdbcRepo.findByResultSlotIdAndOccurredAt(resultSlotId.value(), occurredAt)
+        ));
+    }
 
-        int totalPages = size > 0 ? (int) ((total + size - 1) / size) : 0;
-        boolean last = (page >= (totalPages - 1));
-        boolean hasNext = page < (totalPages - 1);
-        boolean hasPrevious = page > 0;
+    @Override
+    public TchPage<DrawResultView> findViewsByCriteria(DrawResultsCriteria criteria) {
+        var pageable = criteria == null || criteria.pageable() == null
+            ? PageRequest.of(0, 20)
+            : criteria.pageable();
 
-        return TchPage.of(items, page, size, total, totalPages, last, hasNext, hasPrevious);
+        var page = pageable.getPageNumber();
+        var size = pageable.getPageSize();
+
+        var total = jdbcRepo.countByCriteria(
+            criteria == null ? null : criteria.slotKey(),
+            criteria == null ? null : criteria.status(),
+            criteria == null ? null : criteria.quality(),
+            criteria == null ? null : criteria.from(),
+            criteria == null ? null : criteria.to()
+        );
+
+        var items = jdbcRepo.findViewsByCriteria(
+            criteria == null ? null : criteria.slotKey(),
+            criteria == null ? null : criteria.status(),
+            criteria == null ? null : criteria.quality(),
+            criteria == null ? null : criteria.from(),
+            criteria == null ? null : criteria.to(),
+            size,
+            page * size
+        );
+
+        var totalPages = size > 0 ? (int) ((total + size - 1) / size) : 0;
+        var last = totalPages == 0 || page >= totalPages - 1;
+
+        return TchPage.of(items, page, size, total, totalPages, last, page < totalPages - 1, page > 0);
     }
 }

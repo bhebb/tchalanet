@@ -4,6 +4,7 @@ import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
 import java.util.Optional;
 
 @Component
@@ -17,6 +18,9 @@ public class BatchGateCacheImpl implements BatchGateCache {
 
     @Override
     public Optional<Boolean> getTenant(JobKey jobKey, TenantId tenantId) {
+        if (tenantId == null || jobKey == null) {
+            return Optional.empty();
+        }
         String cacheKey = NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value();
         return Optional.ofNullable(
             flagCache.getBool(cacheKey, () -> loadTenantFlag(tenantId, jobKey))
@@ -25,6 +29,9 @@ public class BatchGateCacheImpl implements BatchGateCache {
 
     @Override
     public Optional<Boolean> getGlobal(JobKey jobKey) {
+        if (jobKey == null) {
+            return Optional.empty();
+        }
         String cacheKey = NAMESPACE + ":g:" + jobKey.value();
         return Optional.ofNullable(
             flagCache.getBool(cacheKey, () -> loadGlobalFlag(jobKey))
@@ -32,27 +39,35 @@ public class BatchGateCacheImpl implements BatchGateCache {
     }
 
     @Override
-    public void putTenant(JobKey jobKey, TenantId tenantId, boolean enabled) {
+    public void cacheTenant(JobKey jobKey, TenantId tenantId, boolean enabled) {
         // cache only
-        String cacheKey = NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value();
-        flagCache.put(cacheKey, enabled);
+        if (jobKey != null && tenantId != null) {
+            String cacheKey = NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value();
+            flagCache.put(cacheKey, enabled);
+        }
     }
 
     @Override
-    public void putGlobal(JobKey jobKey, boolean enabled) {
+    public void cacheGlobal(JobKey jobKey, boolean enabled) {
         // cache only
-        String cacheKey = NAMESPACE + ":g:" + jobKey.value();
-        flagCache.put(cacheKey, enabled);
+        if (jobKey != null) {
+            String cacheKey = NAMESPACE + ":g:" + jobKey.value();
+            flagCache.put(cacheKey, enabled);
+        }
     }
 
     @Override
     public void evictTenant(JobKey jobKey, TenantId tenantId) {
-        flagCache.evict(NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value());
+        if (tenantId != null && jobKey != null) {
+            flagCache.evict(NAMESPACE + ":t:" + tenantId.value() + ":" + jobKey.value());
+        }
     }
 
     @Override
     public void evictGlobal(JobKey jobKey) {
-        flagCache.evict(NAMESPACE + ":g:" + jobKey.value());
+        if (jobKey != null) {
+            flagCache.evict(NAMESPACE + ":g:" + jobKey.value());
+        }
     }
 
     @Override

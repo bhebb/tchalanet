@@ -20,8 +20,15 @@ import tools.jackson.databind.JsonNode;
 @Entity
 @Table(
     name = "draw_result",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uq_draw_result_slot_occurred",
+            columnNames = {"result_slot_id", "occurred_at"})
+    },
     indexes = {
-      @Index(name = "ix_draw_result_status", columnList = "status")
+        @Index(name = "ix_draw_result_status", columnList = "status"),
+        @Index(name = "ix_draw_result_slot_occurred", columnList = "result_slot_id, occurred_at"),
+        @Index(name = "ix_draw_result_source_hash", columnList = "source_hash")
     })
 public class DrawResultJpaEntity extends BaseEntity {
 

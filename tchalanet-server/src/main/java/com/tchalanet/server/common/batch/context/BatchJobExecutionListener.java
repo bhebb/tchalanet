@@ -30,7 +30,7 @@ public class BatchJobExecutionListener implements JobExecutionListener {
     @Override
     public void beforeJob(JobExecution jobExecution) {
         var jobName = jobExecution.getJobInstance().getJobName();
-        var executionId = jobExecution.getId(); // ✅ compatible with core.job.JobExecution
+        var executionId = jobExecution.getId();
 
         log.info("batch.job.start jobName={} executionId={}", jobName, executionId);
 

@@ -46,8 +46,7 @@ public interface DrawAdminWebMapper {
             "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().atOffset(java.time.ZoneOffset.UTC))"),
     @Mapping(target = "cutoffTime", ignore = true),
     @Mapping(target = "isNext", constant = "false"),
-    @Mapping(target = "active", constant = "true"),
-    @Mapping(target = "lastResult", expression = "java(java.util.List.of())")
+    @Mapping(target = "active", constant = "true")
   })
   DrawSummaryResponse toDrawSummaryResponseFallback(CreateDrawRequest request);
 
@@ -61,8 +60,7 @@ public interface DrawAdminWebMapper {
             "java(request.scheduledDate() == null ? null : request.scheduledDate().atStartOfDay().atOffset(java.time.ZoneOffset.UTC))"),
     @Mapping(target = "cutoffTime", ignore = true),
     @Mapping(target = "isNext", constant = "false"),
-    @Mapping(target = "active", constant = "true"),
-    @Mapping(target = "lastResult", expression = "java(java.util.List.of())")
+    @Mapping(target = "active", constant = "true")
   })
   DrawSummaryResponse toDrawSummaryResponseFallback(UpdateDrawRequest request);
 

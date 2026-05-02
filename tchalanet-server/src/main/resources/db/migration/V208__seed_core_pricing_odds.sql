@@ -1,6 +1,11 @@
 -- V38: seed pricing_odds adapted to existing schema
 -- Notes:
 --  - multiplier mapped to odds (numeric(12,4))
+-- Flyway RLS context for default tenant seed
+SELECT set_config('app.current_tenant', '00000000-0000-0000-0000-000000000003', true);
+SELECT set_config('app.deleted_visibility', 'active', true);
+SELECT set_config('app.api_scope', 'tenant', true);
+SELECT set_config('app.is_super_admin', 'false', true);
 
 INSERT INTO pricing_odds (tenant_id, game_code, bet_type, bet_option, odds)
 VALUES
@@ -22,3 +27,8 @@ VALUES
   ('00000000-0000-0000-0000-000000000003'::uuid, 'HT_LOTO5',   'LOTTO5_PATTERN', 3, 25000.0000)
 ON CONFLICT (tenant_id, game_code, bet_type, bet_option) DO NOTHING;
 
+-- Reset RLS context
+SELECT set_config('app.current_tenant', '', true);
+SELECT set_config('app.deleted_visibility', 'active', true);
+SELECT set_config('app.api_scope', '', true);
+SELECT set_config('app.is_super_admin', 'false', true);

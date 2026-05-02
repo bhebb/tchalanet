@@ -8,11 +8,12 @@ import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.pagemodel.application.command.model.UpsertPageModelCommand;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelType;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * Remplace core/pagemodel/infra/init/PageModelBootstrapService (violation hexagonale).
@@ -28,8 +29,8 @@ public class PageModelOnboardingService {
   private final CommandBus commandBus;
   private final JsonUtils objectMapper;
 
-  @Transactional
-  public void seedDefaults(TenantId tenantId) {
+    @Transactional
+    public void seedDefaults(TenantId tenantId) {
     for (PageModelType type : PageModelType.values()) {
       try {
         var existing = readPort.findPublishedByLogicalId(type.logicalId());
@@ -39,33 +40,36 @@ public class PageModelOnboardingService {
         }
         seedFromTemplate(type, tenantId);
       } catch (Exception e) {
-        log.warn("Skipping PageModel seed for logicalId={}: {}", type.logicalId(), e.getMessage());
+        log.warn("Skipping PageModel seed for logicalId={}: {}", type.logicalId(), e.getMessage(), e);
       }
     }
   }
 
-  private void seedFromTemplate(PageModelType type, TenantId tenantId) {
-    var tplOpt = templateCatalog.findByLogicalId(type.logicalId());
-    if (tplOpt.isEmpty()) {
-      log.warn("Missing PageModelTemplate for logicalId={}. Seed skipped.", type.logicalId());
-      return;
+    private void seedFromTemplate(PageModelType type, TenantId tenantId) {
+        var tplOpt = templateCatalog.findByLogicalId(type.logicalId());
+        if (tplOpt.isEmpty()) {
+            log.warn("Missing PageModelTemplate for logicalId={}. Seed skipped.", type.logicalId());
+            return;
+        }
+
+        var tpl = tplOpt.get();
+
+        var cmd = new UpsertPageModelCommand(
+            Optional.empty(),
+            tenantId,
+            null,
+            type.logicalId(),
+            type.scope(),
+            type.slug(),
+            tpl.schemaVersion() != null ? tpl.schemaVersion() : 1,
+            objectMapper.parse(tpl.model().toString()),
+            Optional.ofNullable(tpl.id() != null ? tpl.id().toString() : null),
+            true
+        );
+
+        commandBus.send(cmd);
+        log.info("Seeded PageModel from template logicalId={} for tenant={}", type.logicalId(), tenantId);
     }
-    var tpl = tplOpt.get();
-    var cmd = new UpsertPageModelCommand(
-        Optional.empty(),
-        tenantId,   // [cascade Phase 2A-1] TenantId direct (non-null), plus Optional<TenantId>
-        null,       // actorId null acceptable pour seed système (pas d'utilisateur humain)
-        type.logicalId(),
-        type.scope(),
-        type.slug(),
-        tpl.schemaVersion() != null ? tpl.schemaVersion() : 1,
-        tpl.model(),
-        Optional.ofNullable(tpl.id() != null ? tpl.id().toString() : null),
-        true        // [Phase 5] publish = true pour l'onboarding (analysis §gap — instances PUBLISHED requises)
-    );
-    commandBus.send(cmd);
-    log.info("Seeded PageModel from template logicalId={} for tenant={}", type.logicalId(), tenantId);
-  }
 
   /** Seed defaults for the DEFAULT tenant (startup use case). */
   @Transactional

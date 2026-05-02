@@ -29,7 +29,7 @@ public class TenantGamePersistenceAdapter implements TenantGamePersistencePort {
     TenantGameJpaEntity entity;
 
     // Check if update or create
-    var existing = repository.findByTenantIdAndGameCode(tenantGame.tenantId().value(), tenantGame.code());
+    var existing = repository.findByTenantIdAndGameId(tenantGame.tenantId().value(), tenantGame.gameId().value());
 
     if (existing.isPresent()) {
       entity = existing.get();
@@ -50,7 +50,10 @@ public class TenantGamePersistenceAdapter implements TenantGamePersistencePort {
 
   @Override
   public Optional<TenantGame> findByTenantIdAndGameCode(TenantId tenantId, String gameCode) {
-    return repository.findByTenantIdAndGameCode(tenantId.value(), gameCode)
+      var game = gameCatalog.findByCode(gameCode)
+          .orElseThrow(() -> new IllegalStateException("Game code not found in catalog: " + gameCode));
+
+    return repository.findByTenantIdAndGameId(tenantId.value(), game.id().value())
         .map(mapper::toDomain);
   }
 

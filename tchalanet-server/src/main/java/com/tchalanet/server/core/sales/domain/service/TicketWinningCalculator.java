@@ -40,9 +40,9 @@ public class TicketWinningCalculator {
             case MATCH_2_2D -> matchN_2d(selection, twoDigits, 2);
             case MATCH_3_2D -> matchN_2d(selection, twoDigits, 3);
             case MARRIAGE_2D2D -> marriage2d2d(selection, twoDigits);
-            case LOTTO3_3D -> exactDigits(selection, result.pick3(), 3);
-            case LOTTO4_PATTERN -> lotto4(selection, line.betOption() == null ? null : line.betOption().shortValue(), result, betType.canonicalWidth());
-            case LOTTO5_PATTERN -> lotto5(selection, line.betOption() == null ? null : line.betOption().shortValue(), result, betType.canonicalWidth());
+            case LOTTO3_3D -> exactDigits(selection, result.lot4(), 3);
+            case LOTTO4_PATTERN -> lotto4(selection, line.betOption() == null ? null : line.betOption(), result, betType.canonicalWidth());
+            case LOTTO5_PATTERN -> lotto5(selection, line.betOption() == null ? null : line.betOption(), result, betType.canonicalWidth());
         };
     }
 
@@ -97,7 +97,7 @@ public class TicketWinningCalculator {
         if (selection.length() != expectedLen) return false;
         if (option == null) return false;
 
-        String pick3 = r.pick3();
+        String pick3 = r.lot4();
         if (pick3 == null || pick3.length() != 3) return false;
 
         String abc = selection.substring(0, 3);

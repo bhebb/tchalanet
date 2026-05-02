@@ -61,7 +61,7 @@ public class SettleDrawsCommandHandler implements VoidCommandHandler<SettleDrawC
 
         // [Règle Settle FINAL only]
         var drawResult = drawResultReaderPort.getById(draw.drawResultId());
-        if (drawResult.status() != DrawResultStatus.FINAL) {
+        if (drawResult.status() != DrawResultStatus.CONFIRMED) {
             throw new DrawResultNotFinalException(draw.id(), draw.drawResultId());
         }
 

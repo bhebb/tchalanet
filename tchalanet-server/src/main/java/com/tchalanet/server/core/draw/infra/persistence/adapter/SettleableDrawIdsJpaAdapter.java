@@ -3,6 +3,8 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawBatchQueryRepository;
+
+import java.sql.Timestamp;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,8 +24,8 @@ public class SettleableDrawIdsJpaAdapter implements FindSettleableDrawIdsPort {
             criteria.source(),
             criteria.provider(),
             criteria.channelCode(),
-            criteria.from(),
-            criteria.to(),
+            Timestamp.from(criteria.from()),
+            Timestamp.from(criteria.to()),
             criteria.maxDraws(),
             criteria.force())
         .stream()

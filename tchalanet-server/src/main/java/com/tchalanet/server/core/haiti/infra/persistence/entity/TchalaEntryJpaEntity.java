@@ -2,18 +2,17 @@ package com.tchalanet.server.core.haiti.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "tchala_entry")
 @Getter
 @Setter
-@Audited
 public class TchalaEntryJpaEntity extends BaseEntity {
 
   // note: id, createdAt, updatedAt, version, deletedAt, createdBy, updatedBy

@@ -8,7 +8,6 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
 import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowCommand;
-import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -28,73 +27,95 @@ public class ExternalResultsFetchTickScheduler {
     private final CommandBus commandBus;
     private final BatchGate gate;
     private final ResultSlotCatalog resultSlotCatalog;
-    private final DrawResultsProperties props; // fetch-specific properties
-    private final DrawResultsCommonProperties commonProps; // common properties
+    private final DrawResultsCommonProperties commonProps; // fetch-specific properties
     private final Clock clock;
 
     private final Map<String, Instant> lastRunBySlot = new ConcurrentHashMap<>();
 
-    @Scheduled(cron = "${tch.draw.results.shared.scheduler.tick_cron:0 */5 * * * *}") // Use common props for cron
+    @Scheduled(cron = "${tch.draw.results.scheduler.tick_cron:0 */5 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_results_fetch_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tickFetch() {
+        log.info("draw-result.fetch.tick fired");
         if (!enabled()) return;
 
-        var now = Instant.now(clock);
+        var now = clock.instant();
+
         var dueSlots = resultSlotCatalog.listActive().stream()
             .filter(s -> s.drawTime() != null && s.timezone() != null)
             .filter(s -> isDue(s, now))
-            .limit(commonProps.getLimits().getHardMaxSlots()) // Use common props
+            .limit(commonProps.getLimits().getHardMaxSlots())
             .toList();
 
         if (dueSlots.isEmpty()) {
-            log.debug("draw-results.fetch.tick: dueSlots=0");
+            log.info("draw-results.fetch.tick: dueSlots=0");
             return;
         }
-        for (ResultSlotView slot : dueSlots) {
-            var baseDate = LocalDate.now(clock.withZone(slot.timezone()));
 
-            log.info("draw-results.fetch.tick: action=FETCH slotKey={} baseDate={} tz={}",
-                slot.slotKey(), baseDate, slot.timezone());
+        for (ResultSlotView slot : dueSlots) {
+            var baseDate = now.atZone(slot.timezone()).toLocalDate();
 
             commandBus.send(new FetchExternalResultsWindowCommand(
-                null, // tenantId is null for global fetch
+                null,
                 baseDate,
-                0, // daysBack
+                commonProps.getDefaults().getDaysBack(),
                 List.of(slot.slotKey()),
-                false, // force
-                false, // dryRun
-                commonProps.getLimits().getHardMaxSlots(), // maxSlots from common props
-                null // reason is null for scheduler-triggered command
+                false,
+                false,
+                commonProps.getDefaults().getMaxSlots(),
+                null,
+                false
             ));
         }
     }
 
     private boolean enabled() {
-        if (!props.isActive() || !commonProps.getScheduler().isActive()) {
-            log.debug("draw-results.fetch.tick: active=OFF");
+        if (!commonProps.isActive() || !commonProps.getScheduler().isActive()) {
+            log.info("draw-results.fetch.tick: active=OFF");
             return false;
         }
         if (!gate.enabled(BatchJobKeys.RESULTS_EXTERNAL_FETCH, null)) {
-            log.debug("draw-results.fetch.tick: gate=OFF");
+            log.info("draw-results.fetch.tick: gate=OFF");
             return false;
         }
         return true;
     }
 
     private boolean isDue(ResultSlotView slot, Instant now) {
-        var dueCfg = commonProps.getScheduler().getDue(); // Use common props
+        var due = commonProps.getScheduler().getDue();
 
-        Duration minAfter = Duration.ofMinutes(Math.max(0, dueCfg.getMinMinutesAfterDraw()));
-        Duration maxAfter = Duration.ofMinutes(Math.max(0, dueCfg.getMaxMinutesAfterDraw()));
+        var minAfter = Duration.ofMinutes(Math.max(0, due.getMinMinutesAfterDraw()));
+        var maxAfter = Duration.ofMinutes(Math.max(0, due.getMaxMinutesAfterDraw()));
+        var lookback = Duration.ofMinutes(Math.max(0, due.getLookbackMinutes()));
+
+        var zone = slot.timezone();
+        var today = now.atZone(zone).toLocalDate();
+
+        return isDueForDate(slot, now, today, minAfter, maxAfter, lookback)
+            || isDueForDate(slot, now, today.minusDays(1), minAfter, maxAfter, lookback);
+    }
+
+    private boolean isDueForDate(
+        ResultSlotView slot,
+        Instant now,
+        LocalDate date,
+        Duration minAfter,
+        Duration maxAfter,
+        Duration lookback) {
 
         Instant drawInstant = OccurredAtResolver.resolve(
-            null, LocalDate.now(clock.withZone(slot.timezone())), slot.drawTime(), slot.timezone(), clock);
+            null,
+            date,
+            slot.drawTime(),
+            slot.timezone(),
+            clock
+        );
 
-        Duration age = Duration.between(drawInstant, now);
+        var age = Duration.between(drawInstant, now);
 
         if (age.isNegative()) return false;
         if (age.compareTo(minAfter) < 0) return false;
         if (age.compareTo(maxAfter) > 0) return false;
+        if (lookback.toMinutes() > 0 && age.compareTo(lookback) > 0) return false;
 
         return cooldownOk(slot.slotKey(), now);
     }

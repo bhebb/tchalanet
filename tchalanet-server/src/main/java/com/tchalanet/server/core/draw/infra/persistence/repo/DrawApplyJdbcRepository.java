@@ -27,15 +27,13 @@ public class DrawApplyJdbcRepository {
           set draw_result_id = ?,
               status = 'RESULTED',
               resulted_at = coalesce(d.resulted_at, ?),
-              result_source = coalesce(d.result_source, 'AUTO'),
-              updated_at = ?
+              result_source = coalesce(d.result_source, 'SYSTEM')
           from draw_channel dc
           where dc.id = d.draw_channel_id
             and d.tenant_id = ?
             and d.draw_date = ?
             and dc.result_slot_id = ?
             and d.deleted_at is null and dc.deleted_at is null
-            and d.locked = false
             and d.status = 'CLOSED'
             and (
                  d.draw_result_id is null
@@ -52,8 +50,6 @@ public class DrawApplyJdbcRepository {
                 int i = 1;
                 ps.setObject(i++, drawResultId);
                 ps.setTimestamp(i++, ts);
-                ps.setString(i++, ts.toString()); // fallback if driver complains; replace with setTimestamp if needed
-                // NOTE: Prefer setTimestamp; kept defensive for some drivers. If your driver is standard PG, use setTimestamp.
                 ps.setObject(i++, tenantId);
                 ps.setObject(i++, java.sql.Date.valueOf(drawDate));
                 ps.setObject(i++, resultSlotId);

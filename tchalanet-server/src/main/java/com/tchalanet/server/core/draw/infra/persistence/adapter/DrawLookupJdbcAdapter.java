@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
-import com.tchalanet.server.core.draw.application.util.HaitiResultExtractors;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
@@ -83,7 +82,7 @@ public class DrawLookupJdbcAdapter implements DrawLookupPort {
         if (rows.isEmpty()) return List.of();
 
         // rows already sorted by scheduledAt asc (query ORDER BY). Mark first as next
-        var first = rows.get(0);
+        var first = rows.getFirst();
         rows.set(
             0,
             new DrawSummary(
@@ -123,17 +122,12 @@ public class DrawLookupJdbcAdapter implements DrawLookupPort {
         DrawStatus status = e.getStatus() == null ? DrawStatus.SCHEDULED : e.getStatus();
 
         // ✅ lastResult : depuis la relation draw.drawResult (pas de catalog)
-        var last = List.<Integer>of();
+        DrawResult dr = null;
         if (e.getDrawResultId() != null) {
-            try {
-                DrawResult dr = drawResultReader.getById(DrawResultId.of(e.getDrawResultId()));
-                last = HaitiResultExtractors.lastPick3(dr.haitiResult());
-            } catch (Exception ex) {
-                // ignore missing/parse errors and keep empty list
-            }
+            dr = drawResultReader.getById(DrawResultId.of(e.getDrawResultId()));
         }
 
         return new DrawSummary(
-            DrawId.of(e.getId()), chCode, chName, scheduled, cutoff, status, false, active, last);
+            DrawId.of(e.getId()), chCode, chName, scheduled, cutoff, status, false, active, dr != null ? dr.haitiResult() : null);
     }
 }

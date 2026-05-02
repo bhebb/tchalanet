@@ -5,6 +5,8 @@ import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.PageModelId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.pagemodel.application.command.model.DuplicatePageModelCommand;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReaderPort;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWriterPort;
@@ -49,7 +51,7 @@ public class DuplicatePageModelHandler
     var now = clock.instant();
 
     var copy = PageModelInstance.createDraft(
-        idGenerator.newUuid(),
+        PageModelId.of(idGenerator.newUuid()),
         source.tenantId(),      // même tenant que la source
         targetLogicalId,
         source.scope(),
@@ -58,7 +60,7 @@ public class DuplicatePageModelHandler
         source.modelJson(),
         source.templateId().orElse(null),
         now,
-        actorUuid
+        UserId.nullableOf(actorUuid)
     );
 
     var saved = writer.save(copy);

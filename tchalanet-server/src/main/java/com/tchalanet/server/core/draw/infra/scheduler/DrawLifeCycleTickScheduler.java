@@ -46,6 +46,7 @@ public class DrawLifeCycleTickScheduler {
     @Scheduled(cron = "${tch.draw.lifecycle.generate_cron:0 0 5 * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_generate_next_7_days", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
     public void generateNext7Days() {
+        log.info("draw.generate.tick fired");
         if (!batchGate.enabled(DRAW_GENERATE, null)) {
             log.info("batch.skip jobKey={} reason=disabled", DRAW_GENERATE);
             return;
@@ -62,7 +63,7 @@ public class DrawLifeCycleTickScheduler {
                 binder.bind(jp);
                 commandBus.send(new GenerateDrawsForRangeCommand(tenantId, from, to, DEFAULT_DRY_RUN, false, null));
             } catch (Exception e) {
-                log.warn("draw.generate failed tenantId={} from={} to={} err={}", tenantId, from, to, e.toString());
+                log.warn("draw.generate failed tenantId={} from={} to={} err={}", tenantId, from, to, e.getLocalizedMessage(), e);
             } finally {
                 safeClear(tenantId);
             }
@@ -72,11 +73,16 @@ public class DrawLifeCycleTickScheduler {
     @Scheduled(cron = "${tch.draw.lifecycle.open_cron:0 */30 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_open_windowed", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1M")
     public void openWindowed() {
-        if (!batchGate.enabled(BatchJobKeys.DRAW_OPEN, null)) return;
+        log.info("draw.open.tick fired");
+        if (!batchGate.enabled(BatchJobKeys.DRAW_OPEN, null)) {
+            return;
+        }
 
-        Instant now = Instant.now(clock);
+        var now = clock.instant();
         var nowOps = now.atZone(OPS_ZONE).toLocalTime();
-        if (!windows.isInOpenDrawsWindow(nowOps)) return;
+        if (!windows.isInOpenDrawsWindow(nowOps)) {
+            return;
+        }
 
         var lc = drawProps.getLifecycle();
 
@@ -87,7 +93,7 @@ public class DrawLifeCycleTickScheduler {
                 binder.bind(jp);
                 commandBus.send(new OpenDueDrawsCommand(now, lc.getBatchSize(), lc.getLookaheadHours(), lc.getLagHours(), false));
             } catch (Exception e) {
-                log.warn("draw.open failed tenantId={} err={}", tenantId, e.toString());
+                log.warn("draw.open failed tenantId={} err={}", tenantId, e.getLocalizedMessage(), e);
             } finally {
                 safeClear(tenantId);
             }
@@ -97,9 +103,12 @@ public class DrawLifeCycleTickScheduler {
     @Scheduled(cron = "${tch.draw.lifecycle.close_cron:0 */15 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_close_windowed", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1M")
     public void closeWindowed() {
-        if (!batchGate.enabled(BatchJobKeys.DRAW_CLOSE, null)) return;
+        log.info("draw.close.tick fired");
+        if (!batchGate.enabled(BatchJobKeys.DRAW_CLOSE, null)) {
+            return;
+        }
 
-        Instant now = Instant.now(clock);
+        var now = clock.instant();
         var nowOps = now.atZone(OPS_ZONE).toLocalTime();
         if (!windows.isInCloseDrawsWindow(nowOps)) return;
 
@@ -112,7 +121,7 @@ public class DrawLifeCycleTickScheduler {
                 binder.bind(jp);
                 commandBus.send(new CloseDueDrawsCommand(now, lc.getBatchSize(), false));
             } catch (Exception e) {
-                log.warn("draw.close failed tenantId={} err={}", tenantId, e.toString());
+                log.warn("draw.close failed tenantId={} err={}", tenantId, e.getLocalizedMessage(), e);
             } finally {
                 safeClear(tenantId);
             }

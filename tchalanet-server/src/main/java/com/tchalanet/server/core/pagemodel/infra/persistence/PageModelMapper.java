@@ -1,8 +1,10 @@
 package com.tchalanet.server.core.pagemodel.infra.persistence;
 
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 final class PageModelMapper {
 
@@ -42,22 +44,25 @@ final class PageModelMapper {
 
   static PageModelJpaEntity toEntity(PageModelInstance d, PageModelJpaEntity e) {
     if (e == null) e = new PageModelJpaEntity();
-    e.setId(d.id());
-    e.setTenantId(d.tenantId());
+    e.setId(d.id().value());
+    e.setTenantId(d.tenantId().value());
     e.setLogicalId(d.logicalId());
     e.setScope(d.scope());
+    e.setCode(d.logicalId() + "-" + d.schemaVersion()); // code is logicalId + schemaVersion for uniqueness
+    e.setName(d.logicalId() + "-" + d.schemaVersion()); // code is logicalId + schemaVersion for uniqueness
     e.setSlug(d.slug());
     // [Phase 1] correction: PageStatus inexistant — le type correct est PageModelStatus (analysis §BLOQUANT)
     e.setStatus(d.status());
     e.setSchemaVersion(d.schemaVersion());
     e.setModel(d.modelJson());
-    e.setTemplateId(d.templateId().orElse(null));
+    e.setTemplateId(d.templateId().map(PageModelTemplateId::value).orElse(null));
 
     e.setCreatedAt(d.createdAt());
     e.setUpdatedAt(d.updatedAt());
-    e.setCreatedBy(d.createdBy());
-    e.setUpdatedBy(d.updatedBy());
+    e.setCreatedBy(d.createdBy() != null ? d.createdBy().value(): null);
+    e.setUpdatedBy(d.updatedBy() != null ? d.updatedBy().value(): null);
     e.setPublishedAt(d.publishedAt().orElse(null));
+    e.setSchema(JsonNodeFactory.instance.objectNode());
     // archivedAt / deletedAt not stored on this entity yet
     return e;
   }

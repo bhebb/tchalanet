@@ -3,6 +3,7 @@ package com.tchalanet.server.core.draw.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.core.draw.api.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.domain.model.Draw;
@@ -18,12 +19,19 @@ import java.util.List;
 public class GetDrawByIdQueryHandler implements QueryHandler<GetDrawByIdQuery, DrawSummary> {
 
     private final DrawLookupPort drawLookupPort;
+    private final DrawReaderPort readerPort;
 
     @Override
     public DrawSummary handle(GetDrawByIdQuery query) {
         Draw draw = drawLookupPort.findById(query.id())
             .orElseThrow(() -> ProblemRest.notFound("Draw not found", query.id()));
 
+        if (draw.drawResultId() != null) {
+            List<DrawSummary> draws = readerPort.findByDrawResultId(draw.drawResultId());
+            if (!draws.isEmpty()) {
+                return draws.getFirst();
+            }
+        }
         return new DrawSummary(
             draw.id(),
             draw.drawChannel().code(),
@@ -33,7 +41,8 @@ public class GetDrawByIdQueryHandler implements QueryHandler<GetDrawByIdQuery, D
             draw.status(),
             false,
             draw.status() != com.tchalanet.server.core.draw.domain.model.DrawStatus.CANCELED,
-            List.of());
+            null // todo find the result
+        );
     }
 }
 

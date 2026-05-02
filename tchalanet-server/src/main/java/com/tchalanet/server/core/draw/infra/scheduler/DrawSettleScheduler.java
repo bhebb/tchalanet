@@ -39,6 +39,7 @@ public class DrawSettleScheduler {
     @Scheduled(cron = "${tch.draw.settle.cron:0 */5 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_settle_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tick() {
+        log.info("draw.settle.tick fired");
         // global switch
         if (!gate.enabled(DRAW_SETTLE, null)) return;
 

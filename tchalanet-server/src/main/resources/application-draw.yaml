@@ -44,3 +44,6 @@ tch:
         refresh.enabled: ${TCH_GATE_RESULTS_REFRESH:true}
         manual.enabled: ${TCH_GATE_RESULTS_MANUAL:true}
         override.enabled: ${TCH_GATE_RESULTS_OVERRIDE:true}
+        open.enabled: ${TCH_GATE_DRAW_OPEN:true}
+        close.enabled: ${TCH_GATE_DRAW_CLOSE:true}
+        generate.enabled: ${TCH_GATE_DRAW_GENERATE:true}
