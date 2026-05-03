@@ -44,7 +44,7 @@ public class OutletPerformanceReader {
     query.setParameter("tenantId", tenantId);
     query.setParameter("fromDate", fromDate);
     query.setParameter("toExclusive", toExclusive);
-    query.setParameter("gameCode", gameCode);
+    query.setParameter("externalGameCode", gameCode);
 
     @SuppressWarnings("unchecked")
     List<Object[]> rows = query.getResultList();
