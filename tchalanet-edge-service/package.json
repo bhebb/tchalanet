@@ -13,8 +13,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^5.0.4",
+    "@slack/webhook": "^7.0.9",
     "dotenv": "^16.4.0",
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "twilio": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
