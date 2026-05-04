@@ -1,5 +1,36 @@
 # Claude — tchalanet-mobile
 
+## OpenSpec local
+
+```text
+tchalanet-mobile/openspec/
+```
+
+Toutes les changes mobile (Flutter, POS, flows vendeur) vivent ici.
+
+Archiver via :
+
+```bash
+cd tchalanet-mobile
+openspec archive <change-id> --yes
+```
+
+## Périmètre
+
+Ce projet est **autonome**. Ne pas inspecter ni modifier `tchalanet-server`, `apps/tchalanet-web`, `tchalanet-edge-service` sauf demande explicite.
+
+## Vérification contexte (obligatoire avant analyse ou édition)
+
+```bash
+pwd
+git branch --show-current
+git status --short
+git log -1 --oneline
+find . -maxdepth 3 -type d -name openspec
+```
+
+---
+
 Scope:
 
 - Standalone Flutter mobile app.
@@ -10,7 +41,9 @@ Stack:
 
 - Flutter
 - Dart
-- Material 3 if applicable
+- Riverpod
+- GoRouter
+- Material 3
 
 Rules:
 
@@ -28,20 +61,6 @@ Rules:
 - i18n keys use snake_case functional namespaces.
 - Public ticket verification must mask sensitive data.
 - Sell flow must use backend validation and idempotency where applicable.
-
-Possible mobile surfaces:
-
-- publichome-style read-only public views
-- dashboard summaries
-- sellprocess/POS flow
-- ticket scan/verify
-- notifications
-
-Boundary:
-
-- Mobile can share API contracts.
-- Mobile must not depend directly on web implementation.
-- Mobile-specific UX can differ from web.
 
 Output:
 

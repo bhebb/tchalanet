@@ -2,6 +2,37 @@
 
 Scope:
 
+## OpenSpec local
+
+```text
+apps/tchalanet-web/openspec/
+```
+
+Toutes les changes web (Angular/Nx, PageModel, auth web, theming) vivent ici.
+
+Archiver via :
+
+```bash
+cd apps/tchalanet-web
+openspec archive <change-id> --yes
+```
+
+## Périmètre
+
+Ce projet est **autonome**. Ne pas inspecter ni modifier `tchalanet-server`, `tchalanet-mobile`, `tchalanet-edge-service` sauf demande explicite.
+
+## Vérification contexte (obligatoire avant analyse ou édition)
+
+```bash
+pwd
+git branch --show-current
+git status --short
+git log -1 --oneline
+find . -maxdepth 3 -type d -name openspec
+```
+
+---
+
 - Angular web app only.
 
 Stack:

@@ -1,5 +1,36 @@
 # Claude — tchalanet-server
 
+## OpenSpec local
+
+```text
+tchalanet-server/openspec/
+```
+
+Toutes les changes backend vivent ici. Ne pas créer de changes dans `openspec/` (racine) sauf si explicitement cross-projet.
+
+Archiver via :
+
+```bash
+cd tchalanet-server
+openspec archive <change-id> --yes
+```
+
+## Périmètre
+
+Ce projet est **autonome**. Ne pas inspecter ni modifier `apps/tchalanet-web`, `tchalanet-mobile`, `tchalanet-edge-service` sauf demande explicite.
+
+## Vérification contexte (obligatoire avant analyse ou édition)
+
+```bash
+pwd
+git branch --show-current
+git status --short
+git log -1 --oneline
+find . -maxdepth 3 -type d -name openspec
+```
+
+---
+
 Scope:
 
 - Backend only.

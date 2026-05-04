@@ -46,7 +46,7 @@
 - [ ] 5.5 Tests `RecordDrawTicketsResultCommandHandlerTest` :
   - Scenario "premier run, 3 tickets" → `processed=3, won=2, lost=1, skipped=0`
   - Scenario "re-play, 3 tickets dont 2 déjà dans `ticket_settlement`" → `processed=1, skipped=2, batch ne crashe pas`
-  - Scenario "re-play, ticket déjà WON+ ticket_settlement vide" → cas dégradé : `tryMarkSettled` réussit puis `markResulted` lève (SOLD requis) ; valider le comportement attendu (rollback ? log error ?) — _décision de design à prendre dans la review_
+  - Scenario "re-play, ticket déjà WON+ ticket*settlement vide" → cas dégradé : `tryMarkSettled` réussit puis `markResulted` lève (SOLD requis) ; valider le comportement attendu (rollback ? log error ?) — \_décision de design à prendre dans la review*
 
 ## 6. Listener — `ProcessedEventPort` sur `DrawResultedEventListener`
 

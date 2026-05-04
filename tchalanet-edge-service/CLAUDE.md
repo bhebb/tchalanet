@@ -2,6 +2,37 @@
 
 > Lire d'abord : `../CLAUDE.md` (règles transverses, secrets, OpenSpec)
 
+## OpenSpec local
+
+```text
+tchalanet-edge-service/openspec/
+```
+
+Toutes les changes edge (Fastify, notifications, templates, adapters) vivent ici.
+
+Archiver via :
+
+```bash
+cd tchalanet-edge-service
+openspec archive <change-id> --yes
+```
+
+## Périmètre
+
+Ce projet est **autonome**. Ne pas inspecter ni modifier `tchalanet-server`, `apps/tchalanet-web`, `tchalanet-mobile` sauf demande explicite.
+
+## Vérification contexte (obligatoire avant analyse ou édition)
+
+```bash
+pwd
+git branch --show-current
+git status --short
+git log -1 --oneline
+find . -maxdepth 3 -type d -name openspec
+```
+
+---
+
 ## Stack
 
 | Élément    | Version                 |
