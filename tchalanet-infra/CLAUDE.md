@@ -1,5 +1,36 @@
 # Claude — tchalanet-infra
 
+## OpenSpec local
+
+```text
+tchalanet-infra/openspec/
+```
+
+Toutes les changes infra (Docker Compose, Traefik, Keycloak, CI/CD) vivent ici.
+
+Archiver via :
+
+```bash
+cd tchalanet-infra
+openspec archive <change-id> --yes
+```
+
+## Périmètre
+
+Ce projet est **autonome**. Ne pas inspecter ni modifier les autres projets sauf demande explicite.
+
+## Vérification contexte (obligatoire avant analyse ou édition)
+
+```bash
+pwd
+git branch --show-current
+git status --short
+git log -1 --oneline
+find . -maxdepth 3 -type d -name openspec
+```
+
+---
+
 Scope:
 
 - Docker Compose
