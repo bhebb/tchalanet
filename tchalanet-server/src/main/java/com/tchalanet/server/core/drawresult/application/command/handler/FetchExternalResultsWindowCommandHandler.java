@@ -45,7 +45,7 @@ public class FetchExternalResultsWindowCommandHandler
         validate(cmd);
 
         var daysBack = clampDaysBack(cmd.daysBack());
-        var maxSlots = Math.min(cmd.maxSlots(), props.getLimits().getHardMaxSlots());
+        var maxSlots = Math.min(cmd.maxSlots(), props.getLimits().getMaxSlotsPerTick());
         var dates = DateWindows.datesBackInclusive(cmd.baseDate(), daysBack);
         var now = Instant.now(clock);
         var counters = new FetchCounters();
@@ -89,7 +89,7 @@ public class FetchExternalResultsWindowCommandHandler
             }
 
             var occurredAt =
-                OccurredAtResolver.resolve(
+                OccurredAtResolver.resolveOrNow(
                     external.firstOccurredAt(),
                     date,
                     slot.drawTime(),
@@ -179,7 +179,7 @@ public class FetchExternalResultsWindowCommandHandler
 
     private int clampDaysBack(int v) {
         int x = Math.max(0, v);
-        return Math.min(x, props.getLimits().getHardDaysBack());
+        return Math.min(x, props.getLimits().getMaxSlotsPerTick());
     }
 
     private static void validate(FetchExternalResultsWindowCommand cmd) {

@@ -9,80 +9,113 @@ import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapper bidirectionnel entre l'agrégat {@link Draw} et {@link DrawJpaEntity}.
+ *
+ * <p>Responsabilités :
+ * <ul>
+ *   <li>Conversion JPA entity → Draw aggregate (toDomain)</li>
+ *   <li>Conversion Draw aggregate → JPA entity (toEntity)</li>
+ *   <li>Mapping typed IDs ↔ UUID persistence</li>
+ *   <li>Gestion des valeurs nullables et defaults (ex: SCHEDULED status)</li>
+ * </ul>
+ *
+ * <p>Note : DrawResultId est nullable (draw peut ne pas avoir de résultat appliqué).
+ */
 @Component
 public class DrawMapper {
 
-    public Draw toDomain(DrawJpaEntity entity) {
-        if (entity == null) {
+    /**
+     * Convertit une JPA entity en agrégat Draw.
+     *
+     * @param jpaEntity entity JPA source
+     * @return agrégat Draw ou null si entity null
+     */
+    public Draw toDomain(DrawJpaEntity jpaEntity) {
+        if (jpaEntity == null) {
             return null;
         }
 
-        var status = entity.getStatus() == null
+        var drawStatus = jpaEntity.getStatus() == null
             ? DrawStatus.SCHEDULED
-            : entity.getStatus();
+            : jpaEntity.getStatus();
 
-        var drawResultId = entity.getDrawResultId() == null
+        var drawResultId = jpaEntity.getDrawResultId() == null
             ? null
-            : DrawResultId.of(entity.getDrawResultId());
+            : DrawResultId.of(jpaEntity.getDrawResultId());
+
+        // Note: source parameter (8th) appears unused in Draw constructor but is required
+        var drawSource = jpaEntity.getResultSource() != null
+            ? jpaEntity.getResultSource()
+            : com.tchalanet.server.common.types.enums.DrawSource.SYSTEM;
 
         return new Draw(
-            DrawId.of(entity.getId()),
-            TenantId.of(entity.getTenantId()),
-            DrawChannelId.of(entity.getDrawChannelId()),
-            entity.getDrawDate(),
-            entity.getScheduledAt(),
-            entity.getCutoffAt(),
-            status,
+            DrawId.of(jpaEntity.getId()),
+            TenantId.of(jpaEntity.getTenantId()),
+            DrawChannelId.of(jpaEntity.getDrawChannelId()),
+            jpaEntity.getDrawDate(),
+            jpaEntity.getScheduledAt(),
+            jpaEntity.getCutoffAt(),
+            drawStatus,
+            drawSource,
             drawResultId,
-            entity.getOpenedAt(),
-            entity.getClosedAt(),
-            entity.getResultedAt(),
-            entity.getSettledAt(),
-            entity.getCanceledAt(),
-            entity.getCancelReason(),
-            entity.getResultSource(),
-            entity.getResultOverrideReason(),
-            entity.getResultOverriddenAt(),
-            entity.isLocked(),
-            entity.isSystemGenerated()
+            jpaEntity.getOpenedAt(),
+            jpaEntity.getClosedAt(),
+            jpaEntity.getResultedAt(),
+            jpaEntity.getSettledAt(),
+            jpaEntity.getCanceledAt(),
+            jpaEntity.getCancelReason(),
+            jpaEntity.getResultSource(),
+            jpaEntity.getResultOverrideReason(),
+            jpaEntity.getResultOverriddenAt(),
+            jpaEntity.isLocked(),
+            jpaEntity.isSystemGenerated()
         );
     }
 
-    public DrawJpaEntity toEntity(Draw domain) {
-        if (domain == null) {
+    /**
+     * Convertit un agrégat Draw en JPA entity.
+     *
+     * @param drawAggregate agrégat Draw source
+     * @return JPA entity ou null si aggregate null
+     */
+    public DrawJpaEntity toEntity(Draw drawAggregate) {
+        if (drawAggregate == null) {
             return null;
         }
 
-        var entity = new DrawJpaEntity();
+        var jpaEntity = new DrawJpaEntity();
 
-        entity.setId(domain.id().value());
-        entity.setTenantId(domain.tenantId().value());
-        entity.setDrawChannelId(domain.drawChannelId().value());
+        jpaEntity.setId(drawAggregate.id().value());
+        jpaEntity.setTenantId(drawAggregate.tenantId().value());
+        jpaEntity.setDrawChannelId(drawAggregate.drawChannelId().value());
 
-        entity.setDrawDate(domain.drawDate());
-        entity.setScheduledAt(domain.scheduledAt());
-        entity.setCutoffAt(domain.cutoffAt());
+        jpaEntity.setDrawDate(drawAggregate.drawDate());
+        jpaEntity.setScheduledAt(drawAggregate.scheduledAt());
+        jpaEntity.setCutoffAt(drawAggregate.cutoffAt());
 
-        entity.setStatus(domain.status());
+        jpaEntity.setStatus(drawAggregate.status());
 
-        entity.setDrawResultId(
-            domain.drawResultId() == null ? null : domain.drawResultId().value()
+        jpaEntity.setDrawResultId(
+            drawAggregate.drawResultId() == null
+                ? null
+                : drawAggregate.drawResultId().value()
         );
 
-        entity.setOpenedAt(domain.openedAt());
-        entity.setClosedAt(domain.closedAt());
-        entity.setResultedAt(domain.resultedAt());
-        entity.setSettledAt(domain.settledAt());
-        entity.setCanceledAt(domain.canceledAt());
-        entity.setCancelReason(domain.cancelReason());
+        jpaEntity.setOpenedAt(drawAggregate.openedAt());
+        jpaEntity.setClosedAt(drawAggregate.closedAt());
+        jpaEntity.setResultedAt(drawAggregate.resultedAt());
+        jpaEntity.setSettledAt(drawAggregate.settledAt());
+        jpaEntity.setCanceledAt(drawAggregate.canceledAt());
+        jpaEntity.setCancelReason(drawAggregate.cancelReason());
 
-        entity.setResultSource(domain.resultSource());
-        entity.setResultOverrideReason(domain.resultOverrideReason());
-        entity.setResultOverriddenAt(domain.resultOverriddenAt());
+        jpaEntity.setResultSource(drawAggregate.resultSource());
+        jpaEntity.setResultOverrideReason(drawAggregate.resultOverrideReason());
+        jpaEntity.setResultOverriddenAt(drawAggregate.resultOverriddenAt());
 
-        entity.setLocked(domain.locked());
-        entity.setSystemGenerated(domain.systemGenerated());
+        jpaEntity.setLocked(drawAggregate.locked());
+        jpaEntity.setSystemGenerated(drawAggregate.systemGenerated());
 
-        return entity;
+        return jpaEntity;
     }
 }

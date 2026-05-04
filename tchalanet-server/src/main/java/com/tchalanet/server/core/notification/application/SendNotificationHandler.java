@@ -8,6 +8,8 @@ import com.tchalanet.server.core.notification.domain.InvalidNotificationExceptio
 import com.tchalanet.server.common.notification.model.NotificationTarget;
 import com.tchalanet.server.common.notification.model.SendNotificationPayload;
 import com.tchalanet.server.common.notification.NotificationGatewayPort;
+
+import java.util.Locale;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +32,7 @@ public class SendNotificationHandler implements VoidCommandHandler<SendNotificat
             command.type(),
             command.channel(),
             target,
-            command.locale(),
+            Locale.of(command.locale()),
             Map.copyOf(command.data()));
 
     notificationGatewayPort.send(payload);

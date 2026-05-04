@@ -33,7 +33,7 @@ public class TicketSaleFactory {
         TenantId tenantId,
         TerminalId terminalId,
         SalesSession session,
-        Draw draw,
+        DrawSummary draw,
         List<TicketLine> lines,
         Currency currency,
         Instant now) {

@@ -147,11 +147,11 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         return queryBus.send(new EvaluateLimitPolicyQuery(context));
     }
 
-    private ZoneId drawZone(com.tchalanet.server.core.draw.domain.model.Draw draw) {
-        if (draw == null || draw.drawChannelId() == null || draw.drawChannel().timezone() == null) {
+    private ZoneId drawZone(com.tchalanet.server.core.draw.domain.model.DrawSummary draw) {
+        if (draw == null || draw.slot().timezone() == null || draw.slot().timezone() == null) {
             return ZoneId.of("UTC");
         }
-        return draw.drawChannel().timezone();
+        return ZoneId.of(draw.slot().timezone());
     }
 
     private void enforceCancelDecisionMatrix(

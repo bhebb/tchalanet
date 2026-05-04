@@ -84,12 +84,11 @@ public class RecordManualDrawResultCommandHandler
     private Instant resolveOccurredAt(
         RecordManualDrawResultCommand command,
         ResultSlotView slot) {
-        return OccurredAtResolver.resolve(
+        return OccurredAtResolver.resolveOrThrow(
             null,
             command.drawDate(),
             slot.drawTime(),
-            slot.timezone(),
-            clock);
+            slot.timezone());
     }
 
     private ObjectNode buildSourceResult(
