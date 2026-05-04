@@ -40,7 +40,7 @@ jobs:
           echo "ADMIN_BASE=https://${KC_HOST}/admin/realms" >> $GITHUB_ENV
 
       - name: Pre-req tools
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
