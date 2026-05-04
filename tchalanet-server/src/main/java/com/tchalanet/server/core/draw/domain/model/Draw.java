@@ -1,157 +1,317 @@
 package com.tchalanet.server.core.draw.domain.model;
 
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.common.types.enums.DrawSource;
+import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.draw.domain.exception.*;
+
 import java.time.Instant;
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
-/**
- * Aggregate root: Draw
- */
 public final class Draw {
 
-  private final DrawId id;
-  private final TenantId tenantId;
-  private final DrawChannelView drawChannel;
+    private final DrawId id;
+    private final TenantId tenantId;
+    private final DrawChannelId drawChannelId;
 
-  private ZonedDateTime scheduledAt;
-  private ZonedDateTime cutoffAt;
-  private DrawStatus status;
-  private DrawSource source; // generation source
-  private DrawResultId drawResultId;
+    private LocalDate drawDate;
+    private Instant scheduledAt;
+    private Instant cutoffAt;
 
-  // audit timestamps
-  private ZonedDateTime openedAt;
-  private ZonedDateTime closedAt;
-  private ZonedDateTime resultedAt;
-  private ZonedDateTime settledAt;
-  private ZonedDateTime canceledAt;
-  private String cancelReason;
+    private DrawStatus status;
+    private DrawResultId drawResultId;
 
-  // Result metadata
-  private DrawSource resultSource; // AUTO / ADMIN_OVERRIDE
-  private String resultOverrideReason;
-  private ZonedDateTime resultOverriddenAt;
+    private Instant openedAt;
+    private Instant closedAt;
+    private Instant resultedAt;
+    private Instant settledAt;
+    private Instant canceledAt;
+    private String cancelReason;
 
-  // flags
-  private boolean locked = false;
-  private boolean systemGenerated = true;
+    private DrawSource resultSource;
+    private String resultOverrideReason;
+    private Instant resultOverriddenAt;
 
-  public Draw(
-      DrawId id,
-      TenantId tenantId,
-      DrawChannelView drawChannel,
-      ZonedDateTime scheduledAt,
-      ZonedDateTime cutoffAt,
-      DrawStatus status,
-      DrawSource source,
-      DrawResultId drawResultId) {
-    this.id = Objects.requireNonNull(id);
-    this.tenantId = Objects.requireNonNull(tenantId);
-    this.drawChannel = Objects.requireNonNull(drawChannel);
-    this.scheduledAt = Objects.requireNonNull(scheduledAt);
-    this.cutoffAt = Objects.requireNonNull(cutoffAt);
-    this.status = Objects.requireNonNull(status);
-    this.source = Objects.requireNonNull(source);
-    this.drawResultId = drawResultId;
-  }
+    private boolean locked;
+    private boolean systemGenerated;
 
-  public DrawId id() { return id; }
-  public TenantId tenantId() { return tenantId; }
-  public DrawChannelView drawChannel() { return drawChannel; }
-  public ZonedDateTime scheduledAt() { return scheduledAt; }
-  public ZonedDateTime cutoffAt() { return cutoffAt; }
-  public DrawStatus status() { return status; }
-  public DrawResultId drawResultId() { return drawResultId; }
-  public DrawSource source() { return source; }
+    public Draw(
+        DrawId id,
+        TenantId tenantId,
+        DrawChannelId drawChannelId,
+        LocalDate drawDate,
+        Instant scheduledAt,
+        Instant cutoffAt,
+        DrawStatus status,
+        DrawSource source,
+        DrawResultId drawResultId,
+        Instant openedAt,
+        Instant closedAt,
+        Instant resultedAt,
+        Instant settledAt,
+        Instant canceledAt,
+        String cancelReason,
+        DrawSource resultSource,
+        String resultOverrideReason,
+        Instant resultOverriddenAt,
+        boolean locked,
+        boolean systemGenerated) {
 
-  public java.time.LocalDate drawDate() {
-    var zone = drawChannel.timezone() == null ? java.time.ZoneId.of("UTC") : drawChannel.timezone();
-    return scheduledAt == null ? null : scheduledAt.withZoneSameInstant(zone).toLocalDate();
-  }
-
-  // --- state machine methods ---
-
-  public void open(ZonedDateTime now) {
-    DrawStatusTransition.check(this.status, DrawStatus.OPEN);
-    this.status = DrawStatus.OPEN;
-    this.openedAt = Objects.requireNonNull(now);
-  }
-
-  public void close(ZonedDateTime now) {
-    DrawStatusTransition.check(this.status, DrawStatus.CLOSED);
-    this.status = DrawStatus.CLOSED;
-    this.closedAt = Objects.requireNonNull(now);
-  }
-
-  /**
-   * Applique un résultat au tirage.
-   * Autorisé depuis CLOSED (normal) ou RESULTED (re-apply/override).
-   */
-  public void applyResult(DrawResultId resultId, Instant now, DrawSource resultSource) {
-    // Si déjà RESULTED, on autorise le re-apply (changement de résultat)
-    if (this.status != DrawStatus.RESULTED) {
-      DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
+        this.id = Objects.requireNonNull(id, "id is required");
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId is required");
+        this.drawChannelId = Objects.requireNonNull(drawChannelId, "drawChannelId is required");
+        this.drawDate = Objects.requireNonNull(drawDate, "drawDate is required");
+        this.scheduledAt = Objects.requireNonNull(scheduledAt, "scheduledAt is required");
+        this.cutoffAt = Objects.requireNonNull(cutoffAt, "cutoffAt is required");
+        this.status = Objects.requireNonNull(status, "status is required");
+        this.drawResultId = drawResultId;
+        this.openedAt = openedAt;
+        this.closedAt = closedAt;
+        this.resultedAt = resultedAt;
+        this.settledAt = settledAt;
+        this.canceledAt = canceledAt;
+        this.cancelReason = cancelReason;
+        this.resultSource = resultSource;
+        this.resultOverrideReason = resultOverrideReason;
+        this.resultOverriddenAt = resultOverriddenAt;
+        this.locked = locked;
+        this.systemGenerated = systemGenerated;
     }
 
-    this.drawResultId = Objects.requireNonNull(resultId);
-    this.status = DrawStatus.RESULTED;
-    this.resultedAt = ZonedDateTime.ofInstant(now, scheduledAt.getZone());
-    this.resultSource = resultSource;
-
-    if (resultSource == DrawSource.ADMIN_OVERRIDE) {
-      this.resultOverriddenAt = this.resultedAt;
+    public static Draw scheduled(
+        DrawId id,
+        TenantId tenantId,
+        DrawChannelId drawChannelId,
+        String drawChannelCode,
+        LocalDate drawDate,
+        Instant scheduledAt,
+        Instant cutoffAt,
+        DrawSource source) {
+        return new Draw(
+            id,
+            tenantId,
+            drawChannelId,
+            drawDate,
+            scheduledAt,
+            cutoffAt,
+            DrawStatus.SCHEDULED,
+            source,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            true);
     }
-  }
 
-  public void settle(ZonedDateTime now) {
-    DrawStatusTransition.check(this.status, DrawStatus.SETTLED);
-    if (this.drawResultId == null)
-      throw new IllegalStateException("Cannot settle draw without result");
-    this.status = DrawStatus.SETTLED;
-    this.settledAt = Objects.requireNonNull(now);
-  }
-
-  public void cancel(String reason) {
-    DrawStatusTransition.check(this.status, DrawStatus.CANCELED);
-    this.cancelReason = reason;
-    this.canceledAt = ZonedDateTime.now();
-    this.status = DrawStatus.CANCELED;
-  }
-
-  public void reschedule(ZonedDateTime newScheduledAt, ZonedDateTime newCutoffAt) {
-    if (status != DrawStatus.SCHEDULED) {
-      throw new IllegalStateException("Can only reschedule SCHEDULED draws");
+    public DrawId id() {
+        return id;
     }
-    this.scheduledAt = Objects.requireNonNull(newScheduledAt);
-    this.cutoffAt = Objects.requireNonNull(newCutoffAt);
-  }
 
-  public void archive() {
-    this.status = DrawStatus.ARCHIVED;
-  }
+    public TenantId tenantId() {
+        return tenantId;
+    }
 
-  // Getters
-  public ZonedDateTime openedAt() { return openedAt; }
-  public ZonedDateTime closedAt() { return closedAt; }
-  public ZonedDateTime resultedAt() { return resultedAt; }
-  public ZonedDateTime settledAt() { return settledAt; }
-  public ZonedDateTime canceledAt() { return canceledAt; }
-  public String cancelReason() { return cancelReason; }
-  public boolean isLocked() { return locked; }
-  public void setLocked(boolean locked) { this.locked = locked; }
-  public boolean isSystemGenerated() { return systemGenerated; }
-  public void setSystemGenerated(boolean systemGenerated) { this.systemGenerated = systemGenerated; }
+    public DrawChannelId drawChannelId() {
+        return drawChannelId;
+    }
 
-  public DrawSource resultSource() { return resultSource; }
-  public String resultOverrideReason() { return resultOverrideReason; }
-  public ZonedDateTime resultOverriddenAt() { return resultOverriddenAt; }
+    public LocalDate drawDate() {
+        return drawDate;
+    }
 
-  public void setOverrideReason(String reason) {
-    this.resultOverrideReason = reason;
-  }
+    public Instant scheduledAt() {
+        return scheduledAt;
+    }
+
+    public Instant cutoffAt() {
+        return cutoffAt;
+    }
+
+    public DrawStatus status() {
+        return status;
+    }
+
+    public DrawResultId drawResultId() {
+        return drawResultId;
+    }
+
+    public Instant openedAt() {
+        return openedAt;
+    }
+
+    public Instant closedAt() {
+        return closedAt;
+    }
+
+    public Instant resultedAt() {
+        return resultedAt;
+    }
+
+    public Instant settledAt() {
+        return settledAt;
+    }
+
+    public Instant canceledAt() {
+        return canceledAt;
+    }
+
+    public String cancelReason() {
+        return cancelReason;
+    }
+
+    public DrawSource resultSource() {
+        return resultSource;
+    }
+
+    public String resultOverrideReason() {
+        return resultOverrideReason;
+    }
+
+    public Instant resultOverriddenAt() {
+        return resultOverriddenAt;
+    }
+
+    public boolean locked() {
+        return locked;
+    }
+
+    public boolean systemGenerated() {
+        return systemGenerated;
+    }
+
+    public void open(Instant now) {
+        ensureNotLocked();
+        DrawStatusTransition.check(this.status, DrawStatus.OPEN);
+        this.status = DrawStatus.OPEN;
+        this.openedAt = Objects.requireNonNull(now, "now is required");
+    }
+
+    public void close(Instant now) {
+        ensureNotLocked();
+        DrawStatusTransition.check(this.status, DrawStatus.CLOSED);
+        this.status = DrawStatus.CLOSED;
+        this.closedAt = Objects.requireNonNull(now, "now is required");
+    }
+
+    public void applyResult(DrawResultId resultId, Instant now, DrawSource resultSource) {
+        ensureNotLocked();
+
+        if (this.status != DrawStatus.RESULTED) {
+            DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
+        }
+
+        this.drawResultId = Objects.requireNonNull(resultId, "resultId is required");
+        this.status = DrawStatus.RESULTED;
+        this.resultedAt = Objects.requireNonNull(now, "now is required");
+        this.resultSource = Objects.requireNonNull(resultSource, "resultSource is required");
+
+        if (resultSource == DrawSource.ADMIN_OVERRIDE) {
+            this.resultOverriddenAt = now;
+        }
+    }
+
+    public void overrideResult(
+        DrawResultId resultId,
+        Instant now,
+        String reason) {
+        ensureNotLocked();
+
+        if (reason == null || reason.isBlank()) {
+            throw new DrawInvalidOverrideException(id, "Override reason is required");
+        }
+
+        this.drawResultId = Objects.requireNonNull(resultId, "resultId is required");
+        this.status = DrawStatus.RESULTED;
+        this.resultedAt = Objects.requireNonNull(now, "now is required");
+        this.resultSource = DrawSource.ADMIN_OVERRIDE;
+        this.resultOverrideReason = reason.trim();
+        this.resultOverriddenAt = now;
+    }
+
+    public void settle(Instant now) {
+        ensureNotLocked();
+        DrawStatusTransition.check(this.status, DrawStatus.SETTLED);
+
+        if (this.drawResultId == null) {
+            throw new DrawCannotSettleWithoutResultException(id);
+        }
+
+        this.status = DrawStatus.SETTLED;
+        this.settledAt = Objects.requireNonNull(now, "now is required");
+    }
+
+    public void cancel(String reason, Instant now) {
+        ensureNotLocked();
+        DrawStatusTransition.check(this.status, DrawStatus.CANCELED);
+
+        if (reason == null || reason.isBlank()) {
+            throw new DrawInvalidCancelException(id, "Cancel reason is required");
+        }
+
+        this.cancelReason = reason.trim();
+        this.canceledAt = Objects.requireNonNull(now, "now is required");
+        this.status = DrawStatus.CANCELED;
+    }
+
+    public void reschedule(LocalDate drawDate, Instant scheduledAt, Instant cutoffAt) {
+        ensureNotLocked();
+
+        if (this.status == DrawStatus.SETTLED) {
+            throw new IllegalStateException("Cannot reschedule a settled draw");
+        }
+
+        this.drawDate = Objects.requireNonNull(drawDate, "drawDate is required");
+        this.scheduledAt = Objects.requireNonNull(scheduledAt, "scheduledAt is required");
+        this.cutoffAt = Objects.requireNonNull(cutoffAt, "cutoffAt is required");
+
+        if (!scheduledAt.isBefore(cutoffAt)) {
+            throw new IllegalArgumentException("scheduledAt must be before cutoffAt");
+        }
+    }
+
+    public void archive() {
+        DrawStatusTransition.check(this.status, DrawStatus.ARCHIVED);
+        this.status = DrawStatus.ARCHIVED;
+    }
+
+    public void lock() {
+        if (this.locked) {
+            return;
+        }
+        this.locked = true;
+    }
+
+    public void unlock() {
+        if (!this.locked) {
+            return;
+        }
+        this.locked = false;
+    }
+
+    public void markSystemGenerated(boolean systemGenerated) {
+        this.systemGenerated = systemGenerated;
+    }
+
+    private void ensureNotLocked() {
+        if (locked) {
+            throw new DrawLockedException(id);
+        }
+    }
+
+    private static String requireText(String value, String message) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(message);
+        }
+        return value.trim();
+    }
 }

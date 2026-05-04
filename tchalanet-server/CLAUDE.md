@@ -1,77 +1,55 @@
-# CLAUDE.md — tchalanet-server
+# Claude — tchalanet-server
 
-> **Lire d'abord** : `../CLAUDE.md` (règles transverses, secrets, OpenSpec)
+Scope:
 
----
+- Backend only.
 
-## Stack backend
+Read first:
 
-| Item            | Valeur                                         |
-| --------------- | ---------------------------------------------- |
-| Java            | 25 (`jakarta.*` uniquement)                    |
-| Spring Boot     | 4.0.3 (`./mvnw`)                               |
-| Architecture    | Hexagonal + CQRS — 4 couches strictes          |
-| ORM / migration | JPA + Hibernate · Flyway (`ddl-auto=validate`) |
-| Mappers         | MapStruct + `CommonIdMapper`                   |
-| Cache           | Redis + Caffeine                               |
-| Auth            | OAuth2 Resource Server (JWT/Keycloak)          |
-| Tests           | JUnit 5 · AssertJ · Testcontainers             |
+- This file.
+- The closest slice `CLAUDE.md`.
+- The files explicitly listed in the task.
 
----
+Do not:
 
-## Skills backend (`tchalanet-server/.claude/skills/`)
+- Scan all backend packages.
+- Modify web, mobile, infra, or edge-service unless explicitly requested.
+- Load all convention docs.
+- Create new abstractions when local patterns exist.
 
-Couches : `hexagonal-cqrs` · `core-module` · `catalog-module` · `feature-module` · `common-module`
-Patterns : `backend-typed-ids` · `domain-events` · `backend-rls` · `persistence-flyway` · `backend-events`
-Conventions : `backend-naming` · `backend-architecture` · `backend-testing` · `testing-conventions`
-Spring : `spring-boot-core` · `spring-security` · `java-best-practices`
+Architecture:
 
----
+- `common`: technical only, no business logic.
+- `catalog`: reference/read-mostly, no lifecycle, no business events.
+- `core`: business domains, CQRS/hexagonal.
+- `features`: UI/BFF orchestration, no business truth.
 
-## Do ✅
+Backend rules:
 
-- Constructor injection uniquement
-- Commands/Queries = `record` + typed IDs (jamais `UUID` brut hors persistence)
-- Controllers thin : validation + mapping + délégation au bus
-- Domain layer = pure Java, framework-free, déterministe
-- Events publiés `AfterCommit` via `DomainEventPublisher`
-- Listeners idempotents via `ProcessedEventPort`
-- Flyway pour toute modification de schéma
-- `ApiResponse<T>` sur tous les controllers JSON
-- `TchPage<T>` pour les collections (pas Spring `Page`)
-- `BaseTenantEntity` pour les tables tenantées, `BaseEntity` sinon
+- Java 25 / Spring Boot 4.x / Maven.
+- Constructor injection only.
+- Controllers are thin.
+- Use CommandBus / QueryBus.
+- Commands and queries are records.
+- Write handlers use `@TchTx`.
+- Side-effects use `AfterCommit.run(...)`.
+- Use typed IDs outside persistence.
+- Raw UUID only in JPA/JDBC/Flyway.
+- Persistence contains no business logic.
+- RLS handles tenant isolation.
+- Do not filter tenant manually in read-side queries.
 
-## Don't ❌
+Testing:
 
-- `javax.*` · `UUID` hors persistence · `UUID.randomUUID()` dans le domaine
-- Logique métier dans `catalog/` · domain events depuis `catalog/`
-- `core/` dépend de `features/` · `common/` contient du métier
-- `WHERE tenant_id = ?` dans le code Java (RLS fait le travail)
-- `ddl-auto=update/create` · `@RepositoryRestResource`
-- `@Autowired` champ · `@Data` Lombok · `XxxDto` · `DTO` dans features
-- `/api/v1` dans les `@RequestMapping` · suffixe `Impl` sans interface
+- JUnit 5 + AssertJ only.
+- Prefer in-memory ports/fakes over heavy mocks.
+- Add focused tests near changed code.
 
----
+Useful conventions, load only when relevant:
 
-## Commandes
-
-```bash
-./mvnw clean verify        # build + tests complets
-./mvnw spring-boot:run     # démarrage local (port 8080)
-./mvnw test -pl :module    # tests d'un module
-```
-
----
-
-## Références backend
-
-| Besoin               | Fichier                                  |
-| -------------------- | ---------------------------------------- |
-| Architecture couches | `openspec/context/10-non-negotiables.md` |
-| Nommage              | `docs/NAMING.md`                         |
-| Typed IDs            | `docs/conventions/typed_ids.md`          |
-| RLS / multi-tenant   | `docs/conventions/persistence/rls.md`    |
-| Events               | `docs/conventions/event_model.md`        |
-| Idempotency          | `docs/conventions/idempotency.md`        |
-| Tests                | `docs/conventions/testing.md`            |
-| Domaine métier       | `src/**/DOMAIN_*.md`                     |
+- Batch/scheduler: `docs/conventions/batch.md`, `spring_batch_6.md`
+- RLS/context: `docs/conventions/rls.md`, `request_context_usage.md`
+- Cache: `docs/conventions/cache.md`
+- Events: `docs/conventions/event_model.md`
+- Web API: `docs/conventions/web_api.md`, `api_response.md`
+- Persistence: `docs/conventions/persistence.md`, `typed_ids.md`

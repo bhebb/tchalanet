@@ -50,7 +50,7 @@ public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetc
 
     private ExternalResultItem toExternalItem(UsLotteryProviderResult r) {
         return new ExternalResultItem(
-            r.gameCode(),
+            r.externalGameCode(),
             r.main(),
             r.extras(),
             r.quality(),

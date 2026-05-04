@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
+import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -35,7 +36,7 @@ public class ApplyExternalResultsWindowCommandHandler
     private final ResultSlotCatalog resultSlotCatalog;
     private final DrawResultReaderPort drawResultReader;
     private final DrawApplyPort drawApply;
-    private final DrawResultsCommonProperties props;
+    private final DrawResultsProperties props;
     private final Clock clock;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
@@ -48,44 +49,55 @@ public class ApplyExternalResultsWindowCommandHandler
         int applied = 0;
         int alreadyOrNotEligible = 0;
         int skippedDryRun = 0;
-        int skippedPending = 0; // draw_result absent (fetch pas prêt) => retry next tick
-        int notFound = 0;       // slot missing/inactive only
+        int skippedPending = 0;
+        int notFound = 0;
         int errors = 0;
 
-        int daysBack = clampDaysBack(cmd.daysBack());
-        Instant now = Instant.now(clock);
+        int daysBack = Math.max(0, cmd.daysBack());
+        int maxSlots = Math.min(cmd.maxSlots(), props.getLimits().getMaxSlotsPerTick());
 
-        var slotKeys =
-            cmd.slotKeys().stream()
-                .map(ApplyExternalResultsWindowCommandHandler::normalizeKey)
-                .filter(s -> !s.isBlank())
-                .distinct()
-                .limit(cmd.maxSlots())
-                .toList();
+        var now = clock.instant();
+        Instant eventTime = now;
+
+        var slotKeys = cmd.slotKeys().stream()
+            .map(ApplyExternalResultsWindowCommandHandler::normalizeKey)
+            .filter(s -> !s.isBlank())
+            .distinct()
+            .limit(maxSlots)
+            .toList();
+
+        var slotsByKey = slotKeys.stream()
+            .map(k -> resultSlotCatalog.findByKey(k).orElse(null))
+            .filter(Objects::nonNull)
+            .filter(ResultSlotView::active)
+            .collect(java.util.stream.Collectors.toMap(
+                s -> normalizeKey(s.slotKey()),
+                s -> s
+            ));
+
+        notFound += slotKeys.size() - slotsByKey.size();
 
         for (LocalDate date : DateWindows.datesBackInclusive(cmd.baseDate(), daysBack)) {
             for (String slotKey : slotKeys) {
-                try {
-                    var slotOpt = resultSlotCatalog.findByKey(slotKey);
-                    if (slotOpt.isEmpty()) {
-                        notFound++;
-                        continue;
-                    }
-                    var slot = slotOpt.get();
-                    if (!slot.active()) {
-                        notFound++;
-                        continue;
-                    }
+                var slot = slotsByKey.get(slotKey);
+                if (slot == null) {
+                    continue;
+                }
 
-                    // Deterministic occurredAt for slot/date (timezone + drawTime)
-                    Instant occurredAt =
-                        OccurredAtResolver.resolve(null, date, slot.drawTime(), slot.timezone(), clock);
+                try {
+                    Instant occurredAt = OccurredAtResolver.resolveOrThrow(
+                        null,
+                        date,
+                        slot.drawTime(),
+                        slot.timezone()
+                    );
 
                     var drOpt = drawResultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt);
                     if (drOpt.isEmpty()) {
                         skippedPending++;
                         continue;
                     }
+
                     var drawResultId = drOpt.get();
 
                     if (cmd.dryRun()) {
@@ -93,29 +105,30 @@ public class ApplyExternalResultsWindowCommandHandler
                         continue;
                     }
 
-                    var res =
-                        drawApply.attachResultBySlot(
-                            cmd.tenantId(), date, slot.id(), drawResultId, now, cmd.force());
+                    var res = drawApply.attachResultBySlot(
+                        cmd.tenantId(),
+                        date,
+                        slot.id(),
+                        drawResultId,
+                        now,
+                        cmd.force()
+                    );
 
-                    if (res.outcome() == DrawApplyPort.ApplyOutcome.UPDATED && !res.applied().isEmpty()) {
+                    if (res.updatedAny()) {
                         applied += res.applied().size();
 
-                        AfterCommit.run(
-                            () -> {
-                                for (var d : res.applied()) {
+                        var events = res.applied().stream()
+                            .map(d -> new DrawResultAppliedEvent(
+                                EventId.of(idGenerator.newUuid()),
+                                eventTime,
+                                cmd.tenantId(),
+                                d.drawId(),
+                                slot.id(),
+                                drawResultId
+                            ))
+                            .toList();
 
-                                    var appliedEvent =
-                                        new DrawResultAppliedEvent(
-                                            EventId.of(idGenerator.newUuid()),
-                                            Instant.now(clock),
-                                            cmd.tenantId(),
-                                            d.drawId(),
-                                            slot.id(),
-                                            drawResultId);
-                                    publisher.publish(appliedEvent);
-                                }
-                            });
-
+                        AfterCommit.run(() -> events.forEach(publisher::publish));
                     } else {
                         alreadyOrNotEligible++;
                     }
@@ -127,20 +140,22 @@ public class ApplyExternalResultsWindowCommandHandler
                         cmd.tenantId(),
                         slotKey,
                         date,
-                        e.getLocalizedMessage(), e);
+                        e.getMessage(),
+                        e
+                    );
                 }
             }
         }
 
         return new ApplyExternalResultsWindowResult(
             applied,
-            /* updated */ 0,
-            /* already */ alreadyOrNotEligible,
-            /* skipped */ skippedDryRun + skippedPending,
-            /* notFound */ notFound,
-            /* errors */ errors);
+            0,
+            alreadyOrNotEligible,
+            skippedDryRun + skippedPending,
+            notFound,
+            errors
+        );
     }
-
     private int clampDaysBack(int v) {
         int x = Math.max(0, v);
         return Math.min(x, props.getLimits().getHardDaysBack());

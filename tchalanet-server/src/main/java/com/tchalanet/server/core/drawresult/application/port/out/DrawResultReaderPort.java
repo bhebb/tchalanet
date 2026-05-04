@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.drawresult.application.port.out;
 
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -23,4 +24,6 @@ public interface DrawResultReaderPort {
     Optional<DrawResultId> findByResultSlotIdAndOccurredAt(ResultSlotId resultSlotId, Instant occurredAt);
 
     TchPage<DrawResultView> findViewsByCriteria(DrawResultsCriteria criteria);
+
+    Optional<DrawResultView> findByDrawId(DrawId drawId);
 }

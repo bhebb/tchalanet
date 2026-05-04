@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DaysOfWeekParser;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -37,6 +38,7 @@ public class GenerateDrawsForRangeCommandHandler
   private final IdGenerator idGenerator;
 
   @Override
+  @TchTx
   public GenerateDrawsForRangeResult handle(GenerateDrawsForRangeCommand command) {
     validate(command);
 

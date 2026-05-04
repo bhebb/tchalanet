@@ -45,7 +45,7 @@ public class GeorgiaDrawResultsMapper {
             return UsLotteryProviderResponse.empty(UsLotteryProvider.GA, query);
         }
 
-        var wantedCodes = normalizeWantedCodes(query.gameCodes());
+        var wantedCodes = normalizeWantedCodes(query.externalGameCodes());
 
         var results = entries.stream()
             .map(entry -> mapEntry(entry, wantedCodes, sourceHash, url, query))
@@ -80,7 +80,7 @@ public class GeorgiaDrawResultsMapper {
         }
 
         if (!wantedCodes.isEmpty() && !wantedCodes.contains(gameCode)) {
-            log.debug("ga-client skipped gameCode={} wanted={}", gameCode, wantedCodes);
+            log.debug("ga-client skipped externalGameCode={} wanted={}", gameCode, wantedCodes);
             return null;
         }
 

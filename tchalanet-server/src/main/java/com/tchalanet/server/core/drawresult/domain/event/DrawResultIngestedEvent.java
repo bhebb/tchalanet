@@ -15,10 +15,9 @@ import java.time.LocalDate;
 public record DrawResultIngestedEvent(
     EventId eventId,
     Instant occurredAt,
-    TenantId tenantId,
-    DrawId drawId,
-    DrawChannelId drawChannelId,
+    TenantId tenantId, // Always null for global ingestion
     ResultSlotId resultSlotId,
+    String resultSlotKey,
     DrawResultId drawResultId,
     Instant drawResultOccurredAt,
     LocalDate drawDate)

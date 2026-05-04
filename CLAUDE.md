@@ -1,51 +1,62 @@
-# CLAUDE.md — Tchalanet (racine)
+# Tchalanet — Claude Instructions
 
-> Avant toute tâche : lire aussi `AGENTS.md` et `openspec/AGENTS.md`.
-> Chaque sous-projet a son propre CLAUDE.md — lire celui du scope concerné.
+Goal:
 
----
+- Minimize token usage.
+- Do not scan the whole repository.
+- Work by slice.
+- Prefer local patterns over new abstractions.
 
-## Stack (versions canoniques → `VERSIONS.md`)
+Source of truth:
 
-| Scope        | Stack                                                        |
-| ------------ | ------------------------------------------------------------ |
-| Backend      | Java 25 · Spring Boot 4.0.1 · Maven · PostgreSQL 18.1        |
-| Frontend Web | Angular 20.2 · Nx 21 · NgRx · pnpm 10.19 · Node 20.19        |
-| Mobile       | Flutter · Riverpod · GoRouter · Material 3 · Capacitor (POS) |
-| Edge Service | Node 20.19 · TypeScript · Express 4 · json-rules-engine 7    |
-| Infra        | Docker Compose v2 · Traefik v3.6 · Keycloak 26 · Redis 8.4   |
+- Versions: `VERSIONS.md`
+- Global agent rules: `AGENTS.md`
+- Backend architecture: `tchalanet-server/docs/ARCHITECTURE.md`
+- Backend playbook: `tchalanet-server/docs/PLAYBOOK.md`
+- OpenSpec workflow: `openspec/AGENTS.md`
 
----
+Before coding:
 
-## Règles transverses (NON-NÉGOCIABLES)
+- Read only the nearest relevant `CLAUDE.md`.
+- Read only files explicitly mentioned by the task.
+- Load at most one nearby `DOMAIN_*.md`, `FEATURE_*.md`, or convention doc if required.
+- Before editing, list files you will touch.
 
-- **OpenSpec obligatoire** pour tout nouveau capability, changement breaking, refactoring archi → `openspec/AGENTS.md`
-- **Images Docker pinées** — jamais `:latest` — versions dans `VERSIONS.md`
-- **Secrets via Doppler uniquement** — rien dans le code, les specs, ni la doc
-- **Jakarta** (`jakarta.*`) — jamais `javax.*`
-- **RLS PostgreSQL** — l'isolation tenant ne passe jamais par du code Java
-- Toute exception → **ADR** dans `tchalanet-docs/docs/03-adr/`
+Token policy:
 
----
+- Do not read all docs.
+- Do not load all conventions.
+- Do not inspect unrelated apps.
+- Ask before expanding scope.
+- Use `/handoff` before `/clear`.
 
-## Sous-projets
+Architecture:
 
-| Sous-projet                    | CLAUDE.md                          |
-| ------------------------------ | ---------------------------------- |
-| Backend Spring Boot            | `tchalanet-server/CLAUDE.md`       |
-| Frontend Angular               | `apps/tchalanet-web/CLAUDE.md`     |
-| Mobile Flutter / POS           | `tchalanet-mobile/CLAUDE.md`       |
-| Infrastructure                 | `tchalanet-infra/CLAUDE.md`        |
-| Edge Service (règles + notifs) | `tchalanet-edge-service/CLAUDE.md` |
-| Documentation (MkDocs)         | `tchalanet-docs/CLAUDE.md`         |
+- `common`: technical only.
+- `catalog`: reference/read-mostly data.
+- `core`: business domains and invariants.
+- `features`: BFF/orchestration only.
 
----
+Non-negotiables:
 
-## Skills globaux (`.claude/skills/`)
+- No raw UUID outside persistence.
+- Use typed IDs.
+- Controllers stay thin.
+- Use CommandBus / QueryBus when handlers exist.
+- Write handlers need transaction boundary.
+- Cross-domain side effects happen after commit.
+- Do not change versions unless `VERSIONS.md` is updated.
+- Do not invent architecture when a local pattern exists.
 
-| Skill               | Déclenchement                         |
-| ------------------- | ------------------------------------- |
-| `openspec-proposal` | Créer une proposal de changement      |
-| `openspec-apply`    | Implémenter une proposal approuvée    |
-| `openspec-archive`  | Archiver une change après déploiement |
-| `documentation`     | Trouver ou écrire de la doc           |
+OpenSpec:
+
+- If the task is planning, proposal, architecture, breaking change, security, performance, or large refactor, read `openspec/AGENTS.md` first.
+- Otherwise do not load OpenSpec by default.
+
+Output for implementation tasks:
+
+1. Files inspected
+2. Files changed
+3. Tests run
+4. Risks
+5. Compact handoff

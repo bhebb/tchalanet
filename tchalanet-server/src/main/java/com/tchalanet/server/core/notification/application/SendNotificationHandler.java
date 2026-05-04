@@ -5,9 +5,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.NotificationChannel;
 import com.tchalanet.server.core.notification.domain.InvalidNotificationException;
-import com.tchalanet.server.core.notification.domain.NotificationTarget;
-import com.tchalanet.server.core.notification.domain.SendNotificationPayload;
-import com.tchalanet.server.core.notification.port.NotificationGatewayPort;
+import com.tchalanet.server.common.notification.model.NotificationTarget;
+import com.tchalanet.server.common.notification.model.SendNotificationPayload;
+import com.tchalanet.server.common.notification.NotificationGatewayPort;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 

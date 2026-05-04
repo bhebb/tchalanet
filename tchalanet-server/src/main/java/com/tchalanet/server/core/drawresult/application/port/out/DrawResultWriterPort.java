@@ -7,7 +7,7 @@ import java.time.Instant;
 
 public interface DrawResultWriterPort {
 
-  record UpsertResult(DrawResultId id, boolean created, boolean updated) {}
+  record UpsertResult(DrawResultId id, boolean created, boolean updated, boolean skippedConfirmed, boolean skippedOverridden) {}
 
   UpsertResult upsert(
       ResultSlotId resultSlotId,
@@ -22,4 +22,13 @@ public interface DrawResultWriterPort {
       String sourceHash,
       String overrideReason,
       boolean force);
+
+  /**
+   * Marque un DrawResult comme OVERRIDDEN suite à une correction de résultat.
+   *
+   * @param drawResultId l'ID du DrawResult à marquer
+   * @param reason la raison de l'override
+   * @param overriddenAt timestamp de l'override
+   */
+  void markAsOverridden(DrawResultId drawResultId, String reason, Instant overriddenAt);
 }

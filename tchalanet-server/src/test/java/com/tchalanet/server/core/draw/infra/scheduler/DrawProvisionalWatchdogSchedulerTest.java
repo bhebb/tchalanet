@@ -5,7 +5,6 @@ import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.api.DrawReaderPort;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;

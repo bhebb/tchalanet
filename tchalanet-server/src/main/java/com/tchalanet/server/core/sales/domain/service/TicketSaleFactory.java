@@ -5,6 +5,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.draw.domain.model.Draw;
+import com.tchalanet.server.core.draw.domain.model.DrawStatusTransition;
+import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.sales.application.port.out.TicketNumberGeneratorPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketPublicCodeGeneratorPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
@@ -55,7 +57,7 @@ public class TicketSaleFactory {
     public Ticket newPendingApprovalTicket(TenantId tenantId,
                                            TerminalId terminalId,
                                            SalesSession session,
-                                           Draw draw,
+                                           DrawSummary draw,
                                            List<TicketLine> lines,
                                            Instant now) {
 

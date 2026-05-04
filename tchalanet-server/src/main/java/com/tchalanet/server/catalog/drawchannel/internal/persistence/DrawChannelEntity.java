@@ -44,6 +44,9 @@ public class DrawChannelEntity extends BaseTenantEntity {
   @Column(name = "sort_order", nullable = false)
   private int sortOrder = 0;
 
+  @Column(name = "period", length = 32)
+  private String period;
+
   @Column(name = "flags", nullable = false, columnDefinition = "jsonb")
   @JdbcTypeCode(SqlTypes.JSON)
   private JsonNode flags;

@@ -7,15 +7,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record FetchExternalResultsWindowCommand(
-    TenantId tenantId,
+    TenantId tenantId, // can be null (global fetch)
     LocalDate baseDate,
     int daysBack,
-    List<String> slotKeys,
+    List<String> slotKeys, // null or empty means all active slots
     boolean force,
     boolean dryRun,
     int maxSlots, // safety cap (channels * dates)
-    String reason, // AJOUTÉ: obligatoire si force=true,
-    boolean includeRaw // false par défaut côté request/controller
+    String reason, // required if force=true
+    boolean includeRaw // false by default
 ) implements Command<FetchExternalResultsWindowResult> {
 
   @AssertTrue(message = "reason is required when force is true")

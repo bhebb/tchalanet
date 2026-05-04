@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsResult;
@@ -23,6 +24,7 @@ public class CloseDueDrawsCommandHandler
   private final DrawLifecyclePort drawLifecyclePort;
 
   @Override
+  @TchTx
   public CloseDueDrawsResult handle(CloseDueDrawsCommand command) {
     validateCommand(command);
 

@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.config.draw;
 
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
+import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -25,7 +26,7 @@ class DrawResultsCommonPropertiesBindingTest {
             "tch.draw.results.defaults.max-slots=75")
         .run(
             context -> {
-              var props = context.getBean(DrawResultsCommonProperties.class);
+              var props = context.getBean(DrawResultsProperties.class);
 
               assertThat(props.getScheduler().isActive()).isFalse();
               assertThat(props.getScheduler().getTickCron()).isEqualTo("0 */2 * * * *");
@@ -72,7 +73,7 @@ class DrawResultsCommonPropertiesBindingTest {
 
   @Configuration(proxyBeanMethods = false)
   @EnableConfigurationProperties({
-    DrawResultsCommonProperties.class,
+    DrawResultsProperties.class,
     DrawProperties.class,
     UsLotteryProperties.class
   })

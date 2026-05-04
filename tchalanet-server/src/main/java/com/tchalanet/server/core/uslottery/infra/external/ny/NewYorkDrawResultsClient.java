@@ -63,7 +63,7 @@ public class NewYorkDrawResultsClient implements UsLotteryProviderClient {
                 PROVIDER.name(),
                 query.drawDate(),
                 query.drawTime(),
-                query.gameCodes().stream().sorted().toList(),
+                query.externalGameCodes().stream().sorted().toList(),
                 SHAPE);
 
         var body =

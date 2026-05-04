@@ -2,72 +2,313 @@ package com.tchalanet.server.core.draw.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.error.ProblemRest;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.draw.application.command.model.CreateDrawCommand;
-import com.tchalanet.server.core.draw.application.command.model.UpdateDrawCommand;
-import com.tchalanet.server.core.draw.application.query.model.GetDrawByIdQuery;
-import com.tchalanet.server.core.draw.application.query.model.ListDrawsQuery;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.core.draw.application.command.model.*;
+import com.tchalanet.server.core.draw.application.query.model.*;
 import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.draw.infra.web.mapper.DrawAdminWebMapper;
-import com.tchalanet.server.core.draw.infra.web.model.CreateDrawRequest;
-import com.tchalanet.server.core.draw.infra.web.model.DrawSummaryResponse;
-import com.tchalanet.server.core.draw.infra.web.model.UpdateDrawRequest;
+import com.tchalanet.server.core.draw.infra.web.model.*;
+import com.tchalanet.server.core.drawresult.application.view.DrawResultView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Admin • Draws")
 public class DrawAdminController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
-  private final DrawAdminWebMapper mapper;
-  private final TchContextResolver contextResolver;
+    private final CommandBus commandBus;
+    private final QueryBus queryBus;
+    private final DrawAdminWebMapper mapper;
+    private final Clock clock;
 
-  @Operation(summary = "List draws (admin)")
-  @GetMapping
-  public ApiResponse<List<DrawSummaryResponse>> listDraws() {
-    var holder = contextResolver.currentOrNull();
-    var tenantId = TenantId.of(holder != null ? holder.tenantUuid() : null);
-    List<DrawSummary> summaries = queryBus.send(new ListDrawsQuery(tenantId, null, null, null));
-    var responses = summaries.stream().map(mapper::toDrawSummaryResponse).toList();
-    return ApiResponse.success(responses);
-  }
+    @Operation(summary = "List draws")
+    @GetMapping
+    public ApiResponse<TchPage<DrawSummaryResponse>> listDraws(
+        @Valid DrawSearchRequest request,
+        @TchPaging(
+            allowedSort = {"drawDate", "scheduledAt", "cutoffAt", "status", "createdAt"},
+            defaultSort = {"scheduledAt,desc"})
+        TchPageRequest pageReq) {
 
-  @Operation(summary = "Create a draw (admin)")
-  @PostMapping
-  public ApiResponse<DrawSummaryResponse> createDraw(@RequestBody CreateDrawRequest request) {
-    CreateDrawCommand command = mapper.toCreateDrawCommand(request);
-    DrawSummary summary = commandBus.send(command);
-    return ApiResponse.success(mapper.toDrawSummaryResponse(summary));
-  }
+        var criteria = DrawSearchCriteria.of(
+            request.resultSlotId(),
+            request.status(),
+            request.from(),
+            request.to(),
+            clock);
 
-  @Operation(summary = "Update a draw (admin)")
-  @PutMapping("/{drawId}")
-  public ApiResponse<DrawSummaryResponse> updateDraw(
-      @PathVariable DrawId drawId,
-      @RequestParam TenantId tenantId,
-      @RequestBody UpdateDrawRequest request) {
-    if (drawId != request.drawId()) {
-      throw ProblemRest.badRequest("Path drawId does not match body drawId");
+        TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
+
+        return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
     }
-    if (tenantId != request.tenantId()) {
-      throw ProblemRest.badRequest("Path tenantId does not match body tenantId");
+
+    @Operation(summary = "List today's draws")
+    @GetMapping("/today")
+    public ApiResponse<TchPage<DrawSummaryResponse>> todayDraws(
+        @RequestParam(required = false) ResultSlotId resultSlotId,
+        @TchPaging(
+            allowedSort = {"drawDate", "scheduledAt", "cutoffAt", "status"},
+            defaultSort = {"scheduledAt,asc"})
+        TchPageRequest pageReq) {
+
+        var criteria = DrawSearchCriteria.today(resultSlotId, clock);
+        TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
+
+        return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
     }
-    var command = mapper.toUpdateDrawCommand(request);
-    commandBus.send(command);
-    DrawSummary summary = queryBus.send(new GetDrawByIdQuery(drawId));
-    return ApiResponse.success(mapper.toDrawSummaryResponse(summary));
-  }
+
+    @Operation(summary = "List upcoming draws")
+    @GetMapping("/upcoming")
+    public ApiResponse<TchPage<DrawSummaryResponse>> upcomingDraws(
+        @RequestParam(required = false) ResultSlotId resultSlotId,
+        @RequestParam(defaultValue = "7") int days,
+        @TchPaging(
+            allowedSort = {"drawDate", "scheduledAt", "cutoffAt", "status"},
+            defaultSort = {"scheduledAt,asc"})
+        TchPageRequest pageReq) {
+
+        if (days < 1 || days > 30) {
+            throw ProblemRest.badRequest("draw.lookahead_days_invalid");
+        }
+
+        var criteria = DrawSearchCriteria.upcoming(resultSlotId, days, clock);
+        TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
+
+        return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
+    }
+
+    @Operation(summary = "List next draws")
+    @GetMapping("/next")
+    public ApiResponse<TchPage<DrawSummaryResponse>> nextDraws(
+        @RequestParam(required = false) ResultSlotId resultSlotId,
+        @RequestParam(defaultValue = "24") int lookaheadHours,
+        @RequestParam(defaultValue = "1") int limitPerChannel,
+        @TchPaging(
+            allowedSort = {"scheduledAt", "cutoffAt", "drawDate"},
+            defaultSort = {"scheduledAt,asc"})
+        TchPageRequest pageReq) {
+
+        TchPage<DrawSummary> page = queryBus.send(new ListNextDrawsQuery(
+            resultSlotId,
+            lookaheadHours,
+            limitPerChannel,
+            pageReq.pageable()));
+
+        return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
+    }
+
+    @Operation(summary = "List latest draws with applied results")
+    @GetMapping("/latest-with-results")
+    public ApiResponse<TchPage<DrawSummaryResponse>> latestWithResults(
+        @RequestParam(required = false) List<String> resultSlotKeys,
+        @TchPaging(
+            allowedSort = {"drawDate", "scheduledAt", "resultOccurredAt"},
+            defaultSort = {"drawDate,desc", "scheduledAt,desc"})
+        TchPageRequest pageReq) {
+
+        TchPage<DrawSummary> page = queryBus.send(new ListLatestDrawsWithResultsQuery(
+            resultSlotKeys,
+            pageReq.pageable()));
+
+        return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
+    }
+
+    @Operation(summary = "Get draw by id")
+    @GetMapping("/{drawId}")
+    public ApiResponse<DrawSummaryResponse> getDraw(
+        @PathVariable DrawId drawId) {
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Get draw result details")
+    @GetMapping("/{drawId}/results")
+    public ApiResponse<DrawResultsResponse> getDrawResults(
+        @PathVariable DrawId drawId) {
+
+        DrawResultView result = queryBus.send(new GetDrawResultsQuery(drawId));
+
+        return ApiResponse.success(mapper.toDrawResultsResponse(result));
+    }
+
+    @Operation(summary = "Correct an already applied draw result")
+    @PostMapping("/{drawId}/results/correct")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_CORRECT_APPLIED_RESULT,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> correctAppliedDrawResult(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid CorrectAppliedDrawResultRequest request) {
+
+        commandBus.send(new CorrectAppliedDrawResultCommand(
+            drawId,
+            request.correctedDrawResultId(),
+            request.reason(),
+            request.idempotencyKey(),
+            request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Cancel a draw")
+    @PostMapping("/{drawId}/cancel")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_CANCEL,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> cancel(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid CancelDrawRequest request) {
+
+        commandBus.send(new CancelDrawCommand(drawId, request.reason(), request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Reschedule a draw")
+    @PostMapping("/{drawId}/reschedule")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_RESCHEDULE,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> reschedule(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid RescheduleDrawRequest request) {
+
+        if (!request.scheduledAt().isBefore(request.cutoffAt())) {
+            throw ProblemRest.badRequest("draw.schedule_invalid");
+        }
+
+        commandBus.send(new RescheduleDrawCommand(
+            drawId,
+            request.scheduledAt(),
+            request.cutoffAt(),
+            request.reason(),
+            request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Lock a draw")
+    @PostMapping("/{drawId}/lock")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_LOCK,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> lock(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid LockDrawRequest request) {
+
+        commandBus.send(new LockDrawCommand(drawId, request.reason()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Unlock a draw")
+    @PostMapping("/{drawId}/unlock")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_UNLOCK,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> unlock(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid UnlockDrawRequest request) {
+
+        commandBus.send(new UnlockDrawCommand(drawId, request.reason()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Archive a draw")
+    @PostMapping("/{drawId}/archive")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_ARCHIVE,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> archive(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid ArchiveDrawRequest request) {
+
+        commandBus.send(new ArchiveDrawCommand(drawId, request.reason(), request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Override draw fields")
+    @PostMapping("/{drawId}/override")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_OVERRIDE,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> overrideDraw(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid OverrideDrawRequest request) {
+
+        commandBus.send(new OverrideDrawCommand(
+            drawId,
+            request.status(),
+            request.scheduledAt(),
+            request.cutoffAt(),
+            request.reason(),
+            request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    @Operation(summary = "Settle a draw")
+    @PostMapping("/{drawId}/settle")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @AuditLog(
+        entity = AuditEntityType.DRAW,
+        action = AuditAction.DRAW_SETTLE,
+        idExpression = "#drawId.value().toString()",
+        detailsExpression = "#request")
+    public ApiResponse<DrawSummaryResponse> settle(
+        @PathVariable DrawId drawId,
+        @RequestBody @Valid SettleDrawRequest request) {
+
+        commandBus.send(new SettleDrawCommand(drawId, request.reason(), request.force()));
+
+        return ApiResponse.success(reload(drawId));
+    }
+
+    private DrawSummaryResponse reload(DrawId drawId) {
+        var summary = queryBus.send(new GetDrawByIdQuery(drawId));
+        return mapper.toDrawSummaryResponse(summary);
+    }
 }

@@ -98,7 +98,7 @@ public class TicketLinePreparationService {
 
     // With GameCode enum in web/domain, canonicalization is no-op: return enum name
     private static String canonicalGameCode(com.tchalanet.server.common.types.enums.GameCode gameCode) {
-        if (gameCode == null) throw new IllegalArgumentException("gameCode is required");
+        if (gameCode == null) throw new IllegalArgumentException("externalGameCode is required");
         return gameCode.name();
     }
 

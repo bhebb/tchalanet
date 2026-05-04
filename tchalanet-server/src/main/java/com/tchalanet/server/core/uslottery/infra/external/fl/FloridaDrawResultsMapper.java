@@ -39,7 +39,7 @@ public class FloridaDrawResultsMapper {
             return UsLotteryProviderResponse.empty(UsLotteryProvider.FL, query);
         }
 
-        var wantedCodes = normalizeSet(query.gameCodes());
+        var wantedCodes = normalizeSet(query.externalGameCodes());
         var results = new ArrayList<UsLotteryProviderResult>();
 
         for (var entry : entries) {

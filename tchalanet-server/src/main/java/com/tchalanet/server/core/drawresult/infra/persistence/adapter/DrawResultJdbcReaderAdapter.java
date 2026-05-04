@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.drawresult.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -94,5 +95,10 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
         var last = totalPages == 0 || page >= totalPages - 1;
 
         return TchPage.of(items, page, size, total, totalPages, last, page < totalPages - 1, page > 0);
+    }
+
+    @Override
+    public Optional<DrawResultView> findByDrawId(DrawId drawId) {
+        return drawId == null ? Optional.empty() : jdbcRepo.findViewByDrawId(drawId.value());
     }
 }

@@ -24,6 +24,7 @@ public record DrawChannelView(
     List<DayOfWeek> daysOfWeek,
     boolean active,
     int sortOrder,
+    String period,
     JsonNode flags,
     String notes,
     ResultSlotId resultSlotId,

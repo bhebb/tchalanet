@@ -86,7 +86,7 @@ public class FloridaDrawResultsClient implements UsLotteryProviderClient {
             provider().name(),
             query.drawDate(),
             query.drawTime(),
-            query.gameCodes().stream().sorted().toList(),
+            query.externalGameCodes().stream().sorted().toList(),
             SHAPE + "|" + url);
     }
 

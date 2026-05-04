@@ -3,7 +3,7 @@ package com.tchalanet.server.core.drawresult.application.command.handler;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
+import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
@@ -34,7 +34,7 @@ public class FetchExternalResultsWindowCommandHandler
     private final DrawResultPersistenceAssembler drawResultPersistenceAssembler;
     private final DrawResultWriterPort writer;
     private final ResultSlotCatalog resultSlotCatalog;
-    private final DrawResultsCommonProperties props;
+    private final DrawResultsProperties props;
     private final Clock clock;
     private final ExternalResultFetcher externalResultFetcher;
     private final ResultSlotSourceConfigResolver resultSlotSourceConfigResolver;
@@ -47,11 +47,10 @@ public class FetchExternalResultsWindowCommandHandler
         var daysBack = clampDaysBack(cmd.daysBack());
         var maxSlots = Math.min(cmd.maxSlots(), props.getLimits().getHardMaxSlots());
         var dates = DateWindows.datesBackInclusive(cmd.baseDate(), daysBack);
-        var now = clock.instant();
+        var now = Instant.now(clock);
         var counters = new FetchCounters();
 
         var slots = resolveSlots(cmd.slotKeys(), maxSlots, counters);
-
 
         for (var date : dates) {
             for (var slot : slots) {
@@ -120,7 +119,7 @@ public class FetchExternalResultsWindowCommandHandler
                     payload.flags(),
                     payload.quality(),
                     payload.sourceHash(),
-                    null,
+                    cmd.reason(),
                     cmd.force());
 
             if (upsert == null || upsert.id() == null) {
@@ -129,6 +128,10 @@ public class FetchExternalResultsWindowCommandHandler
                 counters.inserted++;
             } else if (upsert.updated()) {
                 counters.updated++;
+            } else if (upsert.skippedConfirmed()) {
+                counters.skippedConfirmed++;
+            } else if (upsert.skippedOverridden()) {
+                counters.skippedOverridden++;
             } else {
                 counters.skipped++;
             }
@@ -185,10 +188,6 @@ public class FetchExternalResultsWindowCommandHandler
 
         if (cmd.daysBack() < 0) {
             throw new IllegalArgumentException("daysBack must be >= 0");
-        }
-
-        if (cmd.slotKeys() == null || cmd.slotKeys().isEmpty()) {
-            throw new IllegalArgumentException("slotKeys required");
         }
 
         if (cmd.maxSlots() <= 0) {

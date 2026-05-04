@@ -37,16 +37,17 @@ INSERT INTO app_setting (
     level, namespace, setting_key, value_type, setting_value, active
 )
 VALUES
-    ('GLOBAL', 'batch', 'enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'jobs.generate.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'jobs.open.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'jobs.close.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'jobs.fetch.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'jobs.apply.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'jobs.settle.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'infra.enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'auto_disable_on_errors', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch', 'max_consecutive_errors', 'INT', '5', true)
+    ('GLOBAL', 'batch.gate', 'batch:global:enabled', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'results:external:fetch', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'results:external:apply', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'results:external:refresh', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'results:external:manual', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'results:external:override', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:generate', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:open', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:close', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:settle', 'BOOLEAN', 'true', true),
+    ('GLOBAL', 'batch.gate', 'draw:watchdog:provisional', 'BOOLEAN', 'true', true)
     ON CONFLICT DO NOTHING;
 
 SELECT set_config('app.current_tenant', '', true);

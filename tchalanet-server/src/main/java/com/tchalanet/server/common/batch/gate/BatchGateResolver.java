@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.batch.gate;
 
+import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class BatchGateResolver {
+
+    public static final String MASTER_GLOBAL_JOB_DISABLED = "MASTER_GLOBAL_OFF";
 
     public static record Resolution(boolean enabled, String scope) {}
 
@@ -45,6 +48,11 @@ public class BatchGateResolver {
             return new Resolution(enabled, SCOPE_GLOBAL_FLAG);
         }
 
+        // 2) Global enable flag
+        var master = cache.getGlobal(BatchJobKeys.BATCH_GLOBAL_ENABLED);
+        if (master.isPresent() && !master.get()) {
+            return new Resolution(false, MASTER_GLOBAL_JOB_DISABLED);
+        }
         // 3) Default
         log.debug("batch.gate default jobKey={} enabled={}", jobKey, DEFAULT_ENABLED);
         return new Resolution(DEFAULT_ENABLED, SCOPE_DEFAULT);

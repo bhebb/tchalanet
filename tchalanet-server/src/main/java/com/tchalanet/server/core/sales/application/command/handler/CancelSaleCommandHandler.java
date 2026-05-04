@@ -129,8 +129,8 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
             new LimitContext(
                 ticket.getTenantId(),
                 ticket.getDrawId(),
-                draw.drawChannel() == null ? null : draw.drawChannel().id(),
-                com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
+                draw.drawChannelId()
+                ,com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
                 ticket.getTerminalId(),
                 (com.tchalanet.server.common.types.id.OutletId) outletId, // cast if your type exists; else change signature
                 null,
@@ -148,7 +148,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
     }
 
     private ZoneId drawZone(com.tchalanet.server.core.draw.domain.model.Draw draw) {
-        if (draw == null || draw.drawChannel() == null || draw.drawChannel().timezone() == null) {
+        if (draw == null || draw.drawChannelId() == null || draw.drawChannel().timezone() == null) {
             return ZoneId.of("UTC");
         }
         return draw.drawChannel().timezone();

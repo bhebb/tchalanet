@@ -1,55 +1,74 @@
-# CLAUDE.md — tchalanet-infra
+# Claude — tchalanet-infra
 
-> **Lire d'abord** : `../CLAUDE.md` (règles transverses, secrets, OpenSpec)
+Scope:
 
----
+- Docker Compose
+- environment files
+- Traefik
+- service wiring
+- local/staging/prod infra scripts
+- Makefile targets if infra-related
 
-## Stack infrastructure
+Source of truth:
 
-| Élément       | Détail                                         |
-| ------------- | ---------------------------------------------- |
-| Orchestration | Docker Compose v2 (modular)                    |
-| Reverse proxy | Traefik v3.6.5                                 |
-| CI/CD         | GitHub Actions → GHCR → Hetzner (staging/prod) |
-| Auth          | Keycloak 26 (image custom GHCR)                |
-| DB            | PostgreSQL 18.1 · Redis 8.4                    |
-| Secrets       | **Doppler uniquement**                         |
-| Feature flags | Unleash 7.4                                    |
-| Search        | Meilisearch v1.11                              |
+- Root `VERSIONS.md` for all runtime/image versions.
+- Do not change Docker image tags without updating `VERSIONS.md`.
 
----
+Rules:
 
-## Règles absolues
+- Never use `:latest`.
+- Keep local/staging/prod config separated.
+- Do not put secrets in git.
+- Prefer env files and documented variables.
+- Keep Docker Compose changes minimal.
+- Do not change exposed ports casually.
+- Do not change volumes without migration/backward-compat note.
+- Do not delete named volumes in scripts unless explicitly requested.
+- Healthchecks should be explicit when service readiness matters.
+- Infra must not encode business rules.
+- Use deterministic image tags.
+- Preserve existing service names unless migration is planned.
 
-- **Images Docker pinées** — jamais `:latest` — toutes les versions dans `VERSIONS.md`
-- **Secrets via Doppler** — jamais dans le code, les fichiers Compose, ni la doc
-- `.secrets` non-committé — ignoré via `.gitignore`
-- Même topologie sur tous les envs (`local`, `dev`, `staging`, `prod`) — seule la configuration diffère
-- Pas de déploiement prod manuel — tout passe par GitHub Actions
-- Build CI échoue sur : version drift · migrations manquantes · configs invalides
+Services commonly involved:
 
----
+- Postgres
+- Redis
+- Meilisearch
+- Keycloak
+- Traefik
+- Unleash
+- Umami
+- backend API
+- edge-service
 
-## Structure Compose
+Before editing:
 
-```
-compose/           ← fichiers services modulaires
-envs/common/       ← versions partagées (compose.env)
-envs/<env>/        ← overrides par environnement
-```
+- Inspect only relevant compose/env files.
+- Check `VERSIONS.md` before changing images.
+- List files to touch before editing.
 
-## Commandes
+Validation examples:
 
-```bash
-make up-all ENV=dev      # démarre tous les services
-make down ENV=dev        # arrête
-make logs ENV=dev        # logs
+- `docker compose config`
+- `docker compose ps`
+- `docker compose logs <service>`
+- `make <target>` if existing
 
-# Skills infra
-# tchalanet-infra/.claude/skills/infrastructure
-```
+Output:
 
-## Référence
+1. Infra files inspected
+2. Files changed
+3. Services affected
+4. Required env vars
+5. Validation command
+6. Rollback note
+7. Handoff
 
-`docs/OPERATIONS.md` · `docs/HETZNER.md` · `docs/DOPPLER.md`
-`VERSIONS.md` (racine) — source de vérité unique pour toutes les versions
+Docker/infra:
+
+- Do not change runtime image tags without checking root `VERSIONS.md`.
+- Do not commit secrets.
+- Keep Dockerfile minimal and production-safe.
+- Prefer non-root runtime user if already supported.
+- Expose only the configured service port.
+- Health endpoint should be lightweight.

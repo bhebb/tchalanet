@@ -1,22 +1,19 @@
 package com.tchalanet.server.core.draw.infra.scheduler;
 
+import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
 import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
+import com.tchalanet.server.common.batch.exception.BatchSkippedException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.config.batch.BatchWindowsConfig;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsCommand;
-import com.tchalanet.server.core.draw.application.port.out.TenantDrawCalendarQueryPort;
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.UUID;
+import com.tchalanet.server.core.draw.infra.config.DrawSchedulerWindows;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -25,7 +22,10 @@ import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_GENERATE;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -33,98 +33,102 @@ import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_GENERATE;
 public class DrawLifeCycleTickScheduler {
 
     private static final boolean DEFAULT_DRY_RUN = false;
-    private static final ZoneId OPS_ZONE = ZoneId.of("America/New_York");
 
-    private final TenantDrawCalendarQueryPort tenantPort;
+    private final TenantCatalog tenantCatalog;
     private final CommandBus commandBus;
     private final BatchGate batchGate;
-    private final BatchWindowsConfig windows;
+    private final DrawSchedulerWindows windows;
     private final Clock clock;
     private final BatchTchContextBinder binder;
     private final DrawProperties drawProps;
 
+    @BatchScheduledJob("draw:lifecycle:generate")
     @Scheduled(cron = "${tch.draw.lifecycle.generate_cron:0 0 5 * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_generate_next_7_days", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
     public void generateNext7Days() {
         log.info("draw.generate.tick fired");
-        if (!batchGate.enabled(DRAW_GENERATE, null)) {
-            log.info("batch.skip jobKey={} reason=disabled", DRAW_GENERATE);
-            return;
-        }
 
-        Instant now = Instant.now(clock);
-        LocalDate from = LocalDate.now(clock);
-        LocalDate to = from.plusDays(drawProps.getGeneration().getDays());
+        validateGenerateCanRun();
 
-        for (TenantId tenantId : tenantPort.listActiveTenantIdsForDrawCalendar()) {
-            JobParameters jp = jobParams(tenantId, "draw-generate", now);
+        var now = clock.instant();
+        var from = LocalDate.now(clock);
+        var to = from.plusDays(drawProps.getLifecycle().getGenerationDays());
+
+        var activeTenants = tenantCatalog.listActiveTenantIds();
+        for (TenantId tenantId : activeTenants) {
+            var jp = jobParams(tenantId, "draw-generate", now);
 
             try {
                 binder.bind(jp);
-                commandBus.send(new GenerateDrawsForRangeCommand(tenantId, from, to, DEFAULT_DRY_RUN, false, null));
-            } catch (Exception e) {
-                log.warn("draw.generate failed tenantId={} from={} to={} err={}", tenantId, from, to, e.getLocalizedMessage(), e);
+                commandBus.send(new GenerateDrawsForRangeCommand(
+                    tenantId, from, to, DEFAULT_DRY_RUN, false, null
+                ));
             } finally {
                 safeClear(tenantId);
             }
         }
     }
 
-    @Scheduled(cron = "${tch.draw.lifecycle.open_cron:0 */30 * * * *}", zone = "UTC")
-    @SchedulerLock(name = "draw_open_windowed", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1M")
-    public void openWindowed() {
-        log.info("draw.open.tick fired");
-        if (!batchGate.enabled(BatchJobKeys.DRAW_OPEN, null)) {
-            return;
+    private void validateGenerateCanRun() {
+        if (!drawProps.getScheduler().isActive()) {
+            throw new BatchSkippedException("scheduler_disabled", "Draw scheduler disabled");
         }
+        if (!drawProps.getLifecycle().isActive()) {
+            throw new BatchSkippedException("lifecycle_disabled", "Draw lifecycle disabled");
+        }
+        if (!batchGate.enabled(BatchJobKeys.DRAW_GENERATE, null)) {
+            throw new BatchSkippedException("gate_disabled", "Draw generate gate disabled");
+        }
+    }
 
+    @BatchScheduledJob("draw:lifecycle:open_close")
+    @Scheduled(cron = "${tch.draw.lifecycle.open_close_cron:0 */5 * * * *}", zone = "UTC")
+    @SchedulerLock(name = "draw_open_close_windowed", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1M")
+    public void openCloseWindowed() {
         var now = clock.instant();
-        var nowOps = now.atZone(OPS_ZONE).toLocalTime();
-        if (!windows.isInOpenDrawsWindow(nowOps)) {
-            return;
+        var localNow = now.atZone(drawProps.getScheduler().getWindows().getTimezone()).toLocalTime();
+
+        validateOpenCloseCanRun();
+
+        var canOpen = windows.isInOpenDrawsWindow(localNow)
+            && batchGate.enabled(BatchJobKeys.DRAW_OPEN, null);
+
+        var canClose = windows.isInCloseDrawsWindow(localNow)
+            && batchGate.enabled(BatchJobKeys.DRAW_CLOSE, null);
+
+        if (!canOpen && !canClose) {
+            throw new BatchSkippedException("outside_window", "Outside open/close windows or gates disabled");
         }
 
         var lc = drawProps.getLifecycle();
-
-        for (TenantId tenantId : tenantPort.listActiveTenantIdsForDrawCalendar()) {
-            JobParameters jp = jobParams(tenantId, "draw-open", now);
+        var activeTenants = tenantCatalog.listActiveTenantIds();
+        for (TenantId tenantId : activeTenants) {
+            var jp = jobParams(tenantId, "draw-open-close", now);
 
             try {
                 binder.bind(jp);
-                commandBus.send(new OpenDueDrawsCommand(now, lc.getBatchSize(), lc.getLookaheadHours(), lc.getLagHours(), false));
-            } catch (Exception e) {
-                log.warn("draw.open failed tenantId={} err={}", tenantId, e.getLocalizedMessage(), e);
+
+                if (canOpen) {
+                    commandBus.send(new OpenDueDrawsCommand(
+                        now, lc.getBatchSize(), lc.getLookaheadHours(), lc.getLagHours(), false
+                    ));
+                }
+
+                if (canClose) {
+                    commandBus.send(new CloseDueDrawsCommand(now, lc.getBatchSize(), false));
+                }
             } finally {
                 safeClear(tenantId);
             }
         }
     }
 
-    @Scheduled(cron = "${tch.draw.lifecycle.close_cron:0 */15 * * * *}", zone = "UTC")
-    @SchedulerLock(name = "draw_close_windowed", lockAtMostFor = "PT5M", lockAtLeastFor = "PT1M")
-    public void closeWindowed() {
-        log.info("draw.close.tick fired");
-        if (!batchGate.enabled(BatchJobKeys.DRAW_CLOSE, null)) {
-            return;
+    private void validateOpenCloseCanRun() {
+        if (!drawProps.getScheduler().isActive()) {
+            throw new BatchSkippedException("scheduler_disabled", "Draw scheduler disabled");
         }
-
-        var now = clock.instant();
-        var nowOps = now.atZone(OPS_ZONE).toLocalTime();
-        if (!windows.isInCloseDrawsWindow(nowOps)) return;
-
-        var lc = drawProps.getLifecycle();
-
-        for (TenantId tenantId : tenantPort.listActiveTenantIdsForDrawCalendar()) {
-            JobParameters jp = jobParams(tenantId, "draw-close", now);
-
-            try {
-                binder.bind(jp);
-                commandBus.send(new CloseDueDrawsCommand(now, lc.getBatchSize(), false));
-            } catch (Exception e) {
-                log.warn("draw.close failed tenantId={} err={}", tenantId, e.getLocalizedMessage(), e);
-            } finally {
-                safeClear(tenantId);
-            }
+        if (!drawProps.getLifecycle().isActive()) {
+            throw new BatchSkippedException("lifecycle_disabled", "Draw lifecycle disabled");
         }
     }
 

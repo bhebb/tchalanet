@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsCommand;
 import com.tchalanet.server.core.draw.application.command.model.OpenDueDrawsResult;
@@ -23,6 +24,7 @@ public class OpenDueDrawsCommandHandler
   private final DrawLifecyclePort port;
 
   @Override
+  @TchTx
   public OpenDueDrawsResult handle(OpenDueDrawsCommand command) {
     validateCommand(command);
 
@@ -52,7 +54,7 @@ public class OpenDueDrawsCommandHandler
       return new OpenDueDrawsResult(0, skippedLocked, 0);
     }
 
-    int opened = port.bulkOpen(allIds);
+    int opened = port.bulkOpen(nonLockedIds);
 
     log.info(
         "draw.open_due now={} batchSize={} lookaheadHours={} lagHours={} openable={} opened={} skippedLocked={} sampleIds={}",

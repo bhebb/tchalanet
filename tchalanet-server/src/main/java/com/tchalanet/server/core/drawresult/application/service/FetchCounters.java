@@ -7,6 +7,8 @@ public final class FetchCounters {
     public int inserted;
     public int updated;
     public int skipped;
+    public int skippedConfirmed;
+    public int skippedOverridden;
     public int slotNotFound;
     public int slotInactive;
     public int noExternalResult;
@@ -22,7 +24,7 @@ public final class FetchCounters {
             inserted,
             updated,
             errors,
-            skipped + dryRunMatched,
+            skipped + dryRunMatched + skippedConfirmed + skippedOverridden,
             notFoundTotal());
     }
 }

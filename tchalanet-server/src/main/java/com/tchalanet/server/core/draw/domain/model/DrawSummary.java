@@ -1,17 +1,25 @@
 package com.tchalanet.server.core.draw.domain.model;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import tools.jackson.databind.JsonNode;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.LocalDate;
+
 
 public record DrawSummary(
     DrawId id,
-    String channelCode,
-    String channelName,
-    ZonedDateTime scheduledAt,
-    ZonedDateTime cutoffTime,
+
+    DrawChannelSummary channel,
+    ResultSlotSummary slot,
+
+    LocalDate drawDate,
+    Instant scheduledAt,
+    Instant cutoffAt,
+
     DrawStatus status,
-    boolean isNext,
+    boolean next,
     boolean active,
-    JsonNode lastResult) {}
+
+    HaitiDrawResultSummary lastResult
+) {
+}

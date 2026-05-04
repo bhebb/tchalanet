@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.enums.ResultQuality;
 import java.util.List;
 
 public record UsLotteryProviderResult(
-    String gameCode,
+    String externalGameCode,
     List<String> main,
     List<String> extras,
     ResultQuality quality,

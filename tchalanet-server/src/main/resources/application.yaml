@@ -20,15 +20,6 @@ app:
     user-bootstrap:
       enabled: true
       update-last-login: true
-  batch:
-    fetch-results-windows: "12:00-14:00,20:00-23:00"
-    settle-draws-windows: "12:00-15:00,20:00-23:30"
-    close-draws-windows: "11:30-14:00,19:30-23:00"
-    open-draws-windows: "02:00-06:00"
-    fetch:
-      chunk-size: ${APP_BATCH_FETCH_CHUNK_SIZE:10}
-    settle:
-      chunk-size: ${APP_BATCH_SETTLE_CHUNK_SIZE:50}
   # default ZoneId used by the application; can be overridden with env var APP_ZONE_ID
   zone-id: ${APP_ZONE_ID:UTC}
 
@@ -152,17 +143,6 @@ tch:
       hours: ${TCH_NEWS_TTL_HOURS:24}
     refresh:
       cron: ${TCH_NEWS_REFRESH_CRON:0 0 */6 * * *}
-
-  # Draw generation and cache configuration
-  draw:
-    generation:
-      days: ${DRAW_GENERATION_DAYS:14}
-      cron: ${DRAW_GENERATION_CRON:0 5 0 * * *}
-    cache:
-      ttl:
-        last7m: ${DRAW_CACHE_TTL_LAST7M:5}   # minutes
-        todaym: ${DRAW_CACHE_TTL_TODAYM:5}   # minutes
-        nexts: ${DRAW_CACHE_TTL_NEXTS:60}    # seconds
 
 
 # ===========================

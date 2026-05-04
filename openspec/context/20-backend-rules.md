@@ -55,6 +55,32 @@ Rules:
 
 ---
 
+# Norme Repository Read — find vs get
+
+## Règle
+
+## Pattern canonique
+
+```java
+@Override
+public Optional<Draw> findById(DrawId drawId) {
+  Objects.requireNonNull(drawId, "drawId is required");
+  return jpa.findById(drawId.value()).map(mapper::toDomain);
+}
+
+@Override
+public Draw getById(DrawId drawId) {
+  return findById(drawId)
+      .orElseThrow(() -> new EntityNotFoundException("Draw not found"));
+}
+```
+
+- findXxx(...) retourne Optional<T>
+- getXxx(...) retourne T ou throw
+- toujours valider les paramètres avec Objects.requireNonNull
+- getXxx(...) doit réutiliser findXxx(...)
+- getXxx(..) lève EntityNotFoundException s'il trouve pas l'entité
+
 ## Package Structure (STRICT)
 
 Backend code is organized into four layers.

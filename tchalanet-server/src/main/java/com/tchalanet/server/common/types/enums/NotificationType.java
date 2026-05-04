@@ -9,6 +9,8 @@ public enum NotificationType {
   LIMIT_ALERT,
 
   /** Message système / info plateforme. */
+  BATCH_MESSAGE,
+
   SYSTEM_MESSAGE,
 
   /** Type libre pour des usages futurs. */

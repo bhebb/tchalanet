@@ -12,13 +12,17 @@ import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.tchalanet.server.core.drawresult.infra.persistence.repo.DrawResultJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
 
     private static final String UPSERT_SQL = """
@@ -93,7 +97,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
         version = draw_result.version + 1
       where draw_result.status not in ('CONFIRMED', 'OVERRIDDEN')
          or ? = true
-      returning id, (xmax = 0) as created
+      returning id, (xmax = 0) as created, status as old_status
       """;
 
     private final JdbcTemplate jdbc;
@@ -101,6 +105,8 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
     private final DrawResultCacheEvictor cacheEvictor;
     private final IdGenerator idGenerator;
     private final Clock clock;
+    private final DrawResultJpaRepository drawResultJpaRepository;
+
 
     @Override
     @TchTx
@@ -129,7 +135,7 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
                 }
                 var savedId = rs.getObject("id", UUID.class);
                 var created = rs.getBoolean("created");
-                return new UpsertResult(DrawResultId.of(savedId), created, !created);
+                return new UpsertResult(DrawResultId.of(savedId), created, !created, false, false);
             },
             newId,
             resultSlotId.value(),
@@ -158,26 +164,35 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
             return result;
         }
 
-        var existingId = findExistingId(resultSlotId, occurredAt);
-        return existingId == null ? null : new UpsertResult(existingId, false, false);
+        return findAndEvaluateSkip(resultSlotId, occurredAt);
     }
 
-    private DrawResultId findExistingId(ResultSlotId resultSlotId, Instant occurredAt) {
+    private UpsertResult findAndEvaluateSkip(ResultSlotId resultSlotId, Instant occurredAt) {
         var rows = jdbc.query(
             """
-            select id
+            select id, status
             from draw_result
             where result_slot_id = ?
               and occurred_at = ?
               and deleted_at is null
             """,
-            (rs, rowNum) -> DrawResultId.of(rs.getObject("id", UUID.class)),
+            (rs, rowNum) -> new SkipEval(
+                DrawResultId.of(rs.getObject("id", UUID.class)),
+                rs.getString("status")
+            ),
             resultSlotId.value(),
             Timestamp.from(occurredAt)
         );
 
-        return rows.isEmpty() ? null : rows.getFirst();
+        if (rows.isEmpty()) return null;
+        var row = rows.getFirst();
+        boolean confirmed = "CONFIRMED".equals(row.status);
+        boolean overridden = "OVERRIDDEN".equals(row.status);
+
+        return new UpsertResult(row.id, false, false, confirmed, overridden);
     }
+
+    private record SkipEval(DrawResultId id, String status) {}
 
     private String requiredJson(JsonNode node) {
         return node == null || node.isNull() ? "{}" : jsonUtils.toJson(node);
@@ -189,5 +204,21 @@ public class DrawResultWriterJdbcAdapter implements DrawResultWriterPort {
 
     private String jsonOrEmpty(JsonNode node) {
         return node == null || node.isNull() ? "{}" : jsonUtils.toJson(node);
+    }
+
+    @Override
+    public void markAsOverridden(DrawResultId drawResultId, String reason, Instant overriddenAt) {
+        int updated = drawResultJpaRepository.markAsOverridden(
+            drawResultId.value(),
+            reason,
+            overriddenAt
+        );
+
+        if (updated == 0) {
+            log.warn("drawresult.mark_overridden_noop drawResultId={}", drawResultId);
+        } else {
+            log.info("drawresult.marked_overridden drawResultId={} reason={}", drawResultId, reason);
+            AfterCommit.run(cacheEvictor::evictAll);
+        }
     }
 }

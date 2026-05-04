@@ -13,5 +13,9 @@ public enum DrawStatus {
   RESULTED,
   SETTLED,
   ARCHIVED,
-  CANCELED
+  CANCELED;
+
+    public boolean isActive() {
+        return this == SCHEDULED || this == OPEN;
+    }
 }

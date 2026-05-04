@@ -77,6 +77,34 @@ public class DrawResultJdbcRepository {
         return rows.stream().findFirst();
     }
 
+    public Optional<DrawResultView> findViewByDrawId(UUID drawId) {
+        var sql = """
+            select
+              dr.id,
+              rs.key,
+              dr.occurred_at,
+              dr.status,
+              dr.source,
+              dr.quality,
+              dr.source_hash,
+              dr.fetched_at,
+              dr.source_result,
+              dr.haiti_result,
+              dr.raw_payload,
+              dr.override_reason
+            from draw_result dr
+            join result_slot rs on rs.id = dr.result_slot_id
+            join draw d on d.draw_result_id = dr.id
+            where dr.deleted_at is null
+              and d.deleted_at is null
+              and r.active = true
+              and d.id = ?
+            """;
+
+        var rows = jdbc.query(sql, this::mapView, drawId);
+        return rows.stream().findFirst();
+    }
+
     public List<DrawResultView> findViewsByCriteria(
         String slotKey,
         DrawResultStatus status,

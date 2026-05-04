@@ -9,7 +9,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
 import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
-import com.tchalanet.server.core.draw.domain.model.Draw;
+import com.tchalanet.server.core.draw.domain.model.DrawSummary;
 import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
@@ -47,7 +47,7 @@ public class TicketSalePolicy {
 
     public record PreparedSale(
         SalesSession session,
-        Draw draw,
+        DrawSummary draw,
         Instant now,
         List<SellTicketCommand.LineCommand> mergedLines,
         List<TicketLine> ticketLines,
@@ -86,7 +86,7 @@ public class TicketSalePolicy {
     /**
      * For APPROVE: re-check cutoff and optionally re-check limits.
      */
-    public Draw resolveAndValidateDraw(DrawId drawId) {
+    public DrawSummary resolveAndValidateDraw(DrawId drawId) {
         return drawCutoffRule.requireBeforeCutoff(drawId);
     }
 
@@ -105,7 +105,7 @@ public class TicketSalePolicy {
     private LimitEvaluationView evaluateLimitsAndAutonomy(
         SellTicketCommand command,
         SalesSession session,
-        Draw draw,
+        DrawSummary draw,
         List<SellTicketCommand.LineCommand> mergedLines,
         Instant now) {
 
@@ -168,10 +168,10 @@ public class TicketSalePolicy {
         return limitView;
     }
 
-    private ZoneId drawZone(Draw draw) {
-        if (draw == null || draw.drawChannel() == null || draw.drawChannel().timezone() == null) {
+    private ZoneId drawZone(DrawSummary draw) {
+        if (draw == null || draw.slot() == null || draw.slot().timezone() == null) {
             return ZoneId.of("UTC");
         }
-        return draw.drawChannel().timezone();
+        return ZoneId.of(draw.slot().timezone());
     }
 }

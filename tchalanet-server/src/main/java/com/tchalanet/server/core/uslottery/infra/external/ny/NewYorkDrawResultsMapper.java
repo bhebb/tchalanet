@@ -43,7 +43,7 @@ public class NewYorkDrawResultsMapper {
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
 
-        var wantedCodes = normalizeSet(query.gameCodes());
+        var wantedCodes = normalizeSet(query.externalGameCodes());
         var wantedSlot = resolveWantedSlot(query.drawTime());
 
         var results = new java.util.ArrayList<UsLotteryProviderResult>();

@@ -1,106 +1,64 @@
 package com.tchalanet.server.core.draw.application.query.model;
 
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
+
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.List;
 
-public final class DrawSearchCriteria {
+public record DrawSearchCriteria(
+    ResultSlotId resultSlotId,
+    String status,
+    LocalDate from,
+    LocalDate to,
+    int days,
+    Integer limitPerChannel,
+    Integer lookaheadHours,
+    List<String> resultSlotKeys
+) {
 
-  private final TenantId tenantId;
-  private final String channelCode;
-  private final LocalDate from;
-  private final LocalDate to;
-  private final int days;
-
-  public DrawSearchCriteria(
-      TenantId tenantId, String channelCode, LocalDate from, LocalDate to, int days) {
-    this.tenantId = tenantId;
-    this.channelCode = channelCode;
-    this.from = from;
-    this.to = to;
-    this.days = days;
-  }
-
-  public TenantId tenantId() {
-    return tenantId;
-  }
-
-  public String channelCode() {
-    return channelCode;
-  }
-
-  public LocalDate from() {
-    return from;
-  }
-
-  public LocalDate to() {
-    return to;
-  }
-
-  public int days() {
-    return days;
-  }
-
-  public static DrawSearchCriteria today(TenantId tenantId, String channelCode, Clock clock) {
-    LocalDate today = LocalDate.now(clock);
-    return new DrawSearchCriteria(tenantId, channelCode, today, today, 1);
-  }
-
-  public static DrawSearchCriteria lastDays(TenantId tenantId, String channelCode, int days, Clock clock) {
-    LocalDate to = LocalDate.now(clock);
-    LocalDate from = to.minusDays(days);
-    return new DrawSearchCriteria(tenantId, channelCode, from, to, days);
-  }
-
-  public static DrawSearchCriteria of(
-      TenantId tenantId, String channelCode, LocalDate from, LocalDate to, Clock clock) {
-    // Protect against null dates; use today as default
-    LocalDate now = LocalDate.now(clock);
-    LocalDate f = from == null ? now : from;
-    LocalDate t = to == null ? now : to;
-    // normalize so from <= to
-    if (f.isAfter(t)) {
-      LocalDate tmp = f;
-      f = t;
-      t = tmp;
+    public static DrawSearchCriteria today(ResultSlotId resultSlotId, Clock clock) {
+        var today = LocalDate.now(clock);
+        return new DrawSearchCriteria(resultSlotId, null, today, today, 1, null, null, null);
     }
-    // compute inclusive days (same-day => 1)
-    int computedDays = (int) (t.toEpochDay() - f.toEpochDay()) + 1;
-    return new DrawSearchCriteria(tenantId, channelCode, f, t, computedDays);
-  }
 
-  @Override
-  public String toString() {
-    return "DrawSearchCriteria{"
-        + "tenantId="
-        + tenantId
-        + ", drawChannelCode='"
-        + channelCode
-        + '\''
-        + ", from="
-        + from
-        + ", to="
-        + to
-        + ", days="
-        + days
-        + '}';
-  }
+    public static DrawSearchCriteria lastDays(ResultSlotId resultSlotId, int days, Clock clock) {
+        var to = LocalDate.now(clock);
+        var from = to.minusDays(days);
+        return new DrawSearchCriteria(resultSlotId, null, from, to, days, null, null, null);
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    DrawSearchCriteria that = (DrawSearchCriteria) o;
-    return days == that.days
-        && Objects.equals(tenantId, that.tenantId)
-        && Objects.equals(channelCode, that.channelCode)
-        && Objects.equals(from, that.from)
-        && Objects.equals(to, that.to);
-  }
+    public static DrawSearchCriteria upcoming(ResultSlotId resultSlotId, int days, Clock clock) {
+        var from = LocalDate.now(clock);
+        var to = from.plusDays(days);
+        return new DrawSearchCriteria(resultSlotId, null, from, to, days, null, null, null);
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(tenantId, channelCode, from, to, days);
-  }
+    public static DrawSearchCriteria of(ResultSlotId resultSlotId, LocalDate from, LocalDate to, Clock clock) {
+        return of(resultSlotId, null, from, to, clock);
+    }
+
+    public static DrawSearchCriteria of(ResultSlotId resultSlotId, String status, LocalDate from, LocalDate to, Clock clock) {
+        // Protect against null dates; use today as default
+        var now = LocalDate.now(clock);
+        var f = from == null ? now : from;
+        var t = to == null ? now : to;
+        // normalize so from <= to
+        if (f.isAfter(t)) {
+            LocalDate tmp = f;
+            f = t;
+            t = tmp;
+        }
+        // compute inclusive days (same-day => 1)
+        int computedDays = (int) (t.toEpochDay() - f.toEpochDay()) + 1;
+        return new DrawSearchCriteria(resultSlotId, status, f, t, computedDays, null, null, null);
+    }
+
+    public static DrawSearchCriteria forNext(ResultSlotId resultSlotId, int lookaheadHours, int limitPerChannel) {
+        return new DrawSearchCriteria(resultSlotId, null, null, null, 0, limitPerChannel, lookaheadHours, null);
+    }
+
+    public static DrawSearchCriteria forLatestWithResults(List<String> resultSlotKeys) {
+        return new DrawSearchCriteria(null, null, null, null, 0, null, null, resultSlotKeys);
+    }
 }

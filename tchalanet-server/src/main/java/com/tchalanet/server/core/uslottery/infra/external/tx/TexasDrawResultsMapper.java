@@ -48,7 +48,7 @@ public class TexasDrawResultsMapper {
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
 
-        var wantedCodes = normalizeSet(query.gameCodes());
+        var wantedCodes = normalizeSet(query.externalGameCodes());
 
         var results =
             feed.get().getEntries().stream()

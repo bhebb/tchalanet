@@ -30,7 +30,7 @@ public record UsLotteryProviderResponse(
         }
 
         return results.stream()
-            .filter(r -> gameCode.equalsIgnoreCase(r.gameCode()))
+            .filter(r -> gameCode.equalsIgnoreCase(r.externalGameCode()))
             .findFirst()
             .orElse(null);
     }

@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.external.infra.http;
 
-import com.tchalanet.server.core.notification.domain.SendNotificationPayload;
+import com.tchalanet.server.common.notification.model.SendNotificationPayload;
 import com.tchalanet.server.core.notification.infra.config.NodeNotificationConfigProperties;
-import com.tchalanet.server.core.notification.port.NotificationGatewayPort;
+import com.tchalanet.server.common.notification.NotificationGatewayPort;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;

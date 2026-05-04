@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
 
             var draw = drawOpt.get();
             try {
-                if (draw.status() != com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED) {
+                if (draw.status() != DrawStatus.RESULTED) {
                     continue;
                 }
 

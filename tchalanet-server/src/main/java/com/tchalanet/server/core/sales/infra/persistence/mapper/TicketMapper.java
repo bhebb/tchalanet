@@ -43,12 +43,12 @@ public class TicketMapper {
     }
 
     private TicketLine toDomainLine(TicketLineEntity le) {
-        // convert persisted String gameCode -> enum GameCode
+        // convert persisted String externalGameCode -> enum GameCode
         com.tchalanet.server.common.types.enums.GameCode gc;
         try {
             gc = com.tchalanet.server.common.types.enums.GameCode.valueOf(le.getGameCode());
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Unknown gameCode in DB: " + le.getGameCode(), ex);
+            throw new IllegalArgumentException("Unknown externalGameCode in DB: " + le.getGameCode(), ex);
         }
 
         return new TicketLine(

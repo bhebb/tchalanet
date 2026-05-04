@@ -1,20 +1,32 @@
 package com.tchalanet.server.core.draw.infra.cache;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 
 @Component
 public class DrawCacheKeyBuilder {
 
-  @Value("${app.env:dev}")
-  private String env;
+    public String today(TenantId tenantId, LocalDate date, String pageKey) {
+        return "tenant:%s:date:%s:page:%s"
+            .formatted(tenantId.value(), date, pageKey);
+    }
 
-  public String today(TenantId tenantId) {
-    return String.format("tch:%s:%s:draws:today", env, tenantId);
-  }
+    public String next(TenantId tenantId, int days, String pageKey) {
+        return "tenant:%s:days:%d:page:%s"
+            .formatted(tenantId.value(), days, pageKey);
+    }
 
-  public String next(TenantId tenantId) {
-    return String.format("tch:%s:%s:draws:next", env, tenantId);
-  }
+    public String summary(DrawSearchCriteria criteria, String pageKey) {
+        return "slot:%s:from:%s:to:%s:status:%s:page:%s"
+            .formatted(
+                criteria.resultSlotId() == null ? "all" : criteria.resultSlotId().value(),
+                criteria.from(),
+                criteria.to(),
+                criteria.status() == null ? "all" : criteria.status(),
+                pageKey);
+    }
 }

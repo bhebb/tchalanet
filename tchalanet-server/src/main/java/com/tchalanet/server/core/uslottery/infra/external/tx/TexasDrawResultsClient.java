@@ -58,7 +58,7 @@ public class TexasDrawResultsClient implements UsLotteryProviderClient {
                 PROVIDER.name(),
                 query.drawDate(),
                 query.drawTime(),
-                query.gameCodes().stream().sorted().toList(),
+                query.externalGameCodes().stream().sorted().toList(),
                 SHAPE + "|" + url);
 
         var xml =

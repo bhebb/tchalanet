@@ -11,8 +11,8 @@ public class DrawStatusTransition {
           DrawStatus.OPEN, Set.of(DrawStatus.CLOSED, DrawStatus.CANCELED),
           DrawStatus.CLOSED, Set.of(DrawStatus.RESULTED, DrawStatus.CANCELED),
           DrawStatus.RESULTED, Set.of(DrawStatus.SETTLED, DrawStatus.CANCELED),
-          DrawStatus.SETTLED, Set.of(),
-          DrawStatus.CANCELED, Set.of());
+          DrawStatus.SETTLED, Set.of(DrawStatus.RESULTED),
+          DrawStatus.CANCELED, Set.of(DrawStatus.SCHEDULED, DrawStatus.OPEN));
 
   private DrawStatusTransition() {}
 

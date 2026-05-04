@@ -12,7 +12,6 @@ import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.draw.api.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
@@ -22,10 +21,10 @@ import com.tchalanet.server.core.drawresult.application.command.model.OverrideDr
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalSourceFlags;
-import com.tchalanet.server.core.haiti.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.drawresult.domain.exception.DrawResultOverrideForbiddenException;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import com.tchalanet.server.core.haiti.application.port.out.HaitiLotteryPort;
+import com.tchalanet.server.core.haiti.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.haiti.domain.lottery.model.ExternalPick;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +44,7 @@ public class OverrideDrawResultCommandHandler
     private final ResultSlotCatalog slotReader;
     private final DrawResultWriterPort writer;
     private final DrawResultReaderPort resultReader;
-    private final DrawReaderPort drawReader;
+    private final DrawLookupPort drawReader;
     private final DrawLookupPort drawLookup;
     private final DrawLifecyclePort drawWriter;
     private final DomainEventPublisher publisher;
@@ -66,7 +65,7 @@ public class OverrideDrawResultCommandHandler
                 .orElseThrow(() -> new IllegalArgumentException("result_slot not found: " + slotKey));
 
         // [D7] Use OccurredAtResolver instead of ResultSlotTimes
-        Instant occurredAt = OccurredAtResolver.resolve(
+        Instant occurredAt = OccurredAtResolver.resolveOrNow(
             null, command.drawDate(), slot.drawTime(), slot.timezone(), clock);
 
         // [Règle Override refusé post-SETTLED]
@@ -137,8 +136,10 @@ public class OverrideDrawResultCommandHandler
                     now,
                     draw.tenantId(),
                     draw.id(),
+                    draw.drawDate(),
                     slot.id(),
-                    res.id());
+                    res.id(),
+                    draw.drawChannelId());
 
             AfterCommit.run(() -> publisher.publish(event));
         }

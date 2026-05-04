@@ -11,7 +11,7 @@ public record UsLotteryProviderQuery(
     LocalDate drawDate,
     LocalTime drawTime,
     ZoneId timezone,
-    Set<String> gameCodes,
+    Set<String> externalGameCodes,
     boolean force,
     boolean includeRaw) {
 
@@ -26,16 +26,16 @@ public record UsLotteryProviderQuery(
             throw new IllegalArgumentException("timezone is required");
         }
 
-        gameCodes =
-            gameCodes == null
+        externalGameCodes =
+            externalGameCodes == null
                 ? Set.of()
-                : gameCodes.stream()
+                : externalGameCodes.stream()
                   .filter(s -> s != null && !s.isBlank())
                   .map(s -> s.trim().toUpperCase(Locale.ROOT))
                   .collect(Collectors.toUnmodifiableSet());
 
-        if (gameCodes.isEmpty()) {
-            throw new IllegalArgumentException("gameCodes required");
+        if (externalGameCodes.isEmpty()) {
+            throw new IllegalArgumentException("externalGameCodes required");
         }
     }
 }

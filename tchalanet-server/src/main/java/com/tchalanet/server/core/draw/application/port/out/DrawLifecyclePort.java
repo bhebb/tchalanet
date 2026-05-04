@@ -7,25 +7,31 @@ import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawK
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
 import com.tchalanet.server.core.draw.application.query.projection.OpenableDrawRow;
 import com.tchalanet.server.core.draw.domain.model.Draw;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+
 public interface DrawLifecyclePort {
-  List<OpenableDrawRow> findOpenable(
-      Instant now, int limit, int openHorizonHours, int openLagHours);
 
-  int bulkOpen(List<DrawId> drawIds);
+    List<OpenableDrawRow> findOpenable(
+        Instant now,
+        int limit,
+        int openHorizonHours,
+        int openLagHours
+    );
 
-  List<DueToCloseRow> findDueToClose(Instant now, int limit);
+    int bulkOpen(List<DrawId> drawIds);
 
-  int bulkClose(List<DrawId> drawIds);
+    List<DueToCloseRow> findDueToClose(Instant now, int limit);
 
-  int bulkInsert(List<NewDrawRow> rows);
+    int bulkClose(List<DrawId> drawIds);
 
-  Draw save(Draw draw);
+    int bulkInsert(List<NewDrawRow> rows);
 
-  // New: fetch existing draw keys to avoid N+1 checks when generating draws
-  Set<ExistingDrawKey> findExistingKeys(TenantId tenantId, LocalDate from, LocalDate to);
+    Set<ExistingDrawKey> findExistingKeys(TenantId tenantId, LocalDate from, LocalDate to);
+
+    Draw save(Draw draw);
 }

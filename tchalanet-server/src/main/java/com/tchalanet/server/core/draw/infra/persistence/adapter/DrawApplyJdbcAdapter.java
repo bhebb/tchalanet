@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -25,21 +25,29 @@ public class DrawApplyJdbcAdapter implements DrawApplyPort {
         Instant now,
         boolean force) {
 
-        List<DrawApplyJdbcRepository.AppliedRow> rows =
-            repo.attachResultBySlotReturning(
-                tenantId.value(),
-                drawDate,
-                resultSlotId == null ? null : resultSlotId.value(),
-                drawResultId == null ? null : drawResultId.value(),
-                now,
-                force);
+        Objects.requireNonNull(tenantId, "tenantId is required");
+        Objects.requireNonNull(drawDate, "drawDate is required");
+        Objects.requireNonNull(resultSlotId, "resultSlotId is required");
+        Objects.requireNonNull(drawResultId, "drawResultId is required");
+        Objects.requireNonNull(now, "now is required");
 
-        if (rows == null || rows.isEmpty()) return ApplyResult.none();
+        var rows = repo.attachResultBySlotReturning(
+            tenantId.value(),
+            drawDate,
+            resultSlotId.value(),
+            drawResultId.value(),
+            now,
+            force);
 
-        var applied =
-            rows.stream()
-                .map(r -> new AppliedDraw(DrawId.of(r.drawId()), DrawChannelId.of(r.drawChannelId())))
-                .toList();
+        if (rows == null || rows.isEmpty()) {
+            return ApplyResult.none(ApplyOutcome.ALREADY_LINKED_OR_NOT_ELIGIBLE);
+        }
+
+        var applied = rows.stream()
+            .map(r -> new AppliedDraw(
+                DrawId.of(r.drawId()),
+                DrawChannelId.of(r.drawChannelId())))
+            .toList();
 
         return ApplyResult.updated(applied);
     }
