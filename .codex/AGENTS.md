@@ -1,41 +1,23 @@
-# Codex - Tchalanet Light Context
+# Codex Router — Tchalanet
 
-## Mode
+Codex should use the shared project routers instead of duplicating rules here.
 
-Work only on the files explicitly requested.
-Do not scan the whole repository unless asked.
-Before editing, inspect the smallest relevant set of files.
-Prefer small diffs.
+Read first:
 
-## Stack
+- `AGENTS.md`
+- `VERSIONS.md`
+- `openspec/context/00-index.md`
+- `openspec/context/10-non-negotiables.md`
+- the component `AGENTS.md` for the files being changed
 
-- Backend: Java 25, Spring Boot 4, Maven
-- Frontend: Nx, Angular 20, Angular Material, Ionic later
-- DB: PostgreSQL + RLS
-- Docs/spec: OpenSpec
+Common reusable workflows live in:
 
-## Architecture Rules
+- `.agents/skills/`
 
-- common = technical only
-- catalog = read-mostly reference data
-- core = business truth, invariants, lifecycle
-- features = UI/BFF orchestration
-- Use CommandBus / QueryBus.
-- Use Typed IDs outside persistence.
-- No business logic in controllers.
-- No raw UUID outside persistence.
+Mode:
 
-## OpenSpec Rule
-
-For new capabilities, architecture changes, or big refactors:
-
-1. create/change OpenSpec proposal first
-2. do not implement directly unless asked
-
-## Coding Style
-
-- Mobile-first Angular
-- Signals + OnPush
-- @if / @for
-- CSS tokens, no hardcoded colors
-- Backend: thin controllers, commands/queries, ProblemDetail errors
+- Inspect the smallest relevant file set.
+- Prefer focused diffs and targeted validation.
+- Do not scan the whole repo unless the task is an explicit audit/inventory.
+- Do not modify unrelated components.
+- Do not implement broad changes without an OpenSpec change.

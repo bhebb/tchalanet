@@ -2,6 +2,7 @@ package com.tchalanet.server.core.notification.infra.external;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class EdgeHmacSigner {
 
     private static final String HMAC_SHA256 = "HmacSHA256";
 
-    private final ObjectMapper objectMapper;
+    private final JsonUtils jsonUtils;
     private final Clock clock;
 
     /**
@@ -33,7 +34,7 @@ public class EdgeHmacSigner {
      */
     public SignedRequest sign(String secret, Object request) {
         try {
-            var rawJsonBody = objectMapper.writeValueAsString(request);
+            var rawJsonBody = jsonUtils.toJson(request);
             var timestamp = clock.instant().toString();
             var payloadToSign = timestamp + "." + rawJsonBody;
 
@@ -46,7 +47,7 @@ public class EdgeHmacSigner {
 
             return new SignedRequest(timestamp, signature, rawJsonBody);
 
-        } catch (NoSuchAlgorithmException | InvalidKeyException | JsonProcessingException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new IllegalStateException("Failed to sign edge request", e);
         }
     }

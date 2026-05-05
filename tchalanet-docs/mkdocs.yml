@@ -1,4 +1,11 @@
 site_name: Tchalanet Docs
+not_in_nav: |
+  00-audit/**
+  01-architecture/page-model.md
+  01-architecture/flows/**
+  02-features/**
+  02-functional/domains/**/*.md
+  03-adr/index.md
 theme:
   name: material
   features:
@@ -47,41 +54,12 @@ nav:
   - Métier:
       - Index: 02-functional/index.md
       - Domains portal: 02-domains/index.md
-      - Domaines:
-          - Index: 02-functional/domains/index.md
-          - Access control: 02-functional/domains/accesscontrol.md
-          - Address: 02-functional/domains/address.md
-          - Audit: 02-functional/domains/audit.md
-          - Autonomy: 02-functional/domains/autonomy.md
-          - Catalog: 02-functional/domains/catalog.md
-          - Draw: 02-functional/domains/draw.md
-          - DrawResult (Catalog): 02-functional/domains/drawresult.md
-          - External: 02-functional/domains/external.md
-          - FeatureFlags: 02-functional/domains/featureflags.md
-          - Game (Catalog): 02-functional/domains/game.md
-          - Haiti: 02-functional/domains/haiti.md
-          - Ledger: 02-functional/domains/ledger.md
-          - Limits: 02-functional/domains/limits.md
-          - Notification: 02-functional/domains/notification.md
-          - OfflineSync: 02-functional/domains/offlinesync.md
-          - Outlet: 02-functional/domains/outlet.md
-          - POS: 02-functional/domains/terminal.md
-          - Pricing (Catalog): 02-functional/domains/pricing.md
-          - Payout: 02-functional/domains/payout.md
-          - ResultSlot (Catalog): 02-functional/domains/resultslot.md
-          - Sales: 02-functional/domains/sales.md
-          - Session: 02-functional/domains/session.md
-          - Settings: 02-functional/domains/settings.md
-          - Tenant: 02-functional/domains/tenant.md
-          - Theme: 02-functional/domains/theme.md
-          - US Lottery: 02-functional/domains/uslottery.md
-          - User: 02-functional/domains/user.md
+      - Domain index: 02-functional/domains/index.md
       - Flows:
           - Index: 02-functional/flows/index.md
           - Sell ticket: 02-functional/flows/sell-ticket.md
           - Verify ticket: 02-functional/flows/verify-ticket.md
           - Draw execution: 02-functional/flows/draw-execution.md
-          - Claim payout: 02-functional/flows/claim-payout.md
       - Features:
           - Index: 02-functional/features/index.md
           - PageModel: 02-functional/features/pagemodel.md
@@ -108,8 +86,6 @@ nav:
   - Decisions:
       - Index: 05-decisions/index.md
       - ADR Index: 05-decisions/adr-index.md
-      - ADR-0001 Stack: 03-adr/ADR-0001-stack.md
-      - ADR-0002 Slot-first results: 03-adr/ADR-0002-slot-first-results.md
 
   - OpenSpec:
       - Index: 06-openspec/index.md
@@ -122,9 +98,14 @@ nav:
       - Docs inventory: 99-reference/docs-inventory.md
       - Duplicate report: 99-reference/docs-duplicates.md
       - Cleanup plan: 99-reference/docs-cleanup-plan.md
+      - AI agent inventory: 99-reference/ai-agent-files-inventory.md
+      - AI duplicate report: 99-reference/ai-agent-duplicates.md
+      - AI cleanup plan: 99-reference/ai-agent-cleanup-plan.md
+      - Component AGENTS map: 99-reference/component-agents-map.md
+      - AI context loading: 99-reference/ai-context-loading.md
+      - Root AGENTS simplification: 99-reference/root-agents-simplification-proposal.md
       - MkDocs nav plan: 99-reference/mkdocs-nav-plan.md
       - Component docs: 99-reference/links-to-component-docs.md
-      - AI agent files: 99-reference/ai-agent-files-inventory.md
 
   - Liens:
       - Index: 99-links/index.md

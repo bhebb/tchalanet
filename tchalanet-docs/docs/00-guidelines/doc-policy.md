@@ -62,7 +62,7 @@
 
 ---
 
-### C) Workflow SDD — `.specify/work/features/`
+### C) Workflow SDD — `openspec/changes/`
 
 **Contient** :
 
@@ -73,7 +73,7 @@
 
 **Règle** :
 
-> `.specify/` = "atelier de construction", pas "livre officiel".
+> `openspec/` = "atelier de construction", pas "livre officiel".
 
 **Mise à jour** : quotidienne (work-in-progress)  
 **Public** : dev feature, IA  
@@ -115,9 +115,7 @@ tchalanet-docs/docs/
 │       ├── ticket-verify-public.md
 │       └── results-pipeline.md
 ├── 03-adr/
-│   ├── index.md
-│   ├── ADR-0001-stack.md
-│   └── ADR-0002-slot-first-results.md
+│   └── index.md
 └── 99-links/
     ├── index.md
     ├── backend.md
@@ -126,28 +124,13 @@ tchalanet-docs/docs/
     └── specs.md
 ```
 
-### Workflow SDD (.specify/)
+### Workflow SDD (OpenSpec)
 
 ```
-.specify/
-├── constitution/
-│   └── constitution.md       # Version courte (référence la centrale)
-├── templates/
-│   ├── openspec-feature.md
-│   ├── plan.md
-│   ├── tasks.md
-│   └── prompts/
-│       └── *.prompt.md
-├── scripts/
-│   ├── new-feature.sh
-│   └── archive-feature.sh
-└── work/
-    └── features/
-        └── FEAT-XXX/
-            ├── specify.md
-            ├── plan.md
-            ├── tasks.md
-            └── notes.md
+openspec/
+├── context/
+├── changes/
+└── specs/
 ```
 
 ---
@@ -172,7 +155,7 @@ tchalanet-docs/docs/
 
 ### Question 5 : C'est une spec/plan en cours ?
 
-➡️ **Oui** : `.specify/work/features/FEAT-XXX/`
+➡️ **Oui** : `openspec/changes/<change-id>/`
 
 ---
 
@@ -295,8 +278,8 @@ cd tchalanet-server  # ou apps/tchalanet-web, tchalanet-infra
 
 ```bash
 # Utiliser script (à créer)
-.specify/scripts/new-feature.sh FEAT-123 "Description courte"
-# Éditer .specify/work/features/FEAT-123/specify.md
+openspec/scripts/new-feature.sh FEAT-123 "Description courte"
+# Éditer openspec/changes/FEAT-123/specify.md
 # Générer plan/tasks via agents SpecKit
 ```
 
@@ -309,7 +292,7 @@ cd tchalanet-server  # ou apps/tchalanet-web, tchalanet-infra
 | `tchalanet-docs/docs/architecture/overview.md` | `01-architecture/system-overview.md`                        |
 | `tchalanet-docs/docs/backend/security.md`      | `99-links/backend.md` → `tchalanet-server/docs/security.md` |
 | `tchalanet-docs/docs/web/dev-rules.md`         | `99-links/web.md` → `apps/tchalanet-web/docs/dev-rules.md`  |
-| `.specify/conventions/*.md`                    | Migré vers docs centrales ou proches du code                |
+| `OpenSpec context packs`                       | Migré vers docs centrales ou proches du code                |
 
 ---
 
@@ -317,7 +300,7 @@ cd tchalanet-server  # ou apps/tchalanet-web, tchalanet-infra
 
 - [ ] C'est stable et partagé ? → Doc centrale
 - [ ] C'est technique spécifique à un module ? → Doc proche du code
-- [ ] C'est work-in-progress ? → `.specify/work/`
+- [ ] C'est work-in-progress ? → `openspec/changes/`
 - [ ] Pas de duplication avec existant
 - [ ] Liens croisés clairs
 - [ ] Mention "Dernière mise à jour" + version si pertinent

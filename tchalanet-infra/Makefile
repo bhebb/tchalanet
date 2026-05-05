@@ -228,11 +228,21 @@ p0-plus-down:
 # local-env : génère .env.merged
 local-env: env-merge
 
+# Ensure Keycloak image exists for local dev
+ensure-keycloak-image:
+	@if ! docker image inspect tchl/keycloak:local-dev >/dev/null 2>&1; then \
+		echo "→ Keycloak image not found, building..."; \
+		docker build --progress=plain -t tchl/keycloak:local-dev -f keycloak/Dockerfile keycloak/; \
+		echo "✅ Keycloak image built"; \
+	else \
+		echo "✓ Keycloak image exists: tchl/keycloak:local-dev"; \
+	fi
+
 # local-ide : API dans l'IDE, infra P0 dans Docker
-local-ide-up: p0-up
+local-ide-up: ensure-keycloak-image p0-up
 
 # local-ide avec Redis
-local-ide-up-redis: p0-plus-up
+local-ide-up-redis: ensure-keycloak-image p0-plus-up
 
 local-ide-down: p0-down
 

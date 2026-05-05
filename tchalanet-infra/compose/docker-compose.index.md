@@ -80,11 +80,11 @@ curl -I https://$EDGE_HOST/edge/health
   - Token: utiliser un token client Edge (à injecter en `.secrets` si nécessaire) ou un token serveur si vous gardez l’accès direct Unleash.
   - Alternative serveur (SDK Unleash): `TCH_FLAGS_URL=https://$FLAGS_HOST/api` + `TCH_FLAGS_TOKEN`.
 
-- Front (Angular/Ionic):
-    - SDK `unleash-proxy-client` (browser):
-    - `url`: `https://$EDGE_HOST/proxy`
-    - `clientKey`: `UNLEASH_FRONTEND_TOKEN` (ou un des tokens listés dans `/run/secrets/edge_tokens`)
-    - `appName`: `tchalanet-web`
+- Front (Angular/Flutter):
+  - SDK `unleash-proxy-client` (browser):
+  - `url`: `https://$EDGE_HOST/proxy`
+  - `clientKey`: `UNLEASH_FRONTEND_TOKEN` (ou un des tokens listés dans `/run/secrets/edge_tokens`)
+  - `appName`: `tchalanet-web`
   - En prod, restreindre CORS via `UNLEASH_EDGE_CORS_ORIGIN`.
 
 ## Compose « dev-only » / overrides locaux

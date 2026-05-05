@@ -1,32 +1,15 @@
 # /review-backend
 
-Review backend changes only.
+Review backend changes only using the canonical Claude backend reviewer.
 
 Use agent:
 
-- backend-reviewer
+- `.claude/agents/backend-reviewer.md`
 
-Scope:
+Also load:
 
-- Changed files or files explicitly provided.
-- Do not refactor.
-- Do not scan whole repo.
+- `AGENTS.md`
+- `tchalanet-server/AGENTS.md`
+- changed files or files explicitly provided
 
-Checklist:
-
-- Architecture layers respected.
-- Typed IDs outside persistence.
-- RLS/context safe.
-- CommandBus/QueryBus used.
-- `@TchTx` on write handlers.
-- Events/audit/cache after commit.
-- No cross-domain write in critical transaction.
-- No repository/entity in controllers.
-- Tests cover changed behavior.
-
-Output:
-
-1. Blockers
-2. Non-blocking issues
-3. Missing tests
-4. Safe-to-merge verdict
+Keep this command short. Do not duplicate the reviewer checklist here.

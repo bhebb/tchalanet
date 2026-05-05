@@ -40,6 +40,12 @@ kc:
 # SPRING FRAMEWORK
 # ===========================
 spring:
+  # Exclude Redis autoconfiguration by default - enable only when tch.cache.redis.enabled=true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
   config:
     import:
       - optional:classpath:application-draw.yaml

@@ -8,11 +8,10 @@ Carte rapide : où trouver les règles et la doc "source of truth" côté backen
 
 - `AGENTS.md` (racine monorepo)
 - `VERSIONS.md` (racine monorepo)
-- OpenSpec backend packs:
+- OpenSpec packs:
   - `openspec/context/05-version-guard.md`
   - `openspec/context/10-non-negotiables.md`
-  - `openspec/context/20-backend-rules.md`
-  - `openspec/context/75-catalog-rules.md`
+- component changes/specs under `tchalanet-server/openspec/`
 
 ## Docs techniques near-code
 

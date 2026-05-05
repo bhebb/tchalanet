@@ -17,24 +17,24 @@
     "target",
     "venv"
   ],
-  "total_markdown_files": 659,
+  "total_markdown_files": 644,
   "counts_by_owner": {
     "openspec": 12,
-    "root/global": 88,
-    "tchalanet-docs": 173,
-    "tchalanet-edge-service": 13,
+    "root/global": 89,
+    "tchalanet-docs": 158,
+    "tchalanet-edge-service": 14,
     "tchalanet-infra": 65,
-    "tchalanet-mobile": 34,
-    "tchalanet-server": 204,
-    "tchalanet-web": 70
+    "tchalanet-mobile": 35,
+    "tchalanet-server": 200,
+    "tchalanet-web": 71
   },
   "counts_by_status": {
     "CANONICAL": 74,
-    "SUMMARY": 180,
-    "LINK_ONLY": 198,
-    "DUPLICATE": 55,
-    "ARCHIVE": 25,
-    "UNKNOWN": 127
+    "SUMMARY": 194,
+    "LINK_ONLY": 196,
+    "DUPLICATE": 23,
+    "ARCHIVE": 12,
+    "UNKNOWN": 145
   },
   "ownership_map": [
     {
@@ -108,10 +108,7 @@
       "kind": "same filename",
       "key": "backend.md",
       "score": null,
-      "paths": [
-        ".agents/backend.md",
-        "tchalanet-docs/docs/99-links/backend.md"
-      ]
+      "paths": [".agents/backend.md", "tchalanet-docs/docs/99-links/backend.md"]
     },
     {
       "kind": "same filename",
@@ -119,7 +116,13 @@
       "score": null,
       "paths": [
         ".codex/AGENTS.md",
-        "AGENTS.md"
+        "AGENTS.md",
+        "apps/tchalanet-web/AGENTS.md",
+        "tchalanet-docs/AGENTS.md",
+        "tchalanet-edge-service/AGENTS.md",
+        "tchalanet-infra/AGENTS.md",
+        "tchalanet-mobile/AGENTS.md",
+        "tchalanet-server/AGENTS.md"
       ]
     },
     {
@@ -144,19 +147,13 @@
       "kind": "same filename",
       "key": "quick-start.md",
       "score": null,
-      "paths": [
-        "QUICK-START.md",
-        "tchalanet-infra/QUICK-START.md"
-      ]
+      "paths": ["QUICK-START.md", "tchalanet-infra/QUICK-START.md"]
     },
     {
       "kind": "same filename",
       "key": "versions.md",
       "score": null,
-      "paths": [
-        "VERSIONS.md",
-        "tchalanet-docs/docs/00-guidelines/versions.md"
-      ]
+      "paths": ["VERSIONS.md", "tchalanet-docs/docs/00-guidelines/versions.md"]
     },
     {
       "kind": "same filename",
@@ -229,8 +226,7 @@
       "paths": [
         "apps/tchalanet-web/public/assets/content/en/security.md",
         "apps/tchalanet-web/public/assets/content/fr/security.md",
-        "apps/tchalanet-web/public/assets/content/ht/security.md",
-        "tchalanet-docs/archived/backend/security.md"
+        "apps/tchalanet-web/public/assets/content/ht/security.md"
       ]
     },
     {
@@ -279,24 +275,6 @@
       "paths": [
         "openspec/context/10-non-negotiables.md",
         "tchalanet-server/openspec/context/10-non-negotiables.md"
-      ]
-    },
-    {
-      "kind": "same filename",
-      "key": "document-technique-reference.md",
-      "score": null,
-      "paths": [
-        "tchalanet-docs/archived/architecture/authentication/document-technique-reference.md",
-        "tchalanet-docs/archived/architecture/document-technique-reference.md"
-      ]
-    },
-    {
-      "kind": "same filename",
-      "key": "architecture.md",
-      "score": null,
-      "paths": [
-        "tchalanet-docs/archived/web/architecture.md",
-        "tchalanet-server/docs/ARCHITECTURE.md"
       ]
     },
     {
@@ -371,37 +349,25 @@
       "kind": "same filename",
       "key": "edge.md",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/edge.md",
-        "tchalanet-docs/docs/99-links/edge.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/edge.md", "tchalanet-docs/docs/99-links/edge.md"]
     },
     {
       "kind": "same filename",
       "key": "infra.md",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/infra.md",
-        "tchalanet-docs/docs/99-links/infra.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/infra.md", "tchalanet-docs/docs/99-links/infra.md"]
     },
     {
       "kind": "same filename",
       "key": "mobile.md",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/mobile.md",
-        "tchalanet-docs/docs/99-links/mobile.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/mobile.md", "tchalanet-docs/docs/99-links/mobile.md"]
     },
     {
       "kind": "same filename",
       "key": "web.md",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/web.md",
-        "tchalanet-docs/docs/99-links/web.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/web.md", "tchalanet-docs/docs/99-links/web.md"]
     },
     {
       "kind": "same filename",
@@ -460,75 +426,102 @@
     },
     {
       "kind": "same H1 title",
-      "key": "documentation \u2014 sources de v\u00e9rit\u00e9",
+      "key": "openspec-apply-change",
       "score": null,
       "paths": [
-        ".agents/skills/documentation/SKILL.md",
-        ".claude/skills/documentation/SKILL.md"
+        ".claude/skills/openspec-apply-change/SKILL.md",
+        ".github/skills/openspec-apply-change/SKILL.md"
       ]
     },
     {
       "kind": "same H1 title",
-      "key": "openspec: apply",
+      "key": "openspec-archive-change",
       "score": null,
       "paths": [
-        ".agents/skills/openspec-apply/SKILL.md",
-        ".claude/skills/openspec-apply/SKILL.md"
+        ".claude/skills/openspec-archive-change/SKILL.md",
+        ".github/skills/openspec-archive-change/SKILL.md"
       ]
     },
     {
       "kind": "same H1 title",
-      "key": "openspec: archive",
+      "key": "openspec-bulk-archive-change",
       "score": null,
       "paths": [
-        ".agents/skills/openspec-archive/SKILL.md",
-        ".claude/skills/openspec-archive/SKILL.md"
+        ".claude/skills/openspec-bulk-archive-change/SKILL.md",
+        ".github/skills/openspec-bulk-archive-change/SKILL.md"
       ]
     },
     {
       "kind": "same H1 title",
-      "key": "openspec: proposal",
+      "key": "openspec-continue-change",
       "score": null,
       "paths": [
-        ".agents/skills/openspec-proposal/SKILL.md",
-        ".claude/skills/openspec-proposal/SKILL.md"
+        ".claude/skills/openspec-continue-change/SKILL.md",
+        ".github/skills/openspec-continue-change/SKILL.md"
       ]
     },
     {
       "kind": "same H1 title",
-      "key": "documentation technique de r\u00e9f\u00e9rence : architecture frontend",
+      "key": "openspec-explore",
       "score": null,
       "paths": [
-        "tchalanet-docs/archived/architecture/authentication/document-technique-reference.md",
-        "tchalanet-docs/archived/architecture/document-technique-reference.md"
+        ".claude/skills/openspec-explore/SKILL.md",
+        ".github/skills/openspec-explore/SKILL.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "openspec-new-change",
+      "score": null,
+      "paths": [
+        ".claude/skills/openspec-new-change/SKILL.md",
+        ".github/skills/openspec-new-change/SKILL.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "openspec-propose",
+      "score": null,
+      "paths": [
+        ".claude/skills/openspec-propose/SKILL.md",
+        ".github/skills/openspec-propose/SKILL.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "openspec-sync-specs",
+      "score": null,
+      "paths": [
+        ".claude/skills/openspec-sync-specs/SKILL.md",
+        ".github/skills/openspec-sync-specs/SKILL.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "openspec-verify-change",
+      "score": null,
+      "paths": [
+        ".claude/skills/openspec-verify-change/SKILL.md",
+        ".github/skills/openspec-verify-change/SKILL.md"
       ]
     },
     {
       "kind": "same H1 title",
       "key": "infra",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/infra.md",
-        "tchalanet-docs/docs/99-links/infra.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/infra.md", "tchalanet-docs/docs/99-links/infra.md"]
     },
     {
       "kind": "same H1 title",
       "key": "mobile",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/mobile.md",
-        "tchalanet-docs/docs/99-links/mobile.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/mobile.md", "tchalanet-docs/docs/99-links/mobile.md"]
     },
     {
       "kind": "same H1 title",
       "key": "web",
       "score": null,
-      "paths": [
-        "tchalanet-docs/docs/03-apps/web.md",
-        "tchalanet-docs/docs/99-links/web.md"
-      ]
+      "paths": ["tchalanet-docs/docs/03-apps/web.md", "tchalanet-docs/docs/99-links/web.md"]
     },
     {
       "kind": "same H1 title",
@@ -546,6 +539,42 @@
       "paths": [
         "tchalanet-infra/docs/00-infra-charter.md",
         "tchalanet-infra/openspec/context/00-infra-charter.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "design: infra-refactor-local-server-v0",
+      "score": null,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/design.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/design.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "change: infra-refactor-local-server-v0",
+      "score": null,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/proposal.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/proposal.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "spec: infra local/server-v0",
+      "score": null,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/specs/infra-local-server/spec.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md"
+      ]
+    },
+    {
+      "kind": "same H1 title",
+      "key": "tasks: infra-refactor-local-server-v0",
+      "score": null,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/tasks.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/tasks.md"
       ]
     },
     {
@@ -577,108 +606,81 @@
     },
     {
       "kind": "identical content",
-      "key": "9bbf54d54642f502",
+      "key": "89b8a894e92603ca",
       "score": 1.0,
       "paths": [
-        ".agents/skills/documentation/SKILL.md",
-        ".claude/skills/documentation/SKILL.md"
-      ]
-    },
-    {
-      "kind": "identical content",
-      "key": "3f6478e2f12d2081",
-      "score": 1.0,
-      "paths": [
-        ".agents/skills/openspec-apply-change/SKILL.md",
         ".claude/skills/openspec-apply-change/SKILL.md",
         ".github/skills/openspec-apply-change/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "999b0ee50ae35dd7",
+      "key": "27eefe478734c806",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-archive/SKILL.md",
-        ".claude/skills/openspec-archive/SKILL.md"
-      ]
-    },
-    {
-      "kind": "identical content",
-      "key": "84b230c74a692186",
-      "score": 1.0,
-      "paths": [
-        ".agents/skills/openspec-archive-change/SKILL.md",
         ".claude/skills/openspec-archive-change/SKILL.md",
         ".github/skills/openspec-archive-change/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "cfcdfe287daa7bce",
+      "key": "f1c78e5677a0be17",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-bulk-archive-change/SKILL.md",
         ".claude/skills/openspec-bulk-archive-change/SKILL.md",
         ".github/skills/openspec-bulk-archive-change/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "03fbb2117c4593bb",
+      "key": "0ae3df89940691e3",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-continue-change/SKILL.md",
         ".claude/skills/openspec-continue-change/SKILL.md",
         ".github/skills/openspec-continue-change/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "c0a9185059b49280",
+      "key": "c108e078d1d77dda",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-explore/SKILL.md",
         ".claude/skills/openspec-explore/SKILL.md",
         ".github/skills/openspec-explore/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "e8bb0445d77973c4",
+      "key": "3278b130f7e60c5d",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-new-change/SKILL.md",
         ".claude/skills/openspec-new-change/SKILL.md",
         ".github/skills/openspec-new-change/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "7c3fade52d274f98",
+      "key": "3f298f16c1695a8b",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-propose/SKILL.md",
         ".claude/skills/openspec-propose/SKILL.md",
         ".github/skills/openspec-propose/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "2efd08b19bd03a5c",
+      "key": "113cb6c9d1a4c9c9",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-sync-specs/SKILL.md",
         ".claude/skills/openspec-sync-specs/SKILL.md",
         ".github/skills/openspec-sync-specs/SKILL.md"
       ]
     },
     {
       "kind": "identical content",
-      "key": "abb90c73aa337feb",
+      "key": "3ef19e49cfe1810f",
       "score": 1.0,
       "paths": [
-        ".agents/skills/openspec-verify-change/SKILL.md",
         ".claude/skills/openspec-verify-change/SKILL.md",
         ".github/skills/openspec-verify-change/SKILL.md"
       ]
@@ -703,597 +705,9 @@
     },
     {
       "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-apply/SKILL.md <> .claude/skills/openspec-apply/SKILL.md",
-      "score": 0.9943181818181818,
-      "paths": [
-        ".agents/skills/openspec-apply/SKILL.md",
-        ".claude/skills/openspec-apply/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-apply-change/SKILL.md <> .claude/commands/opsx/apply.md",
-      "score": 0.9787234042553191,
-      "paths": [
-        ".agents/skills/openspec-apply-change/SKILL.md",
-        ".claude/commands/opsx/apply.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-apply-change/SKILL.md <> .github/prompts/opsx-apply.prompt.md",
-      "score": 0.989247311827957,
-      "paths": [
-        ".agents/skills/openspec-apply-change/SKILL.md",
-        ".github/prompts/opsx-apply.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-archive-change/SKILL.md <> .claude/commands/opsx/archive.md",
-      "score": 0.9152542372881356,
-      "paths": [
-        ".agents/skills/openspec-archive-change/SKILL.md",
-        ".claude/commands/opsx/archive.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-archive-change/SKILL.md <> .github/prompts/opsx-archive.prompt.md",
-      "score": 0.9204545454545454,
-      "paths": [
-        ".agents/skills/openspec-archive-change/SKILL.md",
-        ".github/prompts/opsx-archive.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-bulk-archive-change/SKILL.md <> .claude/commands/opsx/bulk-archive.md",
-      "score": 0.9800796812749004,
-      "paths": [
-        ".agents/skills/openspec-bulk-archive-change/SKILL.md",
-        ".claude/commands/opsx/bulk-archive.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-bulk-archive-change/SKILL.md <> .github/prompts/opsx-bulk-archive.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".agents/skills/openspec-bulk-archive-change/SKILL.md",
-        ".github/prompts/opsx-bulk-archive.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-continue-change/SKILL.md <> .claude/commands/opsx/continue.md",
-      "score": 0.9746192893401016,
-      "paths": [
-        ".agents/skills/openspec-continue-change/SKILL.md",
-        ".claude/commands/opsx/continue.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-continue-change/SKILL.md <> .github/prompts/opsx-continue.prompt.md",
-      "score": 0.9846153846153847,
-      "paths": [
-        ".agents/skills/openspec-continue-change/SKILL.md",
-        ".github/prompts/opsx-continue.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-explore/SKILL.md <> .claude/commands/opsx/explore.md",
-      "score": 0.9590443686006825,
-      "paths": [
-        ".agents/skills/openspec-explore/SKILL.md",
-        ".claude/commands/opsx/explore.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-explore/SKILL.md <> .github/prompts/opsx-explore.prompt.md",
-      "score": 0.9689655172413794,
-      "paths": [
-        ".agents/skills/openspec-explore/SKILL.md",
-        ".github/prompts/opsx-explore.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-new-change/SKILL.md <> .claude/commands/opsx/new.md",
-      "score": 0.9652173913043478,
-      "paths": [
-        ".agents/skills/openspec-new-change/SKILL.md",
-        ".claude/commands/opsx/new.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-new-change/SKILL.md <> .github/prompts/opsx-new.prompt.md",
-      "score": 0.9823008849557522,
-      "paths": [
-        ".agents/skills/openspec-new-change/SKILL.md",
-        ".github/prompts/opsx-new.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-proposal/SKILL.md <> .claude/skills/openspec-proposal/SKILL.md",
-      "score": 0.9948453608247423,
-      "paths": [
-        ".agents/skills/openspec-proposal/SKILL.md",
-        ".claude/skills/openspec-proposal/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-propose/SKILL.md <> .claude/commands/opsx/propose.md",
-      "score": 0.9631901840490797,
-      "paths": [
-        ".agents/skills/openspec-propose/SKILL.md",
-        ".claude/commands/opsx/propose.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-propose/SKILL.md <> .github/prompts/opsx-propose.prompt.md",
-      "score": 0.9874213836477987,
-      "paths": [
-        ".agents/skills/openspec-propose/SKILL.md",
-        ".github/prompts/opsx-propose.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-sync-specs/SKILL.md <> .claude/commands/opsx/sync.md",
-      "score": 0.9647058823529412,
-      "paths": [
-        ".agents/skills/openspec-sync-specs/SKILL.md",
-        ".claude/commands/opsx/sync.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-sync-specs/SKILL.md <> .github/prompts/opsx-sync.prompt.md",
-      "score": 0.9879518072289156,
-      "paths": [
-        ".agents/skills/openspec-sync-specs/SKILL.md",
-        ".github/prompts/opsx-sync.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-verify-change/SKILL.md <> .claude/commands/opsx/verify.md",
-      "score": 0.975103734439834,
-      "paths": [
-        ".agents/skills/openspec-verify-change/SKILL.md",
-        ".claude/commands/opsx/verify.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".agents/skills/openspec-verify-change/SKILL.md <> .github/prompts/opsx-verify.prompt.md",
-      "score": 0.9873949579831933,
-      "paths": [
-        ".agents/skills/openspec-verify-change/SKILL.md",
-        ".github/prompts/opsx-verify.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/agents/backend-reviewer.md <> .claude/commands/review-backend.md",
-      "score": 0.8846153846153846,
-      "paths": [
-        ".claude/agents/backend-reviewer.md",
-        ".claude/commands/review-backend.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/apply.md <> .claude/skills/openspec-apply-change/SKILL.md",
-      "score": 0.9787234042553191,
-      "paths": [
-        ".claude/commands/opsx/apply.md",
-        ".claude/skills/openspec-apply-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/apply.md <> .github/prompts/opsx-apply.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/apply.md",
-        ".github/prompts/opsx-apply.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/apply.md <> .github/skills/openspec-apply-change/SKILL.md",
-      "score": 0.9787234042553191,
-      "paths": [
-        ".claude/commands/opsx/apply.md",
-        ".github/skills/openspec-apply-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/archive.md <> .claude/skills/openspec-archive-change/SKILL.md",
-      "score": 0.9152542372881356,
-      "paths": [
-        ".claude/commands/opsx/archive.md",
-        ".claude/skills/openspec-archive-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/archive.md <> .github/prompts/opsx-archive.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/archive.md",
-        ".github/prompts/opsx-archive.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/archive.md <> .github/skills/openspec-archive-change/SKILL.md",
-      "score": 0.9152542372881356,
-      "paths": [
-        ".claude/commands/opsx/archive.md",
-        ".github/skills/openspec-archive-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/bulk-archive.md <> .claude/skills/openspec-bulk-archive-change/SKILL.md",
-      "score": 0.9800796812749004,
-      "paths": [
-        ".claude/commands/opsx/bulk-archive.md",
-        ".claude/skills/openspec-bulk-archive-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/bulk-archive.md <> .github/prompts/opsx-bulk-archive.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/bulk-archive.md",
-        ".github/prompts/opsx-bulk-archive.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/bulk-archive.md <> .github/skills/openspec-bulk-archive-change/SKILL.md",
-      "score": 0.9800796812749004,
-      "paths": [
-        ".claude/commands/opsx/bulk-archive.md",
-        ".github/skills/openspec-bulk-archive-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/continue.md <> .claude/skills/openspec-continue-change/SKILL.md",
-      "score": 0.9746192893401016,
-      "paths": [
-        ".claude/commands/opsx/continue.md",
-        ".claude/skills/openspec-continue-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/continue.md <> .github/prompts/opsx-continue.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/continue.md",
-        ".github/prompts/opsx-continue.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/continue.md <> .github/skills/openspec-continue-change/SKILL.md",
-      "score": 0.9746192893401016,
-      "paths": [
-        ".claude/commands/opsx/continue.md",
-        ".github/skills/openspec-continue-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/explore.md <> .claude/skills/openspec-explore/SKILL.md",
-      "score": 0.9590443686006825,
-      "paths": [
-        ".claude/commands/opsx/explore.md",
-        ".claude/skills/openspec-explore/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/explore.md <> .github/prompts/opsx-explore.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/explore.md",
-        ".github/prompts/opsx-explore.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/explore.md <> .github/skills/openspec-explore/SKILL.md",
-      "score": 0.9590443686006825,
-      "paths": [
-        ".claude/commands/opsx/explore.md",
-        ".github/skills/openspec-explore/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/new.md <> .claude/skills/openspec-new-change/SKILL.md",
-      "score": 0.9652173913043478,
-      "paths": [
-        ".claude/commands/opsx/new.md",
-        ".claude/skills/openspec-new-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/new.md <> .github/prompts/opsx-new.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/new.md",
-        ".github/prompts/opsx-new.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/new.md <> .github/skills/openspec-new-change/SKILL.md",
-      "score": 0.9652173913043478,
-      "paths": [
-        ".claude/commands/opsx/new.md",
-        ".github/skills/openspec-new-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/propose.md <> .claude/skills/openspec-propose/SKILL.md",
-      "score": 0.9631901840490797,
-      "paths": [
-        ".claude/commands/opsx/propose.md",
-        ".claude/skills/openspec-propose/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/propose.md <> .github/prompts/opsx-propose.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/propose.md",
-        ".github/prompts/opsx-propose.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/propose.md <> .github/skills/openspec-propose/SKILL.md",
-      "score": 0.9631901840490797,
-      "paths": [
-        ".claude/commands/opsx/propose.md",
-        ".github/skills/openspec-propose/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/sync.md <> .claude/skills/openspec-sync-specs/SKILL.md",
-      "score": 0.9647058823529412,
-      "paths": [
-        ".claude/commands/opsx/sync.md",
-        ".claude/skills/openspec-sync-specs/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/sync.md <> .github/prompts/opsx-sync.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/sync.md",
-        ".github/prompts/opsx-sync.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/sync.md <> .github/skills/openspec-sync-specs/SKILL.md",
-      "score": 0.9647058823529412,
-      "paths": [
-        ".claude/commands/opsx/sync.md",
-        ".github/skills/openspec-sync-specs/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/verify.md <> .claude/skills/openspec-verify-change/SKILL.md",
-      "score": 0.975103734439834,
-      "paths": [
-        ".claude/commands/opsx/verify.md",
-        ".claude/skills/openspec-verify-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/verify.md <> .github/prompts/opsx-verify.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/commands/opsx/verify.md",
-        ".github/prompts/opsx-verify.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/commands/opsx/verify.md <> .github/skills/openspec-verify-change/SKILL.md",
-      "score": 0.975103734439834,
-      "paths": [
-        ".claude/commands/opsx/verify.md",
-        ".github/skills/openspec-verify-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-apply-change/SKILL.md <> .github/prompts/opsx-apply.prompt.md",
-      "score": 0.989247311827957,
-      "paths": [
-        ".claude/skills/openspec-apply-change/SKILL.md",
-        ".github/prompts/opsx-apply.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-archive-change/SKILL.md <> .github/prompts/opsx-archive.prompt.md",
-      "score": 0.9204545454545454,
-      "paths": [
-        ".claude/skills/openspec-archive-change/SKILL.md",
-        ".github/prompts/opsx-archive.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-bulk-archive-change/SKILL.md <> .github/prompts/opsx-bulk-archive.prompt.md",
-      "score": 1.0,
-      "paths": [
-        ".claude/skills/openspec-bulk-archive-change/SKILL.md",
-        ".github/prompts/opsx-bulk-archive.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-continue-change/SKILL.md <> .github/prompts/opsx-continue.prompt.md",
-      "score": 0.9846153846153847,
-      "paths": [
-        ".claude/skills/openspec-continue-change/SKILL.md",
-        ".github/prompts/opsx-continue.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-explore/SKILL.md <> .github/prompts/opsx-explore.prompt.md",
-      "score": 0.9689655172413794,
-      "paths": [
-        ".claude/skills/openspec-explore/SKILL.md",
-        ".github/prompts/opsx-explore.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-new-change/SKILL.md <> .github/prompts/opsx-new.prompt.md",
-      "score": 0.9823008849557522,
-      "paths": [
-        ".claude/skills/openspec-new-change/SKILL.md",
-        ".github/prompts/opsx-new.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-propose/SKILL.md <> .github/prompts/opsx-propose.prompt.md",
-      "score": 0.9874213836477987,
-      "paths": [
-        ".claude/skills/openspec-propose/SKILL.md",
-        ".github/prompts/opsx-propose.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-sync-specs/SKILL.md <> .github/prompts/opsx-sync.prompt.md",
-      "score": 0.9879518072289156,
-      "paths": [
-        ".claude/skills/openspec-sync-specs/SKILL.md",
-        ".github/prompts/opsx-sync.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".claude/skills/openspec-verify-change/SKILL.md <> .github/prompts/opsx-verify.prompt.md",
-      "score": 0.9873949579831933,
-      "paths": [
-        ".claude/skills/openspec-verify-change/SKILL.md",
-        ".github/prompts/opsx-verify.prompt.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-apply.prompt.md <> .github/skills/openspec-apply-change/SKILL.md",
-      "score": 0.989247311827957,
-      "paths": [
-        ".github/prompts/opsx-apply.prompt.md",
-        ".github/skills/openspec-apply-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-archive.prompt.md <> .github/skills/openspec-archive-change/SKILL.md",
-      "score": 0.9204545454545454,
-      "paths": [
-        ".github/prompts/opsx-archive.prompt.md",
-        ".github/skills/openspec-archive-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-bulk-archive.prompt.md <> .github/skills/openspec-bulk-archive-change/SKILL.md",
-      "score": 1.0,
-      "paths": [
-        ".github/prompts/opsx-bulk-archive.prompt.md",
-        ".github/skills/openspec-bulk-archive-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-continue.prompt.md <> .github/skills/openspec-continue-change/SKILL.md",
-      "score": 0.9846153846153847,
-      "paths": [
-        ".github/prompts/opsx-continue.prompt.md",
-        ".github/skills/openspec-continue-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-explore.prompt.md <> .github/skills/openspec-explore/SKILL.md",
-      "score": 0.9689655172413794,
-      "paths": [
-        ".github/prompts/opsx-explore.prompt.md",
-        ".github/skills/openspec-explore/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-new.prompt.md <> .github/skills/openspec-new-change/SKILL.md",
-      "score": 0.9823008849557522,
-      "paths": [
-        ".github/prompts/opsx-new.prompt.md",
-        ".github/skills/openspec-new-change/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-propose.prompt.md <> .github/skills/openspec-propose/SKILL.md",
-      "score": 0.9874213836477987,
-      "paths": [
-        ".github/prompts/opsx-propose.prompt.md",
-        ".github/skills/openspec-propose/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-sync.prompt.md <> .github/skills/openspec-sync-specs/SKILL.md",
-      "score": 0.9879518072289156,
-      "paths": [
-        ".github/prompts/opsx-sync.prompt.md",
-        ".github/skills/openspec-sync-specs/SKILL.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
-      "key": ".github/prompts/opsx-verify.prompt.md <> .github/skills/openspec-verify-change/SKILL.md",
-      "score": 0.9873949579831933,
-      "paths": [
-        ".github/prompts/opsx-verify.prompt.md",
-        ".github/skills/openspec-verify-change/SKILL.md"
-      ]
+      "key": "DOCUMENTATION.md <> tchalanet-docs/docs/00-guidelines/doc-policy.md",
+      "score": 0.8282828282828283,
+      "paths": ["DOCUMENTATION.md", "tchalanet-docs/docs/00-guidelines/doc-policy.md"]
     },
     {
       "kind": "high textual overlap",
@@ -1360,17 +774,8 @@
     },
     {
       "kind": "high textual overlap",
-      "key": "tchalanet-docs/docs/99-reference/ai-agent-files-inventory.md <> tchalanet-docs/docs/99-reference/docs-cleanup-plan.md",
-      "score": 0.918918918918919,
-      "paths": [
-        "tchalanet-docs/docs/99-reference/ai-agent-files-inventory.md",
-        "tchalanet-docs/docs/99-reference/docs-cleanup-plan.md"
-      ]
-    },
-    {
-      "kind": "high textual overlap",
       "key": "tchalanet-docs/docs/99-reference/ai-agent-files-inventory.md <> tchalanet-docs/docs/99-reference/docs-inventory.md",
-      "score": 0.9819819819819819,
+      "score": 0.8871794871794871,
       "paths": [
         "tchalanet-docs/docs/99-reference/ai-agent-files-inventory.md",
         "tchalanet-docs/docs/99-reference/docs-inventory.md"
@@ -1379,7 +784,7 @@
     {
       "kind": "high textual overlap",
       "key": "tchalanet-docs/docs/99-reference/docs-cleanup-plan.md <> tchalanet-docs/docs/99-reference/docs-inventory.md",
-      "score": 0.8897338403041825,
+      "score": 0.8844621513944223,
       "paths": [
         "tchalanet-docs/docs/99-reference/docs-cleanup-plan.md",
         "tchalanet-docs/docs/99-reference/docs-inventory.md"
@@ -1388,7 +793,7 @@
     {
       "kind": "high textual overlap",
       "key": "tchalanet-docs/docs/99-reference/docs-duplicates.md <> tchalanet-docs/docs/99-reference/docs-inventory.md",
-      "score": 0.84375,
+      "score": 0.8341708542713567,
       "paths": [
         "tchalanet-docs/docs/99-reference/docs-duplicates.md",
         "tchalanet-docs/docs/99-reference/docs-inventory.md"
@@ -1414,6 +819,33 @@
     },
     {
       "kind": "high textual overlap",
+      "key": "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/design.md <> tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/design.md",
+      "score": 1.0,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/design.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/design.md"
+      ]
+    },
+    {
+      "kind": "high textual overlap",
+      "key": "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/proposal.md <> tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/proposal.md",
+      "score": 1.0,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/proposal.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/proposal.md"
+      ]
+    },
+    {
+      "kind": "high textual overlap",
+      "key": "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/specs/infra-local-server/spec.md <> tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md",
+      "score": 0.9918032786885246,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/specs/infra-local-server/spec.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md"
+      ]
+    },
+    {
+      "kind": "high textual overlap",
       "key": "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/specs/infra-local-server/spec.md <> tchalanet-infra/openspec/specs/infra-local-server/spec.md",
       "score": 0.9836065573770492,
       "paths": [
@@ -1423,11 +855,29 @@
     },
     {
       "kind": "high textual overlap",
+      "key": "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/tasks.md <> tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/tasks.md",
+      "score": 1.0,
+      "paths": [
+        "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/tasks.md",
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/tasks.md"
+      ]
+    },
+    {
+      "kind": "high textual overlap",
       "key": "tchalanet-infra/openspec/changes/archive/2026-05-05-mobile-flutter-distribution-v0/specs/mobile-distribution/spec.md <> tchalanet-infra/openspec/specs/mobile-distribution/spec.md",
       "score": 0.9772727272727273,
       "paths": [
         "tchalanet-infra/openspec/changes/archive/2026-05-05-mobile-flutter-distribution-v0/specs/mobile-distribution/spec.md",
         "tchalanet-infra/openspec/specs/mobile-distribution/spec.md"
+      ]
+    },
+    {
+      "kind": "high textual overlap",
+      "key": "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md <> tchalanet-infra/openspec/specs/infra-local-server/spec.md",
+      "score": 0.9596774193548387,
+      "paths": [
+        "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md",
+        "tchalanet-infra/openspec/specs/infra-local-server/spec.md"
       ]
     },
     {
@@ -1541,58 +991,55 @@
   ],
   "documents": [
     {
-      "path": "openspec/changes/audit-project-docs-and-mkdocs/design.md",
+      "path": "openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/design.md",
       "owner": "openspec",
       "doc_type": "openspec",
       "title": "Design: Project documentation inventory and MkDocs organization",
       "lines": 236,
       "sha256": "95090cd335dcb19ce2dd38584ba84f40b76c79db58045e4322aef5c988284a24",
       "sha256_16": "95090cd335dcb19c",
-      "status": "LINK_ONLY",
+      "status": "ARCHIVE",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "looks like an old quick-start doc",
-        "mentions legacy workflow"
-      ]
+      "recommended_action": "keep archived; review before deletion",
+      "obsolete_mentions": ["looks like an old quick-start doc", "mentions legacy workflow"]
     },
     {
-      "path": "openspec/changes/audit-project-docs-and-mkdocs/proposal.md",
+      "path": "openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/proposal.md",
       "owner": "openspec",
       "doc_type": "openspec",
       "title": "Change: Audit project docs and reorganize MkDocs",
       "lines": 66,
       "sha256": "4b09a909cabd180cfb86375a7c287ead3d0f75da4fb6180bd53ab643b59ce06f",
       "sha256_16": "4b09a909cabd180c",
-      "status": "LINK_ONLY",
+      "status": "ARCHIVE",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "active/change documentation; link from OpenSpec map",
+      "recommended_action": "keep archived; review before deletion",
       "obsolete_mentions": []
     },
     {
-      "path": "openspec/changes/audit-project-docs-and-mkdocs/specs/project-documentation/spec.md",
+      "path": "openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/specs/project-documentation/spec.md",
       "owner": "openspec",
       "doc_type": "openspec",
       "title": "project-documentation Specification",
       "lines": 71,
       "sha256": "3384b810c47c2416200f9a434903dbb563e03eca06b4070815f8b443f4f768c2",
       "sha256_16": "3384b810c47c2416",
-      "status": "LINK_ONLY",
+      "status": "ARCHIVE",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "active/change documentation; link from OpenSpec map",
+      "recommended_action": "keep archived; review before deletion",
       "obsolete_mentions": []
     },
     {
-      "path": "openspec/changes/audit-project-docs-and-mkdocs/tasks.md",
+      "path": "openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/tasks.md",
       "owner": "openspec",
       "doc_type": "openspec",
       "title": "Tasks",
       "lines": 108,
       "sha256": "0006263851c835455f911622356acb8806a49b695a4a90461b6585ded5305159",
       "sha256_16": "0006263851c83545",
-      "status": "LINK_ONLY",
+      "status": "ARCHIVE",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "active/change documentation; link from OpenSpec map",
+      "recommended_action": "keep archived; review before deletion",
       "obsolete_mentions": []
     },
     {
@@ -1639,9 +1086,9 @@
       "owner": "openspec",
       "doc_type": "openspec",
       "title": "Tasks",
-      "lines": 82,
-      "sha256": "f6937fa479fb27ac44cd42eed1d6290e1e526ecb87a76b7534f750d17bcb0ade",
-      "sha256_16": "f6937fa479fb27ac",
+      "lines": 87,
+      "sha256": "8b8f5c4579a677968b476edd6468b80237298f0340709e6e6dd909084d7342b6",
+      "sha256_16": "8b8f5c4579a67796",
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
@@ -1701,18 +1148,29 @@
       "status": "CANONICAL",
       "canonical_source": "openspec/project.md",
       "recommended_action": "global OpenSpec router",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
+    },
+    {
+      "path": ".agents/README.md",
+      "owner": "root/global",
+      "doc_type": "agent",
+      "title": "Shared AI Agent Files",
+      "lines": 26,
+      "sha256": "183c9a43d2fb779e0f03cd011791a2a52a44a621a56209bf5cb274510e14ff87",
+      "sha256_16": "183c9a43d2fb779e",
+      "status": "UNKNOWN",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
     },
     {
       "path": ".agents/backend.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Backend Agent",
-      "lines": 20,
-      "sha256": "2f47e24b11245e317e90bdff46a277de4aac6836c377f9b64096cde39291e07d",
-      "sha256_16": "2f47e24b11245e31",
+      "title": "Backend Agent Router",
+      "lines": 12,
+      "sha256": "e323f6dd3b81ca2b8e7f751f1d17bc3721aac94d59f14fb6b38d8e7437e167a0",
+      "sha256_16": "e323f6dd3b81ca2b",
       "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "review ownership before moving or deleting",
@@ -1722,10 +1180,10 @@
       "path": ".agents/frontend-web.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Frontend Web Agent",
-      "lines": 20,
-      "sha256": "8731f36b72cd7db20cb802dac1e0a1ef137a906ae8e6a577b2c99f19ea62bcbd",
-      "sha256_16": "8731f36b72cd7db2",
+      "title": "Frontend Web Agent Router",
+      "lines": 12,
+      "sha256": "c91c625223c40719b6c7c1b73f111dba0dc6879c8f001cc4dec0e6969a8c308f",
+      "sha256_16": "c91c625223c40719",
       "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "review ownership before moving or deleting",
@@ -1735,10 +1193,10 @@
       "path": ".agents/mobile-flutter.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Mobile Flutter Agent",
-      "lines": 25,
-      "sha256": "9da0a8b1fbef98a03d7b24f0d8e2702fb88f70af15bdb26876fb5c26daee9cd1",
-      "sha256_16": "9da0a8b1fbef98a0",
+      "title": "Mobile Flutter Agent Router",
+      "lines": 12,
+      "sha256": "2960b902e1be1053f8c300fa5005cd0b10eaba059f178397ceee27113a445607",
+      "sha256_16": "2960b902e1be1053",
       "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "review ownership before moving or deleting",
@@ -1748,10 +1206,10 @@
       "path": ".agents/reviewer.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Reviewer Agent",
-      "lines": 12,
-      "sha256": "e48a610fc2cc7c4f9c6201593634cb382edb1b5241e5caa6d9b4984f0c0e1e98",
-      "sha256_16": "e48a610fc2cc7c4f",
+      "title": "Reviewer Agent Router",
+      "lines": 13,
+      "sha256": "3d9355117434edb92c9e755b6e46f9a4222df02dac6af10d62f94a024081de48",
+      "sha256_16": "3d9355117434edb9",
       "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "review ownership before moving or deleting",
@@ -1930,10 +1388,10 @@
       "path": ".agents/spec.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Spec Agent",
-      "lines": 19,
-      "sha256": "32e946ff9d2dcc66d068f8f9d5b430778435b47bf5a9f6caa8589b46d015923a",
-      "sha256_16": "32e946ff9d2dcc66",
+      "title": "Spec Agent Router",
+      "lines": 12,
+      "sha256": "f0bac66f2d43072dbb8fdf3c580c15002fb4b91bd6060262ce59ceb7adaf345f",
+      "sha256_16": "f0bac66f2d43072d",
       "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "review ownership before moving or deleting",
@@ -2138,117 +1596,117 @@
       "path": ".claude/commands/opsx/apply.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 165,
-      "sha256": "abfef6f72c5d4d868e118aa629a8f78c0617042ca76f42fdf9e494992e3de136",
-      "sha256_16": "abfef6f72c5d4d86",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: apply",
+      "lines": 15,
+      "sha256": "b4ab0c87a865714e9f614ddf1b5dfd56f6a32937da9827cef887e9e5807bdb7a",
+      "sha256_16": "b4ab0c87a865714e",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/archive.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 167,
-      "sha256": "d9bae0777b26b81fc05d19cf996fe4d6c8aff9cd661844641aa45dcb4e02e8ea",
-      "sha256_16": "d9bae0777b26b81f",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: archive",
+      "lines": 15,
+      "sha256": "4cdc99b1d77e9bd79fd85557cb9b63246b87ded78020c7f671536ed6706548f9",
+      "sha256_16": "4cdc99b1d77e9bd7",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/bulk-archive.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 259,
-      "sha256": "e4ae4a9b05e704804ab00129f90a44f849a2a7739caecb5194475705a0ae7361",
-      "sha256_16": "e4ae4a9b05e70480",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: bulk-archive",
+      "lines": 15,
+      "sha256": "6f50c11e3adc2be7fec5534fc838cd87ff957ba70c2bf07e5f7921887f901808",
+      "sha256_16": "6f50c11e3adc2be7",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/continue.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 125,
-      "sha256": "531e6d460184efbf67cba1691281eb658771e3cf455fc70bc44040e7a612316d",
-      "sha256_16": "531e6d460184efbf",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: continue",
+      "lines": 15,
+      "sha256": "3c9204965e5374875c7abd9eb6ea0454076fde03154029897b711f54c993fdc9",
+      "sha256_16": "3c9204965e537487",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/explore.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 185,
-      "sha256": "fcc1a391bc2b38002f366a3465eb03d4c44cb31d41a06571588c20d15b2ef913",
-      "sha256_16": "fcc1a391bc2b3800",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: explore",
+      "lines": 15,
+      "sha256": "858d9e2d4bf4ce3b868906402e110c7999440e365075e3a424707e565171e188",
+      "sha256_16": "858d9e2d4bf4ce3b",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/new.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 80,
-      "sha256": "ff615c6915bac5176ef44a25dd295b9f43d7107b367000b6b2e393752c6967e5",
-      "sha256_16": "ff615c6915bac517",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: new",
+      "lines": 15,
+      "sha256": "0ec440a1bece2566a194a66cc5a1924c36d52f6d77653b156bf2af4580eddeac",
+      "sha256_16": "0ec440a1bece2566",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/propose.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 119,
-      "sha256": "d0fc0e5d69a4b66e05db314bb9701f3664bf791baf278918c53b664747497eb6",
-      "sha256_16": "d0fc0e5d69a4b66e",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: propose",
+      "lines": 15,
+      "sha256": "671543fac6e04a715fcdd48df8aa10fd4efb36f4a6b68a08f9dca6bbf4a7c473",
+      "sha256_16": "671543fac6e04a71",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/sync.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 148,
-      "sha256": "0c4f40139c2faca2d3e6b598d64cee8b46310dc59724b3ad4ab2245d71ba389a",
-      "sha256_16": "0c4f40139c2faca2",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: sync",
+      "lines": 15,
+      "sha256": "1c04ed4aae355be5d04611b852b527adceacadeb95836dc796a3ae998a3d1df9",
+      "sha256_16": "1c04ed4aae355be5",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/commands/opsx/verify.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "",
-      "lines": 180,
-      "sha256": "5c12e3fc14e6e67431113106ffe156d34da584e4aace27b031f75b0bacb12c52",
-      "sha256_16": "5c12e3fc14e6e674",
-      "status": "DUPLICATE",
+      "title": "Claude OPSX: verify",
+      "lines": 15,
+      "sha256": "acb4e075948bb154e11c16429b92714224dd82a06a18a7f25a0fcba1e5530089",
+      "sha256_16": "acb4e075948bb154",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
@@ -2256,12 +1714,12 @@
       "owner": "root/global",
       "doc_type": "agent",
       "title": "/review-backend",
-      "lines": 33,
-      "sha256": "f210b65dccf6c61f73577bd8c3a57a817835137f7d17dbbcb32bfbed3a502ee9",
-      "sha256_16": "f210b65dccf6c61f",
-      "status": "DUPLICATE",
+      "lines": 16,
+      "sha256": "b519a100c026d781d5e2f85a55ac51c01806bab4daa5f743b40f4389d745f6b3",
+      "sha256_16": "b519a100c026d781",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
@@ -2281,185 +1739,183 @@
       "path": ".claude/skills/documentation/SKILL.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Documentation \u2014 Sources de v\u00e9rit\u00e9",
-      "lines": 98,
-      "sha256": "9bbf54d54642f50213e03f9093947e76e518b63d6d9550bd0745989e0cb468c9",
-      "sha256_16": "9bbf54d54642f502",
-      "status": "DUPLICATE",
+      "title": "documentation",
+      "lines": 15,
+      "sha256": "249191a58732106c9e3cc712837738f0c38098481e2396bd35f2415e2c6ce6ec",
+      "sha256_16": "249191a58732106c",
+      "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-apply-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 169,
-      "sha256": "3f6478e2f12d20813390b6271582febb16872f2eb277af2f26e4c0575535d8ce",
-      "sha256_16": "3f6478e2f12d2081",
-      "status": "DUPLICATE",
+      "title": "openspec-apply-change",
+      "lines": 15,
+      "sha256": "89b8a894e92603ca149044ceb4c85a13d5f4b2109c1fae08bc0934cb58391000",
+      "sha256_16": "89b8a894e92603ca",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-apply/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "OpenSpec: Apply",
-      "lines": 180,
-      "sha256": "46cca1aed964e069139df1c2ac80d78b6f50ef1f7d94df1e15de207b651c1110",
-      "sha256_16": "46cca1aed964e069",
-      "status": "DUPLICATE",
+      "title": "openspec-apply",
+      "lines": 15,
+      "sha256": "48c546ffef9b4208db9ba8c73ba0e5bf1a1fde34841b94534e30a224d87b2094",
+      "sha256_16": "48c546ffef9b4208",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-archive-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 124,
-      "sha256": "84b230c74a6921864e3987f826c01ae45027c4d8c0bb431bbea82853f44bccb9",
-      "sha256_16": "84b230c74a692186",
-      "status": "DUPLICATE",
+      "title": "openspec-archive-change",
+      "lines": 15,
+      "sha256": "27eefe478734c8061c65050fccd9c21fdbc832998e10cedae81acf4e0cc6502a",
+      "sha256_16": "27eefe478734c806",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-archive/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "OpenSpec: Archive",
-      "lines": 210,
-      "sha256": "999b0ee50ae35dd762f28cbb790f230d5b7b1de39f1836e9ccf91b44d3fadcd1",
-      "sha256_16": "999b0ee50ae35dd7",
-      "status": "DUPLICATE",
+      "title": "openspec-archive",
+      "lines": 15,
+      "sha256": "e30f3cedffb978dee4658f8324bc89f033fcbca0e2ea5c474af5a752fd251536",
+      "sha256_16": "e30f3cedffb978de",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-bulk-archive-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 263,
-      "sha256": "cfcdfe287daa7bce5e8e2e1ec3c82a123beb0378d20e7b106d51cd8cdbea2eab",
-      "sha256_16": "cfcdfe287daa7bce",
-      "status": "DUPLICATE",
+      "title": "openspec-bulk-archive-change",
+      "lines": 15,
+      "sha256": "f1c78e5677a0be1703d867d2f99ec53b8b6726b386057823f5d0038c9345661f",
+      "sha256_16": "f1c78e5677a0be17",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-continue-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 129,
-      "sha256": "03fbb2117c4593bb3b64078377c1ee25a23db13049d14c74ae70fbb0d66a3761",
-      "sha256_16": "03fbb2117c4593bb",
-      "status": "DUPLICATE",
+      "title": "openspec-continue-change",
+      "lines": 15,
+      "sha256": "0ae3df89940691e3df7f6d555d7e0011e54b16913a1821e3dcda266196079ce1",
+      "sha256_16": "0ae3df89940691e3",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-explore/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 303,
-      "sha256": "c0a9185059b492807a2b9fd5e2ef65e10051b0ed813ac837df3603beaf3f3e9a",
-      "sha256_16": "c0a9185059b49280",
-      "status": "DUPLICATE",
+      "title": "openspec-explore",
+      "lines": 15,
+      "sha256": "c108e078d1d77dda9fcab0a53b0f917beaa6a307b859e74f95b0350e9e72a2a5",
+      "sha256_16": "c108e078d1d77dda",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-new-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 85,
-      "sha256": "e8bb0445d77973c4b6b3fe3c663cfa90de8cc3fe4c62bb63d24ecc4e8c6b3ebd",
-      "sha256_16": "e8bb0445d77973c4",
-      "status": "DUPLICATE",
+      "title": "openspec-new-change",
+      "lines": 15,
+      "sha256": "3278b130f7e60c5d10f004f4e1754528613ce02e4c87f77f1a77466e55c61bdc",
+      "sha256_16": "3278b130f7e60c5d",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-proposal/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "OpenSpec: Proposal",
-      "lines": 256,
-      "sha256": "d03cc2e7b713a077fbfcb5ff41e44433f71e23edf5c3dbe31a3e19ef0a34d613",
-      "sha256_16": "d03cc2e7b713a077",
-      "status": "DUPLICATE",
+      "title": "openspec-proposal",
+      "lines": 15,
+      "sha256": "3df611bd682f471340b49b1d61792117256280cfcdcde16e36649c8a530541d8",
+      "sha256_16": "3df611bd682f4713",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-propose/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 123,
-      "sha256": "7c3fade52d274f9834f46dac3b0f501b75d12521d899565f637b533d160337fb",
-      "sha256_16": "7c3fade52d274f98",
-      "status": "DUPLICATE",
+      "title": "openspec-propose",
+      "lines": 15,
+      "sha256": "3f298f16c1695a8b8331b32182f2ca89b367e665f188ddd6abe130eb8f0b5a18",
+      "sha256_16": "3f298f16c1695a8b",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-sync-specs/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 152,
-      "sha256": "2efd08b19bd03a5c6acfda464b2c66b630c8cbf55fa618aa12bc4e843331abd0",
-      "sha256_16": "2efd08b19bd03a5c",
-      "status": "DUPLICATE",
+      "title": "openspec-sync-specs",
+      "lines": 15,
+      "sha256": "113cb6c9d1a4c9c9a4f8b7a36c396c0a67f712d9ab5b1ff7bc06655246764c79",
+      "sha256_16": "113cb6c9d1a4c9c9",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".claude/skills/openspec-verify-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 184,
-      "sha256": "abb90c73aa337feb1ce69029b2350108a91dd49da31da83f4e8442280ec65ab4",
-      "sha256_16": "abb90c73aa337feb",
-      "status": "DUPLICATE",
+      "title": "openspec-verify-change",
+      "lines": 15,
+      "sha256": "3ef19e49cfe1810f765d9b3e39083b33f1447273d55162019c6cc21045947365",
+      "sha256_16": "3ef19e49cfe1810f",
+      "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "keep global/component OpenSpec context light",
       "obsolete_mentions": []
     },
     {
       "path": ".codex/AGENTS.md",
       "owner": "root/global",
       "doc_type": "agent",
-      "title": "Codex - Tchalanet Light Context",
-      "lines": 42,
-      "sha256": "a5ec062c6f9aa5de39625825526aa54fd63858d9109c6708101afa7ed755e930",
-      "sha256_16": "a5ec062c6f9aa5de",
+      "title": "Codex Router \u2014 Tchalanet",
+      "lines": 24,
+      "sha256": "9e503b49ca64acd6837b0a17c44b23abb012b6a7d6d48f03de789ede0d3e6470",
+      "sha256_16": "9e503b49ca64acd6",
       "status": "UNKNOWN",
       "canonical_source": "AGENTS.md plus scoped agent files",
-      "recommended_action": "review: mentions legacy Ionic mobile workflow",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
     },
     {
       "path": ".codex/instructions.md",
@@ -2517,10 +1973,10 @@
       "path": ".github/copilot.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "Copilot Context \u2014 Tchalanet (Monorepo)",
-      "lines": 80,
-      "sha256": "9e195f93dc6a36b338a10f4392cf631572bd8dfa8619358177e9dc0180e40b81",
-      "sha256_16": "9e195f93dc6a36b3",
+      "title": "Copilot Router \u2014 Tchalanet",
+      "lines": 30,
+      "sha256": "812737a99aae8c423138af962cca61e87bac706b50d6010c189b0f4ec728f466",
+      "sha256_16": "812737a99aae8c42",
       "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
       "recommended_action": "review ownership before moving or deleting",
@@ -2530,117 +1986,117 @@
       "path": ".github/prompts/opsx-apply.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 162,
-      "sha256": "8c80fc591c468700569de5cd8f0557ac3e093216d0b43a5d06df5a63598d95c7",
-      "sha256_16": "8c80fc591c468700",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: apply",
+      "lines": 12,
+      "sha256": "19d915d14ec75bfe2f93bfefa4fa41b612a61984f0c6bf3e0814b7c91510d909",
+      "sha256_16": "19d915d14ec75bfe",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-archive.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 164,
-      "sha256": "b90c14a532831957233bec823c8e65ac34852dd4f5e2697565b181431802d6c8",
-      "sha256_16": "b90c14a532831957",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: archive",
+      "lines": 12,
+      "sha256": "d481daee623b5708c5d82fc1b0717e54420f979192ec2e6114e75c0bb9042d5a",
+      "sha256_16": "d481daee623b5708",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-bulk-archive.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 256,
-      "sha256": "9784994ed7948ef6592776a78299eb2e95fdff75ea3c765bfed2e02f34815dcc",
-      "sha256_16": "9784994ed7948ef6",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: bulk-archive",
+      "lines": 12,
+      "sha256": "17bdd290603ad084593aa0f700ff15e3ae2f3c8cdf73f83c610107bd5ab6994b",
+      "sha256_16": "17bdd290603ad084",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-continue.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 122,
-      "sha256": "db10938650f223b6b00b62719687968874340c2c6c19b01fb7e194650306494a",
-      "sha256_16": "db10938650f223b6",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: continue",
+      "lines": 12,
+      "sha256": "d1c81a1065fa2ad5b5062a9a1828d401a1f5d52ac81b6478b412052198ebf5e1",
+      "sha256_16": "d1c81a1065fa2ad5",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-explore.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 182,
-      "sha256": "0add4ecd04bfd3231a02d66f374b97c1831902f3c1f885f0b5aaf6807aea2580",
-      "sha256_16": "0add4ecd04bfd323",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: explore",
+      "lines": 12,
+      "sha256": "1ba9e6d44eb59b12aac72dd737842e56176e9c0b988ba285dd5600203c70087e",
+      "sha256_16": "1ba9e6d44eb59b12",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-new.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 77,
-      "sha256": "fb90a7536c4ca4fc4305498178caac2d3c9ea86abdeac1a0b7459b25cf54287e",
-      "sha256_16": "fb90a7536c4ca4fc",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: new",
+      "lines": 12,
+      "sha256": "bb30f61512b6541397556ad327397b07dfed186a383847fd1bf3beeafd943bce",
+      "sha256_16": "bb30f61512b65413",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-propose.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 116,
-      "sha256": "949e4329631ac68586e125d837b760087bf1fa00c325176dba9c4583e65392b3",
-      "sha256_16": "949e4329631ac685",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: propose",
+      "lines": 12,
+      "sha256": "28ebcc53f11c9e479458ead461a001e83070db4efcc7b4a10fb1793bbdf741cd",
+      "sha256_16": "28ebcc53f11c9e47",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-sync.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 145,
-      "sha256": "08d366dbccca644310598e07fedaf07145635e40a4091df1c4075650a5f174e3",
-      "sha256_16": "08d366dbccca6443",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: sync",
+      "lines": 12,
+      "sha256": "33c7e2510211f2a2d73aede00432f60b13086ce9f56d39bacefd2184950e0485",
+      "sha256_16": "33c7e2510211f2a2",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
       "path": ".github/prompts/opsx-verify.prompt.md",
       "owner": "root/global",
       "doc_type": "doc",
-      "title": "",
-      "lines": 177,
-      "sha256": "3a50c3b10864b9c916f30ea1f3b6707c3d089c662976a51dfb0a38b2388eb0d8",
-      "sha256_16": "3a50c3b10864b9c9",
-      "status": "DUPLICATE",
+      "title": "Copilot OPSX: verify",
+      "lines": 12,
+      "sha256": "38d310b6038f8e6c308c5572f59f61801f5ee7c6901d834bdec149f60918a956",
+      "sha256_16": "38d310b6038f8e6c",
+      "status": "UNKNOWN",
       "canonical_source": "UNKNOWN",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "recommended_action": "review ownership before moving or deleting",
       "obsolete_mentions": []
     },
     {
@@ -2660,10 +2116,10 @@
       "path": ".github/skills/openspec-apply-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 169,
-      "sha256": "3f6478e2f12d20813390b6271582febb16872f2eb277af2f26e4c0575535d8ce",
-      "sha256_16": "3f6478e2f12d2081",
+      "title": "openspec-apply-change",
+      "lines": 15,
+      "sha256": "89b8a894e92603ca149044ceb4c85a13d5f4b2109c1fae08bc0934cb58391000",
+      "sha256_16": "89b8a894e92603ca",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2673,10 +2129,10 @@
       "path": ".github/skills/openspec-archive-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 124,
-      "sha256": "84b230c74a6921864e3987f826c01ae45027c4d8c0bb431bbea82853f44bccb9",
-      "sha256_16": "84b230c74a692186",
+      "title": "openspec-archive-change",
+      "lines": 15,
+      "sha256": "27eefe478734c8061c65050fccd9c21fdbc832998e10cedae81acf4e0cc6502a",
+      "sha256_16": "27eefe478734c806",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2686,10 +2142,10 @@
       "path": ".github/skills/openspec-bulk-archive-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 263,
-      "sha256": "cfcdfe287daa7bce5e8e2e1ec3c82a123beb0378d20e7b106d51cd8cdbea2eab",
-      "sha256_16": "cfcdfe287daa7bce",
+      "title": "openspec-bulk-archive-change",
+      "lines": 15,
+      "sha256": "f1c78e5677a0be1703d867d2f99ec53b8b6726b386057823f5d0038c9345661f",
+      "sha256_16": "f1c78e5677a0be17",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2699,10 +2155,10 @@
       "path": ".github/skills/openspec-continue-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 129,
-      "sha256": "03fbb2117c4593bb3b64078377c1ee25a23db13049d14c74ae70fbb0d66a3761",
-      "sha256_16": "03fbb2117c4593bb",
+      "title": "openspec-continue-change",
+      "lines": 15,
+      "sha256": "0ae3df89940691e3df7f6d555d7e0011e54b16913a1821e3dcda266196079ce1",
+      "sha256_16": "0ae3df89940691e3",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2712,10 +2168,10 @@
       "path": ".github/skills/openspec-explore/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 303,
-      "sha256": "c0a9185059b492807a2b9fd5e2ef65e10051b0ed813ac837df3603beaf3f3e9a",
-      "sha256_16": "c0a9185059b49280",
+      "title": "openspec-explore",
+      "lines": 15,
+      "sha256": "c108e078d1d77dda9fcab0a53b0f917beaa6a307b859e74f95b0350e9e72a2a5",
+      "sha256_16": "c108e078d1d77dda",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2725,10 +2181,10 @@
       "path": ".github/skills/openspec-new-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 85,
-      "sha256": "e8bb0445d77973c4b6b3fe3c663cfa90de8cc3fe4c62bb63d24ecc4e8c6b3ebd",
-      "sha256_16": "e8bb0445d77973c4",
+      "title": "openspec-new-change",
+      "lines": 15,
+      "sha256": "3278b130f7e60c5d10f004f4e1754528613ce02e4c87f77f1a77466e55c61bdc",
+      "sha256_16": "3278b130f7e60c5d",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2738,10 +2194,10 @@
       "path": ".github/skills/openspec-propose/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 123,
-      "sha256": "7c3fade52d274f9834f46dac3b0f501b75d12521d899565f637b533d160337fb",
-      "sha256_16": "7c3fade52d274f98",
+      "title": "openspec-propose",
+      "lines": 15,
+      "sha256": "3f298f16c1695a8b8331b32182f2ca89b367e665f188ddd6abe130eb8f0b5a18",
+      "sha256_16": "3f298f16c1695a8b",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2751,10 +2207,10 @@
       "path": ".github/skills/openspec-sync-specs/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 152,
-      "sha256": "2efd08b19bd03a5c6acfda464b2c66b630c8cbf55fa618aa12bc4e843331abd0",
-      "sha256_16": "2efd08b19bd03a5c",
+      "title": "openspec-sync-specs",
+      "lines": 15,
+      "sha256": "113cb6c9d1a4c9c9a4f8b7a36c396c0a67f712d9ab5b1ff7bc06655246764c79",
+      "sha256_16": "113cb6c9d1a4c9c9",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2764,10 +2220,10 @@
       "path": ".github/skills/openspec-verify-change/SKILL.md",
       "owner": "root/global",
       "doc_type": "openspec",
-      "title": "",
-      "lines": 184,
-      "sha256": "abb90c73aa337feb1ce69029b2350108a91dd49da31da83f4e8442280ec65ab4",
-      "sha256_16": "abb90c73aa337feb",
+      "title": "openspec-verify-change",
+      "lines": 15,
+      "sha256": "3ef19e49cfe1810f765d9b3e39083b33f1447273d55162019c6cc21045947365",
+      "sha256_16": "3ef19e49cfe1810f",
       "status": "DUPLICATE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
@@ -2777,16 +2233,14 @@
       "path": "AGENTS.md",
       "owner": "root/global",
       "doc_type": "agent-policy",
-      "title": "AGENTS.md \u2014 Tchalanet (Monorepo Source of Truth)",
-      "lines": 190,
-      "sha256": "9c3263e09320dd6eedad8d0120a5bb0924e5f4d6e8e091f819bc37137e4ca9d6",
-      "sha256_16": "9c3263e09320dd6e",
+      "title": "AGENTS.md \u2014 Tchalanet Monorepo Router",
+      "lines": 102,
+      "sha256": "2bd711ebb1343338aaa0e7b1992ef0cd5a9e885decbfd4f2afd7a65cd9a590ca",
+      "sha256_16": "2bd711ebb1343338",
       "status": "CANONICAL",
       "canonical_source": "AGENTS.md",
       "recommended_action": "canonical source of truth for AI and contributor rules",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "CLAUDE.md",
@@ -2867,13 +2321,26 @@
       "obsolete_mentions": []
     },
     {
+      "path": "tchalanet-docs/AGENTS.md",
+      "owner": "tchalanet-docs",
+      "doc_type": "agent",
+      "title": "AGENTS.md \u2014 Tchalanet Docs",
+      "lines": 32,
+      "sha256": "3370e8f207938b3bdd49c6753ff07ac3772a39b769d4324c2dab2e41e68d7a43",
+      "sha256_16": "3370e8f207938b3b",
+      "status": "SUMMARY",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": []
+    },
+    {
       "path": "tchalanet-docs/CLAUDE.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
-      "title": "CLAUDE.md \u2014 tchalanet-docs",
-      "lines": 126,
-      "sha256": "1bea670073fe9e1112e781a0241a36daba5df257f900c370d70ebebf41ec5ffb",
-      "sha256_16": "1bea670073fe9e11",
+      "title": "Claude \u2014 tchalanet-docs",
+      "lines": 37,
+      "sha256": "9d0be8dca7d01af45ab2b46a020a1b8b0f6f891e97a28d918b319de7356400d9",
+      "sha256_16": "9d0be8dca7d01af4",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -2890,235 +2357,6 @@
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/adr/0001-stack.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "decision",
-      "title": "Choix de la Stack Technique",
-      "lines": 39,
-      "sha256": "f426a80c79f64dd8ef9d65b1eaa5a7a6fca958d1dff83e84662f69a4551dbb7b",
-      "sha256_16": "f426a80c79f64dd8",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/03-adr/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
-    },
-    {
-      "path": "tchalanet-docs/archived/adr/0002-architecture-decisions.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "decision",
-      "title": "ADR 0001 \u2014 Architecture Decisions for Tchalanet",
-      "lines": 146,
-      "sha256": "9db1c20185c3c4d1c7092edeabcd7c4e1de8ffbebccc9d11b532188064dcc75b",
-      "sha256_16": "9db1c20185c3c4d1",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/03-adr/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
-    },
-    {
-      "path": "tchalanet-docs/archived/architecture/authentication/document-technique-reference.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Documentation Technique de R\u00e9f\u00e9rence : Architecture Frontend",
-      "lines": 80,
-      "sha256": "412b4cd51de180f065a202156be2f195d2d4b065bb0c8f46ab8ba850acfd1e66",
-      "sha256_16": "412b4cd51de180f0",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/architecture/authentication/index.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 23,
-      "sha256": "4a2e50ed360b0b7cf68c5aef335319419fc35edf19f5229b2bcd3d34130269cf",
-      "sha256_16": "4a2e50ed360b0b7c",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/architecture/document-technique-reference.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Documentation Technique de R\u00e9f\u00e9rence : Architecture Frontend",
-      "lines": 111,
-      "sha256": "5d81f1c3dce36787035920ada77948c6098262f3793c88cd03e7357a5f9db4db",
-      "sha256_16": "5d81f1c3dce36787",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/architecture/overview.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Vue d'ensemble",
-      "lines": 66,
-      "sha256": "f2d8820dd5e272789612246994cfe5cd393bd15f9070634a1e9a0d763dc000dc",
-      "sha256_16": "f2d8820dd5e27278",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
-    },
-    {
-      "path": "tchalanet-docs/archived/backend/api.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "API REST",
-      "lines": 58,
-      "sha256": "16fcfcd20bd947b74f6d45359dadfd59bd8510165fa9dd9dbb9b25c3146d2572",
-      "sha256_16": "16fcfcd20bd947b7",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/backend/security.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "S\u00e9curit\u00e9 du Backend",
-      "lines": 16,
-      "sha256": "93d5c71bfb1d3d3fe8e05e1afc1ab566dc489ebb53371e935bb94fd6cdbdf217",
-      "sha256_16": "93d5c71bfb1d3d3f",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/backend/setup.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "quickstart",
-      "title": "Configuration du Backend",
-      "lines": 17,
-      "sha256": "9791a44e91c596b3f44d6c1e82da92950cc66615149077edc3474c5d561faeb1",
-      "sha256_16": "9791a44e91c596b3",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/devops/ci-cd.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "CI/CD",
-      "lines": 108,
-      "sha256": "07cd6d82244699aa3ce7ca799117107a63cc77c8f8d242da8e2f1c3503c228bd",
-      "sha256_16": "07cd6d82244699aa",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/devops/definition-of-done.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Definition of Done (Tchalanet)",
-      "lines": 38,
-      "sha256": "3146c2148fef5ea4d45e392cb3b486d460de6854950efffa800414847950dd15",
-      "sha256_16": "3146c2148fef5ea4",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
-    },
-    {
-      "path": "tchalanet-docs/archived/web/Tchalanet-Design-System.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Tchalanet Design System",
-      "lines": 298,
-      "sha256": "27fac3d2fb279269e1c8af98c2e298678da6c639d83720ce35c5710dfd2d965b",
-      "sha256_16": "27fac3d2fb279269",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/web/architecture.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Architecture Web",
-      "lines": 102,
-      "sha256": "2760986a7e922c92091873da82509694a5aa11380dd869c9e01bd4fdec0c045a",
-      "sha256_16": "2760986a7e922c92",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/web/dev-rules.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "ADR 0002 \u2014 Web Architecture Decisions (Nx Angular)",
-      "lines": 119,
-      "sha256": "75ebba27e9ff3985f2e36aa363e5201e29966befd07308936c6d385629c4dca4",
-      "sha256_16": "75ebba27e9ff3985",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/web/graphic-design.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "\ud83c\udfa8 Charte graphique Tchalanet",
-      "lines": 109,
-      "sha256": "dba927327533947dfc04f23e641ae31b30c6a29b444b08e094b4a9e4cb56e872",
-      "sha256_16": "dba927327533947d",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/web/keycloak-configuration.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Configuration Keycloak - R\u00e9sum\u00e9 Technique",
-      "lines": 363,
-      "sha256": "0cd2599d49e59c4426cc74afb4cc86bbe2b949cf5275a0197a57d2cf18d8a0d0",
-      "sha256_16": "0cd2599d49e59c44",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/archived/web/theming.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "Guide de Theming (Angular Material v20, Sass, Architecture projet)",
-      "lines": 225,
-      "sha256": "887a6e329918a062eb20961505bcb433cb1bdfb0930bb9d18294ce365d93f6a7",
-      "sha256_16": "887a6e329918a062",
-      "status": "ARCHIVE",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "keep archived; review before deletion",
       "obsolete_mentions": []
     },
     {
@@ -3204,15 +2442,13 @@
       "owner": "tchalanet-docs",
       "doc_type": "policy",
       "title": "R\u00e8gles IA \u2014 Agents Copilot / ChatGPT",
-      "lines": 283,
-      "sha256": "848e72cc2a2edbbe127d625d9a0e4d8a356b78cce86e8d064e3db539d6d456ca",
-      "sha256_16": "848e72cc2a2edbbe",
+      "lines": 282,
+      "sha256": "42fa7581480eb09307ffbe76b452b4fb95eac2dc6cb6ca069ee365d225513187",
+      "sha256_16": "42fa7581480eb093",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-docs/docs/00-guidelines/constitution.md",
@@ -3220,23 +2456,21 @@
       "doc_type": "doc",
       "title": "Constitution Tchalanet",
       "lines": 104,
-      "sha256": "d444c51ab2fe77af313f8bd9c5c090e77900e0e221c83c04414d8e299fd3ab4a",
-      "sha256_16": "d444c51ab2fe77af",
+      "sha256": "00b2ea3f185fc9ce662140d33f74691add65ac145c8abe04d29d8aac7fa792bb",
+      "sha256_16": "00b2ea3f185fc9ce",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-docs/docs/00-guidelines/doc-policy.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc-policy",
       "title": "Politique documentaire Tchalanet",
-      "lines": 329,
-      "sha256": "b7b69e457f887c73774ace67bbef778231e98df89298b25faf28581f7604364b",
-      "sha256_16": "b7b69e457f887c73",
+      "lines": 312,
+      "sha256": "137ca5c45dfcb898cd06653fa47e8a216707e1c816a80cefe2c094ffcddf5879",
+      "sha256_16": "137ca5c45dfcb898",
       "status": "CANONICAL",
       "canonical_source": "tchalanet-docs/docs/00-guidelines/doc-policy.md",
       "recommended_action": "published documentation policy",
@@ -3261,8 +2495,8 @@
       "doc_type": "doc",
       "title": "00 - Guidelines",
       "lines": 47,
-      "sha256": "e44774cb7db75be93eb0287eeed3a7777a6168b67443b0210de034857601f18b",
-      "sha256_16": "e44774cb7db75be9",
+      "sha256": "4ede400d211b4a0d1fb01392efe4a1796a6bb10be5c806bb7f218066fd3c5f4c",
+      "sha256_16": "4ede400d211b4a0d",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -3325,22 +2559,9 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Backend map",
-      "lines": 31,
-      "sha256": "a4b05256b7a0c3e9fdd302624b3d3041ad193772b946f421f77b17f16d76516c",
-      "sha256_16": "a4b05256b7a0c3e9",
-      "status": "SUMMARY",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/docs/01-architecture/edge-map.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
+      "lines": 30,
+      "sha256": "ee96d01e7a95a3b5989f50554887c3f3b585b5df1c8cb4841d1fee42ae528133",
+      "sha256_16": "ee96d01e7a95a3b5",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -3377,15 +2598,13 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Frontend map (Web + Mobile)",
-      "lines": 24,
-      "sha256": "582cd4aed5e18d6ef150fa3f4cbc29a7c3712205a6e285995ce1595fb86bfddd",
-      "sha256_16": "582cd4aed5e18d6e",
+      "lines": 26,
+      "sha256": "7e3a629d76dc058d4dbfeea343fa70cdc7d73604362789df708595248303bbdd",
+      "sha256_16": "7e3a629d76dc058d",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-docs/docs/01-architecture/index.md",
@@ -3393,23 +2612,21 @@
       "doc_type": "doc",
       "title": "01 - Architecture",
       "lines": 71,
-      "sha256": "561ae33efe02443c2dc29a1184315320e73cfd71256c26c99bfccec4f3d92edf",
-      "sha256_16": "561ae33efe02443c",
+      "sha256": "93e925eefd4d9b6abb9455cfd7c0ce1415d498e862355cfd6a38f7afe1f3f3cd",
+      "sha256_16": "93e925eefd4d9b6a",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-docs/docs/01-architecture/infra-map.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Infra map",
-      "lines": 21,
-      "sha256": "9f305c2eb4be908d5c5b6043382f768855851f494dca669afb0421c35a6fbb49",
-      "sha256_16": "9f305c2eb4be908d",
+      "lines": 22,
+      "sha256": "0c5205e017e84d2622aa84b761147b2a32e16cee72252e7141601cfa6a7e2640",
+      "sha256_16": "0c5205e017e84d26",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -3434,8 +2651,8 @@
       "doc_type": "doc",
       "title": "Security model",
       "lines": 33,
-      "sha256": "53a7458e473e9681b501ed708853becf8f6119e8c2af73a327ad75ea26405854",
-      "sha256_16": "53a7458e473e9681",
+      "sha256": "469293d2eb1005be11ce652109840c383749c428f5efb2450ff8eafb137785d2",
+      "sha256_16": "469293d2eb1005be",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -3447,14 +2664,12 @@
       "doc_type": "doc",
       "title": "System overview",
       "lines": 29,
-      "sha256": "a114c0b63289b58038dbcf7aec95186f0817a0c2bc0a77e5f37bbc46fcdc0021",
-      "sha256_16": "a114c0b63289b580",
+      "sha256": "2c0235f01476d3102080c9d5c858737a8200ce8c546f0937d9f920156955f136",
+      "sha256_16": "2c0235f01476d310",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-docs/docs/02-domains/index.md",
@@ -3480,9 +2695,7 @@
       "status": "CANONICAL",
       "canonical_source": "tchalanet-server/src/**/FEATURE_*.md",
       "recommended_action": "keep near code and link from MkDocs",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-docs/docs/02-features/PAGEMODEL-ARCHITECTURE-CIBLE.md",
@@ -4629,19 +3842,6 @@
       "obsolete_mentions": []
     },
     {
-      "path": "tchalanet-docs/docs/02-functional/flows/claim-payout.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "SUMMARY",
-      "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": []
-    },
-    {
       "path": "tchalanet-docs/docs/02-functional/flows/draw-execution.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
@@ -4659,9 +3859,9 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Workflows (Flows transverses)",
-      "lines": 67,
-      "sha256": "56c498b25ebe1de9dd3a99f4a1a0fb055d36d1ceb82b85fcbc9d875009c5cbb6",
-      "sha256_16": "56c498b25ebe1de9",
+      "lines": 42,
+      "sha256": "d9ebe003c5bfed69a6f560c3f50c490958cd1a61a403ccd896514867435d3396",
+      "sha256_16": "d9ebe003c5bfed69",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -4707,45 +3907,17 @@
       "obsolete_mentions": []
     },
     {
-      "path": "tchalanet-docs/docs/03-adr/ADR-0001-stack.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "decision",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "SUMMARY",
-      "canonical_source": "tchalanet-docs/docs/03-adr/",
-      "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-docs/docs/03-adr/ADR-0002-slot-first-results.md",
-      "owner": "tchalanet-docs",
-      "doc_type": "decision",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "SUMMARY",
-      "canonical_source": "tchalanet-docs/docs/03-adr/",
-      "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": []
-    },
-    {
       "path": "tchalanet-docs/docs/03-adr/index.md",
       "owner": "tchalanet-docs",
       "doc_type": "adr-index",
       "title": "03 - ADR (Architecture Decision Records)",
-      "lines": 112,
-      "sha256": "ba61cb1308ccd57907f09143ce65ae379f533b5fad30c9460c23e263cc09754b",
-      "sha256_16": "ba61cb1308ccd579",
+      "lines": 96,
+      "sha256": "1e1b3207f706390d6a3a0b549f87bcc37aa594f0900ea486b00c0cfdc800a500",
+      "sha256_16": "1e1b3207f706390d",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/03-adr/index.md",
       "recommended_action": "published ADR index",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-docs/docs/03-apps/edge.md",
@@ -4843,24 +4015,22 @@
       "owner": "tchalanet-docs",
       "doc_type": "decision",
       "title": "ADR Index",
-      "lines": 12,
-      "sha256": "639e3b9dfbe1155d39fc4d756bba9c3f759d3d7c5a8eb29c8052ca6d4727888b",
-      "sha256_16": "639e3b9dfbe1155d",
+      "lines": 11,
+      "sha256": "a5cebdba3e3c466ebb92cddb0ecca8edeefd770411e65e0e118a2357283c6d99",
+      "sha256_16": "a5cebdba3e3c466e",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/03-adr/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-docs/docs/05-decisions/index.md",
       "owner": "tchalanet-docs",
       "doc_type": "decision",
       "title": "Decisions",
-      "lines": 11,
-      "sha256": "84236d86d90269e81bd0f0d5fdfe75d237059c3795c5c79400f64e4f5033ebb2",
-      "sha256_16": "84236d86d90269e8",
+      "lines": 12,
+      "sha256": "0a765a02c8612407971c412d8f89b5618b61262bb1cf565a8f0a70c8c6a7a3a9",
+      "sha256_16": "0a765a02c8612407",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/03-adr/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -4923,9 +4093,9 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Backend",
-      "lines": 17,
-      "sha256": "5d62bf779b05e8ad46eb3ddd51679ec40c13b0364c5ad4a47cbf154e22897d95",
-      "sha256_16": "5d62bf779b05e8ad",
+      "lines": 32,
+      "sha256": "ebf9cc28c54e3f530f26d86af1d537d6d4cd5e0b11494bedc79fc6346788c22e",
+      "sha256_16": "ebf9cc28c54e3f53",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -4936,9 +4106,9 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Edge",
-      "lines": 14,
-      "sha256": "7f78f8405e947b6d9ddeeb8d0e01e8350bcf61b6901f7f13f772d3fb4ea159ce",
-      "sha256_16": "7f78f8405e947b6d",
+      "lines": 25,
+      "sha256": "1446ef4df1717461a04351026f88559d4135aa23f6bac2ecffa475cf0980be33",
+      "sha256_16": "1446ef4df1717461",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -4949,24 +4119,22 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "99 - Liens vers docs d\u00e9taill\u00e9es",
-      "lines": 58,
-      "sha256": "4044ff909753053d576333c9efe355be27056a100d14c37ffbadce124d48c05d",
-      "sha256_16": "4044ff909753053d",
+      "lines": 72,
+      "sha256": "bd9102a41724fccf73ef253c3b6f5ef437b838457444f3a6ba4b95b386ffc343",
+      "sha256_16": "bd9102a41724fccf",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-docs/docs/99-links/infra.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Infra",
-      "lines": 13,
-      "sha256": "b848e1a1cd8ec4be5bdb8942ef94f2a6fe71b0ed04c5c8290790c419a8ff339b",
-      "sha256_16": "b848e1a1cd8ec4be",
+      "lines": 30,
+      "sha256": "707741b75eb1d7ef76afdc716b414a462c1609a78f9ec5356c077a4e5e85e1d9",
+      "sha256_16": "707741b75eb1d7ef",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -4977,13 +4145,13 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Mobile",
-      "lines": 13,
-      "sha256": "064d7faad5d58f0d4a2193a942fb15bef6e8ada93c5c0df99b4077eedcc5f116",
-      "sha256_16": "064d7faad5d58f0d",
+      "lines": 24,
+      "sha256": "7bbbd9ef5064f9694b9c88c722a09be1ce48d6bcec85788895dda81e574abb21",
+      "sha256_16": "7bbbd9ef5064f969",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": []
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-docs/docs/99-links/openspec.md",
@@ -5003,11 +4171,37 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Web",
-      "lines": 15,
-      "sha256": "87ac300a8a1d969f0cc045c199d28b22993a7fb657f23a12911efb83aff59363",
-      "sha256_16": "87ac300a8a1d969f",
+      "lines": 27,
+      "sha256": "21d962f37fed5e4dcc360738afefcd7a9f5252001cfbe8fc69bd7a80a0baa892",
+      "sha256_16": "21d962f37fed5e4d",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": []
+    },
+    {
+      "path": "tchalanet-docs/docs/99-reference/ai-agent-cleanup-plan.md",
+      "owner": "tchalanet-docs",
+      "doc_type": "agent",
+      "title": "AI-Agent Cleanup And Archival Plan",
+      "lines": 21,
+      "sha256": "6436426e71460f717c05274edc1831e467414dc7c16f0cba55bc52b5e96bbc17",
+      "sha256_16": "6436426e71460f71",
+      "status": "SUMMARY",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": []
+    },
+    {
+      "path": "tchalanet-docs/docs/99-reference/ai-agent-duplicates.md",
+      "owner": "tchalanet-docs",
+      "doc_type": "agent",
+      "title": "AI-Agent Duplicate And Obsolete Report",
+      "lines": 17,
+      "sha256": "8614182712c6fc09fbd2db7aa0b8e86ea32aa7d6c2d8838a82a7288295f1e115",
+      "sha256_16": "8614182712c6fc09",
+      "status": "SUMMARY",
+      "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
       "obsolete_mentions": []
     },
@@ -5015,10 +4209,36 @@
       "path": "tchalanet-docs/docs/99-reference/ai-agent-files-inventory.md",
       "owner": "tchalanet-docs",
       "doc_type": "agent",
-      "title": "AI Agent Files Inventory",
-      "lines": 105,
-      "sha256": "c50b452c9be9943c1a6883cd409df8d8a3fa7e547c2d84d5c4cd96e7c4a3b924",
-      "sha256_16": "c50b452c9be9943c",
+      "title": "AI-Agent Files Inventory",
+      "lines": 128,
+      "sha256": "53339176e65f35cd53b1a7b28fdb52c3d2f0f59ec020a4f24d8e6d78d396023f",
+      "sha256_16": "53339176e65f35cd",
+      "status": "SUMMARY",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": []
+    },
+    {
+      "path": "tchalanet-docs/docs/99-reference/ai-context-loading.md",
+      "owner": "tchalanet-docs",
+      "doc_type": "doc",
+      "title": "AI Context Loading",
+      "lines": 25,
+      "sha256": "9b82ee9aa16b2a6b76f6db7abbf92569010cb0361131b6b316f747a5753ba20f",
+      "sha256_16": "9b82ee9aa16b2a6b",
+      "status": "SUMMARY",
+      "canonical_source": "tchalanet-docs/docs/",
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": []
+    },
+    {
+      "path": "tchalanet-docs/docs/99-reference/component-agents-map.md",
+      "owner": "tchalanet-docs",
+      "doc_type": "agent",
+      "title": "Component AGENTS.md Map",
+      "lines": 14,
+      "sha256": "01de14ede7a0f1fc27ee422fe1af9e45244d56c2076ee03ecf7148b67aa8230c",
+      "sha256_16": "01de14ede7a0f1fc",
       "status": "SUMMARY",
       "canonical_source": "AGENTS.md plus scoped agent files",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -5029,58 +4249,48 @@
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Documentation Cleanup Plan",
-      "lines": 201,
-      "sha256": "349ce0f53d670aee16855b7627d2969e3bb7e9f9ea0e9e2dedc94c8c7561e6c2",
-      "sha256_16": "349ce0f53d670aee",
-      "status": "DUPLICATE",
+      "lines": 187,
+      "sha256": "e94387180fa1508aad7121b26f5534b2ddba2f10e1deafc5cf2962bdf6af3145",
+      "sha256_16": "e94387180fa1508a",
+      "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
-      "recommended_action": "review duplicate group; keep/link canonical source before archive",
-      "obsolete_mentions": [
-        "mentions legacy Cordova workflow",
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-docs/docs/99-reference/docs-duplicates.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Duplicate Documentation Report",
-      "lines": 167,
-      "sha256": "109356cc89f03a0cddd02a7d08e40c5202731554091d598f2279da4c7ed599c5",
-      "sha256_16": "109356cc89f03a0c",
+      "lines": 111,
+      "sha256": "e3b02e1eab26371817fd467ce445cc68621f6dfa9daa798c2195414d5612343a",
+      "sha256_16": "e3b02e1eab263718",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-docs/docs/99-reference/docs-inventory.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Documentation Inventory",
-      "lines": 708,
-      "sha256": "424287dd385d5d83f4d4fa6b0c596d9dbd604747c3efe1b6351feb276fbd2a06",
-      "sha256_16": "424287dd385d5d83",
+      "lines": 697,
+      "sha256": "9c2c6d6d22a848cc1b9c495c784d21591875da3be0732940d6580132e4db32cc",
+      "sha256_16": "9c2c6d6d22a848cc",
       "status": "DUPLICATE",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
-      "obsolete_mentions": [
-        "mentions legacy Cordova workflow",
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow", "mentions legacy workflow"]
     },
     {
       "path": "tchalanet-docs/docs/99-reference/index.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Reference",
-      "lines": 17,
-      "sha256": "60edcaf805a606f613e1d33cda391a494792837f9dcca1b74155b032aa0a48ad",
-      "sha256_16": "60edcaf805a606f6",
+      "lines": 22,
+      "sha256": "03b33b124f81ae1db6504bb1100bcc8ec25897d32868db79f7db7af08dcff476",
+      "sha256_16": "03b33b124f81ae1d",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -5113,13 +4323,26 @@
       "obsolete_mentions": []
     },
     {
+      "path": "tchalanet-docs/docs/99-reference/root-agents-simplification-proposal.md",
+      "owner": "tchalanet-docs",
+      "doc_type": "agent",
+      "title": "Root AGENTS.md Simplification Proposal",
+      "lines": 26,
+      "sha256": "e66901d4da841841a1f684fe588f1499c8f407f1888569633dff6f86f718bdef",
+      "sha256_16": "e66901d4da841841",
+      "status": "SUMMARY",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "published portal page; keep curated and avoid copying component docs",
+      "obsolete_mentions": []
+    },
+    {
       "path": "tchalanet-docs/docs/index.md",
       "owner": "tchalanet-docs",
       "doc_type": "doc",
       "title": "Documentation Tchalanet",
-      "lines": 34,
-      "sha256": "2f23ace7368b408a61929b218533abbdd37e9d3d2c6a8ded4c14a7225cddbddb",
-      "sha256_16": "2f23ace7368b408a",
+      "lines": 38,
+      "sha256": "8cfa0364c246f3d7b195e921523e790b0d58c718f0cd38dc8c3d42a742117425",
+      "sha256_16": "8cfa0364c246f3d7",
       "status": "SUMMARY",
       "canonical_source": "tchalanet-docs/docs/",
       "recommended_action": "published portal page; keep curated and avoid copying component docs",
@@ -5139,13 +4362,26 @@
       "obsolete_mentions": []
     },
     {
+      "path": "tchalanet-edge-service/AGENTS.md",
+      "owner": "tchalanet-edge-service",
+      "doc_type": "agent",
+      "title": "AGENTS.md \u2014 Tchalanet Edge Service",
+      "lines": 34,
+      "sha256": "3fc60788cdf6d09b2cc7e237d2fbd74c556ff39680abe1370f2f048b0c10d0f5",
+      "sha256_16": "3fc60788cdf6d09b",
+      "status": "UNKNOWN",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
+    },
+    {
       "path": "tchalanet-edge-service/CLAUDE.md",
       "owner": "tchalanet-edge-service",
       "doc_type": "doc",
-      "title": "CLAUDE.md \u2014 tchalanet-edge-service",
-      "lines": 100,
-      "sha256": "1e1a4aca8727e849a4b43c75205003ff3b4891eed05fa377f7746912f5a56b17",
-      "sha256_16": "1e1a4aca8727e849",
+      "title": "Claude \u2014 tchalanet-edge-service",
+      "lines": 39,
+      "sha256": "08395170e98993f1a15ed1ebf62509acd320f2d89c048b8b1b34c22a2958c767",
+      "sha256_16": "08395170e98993f1",
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-edge-service/",
       "recommended_action": "review ownership before moving or deleting",
@@ -5334,6 +4570,19 @@
       "obsolete_mentions": []
     },
     {
+      "path": "tchalanet-infra/AGENTS.md",
+      "owner": "tchalanet-infra",
+      "doc_type": "agent",
+      "title": "AGENTS.md \u2014 Tchalanet Infra",
+      "lines": 33,
+      "sha256": "80592ef182c11c8d2d35348e6e8b4e27c44c6b681698f3214be559cd8b65984b",
+      "sha256_16": "80592ef182c11c8d",
+      "status": "UNKNOWN",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
+    },
+    {
       "path": "tchalanet-infra/BUILD-LOCAL-VS-PUBLISHED.md",
       "owner": "tchalanet-infra",
       "doc_type": "doc",
@@ -5351,9 +4600,9 @@
       "owner": "tchalanet-infra",
       "doc_type": "doc",
       "title": "Claude \u2014 tchalanet-infra",
-      "lines": 106,
-      "sha256": "c7ec4b6d1646f2473bf4c6b5e1326b904d1439c0124c838c661e72903d6c615a",
-      "sha256_16": "c7ec4b6d1646f247",
+      "lines": 38,
+      "sha256": "9d26339a869c01d81cd147051c254cdabc6d61104899fa82033135e176cb522e",
+      "sha256_16": "9d26339a869c01d8",
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-infra/docs/",
       "recommended_action": "review ownership before moving or deleting",
@@ -5399,19 +4648,6 @@
       "obsolete_mentions": []
     },
     {
-      "path": "tchalanet-infra/WEB-KEYCLOAK-CONFIG.md",
-      "owner": "tchalanet-infra",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 2,
-      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-      "sha256_16": "01ba4719c80b6fe9",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-infra/docs/",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
       "path": "tchalanet-infra/compose/README.md",
       "owner": "tchalanet-infra",
       "doc_type": "readme",
@@ -5430,14 +4666,12 @@
       "doc_type": "doc",
       "title": "Index des Docker Compose (infra)",
       "lines": 115,
-      "sha256": "57726af530cba2084ac5adb284b2a948370bb253c9ba656e1bc0ab93505a7f1d",
-      "sha256_16": "57726af530cba208",
+      "sha256": "4724fdd85c81634fe7e6d4b1a3beeeb89048035030fc4087b759e46e64a1c08b",
+      "sha256_16": "4724fdd85c81634f",
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-infra/docs/",
-      "recommended_action": "review: mentions legacy Ionic mobile workflow",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-infra/docs/00-infra-charter.md",
@@ -5635,58 +4869,6 @@
       "obsolete_mentions": []
     },
     {
-      "path": "tchalanet-infra/docs/SERVER-STAGING-SETUP.md",
-      "owner": "tchalanet-infra",
-      "doc_type": "quickstart",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "LINK_ONLY",
-      "canonical_source": "tchalanet-infra/docs/",
-      "recommended_action": "component entrypoint; link from MkDocs",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-infra/docs/SOLUTION-AUTH-REGISTRY.md",
-      "owner": "tchalanet-infra",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-infra/docs/",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-infra/docs/SUMMARY-ENV-OPTIMIZATION.md",
-      "owner": "tchalanet-infra",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-infra/docs/",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-infra/docs/TROUBLESHOOTING-SERVICES-FAIL.md",
-      "owner": "tchalanet-infra",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-infra/docs/",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
       "path": "tchalanet-infra/docs/mobile-distribution-v0.md",
       "owner": "tchalanet-infra",
       "doc_type": "doc",
@@ -5710,9 +4892,7 @@
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-infra/docs/",
       "recommended_action": "review: mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/docs/scripts-index.md",
@@ -5725,9 +4905,7 @@
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-infra/docs/",
       "recommended_action": "review: mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/docs/spec-local-dev-stack-2026-04-27.md",
@@ -5792,9 +4970,7 @@
       "status": "ARCHIVE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/openspec/changes/archive/2026-05-05-infra-refactor-local-server-v0/proposal.md",
@@ -5833,9 +5009,7 @@
       "status": "ARCHIVE",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "keep archived; review before deletion",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/openspec/changes/archive/2026-05-05-mobile-flutter-distribution-v0/design.md",
@@ -5939,9 +5113,59 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
+    },
+    {
+      "path": "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/design.md",
+      "owner": "tchalanet-infra",
+      "doc_type": "openspec",
+      "title": "Design: infra-refactor-local-server-v0",
+      "lines": 454,
+      "sha256": "ca41e34f517b7f1dba038c3a14c7b37935a202d2fdf94b57135f3983e9e0ae18",
+      "sha256_16": "ca41e34f517b7f1d",
+      "status": "LINK_ONLY",
+      "canonical_source": "component/global openspec workspace owning the change",
+      "recommended_action": "active/change documentation; link from OpenSpec map",
+      "obsolete_mentions": ["mentions legacy workflow"]
+    },
+    {
+      "path": "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/proposal.md",
+      "owner": "tchalanet-infra",
+      "doc_type": "openspec",
+      "title": "Change: infra-refactor-local-server-v0",
+      "lines": 64,
+      "sha256": "b4f3e76f819a45198c786269c57d51499e21c90c8e33a111a0ac64dafba89d99",
+      "sha256_16": "b4f3e76f819a4519",
+      "status": "LINK_ONLY",
+      "canonical_source": "component/global openspec workspace owning the change",
+      "recommended_action": "active/change documentation; link from OpenSpec map",
+      "obsolete_mentions": []
+    },
+    {
+      "path": "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md",
+      "owner": "tchalanet-infra",
+      "doc_type": "openspec",
+      "title": "Spec: Infra local/server-v0",
+      "lines": 98,
+      "sha256": "1436a28eca5ff125c14f3feef9dd17e15d3cdd5e8fd38290ac77fe80716bc245",
+      "sha256_16": "1436a28eca5ff125",
+      "status": "DUPLICATE",
+      "canonical_source": "component/global openspec workspace owning the change",
+      "recommended_action": "review duplicate group; keep/link canonical source before archive",
+      "obsolete_mentions": []
+    },
+    {
+      "path": "tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/tasks.md",
+      "owner": "tchalanet-infra",
+      "doc_type": "openspec",
+      "title": "Tasks: infra-refactor-local-server-v0",
+      "lines": 116,
+      "sha256": "8285c7c0220114c6a8895a92815fcf24a43812ff4ac44b1db352f41e0b9a97f2",
+      "sha256_16": "8285c7c0220114c6",
+      "status": "LINK_ONLY",
+      "canonical_source": "component/global openspec workspace owning the change",
+      "recommended_action": "active/change documentation; link from OpenSpec map",
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/openspec/context/00-infra-charter.md",
@@ -5993,9 +5217,7 @@
       "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "keep global/component OpenSpec context light",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/openspec/context/README.md",
@@ -6060,9 +5282,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "tchalanet-infra/docs/",
       "recommended_action": "component entrypoint; link from MkDocs",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-infra/scripts/README.md",
@@ -6185,17 +5405,27 @@
       "path": "apps/tchalanet-mobile/CLAUDE.md",
       "owner": "tchalanet-mobile",
       "doc_type": "doc",
-      "title": "CLAUDE.md \u2014 apps/tchalanet-mobile",
-      "lines": 46,
-      "sha256": "b0cb285b952581a2b8cbcf3fe1f8f94b1d1f97ea14382fbc34c6f16cac05e0a9",
-      "sha256_16": "b0cb285b952581a2",
+      "title": "Claude \u2014 apps/tchalanet-mobile",
+      "lines": 26,
+      "sha256": "569b98229f117cec63990dbf422a796feafa26d62c4f6b3060e419636218ffe0",
+      "sha256_16": "569b98229f117cec",
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-mobile/ and apps/tchalanet-mobile/",
-      "recommended_action": "review: mentions legacy Cordova workflow; mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy Cordova workflow",
-        "mentions legacy workflow"
-      ]
+      "recommended_action": "review: mentions legacy workflow",
+      "obsolete_mentions": ["mentions legacy workflow"]
+    },
+    {
+      "path": "tchalanet-mobile/AGENTS.md",
+      "owner": "tchalanet-mobile",
+      "doc_type": "agent",
+      "title": "AGENTS.md \u2014 Tchalanet Mobile",
+      "lines": 31,
+      "sha256": "7169169dbc095bdbdc377dd580c16a8bb984f155cfa9231d40160b56e371b500",
+      "sha256_16": "7169169dbc095bdb",
+      "status": "UNKNOWN",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
     },
     {
       "path": "tchalanet-mobile/CLAUDE.md",
@@ -6234,9 +5464,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/migrate-mobile-from-nx-ionic-to-flutter/design.md",
@@ -6249,9 +5477,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/migrate-mobile-from-nx-ionic-to-flutter/docs/flutter-mobile-local-test.md",
@@ -6277,10 +5503,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow", "mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/migrate-mobile-from-nx-ionic-to-flutter/specs/mobile-app/spec.md",
@@ -6293,10 +5516,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow", "mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/migrate-mobile-from-nx-ionic-to-flutter/tasks.md",
@@ -6309,9 +5529,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/mobile-flutter-architecture-upgrade/README.md",
@@ -6324,9 +5542,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/mobile-flutter-architecture-upgrade/claude-implementation-prompt.md",
@@ -6339,9 +5555,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/mobile-flutter-architecture-upgrade/design.md",
@@ -6367,10 +5581,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow", "mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/mobile-flutter-architecture-upgrade/proposal.md",
@@ -6383,10 +5594,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow", "mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/mobile-flutter-architecture-upgrade/specs/mobile-flutter-architecture/spec.md",
@@ -6399,9 +5607,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/mobile-flutter-architecture-upgrade/tasks.md",
@@ -6414,10 +5620,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow",
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow", "mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/pos-v0-features/design.md",
@@ -6430,9 +5633,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/pos-v0-features/proposal.md",
@@ -6510,9 +5711,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy Ionic mobile workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy Ionic mobile workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/pos-v0-foundation/design.md",
@@ -6525,9 +5724,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-mobile/openspec/changes/pos-v0-foundation/proposal.md",
@@ -6829,6 +6026,19 @@
       "obsolete_mentions": []
     },
     {
+      "path": "tchalanet-server/AGENTS.md",
+      "owner": "tchalanet-server",
+      "doc_type": "agent",
+      "title": "AGENTS.md \u2014 Tchalanet Server",
+      "lines": 36,
+      "sha256": "d6926a3f06c71eba79404ad42eee0287e23fcd2d2af8deedf8e9a5714bb8169e",
+      "sha256_16": "d6926a3f06c71eba",
+      "status": "UNKNOWN",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
+    },
+    {
       "path": "tchalanet-server/AI.md",
       "owner": "tchalanet-server",
       "doc_type": "doc",
@@ -6859,9 +6069,9 @@
       "owner": "tchalanet-server",
       "doc_type": "doc",
       "title": "Claude \u2014 tchalanet-server",
-      "lines": 87,
-      "sha256": "e65f491f494f36ddc1e5d86e729cc46bb304137d8f3c73b988e107920b7b45e2",
-      "sha256_16": "e65f491f494f36dd",
+      "lines": 38,
+      "sha256": "f3e8e2b70bc969365d820a2cacf11cbd43b04de942a575050787a73eb5f293f5",
+      "sha256_16": "f3e8e2b70bc96936",
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-server/docs/ or near-code docs",
       "recommended_action": "review ownership before moving or deleting",
@@ -6943,9 +6153,7 @@
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-server/docs/ or near-code docs",
       "recommended_action": "review: mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/EDGE-NOTIFICATION-CONFIG.md",
@@ -6997,9 +6205,7 @@
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-server/docs/ or near-code docs",
       "recommended_action": "review: mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/README.md",
@@ -7025,9 +6231,7 @@
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-server/docs/ or near-code docs",
       "recommended_action": "review: mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/audit/2026-04-26-sales-pipeline-audit.md",
@@ -7040,9 +6244,7 @@
       "status": "DUPLICATE",
       "canonical_source": "tchalanet-server/docs/ or near-code docs",
       "recommended_action": "review duplicate group; keep/link canonical source before archive",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/audit/spec-batch-draw-alignment-2026-04-27.md",
@@ -7068,9 +6270,7 @@
       "status": "UNKNOWN",
       "canonical_source": "tchalanet-server/docs/ or near-code docs",
       "recommended_action": "review: mentions legacy workflow",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/conventions/api/api_response.md",
@@ -7135,9 +6335,7 @@
       "status": "CANONICAL",
       "canonical_source": "tchalanet-server/docs/conventions/",
       "recommended_action": "keep near code and link from MkDocs",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/conventions/batch/batch.md",
@@ -7176,9 +6374,7 @@
       "status": "CANONICAL",
       "canonical_source": "tchalanet-server/docs/conventions/",
       "recommended_action": "keep near code and link from MkDocs",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/docs/conventions/batch/tchalanet-draw-results-tick-decision-barriers.md",
@@ -7389,58 +6585,6 @@
       "obsolete_mentions": []
     },
     {
-      "path": "tchalanet-server/docs/flow/auth_and_context.md",
-      "owner": "tchalanet-server",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-server/docs/ or near-code docs",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-server/docs/flow/page_model.md",
-      "owner": "tchalanet-server",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-server/docs/ or near-code docs",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-server/docs/flow/results_pipeline.md",
-      "owner": "tchalanet-server",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-server/docs/ or near-code docs",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-server/docs/flow/tenant_configuration.md",
-      "owner": "tchalanet-server",
-      "doc_type": "doc",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
-      "status": "UNKNOWN",
-      "canonical_source": "tchalanet-server/docs/ or near-code docs",
-      "recommended_action": "review ownership before moving or deleting",
-      "obsolete_mentions": []
-    },
-    {
       "path": "tchalanet-server/docs/tenant-admin/FEATURE_TENANT_ADMIN.md",
       "owner": "tchalanet-server",
       "doc_type": "feature",
@@ -7555,9 +6699,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/align-draw-uslottery-results-pipeline/specs/draw-results-pipeline/spec.md",
@@ -7570,9 +6712,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/align-draw-uslottery-results-pipeline/tasks.md",
@@ -7585,9 +6725,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/audit-system-hardening/design.md",
@@ -7782,9 +6920,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/draw-flow-results-pipeline/specs/draw/spec.md",
@@ -7797,9 +6933,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/draw-flow-results-pipeline/specs/drawchannel/spec.md",
@@ -7903,9 +7037,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/fix-sales-pipeline-audit-gaps/design.md",
@@ -7957,9 +7089,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/fix-sales-pipeline-audit-gaps/tasks.md",
@@ -7985,9 +7115,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/harden-common-runtime-infra/proposal.md",
@@ -8039,9 +7167,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/harden-common-runtime-infra/tasks.md",
@@ -8067,9 +7193,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/harden-core-sales-sell-print/proposal.md",
@@ -8121,9 +7245,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/harden-core-sales-sell-print/tasks.md",
@@ -8136,9 +7258,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/harden-public-ticket-verification/design.md",
@@ -8151,9 +7271,7 @@
       "status": "LINK_ONLY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "active/change documentation; link from OpenSpec map",
-      "obsolete_mentions": [
-        "mentions legacy workflow"
-      ]
+      "obsolete_mentions": ["mentions legacy workflow"]
     },
     {
       "path": "tchalanet-server/openspec/changes/harden-public-ticket-verification/proposal.md",
@@ -8709,19 +7827,6 @@
       "lines": 74,
       "sha256": "a8411858390bfa8462e26387940bb0ed9bfc8008769f9009fdb2ebaa85e5d4f4",
       "sha256_16": "a8411858390bfa84",
-      "status": "SUMMARY",
-      "canonical_source": "component/global openspec workspace owning the change",
-      "recommended_action": "keep global/component OpenSpec context light",
-      "obsolete_mentions": []
-    },
-    {
-      "path": "tchalanet-server/openspec/context/30-frontend-rules.md",
-      "owner": "tchalanet-server",
-      "doc_type": "openspec",
-      "title": "",
-      "lines": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "sha256_16": "e3b0c44298fc1c14",
       "status": "SUMMARY",
       "canonical_source": "component/global openspec workspace owning the change",
       "recommended_action": "keep global/component OpenSpec context light",
@@ -9352,6 +8457,19 @@
       "obsolete_mentions": []
     },
     {
+      "path": "apps/tchalanet-web/AGENTS.md",
+      "owner": "tchalanet-web",
+      "doc_type": "agent",
+      "title": "AGENTS.md \u2014 Tchalanet Web",
+      "lines": 33,
+      "sha256": "f525b1745faf6f105ab151e627bb67f8a73a3492e4683f0a7525621cd8a8b7d7",
+      "sha256_16": "f525b1745faf6f10",
+      "status": "UNKNOWN",
+      "canonical_source": "AGENTS.md plus scoped agent files",
+      "recommended_action": "review ownership before moving or deleting",
+      "obsolete_mentions": []
+    },
+    {
       "path": "apps/tchalanet-web/API-PROXY-FIX.md",
       "owner": "tchalanet-web",
       "doc_type": "doc",
@@ -9369,9 +8487,9 @@
       "owner": "tchalanet-web",
       "doc_type": "doc",
       "title": "Claude \u2014 tchalanet-web",
-      "lines": 80,
-      "sha256": "f2635ea0016f8ed300988e9a9a214d64182ce89a7984eb1f127ac8424d4e9379",
-      "sha256_16": "f2635ea0016f8ed3",
+      "lines": 38,
+      "sha256": "6599d1494963c0590036b142b6c552e41ae2a7b784ceefb8f0259568341574ff",
+      "sha256_16": "6599d1494963c059",
       "status": "UNKNOWN",
       "canonical_source": "apps/tchalanet-web/ and libs/**/README.md",
       "recommended_action": "review ownership before moving or deleting",

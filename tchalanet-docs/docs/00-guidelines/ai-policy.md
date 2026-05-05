@@ -11,18 +11,18 @@ Avant **toute** génération de code ou modification :
 ### 1. Lecture obligatoire (ordre)
 
 1. **`AGENTS.md`** (racine du repo) — règles backend Spring Boot / Java
-2. **`.specify/constitution/constitution.md`** — workflow SDD et organisation
+2. **`openspec/project.md`** — workflow SDD et organisation
 3. **`tchalanet-docs/docs/00-guidelines/constitution.md`** — constitution centrale (cette doc)
-4. **`.specify/index.md`** — organisation `.specify/` (si travail sur spec/plan/tasks)
+4. **`openspec/context/00-index.md`** — organisation `openspec/` (si travail sur spec/plan/tasks)
 
 ### 2. Identification module technique
 
 Identifier le module cible :
 
-- **Backend** → lire `.specify/server/index.md` + fichiers techniques (`web_api.md`, `persistence.md`, etc.)
-- **Web** → lire `.specify/web/index.md` + fichiers techniques (à créer : `routing.md`, `state.md`, etc.)
-- **Mobile** → lire `.specify/mobile/index.md` + fichiers techniques (à créer)
-- **Infra** → lire `.specify/infra/index.md` + fichiers techniques (à créer)
+- **Backend** → lire `tchalanet-server/AGENTS.md` + docs proches du code.
+- **Web** → lire `apps/tchalanet-web/AGENTS.md` + docs proches du code.
+- **Mobile** → lire `tchalanet-mobile/AGENTS.md` + docs proches du code.
+- **Infra** → lire `tchalanet-infra/AGENTS.md` + docs proches du code.
 
 ### 3. Identification domaine fonctionnel
 
@@ -31,8 +31,8 @@ Identifier le domaine métier :
 - **Sales** → lire `tchalanet-docs/docs/02-functional/domains/sales.md`
 - **Payout** → lire `02-functional/domains/payout.md`
 - **Ledger** → lire `02-functional/domains/ledger.md`
-- **Draws** → lire `02-functional/domains/draws.md`
-- **PageModel** → lire `02-functional/domains/pagemodel.md`
+- **Draw** → lire `02-functional/domains/draw.md`
+- **PageModel** → lire `02-functional/features/pagemodel.md`
 
 ### 4. Respecter placement modules
 
@@ -41,7 +41,7 @@ Identifier le domaine métier :
 | Module             | Rôle                                                   | Allowed                           |
 | ------------------ | ------------------------------------------------------ | --------------------------------- |
 | `common/`          | Technique transversal (context, paging, errors, cache) | Aucune dépendance métier          |
-| `core/<domain>`    | Domaines critiques (sales, payout, ledger, draws)      | `common`, autres `core` via ports |
+| `core/<domain>`    | Domaines critiques (sales, payout, ledger, draw)       | `common`, autres `core` via ports |
 | `features/<slice>` | BFF / orchestration / pages                            | `common`, `core` (via handlers)   |
 | `catalog/<name>`   | Référentiels / lookup                                  | `common`                          |
 
@@ -52,7 +52,7 @@ Identifier le domaine métier :
 **MUST** suivre les patterns documentés dans :
 
 - `ARCHITECTURE.md` (racine)
-- `.specify/server/*.md`, `.specify/web/*.md`, etc.
+- `openspec/context/10-non-negotiables.md` et le `AGENTS.md` du composant.
 - `tchalanet-docs/docs/01-architecture/`
 
 **Si pattern non documenté** → proposer max 2 options, demander validation.
@@ -107,11 +107,11 @@ Si une règle est ambiguë ou contradictoire :
 - **MUST** extend `BaseEntity` for global/platform tables
 - **MUST** use Flyway for migrations (no `ddl-auto=update`)
 
-Détails : voir `.specify/server/*.md`
+Détails : voir `tchalanet-server/AGENTS.md` et les docs backend proches du code.
 
 ---
 
-## Règles frontend (Angular / Ionic)
+## Règles frontend et mobile
 
 ### Web (Angular + Nx)
 
@@ -122,14 +122,13 @@ Détails : voir `.specify/server/*.md`
 - **MUST** use `ngx-translate` for i18n
 - **SHOULD** follow mobile-first design (breakpoints 480/768/1024)
 
-### Mobile (Ionic + Angular)
+### Mobile (Flutter)
 
-- **MUST** use Ionic components
-- **MUST** use Capacitor for native features
+- **MUST** use Flutter, Riverpod, GoRouter and Material 3
 - **SHOULD** implement offline-first strategies (when applicable)
-- **MUST** test on iOS/Android devices or simulators
+- **MUST** prioritize Android POS terminal validation
 
-Détails : voir `.specify/web/*.md` et `.specify/mobile/*.md` (à créer)
+Détails : voir `apps/tchalanet-web/AGENTS.md` et `tchalanet-mobile/AGENTS.md`.
 
 ---
 
@@ -158,7 +157,7 @@ Détails : voir `.specify/web/*.md` et `.specify/mobile/*.md` (à créer)
 
 ### Étape 1 : Lecture context
 
-1. Lire `AGENTS.md`, constitution, `.specify/index.md`
+1. Lire `AGENTS.md`, constitution, `openspec/context/00-index.md`
 2. Identifier module technique + domaine fonctionnel
 3. Lire docs techniques (`server/web_api.md`, `persistence.md`, etc.)
 4. Lire docs métier (`02-functional/domains/<domain>.md`)
@@ -187,7 +186,7 @@ Détails : voir `.specify/web/*.md` et `.specify/mobile/*.md` (à créer)
 
 ## Checklist avant commit (agent IA)
 
-- [ ] Lecture `AGENTS.md`, constitution, `.specify/index.md`
+- [ ] Lecture `AGENTS.md`, constitution, `openspec/context/00-index.md`
 - [ ] Module technique identifié et doc lue
 - [ ] Domaine fonctionnel identifié et doc lue
 - [ ] Code placé dans bon module (`common`, `core`, `features`, `catalog`)
@@ -268,13 +267,13 @@ public class IssueTicketHandler {
 | Sujet           | Doc                                                                 |
 | --------------- | ------------------------------------------------------------------- |
 | Constitution    | `tchalanet-docs/docs/00-guidelines/constitution.md`                 |
-| Règles backend  | `AGENTS.md` (racine) + `.specify/server/index.md`                   |
-| API REST        | `.specify/server/web_api.md`                                        |
-| Persistence     | `.specify/server/persistence.md`                                    |
-| IDs typés       | `.specify/server/typed_ids.md`                                      |
+| Règles backend  | `AGENTS.md` + `tchalanet-server/AGENTS.md`                          |
+| API REST        | `tchalanet-server/docs/ROUTING_AND_API_PATHS_V1.md`                 |
+| Persistence     | `tchalanet-server/docs/conventions/`                                |
+| IDs typés       | `tchalanet-server/docs/conventions/`                                |
 | Domaines métier | `tchalanet-docs/docs/02-functional/domains/`                        |
 | Architecture    | `ARCHITECTURE.md` (racine) + `tchalanet-docs/docs/01-architecture/` |
-| Workflow SDD    | `.specify/index.md`                                                 |
+| Workflow SDD    | `openspec/context/00-index.md`                                      |
 
 ---
 

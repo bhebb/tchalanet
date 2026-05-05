@@ -19,7 +19,7 @@ Sources de vérité, architecture, règles IA, évolution
 
 ### [Politique documentaire](doc-policy.md)
 
-Organisation de la doc (MkDocs vs docs proches du code vs .specify/)
+Organisation de la doc (MkDocs vs docs proches du code vs openspec/)
 
 ### [Règles IA](ai-policy.md)
 

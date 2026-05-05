@@ -23,7 +23,6 @@ public class SalesLedgerListener {
   private final ProcessedEventPort processedEvent;
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional
   public void onTicketPlaced(TicketPlacedEvent event) {
     if (!processedEvent.markProcessedIfAbsent(CONSUMER, event.eventId().value())) {
       log.debug("Ledger event already processed: eventId={}", event.eventId());

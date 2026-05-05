@@ -4,26 +4,6 @@
 
 Ces workflows décrivent les parcours utilisateur de bout en bout (UI → Backend → DB).
 
-# ADR — Architecture Decision Records
-
-Les ADRs capturent les **décisions importantes** :
-
-- contexte
-- décision
-- conséquences
-- alternatives considérées
-
-Règles :
-
-- numérotés (ADR-0001, ADR-0002…)
-- immuables : si on change d’avis → nouvelle ADR
-- pas de procédures “how-to” ici (ça va dans near-code docs)
-
-Index :
-
-- ADR-0001 Stack
-- ADR-0002 Slot-first results
-
 ---
 
 ## 📋 Workflows
@@ -37,11 +17,6 @@ POS / Web / Mobile → Backend (sales + limits + ledger) → DB
 
 Client scanne QR → Backend valide signature → retourne statut  
 États : VALID / CANCELLED / PENDING_SYNC / EXPIRED
-
-### [Réclamation gain (Claim Payout)](claim-payout.md)
-
-Ticket SETTLED → Claim OPEN → Payment(s) → Claim PAID → Ledger  
-Support split payments (cash + mobile money)
 
 ### [Exécution tirage (Draw Execution)](draw-execution.md)
 

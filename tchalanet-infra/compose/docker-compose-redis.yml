@@ -6,6 +6,11 @@ services:
     env_file:
       - ../envs/${ENV}/.env.merged
       - ../envs/${ENV}/.secrets
+    
+    # Expose port in dev for local IDE access
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    
     # Use a mounted entrypoint script (avoids quoting issues)
     volumes:
       - ../scripts/docker/redis-entrypoint.sh:/usr/local/bin/redis-entrypoint.sh:ro

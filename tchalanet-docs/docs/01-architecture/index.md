@@ -42,7 +42,7 @@ Organisation code backend (`common`, `core`, `features`, `catalog`), hexagonal +
 
 ### [Frontend Map](frontend-map.md)
 
-Organisation code web (Angular/Nx) + mobile (Ionic), BFF PageModel, widgets
+Organisation code web (Angular/Nx) + mobile (Flutter), BFF PageModel, widgets
 
 ### [Infra Map](infra-map.md)
 

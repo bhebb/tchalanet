@@ -32,11 +32,7 @@ spring:
     hikari:
       maximum-pool-size: 10
       jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: devredis
+
 tch:
   draw:
     # lifecycle:

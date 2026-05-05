@@ -158,7 +158,7 @@ public class EdgeNotificationGatewayAdapter implements NotificationGatewayPort {
     }
 
     private String extractRequestId(SendNotificationPayload payload) {
-        if (payload.data() != null && payload.data().containsKey("requestId")) {
+        if (payload.data() != null && payload.data().containsKey("requestId") && payload.data().get("requestId")  != null) {
             return payload.data().get("requestId").toString();
         }
         return UUID.randomUUID().toString();

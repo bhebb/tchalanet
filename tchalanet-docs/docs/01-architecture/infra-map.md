@@ -9,7 +9,8 @@
 OpenSpec packs:
 
 - `openspec/context/05-version-guard.md`
-- `openspec/context/60-infra-rules.md`
+- `tchalanet-infra/AGENTS.md`
+- component changes/specs under `tchalanet-infra/openspec/`
 
 ## Versions
 

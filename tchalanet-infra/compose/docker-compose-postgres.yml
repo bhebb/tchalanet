@@ -5,6 +5,11 @@ services:
     env_file:
       - ../envs/${ENV}/.env.merged
       - ../envs/${ENV}/.secrets
+
+    # Expose port in dev for local IDE access
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+
     environment:
       TZ: UTC
       PGDATA: /var/lib/postgresql/data

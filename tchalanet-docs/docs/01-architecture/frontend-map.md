@@ -8,15 +8,17 @@
 OpenSpec packs:
 
 - `openspec/context/05-version-guard.md`
-- `openspec/context/30-frontend-rules.md`
+- `apps/tchalanet-web/AGENTS.md`
+- component changes/specs under `apps/tchalanet-web/openspec/`
 
-## Mobile (Ionic)
+## Mobile (Flutter)
 
-- (pointeurs à compléter quand le dossier apps mobile est stabilisé)
+- App/router docs : `tchalanet-mobile/AGENTS.md`
+- Legacy app docs, if referenced: `apps/tchalanet-mobile/`
 
 OpenSpec pack:
 
-- `openspec/context/40-mobile-rules.md`
+- `tchalanet-mobile/openspec/`
 
 ## Convention
 
