@@ -1,16 +1,15 @@
-# OpenSpec
+# OpenSpec Context Packs
 
-OpenSpec files remain canonical in their owning workspace.
+Global context packs are summaries and routing aids. They are not a place to
+copy full backend, web, mobile, infra, or edge documentation.
 
-Global sources:
+Canonical global context:
 
-- `openspec/project.md`
 - `openspec/context/00-index.md`
 - `openspec/context/05-version-guard.md`
 - `openspec/context/10-non-negotiables.md`
-- `openspec/changes/`
 
-Component sources:
+Component-specific context belongs in component OpenSpec workspaces, such as:
 
 - `tchalanet-server/openspec/`
 - `apps/tchalanet-web/openspec/`
