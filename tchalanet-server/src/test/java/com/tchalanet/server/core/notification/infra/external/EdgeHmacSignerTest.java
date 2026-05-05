@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.notification.infra.external;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.util.JsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -12,15 +13,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EdgeHmacSignerTest {
 
-    private ObjectMapper objectMapper;
+    private JsonUtils jsonUtils;
     private Clock clock;
     private EdgeHmacSigner signer;
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
+        jsonUtils = new JsonUtils(JsonMapper.builder().build());
         clock = Clock.fixed(Instant.parse("2026-05-04T12:00:00Z"), ZoneId.of("UTC"));
-        signer = new EdgeHmacSigner(objectMapper, clock);
+        signer = new EdgeHmacSigner(jsonUtils, clock);
     }
 
     @Test
@@ -74,4 +75,3 @@ class EdgeHmacSignerTest {
 
     private record TestRequest(String field1, int field2) {}
 }
-

@@ -1,5 +1,7 @@
 package com.tchalanet.server.common.context;
 
+import java.util.function.Supplier;
+
 /** Thread-local context used for non-HTTP threads (startup, batch, async). */
 public final class TchContext {
 
@@ -26,5 +28,21 @@ public final class TchContext {
   /** Return the current context or null. */
   public static TchRequestContext currentOrNull() {
     return HOLDER.get();
+  }
+
+  public static TchRequestContext currentOrThrow() {
+    var ctx = currentOrNull();
+    if (ctx == null) {
+      throw new IllegalStateException("Missing TchRequestContext");
+    }
+    return ctx;
+  }
+
+  public static void withContext(TchRequestContext ctx, Runnable work) {
+    TchContextScope.runWithContext(ctx, work);
+  }
+
+  public static <T> T withContextResult(TchRequestContext ctx, Supplier<T> work) {
+    return TchContextScope.runWithContextResult(ctx, work);
   }
 }

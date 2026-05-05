@@ -3,7 +3,7 @@ package com.tchalanet.server.core.pagemodel.application.query.handler;
 import static com.tchalanet.server.common.constant.CommonConstants.DEFAULT_TENANT_UUID;
 
 import com.tchalanet.server.common.bus.QueryHandler;
-import com.tchalanet.server.common.context.TchContextRunner;
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;
@@ -28,30 +28,25 @@ public class ResolveEffectivePageModelHandler
 
   @Override
   public PageModelDoc handle(ResolveEffectivePageModelQuery q) {
-    // 1) tenant courant (si fourni)
+    // 1) tenant courant: use the already-bound request/startup context.
     Optional<PageModelDoc> tenantDoc =
         q.tenantId()
-            .map(TenantId::value)
-            .flatMap(
-                tenantUuid ->
-                    TchContextRunner.runAsTenantResult(
-                        tenantUuid,
-                        "pagemodel:resolve",
-                        () -> readPort.findPublishedByLogicalId(q.logicalId()).map(p -> toDoc(p)))) ;
+            .flatMap(tenantId -> readPort.findPublishedByLogicalId(q.logicalId()).map(this::toDoc));
 
     if (tenantDoc.isPresent()) return tenantDoc.get();
 
-    // 2) default tenant
+    // 2) default tenant fallback: this intentionally reads a different tenant under RLS.
+    if (q.tenantId().map(TenantId::value).filter(DEFAULT_TENANT_UUID::equals).isPresent()) {
+      return templateLoader.loadFromResources(q.logicalId());
+    }
+
     Optional<PageModelDoc> defaultDoc =
-        TchContextRunner.runAsTenantResult(
+        TchContextScope.runWithTemporaryTenantResult(
             DEFAULT_TENANT_UUID,
             "pagemodel:resolve-default",
             () -> readPort.findPublishedByLogicalId(q.logicalId()).map(p -> toDoc(p)));
 
-    if (defaultDoc.isPresent()) return defaultDoc.get();
-
-    // 3) resources
-    return templateLoader.loadFromResources(q.logicalId());
+      return defaultDoc.orElseGet(() -> templateLoader.loadFromResources(q.logicalId()));
   }
 
   private PageModelDoc toDoc(PageModelInstance inst) {
