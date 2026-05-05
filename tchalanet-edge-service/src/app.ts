@@ -12,6 +12,8 @@ import {
   TWILIO_AUTH_TOKEN,
   TWILIO_FROM,
 } from './config/env.js';
+import { TicketDeliveryService } from './modules/delivery/application/ticket-delivery.service.js';
+import { deliveryRoutes } from './modules/delivery/http/delivery.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { BrevoEmailNotificationSender } from './modules/notifications/adapters/email/brevo-email-notification.sender.js';
 import { SlackNotificationSender } from './modules/notifications/adapters/slack/slack-notification.sender.js';
@@ -40,10 +42,27 @@ export function buildApp() {
     ),
   ]);
 
+  const deliveryService = new TicketDeliveryService([
+    new SlackNotificationSender(SLACK_ENABLED, SLACK_WEBHOOKS),
+    new BrevoEmailNotificationSender(
+      EMAIL_ENABLED,
+      BREVO_API_KEY,
+      EMAIL_FROM_NAME,
+      EMAIL_FROM_ADDRESS,
+    ),
+    new TwilioSmsNotificationSender(
+      SMS_ENABLED,
+      TWILIO_ACCOUNT_SID,
+      TWILIO_AUTH_TOKEN,
+      TWILIO_FROM,
+    ),
+  ]);
+
   app.register(errorHandlerPlugin);
   app.register(pingRoutes);
   app.register(healthRoutes);
   app.register(notificationRoutes(notificationService));
+  app.register(deliveryRoutes(deliveryService));
 
   return app;
 }
