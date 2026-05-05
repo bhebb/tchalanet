@@ -3,8 +3,9 @@
 ## Problème Résolu
 
 **Erreur :**
+
 ```
-Blocked request. This host ("app.localtest.me") is not allowed. 
+Blocked request. This host ("app.localtest.me") is not allowed.
 To allow this host, add "app.localtest.me" to `server.allowedHosts` in vite.config.js.
 ```
 
@@ -50,10 +51,12 @@ server: {
 ## Explications
 
 ### `host: true`
+
 - Permet à Vite d'écouter sur toutes les interfaces réseau (0.0.0.0)
 - Nécessaire pour accéder au serveur dev depuis un domaine personnalisé
 
 ### `allowedHosts`
+
 - **`localhost`** : Accès standard en local
 - **`.localtest.me`** : Wildcard pour tous les sous-domaines `*.localtest.me`
   - Couvre `app.localtest.me`, `mob.localtest.me`, `api.localtest.me`, etc.
@@ -65,6 +68,7 @@ server: {
 Tous ses sous-domaines (`*.localtest.me`) pointent également vers localhost.
 
 **Avantages :**
+
 - ✅ Pas besoin de modifier `/etc/hosts`
 - ✅ Certificats SSL plus faciles (avec mkcert ou Traefik)
 - ✅ Simule un environnement multi-domaines en local
@@ -90,6 +94,7 @@ Tous ses sous-domaines (`*.localtest.me`) pointent également vers localhost.
 ## Accès au Dev Server
 
 ### Via npm serve (direct)
+
 ```bash
 npm run start:web
 # Accès :
@@ -98,6 +103,7 @@ npm run start:web
 ```
 
 ### Via Docker + Traefik
+
 ```bash
 cd tchalanet-infra
 make up-web ENV=dev
@@ -108,6 +114,7 @@ make up-web ENV=dev
 ## Configuration Staging/Production
 
 En staging/prod, les domaines réels sont utilisés :
+
 - `https://app.stg.tchalanet.com`
 - `https://app.tchalanet.com`
 
@@ -117,16 +124,19 @@ Les builds de production (`vite build`) n'ont pas besoin de cette config.
 ## Vérification
 
 ### 1. Démarrer le dev server
+
 ```bash
 npm run start:web
 ```
 
 ### 2. Accéder via les domaines
+
 - ✅ `http://localhost:4200` - Devrait fonctionner
 - ✅ `https://app.localtest.me` - Devrait fonctionner (via Traefik)
 - ❌ `http://app.localtest.me:4200` - Bloqué (pas dans allowedHosts)
 
 ### 3. Vérifier les logs Vite
+
 ```
 VITE v5.x.x  ready in xxx ms
 
@@ -138,7 +148,9 @@ VITE v5.x.x  ready in xxx ms
 ## Troubleshooting
 
 ### Erreur persiste après modification
+
 1. **Redémarrer le dev server**
+
    ```bash
    # Ctrl+C pour arrêter
    npm run start:web
@@ -151,7 +163,9 @@ VITE v5.x.x  ready in xxx ms
    ```
 
 ### Certificat SSL invalide
+
 Si accès via HTTPS direct (`https://localhost:4200`), installer `mkcert` :
+
 ```bash
 brew install mkcert
 mkcert -install
@@ -163,11 +177,14 @@ Puis configurer Vite pour utiliser les certificats.
 **Recommandation :** Utiliser Traefik qui gère automatiquement les certificats.
 
 ### CORS errors
+
 Vérifier que le backend (API, Keycloak) accepte les origines :
+
 - `http://localhost:4200`
 - `https://app.localtest.me`
 
 **Keycloak :** Dans le client `tchalanet-web`, vérifier `Web Origins` :
+
 ```
 http://localhost:4200
 https://app.localtest.me
@@ -185,4 +202,3 @@ https://app.localtest.me
 
 **Date :** 2025-11-18  
 **Status :** ✅ Configuration appliquée et testée
-

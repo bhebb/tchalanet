@@ -1,3 +1,7 @@
+# docker-compose-dev-local.yml
+# Local-dev overlay: exposes host ports and adds extra_hosts for localtest.me DNS fix.
+# Usage: add "-f compose/docker-compose-dev-local.yml" to any service-up.sh / Makefile call.
+# Do NOT include in staging/prod.
 services:
   api:
     ports:

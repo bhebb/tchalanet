@@ -5,17 +5,21 @@
 ✅ **Configuration Keycloak multi-environnements complète** :
 
 1. **Fichiers d'environnement créés** :
+
    - `envs/dev/keycloak.env` (KC_HOSTNAME=auth.localtest.me)
    - `envs/staging/keycloak.env` (KC_HOSTNAME=auth.stg.tchalanet.com)
    - `envs/prod/keycloak.env` (KC_HOSTNAME=auth.tchalanet.com)
 
 2. **Docker Compose Keycloak** :
+
    - `--hostname-url=https://${KC_HOSTNAME}` configuré
 
 3. **Overlays realm** :
+
    - local.json, staging.json, prod.json déjà présents et corrects
 
 4. **Protection Git** :
+
    - `.gitignore` créé dans `keycloak/realms/` pour ne pas commiter les realms générés
 
 5. **Documentation** :
@@ -120,6 +124,7 @@ docker compose -f compose/docker-compose-project.yml up -d --force-recreate keyc
 ## 📖 Documentation complète
 
 Pour plus de détails, consulter :
+
 - **KEYCLOAK-CONFIG-SUMMARY.md** : ce document (résumé)
 - **KEYCLOAK-MULTI-ENV-CONFIG.md** : guide complet multi-env
 - **FIX-KEYCLOAK-ISSUER-MISMATCH.md** : explication technique
@@ -128,4 +133,3 @@ Pour plus de détails, consulter :
 
 **Date** : 2025-11-16  
 **Statut** : Configuration prête, à tester en dev puis déployer en staging/prod
-

@@ -3,20 +3,23 @@
 ## 🎯 Contexte
 
 En développement local, on a deux options pour démarrer les services :
+
 1. **Images publiées** (ghcr.io) - rapide mais ne contient pas les changements locaux
 2. **Build local** - rebuild avec Dockerfile local incluant tous les changements
 
 ## 📦 Services concernés
 
 ### API (Spring Boot)
+
 - **Image publiée** : `ghcr.io/tchalanet/api:${IMAGE_TAG}`
 - **Dockerfile local** : `tchalanet-server/Dockerfile`
 - **Quand rebuilder** : Changements dans le code Java ou `logback-spring.xml`
 
 ### Keycloak
+
 - **Image publiée** : `quay.io/keycloak/keycloak:26.4.0` (base) + customisation
 - **Dockerfile local** : `tchalanet-infra/keycloak/Dockerfile`
-- **Quand rebuilder** : 
+- **Quand rebuilder** :
   - Changements dans les thèmes
   - Changements dans le provider custom
   - **Nouveau realm généré** (important !)
@@ -118,6 +121,7 @@ RUN /opt/keycloak/bin/kc.sh build
 ```
 
 **Points clés** :
+
 - Le realm `tchalanet-realm.json` est copié dans l'image au build
 - Si tu changes le realm, tu DOIS rebuilder l'image
 - L'import se fait au démarrage via `--import-realm`
@@ -131,6 +135,7 @@ RUN /opt/keycloak/bin/kc.sh build
 **Cause** : Le realm a été régénéré APRÈS le build de l'image
 
 **Solution** :
+
 ```bash
 # 1. Régénérer le realm
 make get-realm ENV=dev
@@ -147,6 +152,7 @@ docker compose -f compose/docker-compose-project.yml \
 **Cause** : L'image Keycloak n'a pas été rebuildée
 
 **Solution** :
+
 ```bash
 # Forcer le rebuild (sans cache)
 docker compose -f compose/docker-compose-project.yml \
@@ -163,6 +169,7 @@ docker compose -f compose/docker-compose-project.yml \
 **Cause** : Le volume Docker contient l'ancien état
 
 **Solution** :
+
 ```bash
 # 1. Arrêter Keycloak
 docker compose -f compose/docker-compose-project.yml stop keycloak
@@ -247,6 +254,7 @@ rebuild-all:
 ```
 
 Usage :
+
 ```bash
 make rebuild-keycloak ENV=dev
 make rebuild-api ENV=dev
@@ -274,6 +282,7 @@ open https://app.localtest.me
 ### Après changement de code
 
 #### Backend (API)
+
 ```bash
 cd tchalanet-server
 ./mvnw -DskipTests package
@@ -283,6 +292,7 @@ docker compose -f compose/docker-compose-project.yml \
 ```
 
 #### Keycloak (realm/thèmes/provider)
+
 ```bash
 cd tchalanet-infra
 make get-realm ENV=dev
@@ -291,6 +301,7 @@ docker compose -f compose/docker-compose-project.yml \
 ```
 
 #### Frontend (Angular)
+
 ```bash
 # Le hot reload fonctionne automatiquement
 # Pas besoin de rebuild ni redémarrer
@@ -299,4 +310,3 @@ docker compose -f compose/docker-compose-project.yml \
 ---
 
 **Résumé** : Toujours utiliser `docker-compose.local-build.yml` en dev pour avoir les derniers changements !
-

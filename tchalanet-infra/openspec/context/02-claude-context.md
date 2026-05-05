@@ -37,4 +37,5 @@ Changes en cours :
 
 ```text
 openspec/changes/infra-git-workflows-light/
+openspec/changes/infra-refactor-local-server-v0/
 ```
