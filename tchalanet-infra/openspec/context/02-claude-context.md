@@ -5,8 +5,8 @@ Tu travailles dans `tchalanet-infra`.
 Lis d'abord :
 
 ```text
-docs/00-infra-charter.md
-docs/context/01-infra-decisions.md
+openspec/context/00-infra-charter.md
+openspec/context/01-infra-decisions.md
 ```
 
 Règles absolues :
@@ -19,28 +19,22 @@ Règles absolues :
 6. Ne réintroduis pas Meilisearch, Unleash, Umami ou Mailpit dans server-v0.
 7. Redis et PostgreSQL sont `back` uniquement.
 8. Edge service est v0 et utilise `edge + back`.
-9. Pas de `:latest` en staging/prod.
+9. Pas de `:latest` en staging/prod. `IMAGE_TAG` est obligatoire, sans fallback flottant.
 10. La VM Hetzner ne build pas l'application ; elle exécute des images GHCR versionnées.
 11. Staging est disposable tant qu'il n'y a pas de client payant.
 12. Les workflows doivent être sobres et manuels pour le déploiement.
 
-Objectif de la prochaine proposal :
+Ne pas transformer l'infra en Kubernetes, Terraform complet, DB managée ou architecture multi-VM.
+
+Specs actives :
 
 ```text
-infra-refactor-local-server-v0
+openspec/specs/infra-local-server/spec.md
+openspec/specs/mobile-distribution/spec.md
 ```
 
-Elle doit stabiliser :
+Changes en cours :
 
-- modes locaux
-- P0 / P0+ / server-v0
-- Traefik local/staging/prod
-- Postgres
-- Redis
-- Keycloak realm template/overlays
-- Makefile
-- scripts utiles vs legacy
-- staging Hetzner disposable
-- API Docker startup
-
-Ne pas transformer l'infra en Kubernetes, Terraform complet, DB managée ou architecture multi-VM pour l'instant.
+```text
+openspec/changes/infra-git-workflows-light/
+```

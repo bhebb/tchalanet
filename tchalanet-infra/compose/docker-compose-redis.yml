@@ -44,8 +44,3 @@ services:
 volumes:
   redis-data:
     name: redis-data-${ENV}
-
-networks:
-  back:
-    name: ${DOCKER_NETWORK_BACK:-back-${ENV:-dev}}
-    external: true

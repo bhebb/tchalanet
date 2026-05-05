@@ -1,0 +1,27 @@
+services:
+  edge:
+    image: ${EDGE_IMAGE_BASE:-ghcr.io/tchalanet/edge}:${IMAGE_TAG}
+    container_name: ${EDGE_CONTAINER:-${DOCKER_PREFIX:-tchl}-edge}-${ENV}
+    env_file:
+      - ../envs/${ENV}/.env.merged
+      - ../envs/${ENV}/.secrets
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${EDGE_PORT:-3000}/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      back: {}
+      edge:
+        aliases: ["edge"]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: ${EDGE_LOG_MAX_SIZE:-10m}
+        max-file: ${EDGE_LOG_MAX_FILES:-3}
+    labels:
+      - traefik.enable=${EDGE_TRAEFIK_ENABLE:-true}
+      - traefik.docker.network=${DOCKER_NETWORK_EDGE:-edge-${ENV}}
+      - traefik.http.services.edge-svc.loadbalancer.server.port=${EDGE_PORT:-3000}

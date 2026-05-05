@@ -1,6 +1,6 @@
 services:
   api:
-    image: ${API_IMAGE_BASE:-ghcr.io/tchalanet/api}:${IMAGE_TAG:-stg-latest}
+    image: ${API_IMAGE_BASE:-ghcr.io/tchalanet/api}:${IMAGE_TAG}
     container_name: ${API_CONTAINER:-${DOCKER_PREFIX:-tchl}-api}-${ENV}
     env_file:
       - ../envs/${ENV}/.env.merged

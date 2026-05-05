@@ -1,0 +1,25 @@
+services:
+  web:
+    image: ${WEB_IMAGE_BASE:-ghcr.io/tchalanet/web}:${IMAGE_TAG}
+    container_name: ${WEB_CONTAINER:-${DOCKER_PREFIX:-tchl}-web}-${ENV}
+    env_file:
+      - ../envs/${ENV}/.env.merged
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:${WEB_PORT:-80}/ >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      edge:
+        aliases: ["web"]
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: ${WEB_LOG_MAX_SIZE:-10m}
+        max-file: ${WEB_LOG_MAX_FILES:-3}
+    labels:
+      - traefik.enable=${WEB_TRAEFIK_ENABLE:-true}
+      - traefik.docker.network=${DOCKER_NETWORK_EDGE:-edge-${ENV}}
+      - traefik.http.services.web-svc.loadbalancer.server.port=${WEB_PORT:-80}
