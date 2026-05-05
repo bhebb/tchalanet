@@ -31,6 +31,5 @@ public interface DrawApplyPort {
         LocalDate drawDate,
         ResultSlotId resultSlotId,
         DrawResultId drawResultId,
-        Instant now,
-        boolean force);
+        Instant now);
 }

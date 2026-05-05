@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.draw.domain.model.DrawSummary;
+import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
 import com.tchalanet.server.core.sales.application.port.out.TicketNumberGeneratorPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketPublicCodeGeneratorPort;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
@@ -44,7 +44,7 @@ public class TicketSaleFactory {
             tenantId,
             terminalId,
             session.id(),
-            draw.id(),
+            draw.drawId(),
             ticketCode,
             publicCode,
             currency,
@@ -68,7 +68,7 @@ public class TicketSaleFactory {
             tenantId,
             terminalId,
             session.id(),
-            draw.id(),
+            draw.drawId(),
             ticketCode,
             publicCode,
             DEFAULT_CURRENCY,

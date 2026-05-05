@@ -13,11 +13,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
-
 @Repository
 public interface DrawSummaryViewRepository extends JpaRepository<DrawSummaryViewEntity, UUID> {
 
-    Optional<DrawSummaryViewEntity> findByDrawId(UUID drawId);
+    Optional<DrawSummaryViewEntity> findByTenantIdAndDrawId(UUID tenantId, UUID drawId);
 
     @Query("""
         select v
@@ -42,15 +41,17 @@ public interface DrawSummaryViewRepository extends JpaRepository<DrawSummaryView
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
           and (:resultSlotId is null or v.resultSlotId = :resultSlotId)
-          and v.scheduledAt >= :now
+          and v.cutoffAt >= :now
           and v.scheduledAt < :until
-          and v.status in ('SCHEDULED', 'OPEN')
+          and v.status in :statuses
+        order by v.scheduledAt asc
         """)
-    Page<DrawSummaryViewEntity> upcoming(
+    Page<DrawSummaryViewEntity> next(
         @Param("tenantId") UUID tenantId,
         @Param("resultSlotId") UUID resultSlotId,
         @Param("now") Instant now,
         @Param("until") Instant until,
+        @Param("statuses") List<DrawStatus> statuses,
         Pageable pageable
     );
 
@@ -60,6 +61,7 @@ public interface DrawSummaryViewRepository extends JpaRepository<DrawSummaryView
         where v.tenantId = :tenantId
           and v.drawResultId is not null
           and (:resultSlotKeysEmpty = true or v.resultSlotKey in :resultSlotKeys)
+        order by v.resultedAt desc nulls last, v.scheduledAt desc
         """)
     Page<DrawSummaryViewEntity> latestWithResults(
         @Param("tenantId") UUID tenantId,
@@ -72,16 +74,25 @@ public interface DrawSummaryViewRepository extends JpaRepository<DrawSummaryView
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
-          and (:resultSlotId is null or v.resultSlotId = :resultSlotId)
-          and v.scheduledAt >= :now
-          and v.scheduledAt < :until
-          and v.status in ('SCHEDULED', 'OPEN')
+          and v.drawResultId = :drawResultId
+        order by v.scheduledAt asc
         """)
-    Page<DrawSummaryViewEntity> next(
+    List<DrawSummaryViewEntity> findByTenantIdAndDrawResultId(
         @Param("tenantId") UUID tenantId,
-        @Param("resultSlotId") UUID resultSlotId,
-        @Param("now") Instant now,
-        @Param("until") Instant until,
-        Pageable pageable
+        @Param("drawResultId") UUID drawResultId
+    );
+
+    @Query("""
+        select v
+        from DrawSummaryViewEntity v
+        where v.tenantId = :tenantId
+          and v.status = 'RESULTED'
+          and v.drawResultStatus = 'PROVISIONAL'
+          and v.resultedAt < :threshold
+        order by v.resultedAt asc
+        """)
+    List<DrawSummaryViewEntity> findResultedProvisionalOlderThan(
+        @Param("tenantId") UUID tenantId,
+        @Param("threshold") Instant threshold
     );
 }

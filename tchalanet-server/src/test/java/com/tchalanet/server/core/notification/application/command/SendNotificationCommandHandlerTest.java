@@ -3,8 +3,8 @@ package com.tchalanet.server.core.notification.application.command;
 import com.tchalanet.server.common.notification.NotificationGatewayPort;
 import com.tchalanet.server.common.notification.model.SendNotificationPayload;
 import com.tchalanet.server.common.types.enums.NotificationType;
-import com.tchalanet.server.core.notification.application.SendNotificationCommand;
 import com.tchalanet.server.core.notification.application.command.handler.SendNotificationCommandHandler;
+import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
 import com.tchalanet.server.core.notification.application.policy.NotificationPolicy;
 import com.tchalanet.server.core.notification.domain.InvalidNotificationException;
 import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
@@ -309,7 +309,7 @@ class SendNotificationCommandHandlerTest {
             null
         );
 
-        var context = Map.of(
+        Map<String, Object> context = Map.of(
             "jobKey", "draw-lifecycle",
             "status", "FAILED",
             "errorCode", "CONNECTION_TIMEOUT"

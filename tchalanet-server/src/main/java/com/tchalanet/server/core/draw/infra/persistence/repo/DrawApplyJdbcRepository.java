@@ -23,8 +23,7 @@ public class DrawApplyJdbcRepository {
         LocalDate drawDate,
         UUID resultSlotId,
         UUID drawResultId,
-        Instant now,
-        boolean force
+        Instant now
     ) {
         Objects.requireNonNull(tenantId, "tenantId is required");
         Objects.requireNonNull(drawDate, "drawDate is required");

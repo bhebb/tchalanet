@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.core.draw.application.query.projection.DrawResultSummary;
 import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
 import com.tchalanet.server.core.draw.infra.persistence.view.DrawSummaryViewEntity;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +19,7 @@ public class DrawSummaryViewMapper {
             ? null
             : new DrawResultSummary(
                 DrawResultId.of(v.getDrawResultId()),
-                v.getDrawResultStatus(),
+            DrawResultStatus.valueOf(v.getDrawResultStatus()),
                 v.getDrawResultOccurredAt(),
                 v.getSourceHash(),
                 v.getHaitiResult()

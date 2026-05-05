@@ -4,7 +4,8 @@
 ALTER TABLE draw_channel
   ADD COLUMN period varchar(32);
 
-COMMENT ON COLUMN draw_channel.period IS 'Structured period identifier (e.g., MORNING, MIDDAY, EVENING) replacing shortLabel parsing';
+ALTER TABLE draw_channel_aud
+    ADD COLUMN period varchar(32);
 
 -- Migrate existing data based on name patterns (optional, can be done later via admin UI)
 -- This is just an example - actual migration would need to match your data

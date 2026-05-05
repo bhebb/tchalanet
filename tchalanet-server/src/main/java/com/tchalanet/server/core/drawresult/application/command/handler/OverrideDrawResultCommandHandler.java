@@ -14,6 +14,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.drawresult.application.command.model.OverrideDrawResultCommand;
@@ -44,7 +45,7 @@ public class OverrideDrawResultCommandHandler
     private final ResultSlotCatalog slotReader;
     private final DrawResultWriterPort writer;
     private final DrawResultReaderPort resultReader;
-    private final DrawLookupPort drawReader;
+    private final DrawReaderPort drawReader;
     private final DrawLookupPort drawLookup;
     private final DrawLifecyclePort drawWriter;
     private final DomainEventPublisher publisher;
@@ -125,7 +126,7 @@ public class OverrideDrawResultCommandHandler
             }
 
             var now = clock.instant();
-            var draw = drawLookup.findById(summary.id()).orElseThrow();
+            var draw = drawLookup.findById(summary.drawId()).orElseThrow();
 
             draw.applyResult(res.id(), now, DrawSource.ADMIN_OVERRIDE);
             drawWriter.save(draw);

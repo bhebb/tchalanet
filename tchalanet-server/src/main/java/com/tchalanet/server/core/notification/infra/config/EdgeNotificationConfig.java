@@ -23,10 +23,6 @@ class NotificationConfig {
     ) {
         var factory = new JdkClientHttpRequestFactory();
 
-        if (props.connectTimeout() != null) {
-            factory.setConnectTimeout(props.connectTimeout());
-        }
-
         if (props.readTimeout() != null) {
             factory.setReadTimeout(props.readTimeout());
         }

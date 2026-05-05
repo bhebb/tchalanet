@@ -22,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -48,8 +49,7 @@ public class DrawQueryAdminController {
             request.resultSlotId(),
             request.status(),
             request.from(),
-            request.to(),
-            clock);
+            request.to());
 
         TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
 
@@ -65,7 +65,7 @@ public class DrawQueryAdminController {
             defaultSort = {"scheduledAt,asc"})
         TchPageRequest pageReq) {
 
-        var criteria = DrawSearchCriteria.today(resultSlotId, clock);
+        var criteria = DrawSearchCriteria.today(resultSlotId, LocalDate.now(clock));
         TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
 
         return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));

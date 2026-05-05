@@ -17,8 +17,8 @@ import java.util.Map;
 @Mapper(componentModel = "spring", uses = {CommonIdMapper.class})
 public interface DrawAdminWebMapper {
 
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "channel.id", expression = "java(summary.drawChannelId().value().toString())")
+    @Mapping(target = "id", source = "drawId")
+    @Mapping(target = "channel.id", expression = "java(drawSummary.drawChannelId().value().toString())")
     @Mapping(target = "channel.code", source = "drawChannelCode")
     @Mapping(target = "channel.name", source = "drawChannelLabel")
     @Mapping(target = "slot.id", source = "resultSlotId")
@@ -29,7 +29,7 @@ public interface DrawAdminWebMapper {
     @Mapping(target = "lastResult", source = "result")
     @Mapping(target = "next", constant = "false") // Need logic if still used
     @Mapping(target = "active", source = "drawChannelActive")
-    DrawSummaryResponse toDrawSummaryResponse(DrawSummary summary);
+    DrawSummaryResponse toDrawSummaryResponse(DrawSummary drawSummary);
 
     default HaitiDrawResultSummaryReponse toHaitiDrawResultSummaryReponse(DrawResultSummary result) {
         if (result == null) return null;
@@ -53,10 +53,10 @@ public interface DrawAdminWebMapper {
         if (node == null || node.isNull()) return null;
 
         return new HaitiResultResponse(
-            node.path("lot1").asText(null),
-            node.path("lot2").asText(null),
-            node.path("lot3").asText(null),
-            node.path("lot4").asText(null)
+            node.path("lot1").asString(null),
+            node.path("lot2").asString(null),
+            node.path("lot3").asString(null),
+            node.path("lot4").asString(null)
         );
     }
 

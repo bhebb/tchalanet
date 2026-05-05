@@ -2,12 +2,12 @@ package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.draw.application.port.out.DrawSummaryReaderPort;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawSummaryViewMapper;
 import com.tchalanet.server.core.draw.infra.persistence.repo.DrawSummaryViewRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,7 +16,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,13 +27,19 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
 
+    private static final int DEFAULT_LOOKAHEAD_HOURS = 24;
+
     private final DrawSummaryViewRepository repo;
     private final DrawSummaryViewMapper mapper;
+    private final Clock clock;
 
     @Override
     public Optional<DrawSummary> findById(DrawId drawId) {
         Objects.requireNonNull(drawId, "drawId is required");
-        return repo.findByDrawId(drawId.value())
+
+        var tenantId = TchContext.get().tenantId();
+
+        return repo.findByTenantIdAndDrawId(tenantId.value(), drawId.value())
             .map(mapper::toProjection);
     }
 
@@ -51,7 +59,7 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
         var page = repo.search(
             tenantId.value(),
             criteria.resultSlotId() == null ? null : criteria.resultSlotId().value(),
-            criteria.status() == null ? null : com.tchalanet.server.core.draw.domain.model.DrawStatus.valueOf(criteria.status()),
+            criteria.status(),
             criteria.from(),
             criteria.to(),
             pageable
@@ -63,16 +71,25 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
     @Override
     public TchPage<DrawSummary> listNext(DrawSearchCriteria criteria, Pageable pageable) {
         Objects.requireNonNull(criteria, "criteria is required");
-        TenantId tenantId = TchContext.get().tenantId();
-        Instant now = Instant.now();
-        // Use lookahead hours if provided, otherwise 24h default
-        Instant until = now.plusSeconds((long) (criteria.lookaheadHours() != null ? criteria.lookaheadHours() : 24) * 3600);
+        Objects.requireNonNull(pageable, "pageable is required");
+
+        var tenantId = TchContext.get().tenantId();
+
+        Instant now = clock.instant();
+
+        int lookaheadHours =
+            criteria.lookaheadHours() == null
+                ? DEFAULT_LOOKAHEAD_HOURS
+                : criteria.lookaheadHours();
+
+        Instant until = now.plusSeconds((long) lookaheadHours * 3600);
 
         var page = repo.next(
             tenantId.value(),
             criteria.resultSlotId() == null ? null : criteria.resultSlotId().value(),
             now,
             until,
+            List.of(DrawStatus.SCHEDULED, DrawStatus.OPEN),
             pageable
         );
 
@@ -82,15 +99,21 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
     @Override
     public TchPage<DrawSummary> listLatestWithResults(DrawSearchCriteria criteria, Pageable pageable) {
         Objects.requireNonNull(criteria, "criteria is required");
-        TenantId tenantId = TchContext.get().tenantId();
+        Objects.requireNonNull(pageable, "pageable is required");
+
+        var tenantId = TchContext.get().tenantId();
+
+        var keys = criteria.resultSlotKeys();
+        boolean empty = keys == null || keys.isEmpty();
 
         var page = repo.latestWithResults(
             tenantId.value(),
-            criteria.resultSlotKeys(),
-            criteria.resultSlotKeys() == null || criteria.resultSlotKeys().isEmpty(),
+            keys,
+            empty,
             pageable
         );
 
         return TchPageMapper.map(page, mapper::toProjection);
     }
+
 }

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.notification.infra.web;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.NotificationType;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.notification.application.SendNotificationCommand;
+import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
 import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
 import com.tchalanet.server.core.notification.domain.model.NotificationRecipient;
 import com.tchalanet.server.core.notification.domain.model.NotificationSeverity;

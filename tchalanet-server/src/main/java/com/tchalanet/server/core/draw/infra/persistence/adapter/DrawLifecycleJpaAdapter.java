@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
@@ -41,9 +42,9 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     ) {
         Objects.requireNonNull(now, "now is required");
 
-        long nowEpoch = now.getEpochSecond();
+        var tenantUuid = TchContext.get().tenantUuid();
 
-        return repo.findOpenable(nowEpoch, limit, openHorizonHours, openLagHours).stream()
+        return repo.findOpenable(tenantUuid, now, limit, openHorizonHours, openLagHours).stream()
             .map(this::mapOpenableRow)
             .toList();
     }
@@ -52,9 +53,9 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     public List<DueToCloseRow> findDueToClose(Instant now, int limit) {
         Objects.requireNonNull(now, "now is required");
 
-        long nowEpoch = now.getEpochSecond();
+        var tenantUuid = TchContext.get().tenantUuid();
 
-        return repo.findDueToClose(nowEpoch, limit).stream()
+        return repo.findDueToClose(tenantUuid, now, limit).stream()
             .map(proj -> new DueToCloseRow(
                 TenantId.of(proj.getTenantId()),
                 DrawId.of(proj.getDrawId()),
@@ -75,10 +76,10 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     }
 
     @Override
-    public int bulkOpen(List<DrawId> drawIds) {
+    public int bulkOpen(List<DrawId> drawIds, Instant now) {
         if (drawIds == null || drawIds.isEmpty()) return 0;
         UUID[] ids = drawIds.stream().map(DrawId::value).toArray(UUID[]::new);
-        return repo.bulkOpen(ids);
+        return repo.bulkOpen(ids, now);
     }
 
     private static Timestamp ts(Instant i) {
@@ -93,10 +94,10 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
             "INSERT INTO draw ("
                 + "id, tenant_id, draw_channel_id, "
                 + "draw_date, scheduled_at, cutoff_at, "
-                + "status, "
+                + "status, opened_at, closed_at, "
                 + "system_generated, locked, "
                 + "created_at, updated_at) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now()) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now()) "
                 + "ON CONFLICT (tenant_id, draw_channel_id, draw_date) "
                 + "WHERE deleted_at IS NULL DO NOTHING";
 
@@ -131,8 +132,14 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
 
                             ps.setString(7, r.status());
 
-                            ps.setBoolean(8, r.systemGenerated());
-                            ps.setBoolean(9, r.locked());
+                            if (r.openedAt() != null) ps.setTimestamp(8, ts(r.openedAt()));
+                            else ps.setNull(8, Types.TIMESTAMP);
+
+                            if (r.closedAt() != null) ps.setTimestamp(9, ts(r.closedAt()));
+                            else ps.setNull(9, Types.TIMESTAMP);
+
+                            ps.setBoolean(10, r.systemGenerated());
+                            ps.setBoolean(11, r.locked());
                         }
 
                         @Override
@@ -154,10 +161,10 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     }
 
     @Override
-    public int bulkClose(List<DrawId> drawIds) {
+    public int bulkClose(List<DrawId> drawIds, Instant now) {
         if (drawIds == null || drawIds.isEmpty()) return 0;
         UUID[] ids = drawIds.stream().map(DrawId::value).toArray(UUID[]::new);
-        return repo.bulkClose(ids);
+        return repo.bulkClose(ids, now);
     }
 
     @Override

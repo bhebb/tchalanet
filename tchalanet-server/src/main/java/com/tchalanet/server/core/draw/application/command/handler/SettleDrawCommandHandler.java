@@ -10,51 +10,53 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.SettleDrawCommand;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawSummaryReaderPort;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
 import com.tchalanet.server.core.draw.domain.exception.DrawResultNotFinalException;
-import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Objects;
 
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
 public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCommand> {
 
-    private final DrawLookupPort drawLookupPort;
+    private final DrawSummaryReaderPort drawSummaryReaderPort;
     private final DrawLifecyclePort drawLifecyclePort;
+    private final DrawLookupPort drawLookupPort;
     private final Clock clock;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
-    private final DrawResultReaderPort drawResultReaderPort;
 
     @Override
     @TchTx
     public void handle(SettleDrawCommand command) {
-        Objects.requireNonNull(command.drawId(), "drawId is required");
+        var drawSummary = drawSummaryReaderPort.getById(command.drawId());
 
-        Draw draw = drawLookupPort.getById(command.drawId());
+        var result = drawSummary.result();
 
-        if (draw.drawResultId() == null) {
-            throw new DrawResultNotFinalException(draw.id(), null);
+        if (result == null || result.id() == null) {
+            throw new DrawResultNotFinalException(drawSummary.drawId(), null);
         }
 
-        var drawResult = drawResultReaderPort.getById(draw.drawResultId());
-        if (drawResult.status() != DrawResultStatus.CONFIRMED) {
-            throw new DrawResultNotFinalException(draw.id(), draw.drawResultId());
+
+        if (DrawResultStatus.CONFIRMED != result.status()) {
+            throw new DrawResultNotFinalException(drawSummary.drawId(), result.id());
         }
 
-        boolean wasResulted = draw.status() == DrawStatus.RESULTED;
+        boolean wasResulted = drawSummary.status() == DrawStatus.RESULTED;
         Instant now = clock.instant();
 
+        // Reload aggregate for mutation. Ideally this should be pessimistic lock / FOR UPDATE.
+        var draw = drawLookupPort.getById(drawSummary.drawId());
+
         draw.settle(now);
+
         drawLifecyclePort.save(draw);
 
         if (wasResulted) {
@@ -64,7 +66,7 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
                 draw.tenantId(),
                 draw.id(),
                 draw.drawChannelId(),
-                null, // TODO resultSlotId à ajouter via draw snapshot/lookup
+                drawSummary.resultSlotId(),
                 draw.drawResultId(),
                 draw.drawDate(),
                 draw.scheduledAt()

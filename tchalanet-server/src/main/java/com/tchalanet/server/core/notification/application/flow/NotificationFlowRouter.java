@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.enums.NotificationType;
 import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.domain.event.DrawSettledEvent;
 import com.tchalanet.server.core.drawresult.domain.event.DrawResultIngestedEvent;
-import com.tchalanet.server.core.notification.application.SendNotificationCommand;
+import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
 import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
 import com.tchalanet.server.core.notification.domain.model.NotificationRecipient;
 import com.tchalanet.server.core.notification.domain.model.NotificationSeverity;

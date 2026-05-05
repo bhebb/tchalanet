@@ -117,7 +117,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
                 command.terminalId(),
                 session.id(),
                 saved.getDrawId(),
-                prepared.draw().channel().id(),
+                prepared.draw().drawChannelId(),
                 primaryGame.name(),
                 toCentsExact(saved.getTotalAmount()),
                 command.currency(),

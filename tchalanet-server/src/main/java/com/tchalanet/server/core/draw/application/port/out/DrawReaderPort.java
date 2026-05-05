@@ -1,8 +1,8 @@
-package com.tchalanet.server.core.draw.api;
+package com.tchalanet.server.core.draw.application.port.out;
 
 import com.tchalanet.server.common.types.id.DrawResultId;
-import com.tchalanet.server.core.draw.application.query.projection.DrawSummaryView;
-import com.tchalanet.server.core.draw.domain.model.DrawSummary;
+import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
+
 import java.time.Duration;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface DrawReaderPort {
 
     boolean existsSettledDrawForResult(DrawResultId drawResultId);
 
-    List<DrawSummaryView> findByDrawResultId(DrawResultId drawResultId);
+    List<DrawSummary> findByDrawResultId(DrawResultId drawResultId);
 
-    List<DrawSummaryView> findResultedWithProvisionalOlderThan(Duration duration);
+    List<DrawSummary> findResultedWithProvisionalOlderThan(Duration duration);
 }

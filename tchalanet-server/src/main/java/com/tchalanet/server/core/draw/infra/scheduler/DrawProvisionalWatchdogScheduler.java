@@ -4,7 +4,7 @@ import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
 import com.tchalanet.server.common.batch.exception.BatchSkippedException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
-import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DrawProvisionalWatchdogScheduler {
 
-    private final DrawLookupPort drawReader;
+    private final DrawReaderPort drawReader;
     private final MeterRegistry meterRegistry;
     private final BatchGate batchGate;
     private final DrawProperties drawProps;
@@ -46,11 +46,11 @@ public class DrawProvisionalWatchdogScheduler {
         }
 
         for (var draw : stuckDraws) {
-            var slot = draw.channelCode() != null ? draw.channelCode() : "unknown";
+            var slot = draw.drawChannelCode() != null ? draw.drawChannelCode() : "unknown";
 
             log.warn(
                 "draw.watchdog.provisional stuck drawId={} slot={} scheduledAt={} threshold={}",
-                draw.id(),
+                draw.drawId(),
                 slot,
                 draw.scheduledAt(),
                 threshold);

@@ -18,6 +18,12 @@ public class DrawCacheEvictor {
 
     private final CacheManager cacheManager;
 
+    /**
+     * MVP strategy: broad eviction.
+     *
+     * <p>Later target: tenant-specific eviction once cache keys and cache abstraction support
+     * tenant-level invalidation.
+     */
     public void evictAll() {
         evict(SEARCH);
         evict(TODAY);
@@ -28,10 +34,14 @@ public class DrawCacheEvictor {
 
     private void evict(String cacheName) {
         var cache = cacheManager.getCache(cacheName);
+
         if (cache == null) {
-            log.debug("draw cache not configured: {}", cacheName);
+            log.debug("draw.cache not configured cacheName={}", cacheName);
             return;
         }
+
         cache.clear();
+
+        log.debug("draw.cache cleared cacheName={}", cacheName);
     }
 }

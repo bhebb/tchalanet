@@ -5,7 +5,7 @@ import com.tchalanet.server.common.notification.NotificationGatewayPort;
 import com.tchalanet.server.common.notification.model.SendNotificationPayload;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.NotificationChannel;
-import com.tchalanet.server.core.notification.application.SendNotificationCommand;
+import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
 import com.tchalanet.server.core.notification.application.command.model.SendNotificationResult;
 import com.tchalanet.server.core.notification.application.policy.NotificationPolicy;
 import com.tchalanet.server.core.notification.domain.model.NotificationRecipient;

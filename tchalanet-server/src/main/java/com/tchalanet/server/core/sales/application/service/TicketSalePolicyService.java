@@ -9,7 +9,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
 import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
-import com.tchalanet.server.core.draw.domain.model.DrawSummary;
+import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
 import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
@@ -118,7 +118,7 @@ public class TicketSalePolicyService {
         LimitContext ctx =
             new LimitContext(
                 command.tenantId(),
-                draw.id(),
+                draw.drawId(),
                 null,
                 AgentId.of(session.userId().value()),
                 session.terminalId(),
@@ -165,9 +165,9 @@ public class TicketSalePolicyService {
     }
 
     private ZoneId drawZone(DrawSummary draw) {
-        if (draw == null || draw.slot() == null || draw.slot().timezone() == null) {
+        if (draw == null || draw.resultTimezone() == null) {
             return ZoneId.of("UTC");
         }
-        return ZoneId.of(draw.slot().timezone());
+        return ZoneId.of(draw.resultTimezone());
     }
 }

@@ -37,12 +37,9 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
 
         var criteria = new SettleableDrawCriteria(
             ctx.tenantId,
-            ctx.source,
-            ctx.provider,
-            ctx.channelCode,
             ctx.from,
             ctx.to,
-            ctx.maxDraws,
+            ctx.maxDraws != null ? ctx.maxDraws : 1000L,
             ctx.force
         );
 

@@ -18,7 +18,9 @@ public record NewDrawRow(
     LocalDate drawDate,
     Instant scheduledAt,
     Instant cutoffAt,
-    String status,
     String drawSource,
+    String status,
+    Instant openedAt,
+    Instant closedAt,
     boolean systemGenerated,
     boolean locked) {}

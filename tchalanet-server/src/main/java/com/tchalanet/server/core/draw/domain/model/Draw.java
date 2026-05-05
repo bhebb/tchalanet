@@ -214,14 +214,13 @@ public final class Draw {
         this.resultSource = Objects.requireNonNull(resultSource, "resultSource is required");
     }
 
-    public void overrideResult(
-        DrawResultId resultId,
-        Instant now,
-        String reason) {
+    public void overrideResult(DrawResultId resultId, Instant now, String reason) {
         ensureNotLocked();
 
         if (this.status != DrawStatus.RESULTED) {
-            throw new DrawInvalidOverrideException(id, "Can only override result for RESULTED draws (current: " + this.status + ")");
+            throw new DrawInvalidOverrideException(
+                id,
+                "Can only override result for RESULTED draws (current: " + this.status + ")");
         }
 
         if (reason == null || reason.isBlank()) {
@@ -231,7 +230,7 @@ public final class Draw {
         this.drawResultId = Objects.requireNonNull(resultId, "resultId is required");
         this.resultSource = DrawSource.ADMIN_OVERRIDE;
         this.resultOverrideReason = reason.trim();
-        this.resultOverriddenAt = now;
+        this.resultOverriddenAt = Objects.requireNonNull(now, "now is required");
     }
 
     public void settle(Instant now) {

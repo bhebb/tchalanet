@@ -7,7 +7,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.haiti.application.command.model.ApproveTchalaEntryCommand;
 import com.tchalanet.server.core.haiti.application.command.model.DeleteTchalaEntriesCommand;
 import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand;
-import ImportTchalaReport;
+import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaReport;
 import com.tchalanet.server.core.haiti.application.command.model.MergeTchalaEntriesCommand;
 import com.tchalanet.server.core.haiti.application.command.model.RejectTchalaEntryCommand;
 import com.tchalanet.server.core.haiti.application.query.model.ListPendingTchalaEntriesQuery;

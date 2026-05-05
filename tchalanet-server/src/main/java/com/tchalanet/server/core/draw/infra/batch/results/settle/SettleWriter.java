@@ -29,9 +29,9 @@ public class SettleWriter implements ItemWriter<DrawId> {
 
     @Override
     public void write(Chunk<? extends DrawId> chunk) {
-        Instant now = Instant.now(clock);
+        var now = Instant.now(clock);
 
-        ZoneId tenantZone =
+        var tenantZone =
             TchContext.get() != null && TchContext.get().tenantZoneId() != null
                 ? TchContext.get().tenantZoneId()
                 : ZoneId.of("UTC");
@@ -60,7 +60,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
                 }
 
                 // Source truth = Instant now; conversion explicit via tenantZone
-                draw.settle(settledAt);
+                draw.settle(settledAt.toInstant());
 
                 drawWriterPort.save(draw);
             } catch (Exception e) {

@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawByIdQuery;
-import com.tchalanet.server.core.draw.domain.model.DrawSummary;
+import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,9 +22,9 @@ public class DrawCutoffRule {
      * Returns the resolved draw (reuse in handler) and ensures sale is still allowed.
      */
     public DrawSummary requireBeforeCutoff(DrawId drawId) {
-        DrawSummary draw = queryBus.send(new GetDrawByIdQuery(drawId));
-        Instant now = Instant.now(clock);
-        Instant cutoff = draw.cutoffAt();
+        var draw = queryBus.send(new GetDrawByIdQuery(drawId));
+        var now = Instant.now(clock);
+        var cutoff = draw.cutoffAt();
 
         if (now.isAfter(cutoff)) {
             throw ProblemRest.conflict("Draw cutoff time has passed");

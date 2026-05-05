@@ -22,8 +22,7 @@ public class DrawApplyJdbcAdapter implements DrawApplyPort {
         LocalDate drawDate,
         ResultSlotId resultSlotId,
         DrawResultId drawResultId,
-        Instant now,
-        boolean force) {
+        Instant now) {
 
         Objects.requireNonNull(tenantId, "tenantId is required");
         Objects.requireNonNull(drawDate, "drawDate is required");
@@ -36,8 +35,7 @@ public class DrawApplyJdbcAdapter implements DrawApplyPort {
             drawDate,
             resultSlotId.value(),
             drawResultId.value(),
-            now,
-            force);
+            now);
 
         if (rows == null || rows.isEmpty()) {
             return ApplyResult.none(ApplyOutcome.ALREADY_LINKED_OR_NOT_ELIGIBLE);
@@ -51,4 +49,5 @@ public class DrawApplyJdbcAdapter implements DrawApplyPort {
 
         return ApplyResult.updated(applied);
     }
+
 }

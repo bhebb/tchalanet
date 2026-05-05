@@ -23,11 +23,11 @@ public interface DrawLifecyclePort {
         int openLagHours
     );
 
-    int bulkOpen(List<DrawId> drawIds);
+    int bulkOpen(List<DrawId> drawIds, Instant now);
 
     List<DueToCloseRow> findDueToClose(Instant now, int limit);
 
-    int bulkClose(List<DrawId> drawIds);
+    int bulkClose(List<DrawId> drawIds, Instant now);
 
     int bulkInsert(List<NewDrawRow> rows);
 

@@ -137,8 +137,7 @@ public class ApplyExternalResultsWindowCommandHandler
                             date,
                             slot.id(),
                             drawResultId,
-                            now,
-                            false);
+                            now);
 
                     if (res.outcome() == DrawApplyPort.ApplyOutcome.UPDATED
                         && !res.applied().isEmpty()) {

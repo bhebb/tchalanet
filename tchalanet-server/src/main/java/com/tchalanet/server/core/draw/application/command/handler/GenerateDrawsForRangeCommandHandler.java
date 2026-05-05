@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelCalendarRow;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -10,20 +11,14 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelCalendarRow;
 import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
 
 @UseCase
 @RequiredArgsConstructor
@@ -31,11 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 public class GenerateDrawsForRangeCommandHandler
     implements CommandHandler<GenerateDrawsForRangeCommand, GenerateDrawsForRangeResult> {
 
-  private static final int MAX_RANGE_DAYS = 31;
+    private static final int MAX_RANGE_DAYS = 31;
 
-  private final DrawChannelCatalog drawChannelCatalog;
-  private final DrawLifecyclePort drawLifecyclePort;
-  private final IdGenerator idGenerator;
+    private final DrawChannelCatalog drawChannelCatalog;
+    private final DrawLifecyclePort drawLifecyclePort;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
     @Override
     @TchTx
@@ -160,9 +156,11 @@ public class GenerateDrawsForRangeCommandHandler
                     continue;
                 }
 
+                var now = clock.instant();
                 var scheduledAt = scheduledZdt.toInstant();
 
-                // cutoff must be strictly before scheduledAt
+                boolean pastBackfill = command.force() && scheduledAt.isBefore(now);
+
                 long cutoffSec = Math.max(1, c.cutoffSec());
                 var cutoffAt = scheduledAt.minusSeconds(cutoffSec);
 
@@ -174,30 +172,32 @@ public class GenerateDrawsForRangeCommandHandler
                         drawDateLocal,
                         scheduledAt,
                         cutoffAt,
-                        "SCHEDULED",
-                        null, // keep only if NewDrawRow still has drawSource/defaultSource
+                        pastBackfill ? "CLOSED" : "SCHEDULED",
+                        null,
+                        now,
+                        now,
                         true,
                         false));
             }
 
             date = date.plusDays(1);
         }
-
         return new Acc(rows, skippedNotDay, alreadyExists);
     }
 
 
-  private record Acc(List<NewDrawRow> rows, int skippedNotDay, int alreadyExists) {}
+    private record Acc(List<NewDrawRow> rows, int skippedNotDay, int alreadyExists) {
+    }
 
-  private void validate(GenerateDrawsForRangeCommand command) {
-    if (command == null) throw new IllegalArgumentException("command is required");
-    if (command.tenantId() == null) throw new IllegalArgumentException("tenantId is required");
-    if (command.from() == null || command.to() == null)
-      throw new IllegalArgumentException("from/to are required");
-    if (command.to().isBefore(command.from()))
-      throw new IllegalArgumentException("to must be >= from");
-    long days = ChronoUnit.DAYS.between(command.from(), command.to()) + 1;
-    if (days > MAX_RANGE_DAYS)
-      throw new IllegalArgumentException("range too large (max " + MAX_RANGE_DAYS + " days)");
-  }
+    private void validate(GenerateDrawsForRangeCommand command) {
+        if (command == null) throw new IllegalArgumentException("command is required");
+        if (command.tenantId() == null) throw new IllegalArgumentException("tenantId is required");
+        if (command.from() == null || command.to() == null)
+            throw new IllegalArgumentException("from/to are required");
+        if (command.to().isBefore(command.from()))
+            throw new IllegalArgumentException("to must be >= from");
+        long days = ChronoUnit.DAYS.between(command.from(), command.to()) + 1;
+        if (days > MAX_RANGE_DAYS)
+            throw new IllegalArgumentException("range too large (max " + MAX_RANGE_DAYS + " days)");
+    }
 }
