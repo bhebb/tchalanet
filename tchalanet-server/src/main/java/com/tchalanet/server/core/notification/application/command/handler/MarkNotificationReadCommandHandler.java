@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class MarkNotificationReadHandler
+public class MarkNotificationReadCommandHandler
     implements VoidCommandHandler<MarkNotificationReadCommand> {
 
   private final Clock clock;

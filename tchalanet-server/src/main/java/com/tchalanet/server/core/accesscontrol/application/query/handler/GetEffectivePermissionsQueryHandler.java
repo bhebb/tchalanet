@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class GetEffectivePermissionsHandler
+public class GetEffectivePermissionsQueryHandler
     implements QueryHandler<GetEffectivePermissionsQuery, List<String>> {
 
   private final TenantUserDirectoryPort tenantUserDirectory;

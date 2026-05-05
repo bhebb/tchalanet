@@ -23,7 +23,7 @@ import java.time.Clock;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class UpsertPageModelHandler
+public class UpsertPageModelCommandHandler
     implements CommandHandler<UpsertPageModelCommand, PageModelInstance> {
 
     private final Clock clock;

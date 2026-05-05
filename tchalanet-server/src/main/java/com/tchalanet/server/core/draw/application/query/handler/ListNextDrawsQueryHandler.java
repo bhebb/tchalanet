@@ -15,7 +15,7 @@ import java.util.Objects;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class ListNextDrawsHandler implements QueryHandler<ListNextDrawsQuery, TchPage<DrawSummary>> {
+public class ListNextDrawsQueryHandler implements QueryHandler<ListNextDrawsQuery, TchPage<DrawSummary>> {
 
     private static final int MAX_LOOKAHEAD_HOURS = 168; // 7 days
     private static final int MAX_LIMIT_PER_CHANNEL = 20;

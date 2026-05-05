@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 // [Phase 3A] @UseCase + VoidCommandHandler pour câblage CQRS (analysis §MAJEUR command_query_handlers.md §3.2)
 @UseCase
 @RequiredArgsConstructor
-public class PublishPageModelHandler implements VoidCommandHandler<PublishPageModelCommand> {
+public class PublishPageModelCommandHandler implements VoidCommandHandler<PublishPageModelCommand> {
 
   private final Clock clock;
   private final PageModelReadPort readPort;

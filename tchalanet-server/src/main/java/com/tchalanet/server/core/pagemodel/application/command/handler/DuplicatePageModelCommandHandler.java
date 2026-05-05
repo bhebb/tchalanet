@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
  */
 @UseCase
 @RequiredArgsConstructor
-public class DuplicatePageModelHandler
+public class DuplicatePageModelCommandHandler
     implements CommandHandler<DuplicatePageModelCommand, PageModelAdminDetailDto> {
 
   private final Clock clock;

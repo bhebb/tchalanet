@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CheckUserPermissionsHandler
+public class CheckUserPermissionsQueryHandler
     implements QueryHandler<CheckUserPermissionsQuery, Boolean> {
 
   private final TenantUserDirectoryPort tenantUserDirectory;

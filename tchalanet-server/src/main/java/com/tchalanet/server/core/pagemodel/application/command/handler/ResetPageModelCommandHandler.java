@@ -33,7 +33,7 @@ import java.time.Instant;
  */
 @UseCase
 @RequiredArgsConstructor
-public class ResetPageModelHandler
+public class ResetPageModelCommandHandler
     implements CommandHandler<ResetPageModelCommand, PageModelAdminDetailDto> {
 
   private final PageModelReaderPort reader;

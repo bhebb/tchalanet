@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class CreateNotificationHandler
+public class CreateNotificationCommandHandler
     implements VoidCommandHandler<CreateNotificationCommand> {
 
   private final Clock clock;

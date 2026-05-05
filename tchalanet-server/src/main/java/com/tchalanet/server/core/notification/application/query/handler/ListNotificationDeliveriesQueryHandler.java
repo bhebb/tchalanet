@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ListNotificationDeliveriesHandler
+public class ListNotificationDeliveriesQueryHandler
     implements QueryHandler<ListNotificationDeliveriesQuery, TchPage<NotificationDeliveryView>> {
 
   private final NotificationReaderPort reader;

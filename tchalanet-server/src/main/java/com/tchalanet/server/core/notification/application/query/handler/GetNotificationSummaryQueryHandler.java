@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class GetNotificationSummaryHandler
+public class GetNotificationSummaryQueryHandler
     implements QueryHandler<GetNotificationSummaryQuery, NotificationSummaryView> {
 
   private final NotificationReaderPort reader;

@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
  */
 @UseCase
 @RequiredArgsConstructor
-public class PreviewPageModelHandler
+public class PreviewPageModelQueryHandler
     implements QueryHandler<PreviewPageModelQuery, PageModelAdminDetailDto> {
 
   private final PageModelReaderPort reader;

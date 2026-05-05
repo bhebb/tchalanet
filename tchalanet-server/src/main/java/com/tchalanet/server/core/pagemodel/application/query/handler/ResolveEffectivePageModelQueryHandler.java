@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 // [Phase 3A] new ObjectMapper() → JsonUtils injecté (analysis §MAJEUR)
 @UseCase
 @RequiredArgsConstructor
-public class ResolveEffectivePageModelHandler
+public class ResolveEffectivePageModelQueryHandler
     implements QueryHandler<ResolveEffectivePageModelQuery, PageModelDoc> {
 
   private final PageModelReadPort readPort;

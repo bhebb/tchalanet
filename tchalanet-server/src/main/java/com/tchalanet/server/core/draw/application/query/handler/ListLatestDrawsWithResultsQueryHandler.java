@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class ListLatestDrawsWithResultsHandler implements QueryHandler<ListLatestDrawsWithResultsQuery, TchPage<DrawSummary>> {
+public class ListLatestDrawsWithResultsQueryHandler implements QueryHandler<ListLatestDrawsWithResultsQuery, TchPage<DrawSummary>> {
 
     private final DrawSummaryReaderPort reader;
 

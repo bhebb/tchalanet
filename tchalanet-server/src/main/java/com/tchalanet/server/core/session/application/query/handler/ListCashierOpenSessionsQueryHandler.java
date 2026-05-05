@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ListCashierOpenSessionsHandler
+public class ListCashierOpenSessionsQueryHandler
     implements QueryHandler<
         ListCashierOpenSessionsQuery, List<ListCashierOpenSessionsHandler.CashierSessionDto>> {
 

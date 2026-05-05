@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class CreatePageTemplateUpdateNotificationsHandler
+public class CreatePageTemplateUpdateNotificationsCommandHandler
     implements CommandHandler<CreatePageTemplateUpdateNotificationsCommand, Integer> {
 
   private static final String TENANT_ADMIN_ROLE = "TENANT_ADMIN";

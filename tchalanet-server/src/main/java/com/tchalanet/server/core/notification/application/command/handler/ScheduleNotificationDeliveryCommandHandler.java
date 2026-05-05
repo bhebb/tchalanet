@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ScheduleNotificationDeliveryHandler
+public class ScheduleNotificationDeliveryCommandHandler
     implements CommandHandler<ScheduleNotificationDeliveryCommand, NotificationDeliveryId> {
 
   private final Clock clock;

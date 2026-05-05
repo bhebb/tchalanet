@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 // [Phase 3B] handler absent — ListPageModelsQuery envoyée sur le bus crashait au premier appel (analysis §gap)
 @UseCase
 @RequiredArgsConstructor
-public class ListPageModelsHandler
+public class ListPageModelsQueryHandler
     implements QueryHandler<ListPageModelsQuery, TchPage<PageModelSummaryView>> {
 
   private final PageModelReadPort readPort;

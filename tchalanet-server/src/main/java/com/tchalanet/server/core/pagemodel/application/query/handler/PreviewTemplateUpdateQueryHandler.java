@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class PreviewTemplateUpdateHandler
+public class PreviewTemplateUpdateQueryHandler
     implements QueryHandler<PreviewTemplateUpdateQuery, TemplateUpdatePreviewView> {
 
   private final PageModelTemplateCatalog templates;

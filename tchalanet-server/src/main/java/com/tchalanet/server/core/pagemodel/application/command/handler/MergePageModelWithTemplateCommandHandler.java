@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class MergePageModelWithTemplateHandler
+public class MergePageModelWithTemplateCommandHandler
     implements CommandHandler<MergePageModelWithTemplateCommand, Boolean> {
 
   private final PageModelTemplateUpdateActionService service;

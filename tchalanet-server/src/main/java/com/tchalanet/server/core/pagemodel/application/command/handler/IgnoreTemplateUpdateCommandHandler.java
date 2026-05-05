@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class IgnoreTemplateUpdateHandler
+public class IgnoreTemplateUpdateCommandHandler
     implements CommandHandler<IgnoreTemplateUpdateCommand, Boolean> {
 
   private final CommandBus commandBus;
