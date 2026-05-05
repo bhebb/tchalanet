@@ -56,21 +56,21 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         var tenantUuid = TchContext.get().tenantUuid();
 
         return repo.findDueToClose(tenantUuid, now, limit).stream()
-            .map(proj -> new DueToCloseRow(
-                TenantId.of(proj.getTenantId()),
-                DrawId.of(proj.getDrawId()),
-                Boolean.TRUE.equals(proj.getLocked())
+            .map(projection -> new DueToCloseRow(
+                TenantId.of(projection.getTenantId()),
+                DrawId.of(projection.getDrawId()),
+                Boolean.TRUE.equals(projection.getLocked())
             ))
             .toList();
     }
 
     private OpenableDrawRow mapOpenableRow(
-        com.tchalanet.server.core.draw.infra.persistence.projection.OpenableDrawProjection p) {
-        TenantId tenantId = TenantId.of(p.getTenantId());
-        DrawId drawId = DrawId.of(p.getDrawId());
-        Boolean locked = p.getLocked() == null ? Boolean.FALSE : p.getLocked();
-        Instant scheduledAt = p.getScheduledAt();
-        Instant cutoffAt = p.getCutoffAt();
+        com.tchalanet.server.core.draw.infra.persistence.projection.OpenableDrawProjection projection) {
+        TenantId tenantId = TenantId.of(projection.getTenantId());
+        DrawId drawId = DrawId.of(projection.getDrawId());
+        Boolean locked = projection.getLocked() == null ? Boolean.FALSE : projection.getLocked();
+        Instant scheduledAt = projection.getScheduledAt();
+        Instant cutoffAt = projection.getCutoffAt();
         // preserve existing shape of OpenableDrawRow
         return new OpenableDrawRow(tenantId, drawId, locked, scheduledAt, cutoffAt);
     }
@@ -82,8 +82,8 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         return repo.bulkOpen(ids, now);
     }
 
-    private static Timestamp ts(Instant i) {
-        return i == null ? null : Timestamp.from(i);
+    private static Timestamp ts(Instant instant) {
+        return instant == null ? null : Timestamp.from(instant);
     }
 
     @Override
@@ -114,32 +114,32 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
                     new BatchPreparedStatementSetter() {
                         @Override
                         public void setValues(PreparedStatement ps, int i) throws SQLException {
-                            NewDrawRow r = chunk.get(i);
+                            NewDrawRow row = chunk.get(i);
 
-                            ps.setObject(1, r.drawId().value());
-                            ps.setObject(2, r.tenantId().value());
-                            ps.setObject(3, r.drawChannelId().value());
+                            ps.setObject(1, row.drawId().value());
+                            ps.setObject(2, row.tenantId().value());
+                            ps.setObject(3, row.drawChannelId().value());
 
-                            if (r.drawDate() != null) ps.setObject(4, r.drawDate());
+                            if (row.drawDate() != null) ps.setObject(4, row.drawDate());
                             else ps.setNull(4, Types.DATE);
 
                             // timestamptz: prefer setObject(Instant)
-                            if (r.scheduledAt() != null) ps.setTimestamp(5, ts(r.scheduledAt()));
+                            if (row.scheduledAt() != null) ps.setTimestamp(5, ts(row.scheduledAt()));
                             else ps.setNull(5, Types.TIMESTAMP);
 
-                            if (r.cutoffAt() != null) ps.setTimestamp(6, ts(r.cutoffAt()));
+                            if (row.cutoffAt() != null) ps.setTimestamp(6, ts(row.cutoffAt()));
                             else ps.setNull(6, Types.TIMESTAMP);
 
-                            ps.setString(7, r.status());
+                            ps.setString(7, row.status());
 
-                            if (r.openedAt() != null) ps.setTimestamp(8, ts(r.openedAt()));
+                            if (row.openedAt() != null) ps.setTimestamp(8, ts(row.openedAt()));
                             else ps.setNull(8, Types.TIMESTAMP);
 
-                            if (r.closedAt() != null) ps.setTimestamp(9, ts(r.closedAt()));
+                            if (row.closedAt() != null) ps.setTimestamp(9, ts(row.closedAt()));
                             else ps.setNull(9, Types.TIMESTAMP);
 
-                            ps.setBoolean(10, r.systemGenerated());
-                            ps.setBoolean(11, r.locked());
+                            ps.setBoolean(10, row.systemGenerated());
+                            ps.setBoolean(11, row.locked());
                         }
 
                         @Override
@@ -148,7 +148,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
                         }
                     });
 
-            for (int c : counts) created += c; // 1 insert, 0 conflict
+            for (int count : counts) created += count; // 1 insert, 0 conflict
         }
 
         return created;

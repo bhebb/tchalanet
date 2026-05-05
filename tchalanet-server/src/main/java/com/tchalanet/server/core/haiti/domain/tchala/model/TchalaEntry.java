@@ -41,7 +41,7 @@ public record TchalaEntry(
             .distinct()
             .sorted((a, b) -> Integer.compare(a.value(), b.value()))
             .collect(Collectors.toUnmodifiableList());
-    String n = note == null ? "" : note.trim();
+    String trimmedNote = note == null ? "" : note.trim();
     DedupeKey key = DedupeKey.from(lang, dream);
     return new TchalaEntry(
         id,
@@ -49,7 +49,7 @@ public record TchalaEntry(
         dream,
         key,
         nums,
-        n,
+        trimmedNote,
         TchalaEntryStatus.PENDING,
         TchalaEntrySource.PUBLIC_SUGGESTION,
         conflictWith,
@@ -78,7 +78,7 @@ public record TchalaEntry(
             .distinct()
             .sorted((a, b) -> Integer.compare(a.value(), b.value()))
             .collect(Collectors.toUnmodifiableList());
-    String n = note == null ? "" : note.trim();
+    String trimmedNote = note == null ? "" : note.trim();
     DedupeKey key = DedupeKey.from(lang, dream);
     return new TchalaEntry(
         id,
@@ -86,7 +86,7 @@ public record TchalaEntry(
         dream,
         key,
         nums,
-        n,
+        trimmedNote,
         TchalaEntryStatus.PENDING,
         TchalaEntrySource.IMPORT,
         conflictWith,
@@ -115,7 +115,7 @@ public record TchalaEntry(
             .distinct()
             .sorted((a, b) -> Integer.compare(a.value(), b.value()))
             .collect(Collectors.toUnmodifiableList());
-    String n = note == null ? "" : note.trim();
+    String trimmedNote = note == null ? "" : note.trim();
     DedupeKey key = DedupeKey.from(lang, dream);
     return new TchalaEntry(
         id,
@@ -123,7 +123,7 @@ public record TchalaEntry(
         dream,
         key,
         nums,
-        n,
+        trimmedNote,
         TchalaEntryStatus.APPROVED,
         source,
         Optional.empty(),

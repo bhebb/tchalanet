@@ -129,11 +129,11 @@ public class RecordManualDrawResultCommandHandler
         }
     }
 
-    private static String normalizeSlotKey(String s) {
-        return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
+    private static String normalizeSlotKey(String key) {
+        return key == null ? "" : key.trim().toUpperCase(Locale.ROOT);
     }
 
-    private static String emptyIfNull(String s) {
-        return s == null ? "" : s.trim();
+    private static String emptyIfNull(String value) {
+        return value == null ? "" : value.trim();
     }
 }

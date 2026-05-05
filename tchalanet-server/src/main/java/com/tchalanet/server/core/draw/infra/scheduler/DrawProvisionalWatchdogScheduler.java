@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.infra.scheduler;
 
 import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
+import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
 import com.tchalanet.server.common.batch.exception.BatchSkippedException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
@@ -26,6 +27,7 @@ public class DrawProvisionalWatchdogScheduler {
     private final MeterRegistry meterRegistry;
     private final BatchGate batchGate;
     private final DrawProperties drawProps;
+    private final BatchTchContextBinder binder;
 
     @BatchScheduledJob("draw:watchdog:provisional")
     @Scheduled(cron = "${tch.draw.watchdog.provisional_cron:0 */15 * * * *}", zone = "UTC")
@@ -37,6 +39,8 @@ public class DrawProvisionalWatchdogScheduler {
 
         var threshold =
             Duration.ofMinutes(drawProps.getWatchdog().getProvisionalStuckMinutes());
+        //tenant or remove call to tenant context //todo
+        binder.bind(null);
 
         var stuckDraws = drawReader.findResultedWithProvisionalOlderThan(threshold);
 

@@ -156,7 +156,7 @@ public class FetchExternalResultsWindowCommandHandler
 
         for (var key : rawSlotKeys.stream()
             .map(FetchExternalResultsWindowCommandHandler::normalizeKey)
-            .filter(s -> !s.isBlank())
+            .filter(normalizedKey -> !normalizedKey.isBlank())
             .distinct()
             .limit(maxSlots)
             .toList()) {
@@ -177,8 +177,8 @@ public class FetchExternalResultsWindowCommandHandler
     }
 
 
-    private int clampDaysBack(int v) {
-        int clamped = Math.max(0, v);
+    private int clampDaysBack(int requestedDays) {
+        int clamped = Math.max(0, requestedDays);
         return Math.min(clamped, props.getLimits().getHardDaysBack());
     }
 
@@ -195,8 +195,8 @@ public class FetchExternalResultsWindowCommandHandler
         }
     }
 
-    private static String normalizeKey(String s) {
-        return s == null ? "" : s.trim().toUpperCase(java.util.Locale.ROOT);
+    private static String normalizeKey(String key) {
+        return key == null ? "" : key.trim().toUpperCase(java.util.Locale.ROOT);
     }
 
 }

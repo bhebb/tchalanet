@@ -60,10 +60,10 @@ public class SubmitTchalaSuggestionCommandHandler
     if (raw == null || raw.isBlank()) throw new IllegalArgumentException("numbers string required");
     String[] parts = NON_DIGIT_PATTERN.split(raw);
     List<TchalaNumber> out = new ArrayList<>();
-    for (String p : parts) {
-      if (p == null || p.isBlank()) continue;
-      int v = Integer.parseInt(p.trim());
-      out.add(TchalaNumber.of(v));
+    for (String numberPart : parts) {
+      if (numberPart == null || numberPart.isBlank()) continue;
+      int numberValue = Integer.parseInt(numberPart.trim());
+      out.add(TchalaNumber.of(numberValue));
     }
     return out.stream().distinct().collect(Collectors.toList());
   }

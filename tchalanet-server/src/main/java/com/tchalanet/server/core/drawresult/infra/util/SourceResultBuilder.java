@@ -56,15 +56,15 @@ public final class SourceResultBuilder {
 
         var main = n.putArray("main");
         if (item.main() != null) {
-            for (var s : item.main()) {
-                main.add(emptyIfNull(s));
+            for (var digit : item.main()) {
+                main.add(emptyIfNull(digit));
             }
         }
 
         var extras = n.putArray("extras");
         if (item.extras() != null) {
-            for (var s : item.extras()) {
-                extras.add(emptyIfNull(s));
+            for (var extra : item.extras()) {
+                extras.add(emptyIfNull(extra));
             }
         }
 
@@ -79,7 +79,7 @@ public final class SourceResultBuilder {
         return String.join("", item.main());
     }
 
-    private static String emptyIfNull(String s) {
-        return s == null ? "" : s;
+    private static String emptyIfNull(String value) {
+        return value == null ? "" : value;
     }
 }

@@ -205,9 +205,9 @@ public class ApplyExternalResultsWindowCommandHandler
     }
 
 
-    private int clampDaysBack(int v) {
-        int x = Math.max(0, v);
-        return Math.min(x, props.getLimits().getHardDaysBack());
+    private int clampDaysBack(int requestedDays) {
+        int nonNegative = Math.max(0, requestedDays);
+        return Math.min(nonNegative, props.getLimits().getHardDaysBack());
     }
 
     private static void validate(ApplyExternalResultsWindowCommand cmd) {
@@ -219,7 +219,7 @@ public class ApplyExternalResultsWindowCommandHandler
         if (cmd.maxSlots() <= 0) throw new IllegalArgumentException("maxSlots must be > 0");
     }
 
-    private static String normalizeKey(String s) {
-        return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
+    private static String normalizeKey(String key) {
+        return key == null ? "" : key.trim().toUpperCase(Locale.ROOT);
     }
 }

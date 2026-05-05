@@ -39,18 +39,18 @@ public final class DefaultHaitiResultProjector implements HaitiResultProjector {
     return new HaitiResult(out);
   }
 
-  private static String require(String s, String field) {
-    if (s == null || s.isBlank()) throw new IllegalArgumentException("Missing " + field);
-    return s.trim();
+  private static String require(String value, String field) {
+    if (value == null || value.isBlank()) throw new IllegalArgumentException("Missing " + field);
+    return value.trim();
   }
 
-  private static String firstN(String s, int n) {
-    if (s.length() < n) throw new IllegalArgumentException("String too short for firstN: " + s);
-    return s.substring(0, n);
+  private static String firstN(String value, int n) {
+    if (value.length() < n) throw new IllegalArgumentException("String too short for firstN: " + value);
+    return value.substring(0, n);
   }
 
-  private static String lastN(String s, int n) {
-    if (s.length() < n) throw new IllegalArgumentException("String too short for lastN: " + s);
-    return s.substring(s.length() - n);
+  private static String lastN(String value, int n) {
+    if (value.length() < n) throw new IllegalArgumentException("String too short for lastN: " + value);
+    return value.substring(value.length() - n);
   }
 }
