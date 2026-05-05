@@ -247,6 +247,18 @@ local-api-down:
 local-api-logs:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" logs api $(ENV)
 
+local-api-smoke:
+	@echo "→ Smoke API ENV=$(ENV)"
+	@$(MAKE) p0-smoke
+	@curl -sf --max-time 5 http://127.0.0.1:${REDIS_PORT:-6379} 2>/dev/null || \
+	  docker exec $$(docker ps --filter "name=.*redis.*$(ENV)" --format "{{.Names}}" | head -1) \
+	    redis-cli --no-auth-warning -a "$${REDIS_PASSWORD:-}" ping 2>/dev/null | grep -q PONG \
+	  || { echo "❌ Redis KO"; exit 1; }
+	@curl -sf --max-time 10 https://api.localtest.me/actuator/health \
+	  || curl -sf --max-time 10 http://127.0.0.1:8081/actuator/health \
+	  || { echo "❌ API /actuator/health KO"; exit 1; }
+	@echo "✅ API smoke OK"
+
 # local-product : server-v0 complet en local (API + Edge + Web)
 local-product-up: local-api-up
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up edge $(ENV)
@@ -283,7 +295,7 @@ smoke-staging:
 
 .PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down
 .PHONY: local-env local-ide-up local-ide-up-redis local-ide-down
-.PHONY: local-api-up local-api-down local-api-logs
+.PHONY: local-api-up local-api-down local-api-logs local-api-smoke
 .PHONY: local-product-up local-product-down
 .PHONY: staging-create staging-backup staging-destroy staging-restore-latest smoke-staging
 .PHONY: doppler-download doppler-download-staging doppler-download-prod
