@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.ticketdelivery.app;
+package com.tchalanet.server.features.ticketdelivery.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;

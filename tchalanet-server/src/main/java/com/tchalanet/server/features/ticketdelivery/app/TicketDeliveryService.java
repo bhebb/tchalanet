@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.ticketdelivery.app;
 
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.application.print.TicketVerificationUrlBuilder;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;

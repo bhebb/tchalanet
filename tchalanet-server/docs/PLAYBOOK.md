@@ -96,6 +96,15 @@ Voir : `docs/conventions/routing_and_path.md`.
 
 Controller = mapping + validation + injection context + dispatch.
 
+Validation structurelle :
+
+- Préférer Jakarta Bean Validation (`@NotNull`, `@NotBlank`, `@Valid`, etc.)
+  sur les modèles web, commands et queries.
+- Ne pas ajouter de `require*` maison pour une contrainte déjà exprimable en
+  Bean Validation.
+- Garder les `require*` pour les règles métier/domain (cutoff, transition,
+  settlement, permissions, invariants multi-objets).
+
 ### 5.1 Réponses 2xx
 
 - **Contrat** : `ApiResponse<T>`
@@ -124,6 +133,10 @@ Voir : `docs/conventions/pagination.md`.
 - Handler = `@UseCase` + implémentation `CommandHandler` / `QueryHandler`
 - Commands qui écrivent : `@TchTx`
 - Lecture simple : pas forcément de transaction
+- Queries tenant-scoped : ne pas inclure `tenantId` par défaut si le contexte est
+  garanti et RLS actif.
+- Ajouter `tenantId` explicitement seulement pour platform/batch/public
+  multi-tenant, contexte non garanti, ou travail volontaire sur un autre tenant.
 
 Voir : `docs/conventions/command_query_handlers.md`, `docs/conventions/idempotency.md`.
 

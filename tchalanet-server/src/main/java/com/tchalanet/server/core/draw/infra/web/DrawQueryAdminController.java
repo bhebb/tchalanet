@@ -85,7 +85,7 @@ public class DrawQueryAdminController {
             throw ProblemRest.badRequest("draw.lookahead_days_invalid");
         }
 
-        var criteria = DrawSearchCriteria.upcoming(resultSlotId, days, clock);
+        var criteria = DrawSearchCriteria.upcoming(resultSlotId, LocalDate.now(clock), days);
         TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
 
         return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));

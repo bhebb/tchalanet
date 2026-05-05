@@ -9,4 +9,5 @@ public record PublicLatestDrawResultsResponse(
     String timezone,
     String drawTime,
     Instant nextScheduledAt,
-    List<PublicDrawResultItemResponse> results) {}
+    List<PublicDrawResultItemResponse> results
+) {}

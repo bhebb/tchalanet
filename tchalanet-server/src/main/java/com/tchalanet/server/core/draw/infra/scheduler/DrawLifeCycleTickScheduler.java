@@ -28,6 +28,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -68,10 +69,9 @@ public class DrawLifeCycleTickScheduler {
         var failures = new ArrayList<TenantFailure>();
 
         for (TenantId tenantId : activeTenants) {
-            var jp = jobParams(tenantId, "draw-generate", now);
 
             try {
-                binder.bind(jp);
+                binder.bind(jobParams(tenantId, "draw-generate", now));
 
                 commandBus.send(new GenerateDrawsForRangeCommand(
                     tenantId,
@@ -222,7 +222,12 @@ public class DrawLifeCycleTickScheduler {
 
 
     private JobParameters jobParams(TenantId tenantId, String kind, Instant now) {
-        String requestId = kind + "-" + now.toEpochMilli() + "-" + UUID.randomUUID();
+        Objects.requireNonNull(tenantId, "tenantId is required");
+        Objects.requireNonNull(now, "now is required");
+
+        String safeKind = kind == null || kind.isBlank() ? "batch" : kind.trim();
+        String requestId = safeKind + "-" + now.toEpochMilli() + "-" + UUID.randomUUID();
+
         return new JobParametersBuilder()
             .addString(BatchParamKeys.TENANT_ID, tenantId.value().toString())
             .addString(BatchParamKeys.REQUEST_ID, requestId)

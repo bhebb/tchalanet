@@ -6,6 +6,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DaysOfWeekParser;
+import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
@@ -13,6 +14,7 @@ import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsFor
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -172,8 +174,8 @@ public class GenerateDrawsForRangeCommandHandler
                         drawDateLocal,
                         scheduledAt,
                         cutoffAt,
-                        pastBackfill ? "CLOSED" : "SCHEDULED",
-                        null,
+                        DrawSource.SYSTEM.name(),
+                        pastBackfill ? DrawStatus.CLOSED.name() : DrawStatus.SCHEDULED.name(),
                         now,
                         now,
                         true,

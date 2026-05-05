@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.batch.launch;
 
+import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
 import com.tchalanet.server.common.batch.gate.BatchDisabledException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.JobKey;
@@ -48,6 +49,7 @@ public class BatchJobStarter {
     private final JobOperator jobOperator;
     private final ApplicationContext applicationContext;
     private final Clock clock;
+    private final BatchTchContextBinder binder;
 
     public BatchJobStarter(
         TchBatchJobRegistry tchBatchJobRegistry,
@@ -55,7 +57,8 @@ public class BatchJobStarter {
         JobParamsValidator validator,
         JobOperator jobOperator,
         ApplicationContext applicationContext,
-        Clock clock
+        Clock clock,
+        BatchTchContextBinder binder
     ) {
         this.tchBatchJobRegistry = tchBatchJobRegistry;
         this.gate = gate;
@@ -63,6 +66,7 @@ public class BatchJobStarter {
         this.jobOperator = jobOperator;
         this.applicationContext = applicationContext;
         this.clock = clock;
+        this.binder = binder;
     }
 
     public JobExecution start(JobKey jobKey, Map<String, String> params) {
@@ -96,7 +100,8 @@ public class BatchJobStarter {
         validator.validate(jobKey, registered, params);
 
         // 5) job params
-        JobParameters jobParameters = buildJobParameters(params);
+        var jobParameters = buildJobParameters(params);
+        binder.bind(jobParameters);
 
         // 6) resolve Job bean
         Job job = resolveJobBean(registered.springJobBeanName());

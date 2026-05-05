@@ -150,6 +150,55 @@ Voir : `command_query_handlers.md`
 - MapStruct recommandé pour mapping stable DTO <-> views
 - Les conversions “web string → typed id” se font via converters dans `common.web.converter`
 
+### 5.4 Validation structurelle
+
+Les modèles web (`XxxRequest`, `XxxFilter`, query params complexes) utilisent
+Jakarta Bean Validation pour les contraintes structurelles :
+
+- `@NotNull`
+- `@NotBlank`
+- `@Positive`
+- `@Size`
+- `@Valid` pour les objets imbriqués
+
+Éviter les appels ad-hoc `require*` dans les DTO web, controllers et handlers
+pour vérifier des contraintes structurelles déjà exprimables en annotations.
+
+À garder dans des méthodes/rules `require*` :
+
+- règles métier
+- transitions d'état
+- cut-off / settlement / payout
+- permissions ou limites dépendant du contexte
+- invariants impliquant plusieurs objets
+
+Exemple attendu :
+
+```java
+public record VoidTicketRequest(
+  @NotBlank String reason
+) {}
+```
+
+Puis le controller mappe vers une command/query validée. Le handler applique
+uniquement les règles métier restantes.
+
+### 5.5 Tenant ID dans les modèles web
+
+Les endpoints tenant-scoped (`/tenant/**`, `/admin/**`) ne prennent pas
+`tenantId` dans le body ou les query params par défaut. Le tenant vient du
+contexte (`@CurrentContext TchRequestContext`) et l'isolation est assurée par
+RLS.
+
+Inclure `tenantId` explicitement seulement si :
+
+- le contexte n'est pas garanti
+- l'appel est platform, batch, ou public multi-tenant
+- le use case doit volontairement travailler sur un tenant différent du contexte
+
+Dans ces cas, la raison doit être évidente dans le nom du controller/endpoint
+ou documentée dans la feature/domain doc.
+
 ---
 
 ## 6) IDs dans la couche web (MUST)

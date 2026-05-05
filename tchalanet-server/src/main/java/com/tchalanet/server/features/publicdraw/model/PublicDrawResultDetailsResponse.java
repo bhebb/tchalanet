@@ -4,8 +4,18 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 public record PublicDrawResultDetailsResponse(
-    PublicDrawResultItemResponse result,
-    Instant nextScheduledAt, // UTC
-    LocalDate nextDrawDate, // date locale slot (optionnel)
-    String nextDrawTime // "14:30" (optionnel)
-    ) {}
+    String drawId,
+    String slotKey,
+    String provider,
+    String timezone,
+    String drawTime,
+    LocalDate drawDate,
+    Instant occurredAt,
+    String lot1,
+    String lot2,
+    String lot3,
+    String lot4,
+    String status,
+    String quality,
+    String source
+) {}
