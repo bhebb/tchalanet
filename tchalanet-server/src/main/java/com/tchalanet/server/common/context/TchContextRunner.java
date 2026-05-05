@@ -20,6 +20,7 @@ public final class TchContextRunner {
   private TchContextRunner() {}
 
   public static void runAsTenant(UUID tenantId, String requestId, Runnable r) {
+    var previous = TchContext.currentOrNull();
     var ctx = new TchRequestContext(
         "tchalanet",
         tenantId,
@@ -45,11 +46,12 @@ public final class TchContextRunner {
     try {
       r.run();
     } finally {
-      TchContext.clear();
+      restore(previous);
     }
   }
 
   public static <T> T runAsTenantResult(UUID tenantId, String requestId, Supplier<T> s) {
+    var previous = TchContext.currentOrNull();
     var ctx = new TchRequestContext(
         "tchalanet",
         tenantId,
@@ -75,7 +77,15 @@ public final class TchContextRunner {
     try {
       return s.get();
     } finally {
-      TchContext.clear();
+      restore(previous);
     }
+  }
+
+  private static void restore(TchRequestContext previous) {
+    if (previous == null) {
+      TchContext.clear();
+      return;
+    }
+    TchContext.set(previous);
   }
 }

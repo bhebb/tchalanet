@@ -2,8 +2,6 @@ package com.tchalanet.server.core.draw.application.query.model;
 
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,21 +19,16 @@ public record DrawSearchCriteria(
         ResultSlotId resultSlotId,
         String status,
         LocalDate from,
-        LocalDate to
-    ) {
-        DrawStatus drawStatus = status == null || status.isBlank()
-            ? null
-            : DrawStatus.valueOf(status.toUpperCase());
+        LocalDate to) {
 
         return new DrawSearchCriteria(
             resultSlotId,
-            drawStatus,
+            parseStatus(status),
             from,
             to,
             null,
             null,
-            null
-        );
+            null);
     }
 
     public static DrawSearchCriteria today(ResultSlotId resultSlotId, LocalDate today) {
@@ -46,29 +39,29 @@ public record DrawSearchCriteria(
             today,
             null,
             null,
-            null
-        );
+            null);
     }
 
-    public static DrawSearchCriteria upcoming(ResultSlotId resultSlotId, int days, Clock clock) {
-        LocalDate today = LocalDate.now(clock);
-        LocalDate until = today.plusDays(days);
+    public static DrawSearchCriteria upcoming(
+        ResultSlotId resultSlotId,
+        LocalDate today,
+        int days) {
+
         return new DrawSearchCriteria(
             resultSlotId,
             null,
             today,
-            until,
+            today.plusDays(days),
             null,
             null,
-            null
-        );
+            null);
     }
 
     public static DrawSearchCriteria forNext(
         ResultSlotId resultSlotId,
         int lookaheadHours,
-        int limitPerChannel
-    ) {
+        int limitPerChannel) {
+
         return new DrawSearchCriteria(
             resultSlotId,
             null,
@@ -76,13 +69,10 @@ public record DrawSearchCriteria(
             null,
             limitPerChannel,
             lookaheadHours,
-            null
-        );
+            null);
     }
 
-    public static DrawSearchCriteria forLatestWithResults(
-        List<String> resultSlotKeys
-    ) {
+    public static DrawSearchCriteria forLatestWithResults(List<String> resultSlotKeys) {
         return new DrawSearchCriteria(
             null,
             null,
@@ -90,8 +80,44 @@ public record DrawSearchCriteria(
             null,
             null,
             null,
-            resultSlotKeys
-        );
+            normalizeKeys(resultSlotKeys));
     }
 
+    public static DrawSearchCriteria forResults(
+        List<String> resultSlotKeys,
+        LocalDate from,
+        LocalDate to) {
+
+        return new DrawSearchCriteria(
+            null,
+            DrawStatus.RESULTED,
+            from,
+            to,
+            null,
+            null,
+            normalizeKeys(resultSlotKeys));
+    }
+
+    private static DrawStatus parseStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+
+        return DrawStatus.valueOf(status.trim().toUpperCase());
+    }
+
+    private static List<String> normalizeKeys(List<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return null;
+        }
+
+        var normalized =
+            keys.stream()
+                .filter(k -> k != null && !k.isBlank())
+                .map(k -> k.trim().toUpperCase())
+                .distinct()
+                .toList();
+
+        return normalized.isEmpty() ? null : normalized;
+    }
 }

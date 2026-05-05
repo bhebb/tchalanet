@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.ticketdelivery;
 
-import com.tchalanet.server.features.ticketdelivery.app.EdgeDeliveryPayload;
+import com.tchalanet.server.features.ticketdelivery.model.EdgeDeliveryPayload;
 import com.tchalanet.server.features.ticketdelivery.app.EdgeTicketDeliveryGateway;
 import com.tchalanet.server.features.ticketdelivery.config.TicketDeliveryProperties;
 import com.tchalanet.server.features.ticketdelivery.model.DeliverTicketRequest;

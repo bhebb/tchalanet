@@ -1,53 +1,140 @@
 package com.tchalanet.server.features.publicdraw;
 
-
-import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.features.publicdraw.persistence.PublicDrawResultRow;
-import com.tchalanet.server.features.publicdraw.model.PublicDrawResultItemResponse;
-import lombok.RequiredArgsConstructor;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
+import com.tchalanet.server.features.publicdraw.model.*;
+import com.tchalanet.server.features.publicdraw.model.PublicLatestDrawResultsResponse;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.JsonNode;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class PublicDrawResultMapper {
 
-    private final JsonUtils jsonUtils;
-
-    public PublicDrawResultItemResponse toItem(PublicDrawResultRow r) {
-        String lot1 = null, lot2 = null, lot3 = null, lot4 = null;
-
-        try {
-            if (r.getHaitiResultJson() != null && !r.getHaitiResultJson().isBlank()) {
-                JsonNode j = jsonUtils.valueToTree(r.getHaitiResultJson());
-                lot1 = textOrNull(j, "lot1");
-                lot2 = textOrNull(j, "lot2");
-                lot3 = textOrNull(j, "lot3");
-                lot4 = textOrNull(j, "lot4");
-            }
-        } catch (Exception ignore) {
-        }
-
-        return new PublicDrawResultItemResponse(
-            r.getSlotKey(),
-            r.getProvider(),
-            r.getSlotTimezone(),
-            r.getSlotDrawTime() == null ? null : r.getSlotDrawTime().toString(),
-            r.getDrawDate(),
-            r.getOccurredAt(),
-            lot1,
-            lot2,
-            lot3,
-            lot4,
-            r.getStatus() == null ? null : r.getStatus(),
-            r.getQuality() == null ? null : r.getQuality(),
-            r.getSource());
+    public PublicDrawResultListResponse toListResponse(TchPage<DrawSummary> page) {
+        return new PublicDrawResultListResponse(
+            page.items().stream().map(this::toItem).toList(),
+            page.page(),
+            page.size(),
+            page.totalElements(),
+            page.totalPages());
     }
 
-    private static String textOrNull(JsonNode j, String key) {
-        JsonNode n = j.get(key);
-        if (n == null || n.isNull()) return null;
-        String s = n.asText();
-        return (s == null || s.isBlank()) ? null : s;
+
+    public PublicDrawResultDetailsResponse toDetails(DrawSummary s) {
+        var result = s.result();
+        var haiti = result == null || result.haitiResult() == null
+            ? Map.<String, Object>of()
+            : result.haitiResult();
+
+        return new PublicDrawResultDetailsResponse(
+            s.drawId().value().toString(),
+            s.resultSlotKey(),
+            s.resultProvider(),
+            s.resultTimezone(),
+            s.resultDrawTime() == null ? null : s.resultDrawTime().toString(),
+            s.drawDate(),
+            result == null ? null : result.occurredAt(),
+            textOrNull(haiti, "lot1"),
+            textOrNull(haiti, "lot2"),
+            textOrNull(haiti, "lot3"),
+            textOrNull(haiti, "lot4"),
+            result == null || result.status() == null ? null : result.status().name(), null, null);
+//            result == null ? null : result.quality(),
+//            result == null ? null : result.source());
+    }
+
+
+    public PublicLatestDrawResultsPageResponse toLatestPageResponse(
+        TchPage<DrawSummary> page,
+        int limitPerSlot) {
+
+        var groups = toLatestGroups(page.items(), limitPerSlot);
+
+        return new PublicLatestDrawResultsPageResponse(
+            groups,
+            page.page(),
+            page.size(),
+            page.totalElements(),
+            page.totalPages());
+    }
+
+    public List<PublicLatestDrawResultsResponse> toLatestGroups(
+        List<DrawSummary> summaries,
+        int limitPerSlot) {
+
+        if (summaries == null || summaries.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, List<DrawSummary>> grouped =
+            summaries.stream()
+                .filter(s -> s.resultSlotKey() != null)
+                .collect(
+                    Collectors.groupingBy(
+                        DrawSummary::resultSlotKey,
+                        LinkedHashMap::new,
+                        Collectors.toList()));
+
+        return grouped.entrySet().stream()
+            .map(
+                e -> {
+                    var first = e.getValue().getFirst();
+
+                    var items =
+                        e.getValue().stream()
+                            .limit(limitPerSlot)
+                            .map(this::toItem)
+                            .toList();
+
+                    return new PublicLatestDrawResultsResponse(
+                        first.resultSlotKey(),
+                        first.resultProvider(),
+                        first.resultTimezone(),
+                        first.resultDrawTime() == null ? null : first.resultDrawTime().toString(),
+                        null,
+                        items);
+                })
+            .toList();
+    }
+
+    public PublicDrawResultItemResponse toItem(DrawSummary s) {
+        var result = s.result();
+        var haiti =
+            result == null || result.haitiResult() == null
+                ? Map.<String, Object>of()
+                : result.haitiResult();
+
+        return new PublicDrawResultItemResponse(
+            s.drawId().value().toString(),
+            s.resultSlotKey(),
+            s.resultProvider(),
+            s.resultTimezone(),
+            s.resultDrawTime() == null ? null : s.resultDrawTime().toString(),
+            s.drawDate(),
+            result == null ? null : result.occurredAt(),
+            textOrNull(haiti, "lot1"),
+            textOrNull(haiti, "lot2"),
+            textOrNull(haiti, "lot3"),
+            textOrNull(haiti, "lot4"),
+            result == null || result.status() == null ? null : result.status().name(),
+            null, null);
+        //            result == null ? null : result.quality(),
+//            result == null ? null : result.source());
+    }
+
+    private static String textOrNull(Map<String, Object> map, String key) {
+        var value = map.get(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        var text = value.toString();
+
+        return text.isBlank() ? null : text;
     }
 }

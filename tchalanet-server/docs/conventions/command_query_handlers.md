@@ -37,6 +37,28 @@ Infra adapters:
 - Constructor injection only (final fields).
 - No static business utilities.
 
+### 2.1 Structural validation — prefer Jakarta Validation
+
+Use Jakarta Bean Validation for structural constraints on web request models,
+commands, and queries:
+
+- `@NotNull`, `@NotBlank`, `@Positive`, `@Size`, `@Valid`, etc.
+- nested records should be validated with `@Valid`
+- handlers may assume structural constraints were checked by the bus/controller
+  validation path
+
+Avoid ad-hoc `require*` methods for structural validation in web models and
+handlers. Reserve `require*` methods for domain/business rules that cannot be
+expressed as Bean Validation annotations, such as state transitions, cut-off
+rules, permissions, settlement rules, and cross-aggregate invariants.
+
+Examples:
+
+- `@NotNull TicketId ticketId` is preferred over `Require.notNull(ticketId)`.
+- `@NotBlank String reason` is preferred over `Require.notBlank(reason)`.
+- `drawCutoffRule.requireBeforeCutoff(drawId)` is acceptable because it is a
+  business rule.
+
 ---
 
 ## 3) Commands (write) — `CommandHandler<C extends Command<R>, R>`
@@ -129,18 +151,38 @@ public record CancelTicketCommand(
 - Handler annotated with `@UseCase`
 - No `@TchTx` unless you have a documented need (rare). Prefer read-only queries without explicit tx.
 - Output should be a projection/view (record), not a domain aggregate.
+- Tenant-scoped queries do not include `tenantId` by default when the tenant
+  context is guaranteed and RLS is active.
 - Paging:
   - input may carry `Pageable` or `TchPageRequest` (depending on your paging standard)
   - output is `TchPage<R>` for list endpoints
 
-### 4.3 Template (query)
+### 4.3 Tenant IDs in queries
+
+For tenant-scoped reads, the default is:
+
+- resolve tenant from the request/job context
+- rely on RLS for data isolation
+- do not pass `tenantId` through the query model only to re-filter data
+
+Add `tenantId` explicitly to a query only when at least one condition applies:
+
+- the context is not guaranteed
+- the caller is platform, batch, or public and intentionally multi-tenant
+- the handler must deliberately operate on a tenant different from the current
+  context
+
+When a query carries `tenantId`, name the reason in the domain/feature doc or in
+the query Javadoc/comment if the intent is not obvious. This avoids treating
+`tenantId` as banned while still keeping tenant-scoped queries clean by default.
+
+### 4.4 Template (tenant-scoped query)
 
 ```java
 package com.tchalanet.server.core.sales.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketStatusQuery;
 import com.tchalanet.server.core.sales.application.query.model.TicketStatusView;
@@ -154,7 +196,7 @@ public class GetTicketStatusHandler implements QueryHandler<GetTicketStatusQuery
 
   @Override
   public TicketStatusView handle(GetTicketStatusQuery q) {
-    return reader.findStatusByPublicCode(q.tenantId(), q.publicCode())
+    return reader.findStatusByPublicCode(q.publicCode())
       .orElseThrow(() -> /* ProblemRest.notFound(...) */ new IllegalStateException("not_found"));
   }
 }
@@ -165,13 +207,26 @@ Query model:
 ```java
 package com.tchalanet.server.core.sales.application.query.model;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record GetTicketStatusQuery(
-  @NotNull TenantId tenantId,
   @NotBlank String publicCode
+) {}
+```
+
+### 4.5 Template (explicit tenant query)
+
+Use this style only for platform, batch, public multi-tenant, or deliberate
+cross-tenant reads:
+
+```java
+package com.tchalanet.server.core.theme.application.query.model;
+
+import com.tchalanet.server.common.types.id.TenantId;
+import jakarta.validation.constraints.NotNull;
+
+public record ResolveTenantThemeQuery(
+  @NotNull TenantId tenantId
 ) {}
 ```
 

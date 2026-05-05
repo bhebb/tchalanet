@@ -2,8 +2,8 @@ package com.tchalanet.server.features.publicdraw.model;
 
 import java.util.List;
 
-public record PublicDrawResultListResponse(
-    List<PublicDrawResultItemResponse> items,
+public record PublicLatestDrawResultsPageResponse(
+    List<PublicLatestDrawResultsResponse> items,
     int page,
     int size,
     long totalItems,
