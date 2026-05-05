@@ -36,7 +36,7 @@ public interface StatsDailyJpaRepository
   // Pour top caissiers d'un tenant :
   @Query(
       """
-        select new com.tchalanet.server.features.stats.cashierdashboard.app.CashierAggregateRow(
+        select new com.tchalanet.server.features.stats.cashierdashboard.model.CashierAggregateRow(
             s.dimensionId,
             sum(s.ticketsCount),
             sum(s.stakeSumCents),

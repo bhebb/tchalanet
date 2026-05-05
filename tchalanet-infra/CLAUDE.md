@@ -1,55 +1,37 @@
-# CLAUDE.md — tchalanet-infra
+# Claude — tchalanet-infra
 
-> **Lire d'abord** : `../CLAUDE.md` (règles transverses, secrets, OpenSpec)
+Claude router for infra work. Detailed infra guidance lives in `AGENTS.md` and
+`docs/`.
 
----
+Read first:
 
-## Stack infrastructure
+- `../AGENTS.md`
+- `../VERSIONS.md`
+- `AGENTS.md`
+- `docs/README.md`
+- the compose/env/runbook files explicitly touched
 
-| Élément       | Détail                                         |
-| ------------- | ---------------------------------------------- |
-| Orchestration | Docker Compose v2 (modular)                    |
-| Reverse proxy | Traefik v3.6.5                                 |
-| CI/CD         | GitHub Actions → GHCR → Hetzner (staging/prod) |
-| Auth          | Keycloak 26 (image custom GHCR)                |
-| DB            | PostgreSQL 18.1 · Redis 8.4                    |
-| Secrets       | **Doppler uniquement**                         |
-| Feature flags | Unleash 7.4                                    |
-| Search        | Meilisearch v1.11                              |
+OpenSpec:
 
----
+- Infra changes live in `tchalanet-infra/openspec/`.
+- Use root `openspec/` only for cross-project changes.
 
-## Règles absolues
+Context rule:
 
-- **Images Docker pinées** — jamais `:latest` — toutes les versions dans `VERSIONS.md`
-- **Secrets via Doppler** — jamais dans le code, les fichiers Compose, ni la doc
-- `.secrets` non-committé — ignoré via `.gitignore`
-- Même topologie sur tous les envs (`local`, `dev`, `staging`, `prod`) — seule la configuration diffère
-- Pas de déploiement prod manuel — tout passe par GitHub Actions
-- Build CI échoue sur : version drift · migrations manquantes · configs invalides
+- Inspect only relevant compose/env/script files.
+- Check `VERSIONS.md` before image/runtime changes.
+- Do not commit secrets or broaden exposed ports casually.
 
----
-
-## Structure Compose
-
-```
-compose/           ← fichiers services modulaires
-envs/common/       ← versions partagées (compose.env)
-envs/<env>/        ← overrides par environnement
-```
-
-## Commandes
+Commands:
 
 ```bash
-make up-all ENV=dev      # démarre tous les services
-make down ENV=dev        # arrête
-make logs ENV=dev        # logs
-
-# Skills infra
-# tchalanet-infra/.claude/skills/infrastructure
+docker compose config
+make help
 ```
 
-## Référence
+Claude-specific output:
 
-`docs/OPERATIONS.md` · `docs/HETZNER.md` · `docs/DOPPLER.md`
-`VERSIONS.md` (racine) — source de vérité unique pour toutes les versions
+1. Infra files inspected
+2. Services affected
+3. Validation command
+4. Rollback note

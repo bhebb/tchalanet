@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.pagemodel.domain.policy;
 
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,12 +25,12 @@ public class PublishPolicy {
 
     for (var other : currentlyPublished) {
       if (!other.id().equals(toPublish.id())) {
-        other.markArchived(now, actorId);
+        other.markArchived(now, UserId.of(actorId));
         changed.add(other);
       }
     }
 
-    toPublish.markPublished(now, actorId);
+    toPublish.markPublished(now, UserId.of(actorId));
     changed.add(toPublish);
 
     return changed;

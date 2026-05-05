@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiLot;
 import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionToken;
+import com.tchalanet.server.core.haiti.infra.adapter.DefaultHaitiProjectionConfigAdapter;
 import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 

@@ -29,4 +29,4 @@
 ## Liens
 
 - Backend docs: `tchalanet-server/docs/ROUTING_AND_API_PATHS_V1.md`, `tchalanet-server/docs/rls.md`
-- OpenSpec: `openspec/context/10-non-negotiables.md`, `openspec/context/30-backend.md`
+- OpenSpec: `openspec/context/10-non-negotiables.md`

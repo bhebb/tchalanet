@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +29,9 @@ public class SettleWriter implements ItemWriter<DrawId> {
 
     @Override
     public void write(Chunk<? extends DrawId> chunk) {
-        Instant now = Instant.now(clock);
+        var now = Instant.now(clock);
 
-        ZoneId tenantZone =
+        var tenantZone =
             TchContext.get() != null && TchContext.get().tenantZoneId() != null
                 ? TchContext.get().tenantZoneId()
                 : ZoneId.of("UTC");
@@ -43,7 +44,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
 
             var draw = drawOpt.get();
             try {
-                if (draw.status() != com.tchalanet.server.core.draw.domain.model.DrawStatus.RESULTED) {
+                if (draw.status() != DrawStatus.RESULTED) {
                     continue;
                 }
 
@@ -59,7 +60,7 @@ public class SettleWriter implements ItemWriter<DrawId> {
                 }
 
                 // Source truth = Instant now; conversion explicit via tenantZone
-                draw.settle(settledAt);
+                draw.settle(settledAt.toInstant());
 
                 drawWriterPort.save(draw);
             } catch (Exception e) {

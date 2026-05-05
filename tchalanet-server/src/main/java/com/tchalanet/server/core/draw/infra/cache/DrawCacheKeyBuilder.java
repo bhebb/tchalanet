@@ -1,20 +1,42 @@
 package com.tchalanet.server.core.draw.infra.cache;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import org.springframework.beans.factory.annotation.Value;
+import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
+import java.time.LocalDate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DrawCacheKeyBuilder {
 
-  @Value("${app.env:dev}")
-  private String env;
+    public String today(TenantId tenantId, LocalDate date, String pageKey) {
+        return "tenant:%s:date:%s:page:%s"
+            .formatted(tenantId.value(), date, pageKey);
+    }
 
-  public String today(TenantId tenantId) {
-    return String.format("tch:%s:%s:draws:today", env, tenantId);
-  }
+    public String next(TenantId tenantId, Integer lookaheadHours, String pageKey) {
+        return "tenant:%s:lookaheadHours:%s:page:%s"
+            .formatted(
+                tenantId.value(),
+                lookaheadHours == null ? "default" : lookaheadHours,
+                pageKey);
+    }
 
-  public String next(TenantId tenantId) {
-    return String.format("tch:%s:%s:draws:next", env, tenantId);
-  }
+    public String summary(TenantId tenantId, DrawSearchCriteria criteria, String pageKey) {
+        return "tenant:%s:slot:%s:from:%s:to:%s:status:%s:page:%s"
+            .formatted(
+                tenantId.value(),
+                criteria.resultSlotId() == null ? "all" : criteria.resultSlotId().value(),
+                criteria.from(),
+                criteria.to(),
+                criteria.status() == null ? "all" : criteria.status(),
+                pageKey);
+    }
+
+    public String latestResults(TenantId tenantId, String slotKeysKey, String pageKey) {
+        return "tenant:%s:slotKeys:%s:page:%s"
+            .formatted(
+                tenantId.value(),
+                slotKeysKey == null || slotKeysKey.isBlank() ? "all" : slotKeysKey,
+                pageKey);
+    }
 }

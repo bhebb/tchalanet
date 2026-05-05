@@ -1,14 +1,10 @@
 package com.tchalanet.server.core.draw.infra.web.model;
 
-import java.time.OffsetDateTime;
-import java.util.List;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+
 
 public record DrawChannelSummaryResponse(
-    String channelCode,
-    String channelName,
-    String status,
-    OffsetDateTime drawTime,
-    OffsetDateTime cutoffTime,
-    boolean isNext,
-    boolean active,
-    List<Integer> lastResult) {}
+    String id,
+    String name,
+    String code
+) {}

@@ -1,123 +1,335 @@
 package com.tchalanet.server.core.drawresult.infra.persistence.repo;
 
 import com.tchalanet.server.common.types.enums.DrawSource;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.drawresult.infra.persistence.DrawResultJpaEntity;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import tools.jackson.databind.JsonNode;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class DrawResultJdbcRepository {
 
-  private final JdbcTemplate jdbc;
-  private final JsonUtils jsonUtils;
+    private final JdbcTemplate jdbc;
+    private final JsonUtils jsonUtils;
 
-  private static Object TimestampFromInstant(Instant i) {
-    if (i == null) return null;
-    return java.sql.Timestamp.from(i);
-  }
+    // ---------------------------------------------------------
+    // 🔍 BASIC LOOKUP
+    // ---------------------------------------------------------
 
-  public UUID findByResultSlotIdAndOccurredAt(UUID resultSlotId, Instant occurredAt) {
-    var sql =
-        "select id from draw_result where result_slot_id = ? and occurred_at = ? and deleted_at is null";
-    var rows =
-        jdbc.query(
-            sql,
-            (rs, i) -> (UUID) rs.getObject("id"),
+    public UUID findByResultSlotIdAndOccurredAt(UUID resultSlotId, Instant occurredAt) {
+        var rows = jdbc.query(
+            """
+                select id
+                from draw_result
+                where result_slot_id = ?
+                  and occurred_at = ?
+                  and deleted_at is null
+                """,
+            (rs, rowNum) -> rs.getObject("id", UUID.class),
             resultSlotId,
-            TimestampFromInstant(occurredAt));
-    return rows.isEmpty() ? null : rows.get(0);
-  }
+            Timestamp.from(occurredAt)
+        );
 
-  public long countByCriteria(
-      String provider, String slotKey, java.time.LocalDate from, java.time.LocalDate to) {
-    var sb = new StringBuilder("select count(1) from draw_result where deleted_at is null");
-    var params = new java.util.ArrayList<Object>();
-    // provider/slot criteria removed since columns not present in table
-    if (from != null) {
-      sb.append(" and occurred_at >= ?");
-      params.add(java.sql.Timestamp.from(from.atStartOfDay(java.time.ZoneOffset.UTC).toInstant()));
+        return rows.isEmpty() ? null : rows.getFirst();
     }
-    if (to != null) {
-      sb.append(" and occurred_at <= ?");
-      params.add(
-          java.sql.Timestamp.from(
-              to.plusDays(1).atStartOfDay(java.time.ZoneOffset.UTC).toInstant()));
+
+    // ---------------------------------------------------------
+    // 📦 VIEW (OPS / ADMIN)
+    // ---------------------------------------------------------
+
+    public Optional<DrawResultView> findViewById(UUID id) {
+        var rows = jdbc.query(
+            baseViewSql("dr.id = ?"),
+            this::mapView,
+            id
+        );
+        return rows.stream().findFirst();
     }
-    Long c = jdbc.queryForObject(sb.toString(), params.toArray(), Long.class);
-    return c == null ? 0L : c;
-  }
 
-  public List<DrawResultJpaEntity> findByCriteria(
-      String provider,
-      String slotKey,
-      java.time.LocalDate from,
-      java.time.LocalDate to,
-      int limit,
-      int offset) {
-    var sb =
-        new StringBuilder(
-            "select id, result_slot_id, occurred_at, source_result, haiti_result, raw_payload, flags, status, quality, source, source_hash, fetched_at, override_reason from draw_result where deleted_at is null");
-    var params = new ArrayList<Object>();
-
-    if (from != null) {
-      sb.append(" and occurred_at >= ?");
-      params.add(java.sql.Timestamp.from(from.atStartOfDay(java.time.ZoneOffset.UTC).toInstant()));
+    public Optional<DrawResultView> findViewBySlotKeyAndOccurredAt(
+        String slotKey,
+        Instant occurredAt
+    ) {
+        var rows = jdbc.query(
+            baseViewSql("rs.slot_key = ? and dr.occurred_at = ?"),
+            this::mapView,
+            slotKey,
+            Timestamp.from(occurredAt)
+        );
+        return rows.stream().findFirst();
     }
-    if (to != null) {
-      sb.append(" and occurred_at <= ?");
-      params.add(
-          java.sql.Timestamp.from(
-              to.plusDays(1).atStartOfDay(java.time.ZoneOffset.UTC).toInstant()));
+
+    public Optional<DrawResultView> findViewByDrawId(UUID drawId) {
+        var sql = """
+            select
+              dr.id,
+              rs.key,
+              dr.occurred_at,
+              dr.status,
+              dr.source,
+              dr.quality,
+              dr.source_hash,
+              dr.fetched_at,
+              dr.source_result,
+              dr.haiti_result,
+              dr.raw_payload,
+              dr.override_reason
+            from draw_result dr
+            join result_slot rs on rs.id = dr.result_slot_id
+            join draw d on d.draw_result_id = dr.id
+            where dr.deleted_at is null
+              and d.deleted_at is null
+              and rs.active = true
+              and d.id = ?
+            """;
+
+        var rows = jdbc.query(sql, this::mapView, drawId);
+        return rows.stream().findFirst();
     }
-    sb.append(" order by occurred_at desc limit ? offset ?");
-    params.add(limit);
-    params.add(offset);
 
-    return jdbc.query(
-        sb.toString(),
-        (rs, rowNum) -> {
-          DrawResultJpaEntity e = new DrawResultJpaEntity();
-          e.setId((UUID) rs.getObject("id"));
-          e.setResultSlotId((UUID) rs.getObject("result_slot_id"));
-          var occ = rs.getTimestamp("occurred_at");
-          e.setOccurredAt(occ == null ? null : occ.toInstant());
+    public List<DrawResultView> findViewsByCriteria(
+        String slotKey,
+        DrawResultStatus status,
+        ResultQuality quality,
+        LocalDate from,
+        LocalDate to,
+        int limit,
+        int offset
+    ) {
+        var sql = new StringBuilder(baseViewSql("1=1"));
+        var params = new ArrayList<Object>();
 
-          // parse json columns with JsonUtils (centralized mapper)
-          String srcJson = rs.getString("source_result");
-          e.setSourceResult(srcJson == null ? null : jsonUtils.parse(srcJson));
+        appendCriteria(sql, params, slotKey, status, quality, from, to);
 
-          String haitiJson = rs.getString("haiti_result");
-          e.setHaitiResult(haitiJson == null ? null : jsonUtils.parse(haitiJson));
+        sql.append(" order by dr.occurred_at desc limit ? offset ?");
+        params.add(limit);
+        params.add(offset);
 
-          String rawJson = rs.getString("raw_payload");
-          e.setRawPayload(rawJson == null ? null : jsonUtils.parse(rawJson));
+        return jdbc.query(sql.toString(), this::mapView, params.toArray());
+    }
 
-          String flagsJson = rs.getString("flags");
-          e.setFlags(flagsJson == null ? null : jsonUtils.parse(flagsJson));
+    // ---------------------------------------------------------
+    // 🔢 COUNT
+    // ---------------------------------------------------------
 
-          e.setStatus(
-              DrawResultStatus.valueOf(
-                  rs.getString("status")));
-          var q = rs.getString("quality");
-          if (q != null)
-            e.setQuality(com.tchalanet.server.common.types.enums.ResultQuality.valueOf(q));
-          var src = rs.getString("source");
-          if (src != null)
-            e.setSource(DrawSource.valueOf(src));
-          e.setSourceHash(rs.getString("source_hash"));
-          var fetched = rs.getTimestamp("fetched_at");
-          e.setFetchedAt(fetched == null ? null : fetched.toInstant());
-          e.setOverrideReason(rs.getString("override_reason"));
-          return e;
-        },
-        params.toArray());
-  }
+    public long countByCriteria(
+        String slotKey,
+        DrawResultStatus status,
+        ResultQuality quality,
+        LocalDate from,
+        LocalDate to
+    ) {
+        var sql = new StringBuilder("""
+            select count(1)
+            from draw_result dr
+            join result_slot rs on rs.id = dr.result_slot_id
+            where dr.deleted_at is null
+            """);
+
+        var params = new ArrayList<Object>();
+        appendCriteria(sql, params, slotKey, status, quality, from, to);
+
+        var count = jdbc.queryForObject(sql.toString(), params.toArray(), Long.class);
+        return count == null ? 0L : count;
+    }
+
+    // ---------------------------------------------------------
+    // 📊 PROJECTION (CROSS-DOMAIN)
+    // ---------------------------------------------------------
+
+    public Optional<DrawResultProjection> findProjectionById(UUID id) {
+        var rows = jdbc.query(
+            projectionSql("dr.id = ?"),
+            this::mapProjection,
+            id
+        );
+        return rows.stream().findFirst();
+    }
+
+    public Optional<DrawResultProjection> findProjectionBySlotKeyAndOccurredAt(
+        String slotKey,
+        Instant occurredAt
+    ) {
+        var rows = jdbc.query(
+            projectionSql("rs.key = ? and dr.occurred_at = ?"),
+            this::mapProjection,
+            slotKey,
+            Timestamp.from(occurredAt)
+        );
+        return rows.stream().findFirst();
+    }
+
+    // ---------------------------------------------------------
+    // 🧠 CRITERIA BUILDER
+    // ---------------------------------------------------------
+
+    private void appendCriteria(
+        StringBuilder sql,
+        List<Object> params,
+        String slotKey,
+        DrawResultStatus status,
+        ResultQuality quality,
+        LocalDate from,
+        LocalDate to
+    ) {
+        if (slotKey != null && !slotKey.isBlank()) {
+            sql.append(" and rs.slot_key = ?");
+            params.add(slotKey.trim());
+        }
+
+        if (status != null) {
+            sql.append(" and dr.status = ?");
+            params.add(status.name());
+        }
+
+        if (quality != null) {
+            sql.append(" and dr.quality = ?");
+            params.add(quality.name());
+        }
+
+        if (from != null) {
+            sql.append(" and dr.occurred_at >= ?");
+            params.add(Timestamp.from(from.atStartOfDay(ZoneOffset.UTC).toInstant()));
+        }
+
+        if (to != null) {
+            sql.append(" and dr.occurred_at < ?");
+            params.add(Timestamp.from(to.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant()));
+        }
+    }
+
+    // ---------------------------------------------------------
+    // 🧾 SQL BASE
+    // ---------------------------------------------------------
+
+    private String baseViewSql(String where) {
+        return """
+            select
+              dr.id,
+              rs.slot_key,
+              dr.occurred_at,
+              dr.status,
+              dr.source,
+              dr.quality,
+              dr.source_hash,
+              dr.fetched_at,
+              dr.source_result,
+              dr.haiti_result,
+              dr.raw_payload,
+              dr.override_reason
+            from draw_result dr
+            join result_slot rs on rs.id = dr.result_slot_id
+            where dr.deleted_at is null
+              and %s
+            """.formatted(where);
+    }
+
+    private String projectionSql(String where) {
+        return """
+            select
+              dr.id,
+              rs.slot_key,
+              dr.occurred_at,
+              dr.haiti_result,
+              dr.source_result
+            from draw_result dr
+            join result_slot rs on rs.id = dr.result_slot_id
+            where dr.deleted_at is null
+              and %s
+            """.formatted(where);
+    }
+
+    // ---------------------------------------------------------
+    // 🔁 MAPPERS
+    // ---------------------------------------------------------
+
+    private DrawResultView mapView(ResultSet rs, int rowNum) throws SQLException {
+
+        return new DrawResultView(
+            DrawResultId.of(rs.getObject("id", UUID.class)),
+            rs.getString("slot_key"),
+            rs.getTimestamp("occurred_at").toInstant(),
+            DrawResultStatus.valueOf(rs.getString("status")),
+            DrawSource.valueOf(rs.getString("source")),
+            ResultQuality.valueOf(rs.getString("quality")),
+            rs.getString("source_hash"),
+            rs.getTimestamp("fetched_at") == null ? null : rs.getTimestamp("fetched_at").toInstant(),
+            parseJson(rs.getString("source_result")),
+            parseJson(rs.getString("haiti_result")),
+            parseJson(rs.getString("raw_payload")),
+            rs.getString("override_reason")
+        );
+    }
+
+    private DrawResultProjection mapProjection(ResultSet rs, int rowNum) throws SQLException {
+
+        var id = DrawResultId.of(rs.getObject("id", UUID.class));
+        var slotKey = rs.getString("slot_key");
+        var occurredAt = rs.getTimestamp("occurred_at").toInstant();
+
+        var haiti = parseJson(rs.getString("haiti_result"));
+        var source = parseJson(rs.getString("source_result"));
+
+        var payload = (haiti != null && !haiti.isNull()) ? haiti : source;
+
+        return new DrawResultProjection(
+            id,
+            slotKey,
+            occurredAt,
+            text(payload, "lot1"),
+            text(payload, "lot2"),
+            text(payload, "lot3"),
+            text(payload, "lot4"),
+            list(payload, "derived_pairs")
+        );
+    }
+
+    // ---------------------------------------------------------
+    // 🧩 JSON HELPERS
+    // ---------------------------------------------------------
+
+    private JsonNode parseJson(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        return jsonUtils.parse(raw);
+    }
+
+    private static String text(JsonNode node, String key) {
+        if (node == null || node.isNull()) return null;
+        var value = node.get(key);
+        return value != null && value.isTextual() ? value.asText() : null;
+    }
+
+    private static List<String> list(JsonNode node, String key) {
+        if (node == null || node.isNull()) return List.of();
+
+        var value = node.get(key);
+        if (value == null || !value.isArray()) return List.of();
+
+        var out = new ArrayList<String>();
+        value.forEach(item -> {
+            if (item != null && item.isTextual()) {
+                out.add(item.asText());
+            }
+        });
+
+        return List.copyOf(out);
+    }
 }

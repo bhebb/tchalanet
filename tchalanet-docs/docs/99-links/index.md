@@ -8,13 +8,27 @@ Cette section contient des liens vers les docs techniques détaillées qui viven
 
 # Liens — Trouver vite
 
-Ces pages sont des **index** vers la documentation “source of truth” :
+Ces pages sont des **index** vers la documentation source de vérité :
 
 - docs proches du code (server/web/infra)
 - OpenSpec (context packs & specs)
 - fichiers racine (AGENTS, VERSIONS, etc.)
 
 ## Objectif : éviter la duplication tout en rendant la doc trouvable.
+
+## Start Here
+
+| Need                     | Start here                                                              |
+| ------------------------ | ----------------------------------------------------------------------- |
+| General project overview | `tchalanet-docs/docs/index.md`, `DOCUMENTATION.md`                      |
+| Versions                 | `VERSIONS.md`                                                           |
+| Agent routing            | `AGENTS.md`, `tchalanet-docs/docs/99-reference/component-agents-map.md` |
+| Backend                  | [Backend](backend.md)                                                   |
+| Web                      | [Web](web.md)                                                           |
+| Mobile                   | [Mobile](mobile.md)                                                     |
+| Infra                    | [Infra](infra.md)                                                       |
+| Edge                     | [Edge](edge.md)                                                         |
+| OpenSpec                 | [OpenSpec](openspec.md)                                                 |
 
 ## 📋 Sections
 
@@ -28,7 +42,7 @@ Liens vers `apps/tchalanet-web/docs/` (Angular, routing, state, UI, i18n, auth, 
 
 ### [Mobile](mobile.md)
 
-Liens vers `apps/tchalanet-mobile/docs/` (Ionic, Capacitor, offline, platform, tests)
+Liens vers `tchalanet-mobile/` et `apps/tchalanet-mobile/` (Flutter, offline, platform, tests)
 
 ### [Infra](infra.md)
 
@@ -36,7 +50,7 @@ Liens vers `tchalanet-infra/docs/` (Docker, Keycloak, PostgreSQL, Traefik, CI/CD
 
 ### [Specs](openspec.md)
 
-Liens vers `.specify/work/features/` (specs features en cours)
+Liens vers `openspec/changes/` (specs features en cours)
 
 ---
 

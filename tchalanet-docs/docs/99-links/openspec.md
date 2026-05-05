@@ -1,11 +1,20 @@
-# OpenSpec — packs (published)
+# OpenSpec
 
-## Contexte & règles
+OpenSpec files remain canonical in their owning workspace.
 
-- [Project Context](./_ref/openspec/project.md)
-- [Non-negotiables](./_ref/openspec/context/10-non-negociables.md)
-- [Backend map / rules](./_ref/openspec/context/30-backend.md)
-- [Frontend rules](./_ref/openspec/context/30-frontend-rules.md)
-- [Version guard](./_ref/openspec/context/05-version-guard.md)
+Global sources:
 
-> Les packs sont synchronisés via le script `scripts/sync-ref-docs.sh`.
+- `openspec/project.md`
+- `openspec/context/00-index.md`
+- `openspec/context/05-version-guard.md`
+- `openspec/context/10-non-negotiables.md`
+- `openspec/changes/`
+
+Component sources:
+
+- `tchalanet-server/openspec/`
+- `apps/tchalanet-web/openspec/`
+- `tchalanet-mobile/openspec/`
+- `tchalanet-edge-service/openspec/`
+- `tchalanet-infra/openspec/`
+- `tchalanet-docs/openspec/`

@@ -183,5 +183,23 @@ if [ "${ALLOW_DISABLED_REALM:-0}" != "1" ]; then
   echo "→ Forced .enabled = true on $OUT_FILE (set ALLOW_DISABLED_REALM=1 to skip)" >&2
 fi
 
+# ---------- validate JSON ----------
+
+jq empty "$OUT_FILE" || { echo "✖ Generated realm JSON is invalid: $OUT_FILE" >&2; exit 1; }
+
+# ---------- refuse .users hors dev/local ----------
+
+case "$ENV" in
+  dev|local) ;;
+  *)
+    USER_COUNT=$(jq '(.users // []) | length' "$OUT_FILE")
+    if [ "$USER_COUNT" -gt 0 ]; then
+      echo "✖ Realm contains $USER_COUNT user(s) but ENV=$ENV — users are forbidden outside dev/local." >&2
+      echo "  Remove .users from overlays/$ENV.json or from realm.base.json." >&2
+      exit 1
+    fi
+    ;;
+esac
+
 echo "✔ Realm generated to: $OUT_FILE" >&2
 exit 0

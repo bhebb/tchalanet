@@ -132,6 +132,24 @@ It always points to the canonical source.
 
 ---
 
+## Projet-local OpenSpec
+
+Chaque projet autonome possède son propre OpenSpec :
+
+| Projet                   | OpenSpec                           |
+| ------------------------ | ---------------------------------- |
+| `tchalanet-server`       | `tchalanet-server/openspec/`       |
+| `apps/tchalanet-web`     | `apps/tchalanet-web/openspec/`     |
+| `tchalanet-mobile`       | `tchalanet-mobile/openspec/`       |
+| `tchalanet-edge-service` | `tchalanet-edge-service/openspec/` |
+| `tchalanet-infra`        | `tchalanet-infra/openspec/`        |
+| `tchalanet-docs`         | `tchalanet-docs/openspec/`         |
+
+Ce `openspec/` racine est **exclusivement cross-projet** :
+roadmap, contrats d'API partagés, coordination backend/web/mobile/edge, démo client.
+
+---
+
 ## Source of truth hierarchy
 
 1. **Near-code documentation** (server / web / infra)  

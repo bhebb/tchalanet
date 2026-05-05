@@ -23,26 +23,29 @@ public class SalesTicketAdminAdapter implements SalesTicketAdminPort {
   public TicketCloseStats getCloseStats(
       OutletId outletId, Instant from, Instant to) {
     List<SessionId> sessions = sessionLookup.findSessionIds(outletId, from, to);
+    if (sessions.isEmpty()) {
+      return new TicketCloseStats(0, 0, 0, 0, 0, 0);
+    }
     List<java.util.UUID> sessionUuids =
         sessions.stream().map(SessionId::value).collect(Collectors.toList());
 
-    long total = repo.countBySessionIdInAndCreatedAtBetween(sessionUuids, from, to);
-    long sold = repo.countBySessionIdInAndCreatedAtBetweenAndSaleStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD);
-    long voided = repo.countBySessionIdInAndCreatedAtBetweenAndSaleStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID);
-    long resultedWin = repo.countBySessionIdInAndCreatedAtBetweenAndResultStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketResultStatus.WON);
-    long resultedLoss = repo.countBySessionIdInAndCreatedAtBetweenAndResultStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketResultStatus.LOST);
-    long paid = repo.countBySessionIdInAndCreatedAtBetweenAndSettlementStatus(sessionUuids, from, to, com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED);
+    long total = repo.countBySessionIdInAndDeletedAtIsNull(sessionUuids);
+    long sold = repo.countBySessionIdInAndSaleStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD);
+    long voided = repo.countBySessionIdInAndSaleStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID);
+    long resultedWin = repo.countBySessionIdInAndResultStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketResultStatus.WON);
+    long resultedLoss = repo.countBySessionIdInAndResultStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketResultStatus.LOST);
+    long paid = repo.countBySessionIdInAndSettlementStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED);
 
     return new TicketCloseStats(total, sold, voided, resultedWin, resultedLoss, paid);
   }
 
   @Override
   public void refuseNewTickets(OutletId outletId) {
-    // no-op v1
+    throw new UnsupportedOperationException("refuseNewTickets is not implemented");
   }
 
   @Override
   public void allowNewTickets(OutletId outletId) {
-    // no-op v1
+    throw new UnsupportedOperationException("allowNewTickets is not implemented");
   }
 }

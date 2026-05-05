@@ -19,7 +19,6 @@ public final class JobKey {
     private static final int MAX_LENGTH = 64;
     private static final int MIN_SEGMENTS = 3;
     private static final Pattern VALID_PATTERN = Pattern.compile("^[a-z0-9_:]+$");
-
     private final String value;
 
     private JobKey(String value) {

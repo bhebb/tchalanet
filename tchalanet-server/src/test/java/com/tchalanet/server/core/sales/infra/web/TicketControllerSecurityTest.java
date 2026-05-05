@@ -56,8 +56,8 @@ class TicketControllerSecurityTest {
                 .filter(m -> m.isAnnotationPresent(Secured.class))
                 .count();
         assertThat(count)
-                .as("TicketController should have exactly 10 @Secured methods")
-                .isEqualTo(10);
+                .as("TicketController should have exactly 11 @Secured methods")
+                .isEqualTo(11);
     }
 
     private void assertHasSecured(String methodPrefix) {

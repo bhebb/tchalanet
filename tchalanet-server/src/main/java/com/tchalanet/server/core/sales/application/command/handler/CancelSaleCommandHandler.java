@@ -10,10 +10,13 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
+import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
+import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleResult;
 import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
@@ -22,16 +25,15 @@ import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
-import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
 
 @UseCase
 @RequiredArgsConstructor
@@ -129,8 +131,8 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
             new LimitContext(
                 ticket.getTenantId(),
                 ticket.getDrawId(),
-                draw.drawChannel() == null ? null : draw.drawChannel().id(),
-                com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
+                draw.drawChannelId()
+                , com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
                 ticket.getTerminalId(),
                 (com.tchalanet.server.common.types.id.OutletId) outletId, // cast if your type exists; else change signature
                 null,
@@ -147,11 +149,10 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         return queryBus.send(new EvaluateLimitPolicyQuery(context));
     }
 
-    private ZoneId drawZone(com.tchalanet.server.core.draw.domain.model.Draw draw) {
-        if (draw == null || draw.drawChannel() == null || draw.drawChannel().timezone() == null) {
-            return ZoneId.of("UTC");
-        }
-        return draw.drawChannel().timezone();
+    private ZoneId drawZone(Draw draw) {
+        // L'entité Draw n'a pas de timezone, on utilise UTC par défaut
+        // Le timezone est disponible dans DrawSummary si nécessaire
+        return ZoneId.of("UTC");
     }
 
     private void enforceCancelDecisionMatrix(

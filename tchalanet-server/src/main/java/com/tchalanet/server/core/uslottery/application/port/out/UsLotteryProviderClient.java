@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.uslottery.application.port.out;
 
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
-import com.tchalanet.server.core.uslottery.domain.model.LatestDraw;
-import java.util.List;
 
 /**
  * Port implemented by provider adapters that fetch draws from US providers (NY/FL/GA/etc.).
@@ -12,13 +10,15 @@ import java.util.List;
  */
 public interface UsLotteryProviderClient {
 
-  /** Provider identifier (NY, FL, GA, ...) */
-  UsLotteryProvider provider();
+    /**
+     * Provider identifier (NY, FL, GA, ...)
+     */
+    UsLotteryProvider provider();
 
-  /**
-   * Fetch draws according to the provided query. Prefer fetching for a single date per call. The
-   * caller (orchestrator) may call this for several dates when daysBack & maxDraws are used.
-   * channelCodes may be empty — adapter should return whatever draws are available for that date.
-   */
-  List<LatestDraw> fetchDraws(ProviderDrawQuery query);
+    /**
+     * Fetch draws according to the provided query. Prefer fetching for a single date per call. The
+     * caller (orchestrator) may call this for several dates when daysBack & maxDraws are used.
+     * externalGameCodes may be empty — adapter should return whatever draws are available for that date.
+     */
+    UsLotteryProviderResponse fetch(UsLotteryProviderQuery query);
 }

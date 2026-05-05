@@ -4,19 +4,29 @@ Fichiers de configuration Docker Compose pour l'infrastructure Tchalanet.
 
 ## 📁 Structure
 
-Chaque service a son propre fichier compose pour permettre un démarrage granulaire :
-
 ```
 compose/
-├── docker-compose-postgres.yml      # PostgreSQL 18
-├── docker-compose-redis.yml         # Redis 8.2
-├── docker-compose-meilisearch.yml   # Meilisearch
-├── docker-compose-keycloak.yml      # Keycloak 26.4
-├── docker-compose-unleash.yml       # Unleash (feature flags)
-├── docker-compose-unleash-seeds.yml # Unleash seeds (one-shot)
-├── docker-compose-umami.yml         # Umami (analytics)
-├── docker-compose-traefik.yml       # Traefik (reverse proxy)
-└── docker-compose-api.yml           # API Tchalanet
+├── docker-compose-project.yml           # Base : réseaux externes, labels, defaults
+├── docker-compose.override.yml          # Ports locaux exposés (dev uniquement)
+│
+│   # P0 strict
+├── docker-compose-traefik.yml           # Traefik (reverse proxy) — réseau edge
+├── docker-compose-postgres.yml          # PostgreSQL 18 — réseau back
+├── docker-compose-keycloak.yml          # Keycloak 26.4 — réseaux edge + back
+│
+│   # P0+
+├── docker-compose-redis.yml             # Redis 8 — réseau back
+│
+│   # server-v0
+├── docker-compose-api.yml               # API Spring Boot — réseaux edge + back
+├── docker-compose-edge.yml              # Edge service — réseaux edge + back
+├── docker-compose-web.yml               # Web Angular — réseau edge
+│
+│   # post-v0 (optionnel)
+├── docker-compose-unleash.yml           # Unleash (feature flags)
+├── docker-compose-unleash-seeds.yml     # Unleash seeds (one-shot)
+├── docker-compose-meilisearch.yml       # Meilisearch
+└── docker-compose-umami.yml             # Umami (analytics)
 ```
 
 ## 🚀 Usage
@@ -122,6 +132,55 @@ env_file:
 - Container : `${DOCKER_PREFIX:-tchl}-<service>-${ENV}`
 - Network : `back-${ENV}` ou `edge-${ENV}`
 - Volume : `<service>-data-${ENV}`
+
+### Réseaux Docker — convention
+
+`run-compose.sh` inclut **toujours** `docker-compose-project.yml` en premier. Ce fichier est l'autorité pour les déclarations réseau :
+
+```yaml
+# docker-compose-project.yml
+networks:
+  edge:
+    name: ${DOCKER_NETWORK_EDGE:-edge-dev}
+    external: true
+  back:
+    name: ${DOCKER_NETWORK_BACK:-back-dev}
+    external: true
+```
+
+**Règle** : les fichiers de service ne redéclarent pas les réseaux au niveau racine. Ils référencent uniquement les réseaux au niveau service :
+
+```yaml
+# Correct — référence sans redéclaration
+services:
+  my-service:
+    networks:
+      back: {}
+      edge:
+        aliases: ["my-service"]
+
+# Incorrect — redéclaration redondante (éviter)
+networks:
+  back:
+    name: back-${ENV}
+    external: true
+```
+
+Affectation réseau par service :
+
+| Service    | edge | back |
+|------------|------|------|
+| Traefik    | ✅   |      |
+| Web        | ✅   |      |
+| API        | ✅   | ✅   |
+| Edge       | ✅   | ✅   |
+| Keycloak   | ✅   | ✅   |
+| PostgreSQL |      | ✅   |
+| Redis      |      | ✅   |
+
+### IMAGE_TAG
+
+`IMAGE_TAG` est **obligatoire** pour les services applicatifs (api, edge, web). Pas de fallback `:latest` ni tag flottant. Définir dans `envs/common/compose.env` ou `envs/<env>/compose.env`.
 
 ### Variables d'environnement
 

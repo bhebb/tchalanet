@@ -46,14 +46,14 @@ public interface SpringTicketJpaRepository
             + "GROUP BY t.createdBy")
     List<AgentDailySalesDto> findAgentDailySales(@Param("from") Instant from, @Param("to") Instant to);
 
-    // Counts for CloseDay stats — NOTE: do NOT filter by tenant (RLS handles tenant isolation)
-    long countBySessionIdInAndCreatedAtBetween(List<UUID> sessionIds, Instant from, Instant to);
+    // Counts for CloseDay stats — filter deleted_at IS NULL to exclude archived tickets
+    long countBySessionIdInAndDeletedAtIsNull(List<UUID> sessionIds);
 
-    long countBySessionIdInAndCreatedAtBetweenAndSaleStatus(List<UUID> sessionIds, Instant from, Instant to, com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus);
+    long countBySessionIdInAndSaleStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus);
 
-    long countBySessionIdInAndCreatedAtBetweenAndResultStatus(List<UUID> sessionIds, Instant from, Instant to, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
+    long countBySessionIdInAndResultStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
 
-    long countBySessionIdInAndCreatedAtBetweenAndSettlementStatus(List<UUID> sessionIds, Instant from, Instant to, com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus);
+    long countBySessionIdInAndSettlementStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus);
 
 
     @EntityGraph(attributePaths = "lines")

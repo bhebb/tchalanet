@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/admin/users")
+@RequestMapping("/admin/membership")
 @PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class TenantUserAdminController {

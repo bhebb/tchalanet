@@ -17,93 +17,75 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(
-    prefix = "kc.bootstrap",
-    name = "enabled",
-    havingValue = "true",
-    matchIfMissing = false)
+@ConditionalOnProperty(prefix = "kc.bootstrap", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 @Slf4j
 public class KeycloakBootstrapSyncListener {
 
-  private final KeycloakBootstrapProperties props;
-  private final JdbcTemplate jdbcTemplate;
+    private final KeycloakBootstrapProperties props;
+    private final JdbcTemplate jdbc;
 
-  @EventListener(ApplicationReadyEvent.class)
-  public void onReady() {
-    if (!props.enabled()) {
-      log.info("KC bootstrap sync disabled");
-      return;
-    }
+    @EventListener(ApplicationReadyEvent.class)
+    public void onReady() {
 
-    var adminPass = readSecret(props.adminPassword(), props.adminPasswordFile());
+        var adminPass = readSecret(props.adminPassword(), props.adminPasswordFile());
 
-    try (var kc =
-        KeycloakBuilder.builder()
-            .serverUrl(props.baseUrl())
-            .realm(props.adminRealm())
-            .clientId("admin-cli")
-            .grantType(OAuth2Constants.PASSWORD)
-            .username(props.adminUsername())
-            .password(adminPass)
-            .build()) {
+        try (var kc =
+                 KeycloakBuilder.builder()
+                     .serverUrl(props.baseUrl())
+                     .realm(props.adminRealm())
+                     .clientId("admin-cli")
+                     .grantType(OAuth2Constants.PASSWORD)
+                     .username(props.adminUsername())
+                     .password(adminPass)
+                     .build()) {
 
-      for (var username : props.users()) {
-        var kcIdStr =
-            kc.realm(props.targetRealm()).users().searchByUsername(username, true).stream()
-                .findFirst()
-                .map(AbstractUserRepresentation::getId)
-                .orElse(null);
+            for (var username : props.users()) {
 
-        if (StringUtils.isBlank(kcIdStr)) {
-          log.warn(
-              "KC bootstrap sync: user not found in Keycloak realm={} username={}",
-              props.targetRealm(),
-              username);
-          continue;
+                var kcId =
+                    kc.realm(props.targetRealm())
+                        .users()
+                        .searchByUsername(username, true)
+                        .stream()
+                        .findFirst()
+                        .map(AbstractUserRepresentation::getId)
+                        .map(UUID::fromString)
+                        .orElse(null);
+
+                if (kcId == null) {
+                    log.warn("KC user not found: {}", username);
+                    continue;
+                }
+
+                int updated =
+                    jdbc.update(
+                        """
+                        update app_user
+                        set keycloak_sub = ?, updated_at = now()
+                        where username = ?
+                          and deleted_at is null
+                        """,
+                        kcId,
+                        username);
+
+                log.info("KC sync: username={} kcId={} updated={}", username, kcId, updated);
+            }
+
+            log.info("KC bootstrap sync done");
         }
+    }
 
-        var kcId = UUID.fromString(kcIdStr);
-
-        // Safety: avoid assigning same kcId to another user
-        var conflict =
-            jdbcTemplate.query(
-                "select 1 from app_user where keycloak_sub = ? and deleted_at is null and username <> ? limit 1",
-                ps -> {
-                  ps.setObject(1, kcId);
-                  ps.setString(2, username);
-                },
-                rs -> rs.next() ? 1 : null);
-        if (conflict != null) {
-          throw new IllegalStateException("Keycloak sub already assigned to another user: " + kcId);
+    private static String readSecret(String value, String file) {
+        try {
+            if (StringUtils.isNotBlank(file)) {
+                return Files.readString(Path.of(file.trim())).trim();
+            }
+            if (StringUtils.isBlank(value)) {
+                throw new IllegalStateException("Missing KC admin password");
+            }
+            return value.trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot read secret file", e);
         }
-
-        int updated =
-            jdbcTemplate.update(
-                "update app_user set keycloak_sub = ?, updated_at = now() "
-                    + "where username = ? and deleted_at is null and keycloak_sub <> ?",
-                kcId,
-                username,
-                kcId);
-
-        log.info("KC bootstrap sync: username={} kcId={} updatedRows={}", username, kcId, updated);
-      }
-
-      log.info("KC bootstrap sync done");
     }
-  }
-
-  private static String readSecret(String value, String file) {
-    if (StringUtils.isBlank(file)) {
-      try {
-        return Files.readString(Path.of(file.trim())).trim();
-      } catch (IOException e) {
-        throw new IllegalStateException("Cannot read secret file: " + file, e);
-      }
-    }
-    if (StringUtils.isBlank(value)) {
-      throw new IllegalStateException("Missing KC admin password");
-    }
-    return value.trim();
-  }
 }

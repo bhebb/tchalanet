@@ -95,24 +95,37 @@ class FlywayAuditAlignmentArchTest {
   }
 
   private static Set<String> auditTableColumns(String migrationsSql, String tableName) {
-    var pattern =
+    var columns = new HashSet<String>();
+
+    // Parse CREATE TABLE
+    var createPattern =
         Pattern.compile(
             "\\bcreate\\s+table\\s+(?:public\\.)?"
                 + tableName
                 + "\\s*\\((.*?)\\);",
             Pattern.DOTALL);
-    var matcher = pattern.matcher(migrationsSql);
-    if (!matcher.find()) {
-      return Set.of();
-    }
-
-    var columns = new HashSet<String>();
-    for (String part : matcher.group(1).split(",")) {
-      String token = part.stripLeading().split("\\s+", 2)[0].replace("\"", "");
-      if (!token.isBlank() && !isConstraintToken(token)) {
-        columns.add(token);
+    var createMatcher = createPattern.matcher(migrationsSql);
+    if (createMatcher.find()) {
+      for (String part : createMatcher.group(1).split(",")) {
+        String token = part.stripLeading().split("\\s+", 2)[0].replace("\"", "");
+        if (!token.isBlank() && !isConstraintToken(token)) {
+          columns.add(token);
+        }
       }
     }
+
+    // Parse ALTER TABLE ... ADD COLUMN
+    var alterPattern =
+        Pattern.compile(
+            "\\balter\\s+table\\s+(?:public\\.)?"
+                + tableName
+                + "\\s+add\\s+column\\s+(\\w+)",
+            Pattern.CASE_INSENSITIVE);
+    var alterMatcher = alterPattern.matcher(migrationsSql);
+    while (alterMatcher.find()) {
+      columns.add(alterMatcher.group(1));
+    }
+
     return columns;
   }
 

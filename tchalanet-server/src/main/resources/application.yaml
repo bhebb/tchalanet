@@ -18,23 +18,34 @@ app:
   security:
     required-audience: tchalanet-api
     user-bootstrap:
-      default-status: ACTIVE
-  batch:
-    fetch-results-windows: "12:00-14:00,20:00-23:00"
-    settle-draws-windows: "12:00-15:00,20:00-23:30"
-    close-draws-windows: "11:30-14:00,19:30-23:00"
-    open-draws-windows: "02:00-06:00"
-    fetch:
-      chunk-size: ${APP_BATCH_FETCH_CHUNK_SIZE:10}
-    settle:
-      chunk-size: ${APP_BATCH_SETTLE_CHUNK_SIZE:50}
+      enabled: true
+      update-last-login: true
   # default ZoneId used by the application; can be overridden with env var APP_ZONE_ID
   zone-id: ${APP_ZONE_ID:UTC}
 
+kc:
+  bootstrap:
+    enabled: true
+    base-url: ${KC_BASE_URL:https://auth.localtest.me}
+    target-realm: ${KC_TARGET_REALM:tchalanet}
+    admin-realm: ${KC_ADMIN_REALM:master}
+    admin-username: ${KC_ADMIN_USERNAME:admin}
+    admin-password: ${KC_ADMIN_PASSWORD:admin}
+    admin-password-file: ${KC_ADMIN_PASSWORD_FILE:}
+    users:
+      - super_admin
+      - admin
+      - agent
 # ===========================
 # SPRING FRAMEWORK
 # ===========================
 spring:
+  # Exclude Redis autoconfiguration by default - enable only when tch.cache.redis.enabled=true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
   config:
     import:
       - optional:classpath:application-draw.yaml
@@ -70,6 +81,7 @@ spring:
       org.hibernate.envers.revision_type_field_name: "revtype"
       org.hibernate.envers.revision_listener: "com.tchalanet.server.core.audit.infra.persistence.envers.TchRevisionListener"
 
+      hibernate.type.json_format_mapper: jackson3
   batch:
     jdbc:
       initialize-schema: never   # on laisse Flyway créer les tables
@@ -120,11 +132,25 @@ tch:
         requests-per-second: 10
         burst: 30
 
+  tickets:
+    public:
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://app.tchalanet.com}
+      ticket-path-template: ${TCH_TICKET_PATH_TEMPLATE:/ticket/{code}}
+    delivery:
+      edge-base-url: ${TCH_EDGE_DELIVERY_BASE_URL:http://tchalanet-edge-service:3000}
+      edge-delivery-path: ${TCH_EDGE_DELIVERY_PATH:/internal/delivery/ticket}
+      enabled: ${TCH_TICKET_DELIVERY_ENABLED:true}
+
   notification:
-    node:
-      base-path: /notifications
+    edge:
       enabled: true
-      timeout: 500
+      base-url: "http://localhost:3000"  # Local development
+      # base-url: "http://tchalanet-edge-service:3000"  # Docker deployment
+      notifications-path: "/internal/notifications/send"
+      hmac-secret: "${EDGE_INTERNAL_HMAC_SECRET}"
+      connect-timeout: 2s
+      read-timeout: 5s
+
   # News provider / cache configuration
   news:
     provider:
@@ -137,17 +163,6 @@ tch:
       hours: ${TCH_NEWS_TTL_HOURS:24}
     refresh:
       cron: ${TCH_NEWS_REFRESH_CRON:0 0 */6 * * *}
-
-  # Draw generation and cache configuration
-  draw:
-    generation:
-      days: ${DRAW_GENERATION_DAYS:14}
-      cron: ${DRAW_GENERATION_CRON:0 5 0 * * *}
-    cache:
-      ttl:
-        last7m: ${DRAW_CACHE_TTL_LAST7M:5}   # minutes
-        todaym: ${DRAW_CACHE_TTL_TODAYM:5}   # minutes
-        nexts: ${DRAW_CACHE_TTL_NEXTS:60}    # seconds
 
 
 # ===========================
@@ -188,3 +203,37 @@ management:
     web:
       exposure:
         include: health,info,metrics,scheduledtasks,loggers,threaddump,env,beans
+  # Notification flow configuration
+  flows:
+    draw-lifecycle:
+      enabled: true
+      slack-info-enabled: false  # Quiet by default
+      email-enabled: false
+    draw-results:
+      enabled: true
+      slack-enabled: true
+      email-detail-enabled: true  # Dev/debug detail
+      watched-providers:
+        - NY
+        - FL
+      watched-slots:
+        - NY_MID
+        - NY_EVE
+        - FL_MID
+        - FL_EVE
+    apply:
+      enabled: true
+      slack-info-enabled: false
+      email-on-warning-enabled: true
+      email-on-failure-enabled: true
+    settlement:
+      enabled: true
+      slack-info-enabled: false
+      email-admin-enabled: false
+    sales-reports:
+      enabled: false
+      daily-email-enabled: false
+    client-delivery:
+      enabled: false
+      ticket-sold-enabled: false
+      ticket-won-enabled: false

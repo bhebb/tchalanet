@@ -20,6 +20,7 @@ public record UpdateDrawChannelRequest(
     List<DayOfWeek> daysOfWeek,
     boolean active,
     Integer sortOrder,
+    String period,
     String notes,
     ResultSlotId resultSlotId,
     DrawSource defaultSource

@@ -1,46 +1,48 @@
 tch:
   draw:
+    cache:
+      ttl:
+        last7m: ${DRAW_CACHE_TTL_LAST7M:5}
+        todaym: ${DRAW_CACHE_TTL_TODAYM:5}
+        nexts: ${DRAW_CACHE_TTL_NEXTS:60}
+
+    scheduler:
+      active: true
+      windows:
+        enabled: true
+        timezone: America/New_York
+        fetch_results: "12:00-14:00,20:00-23:00"
+        apply_results: "12:00-14:30,20:00-23:30"
+        settle_draws: "12:00-15:00,20:00-23:30"
+        close_draws: "11:30-14:00,19:30-23:00"
+        open_draws: "02:00-06:00"
+
+    lifecycle:
+      active: true
+      generate_cron: "0 0 5 * * *"
+      open_close_cron: "0 */5 * * * *"
+      generation_days: 7
+      batch_size: 500
+      lookahead_hours: 24
+      lag_hours: 1
+
+    settlement:
+      active: true
+      cron: "0 */5 * * * *"
+      days_back: 1
+      max_draws_per_tenant: 500
+
     results:
-      active: ${TCH_DRAW_RESULTS_ACTIVE:true}
-
-      limits:
-        hard_max_slots: ${TCH_RESULTS_HARD_MAX_SLOTS:200}
-        hard_days_back: ${TCH_RESULTS_HARD_DAYS_BACK:14}
-
-      defaults:
-        days_back: ${TCH_RESULTS_DEFAULT_DAYS_BACK:0}
-        max_slots: ${TCH_RESULTS_DEFAULT_MAX_SLOTS:100}
-
+      active: true
       scheduler:
-        active: ${TCH_RESULTS_SCHEDULER_ACTIVE:true}
-        tick_cron: ${TCH_RESULTS_TICK_CRON:0 */5 * * * *}
-        apply_cron: ${TCH_RESULTS_APPLY_CRON:30 */5 * * * *}
-        due:
-          min_minutes_after_draw: ${TCH_RESULTS_DUE_MIN_MINUTES:3}
-          max_minutes_after_draw: ${TCH_RESULTS_DUE_MAX_MINUTES:120}
-          lookback_minutes: ${TCH_RESULTS_DUE_LOOKBACK_MINUTES:120}
-          batch_size: ${TCH_RESULTS_DUE_BATCH_SIZE:100}
-        cooldown_minutes: ${TCH_RESULTS_COOLDOWN_MINUTES:10}
-    settle:
-      cron: ${TCH_DRAW_SETTLE_CRON:0 */5 * * * *}
-      providers: ${TCH_DRAW_SETTLE_PROVIDERS:NY,FL,GA,TX,TN}
-      days_back: ${TCH_DRAW_SETTLE_DAYS_BACK:1}
-      default_max_draws: ${TCH_DRAW_SETTLE_DEFAULT_MAX_DRAWS:900}
-      max_draws_by_provider:
-        NY: ${TCH_DRAW_SETTLE_NY_MAX_DRAWS:700}
-        FL: ${TCH_DRAW_SETTLE_FL_MAX_DRAWS:900}
-        GA: ${TCH_DRAW_SETTLE_GA_MAX_DRAWS:900}
-        TX: ${TCH_DRAW_SETTLE_TX_MAX_DRAWS:900}
-        TN: ${TCH_DRAW_SETTLE_TN_MAX_DRAWS:700}
-    watchdog:
-      provisional_cron: ${TCH_DRAW_WATCHDOG_PROVISIONAL_CRON:0 */15 * * * *}
-      provisional_stuck_minutes: ${TCH_DRAW_WATCHDOG_PROVISIONAL_STUCK_MINUTES:30}
-
-  batch:
-    gates:
-      results:
-        fetch.enabled: ${TCH_GATE_RESULTS_FETCH:true}
-        apply.enabled: ${TCH_GATE_RESULTS_APPLY:true}
-        refresh.enabled: ${TCH_GATE_RESULTS_REFRESH:true}
-        manual.enabled: ${TCH_GATE_RESULTS_MANUAL:true}
-        override.enabled: ${TCH_GATE_RESULTS_OVERRIDE:true}
+        active: true
+        cron: "0 */5 * * * *"
+        min_minutes_after_draw: 3
+        max_minutes_after_draw: 120
+        cooldown_minutes: 10
+      limits:
+        max_slots_per_tick: 100
+        hard_days_back: 7
+      defaults:
+        manual_days_back: 0
+        manual_max_slots: 50

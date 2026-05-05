@@ -23,6 +23,4 @@ public interface PageModelTemplateRepository
     Page<PageModelTemplateEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 
     long countByDeletedAtIsNull();
-    long countByActiveTrueAndDeletedAtIsNull();
-
 }

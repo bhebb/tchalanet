@@ -1,111 +1,141 @@
 package com.tchalanet.server.core.draw.infra.scheduler;
 
+import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_SETTLE;
+
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
+import com.tchalanet.server.common.batch.exception.BatchPartialFailureException;
+import com.tchalanet.server.common.batch.exception.BatchSkippedException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
-import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.batch.launch.BatchJobStarter;
 import com.tchalanet.server.common.batch.params.BatchParamKeys;
-import com.tchalanet.server.common.config.batch.BatchWindowsConfig;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
+import com.tchalanet.server.core.draw.infra.config.DrawSchedulerWindows;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.UUID;
-
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_SETTLE;
-import static com.tchalanet.server.common.time.DefaultTimeZone.AMERICA_NEW_YORK;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DrawSettleScheduler {
 
+    private static final boolean DEFAULT_DRY_RUN = false;
+    private static final boolean DEFAULT_FORCE = false;
+
     private final BatchJobStarter batchJobStarter;
     private final Clock clock;
     private final TenantCatalog tenantCatalog;
     private final BatchGate gate;
-    private final BatchWindowsConfig windows;
+    private final DrawSchedulerWindows windows;
     private final DrawProperties drawProperties;
 
-    @Scheduled(cron = "${tch.draw.settle.cron:0 */5 * * * *}", zone = "UTC")
+    @BatchScheduledJob("draw:lifecycle:settle")
+    @Scheduled(cron = "${tch.draw.settlement.cron:0 */5 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_settle_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tick() {
-        // global switch
-        if (!gate.enabled(DRAW_SETTLE, null)) return;
+        log.info("draw.settlement.tick fired");
 
-        var nowLocal = LocalTime.now(AMERICA_NEW_YORK);
-        if (!windows.isInSettleDrawsWindow(nowLocal)) return;
+        var now = clock.instant();
 
-        Instant now = Instant.now(clock);
-        var tenantIds = tenantCatalog.listActiveTenantIds();
-        var settle = drawProperties.getSettle();
-        for (TenantId tenantId : tenantIds) {
-            if (!gate.enabled(DRAW_SETTLE, tenantId)) continue;
+        var windowProps = drawProperties.getScheduler().getWindows();
+        var localNow = now.atZone(windowProps.getTimezone()).toLocalTime();
 
-            for (String provider : settle.getProviders()) {
-                var normalizedProvider = normalizeProvider(provider);
-                if (normalizedProvider.isBlank()) continue;
-                int maxDraws = settle.getMaxDrawsByProvider()
-                    .getOrDefault(normalizedProvider, settle.getDefaultMaxDraws());
-                startForProvider(
-                    now,
-                    tenantId,
-                    normalizedProvider,
-                    JobKey.of("draw:settle:provider:" + normalizedProvider.toLowerCase(Locale.ROOT)),
-                    settle.getDaysBack(),
-                    maxDraws,
-                    false,
-                    false);
+        validateSettleCanRun(localNow);
+
+        var tenants = tenantCatalog.listActiveTenantIds();
+        if (tenants.isEmpty()) {
+            throw new BatchSkippedException("no_active_tenants", "No active tenants");
+        }
+
+        var failures = new ArrayList<TenantFailure>();
+
+        for (TenantId tenantId : tenants) {
+            if (!gate.enabled(DRAW_SETTLE, tenantId)) {
+                log.info("draw.settlement tenant skipped by gate tenantId={}", tenantId);
+                continue;
             }
+
+            try {
+                var params = paramsFor(tenantId, now);
+
+                var exec = batchJobStarter.start(DRAW_SETTLE, params);
+
+                log.info(
+                    "batch.scheduler.started jobKey={} tenantId={} executionId={}",
+                    DRAW_SETTLE,
+                    tenantId,
+                    exec.getId());
+
+            } catch (Exception ex) {
+                failures.add(new TenantFailure(tenantId, ex));
+
+                log.warn(
+                    "draw.settlement tenant failed tenantId={} err={}",
+                    tenantId,
+                    ex.getMessage(),
+                    ex);
+            }
+        }
+
+        if (!failures.isEmpty()) {
+            throw new BatchPartialFailureException(
+                "draw_settle_partial_failure",
+                "Draw settle failed with " + failures.size() + " failure(s)");
         }
     }
 
-    private static String normalizeProvider(String provider) {
-        return provider == null ? "" : provider.trim().toUpperCase(Locale.ROOT);
+    private void validateSettleCanRun(LocalTime localNow) {
+        if (!drawProperties.getScheduler().isActive()) {
+            throw new BatchSkippedException("scheduler_disabled", "Draw scheduler disabled");
+        }
+
+        if (!drawProperties.getSettlement().isActive()) {
+            throw new BatchSkippedException("settlement_disabled", "Draw settlement disabled");
+        }
+
+        if (!gate.enabled(DRAW_SETTLE, null)) {
+            throw new BatchSkippedException("gate_disabled", "Draw settle gate disabled");
+        }
+
+        var windowProps = drawProperties.getScheduler().getWindows();
+        boolean windowsEnabled = windowProps.isEnabled();
+
+        if (windowsEnabled && !windows.isInSettleDrawsWindow(localNow)) {
+            throw new BatchSkippedException("outside_window", "Outside settle window");
+        }
     }
 
-    private void startForProvider(
-        Instant now,
-        TenantId tenantId,
-        String provider,
-        JobKey providerSwitch,
-        int daysBack,
-        int maxDraws,
-        boolean force,
-        boolean dryRun
-    ) {
-        // provider-level switch (optional)
-        if (!gate.enabled(providerSwitch, tenantId)) return;
-
+    private HashMap<String, String> paramsFor(TenantId tenantId, Instant now) {
         var params = new HashMap<String, String>();
-        params.put(BatchParamKeys.TENANT_ID, tenantId.toString());
 
-        // request tracing
-        params.put(BatchParamKeys.REQUEST_ID, "tick-" + now.toEpochMilli() + "-" + UUID.randomUUID());
+        params.put(BatchParamKeys.TENANT_ID, tenantId.value().toString());
+        params.put(
+            BatchParamKeys.REQUEST_ID,
+            "draw-settle-" + now.toEpochMilli() + "-" + UUID.randomUUID());
         params.put(BatchParamKeys.ACTOR, "scheduler");
-        params.put(BatchParamKeys.DRY_RUN, Boolean.toString(dryRun));
 
-        // settle-specific params (snake_case)
-        params.put(BatchParamKeys.PROVIDER, provider);
-        params.put(BatchParamKeys.DAYS_BACK, Integer.toString(daysBack));
-        params.put(BatchParamKeys.MAX_DRAWS, Integer.toString(maxDraws));
-        params.put(BatchParamKeys.FORCE, Boolean.toString(force));
+        params.put(
+            BatchParamKeys.DAYS_BACK,
+            Integer.toString(drawProperties.getSettlement().getDaysBack()));
+        params.put(
+            BatchParamKeys.MAX_DRAWS,
+            Integer.toString(drawProperties.getSettlement().getMaxDrawsPerTenant()));
 
-        // NOTE: do NOT set ts here unless you really want deterministic ts
-        // BatchJobStarter will add identifying ts if missing.
+        params.put(BatchParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
+        params.put(BatchParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
 
-        var exec = batchJobStarter.start(DRAW_SETTLE, params);
-
-        log.info("batch.scheduler.started jobKey={} tenantId={} provider={} executionId={}",
-            DRAW_SETTLE, tenantId, provider, exec.getId());
+        return params;
     }
+
+    private record TenantFailure(TenantId tenantId, Exception cause) {}
 }

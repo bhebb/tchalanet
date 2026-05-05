@@ -6,15 +6,14 @@ import java.time.Instant;
 import java.util.List;
 
 public interface FindSettleableDrawIdsPort {
-  List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria);
 
-  record SettleableDrawCriteria(
-      TenantId tenantId,
-      String source,
-      String provider,
-      String channelCode,
-      Instant from,
-      Instant to,
-      Long maxDraws,
-      boolean force) {}
+    record SettleableDrawCriteria(
+        TenantId tenantId,
+        Instant from,
+        Instant to,
+        long maxDraws,
+        boolean force
+    ) {}
+
+    List<DrawId> findSettleableDrawIds(SettleableDrawCriteria criteria);
 }

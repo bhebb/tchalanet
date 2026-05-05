@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.mapper;
 
-import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.common.time.DaysOfWeekFormatter;
+import com.tchalanet.server.common.types.id.*;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -75,6 +75,14 @@ public class CommonIdMapper {
 
     public DrawId mapToDrawId(UUID id) {
         return DrawId.nullableOf(id);
+    }// DrawId
+
+    public UUID mapFromDrawResultId(DrawResultId id) {
+        return id == null ? null : id.value();
+    }
+
+    public DrawResultId mapToDrawIResultd(UUID id) {
+        return DrawResultId.nullableOf(id);
     }
 
     // OutletId

@@ -20,6 +20,7 @@ import com.tchalanet.server.core.sales.application.command.model.SellTicketOutco
 import com.tchalanet.server.core.sales.application.query.model.GetTicketDetailsQuery;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintEscPosQuery;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintPdfQuery;
+import com.tchalanet.server.core.sales.application.query.model.GetTicketQrPngQuery;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
 import com.tchalanet.server.core.sales.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.infra.web.model.CancelSaleResponse;
@@ -166,10 +167,8 @@ public class TicketController {
             );
         }
 
-        int page = pageReq.pageable().getPageNumber();
-        int size = pageReq.pageable().getPageSize();
         ListTicketsQuery q =
-            mapper.toListTicketsQuery(terminalId, drawId, status, from, to, page, size);
+            mapper.toListTicketsQuery(terminalId, drawId, status, from, to, pageReq);
         var result = queryBus.send(q);
         return ApiResponse.success(mapper.toPagedSummaryResponse(result));
     }
@@ -243,6 +242,20 @@ public class TicketController {
         res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
         res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".pdf");
         return queryBus.send(new GetTicketPrintPdfQuery(ticketId));
+    }
+
+    // --- QR ---
+    @Operation(summary = "Get QR PNG for a ticket (tenant)")
+    @GetMapping(value = "/{ticketId}/qr", produces = MediaType.IMAGE_PNG_VALUE)
+    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+    public ResponseEntity<byte[]> qrPng(
+        @PathVariable TicketId ticketId,
+        @RequestParam(name = "size", defaultValue = "280") int size) {
+        byte[] png = queryBus.send(new GetTicketQrPngQuery(ticketId, size));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CACHE_CONTROL, "no-store")
+            .contentType(MediaType.IMAGE_PNG)
+            .body(png);
     }
 
     // Admin: override ticket result

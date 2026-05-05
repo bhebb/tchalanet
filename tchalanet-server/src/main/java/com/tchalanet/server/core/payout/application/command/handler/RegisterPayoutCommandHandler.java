@@ -170,7 +170,7 @@ public class RegisterPayoutCommandHandler
             null, // outletId - not available
             null, // zoneId
             List.of(), // rangeIds
-            null, // gameCode
+            null, // externalGameCode
             OperationType.PAYOUT,
             scope,
             List.of(), // betLines - empty for payout

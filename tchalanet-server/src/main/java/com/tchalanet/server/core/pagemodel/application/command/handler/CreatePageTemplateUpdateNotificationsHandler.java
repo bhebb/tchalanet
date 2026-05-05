@@ -35,11 +35,11 @@ public class CreatePageTemplateUpdateNotificationsHandler
     var affected = pageModels.findAllByTemplateId(command.templateId());
     var created = 0;
     for (var pageModel : affected) {
-      var tenantId = TenantId.of(pageModel.tenantId());
+      var tenantId = pageModel.tenantId();
       var compatibility = classify(pageModel.schemaVersion(), command.newSchemaVersion());
       var recommendedAction = "MAJOR".equals(compatibility) ? "REQUIRES_MIGRATION" : "CREATE_DRAFT";
       var payload =
-          json.valueToTree(
+          json.toJsonNode(
               Map.of(
                   "templateId", command.templateId().value().toString(),
                   "logicalId", command.logicalId(),

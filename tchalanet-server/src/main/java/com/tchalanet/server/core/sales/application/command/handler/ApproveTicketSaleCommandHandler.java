@@ -14,7 +14,7 @@ import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.service.TicketSalePolicy;
+import com.tchalanet.server.core.sales.application.service.TicketSalePolicyService;
 import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
 import java.time.Clock;
 import java.time.Instant;
@@ -31,7 +31,7 @@ public class ApproveTicketSaleCommandHandler
 
     private final TicketReaderPort ticketReader;
     private final TicketWriterPort ticketWriter;
-    private final TicketSalePolicy salePolicy;
+    private final TicketSalePolicyService salePolicy;
     private final SalesSessionReaderPort posSessionReaderPort;
 
     private final com.tchalanet.server.common.event.DomainEventPublisher publisher;

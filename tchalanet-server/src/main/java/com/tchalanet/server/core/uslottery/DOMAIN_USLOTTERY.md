@@ -1,242 +1,200 @@
-# Domaine US Lottery
+# DOMAIN — US LOTTERY
 
-## 1. Rôle du domaine
+## 1. Purpose
 
-Le domaine **uslottery** est responsable de l’intégration des résultats de loteries
-américaines (NY, Florida, …) dans le système Tchalanet.
+`core.uslottery` is an external integration domain.
 
-Il agit comme un **fournisseur externe spécialisé**, chargé de :
+It is responsible for:
 
-- récupérer les résultats depuis des APIs publiques/partenaires,
-- normaliser ces résultats,
-- fournir un résultat exploitable au domaine `draw`.
+- calling US lottery providers (NY, FL, GA, TX, TN)
+- fetching raw payloads (HTTP / JSON / RSS)
+- parsing provider responses
+- normalizing results into a simple provider format
+- returning results keyed by `gameCode`
 
-👉 Le domaine **ne gère pas** :
+It does NOT know:
 
-- la persistance des résultats,
-- le cycle de vie des tirages,
-- le settlement,
-- la publication publique.
-
-Ces responsabilités appartiennent exclusivement au domaine **`draw`**.
-
----
-
-## 2. Responsabilités
-
-### Ce que fait `uslottery`
-
-- Interroger des providers externes (NY, FL).
-- Normaliser les données brutes (ordre, validation, typage).
-- Fournir un `ExternalDrawResult` compatible avec le domaine `draw`.
-- Éviter les appels excessifs aux APIs externes (throttling / backoff).
-- Supporter un déclenchement **batch** et **ops**.
-
-### Ce que `uslottery` ne fait pas
-
-- Créer ou modifier des `Draw`.
-- Appliquer des règles métier de jeu.
-- Décider si un tirage est valide.
-- Stocker des résultats en base.
+- result_slot (business)
+- draw_result (DB)
+- Haiti projection
+- tenant
+- draw / channel / sales
 
 ---
 
-## 3. Modèle métier
+## 2. Boundary with drawresult
 
-### 3.1 `LatestDraw` (Value Object central)
+drawresult → ExternalResultsFetchPort → uslottery → providers
 
-```java
-public record LatestDraw(
-    UsLotteryProvider provider,
-    String externalGameKey,
-    String externalDrawType,
-    String channelCode,
-    LocalDate drawDate,
-    OffsetDateTime occurredAtUtc,
-    Instant fetchedAtUtc,
-    DrawMain numbers,
-    DrawExtras extras,
-    ResultQuality quality,
-    String origin,
-    Map<String, String> meta
-)
-Rôle
+- drawresult owns the port
+- uslottery implements the adapter
 
-Snapshot immuable d’un résultat externe.
+---
 
-Sert de transport interne entre provider → adapter draw.
+## 3. Core rule
 
-Invariants
+drawresult decides WHAT to fetch  
+uslottery fetches HOW
 
-numbers est validé et ordonné.
+---
 
-channelCode est obligatoire.
+## 4. Contracts separation
 
-drawDate + channelCode identifient un tirage.
+### drawresult (outgoing port)
 
-Clé d’idempotence
+ExternalResultFetchQuery  
+ExternalResultFetchBundle  
+ExternalResultItem
 
-provider + ":" + channelCode + ":" + drawDate
+→ business-facing contract
 
-3.2 DrawMain
-public record DrawMain(List<String> ordered)
+### uslottery (internal provider)
 
+UsLotteryProviderQuery  
+UsLotteryProviderResponse  
+UsLotteryProviderResult
 
-Valeur ajoutée
+→ provider-facing contract
 
-Ordre strict conservé.
+### adapter
 
-Validation des chiffres.
+External → Provider → External
 
-Taille contrôlable (requireSize).
+---
 
-Séparation claire des numéros principaux.
+## 5. Providers
 
-3.3 DrawExtras
-public record DrawExtras(
-    List<Integer> extraNumbers,
-    Map<String, String> attributes
-)
+Enum:
+UsLotteryProvider { NY, FL, GA, TN, TX }
 
+Clients:
 
-Utilité
+- NewYorkDrawResultsClient
+- FloridaDrawResultsClient
+- GeorgiaDrawResultsClient
+- TexasDrawResultsClient
+- TennesseeDrawResultsClient
 
-Support future-proof (fireball, bonus, multiplicateur).
+Mappers:
 
-Typage explicite.
+- NewYorkDrawResultsMapper
+- FloridaDrawResultsMapper
+- GeorgiaDrawResultsMapper
+- TexasDrawResultsMapper
+- TennesseeDrawResultsMapper
 
-Peut être vide (DrawExtras.empty()).
+---
 
-3.4 ResultQuality
-COMPLETE | PARTIAL | SUSPECT
+## 6. Game codes
 
+NY: NUMBERS, WIN4  
+FL: PICK3, PICK4  
+GA: PICK3, PICK4  
+TX: PICK3, DAILY4
 
-Permet au domaine draw de :
+→ gameCode is the ONLY key
 
-accepter,
+---
 
-refuser,
+## 7. Removed concepts
 
-ou mettre en attente un résultat externe.
+NOT allowed:
 
-4. Ports
-4.1 Entrants
+- US\_\* codes
+- external_draw_type
+- external_result_key
+- provider channelCode
+- composite mappings
+- maxDraws
 
-Aucun.
-Le domaine est appelé uniquement par draw.
+---
 
-4.2 Sortants
-LatestDrawProviderClient
-List<LatestDraw> fetchLatestDraws();
+## 8. Allowed data
 
+gameCode  
+main digits  
+extras  
+quality  
+metadata (optional)
 
-Implémenté par NY / FL.
+---
 
-Retourne des résultats normalisés.
+## 9. Business mapping
 
-UsLotterySyncStatePort
-boolean shouldFetch(String key, Instant now, boolean force);
-void markSuccess(String key, Instant now);
-void markEmpty(String key, Instant now);
-void markError(String key, Instant now);
-void clear(String key);
+Defined in result_slot.source_cfg
 
+Example:
+{
+"pick3": { "game_code": "NUMBERS" },
+"pick4": { "game_code": "WIN4" }
+}
 
-Rôle
+---
 
-Gérer le throttling et le retry.
+## 10. Configuration
 
-Éviter de bombarder les APIs externes.
+Technical only (application-uslottery.yml)
 
-5. Gestion du throttling (cache)
+---
 
-Le cache ne stocke pas des résultats, il stocke un état de tentative.
+## 11. Rest clients
 
-États possibles
+nyLotteryRestClient  
+floridaLotteryRestClient  
+gaLotteryRestClient  
+txLotteryRestClient  
+tnLotteryRestClient
 
-SUCCESS → ne plus fetch
+---
 
-EMPTY → retry plus tard (ex: +30 min)
+## 12. Cache
 
-ERROR → retry plus tard (backoff)
+infra.uslottery.provider_raw
 
-FORCE → bypass (ops)
+Rules:
 
-Cas concret
+- best-effort
+- never source of truth
+- no tenant
+- no slot
 
-Tirage à 12:00
+---
 
-Appel batch à 12:05 → vide → markEmpty
+## 13. Query hash
 
-Retry à 12:35
+Includes:
+provider, date, time, gameCodes, shape
 
-Ops peut forcer immédiatement via clear(key) ou force=true
+Excludes:
+tenant, slotKey, business mapping
 
-6. Intégration avec draw
-Point d’intégration unique
-ExternalDrawResultPort
+---
 
+## 14. Flow
 
-Implémentation :
+Scheduler / Ops
+→ drawresult
+→ uslottery adapter
+→ provider client
+→ mapper
+→ drawresult
+→ persist
 
-UsLotteryExternalDrawResultPortAdapter
+---
 
+## 15. Non-goals
 
-Matching
+uslottery must never:
 
-DrawSource.US_LOTTERY
+- write DB
+- read result_slot
+- know tenant
+- apply results
+- compute payouts
 
-channelCode (MIDDAY vs EVENING)
+---
 
-scheduledAt.toLocalDate() == drawDate
+## 16. Guiding principle
 
-7. Batch & Ops
-
-Les jobs batch vivent dans draw
-
-uslottery est appelé :
-
-par FetchAndApplyExternalResultCommandHandler
-
-via ExternalDrawResultPort
-
-Un endpoint ops peut déclencher un refresh forcé
-
-8. Architecture & règles
-
-Domaine sans persistance
-
-Pas de @Entity
-
-Immutabilité stricte
-
-Dépendance unidirectionnelle :
-
-draw → uslottery
-
-9. Configuration active
-
-La source de vérité provider est `application-uslottery.yaml`.
-`application.yaml` ne doit pas dupliquer `tch.us-lottery.providers.*`.
-
-Providers MVP :
-
-- NY : Numbers / Win4
-- FL : Pick 3 / Pick 4
-- GA : Cash 3 / Cash 4 horaires
-- TX : Pick 3 / Daily 4
-- TN : Cash 3 / Cash 4, provider désactivé par défaut dans le seed MVP
-
-GameCodes hors scope MVP : `US_NY_TAKE5_EVE`, `US_FL_LOTTO`.
-
-10. État actuel
-
-✔ Domaine stable
-✔ Modèle clair
-✔ Cache maîtrisé
-✔ Intégration propre avec draw
-
-
-
-
-```
+You do not map codes.  
+You resolve: which result for this slot.

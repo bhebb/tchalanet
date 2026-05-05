@@ -46,7 +46,3 @@ services:
         max-size: "10m"
         max-file: "3"
 
-networks:
-  edge:
-    name: ${DOCKER_NETWORK_EDGE:-edge-${ENV:-dev}}
-    external: true

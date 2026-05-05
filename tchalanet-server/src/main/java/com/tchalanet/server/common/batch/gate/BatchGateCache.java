@@ -6,7 +6,6 @@ import java.util.Optional;
 
 /**
  * Cache interface for batch gate enable/disable flags.
- *
  * Abstracts L1/L2 caching strategy.
  * Implementations can use Caffeine+Redis or simple in-memory.
  */
@@ -36,7 +35,7 @@ public interface BatchGateCache {
      * @param tenantId the tenant ID
      * @param enabled the flag value
      */
-    void putTenant(JobKey jobKey, TenantId tenantId, boolean enabled);
+    void cacheTenant(JobKey jobKey, TenantId tenantId, boolean enabled);
 
     /**
      * Put global flag in cache.
@@ -44,7 +43,7 @@ public interface BatchGateCache {
      * @param jobKey the job key
      * @param enabled the flag value
      */
-    void putGlobal(JobKey jobKey, boolean enabled);
+    void cacheGlobal(JobKey jobKey, boolean enabled);
 
     void evictTenant(JobKey jobKey, TenantId tenantId);
 

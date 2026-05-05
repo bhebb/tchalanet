@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.stats.aggregates;
 
-import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.common.event.DomainEvent;
+import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -38,7 +37,6 @@ public class StatsAggregatesEventListener {
     private final Clock clock;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
     public void onTicketPlaced(TicketPlacedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;
@@ -49,7 +47,6 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
     public void onTicketCancelled(TicketCancelledEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;
@@ -59,7 +56,6 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
     public void onTicketSettled(TicketResultedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;
@@ -69,7 +65,6 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
     public void onSessionOpened(SessionOpenedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;
@@ -79,7 +74,6 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
     public void onSessionClosed(SessionClosedEvent event) {
         if (isOldEvent(event.closedAt())) return;
         if (!markProcessedIfAbsent(event)) return;
@@ -89,7 +83,6 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
     public void onDrawResulted(DrawResultAppliedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;

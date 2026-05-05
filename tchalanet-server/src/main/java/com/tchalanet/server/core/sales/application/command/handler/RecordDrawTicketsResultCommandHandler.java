@@ -5,8 +5,8 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.core.drawresult.api.DrawResultProjection;
-import com.tchalanet.server.core.drawresult.api.DrawResultProjectionCatalog;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultCommand;
 import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultResult;
 import com.tchalanet.server.core.sales.application.port.out.TicketSettlementPort;
@@ -31,7 +31,7 @@ public class RecordDrawTicketsResultCommandHandler
     private static final int DEFAULT_BATCH_SIZE = 250;
 
     private final TicketSettlementPort ticketSettlementPort;
-    private final DrawResultProjectionCatalog drawResultProjectionCatalog;
+    private final DrawResultReaderPort drawResultProjectionCatalog;
     private final TicketWriterPort ticketWriter;
     private final TicketWinningCalculator winningCalculator;
 
@@ -44,7 +44,7 @@ public class RecordDrawTicketsResultCommandHandler
         // 1) Load draw result view once (global)
         DrawResultProjection resultView =
             drawResultProjectionCatalog
-                .findById(cmd.drawResultId())
+                .findProjectionById(cmd.drawResultId())
                 .orElseThrow(() -> new IllegalStateException("DrawResult not found: " + cmd.drawResultId()));
 
         // adapter: port view -> domain DrawResultMatchView
@@ -109,7 +109,7 @@ public class RecordDrawTicketsResultCommandHandler
             }
 
             // 3) update cursor from last item (keyset)
-            Ticket last = batch.get(batch.size() - 1);
+            Ticket last = batch.getLast();
             cursorCreatedAt = last.getCreatedAt();
             cursorId = last.getId().value();
 
@@ -140,7 +140,7 @@ public class RecordDrawTicketsResultCommandHandler
             @Override public String lot1() { return v.lot1(); }
             @Override public String lot2() { return v.lot2(); }
             @Override public String lot3() { return v.lot3(); }
-            @Override public String pick3() { return v.pick3(); }
+            @Override public String pick3() { return v.lot4(); }
         };
     }
 }

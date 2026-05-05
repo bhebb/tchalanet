@@ -19,22 +19,11 @@ Règles :
 - immuables : si on change d’avis → nouvelle ADR
 - pas de procédures “how-to” ici (ça va dans near-code docs)
 
-Index :
-
-- ADR-0001 Stack
-- ADR-0002 Slot-first results
-
 ---
 
 ## 📋 ADR existants
 
-### [ADR-0001 - Stack technique](ADR-0001-stack.md)
-
-Choix Spring Boot 4 + Java 25 + Angular 20 + Ionic + PostgreSQL + Keycloak
-
-### [ADR-0002 - Results Slot-first](ADR-0002-slot-first-results.md)
-
-Architecture résultats tirages (slot-first vs draw-centric)
+No published ADR pages are currently present beyond this index.
 
 ---
 
@@ -76,17 +65,12 @@ Liens vers specs, docs externes, benchmarks
 ## 🚀 Créer un nouvel ADR
 
 ```bash
-# Créer fichier
 cd tchalanet-docs/docs/03-adr
-cp ADR-TEMPLATE.md ADR-XXXX-titre-court.md
-
-# Éditer
-# - Remplir contexte, décision, alternatives, conséquences
-# - Status: Proposed (draft) → Accepted (validé)
-
-# Ajouter dans mkdocs.yml navigation
-# Commiter
+$EDITOR ADR-XXXX-titre-court.md
 ```
+
+Remplir contexte, décision, alternatives, conséquences, puis ajouter l'ADR à
+`tchalanet-docs/mkdocs.yml` quand elle est prête à publier.
 
 ---
 

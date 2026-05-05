@@ -55,7 +55,7 @@ _\* Code mort / en cours de migration — voir §1.6_
 | `PayoutJpaEntity`                                                               | `payout`        |
 | `TerminalJpaEntity`                                                             | `pos`           |
 | `TicketEntity`, `TicketLineEntity`                                              | `sales`         |
-| `PosSessionJpaEntity`, `PosSessionTotalsJpaEntity`                              | `session`       |
+| `SalesSessionJpaEntity`, `SalesSessionTotalsJpaEntity`                          | `session`       |
 | `SubscriptionJpaEntity`                                                         | `subscription`  |
 | `TenantGameJpaEntity`                                                           | `tenantgame`    |
 | `TenantThemeJpaEntity`                                                          | `tenanttheme`   |
@@ -145,8 +145,8 @@ _\* Code mort / en cours de migration — voir §1.6_
 | core     | `PayoutAdminController`                     | `/api/payouts`                        |
 | core     | `PublicTicketController`                    | `/api/public/tickets`                 |
 | core     | `TicketController`                          | `/api/tickets`                        |
-| core     | `PosSessionController`                      | `/api/pos/sessions`                   |
-| core     | `PosSessionTotalsController`                | `/api/pos/sessions/totals`            |
+| core     | `SalesSessionController`                    | `/api/pos/sessions`                   |
+| core     | `SalesSessionTotalsController`              | `/api/pos/sessions/totals`            |
 | core     | `SubscriptionController`                    | `/api/subscriptions`                  |
 | core     | `TenantAdminController`                     | `/api/tenant-admin`                   |
 | core     | `TenantGameAdminController`                 | `/api/tenant/games`                   |

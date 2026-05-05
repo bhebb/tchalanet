@@ -1,4 +1,10 @@
 -- V47: seed outlet, terminal and optional sales_session for tenant 'tchalanet'
+-- Flyway RLS context for default tenant seed
+SELECT set_config('app.current_tenant', '00000000-0000-0000-0000-000000000003', true);
+SELECT set_config('app.deleted_visibility', 'active', true);
+SELECT set_config('app.api_scope', 'tenant', true);
+SELECT set_config('app.is_super_admin', 'false', true);
+
 DO $$ BEGIN
   RAISE NOTICE 'V47__seed_outlet_terminal_pos: seeding outlet, terminal and sales_session for tenant tchalanet';
 END $$;
@@ -94,3 +100,8 @@ BEGIN
   END IF;
 END $$;
 
+-- Reset RLS context
+SELECT set_config('app.current_tenant', '', true);
+SELECT set_config('app.deleted_visibility', 'active', true);
+SELECT set_config('app.api_scope', '', true);
+SELECT set_config('app.is_super_admin', 'false', true);

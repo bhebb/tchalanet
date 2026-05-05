@@ -90,6 +90,60 @@
 
 ---
 
+## 14. Nouvelles fonctionnalités (Mai 2026)
+
+### 14.1 DrawSearchCriteria étendu ✅
+
+**Ajouts** :
+
+- `Integer limitPerChannel` : limite le nombre de draws retournés par channel (pour `/next`).
+- `Integer lookaheadHours` : fenêtre temporelle pour rechercher les prochains draws.
+- `List<String> resultSlotKeys` : filtrage par slots pour `/latest-with-results`.
+
+**Factory methods** :
+
+- `DrawSearchCriteria.forNext(resultSlotId, lookaheadHours, limitPerChannel)`
+- `DrawSearchCriteria.forLatestWithResults(resultSlotKeys)`
+
+### 14.2 DrawSalesGuardPort ✅
+
+**Rôle** : Valider les opérations draw contre l'état des ventes/payouts/settlements.
+
+**Méthodes** :
+
+- `assertCanCancel(DrawId, boolean force)`
+- `assertCanArchive(DrawId, boolean force)`
+- `assertCanCorrectAppliedResult(DrawId, DrawResultId, boolean force)`
+
+**Implémentation actuelle** : `NoOpDrawSalesGuardAdapter` (⚠️ logs warnings, aucune validation réelle).
+
+**TODO** : Implémenter `RealDrawSalesGuardAdapter` avec vraies validations.
+
+### 14.3 CorrectAppliedDrawResult flow ✅
+
+**Command** : `CorrectAppliedDrawResultCommand`
+
+**Handler** : `CorrectAppliedDrawResultCommandHandler`
+
+**Flow** :
+
+1. Require drawId, correctedDrawResultId, reason, idempotencyKey
+2. Lock/idempotency check via ProcessedEventPort
+3. Load Draw
+4. `salesGuard.assertCanCorrectAppliedResult(...)`
+5. Vérifier draw a déjà drawResultId
+6. Vérifier correctedDrawResultId différent de previous
+7. `draw.overrideResult(correctedDrawResultId, now, reason)`
+8. Save draw
+9. Publish `DrawResultCorrectedEvent` AFTER_COMMIT
+10. DrawResultEventListener écoute et envoie `MarkDrawResultOverriddenCommand`
+
+**Event** : `DrawResultCorrectedEvent` (ajout `previousDrawResultId`, `correctedDrawResultId`, `reason`)
+
+**Cross-domain** : `core.drawresult` écoute l'événement et marque le previous DrawResult comme `OVERRIDDEN`.
+
+---
+
 ## 15. TODOs spécifiques au domaine
 
 ### P0 — Sécurité
@@ -101,17 +155,23 @@
 - [x] Migrer `DrawAdminController` vers `ApiResponse<T>`.
 - [x] Refactor `createDraw` — handler retourne directement le `DrawSummary`.
 - [x] Corriger `@EventListener` → `@TransactionalEventListener(AFTER_COMMIT)` dans `DrawDomainEventListener`.
-- [ ] Créer `GetDrawByIdQuery` et `GetDrawBySlotAndDateQuery`.
+- [x] Créer `GetDrawByIdQuery` ✅ (remplace GetDrawQuery obsolète).
+- [x] Supprimer `GetDrawQuery` et `GetDrawHandler` obsolètes ✅.
+- [x] Supprimer `GetDrawResultQuery` et `GetDrawResultQueryHandler` obsolètes ✅.
 - [x] Nommer les magic numbers dans les commands (`OpenDueDrawsCommand` batchSize/lookaheadHours/lagHours).
 - [x] Implémenter règle 6.2 (refus override si Draw SETTLED).
 - [x] Implémenter règle 6.3 (`force=true` avec reason obligatoire + audit).
 - [x] Retirer `OverrideDrawResultCommand` de `DrawAdminController` (vit dans `features.ops`).
+- [x] DrawMapper : noms de variables clarifiés (jpaEntity, drawAggregate, drawStatus) ✅.
+- [ ] Supprimer paramètre `source` obsolète du constructeur Draw (ligne 49).
 
 ### P2 — Architecture
 
 - [x] Itérer sur les providers configurés dans `tch.draw.settle.providers` dans `DrawSettleScheduler`.
-- [ ] Ajouter listener `DrawResultIngestedEvent` (accélérateur apply).
+- [x] Ajouter listener `DrawResultIngestedEvent` (accélérateur apply) ✅.
+- [x] DrawEventListener créé avec idempotency + CommandBus ✅.
 - [x] Utilisation distribuée via `ShedLock` sur les schedulers.
+- [ ] Implémenter `RealDrawSalesGuardAdapter` (actuellement NoOp ⚠️).
 
 ### P3 — Observabilité
 

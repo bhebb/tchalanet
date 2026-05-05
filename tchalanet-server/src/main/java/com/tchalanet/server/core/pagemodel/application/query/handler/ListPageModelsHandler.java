@@ -2,7 +2,6 @@ package com.tchalanet.server.core.pagemodel.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.id.PageModelId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
@@ -27,7 +26,7 @@ public class ListPageModelsHandler
         query.pageable()
     );
     return TchPageMapper.map(page, inst -> new PageModelSummaryView(
-        PageModelId.of(inst.id()),
+        inst.id(),
         inst.logicalId(),
         inst.scope(),
         inst.slug(),

@@ -1,16 +1,16 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.*;
-
-import java.util.UUID;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "page_model_template")
@@ -36,9 +36,11 @@ public class PageModelTemplateEntity extends BaseEntity {
     private String description;
 
     @Column(name = "schema", nullable = false, columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String schema;
 
     @Column(name = "model", nullable = false, columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String model;
 
     @Column(name = "schema_version", nullable = false)

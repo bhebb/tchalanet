@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.domain.service;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface DrawResultMatchView {
 
@@ -17,7 +18,7 @@ public interface DrawResultMatchView {
         lot1() == null ? "" : lot1(),
         lot2() == null ? "" : lot2(),
         lot3() == null ? "" : lot3()
-    ).stream().filter(s -> s != null && !s.isBlank()).collect(java.util.stream.Collectors.toSet());
+    ).stream().filter(s -> !s.isBlank()).collect(Collectors.toSet());
   }
 }
 

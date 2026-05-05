@@ -87,7 +87,9 @@ public class PageModelTemplateCatalogImpl implements PageModelTemplateCatalog {
     public PageModelTemplateStatsView stats() {
         // total = all templates excluding soft-deleted
         long total = repository.countByDeletedAtIsNull();
-        long active = repository.countByActiveTrueAndDeletedAtIsNull();
+
+        //todo add link to pagemodel to get the numbers of pagemodels active for the pagetemplate ??
+        long active = repository.countByDeletedAtIsNull();
         return new PageModelTemplateStatsView((int) total, (int) active);
     }
 }

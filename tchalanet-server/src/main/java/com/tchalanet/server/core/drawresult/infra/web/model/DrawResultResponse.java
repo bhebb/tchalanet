@@ -3,8 +3,8 @@ package com.tchalanet.server.core.drawresult.infra.web.model;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
-
 import java.time.Instant;
+import tools.jackson.databind.JsonNode;
 
 public record DrawResultResponse(
     Instant occurredAt,
@@ -13,8 +13,7 @@ public record DrawResultResponse(
     ResultQuality quality,
     String sourceHash,
     Instant fetchedAt,
-    // JSON fields represented as strings in the HTTP API
-    String sourceResult,
-    String haitiResult,
-    String rawPayload,
+    JsonNode sourceResult,
+    JsonNode haitiResult,
+    JsonNode rawPayload,
     String overrideReason) {}

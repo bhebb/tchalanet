@@ -1,77 +1,37 @@
-# CLAUDE.md — tchalanet-server
+# Claude — tchalanet-server
 
-> **Lire d'abord** : `../CLAUDE.md` (règles transverses, secrets, OpenSpec)
+Claude router for backend work. Keep this file short; backend rules live in
+`AGENTS.md` and the docs listed below.
 
----
+Read first:
 
-## Stack backend
+- `../AGENTS.md`
+- `../VERSIONS.md`
+- `AGENTS.md`
+- `docs/ARCHITECTURE.md`
+- nearest `DOMAIN_*.md` or `FEATURE_*.md` for the touched area
 
-| Item            | Valeur                                         |
-| --------------- | ---------------------------------------------- |
-| Java            | 25 (`jakarta.*` uniquement)                    |
-| Spring Boot     | 4.0.3 (`./mvnw`)                               |
-| Architecture    | Hexagonal + CQRS — 4 couches strictes          |
-| ORM / migration | JPA + Hibernate · Flyway (`ddl-auto=validate`) |
-| Mappers         | MapStruct + `CommonIdMapper`                   |
-| Cache           | Redis + Caffeine                               |
-| Auth            | OAuth2 Resource Server (JWT/Keycloak)          |
-| Tests           | JUnit 5 · AssertJ · Testcontainers             |
+OpenSpec:
 
----
+- Backend changes live in `tchalanet-server/openspec/`.
+- Use root `openspec/` only for cross-project changes.
 
-## Skills backend (`tchalanet-server/.claude/skills/`)
+Context rule:
 
-Couches : `hexagonal-cqrs` · `core-module` · `catalog-module` · `feature-module` · `common-module`
-Patterns : `backend-typed-ids` · `domain-events` · `backend-rls` · `persistence-flyway` · `backend-events`
-Conventions : `backend-naming` · `backend-architecture` · `backend-testing` · `testing-conventions`
-Spring : `spring-boot-core` · `spring-security` · `java-best-practices`
+- Inspect only the package/slice needed for the task.
+- Load one relevant convention doc from `docs/conventions/` when needed.
+- Do not scan or edit web, mobile, infra, or edge unless explicitly requested.
 
----
-
-## Do ✅
-
-- Constructor injection uniquement
-- Commands/Queries = `record` + typed IDs (jamais `UUID` brut hors persistence)
-- Controllers thin : validation + mapping + délégation au bus
-- Domain layer = pure Java, framework-free, déterministe
-- Events publiés `AfterCommit` via `DomainEventPublisher`
-- Listeners idempotents via `ProcessedEventPort`
-- Flyway pour toute modification de schéma
-- `ApiResponse<T>` sur tous les controllers JSON
-- `TchPage<T>` pour les collections (pas Spring `Page`)
-- `BaseTenantEntity` pour les tables tenantées, `BaseEntity` sinon
-
-## Don't ❌
-
-- `javax.*` · `UUID` hors persistence · `UUID.randomUUID()` dans le domaine
-- Logique métier dans `catalog/` · domain events depuis `catalog/`
-- `core/` dépend de `features/` · `common/` contient du métier
-- `WHERE tenant_id = ?` dans le code Java (RLS fait le travail)
-- `ddl-auto=update/create` · `@RepositoryRestResource`
-- `@Autowired` champ · `@Data` Lombok · `XxxDto` · `DTO` dans features
-- `/api/v1` dans les `@RequestMapping` · suffixe `Impl` sans interface
-
----
-
-## Commandes
+Commands:
 
 ```bash
-./mvnw clean verify        # build + tests complets
-./mvnw spring-boot:run     # démarrage local (port 8080)
-./mvnw test -pl :module    # tests d'un module
+./mvnw test
+./mvnw verify
 ```
 
----
+Claude-specific output:
 
-## Références backend
-
-| Besoin               | Fichier                                  |
-| -------------------- | ---------------------------------------- |
-| Architecture couches | `openspec/context/10-non-negotiables.md` |
-| Nommage              | `docs/NAMING.md`                         |
-| Typed IDs            | `docs/conventions/typed_ids.md`          |
-| RLS / multi-tenant   | `docs/conventions/persistence/rls.md`    |
-| Events               | `docs/conventions/event_model.md`        |
-| Idempotency          | `docs/conventions/idempotency.md`        |
-| Tests                | `docs/conventions/testing.md`            |
-| Domaine métier       | `src/**/DOMAIN_*.md`                     |
+1. Files inspected
+2. Files changed
+3. Tests or validation run
+4. Remaining risks

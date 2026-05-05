@@ -41,8 +41,8 @@ public class TicketWinningCalculator {
             case MATCH_3_2D -> matchN_2d(selection, twoDigits, 3);
             case MARRIAGE_2D2D -> marriage2d2d(selection, twoDigits);
             case LOTTO3_3D -> exactDigits(selection, result.pick3(), 3);
-            case LOTTO4_PATTERN -> lotto4(selection, line.betOption() == null ? null : line.betOption().shortValue(), result, betType.canonicalWidth());
-            case LOTTO5_PATTERN -> lotto5(selection, line.betOption() == null ? null : line.betOption().shortValue(), result, betType.canonicalWidth());
+            case LOTTO4_PATTERN -> lotto4(selection, line.betOption() == null ? null : line.betOption(), result, betType.canonicalWidth());
+            case LOTTO5_PATTERN -> lotto5(selection, line.betOption() == null ? null : line.betOption(), result, betType.canonicalWidth());
         };
     }
 
@@ -106,7 +106,7 @@ public class TicketWinningCalculator {
         return switch (option) {
             case 1 -> abc.equals(pick3) && de.equals(r.lot2());
             case 2 -> abc.equals(pick3) && de.equals(r.lot3());
-            case 3 -> throw new UnsupportedOperationException("LOTTO5_PATTERN option 3 not yet implemented");
+            case 3 -> false;
             default -> false;
         };
     }

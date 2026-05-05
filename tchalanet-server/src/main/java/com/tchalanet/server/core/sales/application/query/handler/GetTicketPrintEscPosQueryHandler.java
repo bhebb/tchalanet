@@ -4,8 +4,9 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.print.escpos.EscPosBuilder;
 import com.tchalanet.server.common.qr.QrRenderer;
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintViewPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.application.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.application.print.TicketVerificationUrlBuilder;
 import com.tchalanet.server.core.sales.application.query.model.GetTicketPrintEscPosQuery;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -16,23 +17,23 @@ import org.springframework.stereotype.Component;
 public class GetTicketPrintEscPosQueryHandler
     implements QueryHandler<GetTicketPrintEscPosQuery, byte[]> {
 
-  private final TicketPrintViewPort port;
+  private final TicketPrintReaderPort port;
   private final TchContextResolver contextResolver;
-  private final QrPayloadBuilder payloadBuilder;
+  private final TicketVerificationUrlBuilder urlBuilder;
   private final QrRenderer qr;
   private final EscPosBuilder escpos;
   private final TicketReceiptFormatter formatter;
 
   public GetTicketPrintEscPosQueryHandler(
-      TicketPrintViewPort port,
+      TicketPrintReaderPort port,
       TchContextResolver contextResolver,
-      QrPayloadBuilder payloadBuilder,
+      TicketVerificationUrlBuilder urlBuilder,
       @Qualifier("qrEscPosRenderer") QrRenderer qr,
       EscPosBuilder escpos,
       @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter formatter) {
     this.port = port;
     this.contextResolver = contextResolver;
-    this.payloadBuilder = payloadBuilder;
+    this.urlBuilder = urlBuilder;
     this.qr = qr;
     this.escpos = escpos;
     this.formatter = formatter;
@@ -41,7 +42,7 @@ public class GetTicketPrintEscPosQueryHandler
   @Override
   public byte[] handle(GetTicketPrintEscPosQuery q) {
     var t = port.getTicketPrintView(q.ticketId(), currentLocale());
-    var verifyUrl = payloadBuilder.ticketVerifyUrl(t.publicCode());
+    var verifyUrl = urlBuilder.buildUrl(t.publicCode());
 
     var model = formatter.formatModel(t, verifyUrl);
 

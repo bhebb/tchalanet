@@ -40,15 +40,15 @@
 - `EvaluateLimitPolicyQueryHandler` + `ApplyTicketExposureCommandHandler` : présents et câblés dans le flux de vente
 - `UpsertLimitDefinitionCommandHandler` + `UpsertLimitAssignmentCommandHandler` : CRUD complet
 
-### PosSession
+### SalesSession
 
 **PRÉSENT**
 
-- `PosSession` domain model : présent
-- `PosSessionJpaEntity` + `PosSessionTotalsJpaEntity` : présents
+- `SalesSession` domain model : présent
+- `SalesSessionJpaEntity` + `SalesSessionTotalsJpaEntity` : présents
 - `OpenSessionCommandHandler` + `CloseSessionCommandHandler` : présents
-- `PosSessionController` + `PosSessionTotalsController` : présents
-- `PosSessionTotalsProjectionListener` : mise à jour des totaux sur événement
+- `SalesSessionController` + `SalesSessionTotalsController` : présents
+- `SalesSessionTotalsProjectionListener` : mise à jour des totaux sur événement
 
 ### Ledger
 
@@ -88,21 +88,21 @@
 
 ## Endpoints existants
 
-| Méthode               | Path                                    | Statut                            | Rôles                       |
-| --------------------- | --------------------------------------- | --------------------------------- | --------------------------- |
-| `POST`                | `/tenant/tickets`                       | ✅ PRÉSENT                        | CASHIER, ADMIN, SUPER_ADMIN |
-| `GET`                 | `/tenant/tickets`                       | ✅ PRÉSENT                        | CASHIER, ADMIN, SUPER_ADMIN |
-| `GET`                 | `/tenant/tickets/{id}`                  | ✅ PRÉSENT                        | CASHIER, ADMIN, SUPER_ADMIN |
-| `PATCH`               | `/tenant/tickets/{id}/cancel`           | ✅ PRÉSENT                        | —                           |
-| `POST`                | `/tenant/tickets/{id}/approve`          | ✅ PRÉSENT                        | ADMIN, SUPER_ADMIN          |
-| `POST`                | `/tenant/tickets/{id}/reject`           | ✅ PRÉSENT                        | ADMIN, SUPER_ADMIN          |
-| `PATCH`               | `/tenant/tickets/{id}/result/override`  | ✅ PRÉSENT                        | ADMIN, SUPER_ADMIN          |
-| `GET`                 | `/tenant/tickets/{id}/print`            | ✅ PRÉSENT                        | —                           |
-| `GET`                 | `/tenant/tickets/{id}/print.pdf`        | ✅ PRÉSENT                        | —                           |
-| `GET`                 | `/tenant/tickets/{id}/print.escpos`     | ✅ PRÉSENT                        | —                           |
-| `GET`/`POST`/`DELETE` | `/admin/tenant/policies/limits/...`     | ⚠️ PARTIEL                        | TENANT_ADMIN                |
-| `POST`                | `/tenant/payouts/claim` (cashier claim) | ❌ ABSENT                         | —                           |
-| `GET`                 | `/tenant/sessions/current`              | ✅ PRÉSENT (PosSessionController) | —                           |
+| Méthode               | Path                                    | Statut                              | Rôles                       |
+| --------------------- | --------------------------------------- | ----------------------------------- | --------------------------- |
+| `POST`                | `/tenant/tickets`                       | ✅ PRÉSENT                          | CASHIER, ADMIN, SUPER_ADMIN |
+| `GET`                 | `/tenant/tickets`                       | ✅ PRÉSENT                          | CASHIER, ADMIN, SUPER_ADMIN |
+| `GET`                 | `/tenant/tickets/{id}`                  | ✅ PRÉSENT                          | CASHIER, ADMIN, SUPER_ADMIN |
+| `PATCH`               | `/tenant/tickets/{id}/cancel`           | ✅ PRÉSENT                          | —                           |
+| `POST`                | `/tenant/tickets/{id}/approve`          | ✅ PRÉSENT                          | ADMIN, SUPER_ADMIN          |
+| `POST`                | `/tenant/tickets/{id}/reject`           | ✅ PRÉSENT                          | ADMIN, SUPER_ADMIN          |
+| `PATCH`               | `/tenant/tickets/{id}/result/override`  | ✅ PRÉSENT                          | ADMIN, SUPER_ADMIN          |
+| `GET`                 | `/tenant/tickets/{id}/print`            | ✅ PRÉSENT                          | —                           |
+| `GET`                 | `/tenant/tickets/{id}/print.pdf`        | ✅ PRÉSENT                          | —                           |
+| `GET`                 | `/tenant/tickets/{id}/print.escpos`     | ✅ PRÉSENT                          | —                           |
+| `GET`/`POST`/`DELETE` | `/admin/tenant/policies/limits/...`     | ⚠️ PARTIEL                          | TENANT_ADMIN                |
+| `POST`                | `/tenant/payouts/claim` (cashier claim) | ❌ ABSENT                           | —                           |
+| `GET`                 | `/tenant/sessions/current`              | ✅ PRÉSENT (SalesSessionController) | —                           |
 
 ---
 
@@ -140,7 +140,7 @@ Sales dépend de :
   ├── CATALOG/drawchannel → DrawChannelCatalog (validation du tirage, cutoff check)
   ├── CORE/tenantconfig   → TenantId (résolution tenant)
   ├── CORE/pos (Terminal) → TerminalId (terminal associé au ticket)
-  ├── CORE/session        → PosSession (session caissier — optionnel mais recommandé)
+  ├── CORE/session        → SalesSession (session caissier — optionnel mais recommandé)
   ├── CORE/limitpolicy    → LimitPolicyRuntimeService (vérification avant vente)
   ├── CORE/ledger         → RecordLedgerFromSalesPort (écriture comptable after-commit)
   └── CORE/payout         → MarkTicketPayoutPaidCommandHandler (cycle de vie paiement)

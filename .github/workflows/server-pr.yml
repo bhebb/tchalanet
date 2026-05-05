@@ -1,0 +1,36 @@
+name: Server PR Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tchalanet-server/**'
+      - '.github/workflows/server-pr.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: server-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tchalanet-server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Maven verify
+        run: ./mvnw -B -DskipITs=true verify

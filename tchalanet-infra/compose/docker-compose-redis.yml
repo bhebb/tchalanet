@@ -6,16 +6,22 @@ services:
     env_file:
       - ../envs/${ENV}/.env.merged
       - ../envs/${ENV}/.secrets
+    
+    # Expose port in dev for local IDE access
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    
     # Use a mounted entrypoint script (avoids quoting issues)
     volumes:
       - ../scripts/docker/redis-entrypoint.sh:/usr/local/bin/redis-entrypoint.sh:ro
       - redis-data:/data
     command: ["/usr/local/bin/redis-entrypoint.sh"]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        ['CMD-SHELL', 'if [ -n "$$REDIS_PASSWORD" ]; then redis-cli -a "$$REDIS_PASSWORD" --no-auth-warning ping; else redis-cli ping; fi']
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
       start_period: 5s
     deploy:
       resources:
@@ -38,7 +44,7 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    networks: [ back, edge ]
+    networks: [ back ]
 
 volumes:
   redis-data:

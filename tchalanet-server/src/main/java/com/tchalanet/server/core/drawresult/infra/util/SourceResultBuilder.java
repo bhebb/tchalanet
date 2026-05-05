@@ -1,15 +1,14 @@
 package com.tchalanet.server.core.drawresult.infra.util;
 
-import tools.jackson.databind.node.ObjectNode;
-import com.tchalanet.server.common.contracts.results.ExternalResultOutput;
 import com.tchalanet.server.common.util.JsonUtils;
-
+import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultItem;
 import java.time.Instant;
 import java.time.LocalDate;
+import tools.jackson.databind.node.ObjectNode;
 
 public final class SourceResultBuilder {
-    private SourceResultBuilder() {
-    }
+
+    private SourceResultBuilder() {}
 
     public static ObjectNode build(
         JsonUtils jsonUtils,
@@ -17,12 +16,12 @@ public final class SourceResultBuilder {
         String slotKey,
         LocalDate drawDate,
         Instant occurredAt,
-        ExternalResultOutput p3,
-        ExternalResultOutput p4) {
+        ExternalResultItem p3,
+        ExternalResultItem p4) {
 
-        var root = jsonUtils.emptyObjectNode();
-        root.put("provider", nn(provider));
-        root.put("slot_key", nn(slotKey));
+        var root = jsonUtils.emptyObject();
+        root.put("provider", emptyIfNull(provider));
+        root.put("slot_key", emptyIfNull(slotKey));
         root.put("draw_date", drawDate == null ? "" : drawDate.toString());
         root.put("occurred_at", occurredAt == null ? "" : occurredAt.toString());
 
@@ -35,42 +34,52 @@ public final class SourceResultBuilder {
         return root;
     }
 
-    private static ObjectNode pickNode(JsonUtils mapper, ExternalResultOutput out) {
-        var n = mapper.emptyObjectNode();
-        if (out == null) {
+    private static ObjectNode pickNode(JsonUtils jsonUtils, ExternalResultItem item) {
+        var n = jsonUtils.emptyObject();
+
+        if (item == null || !item.found()) {
             n.put("found", false);
-            n.put("status", "");
+            n.put("status", "MISSING");
             n.put("quality", "SUSPECT");
             n.put("occurred_at", "");
             n.putArray("main");
-            n.putArray("extra");
-            n.set("source_flags", mapper.emptyObjectNode());
-            n.set("raw", mapper.emptyObjectNode());
+            n.putArray("extras");
+            n.set("source_flags", jsonUtils.emptyObject());
             return n;
         }
 
-        n.put("found", out.found());
-        n.put("status", nn(out.status()));
-        n.put("quality", out.quality() == null ? "SUSPECT" : out.quality().name());
-        n.put("occurred_at", out.occurredAt() == null ? "" : out.occurredAt().toString());
+        n.put("found", true);
+        n.put("status", "FOUND");
+        n.put("game_code", emptyIfNull(item.gameCode()));
+        n.put("quality", item.quality() == null ? "SUSPECT" : item.quality().name());
+        n.put("occurred_at", item.occurredAt() == null ? "" : item.occurredAt().toString());
 
         var main = n.putArray("main");
-        for (var s : out.main()) main.add(s);
+        if (item.main() != null) {
+            for (var s : item.main()) {
+                main.add(emptyIfNull(s));
+            }
+        }
 
-        var extra = n.putArray("extra");
-        for (var s : out.extra()) extra.add(s);
+        var extras = n.putArray("extras");
+        if (item.extras() != null) {
+            for (var s : item.extras()) {
+                extras.add(emptyIfNull(s));
+            }
+        }
 
-        n.set("source_flags", mapper.valueToTree(out.sourceFlags()));
-        n.set("raw", mapper.valueToTree(out.rawPayload()));
+        n.set("source_flags", jsonUtils.toJsonNode(item.sourceFlags()));
         return n;
     }
 
-    private static String digits(ExternalResultOutput out) {
-        if (out == null || !out.found() || out.main().isEmpty()) return "";
-        return String.join("", out.main());
+    private static String digits(ExternalResultItem item) {
+        if (item == null || !item.found() || item.main() == null || item.main().isEmpty()) {
+            return "";
+        }
+        return String.join("", item.main());
     }
 
-    private static String nn(String s) {
+    private static String emptyIfNull(String s) {
         return s == null ? "" : s;
     }
 }

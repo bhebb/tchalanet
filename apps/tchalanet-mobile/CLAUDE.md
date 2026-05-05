@@ -1,45 +1,25 @@
-# CLAUDE.md — apps/tchalanet-mobile
+# Claude — apps/tchalanet-mobile
 
-> **Lire d'abord** : `../../CLAUDE.md` (règles transverses, secrets, OpenSpec)
+Legacy mobile app router. Prefer the current mobile project router at
+`../../tchalanet-mobile/AGENTS.md` unless the task explicitly targets this app.
 
----
+Read first:
 
-## Stack mobile
+- `../../AGENTS.md`
+- `../../VERSIONS.md`
+- `../../tchalanet-mobile/AGENTS.md`
+- files explicitly mentioned in the task
 
-| Item             | Valeur                          |
-| ---------------- | ------------------------------- |
-| Langage          | Dart / Flutter                  |
-| State            | Riverpod                        |
-| Navigation       | GoRouter                        |
-| UI               | Material 3                      |
-| HTTP             | Dio                             |
-| Cible principale | Android — terminal POS Motorola |
+Context rule:
 
----
+- Keep this scope small.
+- Do not introduce legacy hybrid assumptions.
+- Keep mobile details in `tchalanet-mobile/` when the current Flutter app owns them.
 
-## Règles fondamentales
-
-- **Android-first** — optimiser pour le terminal POS Motorola avant iOS
-- Pas de Cordova — Capacitor pour les APIs natives si besoin
-- Riverpod pour tout le state management (pas de Provider legacy)
-- GoRouter pour toute la navigation — pas de Navigator 1.0 direct
-- Material 3 uniquement — pas de Cupertino sauf exception documentée
-- Libs partagées : `libs/shared/`, `libs/i18n/` (fr / en / ht)
-- Offline-first : le terminal POS peut être hors-ligne
-
----
-
-## Skills mobile (`apps/tchalanet-mobile/.claude/skills/`)
-
-`flutter` · `frontend-mobile`
-
----
-
-## Commandes
+Commands:
 
 ```bash
-flutter pub get              # install dépendances
-flutter run                  # lancement dev (émulateur ou device)
-flutter build apk --release  # build Android
-flutter test                 # tests unitaires
+flutter pub get
+flutter test
+flutter build apk --release
 ```

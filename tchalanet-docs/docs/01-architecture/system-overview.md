@@ -8,7 +8,7 @@ pour : vente de tickets, tirages, ingestion résultats, paiements, configuration
 ## Composants
 
 - **Web (Angular/Nx)** : public + privé (dashboards)
-- **Mobile (Ionic)** : POS offline/online
+- **Mobile (Flutter)** : POS offline/online
 - **Backend (Spring Boot)** : domaines critiques (core), orchestration (features), référentiels (catalog)
 - **Infra (Docker)** : Postgres (RLS), Redis, Meilisearch, Keycloak, Traefik, Unleash, etc.
 - **Edge service** : (si applicable) proxy/rules/templating léger

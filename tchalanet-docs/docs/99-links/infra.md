@@ -1,25 +1,29 @@
-# Infra — liens (local)
+# Infra
 
-## Docs infra (near-code)
+Infra operational documentation remains canonical in the infra project.
 
-- [README infra](./_ref/infra/README.md)
-- [Keycloak config](./_ref/infra/WEB-KEYCLOAK-CONFIG.md)
-- [Allowed hosts](./_ref/infra/VITE-ALLOWED-HOSTS.md)
+## Start Here
 
-> D’autres docs infra: `./_ref/infra/`.
+| Need                   | Canonical source                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| First local setup      | `tchalanet-infra/QUICK-START.md`, `tchalanet-infra/docs/QUICKSTART.md`                            |
+| Daily operations       | `tchalanet-infra/docs/OPERATIONS.md`                                                              |
+| Infra rules for agents | `tchalanet-infra/AGENTS.md`                                                                       |
+| Environment separation | `tchalanet-infra/docs/ENV-SEPARATION.md`, `tchalanet-infra/docs/ENV-ARCHITECTURE.md`              |
+| Image/build deployment | `tchalanet-infra/docs/IMAGES-DEPLOYMENT.md`, `tchalanet-infra/docs/QUICKSTART-IMAGES.md`          |
+| Secrets/Doppler        | `tchalanet-infra/docs/DOPPLER-SETUP-GUIDE.md`, `tchalanet-infra/docs/DOPPLER-DOWNLOAD-SECRETS.md` |
+| Keycloak               | `tchalanet-infra/keycloak/README.md`, `tchalanet-infra/keycloak/realms/README.md`                 |
+| Compose                | `tchalanet-infra/compose/README.md`, `tchalanet-infra/compose/docker-compose.index.md`            |
+| Scripts                | `tchalanet-infra/docs/scripts-index.md`, `tchalanet-infra/scripts/README.md`                      |
+| Infra OpenSpec         | `tchalanet-infra/openspec/project.md`                                                             |
 
----
+## Source Folders
 
-## Règle “published bundle” (MkDocs)
+- `tchalanet-infra/docs/`
+- `tchalanet-infra/CLAUDE.md`
+- `tchalanet-infra/AGENTS.md`
+- `tchalanet-infra/openspec/`
+- `tchalanet-infra/envs/common/compose.env`
 
-- MkDocs ne peut lier que des fichiers présents dans `tchalanet-docs/docs/`.
-- Les docs near-code sont copiées dans `99-links/_ref/infra/` par un script de sync.
-- On n’édite jamais `_ref/**`; on édite les sources près du code.
-
-### Sync avant serve/build
-
-```bash
-./tchalanet-docs/scripts/sync-ref-docs.sh
-cd tchalanet-docs
-mkdocs serve   # ou mkdocs build
-```
+MkDocs should provide an operations map and route to infra-owned runbooks.
+It should not list every infra Markdown file in the main navigation.

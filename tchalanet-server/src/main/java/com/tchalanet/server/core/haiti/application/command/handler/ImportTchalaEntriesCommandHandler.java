@@ -18,11 +18,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ImportTchalaEntriesCommandHandler
     implements CommandHandler<
         ImportTchalaEntriesCommand,
         com.tchalanet.server.core.haiti.application.command.model.ImportTchalaReport> {
+
+  private static final Logger log = LoggerFactory.getLogger(ImportTchalaEntriesCommandHandler.class);
 
   private final TchalaImportSourcePort importPort;
   private final TchalaEntryRepositoryPort repo;
@@ -143,7 +147,7 @@ public final class ImportTchalaEntriesCommandHandler
           }
         }
       } catch (Exception ex) {
-        // ignore single row errors for now
+        log.warn("Import row {} skipped — {}", parsed, ex.getMessage());
       }
     }
 

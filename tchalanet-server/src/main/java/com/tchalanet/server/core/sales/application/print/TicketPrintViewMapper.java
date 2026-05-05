@@ -1,10 +1,11 @@
 package com.tchalanet.server.core.sales.application.print;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelDisplayFormatter;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
-import com.tchalanet.server.core.draw.application.print.DrawChannelLabelResolver;
-import com.tchalanet.server.core.draw.application.print.DrawOccurrenceLabelResolver;
 import com.tchalanet.server.core.draw.domain.model.Draw;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import com.tchalanet.server.core.sales.application.formatter.DrawLabelFormat;
+import com.tchalanet.server.core.sales.application.formatter.TicketDrawLabelFormatter;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
@@ -16,22 +17,23 @@ import java.util.stream.Collectors;
 @Component
 public class TicketPrintViewMapper {
 
-    private final DrawChannelLabelResolver channelLabelResolver;
-    private final DrawOccurrenceLabelResolver occurrenceLabelResolver;
+    private final DrawChannelDisplayFormatter channelDisplayFormatter;
+    private final TicketDrawLabelFormatter ticketDrawLabelFormatter;
 
     public TicketPrintViewMapper(
-        DrawChannelLabelResolver channelLabelResolver,
-        DrawOccurrenceLabelResolver occurrenceLabelResolver) {
-        this.channelLabelResolver = channelLabelResolver;
-        this.occurrenceLabelResolver = occurrenceLabelResolver;
+        DrawChannelDisplayFormatter channelDisplayFormatter,
+        TicketDrawLabelFormatter ticketDrawLabelFormatter) {
+        this.channelDisplayFormatter = channelDisplayFormatter;
+        this.ticketDrawLabelFormatter = ticketDrawLabelFormatter;
     }
 
     public TicketPrintView map(
         Ticket ticket, Outlet outlet, Draw draw, DrawChannelView channel, Locale locale) {
 
         String channelCode = channel != null ? channel.code() : null;
-        String channelLabel = channelLabelResolver.resolve(channel, locale);
-        String whenLabel = occurrenceLabelResolver.resolve(draw, channel, locale);
+        String channelLabel = channelDisplayFormatter.resolve(channel, locale);
+        String whenLabel = ticketDrawLabelFormatter.format(draw.drawDate(), channel.drawTime(), channel.timezone(),
+            draw.scheduledAt(), Locale.US, DrawLabelFormat.TICKET_SHORT);
 
         var lines =
             ticket.getLines().stream()

@@ -1,9 +1,11 @@
 package com.tchalanet.server.core.draw.application.command.handler;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.config.draw.DrawResultsCommonProperties;
+import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
@@ -21,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -34,110 +37,173 @@ public class ApplyExternalResultsWindowCommandHandler
     private final ResultSlotCatalog resultSlotCatalog;
     private final DrawResultReaderPort drawResultReader;
     private final DrawApplyPort drawApply;
-    private final DrawResultsCommonProperties props;
+    private final DrawResultsProperties props;
     private final Clock clock;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
 
     @Override
+    @TchTx
     public ApplyExternalResultsWindowResult handle(ApplyExternalResultsWindowCommand cmd) {
         validate(cmd);
 
         int applied = 0;
         int alreadyOrNotEligible = 0;
         int skippedDryRun = 0;
-        int skippedPending = 0; // draw_result absent (fetch pas prêt) => retry next tick
-        int notFound = 0;       // slot missing/inactive only
+        int skippedPending = 0;
+        int slotNotFound = 0;
+        int slotInactive = 0;
         int errors = 0;
 
         int daysBack = clampDaysBack(cmd.daysBack());
-        Instant now = Instant.now(clock);
+        int maxSlots = Math.min(cmd.maxSlots(), props.getLimits().getMaxSlotsPerTick());
+
+        var now = clock.instant();
+        var eventTime = now;
 
         var slotKeys =
             cmd.slotKeys().stream()
                 .map(ApplyExternalResultsWindowCommandHandler::normalizeKey)
                 .filter(s -> !s.isBlank())
                 .distinct()
-                .limit(cmd.maxSlots())
+                .limit(maxSlots)
                 .toList();
+
+        var slotsByKey = new java.util.HashMap<String, ResultSlotView>();
+
+        for (String slotKey : slotKeys) {
+            var slotOpt = resultSlotCatalog.findByKey(slotKey);
+
+            if (slotOpt.isEmpty()) {
+                slotNotFound++;
+                continue;
+            }
+
+            var slot = slotOpt.get();
+
+            if (!slot.active()) {
+                slotInactive++;
+                continue;
+            }
+
+            slotsByKey.put(normalizeKey(slot.slotKey()), slot);
+        }
+
+        var eventsToPublish = new java.util.ArrayList<DrawResultAppliedEvent>();
 
         for (LocalDate date : DateWindows.datesBackInclusive(cmd.baseDate(), daysBack)) {
             for (String slotKey : slotKeys) {
+                var slot = slotsByKey.get(slotKey);
+
+                if (slot == null) {
+                    continue;
+                }
+
                 try {
-                    var slotOpt = resultSlotCatalog.findByKey(slotKey);
-                    if (slotOpt.isEmpty()) {
-                        notFound++;
-                        continue;
-                    }
-                    var slot = slotOpt.get();
-                    if (!slot.active()) {
-                        notFound++;
-                        continue;
-                    }
-
-                    // Deterministic occurredAt for slot/date (timezone + drawTime)
                     Instant occurredAt =
-                        OccurredAtResolver.resolve(null, date, slot.drawTime(), slot.timezone(), clock);
+                        OccurredAtResolver.resolveOrThrow(
+                            null,
+                            date,
+                            slot.drawTime(),
+                            slot.timezone());
 
-                    var drOpt = drawResultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt);
-                    if (drOpt.isEmpty()) {
+                    var drawResultOpt =
+                        drawResultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt);
+
+                    if (drawResultOpt.isEmpty()) {
                         skippedPending++;
                         continue;
                     }
-                    var drawResultId = drOpt.get();
+
+                    var drawResultId = drawResultOpt.get();
 
                     if (cmd.dryRun()) {
                         skippedDryRun++;
                         continue;
                     }
 
+                    /*
+                     * Replay/backfill rule:
+                     * - can run for past dates;
+                     * - can run repeatedly;
+                     * - must stay idempotent;
+                     * - must not replace an already applied draw_result_id.
+                     *
+                     * Correction/replacement belongs to CorrectAppliedDrawResultCommand.
+                     */
                     var res =
                         drawApply.attachResultBySlot(
-                            cmd.tenantId(), date, slot.id(), drawResultId, now, cmd.force());
+                            cmd.tenantId(),
+                            date,
+                            slot.id(),
+                            drawResultId,
+                            now);
 
-                    if (res.outcome() == DrawApplyPort.ApplyOutcome.UPDATED && !res.applied().isEmpty()) {
+                    if (res.outcome() == DrawApplyPort.ApplyOutcome.UPDATED
+                        && !res.applied().isEmpty()) {
+
                         applied += res.applied().size();
 
-                        AfterCommit.run(
-                            () -> {
-                                for (var d : res.applied()) {
-
-                                    var appliedEvent =
-                                        new DrawResultAppliedEvent(
-                                            EventId.of(idGenerator.newUuid()),
-                                            Instant.now(clock),
-                                            cmd.tenantId(),
-                                            d.drawId(),
-                                            slot.id(),
-                                            drawResultId);
-                                    publisher.publish(appliedEvent);
-                                }
-                            });
-
+                        for (var d : res.applied()) {
+                            eventsToPublish.add(
+                                new DrawResultAppliedEvent(
+                                    EventId.of(idGenerator.newUuid()),
+                                    eventTime,
+                                    cmd.tenantId(),
+                                    d.drawId(),
+                                    date,
+                                    slot.id(),
+                                    drawResultId,
+                                    d.drawChannelId()));
+                        }
                     } else {
                         alreadyOrNotEligible++;
                     }
 
                 } catch (Exception e) {
                     errors++;
+
                     log.warn(
-                        "draw-results.apply failed tenant={} slot={} date={} err={}",
+                        "draw.results.apply failed tenant={} slot={} date={} dryRun={} force={} err={}",
                         cmd.tenantId(),
                         slotKey,
                         date,
-                        e.toString());
+                        cmd.dryRun(),
+                        cmd.force(),
+                        e.getMessage(),
+                        e);
                 }
             }
         }
 
+        if (!eventsToPublish.isEmpty()) {
+            AfterCommit.run(() -> eventsToPublish.forEach(publisher::publish));
+        }
+
+        log.info(
+            "draw.results.apply tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
+            cmd.tenantId(),
+            cmd.baseDate(),
+            daysBack,
+            cmd.dryRun(),
+            cmd.force(),
+            applied,
+            slotInactive,
+            alreadyOrNotEligible,
+            skippedDryRun,
+            skippedPending,
+            slotNotFound,
+            errors);
+
         return new ApplyExternalResultsWindowResult(
             applied,
-            /* updated */ 0,
-            /* already */ alreadyOrNotEligible,
-            /* skipped */ skippedDryRun + skippedPending,
-            /* notFound */ notFound,
-            /* errors */ errors);
+            slotInactive,
+            alreadyOrNotEligible,
+            skippedDryRun + skippedPending,
+            slotNotFound,
+            errors);
     }
+
 
     private int clampDaysBack(int v) {
         int x = Math.max(0, v);

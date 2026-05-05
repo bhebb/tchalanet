@@ -1,0 +1,38 @@
+name: Web PR Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/tchalanet-web/**'
+      - 'libs/ui/**'
+      - '.github/workflows/web-pr.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: web-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.x'
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@10.19.0 --activate
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web app
+        run: pnpm nx build tchalanet-web

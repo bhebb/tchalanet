@@ -6,7 +6,7 @@
 
 ## 1. Sources de vérité
 
-- **`.specify/`** est la source canonique pour workflows SDD, templates, scripts
+- **`openspec/`** est la source canonique pour workflows SDD, specs et changements en cours
 - **`tchalanet-docs/docs/`** est la documentation centrale publiée (MkDocs)
 - **Docs proches du code** (`tchalanet-server/docs/`, `apps/*/docs/`, etc.) sont la vérité détaillée technique
 - Les docs publiques pointent vers les docs détaillées
@@ -25,7 +25,7 @@
 
 - **BFF PageModel** + **widgets dynamiques**
 - **Web** : Angular + Nx + Material + Tailwind
-- **Mobile** : Ionic + Angular + Capacitor
+- **Mobile** : Flutter + Riverpod + GoRouter
 
 ### Infra
 
@@ -39,10 +39,10 @@
 ## 3. Règles IA (non négociables)
 
 1. **MUST read** `AGENTS.md` (racine) avant toute action
-2. **MUST read** `.specify/constitution/constitution.md` (workflow SDD)
+2. **MUST read** `openspec/project.md` (workflow SDD)
 3. **MUST read** cette constitution (centrale MkDocs)
 4. **MUST** respecter placement des modules (`common`, `core`, `features`, `catalog`)
-5. **MUST NOT** inventer de patterns (suivre `ARCHITECTURE.md` et `.specify/`)
+5. **MUST NOT** inventer de patterns (suivre `ARCHITECTURE.md` et `openspec/`)
 6. **Si ambigu** → proposer max 2 options, puis appliquer la solution la plus safe
 7. **MUST** documenter toute décision (pas de règle implicite)
 
@@ -80,7 +80,7 @@
 - **Public** : dev travaillant sur ce module
 - **Mise à jour** : fréquente (évolution code)
 
-### Workflow SDD — `.specify/work/features/`
+### Workflow SDD — `openspec/changes/`
 
 - **Rôle** : specs, plans, tasks en cours
 - **Public** : dev feature, IA
@@ -94,7 +94,7 @@
 - **AGENTS.md** (racine) : règles backend Spring Boot / Java
 - **ARCHITECTURE.md** (racine) : architecture hexagonale, modules, patterns
 - **PLAYBOOK.md** (racine) : guide opérationnel humains + IA
-- **.specify/index.md** : organisation `.specify/`
+- **openspec/context/00-index.md** : organisation `openspec/`
 - **tchalanet-docs/docs/** : cette documentation centrale
 
 ---

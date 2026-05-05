@@ -1,26 +1,31 @@
-# Backend — liens (local)
+# Backend
 
-## Server (near-code)
+Backend implementation documentation remains canonical near code.
 
-- [ARCHITECTURE](./_ref/server/ARCHITECTURE.md)
-- [PLAYBOOK](./_ref/server/PLAYBOOK.md)
-- [ROUTING_AND_API_PATHS_V1](./_ref/server/ROUTING_AND_API_PATHS_V1.md)
-- [RLS](./_ref/server/rls.md)
+## Start Here
 
-> Les autres docs sont disponibles sous: `./_ref/server/`.
+| Need                         | Canonical source                                                     |
+| ---------------------------- | -------------------------------------------------------------------- |
+| Backend agent/context rules  | `tchalanet-server/AGENTS.md`                                         |
+| Architecture and layer rules | `tchalanet-server/docs/ARCHITECTURE.md`                              |
+| Delivery workflow            | `tchalanet-server/docs/PLAYBOOK.md`                                  |
+| Naming                       | `tchalanet-server/docs/NAMING.md`                                    |
+| API routing                  | `tchalanet-server/docs/ROUTING_AND_API_PATHS_V1.md`                  |
+| RLS and tenant isolation     | `tchalanet-server/docs/rls.md`, `tchalanet-server/docs/conventions/` |
+| Implementation conventions   | `tchalanet-server/docs/conventions/`                                 |
+| Domain truth                 | `tchalanet-server/src/**/DOMAIN_*.md`                                |
+| Feature truth                | `tchalanet-server/src/**/FEATURE_*.md`                               |
+| Backend OpenSpec             | `tchalanet-server/openspec/`                                         |
 
----
+## Source Folders
 
-## Règle “published bundle” (MkDocs)
+- `tchalanet-server/docs/ARCHITECTURE.md`
+- `tchalanet-server/docs/PLAYBOOK.md`
+- `tchalanet-server/docs/ROUTING_AND_API_PATHS_V1.md`
+- `tchalanet-server/docs/rls.md`
+- `tchalanet-server/docs/conventions/`
+- `tchalanet-server/src/**/DOMAIN_*.md`
+- `tchalanet-server/src/**/FEATURE_*.md`
 
-- MkDocs ne peut lier que des fichiers présents dans `tchalanet-docs/docs/`.
-- Les docs near-code sont copiées dans `99-links/_ref/server/` par un script de sync.
-- On n’édite jamais `_ref/**`; on édite les sources près du code.
-
-### Sync avant serve/build
-
-```bash
-./tchalanet-docs/scripts/sync-ref-docs.sh
-cd tchalanet-docs
-mkdocs serve   # ou mkdocs build
-```
+MkDocs should summarize and route to these files; it should not copy long
+backend implementation docs.

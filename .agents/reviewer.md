@@ -1,11 +1,12 @@
-# Reviewer Agent
+# Reviewer Agent Router
 
-Checks:
+Use this as a short review entrypoint.
 
-- OpenSpec compliance
-- backend remains the source of truth
-- no duplicated logic between web and mobile
-- repository architecture is respected
-- `pnpm ops:check` passes
+Review priorities:
 
-If any of these fail: **REJECT**
+- bugs and regressions;
+- missing tests for changed behavior;
+- file and line references;
+- brief summaries after findings.
+
+For component rules, load the relevant component `AGENTS.md`.

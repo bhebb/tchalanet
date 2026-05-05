@@ -1,22 +1,22 @@
 package com.tchalanet.server.core.draw.infra.scheduler;
 
+import com.tchalanet.server.common.batch.exception.BatchSkippedException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.batch.key.JobKey;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.api.DrawReaderPort;
-import com.tchalanet.server.core.draw.domain.model.DrawSummary;
+import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
+import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class DrawProvisionalWatchdogSchedulerTest {
 
@@ -25,7 +25,9 @@ class DrawProvisionalWatchdogSchedulerTest {
     var drawReader = new RecordingDrawReader();
     var scheduler = scheduler(drawReader, new FixedBatchGate(false));
 
-    scheduler.checkProvisionalStuck();
+    assertThatThrownBy(scheduler::checkProvisionalStuck)
+        .isInstanceOf(BatchSkippedException.class)
+        .hasMessageContaining("Draw provisional watchdog gate disabled");
 
     assertThat(drawReader.calls).isZero();
   }
@@ -49,7 +51,6 @@ class DrawProvisionalWatchdogSchedulerTest {
         drawReader,
         new SimpleMeterRegistry(),
         batchGate,
-        Clock.fixed(Instant.parse("2026-04-28T12:00:00Z"), ZoneOffset.UTC),
         props);
   }
 

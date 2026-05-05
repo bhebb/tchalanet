@@ -19,7 +19,9 @@ public class BatchGate {
     }
 
     public void assertEnabledOrThrow(JobKey jobKey, TenantId tenantId) {
-        if (jobKey == null) throw new IllegalArgumentException("jobKey required");
+        if (jobKey == null) {
+            throw new IllegalArgumentException("jobKey required");
+        }
 
         var res = resolver.resolveWithScope(jobKey, tenantId);
         if (!res.enabled()) {

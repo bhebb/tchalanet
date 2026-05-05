@@ -6,6 +6,10 @@ services:
       - ../envs/${ENV}/.env.merged
       - ../envs/${ENV}/.secrets
 
+    # Expose management port in dev for debugging (health/metrics)
+    ports:
+      - "${KC_MGMT_PORT:-9000}:9000"
+
     command: >
       start
       --http-enabled=true
