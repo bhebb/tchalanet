@@ -183,4 +183,107 @@ up-all-local: env-merge render-traefik mkcert-local get-realm ensure-exec networ
 	@LOCAL_BUILD=1 scripts/utils/up-seq.sh $(ENV) --local-build
 
 
+# ============================================================================
+# P0 strict — Traefik + PostgreSQL + Keycloak
+# ============================================================================
+
+p0-up: env-merge render-traefik mkcert-local get-realm ensure-exec networks
+	@echo "→ P0 up ENV=$(ENV)"
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up traefik $(ENV)
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up postgres $(ENV)
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
+
+p0-smoke:
+	@echo "→ Smoke P0 ENV=$(ENV)"
+	@curl -sf --max-time 5 https://traefik.localtest.me/ping \
+	  || { echo "❌ Traefik KO"; exit 1; }
+	@docker exec $$(docker ps --filter "name=.*postgres.*$(ENV)" --format "{{.Names}}" | head -1) \
+	  pg_isready -U $${POSTGRES_USER:-postgres} \
+	  || { echo "❌ PostgreSQL KO"; exit 1; }
+	@curl -sf --max-time 10 https://auth.localtest.me/realms/tchalanet/.well-known/openid-configuration > /dev/null \
+	  || { echo "❌ Keycloak KO"; exit 1; }
+	@echo "✅ P0 smoke OK"
+
+p0-down:
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
+
+# ============================================================================
+# P0+ — P0 + Redis
+# ============================================================================
+
+p0-plus-up: p0-up
+	@echo "→ P0+ adding Redis ENV=$(ENV)"
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up redis $(ENV)
+
+p0-plus-down:
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
+	@$(MAKE) p0-down
+
+# ============================================================================
+# Modes locaux
+# ============================================================================
+
+# local-env : génère .env.merged
+local-env: env-merge
+
+# local-ide : API dans l'IDE, infra P0 dans Docker
+local-ide-up: p0-up
+
+# local-ide avec Redis
+local-ide-up-redis: p0-plus-up
+
+local-ide-down: p0-down
+
+# local-api : API dans Docker (P0+ + API)
+local-api-up: p0-plus-up
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV)
+
+local-api-down:
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
+	@$(MAKE) p0-plus-down
+
+local-api-logs:
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" logs api $(ENV)
+
+# local-product : server-v0 complet en local (API + Edge + Web)
+local-product-up: local-api-up
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up edge $(ENV)
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up web $(ENV)
+
+local-product-down:
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down web $(ENV) || true
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down edge $(ENV) || true
+	@$(MAKE) local-api-down
+
+# ============================================================================
+# Staging Hetzner disposable
+# ============================================================================
+
+staging-create:
+	@chmod +x ./scripts/hcloud/staging-create.sh
+	@./scripts/hcloud/staging-create.sh
+
+staging-backup:
+	@chmod +x ./scripts/remote/staging-backup.sh
+	@./scripts/remote/staging-backup.sh
+
+staging-destroy:
+	@chmod +x ./scripts/hcloud/staging-destroy.sh
+	@./scripts/hcloud/staging-destroy.sh
+
+staging-restore-latest:
+	@chmod +x ./scripts/remote/staging-restore-latest.sh
+	@./scripts/remote/staging-restore-latest.sh
+
+smoke-staging:
+	@chmod +x ./scripts/utils/smoke-staging.sh
+	@ENV=staging ./scripts/utils/smoke-staging.sh
+
+.PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down
+.PHONY: local-env local-ide-up local-ide-up-redis local-ide-down
+.PHONY: local-api-up local-api-down local-api-logs
+.PHONY: local-product-up local-product-down
+.PHONY: staging-create staging-backup staging-destroy staging-restore-latest smoke-staging
 .PHONY: doppler-download doppler-download-staging doppler-download-prod

@@ -12,10 +12,11 @@ services:
       - redis-data:/data
     command: ["/usr/local/bin/redis-entrypoint.sh"]
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        ['CMD-SHELL', 'if [ -n "$$REDIS_PASSWORD" ]; then redis-cli -a "$$REDIS_PASSWORD" --no-auth-warning ping; else redis-cli ping; fi']
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
       start_period: 5s
     deploy:
       resources:
@@ -38,8 +39,13 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    networks: [ back, edge ]
+    networks: [ back ]
 
 volumes:
   redis-data:
     name: redis-data-${ENV}
+
+networks:
+  back:
+    name: ${DOCKER_NETWORK_BACK:-back-${ENV:-dev}}
+    external: true

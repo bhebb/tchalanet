@@ -2,63 +2,63 @@
 
 ## 1. Documentation / charte
 
-- [ ] Créer ou mettre à jour `README.md` infra.
-- [ ] Créer `docs/00-infra-charter.md`.
-- [ ] Documenter P0/P0+/server-v0/post-v0.
-- [ ] Documenter les modes `local-ide`, `local-api-docker`, `local-product`, `server-v0`.
+- [x] Créer ou mettre à jour `README.md` infra.
+- [x] Créer `docs/00-infra-charter.md`.
+- [x] Documenter P0/P0+/server-v0/post-v0.
+- [x] Documenter les modes `local-ide`, `local-api-docker`, `local-product`, `server-v0`.
 
 ## 2. Makefile
 
-- [ ] Ajouter `local-env`.
-- [ ] Ajouter `p0-up`, `p0-smoke`, `p0-down`.
-- [ ] Ajouter `p0-plus-up`, `p0-plus-down`.
-- [ ] Ajouter `local-ide-up`, `local-ide-up-redis`, `local-ide-down`.
-- [ ] Ajouter `local-api-up`, `local-api-down`, `local-api-logs`.
-- [ ] Ajouter `local-product-up`, `local-product-down`.
-- [ ] Ajouter `deploy-staging`, `up-staging`, `smoke-staging`.
-- [ ] Ajouter commandes staging disposable : `staging-create`, `staging-backup`, `staging-destroy`, `staging-restore-latest`.
+- [x] Ajouter `local-env`.
+- [x] Ajouter `p0-up`, `p0-smoke`, `p0-down`.
+- [x] Ajouter `p0-plus-up`, `p0-plus-down`.
+- [x] Ajouter `local-ide-up`, `local-ide-up-redis`, `local-ide-down`.
+- [x] Ajouter `local-api-up`, `local-api-down`, `local-api-logs`.
+- [x] Ajouter `local-product-up`, `local-product-down`.
+- [x] Ajouter `deploy-staging`, `up-staging`, `smoke-staging`.
+- [x] Ajouter commandes staging disposable : `staging-create`, `staging-backup`, `staging-destroy`, `staging-restore-latest`.
 
 ## 3. Traefik
 
-- [ ] Séparer `traefik.yml` statique.
-- [ ] Créer `dynamic-src/common`.
-- [ ] Créer `dynamic-src/local`.
-- [ ] Créer `dynamic-src/staging`.
-- [ ] Créer `dynamic-src/prod`.
-- [ ] Ajouter script render dynamic env.
-- [ ] Monter seulement `traefik/dynamic` rendu.
-- [ ] Local : mkcert + localtest.me.
-- [ ] Staging/prod : Let's Encrypt.
-- [ ] Pas de dashboard 8080 public hors local.
+- [x] Séparer `traefik.yml` statique.
+- [x] Créer `dynamic-src/common`.
+- [x] Créer `dynamic-src/local`.
+- [x] Créer `dynamic-src/staging`.
+- [x] Créer `dynamic-src/prod`.
+- [x] Ajouter script render dynamic env.
+- [ ] Monter seulement `traefik/dynamic` rendu (à câbler dans compose).
+- [x] Local : mkcert + localtest.me.
+- [x] Staging/prod : Let's Encrypt.
+- [x] Pas de dashboard 8080 public hors local.
 
 ## 4. Keycloak
 
-- [ ] Déplacer `get-realm.sh` sous `scripts/keycloak/` ou normaliser chemin.
-- [ ] Séparer `realm.base.json` sans users locaux.
-- [ ] Créer `overlays/dev.json` avec users locaux.
-- [ ] Créer `overlays/staging.json` sans users.
-- [ ] Créer `overlays/prod.json` sans users.
-- [ ] Ajouter validation `jq empty`.
-- [ ] Refuser `.users` hors dev/local.
+- [x] Déplacer `get-realm.sh` sous `scripts/keycloak/` ou normaliser chemin.
+- [x] Séparer `realm.base.json` sans users locaux.
+- [x] Créer `overlays/dev.json` avec users locaux.
+- [x] Créer `overlays/staging.json` sans users.
+- [x] Créer `overlays/prod.json` sans users.
+- [x] Ajouter validation `jq empty`.
+- [x] Refuser `.users` hors dev/local.
 - [ ] Corriger client API sans dépendance `bearerOnly` si applicable.
 
 ## 5. PostgreSQL
 
-- [ ] Postgres `back-only`.
+- [x] Postgres `back-only`.
 - [ ] Pas de port 5432 dans staging/prod.
 - [ ] Port local via override uniquement.
 - [ ] Ajouter `hba_file=/etc/postgresql/pg_hba.conf` dans command.
-- [ ] Simplifier `pg_hba.conf` P0.
-- [ ] Simplifier `postgresql.conf` P0.
-- [ ] Corriger `postgres-init.sh` idempotent.
-- [ ] Rendre Unleash DB optionnelle.
+- [x] Simplifier `pg_hba.conf` P0.
+- [x] Simplifier `postgresql.conf` P0.
+- [x] Corriger `postgres-init.sh` idempotent.
+- [x] Rendre Unleash DB optionnelle.
 - [ ] Ajouter `make postgres-smoke` ou inclure dans `p0-smoke`.
 
 ## 6. Redis
 
-- [ ] Redis `back-only`.
-- [ ] Retirer `edge` de Redis.
-- [ ] Corriger healthcheck avec `REDIS_PASSWORD`.
+- [x] Redis `back-only`.
+- [x] Retirer `edge` de Redis.
+- [x] Corriger healthcheck avec `REDIS_PASSWORD`.
 - [ ] Password obligatoire staging/prod via `.secrets`.
 - [ ] Garder password optionnel dev.
 - [ ] Ajouter `redis-smoke` dans P0+.
@@ -89,20 +89,20 @@
 
 ## 10. Scripts
 
-- [ ] Créer `docs/reference/scripts-inventory.md`.
-- [ ] Classifier chaque script.
+- [x] Créer `docs/reference/scripts-inventory.md`.
+- [x] Classifier chaque script.
 - [ ] Déplacer legacy sans suppression brutale.
-- [ ] Corriger chemins Makefile.
+- [x] Corriger chemins Makefile.
 
 ## 11. Hetzner staging disposable
 
-- [ ] Vérifier scripts `hcloud/*`.
-- [ ] Vérifier scripts `remote/*`.
-- [ ] Créer `staging-create`.
-- [ ] Créer `staging-destroy` avec confirmation.
-- [ ] Créer `staging-backup`.
-- [ ] Créer `staging-restore-latest`.
-- [ ] Documenter que prod/client n'est pas disposable sans SLA explicite.
+- [x] Vérifier scripts `hcloud/*`.
+- [x] Vérifier scripts `remote/*`.
+- [x] Créer `staging-create`.
+- [x] Créer `staging-destroy` avec confirmation.
+- [x] Créer `staging-backup`.
+- [x] Créer `staging-restore-latest`.
+- [x] Documenter que prod/client n'est pas disposable sans SLA explicite.
 
 ## 12. Validation finale
 
