@@ -6,7 +6,7 @@ L'infra Tchalanet doit être stabilisée avant de continuer l'API Docker, le web
 
 Sans client payant, le coût doit rester bas. Le staging Hetzner doit donc être disposable : créé au besoin, testé, sauvegardé si nécessaire, puis détruit.
 
-## What
+## What Changes
 
 Refactorer l'infra autour de chemins dorés simples :
 

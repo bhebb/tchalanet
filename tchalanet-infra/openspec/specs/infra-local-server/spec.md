@@ -1,6 +1,10 @@
-# Spec: Infra local/server-v0
+# infra-local-server Specification
 
-## ADDED Requirements
+## Purpose
+
+TBD - created by archiving change infra-refactor-local-server-v0. Update Purpose after archive.
+
+## Requirements
 
 ### Requirement: P0 strict services
 
@@ -88,7 +92,7 @@ Non-production staging SHALL be disposable to control cost.
 
 ### Requirement: Vercel free usage boundary
 
-Vercel Free MAY be used only for non-commercial web previews/dev.
+Client-facing staging and prod deployments SHALL NOT use Vercel Free.
 
 #### Scenario: Client staging/prod
 
