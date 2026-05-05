@@ -1,0 +1,53 @@
+name: Infra Check (PR)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tchalanet-infra/**'
+      - '.github/workflows/infra-check.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: infra-check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate env vars (staging)
+        run: |
+          cd tchalanet-infra
+          chmod +x scripts/check-envars.sh
+          ./scripts/check-envars.sh staging
+
+      - name: Validate docker-compose syntax (staging)
+        run: |
+          set -euo pipefail
+          cd tchalanet-infra
+          COMPOSE_FILES=(
+            docker-compose-postgres.yml
+            docker-compose-redis.yml
+            docker-compose-keycloak.yml
+            docker-compose-api.yml
+            docker-compose-traefik.yml
+          )
+          if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+            for f in "${COMPOSE_FILES[@]}"; do
+              if [ -f "$f" ]; then
+                echo "-> validating $f"
+                docker compose --env-file envs/staging/compose.env -f "$f" config >/dev/null
+              else
+                echo "-> skipping (not found): $f"
+              fi
+            done
+          else
+            echo "docker compose not available; skipping compose validation"
+          fi
