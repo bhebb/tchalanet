@@ -150,3 +150,58 @@ POST:
 ✔ découplage clair  
 ✔ pipeline stable  
 ✔ prêt pour draw/sales
+
+---
+
+## 13. Analysis V1 (2026-05-05) — Flow Validation
+
+### Critical Path Validated
+
+✅ **FetchExternalResultsWindowCommand flow**:
+
+- Global, not tenant-scoped
+- Resolve slots by key (NY_MID, FL_EVE, etc.)
+- Fetch external results via ExternalResultFetcher
+- Project to Haiti space via HaitiProjectionService
+- Upsert by (result_slot_id, occurred_at) with idempotency via sourceHash
+- Clamp daysBack (0-7), maxSlots (0-100) per config
+- Return counters: inserted, updated, skipped, errors, dryRunMatched
+
+✅ **Upsert Idempotency**:
+
+- Key: (result_slot_id, occurred_at)
+- Source hash for change detection
+- Status CONFIRMED is terminal (blocks re-fetch unless force=true)
+- Status PROVISIONAL/OVERRIDDEN: updatable
+- force=true requires reason (audit)
+
+✅ **Record Manual DrawResult flow**:
+
+- Manual numbers input (tenant-scoped)
+- Assemble DrawResult with DrawSource.MANUAL
+- Upsert with audit trail
+- Publish DrawResultIngestedEvent
+
+✅ **Override flow**:
+
+- Load existing DrawResult
+- Update status to OVERRIDDEN
+- Update numbers
+- Publish DrawResultIngestedEvent
+- Trigger cache eviction of related draws
+
+### Architecture Compliance
+
+- ✅ Global scope: No tenant_id filtering
+- ✅ Upsert pattern: By result_slot_id + occurred_at
+- ✅ Fetch by result_slot_key: Never by draw_channel_code
+- ✅ Idempotency: sourceHash for duplicate detection
+- ✅ Events: DrawResultIngestedEvent published after commit
+- ✅ Typed IDs: EventId, ResultSlotId, DrawResultId
+
+### Configuration
+
+- Props limits: maxSlotsPerTick=100, hardDaysBack=7
+- Props defaults: manualDaysBack=0, manualMaxSlots=50
+- Scheduler: 5-min intervals, cooldown configurable
+- Cache eviction: On result override (draw cache)

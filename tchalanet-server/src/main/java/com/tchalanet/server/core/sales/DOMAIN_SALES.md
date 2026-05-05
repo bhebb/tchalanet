@@ -217,6 +217,41 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 ---
 
+## 9. Analysis V1 (2026-05-05) — Flow Validation
+
+### Critical Path Validation
+
+✅ **SellTicketCommand flow**:
+
+- `prepareSale()` → policy checks (limits, session, draw state)
+- Breach outcome: BLOCK → PendingApprovalTicket, WARN → Success with warnings, OK → Sold
+- Typed IDs enforced: TenantId, TicketId, TerminalId, DrawId, EventId, AgentId
+- AfterCommit.run() publishes TicketPlacedEvent
+- RLS filters by tenant_id (no raw UUID in queries)
+
+✅ **RecordDrawTicketsResult flow**:
+
+- Triggered by DrawResultAppliedEvent listener
+- Calculate winning via TicketWinningCalculator
+- Publish TicketResultedEvent per ticket
+- Side-effect: Ledger + Payout queue
+
+✅ **Override flow**:
+
+- Admin force result change via OverrideTicketResultCommand
+- Publish TicketResultOverriddenEvent
+- Audit trail captured (reason, timestamp)
+
+### Architecture Compliance
+
+- ✅ Hexagonal: domain/application/infra separation
+- ✅ CQRS: Command/Query handlers with @TchTx on writers
+- ✅ Events: AfterCommit pattern for cross-domain effects
+- ✅ RLS: Tenant filtering at DB level (PostgreSQL policies)
+- ✅ Typed IDs: Never raw UUID outside persistence layer
+
+---
+
 ## 9. État connu — Anomalies & TODO (cf. audit 2026-04-26)
 
 **P0 / Sécurité** ✅ RÉSOLU (2026-04-26 — `secure-sales-ticket-endpoints`)

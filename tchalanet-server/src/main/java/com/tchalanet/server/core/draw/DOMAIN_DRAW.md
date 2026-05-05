@@ -189,3 +189,51 @@ Le pipeline runtime supporté est `generate -> open -> close -> fetch -> apply -
 - `apply` : scheduler tenant-scoped de `core.draw`, gate `RESULTS_EXTERNAL_APPLY`, lie les draws fermés au `draw_result`.
 - `settle` : scheduler tenant-scoped de `core.draw`, gate `DRAW_SETTLE`, providers issus de `tch.draw.settle.providers`.
 - `watchdog` : `DrawProvisionalWatchdogScheduler`, gate `DRAW_WATCHDOG_PROVISIONAL`, alerte les draws `RESULTED` avec résultat `PROVISIONAL` trop ancien.
+
+---
+
+## 17. Analysis V1 (2026-05-05) — Flow Validation
+
+### Critical Paths Validated
+
+✅ **Generate Draws Flow**:
+
+- Lookahead 7 days, per tenant
+- Idempotent (existing draws skipped)
+- No events published (batch operation)
+- Typed IDs: DrawId, TenantId, DrawChannelId
+
+✅ **Open/Close Draws Flow**:
+
+- Time-based transitions (SCHEDULED→OPEN, OPEN→CLOSED)
+- Bulk batch operations via DrawLifecyclePort
+- No events published (state transitions only)
+
+✅ **Apply Draw Result Flow**:
+
+- Attach global DrawResult to tenant Draw
+- Transition: CLOSED → RESULTED
+- Publish DrawResultAppliedEvent after commit
+- Listeners: ticket settlement job, draw stats
+
+✅ **Settle Draw Flow**:
+
+- Prerequisite: DrawResult.status == CONFIRMED
+- Transition: RESULTED → SETTLED
+- Publish DrawSettledEvent after commit
+- Side-effect: Payout finalization
+
+### Architecture Compliance
+
+- ✅ Tenant-scoped: RLS enforced via tenant_id
+- ✅ Pure domain: No Spring/JPA in domain layer
+- ✅ Hexagonal: Ports for lifecycle, lookup, summary reading
+- ✅ CQRS: Command handlers with @TchTx
+- ✅ Events: AfterCommit pattern for cross-domain effects
+- ✅ Typed IDs: DrawId, TenantId, DrawChannelId, ResultSlotId
+
+### Notes
+
+- Pessimistic locking candidate: SettleDrawCommandHandler (see comment for FOR UPDATE optimization)
+- Cache TTL configurable: application-draw.yaml for last7m, todaym, nexts
+- Scheduler windows: NY timezone (fetch 12-14h, 20-23h; apply 12-14:30h, 20-23:30h; settle 12-15h, 20-23:30h)
