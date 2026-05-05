@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
@@ -18,8 +19,9 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.infra.web.model.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -145,20 +147,21 @@ public class TicketWebMapper {
         OverrideTicketResultRequest request
     ) {
         var ctx = Objects.requireNonNull(contextResolver.currentOrNull(), "Missing request context");
-        var performedBy =
-            request.performedBy() == null ? ctx.currentUserIdRequired() : UserId.of(request.performedBy());
+        // performedBy always from context — never trust body for sensitive audited actions
+        var performedBy = ctx.currentUserIdRequired();
 
         return new OverrideTicketResultCommand(
             ticketId,
             request.totalPayout(),
             new TicketStatus(
-                request.status() == null ? null : request.status().saleStatus(),
+                null, // saleStatus not overridable
                 request.status() == null ? null : request.status().resultStatus(),
-                request.status() == null ? null : request.status().settlementStatus()
+                null  // settlementStatus not overridable
             ),
             request.reason(),
             performedBy,
-            request.performedAt());
+            null // performedAt from Clock/handler, not body
+        );
     }
 
     public ListTicketsQuery toListTicketsQuery(
@@ -167,10 +170,9 @@ public class TicketWebMapper {
         String status,
         Instant from,
         Instant to,
-        int page,
-        int size
+        TchPageRequest pageReq
     ) {
-        TicketResultStatus ticketResultStatus = parseResultStatus(status).orElse(null);
+        TicketResultStatus ticketResultStatus = parseResultStatus(status);
 
         var filter = new ListTicketsQuery.TicketFilter(
             null, // tenantId derived from RLS/context
@@ -181,7 +183,7 @@ public class TicketWebMapper {
             to
         );
 
-        return new ListTicketsQuery(filter, PageRequest.of(page, size));
+        return new ListTicketsQuery(filter, pageReq.pageable());
     }
 
     public TchPage<TicketSummaryResponse> toPagedSummaryResponse(TchPage<TicketSummaryView> page) {
@@ -223,12 +225,13 @@ public class TicketWebMapper {
         );
     }
 
-    private Optional<TicketResultStatus> parseResultStatus(String raw) {
-        if (raw == null || raw.isBlank()) return Optional.empty();
+    private TicketResultStatus parseResultStatus(String raw) {
+        if (raw == null || raw.isBlank()) return null;
         try {
-            return Optional.of(TicketResultStatus.valueOf(raw.trim().toUpperCase(Locale.ROOT)));
-        } catch (Exception ignored) {
-            return Optional.empty();
+            return TicketResultStatus.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Invalid status filter value: '" + raw + "'");
         }
     }
 }

@@ -20,25 +20,23 @@ public class DrawLookupJdbcRepository {
         """
       select d.id
       from draw d
+      join draw_channel dc on dc.id = d.draw_channel_id
       where d.deleted_at is null
+        and dc.deleted_at is null
         and d.tenant_id = ?
         and d.draw_date = ?
-        and d.result_slot_id = ?
+        and dc.result_slot_id = ?
       limit 1
     """;
 
-    try {
-      return jdbc.query(
-          con -> {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setObject(1, tenantId);
-            ps.setObject(2, drawDate);
-            ps.setObject(3, resultSlotId);
-            return ps;
-          },
-          rs -> rs.next() ? (UUID) rs.getObject("id") : null);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to lookup draw id by slot id", e);
-    }
+    return jdbc.query(
+        con -> {
+          PreparedStatement ps = con.prepareStatement(sql);
+          ps.setObject(1, tenantId);
+          ps.setObject(2, drawDate);
+          ps.setObject(3, resultSlotId);
+          return ps;
+        },
+        rs -> rs.next() ? (UUID) rs.getObject("id") : null);
   }
 }

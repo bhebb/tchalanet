@@ -20,8 +20,8 @@ public final class SourceResultBuilder {
         ExternalResultItem p4) {
 
         var root = jsonUtils.emptyObject();
-        root.put("provider", nn(provider));
-        root.put("slot_key", nn(slotKey));
+        root.put("provider", emptyIfNull(provider));
+        root.put("slot_key", emptyIfNull(slotKey));
         root.put("draw_date", drawDate == null ? "" : drawDate.toString());
         root.put("occurred_at", occurredAt == null ? "" : occurredAt.toString());
 
@@ -50,21 +50,21 @@ public final class SourceResultBuilder {
 
         n.put("found", true);
         n.put("status", "FOUND");
-        n.put("game_code", nn(item.gameCode()));
+        n.put("game_code", emptyIfNull(item.gameCode()));
         n.put("quality", item.quality() == null ? "SUSPECT" : item.quality().name());
         n.put("occurred_at", item.occurredAt() == null ? "" : item.occurredAt().toString());
 
         var main = n.putArray("main");
         if (item.main() != null) {
             for (var s : item.main()) {
-                main.add(nn(s));
+                main.add(emptyIfNull(s));
             }
         }
 
         var extras = n.putArray("extras");
         if (item.extras() != null) {
             for (var s : item.extras()) {
-                extras.add(nn(s));
+                extras.add(emptyIfNull(s));
             }
         }
 
@@ -79,7 +79,7 @@ public final class SourceResultBuilder {
         return String.join("", item.main());
     }
 
-    private static String nn(String s) {
+    private static String emptyIfNull(String s) {
         return s == null ? "" : s;
     }
 }

@@ -5,58 +5,36 @@ import com.tchalanet.server.common.notification.model.SendNotificationPayload;
 import com.tchalanet.server.common.types.enums.NotificationChannel;
 import com.tchalanet.server.common.types.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 
+/**
+ * Service orchestrateur pour les notifications techniques batch.
+ * Délègue les décisions de politique à BatchNotificationPolicy.
+ */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class BatchEventNotificationService {
 
-    private static final Duration DEFAULT_COOLDOWN = Duration.ofMinutes(30);
-
     private final NotificationGatewayPort sender;
-    private final CacheManager cacheManager;
+    private final BatchNotificationPolicy policy;
     private final Clock clock;
 
     private void sendBatchNotification(BatchNotification notice) {
-        if (!shouldNotify(notice)) {
+        if (!policy.shouldSend(notice)) {
+            log.trace("Batch notification suppressed by policy: jobKey={} status={}",
+                notice.jobKey(), notice.status());
             return;
         }
 
-        var now = clock.instant();
-        var key = fingerprint(notice);
-
-        var cache = cacheManager.getCache(BatchNotificationCacheSpecProvider.CACHE_NAME);
-        if (cache == null) {
-            sender.send(toPayload(notice));
-            return;
-        }
-
-        var last = cache.get(key, Instant.class);
-        if (last != null && Duration.between(last, now).compareTo(DEFAULT_COOLDOWN) < 0) {
-            return;
-        }
-
-        cache.put(key, now);
         sender.send(toPayload(notice));
-    }
-
-    private boolean shouldNotify(BatchNotification n) {
-        if (n.status() == BatchNotificationStatus.FAILED) {
-            return true;
-        }
-
-        if (n.status() == BatchNotificationStatus.SKIPPED) {
-            return "gate_disabled".equals(n.code());
-        }
-
-        return false;
+        log.debug("Batch notification sent: jobKey={} status={} code={}",
+            notice.jobKey(), notice.status(), notice.code());
     }
 
     private SendNotificationPayload toPayload(BatchNotification n) {
@@ -71,23 +49,37 @@ public class BatchEventNotificationService {
         data.put("status", n.status().name());
         data.put("code", n.code());
         data.put("message", n.message());
+        data.put("channelKey", "batch-draws"); // Slack channel key for batch notifications
+
+        // Build title and message for edge
+        var title = "Batch " + n.status().name();
+        var messageText = buildMessage(n);
+        data.put("title", title);
+        data.put("message", messageText);
+        data.put("severity", n.status() == BatchNotificationStatus.FAILED ? "ERROR" : "WARNING");
 
         return new SendNotificationPayload(
             NotificationType.BATCH_MESSAGE,
             NotificationChannel.SLACK,
-            null,
+            null, // batch notifications have no specific target
             Locale.ENGLISH,
             data
         );
     }
 
-    private String fingerprint(BatchNotification n) {
-        return String.join(":",
-            n.jobKey(),
-            n.tenantId() == null ? "GLOBAL" : n.tenantId(),
-            n.status().name(),
-            n.code() == null ? "none" : n.code()
-        );
+    private String buildMessage(BatchNotification n) {
+        var sb = new StringBuilder();
+        sb.append("Job: ").append(n.jobKey());
+        if (n.tenantId() != null) {
+            sb.append(" | Tenant: ").append(n.tenantId());
+        }
+        if (n.code() != null) {
+            sb.append(" | Code: ").append(n.code());
+        }
+        if (n.message() != null) {
+            sb.append(" | ").append(n.message());
+        }
+        return sb.toString();
     }
 
     public void started(String jobKey) {

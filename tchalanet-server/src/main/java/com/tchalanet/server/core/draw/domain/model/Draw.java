@@ -46,7 +46,6 @@ public final class Draw {
         Instant scheduledAt,
         Instant cutoffAt,
         DrawStatus status,
-        DrawSource source,
         DrawResultId drawResultId,
         Instant openedAt,
         Instant closedAt,
@@ -66,6 +65,7 @@ public final class Draw {
         this.drawDate = Objects.requireNonNull(drawDate, "drawDate is required");
         this.scheduledAt = Objects.requireNonNull(scheduledAt, "scheduledAt is required");
         this.cutoffAt = Objects.requireNonNull(cutoffAt, "cutoffAt is required");
+        requireValidSchedule(scheduledAt, cutoffAt);
         this.status = Objects.requireNonNull(status, "status is required");
         this.drawResultId = drawResultId;
         this.openedAt = openedAt;
@@ -85,11 +85,9 @@ public final class Draw {
         DrawId id,
         TenantId tenantId,
         DrawChannelId drawChannelId,
-        String drawChannelCode,
         LocalDate drawDate,
         Instant scheduledAt,
-        Instant cutoffAt,
-        DrawSource source) {
+        Instant cutoffAt) {
         return new Draw(
             id,
             tenantId,
@@ -98,7 +96,6 @@ public final class Draw {
             scheduledAt,
             cutoffAt,
             DrawStatus.SCHEDULED,
-            source,
             null,
             null,
             null,
@@ -205,19 +202,16 @@ public final class Draw {
 
     public void applyResult(DrawResultId resultId, Instant now, DrawSource resultSource) {
         ensureNotLocked();
+        DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
 
-        if (this.status != DrawStatus.RESULTED) {
-            DrawStatusTransition.check(this.status, DrawStatus.RESULTED);
+        if (this.drawResultId != null) {
+            throw new DrawInvalidResultException(id, "Draw already has a result");
         }
 
         this.drawResultId = Objects.requireNonNull(resultId, "resultId is required");
         this.status = DrawStatus.RESULTED;
         this.resultedAt = Objects.requireNonNull(now, "now is required");
         this.resultSource = Objects.requireNonNull(resultSource, "resultSource is required");
-
-        if (resultSource == DrawSource.ADMIN_OVERRIDE) {
-            this.resultOverriddenAt = now;
-        }
     }
 
     public void overrideResult(
@@ -226,13 +220,15 @@ public final class Draw {
         String reason) {
         ensureNotLocked();
 
+        if (this.status != DrawStatus.RESULTED) {
+            throw new DrawInvalidOverrideException(id, "Can only override result for RESULTED draws (current: " + this.status + ")");
+        }
+
         if (reason == null || reason.isBlank()) {
             throw new DrawInvalidOverrideException(id, "Override reason is required");
         }
 
         this.drawResultId = Objects.requireNonNull(resultId, "resultId is required");
-        this.status = DrawStatus.RESULTED;
-        this.resultedAt = Objects.requireNonNull(now, "now is required");
         this.resultSource = DrawSource.ADMIN_OVERRIDE;
         this.resultOverrideReason = reason.trim();
         this.resultOverriddenAt = now;
@@ -266,20 +262,18 @@ public final class Draw {
     public void reschedule(LocalDate drawDate, Instant scheduledAt, Instant cutoffAt) {
         ensureNotLocked();
 
-        if (this.status == DrawStatus.SETTLED) {
-            throw new IllegalStateException("Cannot reschedule a settled draw");
+        if (this.status != DrawStatus.SCHEDULED) {
+            throw new IllegalStateException("Cannot reschedule draw that is not SCHEDULED (current: " + this.status + ")");
         }
 
         this.drawDate = Objects.requireNonNull(drawDate, "drawDate is required");
         this.scheduledAt = Objects.requireNonNull(scheduledAt, "scheduledAt is required");
         this.cutoffAt = Objects.requireNonNull(cutoffAt, "cutoffAt is required");
-
-        if (!scheduledAt.isBefore(cutoffAt)) {
-            throw new IllegalArgumentException("scheduledAt must be before cutoffAt");
-        }
+        requireValidSchedule(scheduledAt, cutoffAt);
     }
 
     public void archive() {
+        ensureNotLocked();
         DrawStatusTransition.check(this.status, DrawStatus.ARCHIVED);
         this.status = DrawStatus.ARCHIVED;
     }
@@ -302,16 +296,18 @@ public final class Draw {
         this.systemGenerated = systemGenerated;
     }
 
+    private static void requireValidSchedule(Instant scheduledAt, Instant cutoffAt) {
+        Objects.requireNonNull(scheduledAt, "scheduledAt is required");
+        Objects.requireNonNull(cutoffAt, "cutoffAt is required");
+
+        if (!cutoffAt.isBefore(scheduledAt)) {
+            throw new IllegalArgumentException("cutoffAt must be before scheduledAt");
+        }
+    }
+
     private void ensureNotLocked() {
         if (locked) {
             throw new DrawLockedException(id);
         }
-    }
-
-    private static String requireText(String value, String message) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(message);
-        }
-        return value.trim();
     }
 }

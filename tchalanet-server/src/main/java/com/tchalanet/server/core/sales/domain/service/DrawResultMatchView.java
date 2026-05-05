@@ -11,7 +11,7 @@ public interface DrawResultMatchView {
   String lot3();
 
   // Lotto5 uses pick3 (si applicable)
-  String lot4(); // "000".."999" (nullable)
+  String pick3(); // "000".."999" (nullable)
 
   default Set<String> twoDigits() {
     return Set.of(

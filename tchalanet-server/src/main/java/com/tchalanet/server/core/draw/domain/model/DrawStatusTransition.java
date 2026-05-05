@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.domain.model;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class DrawStatusTransition {
@@ -10,13 +11,17 @@ public class DrawStatusTransition {
           DrawStatus.SCHEDULED, Set.of(DrawStatus.OPEN, DrawStatus.CANCELED),
           DrawStatus.OPEN, Set.of(DrawStatus.CLOSED, DrawStatus.CANCELED),
           DrawStatus.CLOSED, Set.of(DrawStatus.RESULTED, DrawStatus.CANCELED),
-          DrawStatus.RESULTED, Set.of(DrawStatus.SETTLED, DrawStatus.CANCELED),
-          DrawStatus.SETTLED, Set.of(DrawStatus.RESULTED),
-          DrawStatus.CANCELED, Set.of(DrawStatus.SCHEDULED, DrawStatus.OPEN));
+          DrawStatus.RESULTED, Set.of(DrawStatus.SETTLED),
+          DrawStatus.SETTLED, Set.of(DrawStatus.ARCHIVED),
+          DrawStatus.CANCELED, Set.of(DrawStatus.ARCHIVED),
+          DrawStatus.ARCHIVED, Set.of());
 
   private DrawStatusTransition() {}
 
   public static void check(DrawStatus from, DrawStatus to) {
+    Objects.requireNonNull(from, "from status is required");
+    Objects.requireNonNull(to, "to status is required");
+
     if (!ALLOWED.getOrDefault(from, Set.of()).contains(to)) {
       throw new IllegalStateException("Invalid transition: " + from + " -> " + to);
     }

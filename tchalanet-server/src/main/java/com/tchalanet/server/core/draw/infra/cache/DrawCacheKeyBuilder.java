@@ -2,7 +2,6 @@ package com.tchalanet.server.core.draw.infra.cache;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -20,9 +19,10 @@ public class DrawCacheKeyBuilder {
             .formatted(tenantId.value(), days, pageKey);
     }
 
-    public String summary(DrawSearchCriteria criteria, String pageKey) {
-        return "slot:%s:from:%s:to:%s:status:%s:page:%s"
+    public String summary(TenantId tenantId, DrawSearchCriteria criteria, String pageKey) {
+        return "tenant:%s:slot:%s:from:%s:to:%s:status:%s:page:%s"
             .formatted(
+                tenantId.value(),
                 criteria.resultSlotId() == null ? "all" : criteria.resultSlotId().value(),
                 criteria.from(),
                 criteria.to(),

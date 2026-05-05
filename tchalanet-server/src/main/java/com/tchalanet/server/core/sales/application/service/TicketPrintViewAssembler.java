@@ -8,7 +8,7 @@ import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintViewPort;
+import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.application.print.TicketPrintViewMapper;
 import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
@@ -20,7 +20,7 @@ import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
-public class TicketPrintViewAssembler implements TicketPrintViewPort {
+public class TicketPrintViewAssembler implements TicketPrintReaderPort {
 
     private final DrawChannelCatalog drawChannelCatalog;
     private final TicketReaderPort ticketReader;

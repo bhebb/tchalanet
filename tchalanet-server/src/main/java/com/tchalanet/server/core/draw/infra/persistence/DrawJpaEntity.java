@@ -15,10 +15,6 @@ import java.util.UUID;
 @Entity
 @Table(
     name = "draw",
-    uniqueConstraints =
-    @UniqueConstraint(
-        name = "uq_draw_tenant_channel_date",
-        columnNames = {"tenant_id", "draw_channel_id", "draw_date"}),
     indexes = {
         @Index(name = "ix_draw_tenant_date", columnList = "tenant_id, draw_date"),
         @Index(name = "ix_draw_tenant_scheduled", columnList = "tenant_id, scheduled_at"),

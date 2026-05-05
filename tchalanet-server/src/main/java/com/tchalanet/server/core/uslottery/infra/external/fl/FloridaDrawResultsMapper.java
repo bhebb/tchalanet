@@ -79,7 +79,7 @@ public class FloridaDrawResultsMapper {
         }
 
         var drawDate = parseFloridaDate(entry.drawDate());
-        if (!query.drawDate().equals(drawDate)) {
+        if (drawDate == null || !query.drawDate().equals(drawDate)) {
             return null;
         }
 
@@ -132,9 +132,9 @@ public class FloridaDrawResultsMapper {
         return List.of();
     }
 
-    private static ParseResult parseNumbers(List<FloridaNumber> drawNumbers, String gameCode) {
+    private static NumberParseResult parseNumbers(List<FloridaNumber> drawNumbers, String gameCode) {
         if (drawNumbers == null || drawNumbers.isEmpty()) {
-            return new ParseResult(List.of(), List.of(), Map.of());
+            return new NumberParseResult(List.of(), List.of(), Map.of());
         }
 
         int expectedSize = expectedSize(gameCode);
@@ -144,7 +144,7 @@ public class FloridaDrawResultsMapper {
 
         var winningNumbers = new ArrayList<NumberInfo>();
         var extras = new ArrayList<String>();
-        var attrs = new LinkedHashMap<String, String>();
+        var numberAttributes = new LinkedHashMap<String, String>();
 
         for (FloridaNumber number : drawNumbers) {
             if (number == null) {
@@ -162,7 +162,7 @@ public class FloridaDrawResultsMapper {
                 winningNumbers.add(new NumberInfo(parseNumberIndex(type), pick));
             } else {
                 extras.add(pick);
-                attrs.merge(type.isBlank() ? "extra" : type, pick, (a, b) -> a + "," + b);
+                numberAttributes.merge(type.isBlank() ? "extra" : type, pick, (a, b) -> a + "," + b);
             }
         }
 
@@ -174,7 +174,7 @@ public class FloridaDrawResultsMapper {
                 .limit(expectedSize > 0 ? expectedSize : winningNumbers.size())
                 .toList();
 
-        return new ParseResult(main, List.copyOf(extras), Map.copyOf(attrs));
+        return new NumberParseResult(main, List.copyOf(extras), Map.copyOf(numberAttributes));
     }
 
     private static int expectedSize(String gameCode) {
@@ -239,10 +239,10 @@ public class FloridaDrawResultsMapper {
         return value == null ? "" : value.trim();
     }
 
-    private record ParseResult(
+    private record NumberParseResult(
         List<String> main,
         List<String> extras,
-        Map<String, String> attrs) {
+        Map<String, String> numberAttributes) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -23,7 +23,7 @@ public class Ticket {
     private final DrawId drawId;
 
     private final String ticketCode; // per-tenant unique
-    private final String publicCode; // nullable; when present globally unique
+    private final String publicCode; // globally unique
 
     private final String currency;
 
@@ -71,7 +71,7 @@ public class Ticket {
         this.drawId = Objects.requireNonNull(drawId, "drawId");
 
         this.ticketCode = requireNonBlank(ticketCode, "ticketCode");
-        this.publicCode = publicCode; // nullable
+        this.publicCode = requireNonBlank(publicCode, "publicCode");
 
         this.currency = requireNonBlank(currency, "currency");
 
@@ -134,45 +134,6 @@ public class Ticket {
             publicCode,
             currency.getCurrencyCode(),
             TicketSaleStatus.SOLD,
-            TicketResultStatus.NOT_RESULTED,
-            TicketSettlementStatus.UNSETTLED,
-            total,
-            null,
-            null,
-            lines,
-            null,
-            now,
-            now);
-    }
-
-    // ---- Factory: PENDING_APPROVAL
-    public static Ticket pendingApproval(
-        TicketId id,
-        TenantId tenantId,
-        TerminalId terminalId,
-        SessionId sessionId,
-        DrawId drawId,
-        String ticketCode,
-        String publicCode,
-        String currency,
-        List<TicketLine> lines,
-        Instant now) {
-
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(now, "now");
-        Objects.requireNonNull(lines, "lines");
-        BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return new Ticket(
-            id,
-            tenantId,
-            terminalId,
-            sessionId,
-            drawId,
-            ticketCode,
-            publicCode,
-            currency,
-            TicketSaleStatus.PENDING_APPROVAL,
             TicketResultStatus.NOT_RESULTED,
             TicketSettlementStatus.UNSETTLED,
             total,
@@ -326,8 +287,8 @@ public class Ticket {
         if (saleStatus == TicketSaleStatus.VOID) {
             throw new IllegalStateException("Cannot override result for VOID ticket");
         }
-        if (resultStatus == TicketResultStatus.NOT_RESULTED) {
-            throw new IllegalArgumentException("resultStatus must be a resulted status");
+        if (resultStatus != TicketResultStatus.WON && resultStatus != TicketResultStatus.LOST) {
+            throw new IllegalArgumentException("resultStatus must be WON or LOST");
         }
 
         this.winningAmount = payout;

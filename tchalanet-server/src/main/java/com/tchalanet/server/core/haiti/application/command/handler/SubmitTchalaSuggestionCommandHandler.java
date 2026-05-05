@@ -30,7 +30,7 @@ public class SubmitTchalaSuggestionCommandHandler
   private final TchalaEntryRepositoryPort repo;
   private final Clock clock;
   private final IdGenerator idGenerator;
-  private static final Pattern SPLIT = Pattern.compile("[^0-9]+");
+  private static final Pattern NON_DIGIT_PATTERN = Pattern.compile("[^0-9]+");
 
   @Override
   public SubmitTchalaSuggestionResult handle(SubmitTchalaSuggestionCommand command) {
@@ -58,7 +58,7 @@ public class SubmitTchalaSuggestionCommandHandler
 
   private List<TchalaNumber> parseNumbers(String raw) {
     if (raw == null || raw.isBlank()) throw new IllegalArgumentException("numbers string required");
-    String[] parts = SPLIT.split(raw);
+    String[] parts = NON_DIGIT_PATTERN.split(raw);
     List<TchalaNumber> out = new ArrayList<>();
     for (String p : parts) {
       if (p == null || p.isBlank()) continue;

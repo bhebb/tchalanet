@@ -44,11 +44,6 @@ public class DrawMapper {
             ? null
             : DrawResultId.of(jpaEntity.getDrawResultId());
 
-        // Note: source parameter (8th) appears unused in Draw constructor but is required
-        var drawSource = jpaEntity.getResultSource() != null
-            ? jpaEntity.getResultSource()
-            : com.tchalanet.server.common.types.enums.DrawSource.SYSTEM;
-
         return new Draw(
             DrawId.of(jpaEntity.getId()),
             TenantId.of(jpaEntity.getTenantId()),
@@ -57,7 +52,6 @@ public class DrawMapper {
             jpaEntity.getScheduledAt(),
             jpaEntity.getCutoffAt(),
             drawStatus,
-            drawSource,
             drawResultId,
             jpaEntity.getOpenedAt(),
             jpaEntity.getClosedAt(),

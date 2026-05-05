@@ -30,6 +30,7 @@ public class DrawResultsProperties {
     @Setter
     public static class Limits {
         private int maxSlotsPerTick = 100;
+        private int hardDaysBack = 7;
     }
 
     @Getter

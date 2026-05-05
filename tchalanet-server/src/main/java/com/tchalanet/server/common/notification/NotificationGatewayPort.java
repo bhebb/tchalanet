@@ -2,7 +2,7 @@ package com.tchalanet.server.common.notification;
 
 import com.tchalanet.server.common.notification.model.SendNotificationPayload;
 
-/** Port d'accès vers le service externe de notifications (serveur Node). */
+/** Port d'accès vers le service externe de notifications (tchalanet-edge-service). */
 public interface NotificationGatewayPort {
 
   /**

@@ -63,7 +63,7 @@ public class GeorgiaDrawResultsMapper {
     }
 
     private UsLotteryProviderResult mapEntry(
-        GaEntry entry,
+        GeorgiaDrawEntry entry,
         Set<String> wantedCodes,
         String sourceHash,
         String url,
@@ -134,18 +134,18 @@ public class GeorgiaDrawResultsMapper {
         );
     }
 
-    private List<GaEntry> parseEntries(String body) {
+    private List<GeorgiaDrawEntry> parseEntries(String body) {
         try {
             JsonNode root = json.readTree(body);
 
             if (root != null && root.isArray()) {
-                return json.fromJson(body, new TypeReference<List<GaEntry>>() {});
+                return json.fromJson(body, new TypeReference<List<GeorgiaDrawEntry>>() {});
             }
 
             JsonNode draws = root == null ? null : root.get("draws");
 
             if (draws != null && draws.isArray()) {
-                return json.convertValue(draws, new TypeReference<List<GaEntry>>() {});
+                return json.convertValue(draws, new TypeReference<List<GeorgiaDrawEntry>>() {});
             }
         } catch (Exception ex) {
             log.warn("ga-client parse failed: {}", ex.getLocalizedMessage(), ex);
@@ -154,7 +154,7 @@ public class GeorgiaDrawResultsMapper {
         return List.of();
     }
 
-    private static LocalDate resolveDrawDate(GaEntry entry, UsLotteryProviderQuery query) {
+    private static LocalDate resolveDrawDate(GeorgiaDrawEntry entry, UsLotteryProviderQuery query) {
         if (entry.drawTime() != null) {
             try {
                 return Instant.ofEpochMilli(entry.drawTime())
@@ -168,7 +168,7 @@ public class GeorgiaDrawResultsMapper {
         return parseIsoDate(entry.drawDate());
     }
 
-    private static Instant resolveOccurredAt(GaEntry entry, UsLotteryProviderQuery query) {
+    private static Instant resolveOccurredAt(GeorgiaDrawEntry entry, UsLotteryProviderQuery query) {
         if (entry.drawTime() != null) {
             try {
                 return Instant.ofEpochMilli(entry.drawTime());
@@ -183,7 +183,7 @@ public class GeorgiaDrawResultsMapper {
             .toInstant();
     }
 
-    private static List<String> parseMainDigits(GaResult result) {
+    private static List<String> parseMainDigits(GeorgiaDrawResult result) {
         if (result == null || result.primary() == null) {
             return List.of();
         }
@@ -242,7 +242,7 @@ public class GeorgiaDrawResultsMapper {
         };
     }
 
-    private static String resolveProviderDrawType(GaEntry entry) {
+    private static String resolveProviderDrawType(GeorgiaDrawEntry entry) {
         var type = normalize(entry.name());
 
         if (type.isBlank() && entry.results() != null && !entry.results().isEmpty()) {
@@ -274,17 +274,17 @@ public class GeorgiaDrawResultsMapper {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record GaEntry(
+    private record GeorgiaDrawEntry(
         @JsonProperty("drawDate") String drawDate,
         @JsonProperty("gameName") String gameName,
         @JsonProperty("name") String name,
         @JsonProperty("status") String status,
         @JsonProperty("drawTime") Long drawTime,
-        @JsonProperty("results") List<GaResult> results
+        @JsonProperty("results") List<GeorgiaDrawResult> results
     ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record GaResult(
+    private record GeorgiaDrawResult(
         @JsonProperty("primary") List<String> primary,
         @JsonProperty("drawType") String drawType
     ) {}

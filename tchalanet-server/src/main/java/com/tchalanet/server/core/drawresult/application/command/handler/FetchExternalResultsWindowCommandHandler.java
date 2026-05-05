@@ -178,8 +178,8 @@ public class FetchExternalResultsWindowCommandHandler
 
 
     private int clampDaysBack(int v) {
-        int x = Math.max(0, v);
-        return Math.min(x, props.getLimits().getMaxSlotsPerTick());
+        int clamped = Math.max(0, v);
+        return Math.min(clamped, props.getLimits().getHardDaysBack());
     }
 
     private static void validate(FetchExternalResultsWindowCommand cmd) {

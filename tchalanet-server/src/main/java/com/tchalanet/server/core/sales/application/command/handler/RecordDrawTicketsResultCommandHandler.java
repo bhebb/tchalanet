@@ -133,14 +133,14 @@ public class RecordDrawTicketsResultCommandHandler
             @Override public String lot1() { return null; }
             @Override public String lot2() { return null; }
             @Override public String lot3() { return null; }
-            @Override public String lot4() { return null; }
+            @Override public String pick3() { return null; }
         };
 
         return new DrawResultMatchView() {
             @Override public String lot1() { return v.lot1(); }
             @Override public String lot2() { return v.lot2(); }
             @Override public String lot3() { return v.lot3(); }
-            @Override public String lot4() { return v.lot4(); }
+            @Override public String pick3() { return v.lot4(); }
         };
     }
 }

@@ -39,8 +39,10 @@ public class DrawApplyJdbcRepository {
             resulted_at = ?,
             result_source = 'AUTO',
             updated_at = ?
-        from draw_channel dc
+        from draw_channel dc, draw_result dr
         where dc.id = d.draw_channel_id
+          and dr.id = ?
+          and dr.result_slot_id = dc.result_slot_id
           and d.tenant_id = ?
           and d.draw_date = ?
           and dc.result_slot_id = ?
@@ -61,6 +63,7 @@ public class DrawApplyJdbcRepository {
                 ps.setObject(i++, drawResultId);
                 ps.setTimestamp(i++, ts);
                 ps.setTimestamp(i++, ts);
+                ps.setObject(i++, drawResultId); // vérifie dr.id
                 ps.setObject(i++, tenantId);
                 ps.setDate(i++, java.sql.Date.valueOf(drawDate));
                 ps.setObject(i++, resultSlotId);

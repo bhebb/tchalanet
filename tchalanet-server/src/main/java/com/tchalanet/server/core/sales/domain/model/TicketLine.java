@@ -18,7 +18,7 @@ public record TicketLine(
 ) {
 
     public TicketLine {
-        if (gameCode == null) throw new IllegalArgumentException("externalGameCode is required");
+        if (gameCode == null) throw new IllegalArgumentException("gameCode is required");
         selection = requireNonBlank(selection, "selection");
         Objects.requireNonNull(betType, "betType");
 

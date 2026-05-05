@@ -24,7 +24,6 @@ public class DrawEventListener {
     private static final String KEY_DRAW_CANCELLED_CACHE_EVICT = "draw.cache.evict.cancelled";
     private final ProcessedEventPort processedEventPort;
     private final DrawCacheEvictor drawCacheEvictor;
-    private final CommandBus commandBus;
 
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -67,7 +66,6 @@ public class DrawEventListener {
         }
 
         drawCacheEvictor.evictAll();
-
         log.debug("draw.cache.evicted reason=DrawCancelled drawId={}", event.drawId());
     }
 }

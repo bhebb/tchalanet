@@ -71,53 +71,6 @@ public class DrawLookupPersistenceAdapter implements DrawLookupPort {
             .orElseThrow(() -> new EntityNotFoundException("Draw not found"));
     }
 
-    @Override
-    public List<DrawSummaryView> findByCriteria(DrawSearchCriteria criteria) {
-        if (criteria == null || criteria.tenantId() == null) {
-            return List.of();
-        }
-
-        UUID tenantUuid = criteria.tenantId().value();
-
-        Instant fromInstant = criteria.from() == null
-            ? Instant.EPOCH
-            : criteria.from().atStartOfDay(UTC).toInstant();
-
-        Instant toInstant = criteria.to() == null
-            ? Instant.ofEpochSecond(Long.MAX_VALUE)
-            : criteria.to().plusDays(1).atStartOfDay(UTC).toInstant().minusNanos(1);
-
-        var rows = jpa.findSummariesWithChannelAndResult(tenantUuid, fromInstant, toInstant).stream()
-            .filter(e -> {
-                String code = criteria.channelCode();
-                if (code == null || code.isBlank()) return true;
-                var ch = e.getDrawChannel();
-                return ch != null && code.equalsIgnoreCase(ch.getCode());
-            })
-            .map(e -> toSummary(e, UTC))
-            .toList();
-
-        if (rows.isEmpty()) {
-            return List.of();
-        }
-
-        var mutable = new java.util.ArrayList<>(rows);
-        var first = mutable.getFirst();
-
-        mutable.set(0, new DrawSummaryView(
-            first.id(),
-            first.channelCode(),
-            first.channelName(),
-            first.scheduledAt(),
-            first.cutoffTime(),
-            first.status(),
-            true,
-            first.active(),
-            first.lastResult()
-        ));
-
-        return mutable;
-    }
 
     @Override
     public boolean existsSettledDrawForResult(DrawResultId drawResultId) {

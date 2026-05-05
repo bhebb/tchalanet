@@ -50,7 +50,7 @@ public class NewYorkDrawResultsMapper {
 
         for (var row : rows) {
             var drawDate = parseDrawDate(row.drawDate());
-            if (!query.drawDate().equals(drawDate)) {
+            if (drawDate == null || !query.drawDate().equals(drawDate)) {
                 continue;
             }
 

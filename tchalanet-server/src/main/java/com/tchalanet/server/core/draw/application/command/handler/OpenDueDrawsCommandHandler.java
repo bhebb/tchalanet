@@ -38,7 +38,6 @@ public class OpenDueDrawsCommandHandler
 
     var nonLockedIds =
         openable.stream().filter(r -> !r.locked()).map(OpenableDrawRow::drawId).toList();
-    var allIds = openable.stream().map(OpenableDrawRow::drawId).toList();
 
     if (command.dryRun()) {
       log.info(

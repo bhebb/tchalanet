@@ -97,7 +97,7 @@ public class DrawResultJdbcRepository {
             join draw d on d.draw_result_id = dr.id
             where dr.deleted_at is null
               and d.deleted_at is null
-              and r.active = true
+              and rs.active = true
               and d.id = ?
             """;
 

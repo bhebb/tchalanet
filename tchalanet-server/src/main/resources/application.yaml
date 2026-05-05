@@ -126,11 +126,25 @@ tch:
         requests-per-second: 10
         burst: 30
 
+  tickets:
+    public:
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://app.tchalanet.com}
+      ticket-path-template: ${TCH_TICKET_PATH_TEMPLATE:/ticket/{code}}
+    delivery:
+      edge-base-url: ${TCH_EDGE_DELIVERY_BASE_URL:http://tchalanet-edge-service:3000}
+      edge-delivery-path: ${TCH_EDGE_DELIVERY_PATH:/internal/delivery/ticket}
+      enabled: ${TCH_TICKET_DELIVERY_ENABLED:true}
+
   notification:
-    node:
-      base-path: /notifications
+    edge:
       enabled: true
-      timeout: 500
+      base-url: "http://localhost:3000"  # Local development
+      # base-url: "http://tchalanet-edge-service:3000"  # Docker deployment
+      notifications-path: "/internal/notifications/send"
+      hmac-secret: "${EDGE_INTERNAL_HMAC_SECRET}"
+      connect-timeout: 2s
+      read-timeout: 5s
+
   # News provider / cache configuration
   news:
     provider:
@@ -183,3 +197,37 @@ management:
     web:
       exposure:
         include: health,info,metrics,scheduledtasks,loggers,threaddump,env,beans
+  # Notification flow configuration
+  flows:
+    draw-lifecycle:
+      enabled: true
+      slack-info-enabled: false  # Quiet by default
+      email-enabled: false
+    draw-results:
+      enabled: true
+      slack-enabled: true
+      email-detail-enabled: true  # Dev/debug detail
+      watched-providers:
+        - NY
+        - FL
+      watched-slots:
+        - NY_MID
+        - NY_EVE
+        - FL_MID
+        - FL_EVE
+    apply:
+      enabled: true
+      slack-info-enabled: false
+      email-on-warning-enabled: true
+      email-on-failure-enabled: true
+    settlement:
+      enabled: true
+      slack-info-enabled: false
+      email-admin-enabled: false
+    sales-reports:
+      enabled: false
+      daily-email-enabled: false
+    client-delivery:
+      enabled: false
+      ticket-sold-enabled: false
+      ticket-won-enabled: false

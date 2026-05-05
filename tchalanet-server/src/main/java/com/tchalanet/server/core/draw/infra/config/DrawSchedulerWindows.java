@@ -16,6 +16,11 @@ public class DrawSchedulerWindows {
         return matches(props.getScheduler().getWindows().getFetchResults(), now);
     }
 
+
+    public boolean isInApplyResultsWindow(LocalTime localNow) {
+        return matches(props.getScheduler().getWindows().getApplyResults(), localNow);
+    }
+
     public boolean isInSettleDrawsWindow(LocalTime now) {
         return matches(props.getScheduler().getWindows().getSettleDraws(), now);
     }
@@ -35,6 +40,7 @@ public class DrawSchedulerWindows {
         }
         return new TimeRange(LocalTime.parse(parts[0]), LocalTime.parse(parts[1]));
     }
+
 
     private record TimeRange(LocalTime from, LocalTime to) {
         boolean contains(LocalTime t) {

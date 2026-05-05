@@ -17,8 +17,8 @@ import com.tchalanet.server.core.sales.application.command.model.SellTicketResul
 import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.service.TicketSaleFactory;
-import com.tchalanet.server.core.sales.domain.service.TicketSalePolicy;
+import com.tchalanet.server.core.sales.application.factory.TicketSaleFactory;
+import com.tchalanet.server.core.sales.application.service.TicketSalePolicyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ import java.util.UUID;
 @Slf4j
 public class SellTicketCommandHandler implements CommandHandler<SellTicketCommand, SellTicketResult> {
 
-    private final TicketSalePolicy salePolicy;
+    private final TicketSalePolicyService salePolicy;
     private final TicketSaleFactory ticketFactory;
     private final TicketWriterPort ticketWriter;
     private final DomainEventPublisher publisher;
@@ -50,6 +50,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
         // if (session == null) throw new DomainException("Session required to sell a ticket");
 
         if (prepared.limits().outcome() == BreachOutcome.BLOCK) {
+            var approvalRequestId = UUID.randomUUID();
             Ticket pending =
                 ticketFactory.newPendingApprovalTicket(
                     command.tenantId(),
@@ -57,11 +58,11 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
                     session,
                     prepared.draw(),
                     prepared.ticketLines(),
+                    approvalRequestId,
                     now);
 
             var saved = ticketWriter.save(pending);
 
-            var approvalRequestId = UUID.randomUUID(); // TODO: integrate approval domain later
             ApiResponseContext.get().addNotice(
                 new ApiNotice(
                     "APPROVAL_REQUIRED",

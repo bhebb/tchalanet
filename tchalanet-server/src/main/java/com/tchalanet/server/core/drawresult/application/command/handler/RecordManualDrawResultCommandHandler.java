@@ -102,8 +102,8 @@ public class RecordManualDrawResultCommandHandler
         sourceResult.put("provider", slot.provider());
         sourceResult.put("draw_date", command.drawDate().toString());
         sourceResult.put("occurred_at", occurredAt.toString());
-        sourceResult.put("recorded_by", nn(command.recordedBy()));
-        sourceResult.put("notes", nn(command.notes()));
+        sourceResult.put("recorded_by", emptyIfNull(command.recordedBy()));
+        sourceResult.put("notes", emptyIfNull(command.notes()));
 
         putIfNotBlank(sourceResult, "pick3", command.pick3());
         putIfNotBlank(sourceResult, "pick4", command.pick4());
@@ -112,7 +112,7 @@ public class RecordManualDrawResultCommandHandler
     }
 
     private tools.jackson.databind.JsonNode buildFlags(RecordManualDrawResultCommand command) {
-        return jsonUtils.toJsonNode(ExternalSourceFlags.manual(nn(command.recordedBy())));
+        return jsonUtils.toJsonNode(ExternalSourceFlags.manual(emptyIfNull(command.recordedBy())));
     }
 
     private com.tchalanet.server.common.contracts.haiti.HaitiProjectionOutput projectHaiti(
@@ -133,7 +133,7 @@ public class RecordManualDrawResultCommandHandler
         return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
     }
 
-    private static String nn(String s) {
+    private static String emptyIfNull(String s) {
         return s == null ? "" : s.trim();
     }
 }

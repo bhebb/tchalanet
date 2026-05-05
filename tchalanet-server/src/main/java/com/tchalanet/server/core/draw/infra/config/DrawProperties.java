@@ -38,6 +38,7 @@ public class DrawProperties {
         private boolean enabled = true;
         private ZoneId timezone = ZoneId.of("America/New_York");
         private String fetchResults = "12:00-14:00,20:00-23:00";
+        private String applyResult = "12:00-14:00,20:00-23:00";
         private String settleDraws = "12:00-15:00,20:00-23:30";
         private String closeDraws = "11:30-14:00,19:30-23:00";
         private String openDraws = "02:00-06:00";

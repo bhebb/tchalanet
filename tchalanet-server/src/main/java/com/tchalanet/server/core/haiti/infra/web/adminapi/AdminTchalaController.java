@@ -7,6 +7,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.haiti.application.command.model.ApproveTchalaEntryCommand;
 import com.tchalanet.server.core.haiti.application.command.model.DeleteTchalaEntriesCommand;
 import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand;
+import ImportTchalaReport;
 import com.tchalanet.server.core.haiti.application.command.model.MergeTchalaEntriesCommand;
 import com.tchalanet.server.core.haiti.application.command.model.RejectTchalaEntryCommand;
 import com.tchalanet.server.core.haiti.application.query.model.ListPendingTchalaEntriesQuery;
@@ -58,10 +59,10 @@ public class AdminTchalaController {
       @RequestParam(defaultValue = "0") @Min(0) int offset,
       @RequestParam(defaultValue = "50") @Min(1) @Max(200) int limit) {
 
-    int size = limit;
-    int page = offset / size;
+    int pageSize = limit;
+    int page = offset / pageSize;
 
-    var q = new ListPendingTchalaEntriesQuery(lang, conflictOnly, page, size);
+    var q = new ListPendingTchalaEntriesQuery(lang, conflictOnly, page, pageSize);
     var res = queryBus.send(q);
 
     return TchPage.of(
@@ -110,7 +111,7 @@ public class AdminTchalaController {
 
   @PostMapping(value = "/import", consumes = "multipart/form-data")
   @ResponseStatus(HttpStatus.OK)
-  public ApiResponse<com.tchalanet.server.core.haiti.application.command.model.ImportTchalaReport>
+  public ApiResponse<ImportTchalaReport>
       uploadImport(
           @RequestParam(defaultValue = "fr") String lang,
           @RequestParam ImportTchalaEntriesCommand.ImportMode mode,
@@ -118,21 +119,21 @@ public class AdminTchalaController {
 
     if (file == null || file.isEmpty()) throw new IllegalArgumentException("file is empty");
 
-    java.nio.file.Path tmp;
+    java.nio.file.Path tempFilePath;
     try {
-      tmp = java.nio.file.Files.createTempFile("tchala-import-", ".csv");
-      file.transferTo(tmp);
+      tempFilePath = java.nio.file.Files.createTempFile("tchala-import-", ".csv");
+      file.transferTo(tempFilePath);
     } catch (Exception e) {
       throw new IllegalStateException("failed to store upload: " + e.getMessage(), e);
     }
 
     try {
-      var cmd = new ImportTchalaEntriesCommand(lang, tmp.toString(), mode);
+      var cmd = new ImportTchalaEntriesCommand(lang, tempFilePath.toString(), mode);
       var report = commandBus.send(cmd);
       return ApiResponse.success(report);
     } finally {
       try {
-        java.nio.file.Files.deleteIfExists(tmp);
+        java.nio.file.Files.deleteIfExists(tempFilePath);
       } catch (Exception ignored) {
       }
     }

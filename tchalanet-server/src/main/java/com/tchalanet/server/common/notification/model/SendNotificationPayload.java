@@ -9,6 +9,7 @@ import java.util.Objects;
 
 /**
  * Payload générique décrivant une notification à envoyer via le gateway.
+ * Le target peut être null pour les notifications techniques/batch.
  */
 public record SendNotificationPayload(
     NotificationType type,
@@ -20,7 +21,7 @@ public record SendNotificationPayload(
     public SendNotificationPayload {
         Objects.requireNonNull(type);
         Objects.requireNonNull(channel);
-        Objects.requireNonNull(target);
+        // target can be null for technical/batch notifications
         Objects.requireNonNull(data);
     }
 }

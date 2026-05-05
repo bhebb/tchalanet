@@ -55,7 +55,7 @@ public class CorrectAppliedDrawResultCommandHandler
     @Override
     @TchTx
     public void handle(CorrectAppliedDrawResultCommand command) {
-        // 1. Require drawId, correctedDrawResultId, reason, idempotencyKey
+        Objects.requireNonNull(command, "command is required");
         Objects.requireNonNull(command.drawId(), "drawId is required");
         Objects.requireNonNull(command.correctedDrawResultId(), "correctedDrawResultId is required");
 
@@ -67,86 +67,64 @@ public class CorrectAppliedDrawResultCommandHandler
             throw ProblemRest.badRequest("draw.correct_result.idempotency_key_required");
         }
 
-        // 2. Lock/idempotency check using ProcessedEventPort
         var idempotentEventId = UUID.nameUUIDFromBytes(
             ("correct-draw-result:" + command.drawId().value() + ":" + command.idempotencyKey())
-                .getBytes()
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8)
         );
 
-        if (processedEventPort.alreadyProcessed("CorrectAppliedDrawResult", idempotentEventId)) {
-            log.warn("Idempotent duplicate request ignored: drawId={}, key={}",
+        if (!processedEventPort.markProcessedIfAbsent("CorrectAppliedDrawResult", idempotentEventId)) {
+            log.warn("draw.correct_result duplicate ignored drawId={} key={}",
                 command.drawId(), command.idempotencyKey());
             return;
         }
 
-        // 3. Load Draw
         var draw = drawLookupPort.getById(command.drawId());
 
-        // 4. Sales guard validation
+        if (draw.drawResultId() == null) {
+            throw ProblemRest.conflict("draw.correct_result.no_result_applied");
+        }
+
+        var previousDrawResultId = draw.drawResultId();
+
+        if (previousDrawResultId.equals(command.correctedDrawResultId())) {
+            throw ProblemRest.conflict("draw.correct_result.same_result");
+        }
+
         salesGuard.assertCanCorrectAppliedResult(
             draw.id(),
             command.correctedDrawResultId(),
             command.force()
         );
 
-        // 5. Vérifier draw a déjà drawResultId
-        if (draw.drawResultId() == null) {
-            throw ProblemRest.conflict("Cannot correct result: draw has no result applied yet");
-        }
-
-        var previousDrawResultId = draw.drawResultId();
-
-        // 6. Vérifier correctedDrawResultId différent de previous
-        if (previousDrawResultId.equals(command.correctedDrawResultId())) {
-            throw ProblemRest.conflict("Corrected result is the same as current result");
-        }
-
-        // 7. draw.overrideResult(correctedDrawResultId, now, reason)
         var now = clock.instant();
+
         draw.overrideResult(
             command.correctedDrawResultId(),
             now,
             command.reason()
         );
 
-        // 8. Save draw
         drawLifecyclePort.save(draw);
 
-        // Mark idempotency as processed
-        processedEventPort.markProcessed("CorrectAppliedDrawResult", idempotentEventId);
+        var channel = drawChannelCatalog
+            .findById(draw.tenantId(), draw.drawChannelId())
+            .orElseThrow(() -> new IllegalStateException(
+                "DrawChannel not found: " + draw.drawChannelId()));
 
-        log.info(
-            "draw.result.corrected drawId={} previousResultId={} correctedResultId={} reason={}",
+        var event = new DrawResultCorrectedEvent(
+            EventId.of(idGenerator.newUuid()),
+            now,
+            draw.tenantId(),
             draw.id(),
+            draw.drawDate(),
+            channel.resultSlotId(),
             previousDrawResultId,
             command.correctedDrawResultId(),
+            draw.drawChannelId(),
             command.reason()
         );
 
-        // 10. Publish DrawResultCorrectedEvent AFTER_COMMIT
-        // Note: DrawResult module listens to this event and marks previous result as OVERRIDDEN
-        var eventTime = clock.instant();
-        AfterCommit.run(() -> {
-            // Fetch draw channel to get resultSlotId
-            var channel = drawChannelCatalog
-                .findById(draw.tenantId(), draw.drawChannelId())
-                .orElseThrow(() -> new IllegalStateException(
-                    "DrawChannel not found: " + draw.drawChannelId()));
-
-            var event = new DrawResultCorrectedEvent(
-                EventId.of(idGenerator.newUuid()),
-                eventTime,
-                draw.tenantId(),
-                draw.id(),
-                draw.drawDate(),
-                channel.resultSlotId(),
-                previousDrawResultId,
-                command.correctedDrawResultId(),
-                draw.drawChannelId(),
-                command.reason()
-            );
-            eventPublisher.publish(event);
-        });
+        AfterCommit.run(() -> eventPublisher.publish(event));
     }
 }
 

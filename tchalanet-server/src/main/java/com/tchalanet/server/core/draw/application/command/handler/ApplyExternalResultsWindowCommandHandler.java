@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -50,112 +51,161 @@ public class ApplyExternalResultsWindowCommandHandler
         int alreadyOrNotEligible = 0;
         int skippedDryRun = 0;
         int skippedPending = 0;
-        int notFound = 0;
+        int slotNotFound = 0;
+        int slotInactive = 0;
         int errors = 0;
 
-        int daysBack = Math.max(0, cmd.daysBack());
+        int daysBack = clampDaysBack(cmd.daysBack());
         int maxSlots = Math.min(cmd.maxSlots(), props.getLimits().getMaxSlotsPerTick());
 
         var now = clock.instant();
-        Instant eventTime = now;
+        var eventTime = now;
 
-        var slotKeys = cmd.slotKeys().stream()
-            .map(ApplyExternalResultsWindowCommandHandler::normalizeKey)
-            .filter(s -> !s.isBlank())
-            .distinct()
-            .limit(maxSlots)
-            .toList();
+        var slotKeys =
+            cmd.slotKeys().stream()
+                .map(ApplyExternalResultsWindowCommandHandler::normalizeKey)
+                .filter(s -> !s.isBlank())
+                .distinct()
+                .limit(maxSlots)
+                .toList();
 
-        var slotsByKey = slotKeys.stream()
-            .map(k -> resultSlotCatalog.findByKey(k).orElse(null))
-            .filter(Objects::nonNull)
-            .filter(ResultSlotView::active)
-            .collect(java.util.stream.Collectors.toMap(
-                s -> normalizeKey(s.slotKey()),
-                s -> s
-            ));
+        var slotsByKey = new java.util.HashMap<String, ResultSlotView>();
 
-        notFound += slotKeys.size() - slotsByKey.size();
+        for (String slotKey : slotKeys) {
+            var slotOpt = resultSlotCatalog.findByKey(slotKey);
+
+            if (slotOpt.isEmpty()) {
+                slotNotFound++;
+                continue;
+            }
+
+            var slot = slotOpt.get();
+
+            if (!slot.active()) {
+                slotInactive++;
+                continue;
+            }
+
+            slotsByKey.put(normalizeKey(slot.slotKey()), slot);
+        }
+
+        var eventsToPublish = new java.util.ArrayList<DrawResultAppliedEvent>();
 
         for (LocalDate date : DateWindows.datesBackInclusive(cmd.baseDate(), daysBack)) {
             for (String slotKey : slotKeys) {
                 var slot = slotsByKey.get(slotKey);
+
                 if (slot == null) {
                     continue;
                 }
 
                 try {
-                    Instant occurredAt = OccurredAtResolver.resolveOrThrow(
-                        null,
-                        date,
-                        slot.drawTime(),
-                        slot.timezone()
-                    );
+                    Instant occurredAt =
+                        OccurredAtResolver.resolveOrThrow(
+                            null,
+                            date,
+                            slot.drawTime(),
+                            slot.timezone());
 
-                    var drOpt = drawResultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt);
-                    if (drOpt.isEmpty()) {
+                    var drawResultOpt =
+                        drawResultReader.findByResultSlotIdAndOccurredAt(slot.id(), occurredAt);
+
+                    if (drawResultOpt.isEmpty()) {
                         skippedPending++;
                         continue;
                     }
 
-                    var drawResultId = drOpt.get();
+                    var drawResultId = drawResultOpt.get();
 
                     if (cmd.dryRun()) {
                         skippedDryRun++;
                         continue;
                     }
 
-                    var res = drawApply.attachResultBySlot(
-                        cmd.tenantId(),
-                        date,
-                        slot.id(),
-                        drawResultId,
-                        now,
-                        cmd.force()
-                    );
+                    /*
+                     * Replay/backfill rule:
+                     * - can run for past dates;
+                     * - can run repeatedly;
+                     * - must stay idempotent;
+                     * - must not replace an already applied draw_result_id.
+                     *
+                     * Correction/replacement belongs to CorrectAppliedDrawResultCommand.
+                     */
+                    var res =
+                        drawApply.attachResultBySlot(
+                            cmd.tenantId(),
+                            date,
+                            slot.id(),
+                            drawResultId,
+                            now,
+                            false);
 
-                    if (res.updatedAny()) {
+                    if (res.outcome() == DrawApplyPort.ApplyOutcome.UPDATED
+                        && !res.applied().isEmpty()) {
+
                         applied += res.applied().size();
 
-                        var events = res.applied().stream()
-                            .map(d -> new DrawResultAppliedEvent(
-                                EventId.of(idGenerator.newUuid()),
-                                eventTime,
-                                cmd.tenantId(),
-                                d.drawId(),
-                                slot.id(),
-                                drawResultId
-                            ))
-                            .toList();
-
-                        AfterCommit.run(() -> events.forEach(publisher::publish));
+                        for (var d : res.applied()) {
+                            eventsToPublish.add(
+                                new DrawResultAppliedEvent(
+                                    EventId.of(idGenerator.newUuid()),
+                                    eventTime,
+                                    cmd.tenantId(),
+                                    d.drawId(),
+                                    date,
+                                    slot.id(),
+                                    drawResultId,
+                                    d.drawChannelId()));
+                        }
                     } else {
                         alreadyOrNotEligible++;
                     }
 
                 } catch (Exception e) {
                     errors++;
+
                     log.warn(
-                        "draw-results.apply failed tenant={} slot={} date={} err={}",
+                        "draw.results.apply failed tenant={} slot={} date={} dryRun={} force={} err={}",
                         cmd.tenantId(),
                         slotKey,
                         date,
+                        cmd.dryRun(),
+                        cmd.force(),
                         e.getMessage(),
-                        e
-                    );
+                        e);
                 }
             }
         }
 
+        if (!eventsToPublish.isEmpty()) {
+            AfterCommit.run(() -> eventsToPublish.forEach(publisher::publish));
+        }
+
+        log.info(
+            "draw.results.apply tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
+            cmd.tenantId(),
+            cmd.baseDate(),
+            daysBack,
+            cmd.dryRun(),
+            cmd.force(),
+            applied,
+            slotInactive,
+            alreadyOrNotEligible,
+            skippedDryRun,
+            skippedPending,
+            slotNotFound,
+            errors);
+
         return new ApplyExternalResultsWindowResult(
             applied,
-            0,
+            slotInactive,
             alreadyOrNotEligible,
             skippedDryRun + skippedPending,
-            notFound,
-            errors
-        );
+            slotNotFound,
+            errors);
     }
+
+
     private int clampDaysBack(int v) {
         int x = Math.max(0, v);
         return Math.min(x, props.getLimits().getHardDaysBack());
