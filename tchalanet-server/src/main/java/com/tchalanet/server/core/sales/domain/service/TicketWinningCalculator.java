@@ -65,10 +65,10 @@ public class TicketWinningCalculator {
     private boolean marriage2d2d(String selection, Set<String> twoDigits) {
         List<String> parts = split(selection);
         if (parts.size() != 2) return false;
-        String a = parts.get(0);
-        String b = parts.get(1);
-        if (a.length() != 2 || b.length() != 2) return false;
-        return twoDigits.contains(a) && twoDigits.contains(b);
+        String firstPart = parts.get(0);
+        String secondPart = parts.get(1);
+        if (firstPart.length() != 2 || secondPart.length() != 2) return false;
+        return twoDigits.contains(firstPart) && twoDigits.contains(secondPart);
     }
 
     private boolean exactDigits(String selection, String drawn, int len) {
@@ -124,11 +124,11 @@ public class TicketWinningCalculator {
         return out;
     }
 
-    private BigDecimal zeroIfNull(BigDecimal v) {
-        return v == null ? BigDecimal.ZERO : v;
+    private BigDecimal zeroIfNull(BigDecimal amount) {
+        return amount == null ? BigDecimal.ZERO : amount;
     }
 
-    private String safe(String s) {
-        return s == null ? "" : s.trim();
+    private String safe(String value) {
+        return value == null ? "" : value.trim();
     }
 }
