@@ -4,7 +4,9 @@ import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.infra.persistence.projection.DueToCloseProjection;
 import com.tchalanet.server.core.draw.infra.persistence.projection.OpenableDrawProjection;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -97,6 +99,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
     int bulkOpen(@Param("ids") UUID[] ids, @Param("now") Instant now);
 
     Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNull(UUID tenantId, UUID id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select d from DrawJpaEntity d where d.tenantId = :tenantId and d.id = :id and d.deletedAt is null")
+    Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNullForUpdate(
+        @Param("tenantId") UUID tenantId,
+        @Param("id") UUID id
+    );
 
     boolean existsByTenantIdAndDrawResultIdAndStatusAndDeletedAtIsNull(
         UUID tenantId,

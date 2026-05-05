@@ -12,6 +12,8 @@ public interface DrawLookupPort {
 
     Draw getById(DrawId drawId);
 
+    Draw getByIdForUpdate(DrawId drawId);
+
     boolean existsSettledDrawForResult(DrawResultId drawResultId);
 
 }

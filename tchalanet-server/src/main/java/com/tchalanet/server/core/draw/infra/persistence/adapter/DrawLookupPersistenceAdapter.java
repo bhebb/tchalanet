@@ -41,6 +41,16 @@ public class DrawLookupPersistenceAdapter implements DrawLookupPort {
     }
 
     @Override
+    public Draw getByIdForUpdate(DrawId drawId) {
+        Objects.requireNonNull(drawId, "drawId is required");
+        var tenantUuid = TchContext.get().tenantUuid();
+
+        return jpa.findByTenantIdAndIdAndDeletedAtIsNullForUpdate(tenantUuid, drawId.value())
+            .map(mapper::toDomain)
+            .orElseThrow(() -> new EntityNotFoundException("Draw not found: " + drawId));
+    }
+
+    @Override
     public boolean existsSettledDrawForResult(DrawResultId drawResultId) {
         Objects.requireNonNull(drawResultId, "drawResultId is required");
         var tenantUuid = TchContext.get().tenantUuid();

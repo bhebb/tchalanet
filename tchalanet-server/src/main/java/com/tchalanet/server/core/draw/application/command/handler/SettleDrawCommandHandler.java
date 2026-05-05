@@ -52,8 +52,7 @@ public class SettleDrawCommandHandler implements VoidCommandHandler<SettleDrawCo
         boolean wasResulted = drawSummary.status() == DrawStatus.RESULTED;
         Instant now = clock.instant();
 
-        // Reload aggregate for mutation. Ideally this should be pessimistic lock / FOR UPDATE.
-        var draw = drawLookupPort.getById(drawSummary.drawId());
+        var draw = drawLookupPort.getByIdForUpdate(drawSummary.drawId());
 
         draw.settle(now);
 
