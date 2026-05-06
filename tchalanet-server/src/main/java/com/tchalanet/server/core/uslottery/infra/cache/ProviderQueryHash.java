@@ -37,13 +37,13 @@ public final class ProviderQueryHash {
         return Hashing.sha256Hex(canonical);
     }
 
-    private static String normProvider(String s) {
-        String t = s == null ? "" : s.trim();
-        return t.replace("-", "_").toUpperCase(Locale.ROOT);
+    private static String normProvider(String provider) {
+        var trimmed = provider == null ? "" : provider.trim();
+        return trimmed.replace("-", "_").toUpperCase(Locale.ROOT);
     }
 
-    private static String normShape(String s) {
-        return s == null ? "" : s.trim().toLowerCase(Locale.ROOT);
+    private static String normShape(String shape) {
+        return shape == null ? "" : shape.trim().toLowerCase(Locale.ROOT);
     }
 
     private static List<String> normCodes(List<String> codes) {
@@ -53,13 +53,13 @@ public final class ProviderQueryHash {
 
         final Set<String> normalized = new LinkedHashSet<>();
 
-        for (String c : codes) {
-            if (c == null) {
+        for (String code : codes) {
+            if (code == null) {
                 continue;
             }
-            String t = c.trim().toUpperCase(Locale.ROOT);
-            if (!t.isBlank()) {
-                normalized.add(t);
+            var trimmedCode = code.trim().toUpperCase(Locale.ROOT);
+            if (!trimmedCode.isBlank()) {
+                normalized.add(trimmedCode);
             }
         }
 
