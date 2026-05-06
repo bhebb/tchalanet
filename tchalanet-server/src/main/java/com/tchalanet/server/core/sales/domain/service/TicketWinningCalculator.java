@@ -117,9 +117,9 @@ public class TicketWinningCalculator {
         if (selection == null || selection.isBlank()) return List.of();
         String[] raw = SEP.split(selection.trim());
         List<String> out = new ArrayList<>();
-        for (String r : raw) {
-            if (r == null || r.isBlank()) continue;
-            out.add(r.trim());
+        for (String part : raw) {
+            if (part == null || part.isBlank()) continue;
+            out.add(part.trim());
         }
         return out;
     }
