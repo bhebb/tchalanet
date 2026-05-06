@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * E.2 — Provider des plans actifs.
- * Source : "plans"
+ * Source : "public_plans"
  */
 @Component
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class PlansProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return "plans".equals(source);
+    return "public_plans".equals(source);
   }
 
   @Override
@@ -57,7 +57,6 @@ public class PlansProvider implements PageModelDynamicProvider {
 
   @Override
   public String providerKey() {
-    return "plans";
+    return "public_plans";
   }
 }
-

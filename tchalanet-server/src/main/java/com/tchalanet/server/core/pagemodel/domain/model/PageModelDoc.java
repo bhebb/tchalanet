@@ -35,6 +35,7 @@ public record PageModelDoc(
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record ShellSectionConfig(@JsonProperty("component") String component,
+                                   @JsonProperty("binding") WidgetBinding binding,
                                    @JsonProperty("nav") ShellNav nav,
                                    @JsonProperty("props") Map<String, Object> props) {}
 
