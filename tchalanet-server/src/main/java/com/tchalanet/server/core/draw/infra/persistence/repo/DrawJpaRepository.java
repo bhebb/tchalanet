@@ -68,8 +68,8 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
               and d.tenant_id = :tenantId
               and d.status = 'SCHEDULED'
               and d.locked = false
-              and d.scheduled_at <= (:now + make_interval(hours => :openHorizonHours))
-              and d.scheduled_at >= (:now - make_interval(hours => :openLagHours))
+              and d.scheduled_at <= :windowEnd
+              and d.scheduled_at >= :windowStart
               and d.cutoff_at > :now
             order by d.scheduled_at asc
             limit :limit
@@ -79,8 +79,8 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         @Param("tenantId") UUID tenantId,
         @Param("now") Instant now,
         @Param("limit") int limit,
-        @Param("openHorizonHours") int openHorizonHours,
-        @Param("openLagHours") int openLagHours
+        @Param("windowStart") Instant windowStart,
+        @Param("windowEnd") Instant windowEnd
     );
 
     @Modifying

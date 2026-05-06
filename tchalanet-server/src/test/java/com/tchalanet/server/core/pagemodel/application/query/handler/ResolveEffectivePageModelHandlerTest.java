@@ -44,7 +44,7 @@ class ResolveEffectivePageModelHandlerTest {
     TchContext.set(previous);
 
     var readPort = new RecordingReadPort(jsonUtils, Optional.of(docFor(tenantId, "current")));
-    var handler = new ResolveEffectivePageModelHandler(readPort, missingTemplateLoader(), jsonUtils);
+    var handler = new ResolveEffectivePageModelQueryHandler(readPort, missingTemplateLoader(), jsonUtils);
 
     var doc = handler.handle(new ResolveEffectivePageModelQuery(Optional.of(TenantId.of(tenantId)), LOGICAL_ID));
 
@@ -64,7 +64,7 @@ class ResolveEffectivePageModelHandlerTest {
             jsonUtils,
             Optional.empty(),
             Optional.of(docFor(DEFAULT_TENANT_UUID, "default")));
-    var handler = new ResolveEffectivePageModelHandler(readPort, missingTemplateLoader(), jsonUtils);
+    var handler = new ResolveEffectivePageModelQueryHandler(readPort, missingTemplateLoader(), jsonUtils);
 
     var doc = handler.handle(new ResolveEffectivePageModelQuery(Optional.of(TenantId.of(requestTenantId)), LOGICAL_ID));
 

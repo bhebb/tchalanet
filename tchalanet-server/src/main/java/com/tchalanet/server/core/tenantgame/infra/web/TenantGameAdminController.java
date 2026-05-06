@@ -2,8 +2,8 @@ package com.tchalanet.server.core.tenantgame.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchContext;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
@@ -55,8 +55,8 @@ public class TenantGameAdminController {
    */
   @GetMapping
   @PreAuthorize("hasPermission('tenantgame.read')")
-  public ApiResponse<List<TenantGameView>> getTenantGames() {
-    var tenantId = TchContext.get().tenantId();
+  public ApiResponse<List<TenantGameView>> getTenantGames(@CurrentContext TchRequestContext ctx) {
+    var tenantId = ctx.effectiveTenantIdRequired();
     var query = ResolveTenantGamesQuery.builder()
         .tenantId(tenantId)
         .build();
@@ -74,8 +74,9 @@ public class TenantGameAdminController {
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<EnableTenantGameCommandResult> enableGame(
-      @PathVariable String gameCode) {
-    var tenantId = TchContext.get().tenantId();
+      @PathVariable String gameCode,
+      @CurrentContext TchRequestContext ctx) {
+    var tenantId = ctx.effectiveTenantIdRequired();
     var command = EnableTenantGameCommand.builder()
         .tenantId(tenantId)
         .gameCode(gameCode)
@@ -98,8 +99,9 @@ public class TenantGameAdminController {
   @PostMapping("/{gameCode}/disable")
   @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<DisableTenantGameCommandResult> disableGame(
-      @PathVariable String gameCode) {
-    var tenantId = TchContext.get().tenantId();
+      @PathVariable String gameCode,
+      @CurrentContext TchRequestContext ctx) {
+    var tenantId = ctx.effectiveTenantIdRequired();
     var command = DisableTenantGameCommand.builder()
         .tenantId(tenantId)
         .gameCode(gameCode)
@@ -122,8 +124,9 @@ public class TenantGameAdminController {
   @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<Void> updatePolicy(
       @PathVariable String gameCode,
-      @RequestBody UpdatePolicyRequest request) {
-    var tenantId = TchContext.get().tenantId();
+      @RequestBody UpdatePolicyRequest request,
+      @CurrentContext TchRequestContext ctx) {
+    var tenantId = ctx.effectiveTenantIdRequired();
     var command = UpdateTenantGamePolicyCommand.builder()
         .tenantId(tenantId)
         .gameCode(gameCode)

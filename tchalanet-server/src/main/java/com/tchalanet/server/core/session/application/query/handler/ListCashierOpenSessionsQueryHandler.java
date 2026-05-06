@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ListCashierOpenSessionsQueryHandler
     implements QueryHandler<
-        ListCashierOpenSessionsQuery, List<ListCashierOpenSessionsHandler.CashierSessionDto>> {
+        ListCashierOpenSessionsQuery, List<ListCashierOpenSessionsQueryHandler.CashierSessionDto>> {
 
   private final SalesSessionReaderPort sessionReader;
 

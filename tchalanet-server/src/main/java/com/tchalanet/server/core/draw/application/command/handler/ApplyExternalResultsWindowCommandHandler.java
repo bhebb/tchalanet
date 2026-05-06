@@ -90,6 +90,7 @@ public class ApplyExternalResultsWindowCommandHandler
         }
 
         var eventsToPublish = new java.util.ArrayList<DrawResultAppliedEvent>();
+        var appliedDetails = new ArrayList<String>(); // Track what was applied
 
         for (LocalDate date : DateWindows.datesBackInclusive(cmd.baseDate(), daysBack)) {
             for (String slotKey : slotKeys) {
@@ -145,6 +146,14 @@ public class ApplyExternalResultsWindowCommandHandler
                         applied += res.applied().size();
 
                         for (var d : res.applied()) {
+                            appliedDetails.add(
+                                String.format(
+                                    "%s|%s|drawId=%s|resultId=%s",
+                                    date,
+                                    slotKey,
+                                    d.drawId().value(),
+                                    drawResultId.value()));
+
                             eventsToPublish.add(
                                 new DrawResultAppliedEvent(
                                     EventId.of(idGenerator.newUuid()),
@@ -164,9 +173,10 @@ public class ApplyExternalResultsWindowCommandHandler
                     errors++;
 
                     log.warn(
-                        "draw.results.apply failed tenant={} slot={} date={} dryRun={} force={} err={}",
+                        "draw.results.apply.error tenant={} slot={} slotId={} date={} dryRun={} force={} error={}",
                         cmd.tenantId(),
                         slotKey,
+                        slot.id().value(),
                         date,
                         cmd.dryRun(),
                         cmd.force(),
@@ -180,8 +190,18 @@ public class ApplyExternalResultsWindowCommandHandler
             AfterCommit.run(() -> eventsToPublish.forEach(publisher::publish));
         }
 
+        if (applied > 0 && !appliedDetails.isEmpty()) {
+            log.info(
+                "draw.results.apply.success tenant={} baseDate={} daysBack={} applied={} details=[{}]",
+                cmd.tenantId(),
+                cmd.baseDate(),
+                daysBack,
+                applied,
+                String.join(", ", appliedDetails.stream().limit(20).toList()));
+        }
+
         log.info(
-            "draw.results.apply tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
+            "draw.results.apply.summary tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
             cmd.tenantId(),
             cmd.baseDate(),
             daysBack,

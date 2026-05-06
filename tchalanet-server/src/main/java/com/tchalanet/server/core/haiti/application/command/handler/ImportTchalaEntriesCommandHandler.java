@@ -96,7 +96,7 @@ public final class ImportTchalaEntriesCommandHandler
                     lang,
                     dream,
                     numbers,
-                    r.note(),
+                    importRow.note(),
                     com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntrySource.IMPORT,
                     Instant.now(clock));
             repo.save(entry);
@@ -119,7 +119,7 @@ public final class ImportTchalaEntriesCommandHandler
                           lang,
                           dream,
                           numbers,
-                          r.note(),
+                          importRow.note(),
                           Optional.of(canonical.id()),
                           Instant.now(clock));
               repo.save(pending);

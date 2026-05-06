@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
-import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
@@ -32,6 +32,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     private final DrawJpaRepository repo;
     private final DrawMapper mapper;
     private final JdbcTemplate jdbc;
+    private final TchContextResolver contextResolver;
 
     @Override
     public List<OpenableDrawRow> findOpenable(
@@ -42,9 +43,11 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     ) {
         Objects.requireNonNull(now, "now is required");
 
-        var tenantUuid = TchContext.get().tenantUuid();
+        var tenantUuid = currentTenantUuid();
+        var windowStart = now.minus(java.time.Duration.ofHours(openLagHours));
+        var windowEnd = now.plus(java.time.Duration.ofHours(openHorizonHours));
 
-        return repo.findOpenable(tenantUuid, now, limit, openHorizonHours, openLagHours).stream()
+        return repo.findOpenable(tenantUuid, now, limit, windowStart, windowEnd).stream()
             .map(this::mapOpenableRow)
             .toList();
     }
@@ -53,7 +56,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     public List<DueToCloseRow> findDueToClose(Instant now, int limit) {
         Objects.requireNonNull(now, "now is required");
 
-        var tenantUuid = TchContext.get().tenantUuid();
+        var tenantUuid = currentTenantUuid();
 
         return repo.findDueToClose(tenantUuid, now, limit).stream()
             .map(projection -> new DueToCloseRow(
@@ -73,6 +76,10 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         Instant cutoffAt = projection.getCutoffAt();
         // preserve existing shape of OpenableDrawRow
         return new OpenableDrawRow(tenantId, drawId, locked, scheduledAt, cutoffAt);
+    }
+
+    private UUID currentTenantUuid() {
+        return contextResolver.currentOrThrow().effectiveTenantIdRequired().value();
     }
 
     @Override

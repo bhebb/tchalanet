@@ -43,6 +43,9 @@ tch:
           min_minutes_after_draw: 0
           max_minutes_after_draw: 1440
           lookback_minutes: 1440
+        min-minutes-after-draw: 0
+        max-minutes-after-draw: 1440
+        cooldown-minutes: 10
 
   # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
   batch:
