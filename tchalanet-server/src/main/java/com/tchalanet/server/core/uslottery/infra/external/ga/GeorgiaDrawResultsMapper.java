@@ -191,7 +191,7 @@ public class GeorgiaDrawResultsMapper {
         return result.primary().stream()
             .filter(Objects::nonNull)
             .map(String::trim)
-            .filter(s -> !s.isBlank())
+            .filter(digit -> !digit.isBlank())
             .toList();
     }
 
@@ -229,7 +229,7 @@ public class GeorgiaDrawResultsMapper {
         return codes.stream()
             .filter(Objects::nonNull)
             .map(GeorgiaDrawResultsMapper::normalize)
-            .filter(s -> !s.isBlank())
+            .filter(normalizedCode -> !normalizedCode.isBlank())
             .flatMap(code -> aliases(code).stream())
             .collect(Collectors.toUnmodifiableSet());
     }

@@ -155,7 +155,7 @@ Les secrets viennent de Doppler uniquement.
 - Configuration statique : `traefik/traefik.yml`
 - Sources par environnement : `traefik/dynamic-src/{common,local,staging,prod}/`
 - Rendu actif : `traefik/dynamic/` — un seul environnement à la fois
-- Rendu via : `scripts/utils/render-traefik-dynamic.sh <env>`
+- Rendu via : `make render-traefik ENV=<env>` (appelle `scripts/utils/pre-render-traefik.sh`)
 
 TLS local : mkcert. TLS staging/prod : Let's Encrypt.
 

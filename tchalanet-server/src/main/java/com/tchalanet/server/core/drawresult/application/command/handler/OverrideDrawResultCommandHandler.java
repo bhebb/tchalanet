@@ -163,7 +163,7 @@ public class OverrideDrawResultCommandHandler
         return sourceResult;
     }
 
-    private static String normalizeSlotKey(String s) {
-        return s == null ? "" : s.trim().toUpperCase(Locale.ROOT);
+    private static String normalizeSlotKey(String key) {
+        return key == null ? "" : key.trim().toUpperCase(Locale.ROOT);
     }
 }

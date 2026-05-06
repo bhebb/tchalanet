@@ -54,14 +54,14 @@ public record TicketLine(
         }
     }
 
-    private static String requireNonBlank(String v, String field) {
-        if (v == null || v.isBlank()) throw new IllegalArgumentException(field + " cannot be blank");
-        return v;
+    private static String requireNonBlank(String value, String field) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " cannot be blank");
+        return value;
     }
 
-    private static BigDecimal scale(BigDecimal v, int scale, String field) {
-        Objects.requireNonNull(v, field + " is required");
-        return v.setScale(scale, RoundingMode.HALF_UP);
+    private static BigDecimal scale(BigDecimal amount, int scale, String field) {
+        Objects.requireNonNull(amount, field + " is required");
+        return amount.setScale(scale, RoundingMode.HALF_UP);
     }
 
     /**

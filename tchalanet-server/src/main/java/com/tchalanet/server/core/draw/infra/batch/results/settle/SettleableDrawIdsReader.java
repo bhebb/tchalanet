@@ -95,14 +95,14 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
             return new JobCtx(tenantId, source, provider, channelCode, from, to, maxDraws, force);
         }
 
-        private static String trimToNull(String v) {
-            if (v == null) return null;
-            var t = v.trim();
-            return t.isEmpty() ? null : t;
+        private static String trimToNull(String value) {
+            if (value == null) return null;
+            var trimmed = value.trim();
+            return trimmed.isEmpty() ? null : trimmed;
         }
 
-        private static String defaultStr(String v, String def) {
-            return (v == null) ? def : v;
+        private static String defaultStr(String value, String def) {
+            return (value == null) ? def : value;
         }
     }
 }

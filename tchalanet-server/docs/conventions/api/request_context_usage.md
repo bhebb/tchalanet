@@ -1,186 +1,204 @@
-# Canonical Request Context Filter — TchContextFilter
+# Request Context Usage
 
 > **Status**: NORMATIVE  
 > **Scope**: tchalanet-server (`common.context`, `common.security`, web, batch)  
 > **Audience**: Backend developers, reviewers, ops  
-> **Last reviewed**: 2026-01-21  
+> **Last reviewed**: 2026-05-05  
 > **Related**:
 >
-> - `docs/conventions/api/context.md`
+> - `docs/conventions/api/routing_and_path.md`
 > - `docs/conventions/security_permissions.md`
-> - `docs/conventions/rls.md`
-> - `docs/conventions/time.md`
-> - `docs/conventions/batch.md`
+> - `docs/conventions/persistence/rls.md`
+> - `docs/conventions/timezone.md`
+> - `docs/conventions/batch/batch.md`
 
 ---
 
 ## 1. Purpose
 
-`TchContextFilter` is the **single source of truth** for request execution context initialization.
+`TchRequestContext` is the runtime context used by web, persistence, audit, batch, and selected
+startup flows.
 
-It is responsible for:
+The project distinguishes three concepts:
 
-- tenant resolution (code → UUID),
-- user identification (Keycloak `sub` → `appUserId`),
-- system and custom roles,
-- soft-delete visibility,
-- RLS context initialization,
-- request metadata propagation (requestId, MDC, idempotency).
+1. context creation at a system boundary;
+2. context enrichment inside an existing request;
+3. temporary context switching for deliberate cross-tenant work.
 
-No other layer may replicate these responsibilities.
+Do not hide these concepts behind a generic “run as tenant” helper.
 
 ---
 
-## 2. Order and positioning
+## 2. HTTP pipeline
 
-- Implemented using `OncePerRequestFilter`
-- Annotated with `@Order(Ordered.LOWEST_PRECEDENCE - 50)`
-- Executed **after** JWT authentication  
-  (`SecurityContextHolder` is already populated)
+HTTP context creation is owned by `TchContextFilter`.
 
----
+Current filter order:
 
-## 3. Responsibilities (NON-DELEGABLE)
+```text
+BearerTokenAuthenticationFilter
+  -> UserBootstrapFilter
+  -> TchContextFilter
+```
 
-The filter:
+Rules:
 
-1. Resolves the `ApiScope`  
-   (`PUBLIC`, `TENANT`, `ADMIN`, `PLATFORM`, `SDR`)
-2. Builds an immutable `TchRequestContext` containing:
+- `UserBootstrapFilter` may enrich the request with `BOOTSTRAPPED_APP_USER_ID`.
+- `UserBootstrapFilter` does not decide the effective tenant.
+- `TchContextFilter` creates and binds the canonical HTTP `TchRequestContext`.
+- `TchContextFilter` binds request attribute, `ThreadLocal`, and MDC.
+- `TchContextFilter` clears `ThreadLocal` and MDC in `finally`.
 
-- original and effective tenant codes
-- tenant UUID (resolved later)
-- `tenantId` (typed), `tenantZoneId`, `tenantCurrency`
-- `keycloakUserId` (JWT `sub`)
-- `appUserId` (bootstrap DB lookup)
-- system roles (`TchRole`) and custom roles
-- `requestId`, `clientIp`, `userAgent`, `locale`
-- `deletedVisibility`
-- `idempotencyKey`
-
-3. Applies the resolution and security rules below.
+Over time, `UserBootstrapFilter` behavior may move behind an `ActorContextResolver`, but it remains
+actor enrichment, not tenant resolution.
 
 ---
 
-## 4. Tenant rules (V1)
+## 3. Tenant policy
 
-### PUBLIC
+| Scope                                        | Tenant behavior                                                         |
+| -------------------------------------------- | ----------------------------------------------------------------------- |
+| `PUBLIC`, anonymous                          | Bind configured default public tenant, currently `tchalanet`.           |
+| `PUBLIC`, authenticated with tenant claim    | Prefer JWT tenant over default public tenant.                           |
+| `PUBLIC`, authenticated without tenant claim | Fall back to default public tenant.                                     |
+| `TENANT`                                     | Tenant required from authenticated context or allowed override.         |
+| `ADMIN`                                      | Tenant required from authenticated context or allowed override.         |
+| `PLATFORM`                                   | No tenant by default.                                                   |
+| `SDR`                                        | No tenant by default unless policy explicitly resolves one.             |
+| `SUPER_ADMIN` + override                     | Effective tenant comes from the allowed override and must be auditable. |
 
-- `defaultTenant` allowed via configuration
-- tenant **may** be resolved if a code is present
-- missing tenant is allowed
-
-### TENANT
-
-- tenant is **required**
-- missing tenant → **403**
-- unknown tenant → **403**
-
-### ADMIN / PLATFORM
-
-- tenant optional
-- resolved if present
+Client-provided tenant ids in request bodies are not trusted for tenant-scoped queries or writes.
 
 ---
 
-## 5. SUPER_ADMIN override
+## 4. Boundary Matrix
 
-A user with role `SUPER_ADMIN` may:
+| Flow                        | Context producer                              | Rule                                                                                   |
+| --------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------- |
+| HTTP request                | `TchContextFilter`                            | Creates canonical request context from route/auth/tenant/actor metadata.               |
+| User app bootstrap          | `UserBootstrapFilter`                         | Enriches request with `appUserId`; does not decide tenant.                             |
+| Batch job                   | `BatchTchContextBinder`                       | Creates `TENANT` or `PLATFORM` context from explicit job parameters.                   |
+| Scheduler tick              | Scheduler or launched batch                   | Prefer launching batch; direct work needs explicit scheduler context.                  |
+| Startup tenant work         | `TchContextScope.runStartupTenant(...)`       | Used for tenant seed/init work such as default PageModel onboarding.                   |
+| Startup platform work       | Future explicit platform/startup scope        | Used for technical bootstrap such as Keycloak sync if context is required.             |
+| Temporary cross-tenant read | `TchContextScope.runWithTemporaryTenant(...)` | Allowed only for deliberate fallback/cross-tenant work; must restore previous context. |
+| Event/listener              | Event payload or documented sync context      | Carry tenant/actor/correlation explicitly when async/retry/thread hop is possible.     |
 
-### Tenant override
-
-- via header `X-Tenant-Id`
-- or query parameter `?tenantId=`
-
-Effects:
-
-- replaces the effective tenant
-- sets `tenantOverridden = true`
-
-### Soft-delete visibility override
-
-- via header `X-Deleted-Visibility`
-- allowed values: `active | deleted | all`
+`ThreadLocal` context does not automatically cross scheduler, batch, async, retry, or new-thread
+boundaries.
 
 ---
 
-## 6. Bootstrap tenant & user (bypass RLS)
+## 5. PageModel Rules
 
-### Tenant bootstrap
+PageModel has three distinct flows.
 
-- `TenantBootstrapLookup`:
-  - resolves `tenantCode → tenantId`
-  - loads `tenantZoneId` and `tenantCurrency`
-  - uses a **bypass-RLS datasource**
-  - protected by a short TTL, `Clock`-based cache
+| Flow                                          | Context rule                                                       |
+| --------------------------------------------- | ------------------------------------------------------------------ |
+| Template seed (`PageModelTemplateSeedRunner`) | Catalog/global startup seed; no default tenant context by default. |
+| Tenant seed (`PageModelOnboardingRunner`)     | Explicit startup tenant context for the default tenant.            |
+| Runtime public PageModel                      | Use the already-bound HTTP context for the normal path.            |
 
-### User bootstrap
+Dynamic providers are Spring singleton beans. They are constructed at startup, but `load(...)` runs
+during the HTTP request after the PageModel document is resolved.
 
-- `UserBootstrapLookup`:
-  - resolves `keycloak sub → appUserId`
-  - bypasses RLS
-  - protected by a short TTL cache
+Therefore:
 
-### Rules
-
-- Bootstrap lookups are **not business services**
-- They MUST NOT be used in domain or application logic
+- runtime document resolution must not clear or replace the HTTP context before providers run;
+- fallback to the default tenant may use a temporary context switch only when intentionally reading
+  a different tenant;
+- providers must not repair or recreate global context.
 
 ---
 
-## 7. Context publication
+## 6. Temporary Context Switching
 
-Once built, the context is:
+Use `TchContextScope` for explicit non-HTTP or temporary context work.
 
-- attached to the HTTP request  
-  `request.setAttribute(REQUEST_CONTEXT, ctx)`
-- published in a `ThreadLocal`  
-  `TchContext.set(ctx)`
-- injected into MDC:
-  - `tenant_original`
-  - `tenant_effective`
-  - `tenant_overridden`
-  - `tenant_uuid`
-  - `tz`
-  - `ccy`
-  - `kc_user_id`
-  - `reqId`
-  - `idem`
+Allowed examples:
 
-The context is **always cleared** in a `finally` block.
+- `runStartupTenant(...)` for startup tenant seeding.
+- `runWithTemporaryTenant(...)` for deliberate fallback/cross-tenant reads.
+- `runWithContext(...)` for low-level infra/test helpers with a fully constructed context.
 
----
+The implementation must be stack-safe:
 
-## 8. Absolute rule
+```java
+var previous = TchContext.currentOrNull();
+TchContext.set(temporary);
+try {
+  return work.get();
+} finally {
+  restore(previous);
+}
+```
 
-❌ No controller, handler, repository, or service may:
-
-- resolve the tenant,
-- parse JWTs,
-- access `SecurityContext`,
-- manipulate MDC,
-- call `set_config`,
-- inject `tenant_id` from client payloads.
-
-All flows go through **`TchContextFilter` + `TchContext`**.
+Never clear blindly when a previous context existed.
 
 ---
 
-## 9. Persistence & RLS
+## 7. Direct Access Rules
 
-- `TenantEntityListener` automatically sets `tenant_id`
-- Tenant-scoped entities extend `BaseTenantEntity`
-- The client **never provides** `tenant_id`
+Direct `TchContext` access is limited to:
 
-RLS is the **last line of defense**, never the first.
+- HTTP context binding;
+- batch/startup context binding;
+- RLS datasource bridge;
+- entity listeners/audit infrastructure;
+- idempotency infrastructure;
+- tests.
+
+Application services and handlers should prefer `TchContextResolver`, `@CurrentContext`, or explicit
+command/query fields.
+
+Forbidden in ordinary application code:
+
+- parsing JWT;
+- reading `SecurityContext` directly;
+- resolving tenant from request payload;
+- manipulating MDC;
+- calling `set_config`;
+- changing `TchContext` to make downstream code work.
+
+---
+
+## 8. RLS
+
+RLS reads the canonical current context through the datasource bridge.
+
+Expected mapping:
+
+- public default tenant -> tenant id + `PUBLIC` scope;
+- tenant/admin -> tenant id + tenant/admin scope;
+- platform without tenant -> no tenant + `PLATFORM` scope;
+- super-admin override -> override tenant id + super-admin flag;
+- batch tenant -> tenant id + tenant scope;
+- batch platform -> no tenant + platform scope.
+
+RLS is the last line of defense, not routing logic.
+
+---
+
+## 9. Events
+
+Events should carry required identity and tenant facts when listeners may execute outside the
+original request thread.
+
+Minimum event metadata for async/retry-sensitive flows:
+
+- tenant id when tenant-scoped;
+- actor/app user id when actor-sensitive;
+- request/correlation id when traceability matters.
 
 ---
 
 ## 10. PR checklist — Context
 
-- [ ] `TchContextFilter` is the single initialization point
-- [ ] `tenantId`, `tenantZoneId`, `tenantCurrency` populated after resolution
-- [ ] SUPER_ADMIN override explicit and auditable
-- [ ] No JWT access outside the filter
-- [ ] MDC populated correctly
-- [ ] Context always cleared
+- [ ] HTTP requests use `TchContextFilter` as canonical context producer.
+- [ ] `UserBootstrapFilter` or actor resolver enriches actor only; tenant policy stays separate.
+- [ ] Public/tenant/admin/platform tenant policy follows the matrix above.
+- [ ] Startup tenant work uses explicit startup tenant context.
+- [ ] Temporary tenant switches restore the previous context.
+- [ ] PageModel runtime providers keep the original HTTP context.
+- [ ] Scheduler/batch/event flows do not rely on ambient HTTP ThreadLocal.
+- [ ] RLS session variables map to the effective context.

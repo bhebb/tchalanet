@@ -112,32 +112,32 @@
       "widgets": {
         "dashboard.superadmin.overview": {
           "type": "SuperadminOverviewWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin.overview" },
+          "binding": { "mode": "dynamic", "source": "superadmin_system_health" },
           "props": { "title_key": "dashboard.superadmin.overview.title" }
         },
         "dashboard.superadmin.kpi_global": {
           "type": "KpiGridWidget",
-          "binding": { "mode": "dynamic", "source": "kpi_global" },
+          "binding": { "mode": "dynamic", "source": "superadmin_tenants" },
           "props": { "title_key": "dashboard.superadmin.kpi_global.title" }
         },
         "dashboard.superadmin.kpi_draws": {
           "type": "KpiDrawsWidget",
-          "binding": { "mode": "dynamic", "source": "kpi_draws" },
+          "binding": { "mode": "dynamic", "source": "superadmin_batch_status" },
           "props": { "title_key": "dashboard.superadmin.kpi_draws.title" }
         },
         "dashboard.superadmin.kpi_sales": {
           "type": "KpiSalesWidget",
-          "binding": { "mode": "dynamic", "source": "kpi_sales" },
+          "binding": { "mode": "dynamic", "source": "superadmin_version" },
           "props": { "title_key": "dashboard.superadmin.kpi_sales.title" }
         },
         "dashboard.superadmin.alerts": {
           "type": "AlertsWidget",
-          "binding": { "mode": "dynamic", "source": "alerts" },
+          "binding": { "mode": "dynamic", "source": "superadmin_system_health" },
           "props": { "title_key": "dashboard.superadmin.alerts.title" }
         },
         "dashboard.superadmin.recent_activity": {
           "type": "ActivityFeedWidget",
-          "binding": { "mode": "dynamic", "source": "recent_activity" },
+          "binding": { "mode": "dynamic", "source": "superadmin_batch_status" },
           "props": { "title_key": "dashboard.superadmin.recent_activity.title" }
         }
       }

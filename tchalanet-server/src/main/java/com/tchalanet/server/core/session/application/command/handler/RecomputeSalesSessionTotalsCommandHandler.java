@@ -47,7 +47,7 @@ public class RecomputeSalesSessionTotalsCommandHandler
     return totalsWriter.upsert(totals);
   }
 
-  private static BigDecimal nz(BigDecimal v) {
-    return v == null ? BigDecimal.ZERO : v;
+  private static BigDecimal nz(BigDecimal amount) {
+    return amount == null ? BigDecimal.ZERO : amount;
   }
 }

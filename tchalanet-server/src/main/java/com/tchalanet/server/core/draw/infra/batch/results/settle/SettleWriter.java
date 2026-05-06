@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.batch.results.settle;
 
-import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
@@ -26,15 +26,14 @@ public class SettleWriter implements ItemWriter<DrawId> {
     private final DrawLifecyclePort drawWriterPort;
     private final TicketSettlementQueryPort ticketQuery;
     private final Clock clock;
+    private final TchContextResolver contextResolver;
 
     @Override
     public void write(Chunk<? extends DrawId> chunk) {
         var now = Instant.now(clock);
 
-        var tenantZone =
-            TchContext.get() != null && TchContext.get().tenantZoneId() != null
-                ? TchContext.get().tenantZoneId()
-                : ZoneId.of("UTC");
+        var ctx = contextResolver.currentOrNull();
+        var tenantZone = ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.of("UTC");
 
         ZonedDateTime settledAt = now.atZone(tenantZone);
 

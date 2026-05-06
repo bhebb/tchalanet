@@ -196,6 +196,67 @@ A: Non dans le MVP — override après SETTLED nécessite workflow comptable (re
 
 ---
 
+## 13. Analysis V1 (2026-05-05) — Flow Validation
+
+### Sub-domain Tchala
+
+✅ **Import Tchala Entries flow**:
+
+- Bulk load from CSV/JSON
+- Validate dream numbers (range, format)
+- Create TchalaEntry per entry with PENDING_APPROVAL status
+- Persist via TchalaWriterPort
+- Return import summary (created, errors)
+- No events published (internal state)
+
+✅ **Approve/Reject flow**:
+
+- Load entry (PENDING_APPROVAL)
+- Validate entry
+- Transition to APPROVED or REJECTED
+- Persist
+- No events published
+
+✅ **Query flows**:
+
+- GetTchalaByNumber(number) → TchalaEntryView
+- SearchTchala(dreamText) → List<TchalaEntryView>
+- Both RLS-scoped per tenant, indexed lookups
+
+### Sub-domain Lottery
+
+✅ **Haiti Projection Service**:
+
+- Pure function: `project(resultSlot, date, externalResult) → HaitiResult`
+- Normalize external numbers to haiti space
+- Apply dream-to-number mapping
+- Validate against schema
+- No persistence, no I/O, deterministic
+
+✅ **Integration**:
+
+- Called by FetchExternalResultsWindowCommandHandler (step 4)
+- Input: ExternalResult (NY/FL/GA/TX normalized numbers)
+- Output: HaitiResult (lot1, lot2, lot3, lot4, derivedPairs)
+- Used by draw_result.haiti_result persistence
+
+### Architecture Compliance
+
+- ✅ Tenant-scoped (Tchala): RLS by tenant_id
+- ✅ Global (Lottery): Shared normalization logic
+- ✅ Typed IDs: TenantId, TchalaEntryId
+- ✅ Pure functions: HaitiProjectionService no side-effects
+- ✅ No events: Reference data lifecycle (silent)
+- ✅ Integration: Via ports (HaitiLotteryPort, TchalaEntryRepositoryPort)
+
+### Configuration
+
+- Projection tokens: PICK3_FULL_3, PICK3_FIRST2, PICK3_LAST2, PICK4_FULL_4, PICK4_FIRST2, PICK4_LAST2
+- Stored in: draw_channel.flags.projection (JSON config)
+- Per-channel customizable
+
+---
+
 # Domaine core.haiti — Particularités pays / conformité
 
 > Encapsule les règles spécifiques au contexte Haïti (timezone, formats, conformité, exceptions légales) qui impactent d’autres domaines.

@@ -160,17 +160,17 @@ public abstract class AbstractTicketReceiptFormatter implements TicketReceiptFor
         c4 == null ? "" : c4);
   }
 
-  protected String trunc(String s, int max) {
-    if (s == null) return "";
-    if (s.length() <= max) return s;
-    return ellipsis(s, max);
+  protected String trunc(String text, int max) {
+    if (text == null) return "";
+    if (text.length() <= max) return text;
+    return ellipsis(text, max);
   }
 
-  protected String padLabel(String s) {
+  protected String padLabel(String text) {
     int width = 9;
-    if (s == null) s = "";
-    if (s.length() >= width) return s.substring(0, width);
-    return s + " ".repeat(width - s.length());
+    if (text == null) text = "";
+    if (text.length() >= width) return text.substring(0, width);
+    return text + " ".repeat(width - text.length());
   }
 
   protected String humanSelection(String raw) {
@@ -180,34 +180,34 @@ public abstract class AbstractTicketReceiptFormatter implements TicketReceiptFor
 
   protected String humanGame(String code) {
     if (code == null) return "";
-    String c = code.toUpperCase(Locale.ROOT);
-    if (c.contains("HT_LOTO3")) return "Loto3";
-    if (c.contains("HT_LOTO4")) return "Loto4";
-    if (c.contains("HT_LOTO5")) return "Loto5";
-    if (c.contains("HT_MARYAJ")) return "Maryaj";
-    if (c.contains("HT_BOLET")) return "Bolet";
-    if (c.contains("HT_NUMERO")) return "Numero";
+    String upperCode = code.toUpperCase(Locale.ROOT);
+    if (upperCode.contains("HT_LOTO3")) return "Loto3";
+    if (upperCode.contains("HT_LOTO4")) return "Loto4";
+    if (upperCode.contains("HT_LOTO5")) return "Loto5";
+    if (upperCode.contains("HT_MARYAJ")) return "Maryaj";
+    if (upperCode.contains("HT_BOLET")) return "Bolet";
+    if (upperCode.contains("HT_NUMERO")) return "Numero";
     return code;
   }
 
-  protected String formatInstant(Instant i) {
-    if (i == null) return "-";
-    return dt.format(i);
+  protected String formatInstant(Instant instant) {
+    if (instant == null) return "-";
+    return dt.format(instant);
   }
 
-  protected String money(BigDecimal v) {
-    if (v == null) return "0.00";
-    return v.setScale(2, RoundingMode.HALF_UP).toPlainString();
+  protected String money(BigDecimal amount) {
+    if (amount == null) return "0.00";
+    return amount.setScale(2, RoundingMode.HALF_UP).toPlainString();
   }
 
   protected String maskUuid(UUID id) {
     if (id == null) return "-";
-    String s = id.toString();
-    return s.substring(0, 8) + "..." + s.substring(s.length() - 4);
+    String idString = id.toString();
+    return idString.substring(0, 8) + "..." + idString.substring(idString.length() - 4);
   }
 
-  protected String safe(String s) {
-    return s == null ? "-" : s;
+  protected String safe(String value) {
+    return value == null ? "-" : value;
   }
 
   protected boolean notBlank(String s) {

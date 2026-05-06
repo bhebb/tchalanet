@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * E.4 — Provider Vue d'ensemble caissier.
- * Source : "cashier.overview"
+ * Source : "cashier_overview"
  * Branche sur ListCashierOpenSessionsQuery pour données réelles.
  */
 @Component
@@ -24,7 +24,7 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return "private.dashboard.cashier".equals(logicalId) && "cashier.overview".equals(source);
+    return "private.dashboard.cashier".equals(logicalId) && "cashier_overview".equals(source);
   }
 
   @Override
@@ -73,6 +73,6 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
 
   @Override
   public String providerKey() {
-    return "overview";
+    return "cashier_overview";
   }
 }

@@ -328,14 +328,14 @@ public class Ticket {
         return List.copyOf(lines);
     }
 
-    private static String requireNonBlank(String v, String field) {
-        if (v == null || v.isBlank()) throw new IllegalArgumentException(field + " must be non-blank");
-        return v;
+    private static String requireNonBlank(String value, String field) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(field + " must be non-blank");
+        return value;
     }
 
-    private static BigDecimal requireNonNeg(BigDecimal v, String field) {
-        if (v.signum() < 0) throw new IllegalArgumentException(field + " must be >= 0");
-        return v;
+    private static BigDecimal requireNonNeg(BigDecimal amount, String field) {
+        if (amount.signum() < 0) throw new IllegalArgumentException(field + " must be >= 0");
+        return amount;
     }
 
     // Record-style accessors (some legacy code expects .id(), .tenantId() etc.)

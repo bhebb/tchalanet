@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
-import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
@@ -32,12 +33,13 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
     private final DrawSummaryViewRepository repo;
     private final DrawSummaryViewMapper mapper;
     private final Clock clock;
+    private final TchContextResolver contextResolver;
 
     @Override
     public Optional<DrawSummary> findById(DrawId drawId) {
         Objects.requireNonNull(drawId, "drawId is required");
 
-        var tenantId = TchContext.get().tenantId();
+        var tenantId = currentTenantId();
 
         return repo.findByTenantIdAndDrawId(tenantId.value(), drawId.value())
             .map(mapper::toProjection);
@@ -54,7 +56,7 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
         Objects.requireNonNull(criteria, "criteria is required");
         Objects.requireNonNull(pageable, "pageable is required");
 
-        var tenantId = TchContext.get().tenantId();
+        var tenantId = currentTenantId();
 
         var page = repo.search(
             tenantId.value(),
@@ -73,7 +75,7 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
         Objects.requireNonNull(criteria, "criteria is required");
         Objects.requireNonNull(pageable, "pageable is required");
 
-        var tenantId = TchContext.get().tenantId();
+        var tenantId = currentTenantId();
 
         Instant now = clock.instant();
 
@@ -101,7 +103,7 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
         Objects.requireNonNull(criteria, "criteria is required");
         Objects.requireNonNull(pageable, "pageable is required");
 
-        var tenantId = TchContext.get().tenantId();
+        var tenantId = currentTenantId();
 
         var keys = criteria.resultSlotKeys();
         boolean empty = keys == null || keys.isEmpty();
@@ -114,6 +116,10 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
         );
 
         return TchPageMapper.map(page, mapper::toProjection);
+    }
+
+    private TenantId currentTenantId() {
+        return contextResolver.currentOrThrow().effectiveTenantIdRequired();
     }
 
 }

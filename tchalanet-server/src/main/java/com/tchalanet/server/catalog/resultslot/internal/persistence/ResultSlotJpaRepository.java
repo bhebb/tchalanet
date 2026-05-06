@@ -19,4 +19,5 @@ public interface ResultSlotJpaRepository extends JpaRepository<ResultSlotJpaEnti
 
     @Query("select count(r) from ResultSlotJpaEntity r where r.deletedAt is null and r.active = true")
     long countActiveLive();
+
 }

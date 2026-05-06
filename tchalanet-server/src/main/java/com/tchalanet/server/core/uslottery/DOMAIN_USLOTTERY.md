@@ -198,3 +198,75 @@ uslottery must never:
 
 You do not map codes.  
 You resolve: which result for this slot.
+
+---
+
+## 17. Analysis V1 (2026-05-05) — Flow Validation
+
+### Provider Integration Validated
+
+✅ **Provider HTTP Clients**:
+
+- NY (Socrata API): via `NewYorkDrawResultsClient`
+- FL (Azure API): via `FloridaDrawResultsClient`
+- GA: via `GeorgiaDrawResultsClient`
+- TX: via `TexasDrawResultsClient`
+- All configured via application-uslottery.yaml (base-url, headers, credentials)
+
+✅ **Fetch & Parse flow**:
+
+- ExternalResultFetcher calls provider clients
+- Provider-specific mappers normalize response (JSON/XML)
+- Return structured result: { gameCode, numbers, extras, quality, metadata }
+- No persistence locally (query-only)
+
+✅ **Provider Result Types**:
+
+- NY: NUMBERS, WIN4
+- FL: PICK3, PICK4
+- GA: PICK3, PICK4
+- TX: PICK3, DAILY4
+- Game code is unique key for mapping
+
+✅ **Integration with drawresult**:
+
+- Called by FetchExternalResultsWindowCommandHandler
+- Input: FetchExternalResultsWindowCommand (baseDate, slotKeys, daysBack, maxSlots)
+- Output: structured result keyed by gameCode
+- Never blocks draw result fetch (graceful degradation on timeout)
+
+### Architecture Compliance
+
+- ✅ No persistence: Query ports only
+- ✅ Global scope: No tenant_id filtering
+- ✅ Pure parsing: Adapt JSON/XML → struct
+- ✅ Config-driven: application-uslottery.yaml for all settings
+- ✅ Circuit-breaker ready: Candidate for retry/timeout patterns
+- ✅ No domain logic: External integration layer only
+
+### Configuration (application-uslottery.yaml)
+
+```yaml
+tch.us-lottery:
+  providers:
+    ny:
+      enabled: true
+      base-url: https://data.ny.gov/api/v3/views/...
+      app-token: <token>
+    fl:
+      enabled: true
+      base-url: https://apim-website-prod-eastus.azure-api.net
+      headers: { Accept, x-partner, Origin, Referer, User-Agent }
+    ga:
+      enabled: true
+      base-url: https://www.galottery.com
+    tx:
+      enabled: true
+      base-url: https://www.texaslottery.com
+```
+
+### Notes
+
+- Cache: Best-effort, never source of truth
+- Query hash: Includes provider, date, time, gameCodes, shape (excludes tenant, slotKey, business mapping)
+- Idempotency: Via drawresult sourceHash mechanism (not in uslottery)

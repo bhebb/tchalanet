@@ -27,34 +27,26 @@
     "shell": {
       "header": {
         "component": "PublicHeader",
-        "nav": {
-          "primary": [
-            { "label_key": "nav.features", "path": "/features", "icon": "star" },
-            { "label_key": "nav.pricing", "path": "/pricing", "icon": "credit_card" },
-            { "label_key": "nav.login", "path": "/login", "icon": "login" }
-          ],
-          "secondary": []
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
         },
         "props": {
-          "show_language_switch": true,
-          "show_theme_switch": true
+          "file_key": "public_header_links",
+          "show_search": true,
+          "show_language": true,
+          "show_theme_toggle": true
         }
       },
       "sidenav": null,
       "footer": {
         "component": "PublicFooter",
-        "nav": {
-          "primary": [
-            { "label_key": "footer.about", "path": "/about", "icon": "info" },
-            { "label_key": "footer.pricing", "path": "/pricing", "icon": "credit_card" },
-            { "label_key": "footer.docs", "path": "/docs", "icon": "book" }
-          ],
-          "secondary": [
-            { "label_key": "footer.legal.terms", "path": "/legal/terms", "icon": "gavel" },
-            { "label_key": "footer.legal.privacy", "path": "/legal/privacy", "icon": "policy" }
-          ]
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
         },
         "props": {
+          "file_key": "public_footer_links",
           "show_social_linkedin": true,
           "show_regulation_link": true
         }
@@ -113,11 +105,14 @@
           }
         },
         "home.draws": {
-          "type": "DrawsWidget",
-          "binding": { "mode": "dynamic", "source": "results_by_game" },
+          "type": "PublicDrawResultsWidget",
+          "binding": { "mode": "dynamic", "source": "public_draw_results" },
           "props": {
             "title_key": "home.draws.title",
-            "limit_per_slot": 1
+            "include_history": false,
+            "history_limit": 0,
+            "include_next_by_slot": true,
+            "include_latest_by_slot": true
           }
         },
         "home.check_ticket": {
@@ -132,7 +127,7 @@
         },
         "home.features": {
           "type": "FeatureGridWidget",
-          "binding": { "mode": "dynamic", "source": "features" },
+          "binding": { "mode": "dynamic", "source": "public_features" },
           "props": {
             "title_key": "home.features.title",
             "layout": "LMSS"
@@ -140,7 +135,7 @@
         },
         "home.news": {
           "type": "NewsListWidget",
-          "binding": { "mode": "dynamic", "source": "news" },
+          "binding": { "mode": "dynamic", "source": "public_news" },
           "props": {
             "title_key": "home.news.title",
             "max_items": 4
@@ -148,21 +143,21 @@
         },
         "home.tchala": {
           "type": "TchalaWidget",
-          "binding": { "mode": "dynamic", "source": "tchala" },
+          "binding": { "mode": "dynamic", "source": "public_tchala" },
           "props": {
             "title_key": "home.tchala.title"
           }
         },
         "home.testimonials": {
           "type": "TestimonialsWidget",
-          "binding": { "mode": "dynamic", "source": "testimonials" },
+          "binding": { "mode": "dynamic", "source": "public_testimonials" },
           "props": {
             "title_key": "home.testimonials.title"
           }
         },
         "home.plans": {
           "type": "PlansWidget",
-          "binding": { "mode": "dynamic", "source": "plans" },
+          "binding": { "mode": "dynamic", "source": "public_plans" },
           "props": {
             "title_key": "home.plans.title",
             "show_toggle_billing_period": true

@@ -13,12 +13,12 @@ public record ExternalPick(String pick3, String pick4) {
     return new ExternalPick(n3, n4);
   }
 
-  private static String normalize(String s) {
-    if (s == null) return null;
-    String t = s.trim().replaceAll("\\s+", "");
-    if (t.isEmpty()) return null;
-    if (!t.chars().allMatch(Character::isDigit))
+  private static String normalize(String value) {
+    if (value == null) return null;
+    String trimmed = value.trim().replaceAll("\\s+", "");
+    if (trimmed.isEmpty()) return null;
+    if (!trimmed.chars().allMatch(Character::isDigit))
       throw new InvalidExternalPickException("picks must contain digits only");
-    return t;
+    return trimmed;
   }
 }

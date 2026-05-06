@@ -332,4 +332,5 @@ public class DrawResultJdbcRepository {
 
         return List.copyOf(out);
     }
+
 }

@@ -10,44 +10,44 @@ import org.springframework.stereotype.Component;
 @Component
 public class DrawSummaryViewMapper {
 
-    public DrawSummary toProjection(DrawSummaryViewEntity v) {
-        if (v == null) {
+    public DrawSummary toProjection(DrawSummaryViewEntity entity) {
+        if (entity == null) {
             return null;
         }
 
-        var result = v.getDrawResultId() == null
+        var result = entity.getDrawResultId() == null
             ? null
             : new DrawResultSummary(
-                DrawResultId.of(v.getDrawResultId()),
-            DrawResultStatus.valueOf(v.getDrawResultStatus()),
-                v.getDrawResultOccurredAt(),
-                v.getSourceHash(),
-                v.getHaitiResult()
+                DrawResultId.of(entity.getDrawResultId()),
+            DrawResultStatus.valueOf(entity.getDrawResultStatus()),
+                entity.getDrawResultOccurredAt(),
+                entity.getSourceHash(),
+                entity.getHaitiResult()
             );
 
         return new DrawSummary(
-            DrawId.of(v.getDrawId()),
-            TenantId.of(v.getTenantId()),
-            v.getDrawDate(),
-            v.getStatus(),
-            v.getScheduledAt(),
-            v.getOpenedAt(),
-            v.getClosedAt(),
-            v.getCutoffAt(),
-            v.getResultedAt(),
-            v.getSettledAt(),
-            DrawChannelId.of(v.getDrawChannelId()),
-            v.getDrawChannelCode(),
-            v.getDrawChannelLabel(),
-            v.getDrawTime(),
-            v.getDrawTimezone(),
-            Boolean.TRUE.equals(v.getDrawChannelActive()),
-            ResultSlotId.of(v.getResultSlotId()),
-            v.getResultSlotKey(),
-            v.getResultProvider(),
-            v.getResultTimezone(),
-            v.getResultDrawTime(),
-            Boolean.TRUE.equals(v.getResultActive()),
+            DrawId.of(entity.getDrawId()),
+            TenantId.of(entity.getTenantId()),
+            entity.getDrawDate(),
+            entity.getStatus(),
+            entity.getScheduledAt(),
+            entity.getOpenedAt(),
+            entity.getClosedAt(),
+            entity.getCutoffAt(),
+            entity.getResultedAt(),
+            entity.getSettledAt(),
+            DrawChannelId.of(entity.getDrawChannelId()),
+            entity.getDrawChannelCode(),
+            entity.getDrawChannelLabel(),
+            entity.getDrawTime(),
+            entity.getDrawTimezone(),
+            Boolean.TRUE.equals(entity.getDrawChannelActive()),
+            ResultSlotId.of(entity.getResultSlotId()),
+            entity.getResultSlotKey(),
+            entity.getResultProvider(),
+            entity.getResultTimezone(),
+            entity.getResultDrawTime(),
+            Boolean.TRUE.equals(entity.getResultActive()),
             result
         );
     }

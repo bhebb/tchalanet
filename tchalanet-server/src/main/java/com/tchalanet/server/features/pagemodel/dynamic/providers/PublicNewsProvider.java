@@ -16,7 +16,7 @@ public class PublicNewsProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return "news".equals(source);
+    return "public_news".equals(source);
   }
 
   @Override
@@ -27,7 +27,7 @@ public class PublicNewsProvider implements PageModelDynamicProvider {
 
   @Override
   public String providerKey() {
-    return "public-news";
+    return "public_news";
   }
 
   private static int readInt(Map<String, Object> props, String key, int def) {

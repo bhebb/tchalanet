@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.pagemodel.onboarding;
 
 import com.tchalanet.server.common.constant.CommonConstants;
-import com.tchalanet.server.common.context.TchContextRunner;
+import com.tchalanet.server.common.context.TchContextScope;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class PageModelOnboardingRunner implements ApplicationRunner {
   @Override
   public void run(@Nonnull ApplicationArguments args) {
     try {
-      TchContextRunner.runAsTenant(
+      TchContextScope.runStartupTenant(
           CommonConstants.DEFAULT_TENANT_UUID,
           "pagemodel:onboarding",
           onboardingService::seedDefaultsForDefaultTenant);
@@ -34,4 +34,3 @@ public class PageModelOnboardingRunner implements ApplicationRunner {
     }
   }
 }
-

@@ -156,7 +156,7 @@
           "type": "TenantAdminOverviewWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "tenant_admin.overview"
+            "source": "admin_kpis"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.overview.title"
@@ -166,7 +166,7 @@
           "type": "KpiGridWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "kpi_global"
+            "source": "admin_kpis"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.kpi_global.title"
@@ -176,7 +176,7 @@
           "type": "KpiDrawsWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "kpi_draws"
+            "source": "admin_draw_operations"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.kpi_draws.title"
@@ -186,7 +186,7 @@
           "type": "KpiSalesWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "kpi_sales"
+            "source": "admin_kpis"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.kpi_sales.title"
@@ -196,7 +196,7 @@
           "type": "ValidationsWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "validations"
+            "source": "admin_approval_queue"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.validations.title"
@@ -206,7 +206,7 @@
           "type": "ActivityFeedWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "recent_activity"
+            "source": "admin_alerts"
           },
           "props": {
             "title_key": "dashboard.tenant_admin.recent_activity.title"

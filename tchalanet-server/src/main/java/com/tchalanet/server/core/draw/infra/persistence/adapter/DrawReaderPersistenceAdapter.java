@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.infra.persistence.adapter;
 
-import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -25,11 +26,12 @@ public class DrawReaderPersistenceAdapter implements DrawReaderPort {
     private final DrawJpaRepository drawRepo;
     private final DrawSummaryViewMapper mapper;
     private final Clock clock;
+    private final TchContextResolver contextResolver;
 
     @Override
     public boolean existsSettledDrawForResult(DrawResultId drawResultId) {
         Objects.requireNonNull(drawResultId, "drawResultId is required");
-        var tenantUuid = TchContext.get().tenantUuid();
+        var tenantUuid = currentTenantUuid();
 
         return drawRepo.existsByTenantIdAndDrawResultIdAndStatusAndDeletedAtIsNull(
             tenantUuid,
@@ -41,7 +43,7 @@ public class DrawReaderPersistenceAdapter implements DrawReaderPort {
     @Override
     public List<DrawSummary> findByDrawResultId(DrawResultId drawResultId) {
         Objects.requireNonNull(drawResultId, "drawResultId is required");
-        var tenantUuid = TchContext.get().tenantUuid();
+        var tenantUuid = currentTenantUuid();
 
         return summaryRepo.findByTenantIdAndDrawResultId(
                 tenantUuid,
@@ -55,7 +57,7 @@ public class DrawReaderPersistenceAdapter implements DrawReaderPort {
     @Override
     public List<DrawSummary> findResultedWithProvisionalOlderThan(Duration duration) {
         Objects.requireNonNull(duration, "duration is required");
-        var tenantUuid = TchContext.get().tenantUuid();
+        var tenantUuid = currentTenantUuid();
 
         Instant threshold = clock.instant().minus(duration);
 
@@ -64,5 +66,8 @@ public class DrawReaderPersistenceAdapter implements DrawReaderPort {
             .map(mapper::toProjection)
             .toList();
     }
-}
 
+    private UUID currentTenantUuid() {
+        return contextResolver.currentOrThrow().effectiveTenantIdRequired().value();
+    }
+}

@@ -53,15 +53,15 @@ public class DrawApplyJdbcRepository {
         returning d.id, d.draw_channel_id
         """;
 
-        var ts = Timestamp.from(now);
+        var timestamp = Timestamp.from(now);
 
         return jdbc.query(
             sql,
             ps -> {
                 int i = 1;
                 ps.setObject(i++, drawResultId);
-                ps.setTimestamp(i++, ts);
-                ps.setTimestamp(i++, ts);
+                ps.setTimestamp(i++, timestamp);
+                ps.setTimestamp(i++, timestamp);
                 ps.setObject(i++, drawResultId); // vérifie dr.id
                 ps.setObject(i++, tenantId);
                 ps.setDate(i++, java.sql.Date.valueOf(drawDate));

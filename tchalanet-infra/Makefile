@@ -11,6 +11,62 @@ WRAP := $(ROOT)/scripts/utils/run-compose-wrapper.sh
 export PATH := /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$(PATH)
 DOCKER_BIN := $(shell command -v docker || echo docker)
 
+# Staging server IP — override with: make certs-staging STAGING_IP=x.x.x.x
+STAGING_IP ?= 91.98.194.162
+
+# ============================================================================
+# help — liste les targets disponibles
+# ============================================================================
+help:
+	@echo ""
+	@echo "Usage: make <target> [ENV=dev|staging|prod]"
+	@echo ""
+	@echo "Local dev modes:"
+	@echo "  local-ide-up          P0 (Traefik+Postgres+Keycloak) — API runs in IDE"
+	@echo "  local-ide-up-redis    P0+ (adds Redis)"
+	@echo "  local-api-up          P0+ + API in Docker"
+	@echo "  local-api-smoke       Health check: P0 + Redis + API"
+	@echo "  local-product-up      Full stack: API + Edge + Web"
+	@echo "  local-ide-down / local-api-down / local-product-down"
+	@echo ""
+	@echo "P0 targets (fine-grained):"
+	@echo "  p0-up / p0-down / p0-smoke"
+	@echo "  p0-plus-up / p0-plus-down"
+	@echo ""
+	@echo "Local build (from source):"
+	@echo "  rebuild-keycloak      Build tchl/keycloak:local-dev from keycloak/"
+	@echo "  rebuild-api           Build API image from ../tchalanet-server"
+	@echo "  ensure-keycloak-image Build keycloak image only if absent"
+	@echo ""
+	@echo "Environment:"
+	@echo "  env-merge             Merge .env files → envs/\$ENV/.env.merged"
+	@echo "  render-traefik        Render traefik/dynamic/10-routers.yaml"
+	@echo "  networks              Create edge-\$ENV and back-\$ENV Docker networks"
+	@echo "  mkcert-local          Generate local TLS certs with mkcert"
+	@echo "  mkcert-recreate       Force-regenerate local TLS certs"
+	@echo "  print-env             Print ENV, ROOT, DOCKER_BIN"
+	@echo ""
+	@echo "Staging / Production:"
+	@echo "  up-staging / up-prod  Deploy full stack on remote server"
+	@echo "  deploy-staging        push-staging + SSH up-staging"
+	@echo "  deploy-prod           push-prod + SSH up-prod"
+	@echo "  smoke-staging         Run smoke tests against staging"
+	@echo "  certs-staging         Generate self-signed certs (STAGING_IP=$(STAGING_IP))"
+	@echo ""
+	@echo "Hetzner:"
+	@echo "  staging-create / staging-destroy / staging-backup / staging-restore-latest"
+	@echo "  ssh-staging / ssh-prod"
+	@echo ""
+	@echo "Doppler:"
+	@echo "  doppler-download      DOPPLER_TOKEN=dp.st.xxx make doppler-download ENV=staging"
+	@echo "  doppler-download-staging / doppler-download-prod"
+	@echo ""
+	@echo "Logs / inspect:"
+	@echo "  logs-<service>        e.g. make logs-api"
+	@echo "  config-<service>      Print effective compose config for a service"
+	@echo "  ps                    List running containers"
+	@echo ""
+
 ensure-exec:
 	@chmod +x $(SVC) $(WRAP) $(ROOT)/scripts/utils/run-compose.sh || true
 
@@ -49,7 +105,7 @@ mkcert-recreate:
 # 3b) (Staging) génère des certificats auto-signés
 certs-staging:
 	@chmod +x ./scripts/utils/generate-staging-certs.sh || true
-	@./scripts/utils/generate-staging-certs.sh 91.98.194.162
+	@./scripts/utils/generate-staging-certs.sh $(STAGING_IP)
 
 # 4) ACME storage perms (utile stg/prod)
 acme-perms:
@@ -177,12 +233,6 @@ doppler-download-staging:
 doppler-download-prod:
 	@$(MAKE) doppler-download ENV=prod
 
-up-all-local: ENV?=dev
-up-all-local: env-merge render-traefik mkcert-local get-realm ensure-exec networks
-	@echo "→ Démarrage stack (build local forcé) ENV=$(ENV)"
-	@LOCAL_BUILD=1 scripts/utils/up-seq.sh $(ENV) --local-build
-
-
 # ============================================================================
 # P0 strict — Traefik + PostgreSQL + Keycloak
 # ============================================================================
@@ -224,9 +274,6 @@ p0-plus-down:
 # ============================================================================
 # Modes locaux
 # ============================================================================
-
-# local-env : génère .env.merged
-local-env: env-merge
 
 # Ensure Keycloak image exists for local dev
 ensure-keycloak-image:
@@ -303,9 +350,17 @@ smoke-staging:
 	@chmod +x ./scripts/utils/smoke-staging.sh
 	@ENV=staging ./scripts/utils/smoke-staging.sh
 
+.PHONY: help
+.PHONY: ensure-exec print-env networks render-traefik get-realm mkcert-local mkcert-recreate certs-staging acme-perms
+.PHONY: env-merge
+.PHONY: up up-all up-staging up-prod down down-all
+.PHONY: rebuild-keycloak rebuild-api rebuild-all
+.PHONY: up-api down-api up-keycloak up-unleash down-unleash ps
+.PHONY: ssh-staging ssh-prod push-staging push-prod deploy-staging deploy-prod
+.PHONY: doppler-download doppler-download-staging doppler-download-prod
 .PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down
-.PHONY: local-env local-ide-up local-ide-up-redis local-ide-down
+.PHONY: ensure-keycloak-image
+.PHONY: local-ide-up local-ide-up-redis local-ide-down
 .PHONY: local-api-up local-api-down local-api-logs local-api-smoke
 .PHONY: local-product-up local-product-down
 .PHONY: staging-create staging-backup staging-destroy staging-restore-latest smoke-staging
-.PHONY: doppler-download doppler-download-staging doppler-download-prod

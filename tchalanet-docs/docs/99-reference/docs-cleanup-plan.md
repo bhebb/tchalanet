@@ -10,7 +10,7 @@ This plan is generated from the inventory. It proposes review actions only; no d
 | merge or archive after review | `DUPLICATE`    | Confirm canonical source before changing anything.        |    23 |
 | archive                       | `ARCHIVE`      | Already archived or archive candidate; keep discoverable. |    12 |
 | delete later                  | `DELETE_LATER` | Deletion requires a follow-up reviewed change.            |     0 |
-| review                        | `UNKNOWN`      | Ownership/action unclear; do not move or delete yet.      |   145 |
+| review                        | `UNKNOWN`      | Ownership/action unclear; do not move or delete yet.      |   147 |
 
 ## Review Queue
 
@@ -105,6 +105,7 @@ This plan is generated from the inventory. It proposes review actions only; no d
 | `tchalanet-infra/docs/reference/scripts-inventory.md`                                              | tchalanet-infra        | UNKNOWN   | review: mentions legacy workflow                                  |
 | `tchalanet-infra/docs/scripts-index.md`                                                            | tchalanet-infra        | UNKNOWN   | review: mentions legacy workflow                                  |
 | `tchalanet-infra/docs/spec-local-dev-stack-2026-04-27.md`                                          | tchalanet-infra        | UNKNOWN   | review ownership before moving or deleting                        |
+| `tchalanet-infra/keycloak/README-DEV.md`                                                           | tchalanet-infra        | UNKNOWN   | review ownership before moving or deleting                        |
 | `tchalanet-infra/openspec/changes/infra-refactor-local-server-v0/specs/infra-local-server/spec.md` | tchalanet-infra        | DUPLICATE | review duplicate group; keep/link canonical source before archive |
 | `apps/tchalanet-mobile/.claude/skills/flutter/SKILL.md`                                            | tchalanet-mobile       | UNKNOWN   | review ownership before moving or deleting                        |
 | `apps/tchalanet-mobile/CLAUDE.md`                                                                  | tchalanet-mobile       | UNKNOWN   | review: mentions legacy workflow                                  |
@@ -134,6 +135,7 @@ This plan is generated from the inventory. It proposes review actions only; no d
 | `tchalanet-server/docs/NAMING.md`                                                                  | tchalanet-server       | UNKNOWN   | review ownership before moving or deleting                        |
 | `tchalanet-server/docs/NOTIFICATION-OPS-TEST.md`                                                   | tchalanet-server       | UNKNOWN   | review ownership before moving or deleting                        |
 | `tchalanet-server/docs/PLAYBOOK.md`                                                                | tchalanet-server       | UNKNOWN   | review: mentions legacy workflow                                  |
+| `tchalanet-server/docs/REDIS-CONFIG.md`                                                            | tchalanet-server       | UNKNOWN   | review ownership before moving or deleting                        |
 | `tchalanet-server/docs/audit/2026-04-25-draw-pipeline-audit.md`                                    | tchalanet-server       | UNKNOWN   | review: mentions legacy workflow                                  |
 | `tchalanet-server/docs/audit/2026-04-26-sales-pipeline-audit.md`                                   | tchalanet-server       | DUPLICATE | review duplicate group; keep/link canonical source before archive |
 | `tchalanet-server/docs/audit/spec-batch-draw-alignment-2026-04-27.md`                              | tchalanet-server       | UNKNOWN   | review ownership before moving or deleting                        |

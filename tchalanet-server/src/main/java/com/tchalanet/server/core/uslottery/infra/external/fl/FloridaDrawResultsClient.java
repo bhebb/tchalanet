@@ -100,15 +100,15 @@ public class FloridaDrawResultsClient implements UsLotteryProviderClient {
     }
 
     private static String joinUrl(String base, String path) {
-        String b = StringUtils.isBlank(base) ? "" : base.trim();
-        String p = StringUtils.isBlank(path) ? "" : path.trim();
+        var baseUrl = StringUtils.isBlank(base) ? "" : base.trim();
+        var pathComponent = StringUtils.isBlank(path) ? "" : path.trim();
 
-        if (b.endsWith("/") && p.startsWith("/")) {
-            return b.substring(0, b.length() - 1) + p;
+        if (baseUrl.endsWith("/") && pathComponent.startsWith("/")) {
+            return baseUrl.substring(0, baseUrl.length() - 1) + pathComponent;
         }
-        if (!b.endsWith("/") && !p.startsWith("/") && !b.isBlank() && !p.isBlank()) {
-            return b + "/" + p;
+        if (!baseUrl.endsWith("/") && !pathComponent.startsWith("/") && !baseUrl.isBlank() && !pathComponent.isBlank()) {
+            return baseUrl + "/" + pathComponent;
         }
-        return b + p;
+        return baseUrl + pathComponent;
     }
 }

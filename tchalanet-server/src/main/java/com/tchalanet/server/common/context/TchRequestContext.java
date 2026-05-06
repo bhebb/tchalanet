@@ -200,6 +200,27 @@ public record TchRequestContext(
         return TenantId.nullableOf(tenantUuid());
     }
 
+    public TenantId effectiveTenantIdOrNull() {
+        return tenantIdSafe();
+    }
+
+    public TenantId effectiveTenantIdRequired() {
+        TenantId effectiveTenantId = effectiveTenantIdOrNull();
+        if (effectiveTenantId == null) {
+            throw com.tchalanet.server.common.error.ProblemRest.unprocessable(
+                "tenant.required: effective tenant is required");
+        }
+        return effectiveTenantId;
+    }
+
+    public boolean hasTenant() {
+        return effectiveTenantIdOrNull() != null;
+    }
+
+    public boolean isPlatformScope() {
+        return apiScope == ApiScope.PLATFORM;
+    }
+
     /**
      * Retourne le UserId applicatif courant ou lève une exception 422 si l'utilisateur
      * n'a pas encore effectué /api/me/bootstrap (appUserId absent).
