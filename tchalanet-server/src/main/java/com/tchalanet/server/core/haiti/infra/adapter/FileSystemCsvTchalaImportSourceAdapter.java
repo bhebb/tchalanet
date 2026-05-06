@@ -61,11 +61,11 @@ public class FileSystemCsvTchalaImportSourceAdapter implements TchalaImportSourc
   }
 
   private static boolean looksLikeHeader(String line) {
-    String l = line.toLowerCase();
-    return l.contains("dream")
-        || l.contains("reve")
-        || l.contains("numbers")
-        || l.contains("numero");
+    String lowerCaseLine = line.toLowerCase();
+    return lowerCaseLine.contains("dream")
+        || lowerCaseLine.contains("reve")
+        || lowerCaseLine.contains("numbers")
+        || lowerCaseLine.contains("numero");
   }
 
   /**

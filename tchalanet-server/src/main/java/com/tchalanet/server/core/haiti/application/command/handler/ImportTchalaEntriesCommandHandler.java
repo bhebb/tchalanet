@@ -56,11 +56,11 @@ public final class ImportTchalaEntriesCommandHandler
     int duplicatesInFile = 0;
 
     Set<String> seen = new HashSet<>();
-    for (ImportRow r : rows) {
+    for (ImportRow importRow : rows) {
       parsed++;
       try {
-        DreamText dream = DreamText.of(r.dream());
-        List<TchalaNumber> numbers = parseNumbers(r.numbers());
+        DreamText dream = DreamText.of(importRow.dream());
+        List<TchalaNumber> numbers = parseNumbers(importRow.numbers());
         String dedupeToken =
             dream.normalizedForKey()
                 + "|"
@@ -82,15 +82,15 @@ public final class ImportTchalaEntriesCommandHandler
             // only count
             createdPending++;
           } else if (mode == ImportTchalaEntriesCommand.ImportMode.APPLY_AS_PENDING) {
-            com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry e =
+            com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry entry =
                 com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry
                     .newSuggestionFromImport(
                         TchalaEntryId.of(idGenerator.newUuid()),
-                        lang, dream, numbers, r.note(), Optional.empty(), Instant.now(clock));
-            repo.save(e);
+                        lang, dream, numbers, importRow.note(), Optional.empty(), Instant.now(clock));
+            repo.save(entry);
             createdPending++;
           } else {
-            com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry e =
+            com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry entry =
                 com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry.newCanonical(
                     TchalaEntryId.of(idGenerator.newUuid()),
                     lang,
@@ -99,7 +99,7 @@ public final class ImportTchalaEntriesCommandHandler
                     r.note(),
                     com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntrySource.IMPORT,
                     Instant.now(clock));
-            repo.save(e);
+            repo.save(entry);
             createdCanonical++;
           }
         } else {
@@ -165,8 +165,8 @@ public final class ImportTchalaEntriesCommandHandler
     if (raw == null || raw.isBlank()) return List.of();
     String[] parts = raw.split("[^0-9]+");
     return java.util.Arrays.stream(parts)
-        .filter(s -> !s.isBlank())
-        .map(s -> TchalaNumber.of(Integer.parseInt(s)))
+        .filter(numberPart -> !numberPart.isBlank())
+        .map(numberString -> TchalaNumber.of(Integer.parseInt(numberString)))
         .collect(Collectors.toList());
   }
 }
