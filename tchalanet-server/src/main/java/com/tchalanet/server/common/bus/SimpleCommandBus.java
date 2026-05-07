@@ -34,7 +34,7 @@ public class SimpleCommandBus implements CommandBus {
     }
 
     if (handler instanceof CommandHandler<?, ?> ch) {
-      return (R) ((CommandHandler<Command<R>, R>) ch).handle(command);
+      return ((CommandHandler<Command<R>, R>) ch).handle(command);
     }
 
     if (handler instanceof VoidCommandHandler<?> vh) {
