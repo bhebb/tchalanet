@@ -26,7 +26,7 @@ public class TenantAdminIdentityController {
 
   @GetMapping
   public ApiResponse<TenantIdentityView> getIdentity(@CurrentContext TchRequestContext ctx) {
-    var tenant = queryBus.send(new GetTenantByIdQuery(ctx.tenantIdSafe()));
+    var tenant = queryBus.ask(new GetTenantByIdQuery(ctx.tenantIdSafe()));
     return ApiResponse.success(toView(tenant));
   }
 
@@ -34,8 +34,8 @@ public class TenantAdminIdentityController {
   public ApiResponse<TenantIdentityView> updateIdentity(
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpdateTenantIdentityRequest req) {
     var tenantId = ctx.tenantIdSafe();
-    commandBus.send(new UpdateTenantIdentityCommand(tenantId, req.name(), req.timeZone(), req.currency()));
-    var tenant = queryBus.send(new GetTenantByIdQuery(tenantId));
+    commandBus.execute(new UpdateTenantIdentityCommand(tenantId, req.name(), req.timeZone(), req.currency()));
+    var tenant = queryBus.ask(new GetTenantByIdQuery(tenantId));
     return ApiResponse.success(toView(tenant));
   }
 

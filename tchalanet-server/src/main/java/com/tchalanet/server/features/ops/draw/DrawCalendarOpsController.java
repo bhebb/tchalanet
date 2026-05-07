@@ -46,7 +46,7 @@ public class DrawCalendarOpsController {
         detailsExpression = "#req")
     public ApiResponse<GenerateDrawsForRangeResult> generate(@Valid @RequestBody GenerateDrawsRequest req) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_GENERATE, TenantId.parse(req.tenantId()));
-        var res = commandBus.send(
+        var res = commandBus.execute(
             new GenerateDrawsForRangeCommand(
                 TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force(), req.reason()));
         return ApiResponse.success(res);
@@ -62,7 +62,7 @@ public class DrawCalendarOpsController {
     public ApiResponse<OpenDueDrawsResult> openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_OPEN, null);
         Instant now = req.now() == null ? clock.instant() : req.now();
-        var res = commandBus.send(
+        var res = commandBus.execute(
             new OpenDueDrawsCommand(
                 now, req.limit(), req.openHorizonHours(), req.openLagHours(), req.dryRun()));
         return ApiResponse.success(res);
@@ -79,7 +79,7 @@ public class DrawCalendarOpsController {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_OPEN, null);
         Instant now = req.now() == null ? clock.instant() : req.now();
         int limit = req.limit() == null ? 10000 : req.limit();
-        var res = commandBus.send(new OpenTodayDrawsCommand(
+        var res = commandBus.execute(new OpenTodayDrawsCommand(
             now,
             req.drawDate(),
             drawProperties.getScheduler().getOpenToday().getDefaultSalesOpenTime(),
@@ -98,7 +98,7 @@ public class DrawCalendarOpsController {
     public ApiResponse<CloseDueDrawsResult> closeDue(@Valid @RequestBody CloseDueDrawsRequest req) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_CLOSE, null);
         Instant now = req.now() == null ? clock.instant() : req.now();
-        var res = commandBus.send(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
+        var res = commandBus.execute(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
         return ApiResponse.success(res);
     }
 
@@ -113,7 +113,7 @@ public class DrawCalendarOpsController {
                                                                @CurrentContext TchRequestContext ctx) {
         batchGate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_APPLY, ctx.tenantId());
         var res =
-            commandBus.send(
+            commandBus.execute(
                 new ApplyExternalResultsWindowCommand(
                     ctx.tenantId(),
                     req.baseDate(),

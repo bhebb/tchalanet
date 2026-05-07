@@ -85,7 +85,7 @@ class DrawCutoffRuleTest {
   private record StubQueryBus(DrawSummary summary) implements QueryBus {
     @Override
     @SuppressWarnings("unchecked")
-    public <R> R send(Query<R> query) {
+    public <R> R ask(Query<R> query) {
       return (R) summary;
     }
   }

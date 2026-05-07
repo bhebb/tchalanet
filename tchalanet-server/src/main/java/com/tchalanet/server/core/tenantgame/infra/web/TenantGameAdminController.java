@@ -60,7 +60,7 @@ public class TenantGameAdminController {
     var query = ResolveTenantGamesQuery.builder()
         .tenantId(tenantId)
         .build();
-    var games = queryBus.send(query);
+    var games = queryBus.ask(query);
     var views = games.stream().map(webMapper::toView).toList();
     return ApiResponse.success(views);
   }
@@ -82,7 +82,7 @@ public class TenantGameAdminController {
         .gameCode(gameCode)
         .policy(null)
         .build();
-    var result = commandBus.send(command);
+    var result = commandBus.execute(command);
     ApiResponseContext.get().addNotice(
         "GAME_ENABLED",
         "Jeu activé pour le tenant",
@@ -106,7 +106,7 @@ public class TenantGameAdminController {
         .tenantId(tenantId)
         .gameCode(gameCode)
         .build();
-    var result = commandBus.send(command);
+    var result = commandBus.execute(command);
     ApiResponseContext.get().addNotice(
         "GAME_DISABLED",
         "Jeu désactivé pour le tenant",
@@ -132,7 +132,7 @@ public class TenantGameAdminController {
         .gameCode(gameCode)
         .policy(request.getPolicy())
         .build();
-    commandBus.send(command);
+    commandBus.execute(command);
     ApiResponseContext.get().addNotice(
         "POLICY_UPDATED",
         "Politique du jeu mise à jour",

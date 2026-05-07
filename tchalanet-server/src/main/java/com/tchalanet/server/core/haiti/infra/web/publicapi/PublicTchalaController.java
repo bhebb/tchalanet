@@ -46,7 +46,7 @@ public class PublicTchalaController {
   @GetMapping("/{id}")
   public ApiResponse<TchalaEntryResponse> getById(@PathVariable @NotNull TchalaEntryId id) {
     var q = new GetTchalaEntryQuery(id);
-    Optional<TchalaEntry> found = queryBus.send(q);
+    Optional<TchalaEntry> found = queryBus.ask(q);
     return found
         .map(e -> ApiResponse.success(TchalaEntryResponse.from(e)))
         .orElseThrow(() -> new TchalaEntryNotFoundException("Tchala entry not found"));
@@ -63,7 +63,7 @@ public class PublicTchalaController {
     int size = limit;
     int page = Math.max(0, offset / size);
 
-    TchPage<TchalaEntry> res = queryBus.send(new SearchTchalaQuery(lang, text, page, size));
+    TchPage<TchalaEntry> res = queryBus.ask(new SearchTchalaQuery(lang, text, page, size));
 
     var data =
         TchPage.of(
@@ -85,7 +85,7 @@ public class PublicTchalaController {
       @RequestParam(defaultValue = "fr") String lang, @RequestParam @NotBlank String dream) {
 
     var q = new GetTchalaByDreamQuery(lang, dream);
-    Optional<TchalaEntry> found = queryBus.send(q);
+    Optional<TchalaEntry> found = queryBus.ask(q);
     return found
         .map(e -> ApiResponse.success(TchalaEntryResponse.from(e)))
         .orElseThrow(() -> new TchalaEntryNotFoundException("Tchala entry not found"));
@@ -102,7 +102,7 @@ public class PublicTchalaController {
     int size = limit;
     int page = Math.max(0, offset / size);
 
-    TchPage<TchalaEntry> res = queryBus.send(new GetTchalaByNumberQuery(lang, number, page, size));
+    TchPage<TchalaEntry> res = queryBus.ask(new GetTchalaByNumberQuery(lang, number, page, size));
 
     var data =
         TchPage.of(
@@ -127,7 +127,7 @@ public class PublicTchalaController {
 
     var cmd =
         new SubmitTchalaSuggestionCommand(body.lang(), body.dream(), body.numbers(), body.note());
-    SubmitTchalaSuggestionResult res = commandBus.send(cmd);
+    SubmitTchalaSuggestionResult res = commandBus.execute(cmd);
 
     var response =
         new SubmitSuggestionResponse(

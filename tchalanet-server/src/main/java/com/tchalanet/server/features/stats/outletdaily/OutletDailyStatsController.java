@@ -37,7 +37,7 @@ public class OutletDailyStatsController {
       @RequestParam("date") String date) {
     try {
       var summary =
-          queryBus.send(new GetOutletDailySummaryQuery(ctx.tenantIdSafe(), id, LocalDate.parse(date)));
+          queryBus.ask(new GetOutletDailySummaryQuery(ctx.tenantIdSafe(), id, LocalDate.parse(date)));
       return ApiResponse.success(summary);
     } catch (DateTimeParseException e) {
       throw ProblemRest.badRequest("invalid date format: " + date);

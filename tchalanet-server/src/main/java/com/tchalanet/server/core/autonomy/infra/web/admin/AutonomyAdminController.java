@@ -31,7 +31,7 @@ public class AutonomyAdminController {
     public ApiResponse<AutonomyOverviewView> getOverview(
         @RequestParam("targetType") AutonomyTargetType targetType,
         @RequestParam(value = "targetId", required = false) UUID targetId) {
-        return ApiResponse.success(queryBus.send(new GetAutonomyOverviewQuery(targetType, targetId)));
+        return ApiResponse.success(queryBus.ask(new GetAutonomyOverviewQuery(targetType, targetId)));
     }
 
     @PutMapping
@@ -46,6 +46,6 @@ public class AutonomyAdminController {
         if (req.targetType() == AutonomyTargetType.TENANT && effectiveTargetUuid == null) {
             effectiveTargetUuid = ctx.tenantIdSafe().value();
         }
-        return ApiResponse.success(queryBus.send(new GetAutonomyOverviewQuery(req.targetType(), effectiveTargetUuid)));
+        return ApiResponse.success(queryBus.ask(new GetAutonomyOverviewQuery(req.targetType(), effectiveTargetUuid)));
     }
 }

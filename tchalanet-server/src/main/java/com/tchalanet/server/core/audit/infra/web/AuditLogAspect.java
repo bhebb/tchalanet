@@ -10,7 +10,7 @@ import com.tchalanet.server.common.types.enums.AuditEntityType;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -78,7 +78,7 @@ public class AuditLogAspect {
 
     private void safeSend(LogAuditEventCommand cmd) {
         try {
-            commandBus.send(cmd);
+            commandBus.execute(cmd);
         } catch (Exception e) {
             // never fail the main operation
             log.warn("Audit command send failed", e);

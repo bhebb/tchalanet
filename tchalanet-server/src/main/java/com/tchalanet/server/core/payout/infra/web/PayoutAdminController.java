@@ -61,7 +61,7 @@ public class PayoutAdminController {
   @PostMapping("/execute")
   public void execute(@RequestBody ExecutePayoutRequest body) {
     Objects.requireNonNull(body, "body");
-    commandBus.send(new ExecutePayoutCommand(body.tenantId(), body.payoutId(), body.executedBy()));
+    commandBus.execute(new ExecutePayoutCommand(body.tenantId(), body.payoutId(), body.executedBy()));
   }
 
   public record ExecutePayoutRequest(
@@ -77,7 +77,7 @@ public class PayoutAdminController {
   @PostMapping("/request")
   public void request(@RequestBody RegisterPayoutRequest body) {
     Objects.requireNonNull(body, "body");
-    commandBus.send(
+    commandBus.execute(
         new RegisterPayoutCommand(
             body.tenantId(),
             body.ticketId(),
@@ -106,7 +106,7 @@ public class PayoutAdminController {
   @PostMapping("/{payoutId}/approve")
   public void approve(@PathVariable PayoutId payoutId, @RequestBody ApprovePayoutRequest body) {
     Objects.requireNonNull(body, "body");
-    commandBus.send(new ApprovePayoutCommand(body.tenantId(), payoutId));
+    commandBus.execute(new ApprovePayoutCommand(body.tenantId(), payoutId));
   }
 
   public record ApprovePayoutRequest(TenantId tenantId, UserId approvedByUserId // optional
@@ -119,7 +119,7 @@ public class PayoutAdminController {
   @PostMapping("/{payoutId}/reject")
   public void reject(@PathVariable PayoutId payoutId, @RequestBody RejectPayoutRequest body) {
     Objects.requireNonNull(body, "body");
-    commandBus.send(
+    commandBus.execute(
         new RejectPayoutCommand(
             body.tenantId(), payoutId, body.reason(), body.rejectedByUserId(), body.rejectedAt()));
   }
@@ -142,7 +142,7 @@ public class PayoutAdminController {
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
       @RequestParam(required = false) com.tchalanet.server.common.types.id.OutletId outletId,
       @RequestParam(defaultValue = "CSV") String format) {
-    Path path = queryBus.send(new GeneratePayoutReportQuery(tenantId, from, to, outletId, format));
+    Path path = queryBus.ask(new GeneratePayoutReportQuery(tenantId, from, to, outletId, format));
 
     // naive content type mapping (V1)
     MediaType mt =

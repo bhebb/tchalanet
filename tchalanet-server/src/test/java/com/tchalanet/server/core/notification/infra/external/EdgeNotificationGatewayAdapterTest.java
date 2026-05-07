@@ -1,12 +1,13 @@
 package com.tchalanet.server.core.notification.infra.external;
 
-import com.tchalanet.server.common.notification.model.NotificationTarget;
-import com.tchalanet.server.common.notification.model.SendNotificationPayload;
-import com.tchalanet.server.common.types.enums.NotificationChannel;
-import com.tchalanet.server.common.types.enums.NotificationType;
+import com.tchalanet.server.common.communication.api.CommunicationChannel;
+import com.tchalanet.server.common.communication.api.OutboundMessageRequest;
+import com.tchalanet.server.common.communication.api.OutboundRecipient;
+import com.tchalanet.server.common.communication.edge.EdgeCommunicationGatewayAdapter;
+import com.tchalanet.server.common.communication.edge.EdgeCommunicationProperties;
+import com.tchalanet.server.common.communication.edge.EdgeHmacSigner;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.notification.infra.config.EdgeNotificationProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,20 +46,20 @@ class EdgeNotificationGatewayAdapterTest {
     @Mock
     private RestClient.ResponseSpec responseSpec;
 
-    private EdgeNotificationProperties properties;
-    private EdgeNotificationGatewayAdapter adapter;
+    private EdgeCommunicationProperties properties;
+    private EdgeCommunicationGatewayAdapter adapter;
 
     @BeforeEach
     void setUp() {
-        properties = new EdgeNotificationProperties(
+        properties = new EdgeCommunicationProperties(
             true,
             "http://localhost:3000",
-            "/internal/notifications/send",
+            "/internal/messages/send",
             "test-secret",
             Duration.ofSeconds(2),
             Duration.ofSeconds(5)
         );
-        adapter = new EdgeNotificationGatewayAdapter(properties, hmacSigner, restClient);
+        adapter = new EdgeCommunicationGatewayAdapter(properties, hmacSigner, restClient);
 
         lenient().when(restClient.post()).thenReturn(requestBodyUriSpec);
         lenient().when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
@@ -78,10 +79,10 @@ class EdgeNotificationGatewayAdapterTest {
         );
         when(hmacSigner.sign(anyString(), any())).thenReturn(signedRequest);
 
-        var payload = new SendNotificationPayload(
-            NotificationType.BATCH_MESSAGE,
-            NotificationChannel.SLACK,
-            null,
+        var payload = new OutboundMessageRequest(
+            "BATCH_MESSAGE",
+            CommunicationChannel.SLACK,
+            OutboundRecipient.slack("batch-draws"),
             Locale.ENGLISH,
             Map.of("channelKey", "batch-draws", "message", "Test message")
         );
@@ -105,11 +106,11 @@ class EdgeNotificationGatewayAdapterTest {
 
         var tenantId = new TenantId(UUID.randomUUID());
         var userId = new UserId(UUID.randomUUID());
-        var target = new NotificationTarget(tenantId, userId, "user@example.com");
+        var target = new OutboundRecipient(tenantId, userId, "user@example.com", null);
 
-        var payload = new SendNotificationPayload(
-            NotificationType.TICKET_RECEIPT,
-            NotificationChannel.EMAIL,
+        var payload = new OutboundMessageRequest(
+            "TICKET_RECEIPT",
+            CommunicationChannel.EMAIL,
             target,
             Locale.FRENCH,
             Map.of("ticketNumber", "TK-123")
@@ -123,22 +124,22 @@ class EdgeNotificationGatewayAdapterTest {
 
     @Test
     void shouldNotSendWhenDisabled() {
-        var disabledProperties = new EdgeNotificationProperties(
+        var disabledProperties = new EdgeCommunicationProperties(
             false,
             "http://localhost:3000",
-            "/internal/notifications/send",
+            "/internal/messages/send",
             "test-secret",
             Duration.ofSeconds(2),
             Duration.ofSeconds(5)
         );
-        var disabledAdapter = new EdgeNotificationGatewayAdapter(
+        var disabledAdapter = new EdgeCommunicationGatewayAdapter(
             disabledProperties, hmacSigner, restClient
         );
 
-        var payload = new SendNotificationPayload(
-            NotificationType.BATCH_MESSAGE,
-            NotificationChannel.SLACK,
-            null,
+        var payload = new OutboundMessageRequest(
+            "BATCH_MESSAGE",
+            CommunicationChannel.SLACK,
+            OutboundRecipient.slack("batch-draws"),
             Locale.ENGLISH,
             Map.of("message", "Test")
         );
@@ -158,10 +159,10 @@ class EdgeNotificationGatewayAdapterTest {
         );
         when(hmacSigner.sign(anyString(), any())).thenReturn(signedRequest);
 
-        var payload = new SendNotificationPayload(
-            NotificationType.BATCH_MESSAGE,
-            NotificationChannel.SLACK,
-            null,
+        var payload = new OutboundMessageRequest(
+            "BATCH_MESSAGE",
+            CommunicationChannel.SLACK,
+            OutboundRecipient.slack("batch-draws"),
             Locale.ENGLISH,
             Map.of("channelKey", "batch-draws")
         );
@@ -174,4 +175,3 @@ class EdgeNotificationGatewayAdapterTest {
         verify(requestBodySpec).header(eq("X-Tch-Signature"), eq("sha256=abc123def456"));
     }
 }
-

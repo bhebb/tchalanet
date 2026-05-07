@@ -117,7 +117,7 @@ class AuditLogAspectTest {
         new AuditLogAspect(
             new CommandBus() {
               @Override
-              public <R> R send(Command<R> command) {
+              public <R> R execute(Command<R> command) {
                 throw new IllegalStateException("audit down");
               }
             },
@@ -171,7 +171,7 @@ class AuditLogAspectTest {
   private static CommandBus recordingBus(List<LogAuditEventCommand> commands) {
     return new CommandBus() {
       @Override
-      public <R> R send(Command<R> command) {
+      public <R> R execute(Command<R> command) {
         commands.add((LogAuditEventCommand) command);
         return null;
       }

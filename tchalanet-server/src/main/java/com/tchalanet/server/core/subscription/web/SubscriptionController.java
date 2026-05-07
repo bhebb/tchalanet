@@ -14,12 +14,9 @@ import com.tchalanet.server.core.subscription.application.query.model.ResolveTen
 import com.tchalanet.server.core.subscription.application.query.model.SubscriptionView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 @RestController
 @RequestMapping("/tenant/subscription")
@@ -32,7 +29,7 @@ public class SubscriptionController {
     @PostMapping("/apply")
     @AuditLog(action = AuditAction.CREATE, entity = AuditEntityType.SUBSCRIPTION, idExpression = "#result.subscriptionId", detailsExpression = "{ 'planCode': #cmd.planCode(), 'tenantId': #cmd.tenantId() }")
     public ResponseEntity<ApiResponse<ApplyTenantPlanResult>> apply(@RequestBody ApplyTenantPlanCommand cmd) {
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_APPLIED", "Abonnement appliqué", "subscription", NoticeSeverity.INFO);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(result));
     }
@@ -40,7 +37,7 @@ public class SubscriptionController {
     @PostMapping("/cancel")
     @AuditLog(action = AuditAction.DELETE, entity = AuditEntityType.SUBSCRIPTION, idExpression = "#result.subscriptionId", detailsExpression = "{ 'tenantId': #cmd.tenantId() }")
     public ResponseEntity<ApiResponse<CancelSubscriptionResult>> cancel(@RequestBody CancelSubscriptionCommand cmd) {
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_CANCELED", "Abonnement annulé", "subscription", NoticeSeverity.INFO);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
@@ -48,7 +45,7 @@ public class SubscriptionController {
     @PostMapping("/change")
     @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SUBSCRIPTION, idExpression = "#result.subscriptionId", detailsExpression = "{ 'oldPlanCode': #result.oldPlanCode, 'newPlanCode': #result.newPlanCode, 'tenantId': #cmd.tenantId() }")
     public ResponseEntity<ApiResponse<ChangePlanResult>> change(@RequestBody ChangePlanCommand cmd) {
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_PLAN_CHANGED", "Changement de plan effectué", "subscription", NoticeSeverity.INFO);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
@@ -56,7 +53,7 @@ public class SubscriptionController {
     @PostMapping("/renew")
     @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SUBSCRIPTION, idExpression = "#result.subscriptionId", detailsExpression = "{ 'newEndsAt': #result.newEndsAt, 'tenantId': #cmd.tenantId() }")
     public ResponseEntity<ApiResponse<RenewSubscriptionResult>> renew(@RequestBody RenewSubscriptionCommand cmd) {
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_RENEWED", "Abonnement renouvelé", "subscription", NoticeSeverity.INFO);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
@@ -64,7 +61,7 @@ public class SubscriptionController {
     @PostMapping("/resume")
     @AuditLog(action = AuditAction.RESTORE, entity = AuditEntityType.SUBSCRIPTION, idExpression = "#result.subscriptionId", detailsExpression = "{ 'tenantId': #cmd.tenantId() }")
     public ResponseEntity<ApiResponse<ResumeSubscriptionResult>> resume(@RequestBody ResumeSubscriptionCommand cmd) {
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_RESUMED", "Abonnement réactivé", "subscription", NoticeSeverity.INFO);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
@@ -72,14 +69,14 @@ public class SubscriptionController {
     @PostMapping("/suspend")
     @AuditLog(action = AuditAction.UPDATE, entity = AuditEntityType.SUBSCRIPTION, idExpression = "#result.subscriptionId", detailsExpression = "{ 'tenantId': #cmd.tenantId() }")
     public ResponseEntity<ApiResponse<SuspendSubscriptionResult>> suspend(@RequestBody SuspendSubscriptionCommand cmd) {
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         ApiResponseContext.get().addNotice("SUBSCRIPTION_SUSPENDED", "Abonnement suspendu", "subscription", NoticeSeverity.INFO);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     @GetMapping("/resolve/{tenantId}")
     public ResponseEntity<ApiResponse<SubscriptionView>> resolve(@PathVariable("tenantId") TenantId tenantId) {
-        var view = queryBus.send(new ResolveTenantSubscriptionQuery(tenantId));
+        var view = queryBus.ask(new ResolveTenantSubscriptionQuery(tenantId));
         return ResponseEntity.ok(ApiResponse.success(view));
     }
 

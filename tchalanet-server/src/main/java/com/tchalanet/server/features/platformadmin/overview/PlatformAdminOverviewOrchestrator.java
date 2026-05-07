@@ -64,7 +64,7 @@ public class PlatformAdminOverviewOrchestrator {
         );
 
         // --- Subscriptions: core via QueryBus
-        PlatformSubscriptionStatsView subs = queryBus.send(new GetPlatformSubscriptionStatsQuery());
+        PlatformSubscriptionStatsView subs = queryBus.ask(new GetPlatformSubscriptionStatsQuery());
 
         CoreStats core = new CoreStats(
             new TenantStats(tenants.total(), tenants.active(), tenants.suspended()),

@@ -17,6 +17,6 @@ public class LimitPolicyEventsListener {
 
   @TransactionalEventListener(phase = AFTER_COMMIT)
   public void on(TicketPlacedEvent e) {
-    commandBus.send(new ApplyTicketExposureCommand(e));
+    commandBus.execute(new ApplyTicketExposureCommand(e));
   }
 }

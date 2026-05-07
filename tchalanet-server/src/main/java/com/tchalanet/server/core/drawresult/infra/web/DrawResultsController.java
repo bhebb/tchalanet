@@ -52,7 +52,7 @@ public class DrawResultsController {
             defaultSort = {"occurredAt,DESC"}
         ) TchPageRequest pageReq
     ) {
-        var page = queryBus.send(
+        var page = queryBus.ask(
             new ListDrawResultsQuery(
                 slotKey,
                 status,
@@ -79,7 +79,7 @@ public class DrawResultsController {
     ) {
         var today = LocalDate.now(clock);
 
-        var page = queryBus.send(
+        var page = queryBus.ask(
             new ListDrawResultsQuery(
                 slotKey,
                 status,
@@ -109,7 +109,7 @@ public class DrawResultsController {
         var to = LocalDate.now(clock);
         var from = to.minusDays(n - 1L);
 
-        var page = queryBus.send(
+        var page = queryBus.ask(
             new ListDrawResultsQuery(
                 slotKey,
                 status,

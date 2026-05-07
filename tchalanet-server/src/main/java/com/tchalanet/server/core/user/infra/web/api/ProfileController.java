@@ -44,7 +44,7 @@ public class ProfileController {
             throw ProblemRest.notFound("User not found for current principal");
         }
 
-        var details = queryBus.send(new GetCurrentUserQuery(ctx.userId()));
+        var details = queryBus.ask(new GetCurrentUserQuery(ctx.userId()));
         if (details == null) {
             throw ProblemRest.notFound("User not found: " + ctx.userId());
         }
@@ -77,9 +77,9 @@ public class ProfileController {
                 ctx.tenantZoneId() // tenant default zoneId (or null)
             );
 
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
 
-        var details = queryBus.send(new GetCurrentUserQuery(result.userId()));
+        var details = queryBus.ask(new GetCurrentUserQuery(result.userId()));
         if (details == null) {
             throw ProblemRest.internal("Unable to load user after bootstrap: " + result.userId());
         }
@@ -108,9 +108,9 @@ public class ProfileController {
                 Optional.ofNullable(req.phone()),
                 Optional.ofNullable(req.locale()).map(java.util.Locale::forLanguageTag));
 
-        commandBus.send(cmd);
+        commandBus.execute(cmd);
 
-        CurrentUserDetails details = queryBus.send(new GetCurrentUserQuery(ctx.userId()));
+        CurrentUserDetails details = queryBus.ask(new GetCurrentUserQuery(ctx.userId()));
         if (details == null) {
             throw ProblemRest.internal("Unable to load user after update: " + ctx.userId());
         }

@@ -43,7 +43,7 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid CorrectAppliedDrawResultRequest request) {
 
-        commandBus.send(new CorrectAppliedDrawResultCommand(
+        commandBus.execute(new CorrectAppliedDrawResultCommand(
             drawId,
             request.correctedDrawResultId(),
             request.reason(),
@@ -65,7 +65,7 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid CancelDrawRequest request) {
 
-        commandBus.send(new CancelDrawCommand(drawId, request.reason(), request.force()));
+        commandBus.execute(new CancelDrawCommand(drawId, request.reason(), request.force()));
 
         return ApiResponse.success(reload(drawId));
     }
@@ -86,7 +86,7 @@ public class DrawAdminOpsController {
             throw ProblemRest.badRequest("draw.schedule_invalid");
         }
 
-        commandBus.send(new RescheduleDrawCommand(
+        commandBus.execute(new RescheduleDrawCommand(
             drawId,
             request.scheduledAt(),
             request.cutoffAt(),
@@ -108,7 +108,7 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid LockDrawRequest request) {
 
-        commandBus.send(new LockDrawCommand(drawId, request.reason()));
+        commandBus.execute(new LockDrawCommand(drawId, request.reason()));
 
         return ApiResponse.success(reload(drawId));
     }
@@ -125,7 +125,7 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid UnlockDrawRequest request) {
 
-        commandBus.send(new UnlockDrawCommand(drawId, request.reason()));
+        commandBus.execute(new UnlockDrawCommand(drawId, request.reason()));
 
         return ApiResponse.success(reload(drawId));
     }
@@ -142,7 +142,7 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid ArchiveDrawRequest request) {
 
-        commandBus.send(new ArchiveDrawCommand(drawId, request.reason(), request.force()));
+        commandBus.execute(new ArchiveDrawCommand(drawId, request.reason(), request.force()));
 
         return ApiResponse.success(reload(drawId));
     }
@@ -166,13 +166,13 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid SettleDrawRequest request) {
 
-        commandBus.send(new SettleDrawCommand(drawId, request.reason(), request.force()));
+        commandBus.execute(new SettleDrawCommand(drawId, request.reason(), request.force()));
 
         return ApiResponse.success(reload(drawId));
     }
 
     private DrawSummaryResponse reload(DrawId drawId) {
-        var summary = queryBus.send(new GetDrawByIdQuery(drawId));
+        var summary = queryBus.ask(new GetDrawByIdQuery(drawId));
         return mapper.toDrawSummaryResponse(summary);
     }
 }

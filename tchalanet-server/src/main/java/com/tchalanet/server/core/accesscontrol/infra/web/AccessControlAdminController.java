@@ -49,7 +49,7 @@ public class AccessControlAdminController {
   @Operation(summary = "List roles (admin)")
   @GetMapping("/roles")
   public List<RoleAdminResponse> listRoles(@RequestParam(required = false) TenantId tenantId) {
-    var roles = queryBus.send(new ListRolesQuery(tenantId));
+    var roles = queryBus.ask(new ListRolesQuery(tenantId));
     return roles.stream()
         .map(AccessControlWebMapper::toRoleAdminResponse)
         .collect(Collectors.toList());
@@ -59,7 +59,7 @@ public class AccessControlAdminController {
   @PostMapping("/roles")
   public UUID upsertRole(@Valid @RequestBody UpsertRoleRequest request) {
     if (request.id() == null) {
-      return commandBus.send(
+      return commandBus.execute(
           new CreateRoleCommand(
               null,
               request.code(),
@@ -69,7 +69,7 @@ public class AccessControlAdminController {
               com.tchalanet.server.common.types.id.RoleId.nullableOf(request.parentRoleId()),
               request.system()));
     }
-    return commandBus.send(
+    return commandBus.execute(
         new UpdateRoleCommand(
             RoleId.of(request.id()),
             request.code(),
@@ -85,7 +85,7 @@ public class AccessControlAdminController {
   @Operation(summary = "List permissions (admin)")
   @GetMapping("/permissions")
   public List<PermissionResponse> listPermissions() {
-    var perms = queryBus.send(new ListPermissionsQuery());
+    var perms = queryBus.ask(new ListPermissionsQuery());
     return perms.stream()
         .map(AccessControlWebMapper::toPermissionResponse)
         .collect(Collectors.toList());
@@ -94,7 +94,7 @@ public class AccessControlAdminController {
   @Operation(summary = "Get role permissions (admin)")
   @GetMapping("/roles/{roleId}/permissions")
   public Set<String> getRolePermissions(@PathVariable RoleId roleId) {
-    return queryBus.send(new ListRolePermissionsQuery(roleId));
+    return queryBus.ask(new ListRolePermissionsQuery(roleId));
   }
 
   @Operation(summary = "Update role permissions (admin)")
@@ -102,13 +102,13 @@ public class AccessControlAdminController {
   public void updateRolePermissions(
       @PathVariable RoleId roleId, @Valid @RequestBody UpdateRolePermissionsRequest request) {
 
-    var current = queryBus.send(new ListRolePermissionsQuery(roleId));
+    var current = queryBus.ask(new ListRolePermissionsQuery(roleId));
     var desired = Set.copyOf(request.permissionCodes());
 
     var toGrant = desired.stream().filter(p -> !current.contains(p)).toList();
     var toRevoke = current.stream().filter(p -> !desired.contains(p)).toList();
 
-    toGrant.forEach(code -> commandBus.send(new GrantPermissionToRoleCommand(roleId, code)));
-    toRevoke.forEach(code -> commandBus.send(new RevokePermissionFromRoleCommand(roleId, code)));
+    toGrant.forEach(code -> commandBus.execute(new GrantPermissionToRoleCommand(roleId, code)));
+    toRevoke.forEach(code -> commandBus.execute(new RevokePermissionFromRoleCommand(roleId, code)));
   }
 }

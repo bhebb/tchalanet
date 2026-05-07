@@ -33,7 +33,7 @@ public class TenantAdminConfigOverviewOrchestrator {
         var resolved = settingsCatalog.resolve(new com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria(tenantId, null, null, List.of()));
         int settingsCount = resolved.size();
 
-        queryBus.send(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, tenantId.value()));
+        queryBus.ask(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, tenantId.value()));
 
         var theme = new ThemeSummaryView(null, null);
 

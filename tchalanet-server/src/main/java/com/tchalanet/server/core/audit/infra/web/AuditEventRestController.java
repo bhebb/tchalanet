@@ -52,7 +52,7 @@ public class AuditEventRestController {
           defaultSort = {"occurredAt,DESC"})
           TchPageRequest pageReq) {
 
-    var page = queryBus.send(new ListAuditEventsQuery(
+    var page = queryBus.ask(new ListAuditEventsQuery(
         TenantId.nullableOf(tenantId),
         entityType,
         entityId,
@@ -73,7 +73,7 @@ public class AuditEventRestController {
       idExpression = "'audit_event'",
       detailsExpression = "#result")
   public ApiResponse<PurgeOldAuditEventsResult> purgeExpiredAuditLogs() {
-    return ApiResponse.success(commandBus.send(new PurgeOldAuditEventsCommand()));
+    return ApiResponse.success(commandBus.execute(new PurgeOldAuditEventsCommand()));
   }
 
   private AuditEventResponse toResponse(AuditEvent event) {

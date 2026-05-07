@@ -20,7 +20,7 @@ public class PublicDrawResultService {
 
   public PublicDrawResultSlotsResponse slots(List<String> slotKeys, String provider) {
     var views =
-        queryBus.send(
+        queryBus.ask(
             new ListPublicDrawResultSlotsQuery(normalizeSlotKeys(slotKeys), provider));
 
     return mapper.toSlotsResponse(views);
@@ -29,7 +29,7 @@ public class PublicDrawResultService {
   public PublicDrawResultSlotsResponse details(
       List<String> slotKeys, String provider, int historyLimit) {
     var views =
-        queryBus.send(
+        queryBus.ask(
             new ListPublicDrawResultSlotDetailsQuery(
                 normalizeSlotKeys(slotKeys), provider, historyLimit));
 
@@ -38,7 +38,7 @@ public class PublicDrawResultService {
 
   public PublicDrawResultListResponse history(PublicDrawResultSearchCriteria criteria) {
     var page =
-        queryBus.send(
+        queryBus.ask(
             new SearchPublicDrawResultsQuery(
                 normalizeSlotKeys(criteria.slotKeys()),
                 criteria.provider(),

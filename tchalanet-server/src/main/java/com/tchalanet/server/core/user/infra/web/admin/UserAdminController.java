@@ -56,7 +56,7 @@ public class UserAdminController {
                 ofNullable(req.prefCurrency()),
                 req.sendInvitation(),
                 req.initialRoles());
-        var result = commandBus.send(cmd);
+        var result = commandBus.execute(cmd);
         return ApiResponse.success(result);
     }
 
@@ -68,28 +68,28 @@ public class UserAdminController {
     @PostMapping("/{id}/approve")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void approveUser(@PathVariable UserId id) {
-        commandBus.send(new ApproveUserCommand(id, null));
+        commandBus.execute(new ApproveUserCommand(id, null));
     }
 
     @Operation(summary = "Suspend a user (admin)")
     @PostMapping("/{id}/suspend")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void suspendUser(@PathVariable UserId id) {
-        commandBus.send(new SuspendUserCommand(id, "suspended_by_admin"));
+        commandBus.execute(new SuspendUserCommand(id, "suspended_by_admin"));
     }
 
     @Operation(summary = "Reactivate a user (admin)")
     @PostMapping("/{id}/reactivate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void reactivateUser(@PathVariable UserId id) {
-        commandBus.send(new ReactivateUserCommand(id));
+        commandBus.execute(new ReactivateUserCommand(id));
     }
 
     @Operation(summary = "Delete a user (admin)")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable UserId id) {
-        commandBus.send(new DeleteUserCommand(id));
+        commandBus.execute(new DeleteUserCommand(id));
     }
 
     // -------------------------------------------------------------------
@@ -99,7 +99,7 @@ public class UserAdminController {
     @Operation(summary = "Get user details (admin)")
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getUserDetails(@PathVariable UserId id) {
-        var details = queryBus.send(new GetUserDetailsQuery(id));
+        var details = queryBus.ask(new GetUserDetailsQuery(id));
         if (details == null) {
             throw new UserNotFoundException(id);
         }
@@ -114,7 +114,7 @@ public class UserAdminController {
     @GetMapping
     public ApiResponse<TchPage<UserItemResponse>> listAllUsers(@TchPaging TchPageRequest pageReq) {
         // Per pagination conventions handlers must return TchPage<UserRow>.
-        TchPage<UserRow> page = queryBus.send(new PagedListAllUsersQuery(pageReq));
+        TchPage<UserRow> page = queryBus.ask(new PagedListAllUsersQuery(pageReq));
         return ApiResponse.success(TchPageMapper.map(page, this::toUserItemResponse));
     }
 
@@ -123,7 +123,7 @@ public class UserAdminController {
     public ApiResponse<TchPage<UserItemResponse>> listUsersByTenant(
         @PathVariable TenantId tenantId, @TchPaging TchPageRequest pageReq) {
 
-        TchPage<UserRow> page = queryBus.send(new PagedListTenantUsersQuery(tenantId, pageReq));
+        TchPage<UserRow> page = queryBus.ask(new PagedListTenantUsersQuery(tenantId, pageReq));
         return ApiResponse.success(TchPageMapper.map(page, this::toUserItemResponse));
     }
 
@@ -151,7 +151,7 @@ public class UserAdminController {
 
         int p = pageReq.pageable().getPageNumber();
         int s = pageReq.pageable().getPageSize();
-        TchPage<UserRow> page = queryBus.send(new com.tchalanet.server.core.user.application.query.model.SearchUsersQuery(nameLike, status, after, before, p, s));
+        TchPage<UserRow> page = queryBus.ask(new com.tchalanet.server.core.user.application.query.model.SearchUsersQuery(nameLike, status, after, before, p, s));
         return ApiResponse.success(TchPageMapper.map(page, this::toUserItemResponse));
     }
 

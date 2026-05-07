@@ -20,7 +20,7 @@ public class IgnoreTemplateUpdateCommandHandler
   public Boolean handle(IgnoreTemplateUpdateCommand command) {
     command
         .notificationId()
-        .ifPresent(id -> commandBus.send(new ArchiveNotificationCommand(id, command.actorId())));
+        .ifPresent(id -> commandBus.execute(new ArchiveNotificationCommand(id, command.actorId())));
     return true;
   }
 }

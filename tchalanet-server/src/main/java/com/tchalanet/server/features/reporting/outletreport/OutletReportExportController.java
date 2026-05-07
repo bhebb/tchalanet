@@ -45,7 +45,7 @@ public class OutletReportExportController {
       @RequestParam("to") String to) {
     try {
       Path path =
-          queryBus.send(
+          queryBus.ask(
               new GenerateOutletReportQuery(
                   ctx.tenantIdSafe(), id, LocalDate.parse(from), LocalDate.parse(to)));
       return ApiResponse.success(path.toString());
@@ -68,7 +68,7 @@ public class OutletReportExportController {
     }
 
     Path path =
-        queryBus.send(new GenerateOutletReportQuery(ctx.tenantIdSafe(), id, parsedDate, parsedDate));
+        queryBus.ask(new GenerateOutletReportQuery(ctx.tenantIdSafe(), id, parsedDate, parsedDate));
     if (path == null || !Files.exists(path)) {
       throw ProblemRest.notFound("outlet report not found", id);
     }

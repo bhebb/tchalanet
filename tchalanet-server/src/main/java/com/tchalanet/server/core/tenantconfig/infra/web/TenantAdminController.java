@@ -48,21 +48,21 @@ public class TenantAdminController {
           allowedSort = {"createdAt", "code", "name", "status"},
           defaultSort = {"createdAt,desc"}
       ) TchPageRequest pageReq) {
-    var result = queryBus.send(new ListTenantsQuery(pageReq.pageable()));
+    var result = queryBus.ask(new ListTenantsQuery(pageReq.pageable()));
     return ApiResponse.success(result);
   }
 
   @Operation(summary = "Get tenant by ID")
   @GetMapping("/{id}")
   public ApiResponse<TenantConfigView> get(@PathVariable TenantId id) {
-    var dto = queryBus.send(new GetTenantByIdQuery(id));
+    var dto = queryBus.ask(new GetTenantByIdQuery(id));
     return ApiResponse.success(dto);
   }
 
   @Operation(summary = "Get tenant by code")
   @GetMapping("/by-code")
   public ApiResponse<TenantConfigView> getByCode(@RequestParam("code") String code) {
-    var tenant = queryBus.send(new GetTenantByCodeQuery(code));
+    var tenant = queryBus.ask(new GetTenantByCodeQuery(code));
     return ApiResponse.success(tenant);
   }
 
@@ -70,14 +70,14 @@ public class TenantAdminController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public void create(@Valid @RequestBody CreateTenantCommand cmd) {
-    commandBus.send(cmd);
+    commandBus.execute(cmd);
   }
 
   @Operation(summary = "Activate tenant (DRAFT → ACTIVE)")
   @PostMapping("/{id}/activate")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void activate(@PathVariable TenantId id) {
-    commandBus.send(new ActivateTenantCommand(id));
+    commandBus.execute(new ActivateTenantCommand(id));
   }
 
   @Operation(summary = "Suspend tenant (ACTIVE → SUSPENDED)")
@@ -87,7 +87,7 @@ public class TenantAdminController {
       @PathVariable TenantId id,
       @RequestBody(required = false) ReasonRequest body) {
     var reason = body != null && body.reason() != null ? body.reason() : null;
-    commandBus.send(new SuspendTenantCommand(id, reason));
+    commandBus.execute(new SuspendTenantCommand(id, reason));
   }
 
   @Operation(summary = "Archive tenant (any → ARCHIVED)")
@@ -97,7 +97,7 @@ public class TenantAdminController {
       @PathVariable TenantId id,
       @RequestBody(required = false) ReasonRequest body) {
     var reason = body != null && body.reason() != null ? body.reason() : null;
-    commandBus.send(new ArchiveTenantCommand(id, reason));
+    commandBus.execute(new ArchiveTenantCommand(id, reason));
   }
 
   /**

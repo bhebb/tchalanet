@@ -111,7 +111,7 @@ public class DrawProcessingTickScheduler {
         for (TenantId tenantId : tenants) {
             try {
                 binder.bind(jobParams(tenantId, "draw-close", now));
-                commandBus.send(new CloseDueDrawsCommand(
+                commandBus.execute(new CloseDueDrawsCommand(
                     now,
                     Math.max(1, cfg.getMaxItemsPerTick()),
                     DEFAULT_DRY_RUN));
@@ -141,7 +141,7 @@ public class DrawProcessingTickScheduler {
 
         for (SlotDate candidate : due) {
             try {
-                commandBus.send(new FetchExternalResultsWindowCommand(
+                commandBus.execute(new FetchExternalResultsWindowCommand(
                     null,
                     candidate.drawDate(),
                     0,
@@ -184,7 +184,7 @@ public class DrawProcessingTickScheduler {
             for (TenantId tenantId : tenants) {
                 try {
                     binder.bind(jobParams(tenantId, "draw-results-apply", now));
-                    commandBus.send(new ApplyExternalResultsWindowCommand(
+                    commandBus.execute(new ApplyExternalResultsWindowCommand(
                         tenantId,
                         candidate.drawDate(),
                         0,

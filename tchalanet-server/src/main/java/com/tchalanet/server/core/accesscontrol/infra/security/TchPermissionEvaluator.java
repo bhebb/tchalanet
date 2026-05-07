@@ -49,7 +49,7 @@ public class TchPermissionEvaluator implements PermissionEvaluator {
 
         try {
             return Boolean.TRUE.equals(
-                queryBus.send(
+                queryBus.ask(
                     new CheckUserPermissionsQuery(
                         eval.tenantId(), eval.userId(), Set.of(eval.permissionKey()))));
         } catch (PermissionsDeniedException ex) {

@@ -1,10 +1,11 @@
 package com.tchalanet.server.core.notification.application.command;
 
-import com.tchalanet.server.common.notification.NotificationGatewayPort;
-import com.tchalanet.server.common.notification.model.SendNotificationPayload;
+import com.tchalanet.server.common.communication.api.OutboundMessageGateway;
+import com.tchalanet.server.common.communication.api.OutboundMessageRequest;
 import com.tchalanet.server.common.types.enums.NotificationType;
 import com.tchalanet.server.core.notification.application.command.handler.SendNotificationCommandHandler;
 import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
+import com.tchalanet.server.core.notification.application.mapper.OutboundMessageMapper;
 import com.tchalanet.server.core.notification.application.policy.NotificationPolicy;
 import com.tchalanet.server.core.notification.domain.InvalidNotificationException;
 import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.*;
 class SendNotificationCommandHandlerTest {
 
     @Mock
-    private NotificationGatewayPort notificationGateway;
+    private OutboundMessageGateway outboundMessageGateway;
 
     @Mock
     private NotificationPolicy notificationPolicy;
@@ -39,7 +40,11 @@ class SendNotificationCommandHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new SendNotificationCommandHandler(notificationGateway, notificationPolicy);
+        handler = new SendNotificationCommandHandler(
+            outboundMessageGateway,
+            new OutboundMessageMapper(),
+            notificationPolicy
+        );
     }
 
     @Test
@@ -71,7 +76,7 @@ class SendNotificationCommandHandlerTest {
         assertThat(result.idempotencyKey()).isNotNull();
 
         verify(notificationPolicy).validateRecipients(List.of(recipient));
-        verify(notificationGateway).send(any(SendNotificationPayload.class));
+        verify(outboundMessageGateway).send(any(OutboundMessageRequest.class));
     }
 
     @Test
@@ -98,14 +103,14 @@ class SendNotificationCommandHandlerTest {
 
         handler.handle(command);
 
-        var captor = ArgumentCaptor.forClass(SendNotificationPayload.class);
-        verify(notificationGateway).send(captor.capture());
+        var captor = ArgumentCaptor.forClass(OutboundMessageRequest.class);
+        verify(outboundMessageGateway).send(captor.capture());
 
         var payload = captor.getValue();
-        assertThat(payload.data()).containsEntry("channelKey", "batch-draws");
-        assertThat(payload.data()).containsEntry("title", "Test");
-        assertThat(payload.data()).containsEntry("message", "Message");
-        assertThat(payload.data()).containsEntry("severity", "INFO");
+        assertThat(payload.metadata()).containsEntry("channelKey", "batch-draws");
+        assertThat(payload.metadata()).containsEntry("title", "Test");
+        assertThat(payload.metadata()).containsEntry("message", "Message");
+        assertThat(payload.metadata()).containsEntry("severity", "INFO");
     }
 
     @Test
@@ -132,13 +137,52 @@ class SendNotificationCommandHandlerTest {
 
         handler.handle(command);
 
-        var captor = ArgumentCaptor.forClass(SendNotificationPayload.class);
-        verify(notificationGateway).send(captor.capture());
+        var captor = ArgumentCaptor.forClass(OutboundMessageRequest.class);
+        verify(outboundMessageGateway).send(captor.capture());
 
         var payload = captor.getValue();
-        assertThat(payload.data()).containsEntry("to", "user@example.com");
-        assertThat(payload.data()).doesNotContainKey("channelKey");
+        assertThat(payload.metadata()).containsEntry("to", "user@example.com");
+        assertThat(payload.metadata()).doesNotContainKey("channelKey");
         assertThat(payload.locale()).isEqualTo(Locale.FRENCH);
+    }
+
+    @Test
+    void shouldSendSmsAndWhatsappNotificationsWithToField() {
+        var smsRecipient = new NotificationRecipient(
+            NotificationChannel.SMS,
+            "+15145550100",
+            null,
+            null,
+            null
+        );
+        var whatsappRecipient = new NotificationRecipient(
+            NotificationChannel.WHATSAPP,
+            "+15145550101",
+            null,
+            null,
+            null
+        );
+
+        var command = new SendNotificationCommand(
+            NotificationType.SYSTEM_MESSAGE,
+            NotificationSeverity.WARNING,
+            List.of(smsRecipient, whatsappRecipient),
+            Locale.FRENCH,
+            "Warning",
+            "Something happened",
+            Map.of(),
+            null,
+            null
+        );
+
+        handler.handle(command);
+
+        var captor = ArgumentCaptor.forClass(OutboundMessageRequest.class);
+        verify(outboundMessageGateway, times(2)).send(captor.capture());
+
+        assertThat(captor.getAllValues())
+            .extracting(request -> request.recipient().to())
+            .containsExactly("+15145550100", "+15145550101");
     }
 
     @Test
@@ -168,9 +212,9 @@ class SendNotificationCommandHandlerTest {
 
         assertThat(result.idempotencyKey()).isEqualTo(customKey);
 
-        var captor = ArgumentCaptor.forClass(SendNotificationPayload.class);
-        verify(notificationGateway).send(captor.capture());
-        assertThat(captor.getValue().data()).containsEntry("idempotencyKey", customKey);
+        var captor = ArgumentCaptor.forClass(OutboundMessageRequest.class);
+        verify(outboundMessageGateway).send(captor.capture());
+        assertThat(captor.getValue().metadata()).containsEntry("idempotencyKey", customKey);
     }
 
     @Test
@@ -231,7 +275,7 @@ class SendNotificationCommandHandlerTest {
             .isInstanceOf(InvalidNotificationException.class)
             .hasMessageContaining("SLACK requires channelKey");
 
-        verify(notificationGateway, never()).send(any());
+        verify(outboundMessageGateway, never()).send(any());
     }
 
     @Test
@@ -267,7 +311,7 @@ class SendNotificationCommandHandlerTest {
         var result = handler.handle(command);
 
         assertThat(result.success()).isTrue();
-        verify(notificationGateway, times(2)).send(any(SendNotificationPayload.class));
+        verify(outboundMessageGateway, times(2)).send(any(OutboundMessageRequest.class));
     }
 
     @Test
@@ -294,9 +338,9 @@ class SendNotificationCommandHandlerTest {
 
         handler.handle(command);
 
-        var captor = ArgumentCaptor.forClass(SendNotificationPayload.class);
-        verify(notificationGateway).send(captor.capture());
-        assertThat(captor.getValue().data()).containsEntry("reason", "manual-ops-test");
+        var captor = ArgumentCaptor.forClass(OutboundMessageRequest.class);
+        verify(outboundMessageGateway).send(captor.capture());
+        assertThat(captor.getValue().metadata()).containsEntry("reason", "manual-ops-test");
     }
 
     @Test
@@ -329,13 +373,40 @@ class SendNotificationCommandHandlerTest {
 
         handler.handle(command);
 
-        var captor = ArgumentCaptor.forClass(SendNotificationPayload.class);
-        verify(notificationGateway).send(captor.capture());
+        var captor = ArgumentCaptor.forClass(OutboundMessageRequest.class);
+        verify(outboundMessageGateway).send(captor.capture());
 
-        var data = captor.getValue().data();
+        var data = captor.getValue().metadata();
         assertThat(data).containsEntry("jobKey", "draw-lifecycle");
         assertThat(data).containsEntry("status", "FAILED");
         assertThat(data).containsEntry("errorCode", "CONNECTION_TIMEOUT");
     }
-}
 
+    @Test
+    void shouldNotSendWebRecipientToEdge() {
+        var recipient = new NotificationRecipient(
+            NotificationChannel.WEB,
+            null,
+            null,
+            null,
+            null
+        );
+
+        var command = new SendNotificationCommand(
+            NotificationType.SYSTEM_MESSAGE,
+            NotificationSeverity.INFO,
+            List.of(recipient),
+            Locale.ENGLISH,
+            "In-app",
+            "Stored in notification center",
+            Map.of(),
+            null,
+            null
+        );
+
+        var result = handler.handle(command);
+
+        assertThat(result.success()).isTrue();
+        verify(outboundMessageGateway, never()).send(any());
+    }
+}

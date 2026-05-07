@@ -75,7 +75,7 @@ public class DrawLifeCycleTickScheduler {
             try {
                 binder.bind(jobParams(tenantId, "draw-generate", now));
 
-                commandBus.send(new GenerateDrawsForRangeCommand(
+                commandBus.execute(new GenerateDrawsForRangeCommand(
                     tenantId,
                     from,
                     to,
@@ -148,7 +148,7 @@ public class DrawLifeCycleTickScheduler {
             try {
                 binder.bind(jp);
 
-                commandBus.send(new OpenTodayDrawsCommand(
+                commandBus.execute(new OpenTodayDrawsCommand(
                         now,
                         null,
                         defaultSalesOpenTime,

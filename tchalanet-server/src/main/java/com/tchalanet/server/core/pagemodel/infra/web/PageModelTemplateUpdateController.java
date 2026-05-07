@@ -34,28 +34,28 @@ public class PageModelTemplateUpdateController {
 
   @GetMapping("/{logicalId}/preview")
   public ApiResponse<?> preview(@PathVariable String logicalId) {
-    return ApiResponse.success(queryBus.send(new PreviewTemplateUpdateQuery(logicalId)));
+    return ApiResponse.success(queryBus.ask(new PreviewTemplateUpdateQuery(logicalId)));
   }
 
   @PostMapping("/{logicalId}/merge")
   public ApiResponse<?> merge(
       @PathVariable String logicalId, @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        commandBus.send(new MergePageModelWithTemplateCommand(logicalId, context.userId())));
+        commandBus.execute(new MergePageModelWithTemplateCommand(logicalId, context.userId())));
   }
 
   @PostMapping("/{logicalId}/draft")
   public ApiResponse<?> draft(
       @PathVariable String logicalId, @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        commandBus.send(new CreateDraftFromTemplateUpdateCommand(logicalId, context.userId())));
+        commandBus.execute(new CreateDraftFromTemplateUpdateCommand(logicalId, context.userId())));
   }
 
   @PostMapping("/{logicalId}/replace")
   public ApiResponse<?> replace(
       @PathVariable String logicalId, @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        commandBus.send(new ReplacePageModelFromTemplateCommand(logicalId, context.userId())));
+        commandBus.execute(new ReplacePageModelFromTemplateCommand(logicalId, context.userId())));
   }
 
   @PostMapping("/{logicalId}/ignore")
@@ -64,7 +64,7 @@ public class PageModelTemplateUpdateController {
       @RequestParam(required = false) NotificationId notificationId,
       @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        commandBus.send(
+        commandBus.execute(
             new IgnoreTemplateUpdateCommand(
                 logicalId, Optional.ofNullable(notificationId), context.userId())));
   }

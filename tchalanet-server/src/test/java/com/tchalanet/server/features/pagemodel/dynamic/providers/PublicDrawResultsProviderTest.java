@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 class PublicDrawResultsProviderTest {
 
   @Test
-  void loadsPublicSlotsWithoutHistory() {
+  void loadsPublicSlots() {
     var bus = new RecordingQueryBus();
     var provider = new PublicDrawResultsProvider(bus);
 
@@ -23,8 +23,6 @@ class PublicDrawResultsProviderTest {
     var query = (ListPublicDrawResultSlotsQuery) bus.query;
     assertThat(query.slotKeys()).containsExactly("ny_mid", "FL_EVE");
     assertThat(query.provider()).isEqualTo("ny");
-    assertThat(query.includeHistory()).isFalse();
-    assertThat(query.historyLimit()).isZero();
   }
 
   private static PageModelDoc.WidgetConfig widget() {
@@ -41,7 +39,7 @@ class PublicDrawResultsProviderTest {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <R> R send(Query<R> query) {
+    public <R> R ask(Query<R> query) {
       this.query = query;
       return (R) List.of();
     }

@@ -43,7 +43,7 @@ public class DrawResultEventListener {
         }
 
         // Délègue au handler via CommandBus
-        commandBus.send(new MarkDrawResultOverriddenCommand(
+        commandBus.execute(new MarkDrawResultOverriddenCommand(
             event.previousDrawResultId(),
             event.reason(),
             clock.instant()

@@ -27,7 +27,7 @@ public class TicketVerifyService {
       return invalidCode(rawCode);
     }
 
-    var record = queryBus.send(new GetPublicTicketVerificationRecordQuery(code));
+    var record = queryBus.ask(new GetPublicTicketVerificationRecordQuery(code));
     if (record == null) {
       return notFound(code);
     }

@@ -63,7 +63,7 @@ public class AdminTchalaController {
     int page = offset / pageSize;
 
     var q = new ListPendingTchalaEntriesQuery(lang, conflictOnly, page, pageSize);
-    var res = queryBus.send(q);
+    var res = queryBus.ask(q);
 
     return TchPage.of(
         res.items().stream().map(TchalaEntryResponse::from).toList(),
@@ -86,7 +86,7 @@ public class AdminTchalaController {
             body.mode(),
             java.util.Optional.ofNullable(body.targetCanonicalId()),
             body.mergePolicy());
-    UUID canonicalId = commandBus.send(cmd);
+    UUID canonicalId = commandBus.execute(cmd);
     return ApiResponse.success(new ApproveResponse(canonicalId));
   }
 
@@ -94,7 +94,7 @@ public class AdminTchalaController {
   @PostMapping("/reject")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public ApiResponse<Void> reject(@RequestBody @Valid RejectRequest body) {
-    commandBus.send(new RejectTchalaEntryCommand(body.entryId(), body.reason()));
+    commandBus.execute(new RejectTchalaEntryCommand(body.entryId(), body.reason()));
     return ApiResponse.success(null);
   }
 
@@ -103,7 +103,7 @@ public class AdminTchalaController {
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<MergeResponse> merge(@RequestBody @Valid MergeRequest body) {
     UUID canonicalId =
-        commandBus.send(
+        commandBus.execute(
             new MergeTchalaEntriesCommand(
                 body.fromEntryId(), body.intoEntryId(), body.mergePolicy()));
     return ApiResponse.success(new MergeResponse(canonicalId));
@@ -129,7 +129,7 @@ public class AdminTchalaController {
 
     try {
       var cmd = new ImportTchalaEntriesCommand(lang, tempFilePath.toString(), mode);
-      var report = commandBus.send(cmd);
+      var report = commandBus.execute(cmd);
       return ApiResponse.success(report);
     } finally {
       try {
@@ -144,7 +144,7 @@ public class AdminTchalaController {
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<DeleteResponse> deleteEntries(@RequestBody @Valid DeleteRequest body) {
     var cmd = new DeleteTchalaEntriesCommand(body.entryIds());
-    commandBus.send(cmd);
+    commandBus.execute(cmd);
     return ApiResponse.success(new DeleteResponse(body.entryIds().size()));
   }
 }

@@ -32,18 +32,18 @@ public class LimitPolicyAdminController {
 
     @GetMapping("/definitions")
     public ApiResponse<ListLimitDefinitionsView> listDefinitions() {
-        return ApiResponse.success(queryBus.send(new ListLimitDefinitionsQuery()));
+        return ApiResponse.success(queryBus.ask(new ListLimitDefinitionsQuery()));
     }
 
     @PutMapping("/definitions")
     public ApiResponse<UpsertLimitDefinitionResult> upsertDefinition(@Valid @RequestBody UpsertLimitDefinitionRequest req) {
         var cmd = new UpsertLimitDefinitionCommand(req.ruleKey(), req.enabled(), req.onBreach(), req.params(), req.appliesTo());
-        return ApiResponse.success(commandBus.send(cmd));
+        return ApiResponse.success(commandBus.execute(cmd));
     }
 
     @DeleteMapping("/definitions/{id}")
     public ApiResponse<DeleteLimitDefinitionResult> deleteDefinition(@PathVariable LimitDefinitionId id) {
-        return ApiResponse.success(commandBus.send(new DeleteLimitDefinitionCommand(id)));
+        return ApiResponse.success(commandBus.execute(new DeleteLimitDefinitionCommand(id)));
     }
 
     @GetMapping("/assignments")
@@ -57,17 +57,17 @@ public class LimitPolicyAdminController {
             case AGENT -> LimitTarget.agent(AgentId.of(targetId));
             default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
         };
-        return ApiResponse.success(queryBus.send(new ListLimitAssignmentsByTargetQuery(target)));
+        return ApiResponse.success(queryBus.ask(new ListLimitAssignmentsByTargetQuery(target)));
     }
 
     @PutMapping("/assignments")
     public ApiResponse<UpsertLimitAssignmentResult> upsertAssignment(@Valid @RequestBody UpsertLimitAssignmentRequest req) {
         var cmd = new UpsertLimitAssignmentCommand(req.limitDefinitionId(), req.target(), req.enabled(), req.startsAt(), req.endsAt(), req.paramsOverride(), req.appliesToOverride());
-        return ApiResponse.success(commandBus.send(cmd));
+        return ApiResponse.success(commandBus.execute(cmd));
     }
 
     @DeleteMapping("/assignments/{id}")
     public ApiResponse<DeleteLimitAssignmentResult> deleteAssignment(@PathVariable LimitAssignmentId id) {
-        return ApiResponse.success(commandBus.send(new DeleteLimitAssignmentCommand(id)));
+        return ApiResponse.success(commandBus.execute(new DeleteLimitAssignmentCommand(id)));
     }
 }

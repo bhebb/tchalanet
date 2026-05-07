@@ -95,22 +95,22 @@ public class TerminalAdminController {
           TchPageRequest pageRequest) {
     var criteria =
         new TerminalSearchCriteria(q, outletId, assignedUserId, kind, state, syncState, activeForUser);
-    return ApiResponse.success(queryBus.send(new ListTerminalsQuery(criteria, pageRequest)));
+    return ApiResponse.success(queryBus.ask(new ListTerminalsQuery(criteria, pageRequest)));
   }
 
   @GetMapping("/{id}")
   public ApiResponse<TerminalView> get(@PathVariable TerminalId id) {
-    return ApiResponse.success(queryBus.send(new GetTerminalByIdQuery(id)));
+    return ApiResponse.success(queryBus.ask(new GetTerminalByIdQuery(id)));
   }
 
   @GetMapping("/offline")
   public ApiResponse<List<TerminalSummaryView>> listOffline() {
-    return ApiResponse.success(queryBus.send(new ListOfflineTerminalsQuery()));
+    return ApiResponse.success(queryBus.ask(new ListOfflineTerminalsQuery()));
   }
 
   @GetMapping("/sync-pending")
   public ApiResponse<List<TerminalSummaryView>> listSyncPending() {
-    return ApiResponse.success(queryBus.send(new ListSyncPendingTerminalsQuery()));
+    return ApiResponse.success(queryBus.ask(new ListSyncPendingTerminalsQuery()));
   }
 
   // ── Register / Unregister ──────────────────────────────────────────────
@@ -124,7 +124,7 @@ public class TerminalAdminController {
   public ApiResponse<TerminalId> register(
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody RegisterTerminalRequest req) {
     return ApiResponse.success(
-        commandBus.send(
+        commandBus.execute(
             new RegisterTerminalCommand(
                 ctx.tenantIdSafe(),
                 req.outletId(),
@@ -145,7 +145,7 @@ public class TerminalAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody UnregisterTerminalRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new UnregisterTerminalCommand(
             ctx.tenantIdSafe(), id, req.reason(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -163,7 +163,7 @@ public class TerminalAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody LockTerminalRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new LockTerminalCommand(ctx.tenantIdSafe(), id, req.reason(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
@@ -175,7 +175,7 @@ public class TerminalAdminController {
       idExpression = "#id.value().toString()")
   public ApiResponse<Void> unlock(
       @CurrentContext TchRequestContext ctx, @PathVariable TerminalId id) {
-    commandBus.send(
+    commandBus.execute(
         new UnlockTerminalCommand(ctx.tenantIdSafe(), id, ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
@@ -192,7 +192,7 @@ public class TerminalAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody AssignOutletRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new AssignTerminalToOutletCommand(
             ctx.tenantIdSafe(), id, req.outletId(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -208,7 +208,7 @@ public class TerminalAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody AssignUserRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new AssignTerminalToUserCommand(
             ctx.tenantIdSafe(), id, req.userId(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -221,7 +221,7 @@ public class TerminalAdminController {
       idExpression = "#id.value().toString()")
   public ApiResponse<Void> activateForUser(
       @CurrentContext TchRequestContext ctx, @PathVariable TerminalId id) {
-    commandBus.send(
+    commandBus.execute(
         new ActivateTerminalForUserCommand(
             ctx.tenantIdSafe(), id, ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -238,7 +238,7 @@ public class TerminalAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody UpdateMetadataRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new UpdateTerminalMetadataCommand(
             ctx.tenantIdSafe(), id, req.metadataPatch(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -254,7 +254,7 @@ public class TerminalAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody UpdateSyncStateRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new UpdateTerminalSyncStateCommand(
             ctx.tenantIdSafe(), id, req.newSyncState(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);

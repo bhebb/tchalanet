@@ -73,7 +73,7 @@ public class OpsNotificationController {
                 "ops-test" // reason
             );
 
-            var result = commandBus.send(command);
+            var result = commandBus.execute(command);
 
             var response = new SendNotificationTestResponse(
                 result.success(),

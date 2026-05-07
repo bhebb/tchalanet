@@ -47,7 +47,7 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
                   "compatibility", compatibility,
                   "recommendedAction", recommendedAction));
 
-      commandBus.send(
+      commandBus.execute(
           new CreateNotificationCommand(
               tenantId,
               "PAGE_MODEL_TEMPLATE",

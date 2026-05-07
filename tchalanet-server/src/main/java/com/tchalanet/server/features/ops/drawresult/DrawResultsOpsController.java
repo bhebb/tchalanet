@@ -62,7 +62,7 @@ public class DrawResultsOpsController {
     ) {
         gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_FETCH, null);
 
-        var res = commandBus.send(
+        var res = commandBus.execute(
             new FetchExternalResultsWindowCommand(
                 null,
                 nnDate(req.baseDate()),
@@ -92,7 +92,7 @@ public class DrawResultsOpsController {
     ) {
         gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, ctx.tenantId());
 
-        var fetchRes = commandBus.send(
+        var fetchRes = commandBus.execute(
             new FetchExternalResultsWindowCommand(
                 null,
                 nnDate(req.baseDate()),
@@ -106,7 +106,7 @@ public class DrawResultsOpsController {
             )
         );
 
-        var applyRes = commandBus.send(
+        var applyRes = commandBus.execute(
             new ApplyExternalResultsWindowCommand(
                 ctx.tenantId(),
                 nnDate(req.baseDate()),
@@ -135,7 +135,7 @@ public class DrawResultsOpsController {
     ) {
         gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_OVERRIDE, ctx.tenantId());
 
-        var res = commandBus.send(
+        var res = commandBus.execute(
             new OverrideDrawResultCommand(
                 ctx.tenantId(),
                 normalizeSlot(req.slotKey()),
@@ -163,7 +163,7 @@ public class DrawResultsOpsController {
     ) {
         gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_MANUAL, ctx.tenantId());
 
-        var res = commandBus.send(
+        var res = commandBus.execute(
             new RecordManualDrawResultCommand(
                 ctx.tenantId(),
                 req.drawDate(),
@@ -193,7 +193,7 @@ public class DrawResultsOpsController {
             defaultSort = {"occurredAt,DESC"}
         ) TchPageRequest pageReq
     ) {
-        var page = queryBus.send(new ListDrawResultsQuery(
+        var page = queryBus.ask(new ListDrawResultsQuery(
             normalizeNullableSlot(slotKey),
             status,
             quality,
@@ -207,7 +207,7 @@ public class DrawResultsOpsController {
 
     @GetMapping("/{drawResultId}")
     public ApiResponse<DrawResultOpsResponse> getById(@PathVariable DrawResultId drawResultId) {
-        var view = queryBus.send(new GetDrawResultViewByIdQuery(drawResultId));
+        var view = queryBus.ask(new GetDrawResultViewByIdQuery(drawResultId));
         return ApiResponse.success(mapper.toResponse(view));
     }
 
@@ -216,7 +216,7 @@ public class DrawResultsOpsController {
         @RequestParam String slotKey,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant occurredAt
     ) {
-        var view = queryBus.send(new GetDrawResultViewBySlotQuery(
+        var view = queryBus.ask(new GetDrawResultViewBySlotQuery(
             normalizeSlot(slotKey),
             occurredAt
         ));

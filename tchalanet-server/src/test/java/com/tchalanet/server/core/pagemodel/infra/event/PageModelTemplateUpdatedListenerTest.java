@@ -33,7 +33,7 @@ class PageModelTemplateUpdatedListenerTest {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R> R send(Command<R> command) {
+    public <R> R execute(Command<R> command) {
       lastCommand = command;
       return null;
     }

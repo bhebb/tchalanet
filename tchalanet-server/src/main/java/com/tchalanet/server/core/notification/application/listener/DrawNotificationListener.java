@@ -48,7 +48,7 @@ public class DrawNotificationListener {
             for (var command : commands) {
                 log.debug("Sending notification command: type={}, recipients={}",
                     command.type(), command.recipients().size());
-                commandBus.send(command);
+                commandBus.execute(command);
             }
 
             log.info("DrawResultIngested notifications sent: slotKey={}, commandCount={}",
@@ -81,7 +81,7 @@ public class DrawNotificationListener {
             for (var command : commands) {
                 log.debug("Sending notification command: type={}, recipients={}",
                     command.type(), command.recipients().size());
-                commandBus.send(command);
+                commandBus.execute(command);
             }
 
             log.info("DrawResultApplied notifications sent: drawId={}, commandCount={}",
@@ -114,7 +114,7 @@ public class DrawNotificationListener {
             for (var command : commands) {
                 log.debug("Sending notification command: type={}, recipients={}",
                     command.type(), command.recipients().size());
-                commandBus.send(command);
+                commandBus.execute(command);
             }
 
             log.info("DrawSettled notifications sent: drawId={}, commandCount={}",

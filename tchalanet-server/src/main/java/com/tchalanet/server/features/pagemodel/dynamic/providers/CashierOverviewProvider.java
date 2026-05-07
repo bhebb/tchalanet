@@ -6,7 +6,6 @@ import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -42,7 +41,7 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
 
     try {
       var sessions =
-          queryBus.send(new ListCashierOpenSessionsQuery(ctx.tenantId(), ctx.userId()));
+          queryBus.ask(new ListCashierOpenSessionsQuery(ctx.tenantId(), ctx.userId()));
 
       if (sessions == null || sessions.isEmpty()) {
         return Map.of(

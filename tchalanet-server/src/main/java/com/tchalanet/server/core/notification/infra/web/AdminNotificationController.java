@@ -48,7 +48,7 @@ public class AdminNotificationController {
       @TchPaging TchPageRequest pageRequest,
       @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        queryBus.send(
+        queryBus.ask(
             new ListNotificationsQuery(
                 context.userId(),
                 context.currentRole() == null ? null : context.currentRole().name(),
@@ -64,7 +64,7 @@ public class AdminNotificationController {
       @RequestBody CreateNotificationRequest request, @CurrentContext TchRequestContext context) {
     var audienceType =
         request.audienceType() == null ? NotificationAudienceType.TENANT : request.audienceType();
-    commandBus.send(
+    commandBus.execute(
         new CreateNotificationCommand(
             context.tenantId(),
             request.sourceType(),
@@ -93,7 +93,7 @@ public class AdminNotificationController {
       @RequestParam(required = false) NotificationDeliveryStatus status,
       @TchPaging TchPageRequest pageRequest) {
     return ApiResponse.success(
-        queryBus.send(
+        queryBus.ask(
             new ListNotificationDeliveriesQuery(
                 Optional.ofNullable(notificationId), Optional.ofNullable(status), pageRequest)));
   }

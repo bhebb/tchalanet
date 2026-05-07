@@ -76,23 +76,23 @@ public class OutletAdminController {
       @TchPaging(defaultSort = {"name,ASC"}, allowedSort = {"name", "slug", "createdAt"})
           TchPageRequest pageRequest) {
     OutletSearchCriteria criteria = new OutletSearchCriteria(q, active, salesBlocked, dayClosed);
-    return ApiResponse.success(queryBus.send(new ListOutletsQuery(criteria, pageRequest)));
+    return ApiResponse.success(queryBus.ask(new ListOutletsQuery(criteria, pageRequest)));
   }
 
   @GetMapping("/{id}")
   public ApiResponse<OutletView> get(
       @CurrentContext TchRequestContext ctx, @PathVariable OutletId id) {
-    return ApiResponse.success(queryBus.send(new GetOutletByIdQuery(ctx.tenantIdSafe(), id)));
+    return ApiResponse.success(queryBus.ask(new GetOutletByIdQuery(ctx.tenantIdSafe(), id)));
   }
 
   @GetMapping("/{id}/operational-context")
   public ApiResponse<OutletOperationalContextView> operationalContext(@PathVariable OutletId id) {
-    return ApiResponse.success(queryBus.send(new GetOutletOperationalContextQuery(id)));
+    return ApiResponse.success(queryBus.ask(new GetOutletOperationalContextQuery(id)));
   }
 
   @GetMapping("/{id}/sales-capability")
   public ApiResponse<SalesCapability> salesCapability(@PathVariable OutletId id) {
-    return ApiResponse.success(queryBus.send(new GetOutletSalesCapabilityQuery(id)));
+    return ApiResponse.success(queryBus.ask(new GetOutletSalesCapabilityQuery(id)));
   }
 
   // ── CRUD ─────────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ public class OutletAdminController {
   public ApiResponse<OutletId> create(
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody CreateOutletRequest req) {
     return ApiResponse.success(
-        commandBus.send(
+        commandBus.execute(
             new CreateOutletCommand(ctx.tenantIdSafe(), req.name(), req.slug(), null, req.address())));
   }
 
@@ -120,7 +120,7 @@ public class OutletAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable OutletId id,
       @RequestBody OutletConfigPatch patch) {
-    commandBus.send(new UpdateOutletConfigCommand(ctx.tenantIdSafe(), id, patch));
+    commandBus.execute(new UpdateOutletConfigCommand(ctx.tenantIdSafe(), id, patch));
     return ApiResponse.success(null);
   }
 
@@ -136,7 +136,7 @@ public class OutletAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable OutletId id,
       @Valid @RequestBody BlockSalesRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new BlockOutletSalesCommand(
             ctx.tenantIdSafe(), id, req.reason(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -149,7 +149,7 @@ public class OutletAdminController {
       idExpression = "#id.value().toString()")
   public ApiResponse<Void> unblockSales(
       @CurrentContext TchRequestContext ctx, @PathVariable OutletId id) {
-    commandBus.send(
+    commandBus.execute(
         new UnblockOutletSalesCommand(ctx.tenantIdSafe(), id, ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
   }
@@ -158,7 +158,7 @@ public class OutletAdminController {
 
   @GetMapping("/{id}/users")
   public ApiResponse<List<OutletUserView>> listUsers(@PathVariable OutletId id) {
-    return ApiResponse.success(queryBus.send(new ListOutletUsersQuery(id)));
+    return ApiResponse.success(queryBus.ask(new ListOutletUsersQuery(id)));
   }
 
   @PostMapping("/{id}/users")
@@ -171,7 +171,7 @@ public class OutletAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable OutletId id,
       @Valid @RequestBody AssignUserRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new AssignUserToOutletCommand(
             ctx.tenantIdSafe(), id, req.userId(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -187,7 +187,7 @@ public class OutletAdminController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable OutletId id,
       @PathVariable UserId userId) {
-    commandBus.send(
+    commandBus.execute(
         new RemoveUserFromOutletCommand(
             ctx.tenantIdSafe(), id, userId, ctx.currentUserIdRequired()));
     return ApiResponse.success(null);
@@ -197,6 +197,6 @@ public class OutletAdminController {
 
   @GetMapping("/{id}/terminals")
   public ApiResponse<List<OutletTerminalView>> listTerminals(@PathVariable OutletId id) {
-    return ApiResponse.success(queryBus.send(new ListOutletTerminalsQuery(id)));
+    return ApiResponse.success(queryBus.ask(new ListOutletTerminalsQuery(id)));
   }
 }

@@ -52,7 +52,7 @@ public class TenantUserAdminController {
                 ctx.keycloakUserId(),
                 null, null, null, null, null,
                 ctx.locale(), ctx.tenantZoneId());
-            EnsureUserExistsForPrincipalResult res = commandBus.send(cmd);
+            EnsureUserExistsForPrincipalResult res = commandBus.execute(cmd);
             return ApiResponse.success(loadAndMap(res.userId()));
         }
         return ApiResponse.success(loadAndMap(ctx.userId()));
@@ -60,7 +60,7 @@ public class TenantUserAdminController {
 
     @GetMapping
     public ApiResponse<TchPage<TenantUserRow>> list(@CurrentContext TchRequestContext ctx, @TchPaging TchPageRequest pageReq) {
-        var page = queryBus.send(new PagedListTenantUsersQuery(ctx.tenantId(), pageReq));
+        var page = queryBus.ask(new PagedListTenantUsersQuery(ctx.tenantId(), pageReq));
         return ApiResponse.success(TchPageMapper.map(page, r -> r));
     }
 
@@ -80,17 +80,17 @@ public class TenantUserAdminController {
             req.email(), req.phone(), req.firstName(), req.lastName(),
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
             false, Set.of());
-        CreateUserResult createRes = commandBus.send(createCmd);
+        CreateUserResult createRes = commandBus.execute(createCmd);
 
-        commandBus.send(new AssignUserToTenantCommand(ctx.tenantId(), createRes.userId(), null, req.outletId(), req.terminalId(), false));
-        commandBus.send(new SetTenantUserRoleCommand(ctx.tenantId(), createRes.userId(), req.role()));
+        commandBus.execute(new AssignUserToTenantCommand(ctx.tenantId(), createRes.userId(), null, req.outletId(), req.terminalId(), false));
+        commandBus.execute(new SetTenantUserRoleCommand(ctx.tenantId(), createRes.userId(), req.role()));
 
         return ApiResponse.success(loadAndMap(createRes.userId()));
     }
 
     @PutMapping("/{userId}")
     public ApiResponse<TenantUserAdminResponse> updateProfile(@CurrentContext TchRequestContext ctx, @PathVariable UserId userId, @Valid @RequestBody UpdateUserRequest req) {
-        commandBus.send(new UpdateUserProfileCommand(
+        commandBus.execute(new UpdateUserProfileCommand(
             userId,
             Optional.ofNullable(req.firstName()),
             Optional.ofNullable(req.lastName()),
@@ -102,7 +102,7 @@ public class TenantUserAdminController {
 
     @PatchMapping("/{userId}/preferences")
     public ApiResponse<TenantUserAdminResponse> updatePreferences(@CurrentContext TchRequestContext ctx, @PathVariable UserId userId, @Valid @RequestBody UpdatePreferencesRequest req) {
-        commandBus.send(new UpdateUserPreferencesCommand(
+        commandBus.execute(new UpdateUserPreferencesCommand(
             userId,
             Optional.ofNullable(req.themeMode()),
             Optional.ofNullable(req.density()),
@@ -114,25 +114,25 @@ public class TenantUserAdminController {
 
     @PutMapping("/{userId}/membership")
     public ApiResponse<TenantUserAdminResponse> upsertMembership(@CurrentContext TchRequestContext ctx, @PathVariable UserId userId, @Valid @RequestBody UpsertMembershipRequest req) {
-        commandBus.send(new AssignUserToTenantCommand(ctx.tenantId(), userId, null, req.outletId(), req.terminalId(), false));
+        commandBus.execute(new AssignUserToTenantCommand(ctx.tenantId(), userId, null, req.outletId(), req.terminalId(), false));
         return ApiResponse.success(loadAndMap(userId));
     }
 
     @DeleteMapping("/{userId}/membership")
     public ApiResponse<TenantUserAdminResponse> deleteMembership(@CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        commandBus.send(new UnassignUserFromTenantCommand(ctx.tenantId(), userId));
+        commandBus.execute(new UnassignUserFromTenantCommand(ctx.tenantId(), userId));
         return ApiResponse.success(loadAndMap(userId));
     }
 
     @PutMapping("/{userId}/role")
     public ApiResponse<TenantUserAdminResponse> setRole(@CurrentContext TchRequestContext ctx, @PathVariable UserId userId, @Valid @RequestBody SetUserRoleRequest req) {
         if (req.role() == null) throw ProblemRest.badRequest("role is required");
-        commandBus.send(new SetTenantUserRoleCommand(ctx.tenantId(), userId, req.role()));
+        commandBus.execute(new SetTenantUserRoleCommand(ctx.tenantId(), userId, req.role()));
         return ApiResponse.success(loadAndMap(userId));
     }
 
     private TenantUserAdminResponse loadAndMap(UserId userId) {
-        CurrentUserDetails d = queryBus.send(new GetCurrentUserQuery(userId));
+        CurrentUserDetails d = queryBus.ask(new GetCurrentUserQuery(userId));
         if (d == null) throw ProblemRest.notFound("User not found: " + userId);
         return new TenantUserAdminResponse(
             d.id(),

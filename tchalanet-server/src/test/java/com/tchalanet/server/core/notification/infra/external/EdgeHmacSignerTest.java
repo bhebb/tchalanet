@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.notification.infra.external;
 
+import com.tchalanet.server.common.communication.edge.EdgeHmacSigner;
 import com.tchalanet.server.common.util.JsonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

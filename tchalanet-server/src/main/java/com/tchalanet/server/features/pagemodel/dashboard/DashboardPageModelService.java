@@ -9,7 +9,7 @@ import com.tchalanet.server.core.pagemodel.application.query.model.ResolveEffect
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
-import com.tchalanet.server.features.pagemodel.dashboard.DashboardPageModelResponse;
+
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class DashboardPageModelService {
             ? tenantIdOverride
             : Optional.ofNullable(ctxHolder == null ? null : ctxHolder.tenantId());
 
-    PageModelDoc doc = queryBus.send(new ResolveEffectivePageModelQuery(tenantId, logicalId));
+    PageModelDoc doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
 
     String currentLang =
         langResolver.resolve(
@@ -54,7 +54,7 @@ public class DashboardPageModelService {
     NotificationSummaryView notifications =
         ctxHolder == null
             ? null
-            : queryBus.send(
+            : queryBus.ask(
                 new GetNotificationSummaryQuery(
                     ctxHolder.userId(),
                     ctxHolder.currentRole() == null ? null : ctxHolder.currentRole().name()));

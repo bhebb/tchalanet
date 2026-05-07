@@ -67,7 +67,7 @@ public class PageModelOnboardingService {
             true
         );
 
-        commandBus.send(cmd);
+        commandBus.execute(cmd);
         log.info("Seeded PageModel from template logicalId={} for tenant={}", type.logicalId(), tenantId);
     }
 

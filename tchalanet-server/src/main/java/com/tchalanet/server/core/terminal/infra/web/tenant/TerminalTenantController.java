@@ -50,12 +50,12 @@ public class TerminalTenantController {
 
   @GetMapping("/current")
   public ApiResponse<TerminalView> current(@CurrentContext TchRequestContext ctx) {
-    return ApiResponse.success(queryBus.send(new GetCurrentTerminalQuery(ctx.currentUserIdRequired())));
+    return ApiResponse.success(queryBus.ask(new GetCurrentTerminalQuery(ctx.currentUserIdRequired())));
   }
 
   @GetMapping("/{id}/status")
   public ApiResponse<TerminalView> status(@PathVariable TerminalId id) {
-    return ApiResponse.success(queryBus.send(new GetTerminalByIdQuery(id)));
+    return ApiResponse.success(queryBus.ask(new GetTerminalByIdQuery(id)));
   }
 
   // ── Runtime ─────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ public class TerminalTenantController {
       @RequestBody(required = false) HeartbeatRequest req) {
     Instant occurredAt =
         (req == null || req.occurredAt() == null) ? Instant.now(clock) : req.occurredAt();
-    commandBus.send(new SendTerminalHeartbeatCommand(ctx.tenantIdSafe(), id, occurredAt));
+    commandBus.execute(new SendTerminalHeartbeatCommand(ctx.tenantIdSafe(), id, occurredAt));
     return ApiResponse.success(null);
   }
 
@@ -76,7 +76,7 @@ public class TerminalTenantController {
       @CurrentContext TchRequestContext ctx,
       @PathVariable TerminalId id,
       @Valid @RequestBody SyncStateRequest req) {
-    commandBus.send(
+    commandBus.execute(
         new UpdateTerminalSyncStateCommand(
             ctx.tenantIdSafe(), id, req.newSyncState(), ctx.currentUserIdRequired()));
     return ApiResponse.success(null);

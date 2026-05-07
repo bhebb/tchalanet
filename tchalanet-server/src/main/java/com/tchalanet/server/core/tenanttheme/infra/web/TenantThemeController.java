@@ -37,7 +37,7 @@ public class TenantThemeController {
   @PreAuthorize("hasAuthority('TENANT_READ')")
   public ResponseEntity<TenantThemeView> getTenantTheme(@CurrentContext TchRequestContext context) {
     TenantId tenantId = context.tenantId();
-    var theme = queryBus.send(new ResolveTenantThemeQuery(tenantId));
+    var theme = queryBus.ask(new ResolveTenantThemeQuery(tenantId));
     return theme != null ? ResponseEntity.ok(theme) : ResponseEntity.noContent().build();
   }
 
@@ -47,7 +47,7 @@ public class TenantThemeController {
   public ResponseEntity<Void> applyTheme(
       @CurrentContext TchRequestContext context, @RequestBody ApplyThemeRequest request) {
     TenantId tenantId = context.tenantId();
-    commandBus.send(new ApplyTenantThemeCommand(tenantId, request.presetCode()));
+    commandBus.execute(new ApplyTenantThemeCommand(tenantId, request.presetCode()));
     return ResponseEntity.noContent().build();
   }
 
@@ -56,7 +56,7 @@ public class TenantThemeController {
   @PreAuthorize("hasAuthority('TENANT_ADMIN')")
   public ResponseEntity<Void> deactivateTheme(@CurrentContext TchRequestContext context) {
     TenantId tenantId = context.tenantId();
-    commandBus.send(new DeactivateTenantThemeCommand(tenantId));
+    commandBus.execute(new DeactivateTenantThemeCommand(tenantId));
     return ResponseEntity.noContent().build();
   }
 

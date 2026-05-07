@@ -57,7 +57,7 @@ public class PageModelAdminController {
         Optional.ofNullable(logicalId).filter(s -> !s.isBlank()),
         pageReq.pageable()
     );
-    return ApiResponse.success(queryBus.send(query));
+    return ApiResponse.success(queryBus.ask(query));
   }
 
   @PostMapping("/{id}/publish")
@@ -66,7 +66,7 @@ public class PageModelAdminController {
       @CurrentContext TchRequestContext ctx) {
     PageModelId pid = PageModelId.parse(id);
     Command<Void> cmd = new PublishPageModelCommand(pid, ctx.tenantIdSafe(), ctx.userId());
-    commandBus.send(cmd);
+    commandBus.execute(cmd);
     return ApiResponse.success(true);
   }
 
@@ -86,7 +86,7 @@ public class PageModelAdminController {
         modelJson,
         Optional.empty()
     );
-    return ApiResponse.success(commandBus.send(cmd));
+    return ApiResponse.success(commandBus.execute(cmd));
   }
 
   @PutMapping("/{id}")
@@ -107,7 +107,7 @@ public class PageModelAdminController {
         modelJson,
         Optional.empty()
     );
-    return ApiResponse.success(commandBus.send(cmd));
+    return ApiResponse.success(commandBus.execute(cmd));
   }
 
   // ------------------------------------------------------------------ preview
@@ -118,7 +118,7 @@ public class PageModelAdminController {
   public ApiResponse<PageModelAdminDetailDto> preview(
       @PathVariable PageModelId id
   ) {
-    return ApiResponse.success(queryBus.send(new PreviewPageModelQuery(id)));
+    return ApiResponse.success(queryBus.ask(new PreviewPageModelQuery(id)));
   }
 
   // ---------------------------------------------------------------- duplicate
@@ -138,7 +138,7 @@ public class PageModelAdminController {
         Optional.ofNullable(logicalId).filter(s -> !s.isBlank()),
         Optional.ofNullable(slug).filter(s -> !s.isBlank())
     );
-    return ApiResponse.success(commandBus.send(cmd));
+    return ApiResponse.success(commandBus.execute(cmd));
   }
 
   // ------------------------------------------------------------------ reset
@@ -151,6 +151,6 @@ public class PageModelAdminController {
       @CurrentContext TchRequestContext ctx
   ) {
     var cmd = new ResetPageModelCommand(id, ctx.currentUserIdRequired());
-    return ApiResponse.success(commandBus.send(cmd));
+    return ApiResponse.success(commandBus.execute(cmd));
   }
 }

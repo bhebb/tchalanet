@@ -45,7 +45,7 @@ public class TenantNotificationController {
   @GetMapping("/summary")
   public ApiResponse<?> summary(@CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        queryBus.send(new GetNotificationSummaryQuery(context.userId(), roleCode(context))));
+        queryBus.ask(new GetNotificationSummaryQuery(context.userId(), roleCode(context))));
   }
 
   @GetMapping
@@ -57,7 +57,7 @@ public class TenantNotificationController {
       @TchPaging TchPageRequest pageRequest,
       @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        queryBus.send(
+        queryBus.ask(
             new ListNotificationsQuery(
                 context.userId(),
                 roleCode(context),
@@ -71,7 +71,7 @@ public class TenantNotificationController {
   @PostMapping("/{id}/read")
   public ApiResponse<?> markRead(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
-    commandBus.send(new MarkNotificationReadCommand(id, context.userId()));
+    commandBus.execute(new MarkNotificationReadCommand(id, context.userId()));
     return ApiResponse.success(true);
   }
 
@@ -79,7 +79,7 @@ public class TenantNotificationController {
   public ApiResponse<?> markRead(
       @Valid @RequestBody NotificationBulkActionRequest request,
       @CurrentContext TchRequestContext context) {
-    commandBus.send(
+    commandBus.execute(
         new MarkNotificationsReadCommand(
             request.ids().stream().map(NotificationId::of).toList(), context.userId()));
     return ApiResponse.success(true);
@@ -88,7 +88,7 @@ public class TenantNotificationController {
   @PostMapping("/{id}/archive")
   public ApiResponse<?> archive(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
-    commandBus.send(new ArchiveNotificationCommand(id, context.userId()));
+    commandBus.execute(new ArchiveNotificationCommand(id, context.userId()));
     return ApiResponse.success(true);
   }
 
@@ -96,7 +96,7 @@ public class TenantNotificationController {
   public ApiResponse<?> archive(
       @Valid @RequestBody NotificationBulkActionRequest request,
       @CurrentContext TchRequestContext context) {
-    commandBus.send(
+    commandBus.execute(
         new ArchiveNotificationsCommand(
             request.ids().stream().map(NotificationId::of).toList(), context.userId()));
     return ApiResponse.success(true);

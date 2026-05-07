@@ -51,7 +51,7 @@ public class DrawQueryAdminController {
             request.from(),
             request.to());
 
-        TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
+        TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, pageReq.pageable()));
 
         return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
     }
@@ -66,7 +66,7 @@ public class DrawQueryAdminController {
         TchPageRequest pageReq) {
 
         var criteria = DrawSearchCriteria.today(resultSlotId, LocalDate.now(clock));
-        TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
+        TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, pageReq.pageable()));
 
         return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
     }
@@ -86,7 +86,7 @@ public class DrawQueryAdminController {
         }
 
         var criteria = DrawSearchCriteria.upcoming(resultSlotId, LocalDate.now(clock), days);
-        TchPage<DrawSummary> page = queryBus.send(new ListDrawsQuery(criteria, pageReq.pageable()));
+        TchPage<DrawSummary> page = queryBus.ask(new ListDrawsQuery(criteria, pageReq.pageable()));
 
         return ApiResponse.success(TchPageMapper.map(page, mapper::toDrawSummaryResponse));
     }
@@ -102,7 +102,7 @@ public class DrawQueryAdminController {
             defaultSort = {"scheduledAt,asc"})
         TchPageRequest pageReq) {
 
-        TchPage<DrawSummary> page = queryBus.send(new ListNextDrawsQuery(
+        TchPage<DrawSummary> page = queryBus.ask(new ListNextDrawsQuery(
             resultSlotId,
             lookaheadHours,
             limitPerChannel,
@@ -120,7 +120,7 @@ public class DrawQueryAdminController {
             defaultSort = {"drawDate,desc", "scheduledAt,desc"})
         TchPageRequest pageReq) {
 
-        TchPage<DrawSummary> page = queryBus.send(new ListLatestDrawsWithResultsQuery(
+        TchPage<DrawSummary> page = queryBus.ask(new ListLatestDrawsWithResultsQuery(
             resultSlotKeys,
             pageReq.pageable()));
 
@@ -137,7 +137,7 @@ public class DrawQueryAdminController {
 
 
     private DrawSummaryResponse reload(DrawId drawId) {
-        var summary = queryBus.send(new GetDrawByIdQuery(drawId));
+        var summary = queryBus.ask(new GetDrawByIdQuery(drawId));
         return mapper.toDrawSummaryResponse(summary);
     }
 }

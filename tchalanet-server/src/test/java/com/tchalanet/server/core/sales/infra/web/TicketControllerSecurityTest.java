@@ -11,11 +11,11 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Security annotation tests for {@link TicketController}.
+ * Security annotation tests for split ticket controllers.
  *
- * <p>Verifies that the 4 previously-unsecured endpoints (cancel, print, printEscpos, printPdf)
- * carry {@code @Secured} with the required role set. This provides deterministic build-time
- * proof that the annotations are present and correct, without requiring a Spring context.
+ * <p>Verifies that tenant cashier endpoints carry {@code @Secured} with the required role set.
+ * This provides deterministic build-time proof that the annotations are present and correct,
+ * without requiring a Spring context.
  *
  * <p>Runtime enforcement (HTTP 401/403) is guaranteed by:
  * <ul>
@@ -32,42 +32,51 @@ class TicketControllerSecurityTest {
 
     @Test
     void cancelEndpoint_hasSecuredWithRequiredRoles() {
-        assertHasSecured("cancel");
-    }
-
-    @Test
-    void printEndpoint_hasSecuredWithRequiredRoles() {
-        assertHasSecured("print");
+        assertHasSecured(TicketSalesController.class, "cancel", REQUIRED_ROLES);
     }
 
     @Test
     void printEscposEndpoint_hasSecuredWithRequiredRoles() {
-        assertHasSecured("printEscpos");
+        assertHasSecured(
+            com.tchalanet.server.features.receipt.ReceiptController.class,
+            "printEscpos",
+            REQUIRED_ROLES);
     }
 
     @Test
     void printPdfEndpoint_hasSecuredWithRequiredRoles() {
-        assertHasSecured("printPdf");
+        assertHasSecured(
+            com.tchalanet.server.features.receipt.ReceiptController.class,
+            "printPdf",
+            REQUIRED_ROLES);
     }
 
     @Test
-    void ticketController_hasTenMethods_withSecured() {
-        long count = Arrays.stream(TicketController.class.getMethods())
-                .filter(m -> m.isAnnotationPresent(Secured.class))
-                .count();
-        assertThat(count)
-                .as("TicketController should have exactly 11 @Secured methods")
-                .isEqualTo(11);
+    void qrEndpoint_hasSecuredWithRequiredRoles() {
+        assertHasSecured(
+            com.tchalanet.server.features.receipt.ReceiptController.class,
+            "qrPng",
+            REQUIRED_ROLES);
     }
 
-    private void assertHasSecured(String methodPrefix) {
-        List<Method> matches = Arrays.stream(TicketController.class.getMethods())
+    @Test
+    void base64PrintEndpoint_isRemoved() {
+        var names =
+            Arrays.stream(com.tchalanet.server.features.receipt.ReceiptController.class.getMethods())
+                .map(Method::getName)
+                .toList();
+
+        assertThat(names).doesNotContain("print");
+    }
+
+    private void assertHasSecured(Class<?> controller, String methodPrefix, Set<String> requiredRoles) {
+        List<Method> matches = Arrays.stream(controller.getMethods())
                 .filter(m -> m.getName().equals(methodPrefix) || m.getName().startsWith(methodPrefix + "("))
                 .filter(m -> m.isAnnotationPresent(Secured.class))
                 .toList();
 
         assertThat(matches)
-                .as("Method '%s' in TicketController should have @Secured annotation", methodPrefix)
+                .as("Method '%s' in %s should have @Secured annotation", methodPrefix, controller.getSimpleName())
                 .isNotEmpty();
 
         for (Method m : matches) {
@@ -75,8 +84,7 @@ class TicketControllerSecurityTest {
             Set<String> actualRoles = Set.of(secured.value());
             assertThat(actualRoles)
                     .as("Method '%s' @Secured should contain all required roles", methodPrefix)
-                    .containsAll(REQUIRED_ROLES);
+                    .containsAll(requiredRoles);
         }
     }
 }
-
