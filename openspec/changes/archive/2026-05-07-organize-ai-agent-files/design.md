@@ -81,14 +81,14 @@ Each component may have its own `AGENTS.md`.
 
 Example ownership:
 
-| Component | File |
-| --- | --- |
-| Backend | `tchalanet-server/AGENTS.md` |
-| Web | `tchalanet-web/AGENTS.md` |
-| Mobile | `tchalanet-mobile/AGENTS.md` |
-| Edge | `tchalanet-edge-service/AGENTS.md` |
-| Infra | `tchalanet-infra/AGENTS.md` |
-| Docs | `tchalanet-docs/AGENTS.md` |
+| Component | File                               |
+| --------- | ---------------------------------- |
+| Backend   | `tchalanet-server/AGENTS.md`       |
+| Web       | `tchalanet-web/AGENTS.md`          |
+| Mobile    | `tchalanet-mobile/AGENTS.md`       |
+| Edge      | `tchalanet-edge-service/AGENTS.md` |
+| Infra     | `tchalanet-infra/AGENTS.md`        |
+| Docs      | `tchalanet-docs/AGENTS.md`         |
 
 Component agent files should include:
 
