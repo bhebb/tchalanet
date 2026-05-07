@@ -21,7 +21,7 @@ public class PublicDrawResultService {
   public PublicDrawResultSlotsResponse slots(List<String> slotKeys, String provider) {
     var views =
         queryBus.send(
-            new ListPublicDrawResultSlotsQuery(normalizeSlotKeys(slotKeys), provider, false, 0));
+            new ListPublicDrawResultSlotsQuery(normalizeSlotKeys(slotKeys), provider));
 
     return mapper.toSlotsResponse(views);
   }

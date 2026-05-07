@@ -35,7 +35,7 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
     var provider = readString(props, "provider");
 
     var slots =
-        queryBus.send(new ListPublicDrawResultSlotsQuery(slotKeys, provider, false, 0));
+        queryBus.send(new ListPublicDrawResultSlotsQuery(slotKeys, provider));
 
     return Map.of("slots", slots);
   }

@@ -6,7 +6,5 @@ import java.util.List;
 
 public record ListPublicDrawResultSlotsQuery(
     List<String> slotKeys,
-    String provider,
-    boolean includeHistory,
-    int historyLimit
+    String provider
 ) implements Query<List<PublicDrawResultSlotView>> {}
