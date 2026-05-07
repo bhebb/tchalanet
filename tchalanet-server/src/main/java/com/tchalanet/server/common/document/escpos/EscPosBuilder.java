@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.print.escpos;
+package com.tchalanet.server.common.document.escpos;
 
 import org.springframework.stereotype.Component;
 
@@ -43,7 +43,6 @@ public class EscPosBuilder {
     }
 
     public byte[] text(String s) {
-        // MVP: ASCII-only to avoid printer encoding issues on BT
         return s == null ? new byte[0] : s.getBytes(StandardCharsets.US_ASCII);
     }
 

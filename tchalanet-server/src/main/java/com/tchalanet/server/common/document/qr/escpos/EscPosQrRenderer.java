@@ -1,6 +1,6 @@
-package com.tchalanet.server.common.qr.escpos;
+package com.tchalanet.server.common.document.qr.escpos;
 
-import com.tchalanet.server.common.qr.QrRenderer;
+import com.tchalanet.server.common.document.qr.QrRenderer;
 import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Component;
 
@@ -20,37 +20,10 @@ public class EscPosQrRenderer implements QrRenderer {
 
     byte[] data = payload.getBytes(StandardCharsets.UTF_8);
 
-    // Model 2
-    out.add(GS)
-        .add((byte) '(')
-        .add((byte) 'k')
-        .add((byte) 4)
-        .add((byte) 0)
-        .add((byte) 49)
-        .add((byte) 65)
-        .add((byte) 50);
+    out.add(GS).add((byte) '(').add((byte) 'k').add((byte) 4).add((byte) 0).add((byte) 49).add((byte) 65).add((byte) 50);
+    out.add(GS).add((byte) '(').add((byte) 'k').add((byte) 3).add((byte) 0).add((byte) 49).add((byte) 67).add((byte) 6);
+    out.add(GS).add((byte) '(').add((byte) 'k').add((byte) 3).add((byte) 0).add((byte) 49).add((byte) 69).add((byte) 49);
 
-    // Size 1..16 (map spec.sizePx -> module size). On fixe 6 pour l’instant.
-    out.add(GS)
-        .add((byte) '(')
-        .add((byte) 'k')
-        .add((byte) 3)
-        .add((byte) 0)
-        .add((byte) 49)
-        .add((byte) 67)
-        .add((byte) 6);
-
-    // Error correction M
-    out.add(GS)
-        .add((byte) '(')
-        .add((byte) 'k')
-        .add((byte) 3)
-        .add((byte) 0)
-        .add((byte) 49)
-        .add((byte) 69)
-        .add((byte) 49);
-
-    // Store
     int len = data.length + 3;
     out.add(GS)
         .add((byte) '(')
@@ -62,21 +35,12 @@ public class EscPosQrRenderer implements QrRenderer {
         .add((byte) 48);
     out.add(data);
 
-    // Print
-    out.add(GS)
-        .add((byte) '(')
-        .add((byte) 'k')
-        .add((byte) 3)
-        .add((byte) 0)
-        .add((byte) 49)
-        .add((byte) 81)
-        .add((byte) 48);
+    out.add(GS).add((byte) '(').add((byte) 'k').add((byte) 3).add((byte) 0).add((byte) 49).add((byte) 81).add((byte) 48);
     out.lf().lf();
 
     return out.toByteArray();
   }
 
-  // mini buffer (tu peux réutiliser celui d'EscPosBuilder si tu préfères)
   static class ByteArrayOutput {
     private byte[] buf = new byte[256];
     private int n = 0;

@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.qr;
+package com.tchalanet.server.common.document.qr;
 
 public interface QrRenderer {
   QrFormat format();

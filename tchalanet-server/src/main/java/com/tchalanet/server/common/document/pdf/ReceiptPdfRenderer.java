@@ -1,7 +1,7 @@
-package com.tchalanet.server.common.print.pdf;
+package com.tchalanet.server.common.document.pdf;
 
-import com.tchalanet.server.common.print.receipt.ReceiptModel;
-import com.tchalanet.server.common.print.receipt.ReceiptSpan;
+import com.tchalanet.server.common.document.receipt.ReceiptModel;
+import com.tchalanet.server.common.document.receipt.ReceiptSpan;
 import java.io.ByteArrayOutputStream;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -12,11 +12,11 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TicketPdfBuilder {
+public class ReceiptPdfRenderer {
 
-  public byte[] buildReceiptPdf(ReceiptModel model, byte[] qrPng) {
+  public byte[] render(ReceiptModel model, byte[] qrPng) {
     float width = 226; // ~80mm
-    float height = 600; // simple; tu peux ajuster dynamiquement plus tard
+    float height = 600;
     PDRectangle pageSize = new PDRectangle(width, height);
 
     try (var doc = new PDDocument();
@@ -26,17 +26,13 @@ public class TicketPdfBuilder {
 
       PDImageXObject qr = PDImageXObject.createFromByteArray(doc, qrPng, "qr.png");
 
-      // Titre
       PDFont titleBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
-
-      // Corps: monospace pour alignement des colonnes
       PDFont bodyNormal = new PDType1Font(Standard14Fonts.FontName.COURIER);
       PDFont bodyBold = new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD);
 
       try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
         float y = height - 20;
 
-        // Title
         cs.beginText();
         cs.setFont(titleBold, 12f);
         cs.newLineAtOffset(10, y);
@@ -44,7 +40,6 @@ public class TicketPdfBuilder {
         cs.endText();
         y -= 20;
 
-        // Lines with spans (bold/normal)
         float fontSize = 9f;
         for (var line : model.lines()) {
           float x = 10;
@@ -66,7 +61,6 @@ public class TicketPdfBuilder {
           if (y < 20) break;
         }
 
-        // QR centered at bottom
         y -= 10;
         float qrSize = 140;
         cs.drawImage(qr, (width - qrSize) / 2, y - qrSize, qrSize, qrSize);
@@ -75,7 +69,7 @@ public class TicketPdfBuilder {
       doc.save(out);
       return out.toByteArray();
     } catch (Exception e) {
-      throw new IllegalStateException("Failed to build ticket PDF", e);
+      throw new IllegalStateException("Failed to render receipt PDF", e);
     }
   }
 

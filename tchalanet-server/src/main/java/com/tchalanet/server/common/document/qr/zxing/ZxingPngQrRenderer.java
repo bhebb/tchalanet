@@ -1,10 +1,10 @@
-package com.tchalanet.server.common.qr.zxing;
+package com.tchalanet.server.common.document.qr.zxing;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.tchalanet.server.common.qr.QrRenderer;
+import com.tchalanet.server.common.document.qr.QrRenderer;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import org.springframework.stereotype.Component;

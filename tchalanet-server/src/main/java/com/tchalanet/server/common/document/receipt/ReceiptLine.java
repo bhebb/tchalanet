@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.print.receipt;
+package com.tchalanet.server.common.document.receipt;
 
 import java.util.ArrayList;
 import java.util.List;
