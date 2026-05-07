@@ -163,7 +163,10 @@ public class GenerateDrawsForRangeCommandHandler
 
                 boolean pastBackfill = command.force() && scheduledAt.isBefore(now);
 
-                long cutoffSec = Math.max(1, c.cutoffSec());
+                if (c.cutoffSec() < 0) {
+                    throw new IllegalArgumentException("cutoffSec must be >= 0 for channel " + c.code());
+                }
+                long cutoffSec = c.cutoffSec();
                 var cutoffAt = scheduledAt.minusSeconds(cutoffSec);
 
                 rows.add(

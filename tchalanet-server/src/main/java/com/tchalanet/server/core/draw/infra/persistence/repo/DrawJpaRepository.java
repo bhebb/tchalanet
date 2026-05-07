@@ -83,6 +83,63 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         @Param("windowEnd") Instant windowEnd
     );
 
+    @Query(
+        value = """
+            select d.tenant_id as tenantId,
+                   d.id as drawId,
+                   d.locked as locked,
+                   d.scheduled_at as scheduledAt,
+                   d.cutoff_at as cutoffAt
+            from draw d
+            join draw_channel dc on dc.id = d.draw_channel_id
+            where d.deleted_at is null
+              and dc.deleted_at is null
+              and d.tenant_id = :tenantId
+              and d.status = 'SCHEDULED'
+              and d.locked = false
+              and d.draw_date = :drawDate
+              and ((cast(:now as timestamptz) at time zone dc.timezone)::time >= coalesce(dc.sales_open_time, :defaultSalesOpenTime))
+              and d.cutoff_at > :now
+            order by d.scheduled_at asc
+            limit :limit
+            """,
+        nativeQuery = true)
+    List<OpenableDrawProjection> findOpenableForSalesOpenTime(
+        @Param("tenantId") UUID tenantId,
+        @Param("now") Instant now,
+        @Param("drawDate") java.time.LocalDate drawDate,
+        @Param("defaultSalesOpenTime") java.time.LocalTime defaultSalesOpenTime,
+        @Param("limit") int limit
+    );
+
+    @Query(
+        value = """
+            select d.tenant_id as tenantId,
+                   d.id as drawId,
+                   d.locked as locked,
+                   d.scheduled_at as scheduledAt,
+                   d.cutoff_at as cutoffAt
+            from draw d
+            join draw_channel dc on dc.id = d.draw_channel_id
+            where d.deleted_at is null
+              and dc.deleted_at is null
+              and d.tenant_id = :tenantId
+              and d.status = 'SCHEDULED'
+              and d.locked = false
+              and d.draw_date = ((cast(:now as timestamptz) at time zone dc.timezone)::date)
+              and ((cast(:now as timestamptz) at time zone dc.timezone)::time >= coalesce(dc.sales_open_time, :defaultSalesOpenTime))
+              and d.cutoff_at > :now
+            order by d.scheduled_at asc
+            limit :limit
+            """,
+        nativeQuery = true)
+    List<OpenableDrawProjection> findOpenableForEffectiveToday(
+        @Param("tenantId") UUID tenantId,
+        @Param("now") Instant now,
+        @Param("defaultSalesOpenTime") java.time.LocalTime defaultSalesOpenTime,
+        @Param("limit") int limit
+    );
+
     @Modifying
     @Query(
         value = """

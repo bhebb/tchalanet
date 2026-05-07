@@ -11,6 +11,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannel
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -218,8 +219,10 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         e.getCode(),
         e.getTimezone(),
         e.getDrawTime(),
+        e.getSalesOpenTime(),
         e.getCutoffSec(),
         e.getDaysOfWeek(),
+        ResultSlotId.of(e.getResultSlotId()),
         null,
         e.isActive(),
         true, // DO NOT lie by copying active; real enabled is per draw_channel_game

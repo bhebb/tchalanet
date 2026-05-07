@@ -11,5 +11,8 @@ import java.time.Instant;
  * @param batchSize  nombre maximum de tirages à fermer par exécution (garde-fou anti-boucle)
  * @param dryRun si {@code true}, simule sans aucune écriture en base
  */
-public record CloseDueDrawsCommand(@NotNull Instant now, int batchSize, boolean dryRun)
+public record CloseDueDrawsCommand(
+    @NotNull Instant now,
+    int batchSize,
+    boolean dryRun)
     implements Command<CloseDueDrawsResult> {}

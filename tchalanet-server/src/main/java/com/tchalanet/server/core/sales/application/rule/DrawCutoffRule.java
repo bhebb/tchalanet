@@ -5,6 +5,7 @@ import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.domain.model.DrawStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +27,13 @@ public class DrawCutoffRule {
         var now = Instant.now(clock);
         var cutoff = draw.cutoffAt();
 
-        if (now.isAfter(cutoff)) {
+        if (draw.status() != DrawStatus.OPEN) {
+            throw ProblemRest.conflict("Draw is not open for sales");
+        }
+
+        if (!now.isBefore(cutoff)) {
             throw ProblemRest.conflict("Draw cutoff time has passed");
         }
         return draw;
     }
 }
-

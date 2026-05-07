@@ -11,7 +11,7 @@ read APIs to domains and features, but it does not own draw lifecycle business r
 ## Responsibilities
 
 - Provide active channels per tenant for draw generation and public display.
-- Carry tenant-facing labels, local cutoff seconds, active status, sort order, and channel games.
+- Carry tenant-facing labels, local sales opening time, local cutoff seconds, active status, sort order, and channel games.
 - Point to exactly one global `result_slot` when the channel is backed by an external provider slot.
 - Expose read contracts through `catalog.drawchannel.api`.
 
@@ -28,6 +28,14 @@ read APIs to domains and features, but it does not own draw lifecycle business r
 `catalog.drawchannel` is consumed by `core.draw` during `generate/open/close/apply/settle` flows and
 by `features.publicdraw` for public read models. The external result is fetched globally from
 `catalog.resultslot`; the tenant draw is then applied through channels that point to that slot.
+
+## Commercial Schedule
+
+- `sales_open_time` is the configured local time when sales may open for the channel.
+- `cutoff_sec` is the configured duration before draw time when sales must stop.
+- `draw_time`, `timezone`, `sales_open_time`, and `cutoff_sec` are catalog configuration. Generated `draw`
+  rows store concrete lifecycle snapshots such as `scheduled_at`, `cutoff_at`, and `opened_at`.
+- If `sales_open_time` is null, the draw scheduler uses the configured default sales opening time.
 
 ## Boundaries
 

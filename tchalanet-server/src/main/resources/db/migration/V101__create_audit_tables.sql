@@ -156,7 +156,7 @@ CREATE TABLE draw_channel_aud (id uuid NOT NULL,
   updated_at timestamptz,
   updated_by uuid,
   deleted_at timestamptz,
-  version bigint, tenant_id uuid, code varchar(64), name varchar(128), timezone varchar(64), draw_time time, cutoff_sec integer, days_of_week varchar(32), active boolean, sort_order integer, flags jsonb, notes text, result_slot_id uuid, CONSTRAINT pk_draw_channel_aud PRIMARY KEY (id, rev),
+  version bigint, tenant_id uuid, code varchar(64), name varchar(128), timezone varchar(64), draw_time time, sales_open_time time, cutoff_sec integer, days_of_week varchar(32), active boolean, sort_order integer, flags jsonb, notes text, result_slot_id uuid, CONSTRAINT pk_draw_channel_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_draw_channel_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
 CREATE TABLE draw_channel_game_aud (id uuid NOT NULL,
   rev integer NOT NULL,

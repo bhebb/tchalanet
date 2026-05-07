@@ -265,6 +265,7 @@ CREATE TABLE draw_channel (
   name varchar(128) NOT NULL,
   timezone varchar(64) NOT NULL,
   draw_time time NOT NULL,
+  sales_open_time time,
   cutoff_sec integer NOT NULL DEFAULT 120,
   days_of_week varchar(32) NOT NULL,
   active boolean NOT NULL DEFAULT true,

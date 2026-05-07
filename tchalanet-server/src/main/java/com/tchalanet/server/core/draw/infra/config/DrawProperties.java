@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.LocalTime;
 import java.time.ZoneId;
 
 @Getter
@@ -50,6 +51,91 @@ public class DrawProperties {
     public static class Scheduler {
         private boolean active = true;
         private Windows windows = new Windows();
+        private Generate generate = new Generate();
+        private OpenToday openToday = new OpenToday();
+        private Processing processing = new Processing();
+    }
+
+    @Getter
+    @Setter
+    public static class Generate {
+        private boolean active = true;
+        private String cron = "0 0 5 * * *";
+        private int daysAhead = 7;
+        private int maxTenantsPerRun = 1000;
+    }
+
+    @Getter
+    @Setter
+    public static class OpenToday {
+        private boolean active = true;
+        private String cron = "0 */5 4-10 * * *";
+        private LocalTime defaultSalesOpenTime = LocalTime.of(5, 30);
+        private int maxItemsPerRun = 10000;
+    }
+
+    @Getter
+    @Setter
+    public static class Processing {
+        private boolean active = true;
+        private String cron = "0 */5 * * * *";
+        private ZoneId timezone = ZoneId.of("America/New_York");
+        private Close close = new Close();
+        private Fetch fetch = new Fetch();
+        private Apply apply = new Apply();
+        private Settle settle = new Settle();
+    }
+
+    @Getter
+    @Setter
+    public static class Close {
+        private boolean active = true;
+        private int maxItemsPerTick = 500;
+    }
+
+    @Getter
+    @Setter
+    public static class DueAfterDraw {
+        private boolean active = true;
+        private int startMinutesAfterDraw;
+        private int retryEveryMinutes;
+        private int stopMinutesAfterDraw;
+    }
+
+    @Getter
+    @Setter
+    public static class Fetch extends DueAfterDraw {
+        private int maxSlotsPerTick = 10;
+
+        public Fetch() {
+            setStartMinutesAfterDraw(5);
+            setRetryEveryMinutes(10);
+            setStopMinutesAfterDraw(240);
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class Apply extends DueAfterDraw {
+        private int maxItemsPerTick = 500;
+
+        public Apply() {
+            setStartMinutesAfterDraw(10);
+            setRetryEveryMinutes(30);
+            setStopMinutesAfterDraw(720);
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class Settle extends DueAfterDraw {
+        private int maxItemsPerTick = 1000;
+
+        public Settle() {
+            setStartMinutesAfterDraw(20);
+            setRetryEveryMinutes(30);
+            setStopMinutesAfterDraw(1440);
+        }
     }
 
 

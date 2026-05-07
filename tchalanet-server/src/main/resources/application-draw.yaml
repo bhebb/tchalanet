@@ -8,8 +8,43 @@ tch:
 
     scheduler:
       active: true
+      generate:
+        active: true
+        cron: "0 0 5 * * *"
+        days-ahead: 7
+        max-tenants-per-run: 1000
+      open-today:
+        active: true
+        cron: "0 */5 4-10 * * *"
+        default-sales-open-time: "05:30"
+        max-items-per-run: 10000
+      processing:
+        active: true
+        cron: "0 */5 * * * *"
+        timezone: America/New_York
+        close:
+          active: true
+          max-items-per-tick: 500
+        fetch:
+          active: true
+          start-minutes-after-draw: 5
+          retry-every-minutes: 10
+          stop-minutes-after-draw: 240
+          max-slots-per-tick: 10
+        apply:
+          active: true
+          start-minutes-after-draw: 10
+          retry-every-minutes: 30
+          stop-minutes-after-draw: 720
+          max-items-per-tick: 500
+        settle:
+          active: true
+          start-minutes-after-draw: 20
+          retry-every-minutes: 30
+          stop-minutes-after-draw: 1440
+          max-items-per-tick: 1000
       windows:
-        enabled: true
+        enabled: false
         timezone: America/New_York
         fetch_results: "12:00-14:00,20:00-23:00"
         apply_results: "12:00-14:30,20:00-23:30"

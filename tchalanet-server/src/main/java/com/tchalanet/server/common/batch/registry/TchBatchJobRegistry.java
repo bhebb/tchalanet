@@ -106,7 +106,11 @@ public class TchBatchJobRegistry {
                 BatchParamKeys.TENANT_ZONE_ID,     // check-only
                 BatchParamKeys.TENANT_CURRENCY,    // check-only
                 BatchParamKeys.DATE,
-                BatchParamKeys.MAX_ITEMS
+                BatchParamKeys.MAX_ITEMS,
+                BatchParamKeys.DAYS_BACK,
+                BatchParamKeys.MAX_DRAWS,
+                BatchParamKeys.DRY_RUN,
+                BatchParamKeys.FORCE
             ),
             "settleDrawsJob"
         ));

@@ -42,21 +42,21 @@
 
 **Champs clés** :
 
-| Champ                                                           | Type            | Sémantique                                     |
-| --------------------------------------------------------------- | --------------- | ---------------------------------------------- |
-| `tenantId`                                                      | `TenantId`      | Propriétaire (RLS)                             |
-| `drawChannelId`                                                 | `DrawChannelId` | Canal de vente (catalog)                       |
-| `drawDate`                                                      | `LocalDate`     | Date locale du channel (timezone du slot)      |
-| `scheduledAt`                                                   | `Instant`       | Moment du tirage (via `OccurredAtResolver`)    |
-| `cutoffAt`                                                      | `Instant`       | Moment où la vente s'arrête                    |
-| `openedAt`, `closedAt`, `resultedAt`, `settledAt`, `canceledAt` | `Instant?`      | Timestamps des transitions                     |
-| `status`                                                        | `DrawStatus`    | État courant                                   |
-| `drawResultId`                                                  | `DrawResultId?` | FK vers `draw_result` (set à l'apply)          |
-| `resultSource`                                                  | `DrawSource`    | `AUTO` (apply automatique) ou `OPS` (override) |
-| `resultOverrideReason`, `resultOverriddenAt`                    |                 | Audit override                                 |
-| `cancelReason`, `canceledAt`                                    |                 | Audit annulation                               |
-| `systemGenerated`                                               | `boolean`       | `true` si scheduler, `false` si manuel         |
-| `locked`                                                        | `boolean`       | Verrou anti-concurrence pendant settlement     |
+| Champ                                                           | Type            | Sémantique                                                              |
+| --------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------- |
+| `tenantId`                                                      | `TenantId`      | Propriétaire (RLS)                                                      |
+| `drawChannelId`                                                 | `DrawChannelId` | Canal de vente (catalog)                                                |
+| `drawDate`                                                      | `LocalDate`     | Date locale du channel (timezone du slot)                               |
+| `scheduledAt`                                                   | `Instant`       | Snapshot du moment du tirage depuis `draw_channel.draw_time + timezone` |
+| `cutoffAt`                                                      | `Instant`       | Snapshot de fermeture commerciale depuis `draw_channel.cutoff_sec`      |
+| `openedAt`, `closedAt`, `resultedAt`, `settledAt`, `canceledAt` | `Instant?`      | Timestamps réels des transitions                                        |
+| `status`                                                        | `DrawStatus`    | État courant                                                            |
+| `drawResultId`                                                  | `DrawResultId?` | FK vers `draw_result` (set à l'apply)                                   |
+| `resultSource`                                                  | `DrawSource`    | `AUTO` (apply automatique) ou `OPS` (override)                          |
+| `resultOverrideReason`, `resultOverriddenAt`                    |                 | Audit override                                                          |
+| `cancelReason`, `canceledAt`                                    |                 | Audit annulation                                                        |
+| `systemGenerated`                                               | `boolean`       | `true` si scheduler, `false` si manuel                                  |
+| `locked`                                                        | `boolean`       | Verrou anti-concurrence pendant settlement                              |
 
 ### Agrégat secondaire : `DrawExposure`
 
@@ -68,6 +68,14 @@
 ---
 
 ## 6. Règles métier non négociables
+
+### 6.0 Règle d'ouverture / fermeture commerciale
+
+- ✅ `draw_channel.sales_open_time` définit l'heure locale commerciale où un draw peut passer `OPEN`.
+- ✅ Si `draw_channel.sales_open_time` est absent, le scheduler utilise le fallback `tch.draw.scheduler.open-today.default-sales-open-time`.
+- ✅ `draw.openedAt` est le timestamp réel de transition, pas la configuration d'ouverture.
+- ✅ `draw.cutoffAt` est un snapshot généré; close ferme les draws `OPEN` où `cutoff_at <= now`.
+- ✅ La vente exige `draw.status = OPEN` et `now < draw.cutoffAt`.
 
 ### 6.1 Règle PROVISIONAL / FINAL (apply vs settle)
 

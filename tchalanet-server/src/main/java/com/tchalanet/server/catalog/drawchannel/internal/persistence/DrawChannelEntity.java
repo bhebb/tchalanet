@@ -32,6 +32,9 @@ public class DrawChannelEntity extends BaseTenantEntity {
   @Column(name = "draw_time", nullable = false)
   private LocalTime drawTime;
 
+  @Column(name = "sales_open_time")
+  private LocalTime salesOpenTime;
+
   @Column(name = "cutoff_sec", nullable = false)
   private int cutoffSec = 120;
 

@@ -10,6 +10,7 @@ import com.tchalanet.server.core.draw.domain.model.Draw;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ public interface DrawLifecyclePort {
         int openHorizonHours,
         int openLagHours
     );
+
+    List<OpenableDrawRow> findOpenableForSalesOpenTime(Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit);
 
     int bulkOpen(List<DrawId> drawIds, Instant now);
 

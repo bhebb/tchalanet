@@ -13,6 +13,5 @@ public record OpenDueDrawsRequest(
 
   public OpenDueDrawsRequest {
     if (dryRun == null) dryRun = Boolean.FALSE;
-    if (now == null) now = Instant.now();
   }
 }

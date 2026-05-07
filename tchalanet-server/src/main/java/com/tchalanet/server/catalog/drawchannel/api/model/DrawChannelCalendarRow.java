@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.drawchannel.api.model;
 
 import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import java.time.LocalTime;
 
@@ -17,8 +18,10 @@ public record DrawChannelCalendarRow(
     String code,
     String timezone,
     LocalTime drawTime,
+    LocalTime salesOpenTime,
     int cutoffSec,
     String daysOfWeek,
+    ResultSlotId resultSlotId,
     String defaultSource,
     boolean active,
     boolean enabled,

@@ -216,6 +216,7 @@ WITH t AS (
              s.name,
              rs.timezone,
              rs.draw_time,
+             '05:30'::time AS sales_open_time,
              s.cutoff_sec,
              s.days_of_week,
              s.active,
@@ -228,13 +229,13 @@ WITH t AS (
      )
 INSERT INTO draw_channel (
   id, tenant_id, code, name,
-  timezone, draw_time, cutoff_sec, days_of_week,
+  timezone, draw_time, sales_open_time, cutoff_sec, days_of_week,
   active, sort_order, flags, result_slot_id,
   notes, created_at, updated_at, version
 )
 SELECT
     id, tenant_id, code, name,
-    timezone, draw_time, cutoff_sec, days_of_week,
+    timezone, draw_time, sales_open_time, cutoff_sec, days_of_week,
     active, sort_order, flags, result_slot_id,
     NULL::text, now(), now(), 0
 FROM rows
@@ -242,6 +243,7 @@ FROM rows
                                          SET name           = EXCLUDED.name,
                                          timezone       = EXCLUDED.timezone,
                                          draw_time      = EXCLUDED.draw_time,
+                                         sales_open_time = EXCLUDED.sales_open_time,
                                          cutoff_sec     = EXCLUDED.cutoff_sec,
                                          days_of_week   = EXCLUDED.days_of_week,
                                          active         = EXCLUDED.active,
