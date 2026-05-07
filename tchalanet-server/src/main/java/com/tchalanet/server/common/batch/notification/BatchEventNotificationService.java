@@ -1,9 +1,9 @@
 package com.tchalanet.server.common.batch.notification;
 
-import com.tchalanet.server.common.notification.NotificationGatewayPort;
-import com.tchalanet.server.common.notification.model.SendNotificationPayload;
-import com.tchalanet.server.common.types.enums.NotificationChannel;
-import com.tchalanet.server.common.types.enums.NotificationType;
+import com.tchalanet.server.common.communication.api.CommunicationChannel;
+import com.tchalanet.server.common.communication.api.OutboundMessageGateway;
+import com.tchalanet.server.common.communication.api.OutboundMessageRequest;
+import com.tchalanet.server.common.communication.api.OutboundRecipient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ import java.util.Locale;
 @Slf4j
 public class BatchEventNotificationService {
 
-    private final NotificationGatewayPort sender;
+    private final OutboundMessageGateway sender;
     private final BatchNotificationPolicy policy;
     private final Clock clock;
 
@@ -37,7 +37,7 @@ public class BatchEventNotificationService {
             notice.jobKey(), notice.status(), notice.code());
     }
 
-    private SendNotificationPayload toPayload(BatchNotification n) {
+    private OutboundMessageRequest toPayload(BatchNotification n) {
         var data = n.details() == null
             ? new HashMap<String, Object>()
             : new HashMap<>(n.details());
@@ -58,10 +58,10 @@ public class BatchEventNotificationService {
         data.put("message", messageText);
         data.put("severity", n.status() == BatchNotificationStatus.FAILED ? "ERROR" : "WARNING");
 
-        return new SendNotificationPayload(
-            NotificationType.BATCH_MESSAGE,
-            NotificationChannel.SLACK,
-            null, // batch notifications have no specific target
+        return new OutboundMessageRequest(
+            "BATCH_MESSAGE",
+            CommunicationChannel.SLACK,
+            OutboundRecipient.slack("batch-draws"),
             Locale.ENGLISH,
             data
         );

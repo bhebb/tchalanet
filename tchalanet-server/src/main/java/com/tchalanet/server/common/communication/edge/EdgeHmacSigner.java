@@ -1,7 +1,5 @@
-package com.tchalanet.server.core.notification.infra.external;
+package com.tchalanet.server.common.communication.edge;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.util.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,9 +11,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 
-/**
- * Signe les requêtes internes vers tchalanet-edge-service avec HMAC-SHA256.
- */
+/** Signs internal edge-service requests with HMAC-SHA256. */
 @Component
 @RequiredArgsConstructor
 public class EdgeHmacSigner {
@@ -25,13 +21,6 @@ public class EdgeHmacSigner {
     private final JsonUtils jsonUtils;
     private final Clock clock;
 
-    /**
-     * Signe une requête avec HMAC-SHA256.
-     *
-     * @param secret le secret HMAC partagé
-     * @param request l'objet à signer (sera sérialisé en JSON)
-     * @return le résultat contenant timestamp, signature et body JSON
-     */
     public SignedRequest sign(String secret, Object request) {
         try {
             var rawJsonBody = jsonUtils.toJson(request);
@@ -62,13 +51,9 @@ public class EdgeHmacSigner {
         return new String(hexChars);
     }
 
-    /**
-     * Résultat d'une signature HMAC.
-     */
     public record SignedRequest(
         String timestamp,
         String signature,
         String rawJsonBody
     ) {}
 }
-

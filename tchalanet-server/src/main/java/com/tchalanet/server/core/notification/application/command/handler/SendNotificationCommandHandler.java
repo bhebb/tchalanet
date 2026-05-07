@@ -1,19 +1,16 @@
 package com.tchalanet.server.core.notification.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.notification.NotificationGatewayPort;
-import com.tchalanet.server.common.notification.model.SendNotificationPayload;
+import com.tchalanet.server.common.communication.api.OutboundMessageGateway;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.NotificationChannel;
 import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
 import com.tchalanet.server.core.notification.application.command.model.SendNotificationResult;
+import com.tchalanet.server.core.notification.application.mapper.OutboundMessageMapper;
 import com.tchalanet.server.core.notification.application.policy.NotificationPolicy;
 import com.tchalanet.server.core.notification.domain.model.NotificationRecipient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -26,7 +23,8 @@ import java.util.UUID;
 public class SendNotificationCommandHandler
     implements CommandHandler<SendNotificationCommand, SendNotificationResult> {
 
-    private final NotificationGatewayPort notificationGateway;
+    private final OutboundMessageGateway outboundMessageGateway;
+    private final OutboundMessageMapper outboundMessageMapper;
     private final NotificationPolicy notificationPolicy;
 
     @Override
@@ -67,67 +65,11 @@ public class SendNotificationCommandHandler
         NotificationRecipient recipient,
         String idempotencyKey
     ) {
-        var data = buildDataMap(command, recipient, idempotencyKey);
-        var notificationChannel = mapToCommonChannel(recipient.channel());
-
-        var payload = new SendNotificationPayload(
-            command.type(),
-            notificationChannel,
-            null, // target is null for ops/technical notifications
-            command.locale(),
-            data
-        );
-
-        notificationGateway.send(payload);
-    }
-
-    private Map<String, Object> buildDataMap(
-        SendNotificationCommand command,
-        NotificationRecipient recipient,
-        String idempotencyKey
-    ) {
-        var data = new HashMap<String, Object>();
-
-        // Add command context
-        if (command.context() != null) {
-            data.putAll(command.context());
-        }
-
-        // Add core fields
-        data.put("title", command.title());
-        data.put("message", command.message());
-        data.put("severity", command.severity().name());
-        data.put("idempotencyKey", idempotencyKey);
-
-        // Add recipient-specific fields
-        if (recipient.channelKey() != null) {
-            data.put("channelKey", recipient.channelKey());
-        }
-        if (recipient.to() != null) {
-            data.put("to", recipient.to());
-        }
-        if (recipient.tenantId() != null) {
-            data.put("tenantId", recipient.tenantId().value().toString());
-        }
-        if (recipient.userId() != null) {
-            data.put("userId", recipient.userId().value().toString());
-        }
-
-        if (command.reason() != null) {
-            data.put("reason", command.reason());
-        }
-
-        return data;
-    }
-
-    private NotificationChannel mapToCommonChannel(
-        com.tchalanet.server.core.notification.domain.model.NotificationChannel domainChannel
-    ) {
-        return NotificationChannel.valueOf(domainChannel.name());
+        outboundMessageMapper.toOutbound(command, recipient, idempotencyKey)
+            .ifPresent(outboundMessageGateway::send);
     }
 
     private String generateIdempotencyKey(SendNotificationCommand command) {
         return command.type().name() + "_" + UUID.randomUUID();
     }
 }
-

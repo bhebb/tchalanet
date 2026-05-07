@@ -136,17 +136,13 @@ tch:
     public:
       base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://app.tchalanet.com}
       ticket-path-template: ${TCH_TICKET_PATH_TEMPLATE:/ticket/{code}}
-    delivery:
-      edge-base-url: ${TCH_EDGE_DELIVERY_BASE_URL:http://tchalanet-edge-service:3000}
-      edge-delivery-path: ${TCH_EDGE_DELIVERY_PATH:/internal/delivery/ticket}
-      enabled: ${TCH_TICKET_DELIVERY_ENABLED:true}
 
-  notification:
+  communication:
     edge:
       enabled: true
       base-url: "http://localhost:3000"  # Local development
       # base-url: "http://tchalanet-edge-service:3000"  # Docker deployment
-      notifications-path: "/internal/notifications/send"
+      messages-path: "/internal/messages/send"
       hmac-secret: "${EDGE_INTERNAL_HMAC_SECRET}"
       connect-timeout: 2s
       read-timeout: 5s

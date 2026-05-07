@@ -4,10 +4,10 @@
 
 Le domaine **notification** gère le besoin métier suivant :
 
-> Permettre à Tchalanet d’envoyer des messages (notifications) aux utilisateurs / acteurs (vendeurs, admins, joueurs) via différents canaux (IN_APP, email, SMS, WhatsApp, push), en déléguant la partie technique à un **service externe Node**.
+> Permettre à Tchalanet de gérer les notifications applicatives et de router, si nécessaire, les messages externes vers `common.communication`.
 
-Ce domaine **ne décide pas** du design UI (bannière, toast, etc.) et **n’implémente pas** les clients WhatsApp/Email/SMS lui-même.  
-Il décrit **quoi** notifier, **à qui**, **par quel canal**, et garde la source de vérité persistée pour les notifications actionnables.
+Ce domaine **ne décide pas** du design UI (bannière, toast, etc.) et **n’implémente pas** les clients WhatsApp/Email/SMS lui-même.
+Il décrit **quoi** notifier, **à qui**, **par quel canal**, garde la source de vérité persistée pour les notifications actionnables, et délègue le transport externe à `common.communication`.
 
 Depuis `add-notification-core-service`, le domaine contient deux niveaux :
 
@@ -44,29 +44,22 @@ Le canal `WEB` peut être utilisé pour tracer une notification in-app sans forc
   - `SYSTEM_MESSAGE` : message générique de la plateforme
   - `CUSTOM` : type libre pour usages ultérieurs
 
-- `NotificationChannel`  
-  Décrit le **canal** via lequel le message sera envoyé :
+- `NotificationChannel`
+  Décrit le **canal fonctionnel** demandé par le domaine :
 
-  - `IN_APP` : notification interne à l’application (inbox, bannière, etc.)
+  - `WEB` : notification interne à l’application (inbox, bannière, etc.)
   - `EMAIL` : message mail
   - `SMS` : message SMS classique
   - `WHATSAPP` : message WhatsApp
+  - `SLACK` : message ops/technique
   - `PUSH` : notification push (mobile / navigateur)
 
-- `NotificationTarget`  
-  Représente la cible :
-
-  - `tenantId`
-  - `userId` (optionnel)
-  - `recipient` : email, numéro de téléphone ou autre identifiant spécifique au canal.
-
-- `SendNotificationCommand` / `SendNotificationPayload`  
+- `SendNotificationCommand`
   Objets qui encapsulent :
   - le type (`NotificationType`),
-  - le canal (`NotificationChannel`),
-  - la cible (`NotificationTarget`),
+  - les destinataires (`NotificationRecipient`),
   - la locale (`locale`),
-  - et les **données dynamiques** (`data`) qui alimentent les templates côté Node.
+  - et les **données dynamiques** (`context`) qui alimentent les notifications et le transport externe.
 
 ### 2.2 Use case principal
 
@@ -74,8 +67,9 @@ Le canal `WEB` peut être utilisé pour tracer une notification in-app sans forc
   - Entrée : `SendNotificationCommand`
   - Rôle :
     - valider au minimum la cohérence du type/canal/target,
-    - transformer le `command` en `SendNotificationPayload`,
-    - appeler le `NotificationGatewayPort`.
+    - persister ou router les notifications applicatives quand le canal est interne,
+    - transformer les canaux externes via `OutboundMessageMapper`,
+    - appeler `OutboundMessageGateway`.
 
 Ce handler est appelé par d’autres domaines (ex: `sales`, `limits`) ou par des features (`verification`, `private_dashboard`).
 
@@ -87,25 +81,25 @@ Ce handler est appelé par d’autres domaines (ex: `sales`, `limits`) ou par de
 
   - Gère la **décision métier** d’envoyer une notification.
   - Ne connaît pas le design UI des notifications IN_APP.
-  - Ne fait pas d’appel direct vers WhatsApp/SMTP : il passe par un **port unique** HTTP vers le service Node.
+  - Ne fait pas d’appel direct vers WhatsApp/SMTP : il passe par `common.communication`.
 
 - **Core / notification APIs**
   - Expose les endpoints tenant/admin de résumé, listing, read/archive unitaire et bulk, et diagnostics delivery.
   - La table `notification` est l’unique source de vérité pour les notifications persistées.
   - Il n’existe pas de table `user_notification` ni de BFF `features.notifications` séparé.
 
-### 3.2 Service Node de notifications
+### 3.2 Transport externe
 
-Les clients techniques (WhatsApp, email, SMS, push) sont **déportés dans un serveur Node** séparé :
+Les clients techniques (WhatsApp, email, SMS, Slack) sont **déportés dans le edge-service** :
 
-- Tchalanet (Java) n’a qu’un seul port : `NotificationGatewayPort`.
-- L’implémentation `HttpNotificationGatewayAdapter` envoie une requête HTTP typée au service Node, par ex :
-  - `POST /api/notifications` avec un JSON contenant type, channel, locale, recipient, data.
+- Tchalanet (Java) utilise `common.communication.api.OutboundMessageGateway`.
+- L’implémentation `common.communication.edge.EdgeCommunicationGatewayAdapter` envoie une requête HMAC au edge-service :
+  - `POST /internal/messages/send` avec un JSON contenant eventId, severity, title, message, recipients, context.
 
 Le service Node se charge de :
 
 - la sélection du provider (WhatsApp API, SMTP, SMS gateway, FCM, …),
-- la gestion des templates,
+- la gestion technique provider,
 - des retries,
 - du logging technique.
 
@@ -113,10 +107,10 @@ Tchalanet ne gère pas ces détails : ils sont considérés comme **concerns inf
 
 ## 4. Notifications IN_APP vs externes
 
-- **Notifications externes** (EMAIL/SMS/WHATSAPP/PUSH) :
+- **Notifications externes** (EMAIL/SMS/WHATSAPP/SLACK) :
 
-  - Portent le contenu principal envoyé par le Node server.
-  - Sont pilotées par `core.notification` via `NotificationGatewayPort`.
+  - Portent le contenu principal envoyé par le edge-service.
+  - Sont pilotées par `core.notification` via `OutboundMessageMapper` puis `OutboundMessageGateway`.
 
 - **Notifications WEB / IN_APP** :
   - Peuvent être générées en même temps que les notifications externes, ou indépendamment.
@@ -130,9 +124,9 @@ Tchalanet ne gère pas ces détails : ils sont considérés comme **concerns inf
 1. Le domaine `sales` valide et paie un ticket.
 2. Il crée un `SendNotificationCommand` de type `TICKET_RECEIPT` + canal `WHATSAPP` (ou `EMAIL`), avec les données (`ticketNumber`, `drawDate`, `amount`, etc.).
 3. Il appelle `SendNotificationHandler`.
-4. `SendNotificationHandler` appelle `NotificationGatewayPort.send(payload)`.
-5. `HttpNotificationGatewayAdapter` fait un `POST` vers le service Node.
-6. Le service Node envoie la notification WhatsApp ou email à l’utilisateur.
+4. `SendNotificationHandler` mappe vers `OutboundMessageRequest`.
+5. `EdgeCommunicationGatewayAdapter` fait un `POST /internal/messages/send` signé HMAC vers le edge-service.
+6. Le edge-service envoie le message WhatsApp ou email à l’utilisateur.
 
 Optionnel : en parallèle, une notification IN_APP est créée pour apparaître dans le dashboard.
 
@@ -155,13 +149,13 @@ Optionnel : en parallèle, une notification IN_APP est créée pour apparaître 
   - Technique provider (WhatsApp/SMTP/SMS) dans un service Node externe.
   - Affichage UI côté front à partir du contrat `core.notification`.
 
-- **Un port unique `NotificationGatewayPort`** pour simplifier :
+- **Un port unique `OutboundMessageGateway`** pour le transport externe :
 
-  - Tchalanet ne gère pas un port par provider ; il délègue à Node.
+  - Tchalanet ne gère pas un port par provider ; il délègue à `common.communication` puis au edge-service.
 
 - **Support multi-tenant et multi-locale** :
 
-  - `NotificationTarget` inclut `tenantId`.
+  - `NotificationRecipient` inclut `tenantId`.
   - `SendNotificationCommand` inclut `locale`.
   - Les templates sont gérés côté Node et peuvent utiliser ces informations.
 
