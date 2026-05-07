@@ -1,6 +1,7 @@
 export const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
 export const HOST = process.env['HOST'] ?? '0.0.0.0';
 export const PORT = parseInt(process.env['PORT'] ?? '3000', 10);
+export const EDGE_HMAC_SECRET = process.env['EDGE_HMAC_SECRET'] ?? '';
 
 // Slack
 export const SLACK_ENABLED = process.env['SLACK_ENABLED'] === 'true';

@@ -1,4 +1,4 @@
-export const sendNotificationSchema = {
+export const sendMessageSchema = {
   body: {
     type: 'object',
     required: ['eventId', 'severity', 'title', 'message', 'recipients'],

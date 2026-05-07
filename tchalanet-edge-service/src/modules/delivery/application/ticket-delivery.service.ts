@@ -1,4 +1,5 @@
-import type { NotificationSender } from '../../notifications/ports/notification-sender.port.js';
+import type { MessageChannel } from '../../messages/domain/message.js';
+import type { MessageSender } from '../../messages/ports/message-sender.port.js';
 import type {
   DeliveryChannel,
   TicketDeliveryRequest,
@@ -6,11 +7,11 @@ import type {
 } from '../domain/delivery-request.js';
 
 export class TicketDeliveryService {
-  constructor(private readonly senders: NotificationSender[]) {}
+  constructor(private readonly senders: MessageSender[]) {}
 
   async deliver(request: TicketDeliveryRequest): Promise<TicketDeliveryResponse> {
     const channel = request.channel;
-    const recipient = { channel: channelToNotif(channel), to: request.recipient };
+    const recipient = { channel: channelToMessage(channel), to: request.recipient };
 
     const sender = this.senders.find(s => s.supports(recipient));
     if (!sender) {
@@ -22,10 +23,10 @@ export class TicketDeliveryService {
       };
     }
 
-    const notif = buildNotification(request);
+    const message = buildMessage(request);
 
     try {
-      await sender.send(notif, recipient);
+      await sender.send(message, recipient);
       return { requestId: request.requestId, accepted: true, channel };
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'UNKNOWN_ERROR';
@@ -34,12 +35,12 @@ export class TicketDeliveryService {
   }
 }
 
-function channelToNotif(ch: DeliveryChannel): 'EMAIL' | 'SMS' | 'SLACK' {
+function channelToMessage(ch: DeliveryChannel): MessageChannel {
   if (ch === 'SMS' || ch === 'WHATSAPP') return 'SMS';
   return 'EMAIL';
 }
 
-function buildNotification(r: TicketDeliveryRequest) {
+function buildMessage(r: TicketDeliveryRequest) {
   const lines = (r.lines ?? [])
     .map(l => `${l.gameCode} / ${l.selection} — ${l.stake} HTG`)
     .join('\n');

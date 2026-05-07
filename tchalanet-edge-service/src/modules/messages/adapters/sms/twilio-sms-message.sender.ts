@@ -1,12 +1,9 @@
 import twilio from 'twilio';
 
-import type {
-  NotificationRecipient,
-  SendNotificationRequest,
-} from '../../domain/notification-message.js';
-import type { NotificationSender } from '../../ports/notification-sender.port.js';
+import type { MessageRecipient, SendMessageRequest } from '../../domain/message.js';
+import type { MessageSender } from '../../ports/message-sender.port.js';
 
-export class TwilioSmsNotificationSender implements NotificationSender {
+export class TwilioSmsMessageSender implements MessageSender {
   constructor(
     private readonly enabled: boolean,
     private readonly accountSid: string,
@@ -14,14 +11,11 @@ export class TwilioSmsNotificationSender implements NotificationSender {
     private readonly from: string,
   ) {}
 
-  supports(recipient: NotificationRecipient): boolean {
+  supports(recipient: MessageRecipient): boolean {
     return recipient.channel === 'SMS';
   }
 
-  async send(
-    notification: SendNotificationRequest,
-    recipient: NotificationRecipient,
-  ): Promise<void> {
+  async send(message: SendMessageRequest, recipient: MessageRecipient): Promise<void> {
     if (!this.enabled) {
       throw new Error('SMS_DISABLED');
     }
@@ -32,13 +26,13 @@ export class TwilioSmsNotificationSender implements NotificationSender {
       throw new Error('SMS_RECIPIENT_MISSING');
     }
 
-    const body = this.buildBody(notification);
+    const body = this.buildBody(message);
     const client = twilio(this.accountSid, this.authToken);
     await client.messages.create({ from: this.from, to: recipient.to, body });
   }
 
-  private buildBody(n: SendNotificationRequest): string {
-    const text = `[${n.severity}] ${n.title}: ${n.message}`;
+  private buildBody(message: SendMessageRequest): string {
+    const text = `[${message.severity}] ${message.title}: ${message.message}`;
     return text.slice(0, 320);
   }
 }

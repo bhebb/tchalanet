@@ -1,16 +1,16 @@
 import type {
-  NotificationDeliveryResult,
-  NotificationRecipient,
-  SendNotificationRequest,
-  SendNotificationResponse,
-} from '../domain/notification-message.js';
-import type { NotificationSender } from '../ports/notification-sender.port.js';
+  MessageDeliveryResult,
+  MessageRecipient,
+  SendMessageRequest,
+  SendMessageResponse,
+} from '../domain/message.js';
+import type { MessageSender } from '../ports/message-sender.port.js';
 
-export class SendNotificationService {
-  constructor(private readonly senders: NotificationSender[]) {}
+export class SendMessageService {
+  constructor(private readonly senders: MessageSender[]) {}
 
-  async send(request: SendNotificationRequest): Promise<SendNotificationResponse> {
-    const deliveries: NotificationDeliveryResult[] = [];
+  async send(request: SendMessageRequest): Promise<SendMessageResponse> {
+    const deliveries: MessageDeliveryResult[] = [];
 
     for (const recipient of request.recipients) {
       const result = await this.deliver(request, recipient);
@@ -25,9 +25,9 @@ export class SendNotificationService {
   }
 
   private async deliver(
-    request: SendNotificationRequest,
-    recipient: NotificationRecipient,
-  ): Promise<NotificationDeliveryResult> {
+    request: SendMessageRequest,
+    recipient: MessageRecipient,
+  ): Promise<MessageDeliveryResult> {
     const base = {
       channel: recipient.channel,
       to: recipient.to,
