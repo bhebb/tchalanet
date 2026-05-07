@@ -73,7 +73,7 @@ BEGIN
     RETURN;
   END IF;
 
-  INSERT INTO sales_session (id, tenant_id, outlet_id, terminal_id, user_id, status, opening_float, closing_amount, meta)
+  INSERT INTO sales_session (id, tenant_id, outlet_id, terminal_id, user_id, status, source, opening_float_cents, closing_amount_cents, meta)
   VALUES (
     '00000000-0000-0000-0000-000000003201'::uuid,
     t_id,
@@ -81,8 +81,9 @@ BEGIN
     '00000000-0000-0000-0000-000000003101'::uuid,
     u,
     'OPEN',
-    100.00,
-    0.00,
+    'MANUAL',
+    10000,
+    0,
     '{}'::jsonb
   );
 

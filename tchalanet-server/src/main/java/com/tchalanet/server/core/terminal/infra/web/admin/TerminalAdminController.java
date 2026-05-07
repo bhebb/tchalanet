@@ -4,21 +4,51 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.terminal.application.command.model.*;
-import com.tchalanet.server.core.terminal.application.query.model.*;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.core.terminal.application.command.model.ActivateTerminalForUserCommand;
+import com.tchalanet.server.core.terminal.application.command.model.AssignTerminalToOutletCommand;
+import com.tchalanet.server.core.terminal.application.command.model.AssignTerminalToUserCommand;
+import com.tchalanet.server.core.terminal.application.command.model.LockTerminalCommand;
+import com.tchalanet.server.core.terminal.application.command.model.RegisterTerminalCommand;
+import com.tchalanet.server.core.terminal.application.command.model.UnlockTerminalCommand;
+import com.tchalanet.server.core.terminal.application.command.model.UnregisterTerminalCommand;
+import com.tchalanet.server.core.terminal.application.command.model.UpdateTerminalMetadataCommand;
+import com.tchalanet.server.core.terminal.application.command.model.UpdateTerminalSyncStateCommand;
+import com.tchalanet.server.core.terminal.application.query.model.GetTerminalByIdQuery;
+import com.tchalanet.server.core.terminal.application.query.model.ListOfflineTerminalsQuery;
+import com.tchalanet.server.core.terminal.application.query.model.ListSyncPendingTerminalsQuery;
+import com.tchalanet.server.core.terminal.application.query.model.ListTerminalsQuery;
+import com.tchalanet.server.core.terminal.application.query.model.TerminalSearchCriteria;
+import com.tchalanet.server.core.terminal.application.query.model.TerminalSummaryView;
+import com.tchalanet.server.core.terminal.application.query.model.TerminalView;
+import com.tchalanet.server.core.terminal.domain.model.TerminalKind;
+import com.tchalanet.server.core.terminal.domain.model.TerminalState;
+import com.tchalanet.server.core.terminal.domain.model.TerminalSyncState;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/terminals")
@@ -26,82 +56,207 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TerminalAdminController {
 
-    private final CommandBus commandBus;
-    private final QueryBus queryBus;
+  private final CommandBus commandBus;
+  private final QueryBus queryBus;
 
-    @PostMapping
-    public ApiResponse<TerminalId> registerDevice(@CurrentContext TchRequestContext ctx, @RequestBody RegisterPosDeviceCommand body) {
-        var cmd = new RegisterPosDeviceCommand(ctx.tenantIdSafe(), body.outletId(), body.deviceId(), body.label(), body.capabilities());
-        return ApiResponse.success(TerminalId.of(commandBus.send(cmd)));
-    }
+  // ── DTOs ────────────────────────────────────────────────────────────────
 
-    @PostMapping("/{id}/heartbeat")
-    public ApiResponse<Void> sendHeartbeat(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id, @RequestBody SendPosHeartbeatCommand body) {
-        var cmd = new SendPosHeartbeatCommand(ctx.tenantIdSafe(), id, body.lastSeenAt(), body.status(), body.batteryPercent(), body.appVersion(), body.extras());
-        commandBus.send(cmd);
-        return ApiResponse.success(null);
-    }
+  public record RegisterTerminalRequest(
+      @NotNull OutletId outletId,
+      TerminalKind kind,
+      @NotBlank String label,
+      String inventoryTag,
+      Map<String, Object> metadata) {}
 
-    @PostMapping("/{id}/lock")
-    public ApiResponse<TerminalResponse> lockDevice(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id, @RequestBody LockRequest req) {
-        var cmd = new LockTerminalCommand(ctx.tenantIdSafe(), id, req.actorId().value(), req.reason());
-        Terminal res = commandBus.send(cmd);
-        return ApiResponse.success(res == null ? null : TerminalResponse.fromDomain(res));
-    }
+  public record UnregisterTerminalRequest(@NotBlank String reason) {}
 
-    @PostMapping("/{id}/unlock")
-    public ApiResponse<TerminalResponse> unlockDevice(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id, @RequestBody UnlockRequest req) {
-        var cmd = new UnlockTerminalCommand(ctx.tenantIdSafe(), id, req.actorId().value());
-        Terminal res = commandBus.send(cmd);
-        return ApiResponse.success(res == null ? null : TerminalResponse.fromDomain(res));
-    }
+  public record LockTerminalRequest(@NotBlank String reason) {}
 
-    @PutMapping("/{id}/metadata")
-    public ApiResponse<TerminalResponse> updateMetadata(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id, @RequestBody UpdateMetadataRequest req) {
-        var cmd = new UpdateTerminalMetadataCommand(ctx.tenantIdSafe(), id, req.actorId().value(), req.metadataPatch(), req.heartbeatAlso());
-        Terminal res = commandBus.send(cmd);
-        return ApiResponse.success(res == null ? null : TerminalResponse.fromDomain(res));
-    }
+  public record AssignOutletRequest(@NotNull OutletId outletId) {}
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<TerminalResponse> unregisterDevice(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id, @RequestBody UnregisterRequest req) {
-        var cmd = new UnregisterTerminalCommand(ctx.tenantIdSafe(), id, req.actorId().value(), req.reason());
-        Terminal res = commandBus.send(cmd);
-        return ApiResponse.success(res == null ? null : TerminalResponse.fromDomain(res));
-    }
+  public record AssignUserRequest(@NotNull UserId userId) {}
 
-    @GetMapping("/{id}")
-    public ApiResponse<TerminalResponse> getDevice(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id) {
-        Optional<Terminal> opt = queryBus.send(new GetPosDeviceByIdQuery(ctx.tenantIdSafe(), id));
-        return ApiResponse.success(opt.map(TerminalResponse::fromDomain).orElse(null));
-    }
+  public record UpdateMetadataRequest(@NotNull Map<String, Object> metadataPatch) {}
 
-    @GetMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<Map<String, Object>> getDeviceStatus(@CurrentContext TchRequestContext ctx, @PathVariable TerminalId id) {
-        return ApiResponse.success(queryBus.send(new GetPosDeviceStatusQuery(ctx.tenantIdSafe(), id)));
-    }
+  public record UpdateSyncStateRequest(@NotNull TerminalSyncState newSyncState) {}
 
-    @GetMapping("/outlets/{outletId}")
-    public ApiResponse<List<TerminalResponse>> listByOutlet(@CurrentContext TchRequestContext ctx, @PathVariable OutletId outletId) {
-        List<Terminal> terminals = queryBus.send(new ListPosDevicesByLocationQuery(ctx.tenantIdSafe(), outletId));
-        return ApiResponse.success(terminals.stream().map(TerminalResponse::fromDomain).toList());
-    }
+  // ── List & detail ──────────────────────────────────────────────────────
 
-    @GetMapping
-    public ApiResponse<List<TerminalResponse>> listByTenant(@CurrentContext TchRequestContext ctx) {
-        List<Terminal> terminals = queryBus.send(new ListPosDevicesByTenantQuery(ctx.tenantIdSafe()));
-        return ApiResponse.success(terminals.stream().map(TerminalResponse::fromDomain).toList());
-    }
+  @GetMapping
+  public ApiResponse<TchPage<TerminalSummaryView>> list(
+      @RequestParam(required = false) String q,
+      @RequestParam(required = false) OutletId outletId,
+      @RequestParam(required = false) UserId assignedUserId,
+      @RequestParam(required = false) TerminalKind kind,
+      @RequestParam(required = false) TerminalState state,
+      @RequestParam(required = false) TerminalSyncState syncState,
+      @RequestParam(required = false) Boolean activeForUser,
+      @TchPaging(defaultSort = {"label,ASC"}, allowedSort = {"label", "createdAt", "lastSeen"})
+          TchPageRequest pageRequest) {
+    var criteria =
+        new TerminalSearchCriteria(q, outletId, assignedUserId, kind, state, syncState, activeForUser);
+    return ApiResponse.success(queryBus.send(new ListTerminalsQuery(criteria, pageRequest)));
+  }
 
-    public record LockRequest(UserId actorId, String reason) {}
-    public record UnlockRequest(UserId actorId) {}
-    public record UpdateMetadataRequest(UserId actorId, Map<String, Object> metadataPatch, boolean heartbeatAlso) {}
-    public record UnregisterRequest(UserId actorId, String reason) {}
+  @GetMapping("/{id}")
+  public ApiResponse<TerminalView> get(@PathVariable TerminalId id) {
+    return ApiResponse.success(queryBus.send(new GetTerminalByIdQuery(id)));
+  }
 
-    public record TerminalResponse(java.util.UUID id, java.util.UUID outletId, String label, String status) {
-        public static TerminalResponse fromDomain(Terminal t) {
-            return new TerminalResponse(t.id(), t.outletId() == null ? null : t.outletId().value(), t.label(), t.state() != null ? t.state().name() : null);
-        }
-    }
+  @GetMapping("/offline")
+  public ApiResponse<List<TerminalSummaryView>> listOffline() {
+    return ApiResponse.success(queryBus.send(new ListOfflineTerminalsQuery()));
+  }
+
+  @GetMapping("/sync-pending")
+  public ApiResponse<List<TerminalSummaryView>> listSyncPending() {
+    return ApiResponse.success(queryBus.send(new ListSyncPendingTerminalsQuery()));
+  }
+
+  // ── Register / Unregister ──────────────────────────────────────────────
+
+  @PostMapping
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_REGISTER,
+      idExpression = "#result.data.value().toString()",
+      detailsExpression = "#req")
+  public ApiResponse<TerminalId> register(
+      @CurrentContext TchRequestContext ctx, @Valid @RequestBody RegisterTerminalRequest req) {
+    return ApiResponse.success(
+        commandBus.send(
+            new RegisterTerminalCommand(
+                ctx.tenantIdSafe(),
+                req.outletId(),
+                req.kind() == null ? TerminalKind.PHYSICAL : req.kind(),
+                req.label(),
+                req.inventoryTag(),
+                req.metadata(),
+                ctx.currentUserIdRequired())));
+  }
+
+  @DeleteMapping("/{id}")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_UNREGISTER,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#req")
+  public ApiResponse<Void> unregister(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TerminalId id,
+      @Valid @RequestBody UnregisterTerminalRequest req) {
+    commandBus.send(
+        new UnregisterTerminalCommand(
+            ctx.tenantIdSafe(), id, req.reason(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  // ── Lock / Unlock ──────────────────────────────────────────────────────
+
+  @PostMapping("/{id}/lock")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_LOCK,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#req")
+  public ApiResponse<Void> lock(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TerminalId id,
+      @Valid @RequestBody LockTerminalRequest req) {
+    commandBus.send(
+        new LockTerminalCommand(ctx.tenantIdSafe(), id, req.reason(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  @PostMapping("/{id}/unlock")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_UNLOCK,
+      idExpression = "#id.value().toString()")
+  public ApiResponse<Void> unlock(
+      @CurrentContext TchRequestContext ctx, @PathVariable TerminalId id) {
+    commandBus.send(
+        new UnlockTerminalCommand(ctx.tenantIdSafe(), id, ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  // ── Assignment ──────────────────────────────────────────────────────────
+
+  @PostMapping("/{id}/assign-outlet")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_ASSIGN_OUTLET,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#req")
+  public ApiResponse<Void> assignOutlet(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TerminalId id,
+      @Valid @RequestBody AssignOutletRequest req) {
+    commandBus.send(
+        new AssignTerminalToOutletCommand(
+            ctx.tenantIdSafe(), id, req.outletId(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  @PostMapping("/{id}/assign-user")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_ASSIGN_USER,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#req")
+  public ApiResponse<Void> assignUser(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TerminalId id,
+      @Valid @RequestBody AssignUserRequest req) {
+    commandBus.send(
+        new AssignTerminalToUserCommand(
+            ctx.tenantIdSafe(), id, req.userId(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  @PostMapping("/{id}/activate-for-user")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_ACTIVATE_FOR_USER,
+      idExpression = "#id.value().toString()")
+  public ApiResponse<Void> activateForUser(
+      @CurrentContext TchRequestContext ctx, @PathVariable TerminalId id) {
+    commandBus.send(
+        new ActivateTerminalForUserCommand(
+            ctx.tenantIdSafe(), id, ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  // ── Metadata / Sync ─────────────────────────────────────────────────────
+
+  @PatchMapping("/{id}/metadata")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_METADATA_UPDATE,
+      idExpression = "#id.value().toString()")
+  public ApiResponse<Void> updateMetadata(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TerminalId id,
+      @Valid @RequestBody UpdateMetadataRequest req) {
+    commandBus.send(
+        new UpdateTerminalMetadataCommand(
+            ctx.tenantIdSafe(), id, req.metadataPatch(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
+
+  @PostMapping("/{id}/sync-state")
+  @AuditLog(
+      entity = AuditEntityType.TERMINAL,
+      action = AuditAction.TERMINAL_SYNC_STATE_UPDATE,
+      idExpression = "#id.value().toString()",
+      detailsExpression = "#req")
+  public ApiResponse<Void> updateSyncState(
+      @CurrentContext TchRequestContext ctx,
+      @PathVariable TerminalId id,
+      @Valid @RequestBody UpdateSyncStateRequest req) {
+    commandBus.send(
+        new UpdateTerminalSyncStateCommand(
+            ctx.tenantIdSafe(), id, req.newSyncState(), ctx.currentUserIdRequired()));
+    return ApiResponse.success(null);
+  }
 }

@@ -54,6 +54,21 @@ public class OutletEntity extends BaseTenantEntity {
   @Column(name = "require_opening_float", nullable = false)
   private boolean requireOpeningFloat = true;
 
+  @Column(name = "auto_open_session", nullable = false)
+  private boolean autoOpenSession = false;
+
+  @Column(name = "auto_close_session", nullable = false)
+  private boolean autoCloseSession = false;
+
+  @Column(name = "auto_session_user_id")
+  private UUID autoSessionUserId;
+
+  @Column(name = "auto_session_terminal_id")
+  private UUID autoSessionTerminalId;
+
+  @Column(name = "default_opening_float_cents")
+  private Long defaultOpeningFloatCents;
+
   @Column(name = "address_id")
   private UUID addressId;
 

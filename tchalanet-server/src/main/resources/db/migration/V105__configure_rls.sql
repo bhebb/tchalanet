@@ -255,21 +255,31 @@ CREATE POLICY page_model_rls_select ON page_model
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+-- audit_event: tenant-scoped OR platform/global (tenant_id IS NULL) for system audits.
 ALTER TABLE audit_event ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_event FORCE ROW LEVEL SECURITY;
 CREATE POLICY audit_event_rls_all ON audit_event
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
 CREATE POLICY audit_event_rls_select ON audit_event
   FOR SELECT
-  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+  USING (
+    public.allow_platform_cross_tenant_select()
+    OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  );
 
 ALTER TABLE autonomy_policy_rule ENABLE ROW LEVEL SECURITY;
 ALTER TABLE autonomy_policy_rule FORCE ROW LEVEL SECURITY;
@@ -287,21 +297,21 @@ CREATE POLICY autonomy_policy_rule_rls_select ON autonomy_policy_rule
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+-- limit_definition: GLOBAL table (no tenant_id). Read by any authenticated tenant or platform;
+-- writes are restricted at application layer (SUPER_ADMIN only).
 ALTER TABLE limit_definition ENABLE ROW LEVEL SECURITY;
 ALTER TABLE limit_definition FORCE ROW LEVEL SECURITY;
 CREATE POLICY limit_definition_rls_all ON limit_definition
   FOR ALL
   USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
+    (public.deleted_visibility() = 'all'
       OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
       OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
   )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+  WITH CHECK (true);
 CREATE POLICY limit_definition_rls_select ON limit_definition
   FOR SELECT
-  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+  USING (true);
 
 ALTER TABLE limit_assignment ENABLE ROW LEVEL SECURITY;
 ALTER TABLE limit_assignment FORCE ROW LEVEL SECURITY;
@@ -316,6 +326,22 @@ CREATE POLICY limit_assignment_rls_all ON limit_assignment
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY limit_assignment_rls_select ON limit_assignment
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE approval_request ENABLE ROW LEVEL SECURITY;
+ALTER TABLE approval_request FORCE ROW LEVEL SECURITY;
+CREATE POLICY approval_request_rls_all ON approval_request
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY approval_request_rls_select ON approval_request
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 

@@ -1,7 +1,15 @@
 package com.tchalanet.server.core.outlet.application.command.model;
 
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.address.domain.Address;
 
+/**
+ * Partial config update for an Outlet. Each nullable field means "leave unchanged" when null.
+ *
+ * <p>Boolean wrappers (vs primitive) are required to differentiate "not provided" from "set to
+ * false".
+ */
 public record OutletConfigPatch(
     Boolean salesBlocked,
     String salesBlockReason,
@@ -11,4 +19,9 @@ public record OutletConfigPatch(
     String receiptHeaderMessage,
     String receiptFooterMessage,
     Boolean requireOpeningFloat,
+    Boolean autoOpenSession,
+    Boolean autoCloseSession,
+    UserId autoSessionUserId,
+    TerminalId autoSessionTerminalId,
+    Long defaultOpeningFloatCents,
     Address address) {}

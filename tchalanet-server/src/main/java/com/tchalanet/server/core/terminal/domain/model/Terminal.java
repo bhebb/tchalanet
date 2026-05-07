@@ -2,265 +2,299 @@ package com.tchalanet.server.core.terminal.domain.model;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class Terminal {
+/**
+ * Terminal aggregate root. Immutable record. State transitions return new instances.
+ *
+ * <p>Conventions: typed IDs only (no raw UUID), no Lombok mutators, factory + business methods,
+ * domain enums aligned with V100 CHECK constraints.
+ */
+public record Terminal(
+    TerminalId id,
+    TenantId tenantId,
+    OutletId outletId,
+    UserId assignedUserId,
+    TerminalKind kind,
+    TerminalState state,
+    boolean activeForUser,
+    TerminalSyncState syncState,
+    Instant lastSeen,
+    String label,
+    String inventoryTag,
+    Map<String, Object> metadata,
+    Instant registeredAt,
+    Instant unregisteredAt,
+    Instant lockedAt,
+    UserId lockedBy,
+    String lockReason) {
 
-  private final UUID id;
-  private final TenantId tenantId;
-  private OutletId outletId;
-  private TerminalState state;
-  private Instant lastSeen;
-  private String meta;
-  private long version;
-  private Instant registeredAt;
-  private Instant unregisteredAt;
-  private Instant lockedAt;
-  private UUID lockedBy;
-  private String lockReason;
-  private Instant deletedAt;
+  // ── Factories ──────────────────────────────────────────────────────────
 
-  // New fields
-  private String label;
-  private String inventoryTag;
-
-  public Terminal(
-      UUID id,
+  public static Terminal createNew(
+      TerminalId id,
       TenantId tenantId,
       OutletId outletId,
-      TerminalState state,
-      Instant lastSeen,
-      String meta,
-      long version,
-      Instant registeredAt,
-      Instant unregisteredAt,
-      Instant lockedAt,
-      UUID lockedBy,
-      String lockReason,
-      Instant deletedAt,
+      TerminalKind kind,
       String label,
-      String inventoryTag) {
-    this.id = id;
-    this.tenantId = tenantId;
-    this.outletId = outletId;
-    this.state = state;
-    this.lastSeen = lastSeen;
-    this.meta = meta;
-    this.version = version;
-    this.registeredAt = registeredAt;
-    this.unregisteredAt = unregisteredAt;
-    this.lockedAt = lockedAt;
-    this.lockedBy = lockedBy;
-    this.lockReason = lockReason;
-    this.deletedAt = deletedAt;
-    this.label = label;
-    this.inventoryTag = inventoryTag;
-  }
-
-  // Backward-compatible constructor (pre-label fields)
-  public Terminal(
-      UUID id,
-      TenantId tenantId,
-      OutletId outletId,
-      TerminalState state,
-      Instant lastSeen,
-      String meta,
-      long version,
-      Instant registeredAt,
-      Instant unregisteredAt,
-      Instant lockedAt,
-      UUID lockedBy,
-      String lockReason,
-      Instant deletedAt) {
-    this(
-        id,
-        tenantId,
-        outletId,
-        state,
-        lastSeen,
-        meta,
-        version,
-        registeredAt,
-        unregisteredAt,
-        lockedAt,
-        lockedBy,
-        lockReason,
-        deletedAt,
-        null,
-        null);
-  }
-
-  // Behaviors
-  public void register(Instant now) {
-    this.state = TerminalState.ACTIVE;
-    this.lastSeen = now;
-  }
-
-  public void heartbeat(Instant now, String metaDelta) {
-    this.lastSeen = now;
-    if (metaDelta != null) {
-      this.meta = metaDelta; // TODO: merge
-    }
-  }
-
-  public void lock(Instant now, String reason) {
-    this.state = TerminalState.BLOCKED;
-    // Optionally store reason in meta
-  }
-
-  public void unlock(Instant now) {
-    this.state = TerminalState.ACTIVE;
-  }
-
-  // New methods
-  public Terminal lock(UUID by, String reason, Instant now) {
+      String inventoryTag,
+      Map<String, Object> metadata) {
     return new Terminal(
         id,
         tenantId,
         outletId,
-        TerminalState.BLOCKED,
+        null,
+        kind == null ? TerminalKind.PHYSICAL : kind,
+        TerminalState.REGISTERED,
+        false,
+        TerminalSyncState.ONLINE,
+        null,
+        label,
+        inventoryTag,
+        metadata == null ? Map.of() : Map.copyOf(metadata),
+        Instant.now(),
+        null,
+        null,
+        null,
+        null);
+  }
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────
+
+  public Terminal register(Instant now) {
+    return copyWith(
+        state == TerminalState.REGISTERED ? TerminalState.ACTIVE : state,
+        activeForUser,
+        syncState,
+        now,
+        registeredAt == null ? now : registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        outletId,
+        assignedUserId,
+        label,
+        inventoryTag,
+        metadata);
+  }
+
+  public Terminal unregister(UserId by, Instant now) {
+    return copyWith(
+        TerminalState.UNREGISTERED,
+        false,
+        syncState,
         lastSeen,
-        meta,
-        version,
+        registeredAt,
+        now,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        outletId,
+        assignedUserId,
+        label,
+        inventoryTag,
+        metadata);
+  }
+
+  public Terminal lock(UserId by, String reason, Instant now) {
+    return copyWith(
+        TerminalState.LOCKED,
+        activeForUser,
+        syncState,
+        lastSeen,
         registeredAt,
         unregisteredAt,
         now,
         by,
         reason,
-        deletedAt,
+        outletId,
+        assignedUserId,
         label,
-        inventoryTag);
+        inventoryTag,
+        metadata);
   }
 
-  public Terminal unlock(UUID by, Instant now) {
-    return new Terminal(
-        id,
-        tenantId,
-        outletId,
+  public Terminal unlock(Instant now) {
+    if (state != TerminalState.LOCKED) return this;
+    return copyWith(
         TerminalState.ACTIVE,
+        activeForUser,
+        syncState,
         lastSeen,
-        meta,
-        version,
         registeredAt,
         unregisteredAt,
         null,
         null,
         null,
-        deletedAt,
+        outletId,
+        assignedUserId,
         label,
-        inventoryTag);
+        inventoryTag,
+        metadata);
   }
 
-  public Terminal unregister(UUID by, Instant now) {
-    return new Terminal(
-        id,
-        tenantId,
-        outletId,
+  public Terminal heartbeat(Instant now) {
+    return copyWith(
         state,
-        lastSeen,
-        meta,
-        version,
-        registeredAt,
+        activeForUser,
+        TerminalSyncState.ONLINE,
         now,
-        lockedAt,
-        lockedBy,
-        lockReason,
-        now,
-        label,
-        inventoryTag);
-  }
-
-  public Terminal mergeMetadata(Map<String, Object> patch, Instant now) {
-    // TODO: implement proper merge
-    String newMeta = meta; // placeholder
-    return new Terminal(
-        id,
-        tenantId,
-        outletId,
-        state,
-        lastSeen,
-        newMeta,
-        version,
         registeredAt,
         unregisteredAt,
         lockedAt,
         lockedBy,
         lockReason,
-        deletedAt,
+        outletId,
+        assignedUserId,
         label,
-        inventoryTag);
+        inventoryTag,
+        metadata);
   }
 
-  // Getters
-  public UUID id() {
-    return id;
+  // ── Assignment ─────────────────────────────────────────────────────────
+
+  public Terminal assignToOutlet(OutletId newOutletId) {
+    if (newOutletId == null || newOutletId.equals(this.outletId)) return this;
+    return copyWith(
+        state,
+        activeForUser,
+        syncState,
+        lastSeen,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        newOutletId,
+        assignedUserId,
+        label,
+        inventoryTag,
+        metadata);
   }
 
-  public TenantId tenantId() {
-    return tenantId;
+  public Terminal assignToUser(UserId userId) {
+    if (java.util.Objects.equals(userId, this.assignedUserId)) return this;
+    return copyWith(
+        state,
+        userId == null ? false : activeForUser,
+        syncState,
+        lastSeen,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        outletId,
+        userId,
+        label,
+        inventoryTag,
+        metadata);
   }
 
-  public OutletId outletId() {
-    return outletId;
+  public Terminal activateForUser() {
+    if (assignedUserId == null) {
+      throw new IllegalStateException("Cannot activate terminal: no user assigned");
+    }
+    if (activeForUser) return this;
+    return copyWith(
+        state,
+        true,
+        syncState,
+        lastSeen,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        outletId,
+        assignedUserId,
+        label,
+        inventoryTag,
+        metadata);
   }
 
-  public TerminalState state() {
-    return state;
+  // ── Sync ──────────────────────────────────────────────────────────────
+
+  public Terminal updateSyncState(TerminalSyncState newSyncState, Instant now) {
+    if (newSyncState == this.syncState) return this;
+    return copyWith(
+        state,
+        activeForUser,
+        newSyncState,
+        now,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        outletId,
+        assignedUserId,
+        label,
+        inventoryTag,
+        metadata);
   }
 
-  public Instant lastSeen() {
-    return lastSeen;
+  // ── Metadata ──────────────────────────────────────────────────────────
+
+  public Terminal mergeMetadata(Map<String, Object> patch) {
+    if (patch == null || patch.isEmpty()) return this;
+    java.util.Map<String, Object> merged = new java.util.HashMap<>(metadata);
+    merged.putAll(patch);
+    return copyWith(
+        state,
+        activeForUser,
+        syncState,
+        lastSeen,
+        registeredAt,
+        unregisteredAt,
+        lockedAt,
+        lockedBy,
+        lockReason,
+        outletId,
+        assignedUserId,
+        label,
+        inventoryTag,
+        Map.copyOf(merged));
   }
 
-  public String meta() {
-    return meta;
-  }
+  // ── Internal helper to keep copy-pattern compact ──────────────────────
 
-  public long version() {
-    return version;
-  }
-
-  public Instant registeredAt() {
-    return registeredAt;
-  }
-
-  public Instant unregisteredAt() {
-    return unregisteredAt;
-  }
-
-  public Instant lockedAt() {
-    return lockedAt;
-  }
-
-  public UUID lockedBy() {
-    return lockedBy;
-  }
-
-  public String lockReason() {
-    return lockReason;
-  }
-
-  public Instant deletedAt() {
-    return deletedAt;
-  }
-
-  public String label() {
-    return label;
-  }
-
-  public String inventoryTag() {
-    return inventoryTag;
-  }
-
-  public enum TerminalState {
-    ACTIVE,
-    INACTIVE,
-    BLOCKED
+  private Terminal copyWith(
+      TerminalState newState,
+      boolean newActiveForUser,
+      TerminalSyncState newSyncState,
+      Instant newLastSeen,
+      Instant newRegisteredAt,
+      Instant newUnregisteredAt,
+      Instant newLockedAt,
+      UserId newLockedBy,
+      String newLockReason,
+      OutletId newOutletId,
+      UserId newAssignedUserId,
+      String newLabel,
+      String newInventoryTag,
+      Map<String, Object> newMetadata) {
+    return new Terminal(
+        id,
+        tenantId,
+        newOutletId,
+        newAssignedUserId,
+        kind,
+        newState,
+        newActiveForUser,
+        newSyncState,
+        newLastSeen,
+        newLabel,
+        newInventoryTag,
+        newMetadata,
+        newRegisteredAt,
+        newUnregisteredAt,
+        newLockedAt,
+        newLockedBy,
+        newLockReason);
   }
 }

@@ -55,6 +55,11 @@ public class UpdateOutletConfigCommandHandler
             p.receiptHeaderMessage(),
             p.receiptFooterMessage(),
             p.requireOpeningFloat(),
+            p.autoOpenSession(),
+            p.autoCloseSession(),
+            p.autoSessionUserId(),
+            p.autoSessionTerminalId(),
+            p.defaultOpeningFloatCents(),
             Instant.now(clock));
 
     // handle address in patch (optional) — p.address() is domain.Address

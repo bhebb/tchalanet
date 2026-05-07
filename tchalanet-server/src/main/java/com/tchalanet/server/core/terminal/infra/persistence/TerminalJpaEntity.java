@@ -23,8 +23,20 @@ public class TerminalJpaEntity extends BaseTenantEntity {
   @Column(name = "outlet_id", nullable = false)
   private UUID outletId;
 
-  @Column(name = "state", nullable = false)
+  @Column(name = "assigned_user_id")
+  private UUID assignedUserId;
+
+  @Column(name = "kind", nullable = false, length = 16)
+  private String kind = "PHYSICAL";
+
+  @Column(name = "state", nullable = false, length = 32)
   private String state;
+
+  @Column(name = "active_for_user", nullable = false)
+  private boolean activeForUser = false;
+
+  @Column(name = "sync_state", nullable = false, length = 32)
+  private String syncState = "ONLINE";
 
   @Column(name = "last_seen")
   private Instant lastSeen;

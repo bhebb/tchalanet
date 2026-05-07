@@ -5,7 +5,6 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.core.address.application.AddressCrudService;
 import com.tchalanet.server.core.address.application.model.AddressInput;
 import com.tchalanet.server.core.outlet.application.command.model.CreateOutletCommand;
@@ -17,26 +16,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCommand, OutletId> {
 
-  private final OutletWriterPort writer;
-  private final AddressCrudService addressService;
-  private final IdGenerator idGenerator;
+    private final OutletWriterPort writer;
+    private final AddressCrudService addressService;
+    private final IdGenerator idGenerator;
 
-  @Override
-  @TchTx
-  public OutletId handle(CreateOutletCommand cmd) {
-    OutletId newId = OutletId.of(idGenerator.newUuid());
-    Outlet o = Outlet.createNew(cmd.tenantId(), cmd.name(), cmd.slug(), newId);
+    @Override
+    @TchTx
+    public OutletId handle(CreateOutletCommand cmd) {
+        var newId = OutletId.of(idGenerator.newUuid());
+        var outlet = Outlet.createNew(cmd.tenantId(), cmd.name(), cmd.slug(), newId);
 
-    AddressId addressId = cmd.addressId();
+        var addressId = cmd.addressId();
 
-    AddressInput input = cmd.addressInput();
-    if (addressId == null && input != null) {
-      addressId = addressService.upsertTenantPrimary(cmd.tenantId(), input);
+        AddressInput input = cmd.addressInput();
+        if (addressId == null && input != null) {
+            addressId = addressService.upsertTenantPrimary(cmd.tenantId(), input);
+        }
+
+        if (addressId != null) {
+            outlet = outlet.withAddressId(addressId);
+        }
+
+        writer.save(outlet);
+        return newId;
     }
-
-    if (addressId != null) o = o.withAddressId(addressId);
-
-    writer.save(o);
-    return newId;
-  }
 }

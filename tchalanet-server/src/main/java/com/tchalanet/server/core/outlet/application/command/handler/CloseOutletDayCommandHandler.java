@@ -80,7 +80,7 @@ public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOut
             payload.getReason() == null || payload.getReason().isBlank()
                 ? "closed_by_outlet_day"
                 : payload.getReason();
-        Outlet updated = outlet.closeDay().withSalesBlocked(true, reason, Instant.now(clock));
+        Outlet updated = outlet.closeDay().blockSales(reason, Instant.now(clock));
         outletWriter.save(updated);
         LocalDate closedDate = payload.getTo() == null ? toDate : payload.getTo();
         var event =

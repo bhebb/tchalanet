@@ -3,6 +3,7 @@ package com.tchalanet.server.core.tenantuser.infra.persistence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,4 +14,7 @@ public interface TenantUserJpaRepository extends JpaRepository<TenantUserJpaEnti
 
   Optional<TenantUserJpaEntity> findByUserIdAndDeletedAtIsNull(UUID userId);
 
+  List<TenantUserJpaEntity> findByOutletIdAndDeletedAtIsNull(UUID outletId);
+
+  long countByOutletIdAndDeletedAtIsNull(UUID outletId);
 }

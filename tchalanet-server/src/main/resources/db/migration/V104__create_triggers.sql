@@ -33,6 +33,7 @@ CREATE TRIGGER trg_audit_event__set_updated_at BEFORE UPDATE ON audit_event FOR 
 CREATE TRIGGER trg_autonomy_policy_rule__set_updated_at BEFORE UPDATE ON autonomy_policy_rule FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_limit_definition__set_updated_at BEFORE UPDATE ON limit_definition FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_limit_assignment__set_updated_at BEFORE UPDATE ON limit_assignment FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_approval_request__set_updated_at BEFORE UPDATE ON approval_request FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_draw_exposure__set_updated_at BEFORE UPDATE ON draw_exposure FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_ledger_entry__set_updated_at BEFORE UPDATE ON ledger_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_tchala_entry__set_updated_at BEFORE UPDATE ON tchala_entry FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
