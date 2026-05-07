@@ -4,7 +4,10 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditActorType;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventReaderPort;
+import com.tchalanet.server.core.audit.application.port.out.AuditEventsCriteria;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
 import com.tchalanet.server.core.audit.domain.model.AuditEvent;
 import com.tchalanet.server.core.audit.infra.persistence.AuditEventJpaEntity;
@@ -13,6 +16,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,6 +39,16 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
         .limit(limit)
         .map(this::toDomain)
         .toList();
+  }
+
+  @Override
+  public TchPage<AuditEvent> findByCriteria(AuditEventsCriteria criteria) {
+    var pageable = criteria == null || criteria.pageable() == null
+        ? PageRequest.of(0, 20)
+        : criteria.pageable();
+
+    var page = jpa.findAll(toSpecification(criteria), pageable);
+    return TchPageMapper.map(page, this::toDomain);
   }
 
   @Override
@@ -72,5 +87,38 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
         e.getDetails(),
         e.getIp(),
         e.getUserAgent());
+  }
+
+  private static Specification<AuditEventJpaEntity> toSpecification(AuditEventsCriteria criteria) {
+    return (root, query, cb) -> {
+      var predicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
+      predicates.add(cb.isNull(root.get("deletedAt")));
+
+      if (criteria != null) {
+        if (criteria.tenantId() != null) {
+          predicates.add(cb.equal(root.get("tenantId"), criteria.tenantId().value()));
+        }
+        if (criteria.entityType() != null) {
+          predicates.add(cb.equal(root.get("entityType"), criteria.entityType().name()));
+        }
+        if (criteria.entityId() != null && !criteria.entityId().isBlank()) {
+          predicates.add(cb.equal(root.get("entityId"), criteria.entityId().trim()));
+        }
+        if (criteria.action() != null) {
+          predicates.add(cb.equal(root.get("action"), criteria.action().name()));
+        }
+        if (criteria.actorId() != null && !criteria.actorId().isBlank()) {
+          predicates.add(cb.equal(root.get("actorId"), criteria.actorId().trim()));
+        }
+        if (criteria.from() != null) {
+          predicates.add(cb.greaterThanOrEqualTo(root.get("occurredAt"), criteria.from()));
+        }
+        if (criteria.to() != null) {
+          predicates.add(cb.lessThanOrEqualTo(root.get("occurredAt"), criteria.to()));
+        }
+      }
+
+      return cb.and(predicates.toArray(jakarta.persistence.criteria.Predicate[]::new));
+    };
   }
 }

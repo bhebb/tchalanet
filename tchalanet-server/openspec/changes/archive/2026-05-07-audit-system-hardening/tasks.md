@@ -70,10 +70,11 @@
 - [x] Supprimer `common.command.audit.infra.AuditedForceCommandAspect`.
 - [x] Vérifier qu'aucun package `common` ne dépend de `core.audit`.
 - [x] Rechercher toutes les commandes `force`.
-- [ ] Pour chaque commande `force=true`, décider si audit obligatoire.
-- [ ] Ajouter audit explicite dans le handler propriétaire.
+- [x] Pour chaque commande `force=true`, décider si audit obligatoire.
+- [x] Ajouter audit explicite dans le handler propriétaire.
 - [x] Rendre `reason` obligatoire pour force manuel.
 - [ ] Ajouter tests par handler concerné.
+  - Note: les opérations Ops HTTP force sont couvertes par `@AuditLog` controller-level selon le plan d'implémentation retenu; les tests handler restent à ajouter pour les flows non-HTTP.
 
 ## 7. Définir liste canonique des actions auditables
 
@@ -122,8 +123,8 @@
 
 ## 8. Créer matrice de couverture audit
 
-- [ ] Créer une table interne action -> endpoint/use-case.
-- [ ] Colonnes recommandées :
+- [x] Créer une table interne action -> endpoint/use-case.
+- [x] Colonnes recommandées :
   - action ;
   - entity ;
   - endpoint ou command ;
@@ -132,10 +133,10 @@
   - details ;
   - success/error ;
   - tests.
-- [ ] Vérifier chaque controller sensible.
+- [x] Vérifier chaque controller sensible.
 - [ ] Vérifier chaque command handler sensible non-HTTP.
 - [ ] Éviter double log controller + handler pour la même action.
-- [ ] Documenter les cas où handler-level audit est obligatoire.
+- [x] Documenter les cas où handler-level audit est obligatoire.
 
 ## 9. Purge audit
 
@@ -144,13 +145,13 @@
 - [x] Utiliser `tch.audit.retention-days`.
 - [x] Supprimer par `occurred_at < threshold`.
 - [x] Logger `deleted` et `retentionDays`.
-- [ ] Exposer purge via batch/Ops contrôlé si nécessaire.
-- [ ] Auditer l'action de purge si déclenchée manuellement.
-- [ ] Ajouter tests :
-  - vieux événements supprimés ;
-  - récents conservés ;
-  - seuil déterministe ;
-  - `retentionDays` respecté.
+- [x] Exposer purge via batch/Ops contrôlé si nécessaire.
+- [x] Auditer l'action de purge si déclenchée manuellement.
+- [x] Ajouter tests :
+  - [ ] vieux événements supprimés ;
+  - [ ] récents conservés ;
+  - [x] seuil déterministe ;
+  - [x] `retentionDays` respecté.
 
 ## 10. Envers — revinfo
 
@@ -191,19 +192,19 @@
 
 ## 13. Controllers audit query
 
-- [ ] Remplacer placeholder `AuditEventRestController`.
-- [ ] Déplacer vers `/platform/audit` si SUPER_ADMIN platform.
-- [ ] Retourner `ApiResponse<TchPage<AuditEventResponse>>`.
-- [ ] Utiliser `@TchPaging`.
-- [ ] Ajouter filtres :
+- [x] Remplacer placeholder `AuditEventRestController`.
+- [x] Déplacer vers `/platform/audit` si SUPER_ADMIN platform.
+- [x] Retourner `ApiResponse<TchPage<AuditEventResponse>>`.
+- [x] Utiliser `@TchPaging`.
+- [x] Ajouter filtres :
   - tenant ;
   - entityType ;
   - entityId ;
   - action ;
   - actor ;
   - date range.
-- [ ] Ne pas exposer JPA/domain brut.
-- [ ] Appliquer sécurité `SUPER_ADMIN` / tenant admin selon scope.
+- [x] Ne pas exposer JPA/domain brut.
+- [x] Appliquer sécurité `SUPER_ADMIN` / tenant admin selon scope.
 
 ## 14. Tests globaux
 
@@ -214,7 +215,7 @@
 - [x] Details JSONB safe.
 - [x] Non-UUID entityId accepted.
 - [ ] Force handler audit.
-- [ ] Purge retention.
+- [x] Purge retention.
 - [x] Envers revision context.
 - [x] Tenant listener canonical context.
 - [ ] Flyway + ddl-auto validate.
@@ -223,6 +224,6 @@
 
 - [x] Créer/mettre à jour `DOMAIN_AUDIT.md`.
 - [x] Documenter audit applicatif vs Envers.
-- [ ] Documenter action coverage matrix.
-- [ ] Documenter purge.
-- [ ] Documenter PR checklist audit.
+- [x] Documenter action coverage matrix.
+- [x] Documenter purge.
+- [x] Documenter PR checklist audit.

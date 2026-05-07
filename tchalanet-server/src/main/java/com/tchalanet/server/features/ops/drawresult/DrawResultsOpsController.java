@@ -6,6 +6,8 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -13,6 +15,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
+import com.tchalanet.server.core.audit.infra.web.AuditLog;
 import com.tchalanet.server.core.drawresult.application.command.model.*;
 import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultViewByIdQuery;
 import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultViewBySlotQuery;
@@ -49,6 +52,11 @@ public class DrawResultsOpsController {
 
     @Operation(summary = "Fetch external results into draw_result (slot-first)")
     @PostMapping("/fetch")
+    @AuditLog(
+        entity = AuditEntityType.DRAW_RESULT,
+        action = AuditAction.DRAW_RESULT_FETCH,
+        idExpression = "#req.slotKeys() == null ? 'all-slots' : #req.slotKeys().toString()",
+        detailsExpression = "#req")
     public ApiResponse<FetchExternalResultsWindowResult> fetch(
         @Valid @RequestBody FetchExternalResultsRequest req
     ) {
@@ -73,6 +81,11 @@ public class DrawResultsOpsController {
 
     @Operation(summary = "Refresh external results (fetch then apply)")
     @PostMapping("/refresh")
+    @AuditLog(
+        entity = AuditEntityType.DRAW_RESULT,
+        action = AuditAction.DRAW_RESULT_REFRESH,
+        idExpression = "#req.slotKeys() == null ? 'all-slots' : #req.slotKeys().toString()",
+        detailsExpression = "#req")
     public ApiResponse<RefreshExternalResultsWindowResult> refresh(
         @Valid @RequestBody FetchExternalResultsRequest req,
         @CurrentContext TchRequestContext ctx
@@ -111,6 +124,11 @@ public class DrawResultsOpsController {
 
     @Operation(summary = "Override a draw result for a slot")
     @PostMapping("/override")
+    @AuditLog(
+        entity = AuditEntityType.DRAW_RESULT,
+        action = AuditAction.DRAW_RESULT_OVERRIDE,
+        idExpression = "#req.slotKey() + ':' + #req.drawDate()",
+        detailsExpression = "#req")
     public ApiResponse<OverrideDrawResultResult> override(
         @Valid @RequestBody OverrideDrawResultRequest req,
         @CurrentContext TchRequestContext ctx
@@ -134,6 +152,11 @@ public class DrawResultsOpsController {
 
     @Operation(summary = "Record a manual draw result")
     @PostMapping("/manual")
+    @AuditLog(
+        entity = AuditEntityType.DRAW_RESULT,
+        action = AuditAction.DRAW_RESULT_MANUAL,
+        idExpression = "#req.slotKey() + ':' + #req.drawDate()",
+        detailsExpression = "#req")
     public ApiResponse<RecordManualDrawResultResult> manual(
         @Valid @RequestBody RecordManualDrawResultRequest req,
         @CurrentContext TchRequestContext ctx

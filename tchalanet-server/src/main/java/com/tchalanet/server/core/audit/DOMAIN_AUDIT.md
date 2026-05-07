@@ -198,6 +198,73 @@ canoniques sont :
   - archivage / purge planifiée (batch) ;
   - agrégations/exports pour BI.
 
+## 10. Couverture applicative canonique
+
+Cette matrice est la référence de couverture pour les actions sensibles. Elle doit
+être mise à jour dans la même PR que tout nouveau endpoint ou handler sensible.
+
+| Action                        | Entity        | Endpoint / use-case                          | Trigger     | Entity id                | Details                | Tests            |
+| ----------------------------- | ------------- | -------------------------------------------- | ----------- | ------------------------ | ---------------------- | ---------------- |
+| `DRAW_GENERATE`               | `DRAW`        | `POST /platform/ops/draws/generate`          | `@AuditLog` | `tenantId`               | request + outcome      | aspect + compile |
+| `DRAW_OPEN`                   | `DRAW`        | `POST /platform/ops/draws/open-due`          | `@AuditLog` | `draw-open-due`          | request + outcome      | aspect + compile |
+| `DRAW_OPEN`                   | `DRAW`        | `POST /platform/ops/draws/open-today`        | `@AuditLog` | `draw-open-today`        | request + outcome      | aspect + compile |
+| `DRAW_CLOSE`                  | `DRAW`        | `POST /platform/ops/draws/close-due`         | `@AuditLog` | `draw-close-due`         | request + outcome      | aspect + compile |
+| `DRAW_RESULT_FETCH`           | `DRAW_RESULT` | `POST /platform/ops/draw-results/fetch`      | `@AuditLog` | slot keys or `all-slots` | request + outcome      | aspect + compile |
+| `DRAW_RESULT_REFRESH`         | `DRAW_RESULT` | `POST /platform/ops/draw-results/refresh`    | `@AuditLog` | slot keys or `all-slots` | request + outcome      | aspect + compile |
+| `DRAW_RESULT_APPLY`           | `DRAW_RESULT` | `POST /platform/ops/draws/apply`             | `@AuditLog` | slot keys or `all-slots` | request + outcome      | aspect + compile |
+| `DRAW_RESULT_OVERRIDE`        | `DRAW_RESULT` | `POST /platform/ops/draw-results/override`   | `@AuditLog` | `slotKey:drawDate`       | request + outcome      | aspect + compile |
+| `DRAW_RESULT_MANUAL`          | `DRAW_RESULT` | `POST /platform/ops/draw-results/manual`     | `@AuditLog` | `slotKey:drawDate`       | request + outcome      | aspect + compile |
+| `DRAW_CORRECT_APPLIED_RESULT` | `DRAW`        | `POST /admin/draws/{drawId}/results/correct` | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `DRAW_CANCEL`                 | `DRAW`        | `POST /admin/draws/{drawId}/cancel`          | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `DRAW_RESCHEDULE`             | `DRAW`        | `POST /admin/draws/{drawId}/reschedule`      | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `DRAW_LOCK`                   | `DRAW`        | `POST /admin/draws/{drawId}/lock`            | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `DRAW_UNLOCK`                 | `DRAW`        | `POST /admin/draws/{drawId}/unlock`          | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `DRAW_ARCHIVE`                | `DRAW`        | `POST /admin/draws/{drawId}/archive`         | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `DRAW_SETTLE`                 | `DRAW`        | `POST /admin/draws/{drawId}/settle`          | `@AuditLog` | `drawId`                 | request + outcome      | aspect + compile |
+| `AUDIT_PURGE`                 | `SYSTEM`      | `POST /platform/audit/purge`                 | `@AuditLog` | `audit_event`            | purge result + outcome | handler test     |
+
+### Trigger rule
+
+- Prefer `@AuditLog` on thin Ops/admin controllers when the audited operation is
+  HTTP-only and the controller has stable request/result objects.
+- Prefer handler-level explicit audit for non-HTTP force operations, batch-only
+  operations, or flows where the final entity id is discovered inside the use case.
+- Do not audit the same action in both controller and handler unless the two
+  events answer different business questions.
+
+## 11. Purge policy
+
+Application audit purge is controlled by `tch.audit.retention-days` and deletes
+rows where `audit_event.occurred_at < threshold`.
+
+The canonical manual operation is:
+
+```text
+POST /platform/audit/purge
+```
+
+Rules:
+
+- `SUPER_ADMIN` only.
+- Uses injected `Clock`.
+- Returns `deleted`, `retentionDays`, and `threshold`.
+- Audited with `AUDIT_PURGE`.
+- Purge removes only application audit rows; Envers `_AUD` history is governed by
+  its own retention/archive policy.
+
+## 12. PR checklist
+
+For any sensitive endpoint or command handler:
+
+- [ ] Pick one canonical `AuditAction`.
+- [ ] Pick one `AuditEntityType`.
+- [ ] Define a stable `entityId` string; do not assume UUID.
+- [ ] Include JSONB-safe details with reason/force when relevant.
+- [ ] Choose exactly one trigger: `@AuditLog` or handler-level audit.
+- [ ] Add or update this coverage matrix.
+- [ ] Add focused tests when the audit is handler-level, force-related, or has
+      custom details/id logic.
+
 ---
 
 ## 10. Modes de défaillance

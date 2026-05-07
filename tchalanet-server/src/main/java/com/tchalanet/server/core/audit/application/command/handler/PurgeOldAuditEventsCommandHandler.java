@@ -1,9 +1,10 @@
 package com.tchalanet.server.core.audit.application.command.handler;
 
-import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.audit.application.command.model.PurgeOldAuditEventsCommand;
+import com.tchalanet.server.core.audit.application.command.model.PurgeOldAuditEventsResult;
 import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
 import java.time.Clock;
 import java.time.Instant;
@@ -16,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 @RequiredArgsConstructor
 @Slf4j
 public class PurgeOldAuditEventsCommandHandler
-    implements VoidCommandHandler<PurgeOldAuditEventsCommand> {
+    implements CommandHandler<PurgeOldAuditEventsCommand, PurgeOldAuditEventsResult> {
 
   private final AuditEventWriterPort repository;
   private final Clock clock;
@@ -26,9 +27,10 @@ public class PurgeOldAuditEventsCommandHandler
 
   @Override
   @TchTx
-  public void handle(PurgeOldAuditEventsCommand command) {
+  public PurgeOldAuditEventsResult handle(PurgeOldAuditEventsCommand command) {
     var threshold = Instant.now(clock).minus(retentionDays, ChronoUnit.DAYS);
     int deleted = repository.deleteBefore(threshold);
     log.info("Purged {} audit events older than {} days (threshold={})", deleted, retentionDays, threshold);
+    return new PurgeOldAuditEventsResult(deleted, retentionDays, threshold);
   }
 }
