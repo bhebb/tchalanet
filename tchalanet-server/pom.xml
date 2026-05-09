@@ -22,7 +22,7 @@
 
     <!-- Library versions -->
     <archunit.version>1.4.2</archunit.version>
-    <caffeine.version>3.2.3</caffeine.version>
+    <caffeine.version>3.2.4</caffeine.version>
     <json-schema-validator.version>3.0.2</json-schema-validator.version>
     <keycloak.version>26.0.9</keycloak.version>
     <lombok.version>1.18.46</lombok.version>
