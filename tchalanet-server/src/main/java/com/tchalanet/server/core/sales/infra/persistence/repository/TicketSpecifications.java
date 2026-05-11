@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence.repository;
 
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import org.springframework.data.jpa.domain.Specification;
@@ -10,7 +10,7 @@ public final class TicketSpecifications {
 
   private TicketSpecifications() {}
 
-  public static Specification<TicketEntity> fromFilter(TicketFilter filter) {
+  public static Specification<TicketJpaEntity> fromFilter(TicketFilter filter) {
     return (root, query, cb) -> {
       var predicates = new ArrayList<Predicate>();
 

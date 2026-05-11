@@ -42,28 +42,6 @@ The system SHALL define `OperationalContextResolver.resolve(TenantId, UserId, Se
 - **WHEN** `OperationalContextResolver.resolve` runs
 - **THEN** it SHALL return `Optional.empty()`
 
-### Requirement: Admin POS selection endpoints
-
-The system SHALL expose admin POS selection endpoints under `/tenant/me/operational-context`.
-
-#### Scenario: Select a POS context
-
-- **GIVEN** a `TENANT_ADMIN` with permission `OPERATIONAL_CONTEXT_SELECT` and a target `terminalId` bound to the same tenant
-- **WHEN** the user calls `POST /tenant/me/operational-context/select`
-- **THEN** the system SHALL persist a short-TTL admin selection with `source = ADMIN_SELECTION`
-- **AND** the system SHALL emit an audit record
-
-#### Scenario: Get current selection
-
-- **WHEN** the user calls `GET /tenant/me/operational-context`
-- **THEN** the system SHALL return the active selection, or `404` if none is active
-
-#### Scenario: Clear selection
-
-- **WHEN** the user calls `DELETE /tenant/me/operational-context`
-- **THEN** the system SHALL revoke the active selection
-- **AND** the system SHALL emit an audit record
-
 ## REMOVED Requirements
 
 ### Requirement: OperationalContextFilter

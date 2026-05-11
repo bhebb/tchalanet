@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence.repository;
 
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -19,26 +19,26 @@ import java.util.UUID;
 
 @Repository
 public interface SpringTicketJpaRepository
-    extends JpaRepository<TicketEntity, UUID>, JpaSpecificationExecutor<TicketEntity> {
+    extends JpaRepository<TicketJpaEntity, UUID>, JpaSpecificationExecutor<TicketJpaEntity> {
 
     @Modifying
     @Query(
-        "UPDATE TicketEntity t SET t.deletedAt = :now WHERE t.createdAt < :cutoffDate AND t.deletedAt IS NULL")
+        "UPDATE TicketJpaEntity t SET t.deletedAt = :now WHERE t.createdAt < :cutoffDate AND t.deletedAt IS NULL")
     int archiveOldTickets(
         @Param("cutoffDate") Instant cutoffDate,
         @Param("now") Instant now);
 
-    List<TicketEntity> findByCreatedAtBetween(Instant from, Instant to);
+    List<TicketJpaEntity> findByCreatedAtBetween(Instant from, Instant to);
 
     @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findWithLinesById(UUID id);
+    Optional<TicketJpaEntity> findWithLinesById(UUID id);
 
-    List<TicketEntity> findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
+    List<TicketJpaEntity> findByCreatedByAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(
         UUID createdBy, Pageable pageable);
 
     @Query(
         "SELECT new com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto(t.createdBy, SUM(t.totalAmount), COUNT(t.id)) "
-            + "FROM TicketEntity t "
+            + "FROM TicketJpaEntity t "
             + "WHERE t.createdAt BETWEEN :from AND :to AND t.deletedAt IS NULL "
             + "GROUP BY t.createdBy")
     List<AgentDailySalesDto> findAgentDailySales(@Param("from") Instant from, @Param("to") Instant to);
@@ -54,13 +54,13 @@ public interface SpringTicketJpaRepository
 
 
     @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findById(UUID id);
+    Optional<TicketJpaEntity> findById(UUID id);
 
     // find by public code already exists above; keep convenience method
     @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findByPublicCodeAndDeletedAtIsNull(String publicCode);
+    Optional<TicketJpaEntity> findByPublicCodeAndDeletedAtIsNull(String publicCode);
 
-    Page<TicketEntity> findByCreatedAtBetweenAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(Instant from, Instant to, Pageable pageable);
+    Page<TicketJpaEntity> findByCreatedAtBetweenAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(Instant from, Instant to, Pageable pageable);
 
     long countByDrawIdAndResultStatusAndDeletedAtIsNull(UUID drawId, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
 }

@@ -4,6 +4,10 @@ import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.core.offlinesync.domain.model.*;
 import org.mapstruct.Mapper;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring")
 public interface OfflineSyncJpaMapper {
 
@@ -30,6 +34,15 @@ public interface OfflineSyncJpaMapper {
         e.getTechnicalRejectReason() == null ? null : OfflineTechnicalRejectReason.valueOf(e.getTechnicalRejectReason()),
         e.getSalesDecision() == null ? null : SalesOfflineDecision.valueOf(e.getSalesDecision()),
         e.getSalesRejectReason() == null ? null : SalesOfflineRejectReason.valueOf(e.getSalesRejectReason()),
+        parseRiskFlags(e.getRiskFlagsJson()),
         TicketId.nullableOf(e.getSalesTicketId()));
+  }
+
+  private static Set<OfflineRiskFlag> parseRiskFlags(String json) {
+    if (json == null || json.isBlank() || json.equals("[]")) return Set.of();
+    return Arrays.stream(json.replaceAll("[\\[\\]\"\\s]", "").split(","))
+        .filter(s -> !s.isEmpty())
+        .map(OfflineRiskFlag::valueOf)
+        .collect(Collectors.toUnmodifiableSet());
   }
 }

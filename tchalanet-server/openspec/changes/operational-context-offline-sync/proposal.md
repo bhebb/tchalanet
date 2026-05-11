@@ -15,12 +15,11 @@ This dual-producer design creates ordering and ownership ambiguity, and the filt
 
 - `OperationalRequestContext` still carries a redundant `selectedByAdmin` boolean alongside `source`.
 - `OperationalContextSource` has no `TrustLevel` — sensitive handlers cannot uniformly require a `STRONG` source.
-- No admin POS selection endpoints exist (`/tenant/me/operational-context`).
 - `SalesSession` aggregate lacks `finalizedAt`/`finalizedBy`, `Outlet` aggregate lacks `payoutBlocked`/`offlineSalesBlocked` (snapshot-only).
 - `core.offlinesync` has no domain events; `ApproveOfflineSubmissionCommandHandler` is a TODO stub.
 - `core.payout` has no first-class `PosPayoutOperationValidator`; `core.sales` lacks `PosCancelOperationValidator` and `OfflineSaleAcceptanceValidator`.
 
-The intended outcome is to (a) make `TchContextFilter` the single canonical context producer, (b) introduce explicit trust modeling so sensitive handlers can require a `STRONG` source, (c) close the gaps in aggregates, events, validators and admin endpoints, and (d) enforce the invariant **OfflineSaleSubmission ≠ Ticket** with explicit rules for `FINALIZED` sessions, draw-result-known and device-time.
+The intended outcome is to (a) make `TchContextFilter` the single canonical context producer, (b) introduce explicit trust modeling so sensitive handlers can require a `STRONG` source, (c) close the gaps in aggregates, events and validators, and (d) enforce the invariant **OfflineSaleSubmission ≠ Ticket** with explicit rules for `FINALIZED` sessions, draw-result-known and device-time.
 
 ## Core decisions
 
@@ -74,6 +73,5 @@ trustedOperationalContextRequired exists
 terminal/outlet/session validations are via QueryBus
 use case validators call atomic validations
 offline finalized session goes to review
-admin POS selection is explicit and audited
 critical handlers document race/concurrency strategy
 ```

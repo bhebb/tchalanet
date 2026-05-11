@@ -9,9 +9,11 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.core.sales.application.command.model.SellTicketLineInput;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketResult;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record SellPosTicketCommand(
     TenantId tenantId,

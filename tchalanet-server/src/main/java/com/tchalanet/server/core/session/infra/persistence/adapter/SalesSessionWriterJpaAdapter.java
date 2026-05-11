@@ -47,7 +47,8 @@ public class SalesSessionWriterJpaAdapter implements SalesSessionWriterPort {
     public void finalizeSession(SalesSessionId sessionId, Instant finalizedAt, UserId finalizedBy, String reason) {
         var entity =
             repo.getReferenceById(sessionId.value());
-        entity.seF
+        // TODO: implement finalization fields when SalesSession entity exposes them
+        repo.save(entity);
     }
 
 }

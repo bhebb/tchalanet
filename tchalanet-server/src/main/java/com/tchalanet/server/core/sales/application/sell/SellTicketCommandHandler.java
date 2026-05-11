@@ -18,6 +18,14 @@ import com.tchalanet.server.core.session.application.query.model.GetOpenSalesSes
 import com.tchalanet.server.core.terminal.application.query.model.GetTerminalSalesContextQuery;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Concurrency contract (v1 — no external cache):
+ * 1. PosSaleOperationValidator runs pre-transaction (validates terminal/outlet/session snapshot).
+ * 2. Inside {@code @TchTx}: terminal.locked() is re-checked before persisting the ticket.
+ *    If the terminal was locked between pre-check and commit, the handler returns TERMINAL_LOCKED.
+ * 3. Race on session close: the DB unique partial index on (tenant_id, terminal_id, status='OPEN')
+ *    prevents a second ticket from landing on a session that was concurrently closed.
+ */
 @UseCase
 @RequiredArgsConstructor
 public class SellTicketCommandHandler implements CommandHandler<SellTicketCommand, SellTicketResult> {

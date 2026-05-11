@@ -30,6 +30,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
+/**
+ * Concurrency contract (v1 — no external cache):
+ * 1. PosPayoutOperationValidator runs pre-transaction.
+ * 2. Inside {@code @TchTx}: terminal-locked, outlet.payoutBlocked, and session.status are
+ *    re-read from the DB before persisting the payout row. If any critical state changed
+ *    since pre-check, the handler returns the appropriate blocked result (TERMINAL_LOCKED,
+ *    OUTLET_PAYOUT_BLOCKED, SESSION_CLOSED).
+ * 3. The payout row itself carries a version column; optimistic locking prevents double-pay.
+ */
 @UseCase
 @RequiredArgsConstructor
 public class RegisterPayoutCommandHandler

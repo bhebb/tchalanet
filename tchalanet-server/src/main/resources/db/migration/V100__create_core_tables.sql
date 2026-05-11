@@ -368,6 +368,16 @@ create table outlet (
                         sales_block_reason text,
                         sales_blocked_at timestamptz,
 
+                        payout_blocked boolean not null default false,
+                        payout_block_reason text,
+                        payout_blocked_at timestamptz,
+                        payout_blocked_by uuid,
+
+                        offline_sales_blocked boolean not null default false,
+                        offline_sales_block_reason text,
+                        offline_sales_blocked_at timestamptz,
+                        offline_sales_blocked_by uuid,
+
                         timezone varchar(64) not null default 'America/Port-au-Prince',
 
                         receipt_printing_enabled boolean not null default true,
@@ -565,6 +575,10 @@ create table sales_session (
                                expected_closing_amount_cents bigint,
                                declared_closing_amount_cents bigint,
                                variance_cents bigint,
+
+                               finalized_at timestamptz,
+                               finalized_by uuid,
+                               finalize_reason text,
 
                                created_at timestamptz not null,
                                updated_at timestamptz not null,

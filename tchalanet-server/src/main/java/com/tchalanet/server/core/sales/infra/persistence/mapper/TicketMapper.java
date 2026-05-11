@@ -7,8 +7,8 @@ import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
-import com.tchalanet.server.core.sales.infra.persistence.TicketLineEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketLineJpaEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class TicketMapper {
 
-    public Ticket toDomain(TicketEntity entity) {
+    public Ticket toDomain(TicketJpaEntity entity) {
         List<TicketLine> lines =
             entity.getLines() == null ? List.of() : entity.getLines().stream().map(this::toDomainLine).toList();
 
@@ -42,7 +42,7 @@ public class TicketMapper {
             entity.getUpdatedAt());
     }
 
-    private TicketLine toDomainLine(TicketLineEntity lineEntity) {
+    private TicketLine toDomainLine(TicketLineJpaEntity lineEntity) {
         // convert persisted String externalGameCode -> enum GameCode
         com.tchalanet.server.common.types.enums.GameCode gameCode;
         try {
@@ -61,8 +61,8 @@ public class TicketMapper {
             lineEntity.getBetOption());
     }
 
-    public TicketEntity toEntity(Ticket domain) {
-        TicketEntity entity = new TicketEntity();
+    public TicketJpaEntity toEntity(Ticket domain) {
+        TicketJpaEntity entity = new TicketJpaEntity();
         entity.setId(domain.getId().value());
         entity.setTenantId(domain.getTenantId().value());
         entity.setTerminalId(domain.getTerminalId().value());
@@ -89,8 +89,8 @@ public class TicketMapper {
         return entity;
     }
 
-    private TicketLineEntity toEntityLine(TicketLine line) {
-        TicketLineEntity lineEntity = new TicketLineEntity();
+    private TicketLineJpaEntity toEntityLine(TicketLine line) {
+        TicketLineJpaEntity lineEntity = new TicketLineJpaEntity();
         // persist enum as its name/string representation
         lineEntity.setGameCode(line.gameCode().name());
         // ensure persisted selection is canonical

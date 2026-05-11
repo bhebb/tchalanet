@@ -45,9 +45,9 @@ public class DrawChannelAdminService {
     // normalize flags to ensure non-null JsonNode saved to DB and accept textual payload
     var flags = entity.getFlags();
     if (flags == null) {
-      flags = jsonUtils.emptyObjectNode();
-    } else if (flags.isTextual()) {
-      flags = jsonUtils.parse(flags.asText());
+      flags = jsonUtils.emptyObject();
+    } else if (flags.isString()) {
+      flags = jsonUtils.parse(flags.asString());
     }
     entity.setFlags(flags);
 

@@ -6,7 +6,7 @@ import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.TicketSettlementJpaRepository;
 import java.lang.reflect.Proxy;
@@ -24,7 +24,7 @@ class TicketSettlementJpaAdapterTest {
     var drawId = DrawId.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
     var cursorTime = Instant.parse("2026-05-06T12:00:00Z");
     var cursorId = UUID.fromString("00000000-0000-0000-0000-000000000002");
-    var entity = new TicketEntity();
+    var entity = new TicketJpaEntity();
     var repo = new RecordingTicketSettlementJpaRepository(List.of(entity));
 
     var adapter = new TicketSettlementJpaAdapter(repo.instance(), mapper());
@@ -58,17 +58,17 @@ class TicketSettlementJpaAdapterTest {
   private static TicketMapper mapper() {
     return new TicketMapper() {
       @Override
-      public Ticket toDomain(TicketEntity entity) {
+      public Ticket toDomain(TicketJpaEntity entity) {
         return null;
       }
     };
   }
 
   private static final class RecordingTicketSettlementJpaRepository {
-    private final List<TicketEntity> result;
+    private final List<TicketJpaEntity> result;
     private Invocation invocation;
 
-    private RecordingTicketSettlementJpaRepository(List<TicketEntity> result) {
+    private RecordingTicketSettlementJpaRepository(List<TicketJpaEntity> result) {
       this.result = result;
     }
 

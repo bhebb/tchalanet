@@ -3,11 +3,14 @@ package com.tchalanet.server.core.offlinesync.application.validation;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.error.ProblemRest;
+import com.tchalanet.server.core.offlinesync.application.validation.OfflineBatchActorContext;
+import com.tchalanet.server.core.offlinesync.application.validation.ValidatedReceiveOfflineBatchContext;
 import com.tchalanet.server.core.outlet.application.query.model.OutletOperation;
 import com.tchalanet.server.core.outlet.application.query.model.ValidateOutletForOperationQuery;
-import com.tchalanet.server.core.session.application.query.model.SalesSessionOperation;
 import com.tchalanet.server.core.session.application.query.model.ValidateSalesSessionForOperationQuery;
+import com.tchalanet.server.core.session.domain.model.SalesSessionOperation;
 import com.tchalanet.server.core.terminal.application.query.model.ValidateTerminalForOperationQuery;
+import com.tchalanet.server.core.terminal.domain.model.TerminalOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +57,7 @@ public class ReceiveOfflineBatchOperationValidator {
             actor.terminalId(),
             actor.outletId(),
             actor.salesSessionId(),
-            terminal.terminalCode(),
+            terminal.displayCode(),
             outlet.outletName(),
             session.status(),
             session.closedAt(),

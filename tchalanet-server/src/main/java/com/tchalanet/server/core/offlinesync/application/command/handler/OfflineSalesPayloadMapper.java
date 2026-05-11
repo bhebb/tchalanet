@@ -2,16 +2,18 @@ package com.tchalanet.server.core.offlinesync.application.command.handler;
 
 import com.tchalanet.server.common.types.id.OfflineBatchId;
 import com.tchalanet.server.core.offlinesync.domain.model.OfflineSaleSubmission;
-import com.tchalanet.server.core.sales.application.command.model.SyncOfflineSalesCommand;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
-@Component
+@Deprecated(forRemoval = false)
 public class OfflineSalesPayloadMapper {
 
-  public SyncOfflineSalesCommand toSalesCommand(OfflineBatchId batchId, List<OfflineSaleSubmission> submissions) {
-    // TODO parse payloadJson into OfflineTicketSaleInput.
-    // Keep raw JSON in offlinesync only. Sales receives typed inputs.
-    throw new UnsupportedOperationException("Implement payload parser and map to SyncOfflineSalesCommand");
+  private final com.tchalanet.server.core.offlinesync.application.service.OfflineSalesPayloadMapper delegate;
+
+  public OfflineSalesPayloadMapper(com.tchalanet.server.core.offlinesync.application.service.OfflineSalesPayloadMapper delegate) {
+    this.delegate = delegate;
+  }
+
+  public List<OfflineSaleSubmission> toSalesCommand(OfflineBatchId batchId, List<OfflineSaleSubmission> submissions) {
+    return delegate.mapSubmissions(batchId, submissions);
   }
 }

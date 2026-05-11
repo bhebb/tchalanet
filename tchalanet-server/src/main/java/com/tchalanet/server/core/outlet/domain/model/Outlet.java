@@ -3,6 +3,7 @@ package com.tchalanet.server.core.outlet.domain.model;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -16,6 +17,14 @@ public record Outlet(
     boolean salesBlocked,
     String salesBlockReason,
     Instant salesBlockedAt,
+    boolean payoutBlocked,
+    String payoutBlockReason,
+    Instant payoutBlockedAt,
+    UserId payoutBlockedBy,
+    boolean offlineSalesBlocked,
+    String offlineSalesBlockReason,
+    Instant offlineSalesBlockedAt,
+    UserId offlineSalesBlockedBy,
     String timezone,
     boolean receiptPrintingEnabled,
     String receiptHeaderMessage,
@@ -36,6 +45,14 @@ public record Outlet(
             slug,
             false,
             false,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null,
+            false,
+            null,
             null,
             null,
             "America/Port-au-Prince",
@@ -65,52 +82,76 @@ public record Outlet(
         if (salesBlocked && Objects.equals(salesBlockReason, reason)) {
             return this;
         }
-        
+
         return new Outlet(
-            id,
-            tenantId,
-            name,
-            slug,
-            dayClosed,
-            true,
-            reason,
-            when,
-            timezone,
-            receiptPrintingEnabled,
-            receiptHeaderMessage,
-            receiptFooterMessage,
-            requireOpeningFloat,
-            autoSessionOpenEnabled,
-            autoSessionCloseEnabled,
-            sessionOpenTime,
-            sessionCloseTime,
-            defaultOpeningFloatCents,
-            addressId);
+            id, tenantId, name, slug,
+            dayClosed, true, reason, when,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
     }
 
     public Outlet unblockSales() {
         if (!salesBlocked) return this;
 
         return new Outlet(
-            id,
-            tenantId,
-            name,
-            slug,
-            dayClosed,
-            false,
-            null,
-            null,
-            timezone,
-            receiptPrintingEnabled,
-            receiptHeaderMessage,
-            receiptFooterMessage,
-            requireOpeningFloat,
-            autoSessionOpenEnabled,
-            autoSessionCloseEnabled,
-            sessionOpenTime,
-            sessionCloseTime,
-            defaultOpeningFloatCents,
-            addressId);
+            id, tenantId, name, slug,
+            dayClosed, false, null, null,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
+    }
+
+    public Outlet blockPayout(String reason, Instant when, UserId by) {
+        return new Outlet(
+            id, tenantId, name, slug,
+            dayClosed, salesBlocked, salesBlockReason, salesBlockedAt,
+            true, reason, when, by,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
+    }
+
+    public Outlet unblockPayout() {
+        if (!payoutBlocked) return this;
+
+        return new Outlet(
+            id, tenantId, name, slug,
+            dayClosed, salesBlocked, salesBlockReason, salesBlockedAt,
+            false, null, null, null,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
+    }
+
+    public Outlet blockOfflineSales(String reason, Instant when, UserId by) {
+        return new Outlet(
+            id, tenantId, name, slug,
+            dayClosed, salesBlocked, salesBlockReason, salesBlockedAt,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            true, reason, when, by,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
+    }
+
+    public Outlet unblockOfflineSales() {
+        if (!offlineSalesBlocked) return this;
+
+        return new Outlet(
+            id, tenantId, name, slug,
+            dayClosed, salesBlocked, salesBlockReason, salesBlockedAt,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            false, null, null, null,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
     }
 
     public SalesCapability salesCapability() {
@@ -126,6 +167,14 @@ public record Outlet(
 
     public boolean canSell() {
         return !dayClosed && !salesBlocked;
+    }
+
+    public boolean canPayout() {
+        return !dayClosed && !payoutBlocked;
+    }
+
+    public boolean canAcceptOfflineSales() {
+        return !dayClosed && !salesBlocked && !offlineSalesBlocked;
     }
 
     public Outlet applyConfigPatch(
@@ -150,18 +199,13 @@ public record Outlet(
             newSalesBlocked ? (when == null ? salesBlockedAt : when) : null;
 
         return new Outlet(
-            id,
-            tenantId,
-            name,
-            slug,
+            id, tenantId, name, slug,
             dayClosed,
-            newSalesBlocked,
-            newSalesBlockReason,
-            newSalesBlockedAt,
+            newSalesBlocked, newSalesBlockReason, newSalesBlockedAt,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
             timezonePatch == null ? timezone : timezonePatch,
-            receiptPrintingEnabledPatch == null
-                ? receiptPrintingEnabled
-                : receiptPrintingEnabledPatch,
+            receiptPrintingEnabledPatch == null ? receiptPrintingEnabled : receiptPrintingEnabledPatch,
             receiptHeaderMessagePatch == null ? receiptHeaderMessage : receiptHeaderMessagePatch,
             receiptFooterMessagePatch == null ? receiptFooterMessage : receiptFooterMessagePatch,
             requireOpeningFloatPatch == null ? requireOpeningFloat : requireOpeningFloatPatch,
@@ -169,55 +213,29 @@ public record Outlet(
             autoSessionCloseEnabledPatch == null ? autoSessionCloseEnabled : autoSessionCloseEnabledPatch,
             sessionOpenTimePatch == null ? sessionOpenTime : sessionOpenTimePatch,
             sessionCloseTimePatch == null ? sessionCloseTime : sessionCloseTimePatch,
-            defaultOpeningFloatCentsPatch == null
-                ? defaultOpeningFloatCents
-                : defaultOpeningFloatCentsPatch,
+            defaultOpeningFloatCentsPatch == null ? defaultOpeningFloatCents : defaultOpeningFloatCentsPatch,
             addressId);
     }
 
     public Outlet withAddressId(AddressId newAddressId) {
         return new Outlet(
-            id,
-            tenantId,
-            name,
-            slug,
-            dayClosed,
-            salesBlocked,
-            salesBlockReason,
-            salesBlockedAt,
-            timezone,
-            receiptPrintingEnabled,
-            receiptHeaderMessage,
-            receiptFooterMessage,
-            requireOpeningFloat,
-            autoSessionOpenEnabled,
-            autoSessionCloseEnabled,
-            sessionOpenTime,
-            sessionCloseTime,
-            defaultOpeningFloatCents,
-            newAddressId);
+            id, tenantId, name, slug,
+            dayClosed, salesBlocked, salesBlockReason, salesBlockedAt,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, newAddressId);
     }
 
     private Outlet withDayClosed(boolean newDayClosed) {
         return new Outlet(
-            id,
-            tenantId,
-            name,
-            slug,
-            newDayClosed,
-            salesBlocked,
-            salesBlockReason,
-            salesBlockedAt,
-            timezone,
-            receiptPrintingEnabled,
-            receiptHeaderMessage,
-            receiptFooterMessage,
-            requireOpeningFloat,
-            autoSessionOpenEnabled,
-            autoSessionCloseEnabled,
-            sessionOpenTime,
-            sessionCloseTime,
-            defaultOpeningFloatCents,
-            addressId);
+            id, tenantId, name, slug,
+            newDayClosed, salesBlocked, salesBlockReason, salesBlockedAt,
+            payoutBlocked, payoutBlockReason, payoutBlockedAt, payoutBlockedBy,
+            offlineSalesBlocked, offlineSalesBlockReason, offlineSalesBlockedAt, offlineSalesBlockedBy,
+            timezone, receiptPrintingEnabled, receiptHeaderMessage, receiptFooterMessage,
+            requireOpeningFloat, autoSessionOpenEnabled, autoSessionCloseEnabled,
+            sessionOpenTime, sessionCloseTime, defaultOpeningFloatCents, addressId);
     }
 }

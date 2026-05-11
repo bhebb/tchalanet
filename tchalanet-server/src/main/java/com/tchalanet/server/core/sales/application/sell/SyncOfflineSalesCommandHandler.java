@@ -1,21 +1,19 @@
 package com.tchalanet.server.core.sales.application.sell;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.draw.application.query.model.GetDrawForSaleQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateSaleLimitPolicyQuery;
 import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineDecision;
 import com.tchalanet.server.core.sales.application.command.model.SyncOfflineSalesCommand;
 import com.tchalanet.server.core.sales.application.command.model.SyncOfflineSalesResult;
 import com.tchalanet.server.core.sales.application.command.model.SyncOfflineTicketDecision;
+import com.tchalanet.server.core.sales.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.sales.application.port.out.LimitPolicyPort;
+import com.tchalanet.server.core.sales.application.port.out.SalesSessionLookupPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.application.service.OfflineSalesGateEvaluator;
-import com.tchalanet.server.core.session.application.query.model.GetSalesSessionForSaleQuery;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 
@@ -24,9 +22,10 @@ import lombok.RequiredArgsConstructor;
 public class SyncOfflineSalesCommandHandler
     implements CommandHandler<SyncOfflineSalesCommand, SyncOfflineSalesResult> {
 
-  private final QueryBus queryBus;
+  private final DrawLookupPort drawLookupPort;
+  private final SalesSessionLookupPort salesSessionLookupPort;
+  private final LimitPolicyPort limitPolicyPort;
   private final TicketReaderPort ticketReader;
-  private final TicketWriterPort ticketWriter;
   private final OfflineSalesGateEvaluator gateEvaluator;
   private final IdGenerator idGenerator;
 
@@ -42,14 +41,16 @@ public class SyncOfflineSalesCommandHandler
         continue;
       }
 
-      var session = queryBus.ask(new GetSalesSessionForSaleQuery(input.salesSessionId()));
-      var draw = queryBus.ask(new GetDrawForSaleQuery(input.drawId()));
-      var limit = queryBus.ask(new EvaluateSaleLimitPolicyQuery(
+      var session = salesSessionLookupPort.findById(input.salesSessionId())
+          .orElseThrow(() -> new IllegalArgumentException("Sales session not found: " + input.salesSessionId()));
+      var draw = drawLookupPort.findById(input.drawId())
+          .orElseThrow(() -> new IllegalArgumentException("Draw not found: " + input.drawId()));
+      var limit = limitPolicyPort.evaluateSale(
           input.outletId(),
           input.terminalId(),
           input.sellerUserId(),
           input.stakeAmount(),
-          input.totalAmount()));
+          input.totalAmount());
 
       var gate = gateEvaluator.evaluate(input, draw, session, limit);
 

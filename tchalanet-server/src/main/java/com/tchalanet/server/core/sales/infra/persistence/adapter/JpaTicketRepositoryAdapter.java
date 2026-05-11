@@ -7,7 +7,7 @@ import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
 import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
 import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
 import com.tchalanet.server.core.sales.infra.persistence.repository.TicketSpecifications;
@@ -36,8 +36,8 @@ public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReade
 
   @Override
   public Ticket save(Ticket ticket) {
-    TicketEntity entity = mapper.toEntity(ticket);
-    TicketEntity savedEntity = jpaRepository.save(entity);
+    TicketJpaEntity entity = mapper.toEntity(ticket);
+    TicketJpaEntity savedEntity = jpaRepository.save(entity);
     return mapper.toDomain(savedEntity);
   }
 
@@ -53,7 +53,7 @@ public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReade
 
   @Override
   public TchPage<Ticket> search(TicketFilter filter, Pageable pageRequest) {
-    Page<TicketEntity> page = jpaRepository.findAll(TicketSpecifications.fromFilter(filter), pageRequest);
+    Page<TicketJpaEntity> page = jpaRepository.findAll(TicketSpecifications.fromFilter(filter), pageRequest);
 
     List<Ticket> tickets =
         page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList());
@@ -94,7 +94,7 @@ public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReade
 
   @Override
   public byte[] exportDailySalesCsv(Instant dayStart, Instant dayEnd) {
-    List<TicketEntity> tickets =
+    List<TicketJpaEntity> tickets =
         jpaRepository.findByCreatedAtBetween(dayStart, dayEnd);
 
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -106,7 +106,7 @@ public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReade
           "createdAt,ticketCode,publicCode,status,totalAmount,id,drawId,sessionId,createdBy");
 
       // Write data
-      for (TicketEntity ticket : tickets) {
+      for (TicketJpaEntity ticket : tickets) {
         writer.printf(
             "%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
             ticket.getCreatedAt(),

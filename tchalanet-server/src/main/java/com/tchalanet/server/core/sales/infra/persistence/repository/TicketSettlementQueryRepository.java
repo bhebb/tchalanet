@@ -1,13 +1,13 @@
 package com.tchalanet.server.core.sales.infra.persistence.repository;
 
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 @org.springframework.stereotype.Repository
-public interface TicketSettlementQueryRepository extends Repository<TicketEntity, UUID> {
+public interface TicketSettlementQueryRepository extends Repository<TicketJpaEntity, UUID> {
 
   @Query(
       value =

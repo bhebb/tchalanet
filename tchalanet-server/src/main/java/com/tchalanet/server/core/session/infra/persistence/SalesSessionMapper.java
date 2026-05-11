@@ -6,7 +6,6 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.session.domain.model.SalesSession;
-import com.tchalanet.server.core.session.domain.model.SalesSessionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +30,7 @@ public class SalesSessionMapper {
         entity.setOpenedAt(session.openedAt());
         entity.setBusinessDate(session.businessDate());
 
-        entity.setStatus(session.status().name());
+        entity.setStatus(session.status());
 
         entity.setClosedBy(session.closedBy() == null ? null : session.closedBy().value());
         entity.setClosedAt(session.closedAt());
@@ -41,10 +40,14 @@ public class SalesSessionMapper {
         entity.setExpectedClosingAmountCents(session.expectedClosingAmountCents());
         entity.setDeclaredClosingAmountCents(session.declaredClosingAmountCents());
         entity.setVarianceCents(session.varianceCents());
+
+        entity.setFinalizedAt(session.finalizedAt());
+        entity.setFinalizedBy(session.finalizedBy() == null ? null : session.finalizedBy().value());
+        entity.setFinalizeReason(session.finalizeReason());
     }
 
     public SalesSession toDomain(SalesSessionJpaEntity entity) {
-        return new SalesSession(
+        return SalesSession.load(
             SalesSessionId.of(entity.getId()),
             TenantId.of(entity.getTenantId()),
             OutletId.of(entity.getOutletId()),
@@ -52,13 +55,16 @@ public class SalesSessionMapper {
             UserId.of(entity.getOpenedBy()),
             entity.getOpenedAt(),
             entity.getBusinessDate(),
-            SalesSessionStatus.valueOf(entity.getStatus()),
+            entity.getStatus(),
             UserId.nullableOf(entity.getClosedBy()),
             entity.getClosedAt(),
             entity.getCloseReason(),
             entity.getOpeningFloatCents(),
             entity.getExpectedClosingAmountCents(),
             entity.getDeclaredClosingAmountCents(),
-            entity.getVarianceCents());
+            entity.getVarianceCents(),
+            entity.getFinalizedAt(),
+            UserId.nullableOf(entity.getFinalizedBy()),
+            entity.getFinalizeReason());
     }
 }

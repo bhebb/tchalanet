@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
 
-public interface TicketSalesTotalJpaRepository extends JpaRepository<TicketEntity, UUID> {
+public interface TicketSalesTotalJpaRepository extends JpaRepository<TicketJpaEntity, UUID> {
 
     @Query("""
 
             select coalesce(sum(t.totalAmount), 0)
-        from TicketEntity t
+        from TicketJpaEntity t
         where t.tenantId = :tenantId
           and t.sessionId = :sessionId
           and t.saleStatus in :statuses

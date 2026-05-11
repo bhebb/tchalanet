@@ -3,6 +3,7 @@ package com.tchalanet.server.core.offlinesync.domain.model;
 import com.tchalanet.server.common.types.id.*;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Set;
 
 public record OfflineSaleSubmission(
     OfflineSaleSubmissionId id,
@@ -26,6 +27,7 @@ public record OfflineSaleSubmission(
     OfflineTechnicalRejectReason technicalRejectReason,
     SalesOfflineDecision salesDecision,
     SalesOfflineRejectReason salesRejectReason,
+    Set<OfflineRiskFlag> riskFlags,
     TicketId salesTicketId
 ) {
   public OfflineSaleSubmission {

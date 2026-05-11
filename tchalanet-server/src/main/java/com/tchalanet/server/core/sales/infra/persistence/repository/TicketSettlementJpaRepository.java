@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.infra.persistence.repository;
 
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
+import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -12,12 +12,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface TicketSettlementJpaRepository extends JpaRepository<TicketEntity, UUID> {
+public interface TicketSettlementJpaRepository extends JpaRepository<TicketJpaEntity, UUID> {
 
   @EntityGraph(attributePaths = "lines")
   @Query("""
       select t
-      from TicketEntity t
+      from TicketJpaEntity t
       where t.deletedAt is null
         and t.drawId = :drawId
         and t.saleStatus = :saleStatus
@@ -28,7 +28,7 @@ public interface TicketSettlementJpaRepository extends JpaRepository<TicketEntit
         )
       order by t.createdAt asc, t.id asc
       """)
-  List<TicketEntity> findBatchForDrawWithLines(
+  List<TicketJpaEntity> findBatchForDrawWithLines(
       @Param("drawId") UUID drawId,
       @Param("saleStatus") TicketSaleStatus saleStatus,
       @Param("resultStatus") TicketResultStatus resultStatus,

@@ -23,7 +23,10 @@ public record SalesSession(
     Long openingFloatCents,
     Long expectedClosingAmountCents,
     Long declaredClosingAmountCents,
-    Long varianceCents) {
+    Long varianceCents,
+    Instant finalizedAt,
+    UserId finalizedBy,
+    String finalizeReason) {
 
     public static SalesSession open(
         SalesSessionId id,
@@ -36,21 +39,12 @@ public record SalesSession(
         Long openingFloatCents) {
 
         return new SalesSession(
-            id,
-            tenantId,
-            outletId,
-            terminalId,
-            openedBy,
-            openedAt,
-            businessDate,
+            id, tenantId, outletId, terminalId,
+            openedBy, openedAt, businessDate,
             SalesSessionStatus.OPEN,
-            null,
-            null,
-            null,
-            openingFloatCents,
-            null,
-            null,
-            null);
+            null, null, null,
+            openingFloatCents, null, null, null,
+            null, null, null);
     }
 
     public static SalesSession load(
@@ -68,24 +62,18 @@ public record SalesSession(
         Long openingFloatCents,
         Long expectedClosingAmountCents,
         Long declaredClosingAmountCents,
-        Long varianceCents) {
+        Long varianceCents,
+        Instant finalizedAt,
+        UserId finalizedBy,
+        String finalizeReason) {
 
         return new SalesSession(
-            id,
-            tenantId,
-            outletId,
-            terminalId,
-            openedBy,
-            openedAt,
-            businessDate,
+            id, tenantId, outletId, terminalId,
+            openedBy, openedAt, businessDate,
             status,
-            closedBy,
-            closedAt,
-            closeReason,
-            openingFloatCents,
-            expectedClosingAmountCents,
-            declaredClosingAmountCents,
-            varianceCents);
+            closedBy, closedAt, closeReason,
+            openingFloatCents, expectedClosingAmountCents, declaredClosingAmountCents, varianceCents,
+            finalizedAt, finalizedBy, finalizeReason);
     }
 
     public SalesSession close(
@@ -99,21 +87,29 @@ public record SalesSession(
         }
 
         return new SalesSession(
-            id,
-            tenantId,
-            outletId,
-            terminalId,
-            openedBy,
-            openedAt,
-            businessDate,
+            id, tenantId, outletId, terminalId,
+            openedBy, openedAt, businessDate,
             SalesSessionStatus.CLOSED,
-            closedBy,
-            closedAt,
-            reason,
+            closedBy, closedAt, reason,
             openingFloatCents,
             cashSummary.expectedClosingAmountCents(),
             cashSummary.declaredClosingAmountCents(),
-            cashSummary.varianceCents());
+            cashSummary.varianceCents(),
+            null, null, null);
+    }
+
+    public SalesSession finalize(UserId finalizedBy, Instant finalizedAt, String reason) {
+        if (status == SalesSessionStatus.FINALIZED) {
+            return this;
+        }
+
+        return new SalesSession(
+            id, tenantId, outletId, terminalId,
+            openedBy, openedAt, businessDate,
+            SalesSessionStatus.FINALIZED,
+            closedBy, closedAt, closeReason,
+            openingFloatCents, expectedClosingAmountCents, declaredClosingAmountCents, varianceCents,
+            finalizedAt, finalizedBy, reason);
     }
 
     public boolean isOpen() {
@@ -122,5 +118,14 @@ public record SalesSession(
 
     public boolean isClosed() {
         return status == SalesSessionStatus.CLOSED;
+    }
+
+    public boolean isFinalized() {
+        return status == SalesSessionStatus.FINALIZED;
+    }
+
+    /** Alias for openedBy — the user who owns this session. */
+    public UserId sellerUserId() {
+        return openedBy;
     }
 }

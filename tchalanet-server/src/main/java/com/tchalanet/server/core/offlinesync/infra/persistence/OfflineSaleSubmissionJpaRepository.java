@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OfflineSaleSubmissionJpaRepository extends JpaRepository<OfflineSaleSubmissionJpaEntity, UUID> {
+  List<OfflineSaleSubmissionJpaEntity> findByBatchId(UUID batchId);
   List<OfflineSaleSubmissionJpaEntity> findByBatchIdAndStatus(UUID batchId, String status);
+  long countByTenantIdAndStatus(UUID tenantId, String status);
   Optional<OfflineSaleSubmissionJpaEntity> findByIdAndTenantId(UUID id, UUID tenantId);
 }
