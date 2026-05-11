@@ -22,9 +22,4 @@ public record UserId(UUID value) {
   public static UserId parse(String value) {
     return value == null ? null : new UserId(UUID.fromString(value));
   }
-
-  @Override
-  public String toString() {
-    return value.toString();
-  }
 }

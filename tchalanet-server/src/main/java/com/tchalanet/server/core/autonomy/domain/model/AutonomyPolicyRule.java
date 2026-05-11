@@ -3,41 +3,31 @@ package com.tchalanet.server.core.autonomy.domain.model;
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
-import com.tchalanet.server.core.autonomy.domain.ids.AutonomyPolicyRuleId;
-import com.tchalanet.server.core.autonomy.domain.ids.AutonomyTargetId;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
+import lombok.Builder;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class AutonomyPolicyRule {
 
-    private AutonomyPolicyRuleId id;
-    private AutonomyTargetType targetType;
-    private AutonomyTargetId targetId;
+public record AutonomyPolicyRule(
+    AutonomyPolicyRuleId id,
+    AutonomyTargetType targetType,
+    AutonomyTargetId targetId,
+    AutonomyLevel level,
+    boolean requireApprovalOnBlock,
+    ApprovalRole approvalRole,
+    boolean enabled,
+    Instant startsAt,
+    Instant endsAt,
+    Instant createdAt,
+    Instant updatedAt,
+    boolean deleted
+) {
+    public static AutonomyPolicyRule createNew(AutonomyPolicyRuleId id, AutonomyTargetType targetType, AutonomyTargetId of1, AutonomyLevel level, boolean requireApprovalOnBlock, ApprovalRole approvalRole, boolean enabled, Instant startsAt, Instant endsAt) {
+        return new AutonomyPolicyRule(id, targetType, of1, level, requireApprovalOnBlock, approvalRole, enabled, startsAt, endsAt, null, null, false);
+    }
 
-    private AutonomyLevel level;
-    private boolean requireApprovalOnBlock;
-    private ApprovalRole approvalRole;
-
-    private boolean enabled;
-    private OffsetDateTime startsAt;
-    private OffsetDateTime endsAt;
-
-    private Long version; // optimistic locking / version
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
-
-    private boolean deleted; // soft-delete flag (infra info surfaced for overview)
-
-    // Explicit getter to ensure static analyses (without Lombok processing) see this method
-    public Long getVersion() {
-        return this.version;
+    public static AutonomyPolicyRule update(AutonomyPolicyRuleId id, AutonomyTargetType autonomyTargetType, AutonomyTargetId autonomyTargetId, AutonomyLevel level, boolean requireApprovalOnBlock, ApprovalRole approvalRole, boolean enabled, Instant startsAt, Instant endsAt) {
+        return new AutonomyPolicyRule(id, autonomyTargetType, autonomyTargetId, level, requireApprovalOnBlock, approvalRole, enabled, startsAt, endsAt, null, null, false);
     }
 }

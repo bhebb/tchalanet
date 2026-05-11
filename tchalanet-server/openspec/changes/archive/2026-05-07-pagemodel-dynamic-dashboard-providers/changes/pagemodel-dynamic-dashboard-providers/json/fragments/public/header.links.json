@@ -1,0 +1,32 @@
+{
+  "primary": [
+    {
+      "label_key": "nav.home",
+      "path": "/",
+      "icon": "home"
+    },
+    {
+      "label_key": "nav.features",
+      "path": "/features",
+      "icon": "widgets"
+    },
+    {
+      "label_key": "nav.pricing",
+      "path": "/pricing",
+      "icon": "payments"
+    },
+    {
+      "label_key": "nav.about",
+      "path": "/about",
+      "icon": "info"
+    }
+  ],
+  "secondary": [
+    {
+      "label_key": "cta.request_demo",
+      "path": "/demo",
+      "icon": "rocket_launch",
+      "style": "tertiary"
+    }
+  ]
+}

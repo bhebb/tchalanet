@@ -1,0 +1,41 @@
+{
+  "logical_id": "public.home",
+  "changes": [
+    {
+      "widget_id": "home.recent_results",
+      "binding": {
+        "mode": "dynamic",
+        "source": "public_draw_results"
+      },
+      "props": {
+        "title_key": "home.draw_results.title",
+        "include_latest_by_slot": true,
+        "include_next_by_slot": true,
+        "include_history": false,
+        "history_limit": 0
+      }
+    },
+    {
+      "widget_id": "home.news",
+      "binding": {
+        "mode": "dynamic",
+        "source": "public_news"
+      },
+      "props": {
+        "title_key": "home.news.title",
+        "max_items": 4
+      }
+    },
+    {
+      "widget_id": "home.tchala",
+      "binding": {
+        "mode": "dynamic",
+        "source": "public_tchala"
+      },
+      "props": {
+        "title_key": "home.tchala.title",
+        "max_items": 6
+      }
+    }
+  ]
+}

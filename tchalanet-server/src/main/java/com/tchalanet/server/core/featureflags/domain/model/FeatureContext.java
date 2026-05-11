@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * Value Object representing the context for evaluating a feature flag. Contains attributes like
- * tenantId, userId, terminalId, etc., that can influence flag evaluation.
+ * tenantId, userId, id, etc., that can influence flag evaluation.
  */
 public record FeatureContext(
     TenantId tenantId,

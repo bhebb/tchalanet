@@ -1,71 +1,39 @@
-# Domaine Offlinesync
+# DOMAIN_OFFLINESYNC
 
-> Ce fichier est un **template** pour documenter le domaine backend.
-> Copie/complète les sections ci-dessous (voir `docs/DOMAIN_TEMPLATE.md`).
+`core.offlinesync` est le domaine de fiabilité de synchronisation offline.
 
----
+## Possède
 
-## 1. Rôle du domaine
+- OfflineSalesGrant
+- OfflineCodeBatch
+- OfflineCodeReservation
+- OfflineBatch
+- OfflineSaleSubmission
+- OfflineSyncAttempt
+- Technical gates et risk flags
 
-**Responsabilité principale**
+## Ne possède pas
 
-> Décris en une phrase la responsabilité clé du domaine.
-> **Ce que le domaine fait**
+- Ticket officiel
+- payout
+- stats Sales
+- ledger
+- décision finale de vente
 
-- ...
-  **Ce que le domaine ne fait pas**
-- ...
+## Invariants
 
----
+1. Une soumission offline n'est jamais un Ticket.
+2. Une soumission techniquement rejetée n'appelle pas Sales.
+3. Une soumission rejetée/review par Sales reste dans offlinesync avec `sales_ticket_id = null`.
+4. Un code offline est réservé côté serveur et consommable une seule fois.
+5. Le payload brut est conservé pour audit.
 
-## 2. Modèle métier (agrégats / entités)
+## Lifecycle
 
-### Entités / agrégats principaux
-
-- ...
-
-### Invariants métier
-
-- ...
-  > Valeur métier clé :
-  > ...
-
----
-
-## 3. Cas d’utilisation (ports d’entrée)
-
-- ...
-
----
-
-## 4. Ports de sortie (dépendances externes)
-
-- ...
-
----
-
-## 5. Mapping & DTOs (convention)
-
-- MapStruct pour mapper infra.web.model ↔ application.command/query.model
-- Records immuables pour DTO simples, Lombok si nécessaire
-
----
-
-## 6. Règles métier importantes
-
-- ...
-
----
-
-## 7. Intégration avec les autres domaines
-
-Dépend de : ...
-Utilisé par : ...
-
----
-
-## 8. Notes techniques
-
-- Multi-tenant ? RLS ? Intégrations externes ?
-
----
+```text
+RECEIVED -> TECHNICALLY_REJECTED
+RECEIVED -> READY_FOR_SALES -> SENT_TO_SALES -> SALES_ACCEPTED
+                                      |-> SALES_REJECTED
+                                      |-> SALES_CONFLICT
+                                      |-> SALES_REVIEW_REQUIRED
+```

@@ -9,5 +9,5 @@ package com.tchalanet.server.common.types.enums;
 public enum BreachOutcome {
   ALLOW,
   WARN,
-  BLOCK
+    REQUIRE_APPROVAL, BLOCK
 }

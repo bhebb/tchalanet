@@ -13,6 +13,7 @@ public class BatchJobKeys {
     public static final JobKey DRAW_OPEN = JobKey.of("draw:lifecycle:open");
     public static final JobKey DRAW_CLOSE = JobKey.of("draw:lifecycle:close");
     public static final JobKey DRAW_PROCESSING = JobKey.of("draw:processing");
+    public static final JobKey SALES_SESSION_AUTO = JobKey.of("salessession:open-close:auto");
     public static final JobKey DRAW_SETTLE = JobKey.of("draw:lifecycle:settle");
     public static final JobKey DRAW_WATCHDOG_PROVISIONAL = JobKey.of("draw:watchdog:provisional");
 

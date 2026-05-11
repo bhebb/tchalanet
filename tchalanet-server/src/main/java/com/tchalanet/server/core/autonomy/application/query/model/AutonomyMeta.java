@@ -1,9 +1,8 @@
 package com.tchalanet.server.core.autonomy.application.query.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
 
 public record AutonomyMeta(
     boolean configured,
     boolean deleted,
-    UUID ruleId,
-    long version) {}
+    AutonomyPolicyRuleId ruleId) {}

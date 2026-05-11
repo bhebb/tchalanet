@@ -21,7 +21,7 @@ public class DrawResultedEventListener {
         log.info("DrawResultAppliedEvent received: tenantId={} drawId={} drawResultId={}",
             event.tenantId(), event.drawId(), event.drawResultId());
 
-        commandBus.send(new RecordDrawTicketsResultCommand(
+        commandBus.execute(new RecordDrawTicketsResultCommand(
             event.tenantId(), event.drawId(), event.drawResultId(), event.occurredAt()));
     }
 }

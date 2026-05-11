@@ -1,114 +1,126 @@
 package com.tchalanet.server.core.session.domain.model;
 
-import com.tchalanet.server.common.types.id.*;
-import java.math.BigDecimal;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
-import java.util.Objects;
+import java.time.LocalDate;
 
 public record SalesSession(
-    SessionId id,
+    SalesSessionId id,
     TenantId tenantId,
     OutletId outletId,
     TerminalId terminalId,
-    UserId userId,
-    SalesSessionStatus status,
+    UserId openedBy,
     Instant openedAt,
+    LocalDate businessDate,
+    SalesSessionStatus status,
+    UserId closedBy,
     Instant closedAt,
-    Long openingFloatCents, // nullable
-    Long closingAmountCents, // nullable
-    BigDecimal totalStake,
-    Long totalTickets,
-    BigDecimal totalPayout,
-    String meta,
-    long version) {
+    String closeReason,
+    Long openingFloatCents,
+    Long expectedClosingAmountCents,
+    Long declaredClosingAmountCents,
+    Long varianceCents) {
 
-  public static SalesSession open(
-      SessionId id,
-      TenantId tenantId,
-      OutletId outletId,
-      TerminalId terminalId,
-      UserId userId,
-      Long openingFloatCents,
-      Instant now) {
-    Objects.requireNonNull(id);
-    Objects.requireNonNull(tenantId);
-    Objects.requireNonNull(outletId);
-    Objects.requireNonNull(terminalId);
-    Objects.requireNonNull(userId);
-    Objects.requireNonNull(now);
+    public static SalesSession open(
+        SalesSessionId id,
+        TenantId tenantId,
+        OutletId outletId,
+        TerminalId terminalId,
+        UserId openedBy,
+        LocalDate businessDate,
+        Instant openedAt,
+        Long openingFloatCents) {
 
-    return new SalesSession(
-        id,
-        tenantId,
-        outletId,
-        terminalId,
-        userId,
-        SalesSessionStatus.OPENED,
-        now,
-        null,
-        openingFloatCents,
-        null,
-        BigDecimal.ZERO,
-        0L,
-        BigDecimal.ZERO,
-        null,
-        0L);
-  }
-
-  public SalesSession close(BigDecimal closingAmountCents, Instant now) {
-    if (status != SalesSessionStatus.OPENED) {
-      throw new IllegalStateException("Only OPEN session can be closed. status=" + status);
+        return new SalesSession(
+            id,
+            tenantId,
+            outletId,
+            terminalId,
+            openedBy,
+            openedAt,
+            businessDate,
+            SalesSessionStatus.OPEN,
+            null,
+            null,
+            null,
+            openingFloatCents,
+            null,
+            null,
+            null);
     }
-    Objects.requireNonNull(now);
-    return new SalesSession(
-        id,
-        tenantId,
-        outletId,
-        terminalId,
-        userId,
-        SalesSessionStatus.CLOSED,
-        openedAt,
-        now,
-        openingFloatCents,
-        closingAmountCents.longValue(),
-        totalStake,
-        totalTickets,
-        totalPayout,
-        meta,
-        version);
-  }
 
-  public static SalesSession reconstruct(
-      SessionId id,
-      TenantId tenantId,
-      OutletId outletId,
-      TerminalId terminalId,
-      UserId userId,
-      SalesSessionStatus status,
-      Instant openedAt,
-      Instant closedAt,
-      Long openingFloatCents,
-      Long closingAmountCents,
-      BigDecimal totalStake,
-      Long totalTickets,
-      BigDecimal totalPayout,
-      String meta,
-      long version) {
-    return new SalesSession(
-        id,
-        tenantId,
-        outletId,
-        terminalId,
-        userId,
-        status,
-        openedAt,
-        closedAt,
-        openingFloatCents,
-        closingAmountCents,
-        totalStake,
-        totalTickets,
-        totalPayout,
-        meta,
-        version);
-  }
+    public static SalesSession load(
+        SalesSessionId id,
+        TenantId tenantId,
+        OutletId outletId,
+        TerminalId terminalId,
+        UserId openedBy,
+        Instant openedAt,
+        LocalDate businessDate,
+        SalesSessionStatus status,
+        UserId closedBy,
+        Instant closedAt,
+        String closeReason,
+        Long openingFloatCents,
+        Long expectedClosingAmountCents,
+        Long declaredClosingAmountCents,
+        Long varianceCents) {
+
+        return new SalesSession(
+            id,
+            tenantId,
+            outletId,
+            terminalId,
+            openedBy,
+            openedAt,
+            businessDate,
+            status,
+            closedBy,
+            closedAt,
+            closeReason,
+            openingFloatCents,
+            expectedClosingAmountCents,
+            declaredClosingAmountCents,
+            varianceCents);
+    }
+
+    public SalesSession close(
+        UserId closedBy,
+        Instant closedAt,
+        SalesSessionCashSummary cashSummary,
+        String reason) {
+
+        if (status != SalesSessionStatus.OPEN) {
+            throw new IllegalStateException("Session is not open");
+        }
+
+        return new SalesSession(
+            id,
+            tenantId,
+            outletId,
+            terminalId,
+            openedBy,
+            openedAt,
+            businessDate,
+            SalesSessionStatus.CLOSED,
+            closedBy,
+            closedAt,
+            reason,
+            openingFloatCents,
+            cashSummary.expectedClosingAmountCents(),
+            cashSummary.declaredClosingAmountCents(),
+            cashSummary.varianceCents());
+    }
+
+    public boolean isOpen() {
+        return status == SalesSessionStatus.OPEN;
+    }
+
+    public boolean isClosed() {
+        return status == SalesSessionStatus.CLOSED;
+    }
 }

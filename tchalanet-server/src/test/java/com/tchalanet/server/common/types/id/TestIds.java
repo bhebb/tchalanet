@@ -50,8 +50,8 @@ public final class TestIds {
     return TerminalId.of(UUID.randomUUID());
   }
 
-  public static SessionId session() {
-    return SessionId.of(UUID.randomUUID());
+  public static SalesSessionId session() {
+    return SalesSessionId.of(UUID.randomUUID());
   }
 
   public static RoleId role() {

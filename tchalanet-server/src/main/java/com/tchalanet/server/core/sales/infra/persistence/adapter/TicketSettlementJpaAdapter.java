@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,6 +32,7 @@ public class TicketSettlementJpaAdapter implements TicketSettlementPort {
         UUID cursorId = afterId != null ? afterId : new UUID(0L, 0L);
 
         int pageSize = Math.max(1, limit);
+        var pageable = PageRequest.of(0, pageSize);
 
         return repo
             .findBatchForDrawWithLines(
@@ -38,9 +40,9 @@ public class TicketSettlementJpaAdapter implements TicketSettlementPort {
                 TicketSaleStatus.SOLD,
                 TicketResultStatus.NOT_RESULTED,
                 cursorTime,
-                cursorId)
+                cursorId,
+                pageable)
             .stream()
-            .limit(pageSize)
             .map(mapper::toDomain)
             .toList();
     }

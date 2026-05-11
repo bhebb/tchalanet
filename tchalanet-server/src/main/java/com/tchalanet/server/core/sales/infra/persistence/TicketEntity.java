@@ -48,7 +48,7 @@ public class TicketEntity extends BaseTenantEntity {
     @Column(name = "settlement_status", nullable = false, length = 24)
     private TicketSettlementStatus settlementStatus;
 
-    @Column(name = "currency", nullable = false, length = 8)
+    @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
     @Column(name = "total_amount", nullable = false, precision = 14, scale = 2)
@@ -63,6 +63,7 @@ public class TicketEntity extends BaseTenantEntity {
     @Column(name = "approval_request_id")
     private UUID approvalRequestId;
 
+    // Ticket is the aggregate root and TicketLine has no independent lifecycle.
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TicketLineEntity> lines = new ArrayList<>();
 

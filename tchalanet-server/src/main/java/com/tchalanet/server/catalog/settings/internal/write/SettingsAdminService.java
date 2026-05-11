@@ -103,7 +103,7 @@ public class SettingsAdminService {
     SettingsValidator.validateOrThrow(
         request.namespace(), request.settingKey(), request.valueType(), request.settingValue());
 
-    // 2. Check for duplicates (active, non-deleted settings with same key at same level/target)
+    // 2. Check for duplicates (active, non-deleted settings with same key at same level/limitScopeRef)
     checkUniqueness(request);
 
     // 3. Validate level-specific requirements
@@ -248,12 +248,12 @@ public class SettingsAdminService {
           throw new IllegalArgumentException("OUTLET level requires tenantId and outletId");
         }
         if (request.terminalId() != null) {
-          throw new IllegalArgumentException("OUTLET level must not have terminalId");
+          throw new IllegalArgumentException("OUTLET level must not have id");
         }
       }
       case TERMINAL -> {
         if (request.tenantId() == null || request.terminalId() == null) {
-          throw new IllegalArgumentException("TERMINAL level requires tenantId and terminalId");
+          throw new IllegalArgumentException("TERMINAL level requires tenantId and id");
         }
       }
     }

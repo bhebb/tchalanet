@@ -297,22 +297,6 @@ CREATE POLICY autonomy_policy_rule_rls_select ON autonomy_policy_rule
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
--- limit_definition: GLOBAL table (no tenant_id). Read by any authenticated tenant or platform;
--- writes are restricted at application layer (SUPER_ADMIN only).
-ALTER TABLE limit_definition ENABLE ROW LEVEL SECURITY;
-ALTER TABLE limit_definition FORCE ROW LEVEL SECURITY;
-CREATE POLICY limit_definition_rls_all ON limit_definition
-  FOR ALL
-  USING (
-    (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
-  )
-  WITH CHECK (true);
-CREATE POLICY limit_definition_rls_select ON limit_definition
-  FOR SELECT
-  USING (true);
-
 ALTER TABLE limit_assignment ENABLE ROW LEVEL SECURITY;
 ALTER TABLE limit_assignment FORCE ROW LEVEL SECURITY;
 CREATE POLICY limit_assignment_rls_all ON limit_assignment

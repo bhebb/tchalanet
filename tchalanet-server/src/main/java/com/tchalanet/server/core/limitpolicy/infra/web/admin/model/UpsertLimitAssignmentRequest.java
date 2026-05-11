@@ -1,18 +1,20 @@
 package com.tchalanet.server.core.limitpolicy.infra.web.admin.model;
 
-import com.tchalanet.server.common.types.id.LimitDefinitionId;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
+import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.common.types.enums.TargetType;
 import jakarta.validation.constraints.NotNull;
 import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 
 public record UpsertLimitAssignmentRequest(
-    @NotNull LimitDefinitionId limitDefinitionId,
-    @NotNull LimitTarget target,
+    @NotNull RuleKey ruleKey,
+    @NotNull TargetType targetType,
+    String targetId,
     boolean enabled,
+    @NotNull BreachOutcome onBreach,
+    @NotNull JsonNode params,
     Instant startsAt,
-    Instant endsAt,
-    JsonNode paramsOverride,
-    JsonNode appliesToOverride
+    Instant endsAt
 ) {}

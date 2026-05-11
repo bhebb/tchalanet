@@ -3,7 +3,6 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
-import com.tchalanet.server.core.session.application.query.model.ListCashierOpenSessionsQuery;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import java.math.BigDecimal;
 import java.util.Map;

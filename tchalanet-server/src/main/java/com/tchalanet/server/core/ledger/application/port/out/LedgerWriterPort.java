@@ -1,10 +1,14 @@
 package com.tchalanet.server.core.ledger.application.port.out;
 
 import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
-import java.util.List;
 
 public interface LedgerWriterPort {
-  LedgerEntry append(LedgerEntry entry);
 
-  void appendAll(List<LedgerEntry> entries);
+    /**
+     * Append-only write.
+     *
+     * <p>Must be idempotent using the DB unique constraint:
+     * tenant_id + ref_type + ref_id + operation_type.
+     */
+    boolean appendIfAbsent(LedgerEntry entry);
 }

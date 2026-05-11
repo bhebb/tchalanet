@@ -11,36 +11,36 @@ import com.tchalanet.server.core.terminal.application.command.model.LockTerminal
 import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
 import com.tchalanet.server.core.terminal.domain.event.TerminalLockedEvent;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
+import lombok.RequiredArgsConstructor;
+
 import java.time.Clock;
 import java.time.Instant;
-import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class LockTerminalCommandHandler implements VoidCommandHandler<LockTerminalCommand> {
 
-  private final TerminalReaderPort reader;
-  private final TerminalWriterPort writer;
-  private final DomainEventPublisher publisher;
-  private final IdGenerator idGenerator;
-  private final Clock clock;
+    private final TerminalReaderPort reader;
+    private final TerminalWriterPort writer;
+    private final DomainEventPublisher publisher;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
-  @Override
-  @TchTx
-  public void handle(LockTerminalCommand cmd) {
-    Terminal t = reader.getRequired(cmd.tenantId(), cmd.terminalId());
-    Instant when = Instant.now(clock);
-    writer.save(t.lock(cmd.actorUserId(), cmd.reason(), when));
+    @Override
+    @TchTx
+    public void handle(LockTerminalCommand cmd) {
+        var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
+        var when = Instant.now(clock);
+        writer.save(terminal.lock(cmd.performedBy(), cmd.reason(), when));
 
-    TerminalLockedEvent event =
-        new TerminalLockedEvent(
-            EventId.of(idGenerator.newUuid()),
-            when,
-            cmd.tenantId(),
-            cmd.terminalId(),
-            cmd.reason(),
-            cmd.actorUserId());
-    AfterCommit.run(() -> publisher.publish(event));
-  }
+        var event =
+            new TerminalLockedEvent(
+                EventId.of(idGenerator.newUuid()),
+                when,
+                cmd.tenantId(),
+                cmd.terminalId(),
+                cmd.reason(),
+                cmd.performedBy());
+        AfterCommit.run(() -> publisher.publish(event));
+    }
 }

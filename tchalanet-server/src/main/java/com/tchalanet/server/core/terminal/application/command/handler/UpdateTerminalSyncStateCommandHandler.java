@@ -11,41 +11,47 @@ import com.tchalanet.server.core.terminal.application.command.model.UpdateTermin
 import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
 import com.tchalanet.server.core.terminal.domain.event.TerminalSyncStateUpdatedEvent;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
-import com.tchalanet.server.core.terminal.domain.model.TerminalSyncState;
+import lombok.RequiredArgsConstructor;
+
 import java.time.Clock;
 import java.time.Instant;
-import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class UpdateTerminalSyncStateCommandHandler
     implements VoidCommandHandler<UpdateTerminalSyncStateCommand> {
 
-  private final TerminalReaderPort reader;
-  private final TerminalWriterPort writer;
-  private final DomainEventPublisher publisher;
-  private final IdGenerator idGenerator;
-  private final Clock clock;
+    private final TerminalReaderPort reader;
+    private final TerminalWriterPort writer;
+    private final DomainEventPublisher publisher;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
-  @Override
-  @TchTx
-  public void handle(UpdateTerminalSyncStateCommand cmd) {
-    Terminal t = reader.getRequired(cmd.tenantId(), cmd.terminalId());
-    TerminalSyncState previous = t.syncState();
-    Terminal updated = t.updateSyncState(cmd.newSyncState(), Instant.now(clock));
-    if (updated == t) return; // idempotent
-    writer.save(updated);
+    @Override
+    @TchTx
+    public void handle(UpdateTerminalSyncStateCommand cmd) {
+        var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
+        var previous = terminal.syncState();
+        var now = Instant.now(clock);
 
-    TerminalSyncStateUpdatedEvent event =
-        new TerminalSyncStateUpdatedEvent(
-            EventId.of(idGenerator.newUuid()),
-            Instant.now(clock),
-            cmd.tenantId(),
-            cmd.terminalId(),
-            previous,
-            cmd.newSyncState(),
-            cmd.actorUserId());
-    AfterCommit.run(() -> publisher.publish(event));
-  }
+        var updated = terminal.updateSyncState(cmd.newSyncState(), now);
+
+        if (updated == terminal) {
+            return;
+        }
+
+        writer.save(updated);
+
+        var event =
+            new TerminalSyncStateUpdatedEvent(
+                EventId.of(idGenerator.newUuid()),
+                now,
+                cmd.tenantId(),
+                cmd.terminalId(),
+                previous,
+                cmd.newSyncState(),
+                cmd.actorUserId());
+
+        AfterCommit.run(() -> publisher.publish(event));
+    }
 }

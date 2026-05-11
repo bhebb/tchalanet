@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.application.print;
 
-import com.tchalanet.server.common.print.receipt.ReceiptLine;
-import com.tchalanet.server.common.print.receipt.ReceiptModel;
+import com.tchalanet.server.common.document.receipt.ReceiptLine;
+import com.tchalanet.server.common.document.receipt.ReceiptModel;
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;

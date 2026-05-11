@@ -1,37 +1,74 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
+import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
-import com.tchalanet.server.common.types.id.LimitDefinitionId;
 import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 
-public record LimitAssignment(
-    LimitAssignmentId id,
-    LimitDefinitionId limitDefinitionId,
-    LimitTarget target,
-    boolean enabled,
-    Instant startsAt,
-    Instant endsAt,
-    JsonNode paramsOverride,
-    JsonNode appliesToOverride,
-    Instant deletedAt) {
+public record LimitAssignment(LimitAssignmentId id,
+                              RuleKey ruleKey,
+                              LimitScopeRef scope,
+                              boolean enabled,
+                              BreachOutcome onBreach,
+                              JsonNode params,
+                              Instant startsAt,
+                              Instant endsAt,
+                              boolean deleted
+) {
 
-  public boolean isDeleted() {
-    return deletedAt != null;
-  }
+    public boolean isActiveAt(Instant now) {
+        if (!enabled || deleted) {
+            return false;
+        }
 
-  public boolean isActiveAt(Instant now) {
-    if (deletedAt != null) return false;
-    if (!enabled) return false;
-    if (startsAt != null && now.isBefore(startsAt)) return false;
-    if (endsAt != null && !now.isBefore(endsAt)) return false;
-    return true;
-  }
+        if (startsAt != null && now.isBefore(startsAt)) {
+            return false;
+        }
 
-  /** Single canonical predicate used by LimitResolver. */
-  public boolean appliesTo(LimitTarget candidateTarget, Instant now) {
-    if (!isActiveAt(now)) return false;
-    return target != null && target.equals(candidateTarget);
-  }
+        return endsAt == null || now.isBefore(endsAt);
+    }
+
+    public static LimitAssignment createNew(
+        LimitAssignmentId id,
+        RuleKey ruleKey,
+        LimitScopeRef scopeRef,
+        boolean enabled,
+        BreachOutcome onBreach,
+        JsonNode params,
+        Instant startsAt,
+        Instant endsAt
+    ) {
+        return new LimitAssignment(
+            id,
+            ruleKey,
+            scopeRef,
+            enabled,
+            onBreach,
+            params,
+            startsAt,
+            endsAt,
+            false);
+    }
+
+    public LimitAssignment update(
+        boolean enabled,
+        BreachOutcome onBreach,
+        JsonNode params,
+        Instant startsAt,
+        Instant endsAt
+    ) {
+        return new LimitAssignment(
+            id,
+            ruleKey,
+            scope,
+            enabled,
+            onBreach,
+            params,
+            startsAt,
+            endsAt,
+            deleted);
+    }
+
 }

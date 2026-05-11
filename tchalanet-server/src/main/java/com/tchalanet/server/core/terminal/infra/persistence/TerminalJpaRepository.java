@@ -1,25 +1,22 @@
 package com.tchalanet.server.core.terminal.infra.persistence;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface TerminalJpaRepository extends JpaRepository<TerminalJpaEntity, UUID> {
+public interface TerminalJpaRepository
+    extends JpaRepository<TerminalJpaEntity, UUID>, JpaSpecificationExecutor<TerminalJpaEntity> {
 
-  Optional<TerminalJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
+    Optional<TerminalJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
 
-  @Query(
-      "SELECT t FROM TerminalJpaEntity t WHERE t.tenantId = :tenantId AND t.outletId = :outletId AND t.deletedAt IS NULL")
-  List<TerminalJpaEntity> findAllByTenantIdAndOutletIdAndDeletedAtIsNull(
-      @Param("tenantId") UUID tenantId, @Param("outletId") UUID outletId, Pageable pageable);
+    List<TerminalJpaEntity> findByOutletId(UUID outletId);
 
-  @Query("SELECT t FROM TerminalJpaEntity t WHERE t.tenantId = :tenantId AND t.deletedAt IS NULL")
-  List<TerminalJpaEntity> findAllByTenantIdAndDeletedAtIsNull(
-      @Param("tenantId") UUID tenantId, Pageable pageable);
+    long countByOutletId(UUID outletId);
+
+    Optional<TerminalJpaEntity> findFirstByAssignedUserIdAndAutoSessionEnabledIsTrue(UUID assignedUserId);
+
+    List<TerminalJpaEntity> findBySyncState(String syncState);
 }

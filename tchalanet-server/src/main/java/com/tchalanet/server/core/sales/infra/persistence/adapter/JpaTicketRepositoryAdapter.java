@@ -10,21 +10,19 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
 import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
-import jakarta.persistence.criteria.Predicate;
+import com.tchalanet.server.core.sales.infra.persistence.repository.TicketSpecifications;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,45 +48,12 @@ public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReade
 
   @Override
   public Optional<Ticket> findByPublicCode(String publicCode) {
-    return jpaRepository.findByPublicCode(publicCode).map(mapper::toDomain);
+    return jpaRepository.findByPublicCodeAndDeletedAtIsNull(publicCode).map(mapper::toDomain);
   }
 
   @Override
   public TchPage<Ticket> search(TicketFilter filter, Pageable pageRequest) {
-    Specification<TicketEntity> spec =
-        (root, query, cb) -> {
-          List<Predicate> predicates = new ArrayList<>();
-          // tenantId is required — removed: RLS ensures tenant isolation
-          if (filter.terminalId() != null) {
-            predicates.add(cb.equal(root.get("terminalId"), filter.terminalId().value()));
-          }
-          if (filter.drawId() != null) {
-            predicates.add(cb.equal(root.get("drawId"), filter.drawId().value()));
-          }
-          if (filter.status() != null) {
-            // status in filter corresponds to resultStatus
-            predicates.add(cb.equal(root.get("resultStatus"), filter.status()));
-          }
-          if (filter.from() != null) {
-            predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), filter.from()));
-          }
-          if (filter.to() != null) {
-            predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), filter.to()));
-          }
-          // Ensure we don't fetch archived tickets in normal searches
-          predicates.add(cb.isNull(root.get("deletedAt")));
-          return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-    org.springframework.data.domain.PageRequest springPageRequest =
-        org.springframework.data.domain.PageRequest.of(
-            pageRequest.getPageNumber(),
-            pageRequest.getPageSize(),
-            org.springframework.data.domain.Sort.by(
-                org.springframework.data.domain.Sort.Order.desc("createdAt"),
-                org.springframework.data.domain.Sort.Order.desc("id")));
-
-    Page<TicketEntity> page = jpaRepository.findAll(spec, springPageRequest);
+    Page<TicketEntity> page = jpaRepository.findAll(TicketSpecifications.fromFilter(filter), pageRequest);
 
     List<Ticket> tickets =
         page.getContent().stream().map(mapper::toDomain).collect(Collectors.toList());
@@ -138,7 +103,7 @@ public class JpaTicketRepositoryAdapter implements TicketWriterPort, TicketReade
 
       // Write header
       writer.println(
-          "createdAt,ticketCode,publicCode,status,totalAmount,terminalId,drawId,sessionId,createdBy");
+          "createdAt,ticketCode,publicCode,status,totalAmount,id,drawId,sessionId,createdBy");
 
       // Write data
       for (TicketEntity ticket : tickets) {

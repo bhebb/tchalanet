@@ -19,10 +19,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Publishes a per-request context for downstream layers.
+ * Single canonical producer of HTTP request context.
+ *
+ * <p>Pipeline: contextFactory → tenantContextResolver → actorContextResolver
+ *   → operationalContextResolver → contextBinder.bind
  *
  * <p>Tenant resolution rules:
- *
  * <ul>
  *   <li>TENANT routes: tenant is required from JWT tenant_code or super-admin X-Tenant-Id override.
  *   <li>PUBLIC routes: default tenant is resolved from ApiProperties.defaultTenant when allowed.
@@ -40,6 +42,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final ActorContextResolver actorContextResolver;
     private final TchRequestContextFactory contextFactory;
     private final TchContextBinder contextBinder;
+    private final OperationalContextResolver operationalContextResolver;
 
     @Override
     protected void doFilterInternal(
@@ -74,6 +77,12 @@ public class TchContextFilter extends OncePerRequestFilter {
             if (ctx == null) {
                 return;
             }
+
+            var operationalCtx = operationalContextResolver.resolve(ctx, req);
+            if (operationalCtx.isPresent()) {
+                ctx = ctx.withOperationalContext(operationalCtx.get());
+            }
+
             contextBinder.bind(req, ctx);
 
             chain.doFilter(req, res);

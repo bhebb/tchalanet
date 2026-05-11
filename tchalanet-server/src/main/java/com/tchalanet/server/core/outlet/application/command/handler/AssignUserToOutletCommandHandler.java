@@ -11,38 +11,39 @@ import com.tchalanet.server.core.outlet.application.command.model.AssignUserToOu
 import com.tchalanet.server.core.outlet.application.port.out.OutletMembershipPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.domain.event.OutletUserAssignedEvent;
+import lombok.RequiredArgsConstructor;
+
 import java.time.Clock;
 import java.time.Instant;
-import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class AssignUserToOutletCommandHandler
     implements VoidCommandHandler<AssignUserToOutletCommand> {
 
-  private final OutletReaderPort outletReader;
-  private final OutletMembershipPort membershipPort;
-  private final DomainEventPublisher publisher;
-  private final IdGenerator idGenerator;
-  private final Clock clock;
+    private final OutletReaderPort outletReader;
+    private final OutletMembershipPort membershipPort;
+    private final DomainEventPublisher publisher;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
-  @Override
-  @TchTx
-  public void handle(AssignUserToOutletCommand cmd) {
-    // Existence check (throws if outlet missing)
-    outletReader.getRequired(cmd.outletId());
+    @Override
+    @TchTx
+    public void handle(AssignUserToOutletCommand cmd) {
+        // Existence check (throws if outlet missing)
+        outletReader.getRequired(cmd.outletId());
 
-    membershipPort.assignUserToOutlet(cmd.outletId(), cmd.userId());
+        membershipPort.assignUserToOutlet(cmd.outletId(), cmd.userId());
 
-    Instant when = Instant.now(clock);
-    OutletUserAssignedEvent event =
-        new OutletUserAssignedEvent(
-            EventId.of(idGenerator.newUuid()),
-            when,
-            cmd.tenantId(),
-            cmd.outletId(),
-            cmd.userId(),
-            cmd.actorUserId());
-    AfterCommit.run(() -> publisher.publish(event));
-  }
+        Instant when = Instant.now(clock);
+        OutletUserAssignedEvent event =
+            new OutletUserAssignedEvent(
+                EventId.of(idGenerator.newUuid()),
+                when,
+                cmd.tenantId(),
+                cmd.outletId(),
+                cmd.userId(),
+                cmd.actorUserId());
+        AfterCommit.run(() -> publisher.publish(event));
+    }
 }

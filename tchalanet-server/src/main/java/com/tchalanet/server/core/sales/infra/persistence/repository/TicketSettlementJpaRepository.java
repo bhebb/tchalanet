@@ -6,6 +6,7 @@ import com.tchalanet.server.core.sales.infra.persistence.TicketEntity;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,5 +33,6 @@ public interface TicketSettlementJpaRepository extends JpaRepository<TicketEntit
       @Param("saleStatus") TicketSaleStatus saleStatus,
       @Param("resultStatus") TicketResultStatus resultStatus,
       @Param("afterCreatedAt") Instant afterCreatedAt,
-      @Param("afterId") UUID afterId);
+      @Param("afterId") UUID afterId,
+      Pageable pageable);
 }

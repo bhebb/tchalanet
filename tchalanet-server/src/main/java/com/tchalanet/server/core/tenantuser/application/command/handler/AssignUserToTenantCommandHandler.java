@@ -42,7 +42,7 @@ public class AssignUserToTenantCommandHandler implements CommandHandler<AssignUs
 
             var terminalOutletId = t.outletId();
             if (resolvedOutletId != null && !resolvedOutletId.equals(terminalOutletId)) {
-                throw ProblemRest.badRequest("terminalId does not belong to outletId");
+                throw ProblemRest.badRequest("id does not belong to outletId");
             }
             resolvedOutletId = terminalOutletId;
         }

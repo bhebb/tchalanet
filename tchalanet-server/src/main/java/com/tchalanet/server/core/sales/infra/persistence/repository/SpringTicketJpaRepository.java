@@ -21,9 +21,6 @@ import java.util.UUID;
 public interface SpringTicketJpaRepository
     extends JpaRepository<TicketEntity, UUID>, JpaSpecificationExecutor<TicketEntity> {
 
-    @EntityGraph(attributePaths = "lines")
-    Optional<TicketEntity> findByPublicCode(String publicCode);
-
     @Modifying
     @Query(
         "UPDATE TicketEntity t SET t.deletedAt = :now WHERE t.createdAt < :cutoffDate AND t.deletedAt IS NULL")

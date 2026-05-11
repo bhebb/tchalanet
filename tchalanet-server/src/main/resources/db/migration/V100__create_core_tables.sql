@@ -352,107 +352,275 @@ CREATE TABLE draw (
   CONSTRAINT chk_draw__status CHECK (status IN ('SCHEDULED','OPEN','CLOSED','RESULTED','SETTLED','CANCELED','ARCHIVED'))
 );
 
-CREATE TABLE outlet (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  name text NOT NULL,
-  slug citext NOT NULL,
-  day_closed boolean NOT NULL DEFAULT false,
-  sales_blocked boolean NOT NULL DEFAULT false,
-  sales_block_reason text,
-  sales_blocked_at timestamptz,
-  timezone varchar(64) NOT NULL DEFAULT 'America/Port-au-Prince',
-  business_day_cutoff time,
-  receipt_printing_enabled boolean NOT NULL DEFAULT true,
-  receipt_header_message text,
-  receipt_footer_message text,
-  require_opening_float boolean NOT NULL DEFAULT true,
-  auto_open_session boolean NOT NULL DEFAULT false,
-  auto_close_session boolean NOT NULL DEFAULT false,
-  auto_session_user_id uuid REFERENCES app_user(id),
-  auto_session_terminal_id uuid,
-  default_opening_float_cents bigint,
-  address_id uuid REFERENCES address(id),
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_outlet__tenant_slug UNIQUE (tenant_id, slug)
+-- =========================================================
+-- OUTLET
+-- =========================================================
+
+create table outlet (
+                        id uuid primary key default gen_random_uuid(),
+                        tenant_id uuid not null,
+
+                        name varchar(255) not null,
+                        slug varchar(128) not null,
+
+                        day_closed boolean not null default false,
+                        sales_blocked boolean not null default false,
+                        sales_block_reason text,
+                        sales_blocked_at timestamptz,
+
+                        timezone varchar(64) not null default 'America/Port-au-Prince',
+
+                        receipt_printing_enabled boolean not null default true,
+                        receipt_header_message text,
+                        receipt_footer_message text,
+
+                        require_opening_float boolean not null default true,
+
+                        auto_session_open_enabled boolean not null default false,
+                        auto_session_close_enabled boolean not null default false,
+                        session_open_time time,
+                        session_close_time time,
+                        default_opening_float_cents bigint,
+
+                        address_id uuid,
+
+                        created_at timestamptz not null,
+                        updated_at timestamptz not null,
+                        deleted_at timestamptz,
+                        version bigint not null default 0
 );
 
-CREATE TABLE terminal (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  outlet_id uuid NOT NULL REFERENCES outlet(id),
-  assigned_user_id uuid REFERENCES app_user(id),
-  kind varchar(16) NOT NULL DEFAULT 'PHYSICAL',
-  state varchar(32) NOT NULL,
-  active_for_user boolean NOT NULL DEFAULT false,
-  last_seen timestamptz,
-  label varchar(128),
-  inventory_tag varchar(64),
-  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
-  sync_state varchar(32) NOT NULL DEFAULT 'ONLINE',
-  registered_at timestamptz,
-  unregistered_at timestamptz,
-  locked_at timestamptz,
-  locked_by uuid,
-  lock_reason text,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_terminal__kind CHECK (kind IN ('PHYSICAL','VIRTUAL')),
-  CONSTRAINT chk_terminal__state CHECK (state IN ('REGISTERED','ACTIVE','LOCKED','OFFLINE','UNREGISTERED')),
-  CONSTRAINT chk_terminal__sync_state CHECK (sync_state IN ('ONLINE','OFFLINE','SYNC_PENDING','SYNC_CONFLICT'))
+create unique index ux_outlet_tenant_slug
+    on outlet (tenant_id, slug)
+    where deleted_at is null;
+
+create index ix_outlet_tenant_active
+    on outlet (tenant_id)
+    where deleted_at is null;
+
+create index ix_outlet_auto_session_open
+    on outlet (tenant_id, session_open_time)
+    where auto_session_open_enabled = true and deleted_at is null;
+
+create index ix_outlet_auto_session_close
+    on outlet (tenant_id, session_close_time)
+    where auto_session_close_enabled = true and deleted_at is null;
+
+comment on column outlet.day_closed is 'Closes the outlet operationally for the current day.';
+comment on column outlet.sales_blocked is 'Blocks sales for this outlet without deleting or closing the outlet.';
+comment on column outlet.timezone is 'Local timezone used for business date and auto-session scheduling.';
+comment on column outlet.auto_session_open_enabled is 'Enables automatic session opening for eligible terminals/users.';
+comment on column outlet.auto_session_close_enabled is 'Enables automatic closing of open sessions.';
+comment on column outlet.session_open_time is 'Local outlet time used by auto-open scheduler.';
+comment on column outlet.session_close_time is 'Local outlet time used by auto-close scheduler.';
+comment on column outlet.default_opening_float_cents is 'Default opening float used for automatic session creation.';
+
+create table outlet_aud (
+                            id uuid not null,
+                            rev integer not null,
+                            revtype smallint,
+
+                            tenant_id uuid,
+                            name varchar(255),
+                            slug varchar(128),
+                            day_closed boolean,
+                            sales_blocked boolean,
+                            sales_block_reason text,
+                            sales_blocked_at timestamptz,
+                            timezone varchar(64),
+                            receipt_printing_enabled boolean,
+                            receipt_header_message text,
+                            receipt_footer_message text,
+                            require_opening_float boolean,
+                            auto_session_open_enabled boolean,
+                            auto_session_close_enabled boolean,
+                            session_open_time time,
+                            session_close_time time,
+                            default_opening_float_cents bigint,
+                            address_id uuid,
+                            created_at timestamptz,
+                            updated_at timestamptz,
+                            deleted_at timestamptz,
+                            version bigint,
+
+                            primary key (id, rev)
+);
+
+-- =========================================================
+-- TERMINAL
+-- =========================================================
+
+create table terminal (
+                          id uuid primary key default gen_random_uuid(),
+                          tenant_id uuid not null,
+
+                          outlet_id uuid not null,
+                          assigned_user_id uuid,
+
+                          kind varchar(16) not null default 'PHYSICAL',
+                          state varchar(32) not null,
+                          active_for_user boolean not null default false,
+
+                          sync_state varchar(32) not null default 'ONLINE',
+                          last_seen timestamptz,
+
+                          label varchar(128),
+                          inventory_tag varchar(64),
+                          metadata jsonb not null default '{}'::jsonb,
+
+                          registered_at timestamptz,
+                          unregistered_at timestamptz,
+
+                          locked_at timestamptz,
+                          locked_by uuid,
+                          lock_reason text,
+
+                          created_at timestamptz not null,
+                          updated_at timestamptz not null,
+                          deleted_at timestamptz,
+                          version bigint not null default 0
+);
+
+create index ix_terminal_tenant_outlet
+    on terminal (tenant_id, outlet_id)
+    where deleted_at is null;
+
+create index ix_terminal_assigned_user
+    on terminal (tenant_id, assigned_user_id)
+    where assigned_user_id is not null and deleted_at is null;
+
+create index ix_terminal_auto_session_eligible
+    on terminal (tenant_id, outlet_id, assigned_user_id)
+    where assigned_user_id is not null
+    and active_for_user = true
+    and state = 'ACTIVE'
+    and deleted_at is null;
+
+comment on column terminal.assigned_user_id is 'User/agent currently assigned to this terminal.';
+comment on column terminal.kind is 'Terminal kind: PHYSICAL POS or VIRTUAL phone/device.';
+comment on column terminal.auto_session_enabled is 'Whether this terminal is eligible for auto-session.';
+comment on column terminal.state is 'Operational state of the terminal.';
+comment on column terminal.sync_state is 'Connectivity/sync state for POS/mobile clients.';
+comment on column terminal.metadata is 'Flexible device metadata stored as JSONB.';
+
+create table terminal_aud (
+                              id uuid not null,
+                              rev integer not null,
+                              revtype smallint,
+                              tenant_id uuid not null,
+
+                              outlet_id uuid not null,
+                              assigned_user_id uuid,
+
+                              kind varchar(16) not null default 'PHYSICAL',
+                              state varchar(32) not null,
+                              active_for_user boolean not null default false,
+
+                              sync_state varchar(32) not null default 'ONLINE',
+                              last_seen timestamptz,
+
+                              label varchar(128),
+                              inventory_tag varchar(64),
+                              metadata jsonb not null default '{}'::jsonb,
+
+                              registered_at timestamptz,
+                              unregistered_at timestamptz,
+
+                              locked_at timestamptz,
+                              locked_by uuid,
+                              lock_reason text,
+
+                              created_at timestamptz not null,
+                              updated_at timestamptz not null,
+                              deleted_at timestamptz,
+                              version bigint not null default 0
+
+                              primary key (id, rev)
 );
 
 ALTER TABLE outlet ADD CONSTRAINT fk_outlet__auto_session_terminal FOREIGN KEY (auto_session_terminal_id) REFERENCES terminal(id);
 
-CREATE TABLE sales_session (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  outlet_id uuid NOT NULL REFERENCES outlet(id),
-  terminal_id uuid REFERENCES terminal(id),
-  user_id uuid NOT NULL REFERENCES app_user(id),
-  status varchar(16) NOT NULL,
-  source varchar(16) NOT NULL DEFAULT 'MANUAL',
-  opened_at timestamptz NOT NULL DEFAULT now(),
-  closed_at timestamptz,
-  opening_float_cents bigint,
-  closing_amount_cents bigint,
-  meta jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_sales_session__status CHECK (status IN ('OPEN','CLOSED','RECONCILED')),
-  CONSTRAINT chk_sales_session__source CHECK (source IN ('MANUAL','SCHEDULER','OPS'))
+-- =========================================================
+-- SALES SESSION
+-- =========================================================
+
+create table sales_session (
+                               id uuid primary key default gen_random_uuid(),
+                               tenant_id uuid not null,
+
+                               outlet_id uuid not null,
+                               terminal_id uuid not null,
+
+                               opened_by uuid not null,
+                               opened_at timestamptz not null,
+                               business_date date not null,
+
+                               status varchar(32) not null,
+
+                               closed_by uuid,
+                               closed_at timestamptz,
+                               close_reason text,
+
+                               opening_float_cents bigint,
+                               expected_closing_amount_cents bigint,
+                               declared_closing_amount_cents bigint,
+                               variance_cents bigint,
+
+                               created_at timestamptz not null,
+                               updated_at timestamptz not null,
+                               deleted_at timestamptz,
+                               version bigint not null default 0
 );
 
-CREATE TABLE sales_session_totals (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  session_id uuid NOT NULL REFERENCES sales_session(id),
-  total_tickets bigint NOT NULL DEFAULT 0,
-  total_stake_cents bigint NOT NULL DEFAULT 0,
-  total_payout_cents bigint NOT NULL DEFAULT 0,
-  gross_margin_cents bigint NOT NULL DEFAULT 0,
-  last_recomputed_at timestamptz,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_sales_session_totals__session UNIQUE (session_id)
+create unique index ux_sales_session_user_business_day
+    on sales_session (tenant_id, outlet_id, opened_by, business_date)
+    where deleted_at is null;
+
+create unique index ux_sales_session_open_terminal
+    on sales_session (tenant_id, terminal_id)
+    where status = 'OPEN' and deleted_at is null;
+
+create index ix_sales_session_tenant_outlet_status
+    on sales_session (tenant_id, outlet_id, status)
+    where deleted_at is null;
+
+create index ix_sales_session_tenant_opened_by_date
+    on sales_session (tenant_id, opened_by, business_date)
+    where deleted_at is null;
+
+comment on column sales_session.business_date is 'Local business date based on outlet timezone at session opening.';
+comment on column sales_session.opening_float_cents is 'Initial float for the session.';
+comment on column sales_session.expected_closing_amount_cents is 'System-calculated expected closing cash.';
+comment on column sales_session.declared_closing_amount_cents is 'Cash amount declared by user during manual close; null for auto-close.';
+comment on column sales_session.variance_cents is 'Declared closing minus expected closing.';
+
+create table sales_session_aud (
+                                   id uuid not null,
+                                   rev integer not null,
+                                   revtype smallint,
+
+                                   tenant_id uuid,
+                                   outlet_id uuid,
+                                   terminal_id uuid,
+                                   opened_by uuid,
+                                   opened_at timestamptz,
+                                   business_date date,
+                                   status varchar(32),
+                                   closed_by uuid,
+                                   closed_at timestamptz,
+                                   close_reason text,
+                                   opening_float_cents bigint,
+                                   expected_closing_amount_cents bigint,
+                                   declared_closing_amount_cents bigint,
+                                   variance_cents bigint,
+                                   created_at timestamptz,
+                                   updated_at timestamptz,
+                                   deleted_at timestamptz,
+                                   version bigint,
+
+                                   primary key (id, rev)
 );
+
 
 CREATE TABLE pricing_odds (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -484,7 +652,7 @@ CREATE TABLE ticket (
   sale_status varchar(24) NOT NULL,
   result_status varchar(24) NOT NULL,
   settlement_status varchar(24) NOT NULL,
-  currency varchar(8) NOT NULL,
+  currency varchar(3) NOT NULL,
   total_amount_cents bigint NOT NULL,
   winning_amount_cents bigint,
   resulted_at timestamptz,
@@ -518,31 +686,107 @@ CREATE TABLE ticket_line (
   version bigint NOT NULL DEFAULT 0
 );
 
-CREATE TABLE payout (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  ticket_id uuid NOT NULL REFERENCES ticket(id),
-  selling_outlet_id uuid NOT NULL REFERENCES outlet(id),
-  selling_session_id uuid NOT NULL REFERENCES sales_session(id),
-  paying_outlet_id uuid REFERENCES outlet(id),
-  paying_session_id uuid REFERENCES sales_session(id),
-  terminal_id uuid REFERENCES terminal(id),
-  paid_by_user_id uuid REFERENCES app_user(id),
-  amount_cents bigint NOT NULL,
-  currency varchar(3) NOT NULL,
-  status varchar(24) NOT NULL,
-  approved_at timestamptz,
-  paid_at timestamptz,
-  rejected_at timestamptz,
-  rejected_reason text,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_payout__status CHECK (status IN ('REQUESTED','APPROVED','PAID','REJECTED','CANCELLED'))
+-- =========================================================
+-- PAYOUT
+-- =========================================================
+
+create table payout (
+                        id uuid primary key default gen_random_uuid(),
+                        tenant_id uuid not null,
+
+                        ticket_id uuid not null,
+
+                        amount_cents bigint not null,
+                        currency varchar(3) not null default 'HTG',
+                        status varchar(32) not null,
+
+                        selling_outlet_id uuid,
+                        selling_session_id uuid,
+
+                        paying_outlet_id uuid,
+                        paying_session_id uuid,
+                        paying_terminal_id uuid,
+
+                        requested_by uuid,
+                        requested_at timestamptz not null,
+
+                        approved_by uuid,
+                        approved_at timestamptz,
+
+                        rejected_by uuid,
+                        rejected_at timestamptz,
+                        rejected_reason text,
+
+                        paid_by uuid,
+                        paid_at timestamptz,
+
+                        cancelled_by uuid,
+                        cancelled_at timestamptz,
+                        cancel_reason text,
+
+                        reason text,
+
+                        created_at timestamptz not null,
+                        updated_at timestamptz not null,
+                        deleted_at timestamptz,
+                        version bigint not null default 0
 );
+
+create index ix_payout_tenant_ticket
+    on payout (tenant_id, ticket_id)
+    where deleted_at is null;
+
+create index ix_payout_paying_session_status
+    on payout (tenant_id, paying_session_id, status)
+    where paying_session_id is not null and deleted_at is null;
+
+create index ix_payout_status_requested_at
+    on payout (tenant_id, status, requested_at)
+    where deleted_at is null;
+
+comment on column payout.ticket_id is 'Winning ticket being paid.';
+comment on column payout.selling_session_id is 'Session that sold the original ticket, if known.';
+comment on column payout.paying_session_id is 'Session that paid the winning ticket.';
+comment on column payout.status is 'Payout lifecycle status.';
+comment on column payout.reason is 'General business reason/comment.';
+comment on column payout.cancel_reason is 'Reason provided when payout is cancelled.';
+
+create table payout_aud (
+                            id uuid not null,
+                            rev integer not null,
+                            revtype smallint,
+
+                            tenant_id uuid,
+                            ticket_id uuid,
+                            amount_cents bigint,
+                            currency varchar(3),
+                            status varchar(32),
+                            selling_outlet_id uuid,
+                            selling_session_id uuid,
+                            paying_outlet_id uuid,
+                            paying_session_id uuid,
+                            paying_terminal_id uuid,
+                            requested_by uuid,
+                            requested_at timestamptz,
+                            approved_by uuid,
+                            approved_at timestamptz,
+                            rejected_by uuid,
+                            rejected_at timestamptz,
+                            rejected_reason text,
+                            paid_by uuid,
+                            paid_at timestamptz,
+                            cancelled_by uuid,
+                            cancelled_at timestamptz,
+                            cancel_reason text,
+                            reason text,
+                            created_at timestamptz,
+                            updated_at timestamptz,
+                            deleted_at timestamptz,
+                            version bigint,
+
+                            primary key (id, rev)
+);
+
 
 CREATE TABLE billing_plan (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -648,41 +892,39 @@ CREATE TABLE audit_event (
   version bigint NOT NULL DEFAULT 0
 );
 
-CREATE TABLE limit_definition (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  rule_key varchar(64) NOT NULL,
-  enabled boolean NOT NULL DEFAULT true,
-  on_breach varchar(32) NOT NULL DEFAULT 'BLOCK',
-  params jsonb NOT NULL DEFAULT '{}'::jsonb,
-  applies_to jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_limit_definition__rule_key UNIQUE (rule_key)
-);
+CREATE TABLE IF NOT EXISTS limit_assignment (
+                                                id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-CREATE TABLE limit_assignment (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  limit_definition_id uuid NOT NULL REFERENCES limit_definition(id),
-  target_type varchar(16) NOT NULL,
-  target_id uuid,
-  enabled boolean NOT NULL DEFAULT true,
-  starts_at timestamptz,
-  ends_at timestamptz,
-  params_override jsonb NOT NULL DEFAULT '{}'::jsonb,
-  applies_to_override jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_limit_assignment__target_type CHECK (target_type IN ('TENANT','OUTLET','USER'))
-);
+    tenant_id uuid NOT NULL,
+
+    rule_key varchar(80) NOT NULL,
+
+    scope_type varchar(32) NOT NULL,
+    scope_id uuid NOT NULL,
+
+    enabled boolean NOT NULL DEFAULT true,
+    on_breach varchar(32) NOT NULL DEFAULT 'BLOCK',
+
+    params jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+    starts_at timestamptz NULL,
+    ends_at timestamptz NULL,
+
+    version bigint NOT NULL DEFAULT 0,
+
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    deleted_at timestamptz NULL,
+
+    CONSTRAINT ck_limit_assignment_scope_type
+    CHECK (scope_type IN ('TENANT', 'DRAWCHANNEL', 'OUTLET', 'AGENT')),
+
+    CONSTRAINT ck_limit_assignment_on_breach
+    CHECK (on_breach IN ('ALLOW', 'WARN', 'REQUIRE_APPROVAL', 'BLOCK')),
+
+    CONSTRAINT ck_limit_assignment_window
+    CHECK (starts_at IS NULL OR ends_at IS NULL OR starts_at < ends_at)
+    );
 
 CREATE TABLE autonomy_policy_rule (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -728,45 +970,74 @@ CREATE TABLE approval_request (
 
 ALTER TABLE ticket ADD CONSTRAINT fk_ticket__approval_request FOREIGN KEY (approval_request_id) REFERENCES approval_request(id);
 
-CREATE TABLE draw_exposure (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  draw_id uuid NOT NULL REFERENCES draw(id),
-  scope_type varchar(16) NOT NULL,
-  scope_id uuid NOT NULL,
-  bet_type varchar(32) NOT NULL,
-  selection_key varchar(64) NOT NULL,
-  stake_total numeric(14,2) NOT NULL DEFAULT 0,
-  sales_count bigint NOT NULL DEFAULT 0,
-  potential_payout_total numeric(14,2) NOT NULL DEFAULT 0,
-  last_event_id uuid,
-  last_event_at timestamptz,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_draw_exposure__lookup UNIQUE (tenant_id, draw_id, scope_type, scope_id, bet_type, selection_key),
-  CONSTRAINT chk_draw_exposure__scope_type CHECK (scope_type IN ('TENANT','OUTLET','TERMINAL','USER'))
-);
+CREATE TABLE IF NOT EXISTS draw_exposure (
+                                             id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    tenant_id uuid NOT NULL,
+
+    draw_id uuid NOT NULL,
+
+    scope_type varchar(32) NOT NULL,
+    scope_id uuid NOT NULL,
+
+    bet_type varchar(32) NOT NULL,
+    selection_key varchar(64) NOT NULL,
+
+    stake_total numeric(14, 2) NOT NULL DEFAULT 0,
+    sales_count bigint NOT NULL DEFAULT 0,
+    potential_payout_total numeric(14, 2) NOT NULL DEFAULT 0,
+
+    last_event_id uuid NULL,
+    last_event_at timestamptz NULL,
+
+    version bigint NOT NULL DEFAULT 0,
+
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    deleted_at timestamptz NULL,
+
+    CONSTRAINT ck_draw_exposure_scope_type
+    CHECK (scope_type IN ('TENANT', 'DRAWCHANNEL', 'OUTLET', 'AGENT')),
+
+    CONSTRAINT ck_draw_exposure_amounts_non_negative
+    CHECK (
+              stake_total >= 0
+              AND sales_count >= 0
+              AND potential_payout_total >= 0
+          )
+    );
 
 CREATE TABLE ledger_entry (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  ref_type varchar(64) NOT NULL,
-  ref_id uuid NOT NULL,
-  amount numeric(18,2) NOT NULL,
-  direction varchar(8) NOT NULL,
-  occurred_at timestamptz NOT NULL,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_ledger_entry__direction CHECK (direction IN ('DEBIT','CREDIT'))
+                              id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                              tenant_id uuid NOT NULL,
+
+                              ref_type varchar(64) NOT NULL,
+                              ref_id uuid NOT NULL,
+                              operation_type varchar(64) NOT NULL,
+
+                              amount_cents bigint NOT NULL,
+                              currency varchar(3) NOT NULL,
+                              direction varchar(8) NOT NULL,
+
+                              occurred_at timestamptz NOT NULL,
+                              reversal_of_entry_id uuid NULL,
+                              reason varchar(255) NULL,
+
+                              version bigint NOT NULL DEFAULT 0,
+                              created_at timestamptz NOT NULL DEFAULT now(),
+                              updated_at timestamptz NOT NULL DEFAULT now(),
+                              deleted_at timestamptz NULL,
+
+                              CONSTRAINT ck_ledger_entry_amount_positive CHECK (amount_cents > 0),
+                              CONSTRAINT ck_ledger_entry_direction CHECK (direction IN ('CREDIT', 'DEBIT')),
+                              CONSTRAINT uq_ledger_entry_tenant_ref_op UNIQUE (
+                                                                               tenant_id,
+                                                                               ref_type,
+                                                                               ref_id,
+                                                                               operation_type
+                                  )
 );
+
 
 CREATE TABLE tchala_entry (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

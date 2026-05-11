@@ -4,8 +4,7 @@ import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import java.time.Instant;
+import jakarta.validation.constraints.NotNull;
 
 public record RejectPayoutCommand(
-    TenantId tenantId, PayoutId payoutId, String reason, UserId rejectedBy, Instant rejectedAt)
-    implements Command<Void> {}
+    @NotNull TenantId tenantId, @NotNull PayoutId payoutId, @NotNull UserId rejectedBy, String reason) implements Command<PayoutWorkflowResult> {}

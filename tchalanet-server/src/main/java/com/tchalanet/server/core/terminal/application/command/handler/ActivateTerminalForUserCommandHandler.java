@@ -10,7 +10,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.terminal.application.command.model.ActivateTerminalForUserCommand;
 import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
-import com.tchalanet.server.core.terminal.domain.event.TerminalActivatedForUserEvent;
+import com.tchalanet.server.core.terminal.domain.event.TerminalAutoSessionEnabledEvent;
 import com.tchalanet.server.core.terminal.domain.model.Terminal;
 import java.time.Clock;
 import java.time.Instant;
@@ -31,12 +31,12 @@ public class ActivateTerminalForUserCommandHandler
   @TchTx
   public void handle(ActivateTerminalForUserCommand cmd) {
     Terminal t = reader.getRequired(cmd.tenantId(), cmd.terminalId());
-    Terminal updated = t.activateForUser(); // throws if no assigned user
+    Terminal updated = t.enableAutoSession(); // throws if no assigned user
     if (updated == t) return; // idempotent
     writer.save(updated);
 
-    TerminalActivatedForUserEvent event =
-        new TerminalActivatedForUserEvent(
+    TerminalAutoSessionEnabledEvent event =
+        new TerminalAutoSessionEnabledEvent(
             EventId.of(idGenerator.newUuid()),
             Instant.now(clock),
             cmd.tenantId(),

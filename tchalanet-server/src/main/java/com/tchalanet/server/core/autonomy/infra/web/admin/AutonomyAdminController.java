@@ -1,51 +1,84 @@
 package com.tchalanet.server.core.autonomy.infra.web.admin;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.autonomy.application.command.handler.UpsertAutonomyPolicyRuleCommandHandler;
-import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutonomyPolicyRuleCommand;
+import com.tchalanet.server.core.autonomy.application.command.model.DeleteAutonomyRuleCommand;
+import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutonomyRuleCommand;
 import com.tchalanet.server.core.autonomy.application.query.model.AutonomyOverviewView;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
-import com.tchalanet.server.core.autonomy.domain.ids.AutonomyTargetId;
+import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
+import com.tchalanet.server.core.autonomy.infra.web.admin.mapper.AutonomyAdminWebMapper;
+import com.tchalanet.server.core.autonomy.infra.web.admin.model.AutonomyOverviewResponse;
 import com.tchalanet.server.core.autonomy.infra.web.admin.model.UpsertAutonomyRuleRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/policies/autonomy")
 @PreAuthorize("hasAnyAuthority('TENANT_ADMIN','SUPER_ADMIN')")
 @RequiredArgsConstructor
+@Tag(name = "Autonomy • Admin")
+@Validated
 public class AutonomyAdminController {
 
+    private final CommandBus commandBus;
     private final QueryBus queryBus;
-    private final UpsertAutonomyPolicyRuleCommandHandler autonomyHandler;
+    private final AutonomyAdminWebMapper mapper;
 
     @GetMapping
-    public ApiResponse<AutonomyOverviewView> getOverview(
+    @PreAuthorize("hasPermission('autonomy.read')")
+    public ApiResponse<AutonomyOverviewResponse> getOverview(
         @RequestParam("targetType") AutonomyTargetType targetType,
-        @RequestParam(value = "targetId", required = false) UUID targetId) {
-        return ApiResponse.success(queryBus.ask(new GetAutonomyOverviewQuery(targetType, targetId)));
+        @RequestParam(value = "targetId", required = false) AutonomyTargetId targetId
+    ) {
+        var view = queryBus.ask(new GetAutonomyOverviewQuery(targetType, targetId));
+        return ApiResponse.success(mapper.toResponse(view));
     }
 
     @PutMapping
-    public ApiResponse<AutonomyOverviewView> upsert(@CurrentContext TchRequestContext ctx, @Valid @RequestBody UpsertAutonomyRuleRequest req) {
-        var targetId = req.targetId() == null ? null : AutonomyTargetId.of(req.targetId());
-        var cmd = new UpsertAutonomyPolicyRuleCommand(
-            req.targetType(), targetId, req.level(), req.requireApprovalOnBlock(),
-            req.approvalRole(), req.enabled(), req.startsAt(), req.endsAt(), req.expectedVersion());
-        autonomyHandler.handle(cmd);
+    @PreAuthorize("hasPermission('autonomy.admin')")
+    public ApiResponse<AutonomyOverviewResponse> upsert(
+        @CurrentContext TchRequestContext ctx,
+        @Valid @RequestBody UpsertAutonomyRuleRequest req
+    ) {
+        var cmd = new UpsertAutonomyRuleCommand(
+            ctx.effectiveTenantIdRequired(),
+            req.targetType(),
+            req.targetId(),
+            req.level(),
+            req.requireApprovalOnBlock(),
+            req.approvalRole(),
+            req.enabled(),
+            req.startsAt(),
+            req.endsAt());
 
-        UUID effectiveTargetUuid = req.targetId();
-        if (req.targetType() == AutonomyTargetType.TENANT && effectiveTargetUuid == null) {
-            effectiveTargetUuid = ctx.tenantIdSafe().value();
-        }
-        return ApiResponse.success(queryBus.ask(new GetAutonomyOverviewQuery(req.targetType(), effectiveTargetUuid)));
+        commandBus.execute(cmd);
+
+        var view = queryBus.ask(new GetAutonomyOverviewQuery(req.targetType(), req.targetId()));
+        return ApiResponse.success(mapper.toResponse(view));
+    }
+
+    @DeleteMapping
+    @PreAuthorize("hasPermission('autonomy.admin')")
+    public ApiResponse<Void> delete(
+        @CurrentContext TchRequestContext ctx,
+        @RequestParam("targetType") AutonomyTargetType targetType,
+        @RequestParam(value = "targetId", required = false) AutonomyTargetId targetId
+    ) {
+        commandBus.execute(new DeleteAutonomyRuleCommand(
+            ctx.effectiveTenantIdRequired(),
+            targetType,
+            targetId));
+
+        return ApiResponse.success(null);
     }
 }

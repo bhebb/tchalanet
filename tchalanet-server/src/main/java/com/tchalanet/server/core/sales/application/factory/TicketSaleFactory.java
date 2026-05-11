@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.application.factory;
 
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -57,7 +58,7 @@ public class TicketSaleFactory {
                                            SalesSession session,
                                            DrawSummary draw,
                                            List<TicketLine> lines,
-                                           java.util.UUID approvalRequestId,
+                                           ApprovalRequestId approvalRequestId,
                                            Instant now) {
 
         String ticketCode = numberGenerator.generate();

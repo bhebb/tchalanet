@@ -107,4 +107,16 @@ class FeatureArchitectureTest {
 
     rule.check(classes);
   }
+
+  @Test
+  void cashierMustNotDependOnReceiptFeatures() {
+    ArchRule rule = noClasses()
+        .that().resideInAPackage("com.tchalanet.server.features.cashier..")
+        .should().dependOnClassesThat().resideInAnyPackage(
+            "com.tchalanet.server.features.receipt..",
+            "com.tchalanet.server.features.ticketreceipt..")
+        .because("cashier may inline receipt actions through core.sales/common.document, not another feature slice");
+
+    rule.check(classes);
+  }
 }

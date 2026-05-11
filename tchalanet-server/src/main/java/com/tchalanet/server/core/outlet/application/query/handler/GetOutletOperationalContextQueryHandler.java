@@ -15,29 +15,29 @@ import lombok.RequiredArgsConstructor;
 public class GetOutletOperationalContextQueryHandler
     implements QueryHandler<GetOutletOperationalContextQuery, OutletOperationalContextView> {
 
-  private final OutletReaderPort outletReader;
-  private final OutletMembershipReaderPort membershipReader;
-  private final OutletTerminalReaderPort terminalReader;
+    private final OutletReaderPort outletReader;
+    private final OutletMembershipReaderPort membershipReader;
+    private final OutletTerminalReaderPort terminalReader;
 
-  @Override
-  public OutletOperationalContextView handle(GetOutletOperationalContextQuery query) {
-    Outlet o = outletReader.getRequired(query.outletId());
-    long userCount = membershipReader.countUsersByOutlet(o.id());
-    long terminalCount = terminalReader.countTerminalsByOutlet(o.id());
-    return new OutletOperationalContextView(
-        o.id(),
-        o.tenantId(),
-        o.name(),
-        o.slug(),
-        o.dayClosed(),
-        o.salesBlocked(),
-        o.salesBlockReason(),
-        o.salesBlockedAt(),
-        o.timezone(),
-        o.autoOpenSession(),
-        o.autoCloseSession(),
-        userCount,
-        terminalCount,
-        o.salesCapability());
-  }
+    @Override
+    public OutletOperationalContextView handle(GetOutletOperationalContextQuery query) {
+        Outlet o = outletReader.getRequired(query.outletId());
+        long userCount = membershipReader.countUsersByOutlet(o.id());
+        long terminalCount = terminalReader.countTerminalsByOutlet(o.id());
+        return new OutletOperationalContextView(
+            o.id(),
+            o.tenantId(),
+            o.name(),
+            o.slug(),
+            o.dayClosed(),
+            o.salesBlocked(),
+            o.salesBlockReason(),
+            o.salesBlockedAt(),
+            o.timezone(),
+            o.autoSessionOpenEnabled(),
+            o.autoSessionCloseEnabled(),
+            userCount,
+            terminalCount,
+            o.salesCapability());
+    }
 }

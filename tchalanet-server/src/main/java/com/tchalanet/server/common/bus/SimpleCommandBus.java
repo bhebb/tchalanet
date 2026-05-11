@@ -16,9 +16,10 @@ public class SimpleCommandBus implements CommandBus {
   private Map<Class<?>, Object> handlers = Map.of();
 
   @PostConstruct
+  @SuppressWarnings({"unchecked", "rawtypes"})
   void init() {
-    Map<String, CommandHandler> commandHandlers = ctx.getBeansOfType(CommandHandler.class);
-    Map<String, VoidCommandHandler> voidHandlers = ctx.getBeansOfType(VoidCommandHandler.class);
+    Map<String, CommandHandler<?, ?>> commandHandlers = (Map) ctx.getBeansOfType(CommandHandler.class);
+    Map<String, VoidCommandHandler<?>> voidHandlers = (Map) ctx.getBeansOfType(VoidCommandHandler.class);
 
     handlers = HandlerRegistry.buildCommandRegistry(commandHandlers, voidHandlers);
   }

@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.types.enums;
 
 /**
- * Enumeration of target types for limit assignments.
+ * Enumeration of limitScopeRef types for limit assignments.
  *
  * <p>Defines where a limit assignment is attached: - TENANT: Applies to the entire tenant
  * organization - AGENT: Applies to a specific user/agent - OUTLET: Applies to a specific
@@ -17,5 +17,5 @@ public enum TargetType {
   GAME,
   ZONE,
   RANGE,
-  DRAWCHANNEL
+  DRAW_CHANNEL
 }

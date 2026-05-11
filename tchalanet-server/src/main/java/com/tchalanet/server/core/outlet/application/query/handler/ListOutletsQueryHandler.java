@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 public class ListOutletsQueryHandler
     implements QueryHandler<ListOutletsQuery, TchPage<OutletSummaryView>> {
 
-  private final OutletReaderPort reader;
+    private final OutletReaderPort reader;
 
-  @Override
-  public TchPage<OutletSummaryView> handle(ListOutletsQuery query) {
-    return reader.search(query.criteria(), query.pageRequest());
-  }
+    @Override
+    public TchPage<OutletSummaryView> handle(ListOutletsQuery query) {
+        return reader.search(query.criteria(), query.pageRequest().pageable());
+    }
 }

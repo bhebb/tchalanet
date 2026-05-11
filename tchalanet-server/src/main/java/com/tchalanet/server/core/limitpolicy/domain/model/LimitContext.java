@@ -1,50 +1,70 @@
 package com.tchalanet.server.core.limitpolicy.domain.model;
 
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.OperationType;
-import com.tchalanet.server.common.types.id.*;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
 
-import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
 public record LimitContext(
     TenantId tenantId,
-    DrawId drawId,
-    DrawChannelId drawChannelId, // optional (reuse DrawId for channel id if not present differently)
-    AgentId agentId,
-    TerminalId terminalId,
     OutletId outletId,
-    String zoneId, // optional (now string)
-    List<String> rangeIds, // optional
-    String gameCode, // optional
-    OperationType operationType,
-    LimitScopeRef scope,
-    List<BetLine> lines,
-    BigDecimal ticketStakeTotal,
-    int linesCount,
+    UserId userId,
+    DrawId drawId,
+    DrawChannelId drawChannelId,
     Instant now,
-    ZoneId timezone) {
+    List<LimitLineContext> lines
+) {
 
-  public List<LimitTarget> toTargets() {
-    var targets = new ArrayList<LimitTarget>();
-    targets.add(new LimitTarget.TenantTarget());
-    if (outletId != null) targets.add(new LimitTarget.OutletTarget(outletId));
-    if (agentId != null) targets.add(new LimitTarget.AgentTarget(agentId));
-    if (terminalId != null) targets.add(new LimitTarget.TerminalTarget(terminalId));
-    if (drawChannelId != null) targets.add(new LimitTarget.DrawChannelTarget(drawChannelId));
-    return List.copyOf(targets);
-  }
+    public LimitContext {
+        if (tenantId == null) {
+            throw new IllegalArgumentException("tenantId is required");
+        }
 
-  public record BetLine(
-      BetType betType,
-      String selectionKey,
-      BigDecimal stake,
-      Short betOption,
-      BigDecimal potentialPayout
-      ) {
-    // no explicit constructors — use canonical record constructor
-  }
+        if (now == null) {
+            throw new IllegalArgumentException("now is required");
+        }
+
+        lines = lines == null ? List.of() : List.copyOf(lines);
+    }
+
+    public List<LimitScopeRef> scopes() {
+        var scopes = new ArrayList<LimitScopeRef>();
+
+        scopes.add(LimitScopeRef.tenant(tenantId));
+
+        if (drawChannelId != null) {
+            scopes.add(LimitScopeRef.drawChannel(drawChannelId));
+        }
+
+        if (outletId != null) {
+            scopes.add(LimitScopeRef.outlet(outletId));
+        }
+
+        if (userId != null) {
+            scopes.add(LimitScopeRef.agent(userId));
+        }
+
+        return List.copyOf(scopes);
+    }
+
+    public long totalStakeCents() {
+        return lines.stream()
+            .mapToLong(LimitLineContext::stakeCents)
+            .sum();
+    }
+
+    public long totalPotentialPayoutCents() {
+        return lines.stream()
+            .mapToLong(LimitLineContext::potentialPayoutCents)
+            .sum();
+    }
+
+    public int linesCount() {
+        return lines.size();
+    }
 }

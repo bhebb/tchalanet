@@ -4,20 +4,18 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerReaderPort;
 import com.tchalanet.server.core.ledger.application.query.model.GetLedgerBalanceQuery;
-import java.math.BigDecimal;
+import com.tchalanet.server.core.ledger.application.query.model.LedgerBalanceView;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @UseCase
-@Component
 @RequiredArgsConstructor
 public class GetLedgerBalanceQueryHandler
-    implements QueryHandler<GetLedgerBalanceQuery, BigDecimal> {
+    implements QueryHandler<GetLedgerBalanceQuery, LedgerBalanceView> {
 
-  private final LedgerReaderPort ledgerReader;
+    private final LedgerReaderPort ledgerReader;
 
-  @Override
-  public BigDecimal handle(GetLedgerBalanceQuery query) {
-    return ledgerReader.getBalance(query.tenantId());
-  }
+    @Override
+    public LedgerBalanceView handle(GetLedgerBalanceQuery query) {
+        return ledgerReader.getBalance(query);
+    }
 }

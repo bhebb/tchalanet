@@ -14,7 +14,7 @@ public record TerminalSearchCriteria(
     TerminalKind kind,
     TerminalState state,
     TerminalSyncState syncState,
-    Boolean activeForUser) {
+    Boolean autoSessionEnabled) {
 
   public static TerminalSearchCriteria empty() {
     return new TerminalSearchCriteria(null, null, null, null, null, null, null);

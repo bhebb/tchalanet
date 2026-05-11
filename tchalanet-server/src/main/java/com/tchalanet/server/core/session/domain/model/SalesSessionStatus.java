@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.session.domain.model;
 
 public enum SalesSessionStatus {
-  OPENED,
+  OPEN,
   CLOSED,
-  SETTLED
+  CANCELLED,
+  FINALIZED
 }

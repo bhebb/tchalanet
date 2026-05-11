@@ -6,8 +6,9 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.ListLimitAssignmentsByTargetQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.ListLimitDefinitionsQuery;
+import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
+import com.tchalanet.server.core.limitpolicy.application.query.model.assignment.ListLimitAssignmentsByScopeQuery;
+import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,16 +24,13 @@ public class TenantAdminPoliciesController {
 
     @GetMapping("/overview")
     public ApiResponse<PoliciesOverviewView> overview(@CurrentContext TchRequestContext ctx) {
-        var defs = queryBus.ask(new ListLimitDefinitionsQuery());
-        int defsCount = defs.items() == null ? 0 : defs.items().size();
 
-        var tenantAssignments = queryBus.ask(new ListLimitAssignmentsByTargetQuery(LimitTarget.tenant()));
-        int tenantAsgCount = tenantAssignments.items() == null ? 0 : tenantAssignments.items().size();
+        var tenantAsgCount = queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeRef.tenant(ctx.tenantId())));
 
-        var autonomy = queryBus.ask(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, ctx.tenantIdSafe().value()));
+        var autonomy = queryBus.ask(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, AutonomyTargetId.of(ctx.tenantUuid())));
         boolean autonomyConfigured = autonomy.rule() != null;
         String autonomyLevel = autonomy.rule() == null ? null : autonomy.rule().level().name();
 
-        return ApiResponse.success(new PoliciesOverviewView(defsCount, tenantAsgCount, autonomyConfigured, autonomyLevel));
+        return ApiResponse.success(new PoliciesOverviewView(tenantAsgCount.items().size(), autonomyConfigured, autonomyLevel));
     }
 }

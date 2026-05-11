@@ -2,12 +2,37 @@ package com.tchalanet.server.core.limitpolicy.domain.model;
 
 import com.tchalanet.server.common.types.enums.BetType;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
-public record LimitFactsSnapshot(Map<Key, Fact> bySelection) {
-  public record Key(BetType betType, String selectionKey) {}
-  public record Fact(BigDecimal stakeTotal, BigDecimal potentialPayoutTotal, long salesCount) {}
+public record LimitFactsSnapshot(
+    Map<Key, Fact> facts
+) {
 
-  public static final LimitFactsSnapshot EMPTY = new LimitFactsSnapshot(Map.of());
+    public LimitFactsSnapshot {
+        facts = facts == null ? Map.of() : Map.copyOf(facts);
+    }
+
+    public Fact fact(
+        LimitScopeRef scope,
+        BetType betType,
+        String selectionKey
+    ) {
+        return facts.getOrDefault(
+            new Key(scope, betType, selectionKey),
+            Fact.ZERO);
+    }
+
+    public record Key(
+        LimitScopeRef scope,
+        BetType betType,
+        String selectionKey
+    ) {}
+
+    public record Fact(
+        long stakeTotalCents,
+        long potentialPayoutTotalCents,
+        long salesCount
+    ) {
+        public static final Fact ZERO = new Fact(0L, 0L, 0L);
+    }
 }

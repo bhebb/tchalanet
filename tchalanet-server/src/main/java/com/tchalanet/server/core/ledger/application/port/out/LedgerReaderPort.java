@@ -1,20 +1,28 @@
 package com.tchalanet.server.core.ledger.application.port.out;
 
-import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.ledger.application.query.model.GetLedgerBalanceQuery;
+import com.tchalanet.server.core.ledger.application.query.model.LedgerBalanceView;
+import com.tchalanet.server.core.ledger.application.query.model.LedgerEntryView;
+import com.tchalanet.server.core.ledger.application.query.model.ListLedgerEntriesQuery;
 import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
-import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import com.tchalanet.server.core.ledger.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.domain.model.LedgerReference;
+
+import java.util.Optional;
 
 public interface LedgerReaderPort {
-  BigDecimal getBalance(TenantId tenantId);
 
-  List<LedgerEntry> findByTenant(
-      TenantId tenantId, Instant from, Instant to, int limit, int offset);
+    boolean existsByReferenceAndOperation(
+        LedgerReference reference,
+        LedgerOperationType operationType);
 
-  List<LedgerEntry> findByRef(TenantId tenantId, LedgerRefType refType, UUID refId);
+    Optional<LedgerEntry> findByReferenceAndOperation(
+        LedgerReference reference,
+        LedgerOperationType operationType);
 
-  boolean existsByRef(TenantId tenantId, LedgerRefType refType, UUID refId);
+    TchPage<LedgerEntryView> search(ListLedgerEntriesQuery query);
+
+    LedgerBalanceView getBalance(GetLedgerBalanceQuery query);
+
 }

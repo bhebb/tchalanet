@@ -21,7 +21,7 @@ public class DrawCacheEvictor {
     /**
      * MVP strategy: broad eviction.
      *
-     * <p>Later target: tenant-specific eviction once cache keys and cache abstraction support
+     * <p>Later limitScopeRef: tenant-specific eviction once cache keys and cache abstraction support
      * tenant-level invalidation.
      */
     public void evictAll() {

@@ -1,165 +1,91 @@
 package com.tchalanet.server.core.payout.domain.model;
 
+import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PayoutId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
-import java.util.Objects;
-import lombok.Getter;
-import lombok.Setter;
 
-/** Aggregate root for a Payout. */
-@Getter
-@Setter
-public class Payout {
+public record Payout(
+    PayoutId id,
+    TenantId tenantId,
+    TicketId ticketId,
+    Long amountCents,
+    String currency,
+    PayoutStatus status,
+    OutletId sellingOutletId,
+    SalesSessionId sellingSessionId,
+    OutletId payingOutletId,
+    SalesSessionId payingSessionId,
+    TerminalId payingTerminalId,
+    UserId requestedBy,
+    Instant requestedAt,
+    UserId approvedBy,
+    Instant approvedAt,
+    UserId rejectedBy,
+    Instant rejectedAt,
+    String rejectedReason,
+    UserId paidBy,
+    Instant paidAt,
+    UserId cancelledBy,
+    Instant cancelledAt,
+    String cancelReason,
+    String reason) {
 
-  private final PayoutId id;
-  private final TenantId tenantId;
-  private final TicketId ticketId;
+    public Payout approve(UserId approvedBy, Instant approvedAt) {
+        if (status != PayoutStatus.REQUESTED) {
+            throw new IllegalStateException("Only requested payout can be approved");
+        }
 
-  private final long amountCents;
-  private final String currency;
-
-  private PayoutStatus status;
-
-  private final Instant createdAt;
-  private Instant approvedAt;
-  private Instant paidAt;
-
-  private String rejectedReason;
-  private Instant rejectedAt;
-
-  private Payout(
-      PayoutId id,
-      TenantId tenantId,
-      TicketId ticketId,
-      long amountCents,
-      String currency,
-      PayoutStatus status,
-      Instant createdAt,
-      Instant approvedAt,
-      Instant paidAt,
-      String rejectedReason,
-      Instant rejectedAt) {
-    this.id = id;
-    this.tenantId = tenantId;
-    this.ticketId = ticketId;
-    this.amountCents = amountCents;
-    this.currency = currency;
-    this.status = status;
-    this.createdAt = createdAt;
-    this.approvedAt = approvedAt;
-    this.paidAt = paidAt;
-    this.rejectedReason = rejectedReason;
-    this.rejectedAt = rejectedAt;
-  }
-
-  public static Payout createRequested(
-      PayoutId id,
-      TenantId tenantId,
-      TicketId ticketId,
-      long amountCents,
-      String currency,
-      Instant createdAt) {
-    Objects.requireNonNull(id, "id");
-    Objects.requireNonNull(tenantId, "tenantId");
-    Objects.requireNonNull(ticketId, "ticketId");
-    Objects.requireNonNull(currency, "currency");
-    Objects.requireNonNull(createdAt, "createdAt");
-    if (amountCents <= 0) throw new IllegalArgumentException("amountCents must be positive");
-
-    return new Payout(
-        id,
-        tenantId,
-        ticketId,
-        amountCents,
-        currency,
-        PayoutStatus.REQUESTED,
-        createdAt,
-        null,
-        null,
-        null,
-        null);
-  }
-
-  /** Factory to reconstruct aggregate from persistence. */
-  public static Payout load(
-      PayoutId id,
-      TenantId tenantId,
-      TicketId ticketId,
-      long amountCents,
-      String currency,
-      PayoutStatus status,
-      Instant createdAt,
-      Instant approvedAt,
-      Instant paidAt,
-      String rejectedReason,
-      Instant rejectedAt,
-      long version) {
-    Objects.requireNonNull(id, "id");
-    Objects.requireNonNull(tenantId, "tenantId");
-    Objects.requireNonNull(ticketId, "ticketId");
-    Objects.requireNonNull(currency, "currency");
-    Objects.requireNonNull(status, "status");
-    Objects.requireNonNull(createdAt, "createdAt");
-    if (amountCents <= 0) throw new IllegalArgumentException("amountCents must be positive");
-
-    return new Payout(
-        id,
-        tenantId,
-        ticketId,
-        amountCents,
-        currency,
-        status,
-        createdAt,
-        approvedAt,
-        paidAt,
-        rejectedReason,
-        rejectedAt);
-  }
-
-  public void approve(Instant when) {
-    Objects.requireNonNull(when, "when");
-    if (status != PayoutStatus.REQUESTED) {
-      throw new IllegalStateException("Only REQUESTED payouts can be approved. status=" + status);
+        return new Payout(
+            id, tenantId, ticketId, amountCents, currency, PayoutStatus.APPROVED,
+            sellingOutletId, sellingSessionId, payingOutletId, payingSessionId, payingTerminalId,
+            requestedBy, requestedAt, approvedBy, approvedAt, rejectedBy, rejectedAt, rejectedReason,
+            paidBy, paidAt, cancelledBy, cancelledAt, cancelReason, reason);
     }
-    status = PayoutStatus.APPROVED;
-    approvedAt = when;
-  }
 
-  public void markPaid(Instant when, boolean allowFromRequested) {
-    Objects.requireNonNull(when, "when");
+    public Payout pay(
+        OutletId payingOutletId,
+        SalesSessionId payingSessionId,
+        TerminalId payingTerminalId,
+        UserId paidBy,
+        Instant paidAt) {
 
-    if (status == PayoutStatus.APPROVED) {
-      status = PayoutStatus.PAID;
-      paidAt = when;
-      return;
-    }
-    if (allowFromRequested && status == PayoutStatus.REQUESTED) {
-      status = PayoutStatus.PAID;
-      paidAt = when;
-      return;
-    }
-    throw new IllegalStateException(
-        "PAID allowed only from APPROVED"
-            + (allowFromRequested ? " or REQUESTED" : "")
-            + ". status="
-            + status);
-  }
+        if (status != PayoutStatus.APPROVED && status != PayoutStatus.REQUESTED) {
+            throw new IllegalStateException("Only requested or approved payout can be paid");
+        }
 
-  /**
-   * Reject a payout request.
-   *
-   * <p>Rules (V1): - Only REQUESTED can be rejected (keep it strict). - Requires a timestamp;
-   * reason optional but recommended.
-   */
-  public void reject(String reason, Instant when) {
-    Objects.requireNonNull(when, "when");
-    if (status != PayoutStatus.REQUESTED) {
-      throw new IllegalStateException("Only REQUESTED payouts can be rejected. status=" + status);
+        return new Payout(
+            id, tenantId, ticketId, amountCents, currency, PayoutStatus.PAID,
+            sellingOutletId, sellingSessionId, payingOutletId, payingSessionId, payingTerminalId,
+            requestedBy, requestedAt, approvedBy, approvedAt, rejectedBy, rejectedAt, rejectedReason,
+            paidBy, paidAt, cancelledBy, cancelledAt, cancelReason, reason);
     }
-    status = PayoutStatus.REJECTED;
-    rejectedAt = when;
-    rejectedReason = (reason == null || reason.isBlank()) ? null : reason.trim();
-  }
+
+    public Payout reject(UserId rejectedBy, Instant rejectedAt, String rejectedReason) {
+        if (status == PayoutStatus.PAID || status == PayoutStatus.CANCELLED) {
+            throw new IllegalStateException("Paid or cancelled payout cannot be rejected");
+        }
+
+        return new Payout(
+            id, tenantId, ticketId, amountCents, currency, PayoutStatus.REJECTED,
+            sellingOutletId, sellingSessionId, payingOutletId, payingSessionId, payingTerminalId,
+            requestedBy, requestedAt, approvedBy, approvedAt, rejectedBy, rejectedAt, rejectedReason,
+            paidBy, paidAt, cancelledBy, cancelledAt, cancelReason, reason);
+    }
+
+    public Payout cancel(UserId cancelledBy, Instant cancelledAt, String cancelReason) {
+        if (status == PayoutStatus.PAID) {
+            throw new IllegalStateException("Paid payout cannot be cancelled");
+        }
+
+        return new Payout(
+            id, tenantId, ticketId, amountCents, currency, PayoutStatus.CANCELLED,
+            sellingOutletId, sellingSessionId, payingOutletId, payingSessionId, payingTerminalId,
+            requestedBy, requestedAt, approvedBy, approvedAt, rejectedBy, rejectedAt, rejectedReason,
+            paidBy, paidAt, cancelledBy, cancelledAt, cancelReason, reason);
+    }
 }

@@ -38,7 +38,7 @@ public record TerminalView(
         t.assignedUserId(),
         t.kind(),
         t.state(),
-        t.activeForUser(),
+        t.autoSessionEnabled(),
         t.syncState(),
         t.lastSeen(),
         t.label(),

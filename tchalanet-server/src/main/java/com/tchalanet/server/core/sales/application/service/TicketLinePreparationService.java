@@ -4,6 +4,7 @@ import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
+import com.tchalanet.server.core.sales.application.command.model.SellTicketLineInput;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.domain.service.BetSelectionNormalizer;
 import lombok.RequiredArgsConstructor;
@@ -11,56 +12,31 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class TicketLinePreparationService {
-
     private final BetSelectionNormalizer selectionNormalizer;
     private final PricingCatalog pricingCatalog;
 
-    public List<SellTicketCommand.LineCommand> normalize(List<SellTicketCommand.LineCommand> lines) {
-        return lines.stream()
-            .map(l -> {
-                validateOption(l.betType(), l.betOption());
-                var normalizedSelection = selectionNormalizer.normalize(l.betType(), l.selection());
-                return new SellTicketCommand.LineCommand(
-                    l.gameCode(),
-                    normalizedSelection,
-                    requireStake(l.stake()),
-                    l.betType(),
-                    l.betOption()
-                );
-            })
-            .toList();
-    }
-
-    public List<SellTicketCommand.LineCommand> mergeDuplicates(List<SellTicketCommand.LineCommand> lines) {
-        record Key(com.tchalanet.server.common.types.enums.GameCode gameCode, String selection, BetType betType, Short betOption) {
+    public List<TicketLine> prepare(List<SellTicketLineInput> inputs) {
+        List<TicketLine> out = new ArrayList<>();
+        int lineNo = 1;
+        for (var in : inputs) {
+            BigDecimal potential = in.stakeAmount().multiply(in.oddsSnapshot());
+            out.add(new TicketLine(
+                lineNo++,
+                in.gameCode(),
+                in.selection(),
+                in.betType(),
+                in.betOption(),
+                in.stakeAmount(),
+                in.oddsSnapshot(),
+                potential));
         }
-
-        Map<Key, BigDecimal> totals = new LinkedHashMap<>();
-        for (var l : lines) {
-            validateOption(l.betType(), l.betOption());
-            totals.merge(
-                new Key(l.gameCode(), l.selection(), l.betType(), l.betOption()),
-                requireStake(l.stake()),
-                BigDecimal::add
-            );
-        }
-
-        return totals.entrySet().stream()
-            .map(e -> new SellTicketCommand.LineCommand(
-                e.getKey().gameCode(),
-                e.getKey().selection(),
-                e.getValue(),
-                e.getKey().betType(),
-                e.getKey().betOption()
-            ))
-            .toList();
+        return out;
     }
 
     public List<TicketLine> toTicketLines(TenantId tenantId, List<SellTicketCommand.LineCommand> lines) {
@@ -115,3 +91,4 @@ public class TicketLinePreparationService {
         }
     }
 }
+

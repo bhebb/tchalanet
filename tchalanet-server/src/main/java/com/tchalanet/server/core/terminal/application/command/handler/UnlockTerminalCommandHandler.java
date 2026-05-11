@@ -11,36 +11,42 @@ import com.tchalanet.server.core.terminal.application.command.model.UnlockTermin
 import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
 import com.tchalanet.server.core.terminal.domain.event.TerminalUnlockedEvent;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
+import lombok.RequiredArgsConstructor;
+
 import java.time.Clock;
 import java.time.Instant;
-import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class UnlockTerminalCommandHandler implements VoidCommandHandler<UnlockTerminalCommand> {
 
-  private final TerminalReaderPort reader;
-  private final TerminalWriterPort writer;
-  private final DomainEventPublisher publisher;
-  private final IdGenerator idGenerator;
-  private final Clock clock;
+    private final TerminalReaderPort reader;
+    private final TerminalWriterPort writer;
+    private final DomainEventPublisher publisher;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
-  @Override
-  @TchTx
-  public void handle(UnlockTerminalCommand cmd) {
-    Terminal t = reader.getRequired(cmd.tenantId(), cmd.terminalId());
-    Terminal updated = t.unlock(Instant.now(clock));
-    if (updated == t) return; // not locked, idempotent
-    writer.save(updated);
+    @Override
+    @TchTx
+    public void handle(UnlockTerminalCommand cmd) {
+        var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
+        var updated = terminal.unlock();
 
-    TerminalUnlockedEvent event =
-        new TerminalUnlockedEvent(
-            EventId.of(idGenerator.newUuid()),
-            Instant.now(clock),
-            cmd.tenantId(),
-            cmd.terminalId(),
-            cmd.actorUserId());
-    AfterCommit.run(() -> publisher.publish(event));
-  }
+        if (updated == terminal) {
+            return;
+        }
+
+        writer.save(updated);
+
+        var now = Instant.now(clock);
+        var event =
+            new TerminalUnlockedEvent(
+                EventId.of(idGenerator.newUuid()),
+                now,
+                cmd.tenantId(),
+                cmd.terminalId(),
+                cmd.performedBy());
+
+        AfterCommit.run(() -> publisher.publish(event));
+    }
 }

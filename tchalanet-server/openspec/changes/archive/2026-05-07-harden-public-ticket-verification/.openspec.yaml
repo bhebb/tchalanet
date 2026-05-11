@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-04-26
+status: superseded
+summary: Mask outletAddress identifiers, derive payoutStatus from real winningAmount, replace catch-all silent error handling, configure visibility window.
+superseded_by: consolidate-core-sales-cleanup

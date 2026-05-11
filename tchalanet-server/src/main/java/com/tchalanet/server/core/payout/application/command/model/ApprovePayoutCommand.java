@@ -3,5 +3,8 @@ package com.tchalanet.server.core.payout.application.command.model;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.UserId;
+import jakarta.validation.constraints.NotNull;
 
-public record ApprovePayoutCommand(TenantId tenantId, PayoutId payoutId) implements Command<Void> {}
+public record ApprovePayoutCommand(
+    @NotNull TenantId tenantId, @NotNull PayoutId payoutId, @NotNull UserId approvedBy) implements Command<PayoutWorkflowResult> {}

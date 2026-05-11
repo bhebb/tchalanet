@@ -6,7 +6,6 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.outlet.application.query.model.GenerateOutletReportQuery;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;

@@ -1,7 +1,9 @@
 package com.tchalanet.server.core.ledger.application.query.model;
 
-import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.common.types.id.TenantId;
-import java.math.BigDecimal;
+import java.time.Instant;
 
-public record GetLedgerBalanceQuery(TenantId tenantId) implements Query<BigDecimal> {}
+public record GetLedgerBalanceQuery(
+    String currency,
+    Instant occurredFrom,
+    Instant occurredTo
+) {}

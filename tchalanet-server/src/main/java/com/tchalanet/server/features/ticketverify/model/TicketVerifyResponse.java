@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Public ticket verification response. Must never expose internal IDs
- * (ticketId, drawId, tenantId, terminalId, addressId, etc.).
+ * (ticketId, drawId, tenantId, id, addressId, etc.).
  */
 public record TicketVerifyResponse(
     TicketVerifyStatus status,

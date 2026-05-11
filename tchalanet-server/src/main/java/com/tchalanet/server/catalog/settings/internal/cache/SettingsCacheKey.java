@@ -31,7 +31,7 @@ public final class SettingsCacheKey {
   /**
    * Generate cache key for resolution query.
    *
-   * <p>Format: "t=<tenantId>|o=<outletId>|m=<terminalId>|ns=<namespaces>"
+   * <p>Format: "t=<tenantId>|o=<outletId>|m=<id>|ns=<namespaces>"
    *
    * @param tenantId tenant ID (required)
    * @param outletId outlet ID (optional)

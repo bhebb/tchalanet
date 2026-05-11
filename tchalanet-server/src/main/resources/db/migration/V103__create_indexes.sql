@@ -68,16 +68,35 @@ CREATE INDEX ix_ticket__tenant_user ON ticket (tenant_id, user_id) WHERE deleted
 CREATE INDEX ix_ticket_line__ticket ON ticket_line (ticket_id);
 
 -- ─── Payout (1 payout max per ticket) ───────────────────────────────
-CREATE INDEX ix_payout__tenant_ticket ON payout (tenant_id, ticket_id) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX uq_payout__ticket ON payout (ticket_id) WHERE deleted_at IS NULL;
-CREATE INDEX ix_payout__tenant_status ON payout (tenant_id, status) WHERE deleted_at IS NULL;
+create index idx_payout_tenant_status_created
+    on payout (tenant_id, status, created_at desc);
+
+create index idx_payout_tenant_ticket
+    on payout (tenant_id, ticket_id);
+
+create index idx_payout_tenant_paying_session
+    on payout (tenant_id, paying_session_id);
+
+create index idx_payout_tenant_selling_session
+    on payout (tenant_id, selling_session_id);
 
 -- ─── Limit policy ───────────────────────────────────────────────────
-CREATE INDEX ix_limit_assignment__tenant_target
-  ON limit_assignment (tenant_id, target_type, target_id) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX uq_limit_assignment__natural
-  ON limit_assignment (tenant_id, limit_definition_id, target_type, COALESCE(target_id, '00000000-0000-0000-0000-000000000000'::uuid))
-  WHERE deleted_at IS NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_limit_assignment_active_scope_rule
+    ON limit_assignment (tenant_id, rule_key, scope_type, scope_id)
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_limit_assignment_scope
+    ON limit_assignment (tenant_id, scope_type, scope_id)
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_limit_assignment_rule
+    ON limit_assignment (tenant_id, rule_key)
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_limit_assignment_enabled_window
+    ON limit_assignment (tenant_id, enabled, starts_at, ends_at)
+    WHERE deleted_at IS NULL;
 
 -- ─── Autonomy policy ────────────────────────────────────────────────
 CREATE INDEX ix_autonomy_policy_rule__tenant_target
@@ -93,9 +112,60 @@ CREATE INDEX ix_approval_request__tenant_entity
   ON approval_request (tenant_id, entity_type, entity_id) WHERE deleted_at IS NULL;
 
 -- ─── Reporting / exposure / ledger ──────────────────────────────────
-CREATE INDEX ix_draw_exposure__top_stake ON draw_exposure (tenant_id, draw_id, stake_total DESC);
-CREATE INDEX ix_ledger_entry__tenant_occurred ON ledger_entry (tenant_id, occurred_at);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_draw_exposure_key
+    ON draw_exposure (
+    tenant_id,
+    draw_id,
+    scope_type,
+    scope_id,
+    bet_type,
+    selection_key
+    )
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_draw_exposure_draw_scope
+    ON draw_exposure (
+    tenant_id,
+    draw_id,
+    scope_type,
+    scope_id
+    )
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_draw_exposure_selection
+    ON draw_exposure (
+    tenant_id,
+    draw_id,
+    bet_type,
+    selection_key
+    )
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_stake
+    ON draw_exposure (
+    tenant_id,
+    draw_id,
+    scope_type,
+    scope_id,
+    stake_total DESC
+    )
+    WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_draw_exposure_top_payout
+    ON draw_exposure (
+    tenant_id,
+    draw_id,
+    scope_type,
+    scope_id,
+    potential_payout_total DESC
+    )
+    WHERE deleted_at IS NULL;
 CREATE INDEX ix_tchala_entry__status ON tchala_entry (status);
+
+CREATE INDEX ix_ledger_entry_tenant_occurred  ON ledger_entry (tenant_id, occurred_at DESC);
+
+CREATE INDEX ix_ledger_entry_tenant_ref  ON ledger_entry (tenant_id, ref_type, ref_id);
 
 -- ─── Notifications ──────────────────────────────────────────────────
 CREATE UNIQUE INDEX uq_notification__tenant_dedupe

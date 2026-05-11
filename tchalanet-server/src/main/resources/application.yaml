@@ -123,6 +123,13 @@ tch:
   cache:
     redis:
       enabled: false
+  session:
+    auto:
+      active: true
+      open-cron: "0 0 5 * * *"
+      close-cron: "0 0 20 * * *"
+  system:
+    user-id: "00000000-0000-0000-0000-000000000001"
 
   # Rate-limiting for public ticket endpoints (/public/tickets/**)
   public:

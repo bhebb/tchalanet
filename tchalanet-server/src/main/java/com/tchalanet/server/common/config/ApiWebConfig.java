@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(ApiProperties.class)
+@EnableConfigurationProperties({ApiProperties.class, TchSystemProperties.class})
 @RequiredArgsConstructor
 public class ApiWebConfig implements WebMvcConfigurer {
     private final CurrentContextArgumentResolver resolver;

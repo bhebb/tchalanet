@@ -90,8 +90,8 @@ Dès qu’un effet métier touche un autre domaine (écriture, transition, ledge
 ### 5.4 Feature / BFF (orchestration via bus)
 
 - Les _features_ orchestrent plusieurs domaines en envoyant des commands/queries via le bus :
-  - `QueryBus.send(...)`
-  - `CommandBus.send(...)`
+  - `QueryBus.ask(...)` — pour les lectures
+  - `CommandBus.execute(...)` — pour les écritures
 - La feature séquence A → B → C, compose des DTO, gère erreurs/timeouts.
 - Aucune invariant métier critique ne doit vivre dans une feature.
 

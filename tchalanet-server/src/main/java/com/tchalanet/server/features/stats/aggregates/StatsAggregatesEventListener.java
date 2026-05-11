@@ -5,8 +5,8 @@ import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
-import com.tchalanet.server.core.session.domain.event.SessionClosedEvent;
-import com.tchalanet.server.core.session.domain.event.SessionOpenedEvent;
+import com.tchalanet.server.core.session.domain.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.domain.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.features.stats.aggregates.app.StatsDailyUpdaterService;
 import com.tchalanet.server.features.stats.aggregates.app.StatsDrawUpdaterService;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsEventLogEntity;
@@ -65,7 +65,7 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onSessionOpened(SessionOpenedEvent event) {
+    public void onSessionOpened(SalesSessionOpenedEvent event) {
         if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;
 
@@ -74,7 +74,7 @@ public class StatsAggregatesEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onSessionClosed(SessionClosedEvent event) {
+    public void onSessionClosed(SalesSessionClosedEvent event) {
         if (isOldEvent(event.closedAt())) return;
         if (!markProcessedIfAbsent(event)) return;
 

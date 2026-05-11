@@ -7,6 +7,7 @@ import com.tchalanet.server.core.terminal.domain.model.Terminal;
 import com.tchalanet.server.core.terminal.domain.model.TerminalKind;
 import com.tchalanet.server.core.terminal.domain.model.TerminalState;
 import com.tchalanet.server.core.terminal.domain.model.TerminalSyncState;
+
 import java.time.Instant;
 
 public record TerminalSummaryView(
@@ -15,21 +16,34 @@ public record TerminalSummaryView(
     UserId assignedUserId,
     TerminalKind kind,
     TerminalState state,
-    boolean activeForUser,
     TerminalSyncState syncState,
+    boolean autoSessionEnabled,
     Instant lastSeen,
-    String label) {
+    String label,
+    String inventoryTag,
+    String code,
+    boolean locked,
+    boolean salesBlocked,
+    boolean payoutBlocked,
+    boolean offlineBlocked) {
 
-  public static TerminalSummaryView from(Terminal t) {
-    return new TerminalSummaryView(
-        t.id(),
-        t.outletId(),
-        t.assignedUserId(),
-        t.kind(),
-        t.state(),
-        t.activeForUser(),
-        t.syncState(),
-        t.lastSeen(),
-        t.label());
-  }
+    public static TerminalSummaryView from(Terminal t) {
+        return new TerminalSummaryView(
+            t.id(),
+            t.outletId(),
+            t.assignedUserId(),
+            t.kind(),
+            t.state(),
+            t.syncState(),
+            t.autoSessionEnabled(),
+            t.lastSeen(),
+            t.label(),
+            t.inventoryTag(),
+            t.code(),
+            t.locked(),
+            t.salesBlocked(),
+            t.payoutBlocked(),
+            t.offlineBlocked());
+    }
 }
+

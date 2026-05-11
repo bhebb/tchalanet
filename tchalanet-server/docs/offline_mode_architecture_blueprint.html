@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tchalanet — Mode Offline Sales Blueprint</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --bg2: #111936;
+        --panel: #ffffff;
+        --panel-soft: #f7f9fc;
+        --ink: #162033;
+        --muted: #64748b;
+        --line: #d8e0ef;
+        --blue: #2563eb;
+        --blue2: #dbeafe;
+        --cyan: #0891b2;
+        --cyan2: #cffafe;
+        --green: #16a34a;
+        --green2: #dcfce7;
+        --amber: #d97706;
+        --amber2: #fef3c7;
+        --red: #dc2626;
+        --red2: #fee2e2;
+        --violet: #7c3aed;
+        --violet2: #ede9fe;
+        --slate: #334155;
+        --shadow: 0 18px 60px rgba(15, 23, 42, 0.18);
+        --radius: 22px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.36), transparent 32rem),
+          radial-gradient(circle at 90% 10%, rgba(124, 58, 237, 0.25), transparent 26rem),
+          linear-gradient(180deg, var(--bg), #0f172a 38rem, #eef2f8 38rem, #eef2f8);
+        color: var(--ink);
+        line-height: 1.55;
+      }
+
+      a {
+        color: var(--blue);
+      }
+
+      .hero {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 56px 24px 42px;
+        color: white;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 13px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #dbeafe;
+        font-size: 13px;
+        letter-spacing: 0.02em;
+        backdrop-filter: blur(12px);
+      }
+
+      .hero h1 {
+        margin: 22px 0 16px;
+        font-size: clamp(38px, 6vw, 76px);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+      }
+
+      .hero p {
+        max-width: 920px;
+        margin: 0;
+        color: #cbd5e1;
+        font-size: clamp(17px, 2.4vw, 22px);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 28px;
+        margin-top: 34px;
+      }
+
+      @media (max-width: 940px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .hero-card {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(14px);
+      }
+
+      .hero-card h2,
+      .hero-card h3 {
+        margin: 0 0 12px;
+        color: white;
+      }
+
+      .hero-card p,
+      .hero-card li {
+        color: #dbeafe;
+      }
+
+      .decision {
+        display: grid;
+        grid-template-columns: 54px 1fr;
+        gap: 16px;
+        align-items: start;
+        margin-top: 18px;
+      }
+
+      .decision .icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        background: rgba(34, 197, 94, 0.16);
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        font-size: 27px;
+      }
+
+      .wrap {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 8px 0 28px;
+      }
+
+      @media (max-width: 940px) {
+        .toc {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .toc {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .toc a {
+        display: block;
+        text-decoration: none;
+        color: var(--ink);
+        padding: 16px 18px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+        font-weight: 750;
+      }
+
+      section {
+        margin: 28px 0;
+        background: var(--panel);
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .section-head {
+        padding: 28px 30px 18px;
+        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent), var(--panel);
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: clamp(25px, 3vw, 38px);
+        letter-spacing: -0.035em;
+      }
+
+      .section-head p {
+        margin: 10px 0 0;
+        max-width: 920px;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .content {
+        padding: 26px 30px 32px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      @media (max-width: 980px) {
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+          grid-template-columns: 1fr;
+        }
+        .content,
+        .section-head {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+        background: var(--panel-soft);
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+
+      .card p {
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
+      .b-blue {
+        color: #1d4ed8;
+        background: var(--blue2);
+      }
+      .b-cyan {
+        color: #0e7490;
+        background: var(--cyan2);
+      }
+      .b-green {
+        color: #166534;
+        background: var(--green2);
+      }
+      .b-amber {
+        color: #92400e;
+        background: var(--amber2);
+      }
+      .b-red {
+        color: #991b1b;
+        background: var(--red2);
+      }
+      .b-violet {
+        color: #5b21b6;
+        background: var(--violet2);
+      }
+      .b-slate {
+        color: #334155;
+        background: #e2e8f0;
+      }
+
+      .principle {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      @media (max-width: 860px) {
+        .principle {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .yes,
+      .no {
+        border-radius: 18px;
+        padding: 18px;
+        border: 1px solid;
+      }
+
+      .yes {
+        background: var(--green2);
+        border-color: #86efac;
+      }
+
+      .no {
+        background: var(--red2);
+        border-color: #fecaca;
+      }
+
+      .diagram {
+        margin: 18px 0 0;
+        padding: 18px;
+        border-radius: 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        overflow-x: auto;
+      }
+
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        font-family: var(--sans);
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .pill {
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-weight: 750;
+        font-size: 12px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: var(--slate);
+      }
+
+      .flow {
+        display: grid;
+        gap: 12px;
+        margin: 16px 0;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 16px;
+      }
+
+      .num {
+        width: 42px;
+        height: 42px;
+        border-radius: 15px;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        color: white;
+        background: linear-gradient(135deg, var(--blue), var(--violet));
+      }
+
+      .step h4 {
+        margin: 0 0 4px;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 16px;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 13px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+        text-align: left;
+      }
+
+      th {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      code,
+      pre {
+        font-family: var(--mono);
+      }
+
+      code {
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 2px 5px;
+        border-radius: 6px;
+        font-size: 0.92em;
+      }
+
+      pre {
+        margin: 0;
+        padding: 16px;
+        background: #0f172a;
+        color: #dbeafe;
+        border-radius: 16px;
+        overflow-x: auto;
+        font-size: 13px;
+      }
+
+      .lane {
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        background: white;
+      }
+
+      .lane h3 {
+        margin: 0;
+        padding: 14px 16px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .lane .item {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .lane .item:last-child {
+        border-bottom: 0;
+      }
+
+      .item strong {
+        display: block;
+      }
+      .item span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .roadmap {
+        position: relative;
+        display: grid;
+        gap: 14px;
+        padding-left: 10px;
+      }
+
+      .phase {
+        display: grid;
+        grid-template-columns: 82px 1fr;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .phase .tag {
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        color: white;
+        background: linear-gradient(135deg, var(--blue), var(--cyan));
+        font-weight: 900;
+        box-shadow: 0 12px 26px rgba(37, 99, 235, 0.25);
+      }
+
+      .phase .body {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 15px 16px;
+        background: #f8fafc;
+      }
+
+      .phase h3 {
+        margin: 0 0 6px;
+      }
+
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .footer {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 30px 24px 56px;
+        color: #64748b;
+        text-align: center;
+      }
+
+      .print-note {
+        margin-top: 18px;
+        border-radius: 18px;
+        padding: 16px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #7c2d12;
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .hero {
+          color: #111827;
+          padding-top: 20px;
+        }
+        .hero p,
+        .hero-card p,
+        .hero-card li {
+          color: #334155;
+        }
+        .hero-card {
+          background: white;
+          border-color: #e5e7eb;
+          box-shadow: none;
+        }
+        .toc {
+          display: none;
+        }
+        section {
+          box-shadow: none;
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="hero">
+      <div class="eyebrow">🔐 Sécurité d’abord · UX ensuite · Offline Haïti-ready</div>
+      <h1>Tchalanet Offline Sales Blueprint</h1>
+      <p>
+        Page de conception fonctionnelle et technique pour le mode offline : composants, classes,
+        séquences, responsabilités par feature, impacts inter-domaines et ordre de développement.
+      </p>
+
+      <div class="hero-grid">
+        <div class="hero-card">
+          <h2>Décision structurante</h2>
+          <div class="decision">
+            <div class="icon">✓</div>
+            <div>
+              <h3>
+                Une vente offline n’est pas un Ticket Sales tant que Sales ne l’a pas acceptée.
+              </h3>
+              <p>
+                <strong>Offlinesync</strong> conserve les preuves techniques et les soumissions.
+                <strong>Sales</strong> contient uniquement les tickets acceptés et alimente stats,
+                caisse, ledger et payout.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <h2>Règles non négociables</h2>
+          <ul>
+            <li>Pas de payout offline.</li>
+            <li>Pas de stats Sales sur une soumission rejetée ou en review.</li>
+            <li>Pas d’auto-accept après résultat connu.</li>
+            <li>Codes offline pré-réservés, signés et bornés.</li>
+            <li>Session fermée = ajustement audité, jamais modification silencieuse.</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <nav class="toc">
+        <a href="#overview">1. Vue d’ensemble</a>
+        <a href="#components">2. Composants</a>
+        <a href="#classes">3. Classes & données</a>
+        <a href="#sequences">4. Séquences</a>
+        <a href="#features">5. Features UI</a>
+        <a href="#impacts">6. Impacts domaines</a>
+        <a href="#risks">7. Risques & gates</a>
+        <a href="#roadmap">8. Roadmap</a>
+      </nav>
+
+      <section id="overview">
+        <div class="section-head">
+          <h2>1. Vue d’ensemble du modèle offline</h2>
+          <p>
+            Le mode offline permet au vendeur d’imprimer une preuve locale, mais la vente devient
+            officielle seulement après synchronisation, validation technique et validation métier.
+          </p>
+        </div>
+        <div class="content">
+          <div class="principle">
+            <div class="yes">
+              <h3>✅ Ce qui est officiel</h3>
+              <p>
+                Un ticket existe dans <code>sales.ticket</code> uniquement après acceptation par
+                Sales.
+              </p>
+              <ul>
+                <li>Compte dans les stats Sales.</li>
+                <li>Impacte la session cash.</li>
+                <li>Peut devenir payable après résultat.</li>
+                <li>Déclenche <code>TicketPlacedEvent</code>.</li>
+              </ul>
+            </div>
+            <div class="no">
+              <h3>⛔ Ce qui reste provisoire</h3>
+              <p>
+                Une soumission offline reste dans <code>offlinesync</code> tant qu’elle n’est pas
+                acceptée.
+              </p>
+              <ul>
+                <li>Ne compte pas dans les stats Sales.</li>
+                <li>Ne crée pas de payout exposure.</li>
+                <li>N’impacte pas le ledger.</li>
+                <li>Peut être rejetée ou mise en review.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="diagram">
+            <svg
+              width="1120"
+              height="420"
+              viewBox="0 0 1120 420"
+              role="img"
+              aria-label="Vue d'ensemble offline"
+            >
+              <defs>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow
+                    dx="0"
+                    dy="10"
+                    stdDeviation="12"
+                    flood-color="#0f172a"
+                    flood-opacity=".16"
+                  />
+                </filter>
+                <marker
+                  id="arrow"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+                </marker>
+              </defs>
+
+              <rect
+                x="28"
+                y="42"
+                width="210"
+                height="110"
+                rx="22"
+                fill="#dbeafe"
+                stroke="#60a5fa"
+                filter="url(#shadow)"
+              />
+              <text
+                x="133"
+                y="84"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="800"
+                fill="#1e3a8a"
+              >
+                Flutter / POS
+              </text>
+              <text x="133" y="112" text-anchor="middle" font-size="13" fill="#1e40af">
+                vente locale provisoire
+              </text>
+              <text x="133" y="132" text-anchor="middle" font-size="13" fill="#1e40af">
+                reçu OFFLINE + code
+              </text>
+
+              <rect
+                x="310"
+                y="42"
+                width="230"
+                height="110"
+                rx="22"
+                fill="#cffafe"
+                stroke="#22d3ee"
+                filter="url(#shadow)"
+              />
+              <text
+                x="425"
+                y="84"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="800"
+                fill="#155e75"
+              >
+                core.offlinesync
+              </text>
+              <text x="425" y="112" text-anchor="middle" font-size="13" fill="#0e7490">
+                preuves, signatures
+              </text>
+              <text x="425" y="132" text-anchor="middle" font-size="13" fill="#0e7490">
+                codes, batch, séquence
+              </text>
+
+              <rect
+                x="615"
+                y="42"
+                width="220"
+                height="110"
+                rx="22"
+                fill="#dcfce7"
+                stroke="#86efac"
+                filter="url(#shadow)"
+              />
+              <text
+                x="725"
+                y="84"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="800"
+                fill="#166534"
+              >
+                core.sales
+              </text>
+              <text x="725" y="112" text-anchor="middle" font-size="13" fill="#15803d">
+                création Ticket
+              </text>
+              <text x="725" y="132" text-anchor="middle" font-size="13" fill="#15803d">
+                validation métier
+              </text>
+
+              <rect
+                x="898"
+                y="42"
+                width="190"
+                height="110"
+                rx="22"
+                fill="#ede9fe"
+                stroke="#c4b5fd"
+                filter="url(#shadow)"
+              />
+              <text
+                x="993"
+                y="84"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="800"
+                fill="#5b21b6"
+              >
+                Autres domaines
+              </text>
+              <text x="993" y="112" text-anchor="middle" font-size="13" fill="#6d28d9">
+                session, ledger
+              </text>
+              <text x="993" y="132" text-anchor="middle" font-size="13" fill="#6d28d9">
+                stats, payout
+              </text>
+
+              <line
+                x1="238"
+                y1="97"
+                x2="310"
+                y2="97"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arrow)"
+              />
+              <line
+                x1="540"
+                y1="97"
+                x2="615"
+                y2="97"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arrow)"
+              />
+              <line
+                x1="835"
+                y1="97"
+                x2="898"
+                y2="97"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arrow)"
+              />
+
+              <rect
+                x="70"
+                y="235"
+                width="300"
+                height="106"
+                rx="22"
+                fill="#fff7ed"
+                stroke="#fdba74"
+              />
+              <text
+                x="220"
+                y="274"
+                text-anchor="middle"
+                font-size="17"
+                font-weight="800"
+                fill="#9a3412"
+              >
+                Soumissions rejetées / review
+              </text>
+              <text x="220" y="302" text-anchor="middle" font-size="13" fill="#9a3412">
+                restent dans offlinesync
+              </text>
+              <text x="220" y="322" text-anchor="middle" font-size="13" fill="#9a3412">
+                zéro impact Sales officiel
+              </text>
+
+              <rect
+                x="420"
+                y="235"
+                width="300"
+                height="106"
+                rx="22"
+                fill="#dcfce7"
+                stroke="#86efac"
+              />
+              <text
+                x="570"
+                y="274"
+                text-anchor="middle"
+                font-size="17"
+                font-weight="800"
+                fill="#166534"
+              >
+                Soumissions acceptées
+              </text>
+              <text x="570" y="302" text-anchor="middle" font-size="13" fill="#166534">
+                créent sales.ticket
+              </text>
+              <text x="570" y="322" text-anchor="middle" font-size="13" fill="#166534">
+                publient TicketPlacedEvent
+              </text>
+
+              <rect
+                x="770"
+                y="235"
+                width="300"
+                height="106"
+                rx="22"
+                fill="#fee2e2"
+                stroke="#fca5a5"
+              />
+              <text
+                x="920"
+                y="274"
+                text-anchor="middle"
+                font-size="17"
+                font-weight="800"
+                fill="#991b1b"
+              >
+                Après résultat connu
+              </text>
+              <text x="920" y="302" text-anchor="middle" font-size="13" fill="#991b1b">
+                jamais auto-accept v0
+              </text>
+              <text x="920" y="322" text-anchor="middle" font-size="13" fill="#991b1b">
+                REJECTED ou REVIEW
+              </text>
+            </svg>
+            <div class="legend">
+              <span class="pill">Bleu = client Flutter/POS</span>
+              <span class="pill">Cyan = sécurité technique</span>
+              <span class="pill">Vert = métier accepté</span>
+              <span class="pill">Rouge = risque fraude</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="components">
+        <div class="section-head">
+          <h2>2. Diagramme de composants</h2>
+          <p>
+            Les features UI orchestrent l’expérience. Les core domains restent propriétaires de
+            leurs décisions. Les domaines ne doivent pas écrire dans la base d’un autre domaine.
+          </p>
+        </div>
+        <div class="content">
+          <div class="diagram">
+            <svg
+              width="1160"
+              height="660"
+              viewBox="0 0 1160 660"
+              role="img"
+              aria-label="Diagramme de composants"
+            >
+              <defs>
+                <marker
+                  id="arr2"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+                </marker>
+                <filter id="s2" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow
+                    dx="0"
+                    dy="8"
+                    stdDeviation="10"
+                    flood-color="#0f172a"
+                    flood-opacity=".13"
+                  />
+                </filter>
+              </defs>
+
+              <rect x="32" y="28" width="1096" height="80" rx="24" fill="#0f172a" />
+              <text
+                x="580"
+                y="63"
+                text-anchor="middle"
+                fill="#fff"
+                font-size="22"
+                font-weight="900"
+              >
+                Tchalanet Offline Architecture
+              </text>
+              <text x="580" y="90" text-anchor="middle" fill="#cbd5e1" font-size="14">
+                Features UI → CommandBus/QueryBus → Core domains → Events after commit
+              </text>
+
+              <rect
+                x="52"
+                y="150"
+                width="250"
+                height="180"
+                rx="24"
+                fill="#dbeafe"
+                stroke="#60a5fa"
+                filter="url(#s2)"
+              />
+              <text
+                x="177"
+                y="184"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="900"
+                fill="#1e3a8a"
+              >
+                Feature Cashier
+              </text>
+              <text x="177" y="214" text-anchor="middle" font-size="13" fill="#1d4ed8">
+                sell online/offline
+              </text>
+              <text x="177" y="237" text-anchor="middle" font-size="13" fill="#1d4ed8">
+                print receipt
+              </text>
+              <text x="177" y="260" text-anchor="middle" font-size="13" fill="#1d4ed8">
+                sync pending batch
+              </text>
+              <text x="177" y="283" text-anchor="middle" font-size="13" fill="#1d4ed8">
+                show accepted/rejected
+              </text>
+
+              <rect
+                x="52"
+                y="370"
+                width="250"
+                height="180"
+                rx="24"
+                fill="#ede9fe"
+                stroke="#c4b5fd"
+                filter="url(#s2)"
+              />
+              <text
+                x="177"
+                y="404"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="900"
+                fill="#5b21b6"
+              >
+                Tenant Admin
+              </text>
+              <text x="177" y="434" text-anchor="middle" font-size="13" fill="#6d28d9">
+                offline dashboard
+              </text>
+              <text x="177" y="457" text-anchor="middle" font-size="13" fill="#6d28d9">
+                seller risk score
+              </text>
+              <text x="177" y="480" text-anchor="middle" font-size="13" fill="#6d28d9">
+                approve/reject review
+              </text>
+              <text x="177" y="503" text-anchor="middle" font-size="13" fill="#6d28d9">
+                penalty policy
+              </text>
+
+              <rect
+                x="352"
+                y="370"
+                width="250"
+                height="180"
+                rx="24"
+                fill="#fee2e2"
+                stroke="#fca5a5"
+                filter="url(#s2)"
+              />
+              <text
+                x="477"
+                y="404"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="900"
+                fill="#991b1b"
+              >
+                Super Admin / Ops
+              </text>
+              <text x="477" y="434" text-anchor="middle" font-size="13" fill="#b91c1c">
+                global risk monitoring
+              </text>
+              <text x="477" y="457" text-anchor="middle" font-size="13" fill="#b91c1c">
+                terminal revocation
+              </text>
+              <text x="477" y="480" text-anchor="middle" font-size="13" fill="#b91c1c">
+                policy defaults
+              </text>
+              <text x="477" y="503" text-anchor="middle" font-size="13" fill="#b91c1c">
+                audit investigation
+              </text>
+
+              <rect
+                x="352"
+                y="150"
+                width="250"
+                height="180"
+                rx="24"
+                fill="#cffafe"
+                stroke="#22d3ee"
+                filter="url(#s2)"
+              />
+              <text
+                x="477"
+                y="184"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="900"
+                fill="#155e75"
+              >
+                core.offlinesync
+              </text>
+              <text x="477" y="214" text-anchor="middle" font-size="13" fill="#0e7490">
+                OfflineSalesGrant
+              </text>
+              <text x="477" y="237" text-anchor="middle" font-size="13" fill="#0e7490">
+                OfflineCodeBatch
+              </text>
+              <text x="477" y="260" text-anchor="middle" font-size="13" fill="#0e7490">
+                OfflineSaleSubmission
+              </text>
+              <text x="477" y="283" text-anchor="middle" font-size="13" fill="#0e7490">
+                technical gates
+              </text>
+
+              <rect
+                x="652"
+                y="150"
+                width="250"
+                height="180"
+                rx="24"
+                fill="#dcfce7"
+                stroke="#86efac"
+                filter="url(#s2)"
+              />
+              <text
+                x="777"
+                y="184"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="900"
+                fill="#166534"
+              >
+                core.sales
+              </text>
+              <text x="777" y="214" text-anchor="middle" font-size="13" fill="#15803d">
+                Ticket accepted only
+              </text>
+              <text x="777" y="237" text-anchor="middle" font-size="13" fill="#15803d">
+                Sell / approve / reject
+              </text>
+              <text x="777" y="260" text-anchor="middle" font-size="13" fill="#15803d">
+                TicketPlacedEvent
+              </text>
+              <text x="777" y="283" text-anchor="middle" font-size="13" fill="#15803d">
+                money breakdown
+              </text>
+
+              <rect
+                x="952"
+                y="150"
+                width="160"
+                height="90"
+                rx="20"
+                fill="#fef3c7"
+                stroke="#fbbf24"
+                filter="url(#s2)"
+              />
+              <text
+                x="1032"
+                y="184"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#92400e"
+              >
+                core.session
+              </text>
+              <text x="1032" y="210" text-anchor="middle" font-size="12" fill="#92400e">
+                cash + adjustment
+              </text>
+
+              <rect
+                x="952"
+                y="260"
+                width="160"
+                height="90"
+                rx="20"
+                fill="#fef3c7"
+                stroke="#fbbf24"
+                filter="url(#s2)"
+              />
+              <text
+                x="1032"
+                y="294"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#92400e"
+              >
+                limitpolicy
+              </text>
+              <text x="1032" y="320" text-anchor="middle" font-size="12" fill="#92400e">
+                block/review
+              </text>
+
+              <rect
+                x="652"
+                y="370"
+                width="190"
+                height="80"
+                rx="20"
+                fill="#f1f5f9"
+                stroke="#cbd5e1"
+                filter="url(#s2)"
+              />
+              <text
+                x="747"
+                y="404"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#334155"
+              >
+                core.draw
+              </text>
+              <text x="747" y="428" text-anchor="middle" font-size="12" fill="#475569">
+                cutoff/resulted
+              </text>
+
+              <rect
+                x="862"
+                y="370"
+                width="190"
+                height="80"
+                rx="20"
+                fill="#f1f5f9"
+                stroke="#cbd5e1"
+                filter="url(#s2)"
+              />
+              <text
+                x="957"
+                y="404"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#334155"
+              >
+                catalog.pricing
+              </text>
+              <text x="957" y="428" text-anchor="middle" font-size="12" fill="#475569">
+                odds snapshot
+              </text>
+
+              <rect
+                x="652"
+                y="470"
+                width="190"
+                height="80"
+                rx="20"
+                fill="#f1f5f9"
+                stroke="#cbd5e1"
+                filter="url(#s2)"
+              />
+              <text
+                x="747"
+                y="504"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#334155"
+              >
+                payout / ledger
+              </text>
+              <text x="747" y="528" text-anchor="middle" font-size="12" fill="#475569">
+                only official tickets
+              </text>
+
+              <rect
+                x="862"
+                y="470"
+                width="190"
+                height="80"
+                rx="20"
+                fill="#f1f5f9"
+                stroke="#cbd5e1"
+                filter="url(#s2)"
+              />
+              <text
+                x="957"
+                y="504"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#334155"
+              >
+                features.stats
+              </text>
+              <text x="957" y="528" text-anchor="middle" font-size="12" fill="#475569">
+                sales vs risk stats
+              </text>
+
+              <line
+                x1="302"
+                y1="240"
+                x2="352"
+                y2="240"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="602"
+                y1="240"
+                x2="652"
+                y2="240"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="902"
+                y1="195"
+                x2="952"
+                y2="195"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="902"
+                y1="240"
+                x2="952"
+                y2="302"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="777"
+                y1="330"
+                x2="747"
+                y2="370"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="797"
+                y1="330"
+                x2="957"
+                y2="370"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="780"
+                y1="330"
+                x2="747"
+                y2="470"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="807"
+                y1="330"
+                x2="957"
+                y2="470"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="302"
+                y1="460"
+                x2="352"
+                y2="460"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#arr2)"
+              />
+              <line
+                x1="477"
+                y1="370"
+                x2="477"
+                y2="330"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#arr2)"
+              />
+            </svg>
+          </div>
+
+          <div class="grid-3">
+            <div class="card">
+              <span class="badge b-cyan">core.offlinesync</span>
+              <h3>Journal technique</h3>
+              <p>
+                Conserve tout : soumissions acceptées, rejetées, suspectes, payloads bruts,
+                signatures et codes.
+              </p>
+            </div>
+            <div class="card">
+              <span class="badge b-green">core.sales</span>
+              <h3>Vérité commerciale</h3>
+              <p>
+                Crée uniquement les tickets acceptés et publie les événements qui alimentent
+                session, stats et ledger.
+              </p>
+            </div>
+            <div class="card">
+              <span class="badge b-violet">features</span>
+              <h3>Expérience utilisateur</h3>
+              <p>
+                Cashier vend/sync, tenantadmin supervise, super admin gouverne les risques et
+                politiques globales.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="classes">
+        <div class="section-head">
+          <h2>3. Diagrammes de classes et données clés</h2>
+          <p>
+            Les classes ci-dessous ne sont pas toutes des entités JPA. Elles représentent les
+            concepts de domaine et les agrégats à coder progressivement.
+          </p>
+        </div>
+        <div class="content">
+          <div class="diagram">
+            <svg
+              width="1160"
+              height="760"
+              viewBox="0 0 1160 760"
+              role="img"
+              aria-label="Diagramme de classes offline sales"
+            >
+              <defs>
+                <marker
+                  id="arr3"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+                </marker>
+                <filter id="cs" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow
+                    dx="0"
+                    dy="8"
+                    stdDeviation="8"
+                    flood-color="#0f172a"
+                    flood-opacity=".12"
+                  />
+                </filter>
+              </defs>
+
+              <g>
+                <rect x="36" y="30" width="510" height="50" rx="16" fill="#0891b2" />
+                <text
+                  x="291"
+                  y="62"
+                  text-anchor="middle"
+                  fill="white"
+                  font-size="20"
+                  font-weight="900"
+                >
+                  core.offlinesync
+                </text>
+
+                <rect
+                  x="36"
+                  y="110"
+                  width="230"
+                  height="148"
+                  rx="18"
+                  fill="#ecfeff"
+                  stroke="#22d3ee"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="151"
+                  y="140"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#155e75"
+                >
+                  OfflineSalesGrant
+                </text>
+                <line x1="58" y1="153" x2="244" y2="153" stroke="#a5f3fc" />
+                <text x="58" y="178" font-size="12" fill="#0e7490">
+                  grantId: OfflineSalesGrantId
+                </text>
+                <text x="58" y="198" font-size="12" fill="#0e7490">terminalId, sellerUserId</text>
+                <text x="58" y="218" font-size="12" fill="#0e7490">salesSessionId, validUntil</text>
+                <text x="58" y="238" font-size="12" fill="#0e7490">limits, signature, status</text>
+
+                <rect
+                  x="316"
+                  y="110"
+                  width="230"
+                  height="148"
+                  rx="18"
+                  fill="#ecfeff"
+                  stroke="#22d3ee"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="431"
+                  y="140"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#155e75"
+                >
+                  OfflineCodeBatch
+                </text>
+                <line x1="338" y1="153" x2="524" y2="153" stroke="#a5f3fc" />
+                <text x="338" y="178" font-size="12" fill="#0e7490">
+                  batchId: OfflineCodeBatchId
+                </text>
+                <text x="338" y="198" font-size="12" fill="#0e7490">prefix, sequenceFrom/To</text>
+                <text x="338" y="218" font-size="12" fill="#0e7490">grantId, terminalId</text>
+                <text x="338" y="238" font-size="12" fill="#0e7490">validUntil, signature</text>
+
+                <rect
+                  x="36"
+                  y="318"
+                  width="230"
+                  height="166"
+                  rx="18"
+                  fill="#ecfeff"
+                  stroke="#22d3ee"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="151"
+                  y="348"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#155e75"
+                >
+                  OfflineBatch
+                </text>
+                <line x1="58" y1="361" x2="244" y2="361" stroke="#a5f3fc" />
+                <text x="58" y="386" font-size="12" fill="#0e7490">id: OfflineBatchId</text>
+                <text x="58" y="406" font-size="12" fill="#0e7490">grantId, codeBatchId</text>
+                <text x="58" y="426" font-size="12" fill="#0e7490">receivedAt, status</text>
+                <text x="58" y="446" font-size="12" fill="#0e7490">technicalRejectCount</text>
+                <text x="58" y="466" font-size="12" fill="#0e7490">salesAccept/RejectCount</text>
+
+                <rect
+                  x="316"
+                  y="318"
+                  width="230"
+                  height="208"
+                  rx="18"
+                  fill="#ecfeff"
+                  stroke="#22d3ee"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="431"
+                  y="348"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#155e75"
+                >
+                  OfflineSaleSubmission
+                </text>
+                <line x1="338" y1="361" x2="524" y2="361" stroke="#a5f3fc" />
+                <text x="338" y="386" font-size="12" fill="#0e7490">
+                  id: OfflineSaleSubmissionId
+                </text>
+                <text x="338" y="406" font-size="12" fill="#0e7490">
+                  offlineCode, localSequence
+                </text>
+                <text x="338" y="426" font-size="12" fill="#0e7490">
+                  payloadJson, hash, signature
+                </text>
+                <text x="338" y="446" font-size="12" fill="#0e7490">
+                  createdAtDevice, receivedAt
+                </text>
+                <text x="338" y="466" font-size="12" fill="#0e7490">status, technicalReason</text>
+                <text x="338" y="486" font-size="12" fill="#0e7490">
+                  salesDecision, salesTicketId?
+                </text>
+                <text x="338" y="506" font-size="12" fill="#0e7490">riskFlags</text>
+              </g>
+
+              <g>
+                <rect x="630" y="30" width="494" height="50" rx="16" fill="#16a34a" />
+                <text
+                  x="877"
+                  y="62"
+                  text-anchor="middle"
+                  fill="white"
+                  font-size="20"
+                  font-weight="900"
+                >
+                  core.sales
+                </text>
+
+                <rect
+                  x="630"
+                  y="110"
+                  width="230"
+                  height="234"
+                  rx="18"
+                  fill="#f0fdf4"
+                  stroke="#86efac"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="745"
+                  y="140"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#166534"
+                >
+                  Ticket
+                </text>
+                <line x1="652" y1="153" x2="838" y2="153" stroke="#bbf7d0" />
+                <text x="652" y="178" font-size="12" fill="#15803d">id: TicketId</text>
+                <text x="652" y="198" font-size="12" fill="#15803d">
+                  publicCode, verificationCode
+                </text>
+                <text x="652" y="218" font-size="12" fill="#15803d">stakeAmount, feeAmount</text>
+                <text x="652" y="238" font-size="12" fill="#15803d">
+                  totalAmount, potentialPayout
+                </text>
+                <text x="652" y="258" font-size="12" fill="#15803d">saleStatus, resultStatus</text>
+                <text x="652" y="278" font-size="12" fill="#15803d">saleOrigin, syncStatus</text>
+                <text x="652" y="298" font-size="12" fill="#15803d">offlineSaleRef?</text>
+                <text x="652" y="318" font-size="12" fill="#15803d">lines: TicketLine[]</text>
+
+                <rect
+                  x="894"
+                  y="110"
+                  width="230"
+                  height="174"
+                  rx="18"
+                  fill="#f0fdf4"
+                  stroke="#86efac"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="1009"
+                  y="140"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#166534"
+                >
+                  TicketLine
+                </text>
+                <line x1="916" y1="153" x2="1102" y2="153" stroke="#bbf7d0" />
+                <text x="916" y="178" font-size="12" fill="#15803d">gameCode</text>
+                <text x="916" y="198" font-size="12" fill="#15803d">selection</text>
+                <text x="916" y="218" font-size="12" fill="#15803d">betType, betOption</text>
+                <text x="916" y="238" font-size="12" fill="#15803d">stake</text>
+                <text x="916" y="258" font-size="12" fill="#15803d">oddsSnapshot</text>
+
+                <rect
+                  x="630"
+                  y="404"
+                  width="230"
+                  height="146"
+                  rx="18"
+                  fill="#f0fdf4"
+                  stroke="#86efac"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="745"
+                  y="434"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#166534"
+                >
+                  OfflineSaleRef
+                </text>
+                <line x1="652" y1="447" x2="838" y2="447" stroke="#bbf7d0" />
+                <text x="652" y="472" font-size="12" fill="#15803d">submissionId</text>
+                <text x="652" y="492" font-size="12" fill="#15803d">offlineBatchId</text>
+                <text x="652" y="512" font-size="12" fill="#15803d">offlineCodeBatchId</text>
+                <text x="652" y="532" font-size="12" fill="#15803d">
+                  localSequence, createdAtDevice
+                </text>
+
+                <rect
+                  x="894"
+                  y="404"
+                  width="230"
+                  height="170"
+                  rx="18"
+                  fill="#f0fdf4"
+                  stroke="#86efac"
+                  filter="url(#cs)"
+                />
+                <text
+                  x="1009"
+                  y="434"
+                  text-anchor="middle"
+                  font-size="16"
+                  font-weight="900"
+                  fill="#166534"
+                >
+                  TicketPlacedEvent
+                </text>
+                <line x1="916" y1="447" x2="1102" y2="447" stroke="#bbf7d0" />
+                <text x="916" y="472" font-size="12" fill="#15803d">ticketId, sessionId</text>
+                <text x="916" y="492" font-size="12" fill="#15803d">stakeAmountCents</text>
+                <text x="916" y="512" font-size="12" fill="#15803d">feeAmountCents</text>
+                <text x="916" y="532" font-size="12" fill="#15803d">totalAmountCents</text>
+                <text x="916" y="552" font-size="12" fill="#15803d">saleOrigin, syncStatus</text>
+              </g>
+
+              <line
+                x1="266"
+                y1="184"
+                x2="316"
+                y2="184"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+              <line
+                x1="431"
+                y1="258"
+                x2="431"
+                y2="318"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+              <line
+                x1="266"
+                y1="400"
+                x2="316"
+                y2="400"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+              <line
+                x1="546"
+                y1="436"
+                x2="630"
+                y2="478"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+              <line
+                x1="860"
+                y1="226"
+                x2="894"
+                y2="198"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+              <line
+                x1="745"
+                y1="344"
+                x2="745"
+                y2="404"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+              <line
+                x1="860"
+                y1="484"
+                x2="894"
+                y2="484"
+                stroke="#475569"
+                stroke-width="2"
+                marker-end="url(#arr3)"
+              />
+
+              <rect
+                x="36"
+                y="610"
+                width="1088"
+                height="88"
+                rx="20"
+                fill="#fff7ed"
+                stroke="#fdba74"
+              />
+              <text
+                x="580"
+                y="642"
+                text-anchor="middle"
+                font-size="18"
+                font-weight="900"
+                fill="#9a3412"
+              >
+                Règle anti-pollution
+              </text>
+              <text x="580" y="670" text-anchor="middle" font-size="14" fill="#9a3412">
+                OfflineSaleSubmission rejetée ou en review ne crée jamais Ticket, ne publie jamais
+                TicketPlacedEvent, ne compte jamais dans les stats Sales.
+              </text>
+            </svg>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3>Extrait table <code>offlinesync.offline_sale_submission</code></h3>
+              <pre>
+id
+tenant_id
+batch_id
+grant_id
+offline_code
+terminal_id
+outlet_id
+seller_user_id
+sales_session_id
+client_ticket_id
+local_sequence
+created_at_device
+received_at
+payload_json
+payload_hash
+signature
+status
+technical_reject_reason
+sales_decision
+sales_reject_reason
+sales_ticket_id null</pre
+              >
+            </div>
+            <div class="card">
+              <h3>Extrait table <code>sales.ticket</code></h3>
+              <pre>
+id
+tenant_id
+public_code
+verification_code
+stake_amount
+fee_amount
+total_amount
+sale_status
+result_status
+settlement_status
+sale_origin
+sync_status
+offline_submission_id null
+offline_batch_id null
+offline_code_batch_id null
+local_sequence null
+created_at_device null
+synced_at null</pre
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sequences">
+        <div class="section-head">
+          <h2>4. Diagrammes de séquence des flows</h2>
+          <p>
+            Les flows privilégient la sécurité : la sync technique est commitée avant traitement
+            Sales, et les effets métier sont publiés après commit.
+          </p>
+        </div>
+        <div class="content">
+          <h3>4.1 Flow sell offline + sync automatique acceptée</h3>
+          <div class="diagram">
+            <svg
+              width="1160"
+              height="610"
+              viewBox="0 0 1160 610"
+              role="img"
+              aria-label="Sequence sell offline accept"
+            >
+              <defs>
+                <marker
+                  id="arr4"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1160" height="610" rx="20" fill="#f8fafc" />
+              <g font-size="13" font-weight="800">
+                <rect
+                  x="30"
+                  y="30"
+                  width="135"
+                  height="42"
+                  rx="14"
+                  fill="#dbeafe"
+                  stroke="#60a5fa"
+                />
+                <text x="97" y="57" text-anchor="middle" fill="#1e3a8a">Flutter/POS</text>
+                <rect
+                  x="230"
+                  y="30"
+                  width="150"
+                  height="42"
+                  rx="14"
+                  fill="#cffafe"
+                  stroke="#22d3ee"
+                />
+                <text x="305" y="57" text-anchor="middle" fill="#155e75">Offlinesync</text>
+                <rect
+                  x="450"
+                  y="30"
+                  width="135"
+                  height="42"
+                  rx="14"
+                  fill="#dcfce7"
+                  stroke="#86efac"
+                />
+                <text x="517" y="57" text-anchor="middle" fill="#166534">Sales</text>
+                <rect
+                  x="650"
+                  y="30"
+                  width="135"
+                  height="42"
+                  rx="14"
+                  fill="#fef3c7"
+                  stroke="#fbbf24"
+                />
+                <text x="717" y="57" text-anchor="middle" fill="#92400e">Session</text>
+                <rect
+                  x="850"
+                  y="30"
+                  width="135"
+                  height="42"
+                  rx="14"
+                  fill="#ede9fe"
+                  stroke="#c4b5fd"
+                />
+                <text x="917" y="57" text-anchor="middle" fill="#5b21b6">Stats/Ledger</text>
+              </g>
+
+              <g stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 7">
+                <line x1="97" y1="72" x2="97" y2="570" />
+                <line x1="305" y1="72" x2="305" y2="570" />
+                <line x1="517" y1="72" x2="517" y2="570" />
+                <line x1="717" y1="72" x2="717" y2="570" />
+                <line x1="917" y1="72" x2="917" y2="570" />
+              </g>
+
+              <g font-size="13" fill="#334155">
+                <line
+                  x1="97"
+                  y1="115"
+                  x2="305"
+                  y2="115"
+                  stroke="#334155"
+                  stroke-width="2.2"
+                  marker-end="url(#arr4)"
+                />
+                <text x="201" y="105" text-anchor="middle">1. issue grant + code batch</text>
+
+                <line
+                  x1="305"
+                  y1="150"
+                  x2="97"
+                  y2="150"
+                  stroke="#334155"
+                  stroke-width="2.2"
+                  marker-end="url(#arr4)"
+                />
+                <text x="201" y="140" text-anchor="middle">2. signed grant + reserved codes</text>
+
+                <rect
+                  x="44"
+                  y="185"
+                  width="106"
+                  height="64"
+                  rx="14"
+                  fill="#dbeafe"
+                  stroke="#60a5fa"
+                />
+                <text x="97" y="210" text-anchor="middle" font-weight="800" fill="#1e3a8a">
+                  offline sell
+                </text>
+                <text x="97" y="232" text-anchor="middle" fill="#1d4ed8">print receipt</text>
+
+                <line
+                  x1="97"
+                  y1="285"
+                  x2="305"
+                  y2="285"
+                  stroke="#334155"
+                  stroke-width="2.2"
+                  marker-end="url(#arr4)"
+                />
+                <text x="201" y="275" text-anchor="middle">3. POST offline batch</text>
+
+                <rect
+                  x="242"
+                  y="315"
+                  width="126"
+                  height="64"
+                  rx="14"
+                  fill="#cffafe"
+                  stroke="#22d3ee"
+                />
+                <text x="305" y="340" text-anchor="middle" font-weight="800" fill="#155e75">
+                  technical gates
+                </text>
+                <text x="305" y="362" text-anchor="middle" fill="#0e7490">READY_FOR_SALES</text>
+
+                <line
+                  x1="305"
+                  y1="410"
+                  x2="517"
+                  y2="410"
+                  stroke="#334155"
+                  stroke-width="2.2"
+                  marker-end="url(#arr4)"
+                />
+                <text x="411" y="400" text-anchor="middle">4. SyncOfflineSalesCommand</text>
+
+                <rect
+                  x="454"
+                  y="438"
+                  width="126"
+                  height="66"
+                  rx="14"
+                  fill="#dcfce7"
+                  stroke="#86efac"
+                />
+                <text x="517" y="463" text-anchor="middle" font-weight="800" fill="#166534">
+                  business gates
+                </text>
+                <text x="517" y="485" text-anchor="middle" fill="#15803d">create Ticket</text>
+
+                <line
+                  x1="517"
+                  y1="530"
+                  x2="717"
+                  y2="530"
+                  stroke="#334155"
+                  stroke-width="2.2"
+                  marker-end="url(#arr4)"
+                />
+                <text x="617" y="520" text-anchor="middle">5. TicketPlacedEvent</text>
+
+                <line
+                  x1="517"
+                  y1="558"
+                  x2="917"
+                  y2="558"
+                  stroke="#334155"
+                  stroke-width="2.2"
+                  marker-end="url(#arr4)"
+                />
+                <text x="717" y="548" text-anchor="middle">
+                  6. stats/ledger only accepted ticket
+                </text>
+              </g>
+            </svg>
+          </div>
+
+          <h3>4.2 Flow rejet technique ou rejet métier après sync</h3>
+          <div class="grid-2">
+            <div class="card">
+              <span class="badge b-red">Rejet technique Offlinesync</span>
+              <div class="flow">
+                <div class="step">
+                  <div class="num">1</div>
+                  <div>
+                    <h4>Batch reçu</h4>
+                    <p>Le payload brut est stocké pour audit.</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="num">2</div>
+                  <div>
+                    <h4>Gate technique échoue</h4>
+                    <p>Signature invalide, code inconnu, hash modifié, séquence replay.</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="num">3</div>
+                  <div>
+                    <h4>Sales non appelé</h4>
+                    <p>Aucun Ticket, aucun TicketPlacedEvent, aucune stat Sales.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <span class="badge b-amber">Rejet métier Sales</span>
+              <div class="flow">
+                <div class="step">
+                  <div class="num">1</div>
+                  <div>
+                    <h4>Soumission techniquement OK</h4>
+                    <p>Offlinesync marque READY_FOR_SALES.</p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="num">2</div>
+                  <div>
+                    <h4>Gate Sales échoue</h4>
+                    <p>
+                      Après tirage, cutoff dépassé, limitpolicy block, pricing mismatch, session
+                      invalide.
+                    </p>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="num">3</div>
+                  <div>
+                    <h4>Pas de Ticket Sales</h4>
+                    <p>Offlinesync reçoit SALES_REJECTED ou REVIEW_REQUIRED.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h3>4.3 Flow review admin</h3>
+          <div class="diagram">
+            <svg
+              width="1160"
+              height="300"
+              viewBox="0 0 1160 300"
+              role="img"
+              aria-label="Sequence review admin"
+            >
+              <defs>
+                <marker
+                  id="arr5"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1160" height="300" rx="20" fill="#f8fafc" />
+              <rect x="40" y="42" width="210" height="70" rx="18" fill="#fff7ed" stroke="#fdba74" />
+              <text
+                x="145"
+                y="72"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#9a3412"
+              >
+                REVIEW_REQUIRED
+              </text>
+              <text x="145" y="95" text-anchor="middle" font-size="12" fill="#9a3412">
+                reste offlinesync
+              </text>
+
+              <line
+                x1="250"
+                y1="77"
+                x2="390"
+                y2="77"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arr5)"
+              />
+              <rect
+                x="390"
+                y="42"
+                width="210"
+                height="70"
+                rx="18"
+                fill="#ede9fe"
+                stroke="#c4b5fd"
+              />
+              <text
+                x="495"
+                y="72"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#5b21b6"
+              >
+                Tenant Admin
+              </text>
+              <text x="495" y="95" text-anchor="middle" font-size="12" fill="#6d28d9">
+                approve / reject
+              </text>
+
+              <line
+                x1="600"
+                y1="77"
+                x2="740"
+                y2="77"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#arr5)"
+              />
+              <rect
+                x="740"
+                y="42"
+                width="210"
+                height="70"
+                rx="18"
+                fill="#dcfce7"
+                stroke="#86efac"
+              />
+              <text
+                x="845"
+                y="72"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#166534"
+              >
+                Sales Decision
+              </text>
+              <text x="845" y="95" text-anchor="middle" font-size="12" fill="#15803d">
+                Ticket only if approved
+              </text>
+
+              <rect
+                x="260"
+                y="170"
+                width="300"
+                height="80"
+                rx="18"
+                fill="#dcfce7"
+                stroke="#86efac"
+              />
+              <text
+                x="410"
+                y="202"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#166534"
+              >
+                Admin approve
+              </text>
+              <text x="410" y="228" text-anchor="middle" font-size="13" fill="#15803d">
+                create Ticket + TicketPlacedEvent
+              </text>
+
+              <rect
+                x="610"
+                y="170"
+                width="300"
+                height="80"
+                rx="18"
+                fill="#fee2e2"
+                stroke="#fca5a5"
+              />
+              <text
+                x="760"
+                y="202"
+                text-anchor="middle"
+                font-size="16"
+                font-weight="900"
+                fill="#991b1b"
+              >
+                Admin reject
+              </text>
+              <text x="760" y="228" text-anchor="middle" font-size="13" fill="#b91c1c">
+                no Ticket, keep audit trail
+              </text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="section-head">
+          <h2>5. Ce qui va dans les features UI</h2>
+          <p>
+            Les features n’ont pas la vérité métier. Elles orchestrent l’expérience utilisateur
+            autour des core domains.
+          </p>
+        </div>
+        <div class="content">
+          <div class="grid-3">
+            <div class="lane">
+              <h3>Feature Cashier</h3>
+              <div class="item">
+                <strong>Sell online</strong
+                ><span>POST /tenant/tickets, reçu officiel immédiat.</span>
+              </div>
+              <div class="item">
+                <strong>Offline mode</strong
+                ><span>Afficher grant, limites restantes, dernière sync.</span>
+              </div>
+              <div class="item">
+                <strong>Print offline receipt</strong
+                ><span>Code pré-réservé + mention non payable avant validation.</span>
+              </div>
+              <div class="item">
+                <strong>Sync pending</strong
+                ><span>Envoyer batch, afficher acceptés/rejetés/review.</span>
+              </div>
+              <div class="item">
+                <strong>Local history</strong
+                ><span>Tickets locaux avec statut LOCAL / SENT / ACCEPTED / REJECTED.</span>
+              </div>
+            </div>
+
+            <div class="lane">
+              <h3>Tenant Admin</h3>
+              <div class="item">
+                <strong>Offline dashboard</strong><span>Suivi par vendeur, terminal, outlet.</span>
+              </div>
+              <div class="item">
+                <strong>Review queue</strong
+                ><span>Approve/reject submissions REVIEW_REQUIRED.</span>
+              </div>
+              <div class="item">
+                <strong>Risk scoring</strong
+                ><span>Sync tardive, gaps, rejets, fréquence offline.</span>
+              </div>
+              <div class="item">
+                <strong>Penalty policy</strong
+                ><span>Réduire limites, désactiver offline, suspendre terminal.</span>
+              </div>
+              <div class="item">
+                <strong>Session reports</strong><span>Voir ajustements offline post-close.</span>
+              </div>
+            </div>
+
+            <div class="lane">
+              <h3>Super Admin / Platform</h3>
+              <div class="item">
+                <strong>Global policy defaults</strong
+                ><span>Durée max grant, règles après résultat, device trust levels.</span>
+              </div>
+              <div class="item">
+                <strong>Audit investigation</strong
+                ><span>Payloads, signatures, batchs et codes offline.</span>
+              </div>
+              <div class="item">
+                <strong>Terminal revocation</strong><span>Bloquer POS ou vendeur globalement.</span>
+              </div>
+              <div class="item">
+                <strong>Risk monitoring</strong
+                ><span>Comparaison tenants/outlets, alertes fraude.</span>
+              </div>
+              <div class="item">
+                <strong>Ops tools</strong
+                ><span>Reprocess contrôlé, export audit, cache/admin.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="print-note">
+            <strong>UX prioritaire après sécurité :</strong> le vendeur doit comprendre qu’un reçu
+            offline est une preuve provisoire. L’acheteur doit pouvoir vérifier le code, mais le
+            statut peut être “en attente de synchronisation”.
+          </div>
+        </div>
+      </section>
+
+      <section id="impacts">
+        <div class="section-head">
+          <h2>6. Implications pour les autres domaines</h2>
+          <p>
+            Le mode offline touche plusieurs domaines, mais chacun garde sa responsabilité propre.
+          </p>
+        </div>
+        <div class="content">
+          <table>
+            <thead>
+              <tr>
+                <th>Domaine</th>
+                <th>Responsabilité</th>
+                <th>Impact offline</th>
+                <th>Règle de sécurité</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge b-cyan">offlinesync</span></td>
+                <td>Journal technique, grants, codes, submissions.</td>
+                <td>Conserve aussi les rejetés/reviews, payloads bruts et signatures.</td>
+                <td>Ne crée jamais de Ticket Sales.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-green">sales</span></td>
+                <td>Véritables tickets, argent, lifecycle ticket.</td>
+                <td>Crée les tickets offline acceptés uniquement.</td>
+                <td>Publie TicketPlacedEvent seulement après acceptation.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-amber">session</span></td>
+                <td>Caisse vendeur/session.</td>
+                <td>Normal si session ouverte ; adjustment si session fermée.</td>
+                <td>Jamais de modification silencieuse d’une session fermée.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-amber">limitpolicy</span></td>
+                <td>Limites, block, approval.</td>
+                <td>Deux types de rejet : block limite et rejet sync offline.</td>
+                <td>Block limite peut être REVIEW/REJECT selon policy.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-slate">draw / drawresult</span></td>
+                <td>Cutoff, scheduledAt, resultedAt.</td>
+                <td>Sales vérifie cutoff et refus auto après résultat connu.</td>
+                <td>createdAtDevice n’est jamais preuve suffisante.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-slate">catalog.pricing</span></td>
+                <td>Odds/pricing snapshots.</td>
+                <td>Grant contient snapshot, Sales revalide.</td>
+                <td>Pricing mismatch = no Ticket Sales.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-red">payout</span></td>
+                <td>Payer les tickets gagnants.</td>
+                <td>Tickets offline pending/review/rejected non payables.</td>
+                <td>Payout offline interdit.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-violet">stats/report</span></td>
+                <td>Rapports métier et risques.</td>
+                <td>Stats Sales séparées des stats Offline Risk.</td>
+                <td>Stats Sales ne lisent jamais offlinesync.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-blue">terminal</span></td>
+                <td>État device, lock, syncState, offline capability.</td>
+                <td>Détermine si POS/mobile peut recevoir un grant.</td>
+                <td>Terminal locked = pas de nouveau grant.</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-blue">accesscontrol</span></td>
+                <td>User/permissions/revocation.</td>
+                <td>Valide le vendeur au moment d’émission du grant.</td>
+                <td>Révocation = pas de nouveau grant ; anciennes sync selon policy.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="risks">
+        <div class="section-head">
+          <h2>7. Gates, risques et décisions</h2>
+          <p>
+            Il y a deux familles de rejet : le rejet de politique de vente/limite, et le rejet de
+            synchronisation offline.
+          </p>
+        </div>
+        <div class="content">
+          <div class="grid-2">
+            <div class="card">
+              <span class="badge b-red">Rejet LimitPolicy Block</span>
+              <h3>Rejet métier pendant l’évaluation Sales</h3>
+              <p>
+                Exemple : montant trop élevé, vendeur restreint, outlet policy, limite par draw ou
+                par session.
+              </p>
+              <pre>
+decision = SALES_REJECTED
+reason = LIMIT_POLICY_BLOCKED
+sales_ticket_id = null
+stats_sales = no
+commission = no</pre
+              >
+            </div>
+            <div class="card">
+              <span class="badge b-red">Rejet après Sync Offline</span>
+              <h3>Rejet lié au contexte offline</h3>
+              <p>
+                Exemple : sync après résultat, cutoff dépassé, heure device douteuse, code inconnu,
+                séquence replay.
+              </p>
+              <pre>
+decision = SALES_REJECTED or TECHNICALLY_REJECTED
+reason = SYNC_AFTER_RESULT / INVALID_SIGNATURE / DEVICE_TIME_UNTRUSTED
+sales_ticket_id = null
+stats_sales = no</pre
+              >
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Challenge</th>
+                <th>Décision sécuritaire</th>
+                <th>Faille Mobile/POS</th>
+                <th>Correction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Heure device trafiquée</td>
+                <td>createdAtDevice n’est pas une preuve.</td>
+                <td>Mobile peut changer l’heure.</td>
+                <td>
+                  Comparer receivedAtServer, cutoff, scheduledAt, resultedAt ; rejet/review après
+                  tirage.
+                </td>
+              </tr>
+              <tr>
+                <td>Offline plusieurs jours</td>
+                <td>Grant limité, pas d’auto-accept après résultat.</td>
+                <td>Vendeur attend les résultats.</td>
+                <td>AllowedDraws bornés, limites basses, sync tardive = reject/review.</td>
+              </tr>
+              <tr>
+                <td>Codes inventés</td>
+                <td>Codes offline pré-réservés.</td>
+                <td>App génère faux codes plausibles.</td>
+                <td>OfflineCodeBatch signé, séquence serveur, statut par code.</td>
+              </tr>
+              <tr>
+                <td>Reset app</td>
+                <td>Limites côté serveur, pas local-only.</td>
+                <td>Données locales effacées.</td>
+                <td>last sequence server-side, code batch non réutilisable.</td>
+              </tr>
+              <tr>
+                <td>Sync partielle</td>
+                <td>Séquences sans trou pour auto-accept.</td>
+                <td>Vendeur cache les gagnants.</td>
+                <td>Gaps = review/reject, surtout après résultat.</td>
+              </tr>
+              <tr>
+                <td>Session fermée</td>
+                <td>Adjustment séparé.</td>
+                <td>Cash de fermeture modifié après coup.</td>
+                <td>SalesSessionOfflineAdjustment audité.</td>
+              </tr>
+              <tr>
+                <td>Payout offline</td>
+                <td>Interdit.</td>
+                <td>Ticket pending utilisé pour payout.</td>
+                <td>Payout exige Ticket Sales accepté + winning + not paid.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <div class="section-head">
+          <h2>8. Évolution de Tchalanet et ordre de développement</h2>
+          <p>
+            Le développement doit stabiliser le modèle Sales avant d’ouvrir largement l’offline. La
+            sécurité des données et des stats est prioritaire.
+          </p>
+        </div>
+        <div class="content">
+          <div class="roadmap">
+            <div class="phase">
+              <div class="tag">P0</div>
+              <div class="body">
+                <h3>Stabiliser Sales money model</h3>
+                <p>
+                  Ajouter <code>stakeAmount</code>, <code>feeAmount</code>,
+                  <code>totalAmount</code>, mapper, entity, audit, vues read model, receipt.
+                </p>
+                <p class="small">
+                  Livrable : tickets online propres et events contenant stake/fee/total.
+                </p>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="tag">P1</div>
+              <div class="body">
+                <h3>Créer core.offlinesync minimal</h3>
+                <p>
+                  OfflineSalesGrant, OfflineCodeBatch, OfflineBatch, OfflineSaleSubmission, gates
+                  techniques, endpoints sync.
+                </p>
+                <p class="small">Livrable : stockage audit sans créer Ticket Sales.</p>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="tag">P2</div>
+              <div class="body">
+                <h3>SyncOfflineSalesCommand dans Sales</h3>
+                <p>
+                  Gates métier : cutoff, pricing, limits, session, duplicate, money breakdown. Créer
+                  Ticket seulement si accepté.
+                </p>
+                <p class="small">Livrable : flow auto-accept / reject / review.</p>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="tag">P3</div>
+              <div class="body">
+                <h3>Session post-close adjustment</h3>
+                <p>
+                  Créer le mécanisme d’ajustement de session pour tickets offline acceptés après
+                  fermeture.
+                </p>
+                <p class="small">Livrable : cash reports audités, sans modification silencieuse.</p>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="tag">P4</div>
+              <div class="body">
+                <h3>Features Cashier Flutter/POS</h3>
+                <p>
+                  Local DB chiffrée, queue offline, receipt offline, sync automatique, statut par
+                  ticket, reprint.
+                </p>
+                <p class="small">Livrable : vendeur peut vendre offline sans polluer Sales.</p>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="tag">P5</div>
+              <div class="body">
+                <h3>Tenant Admin + review queue</h3>
+                <p>
+                  Dashboard risk, approve/reject submissions, penalties, limites offline par
+                  vendeur/outlet/terminal.
+                </p>
+                <p class="small">Livrable : gouvernance tenant du risque offline.</p>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="tag">P6</div>
+              <div class="body">
+                <h3>Super Admin / Ops</h3>
+                <p>
+                  Politiques globales, audit investigation, révocation terminal, monitoring
+                  multi-tenant, exports.
+                </p>
+                <p class="small">Livrable : contrôle plateforme et conformité.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="print-note">
+            <strong>Roadmap recommandée :</strong> ne pas commencer par l’UI offline. D’abord
+            sécuriser Sales, puis Offlinesync, puis seulement Flutter/POS. Sinon les stats, la
+            session et le payout seront contaminés par des objets provisoires.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Tchalanet Offline Sales Blueprint — sécurité d’abord, expérience utilisateur ensuite.
+    </footer>
+  </body>
+</html>

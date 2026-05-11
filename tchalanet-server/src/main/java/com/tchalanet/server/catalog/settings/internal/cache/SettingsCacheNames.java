@@ -13,7 +13,7 @@ public final class SettingsCacheNames {
   /**
    * Cache for resolved settings (hierarchical merge result).
    *
-   * <p>Key format: "t={tenantId}|o={outletId}|m={terminalId}|ns={namespaces}"
+   * <p>Key format: "t={tenantId}|o={outletId}|m={id}|ns={namespaces}"
    */
   public static final String RESOLVED_SETTINGS = "catalog:settings:resolved_settings";
 }

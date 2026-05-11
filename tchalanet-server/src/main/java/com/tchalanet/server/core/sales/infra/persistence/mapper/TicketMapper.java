@@ -24,7 +24,7 @@ public class TicketMapper {
             TicketId.of(entity.getId()),
             TenantId.of(entity.getTenantId()),
             TerminalId.of(entity.getTerminalId()),
-            entity.getSessionId() == null ? null : SessionId.of(entity.getSessionId()),
+            entity.getSessionId() == null ? null : SalesSessionId.of(entity.getSessionId()),
             DrawId.of(entity.getDrawId()),
             entity.getTicketCode(),
             entity.getPublicCode(),
@@ -37,7 +37,7 @@ public class TicketMapper {
             entity.getWinningAmount(),
             entity.getResultedAt(),
             lines,
-            entity.getApprovalRequestId(),
+            ApprovalRequestId.nullableOf(entity.getApprovalRequestId()),
             entity.getCreatedAt(),
             entity.getUpdatedAt());
     }
@@ -81,7 +81,8 @@ public class TicketMapper {
         entity.setTotalAmount(domain.getTotalAmount());
         entity.setWinningAmount(domain.getWinningAmount());
         entity.setResultedAt(domain.getResultedAt());
-        entity.setApprovalRequestId(domain.getApprovalRequestId());
+        entity.setApprovalRequestId(
+            domain.getApprovalRequestId() == null ? null : domain.getApprovalRequestId().value());
 
         var lineEntities = domain.getLines().stream().map(this::toEntityLine).toList();
         entity.clearAndAddLines(lineEntities);

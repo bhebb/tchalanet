@@ -56,7 +56,7 @@ public class FeatureFlagAspect {
             : null;
     TerminalId terminalId = null;
 
-    // Use SpEL to extract tenantId, userId, terminalId from method arguments if provided in
+    // Use SpEL to extract tenantId, userId, id from method arguments if provided in
     // annotation
     StandardEvaluationContext evaluationContext = new StandardEvaluationContext();
     MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();

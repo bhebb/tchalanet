@@ -42,7 +42,7 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
   - `TicketResultStatus` : `NOT_RESULTED`, `WON`, `LOST`, `OVERRIDDEN`
   - `TicketSettlementStatus` : `UNSETTLED`, `SETTLED`
 - Audit : `createdAt`, `updatedAt`, `resultedAt (nullable)`
-- Approval : `approvalRequestId (UUID nullable)` — placeholder UUID aléatoire (`// TODO: integrate approval domain later`)
+- Approval : `approvalRequestId (ApprovalRequestId nullable)` — placeholder UUID aléatoire typé (`// TODO: integrate approval domain later`)
 - Lignes : `List<TicketLine>` (>= 1)
 
 **Invariants enforcés** (constructeur + state machine) :
@@ -92,16 +92,15 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 
 ### Queries (`application/query/`)
 
-| Query                                                  | Handler                                   | Notes                                                                                      |
-| ------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `ListTicketsQuery(filter, pageRequest)`                | `ListTicketsQueryHandler`                 | `TchPage<TicketSummaryView>` ; `filter.tenantId` toujours `null` (RLS) ; émet audit `LIST` |
-| `GetTicketDetailsQuery(ticketId)`                      | `GetTicketDetailsQueryHandler`            | Pas d'audit (décision v1 read-one)                                                         |
-| `VerifyPublicTicketQuery(publicCode, now)`             | `VerifyPublicTicketQueryHandler`          | Public ; visibilité via `SettingsCatalog` (default 14 j)                                   |
-| `ListRecentTicketsForCashierQuery`                     | `ListRecentTicketsForCashierQueryHandler` | —                                                                                          |
-| `GetTicketPrintEscPosQuery` / `GetTicketPrintPdfQuery` | handlers idem                             | Print binaire via `TicketReceiptFormatter`                                                 |
-| `GetTicketQrPngByPublicCodeQuery(publicCode, size)`    | `GetTicketQrPngByPublicCodeQueryHandler`  | Public, cache HTTP 1h                                                                      |
-| `ExportDailySalesQuery(from, to)`                      | `ExportDailySalesQueryHandler`            | CSV RLS-scoped                                                                             |
-| `GetAgentDailySalesQuery(from, to)`                    | `GetAgentDailySalesQueryHandler`          | Aggregate JPQL                                                                             |
+| Query                                               | Handler                                   | Notes                                                                                      |
+| --------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `ListTicketsQuery(filter, pageRequest)`             | `ListTicketsQueryHandler`                 | `TchPage<TicketSummaryView>` ; `filter.tenantId` toujours `null` (RLS) ; émet audit `LIST` |
+| `GetTicketDetailsQuery(ticketId)`                   | `GetTicketDetailsQueryHandler`            | Pas d'audit (décision v1 read-one)                                                         |
+| `VerifyPublicTicketQuery(publicCode, now)`          | `VerifyPublicTicketQueryHandler`          | Public ; visibilité via `SettingsCatalog` (default 14 j)                                   |
+| `ListRecentTicketsForCashierQuery`                  | `ListRecentTicketsForCashierQueryHandler` | —                                                                                          |
+| `GetTicketQrPngByPublicCodeQuery(publicCode, size)` | `GetTicketQrPngByPublicCodeQueryHandler`  | Public, cache HTTP 1h                                                                      |
+| `ExportDailySalesQuery(from, to)`                   | `ExportDailySalesQueryHandler`            | CSV RLS-scoped                                                                             |
+| `GetAgentDailySalesQuery(from, to)`                 | `GetAgentDailySalesQueryHandler`          | Aggregate JPQL                                                                             |
 
 ### Services applicatifs
 
@@ -117,7 +116,8 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 
 ### Ports OUT (`application/port/out/`)
 
-- `TicketReaderPort` : `findById`, `findByPublicCode`, `findWithLinesById`, `search`, `getTicketPrintView`, `exportDailySalesCsv`, `listRecentForCashier`, `getAgentDailySales`.
+- `TicketReaderPort` : `findById`, `findByPublicCode`, `findWithLinesById`, `search`, `exportDailySalesCsv`, `listRecentForCashier`, `getAgentDailySales`.
+- `TicketPrintReaderPort` : `findTicketPrintView` pour `features.receipt`, `features.cashier` et les flux de communication.
 - `TicketWriterPort` (typo : double 't') : `save`, `archiveOldTickets`.
 - `TicketSettlementPort` : `findNextBatchForDraw(drawId, cursor, limit)` — cursor keyset (`createdAt`, `id`).
 - `TicketSettlementQueryPort` : `existsPendingByDrawId`, `countPendingByDrawId`.
@@ -213,7 +213,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
   - Settlement ré-appliqué → `IllegalStateException` au premier ticket `WON/LOST` (markResulted exige SOLD) → batch interrompu.
 - **Timezone** : `TicketSalePolicy` et `CancelSaleCommandHandler` utilisent `ZoneId.systemDefault()` dans `LimitContext` (anomalie).
 - **Cache** : aucun `@Cacheable` côté domaine ; QR PNG cacheable 1h en HTTP.
-- **Print** : `Locale.FRENCH` hardcodé dans `JpaTicketRepositoryAdapter.getTicketPrintView`.
+- **Print/receipt** : endpoints PDF, ESC/POS et QR sous `features.receipt`; `core.sales` fournit seulement la projection via `TicketPrintReaderPort`.
 
 ---
 
@@ -292,6 +292,6 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 - `TicketWinningCalculator` : `LOTTO5_PATTERN` option 3 hardcodé `false`.
 - `SalesTicketAdminAdapter.refuseNewTickets/allowNewTickets` : no-op v1.
-- `approvalRequestId = UUID.randomUUID()` non lié à un domaine d'approbation (TODO).
-- `getTicketPrintView` : `Locale.FRENCH` hardcodé (TODO).
+- `ApprovalRequestId.of(UUID.randomUUID())` non lié à un domaine d'approbation (TODO).
+- `findTicketPrintView` : la locale est fournie par le contexte appelant, avec fallback `Locale.FRENCH`.
 - Aucun scheduler `core.sales` (archivage/expiration non automatisé).

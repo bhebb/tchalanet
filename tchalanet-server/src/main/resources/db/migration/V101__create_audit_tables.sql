@@ -200,7 +200,7 @@ CREATE TABLE ticket_aud (id uuid NOT NULL,
   updated_at timestamptz,
   updated_by uuid,
   deleted_at timestamptz,
-  version bigint, tenant_id uuid, outlet_id uuid, terminal_id uuid, draw_id uuid, session_id uuid, user_id uuid, ticket_code text, public_code varchar(32), sale_status varchar(24), result_status varchar(24), settlement_status varchar(24), currency varchar(8), total_amount_cents bigint, winning_amount_cents bigint, resulted_at timestamptz, approval_request_id uuid, CONSTRAINT pk_ticket_aud PRIMARY KEY (id, rev),
+  version bigint, tenant_id uuid, outlet_id uuid, terminal_id uuid, draw_id uuid, session_id uuid, user_id uuid, ticket_code text, public_code varchar(32), sale_status varchar(24), result_status varchar(24), settlement_status varchar(24), currency varchar(3), total_amount_cents bigint, winning_amount_cents bigint, resulted_at timestamptz, approval_request_id uuid, CONSTRAINT pk_ticket_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_ticket_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
 CREATE TABLE ticket_line_aud (id uuid NOT NULL,
   rev integer NOT NULL,
@@ -212,16 +212,51 @@ CREATE TABLE ticket_line_aud (id uuid NOT NULL,
   deleted_at timestamptz,
   version bigint, tenant_id uuid, ticket_id uuid, game_code varchar(32), selection varchar(32), stake_cents bigint, odds_snapshot numeric(12,4), potential_payout_cents bigint, bet_option smallint, bet_type varchar(32), CONSTRAINT pk_ticket_line_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_ticket_line_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
-CREATE TABLE payout_aud (id uuid NOT NULL,
-  rev integer NOT NULL,
-  revtype smallint,
-  created_at timestamptz,
-  created_by uuid,
-  updated_at timestamptz,
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint, tenant_id uuid, ticket_id uuid, selling_outlet_id uuid, selling_session_id uuid, paying_outlet_id uuid, paying_session_id uuid, terminal_id uuid, paid_by_user_id uuid, amount_cents bigint, currency varchar(3), status varchar(24), approved_at timestamptz, paid_at timestamptz, rejected_at timestamptz, rejected_reason text, CONSTRAINT pk_payout_aud PRIMARY KEY (id, rev),
-  CONSTRAINT fk_payout_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
+
+create table payout_aud (
+                            id uuid not null,
+                            rev integer not null,
+                            revtype smallint,
+
+                            tenant_id uuid,
+
+                            ticket_id uuid,
+                            amount_cents bigint,
+                            currency varchar(3),
+
+                            status varchar(32),
+
+                            selling_outlet_id uuid,
+                            selling_session_id uuid,
+
+                            paying_outlet_id uuid,
+                            paying_session_id uuid,
+                            paying_terminal_id uuid,
+
+                            requested_by uuid,
+                            approved_by uuid,
+                            rejected_by uuid,
+                            paid_by uuid,
+
+                            approved_at timestamptz,
+                            rejected_at timestamptz,
+                            paid_at timestamptz,
+
+                            rejected_reason text,
+                            reason text,
+
+                            created_at timestamptz,
+                            updated_at timestamptz,
+                            deleted_at timestamptz,
+                            created_by uuid,
+                            updated_by uuid,
+
+                            version bigint,
+
+                            primary key (rev, id)
+);
+
+
 CREATE TABLE pricing_odds_aud (id uuid NOT NULL,
   rev integer NOT NULL,
   revtype smallint,
@@ -232,26 +267,34 @@ CREATE TABLE pricing_odds_aud (id uuid NOT NULL,
   deleted_at timestamptz,
   version bigint, tenant_id uuid, game_code varchar(32), bet_type varchar(32), bet_option smallint, odds numeric(12,4), active boolean, CONSTRAINT pk_pricing_odds_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_pricing_odds_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
-CREATE TABLE limit_definition_aud (id uuid NOT NULL,
-  rev integer NOT NULL,
-  revtype smallint,
-  created_at timestamptz,
-  created_by uuid,
-  updated_at timestamptz,
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint, rule_key varchar(64), enabled boolean, on_breach varchar(32), params jsonb, applies_to jsonb, CONSTRAINT pk_limit_definition_aud PRIMARY KEY (id, rev),
-  CONSTRAINT fk_limit_definition_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
-CREATE TABLE limit_assignment_aud (id uuid NOT NULL,
-  rev integer NOT NULL,
-  revtype smallint,
-  created_at timestamptz,
-  created_by uuid,
-  updated_at timestamptz,
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint, tenant_id uuid, limit_definition_id uuid, target_type varchar(16), target_id uuid, enabled boolean, starts_at timestamptz, ends_at timestamptz, params_override jsonb, applies_to_override jsonb, CONSTRAINT pk_limit_assignment_aud PRIMARY KEY (id, rev),
-  CONSTRAINT fk_limit_assignment_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
+
+CREATE TABLE IF NOT EXISTS limit_assignment_aud (
+                                                    id uuid NOT NULL,
+                                                    rev integer NOT NULL,
+                                                    revtype smallint,
+
+                                                    tenant_id uuid,
+                                                    rule_key varchar(80),
+
+    scope_type varchar(32),
+    scope_id uuid,
+
+    enabled boolean,
+    on_breach varchar(32),
+
+    params jsonb,
+
+    starts_at timestamptz,
+    ends_at timestamptz,
+
+    version bigint,
+
+    created_at timestamptz,
+    updated_at timestamptz,
+    deleted_at timestamptz,
+
+    PRIMARY KEY (id, rev)
+    );
 CREATE TABLE billing_plan_aud (id uuid NOT NULL,
   rev integer NOT NULL,
   revtype smallint,

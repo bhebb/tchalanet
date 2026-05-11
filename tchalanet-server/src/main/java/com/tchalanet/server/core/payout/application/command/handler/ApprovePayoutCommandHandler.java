@@ -1,43 +1,50 @@
 package com.tchalanet.server.core.payout.application.command.handler;
 
-import com.tchalanet.server.common.bus.VoidCommandHandler;
+import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.payout.application.command.model.ApprovePayoutCommand;
+import com.tchalanet.server.core.payout.application.command.model.PayoutWorkflowResult;
 import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
 import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
-import com.tchalanet.server.core.payout.domain.model.Payout;
-import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.domain.event.PayoutApprovedEvent;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
-public class ApprovePayoutCommandHandler implements VoidCommandHandler<ApprovePayoutCommand> {
-
-  private final PayoutReaderPort payoutReaderPort;
-  private final PayoutWriterPort payoutWriterPort;
+public class ApprovePayoutCommandHandler implements CommandHandler<ApprovePayoutCommand, PayoutWorkflowResult> {
+  private final PayoutReaderPort reader;
+  private final PayoutWriterPort writer;
+  private final DomainEventPublisher events;
+  private final IdGenerator idGenerator;
   private final Clock clock;
 
   @Override
   @TchTx
-  public void handle(ApprovePayoutCommand command) {
-    Optional<Payout> opt = payoutReaderPort.findById(command.payoutId());
-    if (opt.isEmpty()) throw new IllegalStateException("Payout not found: " + command.payoutId());
-    Payout payout = opt.get();
+  public PayoutWorkflowResult handle(ApprovePayoutCommand command) {
+    var payout = reader.getById(command.payoutId());
 
-    // ensure same tenant
-    if (!payout.getTenantId().equals(command.tenantId())) {
-      throw new IllegalStateException("Tenant mismatch for payout approval");
-    }
+    var now = Instant.now(clock);
+    payout.approve(command.approvedBy(), now);
+    var saved = writer.save(payout);
 
-    if (payout.getStatus() != PayoutStatus.REQUESTED) {
-      throw new IllegalStateException("Only REQUESTED payouts can be approved");
-    }
+    var event = new PayoutApprovedEvent(
+        EventId.of(idGenerator.newUuid()),
+        now,
+        command.tenantId(),
+        saved.getId(),
+        saved.getTicketId(),
+        saved.getAmountCents(),
+        saved.getCurrency(),
+        command.approvedBy());
+    AfterCommit.run(() -> events.publish(event));
 
-    payout.approve(Instant.now(clock));
-    payoutWriterPort.save(payout);
+    return new PayoutWorkflowResult(saved.getId(), saved.getStatus(), now);
   }
 }

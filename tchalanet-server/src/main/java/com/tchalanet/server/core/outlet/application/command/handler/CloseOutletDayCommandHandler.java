@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.outlet.application.command.handler;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
@@ -13,79 +14,99 @@ import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDay
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
-import com.tchalanet.server.core.outlet.application.port.out.SessionAdminPort;
 import com.tchalanet.server.core.outlet.domain.event.OutletDayClosedEvent;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import com.tchalanet.server.core.session.application.query.model.GetOpenedSalesSessionQuery;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+
 
 @UseCase
 @RequiredArgsConstructor
 public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOutletDayCommand> {
 
-    private final SessionAdminPort sessionAdmin;
     private final SalesTicketAdminPort salesAdmin;
     private final OutletReaderPort outletReader;
     private final OutletWriterPort outletWriter;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
     private final Clock clock;
+    private final QueryBus queryBus;
 
     @Override
     @TchTx
     public void handle(CloseOutletDayCommand cmd) {
         var tenantId = cmd.tenantId();
         var outletId = cmd.outletId();
+        var now = Instant.now(clock);
 
-        var payload = cmd.payload();
-        if (payload == null)
-            payload =
-                new CloseOutletDayPayload(LocalDate.now(), LocalDate.now(), CloseDayMode.STRICT, null);
+        var payload = normalizePayload(cmd.payload());
+        var mode = payload.getMode();
 
-        var mode = payload.getMode() == null ? CloseDayMode.STRICT : payload.getMode();
+        var outlet = outletReader.getRequired(outletId);
+        var zone = ZoneId.of(outlet.timezone());
 
-        boolean hasOpen = sessionAdmin.hasOpenSessions(outletId);
-        if (hasOpen) {
-            if (mode == CloseDayMode.STRICT) {
-                throw new IllegalStateException("Cannot close day: open sessions exist");
-            }
-            // FORCE_SESSIONS or FORCE_ALL will proceed to close
-            sessionAdmin.closeAllOpenSessions(outletId, "closed_by_outlet_day");
+        var openSessions =
+            queryBus.ask(new GetOpenedSalesSessionQuery(tenantId, outletId, null, null));
+
+        if (!openSessions.isEmpty() && mode == CloseDayMode.STRICT) {
+            throw new IllegalStateException("Cannot close outlet day: open sales sessions exist");
         }
 
-        // compute date range instants
-        LocalDate fromDate = payload.getFrom() == null ? LocalDate.now() : payload.getFrom();
-        LocalDate toDate = payload.getTo() == null ? LocalDate.now() : payload.getTo();
-        Instant from = fromDate.atStartOfDay().toInstant(ZoneOffset.UTC);
-        Instant to = toDate.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        var from = payload.getFrom().atStartOfDay(zone).toInstant();
+        var to = payload.getTo().plusDays(1).atStartOfDay(zone).toInstant();
 
         var stats = salesAdmin.getCloseStats(outletId, from, to);
 
-        // pending is defined as SOLD tickets
-        long pending = stats.sold();
-        if (pending > 0 && mode != CloseDayMode.FORCE_ALL) {
-            throw new IllegalStateException("Cannot close day: pending sold tickets exist: " + pending);
+        if (stats.sold() > 0 && mode != CloseDayMode.FORCE_ALL) {
+            throw new IllegalStateException(
+                "Cannot close outlet day: pending sold tickets exist: " + stats.sold());
         }
 
-        // refuse new tickets during closure (may be no-op for now)
-        salesAdmin.refuseNewTickets(outletId);
-
-        // mark outlet closed in domain and persist (also block sales)
-        Outlet outlet = outletReader.getRequired(outletId);
-        String reason =
+        var reason =
             payload.getReason() == null || payload.getReason().isBlank()
                 ? "closed_by_outlet_day"
                 : payload.getReason();
-        Outlet updated = outlet.closeDay().blockSales(reason, Instant.now(clock));
+
+        var updated = outlet.closeDay().blockSales(reason, now);
+
+        if (updated.equals(outlet)) {
+            return;
+        }
+
         outletWriter.save(updated);
-        LocalDate closedDate = payload.getTo() == null ? toDate : payload.getTo();
+
         var event =
             new OutletDayClosedEvent(
-                EventId.of(idGenerator.newUuid()), Instant.now(clock), tenantId, outletId, closedDate);
+                EventId.of(idGenerator.newUuid()),
+                now,
+                tenantId,
+                outletId,
+                payload.getTo(),
+                mode,
+                cmd.actorUserId());
+
         AfterCommit.run(() -> publisher.publish(event));
+    }
+
+    private CloseOutletDayPayload normalizePayload(CloseOutletDayPayload payload) {
+        var today = LocalDate.now(clock);
+
+        if (payload == null) {
+            return new CloseOutletDayPayload(today, today, CloseDayMode.STRICT, null);
+        }
+
+        var from = payload.getFrom() == null ? today : payload.getFrom();
+        var to = payload.getTo() == null ? from : payload.getTo();
+        var mode = payload.getMode() == null ? CloseDayMode.STRICT : payload.getMode();
+
+        if (to.isBefore(from)) {
+            throw new IllegalArgumentException("Close day 'to' date cannot be before 'from' date");
+        }
+
+        return new CloseOutletDayPayload(from, to, mode, payload.getReason());
     }
 }

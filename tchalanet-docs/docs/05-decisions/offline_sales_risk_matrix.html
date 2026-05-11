@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tchalanet — Matrice des risques Offline Sales</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --border: #334155;
+        --critical: #dc2626;
+        --high: #f97316;
+        --medium: #eab308;
+        --low: #22c55e;
+        --info: #38bdf8;
+        --purple: #a855f7;
+        --pink: #ec4899;
+        --blue: #3b82f6;
+        --green: #10b981;
+        --yellow-bg: rgba(234, 179, 8, 0.12);
+        --red-bg: rgba(220, 38, 38, 0.14);
+        --orange-bg: rgba(249, 115, 22, 0.13);
+        --green-bg: rgba(34, 197, 94, 0.12);
+        --blue-bg: rgba(56, 189, 248, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.22), transparent 30rem),
+          radial-gradient(circle at top right, rgba(236, 72, 153, 0.18), transparent 28rem),
+          linear-gradient(180deg, #020617, var(--bg));
+        line-height: 1.55;
+      }
+
+      header {
+        padding: 48px 28px 30px;
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.05;
+        margin: 0 0 16px;
+        letter-spacing: -0.04em;
+      }
+
+      .subtitle {
+        max-width: 900px;
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+      }
+      .badge {
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.72);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 28px 64px;
+      }
+
+      section {
+        border: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.72);
+        border-radius: 24px;
+        padding: 24px;
+        margin: 22px 0;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(8px);
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin: 0 0 18px;
+        letter-spacing: -0.02em;
+      }
+      h3 {
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+      }
+      p {
+        color: var(--muted);
+      }
+
+      .legend {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .legend-item {
+        border-radius: 16px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+      }
+      .dot {
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        margin-right: 7px;
+      }
+      .critical {
+        background: var(--critical);
+      }
+      .high {
+        background: var(--high);
+      }
+      .medium {
+        background: var(--medium);
+      }
+      .low {
+        background: var(--low);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+      .flow-card {
+        position: relative;
+        min-height: 130px;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 16px;
+        background: linear-gradient(180deg, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.9));
+      }
+      .flow-card:not(:last-child)::after {
+        content: '→';
+        position: absolute;
+        right: -15px;
+        top: 46%;
+        color: var(--info);
+        font-size: 24px;
+        font-weight: 800;
+      }
+      .flow-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: white;
+      }
+      .flow-card span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .risk-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .risk-card {
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 16px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+      .risk-card.critical-risk {
+        background: linear-gradient(180deg, var(--red-bg), rgba(17, 24, 39, 0.95));
+        border-color: rgba(220, 38, 38, 0.55);
+      }
+      .risk-card.high-risk {
+        background: linear-gradient(180deg, var(--orange-bg), rgba(17, 24, 39, 0.95));
+        border-color: rgba(249, 115, 22, 0.52);
+      }
+      .risk-card.medium-risk {
+        background: linear-gradient(180deg, var(--yellow-bg), rgba(17, 24, 39, 0.95));
+        border-color: rgba(234, 179, 8, 0.5);
+      }
+      .risk-card.low-risk {
+        background: linear-gradient(180deg, var(--green-bg), rgba(17, 24, 39, 0.95));
+        border-color: rgba(34, 197, 94, 0.42);
+      }
+
+      .severity {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 12px;
+      }
+      .severity.critical-label {
+        background: rgba(220, 38, 38, 0.22);
+        color: #fecaca;
+      }
+      .severity.high-label {
+        background: rgba(249, 115, 22, 0.2);
+        color: #fed7aa;
+      }
+      .severity.medium-label {
+        background: rgba(234, 179, 8, 0.2);
+        color: #fef08a;
+      }
+      .severity.low-label {
+        background: rgba(34, 197, 94, 0.18);
+        color: #bbf7d0;
+      }
+
+      .risk-card ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+      .risk-card li {
+        margin: 6px 0;
+      }
+
+      .matrix {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 16px;
+      }
+      .matrix th,
+      .matrix td {
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .matrix th {
+        background: rgba(31, 41, 55, 0.9);
+        text-align: left;
+        color: #fff;
+        font-size: 0.9rem;
+      }
+      .matrix tr:last-child td {
+        border-bottom: 0;
+      }
+      .matrix td {
+        color: var(--muted);
+      }
+      .pill {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .pill-critical {
+        background: rgba(220, 38, 38, 0.2);
+        color: #fecaca;
+      }
+      .pill-high {
+        background: rgba(249, 115, 22, 0.2);
+        color: #fed7aa;
+      }
+      .pill-medium {
+        background: rgba(234, 179, 8, 0.2);
+        color: #fef08a;
+      }
+      .pill-low {
+        background: rgba(34, 197, 94, 0.17);
+        color: #bbf7d0;
+      }
+      .pill-online {
+        background: rgba(56, 189, 248, 0.15);
+        color: #bae6fd;
+      }
+      .pill-offline {
+        background: rgba(168, 85, 247, 0.16);
+        color: #e9d5ff;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .policy-box {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+        background: var(--panel);
+      }
+      .policy-box.ok {
+        border-color: rgba(34, 197, 94, 0.45);
+        background: var(--green-bg);
+      }
+      .policy-box.no {
+        border-color: rgba(220, 38, 38, 0.5);
+        background: var(--red-bg);
+      }
+      .policy-box ul {
+        color: var(--muted);
+        margin-bottom: 0;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .arch-card {
+        border-radius: 18px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+      }
+      .arch-card:nth-child(1) {
+        border-color: rgba(56, 189, 248, 0.45);
+        background: var(--blue-bg);
+      }
+      .arch-card:nth-child(2) {
+        border-color: rgba(168, 85, 247, 0.45);
+        background: rgba(168, 85, 247, 0.12);
+      }
+      .arch-card:nth-child(3) {
+        border-color: rgba(34, 197, 94, 0.45);
+        background: var(--green-bg);
+      }
+      .arch-card:nth-child(4) {
+        border-color: rgba(236, 72, 153, 0.45);
+        background: rgba(236, 72, 153, 0.12);
+      }
+
+      code {
+        background: rgba(2, 6, 23, 0.7);
+        color: #dbeafe;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 7px;
+        padding: 2px 6px;
+        font-size: 0.9em;
+      }
+
+      footer {
+        color: var(--muted);
+        text-align: center;
+        padding: 26px;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 980px) {
+        .legend,
+        .flow,
+        .risk-grid,
+        .two-col,
+        .architecture {
+          grid-template-columns: 1fr;
+        }
+        .flow-card:not(:last-child)::after {
+          content: '↓';
+          right: 50%;
+          top: auto;
+          bottom: -22px;
+          transform: translateX(50%);
+        }
+        .matrix {
+          display: block;
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Tchalanet — Matrice des risques Offline Sales</h1>
+      <p class="subtitle">
+        Schéma de conception pour permettre la vente hors ligne en Haïti tout en limitant les
+        fraudes, les dépassements de limites, les ventes après cutoff, les faux tickets, les
+        problèmes de login offline et les conflits de synchronisation.
+      </p>
+      <div class="badge-row">
+        <span class="badge">Offline normal, online optimal</span>
+        <span class="badge">Serveur = source de vérité</span>
+        <span class="badge">Payout offline interdit</span>
+        <span class="badge">Snapshot signé obligatoire</span>
+        <span class="badge">Sync idempotente par batch</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>Légende de criticité</h2>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="dot critical"></span><strong>Critique</strong><br /><span
+              >Perte financière, fraude directe, ticket payable invalide.</span
+            >
+          </div>
+          <div class="legend-item">
+            <span class="dot high"></span><strong>Élevé</strong><br /><span
+              >Risque opérationnel majeur, litige client, abus vendeur.</span
+            >
+          </div>
+          <div class="legend-item">
+            <span class="dot medium"></span><strong>Moyen</strong><br /><span
+              >Incohérence, besoin de review, impact contrôlable.</span
+            >
+          </div>
+          <div class="legend-item">
+            <span class="dot low"></span><strong>Faible</strong><br /><span
+              >Risque surtout UX/support ou facilement récupérable.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Flow sécurisé cible</h2>
+        <div class="flow">
+          <div class="flow-card">
+            <strong>1. Online bootstrap</strong
+            ><span>Login serveur, terminal connu, session ouverte, outlet autorisé.</span>
+          </div>
+          <div class="flow-card">
+            <strong>2. Snapshot signé</strong
+            ><span>Draws, cutoff, pricing, limites, receipt config, validUntil.</span>
+          </div>
+          <div class="flow-card">
+            <strong>3. Vente offline bornée</strong
+            ><span>Tickets locaux immutables, séquence monotone, reçu OFFLINE_PENDING.</span>
+          </div>
+          <div class="flow-card">
+            <strong>4. Sync batch</strong
+            ><span
+              >Batch idempotent, validation serveur ticket par ticket, détection gaps/replay.</span
+            >
+          </div>
+          <div class="flow-card">
+            <strong>5. Accept / reject / review</strong
+            ><span>Cash session mis à jour uniquement pour tickets acceptés.</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Schéma coloré des risques principaux</h2>
+        <div class="risk-grid">
+          <article class="risk-card critical-risk">
+            <div class="severity critical-label">Critique</div>
+            <h3>Fraude de transaction</h3>
+            <p>Vendeur crée, modifie ou rejoue des tickets hors contrôle serveur.</p>
+            <ul>
+              <li>Ticket payload signé</li>
+              <li>QR + hash court imprimé</li>
+              <li>Idempotency key unique</li>
+              <li>Revalidation serveur obligatoire</li>
+            </ul>
+          </article>
+          <article class="risk-card critical-risk">
+            <div class="severity critical-label">Critique</div>
+            <h3>Vente après cutoff</h3>
+            <p>Modification de l’heure device ou vente tardive sans connexion.</p>
+            <ul>
+              <li>cutoffAt serveur dans snapshot</li>
+              <li>validUntil court</li>
+              <li>clock drift detection</li>
+              <li>sync refuse ou met en review</li>
+            </ul>
+          </article>
+          <article class="risk-card critical-risk">
+            <div class="severity critical-label">Critique</div>
+            <h3>Payout d’un ticket non validé</h3>
+            <p>Client réclame un gain avant que le ticket offline soit accepté.</p>
+            <ul>
+              <li>Payout offline interdit</li>
+              <li>syncStatus doit être ACCEPTED</li>
+              <li>Reçu indique non payable avant validation</li>
+              <li>Public verify affiche PENDING/UNKNOWN</li>
+            </ul>
+          </article>
+          <article class="risk-card high-risk">
+            <div class="severity high-label">Élevé</div>
+            <h3>Dépassement des limites</h3>
+            <p>Vente massive offline au-delà du plafond par ticket/session/outlet.</p>
+            <ul>
+              <li>maxOfflineTicketAmount</li>
+              <li>maxOfflineTotalAmount</li>
+              <li>maxOfflineTicketCount</li>
+              <li>Agrégation serveur par terminal/outlet/seller</li>
+            </ul>
+          </article>
+          <article class="risk-card high-risk">
+            <div class="severity high-label">Élevé</div>
+            <h3>Login offline abusif</h3>
+            <p>Compte révoqué, PIN partagé, terminal volé ou session expirée.</p>
+            <ul>
+              <li>Offline token signé et court</li>
+              <li>PIN/biométrie locale</li>
+              <li>Device binding</li>
+              <li>Revocation check à la sync</li>
+            </ul>
+          </article>
+          <article class="risk-card high-risk">
+            <div class="severity high-label">Élevé</div>
+            <h3>Sync sélective</h3>
+            <p>Le vendeur synchronise seulement certains tickets.</p>
+            <ul>
+              <li>localSequence monotone</li>
+              <li>Gaps détectés côté serveur</li>
+              <li>Sync append-only par terminal</li>
+              <li>Batch complet requis selon policy</li>
+            </ul>
+          </article>
+          <article class="risk-card medium-risk">
+            <div class="severity medium-label">Moyen</div>
+            <h3>Session fermée pendant offline</h3>
+            <p>Admin ferme la session/journée pendant que le vendeur continue.</p>
+            <ul>
+              <li>salesSessionId dans snapshot</li>
+              <li>validUntil court</li>
+              <li>createdAtDevice comparé à closedAt</li>
+              <li>Review si zone grise</li>
+            </ul>
+          </article>
+          <article class="risk-card medium-risk">
+            <div class="severity medium-label">Moyen</div>
+            <h3>Ancien pricing / odds</h3>
+            <p>Vente avec une version de prix obsolète.</p>
+            <ul>
+              <li>pricingSnapshotId obligatoire</li>
+              <li>oddsSnapshot par ligne</li>
+              <li>version signée</li>
+              <li>Expiration courte</li>
+            </ul>
+          </article>
+          <article class="risk-card low-risk">
+            <div class="severity low-label">Faible</div>
+            <h3>Litige UX client</h3>
+            <p>Le client croit que le ticket offline est définitif.</p>
+            <ul>
+              <li>Reçu très explicite</li>
+              <li>Statut OFFLINE_PENDING</li>
+              <li>Dernière sync connue</li>
+              <li>Vérification publique claire</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>Matrice risques → actions de mitigation</h2>
+        <table class="matrix" aria-label="Matrice des risques offline sales">
+          <thead>
+            <tr>
+              <th>Risque</th>
+              <th>Criticité</th>
+              <th>Détection</th>
+              <th>Mitigations</th>
+              <th>Décision produit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Vente après cutoff</td>
+              <td><span class="pill pill-critical">Critique</span></td>
+              <td>createdAtDevice hors fenêtre, drift, draw fermé</td>
+              <td>cutoffAt signé, validUntil court, revalidation serveur</td>
+              <td>Reject ou REVIEW_REQUIRED selon tolérance</td>
+            </tr>
+            <tr>
+              <td>Dépassement limites offline</td>
+              <td><span class="pill pill-high">Élevé</span></td>
+              <td>Total local &gt; max, agrégation serveur par seller/outlet</td>
+              <td>Plafonds par ticket, batch, session, terminal, outlet</td>
+              <td>Reject excédent ; alerte admin</td>
+            </tr>
+            <tr>
+              <td>Login offline non autorisé</td>
+              <td><span class="pill pill-high">Élevé</span></td>
+              <td>Token expiré, user revoked, terminal locked</td>
+              <td>Token signé, PIN, device binding, validité courte</td>
+              <td>Pas de snapshot valide = pas de vente</td>
+            </tr>
+            <tr>
+              <td>Faux ticket / ticket modifié</td>
+              <td><span class="pill pill-critical">Critique</span></td>
+              <td>Signature invalide, hash mismatch, QR incohérent</td>
+              <td>Signature ticket, payload canonique, reçu hashé</td>
+              <td>Reject immédiat + flag fraude</td>
+            </tr>
+            <tr>
+              <td>Sync sélective / gaps</td>
+              <td><span class="pill pill-high">Élevé</span></td>
+              <td>Séquence manquante ou recule</td>
+              <td>localSequence monotone, append-only, contrôle serveur</td>
+              <td>CONFLICT ou REVIEW_REQUIRED</td>
+            </tr>
+            <tr>
+              <td>Double sync / replay</td>
+              <td><span class="pill pill-medium">Moyen</span></td>
+              <td>offlineBatchId ou idempotencyKey déjà vus</td>
+              <td>Contraintes uniques, réponse idempotente</td>
+              <td>Retourner résultat précédent</td>
+            </tr>
+            <tr>
+              <td>Session fermée pendant offline</td>
+              <td><span class="pill pill-medium">Moyen</span></td>
+              <td>createdAtDevice &gt; session.closedAt</td>
+              <td>Fenêtre courte, sessionId dans snapshot, policy de tolérance</td>
+              <td>Reject après closedAt + tolerance</td>
+            </tr>
+            <tr>
+              <td>Payout ticket pending</td>
+              <td><span class="pill pill-critical">Critique</span></td>
+              <td>syncStatus != ACCEPTED</td>
+              <td>Payout online seulement, verrou transactionnel payout</td>
+              <td>Interdit non négociable</td>
+            </tr>
+            <tr>
+              <td>Terminal volé</td>
+              <td><span class="pill pill-high">Élevé</span></td>
+              <td>Terminal locked, activité anormale</td>
+              <td>PIN, limites basses, validUntil court, révocation clé</td>
+              <td>Reject si terminal locked avant batch selon policy</td>
+            </tr>
+            <tr>
+              <td>Ancien pricing</td>
+              <td><span class="pill pill-medium">Moyen</span></td>
+              <td>pricingSnapshotId expiré ou inconnu</td>
+              <td>Snapshot versionné/signé, oddsSnapshot par ligne</td>
+              <td>Reject si mismatch</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Actions offline permises / interdites</h2>
+        <div class="two-col">
+          <div class="policy-box ok">
+            <h3><span class="pill pill-offline">Permis offline</span></h3>
+            <ul>
+              <li>Login offline avec token/snapshot valide</li>
+              <li>Consulter le snapshot signé</li>
+              <li>Vendre dans l’enveloppe autorisée</li>
+              <li>Imprimer / réimprimer un ticket local</li>
+              <li>Annuler localement un ticket non synchronisé selon policy</li>
+              <li>Lister les tickets locaux</li>
+              <li>Préparer et envoyer une sync batch</li>
+            </ul>
+          </div>
+          <div class="policy-box no">
+            <h3><span class="pill pill-critical">Interdit offline</span></h3>
+            <ul>
+              <li>Payout / paiement de gain</li>
+              <li>Vente hors snapshot ou après validUntil</li>
+              <li>Vente sans session ouverte dans le snapshot</li>
+              <li>Vente sur draw/game/pricing absent du snapshot</li>
+              <li>Override admin, correction résultat, changement limites</li>
+              <li>Fermeture journée outlet ou session finale</li>
+              <li>Validation définitive ticket</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Architecture cible</h2>
+        <div class="architecture">
+          <div class="arch-card">
+            <h3>Mobile / Terminal</h3>
+            <p>
+              Stockage local chiffré, séquence monotone, signature ticket, impression
+              OFFLINE_PENDING.
+            </p>
+          </div>
+          <div class="arch-card">
+            <h3>core.terminal</h3>
+            <p>
+              État terminal, clé terminal, syncState, lastSeen, verrouillage, autorisation offline.
+            </p>
+          </div>
+          <div class="arch-card">
+            <h3>core.sales</h3>
+            <p>
+              OfflineSalesCapability, SyncOfflineSalesCommand, TicketSyncStatus, SaleOrigin, risk
+              flags.
+            </p>
+          </div>
+          <div class="arch-card">
+            <h3>core.session / outlet</h3>
+            <p>
+              Session obligatoire, cash summary, salesBlocked, fermeture journée, réconciliation.
+            </p>
+          </div>
+        </div>
+        <p>
+          Le domaine <code>sales</code> décide si une vente offline est acceptée. Le terminal
+          fournit l’état opérationnel, mais ne devient jamais la source de vérité métier.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      Tchalanet — Offline Sales Risk Policy · Version de travail pour documentation projet
+    </footer>
+  </body>
+</html>

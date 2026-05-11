@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.stats.cashierdashboard.persistence;
 
-import com.tchalanet.server.core.session.infra.persistence.repository.SalesSessionJpaRepository;
+import com.tchalanet.server.core.session.infra.persistence.SalesSessionJpaRepository;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ public class CashierSessionReaderDataSource implements CashierSessionReader {
 
   @Override
   public boolean hasOpenSession(UUID tenantId, UUID cashierId) {
-    var open = posSessionJpaRepository.findOpenByCashier(tenantId, cashierId);
+    var open = posSessionJpaRepository.findCurrentOpenByUser(tenantId, cashierId);
     return open != null && !open.isEmpty();
   }
 }

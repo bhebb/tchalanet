@@ -1,223 +1,256 @@
 package com.tchalanet.server.core.payout.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.error.ProblemRest;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PayoutId;
-import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
-import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
-import com.tchalanet.server.core.limitpolicy.application.service.LimitPolicyRuntimeService;
-import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
+import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutCommand;
 import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutResult;
-import com.tchalanet.server.core.payout.application.port.out.PayoutApprovalPolicyPort;
 import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
 import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
+import com.tchalanet.server.core.payout.domain.event.PayoutPaidEvent;
+import com.tchalanet.server.core.payout.domain.event.PayoutRequestedEvent;
 import com.tchalanet.server.core.payout.domain.model.Payout;
-import com.tchalanet.server.core.payout.infra.event.PayoutRegisteredEvent;
-import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.core.payout.domain.model.PayoutDecision;
+import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @RequiredArgsConstructor
-@Slf4j
 public class RegisterPayoutCommandHandler
     implements CommandHandler<RegisterPayoutCommand, RegisterPayoutResult> {
 
-  private final PayoutReaderPort payoutReaderPort;
-  private final PayoutWriterPort payoutWriterPort;
-  private final TicketReaderPort ticketReaderPort;
-  private final TicketWriterPort ticketWritterPort;
-  private final PayoutApprovalPolicyPort approvalPolicy;
-  private final DomainEventPublisher domainEventPublisher;
-  private final Clock clock;
-  private final LimitPolicyRuntimeService limitPolicyService;
-  private final ResolveAutonomyPolicyService resolveAutonomyPolicyService;
-  private final IdGenerator idGenerator;
+    private final PayoutReaderPort payoutReader;
+    private final PayoutWriterPort payoutWriter;
+    private final PayoutReceiptPort ticketReader;
+    private final DomainEventPublisher events;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
+    private final QueryBus queryBus;
 
-  @Override
-  @TchTx
-  public RegisterPayoutResult handle(RegisterPayoutCommand command) {
-    Instant now = Instant.now(clock);
-    // Load ticket
-    Optional<Ticket> optTicket = ticketReaderPort.findWithLinesById(command.ticketId());
-    if (optTicket.isEmpty()) {
-      throw new IllegalStateException("Ticket not found: " + command.ticketId());
+    @Override
+    @TchTx
+    public RegisterPayoutResult handle(RegisterPayoutCommand command) {
+        var ticket = requireEligibleTicket(command);
+        requireNoExistingPayout(command);
+
+        var now = Instant.now(clock);
+        var decision = decide(command, ticket, now);
+
+        if (decision == PayoutDecision.BLOCK) {
+            return RegisterPayoutResult.blocked(
+                ticket.winningAmount(),
+                ticket.currency(),
+                List.of("payout.blocked"));
+        }
+
+        var payout = createPayout(command, ticket, now);
+
+        if (decision == PayoutDecision.PAY_NOW) {
+            markPaid(command, payout, now);
+        }
+
+        var saved = payoutWriter.save(payout);
+
+        publishEvent(command, ticket, saved, decision, now);
+
+        return result(decision, ticket, saved);
     }
-    Ticket ticket = optTicket.get();
 
-    // Validate ticket state
-    if (ticket.getResultStatus() != com.tchalanet.server.common.types.enums.TicketResultStatus.WON) {
-      throw new IllegalStateException("Ticket is not in RESULTED_WIN state: " + ticket.getId());
+
+    private PayoutDecision decide(RegisterPayoutCommand command,
+                                  PayoutReceiptPort.PayoutTicketEligibilityView ticket,
+                                  Instant now) {
+
+        var limit = queryBus.ask(new EvaluateLimitPolicyQuery(
+            new LimitContext(
+                command.tenantId(),
+                null,
+                null,
+                null,
+                command.terminalId(),
+                command.payingOutletId(),
+                null,
+                null,
+                null,
+                OperationType.PAYOUT,
+                null,
+                List.of(new LimitContext.BetLine(
+                    null,
+                    command.ticketId().value().toString(),
+                    ticket.winningAmount(),
+                    null,
+                    ticket.winningAmount()
+                )),
+                ticket.winningAmount(),
+                1,
+                now,
+                ZoneId.systemDefault()
+            )
+        ));
+
+        if (limit.outcome() == BreachOutcome.BLOCK) {
+            return PayoutDecision.BLOCK;
+        }
+
+        if (limit.outcome() == BreachOutcome.REQUIRE_APPROVAL) {
+            return PayoutDecision.REQUIRE_APPROVAL;
+        }
+
+        return PayoutDecision.PAY_NOW;
     }
 
-    // payout amount: use ticket winning amount
-    var payoutAmount = ticket.getWinningAmount();
-    if (payoutAmount == null)
-      throw new IllegalStateException("Ticket has no winning amount: " + ticket.getId());
+    private PayoutReceiptPort.PayoutTicketEligibilityView requireEligibleTicket(RegisterPayoutCommand command) {
+        var ticket =
+            ticketReader
+                .findEligibilityByTicketId(command.ticketId())
+                .orElseThrow(() -> new IllegalStateException("Ticket not found: " + command.ticketId()));
 
-    // Validate not already paid
-    if (payoutReaderPort.findByTicketId(ticket.getId()).isPresent()) {
-      throw new IllegalStateException("Payout already registered for ticket: " + ticket.getId());
+        if (!ticket.winning()) {
+            throw new IllegalStateException("Ticket is not winning: " + command.ticketId());
+        }
+
+        if (ticket.alreadyPaid()) {
+            throw new IllegalStateException("Ticket already paid: " + command.ticketId());
+        }
+
+        if (ticket.winningAmount() == null || ticket.winningAmount().signum() <= 0) {
+            throw new IllegalStateException("Ticket has no positive winning amount: " + command.ticketId());
+        }
+
+        return ticket;
     }
 
-    // Limits and autonomy validation
-    LimitEvaluationView limitView = validateLimitsAndAutonomy(command, ticket, payoutAmount);
+    private void requireNoExistingPayout(RegisterPayoutCommand command) {
+        payoutReader
+            .findByTicketId(command.ticketId())
+            .ifPresent(
+                existing -> {
+                    if (existing.isPaid()) {
+                        throw new IllegalStateException(
+                            "Ticket already has a paid payout: " + command.ticketId());
+                    }
 
-    // Create payout and persist if allowed
-    if (limitView.outcome() != BreachOutcome.BLOCK) {
-      // Payout.createRequested expects amountCents and currency (domain uses cents)
-      long amountCents = payoutAmount.movePointRight(2).longValue();
-      Payout payout =
-          Payout.createRequested(
-              PayoutId.of(idGenerator.newUuid()),
-              command.tenantId(),
-              command.ticketId(),
-              amountCents,
-              "HTG",
-              now);
-      Payout saved = payoutWriterPort.save(payout);
-
-      // Decide auto-approval via policy
-      boolean autoApprove = approvalPolicy.autoApprove(command.tenantId(), payoutAmount);
-      if (autoApprove) {
-        // allow marking as paid from REQUESTED when auto-approved
-        saved.markPaid(now, true);
-        saved = payoutWriterPort.save(saved);
-
-        // mark ticket paid and persist
-        ticket.settle(now);
-        ticketWritterPort.save(ticket);
-      } else {
-        // approve or leave requested based on workflow; for now mark as APPROVED
-        saved.approve(now);
-        saved = payoutWriterPort.save(saved);
-      }
-
-      // Publish event
-      PayoutRegisteredEvent event =
-          new PayoutRegisteredEvent(
-              com.tchalanet.server.common.types.id.EventId.of(UUID.randomUUID()),
-              now,
-              command.tenantId(),
-              saved.getId(),
-              saved.getTicketId(),
-              ticket.getSessionId(),
-              java.math.BigDecimal.valueOf(saved.getAmountCents(), 2));
-
-      AfterCommit.run(() -> domainEventPublisher.publish(event));
-
-      log.info(
-          "Payout {} registered with status={} for ticket {}",
-          saved.getId(),
-          saved.getStatus(),
-          saved.getTicketId());
-
-      List<LimitNotice> warnings =
-          limitView.breaches().stream()
-              .map(
-                  d ->
-                      new LimitNotice(
-                          d.ruleKey().name(),
-                          d.outcome(),
-                          d.messageKey(),
-                          d.appliedTarget(),
-                          d.code(),
-                          d.currentValue(),
-                          d.limitValue()))
-              .toList();
-
-      return new RegisterPayoutResult(saved, "SUCCESS", warnings, null);
-    } else {
-      // BLOCK - pending approval
-      UUID approvalRequestId = UUID.randomUUID(); // dummy
-      return new RegisterPayoutResult(null, "PENDING_APPROVAL", List.of(), approvalRequestId);
+                    throw new IllegalStateException(
+                        "Payout already exists for ticket: " + command.ticketId());
+                });
     }
-  }
 
-  private LimitEvaluationView validateLimitsAndAutonomy(
-      RegisterPayoutCommand command, Ticket ticket, java.math.BigDecimal payoutAmount) {
-    Instant now = Instant.now(clock);
+    private Payout createPayout(
+        RegisterPayoutCommand command,
+        PayoutReceiptPort.PayoutTicketEligibilityView ticket,
+        Instant now) {
 
-    // Build limit context for payout
-    LimitScopeRef scope = new LimitScopeRef.TenantScope(command.tenantId());
-
-    LimitContext context =
-        new LimitContext(
+        return Payout.request(
+            PayoutId.of(idGenerator.newUuid()),
             command.tenantId(),
-            ticket.getDrawId(),
-            null, // drawChannelId
-            null, // agentId - not available
-            ticket.getTerminalId(),
-            null, // outletId - not available
-            null, // zoneId
-            List.of(), // rangeIds
-            null, // externalGameCode
-            OperationType.PAYOUT,
-            scope,
-            List.of(), // betLines - empty for payout
-            payoutAmount, // use ticket winning amount
-            0, // linesCount
-            now,
-            java.time.ZoneId.systemDefault());
-
-    // Evaluate limits
-    LimitEvaluationView view = limitPolicyService.evaluate(context);
-
-    // Apply decision matrix V1
-    if (view.outcome() == BreachOutcome.ALLOW) {
-      // EXECUTE
-    } else if (view.outcome() == BreachOutcome.WARN) {
-      // EXECUTE + log
-      log.warn(
-          "Limit breach (WARN) tenantId={} details={}", command.tenantId(), view.breaches());
-    } else if (view.outcome() == BreachOutcome.BLOCK) {
-      // Resolve autonomy - agentId null, so perhaps use terminal or tenant
-      var req = new AutonomyResolveRequest(null, ticket.getTerminalId(), null, now);
-      var autonomyPolicy = resolveAutonomyPolicyService.resolve(req);
-      if (!autonomyPolicy.requireApprovalOnBlock()) {
-        // REJECT
-        List<LimitNotice> notices =
-            view.breaches().stream()
-                .map(
-                    d ->
-                        new LimitNotice(
-                            d.ruleKey().name(),
-                            d.outcome(),
-                            d.messageKey(),
-                            d.appliedTarget(),
-                            d.code(),
-                            d.currentValue(),
-                            d.limitValue()))
-                .toList();
-        throw ProblemRest.limitBlocked(
-            "Limit breach blocked",
-            OperationType.PAYOUT,
-            notices,
-            true,
-            autonomyPolicy.approvalRole());
-      }
-      // else PENDING_APPROVAL - return result
+            command.ticketId(),
+            toCentsExact(ticket.winningAmount()),
+            ticket.currency(),
+            ticket.sellingOutletId(),
+            ticket.sellingSessionId(),
+            command.requestedBy(),
+            command.reason(),
+            now);
     }
 
-    return view;
-  }
+    private void publishEvent(
+        RegisterPayoutCommand command,
+        PayoutReceiptPort.PayoutTicketEligibilityView ticket,
+        Payout payout,
+        PayoutDecision decision,
+        Instant occurredAt) {
+
+        if (decision == PayoutDecision.PAY_NOW) {
+            publishPaid(command, payout, occurredAt);
+            return;
+        }
+
+        publishRequested(command, payout, ticket.sellingSessionId(), occurredAt);
+    }
+
+    private RegisterPayoutResult result(
+        PayoutDecision decision,
+        PayoutReceiptPort.PayoutTicketEligibilityView ticket,
+        Payout payout) {
+
+
+        if (decision == PayoutDecision.PAY_NOW) {
+            return RegisterPayoutResult.paidNow(payout.getId(),
+                payout.getStatus(),
+                ticket.winningAmount(),
+                ticket.currency());
+        }
+        return RegisterPayoutResult.requested(
+            payout.getId(),
+            payout.getStatus(),
+            ticket.winningAmount(),
+            ticket.currency());
+    }
+
+
+    private void markPaid(RegisterPayoutCommand command, Payout payout, Instant now) {
+        payout.markPaid(
+            command.requestedBy(),
+            command.payingOutletId(),
+            command.payingSessionId(),
+            command.terminalId(),
+            now,
+            true);
+    }
+
+
+    private void publishPaid(RegisterPayoutCommand command, Payout payout, Instant occurredAt) {
+        var event =
+            new PayoutPaidEvent(
+                EventId.of(idGenerator.newUuid()),
+                occurredAt,
+                command.tenantId(),
+                payout.getId(),
+                payout.getTicketId(),
+                payout.getAmountCents(),
+                payout.getCurrency(),
+                command.requestedBy(),
+                command.payingSessionId(),
+                command.payingOutletId(),
+                command.terminalId());
+
+        AfterCommit.run(() -> events.publish(event));
+    }
+
+    private void publishRequested(
+        RegisterPayoutCommand command, Payout payout, SalesSessionId sellingSessionId, Instant occurredAt) {
+        var event =
+            new PayoutRequestedEvent(
+                EventId.of(idGenerator.newUuid()),
+                occurredAt,
+                command.tenantId(),
+                payout.getId(),
+                payout.getTicketId(),
+                payout.getAmountCents(),
+                payout.getCurrency(),
+                command.requestedBy(),
+                sellingSessionId);
+
+        AfterCommit.run(() -> events.publish(event));
+    }
+
+    private static long toCentsExact(BigDecimal amount) {
+        return amount.movePointRight(2).longValueExact();
+    }
 }

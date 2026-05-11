@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tchalanet Batchs &amp; Offline Jobs</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #fff;
+        --soft: #f8fafc;
+        --ink: #142033;
+        --muted: #64748b;
+        --line: #dbe3ef;
+        --blue: #2563eb;
+        --blue2: #dbeafe;
+        --green: #16a34a;
+        --green2: #dcfce7;
+        --amber: #d97706;
+        --amber2: #fef3c7;
+        --red: #dc2626;
+        --red2: #fee2e2;
+        --violet: #7c3aed;
+        --violet2: #ede9fe;
+        --cyan: #0891b2;
+        --cyan2: #cffafe;
+        --slate: #334155;
+        --shadow: 0 18px 55px rgba(15, 23, 42, 0.14);
+        --radius: 22px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--ink);
+        background: radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.28), transparent 28rem),
+          radial-gradient(circle at 92% 8%, rgba(124, 58, 237, 0.22), transparent 24rem),
+          linear-gradient(180deg, #0b1020 0, #111936 360px, #eef2f7 360px, #eef2f7 100%);
+      }
+      header {
+        max-width: 1280px;
+        margin: auto;
+        padding: 52px 26px 38px;
+        color: white;
+      }
+      .eyebrow {
+        display: inline-flex;
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 13px;
+        color: #dbeafe;
+      }
+      h1 {
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 20px 0 12px;
+      }
+      header p {
+        font-size: 18px;
+        color: #cbd5e1;
+        max-width: 930px;
+      }
+      .wrap {
+        max-width: 1280px;
+        margin: auto;
+        padding: 0 26px 70px;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin: 24px 0;
+      }
+      .section-head {
+        padding: 26px 30px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent), white;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: clamp(24px, 3vw, 38px);
+        letter-spacing: -0.035em;
+      }
+      .section-head p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        max-width: 950px;
+      }
+      .content {
+        padding: 26px 30px 32px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      @media (max-width: 980px) {
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .content,
+        .section-head {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: var(--soft);
+        padding: 17px;
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+      .card p {
+        margin: 0 0 8px;
+        color: var(--muted);
+      }
+      .badge {
+        display: inline-flex;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        margin-bottom: 10px;
+      }
+      .b-blue {
+        background: var(--blue2);
+        color: #1d4ed8;
+      }
+      .b-green {
+        background: var(--green2);
+        color: #166534;
+      }
+      .b-amber {
+        background: var(--amber2);
+        color: #92400e;
+      }
+      .b-red {
+        background: var(--red2);
+        color: #991b1b;
+      }
+      .b-violet {
+        background: var(--violet2);
+        color: #5b21b6;
+      }
+      .b-cyan {
+        background: var(--cyan2);
+        color: #155e75;
+      }
+      .b-slate {
+        background: #e2e8f0;
+        color: #334155;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        font-size: 13.5px;
+      }
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+        text-align: left;
+      }
+      th {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      code,
+      pre {
+        font-family: var(--mono);
+      }
+      code {
+        background: #eef2ff;
+        color: #3730a3;
+        border-radius: 6px;
+        padding: 2px 5px;
+      }
+      pre {
+        background: #0f172a;
+        color: #dbeafe;
+        border-radius: 16px;
+        padding: 16px;
+        overflow: auto;
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+      .flow {
+        display: grid;
+        gap: 12px;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 13px;
+        align-items: start;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 16px;
+      }
+      .num {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: linear-gradient(135deg, var(--blue), var(--violet));
+        color: white;
+        font-weight: 900;
+      }
+      .step h4 {
+        margin: 0 0 4px;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .note {
+        border-radius: 18px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #7c2d12;
+        padding: 16px;
+        margin-top: 16px;
+      }
+      .ok {
+        background: #ecfdf5;
+        border-color: #86efac;
+        color: #166534;
+      }
+      .danger {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #991b1b;
+      }
+      .diagram {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+        overflow: auto;
+        margin: 18px 0;
+      }
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      .footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 20px 26px 48px;
+        color: #64748b;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">Tchalanet · Offline Sales · Design pack</div>
+      <h1>Tchalanet Batchs &amp; Offline Jobs</h1>
+      <p>
+        Catalogue des batchs/jobs/schedulers impactés par le mode offline, avec déclencheurs,
+        commandes, contexte et impact sur Sales/Offlinesync.
+      </p>
+    </header>
+    <main class="wrap">
+      <section>
+        <div class="section-head">
+          <h2>1. Principes batch</h2>
+          <p>
+            Les batchs orchestrent. Ils ne contiennent pas de logique métier critique : ils
+            exécutent des commands/queries et posent explicitement le contexte tenant/platform.
+          </p>
+        </div>
+        <div class="content">
+          <div class="grid-3">
+            <div class="card">
+              <span class="badge b-blue">Scheduler</span>
+              <h3>Déclenche seulement</h3>
+              <p>Pas de logique métier dans le scheduler. Il appelle CommandBus.</p>
+            </div>
+            <div class="card">
+              <span class="badge b-green">Command Handler</span>
+              <h3>Décide</h3>
+              <p>La logique métier est dans le domaine/handler, avec transaction.</p>
+            </div>
+            <div class="card">
+              <span class="badge b-amber">Context</span>
+              <h3>Tenant explicite</h3>
+              <p>Batch/scheduler ne doit pas dépendre d’un ThreadLocal HTTP.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>2. Batchs et jobs probables</h2>
+          <p>Liste cible des batchs impactés par le mode offline.</p>
+        </div>
+        <div class="content">
+          <table>
+            <thead>
+              <tr>
+                <th>Batch/Job</th>
+                <th>Domaine</th>
+                <th>But</th>
+                <th>Déclencheur</th>
+                <th>Commandes</th>
+                <th>Contexte</th>
+                <th>Impact offline</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>DrawGenerateJob</strong></td>
+                <td><code>draw</code></td>
+                <td>Générer draws futurs</td>
+                <td>Scheduler cron / ops</td>
+                <td>Draw generation commands</td>
+                <td>PLATFORM/TENANT context</td>
+                <td>Nécessaire pour grants allowedDraws.</td>
+              </tr>
+              <tr>
+                <td><strong>DrawOpenCloseJob</strong></td>
+                <td><code>draw</code></td>
+                <td>Ouvrir/fermer tirages</td>
+                <td>Scheduler cron</td>
+                <td>Open/Close draw commands</td>
+                <td>TENANT batch context</td>
+                <td>Offline Sales vérifie cutoff/draw status.</td>
+              </tr>
+              <tr>
+                <td><strong>ResultsFetchApplyJob</strong></td>
+                <td><code>drawresult/draw</code></td>
+                <td>Ingestion et application résultats</td>
+                <td>Scheduler cron</td>
+                <td>Fetch/apply result commands</td>
+                <td>PLATFORM/TENANT</td>
+                <td>Après resultedAt, offline sync ne doit pas auto-accept.</td>
+              </tr>
+              <tr>
+                <td><strong>TicketResultingJob</strong></td>
+                <td><code>sales</code></td>
+                <td>Scorer tickets après résultat</td>
+                <td>DrawResultAppliedEvent listener ou batch retry</td>
+                <td>RecordDrawTicketsResultCommand</td>
+                <td>TENANT</td>
+                <td>Ne traite que tickets acceptés Sales.</td>
+              </tr>
+              <tr>
+                <td><strong>PayoutSettlementJob</strong></td>
+                <td><code>payout</code></td>
+                <td>Préparer/settle payouts</td>
+                <td>Batch/manual</td>
+                <td>Payout commands</td>
+                <td>TENANT/ADMIN</td>
+                <td>Jamais sur offline pending/review.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineBatchProcessJob</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>Reprocess batchs READY_FOR_SALES</td>
+                <td>Scheduler retry</td>
+                <td>ProcessOfflineBatchWithSalesCommand</td>
+                <td>TENANT context from batch</td>
+                <td>Retry safe, idempotent.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineGrantExpiryJob</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>Expirer grants/code batches</td>
+                <td>Scheduler</td>
+                <td>ExpireOfflineGrantsCommand</td>
+                <td>TENANT/PLATFORM scan</td>
+                <td>Empêche usage tardif.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineRiskScoringJob</strong></td>
+                <td><code>offlinesync/features</code></td>
+                <td>Calcul risk score vendeur/terminal</td>
+                <td>Nightly/hourly</td>
+                <td>BuildOfflineRiskScoreCommand</td>
+                <td>TENANT</td>
+                <td>Alimente tenantadmin pénalités.</td>
+              </tr>
+              <tr>
+                <td><strong>SessionAutoCloseJob</strong></td>
+                <td><code>session</code></td>
+                <td>Fermer sessions/outlet day</td>
+                <td>Scheduler/outlet close event</td>
+                <td>CloseSalesSessionCommand</td>
+                <td>TENANT</td>
+                <td>Offline accepté après close = adjustment séparé.</td>
+              </tr>
+              <tr>
+                <td><strong>SessionAdjustmentRebuildJob</strong></td>
+                <td><code>session</code></td>
+                <td>Recalculer reports avec post-close adjustments</td>
+                <td>Ops/manual</td>
+                <td>RebuildSessionAdjustmentProjectionCommand</td>
+                <td>TENANT/ADMIN</td>
+                <td>Pour audit et corrections.</td>
+              </tr>
+              <tr>
+                <td><strong>LedgerRebuildJob</strong></td>
+                <td><code>ledger</code></td>
+                <td>Rebuild ledger projections</td>
+                <td>Ops/manual</td>
+                <td>RebuildLedgerCommand</td>
+                <td>PLATFORM/admin</td>
+                <td>Doit inclure uniquement tickets acceptés.</td>
+              </tr>
+              <tr>
+                <td><strong>TicketArchiveJob</strong></td>
+                <td><code>sales</code></td>
+                <td>Archiver anciens tickets</td>
+                <td>Scheduler</td>
+                <td>ArchiveTicketsCommand</td>
+                <td>TENANT/PLATFORM</td>
+                <td>Ne pas archiver submissions offlinesync non résolues.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>3. Ordre critique autour des tirages et de l’offline</h2>
+          <p>
+            L’ordre d’exécution doit empêcher l’auto-accept de tickets douteux après résultat connu.
+          </p>
+        </div>
+        <div class="content">
+          <div class="flow">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <h4>Avant cutoff/tirage</h4>
+                <p>Auto-accept possible si gates techniques et métier passent.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <h4>Après heure de tirage mais avant résultat</h4>
+                <p>Review required par défaut, sauf preuve forte future.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <h4>Après résultat connu</h4>
+                <p>Jamais auto-accept v0. Rejet ou review selon policy tenant/platform.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>4. Batchs à développer en priorité</h2>
+          <p>Ordre conseillé pour éviter de casser la cohérence Sales/Session/Stats.</p>
+        </div>
+        <div class="content">
+          <div class="flow">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <h4>OfflineBatchProcessJob</h4>
+                <p>Reprocess idempotent des batchs READY_FOR_SALES. Critique pour sync fiable.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <h4>OfflineGrantExpiryJob</h4>
+                <p>Expire grants et code batches. Empêche usage tardif.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <h4>TicketResultingJob</h4>
+                <p>Assure que seuls les tickets acceptés Sales sont scorés après résultat.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">4</div>
+              <div>
+                <h4>SessionAdjustmentRebuildJob</h4>
+                <p>Rebuild projections de session si offline accepté après fermeture.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">5</div>
+              <div>
+                <h4>OfflineRiskScoringJob</h4>
+                <p>Alimente tenantadmin : pénalités, limites offline, watchlist vendeurs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">Document généré pour cadrage fonctionnel + technique Tchalanet.</footer>
+  </body>
+</html>

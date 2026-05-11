@@ -1,16 +1,22 @@
 package com.tchalanet.server.core.outlet.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.core.address.application.AddressCrudService;
-import com.tchalanet.server.core.address.application.model.AddressInput;
 import com.tchalanet.server.core.outlet.application.command.model.CreateOutletCommand;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
+import com.tchalanet.server.core.outlet.domain.event.OutletCreatedEvent;
 import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
+
+import java.time.Clock;
+import java.time.Instant;
 
 @UseCase
 @RequiredArgsConstructor
@@ -18,7 +24,9 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
 
     private final OutletWriterPort writer;
     private final AddressCrudService addressService;
+    private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
+    private final Clock clock;
 
     @Override
     @TchTx
@@ -28,7 +36,7 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
 
         var addressId = cmd.addressId();
 
-        AddressInput input = cmd.addressInput();
+        var input = cmd.addressInput();
         if (addressId == null && input != null) {
             addressId = addressService.upsertTenantPrimary(cmd.tenantId(), input);
         }
@@ -38,6 +46,16 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
         }
 
         writer.save(outlet);
+
+        var event =
+            new OutletCreatedEvent(
+                EventId.of(idGenerator.newUuid()),
+                Instant.now(clock),
+                cmd.tenantId(),
+                newId);
+
+        AfterCommit.run(() -> publisher.publish(event));
+
         return newId;
     }
 }

@@ -77,7 +77,7 @@ public class ApproveTchalaEntryCommandHandler
     var targetId = TchalaEntryId.of(targetCanonicalUuid);
     TchalaEntry canonical =
         repo.findById(targetId)
-            .orElseThrow(() -> new IllegalArgumentException("target canonical not found"));
+            .orElseThrow(() -> new IllegalArgumentException("limitScopeRef canonical not found"));
 
     // archive existing canonical
     var archived = canonical.archive(now);

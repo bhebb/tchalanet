@@ -4,6 +4,8 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.address.domain.Address;
 
+import java.time.LocalTime;
+
 /**
  * Partial config update for an Outlet. Each nullable field means "leave unchanged" when null.
  *
@@ -14,14 +16,14 @@ public record OutletConfigPatch(
     Boolean salesBlocked,
     String salesBlockReason,
     String timezone,
-    String businessDayCutoff,
     Boolean receiptPrintingEnabled,
     String receiptHeaderMessage,
     String receiptFooterMessage,
     Boolean requireOpeningFloat,
-    Boolean autoOpenSession,
-    Boolean autoCloseSession,
-    UserId autoSessionUserId,
-    TerminalId autoSessionTerminalId,
+    Boolean autoSessionOpenEnabled,
+    Boolean autoSessionCloseEnabled,
+    String sessionOpenTime,
+    String sessionCloseTime,
     Long defaultOpeningFloatCents,
-    Address address) {}
+    Address address
+) {}

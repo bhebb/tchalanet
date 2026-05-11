@@ -1,10 +1,13 @@
 package com.tchalanet.server.common.context;
 
-import com.tchalanet.server.common.types.enums.TchRole;
-import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.security.ApiScope;
+import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +16,7 @@ import java.util.Currency;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+
 
 // Note : @Slf4j n'est pas compatible avec les records Java (annotation processor ne génère pas
 // le champ statique `log` sur les records). Logger déclaré explicitement ci-dessous.
@@ -36,11 +40,11 @@ public record TchRequestContext(
     // NEW (tenant defaults)
     TenantId tenantId,
     ZoneId tenantZoneId,
-    Currency tenantCurrency
-
+    Currency tenantCurrency,
+    OperationalRequestContext operationalContext
 ) {
 
-  private static final Logger log = LoggerFactory.getLogger(TchRequestContext.class);
+    private static final Logger log = LoggerFactory.getLogger(TchRequestContext.class);
 
     /**
      * Return the effective tenant UUID when available, otherwise the original one.
@@ -50,7 +54,7 @@ public record TchRequestContext(
     }
 
     public TenantId tenantId() {
-        return TenantId.nullableOf(tenantUuid());
+        return tenantIdSafe();
     }
 
     /**
@@ -88,8 +92,8 @@ public record TchRequestContext(
     }
 
     /**
-     * Rôle principal courant dérivé de systemRoles, avec priorité : SUPER_ADMIN > TENANT_ADMIN >
-     * CASHIER (fallback si aucun des deux premiers).
+     * Rôle principal courant dérivé de systemRoles, avec priorité :
+     * SUPER_ADMIN > TENANT_ADMIN > OPERATOR > CASHIER > SYSTEM.
      */
     public TchRole currentRole() {
         if (systemRoles == null || systemRoles.isEmpty()) {
@@ -104,8 +108,19 @@ public record TchRequestContext(
             return TchRole.TENANT_ADMIN;
         }
 
-        // Sinon, on considère que l'utilisateur est au moins caissier
-        return TchRole.CASHIER;
+        if (systemRoles.contains(TchRole.OPERATOR)) {
+            return TchRole.OPERATOR;
+        }
+
+        if (systemRoles.contains(TchRole.CASHIER)) {
+            return TchRole.CASHIER;
+        }
+
+        if (systemRoles.contains(TchRole.SYSTEM)) {
+            return TchRole.SYSTEM;
+        }
+
+        return null;
     }
 
     public String deletedVisibilitySafe() {
@@ -141,7 +156,8 @@ public record TchRequestContext(
             idempotencyKey,
             tenantId,
             tenantZoneId,
-            tenantCurrency
+            tenantCurrency,
+            operationalContext
         );
     }
 
@@ -165,7 +181,8 @@ public record TchRequestContext(
             idempotencyKey,
             tenantId,
             tenantZoneId,
-            tenantCurrency
+            tenantCurrency,
+            operationalContext
         );
     }
 
@@ -190,7 +207,8 @@ public record TchRequestContext(
             key,
             tenantId,
             tenantZoneId,
-            tenantCurrency
+            tenantCurrency,
+            operationalContext
         );
     }
 
@@ -252,7 +270,8 @@ public record TchRequestContext(
             idempotencyKey,
             info.tenantId(),
             info.tenantZoneId(),
-            info.currency()
+            info.currency(),
+            operationalContext
         );
     }
 
@@ -279,7 +298,8 @@ public record TchRequestContext(
             null,
             TenantId.nullableOf(tenantUuid),
             ZoneId.systemDefault(),
-            Currency.getInstance(CommonConstants.DEFAULT_CURRENCY)
+            Currency.getInstance(CommonConstants.DEFAULT_CURRENCY),
+            null
         );
     }
 
@@ -287,4 +307,83 @@ public record TchRequestContext(
         return apiScope;
     }
 
+    public boolean isCashier() {
+        return systemRoles != null && systemRoles.contains(TchRole.CASHIER);
+    }
+
+    public boolean isOperator() {
+        return systemRoles != null && systemRoles.contains(TchRole.OPERATOR);
+    }
+
+    public boolean isTenantAdmin() {
+        return systemRoles != null && systemRoles.contains(TchRole.TENANT_ADMIN);
+    }
+
+    public boolean isOperationalRole() {
+        return isCashier() || isOperator();
+    }
+
+    public OperationalRequestContext operationalContext() {
+        return operationalContext == null
+            ? OperationalRequestContext.empty()
+            : operationalContext;
+    }
+
+    public TerminalId terminalIdRequired() {
+        return operationalContext().terminalIdRequired();
+    }
+
+    public OutletId outletIdRequired() {
+        return operationalContext().outletIdRequired();
+    }
+
+    public SalesSessionId salesSessionIdRequired() {
+        return operationalContext().salesSessionIdRequired();
+    }
+
+    public TchRequestContext withOperationalContext(OperationalRequestContext operationalContext) {
+        return new TchRequestContext(
+            originalTenantCode,
+            originalTenantUuid,
+            effectiveTenantCode,
+            effectiveTenantUuid,
+            keycloakUserId,
+            appUserId,
+            systemRoles,
+            customRoles,
+            locale,
+            requestId,
+            clientIp,
+            userAgent,
+            tenantOverridden,
+            deletedVisibility,
+            apiScope,
+            idempotencyKey,
+            tenantId,
+            tenantZoneId,
+            tenantCurrency,
+            operationalContext
+        );
+    }
+
+    public boolean canUseAdminSelectedOperationalContext() {
+        return isSuperAdmin() || isTenantAdmin();
+    }
+
+    /**
+     * Returns the operational context when it is trusted for a sensitive operation.
+     * Throws 403 when the context is missing, the source is not STRONG, or terminalId/outletId
+     * are absent. Does not validate terminal-locked / outlet-blocked / session-open.
+     */
+    public OperationalRequestContext trustedOperationalContextRequired() {
+        OperationalRequestContext op = operationalContext();
+        if (op.source() == OperationalContextSource.NONE
+            || !op.isTrustedForSensitiveOperation()
+            || op.terminalId() == null
+            || op.outletId() == null) {
+            throw com.tchalanet.server.common.error.ProblemRest.forbidden(
+                "operational_context.untrusted: a trusted operational context is required");
+        }
+        return op;
+    }
 }

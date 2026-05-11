@@ -6,20 +6,21 @@ import com.tchalanet.server.core.outlet.application.port.out.OutletMembershipRea
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.query.model.ListOutletUsersQuery;
 import com.tchalanet.server.core.outlet.application.query.model.OutletUserView;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @UseCase
 @RequiredArgsConstructor
 public class ListOutletUsersQueryHandler
     implements QueryHandler<ListOutletUsersQuery, List<OutletUserView>> {
 
-  private final OutletReaderPort outletReader;
-  private final OutletMembershipReaderPort membershipReader;
+    private final OutletReaderPort outletReader;
+    private final OutletMembershipReaderPort membershipReader;
 
-  @Override
-  public List<OutletUserView> handle(ListOutletUsersQuery query) {
-    outletReader.getRequired(query.outletId());
-    return membershipReader.listUsersByOutlet(query.outletId());
-  }
+    @Override
+    public List<OutletUserView> handle(ListOutletUsersQuery query) {
+        outletReader.getRequired(query.outletId());
+        return membershipReader.listUsersByOutlet(query.outletId());
+    }
 }

@@ -17,7 +17,7 @@ public class GetCurrentTerminalQueryHandler
   @Override
   public TerminalView handle(GetCurrentTerminalQuery q) {
     return reader
-        .findActiveForUser(q.userId())
+        .findCurrentForUser(q.userId())
         .map(TerminalView::from)
         .orElseThrow(
             () ->

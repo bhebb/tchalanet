@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SellTicketCommandHandler &amp; Services Matrix</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #fff;
+        --soft: #f8fafc;
+        --ink: #142033;
+        --muted: #64748b;
+        --line: #dbe3ef;
+        --blue: #2563eb;
+        --blue2: #dbeafe;
+        --green: #16a34a;
+        --green2: #dcfce7;
+        --amber: #d97706;
+        --amber2: #fef3c7;
+        --red: #dc2626;
+        --red2: #fee2e2;
+        --violet: #7c3aed;
+        --violet2: #ede9fe;
+        --cyan: #0891b2;
+        --cyan2: #cffafe;
+        --slate: #334155;
+        --shadow: 0 18px 55px rgba(15, 23, 42, 0.14);
+        --radius: 22px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--ink);
+        background: radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.28), transparent 28rem),
+          radial-gradient(circle at 92% 8%, rgba(124, 58, 237, 0.22), transparent 24rem),
+          linear-gradient(180deg, #0b1020 0, #111936 360px, #eef2f7 360px, #eef2f7 100%);
+      }
+      header {
+        max-width: 1280px;
+        margin: auto;
+        padding: 52px 26px 38px;
+        color: white;
+      }
+      .eyebrow {
+        display: inline-flex;
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 13px;
+        color: #dbeafe;
+      }
+      h1 {
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 20px 0 12px;
+      }
+      header p {
+        font-size: 18px;
+        color: #cbd5e1;
+        max-width: 930px;
+      }
+      .wrap {
+        max-width: 1280px;
+        margin: auto;
+        padding: 0 26px 70px;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin: 24px 0;
+      }
+      .section-head {
+        padding: 26px 30px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent), white;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: clamp(24px, 3vw, 38px);
+        letter-spacing: -0.035em;
+      }
+      .section-head p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        max-width: 950px;
+      }
+      .content {
+        padding: 26px 30px 32px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      @media (max-width: 980px) {
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .content,
+        .section-head {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: var(--soft);
+        padding: 17px;
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+      .card p {
+        margin: 0 0 8px;
+        color: var(--muted);
+      }
+      .badge {
+        display: inline-flex;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        margin-bottom: 10px;
+      }
+      .b-blue {
+        background: var(--blue2);
+        color: #1d4ed8;
+      }
+      .b-green {
+        background: var(--green2);
+        color: #166534;
+      }
+      .b-amber {
+        background: var(--amber2);
+        color: #92400e;
+      }
+      .b-red {
+        background: var(--red2);
+        color: #991b1b;
+      }
+      .b-violet {
+        background: var(--violet2);
+        color: #5b21b6;
+      }
+      .b-cyan {
+        background: var(--cyan2);
+        color: #155e75;
+      }
+      .b-slate {
+        background: #e2e8f0;
+        color: #334155;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        font-size: 13.5px;
+      }
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+        text-align: left;
+      }
+      th {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      code,
+      pre {
+        font-family: var(--mono);
+      }
+      code {
+        background: #eef2ff;
+        color: #3730a3;
+        border-radius: 6px;
+        padding: 2px 5px;
+      }
+      pre {
+        background: #0f172a;
+        color: #dbeafe;
+        border-radius: 16px;
+        padding: 16px;
+        overflow: auto;
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+      .flow {
+        display: grid;
+        gap: 12px;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 13px;
+        align-items: start;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 16px;
+      }
+      .num {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: linear-gradient(135deg, var(--blue), var(--violet));
+        color: white;
+        font-weight: 900;
+      }
+      .step h4 {
+        margin: 0 0 4px;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .note {
+        border-radius: 18px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #7c2d12;
+        padding: 16px;
+        margin-top: 16px;
+      }
+      .ok {
+        background: #ecfdf5;
+        border-color: #86efac;
+        color: #166534;
+      }
+      .danger {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #991b1b;
+      }
+      .diagram {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+        overflow: auto;
+        margin: 18px 0;
+      }
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      .footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 20px 26px 48px;
+        color: #64748b;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">Tchalanet · Offline Sales · Design pack</div>
+      <h1>SellTicketCommandHandler &amp; Services Matrix</h1>
+      <p>
+        Ce document explique ce qui change dans le Sell handler et liste les
+        services/endpoints/sécurité autour de ledger, payout, autonomy, limitpolicy, outlet,
+        terminal, session, sales et offlinesync.
+      </p>
+    </header>
+    <main class="wrap">
+      <section>
+        <div class="section-head">
+          <h2>1. Ce qui change dans <code>SellTicketCommandHandler</code></h2>
+          <p>
+            Le handler ne doit plus être un simple create ticket. Il devient le point d’entrée
+            sécurisé pour les ventes online officielles. Les ventes offline passent par
+            <code>SyncOfflineSalesCommandHandler</code>, mais doivent réutiliser les mêmes services
+            de préparation/validation quand possible.
+          </p>
+        </div>
+        <div class="content">
+          <div class="grid-2">
+            <div class="card">
+              <span class="badge b-red">Avant</span>
+              <h3>Handler trop direct</h3>
+              <ul>
+                <li>Risque de tenant/user depuis request body.</li>
+                <li>Pas de séparation claire stake / fee / total.</li>
+                <li>Events pouvant partir pour tickets non définitivement acceptés.</li>
+                <li>Session/cash pas assez explicite.</li>
+                <li>Offline non modélisé.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <span class="badge b-green">Après</span>
+              <h3>Handler orchestrateur sécurisé</h3>
+              <ul>
+                <li>Contexte via <code>@CurrentContext</code>, jamais depuis le client.</li>
+                <li>Résout terminal, outlet, seller, session.</li>
+                <li>Prépare lignes + pricing snapshot.</li>
+                <li>Évalue limitpolicy/autonomy.</li>
+                <li>
+                  Crée Ticket uniquement si vente acceptée ou pending approval métier autorisé.
+                </li>
+                <li>Publie events after-commit seulement quand approprié.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="diagram">
+            <svg width="1120" height="390" viewBox="0 0 1120 390">
+              <defs>
+                <marker
+                  id="a"
+                  viewBox="0 0 10 10"
+                  refX="8"
+                  refY="5"
+                  markerWidth="7"
+                  markerHeight="7"
+                  orient="auto"
+                >
+                  <path d="M0 0 L10 5 L0 10z" fill="#334155" />
+                </marker>
+              </defs>
+              <rect x="25" y="45" width="160" height="70" rx="18" fill="#dbeafe" stroke="#60a5fa" />
+              <text
+                x="105"
+                y="75"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#1e3a8a"
+              >
+                Controller
+              </text>
+              <text x="105" y="98" text-anchor="middle" font-size="12" fill="#1d4ed8">
+                @CurrentContext
+              </text>
+              <rect
+                x="235"
+                y="45"
+                width="170"
+                height="70"
+                rx="18"
+                fill="#f1f5f9"
+                stroke="#cbd5e1"
+              />
+              <text
+                x="320"
+                y="75"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#334155"
+              >
+                Resolve Context
+              </text>
+              <text x="320" y="98" text-anchor="middle" font-size="12" fill="#475569">
+                terminal/outlet/session
+              </text>
+              <rect
+                x="455"
+                y="45"
+                width="170"
+                height="70"
+                rx="18"
+                fill="#cffafe"
+                stroke="#22d3ee"
+              />
+              <text
+                x="540"
+                y="75"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#155e75"
+              >
+                Prepare Lines
+              </text>
+              <text x="540" y="98" text-anchor="middle" font-size="12" fill="#0e7490">
+                pricing + odds
+              </text>
+              <rect
+                x="675"
+                y="45"
+                width="170"
+                height="70"
+                rx="18"
+                fill="#fef3c7"
+                stroke="#fbbf24"
+              />
+              <text
+                x="760"
+                y="75"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#92400e"
+              >
+                Gates
+              </text>
+              <text x="760" y="98" text-anchor="middle" font-size="12" fill="#92400e">
+                cutoff/limits/autonomy
+              </text>
+              <rect
+                x="895"
+                y="45"
+                width="190"
+                height="70"
+                rx="18"
+                fill="#dcfce7"
+                stroke="#86efac"
+              />
+              <text
+                x="990"
+                y="75"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#166534"
+              >
+                Create Ticket
+              </text>
+              <text x="990" y="98" text-anchor="middle" font-size="12" fill="#15803d">
+                event after commit
+              </text>
+              <line
+                x1="185"
+                y1="80"
+                x2="235"
+                y2="80"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#a)"
+              />
+              <line
+                x1="405"
+                y1="80"
+                x2="455"
+                y2="80"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#a)"
+              />
+              <line
+                x1="625"
+                y1="80"
+                x2="675"
+                y2="80"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#a)"
+              />
+              <line
+                x1="845"
+                y1="80"
+                x2="895"
+                y2="80"
+                stroke="#334155"
+                stroke-width="3"
+                marker-end="url(#a)"
+              />
+              <rect
+                x="160"
+                y="205"
+                width="220"
+                height="88"
+                rx="18"
+                fill="#fee2e2"
+                stroke="#fca5a5"
+              />
+              <text
+                x="270"
+                y="238"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#991b1b"
+              >
+                LIMIT_POLICY_BLOCKED
+              </text>
+              <text x="270" y="264" text-anchor="middle" font-size="12" fill="#b91c1c">
+                no Ticket, no stats
+              </text>
+              <rect
+                x="450"
+                y="205"
+                width="220"
+                height="88"
+                rx="18"
+                fill="#fff7ed"
+                stroke="#fdba74"
+              />
+              <text
+                x="560"
+                y="238"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#9a3412"
+              >
+                PENDING_APPROVAL
+              </text>
+              <text x="560" y="264" text-anchor="middle" font-size="12" fill="#9a3412">
+                no official stats until approve
+              </text>
+              <rect
+                x="740"
+                y="205"
+                width="220"
+                height="88"
+                rx="18"
+                fill="#dcfce7"
+                stroke="#86efac"
+              />
+              <text
+                x="850"
+                y="238"
+                text-anchor="middle"
+                font-size="15"
+                font-weight="900"
+                fill="#166534"
+              >
+                SOLD
+              </text>
+              <text x="850" y="264" text-anchor="middle" font-size="12" fill="#15803d">
+                TicketPlacedEvent
+              </text>
+              <line
+                x1="760"
+                y1="115"
+                x2="270"
+                y2="205"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#a)"
+              />
+              <line
+                x1="760"
+                y1="115"
+                x2="560"
+                y2="205"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#a)"
+              />
+              <line
+                x1="990"
+                y1="115"
+                x2="850"
+                y2="205"
+                stroke="#334155"
+                stroke-width="2"
+                marker-end="url(#a)"
+              />
+            </svg>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>2. Nouveau découpage conseillé dans Sales</h2>
+          <p>
+            Pour ne pas dupliquer online/offline, le handler online et le handler offline doivent
+            partager certains services applicatifs.
+          </p>
+        </div>
+        <div class="content">
+          <div class="grid-3">
+            <div class="card">
+              <span class="badge b-blue">SellTicketCommandHandler</span>
+              <h3>Online officiel</h3>
+              <p>
+                Crée un ticket online accepté ou une approval métier online. Ne reçoit jamais de
+                payload offline brut.
+              </p>
+            </div>
+            <div class="card">
+              <span class="badge b-cyan">SyncOfflineSalesCommandHandler</span>
+              <h3>Offline accepté/rejeté</h3>
+              <p>
+                Transforme une submission techniquement valide en Ticket seulement si tous les gates
+                Sales passent.
+              </p>
+            </div>
+            <div class="card">
+              <span class="badge b-green">TicketCreationService</span>
+              <h3>Factory partagée</h3>
+              <p>
+                Centralise création Ticket, money, publicCode, TicketPlacedEvent payload,
+                invariants.
+              </p>
+            </div>
+          </div>
+          <pre>
+SellTicketCommandHandler
+  -> TicketSaleContextResolver
+  -> TicketLinePreparationService
+  -> DrawCutoffRule
+  -> LimitPolicyGateway
+  -> AutonomyApprovalEvaluator
+  -> TicketCreationService
+  -> TicketWriterPort.save()
+  -> AfterCommit TicketPlacedEvent
+
+SyncOfflineSalesCommandHandler
+  -> OfflineSalesGateEvaluator
+  -> same TicketLinePreparation / TicketCreationService where possible
+  -> TicketWriterPort.save() only if accepted
+  -> AfterCommit TicketPlacedEvent</pre
+          >
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>3. Matrice services / endpoints / sécurité</h2>
+          <p>
+            Vue cible des services déjà discutés autour du sell, sync, session, payout et reporting.
+          </p>
+        </div>
+        <div class="content">
+          <table>
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Domaine</th>
+                <th>Use cases</th>
+                <th>URL</th>
+                <th>Controller</th>
+                <th>Rôles</th>
+                <th>Sécurité fine</th>
+                <th>Impact Offline</th>
+                <th>Events</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Ledger</strong></td>
+                <td><code>core.ledger</code></td>
+                <td>RecordLedgerEntryCommand / TicketPlaced listener</td>
+                <td><code>internal/event</code></td>
+                <td>TicketPlacedLedgerEventListener</td>
+                <td>N/A event-driven</td>
+                <td>System only</td>
+                <td>
+                  Créer écriture comptable seulement après ticket accepté. Ne lit jamais offlinesync
+                  pour CA officiel.
+                </td>
+                <td>TicketPlacedEvent</td>
+              </tr>
+              <tr>
+                <td><strong>Payout</strong></td>
+                <td><code>core.payout</code></td>
+                <td>Request/approve/pay payout</td>
+                <td><code>/tenant ou /admin/payouts</code></td>
+                <td>PayoutController / PayoutAdminController</td>
+                <td>CASHIER payout request, ADMIN approve/pay</td>
+                <td>hasPermission PAYOUT_*</td>
+                <td>Payout interdit si ticket offline non accepté. Payout émet PayoutPaidEvent.</td>
+                <td>TicketResultedEvent, PayoutPaidEvent</td>
+              </tr>
+              <tr>
+                <td><strong>Autonomy</strong></td>
+                <td><code>core.autonomy</code></td>
+                <td>Décider auto-approve vs approval</td>
+                <td><code>/admin/autonomy / internal query</code></td>
+                <td>AutonomyAdminController</td>
+                <td>TENANT_ADMIN/SUPER_ADMIN</td>
+                <td>hasPermission AUTONOMY_*</td>
+                <td>
+                  Utilisé par Sales pour décider PENDING_APPROVAL ou auto-accept selon règles
+                  tenant/seller/outlet.
+                </td>
+                <td>Sale evaluation</td>
+              </tr>
+              <tr>
+                <td><strong>LimitPolicy</strong></td>
+                <td><code>core.limitpolicy</code></td>
+                <td>Bloquer/review/autoriser vente</td>
+                <td><code>/admin/limit-policies / internal query</code></td>
+                <td>LimitPolicyAdminController</td>
+                <td>TENANT_ADMIN/SUPER_ADMIN</td>
+                <td>hasPermission LIMIT_POLICY_*</td>
+                <td>Deux rejets à distinguer: LIMIT_POLICY_BLOCKED vs OFFLINE_SYNC_REJECTED.</td>
+                <td>TicketPlacedEvent for usage updates</td>
+              </tr>
+              <tr>
+                <td><strong>Outlet</strong></td>
+                <td><code>core.outlet</code></td>
+                <td>Capability de vente outlet</td>
+                <td><code>/admin/outlets</code></td>
+                <td>OutletAdminController</td>
+                <td>TENANT_ADMIN/SUPER_ADMIN</td>
+                <td>hasPermission OUTLET_*</td>
+                <td>
+                  Si outlet salesBlocked ou offlineDisabled, pas de nouveau grant ou pas
+                  d’acceptation Sales selon policy.
+                </td>
+                <td>OutletDayClosedEvent</td>
+              </tr>
+              <tr>
+                <td><strong>Terminal</strong></td>
+                <td><code>core.terminal</code></td>
+                <td>État terminal/POS/mobile</td>
+                <td><code>/admin/terminals</code></td>
+                <td>TerminalAdminController</td>
+                <td>TENANT_ADMIN/SUPER_ADMIN</td>
+                <td>hasPermission TERMINAL_*</td>
+                <td>
+                  offlineEnabled, locked, assignedSeller, autoSessionEnabled, syncState. Terminal
+                  locked = pas de grant.
+                </td>
+                <td>TerminalLocked/Updated</td>
+              </tr>
+              <tr>
+                <td><strong>Session</strong></td>
+                <td><code>core.session</code></td>
+                <td>Session cash et ajustements</td>
+                <td><code>/tenant/sessions / admin sessions</code></td>
+                <td>SalesSessionController / Admin</td>
+                <td>CASHIER/ADMIN</td>
+                <td>hasPermission SESSION_*</td>
+                <td>
+                  Ticket offline accepté après fermeture crée SalesSessionOfflineAdjustment, pas
+                  modification silencieuse.
+                </td>
+                <td>TicketPlacedEvent</td>
+              </tr>
+              <tr>
+                <td><strong>Sales</strong></td>
+                <td><code>core.sales</code></td>
+                <td>Vente officielle ticket accepté</td>
+                <td><code>/tenant/tickets /admin/tickets</code></td>
+                <td>TicketSalesController, TicketQueryController, AdminTicketController</td>
+                <td>CASHIER, TENANT_ADMIN, SUPER_ADMIN</td>
+                <td>
+                  TICKET_SELL, TICKET_READ, TICKET_APPROVE, TICKET_REJECT, TICKET_RESULT_OVERRIDE
+                </td>
+                <td>
+                  Sell online; SyncOfflineSalesCommand pour offline accepté; publie
+                  TicketPlacedEvent après commit.
+                </td>
+                <td>TicketPlacedEvent</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineSync</strong></td>
+                <td><code>core.offlinesync</code></td>
+                <td>Journal technique offline</td>
+                <td><code>/tenant/offline-sync, /admin/offline-submissions</code></td>
+                <td>OfflineSyncController, OfflineReviewAdminController</td>
+                <td>CASHIER submit, ADMIN review</td>
+                <td>OFFLINE_SYNC_SUBMIT, OFFLINE_SUBMISSION_APPROVE/REJECT</td>
+                <td>
+                  Stocke grants, code batches, submissions, rejets/review. Ne crée jamais Ticket
+                  directement.
+                </td>
+                <td>OfflineBatchReadyForSalesEvent</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="note">
+            <strong>Note :</strong> les URLs exactes doivent rester sans <code>/api/v1</code> dans
+            les controllers si <code>spring.mvc.servlet.path=/api/v1</code>. Les controllers
+            utilisent <code>/tenant</code>, <code>/admin</code>, <code>/platform</code>.
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>4. Checklist de refactor immédiat du Sell</h2>
+          <p>À faire avant d’ouvrir largement le mode offline dans Flutter/POS.</p>
+        </div>
+        <div class="content">
+          <div class="flow">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <h4>Contexte serveur</h4>
+                <p>
+                  Supprimer tenant/user/session depuis request body. Résoudre via
+                  <code>@CurrentContext</code>, terminal, session ouverte/grant.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <h4>Money breakdown</h4>
+                <p>
+                  Ajouter <code>stakeAmount</code>, <code>feeAmount</code>,
+                  <code>totalAmount</code>. Les payouts utilisent stake, la session utilise total.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <h4>LimitPolicy block</h4>
+                <p>
+                  Si block strict : pas de ticket officiel, pas d’event, pas de stats. Si review :
+                  pending workflow clair.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">4</div>
+              <div>
+                <h4>Events after-commit</h4>
+                <p>
+                  <code>TicketPlacedEvent</code> uniquement pour ventes acceptées. Inclure
+                  stake/fee/total, origin, syncStatus, postingMode.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">5</div>
+              <div>
+                <h4>Offline séparé</h4>
+                <p>
+                  Le handler online ne reçoit pas les submissions offline. Offline passe par
+                  <code>offlinesync</code> puis <code>SyncOfflineSalesCommand</code>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">Document généré pour cadrage fonctionnel + technique Tchalanet.</footer>
+  </body>
+</html>

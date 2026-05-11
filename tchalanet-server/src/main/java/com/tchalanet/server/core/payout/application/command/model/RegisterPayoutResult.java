@@ -1,12 +1,60 @@
 package com.tchalanet.server.core.payout.application.command.model;
 
-import com.tchalanet.server.core.payout.domain.model.Payout;
-import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
+import com.tchalanet.server.common.types.id.PayoutId;
+import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
-public record RegisterPayoutResult(
-    Payout payout,
-    String status, // "SUCCESS", "PENDING_APPROVAL"
-    List<LimitNotice> warnings,
-    UUID approvalRequestId) {}
+    public record RegisterPayoutResult(
+        PayoutId payoutId,
+        RegisterPayoutStatus status,
+        PayoutStatus payoutStatus,
+        BigDecimal amount,
+        String currency,
+        List<String> warnings) {
+
+        public static RegisterPayoutResult blocked(
+            BigDecimal amount,
+            String currency,
+            List<String> warnings) {
+
+            return new RegisterPayoutResult(
+                null,
+                RegisterPayoutStatus.BLOCKED,
+                null,
+                amount,
+                currency,
+                warnings);
+        }
+
+        public static RegisterPayoutResult requested(
+            PayoutId payoutId,
+            PayoutStatus payoutStatus,
+            BigDecimal amount,
+            String currency) {
+
+            return new RegisterPayoutResult(
+                payoutId,
+                RegisterPayoutStatus.REQUESTED,
+                payoutStatus,
+                amount,
+                currency,
+                List.of());
+        }
+
+        public static RegisterPayoutResult paidNow(
+            PayoutId payoutId,
+            PayoutStatus payoutStatus,
+            BigDecimal amount,
+            String currency) {
+
+            return new RegisterPayoutResult(
+                payoutId,
+                RegisterPayoutStatus.PAID,
+                payoutStatus,
+                amount,
+                currency,
+                List.of());
+        }
+    }
+}

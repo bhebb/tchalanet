@@ -13,12 +13,11 @@ import lombok.RequiredArgsConstructor;
 public class GetTerminalByIdQueryHandler
     implements QueryHandler<GetTerminalByIdQuery, TerminalView> {
 
-  private final TerminalReaderPort reader;
-  private final TchContextResolver contextResolver;
+    private final TerminalReaderPort reader;
 
-  @Override
-  public TerminalView handle(GetTerminalByIdQuery q) {
-    var tenantId = contextResolver.currentOrThrow().tenantIdSafe();
-    return TerminalView.from(reader.getRequired(tenantId, q.terminalId()));
-  }
+    @Override
+    public TerminalView handle(GetTerminalByIdQuery query) {
+        return TerminalView.from(
+            reader.getRequired(query.tenantId(), query.terminalId()));
+    }
 }

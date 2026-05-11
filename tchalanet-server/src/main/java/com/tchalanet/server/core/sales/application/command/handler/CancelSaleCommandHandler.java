@@ -10,12 +10,12 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.common.types.id.EventId;
-import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
+import com.tchalanet.server.core.autonomy.application.service.AutonomyResolutionService;
 import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
 import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
+import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.EvaluateLimitPolicyQuery;
+import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
 import com.tchalanet.server.core.sales.application.command.model.CancelSaleResult;
@@ -46,7 +46,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
     private final Clock clock;
 
     private final QueryBus queryBus;
-    private final ResolveAutonomyPolicyService resolveAutonomyPolicyService;
+    private final AutonomyResolutionService resolveAutonomyPolicyService;
     private final SalesSessionReaderPort posSessionReaderPort;
     private final DrawLookupPort drawLookupPort;
 
@@ -146,7 +146,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
                 now,
                 drawZone(draw));
 
-        return queryBus.send(new EvaluateLimitPolicyQuery(context));
+        return queryBus.ask(new EvaluateLimitPolicyQuery(context));
     }
 
     private ZoneId drawZone(Draw draw) {

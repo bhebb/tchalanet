@@ -7,32 +7,43 @@ import com.tchalanet.server.core.address.application.port.AddressReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.query.model.GetOutletByIdQuery;
 import com.tchalanet.server.core.outlet.application.query.model.OutletView;
+import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
 public class GetOutletByIdQueryHandler implements QueryHandler<GetOutletByIdQuery, OutletView> {
 
-  private final OutletReaderPort repo;
-  private final AddressReaderPort addressReader;
+    private final OutletReaderPort outletReader;
+    private final AddressReaderPort addressReader;
 
-  @Override
-  public OutletView handle(GetOutletByIdQuery q) {
-    var o = repo.getRequired(q.outletId());
+    @Override
+    public OutletView handle(GetOutletByIdQuery query) {
+        var outlet = outletReader.getRequired(query.outletId());
+        var address = resolveAddress(query, outlet);
 
-    AddressView addressView = null;
-    if (o.addressId() != null) {
-      var a = addressReader.findById(q.tenantId(), o.addressId()).orElse(null);
-      if (a != null) addressView = AddressView.fromDomain(a);
+        return toView(outlet, address);
     }
 
-    return new OutletView(
-        o.id(),
-        o.tenantId(),
-        o.name(),
-        o.slug(),
-        o.dayClosed(),
-        o.receiptPrintingEnabled(),
-        addressView);
-  }
+    private AddressView resolveAddress(GetOutletByIdQuery query, Outlet outlet) {
+        if (outlet.addressId() == null) {
+            return null;
+        }
+
+        return addressReader
+            .findById(query.tenantId(), outlet.addressId())
+            .map(AddressView::fromDomain)
+            .orElse(null);
+    }
+
+    private OutletView toView(Outlet outlet, AddressView address) {
+        return new OutletView(
+            outlet.id(),
+            outlet.tenantId(),
+            outlet.name(),
+            outlet.slug(),
+            outlet.dayClosed(),
+            outlet.receiptPrintingEnabled(),
+            address);
+    }
 }

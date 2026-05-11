@@ -17,7 +17,7 @@ public interface TicketSettlementQueryRepository extends Repository<TicketEntity
           from ticket t
           where t.deleted_at is null
             and t.draw_id = :drawId
-            and t.status = 'SOLD'
+            and t.sale_status = 'SOLD'
         )
       """,
       nativeQuery = true)
@@ -30,7 +30,7 @@ public interface TicketSettlementQueryRepository extends Repository<TicketEntity
         from ticket t
         where t.deleted_at is null
           and t.draw_id = :drawId
-          and t.status = 'SOLD'
+          and t.sale_status = 'SOLD'
       """,
       nativeQuery = true)
   long countPending(@Param("drawId") UUID drawId);

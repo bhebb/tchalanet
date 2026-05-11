@@ -2,6 +2,8 @@ package com.tchalanet.server.core.sales.domain.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
@@ -17,5 +19,8 @@ public record TicketResultedEvent(
     TicketId ticketId,
     TicketResultStatus resultStatus,
     TicketSettlementStatus settlementStatus,
-    BigDecimal totalPayout
+    BigDecimal totalPayout,
+    String currency,
+    OutletId sellingOutletId,
+    SalesSessionId sellingSessionId
 ) implements DomainEvent {}

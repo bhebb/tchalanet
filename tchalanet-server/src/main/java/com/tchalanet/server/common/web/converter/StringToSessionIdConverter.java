@@ -1,14 +1,14 @@
 package com.tchalanet.server.common.web.converter;
 
-import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StringToSessionIdConverter implements Converter<String, SessionId> {
+public class StringToSessionIdConverter implements Converter<String, SalesSessionId> {
   @Override
-  public SessionId convert(String source) {
+  public SalesSessionId convert(String source) {
     if (source == null || source.isBlank()) return null;
-    return SessionId.parse(source);
+    return SalesSessionId.parse(source);
   }
 }

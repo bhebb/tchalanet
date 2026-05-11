@@ -5,11 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
-import com.tchalanet.server.common.types.id.LimitDefinitionId;
 import com.tchalanet.server.common.types.id.TestIds;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContextTest;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitDefinition;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,7 +23,7 @@ class LimitResolverPickBestTest {
   private final LimitResolver resolver = new LimitResolver();
 
   @Test
-  @DisplayName("should pick terminal assignment when terminal and agent target the same rule")
+  @DisplayName("should pick terminal assignment when terminal and agent limitScopeRef the same rule")
   void shouldPickTerminalAssignmentWhenTerminalAndAgentTargetSameRule() {
     var fixture = fixture();
 

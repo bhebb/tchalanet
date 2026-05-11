@@ -35,7 +35,7 @@ public class TimeProvider {
     /**
      * Get current time in the specified zone.
      *
-     * @param zone target timezone
+     * @param zone limitScopeRef timezone
      * @return current ZonedDateTime in the specified zone
      */
     public ZonedDateTime now(ZoneId zone) {
@@ -46,7 +46,7 @@ public class TimeProvider {
     /**
      * Get current date in the specified zone.
      *
-     * @param zone target timezone
+     * @param zone limitScopeRef timezone
      * @return current LocalDate in the specified zone
      */
     public LocalDate today(ZoneId zone) {

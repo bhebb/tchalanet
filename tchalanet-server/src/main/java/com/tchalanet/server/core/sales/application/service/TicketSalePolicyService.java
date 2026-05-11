@@ -1,17 +1,17 @@
 package com.tchalanet.server.core.sales.application.service;
 
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.OperationType;
-import com.tchalanet.server.common.types.id.AgentId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.autonomy.application.service.ResolveAutonomyPolicyService;
+import com.tchalanet.server.core.autonomy.application.service.AutonomyResolutionService;
 import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
 import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.limitpolicy.application.query.model.EvaluateLimitPolicyQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.LimitEvaluationView;
+import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.EvaluateLimitPolicyQuery;
+import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.outlet.application.port.out.OutletLookupPort;
@@ -40,7 +40,7 @@ public class TicketSalePolicyService {
     private final OutletLookupPort outletLookupPort;
     private final DrawCutoffRule drawCutoffRule;
     private final QueryBus queryBus;
-    private final ResolveAutonomyPolicyService resolveAutonomyPolicyService;
+    private final AutonomyResolutionService resolveAutonomyPolicyService;
     private final TicketLinePreparationService ticketLinePreparationService;
     private final Clock clock;
 
@@ -92,10 +92,10 @@ public class TicketSalePolicyService {
         SalesSession session =
             posSessionPort
                 .findOpenByTerminal(tenantId, terminalId)
-                .orElseThrow(() -> new SecurityException("No open session for terminalId=" + terminalId));
+                .orElseThrow(() -> ProblemRest.conflict("session.not_open"));
 
         if (outletLookupPort.isSalesBlocked(session.outletId())) {
-            throw new SecurityException("Outlet sales are temporarily blocked for outletId=" + session.outletId());
+            throw ProblemRest.conflict("outlet.sales_blocked");
         }
         return session;
     }
@@ -134,7 +134,7 @@ public class TicketSalePolicyService {
                 now,
                 drawZone(draw));
 
-        LimitEvaluationView limitView = queryBus.send(new EvaluateLimitPolicyQuery(ctx));
+        LimitEvaluationView limitView = queryBus.ask(new EvaluateLimitPolicyQuery(ctx));
 
         var autonomyReq = new AutonomyResolveRequest(
             AgentId.of(session.userId().value()),

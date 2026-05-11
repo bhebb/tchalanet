@@ -85,7 +85,7 @@ public class I18nOverridesCatalogImpl implements I18nOverridesCatalog {
     }
 
     /**
-     * Explicit resolve for a target tenant (platform admin use-case).
+     * Explicit resolve for a limitScopeRef tenant (platform admin use-case).
      * Returns GLOBAL + TENANT (filtered by tenantId).
      */
     @Override

@@ -29,7 +29,7 @@ import java.util.List;
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
-@Tag(name = "Admin • Draws")
+@Tag(name = "Draws • Admin")
 public class DrawQueryAdminController {
 
     private final QueryBus queryBus;

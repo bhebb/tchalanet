@@ -23,7 +23,7 @@ public class DrawCutoffRule {
      * Returns the resolved draw (reuse in handler) and ensures sale is still allowed.
      */
     public DrawSummary requireBeforeCutoff(DrawId drawId) {
-        var draw = queryBus.send(new GetDrawByIdQuery(drawId));
+        var draw = queryBus.ask(new GetDrawByIdQuery(drawId));
         var now = Instant.now(clock);
         var cutoff = draw.cutoffAt();
 

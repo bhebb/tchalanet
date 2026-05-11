@@ -3,7 +3,7 @@
         "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-    <!-- Ignore generated code & target -->
+    <!-- Ignore generated code & limitScopeRef -->
     <suppress files="target/.*"/>
     <suppress files=".*Generated.*"/>
 </suppressions>

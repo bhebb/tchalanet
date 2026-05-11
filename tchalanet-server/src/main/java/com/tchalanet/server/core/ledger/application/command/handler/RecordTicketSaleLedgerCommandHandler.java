@@ -3,13 +3,11 @@ package com.tchalanet.server.core.ledger.application.command.handler;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.LedgerEntryId;
 import com.tchalanet.server.core.ledger.application.command.model.RecordTicketSaleLedgerCommand;
-import com.tchalanet.server.core.ledger.application.port.out.LedgerReaderPort;
 import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
-import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
 import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
-import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -21,34 +19,33 @@ import lombok.extern.slf4j.Slf4j;
 public class RecordTicketSaleLedgerCommandHandler
     implements VoidCommandHandler<RecordTicketSaleLedgerCommand> {
 
-  private final LedgerWriterPort ledgerWriter;
-  private final LedgerReaderPort ledgerReader;
-  private final Clock clock;
+    private final LedgerWriterPort ledgerWriter;
+    private final IdGenerator idGenerator;
+    private final Clock clock;
 
-  @Override
-  @TchTx
-  public void handle(RecordTicketSaleLedgerCommand command) {
-    var tenantId = command.tenantId();
-    var ticketId = command.ticketId();
-    // Idempotency (soft)
-    if (ledgerReader.existsByRef(tenantId, LedgerRefType.TICKET_SALE, ticketId.value())) {
-      log.warn(
-          "Ledger entry already exists for ticketId={} tenantId={}, skipping", ticketId, tenantId);
-      return;
+    @Override
+    @TchTx
+    public void handle(RecordTicketSaleLedgerCommand command) {
+        var occurredAt = command.occurredAt() != null
+            ? command.occurredAt()
+            : Instant.now(clock);
+
+        var entry =
+            LedgerEntry.ticketSale(
+                LedgerEntryId.of(idGenerator.newUuid()),
+                command.tenantId(),
+                command.ticketId(),
+                command.stakeCents(),
+                command.currency(),
+                occurredAt);
+
+        var appended = ledgerWriter.appendIfAbsent(entry);
+
+        if (!appended) {
+            log.info(
+                "Ticket sale ledger already recorded: tenantId={} ticketId={}",
+                command.tenantId(),
+                command.ticketId());
+        }
     }
-
-    Instant at = command.occurredAt() != null ? command.occurredAt() : Instant.now(clock);
-    BigDecimal amount = BigDecimal.valueOf(command.stakeCents()).movePointLeft(2);
-
-    LedgerEntry entry =
-        LedgerEntry.create(
-            tenantId,
-            LedgerRefType.TICKET_SALE,
-            ticketId.value(),
-            amount,
-            LedgerDirection.CREDIT,
-            at);
-
-    ledgerWriter.append(entry);
-  }
 }

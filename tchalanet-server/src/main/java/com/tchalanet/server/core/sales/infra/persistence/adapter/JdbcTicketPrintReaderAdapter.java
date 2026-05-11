@@ -7,7 +7,6 @@ import com.tchalanet.server.core.sales.application.formatter.TicketDrawLabelForm
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -23,6 +22,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 @Primary
@@ -51,18 +51,18 @@ public class JdbcTicketPrintReaderAdapter implements TicketPrintReaderPort {
       """;
 
   @Override
-  public TicketPrintView getTicketPrintView(TicketId ticketId, Locale locale) {
+  public Optional<TicketPrintView> findTicketPrintView(TicketId ticketId, Locale locale) {
     var params = new MapSqlParameterSource("ticketId", ticketId.value());
 
     var rows = jdbc.query(HEADER_SQL, params, (rs, i) -> mapHeader(rs, locale != null ? locale : Locale.FRENCH));
     if (rows.isEmpty()) {
-      throw new EntityNotFoundException("Ticket not found for print: " + ticketId);
+      return Optional.empty();
     }
 
     var header = rows.get(0);
     var lines = jdbc.query(LINES_SQL, params, (rs, i) -> mapLine(rs));
 
-    return new TicketPrintView(
+    return Optional.of(new TicketPrintView(
         header.ticketId(),
         header.ticketCode(),
         header.publicCode(),
@@ -75,7 +75,7 @@ public class JdbcTicketPrintReaderAdapter implements TicketPrintReaderPort {
         header.drawChannelLabel(),
         header.drawWhenLabel(),
         lines
-    );
+    ));
   }
 
   private HeaderRow mapHeader(ResultSet rs, Locale locale) throws SQLException {

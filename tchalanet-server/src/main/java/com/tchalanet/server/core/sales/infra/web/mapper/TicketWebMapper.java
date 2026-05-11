@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.sales.infra.web.mapper;
 
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.error.ProblemRest;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -19,14 +21,11 @@ import com.tchalanet.server.core.sales.domain.model.Ticket;
 import com.tchalanet.server.core.sales.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.infra.web.model.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -143,8 +142,8 @@ public class TicketWebMapper {
     }
 
     public OverrideTicketResultCommand toOverrideTicketResultCommand(
-        com.tchalanet.server.common.types.id.TicketId ticketId,
-        OverrideTicketResultRequest request
+        TicketId ticketId,
+        UserId userId, OverrideTicketResultRequest request
     ) {
         var ctx = Objects.requireNonNull(contextResolver.currentOrNull(), "Missing request context");
         // performedBy always from context — never trust body for sensitive audited actions
@@ -230,8 +229,7 @@ public class TicketWebMapper {
         try {
             return TicketResultStatus.valueOf(raw.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Invalid status filter value: '" + raw + "'");
+            throw ProblemRest.badRequest("Invalid status filter value: '" + raw + "'");
         }
     }
 }

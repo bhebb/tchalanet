@@ -20,5 +20,5 @@ public @interface FeatureFlagEnabled {
 
   String userIdSpEL() default ""; // SpEL expression to extract userId from method arguments
 
-  String terminalIdSpEL() default ""; // SpEL expression to extract terminalId from method arguments
+  String terminalIdSpEL() default ""; // SpEL expression to extract id from method arguments
 }

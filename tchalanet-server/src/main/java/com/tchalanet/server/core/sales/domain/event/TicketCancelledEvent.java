@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.domain.event;
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.EventId;
-import com.tchalanet.server.common.types.id.SessionId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
@@ -16,7 +16,7 @@ public record TicketCancelledEvent(
     TenantId tenantId,
     TicketId ticketId,
     TerminalId terminalId,
-    SessionId sessionId,
+    SalesSessionId sessionId,
     UserId performedBy,
     String reason,
     long totalStakeCents,

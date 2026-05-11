@@ -3,8 +3,8 @@ package com.tchalanet.server.features.stats.aggregates.app;
 import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
-import com.tchalanet.server.core.session.domain.event.SessionClosedEvent;
-import com.tchalanet.server.core.session.domain.event.SessionOpenedEvent;
+import com.tchalanet.server.core.session.domain.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.domain.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -68,13 +68,13 @@ public class StatsDailyUpdaterService {
   }
 
   @Transactional
-  public void applySessionOpened(SessionOpenedEvent event, LocalDate refDate) {
+  public void applySessionOpened(SalesSessionOpenedEvent event, LocalDate refDate) {
     statsDailyRepo.upsertAndIncrement(
         "tenant", event.tenantId().value(), refDate, 0L, 0L, 0L, 0L, 0L, 1L, 0L);
   }
 
   @Transactional
-  public void applySessionClosed(SessionClosedEvent event, LocalDate refDate) {
+  public void applySessionClosed(SalesSessionClosedEvent event, LocalDate refDate) {
     statsDailyRepo.upsertAndIncrement(
         "tenant", event.tenantId().value(), refDate, 0L, 0L, 0L, 0L, 0L, 0L, 1L);
   }

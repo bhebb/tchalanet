@@ -35,6 +35,7 @@ public class ReopenOutletDayCommandHandler
     boolean wasClosed = outlet.dayClosed();
     var updated = outlet.reopenDay();
     writer.save(updated);
+
     if (wasClosed) {
       var event =
           new OutletDayReopenedEvent(

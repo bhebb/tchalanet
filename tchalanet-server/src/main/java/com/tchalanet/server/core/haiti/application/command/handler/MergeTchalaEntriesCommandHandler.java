@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Handler to merge one Tchala entry into another (superadmin operation). Behavior: merge numbers
- * according to policy, create/update the target canonical entry, mark the source as MERGED into the
- * target and persist changes.
+ * according to policy, create/update the limitScopeRef canonical entry, mark the source as MERGED into the
+ * limitScopeRef and persist changes.
  */
 @Component
 @RequiredArgsConstructor

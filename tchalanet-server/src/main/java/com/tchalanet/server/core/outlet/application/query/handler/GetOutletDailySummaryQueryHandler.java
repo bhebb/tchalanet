@@ -4,7 +4,6 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
-import com.tchalanet.server.core.outlet.application.port.out.SessionLookupPort;
 import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
 import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
 import java.time.ZoneId;
@@ -13,12 +12,10 @@ import org.springframework.stereotype.Component;
 
 @UseCase
 @RequiredArgsConstructor
-@Component
 public class GetOutletDailySummaryQueryHandler
     implements QueryHandler<GetOutletDailySummaryQuery, OutletDailySummary> {
 
   private final SalesTicketAdminPort salesAdmin;
-  private final SessionLookupPort sessionLookup;
   private final OutletReaderPort outletReader;
 
   @Override
@@ -30,7 +27,6 @@ public class GetOutletDailySummaryQueryHandler
     var to = query.date().plusDays(1).atStartOfDay(zone).toInstant();
 
     var stats = salesAdmin.getCloseStats(query.outletId(), from, to);
-    var sessions = sessionLookup.findSessionIds(query.outletId(), from, to);
 
     return new OutletDailySummary(
         query.date(),
@@ -40,7 +36,7 @@ public class GetOutletDailySummaryQueryHandler
         stats.resultedWin(),
         stats.resultedLoss(),
         stats.paid(),
-        sessions.size(),
+        0,
         outlet.name(),
         outlet.salesBlocked());
   }

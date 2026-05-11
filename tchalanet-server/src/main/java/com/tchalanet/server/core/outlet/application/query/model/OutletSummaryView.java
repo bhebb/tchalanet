@@ -14,5 +14,6 @@ public record OutletSummaryView(
     String salesBlockReason,
     Instant salesBlockedAt,
     String timezone,
-    boolean autoOpenSession,
-    boolean autoCloseSession) {}
+    boolean autoSessionOpenEnabled,
+    boolean autoSessionCloseEnabled
+) {}

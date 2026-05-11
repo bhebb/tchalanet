@@ -30,11 +30,11 @@ public class UnregisterTerminalCommandHandler
   @Override
   @TchTx
   public void handle(UnregisterTerminalCommand cmd) {
-    Terminal t = reader.getRequired(cmd.tenantId(), cmd.terminalId());
-    Instant when = Instant.now(clock);
-    writer.save(t.unregister(cmd.actorUserId(), when));
+    var terminal = reader.getRequired(cmd.tenantId(), cmd.terminalId());
+    var when = Instant.now(clock);
+    writer.save(terminal.unregister(cmd.actorUserId(), when));
 
-    TerminalUnregisteredEvent event =
+    var event =
         new TerminalUnregisteredEvent(
             EventId.of(idGenerator.newUuid()),
             when,

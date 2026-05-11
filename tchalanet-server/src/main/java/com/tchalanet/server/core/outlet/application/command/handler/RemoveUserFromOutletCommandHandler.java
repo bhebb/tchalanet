@@ -33,8 +33,8 @@ public class RemoveUserFromOutletCommandHandler
 
     membershipPort.removeUserFromOutlet(cmd.outletId(), cmd.userId());
 
-    Instant when = Instant.now(clock);
-    OutletUserRemovedEvent event =
+    var when = Instant.now(clock);
+    var event =
         new OutletUserRemovedEvent(
             EventId.of(idGenerator.newUuid()),
             when,

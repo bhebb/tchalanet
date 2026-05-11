@@ -32,7 +32,7 @@ class TicketControllerSecurityTest {
 
     @Test
     void cancelEndpoint_hasSecuredWithRequiredRoles() {
-        assertHasSecured(TicketSalesController.class, "cancel", REQUIRED_ROLES);
+        assertHasSecured(TicketLifecycleController.class, "cancel", REQUIRED_ROLES);
     }
 
     @Test

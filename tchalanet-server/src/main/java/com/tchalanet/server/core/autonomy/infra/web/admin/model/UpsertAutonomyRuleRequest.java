@@ -3,19 +3,18 @@ package com.tchalanet.server.core.autonomy.infra.web.admin.model;
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
+import java.time.Instant;
 
 public record UpsertAutonomyRuleRequest(
     @NotNull AutonomyTargetType targetType,
-    UUID targetId,
+    AutonomyTargetId targetId,
     @NotNull AutonomyLevel level,
     boolean requireApprovalOnBlock,
     ApprovalRole approvalRole,
     boolean enabled,
-    OffsetDateTime startsAt,
-    OffsetDateTime endsAt,
-    Long expectedVersion
+    Instant startsAt,
+    Instant endsAt
 ) {}

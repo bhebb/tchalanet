@@ -13,7 +13,7 @@ public class PublishPolicy {
 
   /**
    * Enforce: only one PUBLISHED per logicalId (within tenant context).
-   * Strategy: archive other published, publish target.
+   * Strategy: archive other published, publish limitScopeRef.
    */
   public List<PageModelInstance> apply(
       PageModelInstance toPublish,

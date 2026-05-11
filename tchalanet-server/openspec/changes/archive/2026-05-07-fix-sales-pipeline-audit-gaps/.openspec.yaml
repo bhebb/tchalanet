@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-04-26
+status: superseded
+summary: Resolve architectural leaks, code duplication, dead code and convention drift identified in the sales pipeline audit.
+superseded_by: consolidate-core-sales-cleanup

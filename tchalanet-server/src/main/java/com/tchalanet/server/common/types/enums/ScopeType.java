@@ -8,9 +8,11 @@ package com.tchalanet.server.common.types.enums;
  * RANGE: Aggregate within a numerical range
  */
 public enum ScopeType {
-  TENANT,
-  OUTLET,
-  AGENT,
-  ZONE,
-    TERMINAL, DRAWCHANNEL, RANGE
+    TENANT,
+    OUTLET,
+    AGENT,
+    ZONE,
+    TERMINAL,
+    DRAW_CHANNEL,
+    RANGE
 }

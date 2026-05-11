@@ -83,7 +83,7 @@ public class JsonbUtils {
     try {
       return jsonMapper.convertValue(fromValue, toTypeRef);
     } catch (Exception e) {
-      throw new IllegalStateException("Failed to convert value to target type", e);
+      throw new IllegalStateException("Failed to convert value to limitScopeRef type", e);
     }
   }
 }

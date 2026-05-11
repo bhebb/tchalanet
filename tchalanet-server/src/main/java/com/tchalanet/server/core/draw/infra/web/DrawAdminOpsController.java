@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/draws")
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
-@Tag(name = "Admin • Draws")
+@Tag(name = "Draws • Admin")
 public class DrawAdminOpsController {
 
     private final CommandBus commandBus;
