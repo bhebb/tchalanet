@@ -2,7 +2,7 @@ package com.tchalanet.server.core.outlet.api.command;
 
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.address.domain.Address;
+import com.tchalanet.server.platform.address.internal.service.Address;
 
 import java.time.LocalTime;
 

@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.outlet.application.command.model.BlockOutletSalesCommand;
 import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDayCommand;
 import com.tchalanet.server.core.outlet.application.command.model.CloseOutletDayPayload;

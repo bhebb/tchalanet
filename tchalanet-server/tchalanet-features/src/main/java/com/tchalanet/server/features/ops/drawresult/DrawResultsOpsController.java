@@ -13,7 +13,7 @@ import com.tchalanet.server.common.paging.TchPage;
 import com.tchalanet.server.common.paging.TchPageRequest;
 import com.tchalanet.server.common.paging.TchPaging;
 import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.drawresult.application.command.model.*;
 import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultViewByIdQuery;
 import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultViewBySlotQuery;

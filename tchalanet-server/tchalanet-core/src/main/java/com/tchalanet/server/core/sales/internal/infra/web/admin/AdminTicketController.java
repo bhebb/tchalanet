@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.sales.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.infra.web.model.OverrideTicketResultRequest;
 import io.swagger.v3.oas.annotations.Operation;

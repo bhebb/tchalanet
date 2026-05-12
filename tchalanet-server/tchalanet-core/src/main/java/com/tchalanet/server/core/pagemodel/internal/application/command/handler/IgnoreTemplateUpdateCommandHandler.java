@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.notification.application.command.model.ArchiveNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.ArchiveNotificationCommand;
 import com.tchalanet.server.core.pagemodel.application.command.model.IgnoreTemplateUpdateCommand;
 import lombok.RequiredArgsConstructor;
 

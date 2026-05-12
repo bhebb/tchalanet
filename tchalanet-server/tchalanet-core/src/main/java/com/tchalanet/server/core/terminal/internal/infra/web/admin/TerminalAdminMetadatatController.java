@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.terminal.application.command.model.UpdateTerminalMetadataCommand;
 import com.tchalanet.server.core.terminal.infra.web.admin.model.UpdateMetadataRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;

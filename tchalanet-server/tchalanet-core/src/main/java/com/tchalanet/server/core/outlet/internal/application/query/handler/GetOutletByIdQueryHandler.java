@@ -2,8 +2,8 @@ package com.tchalanet.server.core.outlet.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.address.application.model.AddressView;
-import com.tchalanet.server.core.address.application.port.AddressReaderPort;
+import com.tchalanet.server.platform.address.api.model.AddressView;
+import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.application.query.model.GetOutletByIdQuery;
 import com.tchalanet.server.core.outlet.application.query.model.OutletView;

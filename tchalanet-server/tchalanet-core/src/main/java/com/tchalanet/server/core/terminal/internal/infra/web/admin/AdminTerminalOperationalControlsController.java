@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.terminal.application.command.model.LockTerminalCommand;
 import com.tchalanet.server.core.terminal.application.command.model.RegisterTerminalCommand;
 import com.tchalanet.server.core.terminal.application.command.model.SetTerminalOperationalControlCommand;

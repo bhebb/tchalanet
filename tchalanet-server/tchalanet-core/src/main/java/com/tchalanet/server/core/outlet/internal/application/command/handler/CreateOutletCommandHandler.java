@@ -8,7 +8,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.core.address.application.AddressCrudService;
+import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.core.outlet.application.command.model.CreateOutletCommand;
 import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.domain.event.OutletCreatedEvent;

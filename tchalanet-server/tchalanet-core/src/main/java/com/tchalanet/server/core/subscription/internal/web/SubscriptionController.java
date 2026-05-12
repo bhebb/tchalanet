@@ -8,7 +8,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.apiresponse.ApiResponse;
 import com.tchalanet.server.common.apiresponse.NoticeSeverity;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.subscription.application.command.model.*;
 import com.tchalanet.server.core.subscription.application.query.model.ResolveTenantSubscriptionQuery;
 import com.tchalanet.server.core.subscription.application.query.model.SubscriptionView;

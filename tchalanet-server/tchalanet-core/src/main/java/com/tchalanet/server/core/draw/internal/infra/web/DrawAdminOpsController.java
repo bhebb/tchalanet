@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.*;
 import com.tchalanet.server.core.draw.application.query.model.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.infra.web.mapper.DrawAdminWebMapper;

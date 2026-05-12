@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.outlet.application.command.model.AssignUserToOutletCommand;
 import com.tchalanet.server.core.outlet.application.command.model.RemoveUserFromOutletCommand;
 import com.tchalanet.server.core.outlet.application.query.model.ListOutletTerminalsQuery;

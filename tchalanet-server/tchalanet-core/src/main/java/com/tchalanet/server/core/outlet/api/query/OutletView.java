@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.outlet.api.query;
 
-import com.tchalanet.server.core.address.application.model.AddressView;
+import com.tchalanet.server.platform.address.api.model.AddressView;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 

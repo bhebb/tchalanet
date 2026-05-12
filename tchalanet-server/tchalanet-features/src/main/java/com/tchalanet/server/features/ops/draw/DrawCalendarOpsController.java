@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.audit.infra.web.AuditLog;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.draw.application.command.model.*;
 import com.tchalanet.server.core.draw.infra.config.DrawProperties;
 import io.swagger.v3.oas.annotations.Operation;
