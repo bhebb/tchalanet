@@ -1,0 +1,8 @@
+/**
+ * Platform layer — transversal application service modules.
+ *
+ * <p>Each sub-package is a Spring Modulith application module with its own api/ and internal/.
+ * Modules under platform MUST NOT depend on core or features.
+ * Cross-capability communication uses domain events or a documented ADR exception.
+ */
+package com.tchalanet.server.platform;
