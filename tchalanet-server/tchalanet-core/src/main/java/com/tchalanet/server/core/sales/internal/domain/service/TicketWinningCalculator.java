@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.internal.domain.service;
 
 import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
 
 import java.math.BigDecimal;
 import java.util.*;

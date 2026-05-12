@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.sales.internal.application.validation;
 
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSaleSubmission;
-import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineDecision;
-import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineRejectReason;
-import com.tchalanet.server.core.session.domain.model.SalesSession;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSaleSubmission;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineDecision;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineRejectReason;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

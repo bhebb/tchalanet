@@ -3,8 +3,8 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.lif
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.sales.application.command.model.ArchiveTicketsCommand;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.api.command.ArchiveTicketsCommand;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

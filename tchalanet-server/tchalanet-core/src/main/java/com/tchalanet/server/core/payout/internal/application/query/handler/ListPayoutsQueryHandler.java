@@ -2,10 +2,10 @@ package com.tchalanet.server.core.payout.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.payout.application.port.out.PayoutQueryReaderPort;
-import com.tchalanet.server.core.payout.application.query.model.ListPayoutsQuery;
-import com.tchalanet.server.core.payout.application.query.model.PayoutRow;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.payout.internal.application.port.out.PayoutQueryReaderPort;
+import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
+import com.tchalanet.server.core.payout.api.query.PayoutRow;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

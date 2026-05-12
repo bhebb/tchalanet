@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.autonomy.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
 
 import java.time.Instant;
 

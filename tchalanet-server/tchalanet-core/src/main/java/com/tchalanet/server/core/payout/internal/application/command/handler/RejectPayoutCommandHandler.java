@@ -7,11 +7,11 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.payout.application.command.model.PayoutWorkflowResult;
-import com.tchalanet.server.core.payout.application.command.model.RejectPayoutCommand;
-import com.tchalanet.server.core.payout.application.port.out.PayoutReaderPort;
-import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
-import com.tchalanet.server.core.payout.domain.event.PayoutRejectedEvent;
+import com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult;
+import com.tchalanet.server.core.payout.api.command.RejectPayoutCommand;
+import com.tchalanet.server.core.payout.internal.application.port.out.PayoutReaderPort;
+import com.tchalanet.server.core.payout.internal.application.port.out.PayoutWriterPort;
+import com.tchalanet.server.core.payout.internal.domain.event.PayoutRejectedEvent;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

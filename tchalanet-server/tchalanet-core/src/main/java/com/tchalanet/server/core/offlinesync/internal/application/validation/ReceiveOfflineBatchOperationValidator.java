@@ -1,15 +1,16 @@
 package com.tchalanet.server.core.offlinesync.internal.application.validation;
 
+import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.offlinesync.application.validation.OfflineBatchActorContext;
-import com.tchalanet.server.core.offlinesync.application.validation.ValidatedReceiveOfflineBatchContext;
-import com.tchalanet.server.core.outlet.application.query.model.OutletOperation;
-import com.tchalanet.server.core.outlet.application.query.model.ValidateOutletForOperationQuery;
-import com.tchalanet.server.core.session.application.query.model.ValidateSalesSessionForOperationQuery;
-import com.tchalanet.server.core.session.domain.model.SalesSessionOperation;
-import com.tchalanet.server.core.terminal.application.query.model.ValidateTerminalForOperationQuery;
-import com.tchalanet.server.core.terminal.domain.model.TerminalOperation;
+import com.tchalanet.server.core.offlinesync.internal.application.validation.OfflineBatchActorContext;
+import com.tchalanet.server.core.offlinesync.internal.application.validation.ValidatedReceiveOfflineBatchContext;
+import com.tchalanet.server.core.outlet.api.query.OutletOperation;
+import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
+import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionOperation;
+import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

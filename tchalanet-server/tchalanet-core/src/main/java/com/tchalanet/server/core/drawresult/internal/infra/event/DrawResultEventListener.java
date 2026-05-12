@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.drawresult.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.idempotency.event.ProcessedEventPort;
-import com.tchalanet.server.core.draw.domain.event.DrawResultCorrectedEvent;
-import com.tchalanet.server.core.drawresult.application.command.model.MarkDrawResultOverriddenCommand;
+import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
+import com.tchalanet.server.core.draw.internal.domain.event.DrawResultCorrectedEvent;
+import com.tchalanet.server.core.drawresult.api.command.MarkDrawResultOverriddenCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

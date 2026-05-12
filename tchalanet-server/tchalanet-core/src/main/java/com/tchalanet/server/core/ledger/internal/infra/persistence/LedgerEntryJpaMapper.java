@@ -2,8 +2,8 @@ package com.tchalanet.server.core.ledger.internal.infra.persistence;
 
 import com.tchalanet.server.common.types.id.LedgerEntryId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
-import com.tchalanet.server.core.ledger.domain.model.LedgerReference;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerEntry;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerReference;
 import org.springframework.stereotype.Component;
 
 @Component

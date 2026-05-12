@@ -2,7 +2,7 @@ package com.tchalanet.server.core.limitpolicy.internal.domain.rule;
 
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.core.limitpolicy.domain.model.*;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

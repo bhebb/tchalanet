@@ -1,14 +1,16 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.NotificationId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.pagemodel.application.command.model.CreateDraftFromTemplateUpdateCommand;
-import com.tchalanet.server.core.pagemodel.application.command.model.IgnoreTemplateUpdateCommand;
-import com.tchalanet.server.core.pagemodel.application.command.model.MergePageModelWithTemplateCommand;
-import com.tchalanet.server.core.pagemodel.application.command.model.ReplacePageModelFromTemplateCommand;
-import com.tchalanet.server.core.pagemodel.application.query.model.PreviewTemplateUpdateQuery;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.pagemodel.api.command.CreateDraftFromTemplateUpdateCommand;
+import com.tchalanet.server.core.pagemodel.api.command.IgnoreTemplateUpdateCommand;
+import com.tchalanet.server.core.pagemodel.api.command.MergePageModelWithTemplateCommand;
+import com.tchalanet.server.core.pagemodel.api.command.ReplacePageModelFromTemplateCommand;
+import com.tchalanet.server.core.pagemodel.api.query.PreviewTemplateUpdateQuery;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

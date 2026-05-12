@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -7,18 +8,18 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageRequest;
-import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
-import com.tchalanet.server.core.sales.application.command.model.OverrideTicketResultCommand;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
-import com.tchalanet.server.core.sales.application.model.TicketStatus;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
-import com.tchalanet.server.core.sales.application.query.model.TicketDetailsView;
-import com.tchalanet.server.core.sales.application.query.model.TicketSummaryView;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.sales.infra.web.model.*;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.sales.api.command.CancelSaleCommand;
+import com.tchalanet.server.core.sales.api.command.OverrideTicketResultCommand;
+import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
+import com.tchalanet.server.core.sales.internal.application.model.TicketStatus;
+import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
+import com.tchalanet.server.core.sales.api.query.TicketDetailsView;
+import com.tchalanet.server.core.sales.api.query.TicketSummaryView;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
+import com.tchalanet.server.core.sales.internal.infra.web.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

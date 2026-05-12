@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.notification.internal.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
-import com.tchalanet.server.core.notification.domain.model.NotificationDeliveryStatus;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

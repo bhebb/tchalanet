@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

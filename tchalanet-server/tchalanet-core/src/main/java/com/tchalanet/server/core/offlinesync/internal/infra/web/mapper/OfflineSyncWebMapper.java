@@ -3,11 +3,11 @@ package com.tchalanet.server.core.offlinesync.internal.infra.web.mapper;
 import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
 import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.offlinesync.application.command.model.OfflineSaleSubmissionInput;
-import com.tchalanet.server.core.offlinesync.application.command.model.ReceiveOfflineBatchCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.ReceiveOfflineBatchResult;
-import com.tchalanet.server.core.offlinesync.infra.web.model.ReceiveOfflineBatchRequest;
-import com.tchalanet.server.core.offlinesync.infra.web.model.ReceiveOfflineBatchResponse;
+import com.tchalanet.server.core.offlinesync.api.command.OfflineSaleSubmissionInput;
+import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchResult;
+import com.tchalanet.server.core.offlinesync.internal.infra.web.model.ReceiveOfflineBatchRequest;
+import com.tchalanet.server.core.offlinesync.internal.infra.web.model.ReceiveOfflineBatchResponse;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

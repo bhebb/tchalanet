@@ -2,10 +2,10 @@ package com.tchalanet.server.core.limitpolicy.internal.domain.rule;
 
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.core.limitpolicy.domain.model.EffectiveLimitRule;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitBreach;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitFactsSnapshot;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimitRule;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitBreach;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitFactsSnapshot;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

@@ -1,9 +1,9 @@
 package com.tchalanet.server.platform.notification.internal.persistence;
 
-import com.tchalanet.server.core.notification.domain.model.NotificationCategory;
-import com.tchalanet.server.core.notification.domain.model.NotificationKind;
-import com.tchalanet.server.core.notification.domain.model.NotificationSeverity;
-import com.tchalanet.server.core.notification.domain.model.NotificationStatus;
+import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
+import com.tchalanet.server.platform.notification.api.model.NotificationKind;
+import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
+import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -31,10 +31,10 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          and (:severity is null or n.severity = :severity)
          and (n.expiresAt is null or n.expiresAt > :now)
          and (
-              n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.TENANT
-           or n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.PLATFORM
-           or (n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.USER and n.audienceValue = :userValue)
-           or (n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.ROLE and n.audienceValue = :roleCode)
+              n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT
+           or n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.PLATFORM
+           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.USER and n.audienceValue = :userValue)
+           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.ROLE and n.audienceValue = :roleCode)
          )
        order by n.createdAt desc
       """)
@@ -57,10 +57,10 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
          and (:severity is null or n.severity = :severity)
          and (n.expiresAt is null or n.expiresAt > :now)
          and (
-              n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.TENANT
-           or n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.PLATFORM
-           or (n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.USER and n.audienceValue = :userValue)
-           or (n.audienceType = com.tchalanet.server.core.notification.domain.model.NotificationAudienceType.ROLE and n.audienceValue = :roleCode)
+              n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.TENANT
+           or n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.PLATFORM
+           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.USER and n.audienceValue = :userValue)
+           or (n.audienceType = com.tchalanet.server.platform.notification.api.model.NotificationAudienceType.ROLE and n.audienceValue = :roleCode)
          )
       """)
   long countVisible(
@@ -75,11 +75,11 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
   @Query(
       """
       update NotificationJpaEntity n
-         set n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.READ,
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.READ,
              n.readAt = :readAt
        where n.id = :id
          and n.deletedAt is null
-         and n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.UNREAD
+         and n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.UNREAD
       """)
   int markRead(@Param("id") UUID id, @Param("readAt") Instant readAt);
 
@@ -87,11 +87,11 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
   @Query(
       """
       update NotificationJpaEntity n
-         set n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.READ,
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.READ,
              n.readAt = :readAt
        where n.id in :ids
          and n.deletedAt is null
-         and n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.UNREAD
+         and n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.UNREAD
       """)
   int markReadAll(@Param("ids") Collection<UUID> ids, @Param("readAt") Instant readAt);
 
@@ -99,11 +99,11 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
   @Query(
       """
       update NotificationJpaEntity n
-         set n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.ARCHIVED,
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.ARCHIVED,
              n.archivedAt = :archivedAt
        where n.id = :id
          and n.deletedAt is null
-         and n.status <> com.tchalanet.server.core.notification.domain.model.NotificationStatus.ARCHIVED
+         and n.status <> com.tchalanet.server.platform.notification.api.model.NotificationStatus.ARCHIVED
       """)
   int archive(@Param("id") UUID id, @Param("archivedAt") Instant archivedAt);
 
@@ -111,11 +111,11 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
   @Query(
       """
       update NotificationJpaEntity n
-         set n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.ARCHIVED,
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.ARCHIVED,
              n.archivedAt = :archivedAt
        where n.id in :ids
          and n.deletedAt is null
-         and n.status <> com.tchalanet.server.core.notification.domain.model.NotificationStatus.ARCHIVED
+         and n.status <> com.tchalanet.server.platform.notification.api.model.NotificationStatus.ARCHIVED
       """)
   int archiveAll(@Param("ids") Collection<UUID> ids, @Param("archivedAt") Instant archivedAt);
 
@@ -123,13 +123,13 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
   @Query(
       """
       update NotificationJpaEntity n
-         set n.status = com.tchalanet.server.core.notification.domain.model.NotificationStatus.EXPIRED
+         set n.status = com.tchalanet.server.platform.notification.api.model.NotificationStatus.EXPIRED
        where n.deletedAt is null
          and n.expiresAt is not null
          and n.expiresAt <= :now
          and n.status not in (
-           com.tchalanet.server.core.notification.domain.model.NotificationStatus.ARCHIVED,
-           com.tchalanet.server.core.notification.domain.model.NotificationStatus.EXPIRED
+           com.tchalanet.server.platform.notification.api.model.NotificationStatus.ARCHIVED,
+           com.tchalanet.server.platform.notification.api.model.NotificationStatus.EXPIRED
          )
       """)
   int expire(@Param("now") Instant now);

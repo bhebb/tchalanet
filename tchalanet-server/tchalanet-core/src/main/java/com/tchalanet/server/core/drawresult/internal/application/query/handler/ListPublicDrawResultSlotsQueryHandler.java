@@ -2,9 +2,9 @@ package com.tchalanet.server.core.drawresult.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.drawresult.application.port.out.PublicDrawResultSlotReaderPort;
-import com.tchalanet.server.core.drawresult.application.query.model.ListPublicDrawResultSlotsQuery;
-import com.tchalanet.server.core.drawresult.application.view.PublicDrawResultSlotView;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.PublicDrawResultSlotReaderPort;
+import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotsQuery;
+import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotView;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 

@@ -5,12 +5,12 @@ import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.sales.application.port.out.TicketNumberGeneratorPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketPublicCodeGeneratorPort;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.session.domain.model.SalesSession;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketNumberGeneratorPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPublicCodeGeneratorPort;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

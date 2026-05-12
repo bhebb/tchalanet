@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.application.service;
 
-import com.tchalanet.server.core.limitpolicy.application.query.model.rules.LimitRuleCatalog;
-import com.tchalanet.server.core.limitpolicy.application.query.model.rules.LimitRuleSpec;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleCatalog;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;

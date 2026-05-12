@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.document.internal.pdf;
 
-import com.tchalanet.server.common.document.receipt.ReceiptModel;
-import com.tchalanet.server.common.document.receipt.ReceiptSpan;
+import com.tchalanet.server.platform.document.internal.receipt.ReceiptModel;
+import com.tchalanet.server.platform.document.internal.receipt.ReceiptSpan;
 import java.io.ByteArrayOutputStream;
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;

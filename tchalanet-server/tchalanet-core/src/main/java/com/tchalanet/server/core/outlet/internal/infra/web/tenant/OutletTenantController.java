@@ -2,12 +2,12 @@ package com.tchalanet.server.core.outlet.internal.infra.web.tenant;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletOperationalContextQuery;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletSalesCapabilityQuery;
-import com.tchalanet.server.core.outlet.infra.web.admin.mapper.OutletAdminWebMapper;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.OutletOperationalContextResponse;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.SalesCapabilityResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.outlet.api.query.GetOutletOperationalContextQuery;
+import com.tchalanet.server.core.outlet.api.query.GetOutletSalesCapabilityQuery;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.mapper.OutletAdminWebMapper;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletOperationalContextResponse;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.SalesCapabilityResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

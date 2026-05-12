@@ -1,20 +1,20 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.config;
 
-import com.tchalanet.server.core.limitpolicy.domain.engine.LimitEvaluationEngine;
-import com.tchalanet.server.core.limitpolicy.domain.resolver.LimitResolver;
-import com.tchalanet.server.core.limitpolicy.domain.rule.BlockBetTypeEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.BlockSelectionPerDrawEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.LimitRuleEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxLinesPerTicketEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxPotentialPayoutPerLineEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxPotentialPayoutPerTicketEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxSalesCountPerSelectionPerDrawEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxStakeExposurePerSelectionPerDrawEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxStakePerBetTypePerTicketEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxStakePerLineEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxStakePerSelectionPerTicketEvaluator;
-import com.tchalanet.server.core.limitpolicy.domain.rule.MaxStakePerTicketEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.engine.LimitEvaluationEngine;
+import com.tchalanet.server.core.limitpolicy.internal.domain.resolver.LimitResolver;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.BlockBetTypeEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.BlockSelectionPerDrawEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.LimitRuleEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxLinesPerTicketEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxPotentialPayoutExposurePerSelectionPerDrawEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxPotentialPayoutPerLineEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxPotentialPayoutPerTicketEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxSalesCountPerSelectionPerDrawEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakeExposurePerSelectionPerDrawEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerBetTypePerTicketEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerLineEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerSelectionPerTicketEvaluator;
+import com.tchalanet.server.core.limitpolicy.internal.domain.rule.MaxStakePerTicketEvaluator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

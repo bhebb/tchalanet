@@ -2,9 +2,9 @@ package com.tchalanet.server.core.outlet.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletSalesCapabilityQuery;
-import com.tchalanet.server.core.outlet.domain.model.SalesCapability;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.api.query.GetOutletSalesCapabilityQuery;
+import com.tchalanet.server.core.outlet.internal.domain.model.SalesCapability;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

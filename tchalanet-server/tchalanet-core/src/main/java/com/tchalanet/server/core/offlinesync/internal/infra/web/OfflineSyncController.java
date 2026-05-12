@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.offlinesync.infra.web.mapper.OfflineSyncWebMapper;
-import com.tchalanet.server.core.offlinesync.infra.web.model.ReceiveOfflineBatchRequest;
-import com.tchalanet.server.core.offlinesync.infra.web.model.ReceiveOfflineBatchResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.offlinesync.internal.infra.web.mapper.OfflineSyncWebMapper;
+import com.tchalanet.server.core.offlinesync.internal.infra.web.model.ReceiveOfflineBatchRequest;
+import com.tchalanet.server.core.offlinesync.internal.infra.web.model.ReceiveOfflineBatchResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

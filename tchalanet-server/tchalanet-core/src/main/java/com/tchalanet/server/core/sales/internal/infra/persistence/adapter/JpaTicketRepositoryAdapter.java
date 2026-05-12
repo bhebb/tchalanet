@@ -1,16 +1,16 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
-import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
-import com.tchalanet.server.core.sales.infra.persistence.mapper.TicketMapper;
-import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
-import com.tchalanet.server.core.sales.infra.persistence.repository.TicketSpecifications;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.api.query.AgentDailySalesDto;
+import com.tchalanet.server.core.sales.api.query.ListTicketsQuery.TicketFilter;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.internal.infra.persistence.mapper.TicketMapper;
+import com.tchalanet.server.core.sales.internal.infra.persistence.repository.SpringTicketJpaRepository;
+import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketSpecifications;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;

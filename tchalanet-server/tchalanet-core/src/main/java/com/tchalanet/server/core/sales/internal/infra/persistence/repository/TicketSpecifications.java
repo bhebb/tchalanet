@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery.TicketFilter;
-import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.api.query.ListTicketsQuery.TicketFilter;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import org.springframework.data.jpa.domain.Specification;

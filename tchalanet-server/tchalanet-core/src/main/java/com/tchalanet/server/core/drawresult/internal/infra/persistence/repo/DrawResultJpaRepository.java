@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.infra.persistence.repo;
 
-import com.tchalanet.server.core.drawresult.infra.persistence.DrawResultJpaEntity;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.DrawResultJpaEntity;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.ledger.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.ledger.application.command.model.RecordTicketSaleLedgerCommand;
-import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.ledger.api.command.RecordTicketSaleLedgerCommand;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

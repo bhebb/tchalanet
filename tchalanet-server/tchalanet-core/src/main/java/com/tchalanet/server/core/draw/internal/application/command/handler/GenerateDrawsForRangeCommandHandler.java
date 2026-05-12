@@ -9,12 +9,12 @@ import com.tchalanet.server.common.time.DaysOfWeekParser;
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeCommand;
-import com.tchalanet.server.core.draw.application.command.model.GenerateDrawsForRangeResult;
-import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
-import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
+import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeResult;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.application.query.projection.ExistingDrawKey;
+import com.tchalanet.server.core.draw.internal.application.query.projection.NewDrawRow;
+import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

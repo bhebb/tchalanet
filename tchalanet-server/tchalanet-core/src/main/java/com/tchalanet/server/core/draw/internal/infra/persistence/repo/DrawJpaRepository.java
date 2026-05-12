@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.repo;
 
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
-import com.tchalanet.server.core.draw.infra.persistence.projection.DueToCloseProjection;
-import com.tchalanet.server.core.draw.infra.persistence.projection.OpenableDrawProjection;
+import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.infra.persistence.DrawJpaEntity;
+import com.tchalanet.server.core.draw.internal.infra.persistence.projection.DueToCloseProjection;
+import com.tchalanet.server.core.draw.internal.infra.persistence.projection.OpenableDrawProjection;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;

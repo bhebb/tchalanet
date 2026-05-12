@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.offlinesync.internal.application.command.handler.review;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.core.offlinesync.application.command.model.review.ApproveOfflineSubmissionCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.review.ApproveOfflineSubmissionResult;
+import com.tchalanet.server.core.offlinesync.api.command.ApproveOfflineSubmissionCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ApproveOfflineSubmissionResult;
 
 public class ApproveOfflineSubmissionCommandHandler
     implements CommandHandler<ApproveOfflineSubmissionCommand, ApproveOfflineSubmissionResult> {

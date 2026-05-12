@@ -2,10 +2,10 @@ package com.tchalanet.server.core.ledger.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.ledger.application.port.out.LedgerReaderPort;
-import com.tchalanet.server.core.ledger.application.query.model.GetLedgerEntryByReferenceQuery;
-import com.tchalanet.server.core.ledger.application.query.model.LedgerEntryView;
-import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
+import com.tchalanet.server.core.ledger.internal.application.port.out.LedgerReaderPort;
+import com.tchalanet.server.core.ledger.api.query.GetLedgerEntryByReferenceQuery;
+import com.tchalanet.server.core.ledger.api.query.LedgerEntryView;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerEntry;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 

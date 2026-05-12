@@ -4,11 +4,11 @@ import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageRequest;
-import com.tchalanet.server.core.terminal.application.query.model.TerminalSearchCriteria;
-import com.tchalanet.server.core.terminal.application.query.model.TerminalSummaryView;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
+import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
+import com.tchalanet.server.core.terminal.internal.domain.model.Terminal;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;

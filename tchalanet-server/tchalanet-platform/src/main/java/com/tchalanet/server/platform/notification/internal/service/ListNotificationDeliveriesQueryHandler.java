@@ -2,10 +2,10 @@ package com.tchalanet.server.platform.notification.internal.service;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.notification.application.port.out.NotificationReaderPort;
-import com.tchalanet.server.core.notification.application.query.model.ListNotificationDeliveriesQuery;
-import com.tchalanet.server.core.notification.application.query.model.NotificationDeliveryView;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.platform.notification.internal.service.NotificationReaderPort;
+import com.tchalanet.server.platform.notification.api.model.ListNotificationDeliveriesQuery;
+import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.payout.domain.event.PayoutPaidEvent;
+import com.tchalanet.server.core.payout.internal.domain.event.PayoutPaidEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

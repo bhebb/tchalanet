@@ -3,11 +3,11 @@ package com.tchalanet.server.core.terminal.internal.application.query.handler;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.session.application.query.model.GetCurrentSalesSessionQuery;
-import com.tchalanet.server.core.session.domain.model.SalesSession;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
-import com.tchalanet.server.core.terminal.application.query.model.CurrentOperationalContextView;
-import com.tchalanet.server.core.terminal.application.query.model.GetCurrentOperationalContextQuery;
+import com.tchalanet.server.core.session.api.query.GetCurrentSalesSessionQuery;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.api.query.CurrentOperationalContextView;
+import com.tchalanet.server.core.terminal.api.query.GetCurrentOperationalContextQuery;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

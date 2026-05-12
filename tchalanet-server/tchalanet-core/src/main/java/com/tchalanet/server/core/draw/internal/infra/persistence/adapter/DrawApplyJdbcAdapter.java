@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.draw.application.port.out.DrawApplyPort;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawApplyJdbcRepository;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
+import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawApplyJdbcRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

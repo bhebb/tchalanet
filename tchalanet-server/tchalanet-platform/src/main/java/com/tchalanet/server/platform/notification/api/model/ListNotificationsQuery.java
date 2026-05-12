@@ -2,12 +2,8 @@ package com.tchalanet.server.platform.notification.api.model;
 
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageRequest;
-import com.tchalanet.server.core.notification.domain.model.NotificationCategory;
-import com.tchalanet.server.core.notification.domain.model.NotificationKind;
-import com.tchalanet.server.core.notification.domain.model.NotificationSeverity;
-import com.tchalanet.server.core.notification.domain.model.NotificationStatus;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
 import java.util.Optional;
 
 public record ListNotificationsQuery(

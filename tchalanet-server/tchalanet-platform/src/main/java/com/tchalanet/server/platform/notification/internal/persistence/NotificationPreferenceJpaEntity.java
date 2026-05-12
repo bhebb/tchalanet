@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.notification.internal.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.core.notification.domain.model.NotificationCategory;
-import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
-import com.tchalanet.server.core.notification.domain.model.NotificationKind;
-import com.tchalanet.server.core.notification.domain.model.NotificationPreferenceScopeType;
+import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.NotificationKind;
+import com.tchalanet.server.platform.notification.internal.service.NotificationPreferenceScopeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

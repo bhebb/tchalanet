@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.session.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.session.application.query.model.FinalizeSalesSessionCommand;
-import com.tchalanet.server.core.session.infra.web.model.FinalizeSalesSessionRequest;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.session.api.query.FinalizeSalesSessionCommand;
+import com.tchalanet.server.core.session.internal.infra.web.model.FinalizeSalesSessionRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -3,10 +3,10 @@ package com.tchalanet.server.core.sales.internal.application.service;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketLineInput;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.sales.domain.service.BetSelectionNormalizer;
+import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
+import com.tchalanet.server.core.sales.internal.domain.service.BetSelectionNormalizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

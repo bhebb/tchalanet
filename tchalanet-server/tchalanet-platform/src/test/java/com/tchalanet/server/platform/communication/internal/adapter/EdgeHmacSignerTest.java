@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.communication.internal.adapter;
 
-import com.tchalanet.server.platform.communication.internal.adapter.EdgeHmacSigner;
 import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.platform.communication.internal.provider.EdgeHmacSigner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;

@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.session.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.outlet.application.command.model.CloseDayMode;
-import com.tchalanet.server.core.outlet.domain.event.OutletDayClosedEvent;
-import com.tchalanet.server.core.session.application.command.model.CloseOutletOpenSalesSessionsCommand;
+import com.tchalanet.server.core.outlet.api.command.CloseDayMode;
+import com.tchalanet.server.core.outlet.internal.domain.event.OutletDayClosedEvent;
+import com.tchalanet.server.core.session.api.command.CloseOutletOpenSalesSessionsCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

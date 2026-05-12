@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.domain.tchala.model;
 
-import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaEntryException;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.exception.InvalidTchalaEntryException;
 import java.text.Normalizer;
 import java.util.Locale;
 

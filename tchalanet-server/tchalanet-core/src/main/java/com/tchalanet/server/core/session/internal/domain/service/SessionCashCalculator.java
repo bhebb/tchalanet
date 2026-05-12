@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.session.internal.domain.service;
 
-import com.tchalanet.server.core.session.domain.model.SalesSessionCashSummary;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionCashSummary;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

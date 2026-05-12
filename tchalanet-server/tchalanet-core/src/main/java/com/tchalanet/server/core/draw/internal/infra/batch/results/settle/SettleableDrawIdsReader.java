@@ -2,8 +2,8 @@ package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort;
-import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort.SettleableDrawCriteria;
+import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort;
+import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort.SettleableDrawCriteria;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.infrastructure.item.support.IteratorItemReader;

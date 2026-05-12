@@ -4,7 +4,6 @@ import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantgame.internal.mapper.TenantGameMapper;
 import com.tchalanet.server.platform.tenantgame.internal.service.TenantGame;
-import com.tchalanet.server.platform.tenantgame.internal.service.TenantGamePersistencePort;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +17,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class TenantGamePersistenceAdapter implements TenantGamePersistencePort {
+public class TenantGamePersistenceAdapter {
 
   private final TenantGameJpaRepository repository;
   private final GameCatalog gameCatalog;
   private final TenantGameMapper mapper;
 
-  @Override
   public TenantGame save(TenantGame tenantGame) {
     TenantGameJpaEntity entity;
 
@@ -48,7 +46,6 @@ public class TenantGamePersistenceAdapter implements TenantGamePersistencePort {
     return mapper.toDomain(saved);
   }
 
-  @Override
   public Optional<TenantGame> findByTenantIdAndGameCode(TenantId tenantId, String gameCode) {
       var game = gameCatalog.findByCode(gameCode)
           .orElseThrow(() -> new IllegalStateException("Game code not found in catalog: " + gameCode));
@@ -57,7 +54,6 @@ public class TenantGamePersistenceAdapter implements TenantGamePersistencePort {
         .map(mapper::toDomain);
   }
 
-  @Override
   public List<TenantGame> findAllByTenantId(TenantId tenantId) {
     return repository.findByTenantId(tenantId.value()).stream()
         .map(mapper::toDomain)

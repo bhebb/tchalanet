@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.notification.internal.mapper;
 
-import com.tchalanet.server.common.communication.api.CommunicationChannel;
-import com.tchalanet.server.common.communication.api.OutboundMessageRequest;
-import com.tchalanet.server.common.communication.api.OutboundRecipient;
+import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
+import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
+import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationRecipient;
 import com.tchalanet.server.platform.notification.api.model.SendNotificationCommand;
@@ -15,13 +15,13 @@ import java.util.Optional;
 @Component
 public class OutboundMessageMapper {
 
-    public Optional<OutboundMessageRequest> toOutbound(
+    public Optional<SendOutboundMessageRequest> toOutbound(
         SendNotificationCommand command,
         NotificationRecipient recipient,
         String idempotencyKey
     ) {
         return mapExternalChannel(recipient.channel())
-            .map(channel -> new OutboundMessageRequest(
+            .map(channel -> new SendOutboundMessageRequest(
                 command.type().name(),
                 channel,
                 new OutboundRecipient(
@@ -81,4 +81,3 @@ public class OutboundMessageMapper {
         return metadata;
     }
 }
-

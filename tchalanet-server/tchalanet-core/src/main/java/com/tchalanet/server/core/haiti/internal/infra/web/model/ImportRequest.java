@@ -6,6 +6,6 @@ public record ImportRequest(
     String lang,
     @NotNull String payloadRef,
     @NotNull
-        com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand
+        com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand
                 .ImportMode
             mode) {}

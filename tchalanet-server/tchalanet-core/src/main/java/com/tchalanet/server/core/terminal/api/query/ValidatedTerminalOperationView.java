@@ -3,7 +3,7 @@ package com.tchalanet.server.core.terminal.api.query;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.terminal.domain.model.TerminalState;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalState;
 
 public record ValidatedTerminalOperationView(
     TerminalId terminalId,

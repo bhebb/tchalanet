@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.api.query;
 
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
 
 import java.util.Objects;
 

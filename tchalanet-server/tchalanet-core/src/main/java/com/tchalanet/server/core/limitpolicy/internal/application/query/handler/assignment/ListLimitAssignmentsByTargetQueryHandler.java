@@ -2,9 +2,9 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.limitpolicy.application.port.out.assignment.LimitAssignmentReaderPort;
-import com.tchalanet.server.core.limitpolicy.application.query.model.assignment.ListLimitAssignmentsByScopeQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.assignment.ListLimitAssignmentsView;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

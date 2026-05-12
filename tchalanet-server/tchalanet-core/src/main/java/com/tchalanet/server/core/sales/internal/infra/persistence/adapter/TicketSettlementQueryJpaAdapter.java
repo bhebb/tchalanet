@@ -2,8 +2,8 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
-import com.tchalanet.server.core.sales.infra.persistence.repository.TicketSettlementQueryRepository;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketSettlementQueryPort;
+import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketSettlementQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

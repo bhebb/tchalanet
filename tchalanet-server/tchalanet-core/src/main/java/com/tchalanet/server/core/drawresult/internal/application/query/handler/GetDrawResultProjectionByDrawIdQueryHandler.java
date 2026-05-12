@@ -2,12 +2,12 @@ package com.tchalanet.server.core.drawresult.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
-import com.tchalanet.server.core.draw.application.exception.DrawNotFoundException;
-import com.tchalanet.server.core.drawresult.application.exception.DrawResultNotFoundException;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultProjection;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultProjectionByDrawIdQuery;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.internal.application.exception.DrawNotFoundException;
+import com.tchalanet.server.core.drawresult.internal.application.exception.DrawResultNotFoundException;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.api.query.GetDrawResultProjectionByDrawIdQuery;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

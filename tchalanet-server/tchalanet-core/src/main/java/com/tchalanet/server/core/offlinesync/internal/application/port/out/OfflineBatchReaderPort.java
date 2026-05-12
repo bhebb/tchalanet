@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.OfflineBatchId;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineBatch;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineBatch;
 import java.util.Optional;
 
 public interface OfflineBatchReaderPort {

@@ -2,9 +2,9 @@ package com.tchalanet.server.core.sales.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.application.query.model.GetAgentDailySalesQuery;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.api.query.AgentDailySalesDto;
+import com.tchalanet.server.core.sales.api.query.GetAgentDailySalesQuery;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;

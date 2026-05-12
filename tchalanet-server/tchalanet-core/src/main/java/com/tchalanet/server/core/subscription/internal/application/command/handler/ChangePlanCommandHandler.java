@@ -5,11 +5,11 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.core.subscription.application.command.model.ChangePlanCommand;
-import com.tchalanet.server.core.subscription.application.command.model.ChangePlanResult;
-import com.tchalanet.server.core.subscription.application.event.TenantSubscriptionUpdatedEvent;
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionPersistencePort;
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionReaderPort;
+import com.tchalanet.server.core.subscription.api.command.ChangePlanCommand;
+import com.tchalanet.server.core.subscription.api.command.ChangePlanResult;
+import com.tchalanet.server.core.subscription.internal.application.event.TenantSubscriptionUpdatedEvent;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionPersistencePort;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 

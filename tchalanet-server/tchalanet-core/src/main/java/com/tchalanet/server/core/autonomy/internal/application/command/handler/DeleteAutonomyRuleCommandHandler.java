@@ -5,9 +5,9 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
-import com.tchalanet.server.core.autonomy.application.command.model.DeleteAutonomyRuleCommand;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleReaderPort;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleWriterPort;
+import com.tchalanet.server.core.autonomy.api.command.DeleteAutonomyRuleCommand;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleWriterPort;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

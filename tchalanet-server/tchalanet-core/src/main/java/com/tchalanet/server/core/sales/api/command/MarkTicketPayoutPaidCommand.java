@@ -11,5 +11,5 @@ public record MarkTicketPayoutPaidCommand(
     UserId paidBy,
     String currency,
     String source
-) implements Command<com.tchalanet.server.core.sales.application.command.model.MarkTicketPayoutPaidResult> {}
+) implements Command<com.tchalanet.server.core.sales.api.command.MarkTicketPayoutPaidResult> {}
 

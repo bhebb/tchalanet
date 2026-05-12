@@ -3,12 +3,12 @@ package com.tchalanet.server.core.pagemodel.internal.application.query.handler;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
-import com.tchalanet.server.core.pagemodel.application.query.model.PreviewTemplateUpdateQuery;
-import com.tchalanet.server.core.pagemodel.application.query.model.TemplateUpdateCompatibility;
-import com.tchalanet.server.core.pagemodel.application.query.model.TemplateUpdateDiffView;
-import com.tchalanet.server.core.pagemodel.application.query.model.TemplateUpdatePreviewView;
-import com.tchalanet.server.core.pagemodel.application.query.model.TemplateUpdateRecommendedAction;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.api.query.PreviewTemplateUpdateQuery;
+import com.tchalanet.server.core.pagemodel.api.query.TemplateUpdateCompatibility;
+import com.tchalanet.server.core.pagemodel.api.query.TemplateUpdateDiffView;
+import com.tchalanet.server.core.pagemodel.api.query.TemplateUpdatePreviewView;
+import com.tchalanet.server.core.pagemodel.api.query.TemplateUpdateRecommendedAction;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 

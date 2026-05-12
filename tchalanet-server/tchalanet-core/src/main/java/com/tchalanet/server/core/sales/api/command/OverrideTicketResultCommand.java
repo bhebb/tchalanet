@@ -3,7 +3,7 @@ package com.tchalanet.server.core.sales.api.command;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.sales.application.model.TicketStatus;
+import com.tchalanet.server.core.sales.api.model.TicketStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 

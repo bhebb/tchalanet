@@ -3,9 +3,9 @@ package com.tchalanet.server.core.drawresult.internal.application.port.out;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.drawresult.application.view.DrawResultView;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResult;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
 import java.time.Instant;
 import java.util.Optional;
 

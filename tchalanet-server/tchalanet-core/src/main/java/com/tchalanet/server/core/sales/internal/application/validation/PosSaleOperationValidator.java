@@ -1,12 +1,13 @@
 package com.tchalanet.server.core.sales.internal.application.validation;
 
+import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.outlet.application.query.model.OutletOperation;
-import com.tchalanet.server.core.outlet.application.query.model.ValidateOutletForOperationQuery;
-import com.tchalanet.server.core.session.application.query.model.SalesSessionOperation;
-import com.tchalanet.server.core.session.application.query.model.ValidateSalesSessionForOperationQuery;
-import com.tchalanet.server.core.terminal.application.query.model.ValidateTerminalForOperationQuery;
+import com.tchalanet.server.core.outlet.api.query.OutletOperation;
+import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
+import com.tchalanet.server.core.session.api.query.SalesSessionOperation;
+import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
+import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.bridge;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.sales.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.DrawLookupPort;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 

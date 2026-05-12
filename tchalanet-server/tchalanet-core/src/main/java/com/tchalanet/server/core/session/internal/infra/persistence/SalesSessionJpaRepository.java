@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.session.internal.infra.persistence;
 
-import com.tchalanet.server.core.session.domain.model.SalesSessionStatus;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;

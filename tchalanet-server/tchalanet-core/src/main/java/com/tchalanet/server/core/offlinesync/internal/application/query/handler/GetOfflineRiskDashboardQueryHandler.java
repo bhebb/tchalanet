@@ -2,10 +2,10 @@ package com.tchalanet.server.core.offlinesync.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineSubmissionReaderPort;
-import com.tchalanet.server.core.offlinesync.application.query.model.GetOfflineRiskDashboardQuery;
-import com.tchalanet.server.core.offlinesync.application.query.model.OfflineRiskDashboardView;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSubmissionStatus;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineSubmissionReaderPort;
+import com.tchalanet.server.core.offlinesync.api.query.GetOfflineRiskDashboardQuery;
+import com.tchalanet.server.core.offlinesync.api.query.OfflineRiskDashboardView;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSubmissionStatus;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

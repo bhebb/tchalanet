@@ -2,12 +2,12 @@ package com.tchalanet.server.core.outlet.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.outlet.application.port.out.OutletMembershipReaderPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletTerminalReaderPort;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletOperationalContextQuery;
-import com.tchalanet.server.core.outlet.application.query.model.OutletOperationalContextView;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletMembershipReaderPort;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletTerminalReaderPort;
+import com.tchalanet.server.core.outlet.api.query.GetOutletOperationalContextQuery;
+import com.tchalanet.server.core.outlet.api.query.OutletOperationalContextView;
+import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

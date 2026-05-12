@@ -3,7 +3,7 @@ package com.tchalanet.server.core.pagemodel.internal.application.port.out;
 import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import java.util.List;
 
 public interface PageModelWritePort {

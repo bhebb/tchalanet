@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.internal.infra.cache;
 
-import com.tchalanet.server.common.cache.CacheSpec;
-import com.tchalanet.server.common.cache.CacheSpecProvider;
+import com.tchalanet.server.common.cache.internal.CacheSpec;
+import com.tchalanet.server.common.cache.internal.CacheSpecProvider;
 import java.time.Duration;
 import java.util.List;
 import org.springframework.stereotype.Component;

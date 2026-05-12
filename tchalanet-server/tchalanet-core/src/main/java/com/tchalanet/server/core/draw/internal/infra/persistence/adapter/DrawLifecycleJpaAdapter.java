@@ -1,15 +1,16 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
-import com.tchalanet.server.core.draw.application.query.projection.ExistingDrawKey;
-import com.tchalanet.server.core.draw.application.query.projection.NewDrawRow;
-import com.tchalanet.server.core.draw.application.query.projection.OpenableDrawRow;
-import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawMapper;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DueToCloseRow;
+import com.tchalanet.server.core.draw.internal.application.query.projection.ExistingDrawKey;
+import com.tchalanet.server.core.draw.internal.application.query.projection.NewDrawRow;
+import com.tchalanet.server.core.draw.internal.application.query.projection.OpenableDrawRow;
+import com.tchalanet.server.core.draw.internal.domain.model.Draw;
+import com.tchalanet.server.core.draw.internal.infra.persistence.mapper.DrawMapper;
+import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -89,7 +90,7 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
     }
 
     private OpenableDrawRow mapOpenableRow(
-        com.tchalanet.server.core.draw.infra.persistence.projection.OpenableDrawProjection projection) {
+        com.tchalanet.server.core.draw.internal.infra.persistence.projection.OpenableDrawProjection projection) {
         TenantId tenantId = TenantId.of(projection.getTenantId());
         DrawId drawId = DrawId.of(projection.getDrawId());
         Boolean locked = projection.getLocked() == null ? Boolean.FALSE : projection.getLocked();

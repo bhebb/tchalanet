@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.validation;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.core.sales.application.command.model.OfflineTicketSaleInput;
+import com.tchalanet.server.core.sales.api.command.OfflineTicketSaleInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

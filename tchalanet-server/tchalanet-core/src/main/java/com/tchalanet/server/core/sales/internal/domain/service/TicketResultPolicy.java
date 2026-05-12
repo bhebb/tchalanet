@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.domain.service;
 
-import com.tchalanet.server.core.sales.domain.model.TicketResultStatus;
-import com.tchalanet.server.core.sales.domain.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketSaleStatus;
 
 public class TicketResultPolicy {
 

@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.offlinesync.internal.application.command.handler.batch;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.core.offlinesync.application.command.model.batch.ReceiveOfflineBatchCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.batch.ReceiveOfflineBatchResult;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineBatchStatus;
+import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchResult;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineBatchStatus;
 import java.util.UUID;
 
 public class ReceiveOfflineBatchCommandHandler

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
-import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.api.query.AgentDailySalesDto;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -37,7 +37,7 @@ public interface SpringTicketJpaRepository
         UUID createdBy, Pageable pageable);
 
     @Query(
-        "SELECT new com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto(t.createdBy, SUM(t.totalAmount), COUNT(t.id)) "
+        "SELECT new com.tchalanet.server.core.sales.api.query.AgentDailySalesDto(t.createdBy, SUM(t.totalAmount), COUNT(t.id)) "
             + "FROM TicketJpaEntity t "
             + "WHERE t.createdAt BETWEEN :from AND :to AND t.deletedAt IS NULL "
             + "GROUP BY t.createdBy")

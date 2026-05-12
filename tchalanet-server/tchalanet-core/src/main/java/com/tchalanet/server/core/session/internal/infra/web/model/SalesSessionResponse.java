@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.session.domain.model.SalesSession;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 
 import java.math.BigDecimal;
 import java.time.Instant;

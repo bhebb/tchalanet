@@ -1,15 +1,15 @@
 package com.tchalanet.server.core.terminal.internal.infra.cache;
 
-import com.tchalanet.server.core.terminal.domain.event.TerminalAssignedToOutletEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalAssignedToUserEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalAutoSessionDisabledEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalAutoSessionEnabledEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalLockedEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalMetadataUpdatedEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalRegisteredEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalSyncStateUpdatedEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalUnlockedEvent;
-import com.tchalanet.server.core.terminal.domain.event.TerminalUnregisteredEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalAssignedToOutletEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalAssignedToUserEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalAutoSessionDisabledEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalAutoSessionEnabledEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalLockedEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalMetadataUpdatedEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalRegisteredEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalSyncStateUpdatedEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalUnlockedEvent;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalUnregisteredEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

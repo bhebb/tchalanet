@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.adapter;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.limitpolicy.application.port.out.exposure.ExposureAlertsReaderPort;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.exposure.DrawExposureJpaRepository;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.exposure.ScopePersistenceMapper;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureAlertsReaderPort;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.DrawExposureJpaRepository;
+import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.ScopePersistenceMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -56,7 +56,7 @@ public class ExposureAlertsReaderAdapter implements ExposureAlertsReaderPort {
     }
 
     private Row toRow(
-        com.tchalanet.server.core.limitpolicy.infra.persistence.exposure.DrawExposureJpaEntity entity
+        com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.DrawExposureJpaEntity entity
     ) {
         return new Row(
             entity.getBetType(),

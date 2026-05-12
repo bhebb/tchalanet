@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.tenantconfig.api.model;
 
-import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.common.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPage;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -15,4 +14,4 @@ import org.springframework.data.domain.Pageable;
  */
 public record ListTenantsQuery(
     Pageable pageable  // from TchPageRequest
-) implements Query<TchPage<TenantConfigView>> {}
+) {}

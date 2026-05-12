@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.subscription.internal.application.port.out;
 
-import com.tchalanet.server.core.subscription.domain.model.Subscription;
+import com.tchalanet.server.core.subscription.internal.domain.model.Subscription;
 
 /**
  * Port for writing subscription data (persistence).

@@ -2,8 +2,8 @@ package com.tchalanet.server.core.sales.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.query.model.ExportDailySalesQuery;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.api.query.ExportDailySalesQuery;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;

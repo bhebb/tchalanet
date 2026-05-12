@@ -1,15 +1,17 @@
 package com.tchalanet.server.core.payout.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.PayoutId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.payout.application.command.model.ExecutePayoutCommand;
-import com.tchalanet.server.core.payout.application.command.model.RegisterPayoutCommand;
-import com.tchalanet.server.core.payout.infra.web.mapper.PayoutWebMapper;
-import com.tchalanet.server.core.payout.infra.web.model.ExecutePayoutRequest;
-import com.tchalanet.server.core.payout.infra.web.model.PayoutWorkflowResponse;
-import com.tchalanet.server.core.payout.infra.web.model.RegisterPayoutRequest;
-import com.tchalanet.server.core.payout.infra.web.model.RegisterPayoutResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.payout.api.command.ExecutePayoutCommand;
+import com.tchalanet.server.core.payout.api.command.RegisterPayoutCommand;
+import com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper;
+import com.tchalanet.server.core.payout.internal.infra.web.model.ExecutePayoutRequest;
+import com.tchalanet.server.core.payout.internal.infra.web.model.PayoutWorkflowResponse;
+import com.tchalanet.server.core.payout.internal.infra.web.model.RegisterPayoutRequest;
+import com.tchalanet.server.core.payout.internal.infra.web.model.RegisterPayoutResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;

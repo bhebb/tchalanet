@@ -5,10 +5,10 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.NotificationDeliveryId;
-import com.tchalanet.server.core.notification.application.command.model.ScheduleNotificationDeliveryCommand;
-import com.tchalanet.server.core.notification.application.port.out.NotificationDeliveryWriterPort;
-import com.tchalanet.server.core.notification.domain.model.NotificationDelivery;
-import com.tchalanet.server.core.notification.domain.model.NotificationDeliveryStatus;
+import com.tchalanet.server.platform.notification.api.model.ScheduleNotificationDeliveryCommand;
+import com.tchalanet.server.platform.notification.internal.service.NotificationDeliveryWriterPort;
+import com.tchalanet.server.platform.notification.internal.service.NotificationDelivery;
+import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryStatus;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

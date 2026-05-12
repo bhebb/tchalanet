@@ -1,4 +1,4 @@
-    package com.tchalanet.server.core.draw.infra.batch.results.settle;
+    package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
     import com.tchalanet.server.common.types.id.DrawId;
     import org.springframework.batch.infrastructure.item.ItemProcessor;

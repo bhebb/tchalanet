@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.pagemodel.internal.application.command.handler;
 
-import com.tchalanet.server.core.pagemodel.application.command.model.PublishPageModelCommand;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWritePort;
+import com.tchalanet.server.core.pagemodel.api.command.PublishPageModelCommand;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelWritePort;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.pagemodel.domain.policy.PublishPolicy;
+import com.tchalanet.server.core.pagemodel.internal.domain.policy.PublishPolicy;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

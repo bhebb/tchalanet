@@ -3,6 +3,7 @@ package com.tchalanet.server.platform.address.internal.service;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.address.api.model.AddressInput;
 import com.tchalanet.server.platform.address.api.model.AddressView;
 import com.tchalanet.server.platform.address.internal.adapter.AddressPersistenceAdapter;
@@ -23,7 +24,7 @@ import org.springframework.dao.DataIntegrityViolationException;
  */
 @UseCase
 @RequiredArgsConstructor
-public class AddressCrudService {
+public class AddressCrudService implements AddressApi {
 
   private final Clock clock;
 
@@ -79,6 +80,7 @@ public class AddressCrudService {
    *
    * DB enforces uniqueness via: UNIQUE (tenant_id) WHERE deleted=false
    */
+  @Override
   public AddressId upsertTenantPrimary(TenantId tenantId, AddressInput input) {
     Objects.requireNonNull(tenantId, "tenantId");
     Objects.requireNonNull(input, "input");
@@ -142,6 +144,7 @@ public class AddressCrudService {
    * @param id address ID (typed)
    * @return address view if found and not deleted
    */
+  @Override
   public Optional<AddressView> get(TenantId tenantId, AddressId id) {
     Objects.requireNonNull(tenantId, "tenantId");
     Objects.requireNonNull(id, "id");

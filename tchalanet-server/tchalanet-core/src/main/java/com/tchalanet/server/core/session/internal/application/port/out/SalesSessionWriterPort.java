@@ -2,7 +2,7 @@ package com.tchalanet.server.core.session.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.session.domain.model.SalesSession;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 
 import java.time.Instant;
 

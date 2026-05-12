@@ -4,10 +4,10 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
-import com.tchalanet.server.core.session.application.port.out.SalesSessionWriterPort;
-import com.tchalanet.server.core.session.application.query.model.FinalizeSalesSessionCommand;
-import com.tchalanet.server.core.session.domain.model.SalesSessionStatus;
+import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
+import com.tchalanet.server.core.session.api.query.FinalizeSalesSessionCommand;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

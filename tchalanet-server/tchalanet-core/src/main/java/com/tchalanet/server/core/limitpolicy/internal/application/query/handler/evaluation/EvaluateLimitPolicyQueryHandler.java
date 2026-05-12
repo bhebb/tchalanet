@@ -2,14 +2,14 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.limitpolicy.application.port.out.assignment.LimitAssignmentReaderPort;
-import com.tchalanet.server.core.limitpolicy.application.port.out.exposure.ExposureFactsReaderPort;
-import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.EvaluateLimitPolicyQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.LimitBreachView;
-import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.LimitEvaluationView;
-import com.tchalanet.server.core.limitpolicy.domain.engine.LimitEvaluationEngine;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
-import com.tchalanet.server.core.limitpolicy.domain.resolver.LimitResolver;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureFactsReaderPort;
+import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitBreachView;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
+import com.tchalanet.server.core.limitpolicy.internal.domain.engine.LimitEvaluationEngine;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.domain.resolver.LimitResolver;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;

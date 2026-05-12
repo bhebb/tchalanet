@@ -1,17 +1,19 @@
 package com.tchalanet.server.core.session.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.session.application.command.model.CloseSalesSessionCommand;
-import com.tchalanet.server.core.session.application.command.model.OpenSalesSessionCommand;
-import com.tchalanet.server.core.session.application.query.model.GetCurrentSalesSessionQuery;
-import com.tchalanet.server.core.session.infra.web.model.CloseSalesSessionResponse;
-import com.tchalanet.server.core.session.infra.web.model.OpenSalesSessionResponse;
-import com.tchalanet.server.core.session.infra.web.model.SalesSessionResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.session.api.command.CloseSalesSessionCommand;
+import com.tchalanet.server.core.session.api.command.OpenSalesSessionCommand;
+import com.tchalanet.server.core.session.api.query.GetCurrentSalesSessionQuery;
+import com.tchalanet.server.core.session.internal.infra.web.model.CloseSalesSessionResponse;
+import com.tchalanet.server.core.session.internal.infra.web.model.OpenSalesSessionResponse;
+import com.tchalanet.server.core.session.internal.infra.web.model.SalesSessionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

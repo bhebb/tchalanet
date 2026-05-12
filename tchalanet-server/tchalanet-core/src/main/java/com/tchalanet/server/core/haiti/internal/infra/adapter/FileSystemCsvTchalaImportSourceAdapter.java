@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
-import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand.ImportRow;
-import com.tchalanet.server.core.haiti.application.port.out.TchalaImportSourcePort;
+import com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand.ImportRow;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaImportSourcePort;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

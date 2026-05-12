@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.drawresult.api.query;
 
 import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.drawresult.application.view.PublicDrawResultHistoryRowView;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultHistoryRowView;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;

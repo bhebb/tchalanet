@@ -2,10 +2,10 @@ package com.tchalanet.server.core.drawresult.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.drawresult.application.port.out.PublicDrawResultSlotReaderPort;
-import com.tchalanet.server.core.drawresult.application.query.model.SearchPublicDrawResultsQuery;
-import com.tchalanet.server.core.drawresult.application.view.PublicDrawResultHistoryRowView;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.PublicDrawResultSlotReaderPort;
+import com.tchalanet.server.core.drawresult.api.query.SearchPublicDrawResultsQuery;
+import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultHistoryRowView;
 import java.time.Clock;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;

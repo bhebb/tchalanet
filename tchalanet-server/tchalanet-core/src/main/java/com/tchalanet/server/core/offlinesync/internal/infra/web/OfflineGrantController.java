@@ -1,11 +1,13 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
 import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.offlinesync.application.command.model.grant.IssueOfflineSalesGrantCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.grant.RevokeOfflineSalesGrantCommand;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.offlinesync.api.command.IssueOfflineSalesGrantCommand;
+import com.tchalanet.server.core.offlinesync.api.command.RevokeOfflineSalesGrantCommand;
 import java.time.Instant;
 import java.util.Map;
 import org.springframework.http.HttpStatus;

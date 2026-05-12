@@ -7,12 +7,12 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PageModelId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.pagemodel.application.command.model.DuplicatePageModelCommand;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReaderPort;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWriterPort;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
-import com.tchalanet.server.core.pagemodel.infra.web.PageModelAdminMapper;
-import com.tchalanet.server.core.pagemodel.infra.web.dto.PageModelAdminDetailDto;
+import com.tchalanet.server.core.pagemodel.api.command.DuplicatePageModelCommand;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReaderPort;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelWriterPort;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.infra.web.PageModelAdminMapper;
+import com.tchalanet.server.core.pagemodel.internal.infra.web.dto.PageModelAdminDetailDto;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

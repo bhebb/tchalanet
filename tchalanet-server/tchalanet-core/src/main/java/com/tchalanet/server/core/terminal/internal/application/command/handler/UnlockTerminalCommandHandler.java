@@ -7,10 +7,10 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.terminal.application.command.model.UnlockTerminalCommand;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
-import com.tchalanet.server.core.terminal.domain.event.TerminalUnlockedEvent;
+import com.tchalanet.server.core.terminal.api.command.UnlockTerminalCommand;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalWriterPort;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalUnlockedEvent;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

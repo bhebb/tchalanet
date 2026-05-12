@@ -1,8 +1,9 @@
 package com.tchalanet.server.core.ledger.internal.infra.persistence;
 
-import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
-import com.tchalanet.server.core.ledger.domain.model.LedgerOperationType;
-import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerDirection;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerRefType;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;

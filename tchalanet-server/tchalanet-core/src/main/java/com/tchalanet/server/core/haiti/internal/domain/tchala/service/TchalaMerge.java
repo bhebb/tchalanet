@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.domain.tchala.service;
 
-import com.tchalanet.server.core.haiti.domain.tchala.model.MergePolicy;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaNumber;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.MergePolicy;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaNumber;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

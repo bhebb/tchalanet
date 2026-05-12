@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.domain.lottery.model;
 
-import com.tchalanet.server.core.haiti.domain.lottery.exception.InvalidExternalPickException;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.InvalidExternalPickException;
 
 public record ExternalPick(String pick3, String pick4) {
   public static ExternalPick of(String p3, String p4) {

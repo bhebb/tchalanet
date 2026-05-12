@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

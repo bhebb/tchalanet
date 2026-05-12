@@ -10,7 +10,7 @@ import java.time.LocalDate;
  * Publié quand un {@code DrawResult} global est ingéré (créé ou passe à FINAL).
  * Signal global, non lié à un tenant spécifique.
  *
- * @see com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent événement tenant-scoped
+ * @see com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent événement tenant-scoped
  */
 public record DrawResultIngestedEvent(
     EventId eventId,

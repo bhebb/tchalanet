@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.service;
 
 import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.common.types.money.CurrencyCode;
-import com.tchalanet.server.core.sales.domain.model.*;
+import com.tchalanet.server.core.sales.internal.domain.model.*;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.List;

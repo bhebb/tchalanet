@@ -2,8 +2,8 @@ package com.tchalanet.server.core.pagemodel.internal.infra.persistence;
 
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
 import tools.jackson.databind.node.JsonNodeFactory;
 
 final class PageModelMapper {

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.ledger.api.query;
 
-import com.tchalanet.server.core.ledger.domain.model.LedgerOperationType;
-import com.tchalanet.server.core.ledger.domain.model.LedgerReference;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerReference;
 import java.util.Objects;
 
 public record GetLedgerEntryByReferenceQuery(

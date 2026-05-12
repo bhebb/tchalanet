@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import com.tchalanet.server.common.types.enums.BetType;
 
 import java.math.BigDecimal;

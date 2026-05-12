@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.domain.tchala.model;
 
-import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaLangException;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.exception.InvalidTchalaLangException;
 import java.util.Locale;
 
 public record TchalaLang(String value) {

@@ -6,7 +6,7 @@ import java.util.UUID;
 public record ApproveRequest(
     @NotNull UUID entryId,
     @NotNull
-        com.tchalanet.server.core.haiti.application.command.model.ApproveTchalaEntryCommand
+        com.tchalanet.server.core.haiti.api.command.ApproveTchalaEntryCommand
                 .ApprovalMode
             mode,
     UUID targetCanonicalId,

@@ -7,11 +7,11 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.outlet.application.command.model.BlockOutletSalesCommand;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.domain.event.OutletSalesBlockedEvent;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import com.tchalanet.server.core.outlet.api.command.BlockOutletSalesCommand;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
+import com.tchalanet.server.core.outlet.internal.domain.event.OutletSalesBlockedEvent;
+import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

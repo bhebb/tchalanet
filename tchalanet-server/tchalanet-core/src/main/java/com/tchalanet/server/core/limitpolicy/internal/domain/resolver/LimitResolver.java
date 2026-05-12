@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.limitpolicy.internal.domain.resolver;
 
 import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.core.limitpolicy.domain.model.EffectiveLimitRule;
-import com.tchalanet.server.core.limitpolicy.domain.model.EffectiveLimits;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimitRule;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimits;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitAssignment;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 
 import java.util.EnumMap;
 import java.util.List;

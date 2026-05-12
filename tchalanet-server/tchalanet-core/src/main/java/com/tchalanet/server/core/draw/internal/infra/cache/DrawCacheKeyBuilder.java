@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.internal.infra.cache;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
+import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import java.time.LocalDate;
 import org.springframework.stereotype.Component;
 

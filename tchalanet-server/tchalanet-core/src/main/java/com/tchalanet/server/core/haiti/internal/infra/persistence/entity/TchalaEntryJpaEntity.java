@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.infra.persistence.entity;
 
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

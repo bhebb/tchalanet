@@ -2,10 +2,10 @@ package com.tchalanet.server.core.outlet.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
-import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.internal.application.port.out.SalesTicketAdminPort;
+import com.tchalanet.server.core.outlet.api.query.GetOutletDailySummaryQuery;
+import com.tchalanet.server.core.outlet.api.query.OutletDailySummary;
 import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

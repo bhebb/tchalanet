@@ -2,7 +2,7 @@ package com.tchalanet.server.core.pagemodel.api.query;
 
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.PageModelId;
-import com.tchalanet.server.core.pagemodel.infra.web.dto.PageModelAdminDetailDto;
+import com.tchalanet.server.core.pagemodel.internal.infra.web.dto.PageModelAdminDetailDto;
 
 /**
  * Query de preview admin : charge un PageModel par son ID et le retourne mappé

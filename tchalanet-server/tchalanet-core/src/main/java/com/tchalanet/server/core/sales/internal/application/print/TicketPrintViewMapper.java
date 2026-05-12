@@ -2,13 +2,13 @@ package com.tchalanet.server.core.sales.internal.application.print;
 
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelDisplayFormatter;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
-import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
-import com.tchalanet.server.core.sales.application.formatter.DrawLabelFormat;
-import com.tchalanet.server.core.sales.application.formatter.TicketDrawLabelFormatter;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.core.draw.internal.domain.model.Draw;
+import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
+import com.tchalanet.server.core.sales.internal.application.formatter.DrawLabelFormat;
+import com.tchalanet.server.core.sales.internal.application.formatter.TicketDrawLabelFormatter;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintLine;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;

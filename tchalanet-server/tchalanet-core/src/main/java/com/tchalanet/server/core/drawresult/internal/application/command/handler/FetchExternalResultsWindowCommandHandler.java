@@ -3,17 +3,17 @@ package com.tchalanet.server.core.drawresult.internal.application.command.handle
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.core.drawresult.infra.config.DrawResultsProperties;
+import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.types.enums.DrawSource;
-import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowCommand;
-import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.drawresult.application.service.*;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.internal.application.service.*;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

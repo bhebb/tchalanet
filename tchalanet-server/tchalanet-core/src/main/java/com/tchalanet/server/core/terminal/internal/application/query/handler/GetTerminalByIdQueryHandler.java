@@ -2,9 +2,9 @@ package com.tchalanet.server.core.terminal.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
-import com.tchalanet.server.core.terminal.application.query.model.GetTerminalByIdQuery;
-import com.tchalanet.server.core.terminal.application.query.model.TerminalView;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.api.query.GetTerminalByIdQuery;
+import com.tchalanet.server.core.terminal.api.query.TerminalView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

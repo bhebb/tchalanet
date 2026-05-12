@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.outlet.internal.infra.persistence;
 
-import com.tchalanet.server.core.outlet.application.query.model.OutletSearchCriteria;
+import com.tchalanet.server.core.outlet.api.query.OutletSearchCriteria;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class OutletSpecifications {

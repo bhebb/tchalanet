@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pagemodel.internal.domain.policy;
 
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

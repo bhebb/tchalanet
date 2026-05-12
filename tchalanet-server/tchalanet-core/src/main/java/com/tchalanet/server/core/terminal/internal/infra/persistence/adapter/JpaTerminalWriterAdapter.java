@@ -3,11 +3,11 @@ package com.tchalanet.server.core.terminal.internal.infra.persistence.adapter;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
-import com.tchalanet.server.core.terminal.infra.persistence.TerminalJpaEntity;
-import com.tchalanet.server.core.terminal.infra.persistence.TerminalJpaRepository;
-import com.tchalanet.server.core.terminal.infra.persistence.TerminalMapper;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalWriterPort;
+import com.tchalanet.server.core.terminal.internal.domain.model.Terminal;
+import com.tchalanet.server.core.terminal.internal.infra.persistence.TerminalJpaEntity;
+import com.tchalanet.server.core.terminal.internal.infra.persistence.TerminalJpaRepository;
+import com.tchalanet.server.core.terminal.internal.infra.persistence.TerminalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

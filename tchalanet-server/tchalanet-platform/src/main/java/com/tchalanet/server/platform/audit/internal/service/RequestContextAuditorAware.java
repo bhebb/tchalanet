@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
-import com.tchalanet.server.core.haiti.domain.tchala.model.*;
-import com.tchalanet.server.core.haiti.infra.persistence.entity.TchalaEntryJpaEntity;
-import com.tchalanet.server.core.haiti.infra.persistence.repo.TchalaEntrySpringRepository;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaEntryRepositoryPort;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.*;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryJpaEntity;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.repo.TchalaEntrySpringRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,10 +83,10 @@ public class JpaTchalaEntryRepositoryAdapter implements TchalaEntryRepositoryPor
       existing.setDedupeKey(entry.dedupeKey().key());
       existing.setNote(entry.note() == null ? "" : entry.note());
       existing.setStatus(
-          com.tchalanet.server.core.haiti.infra.persistence.entity.TchalaEntryStatusDb.valueOf(
+          com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryStatusDb.valueOf(
               entry.status().name()));
       existing.setSource(
-          com.tchalanet.server.core.haiti.infra.persistence.entity.TchalaEntrySourceDb.valueOf(
+          com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntrySourceDb.valueOf(
               entry.source().name()));
       existing.setConflictWithEntryId(
           entry.conflictWithEntryId().map(TchalaEntryId::value).orElse(null));

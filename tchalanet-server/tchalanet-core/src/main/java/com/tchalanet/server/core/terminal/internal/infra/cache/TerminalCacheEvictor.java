@@ -2,7 +2,7 @@ package com.tchalanet.server.core.terminal.internal.infra.cache;
 
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalCacheInvalidationPort;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalCacheInvalidationPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;

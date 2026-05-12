@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.limitpolicy.application.command.model.exposure.ApplyTicketExposureCommand;
-import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.limitpolicy.api.command.ApplyTicketExposureCommand;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;

@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
-import com.tchalanet.server.core.audit.application.command.handler.PurgeOldAuditEventsCommandHandler;
-import com.tchalanet.server.core.audit.application.command.model.PurgeOldAuditEventsCommand;
+import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsCommand;
 import org.springframework.stereotype.Component;
 
 @Component

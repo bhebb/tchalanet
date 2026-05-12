@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.print;
 
-import com.tchalanet.server.core.sales.infra.config.TicketPublicProperties;
+import com.tchalanet.server.core.sales.internal.infra.config.TicketPublicProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

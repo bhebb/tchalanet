@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.domain.service;
 
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSalesGrant;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSalesGrantStatus;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSalesGrant;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSalesGrantStatus;
 import java.time.Instant;
 
 public class OfflineGrantPolicy {

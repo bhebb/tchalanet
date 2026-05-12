@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
-import com.tchalanet.server.core.uslottery.infra.config.UsLotteryProperties;
+import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;

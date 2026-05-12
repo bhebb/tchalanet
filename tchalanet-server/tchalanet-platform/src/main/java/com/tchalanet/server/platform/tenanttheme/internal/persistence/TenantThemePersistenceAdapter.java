@@ -1,9 +1,7 @@
 package com.tchalanet.server.platform.tenanttheme.internal.persistence;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.tenanttheme.application.port.out.TenantThemePersistencePort;
-import com.tchalanet.server.core.tenanttheme.application.port.out.TenantThemeReaderPort;
-import com.tchalanet.server.core.tenanttheme.domain.model.TenantTheme;
+import com.tchalanet.server.platform.tenanttheme.internal.service.TenantTheme;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,12 +13,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class TenantThemePersistenceAdapter
-    implements TenantThemePersistencePort, TenantThemeReaderPort {
+public class TenantThemePersistenceAdapter {
 
   private final TenantThemeJpaRepository repository;
 
-  @Override
   public TenantTheme save(TenantTheme tenantTheme) {
     var entity =
         repository
@@ -37,12 +33,10 @@ public class TenantThemePersistenceAdapter
     return toDomain(saved);
   }
 
-  @Override
   public void deactivate(TenantId tenantId) {
     repository.deleteByTenantId(tenantId.value());
   }
 
-  @Override
   public Optional<TenantTheme> findByTenantId(TenantId tenantId) {
     return repository.findByTenantId(tenantId.value()).map(this::toDomain);
   }

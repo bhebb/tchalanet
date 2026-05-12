@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.notification.internal.service;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.communication.api.OutboundMessageGateway;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.platform.communication.api.CommunicationApi;
 import com.tchalanet.server.platform.notification.api.model.NotificationRecipient;
 import com.tchalanet.server.platform.notification.api.model.SendNotificationCommand;
 import com.tchalanet.server.platform.notification.api.model.SendNotificationResult;
@@ -22,7 +22,7 @@ import java.util.UUID;
 public class SendNotificationCommandHandler
     implements CommandHandler<SendNotificationCommand, SendNotificationResult> {
 
-    private final OutboundMessageGateway outboundMessageGateway;
+    private final CommunicationApi communicationApi;
     private final OutboundMessageMapper outboundMessageMapper;
     private final NotificationPolicy notificationPolicy;
 
@@ -65,7 +65,7 @@ public class SendNotificationCommandHandler
         String idempotencyKey
     ) {
         outboundMessageMapper.toOutbound(command, recipient, idempotencyKey)
-            .ifPresent(outboundMessageGateway::send);
+            .ifPresent(communicationApi::send);
     }
 
     private String generateIdempotencyKey(SendNotificationCommand command) {

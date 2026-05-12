@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.sales.internal.application.service;
 
-import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineDecision;
-import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineRejectReason;
-import com.tchalanet.server.core.sales.application.command.model.OfflineTicketSaleInput;
-import com.tchalanet.server.core.sales.application.port.out.DrawLookupPort.DrawSnapshot;
-import com.tchalanet.server.core.sales.application.port.out.LimitPolicyPort.LimitDecision;
-import com.tchalanet.server.core.sales.application.port.out.SalesSessionLookupPort.SalesSessionSnapshot;
-import com.tchalanet.server.core.sales.domain.model.SalesSessionPostingMode;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineDecision;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineRejectReason;
+import com.tchalanet.server.core.sales.api.command.OfflineTicketSaleInput;
+import com.tchalanet.server.core.sales.internal.application.port.out.DrawLookupPort.DrawSnapshot;
+import com.tchalanet.server.core.sales.internal.application.port.out.LimitPolicyPort.LimitDecision;
+import com.tchalanet.server.core.sales.internal.application.port.out.SalesSessionLookupPort.SalesSessionSnapshot;
+import com.tchalanet.server.core.sales.internal.domain.model.SalesSessionPostingMode;
 import org.springframework.stereotype.Component;
 
 @Component

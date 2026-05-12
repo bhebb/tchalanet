@@ -1,10 +1,11 @@
 package com.tchalanet.server.core.autonomy.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleWriterPort;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
-import com.tchalanet.server.core.autonomy.infra.persistence.AutonomyPolicyRuleJpaRepository;
-import com.tchalanet.server.core.autonomy.infra.persistence.AutonomyPolicyRuleMapper;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleWriterPort;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.infra.persistence.AutonomyPolicyRuleJpaRepository;
+import com.tchalanet.server.core.autonomy.internal.infra.persistence.AutonomyPolicyRuleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

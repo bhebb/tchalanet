@@ -3,10 +3,10 @@ package com.tchalanet.server.core.outlet.internal.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.outlet.application.query.model.OutletOperation;
-import com.tchalanet.server.core.outlet.application.query.model.ValidateOutletForOperationQuery;
-import com.tchalanet.server.core.outlet.application.query.model.ValidatedOutletOperationView;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.api.query.OutletOperation;
+import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
+import com.tchalanet.server.core.outlet.api.query.ValidatedOutletOperationView;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

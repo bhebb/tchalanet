@@ -6,14 +6,14 @@ import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.drawresult.infra.cache.DrawResultCacheEvictor;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.internal.infra.cache.DrawResultCacheEvictor;
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.tchalanet.server.core.drawresult.infra.persistence.repo.DrawResultJpaRepository;
+import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;

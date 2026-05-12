@@ -1,9 +1,8 @@
 package com.tchalanet.server.platform.tenantconfig.api.model;
 
-import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.enums.TenantType;
 import com.tchalanet.server.common.types.id.ThemePresetId;
-import com.tchalanet.server.core.address.application.model.AddressInput;
+import com.tchalanet.server.platform.address.api.model.AddressInput;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -28,4 +27,4 @@ public record CreateTenantCommand(
     AddressInput address,
     ThemePresetId activeThemeId,  // optional theme preset
     Boolean activate              // optional: true = ACTIVE, false/null = DRAFT
-) implements Command<Void> {}
+) {}

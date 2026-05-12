@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.resources;
 
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelTemplateLoaderPort;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelTemplateLoaderPort;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

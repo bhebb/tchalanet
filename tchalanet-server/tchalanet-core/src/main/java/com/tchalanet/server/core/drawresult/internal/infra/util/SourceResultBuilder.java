@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.infra.util;
 
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultItem;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
 import java.time.Instant;
 import java.time.LocalDate;
 import tools.jackson.databind.node.ObjectNode;

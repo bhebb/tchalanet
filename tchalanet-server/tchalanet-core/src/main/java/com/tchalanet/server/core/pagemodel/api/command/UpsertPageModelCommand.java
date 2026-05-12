@@ -25,7 +25,7 @@ public record UpsertPageModelCommand(
     JsonNode modelJson,
     Optional<String> templateId,
     boolean publish
-) implements Command<com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance> {
+) implements Command<com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance> {
 
   public UpsertPageModelCommand(
       Optional<PageModelId> id,

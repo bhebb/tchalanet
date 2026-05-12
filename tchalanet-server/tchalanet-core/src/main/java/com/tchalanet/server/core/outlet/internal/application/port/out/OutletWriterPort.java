@@ -2,8 +2,8 @@ package com.tchalanet.server.core.outlet.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
-import com.tchalanet.server.core.outlet.domain.model.OutletStatus;
+import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
+import com.tchalanet.server.core.outlet.internal.domain.model.OutletStatus;
 
 import java.time.Instant;
 

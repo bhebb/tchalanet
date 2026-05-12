@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
 
-import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
 
 public final class FetchCounters {
     public int inserted;

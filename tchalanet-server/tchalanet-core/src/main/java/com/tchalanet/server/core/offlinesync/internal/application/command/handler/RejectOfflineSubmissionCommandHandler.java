@@ -3,9 +3,9 @@ package com.tchalanet.server.core.offlinesync.internal.application.command.handl
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.offlinesync.application.command.model.RejectOfflineSubmissionCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.RejectOfflineSubmissionResult;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineSubmissionReaderPort;
+import com.tchalanet.server.core.offlinesync.api.command.RejectOfflineSubmissionCommand;
+import com.tchalanet.server.core.offlinesync.api.command.RejectOfflineSubmissionResult;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineSubmissionReaderPort;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

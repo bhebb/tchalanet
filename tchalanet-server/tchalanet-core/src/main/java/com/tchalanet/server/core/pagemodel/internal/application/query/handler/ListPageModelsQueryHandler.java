@@ -2,11 +2,11 @@ package com.tchalanet.server.core.pagemodel.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageMapper;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
-import com.tchalanet.server.core.pagemodel.application.query.model.ListPageModelsQuery;
-import com.tchalanet.server.core.pagemodel.application.query.model.PageModelSummaryView;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.api.query.ListPageModelsQuery;
+import com.tchalanet.server.core.pagemodel.api.query.PageModelSummaryView;
 import lombok.RequiredArgsConstructor;
 
 // [Phase 3B] handler absent — ListPageModelsQuery envoyée sur le bus crashait au premier appel (analysis §gap)

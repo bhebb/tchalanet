@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.generator;
 
-import com.tchalanet.server.core.sales.application.port.out.TicketNumberGeneratorPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketNumberGeneratorPort;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;

@@ -5,15 +5,15 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultProjection;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultReaderPort;
-import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultCommand;
-import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultResult;
-import com.tchalanet.server.core.sales.application.port.out.TicketSettlementPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.service.DrawResultMatchView;
-import com.tchalanet.server.core.sales.domain.service.TicketWinningCalculator;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.sales.api.command.RecordDrawTicketsResultCommand;
+import com.tchalanet.server.core.sales.api.command.RecordDrawTicketsResultResult;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketSettlementPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.service.DrawResultMatchView;
+import com.tchalanet.server.core.sales.internal.domain.service.TicketWinningCalculator;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -92,7 +92,7 @@ public class RecordDrawTicketsResultCommandHandler
                 // d) publish event after commit (use split statuses)
                 java.util.UUID rawEventId = java.util.UUID.randomUUID();
                 var event =
-                    new com.tchalanet.server.core.sales.domain.event.TicketResultedEvent(
+                    new com.tchalanet.server.core.sales.internal.domain.event.TicketResultedEvent(
                         com.tchalanet.server.common.types.id.EventId.of(rawEventId),
                         now,
                         saved.getTenantId(),

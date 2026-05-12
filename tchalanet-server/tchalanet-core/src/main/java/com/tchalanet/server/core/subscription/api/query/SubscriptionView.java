@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.subscription.api.query;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.subscription.domain.model.SubscriptionStatus;
+import com.tchalanet.server.core.subscription.internal.domain.model.SubscriptionStatus;
 
 import java.time.Instant;
 

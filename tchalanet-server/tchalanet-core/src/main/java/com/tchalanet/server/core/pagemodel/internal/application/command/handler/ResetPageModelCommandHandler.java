@@ -11,12 +11,12 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.pagemodel.application.command.model.ResetPageModelCommand;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReaderPort;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWriterPort;
-import com.tchalanet.server.core.pagemodel.domain.event.PageModelResetEvent;
-import com.tchalanet.server.core.pagemodel.infra.web.PageModelAdminMapper;
-import com.tchalanet.server.core.pagemodel.infra.web.dto.PageModelAdminDetailDto;
+import com.tchalanet.server.core.pagemodel.api.command.ResetPageModelCommand;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReaderPort;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelWriterPort;
+import com.tchalanet.server.core.pagemodel.internal.domain.event.PageModelResetEvent;
+import com.tchalanet.server.core.pagemodel.internal.infra.web.PageModelAdminMapper;
+import com.tchalanet.server.core.pagemodel.internal.infra.web.dto.PageModelAdminDetailDto;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

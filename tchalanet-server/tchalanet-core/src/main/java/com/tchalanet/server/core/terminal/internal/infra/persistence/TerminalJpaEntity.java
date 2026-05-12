@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.terminal.internal.infra.persistence;
 
-import com.tchalanet.server.core.terminal.domain.model.TerminalKind;
-import com.tchalanet.server.core.terminal.domain.model.TerminalState;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalKind;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalState;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

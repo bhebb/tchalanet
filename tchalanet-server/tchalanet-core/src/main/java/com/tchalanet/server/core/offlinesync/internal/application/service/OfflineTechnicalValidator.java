@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.application.service;
 
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineCryptoPort;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineCryptoPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

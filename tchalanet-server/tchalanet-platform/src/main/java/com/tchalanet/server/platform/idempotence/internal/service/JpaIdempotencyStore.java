@@ -1,7 +1,10 @@
 package com.tchalanet.server.platform.idempotence.internal.service;
 
-import com.tchalanet.server.common.idempotency.http.IdempotencyStore;
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.types.enums.IdempotencyScope;
+import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
+import com.tchalanet.server.platform.idempotence.internal.persistence.IdempotencyRecordJpaEntity;
+import com.tchalanet.server.platform.idempotence.internal.persistence.IdempotencyRecordRepository;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;

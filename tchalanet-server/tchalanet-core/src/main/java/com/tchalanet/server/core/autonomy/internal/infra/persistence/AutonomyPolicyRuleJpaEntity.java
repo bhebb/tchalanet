@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.autonomy.internal.infra.persistence;
 
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;

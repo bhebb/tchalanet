@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenantgame.api.model;
 
-import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import tools.jackson.databind.JsonNode;
  */
 @Getter
 @Builder
-public class UpdateTenantGamePolicyCommand implements Command<Void> {
+public class UpdateTenantGamePolicyCommand {
   private final TenantId tenantId;
   private final String gameCode;
   private final JsonNode policy;

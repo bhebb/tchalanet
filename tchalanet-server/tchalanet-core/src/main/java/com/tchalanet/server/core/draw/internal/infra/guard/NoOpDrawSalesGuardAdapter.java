@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.internal.infra.guard;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
-import com.tchalanet.server.core.draw.application.port.out.DrawSalesGuardPort;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawSalesGuardPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.terminal.internal.infra.persistence;
 
 
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.core.terminal.application.query.model.TerminalSearchCriteria;
+import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class TerminalSpecifications {

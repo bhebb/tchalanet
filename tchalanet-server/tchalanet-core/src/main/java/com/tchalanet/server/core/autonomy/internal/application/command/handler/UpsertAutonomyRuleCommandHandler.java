@@ -6,11 +6,11 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.autonomy.application.command.model.UpsertAutonomyRuleCommand;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleReaderPort;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleWriterPort;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
+import com.tchalanet.server.core.autonomy.api.command.UpsertAutonomyRuleCommand;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleWriterPort;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;

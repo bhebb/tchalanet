@@ -1,16 +1,18 @@
 package com.tchalanet.server.core.terminal.internal.infra.web.admin;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.core.terminal.application.command.model.ActivateTerminalForUserCommand;
-import com.tchalanet.server.core.terminal.application.command.model.AssignTerminalToOutletCommand;
-import com.tchalanet.server.core.terminal.application.command.model.AssignTerminalToUserCommand;
-import com.tchalanet.server.core.terminal.infra.web.admin.model.AssignOutletRequest;
-import com.tchalanet.server.core.terminal.infra.web.admin.model.AssignUserRequest;
+import com.tchalanet.server.core.terminal.api.command.ActivateTerminalForUserCommand;
+import com.tchalanet.server.core.terminal.api.command.AssignTerminalToOutletCommand;
+import com.tchalanet.server.core.terminal.api.command.AssignTerminalToUserCommand;
+import com.tchalanet.server.core.terminal.internal.infra.web.admin.model.AssignOutletRequest;
+import com.tchalanet.server.core.terminal.internal.infra.web.admin.model.AssignUserRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.sales.application.port.out.TerminalSalesContextPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TerminalSalesContextPort;
 import org.springframework.stereotype.Component;
 
 @Component

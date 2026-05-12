@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.repo;
 
-import com.tchalanet.server.core.draw.infra.persistence.DrawJpaEntity;
+import com.tchalanet.server.core.draw.internal.infra.persistence.DrawJpaEntity;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;

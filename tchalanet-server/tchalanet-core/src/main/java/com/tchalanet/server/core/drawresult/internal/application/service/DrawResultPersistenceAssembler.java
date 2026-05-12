@@ -2,8 +2,8 @@ package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultItem;
-import com.tchalanet.server.core.drawresult.infra.util.SourceResultBuilder;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
+import com.tchalanet.server.core.drawresult.internal.infra.util.SourceResultBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;

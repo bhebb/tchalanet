@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.notification.internal.web;
 
-import com.tchalanet.server.core.notification.domain.model.NotificationAudienceType;
-import com.tchalanet.server.core.notification.domain.model.NotificationCategory;
-import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
-import com.tchalanet.server.core.notification.domain.model.NotificationKind;
-import com.tchalanet.server.core.notification.domain.model.NotificationSeverity;
+import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
+import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.NotificationKind;
+import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import java.time.Instant;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;

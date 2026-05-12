@@ -5,10 +5,10 @@ import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.core.sales.application.command.model.RejectTicketSaleCommand;
-import com.tchalanet.server.core.sales.application.command.model.TicketRejectedResult;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.api.command.RejectTicketSaleCommand;
+import com.tchalanet.server.core.sales.api.command.TicketRejectedResult;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.adapter;
 
-import com.tchalanet.server.core.limitpolicy.application.port.out.exposure.ExposureFactsReaderPort;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitFactsSnapshot;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.exposure.DrawExposureJpaRepository;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.exposure.ScopePersistenceMapper;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureFactsReaderPort;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitFactsSnapshot;
+import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.DrawExposureJpaRepository;
+import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.ScopePersistenceMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

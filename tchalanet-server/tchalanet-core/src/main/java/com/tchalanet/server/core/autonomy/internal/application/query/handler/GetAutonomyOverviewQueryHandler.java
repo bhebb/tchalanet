@@ -1,15 +1,16 @@
 package com.tchalanet.server.core.autonomy.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleReaderPort;
-import com.tchalanet.server.core.autonomy.application.query.model.AutonomyMeta;
-import com.tchalanet.server.core.autonomy.application.query.model.AutonomyOverviewView;
-import com.tchalanet.server.core.autonomy.application.query.model.AutonomyRule;
-import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
+import com.tchalanet.server.core.autonomy.api.query.AutonomyMeta;
+import com.tchalanet.server.core.autonomy.api.query.AutonomyOverviewView;
+import com.tchalanet.server.core.autonomy.api.query.AutonomyRule;
+import com.tchalanet.server.core.autonomy.api.query.GetAutonomyOverviewQuery;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;

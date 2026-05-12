@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.session.internal.infra.web.model;
 
 import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.core.session.application.command.model.CloseSalesSessionResult;
+import com.tchalanet.server.core.session.api.command.CloseSalesSessionResult;
 
 import java.time.Instant;
 

@@ -1,7 +1,9 @@
 package com.tchalanet.server.platform.communication.api;
 
+import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
+import com.tchalanet.server.platform.communication.api.model.result.SendOutboundMessageResult;
+
 public interface CommunicationApi {
 
-    // Methods will be added as capabilities are defined
-
+  SendOutboundMessageResult send(SendOutboundMessageRequest request);
 }

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.infra.web.model;
 
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry;
 import java.util.List;
 import java.util.UUID;
 

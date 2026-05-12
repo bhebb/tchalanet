@@ -1,10 +1,6 @@
 package com.tchalanet.server.core.outlet.api.command;
 
-import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.platform.address.internal.service.Address;
-
-import java.time.LocalTime;
+import com.tchalanet.server.platform.address.api.model.AddressInput;
 
 /**
  * Partial config update for an Outlet. Each nullable field means "leave unchanged" when null.
@@ -25,5 +21,5 @@ public record OutletConfigPatch(
     String sessionOpenTime,
     String sessionCloseTime,
     Long defaultOpeningFloatCents,
-    Address address
+    AddressInput address
 ) {}

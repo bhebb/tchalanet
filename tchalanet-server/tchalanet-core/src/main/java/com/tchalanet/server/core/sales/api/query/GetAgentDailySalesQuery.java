@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.api.query;
 
+import com.tchalanet.server.common.types.id.AgentId;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.LocalDate;
 

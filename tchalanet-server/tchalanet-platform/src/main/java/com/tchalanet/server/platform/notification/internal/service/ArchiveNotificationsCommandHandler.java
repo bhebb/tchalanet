@@ -3,8 +3,8 @@ package com.tchalanet.server.platform.notification.internal.service;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.notification.application.command.model.ArchiveNotificationsCommand;
-import com.tchalanet.server.core.notification.application.port.out.NotificationWriterPort;
+import com.tchalanet.server.platform.notification.api.model.ArchiveNotificationsCommand;
+import com.tchalanet.server.platform.notification.internal.service.NotificationWriterPort;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

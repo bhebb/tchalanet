@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.domain.tchala.model;
 
-import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaNumberException;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.exception.InvalidTchalaNumberException;
 
 public record TchalaNumber(int value) {
   public static TchalaNumber of(int v) {

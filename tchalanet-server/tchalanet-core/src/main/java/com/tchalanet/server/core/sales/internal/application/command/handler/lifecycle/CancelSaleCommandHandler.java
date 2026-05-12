@@ -10,21 +10,21 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.common.types.id.EventId;
-import com.tchalanet.server.core.autonomy.application.service.AutonomyResolutionService;
-import com.tchalanet.server.core.autonomy.application.service.model.AutonomyResolveRequest;
-import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
-import com.tchalanet.server.core.draw.domain.model.Draw;
-import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.EvaluateLimitPolicyQuery;
-import com.tchalanet.server.core.limitpolicy.application.query.model.evaluation.LimitEvaluationView;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitContext;
-import com.tchalanet.server.core.sales.application.command.model.CancelSaleCommand;
-import com.tchalanet.server.core.sales.application.command.model.CancelSaleResult;
-import com.tchalanet.server.core.sales.application.command.model.LimitNotice;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
-import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.autonomy.internal.application.service.AutonomyResolutionService;
+import com.tchalanet.server.core.autonomy.internal.application.service.model.AutonomyResolveRequest;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.internal.domain.model.Draw;
+import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
+import com.tchalanet.server.core.sales.api.command.CancelSaleCommand;
+import com.tchalanet.server.core.sales.api.command.CancelSaleResult;
+import com.tchalanet.server.core.sales.api.command.LimitNotice;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,7 +65,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         var outletId =
             ticket.getSessionId() == null
                 ? null
-                : posSessionReaderPort.findById(ticket.getSessionId()).map(com.tchalanet.server.core.session.domain.model.SalesSession::outletId).orElse(null);
+                : posSessionReaderPort.findById(ticket.getSessionId()).map(com.tchalanet.server.core.session.internal.domain.model.SalesSession::outletId).orElse(null);
 
         // limits + autonomy
         LimitEvaluationView limitView = evaluateCancelLimits(cmd, ticket, outletId, now);
@@ -120,7 +120,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
                 .toList();
 
         // Use tenant from the ticket (RLS context derived from request); avoid passing tenant from external command
-        var scope = new com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef.TenantScope(ticket.getTenantId());
+        var scope = new com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef.TenantScope(ticket.getTenantId());
 
         var draw =
             drawLookupPort

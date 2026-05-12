@@ -6,9 +6,9 @@ import com.tchalanet.server.common.types.id.OfflineBatchId;
 import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineRiskFlag;
-import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineDecision;
-import com.tchalanet.server.core.offlinesync.domain.model.SalesOfflineRejectReason;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineRiskFlag;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineDecision;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineRejectReason;
 import java.time.Instant;
 import java.util.Set;
 

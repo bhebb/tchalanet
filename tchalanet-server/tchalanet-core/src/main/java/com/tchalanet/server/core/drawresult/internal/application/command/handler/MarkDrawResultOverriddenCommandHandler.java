@@ -3,8 +3,8 @@ package com.tchalanet.server.core.drawresult.internal.application.command.handle
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.drawresult.application.command.model.MarkDrawResultOverriddenCommand;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultWriterPort;
+import com.tchalanet.server.core.drawresult.api.command.MarkDrawResultOverriddenCommand;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import lombok.RequiredArgsConstructor;
 
 /**

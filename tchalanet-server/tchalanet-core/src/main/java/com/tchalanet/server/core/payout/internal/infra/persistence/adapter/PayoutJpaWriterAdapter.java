@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.payout.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.core.payout.application.port.out.PayoutWriterPort;
-import com.tchalanet.server.core.payout.domain.model.Payout;
-import com.tchalanet.server.core.payout.infra.persistence.PayoutJpaEntity;
-import com.tchalanet.server.core.payout.infra.persistence.PayoutPersistenceMapper;
-import com.tchalanet.server.core.payout.infra.persistence.SpringPayoutJpaRepository;
+import com.tchalanet.server.core.payout.internal.application.port.out.PayoutWriterPort;
+import com.tchalanet.server.core.payout.internal.domain.model.Payout;
+import com.tchalanet.server.core.payout.internal.infra.persistence.PayoutJpaEntity;
+import com.tchalanet.server.core.payout.internal.infra.persistence.PayoutPersistenceMapper;
+import com.tchalanet.server.core.payout.internal.infra.persistence.SpringPayoutJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

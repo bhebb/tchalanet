@@ -10,6 +10,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.ListAuditEventsQuery;
 import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsCommand;
 import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsResult;

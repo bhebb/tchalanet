@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.domain.tchala.model;
 
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.core.haiti.domain.tchala.exception.InvalidTchalaEntryException;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.exception.InvalidTchalaEntryException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;

@@ -4,11 +4,11 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.ApprovalRole;
 import com.tchalanet.server.common.types.enums.AutonomyLevel;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleReaderPort;
-import com.tchalanet.server.core.autonomy.application.query.model.AutonomyPolicyRuleView;
-import com.tchalanet.server.core.autonomy.application.query.model.ResolveAutonomyQuery;
-import com.tchalanet.server.core.autonomy.application.query.model.ResolveAutonomyView;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
+import com.tchalanet.server.core.autonomy.api.query.AutonomyPolicyRuleView;
+import com.tchalanet.server.core.autonomy.api.query.ResolveAutonomyQuery;
+import com.tchalanet.server.core.autonomy.api.query.ResolveAutonomyView;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.pagemodel.internal.infra.persistence;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.haiti.internal.infra.persistence.repo;
 
-import com.tchalanet.server.core.haiti.infra.persistence.entity.TchalaEntryJpaEntity;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.TchalaEntryJpaEntity;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;

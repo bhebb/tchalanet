@@ -3,10 +3,10 @@ package com.tchalanet.server.core.offlinesync.internal.application.command.handl
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.offlinesync.application.command.model.grant.ExpireOfflineSalesGrantCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.grant.ExpireOfflineSalesGrantResult;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineGrantWriterPort;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSalesGrantStatus;
+import com.tchalanet.server.core.offlinesync.api.command.ExpireOfflineSalesGrantCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ExpireOfflineSalesGrantResult;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineGrantWriterPort;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSalesGrantStatus;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

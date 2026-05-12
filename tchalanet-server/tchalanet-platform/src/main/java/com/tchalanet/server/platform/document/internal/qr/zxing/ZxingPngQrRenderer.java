@@ -4,7 +4,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.tchalanet.server.common.document.qr.QrRenderer;
+import com.tchalanet.server.platform.document.internal.qr.QrRenderer;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.notification.internal.persistence;
 
-import com.tchalanet.server.core.notification.domain.model.NotificationDeliveryStatus;
+import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryStatus;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

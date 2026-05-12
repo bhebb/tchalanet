@@ -2,8 +2,6 @@ package com.tchalanet.server.platform.notification.api.model;
 
 import com.tchalanet.server.common.types.id.NotificationDeliveryId;
 import com.tchalanet.server.common.types.id.NotificationId;
-import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
-import com.tchalanet.server.core.notification.domain.model.NotificationDeliveryStatus;
 import java.time.Instant;
 
 public record NotificationDeliveryView(

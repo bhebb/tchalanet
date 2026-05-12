@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.persistence;
 
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.offlinesync.domain.model.*;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.*;
 import org.mapstruct.Mapper;
 
 import java.util.Arrays;

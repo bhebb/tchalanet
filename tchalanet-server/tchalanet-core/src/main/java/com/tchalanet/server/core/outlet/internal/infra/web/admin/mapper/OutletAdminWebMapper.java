@@ -1,19 +1,19 @@
 package com.tchalanet.server.core.outlet.internal.infra.web.admin.mapper;
 
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageMapper;
-import com.tchalanet.server.core.outlet.application.query.model.OutletOperationalContextView;
-import com.tchalanet.server.core.outlet.application.query.model.OutletSummaryView;
-import com.tchalanet.server.core.outlet.application.query.model.OutletTerminalView;
-import com.tchalanet.server.core.outlet.application.query.model.OutletUserView;
-import com.tchalanet.server.core.outlet.application.query.model.OutletView;
-import com.tchalanet.server.core.outlet.domain.model.SalesCapability;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.OutletOperationalContextResponse;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.OutletResponse;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.OutletSummaryResponse;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.OutletTerminalResponse;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.OutletUserResponse;
-import com.tchalanet.server.core.outlet.infra.web.admin.model.SalesCapabilityResponse;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.core.outlet.api.query.OutletOperationalContextView;
+import com.tchalanet.server.core.outlet.api.query.OutletSummaryView;
+import com.tchalanet.server.core.outlet.api.query.OutletTerminalView;
+import com.tchalanet.server.core.outlet.api.query.OutletUserView;
+import com.tchalanet.server.core.outlet.api.query.OutletView;
+import com.tchalanet.server.core.outlet.internal.domain.model.SalesCapability;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletOperationalContextResponse;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletResponse;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletSummaryResponse;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletTerminalResponse;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletUserResponse;
+import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.SalesCapabilityResponse;
 import org.mapstruct.Mapper;
 
 import java.util.List;

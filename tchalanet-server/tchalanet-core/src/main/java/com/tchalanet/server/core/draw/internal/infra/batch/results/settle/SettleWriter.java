@@ -1,10 +1,11 @@
 package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.port.out.DrawLookupPort;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.core.sales.application.port.out.TicketSettlementQueryPort;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketSettlementQueryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.Chunk;

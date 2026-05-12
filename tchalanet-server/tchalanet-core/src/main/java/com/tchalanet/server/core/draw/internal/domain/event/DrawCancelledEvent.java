@@ -10,7 +10,7 @@ import java.time.LocalDate;
  * Publié quand un {@code Draw} est annulé (statut {@code CANCELLED}).
  * Signal tenant-scoped — consommé par {@code core.sales}, {@code features.stats} et le cache.
  *
- * @see com.tchalanet.server.core.drawresult.domain.event.DrawResultIngestedEvent événement global
+ * @see com.tchalanet.server.core.drawresult.internal.domain.event.DrawResultIngestedEvent événement global
  */
 public record DrawCancelledEvent(
     EventId eventId,

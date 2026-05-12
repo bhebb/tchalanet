@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;

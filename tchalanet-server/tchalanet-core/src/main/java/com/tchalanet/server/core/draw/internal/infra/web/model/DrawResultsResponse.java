@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.internal.infra.web.model;
 
 import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.enums.ResultQuality;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import java.time.Instant;
 
 public record DrawResultsResponse(

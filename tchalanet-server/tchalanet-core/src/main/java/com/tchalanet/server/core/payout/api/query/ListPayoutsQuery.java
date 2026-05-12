@@ -4,8 +4,8 @@ import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
 import java.time.Instant;
 import org.springframework.data.domain.Pageable;
 

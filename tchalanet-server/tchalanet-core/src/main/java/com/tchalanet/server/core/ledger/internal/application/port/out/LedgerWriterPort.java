@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.ledger.internal.application.port.out;
 
-import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerEntry;
 
 public interface LedgerWriterPort {
 

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.pagemodel.api.query;
 
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPage;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 

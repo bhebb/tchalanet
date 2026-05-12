@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.application.service;
 
 import com.tchalanet.server.common.types.id.OfflineBatchId;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSaleSubmission;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSaleSubmission;
 import java.util.List;
 import org.springframework.stereotype.Component;
 

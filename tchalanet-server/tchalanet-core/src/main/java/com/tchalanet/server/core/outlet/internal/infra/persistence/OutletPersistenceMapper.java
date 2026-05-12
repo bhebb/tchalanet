@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.outlet.internal.infra.persistence;
 
 import com.tchalanet.server.common.json.mapper.CommonIdMapper;
-import com.tchalanet.server.core.outlet.application.query.model.OutletSummaryView;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
+import com.tchalanet.server.core.outlet.api.query.OutletSummaryView;
+import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

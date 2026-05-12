@@ -1,11 +1,9 @@
 package com.tchalanet.server.platform.tenantgame.internal.web;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.common.apiresponse.NoticeSeverity;
 import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommand;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommandResult;
@@ -13,7 +11,9 @@ import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameComman
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameCommandResult;
 import com.tchalanet.server.platform.tenantgame.api.model.ResolveTenantGamesQuery;
 import com.tchalanet.server.platform.tenantgame.api.model.UpdateTenantGamePolicyCommand;
+import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameService;
 import com.tchalanet.server.platform.tenantgame.internal.web.mapper.TenantGameWebMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,13 +26,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import com.tchalanet.server.platform.tenantgame.internal.service.TenantGame;
-
 /**
  * REST controller for tenant game management (core/tenantgame).
  * Follows all conventions:
- * - command_query_handlers.md: CommandBus/QueryBus dispatch
  * - typed_ids.md: TenantId typed wrapper
  * - web_api.md: ApiResponse<T> wrapping, @ResponseStatus
  * - request_context_usage.md: TchContext for tenant resolution (not path param)
@@ -43,8 +39,7 @@ import com.tchalanet.server.platform.tenantgame.internal.service.TenantGame;
 @RequiredArgsConstructor
 public class TenantGameAdminController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+  private final TenantGameService tenantGameService;
   private final TenantGameWebMapper webMapper;
 
   /**
@@ -59,8 +54,7 @@ public class TenantGameAdminController {
     var query = ResolveTenantGamesQuery.builder()
         .tenantId(tenantId)
         .build();
-    @SuppressWarnings("unchecked")
-    var games = (List<TenantGame>) queryBus.ask(query);
+    var games = tenantGameService.resolveTenantGames(query);
     var views = games.stream().map(webMapper::toView).toList();
     return ApiResponse.success(views);
   }
@@ -82,7 +76,7 @@ public class TenantGameAdminController {
         .gameCode(gameCode)
         .policy(null)
         .build();
-    var result = commandBus.execute(command);
+    var result = tenantGameService.enableTenantGame(command);
     ApiResponseContext.get().addNotice(
         "GAME_ENABLED",
         "Jeu activé pour le tenant",
@@ -106,7 +100,7 @@ public class TenantGameAdminController {
         .tenantId(tenantId)
         .gameCode(gameCode)
         .build();
-    var result = commandBus.execute(command);
+    var result = tenantGameService.disableTenantGame(command);
     ApiResponseContext.get().addNotice(
         "GAME_DISABLED",
         "Jeu désactivé pour le tenant",
@@ -132,7 +126,7 @@ public class TenantGameAdminController {
         .gameCode(gameCode)
         .policy(request.getPolicy())
         .build();
-    commandBus.execute(command);
+    tenantGameService.updateTenantGamePolicy(command);
     ApiResponseContext.get().addNotice(
         "POLICY_UPDATED",
         "Politique du jeu mise à jour",

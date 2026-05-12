@@ -5,10 +5,10 @@ import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
-import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
-import com.tchalanet.server.core.sales.infra.persistence.TicketLineJpaEntity;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketLineJpaEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -7,11 +7,11 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.sales.application.command.model.MarkTicketPayoutPaidCommand;
-import com.tchalanet.server.core.sales.application.command.model.MarkTicketPayoutPaidResult;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
-import com.tchalanet.server.core.sales.domain.event.TicketPayoutMarkedPaidEvent;
+import com.tchalanet.server.core.sales.api.command.MarkTicketPayoutPaidCommand;
+import com.tchalanet.server.core.sales.api.command.MarkTicketPayoutPaidResult;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketPayoutMarkedPaidEvent;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

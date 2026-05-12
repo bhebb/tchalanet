@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.outlet.internal.infra.persistence;
 
-import com.tchalanet.server.core.outlet.domain.model.OutletStatus;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.outlet.internal.domain.model.OutletStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

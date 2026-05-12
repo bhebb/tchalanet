@@ -5,8 +5,8 @@ import com.tchalanet.server.common.types.enums.TenantType;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
-import com.tchalanet.server.core.address.application.model.AddressInput;
-import com.tchalanet.server.core.address.application.model.AddressView;
+import com.tchalanet.server.platform.address.api.model.AddressInput;
+import com.tchalanet.server.platform.address.api.model.AddressView;
 
 import java.time.ZoneId;
 import java.util.Currency;

@@ -3,7 +3,7 @@ package com.tchalanet.server.platform.tenanttheme.internal.service;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.tenanttheme.application.port.out.TenantThemeReaderPort;
+import com.tchalanet.server.platform.tenanttheme.internal.persistence.TenantThemePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class TenantThemeFallbackService {
     public static final String HARDCODED_SAFE_PRESET = "default-light";
 
     private final ThemeCatalog themeCatalog;
-    private final TenantThemeReaderPort tenantThemeReaderPort;
+    private final TenantThemePersistenceAdapter tenantThemeAdapter;
 
     /**
      * Resolves a fallback preset code for a tenant when the requested preset is unavailable.
@@ -33,7 +33,7 @@ public class TenantThemeFallbackService {
     public String resolveFallback(TenantId tenantId, String requestedPresetCode) {
 
         // 1) Tenant default theme (if a tenant_theme is marked as defaultTheme=true)
-        var tenantDefaultTheme = tenantThemeReaderPort.findByTenantId(tenantId);
+        var tenantDefaultTheme = tenantThemeAdapter.findByTenantId(tenantId);
         if (tenantDefaultTheme.isPresent()
             && tenantDefaultTheme.get().isDefault()
             && isAvailable(tenantDefaultTheme.get().presetCode())) {
@@ -68,5 +68,4 @@ public class TenantThemeFallbackService {
             .isPresent();
     }
 }
-
 

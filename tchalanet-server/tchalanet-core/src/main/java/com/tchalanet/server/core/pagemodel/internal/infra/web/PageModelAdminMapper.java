@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.web;
 
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
-import com.tchalanet.server.core.pagemodel.infra.web.dto.PageModelAdminDetailDto;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.infra.web.dto.PageModelAdminDetailDto;
 import org.springframework.stereotype.Component;
 
 /**

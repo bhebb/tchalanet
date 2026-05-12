@@ -3,7 +3,6 @@ package com.tchalanet.server.platform.notification.api.model;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.NotificationDeliveryId;
 import com.tchalanet.server.common.types.id.NotificationId;
-import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;

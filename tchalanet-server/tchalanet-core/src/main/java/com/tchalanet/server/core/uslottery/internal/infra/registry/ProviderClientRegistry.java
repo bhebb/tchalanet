@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.uslottery.internal.infra.registry;
 
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
-import com.tchalanet.server.core.uslottery.application.port.out.UsLotteryProviderClient;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

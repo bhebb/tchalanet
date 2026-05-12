@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.idempotence.internal;
 
-import com.tchalanet.server.common.idempotency.event.ProcessedEventPort;
+import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

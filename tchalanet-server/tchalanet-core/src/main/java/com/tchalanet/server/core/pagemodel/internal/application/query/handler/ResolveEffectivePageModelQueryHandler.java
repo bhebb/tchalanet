@@ -6,11 +6,11 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelTemplateLoaderPort;
-import com.tchalanet.server.core.pagemodel.application.query.model.ResolveEffectivePageModelQuery;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelTemplateLoaderPort;
+import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 

@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.persistence;
 
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

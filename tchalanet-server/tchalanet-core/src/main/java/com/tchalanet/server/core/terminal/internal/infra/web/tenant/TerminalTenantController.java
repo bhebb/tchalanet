@@ -1,17 +1,19 @@
 package com.tchalanet.server.core.terminal.internal.infra.web.tenant;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.core.terminal.application.command.model.SendTerminalHeartbeatCommand;
-import com.tchalanet.server.core.terminal.application.query.model.GetCurrentTerminalQuery;
-import com.tchalanet.server.core.terminal.application.query.model.GetTerminalByIdQuery;
-import com.tchalanet.server.core.terminal.infra.web.tenant.model.SyncStateRequest;
-import com.tchalanet.server.core.terminal.infra.web.tenant.model.TerminalResponse;
+import com.tchalanet.server.core.terminal.api.command.SendTerminalHeartbeatCommand;
+import com.tchalanet.server.core.terminal.api.query.GetCurrentTerminalQuery;
+import com.tchalanet.server.core.terminal.api.query.GetTerminalByIdQuery;
+import com.tchalanet.server.core.terminal.internal.infra.web.tenant.model.SyncStateRequest;
+import com.tchalanet.server.core.terminal.internal.infra.web.tenant.model.TerminalResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.haiti.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.haiti.domain.tchala.model.DedupeKey;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaLang;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaNumber;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.DedupeKey;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaLang;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaNumber;
 import java.util.List;
 import java.util.Optional;
 

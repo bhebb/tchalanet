@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.draw.application.query.projection.DrawResultSummary;
-import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.draw.infra.persistence.view.DrawSummaryViewEntity;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DrawResultSummary;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.internal.infra.persistence.view.DrawSummaryViewEntity;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import org.springframework.stereotype.Component;
 
 @Component

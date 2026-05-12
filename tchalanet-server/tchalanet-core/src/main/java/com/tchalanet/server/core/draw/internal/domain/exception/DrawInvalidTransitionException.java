@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.internal.domain.exception;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
 
 public class DrawInvalidTransitionException extends RuntimeException {
 

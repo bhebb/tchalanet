@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.application.port.out;
 
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionConfig;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;
 
 /**
  * Port that provides a Haiti projection configuration (used by draw handlers when projecting

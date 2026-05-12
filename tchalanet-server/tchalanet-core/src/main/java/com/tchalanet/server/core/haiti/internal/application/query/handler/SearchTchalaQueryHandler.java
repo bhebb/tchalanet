@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.haiti.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
-import com.tchalanet.server.core.haiti.application.query.model.SearchTchalaQuery;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaLang;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaEntryRepositoryPort;
+import com.tchalanet.server.core.haiti.api.query.SearchTchalaQuery;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaLang;
 import java.util.Objects;
 import org.springframework.stereotype.Component;
 

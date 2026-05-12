@@ -5,11 +5,11 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
-import com.tchalanet.server.core.limitpolicy.application.command.model.assignment.UpsertLimitAssignmentCommand;
-import com.tchalanet.server.core.limitpolicy.application.command.model.assignment.UpsertLimitAssignmentResult;
-import com.tchalanet.server.core.limitpolicy.application.port.out.assignment.LimitAssignmentReaderPort;
-import com.tchalanet.server.core.limitpolicy.application.port.out.assignment.LimitAssignmentWriterPort;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
+import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentCommand;
+import com.tchalanet.server.core.limitpolicy.api.command.UpsertLimitAssignmentResult;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentWriterPort;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitAssignment;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

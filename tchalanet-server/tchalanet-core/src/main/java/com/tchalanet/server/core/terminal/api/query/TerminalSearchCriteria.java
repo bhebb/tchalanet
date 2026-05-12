@@ -2,9 +2,9 @@ package com.tchalanet.server.core.terminal.api.query;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.terminal.domain.model.TerminalKind;
-import com.tchalanet.server.core.terminal.domain.model.TerminalState;
-import com.tchalanet.server.core.terminal.domain.model.TerminalSyncState;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalKind;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalState;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalSyncState;
 
 /** All fields nullable = no filter. */
 public record TerminalSearchCriteria(

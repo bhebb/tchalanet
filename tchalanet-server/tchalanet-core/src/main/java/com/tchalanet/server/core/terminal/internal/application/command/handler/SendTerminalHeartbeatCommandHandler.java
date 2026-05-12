@@ -4,10 +4,10 @@ import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.core.terminal.application.command.model.SendTerminalHeartbeatCommand;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalCacheInvalidationPort;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
+import com.tchalanet.server.core.terminal.api.command.SendTerminalHeartbeatCommand;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalCacheInvalidationPort;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalWriterPort;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

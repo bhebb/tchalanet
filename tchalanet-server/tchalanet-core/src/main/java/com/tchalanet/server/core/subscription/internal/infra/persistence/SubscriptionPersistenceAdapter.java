@@ -2,10 +2,10 @@ package com.tchalanet.server.core.subscription.internal.infra.persistence;
 
 import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionPersistencePort;
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionReaderPort;
-import com.tchalanet.server.core.subscription.domain.model.Subscription;
-import com.tchalanet.server.core.subscription.domain.model.SubscriptionStatus;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionPersistencePort;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
+import com.tchalanet.server.core.subscription.internal.domain.model.Subscription;
+import com.tchalanet.server.core.subscription.internal.domain.model.SubscriptionStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -3,8 +3,8 @@ package com.tchalanet.server.core.session.internal.application.port.out;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.session.domain.model.AutoSessionCloseTarget;
-import com.tchalanet.server.core.session.domain.model.AutoSessionOpenTarget;
+import com.tchalanet.server.core.session.internal.domain.model.AutoSessionCloseTarget;
+import com.tchalanet.server.core.session.internal.domain.model.AutoSessionOpenTarget;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,10 +1,8 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.audit.application.port.out.AuditEventReaderPort;
-import com.tchalanet.server.core.audit.application.query.model.ActivityItemDto;
-import com.tchalanet.server.core.audit.application.query.model.AuditEventQuery;
-import com.tchalanet.server.core.audit.domain.model.AuditEvent;
+import com.tchalanet.server.platform.audit.api.model.ActivityItemDto;
+import com.tchalanet.server.platform.audit.api.model.AuditEventQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;

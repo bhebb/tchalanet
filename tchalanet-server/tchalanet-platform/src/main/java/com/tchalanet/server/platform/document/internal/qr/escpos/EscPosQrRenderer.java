@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.document.internal.qr.escpos;
 
-import com.tchalanet.server.common.document.qr.QrRenderer;
+import com.tchalanet.server.platform.document.internal.qr.QrRenderer;
 import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Component;
 

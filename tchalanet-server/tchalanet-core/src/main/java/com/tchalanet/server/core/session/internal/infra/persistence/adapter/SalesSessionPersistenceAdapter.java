@@ -6,11 +6,11 @@ import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.session.application.port.out.SalesSessionReaderPort;
-import com.tchalanet.server.core.session.domain.model.SalesSession;
-import com.tchalanet.server.core.session.domain.model.SalesSessionStatus;
-import com.tchalanet.server.core.session.infra.persistence.SalesSessionJpaRepository;
-import com.tchalanet.server.core.session.infra.persistence.SalesSessionMapper;
+import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
+import com.tchalanet.server.core.session.internal.infra.persistence.SalesSessionJpaRepository;
+import com.tchalanet.server.core.session.internal.infra.persistence.SalesSessionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

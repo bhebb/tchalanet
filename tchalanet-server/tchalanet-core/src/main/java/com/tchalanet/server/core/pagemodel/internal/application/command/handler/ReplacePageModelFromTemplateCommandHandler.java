@@ -3,8 +3,8 @@ package com.tchalanet.server.core.pagemodel.internal.application.command.handler
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.pagemodel.application.command.model.ReplacePageModelFromTemplateCommand;
-import com.tchalanet.server.core.pagemodel.application.service.PageModelTemplateUpdateActionService;
+import com.tchalanet.server.core.pagemodel.api.command.ReplacePageModelFromTemplateCommand;
+import com.tchalanet.server.core.pagemodel.internal.application.service.PageModelTemplateUpdateActionService;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

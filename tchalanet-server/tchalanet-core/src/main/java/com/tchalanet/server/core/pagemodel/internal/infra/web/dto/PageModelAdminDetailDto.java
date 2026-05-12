@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.web.dto;
 
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelStatus;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelStatus;
 import java.time.Instant;
 
 /**

@@ -4,8 +4,8 @@ import com.tchalanet.server.common.types.id.PageModelId;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.pagemodel.domain.exception.PageModelNotEditableException;
-import com.tchalanet.server.core.pagemodel.domain.exception.PageModelStateException;
+import com.tchalanet.server.core.pagemodel.internal.domain.exception.PageModelNotEditableException;
+import com.tchalanet.server.core.pagemodel.internal.domain.exception.PageModelStateException;
 import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;

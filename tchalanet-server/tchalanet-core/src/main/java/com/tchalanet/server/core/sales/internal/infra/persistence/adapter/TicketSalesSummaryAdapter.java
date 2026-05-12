@@ -2,8 +2,8 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.sales.application.port.out.TicketSalesSummaryReaderPort;
-import com.tchalanet.server.core.sales.application.query.model.TicketSalesSessionSummary;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketSalesSummaryReaderPort;
+import com.tchalanet.server.core.sales.api.query.TicketSalesSessionSummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;

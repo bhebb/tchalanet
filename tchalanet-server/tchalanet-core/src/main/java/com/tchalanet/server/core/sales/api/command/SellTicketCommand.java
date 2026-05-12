@@ -20,5 +20,4 @@ public record SellTicketCommand(
     String currency,
     BigDecimal feeAmount,
     List<SellTicketLineInput> lines
-) implements Command<com.tchalanet.server.core.sales.application.command.model.sell.SellTicketResult> {}
-
+) implements Command<SellTicketResult> {}

@@ -2,8 +2,8 @@ package com.tchalanet.server.core.payout.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.payout.application.port.out.PayoutSummaryReaderPort;
-import com.tchalanet.server.core.payout.application.query.model.PayoutSessionSummary;
+import com.tchalanet.server.core.payout.internal.application.port.out.PayoutSummaryReaderPort;
+import com.tchalanet.server.core.payout.api.query.PayoutSessionSummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;

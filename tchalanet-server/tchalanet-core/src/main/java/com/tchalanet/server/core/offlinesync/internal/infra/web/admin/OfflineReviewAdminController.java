@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.web.admin;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.offlinesync.application.command.model.review.ApproveOfflineSubmissionCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.review.RejectOfflineSubmissionCommand;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.offlinesync.api.command.ApproveOfflineSubmissionCommand;
+import com.tchalanet.server.core.offlinesync.api.command.RejectOfflineSubmissionCommand;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;

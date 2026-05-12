@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.service;
 
-import com.tchalanet.server.core.sales.application.command.model.SellTicketLineInput;
-import com.tchalanet.server.core.sales.domain.model.TicketMoneyBreakdown;
+import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketMoneyBreakdown;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Component;

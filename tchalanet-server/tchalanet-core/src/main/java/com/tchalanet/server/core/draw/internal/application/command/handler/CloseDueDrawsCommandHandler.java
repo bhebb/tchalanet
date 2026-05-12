@@ -3,10 +3,10 @@ package com.tchalanet.server.core.draw.internal.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsCommand;
-import com.tchalanet.server.core.draw.application.command.model.CloseDueDrawsResult;
-import com.tchalanet.server.core.draw.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.application.query.projection.DueToCloseRow;
+import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
+import com.tchalanet.server.core.draw.api.command.CloseDueDrawsResult;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DueToCloseRow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

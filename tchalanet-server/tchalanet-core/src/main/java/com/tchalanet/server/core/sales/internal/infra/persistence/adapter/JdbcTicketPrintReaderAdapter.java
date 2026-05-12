@@ -2,11 +2,11 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.application.formatter.DrawLabelFormat;
-import com.tchalanet.server.core.sales.application.formatter.TicketDrawLabelFormatter;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintLine;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.formatter.DrawLabelFormat;
+import com.tchalanet.server.core.sales.internal.application.formatter.TicketDrawLabelFormatter;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintLine;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.autonomy.internal.infra.persistence;
 
 import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import org.springframework.stereotype.Component;
 
 @Component

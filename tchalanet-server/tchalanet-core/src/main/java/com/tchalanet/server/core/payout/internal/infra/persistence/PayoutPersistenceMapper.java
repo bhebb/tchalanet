@@ -7,8 +7,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.payout.domain.model.Payout;
-import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.Payout;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
 import org.springframework.stereotype.Component;
 
 @Component

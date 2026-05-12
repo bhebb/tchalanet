@@ -8,11 +8,11 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.core.outlet.api.command.CreateOutletCommand;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
+import com.tchalanet.server.core.outlet.internal.domain.event.OutletCreatedEvent;
+import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
 import com.tchalanet.server.platform.address.api.AddressApi;
-import com.tchalanet.server.core.outlet.application.command.model.CreateOutletCommand;
-import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.domain.event.OutletCreatedEvent;
-import com.tchalanet.server.core.outlet.domain.model.Outlet;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
@@ -23,7 +23,7 @@ import java.time.Instant;
 public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCommand, OutletId> {
 
     private final OutletWriterPort writer;
-    private final AddressCrudService addressService;
+    private final AddressApi addressService;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
     private final Clock clock;

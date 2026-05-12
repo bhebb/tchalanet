@@ -3,9 +3,9 @@ package com.tchalanet.server.core.terminal.internal.application.query.handler;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalReaderPort;
-import com.tchalanet.server.core.terminal.application.query.model.ValidateTerminalForOperationQuery;
-import com.tchalanet.server.core.terminal.application.query.model.ValidatedTerminalOperationView;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
+import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
+import com.tchalanet.server.core.terminal.api.query.ValidatedTerminalOperationView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

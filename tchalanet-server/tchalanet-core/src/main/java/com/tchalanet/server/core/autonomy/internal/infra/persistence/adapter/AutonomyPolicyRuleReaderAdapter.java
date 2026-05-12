@@ -4,10 +4,10 @@ import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.autonomy.application.port.out.AutonomyRuleReaderPort;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyPolicyRule;
-import com.tchalanet.server.core.autonomy.infra.persistence.AutonomyPolicyRuleJpaRepository;
-import com.tchalanet.server.core.autonomy.infra.persistence.AutonomyPolicyRuleMapper;
+import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
+import com.tchalanet.server.core.autonomy.internal.infra.persistence.AutonomyPolicyRuleJpaRepository;
+import com.tchalanet.server.core.autonomy.internal.infra.persistence.AutonomyPolicyRuleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

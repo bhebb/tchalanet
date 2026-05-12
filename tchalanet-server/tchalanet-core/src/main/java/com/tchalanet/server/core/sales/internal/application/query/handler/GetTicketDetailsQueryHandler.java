@@ -2,11 +2,11 @@ package com.tchalanet.server.core.sales.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.query.model.GetTicketDetailsQuery;
-import com.tchalanet.server.core.sales.application.query.model.TicketDetailsView;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.domain.model.TicketLine;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.api.query.GetTicketDetailsQuery;
+import com.tchalanet.server.core.sales.api.query.TicketDetailsView;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
 import lombok.RequiredArgsConstructor;
 
 import java.util.stream.Collectors;

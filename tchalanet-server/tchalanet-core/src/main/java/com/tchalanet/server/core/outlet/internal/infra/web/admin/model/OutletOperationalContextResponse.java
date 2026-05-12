@@ -2,7 +2,7 @@ package com.tchalanet.server.core.outlet.internal.infra.web.admin.model;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.outlet.domain.model.SalesCapability;
+import com.tchalanet.server.core.outlet.internal.domain.model.SalesCapability;
 import java.time.Instant;
 
 /** Aggregated operational snapshot for an outlet. */

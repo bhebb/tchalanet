@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.mapper;
 
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitAssignment;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.assignment.LimitAssignmentJpaEntity;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitAssignment;
+import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.LimitAssignmentJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

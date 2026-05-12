@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.api.event;
 
-import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.sales.application.command.model.RecordDrawTicketsResultCommand;
+import com.tchalanet.server.core.sales.api.command.RecordDrawTicketsResultCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

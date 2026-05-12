@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.subscription.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.subscription.domain.model.Subscription;
+import com.tchalanet.server.core.subscription.internal.domain.model.Subscription;
 
 import java.util.Optional;
 

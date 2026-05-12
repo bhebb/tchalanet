@@ -4,7 +4,7 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.event.PageModelTemplateUpdatedEvent;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.pagemodel.application.command.model.CreatePageTemplateUpdateNotificationsCommand;
+import com.tchalanet.server.core.pagemodel.api.command.CreatePageTemplateUpdateNotificationsCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

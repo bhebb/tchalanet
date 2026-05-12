@@ -2,9 +2,9 @@ package com.tchalanet.server.core.offlinesync.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineGrantReaderPort;
-import com.tchalanet.server.core.offlinesync.application.query.model.GetOfflineGrantQuery;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSalesGrant;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineGrantReaderPort;
+import com.tchalanet.server.core.offlinesync.api.query.GetOfflineGrantQuery;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSalesGrant;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

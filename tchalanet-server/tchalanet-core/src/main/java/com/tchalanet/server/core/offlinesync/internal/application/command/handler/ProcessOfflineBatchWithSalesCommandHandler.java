@@ -3,12 +3,12 @@ package com.tchalanet.server.core.offlinesync.internal.application.command.handl
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.offlinesync.application.command.model.ProcessOfflineBatchWithSalesCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.ProcessOfflineBatchWithSalesResult;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineBatchWriterPort;
-import com.tchalanet.server.core.offlinesync.application.port.out.SalesOfflineCommandPort;
-import com.tchalanet.server.core.offlinesync.application.port.out.OfflineSubmissionReaderPort;
-import com.tchalanet.server.core.offlinesync.application.service.OfflineSalesPayloadMapper;
+import com.tchalanet.server.core.offlinesync.api.command.ProcessOfflineBatchWithSalesCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ProcessOfflineBatchWithSalesResult;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineBatchWriterPort;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.SalesOfflineCommandPort;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineSubmissionReaderPort;
+import com.tchalanet.server.core.offlinesync.internal.application.service.OfflineSalesPayloadMapper;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

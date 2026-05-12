@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import java.time.Instant;
 
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import tools.jackson.databind.JsonNode;
 
 public record DrawResultView(

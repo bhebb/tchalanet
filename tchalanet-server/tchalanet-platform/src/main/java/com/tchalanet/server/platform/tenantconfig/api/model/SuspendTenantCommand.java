@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenantconfig.api.model;
 
-import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,4 +11,4 @@ import jakarta.validation.constraints.NotNull;
 public record SuspendTenantCommand(
     @NotNull TenantId tenantId,
     String reason  // optional reason for suspension
-) implements Command<Void> {}
+) {}

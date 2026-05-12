@@ -1,5 +1,9 @@
 package com.tchalanet.server.platform.notification.internal.batch;
 
+import com.tchalanet.server.platform.communication.api.CommunicationApi;
+import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
+import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
+import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +21,7 @@ import java.util.Locale;
 @Slf4j
 public class BatchEventNotificationService {
 
-    private final OutboundMessageGateway sender;
+    private final CommunicationApi communicationApi;
     private final BatchNotificationPolicy policy;
     private final Clock clock;
 
@@ -28,12 +32,12 @@ public class BatchEventNotificationService {
             return;
         }
 
-        sender.send(toPayload(notice));
+        communicationApi.send(toPayload(notice));
         log.debug("Batch notification sent: jobKey={} status={} code={}",
             notice.jobKey(), notice.status(), notice.code());
     }
 
-    private OutboundMessageRequest toPayload(BatchNotification n) {
+    private SendOutboundMessageRequest toPayload(BatchNotification n) {
         var data = n.details() == null
             ? new HashMap<String, Object>()
             : new HashMap<>(n.details());
@@ -54,7 +58,7 @@ public class BatchEventNotificationService {
         data.put("message", messageText);
         data.put("severity", n.status() == BatchNotificationStatus.FAILED ? "ERROR" : "WARNING");
 
-        return new OutboundMessageRequest(
+        return new SendOutboundMessageRequest(
             "BATCH_MESSAGE",
             CommunicationChannel.SLACK,
             OutboundRecipient.slack("batch-draws"),

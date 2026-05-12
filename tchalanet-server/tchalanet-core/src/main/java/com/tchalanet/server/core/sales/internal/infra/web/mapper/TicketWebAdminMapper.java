@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
 import com.tchalanet.server.common.types.money.CurrencyCode;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketResult;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
-import com.tchalanet.server.core.sales.infra.web.model.SellTicketLineRequest;
-import com.tchalanet.server.core.sales.infra.web.model.SellTicketRequest;
-import com.tchalanet.server.core.sales.infra.web.model.TicketResponse;
+import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.SellTicketResult;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketLineRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.TicketResponse;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

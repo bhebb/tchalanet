@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultItem;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
 
 import java.time.Instant;
 

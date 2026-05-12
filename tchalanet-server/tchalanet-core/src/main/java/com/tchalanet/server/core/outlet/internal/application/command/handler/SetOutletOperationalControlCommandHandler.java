@@ -3,9 +3,9 @@ package com.tchalanet.server.core.outlet.internal.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.outlet.application.command.model.OutletOperationalControl;
-import com.tchalanet.server.core.outlet.application.command.model.SetOutletOperationalControlCommand;
-import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
+import com.tchalanet.server.core.outlet.api.command.OutletOperationalControl;
+import com.tchalanet.server.core.outlet.api.command.SetOutletOperationalControlCommand;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

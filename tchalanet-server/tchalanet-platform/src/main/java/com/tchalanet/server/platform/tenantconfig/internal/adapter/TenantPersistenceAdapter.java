@@ -1,16 +1,13 @@
 package com.tchalanet.server.platform.tenantconfig.internal.adapter;
 
 import com.tchalanet.server.catalog.tenant.api.cache.TenantCacheNames;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantconfig.internal.mapper.TenantMapper;
-import com.tchalanet.server.core.tenantconfig.application.port.out.TenantConfigWriterPort;
-import com.tchalanet.server.core.tenantconfig.domain.model.TenantConfig;
+import com.tchalanet.server.platform.tenantconfig.internal.persistence.TenantJpaRepository;
+import com.tchalanet.server.platform.tenantconfig.internal.service.TenantConfig;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 /**
  * Persistence adapter for TenantConfig.
@@ -25,12 +22,11 @@ import java.util.Optional;
  */
 @Component
 @RequiredArgsConstructor
-public class TenantPersistenceAdapter implements TenantConfigWriterPort {
+public class TenantPersistenceAdapter {
 
     private final TenantJpaRepository repository;
     private final TenantMapper mapper;
 
-    @Override
     @CacheEvict(cacheNames = {
         TenantCacheNames.TENANT_BY_ID,
         TenantCacheNames.TENANT_BY_CODE,
@@ -46,7 +42,6 @@ public class TenantPersistenceAdapter implements TenantConfigWriterPort {
         return mapper.toDomain(saved);
     }
 
-    @Override
     @CacheEvict(cacheNames = {
         TenantCacheNames.TENANT_BY_ID,
         TenantCacheNames.TENANT_BY_CODE,
@@ -67,4 +62,3 @@ public class TenantPersistenceAdapter implements TenantConfigWriterPort {
     }
 
 }
-

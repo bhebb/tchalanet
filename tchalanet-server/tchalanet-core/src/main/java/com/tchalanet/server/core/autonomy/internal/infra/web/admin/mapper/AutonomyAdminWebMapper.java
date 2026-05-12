@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.autonomy.internal.infra.web.admin.mapper;
 
-import com.tchalanet.server.core.autonomy.application.query.model.AutonomyOverviewView;
-import com.tchalanet.server.core.autonomy.infra.web.admin.model.AutonomyMetaResponse;
-import com.tchalanet.server.core.autonomy.infra.web.admin.model.AutonomyOverviewResponse;
-import com.tchalanet.server.core.autonomy.infra.web.admin.model.AutonomyRuleResponse;
+import com.tchalanet.server.core.autonomy.api.query.AutonomyOverviewView;
+import com.tchalanet.server.core.autonomy.internal.infra.web.admin.model.AutonomyMetaResponse;
+import com.tchalanet.server.core.autonomy.internal.infra.web.admin.model.AutonomyOverviewResponse;
+import com.tchalanet.server.core.autonomy.internal.infra.web.admin.model.AutonomyRuleResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,7 +22,7 @@ public class AutonomyAdminWebMapper {
     }
 
     private AutonomyRuleResponse toRuleResponse(
-        com.tchalanet.server.core.autonomy.application.query.model.AutonomyRule rule
+        com.tchalanet.server.core.autonomy.api.query.AutonomyRule rule
     ) {
         if (rule == null) {
             return null;
@@ -38,7 +38,7 @@ public class AutonomyAdminWebMapper {
     }
 
     private AutonomyMetaResponse toMetaResponse(
-        com.tchalanet.server.core.autonomy.application.query.model.AutonomyMeta meta
+        com.tchalanet.server.core.autonomy.api.query.AutonomyMeta meta
     ) {
         if (meta == null) {
             return null;

@@ -1,15 +1,16 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageMapper;
-import com.tchalanet.server.core.draw.application.port.out.DrawSummaryReaderPort;
-import com.tchalanet.server.core.draw.application.query.model.DrawSearchCriteria;
-import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
-import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawSummaryViewMapper;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawSummaryViewRepository;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawSummaryReaderPort;
+import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.infra.persistence.mapper.DrawSummaryViewMapper;
+import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawSummaryViewRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;

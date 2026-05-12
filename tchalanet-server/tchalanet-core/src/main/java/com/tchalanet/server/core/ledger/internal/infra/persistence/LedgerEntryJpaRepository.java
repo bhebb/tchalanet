@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.ledger.internal.infra.persistence;
 
-import com.tchalanet.server.core.ledger.domain.model.LedgerOperationType;
-import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerRefType;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

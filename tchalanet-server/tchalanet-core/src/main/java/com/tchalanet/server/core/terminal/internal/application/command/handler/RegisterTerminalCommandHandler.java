@@ -8,10 +8,10 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.terminal.application.command.model.RegisterTerminalCommand;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
-import com.tchalanet.server.core.terminal.domain.event.TerminalRegisteredEvent;
-import com.tchalanet.server.core.terminal.domain.model.Terminal;
+import com.tchalanet.server.core.terminal.api.command.RegisterTerminalCommand;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalWriterPort;
+import com.tchalanet.server.core.terminal.internal.domain.event.TerminalRegisteredEvent;
+import com.tchalanet.server.core.terminal.internal.domain.model.Terminal;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

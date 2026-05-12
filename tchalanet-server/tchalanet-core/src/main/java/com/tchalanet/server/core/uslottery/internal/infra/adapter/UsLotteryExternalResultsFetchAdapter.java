@@ -1,14 +1,14 @@
 package com.tchalanet.server.core.uslottery.internal.infra.adapter;
 
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultFetchBundle;
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultItem;
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalResultsFetchPort;
-import com.tchalanet.server.core.drawresult.application.port.out.external.ExternalSourceFlags;
-import com.tchalanet.server.core.uslottery.application.port.out.UsLotteryProviderQuery;
-import com.tchalanet.server.core.uslottery.application.port.out.UsLotteryProviderResponse;
-import com.tchalanet.server.core.uslottery.application.port.out.UsLotteryProviderResult;
-import com.tchalanet.server.core.uslottery.infra.registry.ProviderClientRegistry;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchBundle;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultsFetchPort;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
+import com.tchalanet.server.core.uslottery.internal.infra.registry.ProviderClientRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

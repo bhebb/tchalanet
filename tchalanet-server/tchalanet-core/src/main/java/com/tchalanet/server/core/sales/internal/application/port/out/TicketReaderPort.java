@@ -2,10 +2,10 @@ package com.tchalanet.server.core.sales.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.sales.application.query.model.AgentDailySalesDto;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.sales.api.query.AgentDailySalesDto;
+import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;

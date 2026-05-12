@@ -3,7 +3,7 @@ package com.tchalanet.server.core.pagemodel.internal.application.port.out;
 import com.tchalanet.server.common.types.id.PageModelId;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelInstance;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;

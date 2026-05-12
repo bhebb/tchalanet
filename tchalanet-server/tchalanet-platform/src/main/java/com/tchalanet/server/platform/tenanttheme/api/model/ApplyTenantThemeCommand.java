@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenanttheme.api.model;
 
-import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
 
 /**
@@ -10,7 +9,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 public record ApplyTenantThemeCommand(
     TenantId tenantId,
     String presetCode
-) implements Command<Void> {
+) {
   public ApplyTenantThemeCommand {
     if (tenantId == null) throw new IllegalArgumentException("tenantId is required");
     if (presetCode == null || presetCode.isBlank()) {

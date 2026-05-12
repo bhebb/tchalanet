@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.subscription.internal.infra.persistence.read;
 
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionStatsReaderPort;
-import com.tchalanet.server.core.subscription.application.query.model.PlatformSubscriptionStatsView;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionStatsReaderPort;
+import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

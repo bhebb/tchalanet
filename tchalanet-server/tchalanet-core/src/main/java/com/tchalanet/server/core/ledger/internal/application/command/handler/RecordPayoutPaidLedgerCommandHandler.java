@@ -5,9 +5,9 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.LedgerEntryId;
-import com.tchalanet.server.core.ledger.application.command.model.RecordPayoutPaidLedgerCommand;
-import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
-import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
+import com.tchalanet.server.core.ledger.api.command.RecordPayoutPaidLedgerCommand;
+import com.tchalanet.server.core.ledger.internal.application.port.out.LedgerWriterPort;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerEntry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

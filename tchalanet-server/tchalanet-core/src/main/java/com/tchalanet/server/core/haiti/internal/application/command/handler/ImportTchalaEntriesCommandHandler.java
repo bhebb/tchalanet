@@ -3,13 +3,13 @@ package com.tchalanet.server.core.haiti.internal.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand;
-import com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand.ImportRow;
-import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
-import com.tchalanet.server.core.haiti.application.port.out.TchalaImportSourcePort;
-import com.tchalanet.server.core.haiti.domain.tchala.model.DreamText;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaLang;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaNumber;
+import com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand;
+import com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand.ImportRow;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaEntryRepositoryPort;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaImportSourcePort;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.DreamText;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaLang;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaNumber;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public final class ImportTchalaEntriesCommandHandler
     implements CommandHandler<
         ImportTchalaEntriesCommand,
-        com.tchalanet.server.core.haiti.application.command.model.ImportTchalaReport> {
+        com.tchalanet.server.core.haiti.api.command.ImportTchalaReport> {
 
   private static final Logger log = LoggerFactory.getLogger(ImportTchalaEntriesCommandHandler.class);
 
@@ -42,7 +42,7 @@ public final class ImportTchalaEntriesCommandHandler
   }
 
   @Override
-  public com.tchalanet.server.core.haiti.application.command.model.ImportTchalaReport handle(
+  public com.tchalanet.server.core.haiti.api.command.ImportTchalaReport handle(
       ImportTchalaEntriesCommand command) {
     Objects.requireNonNull(command);
     TchalaLang lang = TchalaLang.of(command.lang());
@@ -70,34 +70,34 @@ public final class ImportTchalaEntriesCommandHandler
           continue;
         }
         seen.add(dedupeToken);
-        com.tchalanet.server.core.haiti.application.command.model.ImportTchalaEntriesCommand
+        com.tchalanet.server.core.haiti.api.command.ImportTchalaEntriesCommand
                 .ImportMode
             mode = command.mode();
-        Optional<com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry> existing =
+        Optional<com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry> existing =
             repo.findApprovedCanonicalByDedupeKey(
                 lang,
-                com.tchalanet.server.core.haiti.domain.tchala.model.DedupeKey.from(lang, dream));
+                com.tchalanet.server.core.haiti.internal.domain.tchala.model.DedupeKey.from(lang, dream));
         if (existing.isEmpty()) {
           if (mode == ImportTchalaEntriesCommand.ImportMode.DRY_RUN) {
             // only count
             createdPending++;
           } else if (mode == ImportTchalaEntriesCommand.ImportMode.APPLY_AS_PENDING) {
-            com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry entry =
-                com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry
+            com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry entry =
+                com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry
                     .newSuggestionFromImport(
                         TchalaEntryId.of(idGenerator.newUuid()),
                         lang, dream, numbers, importRow.note(), Optional.empty(), Instant.now(clock));
             repo.save(entry);
             createdPending++;
           } else {
-            com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry entry =
-                com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry.newCanonical(
+            com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry entry =
+                com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry.newCanonical(
                     TchalaEntryId.of(idGenerator.newUuid()),
                     lang,
                     dream,
                     numbers,
                     importRow.note(),
-                    com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntrySource.IMPORT,
+                    com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntrySource.IMPORT,
                     Instant.now(clock));
             repo.save(entry);
             createdCanonical++;
@@ -113,7 +113,7 @@ public final class ImportTchalaEntriesCommandHandler
               conflicts++;
             } else if (mode == ImportTchalaEntriesCommand.ImportMode.APPLY_AS_PENDING) {
               var pending =
-                  com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry
+                  com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry
                       .newSuggestionFromImport(
                           TchalaEntryId.of(idGenerator.newUuid()),
                           lang,
@@ -127,13 +127,13 @@ public final class ImportTchalaEntriesCommandHandler
             } else {
               // merge into canonical using union
               var merged =
-                  com.tchalanet.server.core.haiti.domain.tchala.service.TchalaMerge.mergeNumbers(
+                  com.tchalanet.server.core.haiti.internal.domain.tchala.service.TchalaMerge.mergeNumbers(
                       canonical.numbers(),
                       numbers,
-                      com.tchalanet.server.core.haiti.domain.tchala.model.MergePolicy
+                      com.tchalanet.server.core.haiti.internal.domain.tchala.model.MergePolicy
                           .UNION_NUMBERS);
               var newCanon =
-                  com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry.newCanonical(
+                  com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry.newCanonical(
                       TchalaEntryId.of(idGenerator.newUuid()),
                       canonical.lang(),
                       canonical.dream(),
@@ -151,7 +151,7 @@ public final class ImportTchalaEntriesCommandHandler
       }
     }
 
-    return new com.tchalanet.server.core.haiti.application.command.model.ImportTchalaReport(
+    return new com.tchalanet.server.core.haiti.api.command.ImportTchalaReport(
         total,
         parsed,
         createdPending,

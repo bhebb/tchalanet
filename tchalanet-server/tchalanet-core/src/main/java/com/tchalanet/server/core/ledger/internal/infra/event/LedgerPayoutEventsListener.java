@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.ledger.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.ledger.application.command.model.RecordPayoutPaidLedgerCommand;
-import com.tchalanet.server.core.payout.domain.event.PayoutPaidEvent;
+import com.tchalanet.server.core.ledger.api.command.RecordPayoutPaidLedgerCommand;
+import com.tchalanet.server.core.payout.internal.domain.event.PayoutPaidEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

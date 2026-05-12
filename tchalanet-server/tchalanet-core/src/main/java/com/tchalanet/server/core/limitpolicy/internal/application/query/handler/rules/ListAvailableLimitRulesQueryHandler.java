@@ -2,9 +2,9 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.limitpolicy.application.query.model.rules.LimitRuleSpec;
-import com.tchalanet.server.core.limitpolicy.application.query.model.rules.ListAvailableLimitRulesQuery;
-import com.tchalanet.server.core.limitpolicy.application.service.LimitRuleCatalogLoader;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
+import com.tchalanet.server.core.limitpolicy.api.query.ListAvailableLimitRulesQuery;
+import com.tchalanet.server.core.limitpolicy.internal.application.service.LimitRuleCatalogLoader;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

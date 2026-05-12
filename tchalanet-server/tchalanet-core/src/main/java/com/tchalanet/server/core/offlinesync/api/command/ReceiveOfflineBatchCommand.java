@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
 import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.core.offlinesync.application.command.model.OfflineSaleSubmissionInput;
+import com.tchalanet.server.core.offlinesync.api.command.OfflineSaleSubmissionInput;
 import java.util.List;
 
 public record ReceiveOfflineBatchCommand(

@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.core.haiti.domain.tchala.model.*;
-import com.tchalanet.server.core.haiti.infra.persistence.entity.*;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.*;
+import com.tchalanet.server.core.haiti.internal.infra.persistence.entity.*;
 import java.util.Comparator;
 import java.util.UUID;
 

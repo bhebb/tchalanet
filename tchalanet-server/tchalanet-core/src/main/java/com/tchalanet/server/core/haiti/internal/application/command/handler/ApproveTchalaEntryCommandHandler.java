@@ -2,10 +2,10 @@ package com.tchalanet.server.core.haiti.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.types.id.TchalaEntryId;
-import com.tchalanet.server.core.haiti.application.command.model.ApproveTchalaEntryCommand;
-import com.tchalanet.server.core.haiti.application.port.out.TchalaEntryRepositoryPort;
-import com.tchalanet.server.core.haiti.domain.tchala.model.MergePolicy;
-import com.tchalanet.server.core.haiti.domain.tchala.model.TchalaEntry;
+import com.tchalanet.server.core.haiti.api.command.ApproveTchalaEntryCommand;
+import com.tchalanet.server.core.haiti.internal.application.port.out.TchalaEntryRepositoryPort;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.MergePolicy;
+import com.tchalanet.server.core.haiti.internal.domain.tchala.model.TchalaEntry;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;

@@ -2,8 +2,8 @@ package com.tchalanet.server.core.sales.internal.infra.bridge;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.core.outlet.application.port.out.SalesTicketAdminPort;
-import com.tchalanet.server.core.sales.infra.persistence.repository.SpringTicketJpaRepository;
+import com.tchalanet.server.core.outlet.internal.application.port.out.SalesTicketAdminPort;
+import com.tchalanet.server.core.sales.internal.infra.persistence.repository.SpringTicketJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

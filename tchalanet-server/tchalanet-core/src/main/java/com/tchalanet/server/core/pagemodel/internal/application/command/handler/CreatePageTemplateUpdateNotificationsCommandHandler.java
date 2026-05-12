@@ -12,8 +12,8 @@ import com.tchalanet.server.platform.notification.api.model.NotificationCategory
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
-import com.tchalanet.server.core.pagemodel.application.command.model.CreatePageTemplateUpdateNotificationsCommand;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelReadPort;
+import com.tchalanet.server.core.pagemodel.api.command.CreatePageTemplateUpdateNotificationsCommand;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;

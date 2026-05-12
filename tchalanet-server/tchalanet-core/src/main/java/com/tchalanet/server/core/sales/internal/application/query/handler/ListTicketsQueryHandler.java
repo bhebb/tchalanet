@@ -4,13 +4,13 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
-import com.tchalanet.server.common.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.query.model.ListTicketsQuery;
-import com.tchalanet.server.core.sales.application.query.model.TicketSummaryView;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
+import com.tchalanet.server.core.sales.api.query.TicketSummaryView;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,7 +100,7 @@ public class ListTicketsQueryHandler
   }
 
   private TicketSummaryView toView(Ticket ticket) {
-    var status = new com.tchalanet.server.core.sales.application.model.TicketStatus(
+    var status = new com.tchalanet.server.core.sales.internal.application.model.TicketStatus(
         ticket.getSaleStatus(),
         ticket.getResultStatus(),
         ticket.getSettlementStatus()

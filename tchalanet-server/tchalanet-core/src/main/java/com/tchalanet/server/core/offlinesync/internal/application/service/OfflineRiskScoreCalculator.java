@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.offlinesync.internal.application.service;
 
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineRiskFlag;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSaleSubmission;
-import com.tchalanet.server.core.offlinesync.domain.model.OfflineSubmissionStatus;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineRiskFlag;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSaleSubmission;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSubmissionStatus;
 import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.stereotype.Component;

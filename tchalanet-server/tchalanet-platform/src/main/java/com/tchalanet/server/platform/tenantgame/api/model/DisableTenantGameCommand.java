@@ -1,6 +1,5 @@
 package com.tchalanet.server.platform.tenantgame.api.model;
 
-import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-public class DisableTenantGameCommand implements Command<DisableTenantGameCommandResult> {
+public class DisableTenantGameCommand {
   private final TenantId tenantId;
   private final String gameCode;
 }

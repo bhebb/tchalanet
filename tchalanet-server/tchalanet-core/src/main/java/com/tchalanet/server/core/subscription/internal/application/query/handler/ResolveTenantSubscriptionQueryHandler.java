@@ -2,9 +2,9 @@ package com.tchalanet.server.core.subscription.internal.application.query.handle
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionReaderPort;
-import com.tchalanet.server.core.subscription.application.query.model.ResolveTenantSubscriptionQuery;
-import com.tchalanet.server.core.subscription.application.query.model.SubscriptionView;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
+import com.tchalanet.server.core.subscription.api.query.ResolveTenantSubscriptionQuery;
+import com.tchalanet.server.core.subscription.api.query.SubscriptionView;
 import lombok.RequiredArgsConstructor;
 
 /**

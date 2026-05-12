@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.core.haiti.application.port.out.HaitiProjectionConfigPort;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiLot;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionConfig;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionToken;
+import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiLot;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionToken;
 import java.util.EnumMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

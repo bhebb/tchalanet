@@ -2,9 +2,9 @@ package com.tchalanet.server.core.subscription.internal.application.query.handle
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.subscription.application.port.out.SubscriptionStatsReaderPort;
-import com.tchalanet.server.core.subscription.application.query.model.GetPlatformSubscriptionStatsQuery;
-import com.tchalanet.server.core.subscription.application.query.model.PlatformSubscriptionStatsView;
+import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionStatsReaderPort;
+import com.tchalanet.server.core.subscription.api.query.GetPlatformSubscriptionStatsQuery;
+import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
 import lombok.RequiredArgsConstructor;
 
 /**

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.print;
 
 import com.tchalanet.server.common.document.receipt.ReceiptModel;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
 
 public interface TicketReceiptFormatter {
   ReceiptModel formatModel(

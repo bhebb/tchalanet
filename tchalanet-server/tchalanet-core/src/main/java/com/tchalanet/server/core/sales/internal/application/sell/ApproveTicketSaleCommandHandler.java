@@ -1,12 +1,14 @@
 package com.tchalanet.server.core.sales.internal.application.sell;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.sales.application.command.model.ApproveTicketSaleCommand;
-import com.tchalanet.server.core.sales.application.command.model.TicketWorkflowResult;
-import com.tchalanet.server.core.sales.application.port.out.TicketReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.api.command.ApproveTicketSaleCommand;
+import com.tchalanet.server.core.sales.api.command.TicketWorkflowResult;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

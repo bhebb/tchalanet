@@ -1,107 +1,84 @@
 package com.tchalanet.server.platform.tenantconfig.internal.web;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageRequest;
-import com.tchalanet.server.common.paging.TchPaging;
-import com.tchalanet.server.core.tenantconfig.application.command.model.ActivateTenantCommand;
-import com.tchalanet.server.core.tenantconfig.application.command.model.ArchiveTenantCommand;
-import com.tchalanet.server.core.tenantconfig.application.command.model.CreateTenantCommand;
-import com.tchalanet.server.core.tenantconfig.application.command.model.SuspendTenantCommand;
-import com.tchalanet.server.core.tenantconfig.application.query.model.GetTenantByCodeQuery;
-import com.tchalanet.server.core.tenantconfig.application.query.model.GetTenantByIdQuery;
-import com.tchalanet.server.core.tenantconfig.application.query.model.ListTenantsQuery;
-import com.tchalanet.server.core.tenantconfig.application.query.model.TenantConfigView;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.platform.tenantconfig.api.model.ActivateTenantCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.ArchiveTenantCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.CreateTenantCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByCodeQuery;
+import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
+import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
+import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.internal.service.TenantConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Platform admin controller for tenant management.
- * Per web_api.md + api_response.md:
- * - Uses ApiResponse wrapper
- * - Commands dispatched via CommandBus (VoidCommandHandler)
- * - Queries dispatched via QueryBus
- * - @Valid on request bodies
- */
-@Tag(name = "Platform • Tenants")
+@Tag(name = "Platform - Tenants")
 @RestController
 @RequestMapping("/platform/tenants")
 @PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class TenantAdminController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+  private final TenantConfigService tenants;
 
   @Operation(summary = "List all tenants with pagination")
   @GetMapping
   public ApiResponse<TchPage<TenantConfigView>> list(
-      @TchPaging(
-          allowedSort = {"createdAt", "code", "name", "status"},
-          defaultSort = {"createdAt,desc"}
-      ) TchPageRequest pageReq) {
-    var result = queryBus.ask(new ListTenantsQuery(pageReq.pageable()));
-    return ApiResponse.success(result);
+      @TchPaging(allowedSort = {"createdAt", "code", "name", "status"}, defaultSort = {"createdAt,desc"})
+          TchPageRequest pageReq) {
+    return ApiResponse.success(tenants.listTenants(new ListTenantsQuery(pageReq.pageable())));
   }
 
-  @Operation(summary = "Get tenant by ID")
   @GetMapping("/{id}")
   public ApiResponse<TenantConfigView> get(@PathVariable TenantId id) {
-    var dto = queryBus.ask(new GetTenantByIdQuery(id));
-    return ApiResponse.success(dto);
+    return ApiResponse.success(tenants.getTenantById(new GetTenantByIdQuery(id)));
   }
 
-  @Operation(summary = "Get tenant by code")
   @GetMapping("/by-code")
   public ApiResponse<TenantConfigView> getByCode(@RequestParam("code") String code) {
-    var tenant = queryBus.ask(new GetTenantByCodeQuery(code));
-    return ApiResponse.success(tenant);
+    return ApiResponse.success(tenants.getTenantByCode(new GetTenantByCodeQuery(code)));
   }
 
-  @Operation(summary = "Create a new tenant")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(@Valid @RequestBody CreateTenantCommand cmd) {
-    commandBus.execute(cmd);
+  public void create(@Valid @RequestBody CreateTenantCommand request) {
+    tenants.createTenant(request);
   }
 
-  @Operation(summary = "Activate tenant (DRAFT → ACTIVE)")
   @PostMapping("/{id}/activate")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void activate(@PathVariable TenantId id) {
-    commandBus.execute(new ActivateTenantCommand(id));
+    tenants.activateTenant(new ActivateTenantCommand(id));
   }
 
-  @Operation(summary = "Suspend tenant (ACTIVE → SUSPENDED)")
   @PostMapping("/{id}/suspend")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void suspend(
-      @PathVariable TenantId id,
-      @RequestBody(required = false) ReasonRequest body) {
-    var reason = body != null && body.reason() != null ? body.reason() : null;
-    commandBus.execute(new SuspendTenantCommand(id, reason));
+  public void suspend(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
+    tenants.suspendTenant(new SuspendTenantCommand(id, body == null ? null : body.reason()));
   }
 
-  @Operation(summary = "Archive tenant (any → ARCHIVED)")
   @PostMapping("/{id}/archive")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void archive(
-      @PathVariable TenantId id,
-      @RequestBody(required = false) ReasonRequest body) {
-    var reason = body != null && body.reason() != null ? body.reason() : null;
-    commandBus.execute(new ArchiveTenantCommand(id, reason));
+  public void archive(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
+    tenants.archiveTenant(new ArchiveTenantCommand(id, body == null ? null : body.reason()));
   }
 
-  /**
-   * Request body for operations that accept an optional reason.
-   */
   public record ReasonRequest(String reason) {}
 }

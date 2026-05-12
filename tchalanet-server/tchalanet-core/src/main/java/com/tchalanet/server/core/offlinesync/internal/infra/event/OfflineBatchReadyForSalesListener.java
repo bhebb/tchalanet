@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.offlinesync.application.command.model.ProcessOfflineBatchWithSalesCommand;
-import com.tchalanet.server.core.offlinesync.domain.event.OfflineBatchReadyForSalesEvent;
+import com.tchalanet.server.core.offlinesync.api.command.ProcessOfflineBatchWithSalesCommand;
+import com.tchalanet.server.core.offlinesync.internal.domain.event.OfflineBatchReadyForSalesEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

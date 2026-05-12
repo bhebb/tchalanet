@@ -3,8 +3,8 @@ package com.tchalanet.server.core.offlinesync.internal.application.command.handl
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.offlinesync.application.command.model.code.ExpireOfflineCodeBatchCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.code.ExpireOfflineCodeBatchResult;
+import com.tchalanet.server.core.offlinesync.api.command.ExpireOfflineCodeBatchCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ExpireOfflineCodeBatchResult;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

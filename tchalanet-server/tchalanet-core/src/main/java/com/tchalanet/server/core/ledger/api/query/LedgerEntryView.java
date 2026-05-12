@@ -2,9 +2,9 @@ package com.tchalanet.server.core.ledger.api.query;
 
 import com.tchalanet.server.common.types.id.LedgerEntryId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.ledger.domain.model.LedgerDirection;
-import com.tchalanet.server.core.ledger.domain.model.LedgerOperationType;
-import com.tchalanet.server.core.ledger.domain.model.LedgerRefType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerDirection;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerRefType;
 import java.time.Instant;
 import java.util.UUID;
 

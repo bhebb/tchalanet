@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.draw.application.port.out.FindSettleableDrawIdsPort;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawBatchQueryRepository;
+import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort;
+import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawBatchQueryRepository;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;

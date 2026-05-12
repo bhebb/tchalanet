@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.haiti.internal.domain.lottery.service;
 
 import com.tchalanet.server.common.contracts.haiti.HaitiResult;
-import com.tchalanet.server.core.haiti.domain.lottery.model.ExternalPick;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiLot;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionConfig;
-import com.tchalanet.server.core.haiti.domain.lottery.model.HaitiProjectionToken;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiLot;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;
+import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionToken;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;

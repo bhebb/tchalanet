@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.sell;
 
-import com.tchalanet.server.core.sales.infra.web.model.SellTicketRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
 
 public class SellPosMapper {
     public SellPosTicketCommand toCommand(TchRequestContext ctx, SellTicketRequest request) {

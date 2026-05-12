@@ -3,7 +3,7 @@ package com.tchalanet.server.core.payout.internal.infra.web.model;
 
 
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
 import java.time.Instant;
 
 import org.springframework.format.annotation.DateTimeFormat;

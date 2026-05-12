@@ -1,13 +1,13 @@
 package com.tchalanet.server.platform.notification.internal.web;
 
-import com.tchalanet.server.common.apiresponse.ApiNotice;
+import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.NotificationType;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.notification.application.command.model.SendNotificationCommand;
-import com.tchalanet.server.core.notification.domain.model.NotificationChannel;
-import com.tchalanet.server.core.notification.domain.model.NotificationRecipient;
-import com.tchalanet.server.core.notification.domain.model.NotificationSeverity;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.platform.notification.api.model.SendNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.NotificationRecipient;
+import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;

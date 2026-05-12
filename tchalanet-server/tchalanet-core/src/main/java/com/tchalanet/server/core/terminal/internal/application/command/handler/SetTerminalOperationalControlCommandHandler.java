@@ -3,8 +3,8 @@ package com.tchalanet.server.core.terminal.internal.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.terminal.application.command.model.SetTerminalOperationalControlCommand;
-import com.tchalanet.server.core.terminal.application.port.out.TerminalWriterPort;
+import com.tchalanet.server.core.terminal.api.command.SetTerminalOperationalControlCommand;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalWriterPort;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 

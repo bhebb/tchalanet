@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.session.internal.infra.persistence;
 
-import com.tchalanet.server.core.session.domain.model.SalesSessionStatus;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

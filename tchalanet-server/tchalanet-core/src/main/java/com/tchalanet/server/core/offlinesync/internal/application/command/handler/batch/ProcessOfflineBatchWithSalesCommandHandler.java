@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.offlinesync.internal.application.command.handler.batch;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.core.offlinesync.application.command.model.batch.ProcessOfflineBatchWithSalesCommand;
-import com.tchalanet.server.core.offlinesync.application.command.model.batch.ProcessOfflineBatchWithSalesResult;
+import com.tchalanet.server.core.offlinesync.api.command.ProcessOfflineBatchWithSalesCommand;
+import com.tchalanet.server.core.offlinesync.api.command.ProcessOfflineBatchWithSalesResult;
 
 public class ProcessOfflineBatchWithSalesCommandHandler
     implements CommandHandler<ProcessOfflineBatchWithSalesCommand, ProcessOfflineBatchWithSalesResult> {

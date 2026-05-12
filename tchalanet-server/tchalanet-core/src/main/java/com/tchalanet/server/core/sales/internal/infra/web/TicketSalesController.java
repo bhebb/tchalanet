@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.sales.infra.web.mapper.TicketWebMapper;
-import com.tchalanet.server.core.sales.infra.web.model.SellTicketRequest;
-import com.tchalanet.server.core.sales.infra.web.model.TicketResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.sales.internal.infra.web.mapper.TicketWebMapper;
+import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.TicketResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

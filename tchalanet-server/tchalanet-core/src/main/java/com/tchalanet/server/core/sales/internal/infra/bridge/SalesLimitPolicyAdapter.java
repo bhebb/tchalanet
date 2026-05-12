@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.sales.application.port.out.LimitPolicyPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.LimitPolicyPort;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 

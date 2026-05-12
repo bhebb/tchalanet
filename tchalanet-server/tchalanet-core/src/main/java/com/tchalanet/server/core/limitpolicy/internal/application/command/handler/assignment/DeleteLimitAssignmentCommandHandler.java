@@ -3,9 +3,9 @@ package com.tchalanet.server.core.limitpolicy.internal.application.command.handl
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.limitpolicy.application.command.model.assignment.DeleteLimitAssignmentCommand;
-import com.tchalanet.server.core.limitpolicy.application.command.model.assignment.DeleteLimitAssignmentResult;
-import com.tchalanet.server.core.limitpolicy.application.port.out.assignment.LimitAssignmentWriterPort;
+import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentCommand;
+import com.tchalanet.server.core.limitpolicy.api.command.DeleteLimitAssignmentResult;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentWriterPort;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;

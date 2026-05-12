@@ -1,11 +1,13 @@
 package com.tchalanet.server.platform.audit.internal.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.util.JsonUtils;
-import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +47,7 @@ public class AuditLogAspect {
         this.contextResolver = contextResolver;
     }
 
-    @Around("@annotation(com.tchalanet.server.core.audit.infra.web.AuditLog) || @within(com.tchalanet.server.core.audit.infra.web.AuditLog)")
+    @Around("@annotation(com.tchalanet.server.platform.audit.api.AuditLog) || @within(com.tchalanet.server.platform.audit.api.AuditLog)")
     public Object aroundAudit(ProceedingJoinPoint pjp) throws Throwable {
         Object result = null;
         Throwable error = null;

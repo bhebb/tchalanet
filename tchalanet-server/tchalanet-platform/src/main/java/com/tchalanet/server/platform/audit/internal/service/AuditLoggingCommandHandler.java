@@ -2,9 +2,7 @@ package com.tchalanet.server.platform.audit.internal.service;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
-import com.tchalanet.server.core.audit.application.port.out.AuditEventWriterPort;
-import com.tchalanet.server.core.audit.domain.service.AuditEventFactory;
+import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.pagemodel.internal.application.service;
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.pagemodel.application.port.out.PageModelWritePort;
+import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelWritePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

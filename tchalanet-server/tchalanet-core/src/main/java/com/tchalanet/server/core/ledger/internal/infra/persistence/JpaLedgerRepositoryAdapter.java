@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.ledger.internal.infra.persistence;
 
-import com.tchalanet.server.core.ledger.application.port.out.LedgerReaderPort;
-import com.tchalanet.server.core.ledger.application.port.out.LedgerWriterPort;
-import com.tchalanet.server.core.ledger.domain.model.LedgerEntry;
-import com.tchalanet.server.core.ledger.domain.model.LedgerOperationType;
-import com.tchalanet.server.core.ledger.domain.model.LedgerReference;
+import com.tchalanet.server.core.ledger.internal.application.port.out.LedgerReaderPort;
+import com.tchalanet.server.core.ledger.internal.application.port.out.LedgerWriterPort;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerEntry;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerReference;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

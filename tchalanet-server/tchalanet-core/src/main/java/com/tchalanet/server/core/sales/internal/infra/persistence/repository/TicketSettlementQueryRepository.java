@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
-import com.tchalanet.server.core.sales.infra.persistence.TicketJpaEntity;
+import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.time.OccurredAtResolver;
-import com.tchalanet.server.core.draw.infra.config.DrawProperties;
+import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;

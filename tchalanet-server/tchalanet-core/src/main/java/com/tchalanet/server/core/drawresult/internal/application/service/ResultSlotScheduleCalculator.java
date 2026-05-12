@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
-import com.tchalanet.server.core.drawresult.application.view.PublicNextResultTimeView;
+import com.tchalanet.server.core.drawresult.internal.application.view.PublicNextResultTimeView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.Clock;

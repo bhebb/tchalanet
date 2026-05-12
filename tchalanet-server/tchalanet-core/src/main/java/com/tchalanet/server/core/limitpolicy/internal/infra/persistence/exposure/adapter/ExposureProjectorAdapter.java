@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.adapter;
 
 import com.tchalanet.server.common.selection.SelectionKeyCanonicalizer;
-import com.tchalanet.server.core.limitpolicy.application.port.out.exposure.ExposureProjectorPort;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
-import com.tchalanet.server.core.limitpolicy.infra.persistence.exposure.ScopePersistenceMapper;
-import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureProjectorPort;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.ScopePersistenceMapper;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;

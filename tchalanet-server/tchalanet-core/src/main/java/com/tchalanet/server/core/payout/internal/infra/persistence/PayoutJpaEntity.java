@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.payout.internal.infra.persistence;
 
-import com.tchalanet.server.core.payout.domain.model.PayoutStatus;
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

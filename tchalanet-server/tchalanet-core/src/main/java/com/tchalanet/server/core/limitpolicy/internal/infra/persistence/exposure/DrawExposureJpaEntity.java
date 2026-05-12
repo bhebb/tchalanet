@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure;
 
+import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.enums.ScopeType;
 import jakarta.persistence.*;

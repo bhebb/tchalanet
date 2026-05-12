@@ -5,16 +5,12 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.platform.address.api.AddressApi;
-import com.tchalanet.server.platform.address.api.model.AddressInput;
-import com.tchalanet.server.platform.address.internal.service.Address;
-import com.tchalanet.server.core.outlet.application.command.model.UpdateOutletConfigCommand;
-import com.tchalanet.server.core.outlet.application.port.out.OutletReaderPort;
-import com.tchalanet.server.core.outlet.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.domain.event.OutletConfigUpdatedEvent;
+import com.tchalanet.server.core.outlet.api.command.UpdateOutletConfigCommand;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
+import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
+import com.tchalanet.server.core.outlet.internal.domain.event.OutletConfigUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
@@ -28,7 +24,6 @@ public class UpdateOutletConfigCommandHandler
 
     private final OutletReaderPort reader;
     private final OutletWriterPort writer;
-    private final AddressCrudService addressService;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
     private final Clock clock;
@@ -56,9 +51,10 @@ public class UpdateOutletConfigCommandHandler
                 patch.defaultOpeningFloatCents(),
                 now);
 
-        var addressId = resolveAddressId(cmd, patch.address());
-        if (addressId != null) {
-            updated = updated.withAddressId(addressId);
+        // Address write path is temporarily disabled until platform AddressApi exposes write methods.
+        if (patch.address() != null) {
+            throw new UnsupportedOperationException(
+                "Outlet address update requires AddressApi write capability");
         }
 
         writer.save(updated);
@@ -80,24 +76,4 @@ public class UpdateOutletConfigCommandHandler
         return LocalTime.parse(value);
     }
 
-    private AddressId resolveAddressId(UpdateOutletConfigCommand cmd, Address address) {
-        if (address == null) {
-            return null;
-        }
-
-        if (address.id() != null) {
-            return address.id();
-        }
-
-        var input =
-            new AddressInput(
-                address.line1(),
-                address.line2(),
-                address.city(),
-                address.region(),
-                address.country(),
-                address.postalCode());
-
-        return addressService.upsertTenantPrimary(cmd.tenantId(), input);
-    }
 }

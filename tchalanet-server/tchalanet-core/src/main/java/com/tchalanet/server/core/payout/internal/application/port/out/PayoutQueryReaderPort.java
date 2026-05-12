@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.payout.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.PayoutId;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.payout.application.query.model.ListPayoutsQuery;
-import com.tchalanet.server.core.payout.application.query.model.PayoutDetails;
-import com.tchalanet.server.core.payout.application.query.model.PayoutReceiptView;
-import com.tchalanet.server.core.payout.application.query.model.PayoutRow;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
+import com.tchalanet.server.core.payout.api.query.PayoutDetails;
+import com.tchalanet.server.core.payout.api.query.PayoutReceiptView;
+import com.tchalanet.server.core.payout.api.query.PayoutRow;
 
 public interface PayoutQueryReaderPort {
 

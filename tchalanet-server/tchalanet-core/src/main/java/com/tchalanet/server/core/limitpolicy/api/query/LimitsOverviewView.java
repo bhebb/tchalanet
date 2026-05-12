@@ -3,7 +3,7 @@ package com.tchalanet.server.core.limitpolicy.api.query;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.enums.RuleKey;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;

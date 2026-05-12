@@ -1,12 +1,13 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawResultId;
-import com.tchalanet.server.core.draw.application.port.out.DrawReaderPort;
-import com.tchalanet.server.core.draw.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.draw.infra.persistence.mapper.DrawSummaryViewMapper;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawJpaRepository;
-import com.tchalanet.server.core.draw.infra.persistence.repo.DrawSummaryViewRepository;
-import com.tchalanet.server.core.draw.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawReaderPort;
+import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.internal.infra.persistence.mapper.DrawSummaryViewMapper;
+import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawJpaRepository;
+import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawSummaryViewRepository;
+import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
