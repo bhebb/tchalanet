@@ -1,8 +1,0 @@
-package com.tchalanet.server.core.outlet.application.query.model;
-
-import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.TenantId;
-
-public record GetOutletByIdQuery(TenantId tenantId, OutletId outletId)
-    implements Query<OutletView> {}

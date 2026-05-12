@@ -1,8 +1,0 @@
-package com.tchalanet.server.core.drawresult.domain.model;
-
-public enum DrawResultStatus {
-    PROVISIONAL,
-    CONFIRMED,
-    OVERRIDDEN,
-    ERROR
-}

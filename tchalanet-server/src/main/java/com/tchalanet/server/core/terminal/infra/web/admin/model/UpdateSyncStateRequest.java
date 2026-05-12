@@ -1,7 +1,0 @@
-package com.tchalanet.server.core.terminal.infra.web.admin.model;
-
-import com.tchalanet.server.core.terminal.domain.model.TerminalSyncState;
-import jakarta.validation.constraints.NotNull;
-
-public record UpdateSyncStateRequest(@NotNull TerminalSyncState newSyncState) {
-}
