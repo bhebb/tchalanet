@@ -1,0 +1,342 @@
+package com.tchalanet.server.common.json.mapper;
+
+import com.tchalanet.server.common.time.DaysOfWeekFormatter;
+import com.tchalanet.server.common.types.id.AddressId;
+import com.tchalanet.server.common.types.id.ApprovalRequestId;
+import com.tchalanet.server.common.types.id.DrawChannelGameId;
+import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.DrawResultId;
+import com.tchalanet.server.common.types.id.GameId;
+import com.tchalanet.server.common.types.id.I18nOverrideId;
+import com.tchalanet.server.common.types.id.LedgerEntryId;
+import com.tchalanet.server.common.types.id.NotificationDeliveryId;
+import com.tchalanet.server.common.types.id.NotificationId;
+import com.tchalanet.server.common.types.id.NotificationPreferenceId;
+import com.tchalanet.server.common.types.id.OfflineBatchId;
+import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
+import com.tchalanet.server.common.types.id.OfflineCodeReservationId;
+import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
+import com.tchalanet.server.common.types.id.OfflineTicketId;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
+import com.tchalanet.server.common.types.id.PayoutId;
+import com.tchalanet.server.common.types.id.PlanId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
+import com.tchalanet.server.common.types.id.RoleId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SettingId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.ThemePresetId;
+import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.UserId;
+import org.springframework.stereotype.Component;
+
+import java.time.DayOfWeek;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Central helper for conversions between UUID/String and domain wrappers or specialized types.
+ * MapStruct can use this via `uses = CommonIdMapper.class` on @Mapper.
+ */
+@Component
+public class CommonIdMapper {
+
+    // TenantId
+    public UUID mapFromTenantId(TenantId id) {
+        return id == null ? null : id.value();
+    }
+
+    public TenantId mapToTenantId(UUID id) {
+        return TenantId.nullableOf(id);
+    }
+
+
+    //address
+    public UUID mapFromAddressId(AddressId id) {
+        return id == null ? null : id.value();
+    }
+
+    public AddressId mapToAddressId(UUID id) {
+        return AddressId.nullableOf(id);
+    }
+
+    // UserId
+    public UUID mapFromUserId(UserId id) {
+        return id == null ? null : id.value();
+    }
+
+    public UserId mapToUserId(UUID id) {
+        return UserId.nullableOf(id);
+    }
+
+    public UUID mapFromNotificationId(NotificationId id) {
+        return id == null ? null : id.value();
+    }
+
+    public NotificationId mapToNotificationId(UUID id) {
+        return NotificationId.nullableOf(id);
+    }
+
+    public UUID mapFromNotificationDeliveryId(NotificationDeliveryId id) {
+        return id == null ? null : id.value();
+    }
+
+    public NotificationDeliveryId mapToNotificationDeliveryId(UUID id) {
+        return NotificationDeliveryId.nullableOf(id);
+    }
+
+    public UUID mapFromNotificationPreferenceId(NotificationPreferenceId id) {
+        return id == null ? null : id.value();
+    }
+
+    public NotificationPreferenceId mapToNotificationPreferenceId(UUID id) {
+        return NotificationPreferenceId.nullableOf(id);
+    }
+
+    // DrawId
+    public UUID mapFromDrawId(DrawId id) {
+        return id == null ? null : id.value();
+    }
+
+    public DrawId mapToDrawId(UUID id) {
+        return DrawId.nullableOf(id);
+    }// DrawId
+
+    public UUID mapFromDrawResultId(DrawResultId id) {
+        return id == null ? null : id.value();
+    }
+
+    public DrawResultId mapToDrawIResultd(UUID id) {
+        return DrawResultId.nullableOf(id);
+    }
+
+    // OutletId
+    public UUID mapFromOutletId(OutletId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OutletId mapToOutletId(UUID id) {
+        return OutletId.nullableOf(id);
+    }
+
+    // TerminalId
+    public UUID mapFromTerminalId(TerminalId id) {
+        return id == null ? null : id.value();
+    }
+
+    public TerminalId mapToTerminalId(UUID id) {
+        return TerminalId.nullableOf(id);
+    }
+
+    // TicketId
+    public UUID mapFromTicketId(TicketId id) {
+        return id == null ? null : id.value();
+    }
+
+    public TicketId mapToTicketId(UUID id) {
+        return TicketId.nullableOf(id);
+    }
+
+    // PayoutId
+    public UUID mapFromPayoutId(PayoutId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PayoutId mapToPayoutId(UUID id) {
+        return PayoutId.nullableOf(id);
+    }
+
+    // LedgerEntryId
+    public UUID mapFromLedgerEntryId(LedgerEntryId id) {
+        return id == null ? null : id.value();
+    }
+
+    public LedgerEntryId mapToLedgerEntryId(UUID id) {
+        return LedgerEntryId.nullableOf(id);
+    }
+
+    // ApprovalRequestId
+    public UUID mapFromApprovalRequestId(ApprovalRequestId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ApprovalRequestId mapToApprovalRequestId(UUID id) {
+        return ApprovalRequestId.nullableOf(id);
+    }
+
+    // OfflineBatchId
+    public UUID mapFromOfflineBatchId(OfflineBatchId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OfflineBatchId mapToOfflineBatchId(UUID id) {
+        return OfflineBatchId.nullableOf(id);
+    }
+
+    // OfflineCodeBatchId
+    public UUID mapFromOfflineCodeBatchId(OfflineCodeBatchId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OfflineCodeBatchId mapToOfflineCodeBatchId(UUID id) {
+        return OfflineCodeBatchId.nullableOf(id);
+    }
+
+    // OfflineCodeReservationId
+    public UUID mapFromOfflineCodeReservationId(OfflineCodeReservationId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OfflineCodeReservationId mapToOfflineCodeReservationId(UUID id) {
+        return OfflineCodeReservationId.nullableOf(id);
+    }
+
+    // OfflineCodeReservationId
+    public UUID mapFromOfflineSalesGrantId(OfflineSalesGrantId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OfflineSalesGrantId mapToOfflineSalesGrantId(UUID id) {
+        return OfflineSalesGrantId.nullableOf(id);
+    }
+
+    // OfflineCodeReservationId
+    public UUID mapFromOfflineSaleSubmissionId(OfflineSaleSubmissionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OfflineSaleSubmissionId mapToOfflineSaleSubmissionId(UUID id) {
+        return OfflineSaleSubmissionId.nullableOf(id);
+    }
+
+    // OfflineCodeReservationId
+    public UUID mapFromOfflineTicketId(OfflineTicketId id) {
+        return id == null ? null : id.value();
+    }
+
+    public OfflineTicketId mapToOfflineTicketId(UUID id) {
+        return OfflineTicketId.nullableOf(id);
+    }
+
+    // RoleId
+    public UUID mapFromRoleId(RoleId id) {
+        return id == null ? null : id.value();
+    }
+
+    public RoleId mapToRoleId(UUID id) {
+        return RoleId.nullableOf(id);
+    }
+
+    // PlanId
+    public UUID mapFromPlanId(PlanId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PlanId mapToPlanId(UUID id) {
+        return PlanId.nullableOf(id);
+    }
+
+    // SessionId
+    public UUID mapFromSessionId(SalesSessionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SalesSessionId mapToSessionId(UUID id) {
+        return SalesSessionId.nullableOf(id);
+    }
+
+    // ThemePresetId
+    public UUID mapFromThemePresetId(ThemePresetId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ThemePresetId mapToThemePresetId(UUID id) {
+        return ThemePresetId.nullableOf(id);
+    }
+
+    // SettingId
+    public UUID mapFromSettingId(SettingId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SettingId mapToSettingId(UUID id) {
+        return SettingId.nullableOf(id);
+    }
+
+    // I18nOverrideId
+    public UUID mapFromI18nOverrideId(I18nOverrideId id) {
+        return id == null ? null : id.value();
+    }
+
+    public I18nOverrideId mapToI18nOverrideId(UUID id) {
+        return I18nOverrideId.nullableOf(id);
+    }
+
+    // PageModelTemplateId
+    public UUID mapFromPageModelTemplateId(PageModelTemplateId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PageModelTemplateId mapToPageModelTemplateId(UUID id) {
+        return PageModelTemplateId.nullableOf(id);
+    }
+
+    // DrawChannelId
+    public UUID mapFromDrawChannelId(DrawChannelId id) {
+        return id == null ? null : id.value();
+    }
+
+    public DrawChannelId mapToDrawChannelId(UUID id) {
+        return DrawChannelId.nullableOf(id);
+    }
+
+    // ResultSlotId
+    public UUID mapFromResultSlotId(ResultSlotId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ResultSlotId mapToResultSlotId(UUID id) {
+        return ResultSlotId.nullableOf(id);
+    }
+
+    // GameId
+    public UUID mapFromGameId(GameId id) {
+        return id == null ? null : id.value();
+    }
+
+    public GameId mapToGameId(UUID id) {
+        return GameId.nullableOf(id);
+    }
+
+    // DrawChannelGameId
+    public UUID mapFromDrawChannelGameId(DrawChannelGameId id) {
+        return id == null ? null : id.value();
+    }
+
+    public DrawChannelGameId mapToDrawChannelGameId(UUID id) {
+        return DrawChannelGameId.nullableOf(id);
+    }
+
+    // ZoneId
+    public String mapFromZoneId(ZoneId zoneId) {
+        return zoneId == null ? null : zoneId.getId();
+    }
+
+    public ZoneId mapToZoneId(String zoneId) {
+        return (zoneId == null || zoneId.isBlank()) ? null : ZoneId.of(zoneId);
+    }
+
+    // DaysOfWeek (List<DayOfWeek> <-> String)
+    public String mapFromDaysOfWeek(List<DayOfWeek> days) {
+        return days == null ? null : DaysOfWeekFormatter.format(days);
+    }
+
+    public List<DayOfWeek> mapToDaysOfWeek(String days) {
+        return (days == null || days.isBlank()) ? List.of() : DaysOfWeekFormatter.parse(days);
+    }
+}
