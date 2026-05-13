@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.haiti.internal.infra.adapter;
 
-import com.tchalanet.server.common.contracts.haiti.HaitiFlags;
-import com.tchalanet.server.common.contracts.haiti.HaitiProjectionOutput;
+import com.tchalanet.server.core.haiti.api.HaitiFlags;
+import com.tchalanet.server.core.haiti.api.HaitiProjectionOutput;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjectionConfig;

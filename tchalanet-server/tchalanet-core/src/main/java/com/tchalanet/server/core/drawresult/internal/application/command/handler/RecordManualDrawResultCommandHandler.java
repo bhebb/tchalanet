@@ -13,6 +13,7 @@ import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultCo
 import com.tchalanet.server.core.drawresult.api.command.RecordManualDrawResultResult;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
+import com.tchalanet.server.core.haiti.api.HaitiProjectionOutput;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
@@ -115,7 +116,7 @@ public class RecordManualDrawResultCommandHandler
         return jsonUtils.toJsonNode(ExternalSourceFlags.manual(emptyIfNull(command.recordedBy())));
     }
 
-    private com.tchalanet.server.common.contracts.haiti.HaitiProjectionOutput projectHaiti(
+    private HaitiProjectionOutput projectHaiti(
         RecordManualDrawResultCommand command,
         ResultSlotView slot) {
         return haitiLotteryPort.projectResult(

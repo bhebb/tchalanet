@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.contracts.haiti;
+package com.tchalanet.server.core.haiti.api;
 
 import java.time.Instant;
 import java.util.Map;

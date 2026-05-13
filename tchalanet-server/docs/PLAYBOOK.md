@@ -56,13 +56,40 @@ Voir : `docs/conventions/typed_ids.md`.
 ## 3) Organisation du code (rappel)
 
 ```text
-common/      # transversal technique
-catalog/     # référentiels / lookup / read-mostly
-core/        # domaines critiques (hexagonal/CQRS)
-features/    # orchestration UI/BFF
+common/      # Technical Shared Kernel — primitives, bus, context, typed IDs
+catalog/     # Simple DDD / Reference Catalog — référentiels read-mostly
+platform/    # Application Service Module — audit, identity, tenantconfig, notification…
+core/        # Clean Architecture / Hexagonal / CQRS — domaines critiques
+features/    # Vertical Slice / BFF Leaf Module — orchestration UI/écrans
 ```
 
-Voir : `docs/ARCHITECTURE.md`.
+Chaque couche a un **archetype interne distinct** — ne pas appliquer le pattern hexagonal à catalog ou features.
+
+Voir : `docs/ARCHITECTURE.md`, `docs/modules/` (un fichier par archetype).
+
+---
+
+## 3.1) Appels vers `platform/`
+
+**Règle** : injecter l'interface `XxxApi` du package `platform.<capability>.api`. Ne jamais importer `platform.<capability>.internal`.
+
+```java
+// CORRECT — injecter via api/
+private final AuditApi auditApi;
+private final AccessControlApi acl;
+
+// INTERDIT — dépendance sur internal/
+private final AuditServiceImpl auditService; // ❌
+```
+
+**Transactions** : les services platform rejoignent la transaction de l'appelant par défaut. `platform.audit` peut utiliser `REQUIRES_NEW`.
+
+**Événements** :
+- Platform peut écouter les événements core.
+- Core **ne doit pas** écouter les événements platform.
+- Collaboration intra-platform (platform → platform) : utiliser des événements ou un ADR.
+
+Voir : `docs/modules/platform.md`, `openspec/context/78-platform-rules.md`.
 
 ---
 

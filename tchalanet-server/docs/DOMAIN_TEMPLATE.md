@@ -1,7 +1,7 @@
-# Domaine <NomDuDomaine>
+# Domaine `core.<name>` — <Titre court>
 
-> Ce fichier est un **template** pour documenter un nouveau domaine backend.  
-> Copie ce fichier dans `<bc>/DOMAIN.md` et remplace les sections.
+> **Archetype** : Clean Architecture / Hexagonal / CQRS (core uniquement).  
+> **Placer ce fichier** : `tchalanet-core/src/main/java/com/tchalanet/server/core/<name>/DOMAIN_<NAME>.md`
 
 ---
 
@@ -9,141 +9,148 @@
 
 **Responsabilité principale**
 
-> Décris en une phrase la responsabilité clé du domaine  
-> (ex. « Calculer les permissions d’un utilisateur par tenant »).
+> Une phrase. Ex. : « Gérer le cycle de vie des tirages de la création à la clôture. »
 
 **Ce que le domaine fait**
 
-- Liste de 3–6 puces sur ce que le domaine couvre.
+- 3 à 6 puces sur ce que le domaine couvre.
 
 **Ce que le domaine ne fait pas**
 
-- Liste de ce qui est explicitement hors scope (auth, audit, etc.).
+- Ce qui est explicitement hors scope (délégué à quel autre domaine/layer).
 
 ---
 
-## 2. Modèle métier (agrégats / entités)
+## 2. Modèle métier
 
-### Entités / agrégats principaux
+### Agrégats / entités principales
 
-- `NomAggregate` — courte description.
-- `AutreEntite` — description.
+- `NomAgregate` — description courte.
 - `ValueObject` — description.
 
 ### Invariants métier
 
-- Énumère les règles importantes (ex. « un ticket payé ne peut plus être annulé »).
+- Règles que le domaine est seul à garantir.
+- Ex. : « Un ticket VOID ne peut plus être approuvé. »
 
-> Valeur métier clé :  
-> Résume en une phrase ce qui est “sacré” dans ce domaine.
-
----
-
-## 3. Cas d’utilisation (ports d’entrée)
-
-Interfaces côté `application.port.in` (use cases) :
-
-- `<UseCaseName>CommandHandler` / `<UseCaseName>QueryHandler`
-  - Description : …
-  - Paramètres : …
-  - Résultat : …
-
-Répéter pour chaque use case important.
+> Valeur métier clé : ce qui serait catastrophique si ce domaine échouait silencieusement.
 
 ---
 
-## 4. Ports de sortie (dépendances externes)
+## 3. API publique (`api/`)
 
-Interfaces côté `application.port.out` :
-
-- `<Something>ReaderPort`
-
-  - Parle à : table(s) ou service(s) externe(s) ciblés.
-  - Rôle : …
-
-- `<Something>WriterPort`
-  - Parle à : …
-  - Rôle : …
-
-> Rappel : aucun autre domaine ne doit parler directement à ces tables/services.
-
----
-
-## 5. Mapping & DTOs (convention)
-
-Pour assurer une séparation claire entre les layers :
-
-- Utiliser MapStruct pour mapper `infra.web.model` ↔ `application.command.model` / `application.query.model`.
-- Créer des `Mapper` dans `infra.web.mapper` ou `infra.persistence.mapper`.
-- Configurer MapStruct `componentModel = "spring"` pour autowiring.
-
-### Audit
-
-- Favoriser l'annotation `@AuditLog` pour instrumenter les méthodes métier critiques.
-- L'aspect lié à `@AuditLog` doit construire un audit command ou utiliser `AuditEventFactory`, puis déléguer l'écriture au port d'audit.
-
-### Records vs Lombok
-
-- Préférer `record` pour les DTO immuables (commands / queries / simple dto).
-- Si une classe nécessite JPA/Lombok, utiliser `class` + Lombok (`@Getter`, `@Builder`, etc.).
-
----
-
-## 6. Règles métier importantes
-
-- **Règle 1** : …
-- **Règle 2** : …
-- **Règle 3** : …
-
----
-
-## 7. Intégration avec les autres domaines
-
-Dépend de :
-
-- Domaines en entrée (ex. Identity, AccessControl, TenantConfig).
-
-Utilisé par :
-
-- Domaines consommateurs (ex. Ticket, Draw, Session, etc.).
-
-Donne un exemple de call type :
+Interface Java consommée par les autres modules.
 
 ```text
-someUseCase.handle(new SomeCommand(…));
+core/<name>/api/
+  command/          ← XxxCommand records (immuables)
+  query/            ← XxxQuery records + XxxResult / XxxRow
+  event/            ← XxxEvent records (publiés après commit)
+  model/            ← Read models partagés
+```
+
+**Autorisé dans api/** : commands, queries, events, read models, result models.  
+**Interdit dans api/** : agrégats internes, JPA entities, repositories, handlers, ports out, controllers.
+
+---
+
+## 4. Structure interne (`internal/`)
+
+```text
+core/<name>/internal/
+  domain/
+    model/          ← Agrégats, value objects (Java pur, pas de Spring)
+    service/        ← Domain policies, calculators (pas d'injection, pas d'I/O)
+    event/          ← Domain events internes
+    exception/      ← Exceptions métier
+  application/
+    command/handler/  ← @UseCase, @TchTx, délèguent via ports out
+    query/handler/    ← @UseCase, lecture seule
+    port/out/         ← Interfaces pour adapters infra (persistence, external)
+    service/          ← Orchestrateurs applicatifs (optionnel)
+  infra/
+    persistence/    ← JPA entities, repositories, JpaAdapter
+    web/            ← Controllers thin (CommandBus/QueryBus dispatch)
+    event/          ← Listeners (idempotents), publishers AfterCommit
+    batch/          ← Jobs Spring Batch (optionnel)
+    scheduler/      ← Tâches planifiées (optionnel)
+    cache/          ← Cache adapters (optionnel)
+    config/         ← Spring @Configuration du domaine
 ```
 
 ---
 
-## 8. Notes techniques
+## 5. Cas d'utilisation (writes)
 
-Packages recommandés :
+| Command | Handler | @TchTx |
+|---|---|---|
+| `XxxCommand` | `XxxCommandHandler` | ✅ |
 
-- `<bc>.domain.model` → modèles métier.
-- `<bc>.application.command/query` → commands, queries, handlers.
-- `<bc>.application.port.in/out` → ports hexagonaux.
-- `<bc>.infra.persistence` → adapters JPA.
-- `<bc>.infra.web` → endpoints REST/aspects/etc.
-
-Points d’attention :
-
-- Multi-tenant ?
-- RLS ?
-- Intégrations externes ?
+Pattern :
+```java
+@UseCase
+@TchTx
+public class XxxCommandHandler implements CommandHandler<XxxCommand, XxxResult> {
+  // 1. Charger agrégat via port out
+  // 2. Appeler méthode domaine
+  // 3. Persister via port out
+  // 4. AfterCommit.run(() -> eventPublisher.publish(...))
+}
+```
 
 ---
 
-## 9. Domaines existants (référence)
+## 6. Cas d'utilisation (reads)
 
-À titre indicatif, les domaines actuellement présents dans Tchalanet :
+| Query | Handler |
+|---|---|
+| `XxxQuery` | `XxxQueryHandler` |
 
-- `accesscontrol` — permissions & rôles par tenant.
-- `audit` — audit applicatif & révisions.
-- `draw` — tirages & résultats.
-- `ticket` — création & paiement de tickets.
-- `session` — sessions POS & vendeurs.
-- `tenantconfig` — configuration de tenant (limites, odds, etc.).
-- `pagemodel` — configuration dynamique des pages publiques/privées.
-- `identity` — utilisateurs & profils (hors auth Keycloak).
+Pattern :
+```java
+@UseCase
+public class XxxQueryHandler implements QueryHandler<XxxQuery, XxxResult> {
+  // Lecture directe via port out ou repository
+  // Pas de @TchTx sauf si lecture transactionnelle requise
+}
+```
 
-Mets ce nouveau domaine en cohérence avec ces patterns.
+---
+
+## 7. Ports de sortie (`application/port/out/`)
+
+- `XxxReaderPort` — charge/cherche des agrégats.
+- `XxxWriterPort` — persiste des agrégats.
+- `XxxExternalPort` — appels externes (si applicable).
+
+> Les adapters infra implémentent ces ports. Les handlers ne connaissent pas JPA.
+
+---
+
+## 8. Événements publiés
+
+| Événement | Publié dans | Consommateurs |
+|---|---|---|
+| `XxxEvent` | `AfterCommit.run(...)` dans handler | `core.yyy`, `features.zzz` |
+
+---
+
+## 9. Dépendances
+
+**Consomme** :
+- `catalog.<x>.api` — référentiels (via injection directe de `XxxCatalog`)
+- `platform.<y>.api` — services transversaux (audit, accesscontrol, tenantconfig…)
+- `core.<z>.api` — autres domaines core (via `QueryBus` ou injection directe si autorisé)
+
+**Utilisé par** :
+- Modules qui consomment les commands/queries via `CommandBus`/`QueryBus`
+- Listeners qui écoutent les events publiés
+
+---
+
+## 10. Points d'attention
+
+- Multi-tenant ? RLS actif ?
+- Audit Envers actif sur les entités ?
+- Intégrations externes (HTTP clients, batch providers) ?
+- Idempotence nécessaire (via `platform.idempotence`) ?

@@ -46,11 +46,12 @@ En cas de conflit :
 
 ---
 
-## 1) 4-Layer Architecture
+## 1) 5-Layer Architecture
 
 ```
 common/       ← Technical/transversal (Bus, EventPublisher, TypedIDs, Cache, TchContext)
 catalog/      ← Reference data / lookup (read-mostly, no domain events)
+platform/     ← Cross-cutting application services (audit, identity, tenantconfig, notification…)
 core/         ← Business domains (sales, draw, drawresult, uslottery, haiti)
 features/     ← Vertical slices / BFF (ops, tenantadmin, publicdraw, reporting)
 ```
@@ -59,225 +60,106 @@ features/     ← Vertical slices / BFF (ops, tenantadmin, publicdraw, reporting
 
 - **common**: Technical only. No domain, no events. Shared by all layers.
 - **catalog**: Read-mostly reference data. Admin CRUD via `/platform/**` (SUPER_ADMIN). No business invariants. No events.
-- **core**: Domain logic, aggregates, value objects. Hexagonal architecture (domain, application, infra). Events published.
+- **platform**: Transversal application services with state or lifecycle. Not business-critical. Exposes only `api/`. Cannot depend on `core/` or `features/`.
+- **core**: Domain logic, aggregates, value objects. Hexagonal architecture (domain, application, infra). Events published. May consume `platform.<capability>.api`.
 - **features**: Orchestration, BFF, vertical slices. Multi-domain composition. Thin application layer.
+
+### Dependency Graph
+
+```text
+common
+  ↑
+catalog
+  ↑
+platform
+  ↑
+core
+  ↑
+features
+```
+
+| From | May depend on |
+|---|---|
+| common | external libraries only |
+| catalog | common |
+| platform | common, catalog api |
+| core | common, catalog api, platform api, other core api (where allowed) |
+| features | common, catalog api, platform api, core api |
+
+### Module Archetypes
+
+Each layer uses a distinct internal architectural pattern:
+
+| Layer | Archetype | Internal Pattern |
+|---|---|---|
+| common | Technical Shared Kernel | Utilities, bus interfaces, context, typed IDs, no business logic |
+| catalog | Simple DDD / Reference Catalog | `api/` + `internal/{read,write,persistence,mapper,cache,web}/` |
+| platform | Application Service Module | `api/` (XxxApi interface) + `internal/` (service, persistence, web, event…) |
+| core | Clean Architecture / Hexagonal / CQRS | `api/` + `internal/{domain,application,infra}/`, CommandBus, QueryBus |
+| features | Vertical Slice / BFF Leaf Module | `<feature>/<slice>/{web,app,model,mapper}/`, no Java API exposed |
+
+See: `docs/modules/` for the complete description of each archetype.
 
 ---
 
-## 1.5) Common Layer — Transversal Technical Infrastructure
+## 1.5) Common Layer — Technical Shared Kernel
 
-**Common** provides shared technical components used by ALL layers. It contains ONLY infrastructure, no domain.
+**Common** provides shared technical primitives used by ALL layers. It contains ONLY infrastructure — no domain, no business rules.
 
 ```
 common/
-  ├── bus/                 ← CommandBus, QueryBus interfaces
+  ├── bus/                 ← CommandBus, QueryBus (interfaces + in-memory impl)
   ├── event/               ← DomainEventPublisher, AfterCommit
   ├── context/             ← TchRequestContext, TchContext, thread-local management
-  ├── id/                  ← Typed ID base classes, ID factories
+  ├── types/id/            ← Typed ID base classes, ID factories
   ├── cache/               ← CacheSpecProvider, cache abstractions
-  ├── security/            ← TchPermissionEvaluator, authorization adapters
-  ├── persistence/         ← Audit, RLS, soft-delete utilities
-  ├── exception/           ← ProblemRest, common exceptions
-  ├── pagination/          ← TchPageRequest, TchPage
-  ├── validation/          ← Custom validators (beyond Jakarta Bean Validation)
-  └── config/              ← Spring @Configuration, beans
+  ├── security/            ← TchPermissionEvaluator (technical glue only)
+  ├── persistence/         ← RLS, soft-delete, audit infrastructure
+  ├── web/                 ← ApiResponse, TchPage, ProblemRest
+  ├── tx/                  ← @TchTx, AfterCommit, transaction helpers
+  ├── stereotype/          ← @UseCase, @Adapter, shared annotations
+  └── config/              ← Spring @Configuration, shared beans
 ```
 
 **Rules**:
 
-- ✅ NO business domain
-- ✅ NO domain events (only infrastructure events)
-- ✅ Interfaces and abstractions only (implementations in core/catalog/features)
+- ✅ NO business domain, NO domain events
+- ✅ NO access control rules, NO user profile, NO tenant config, NO communication delivery
+- ✅ Technical primitives only — if it has a table, a workflow, or a business policy, it belongs in `platform/`
 - ✅ Thread-safe (context, caches, bus)
-- ❌ MUST NOT depend on core, catalog, or features
+- ❌ MUST NOT depend on core, catalog, platform, or features
+
+See: `docs/modules/common.md`
 
 ---
 
-## 1.6) Catalog Layer — Reference Data & Read/Write Separation
+## 1.6) Catalog Layer — Simple DDD / Reference Catalog
 
 **Catalog** provides stable **reference data and lookup tables** with NO business invariants, NO lifecycle, NO events.
 
-Catalog uses a **completely different architecture from Core**: read/write separation (not hexagonal).
+Archetype: **Simple DDD / Reference Catalog** (NOT hexagonal — read/write separation).
 
 ```
 catalog/<name>/
-  ├── api/                 ← Read-only API contract (no internal.* dependencies)
-  │   └── model/           ← DTOs (*View, *SummaryView, *Row, *SearchCriteria)
-  │       └── XCatalog.java (interface)
-  ├── internal/
-  │   ├── read/            ← CatalogImpl (implements XCatalog, reads + caches)
-  │   ├── write/           ← AdminService (updates, cache eviction)
-  │   ├── web/             ← Admin CRUD controllers (thin)
-  │   ├── persistence/     ← JPA entities, repositories (internal-only)
-  │   ├── mapper/          ← Entity → View mapping (internal-only)
-  │   └── cache/           ← Cache specs (internal-only)
-```
-
-### Catalog API (Read contract)
-
-The **public contract** is READ-ONLY:
-
-```java
-// catalog/<name>/api/XCatalog.java
-public interface DrawChannelCatalog {
-  List<DrawChannelView> listActive();
-  Optional<DrawChannelView> findById(DrawChannelId id);
-  List<GameView> findGamesByChannel(DrawChannelId channelId);
-}
-
-// catalog/<name>/api/model/DrawChannelView.java
-public record DrawChannelView(
-    DrawChannelId id,
-    String name,
-    String displayName,
-    boolean active
-) {}
+  api/
+    XxxCatalog.java        ← Read-only interface consumed by core/platform/features
+    model/                 ← Immutable DTOs (*View, *SummaryView, *Row, *SearchCriteria)
+  internal/
+    read/                  ← CatalogImpl (implements XxxCatalog, reads + caches)
+    write/                 ← AdminService (updates + cache eviction)
+    persistence/           ← JPA entities, repositories
+    mapper/                ← Entity → View mapping
+    web/                   ← Admin CRUD controllers (thin)
+    cache/                 ← Cache specs
 ```
 
 **Rules**:
 
-- ✅ Immutable records for DTOs
-- ✅ Uses typed IDs only
-- ✅ Consumed by `core/` and `features/` domains
-- ✅ Side-effect free, cache-friendly
-- ❌ MUST NOT expose internal.\* packages
-- ❌ MUST NOT depend on JPA entities
-
-### Catalog Read Implementation
-
-```java
-// catalog/<name>/internal/read/DrawChannelCatalogImpl.java
-@Component
-@RequiredArgsConstructor
-public class DrawChannelCatalogImpl implements DrawChannelCatalog {
-
-  private final DrawChannelRepository repo;
-  private final DrawChannelMapper mapper;
-
-  @Override
-  @Cacheable(cacheNames = "catalog:drawchannel:active")
-  public List<DrawChannelView> listActive() {
-    return mapper.toViews(
-        repo.findByActiveAndDeletedAtIsNullOrderByName(true)
-    );
-  }
-
-  @Override
-  @Cacheable(cacheNames = "catalog:drawchannel:by_id")
-  public Optional<DrawChannelView> findById(DrawChannelId id) {
-    return repo.findByIdAndDeletedAtIsNull(id.value())
-        .map(mapper::toView);
-  }
-}
-```
-
-### Catalog Write (Admin Service)
-
-```java
-// catalog/<name>/internal/write/DrawChannelAdminService.java
-@Service
-@RequiredArgsConstructor
-public class DrawChannelAdminService {
-
-  private final DrawChannelRepository repo;
-  private final DrawChannelMapper mapper;
-  private final CacheManager cache;
-
-  public DrawChannelView createChannel(CreateChannelRequest req) {
-    var entity = new DrawChannelJpaEntity(req.name(), req.displayName());
-    var saved = repo.save(entity);
-
-    cache.getCache("catalog:drawchannel:active").clear();
-
-    return mapper.toView(saved);
-  }
-
-  public DrawChannelView updateChannel(DrawChannelId id, UpdateChannelRequest req) {
-    var entity = repo.findByIdAndDeletedAtIsNull(id.value())
-        .orElseThrow(...);
-
-    entity.setName(req.name());
-    entity.setDisplayName(req.displayName());
-    var saved = repo.save(entity);
-
-    cache.getCache("catalog:drawchannel:active").clear();
-    cache.getCache("catalog:drawchannel:by_id").evict(id.value());
-
-    return mapper.toView(saved);
-  }
-}
-```
-
-### Catalog Controllers (Admin CRUD only)
-
-```java
-// catalog/<name>/internal/web/DrawChannelAdminController.java
-@RestController
-@RequestMapping("/api/v1/platform/draw-channels")
-@PreAuthorize("hasPermission('catalog.admin')")
-@RequiredArgsConstructor
-public class DrawChannelAdminController {
-
-  private final DrawChannelAdminService service;
-  private final DrawChannelCatalog catalog;
-
-  @GetMapping
-  public ApiResponse<List<DrawChannelView>> list() {
-    return ApiResponse.success(catalog.listActive());
-  }
-
-  @PostMapping
-  @AuditLog(entity = "channel", action = "CREATE")
-  public ApiResponse<DrawChannelView> create(
-      @Valid @RequestBody CreateChannelRequest req
-  ) {
-    var result = service.createChannel(req);
-    return ApiResponse.success(result);
-  }
-
-  @PutMapping("/{id}")
-  @AuditLog(entity = "channel", action = "UPDATE")
-  public ApiResponse<DrawChannelView> update(
-      @PathVariable String id,
-      @Valid @RequestBody UpdateChannelRequest req
-  ) {
-    var result = service.updateChannel(DrawChannelId.of(id), req);
-    return ApiResponse.success(result);
-  }
-}
-```
-
-### How Core consumes Catalog
-
-```java
-// core/<domain>/application/query/handler/SomeQueryHandler.java
-@UseCase
-@RequiredArgsConstructor
-public class SomeQueryHandler implements QueryHandler<SomeQuery, SomeResult> {
-
-  private final DrawChannelCatalog catalog;  // ← Inject via api/ package
-
-  @Override
-  public SomeResult handle(SomeQuery query) {
-    // Read reference data, no side-effects
-    var channels = catalog.listActive();
-
-    return new SomeResult(channels);
-  }
-}
-```
-
-**Catalog Responsibilities**:
-
-- ✅ Expose stable read APIs
-- ✅ Admin CRUD via controllers (`/api/v1/platform/**`)
-- ✅ Persist reference data
-- ✅ Cache aggressively (data changes rarely)
-- ✅ Map JPA entities to immutable DTOs
-- ❌ NO business invariants
-- ❌ NO domain events
-- ❌ NO lifecycle rules
-- ❌ NO transactional consistency
+- ✅ `api/` is the only public surface — immutable DTOs, typed IDs, no JPA entities
+- ✅ Consumed by `core/`, `platform/`, and `features/` via the `XxxCatalog` interface
+- ✅ Cache aggressively (`@Cacheable` in `read/`, evict in `write/`)
+- ✅ Admin CRUD via thin controllers (`/api/v1/platform/**`, SUPER_ADMIN)
+- ❌ NO business invariants, NO domain events, NO lifecycle rules
 
 **Example Catalog Modules**:
 
@@ -288,86 +170,150 @@ public class SomeQueryHandler implements QueryHandler<SomeQuery, SomeResult> {
 - `catalog.theme` — UI theme presets
 - `catalog.i18n` — i18n strings (overrides)
 
-See: `openspec/context/75-catalog-rules.md`
+See: `docs/modules/catalog.md`, `openspec/context/75-catalog-rules.md`
 
 ---
 
-## 2) Hexagonal Pattern (per core domain)
+## 1.7) Platform Layer — Transversal Application Services
 
-Each core domain follows a strict three-layer hexagonal structure (see `docs/conventions/clean_architecture.md`):
+**Platform** hosts cross-cutting application service capabilities that are stateful or lifecycle-bearing but do NOT own core business-critical invariants.
 
-```
-core/<domain>
-  ├── domain/
-  │   ├── model/          ← Aggregates, entities, value objects (pure Java)
-  │   ├── service/        ← Pure domain policies, calculators, rules (no Spring)
-  │   ├── event/          ← Domain events
-  │   └── exception/      ← Domain-specific exceptions
-  ├── application/
-  │   ├── command/
-  │   │   ├── model/      ← Command DTOs (immutable records)
-  │   │   └── handler/    ← CommandHandler implementations (@TchTx)
-  │   ├── query/
-  │   │   ├── model/      ← Query DTOs (immutable records)
-  │   │   └── handler/    ← QueryHandler implementations (read-only)
-  │   ├── port/out/       ← Output ports (interfaces for adapters)
-  │   ├── service/        ← Application orchestrators/assemblers (optional)
-  │   └── exception/      ← Application-specific exceptions
-  └── infra/
-      ├── web/            ← REST controllers, request/response mappers
-      ├── persistence/    ← JPA entities, repositories, adapters
-      ├── event/          ← Event listeners, publishers
-      ├── batch/          ← Batch job implementations
-      ├── scheduler/      ← Scheduled task implementations
-      ├── cache/          ← Cache adapters
-      └── config/         ← Spring configuration for the domain
+A wrong silent result belongs in `core` if it can cause direct financial loss, regulatory dispute, wrong winner, wrong payout, wrong draw/result, wrong settlement, or wrong limit decision. Everything else that is shared and stateful belongs in `platform`.
+
+### Current platform capabilities
+
+```text
+platform.audit          ← Audit trail (was core.audit)
+platform.accesscontrol  ← Permission checks, role assignment (was core.accesscontrol)
+platform.identity       ← User/tenant identity context (was core.tenantuser → core.usercontext)
+platform.tenantconfig   ← Tenant configuration (was core.tenantconfig)
+platform.tenanttheme    ← Theme management (was core.tenanttheme)
+platform.tenantgame     ← Tenant game settings
+platform.communication  ← Email/SMS/push delivery
+platform.notification   ← In-app notifications
+platform.document       ← Document generation/storage
+platform.idempotence    ← Persistent idempotency records
+platform.address        ← Address validation/formatting
 ```
 
-### Layer Rules (ENFORCED by ArchUnit)
+### Module shape
 
-#### domain/ layer MUST be PURE
+```text
+platform/<capability>/
+  api/
+    XxxApi.java          ← Only public surface exposed to other modules
+    model/               ← Immutable records; no JPA entities, no Spring MVC types
+  internal/
+    service/
+    persistence/
+    web/
+    event/
+    adapter/
+    cache/
+    config/
+```
 
-- ✅ Aggregates, value objects, domain services
-- ✅ Pure Java (no Spring, no JPA, no XML)
-- ✅ Immutable where possible
-- ✅ Business rules and invariants
-- ❌ MUST NOT depend on `application/`, `infra/`, Spring, JPA, or repositories
-- ❌ Domain services are pure policies: no injection, no buses, no I/O
+### Rules
 
-**When domain service needs data**:
-The application handler loads it first, then passes a snapshot/value object to the domain service.
+- ✅ Expose only `api/` to other modules
+- ✅ Hide all implementation under `internal/`
+- ✅ Platform services join caller transaction by default
+- ✅ `platform.audit` may use `REQUIRES_NEW` for failure audit
+- ✅ Platform may listen to core events
+- ❌ MUST NOT depend on `core/` or `features/`
+- ❌ `platform.<a>.internal` MUST NOT import `platform.<b>.internal`
+- ❌ Core MUST NOT listen to platform events
 
-#### application/ layer MUST NOT depend on infra
+### How core consumes platform
 
-- ✅ Command/Query models (immutable records)
-- ✅ CommandHandler / QueryHandler implementations
-- ✅ Output ports (interfaces for adapters)
-- ✅ Application services (orchestrators, assemblers)
-- ❌ MUST NOT import `application` packages from other modules
-- ❌ MUST NOT depend on `..infra.web`, `..infra.persistence`, `..infra.cache`, JPA entities, repositories
+```java
+// core/<domain>/application/command/handler/SomeCommandHandler.java
+@UseCase
+@RequiredArgsConstructor
+public class SomeCommandHandler implements CommandHandler<SomeCommand, SomeResult> {
 
-**When handler needs persistence or external services**:
-It calls an `application/port/out` interface. An infra adapter implements that port. Port signatures use domain/application types, NOT JPA entities or HTTP clients.
+  private final AuditApi auditApi;        // ← Inject via platform.audit.api
+  private final AccessControlApi acl;     // ← Inject via platform.accesscontrol.api
 
-#### infra/ layer MAY depend inward only
+  @Override
+  @TchTx
+  public SomeResult handle(SomeCommand cmd) {
+    acl.assertPermission(cmd.actorId(), Permission.SOME_ACTION);
+    // ... business logic ...
+    auditApi.record(AuditEntry.of("SOME_ACTION", cmd.entityId()));
+    return result;
+  }
+}
+```
 
-- ✅ Infrastructure adapters MAY depend on `application` and `domain`
-- ✅ Implement output ports from clean interfaces
-- ✅ Handle Spring, JPA, HTTP clients, caching, events
-- ❌ Domain/application SHALL NOT depend on infra
+See: `docs/modules/platform.md`, `openspec/context/78-platform-rules.md`
 
-### infra/ structure
+---
+
+## 2) Core Layer — Clean Architecture / Hexagonal / CQRS
+
+Archetype of `core/` only — other layers do NOT follow this pattern.
+
+Each core domain has two top-level packages: `api/` (public surface) and `internal/` (everything else). See `docs/modules/core.md`, `docs/conventions/clean_architecture.md`.
 
 ```
-infra/
-  ├── web/                 ← REST controllers (thin dispatch via CommandBus/QueryBus)
-  ├── persistence/         ← JPA entities, repositories, mapping/adapters
-  ├── adapter/             ← Outbound adapters (HTTP clients, cache, queues)
-  ├── event/               ← Event publishers, listeners (idempotent)
-  ├── batch/               ← Scheduled jobs, bulk operations (no business logic)
-  ├── cache/               ← Cache adapters
-  └── config/              ← Spring @Configuration, beans
+core/<domain>/
+  api/                        ← Public Java surface consumed by other modules
+    command/                  ← XxxCommand records
+    query/                    ← XxxQuery records + XxxResult / XxxRow
+    event/                    ← XxxEvent records (published after commit)
+    model/                    ← Shared read models
+  internal/                   ← Hidden from other modules
+    domain/
+      model/                  ← Aggregates, value objects (pure Java, no Spring)
+      service/                ← Domain policies, calculators (no injection, no I/O)
+      event/                  ← Internal domain events
+      exception/              ← Domain exceptions
+    application/
+      command/handler/        ← @UseCase @TchTx — load, mutate, persist, AfterCommit
+      query/handler/          ← @UseCase — read-only
+      port/out/               ← Output port interfaces (persistence, external)
+      service/                ← Application orchestrators (optional)
+    infra/
+      persistence/            ← JPA entities, repositories, JpaAdapters
+      web/                    ← Thin controllers (CommandBus/QueryBus dispatch)
+      event/                  ← Idempotent listeners, AfterCommit publishers
+      batch/                  ← Spring Batch jobs (optional)
+      scheduler/              ← Scheduled tasks (optional)
+      cache/                  ← Cache adapters (optional)
+      config/                 ← Spring @Configuration for the domain
 ```
+
+**Module boundary rule**: other modules may only import `core.<domain>.api.*`. Importing `core.<domain>.internal.*` is forbidden.
+
+### Internal rules (ENFORCED by ArchUnit)
+
+#### api/ — public surface only
+
+- ✅ Commands, queries, events, read models (immutable records)
+- ❌ NO domain aggregates, JPA entities, repositories, handlers, ports, controllers
+- ❌ NO `internal.*` imports
+
+#### internal/domain/ — pure Java
+
+- ✅ Aggregates, value objects, domain services, domain events, exceptions
+- ✅ Pure Java — no Spring, no JPA
+- ❌ MUST NOT depend on `application/` or `infra/`
+- ❌ Domain services: no injection, no buses, no I/O (handler loads data, passes it in)
+
+#### internal/application/ — orchestration, no infra
+
+- ✅ CommandHandlers (`@UseCase @TchTx`), QueryHandlers (`@UseCase`)
+- ✅ Output port interfaces (`port/out/`) — signed with domain/api types only
+- ✅ Application services (optional orchestrators)
+- ❌ MUST NOT depend on `infra.*`, JPA entities, repositories, HTTP clients
+- ❌ MUST NOT import `application.*` from other modules
+
+#### internal/infra/ — adapters only
+
+- ✅ Implements output ports, handles Spring/JPA/HTTP
+- ✅ Thin controllers dispatch to CommandBus/QueryBus
+- ❌ Domain/application MUST NOT depend on infra
 
 ---
 
