@@ -69,10 +69,7 @@ class OperationalContextArchitectureTest {
         noClasses()
             .that()
             .resideOutsideOfPackages(
-                "com.tchalanet.server.common.context..",
-                "com.tchalanet.server.core.sales.internal.application.validation..",
-                "com.tchalanet.server.core.payout.internal.application.validation..",
-                "com.tchalanet.server.core.offlinesync.internal.application.validation..")
+                "com.tchalanet.server.common.context..")
             .should()
             .dependOnClassesThat()
             .areAssignableTo(OperationalRequestContext.class)

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.payout.internal.application.validation;
 
-import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.operational.PosOperationalContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
@@ -29,9 +29,9 @@ public class PosPayoutOperationValidator {
         TerminalId terminalId,
         OutletId outletId,
         SalesSessionId salesSessionId,
-        OperationalRequestContext operationalContext
+        PosOperationalContext operationalContext
     ) {
-        if (!operationalContext.isTrustedForSensitiveOperation()) {
+        if (!operationalContext.trustedForSensitiveOperation()) {
             throw ProblemRest.forbidden("operational_context.untrusted");
         }
 

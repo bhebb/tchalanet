@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.pagemodel.internal.infra.web;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.bus.CommandBus;

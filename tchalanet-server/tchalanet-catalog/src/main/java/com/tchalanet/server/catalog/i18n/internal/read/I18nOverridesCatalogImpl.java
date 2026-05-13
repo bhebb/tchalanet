@@ -9,7 +9,7 @@ import com.tchalanet.server.catalog.i18n.internal.cache.I18nOverridesCacheNames;
 import com.tchalanet.server.catalog.i18n.internal.mapper.I18nOverrideMapper;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideRepository;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.ApiScope;
 import com.tchalanet.server.common.types.id.TenantId;

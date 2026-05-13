@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.api.ApiResponse;

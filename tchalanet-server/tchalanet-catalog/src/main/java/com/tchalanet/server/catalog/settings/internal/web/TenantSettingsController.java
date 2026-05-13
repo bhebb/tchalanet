@@ -3,7 +3,7 @@ package com.tchalanet.server.catalog.settings.internal.web;
 import com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria;
 import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.web.api.ApiResponse;

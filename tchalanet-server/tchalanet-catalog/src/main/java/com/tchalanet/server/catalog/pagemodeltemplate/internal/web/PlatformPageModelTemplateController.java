@@ -3,7 +3,7 @@ package com.tchalanet.server.catalog.pagemodeltemplate.internal.web;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.web.api.ApiResponse;

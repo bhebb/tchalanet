@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.tenantadmin.config.identity;
 
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 

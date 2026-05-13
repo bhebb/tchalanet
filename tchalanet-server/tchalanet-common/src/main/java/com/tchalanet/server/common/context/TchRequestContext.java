@@ -330,6 +330,16 @@ public record TchRequestContext(
         return isCashier() || isOperator();
     }
 
+    public boolean hasPermissionClaim(String permission) {
+        if (permission == null || customRoles == null) {
+            return false;
+        }
+
+        var normalized = permission.trim().toUpperCase(Locale.ROOT);
+        return customRoles.contains(permission)
+            || customRoles.contains(normalized);
+    }
+
     public OperationalRequestContext operationalContext() {
         return operationalContext == null
             ? OperationalRequestContext.empty()

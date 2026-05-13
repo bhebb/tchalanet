@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.web.admin;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.enums.TargetType;

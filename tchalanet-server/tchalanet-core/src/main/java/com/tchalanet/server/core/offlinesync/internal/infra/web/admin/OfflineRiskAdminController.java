@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.web.admin;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.offlinesync.api.query.GetOfflineRiskDashboardQuery;

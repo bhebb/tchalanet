@@ -3,7 +3,7 @@ package com.tchalanet.server.catalog.i18n.api;
 import com.tchalanet.server.catalog.i18n.api.model.I18nGlobalKeyStatsView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;

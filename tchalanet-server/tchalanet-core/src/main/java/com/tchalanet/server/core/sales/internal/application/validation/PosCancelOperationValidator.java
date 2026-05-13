@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.validation;
 
-import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.operational.PosOperationalContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
 import com.tchalanet.server.core.session.api.query.SalesSessionOperation;
@@ -18,9 +18,9 @@ public class PosCancelOperationValidator {
 
     public ValidatedPosCancelContext validate(
         PosOperationActorContext actor,
-        OperationalRequestContext operationalContext
+        PosOperationalContext operationalContext
     ) {
-        if (!operationalContext.isTrustedForSensitiveOperation()) {
+        if (!operationalContext.trustedForSensitiveOperation()) {
             throw ProblemRest.forbidden("operational_context.untrusted");
         }
 

@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.tenantgame.internal.web;
 
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.NoticeSeverity;

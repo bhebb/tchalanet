@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.reporting.outletreport;
 
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 

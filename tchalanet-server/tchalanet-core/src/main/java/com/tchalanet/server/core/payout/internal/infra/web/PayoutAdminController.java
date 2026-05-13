@@ -1,17 +1,15 @@
 package com.tchalanet.server.core.payout.internal.infra.web;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.payout.api.command.ApprovePayoutCommand;
-import com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult;
 import com.tchalanet.server.core.payout.api.command.RejectPayoutCommand;
 import com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper;
 import com.tchalanet.server.core.payout.internal.infra.web.model.PayoutWorkflowResponse;
 import com.tchalanet.server.core.payout.internal.infra.web.model.RejectPayoutRequest;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;

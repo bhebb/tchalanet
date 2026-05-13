@@ -1,5 +1,7 @@
-package com.tchalanet.server.common.context;
+package com.tchalanet.server.common.context.web;
 
+import com.tchalanet.server.common.context.AuthContextExtractor;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.security.ApiScope;
 import com.tchalanet.server.common.types.enums.TchRole;
 import jakarta.servlet.http.HttpServletRequest;

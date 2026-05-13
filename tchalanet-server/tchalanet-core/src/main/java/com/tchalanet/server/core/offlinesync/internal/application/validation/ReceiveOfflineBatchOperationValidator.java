@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.offlinesync.internal.application.validation;
 
-import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.operational.PosOperationalContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.outlet.api.query.OutletOperation;
 import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
@@ -20,9 +20,9 @@ public class ReceiveOfflineBatchOperationValidator {
 
     public ValidatedReceiveOfflineBatchContext validate(
         OfflineBatchActorContext actor,
-        OperationalRequestContext operationalContext
+        PosOperationalContext operationalContext
     ) {
-        if (!operationalContext.isTrustedForSensitiveOperation()) {
+        if (!operationalContext.trustedForSensitiveOperation()) {
             throw ProblemRest.forbidden("operational_context.untrusted");
         }
 

@@ -2,7 +2,6 @@ package com.tchalanet.server.common.context.web;
 
 import java.util.List;
 
-import com.tchalanet.server.common.context.CurrentContextArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

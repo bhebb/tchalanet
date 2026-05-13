@@ -7,7 +7,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawCha
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelFlagsRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.write.DrawChannelAdminService;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.ResultSlotId;

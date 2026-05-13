@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.validation;
 
-import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.operational.PosOperationalContext;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.outlet.api.query.OutletOperation;
 import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
@@ -20,7 +20,7 @@ public class PosSaleOperationValidator {
 
     public ValidatedPosSaleContext validate(
         PosOperationActorContext actor,
-        OperationalRequestContext operationalContext
+        PosOperationalContext operationalContext
     ) {
         ensureTrusted(operationalContext);
 
@@ -59,8 +59,8 @@ public class PosSaleOperationValidator {
         );
     }
 
-    private void ensureTrusted(OperationalRequestContext ctx) {
-        if (!ctx.isTrustedForSensitiveOperation()) {
+    private void ensureTrusted(PosOperationalContext ctx) {
+        if (!ctx.trustedForSensitiveOperation()) {
             throw ProblemRest.forbidden("operational_context.untrusted");
         }
     }

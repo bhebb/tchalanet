@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.web.me;
 
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.web.api.ApiResponse;

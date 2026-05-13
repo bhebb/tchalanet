@@ -6,6 +6,11 @@ import lombok.experimental.UtilityClass;
 public class Permissions {
 
     @UtilityClass
+    public static class Platform {
+        public static final String TENANT_OVERRIDE = "platform.tenant.override";
+    }
+
+    @UtilityClass
     public static class Payout {
         public static final String ADMIN = "payout.admin";
 

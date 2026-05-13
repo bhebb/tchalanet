@@ -7,7 +7,7 @@ import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
 import com.tchalanet.server.catalog.i18n.internal.web.model.CreateI18nOverrideRequest;
 import com.tchalanet.server.catalog.i18n.internal.web.model.UpdateI18nOverrideRequest;
 import com.tchalanet.server.catalog.i18n.internal.write.I18nOverridesAdminService;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.I18nOverrideId;
 import com.tchalanet.server.common.web.api.ApiResponse;

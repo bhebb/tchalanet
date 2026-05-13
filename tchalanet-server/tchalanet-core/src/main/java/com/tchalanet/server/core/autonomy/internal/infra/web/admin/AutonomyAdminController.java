@@ -2,13 +2,12 @@ package com.tchalanet.server.core.autonomy.internal.infra.web.admin;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.autonomy.api.command.DeleteAutonomyRuleCommand;
 import com.tchalanet.server.core.autonomy.api.command.UpsertAutonomyRuleCommand;
-import com.tchalanet.server.core.autonomy.api.query.AutonomyOverviewView;
 import com.tchalanet.server.core.autonomy.api.query.GetAutonomyOverviewQuery;
 import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import com.tchalanet.server.core.autonomy.internal.infra.web.admin.mapper.AutonomyAdminWebMapper;

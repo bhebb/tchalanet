@@ -1,5 +1,7 @@
-package com.tchalanet.server.common.context;
+package com.tchalanet.server.common.context.web;
 
+import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -17,7 +19,8 @@ public class CurrentContextArgumentResolver implements HandlerMethodArgumentReso
 
   @Override
   public boolean supportsParameter(MethodParameter p) {
-    return p.hasParameterAnnotation(CurrentContext.class)
+    return (p.hasParameterAnnotation(CurrentContext.class)
+        || p.hasParameterAnnotation(CurrentContext.class))
         && p.getParameterType().equals(TchRequestContext.class);
   }
 

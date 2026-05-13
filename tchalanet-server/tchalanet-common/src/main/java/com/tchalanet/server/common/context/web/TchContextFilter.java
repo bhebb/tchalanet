@@ -6,9 +6,8 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_TENANT_OVERR
 import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.context.ActorContextResolver;
-import com.tchalanet.server.common.context.ApiScopeResolver;
 import com.tchalanet.server.common.context.TchContextBinder;
-import com.tchalanet.server.common.context.TchRequestContextFactory;
+import com.tchalanet.server.common.security.Permissions;
 import com.tchalanet.server.common.context.system.SystemContextProperties;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
 import jakarta.annotation.Nonnull;
@@ -78,6 +77,13 @@ public class TchContextFilter extends OncePerRequestFilter {
                 return;
             }
 
+            if (ctx.isSuperAdmin()
+                && hasTenantOverride(req)
+                && !ctx.hasPermissionClaim(Permissions.Platform.TENANT_OVERRIDE)) {
+                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin tenant override permission required");
+                return;
+            }
+
             ctx = tenantContextResolver.resolveForScope(req, res, ctx, scope, defaultTenantCode);
 
             if (ctx == null) {
@@ -88,6 +94,16 @@ public class TchContextFilter extends OncePerRequestFilter {
 
             if (ctx == null) {
                 return;
+            }
+
+            if (ctx.isSuperAdmin() && ctx.tenantOverridden()) {
+                log.info(
+                    "tenant_override.active actorKeycloakId={} actorUserId={} targetTenantId={} reason={} requestId={}",
+                    ctx.keycloakUserId(),
+                    ctx.userUuid(),
+                    ctx.effectiveTenantIdOrNull(),
+                    ctx.tenantOverrideReason(),
+                    ctx.requestId());
             }
 
             ctx = ctx.withOperationalContext(operationalContextHeaderParser.parseBridge(req));

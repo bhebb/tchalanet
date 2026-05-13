@@ -6,7 +6,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.write.DrawChannelGameAd
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawChannelGameRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.DrawChannelGameResponse;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelGameRequest;
-import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.GameId;
