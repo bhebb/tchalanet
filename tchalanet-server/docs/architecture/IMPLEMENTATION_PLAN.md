@@ -65,7 +65,7 @@ Initial capabilities:
 ```text
 platform.audit
 platform.accesscontrol
-platform.usercontext
+platform.identity
 platform.tenantconfig
 platform.tenanttheme
 platform.document
@@ -141,7 +141,7 @@ Recommended order:
 3. `core.tenanttheme` -> `platform.tenanttheme`.
 4. `core.tenantconfig` -> `platform.tenantconfig`.
 5. `core.accesscontrol` -> `platform.accesscontrol`.
-6. `core.tenantuser` -> `platform.usercontext`.
+6. `core.tenantuser` -> `platform.identity`.
 7. `core.notification` -> `platform.notification` if it exists and is not business-core.
 
 High fan-in migration pattern:

@@ -1,0 +1,118 @@
+package com.tchalanet.server.features.cashier.operationalcontext;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.OperationalContextSource;
+import com.tchalanet.server.common.context.OperationalRequestContext;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.security.ApiScope;
+import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.result.CheckUserPermissionsResult;
+import com.tchalanet.server.platform.identity.api.IdentityApi;
+import java.time.ZoneId;
+import java.util.Currency;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+
+class SellerOperationalContextResolverTest {
+
+  @Test
+  void resolvesSellerOperationalContextForSell() {
+    var ids = ids();
+    var resolver = resolver(true);
+
+    var result = resolver.resolve(new ResolveSellerOperationalContextRequest(
+        context(ids),
+        ids.terminalId(),
+        SellerOperation.SELL));
+
+    assertEquals(ids.tenantId(), result.tenantId());
+    assertEquals(ids.userId(), result.actorUserId());
+    assertEquals(ids.terminalId(), result.terminalId());
+    assertEquals(ids.outletId(), result.outletId());
+    assertEquals(ids.sessionId(), result.salesSessionId());
+  }
+
+  @Test
+  void rejectsWhenPermissionIsMissing() {
+    var ids = ids();
+    var resolver = resolver(false);
+
+    assertThrows(ProblemRestException.class, () -> resolver.resolve(new ResolveSellerOperationalContextRequest(
+        context(ids),
+        ids.terminalId(),
+        SellerOperation.SELL)));
+  }
+
+  private SellerOperationalContextResolver resolver(boolean permissionAllowed) {
+    var queryBus = mock(QueryBus.class);
+    var identityApi = mock(IdentityApi.class);
+    var accessControlApi = mock(AccessControlApi.class);
+    when(queryBus.ask(any())).thenReturn(null);
+    when(accessControlApi.checkPermissions(any()))
+        .thenReturn(new CheckUserPermissionsResult(
+            permissionAllowed,
+            permissionAllowed ? Set.of() : Set.of("ticket.sell")));
+    return new SellerOperationalContextResolver(queryBus, identityApi, accessControlApi);
+  }
+
+  private TchRequestContext context(Ids ids) {
+    return new TchRequestContext(
+        "demo",
+        ids.tenantId().value(),
+        "demo",
+        ids.tenantId().value(),
+        "keycloak-user",
+        ids.userId().value(),
+        EnumSet.of(TchRole.CASHIER),
+        Set.of(),
+        Locale.CANADA_FRENCH,
+        "req-1",
+        "127.0.0.1",
+        "test",
+        false,
+        null,
+        "active",
+        ApiScope.TENANT,
+        null,
+        ids.tenantId(),
+        ZoneId.of("America/Toronto"),
+        Currency.getInstance("CAD"),
+        new OperationalRequestContext(
+            ids.terminalId(),
+            ids.outletId(),
+            ids.sessionId(),
+            OperationalContextSource.ADMIN_SELECTION));
+  }
+
+  private Ids ids() {
+    return new Ids(
+        TenantId.of(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+        UserId.of(UUID.fromString("00000000-0000-0000-0000-000000000002")),
+        TerminalId.of(UUID.fromString("00000000-0000-0000-0000-000000000003")),
+        OutletId.of(UUID.fromString("00000000-0000-0000-0000-000000000004")),
+        SalesSessionId.of(UUID.fromString("00000000-0000-0000-0000-000000000005")));
+  }
+
+  private record Ids(
+      TenantId tenantId,
+      UserId userId,
+      TerminalId terminalId,
+      OutletId outletId,
+      SalesSessionId sessionId) {}
+}

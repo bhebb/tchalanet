@@ -10,7 +10,7 @@ Operational context answers a different question from identity and request conte
 
 | Concept | Question answered | Home |
 |---|---|---|
-| Request context | Who/what is calling right now? Which tenant/scope/request? | `common.context` + `common.web.context` |
+| Request context | Who/what is calling right now? Which tenant/scope/request? | `common.context` + `common.context.web` |
 | Identity | Who is this app user persistently? Which profile/memberships? | `platform.identity` |
 | Access control | What is this actor allowed to do? | `platform.accesscontrol` |
 | Operational context | Is this actor allowed to operate in this terminal/outlet/session frame for this use case? | Resolver/use-case layer; initially `platform.operationalcontext` only if reused broadly |
@@ -28,6 +28,20 @@ Operational context is runtime/application state composed from:
 - `core.terminal.api`
 - `core.session.api`
 - use-case-specific input headers/body fields
+
+## Glossary
+
+Request context:
+Runtime execution facts for the current call or job, including tenant, actor, scope, request id, and bound operational request metadata. Owned by `common.context`.
+
+Identity:
+Persistent user facts such as app user, profile, preferences, tenant membership, and IdP mapping. Owned by `platform.identity`.
+
+Access control:
+Permission and role decisions for an actor within a tenant or platform scope. Owned by `platform.accesscontrol`.
+
+Operational context:
+Resolved use-case frame that proves an actor can operate against a terminal/outlet/session combination before a business action runs.
 
 ## Initial placement
 

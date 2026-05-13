@@ -9,7 +9,11 @@ import com.tchalanet.server.common.types.id.TerminalId;
  * Carries terminal/outlet/session candidates for the current request.
  * Presence of these IDs does not prove the operation is allowed —
  * each sensitive use case calls its domain validator before mutation.
+ *
+ * @deprecated temporary bridge for the role-aware operational context package. New code should use
+ *     {@code com.tchalanet.server.common.context.operational.*} helpers on {@link TchRequestContext}.
  */
+@Deprecated(forRemoval = false, since = "refactor-common-context-operational-roles")
 public record OperationalRequestContext(
     TerminalId terminalId,
     OutletId outletId,

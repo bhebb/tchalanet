@@ -16,7 +16,7 @@
 
 - [ ] ADRs contain decisions only, not mutable module inventories.
 - [ ] Move inventories to `docs/reference/*`.
-- [ ] Ensure references use current names: `platform.identity`, not `platform.usercontext`.
+- [ ] Ensure references use current names: `platform.identity`, not the former user-context naming.
 
 ## 4. Update triggers
 

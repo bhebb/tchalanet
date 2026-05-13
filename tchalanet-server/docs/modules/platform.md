@@ -9,7 +9,7 @@ Examples:
 ```text
 platform.audit
 platform.accesscontrol
-platform.usercontext
+platform.identity
 platform.tenantconfig
 platform.tenanttheme
 platform.document
@@ -55,3 +55,16 @@ platform/<capability>/
 - CQRS is optional.
 - Hexagonal architecture is not required.
 - Use explicit transactions and context rules from ADR-001.
+
+## Tenant context lookup
+
+`common.context.tenant.TenantContextLookup` is the common-side interface used by the request context
+pipeline. `platform.tenantconfig.internal.context.TenantConfigContextLookup` owns the implementation
+against tenant configuration persistence.
+
+The lookup resolves tenant information from an already extracted tenant id/code. Complex routing,
+product policy and tenant lifecycle rules stay outside `common.context`.
+
+Super-admin tenant override is a platform concern. It is request-scoped, requires
+`platform.tenant.override`, carries `X-Tch-Tenant-Override` and `X-Tch-Override-Reason`, and must be
+auditable whenever active.

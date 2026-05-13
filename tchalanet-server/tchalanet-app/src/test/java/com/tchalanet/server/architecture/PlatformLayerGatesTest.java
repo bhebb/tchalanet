@@ -151,6 +151,16 @@ class PlatformLayerGatesTest {
   @DisplayName("Pending: legacy core modules must not exist after migration")
   class LegacyMigrationPendingGates {
 
+    @Test
+    @DisplayName("platform.usercontext must not exist")
+    void platformUserContextMustNotExist() {
+      noClasses()
+          .should().resideInAPackage("com.tchalanet.server.platform.usercontext..")
+          .as("platform.usercontext must not exist — use platform.identity")
+          .allowEmptyShould(true)
+          .check(allClasses);
+    }
+
     /**
      * Removal condition: no Java class under com.tchalanet.server.core.audit remains.
      */

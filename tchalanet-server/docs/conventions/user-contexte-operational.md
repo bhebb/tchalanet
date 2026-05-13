@@ -16,13 +16,22 @@ TchContextFilter
   -> TchRequestContextFactory
   -> TenantContextResolver
   -> ActorContextResolver
-  -> OperationalContextResolver
+  -> OperationalContextHeaderParser
   -> TchContextBinder.bind(finalCtx)
 ```
 
 No separate `OperationalContextFilter`.
 
-## OperationalRequestContext
+## Package boundary
+
+`common.context.operational` is runtime-only and neutral. It may define roles, sources, trust levels,
+headers, hints, typed context records and missing/untrusted context exceptions.
+
+It must not call repositories, `CommandBus`, `QueryBus`, platform APIs, core APIs, catalog APIs or
+features. It must not validate terminal, outlet, sales session, seller assignment, payout
+eligibility or offline sync eligibility.
+
+## OperationalRequestContext bridge
 
 ```java
 public record OperationalRequestContext(
@@ -33,7 +42,11 @@ public record OperationalRequestContext(
 ) {}
 ```
 
-No `selectedByAdmin`.
+The flat record is a compatibility bridge. New sensitive code should prefer typed helpers on
+`TchRequestContext` and the role-aware types in `common.context.operational`.
+
+The POS frame keeps `sellerUserId` separate from `actorUserId`. For online POS they often match.
+For offline replay, the actor can be `SYSTEM` while `sellerUserId` remains the original cashier.
 
 ## Trusted sources
 
@@ -41,6 +54,7 @@ No `selectedByAdmin`.
 SERVER_BOOTSTRAP
 SIGNED_DEVICE_BINDING
 ADMIN_SELECTION
+SUPER_ADMIN_OVERRIDE
 ```
 
 Untrusted for sensitive operation:
@@ -56,6 +70,10 @@ Use:
 
 ```java
 ctx.trustedOperationalContextRequired()
+ctx.trustedPosOperationalContextRequired()
+ctx.sellerOperationalContextRequired()
+ctx.adminOperationalContextRequired()
+ctx.superAdminOverrideRequired()
 ```
 
 for:
@@ -66,6 +84,8 @@ payout
 offline grant
 offline sync
 ```
+
+`CLIENT_CLAIM` is weak. It can be accepted only by use cases that explicitly opt into weak context.
 
 ## Owner boundaries
 
@@ -117,3 +137,16 @@ Source:
 ```text
 ADMIN_SELECTION
 ```
+
+An admin does not automatically become a seller. Target handlers still validate permission,
+terminal, outlet, session and action-specific invariants.
+
+## Role matrix
+
+| Operation | Seller | Admin | Super-admin | System |
+| --- | --- | --- | --- | --- |
+| Sell ticket | POS context required | Explicit admin POS selection required | Tenant override + explicit POS context required | Not allowed |
+| Payout | POS context required | Explicit admin POS selection + permission required | Override + POS context + permission required | Not allowed |
+| Offline grant | Domain policy required | Permission and explicit policy required | Override + permission required | Controlled system flow only |
+| Offline sync replay | Original seller in payload | Not the replay actor | Not the replay actor | Allowed as actor, preserves original seller |
+| Tenant admin management | Not allowed | Permission required | Override + permission required | Not allowed |

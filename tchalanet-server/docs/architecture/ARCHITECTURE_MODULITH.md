@@ -57,7 +57,7 @@ Examples:
 ```text
 platform.audit
 platform.accesscontrol
-platform.usercontext
+platform.identity
 platform.tenantconfig
 platform.tenanttheme
 platform.document

@@ -21,7 +21,7 @@
 
 ## Explicit naming decision
 
-Use `platform.identity`, not `platform.usercontext`.
+Use `platform.identity`; the former user-context naming is obsolete.
 
 Reason:
 - `usercontext` conflicts with `TchRequestContext`, `RequestContext`, `ActorContext`, and `OperationalContext` terminology.

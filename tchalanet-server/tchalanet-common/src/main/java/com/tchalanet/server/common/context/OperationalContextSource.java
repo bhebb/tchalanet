@@ -5,7 +5,8 @@ public enum OperationalContextSource {
     CLIENT_CLAIM(TrustLevel.WEAK),
     SERVER_BOOTSTRAP(TrustLevel.STRONG),
     SIGNED_DEVICE_BINDING(TrustLevel.STRONG),
-    ADMIN_SELECTION(TrustLevel.STRONG);
+    ADMIN_SELECTION(TrustLevel.STRONG),
+    SUPER_ADMIN_OVERRIDE(TrustLevel.STRONG);
 
     private final TrustLevel trustLevel;
 

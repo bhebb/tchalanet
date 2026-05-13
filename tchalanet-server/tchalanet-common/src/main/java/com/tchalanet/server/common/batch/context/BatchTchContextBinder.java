@@ -69,6 +69,7 @@ public class BatchTchContextBinder {
                     "batch",
                     "batch",
                     false,
+                    null,
                     "active",
                     ApiScope.PLATFORM,    // ✅ platform scope
                     null,                 // idempotencyKey
@@ -121,6 +122,7 @@ public class BatchTchContextBinder {
                 "batch",
                 "batch",
                 false,
+                null,
                 "active",
                 ApiScope.TENANT,            // ✅ tenant scope
                 null,

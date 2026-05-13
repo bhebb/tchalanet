@@ -1,6 +1,7 @@
 package com.tchalanet.server.common.context;
 
 import static com.tchalanet.server.common.constant.SecurityClaims.TENANT_CODE;
+import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_TENANT_OVERRIDE;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.security.ExtractedAuthContext;
@@ -57,7 +58,11 @@ public class AuthContextExtractor {
     customRoles.addAll(split.custom);
 
     if (systemRoles.contains(TchRole.SUPER_ADMIN)) {
-      String overrideTenant = normalize(req.getHeader(X_TENANT_ID));
+      String overrideTenant = normalize(req.getHeader(X_TCH_TENANT_OVERRIDE));
+
+      if (StringUtils.isBlank(overrideTenant)) {
+        overrideTenant = normalize(req.getHeader(X_TENANT_ID));
+      }
 
       if (StringUtils.isNotBlank(overrideTenant)) {
         effectiveTenantCode = overrideTenant;

@@ -4,9 +4,9 @@ import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
-import com.tchalanet.server.core.session.internal.domain.model.SalesSessionOperation;
+import com.tchalanet.server.core.session.api.query.SalesSessionOperation;
 import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
-import com.tchalanet.server.core.terminal.internal.domain.model.TerminalOperation;
+import com.tchalanet.server.core.terminal.api.query.TerminalOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

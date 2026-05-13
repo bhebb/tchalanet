@@ -35,6 +35,7 @@ public record TchRequestContext(
     String clientIp,
     String userAgent, // HTTP User-Agent header value (nullable) - moved here
     boolean tenantOverridden, // true if SA override applied
+    String tenantOverrideReason,
     String deletedVisibility, // new: requested deleted visibility (active|deleted|all)
     ApiScope apiScope, // NOW typed as enum
     String idempotencyKey,
@@ -152,6 +153,7 @@ public record TchRequestContext(
             clientIp,
             userAgent,
             tenantOverridden,
+            tenantOverrideReason,
             deletedVisibility,
             apiScope,
             idempotencyKey,
@@ -177,6 +179,7 @@ public record TchRequestContext(
             clientIp,
             userAgent,
             tenantOverridden,
+            tenantOverrideReason,
             deletedVisibility,
             apiScope,
             idempotencyKey,
@@ -203,6 +206,7 @@ public record TchRequestContext(
             clientIp,
             userAgent,
             tenantOverridden,
+            tenantOverrideReason,
             deletedVisibility,
             apiScope,
             key,
@@ -266,6 +270,7 @@ public record TchRequestContext(
             clientIp,
             userAgent,
             tenantOverridden,
+            tenantOverrideReason,
             deletedVisibility,
             apiScope,
             idempotencyKey,
@@ -294,6 +299,7 @@ public record TchRequestContext(
             "127.0.0.1",
             null,
             false,
+            null,
             "active",
             ApiScope.TENANT,
             null,
@@ -357,6 +363,7 @@ public record TchRequestContext(
             clientIp,
             userAgent,
             tenantOverridden,
+            tenantOverrideReason,
             deletedVisibility,
             apiScope,
             idempotencyKey,
@@ -386,5 +393,128 @@ public record TchRequestContext(
                 "operational_context.untrusted: a trusted operational context is required");
         }
         return op;
+    }
+
+    public com.tchalanet.server.common.context.operational.PosOperationalContext posOperationalContextRequired() {
+        OperationalRequestContext op = operationalContext();
+
+        if (op.source() == OperationalContextSource.NONE
+            || op.terminalId() == null
+            || op.outletId() == null
+            || op.salesSessionId() == null) {
+            throw ProblemRest.forbidden(
+                "operational_context.missing: POS operational context is required");
+        }
+
+        return toPosOperationalContext(op);
+    }
+
+    public com.tchalanet.server.common.context.operational.PosOperationalContext
+    trustedPosOperationalContextRequired() {
+        OperationalRequestContext op = operationalContext();
+
+        if (op.source() == OperationalContextSource.NONE
+            || !op.isTrustedForSensitiveOperation()
+            || op.terminalId() == null
+            || op.outletId() == null
+            || op.salesSessionId() == null) {
+            throw ProblemRest.forbidden(
+                "operational_context.untrusted: a trusted POS operational context is required");
+        }
+
+        return toPosOperationalContext(op);
+    }
+
+    public com.tchalanet.server.common.context.operational.SellerOperationalContext
+    sellerOperationalContextRequired() {
+        var pos = trustedPosOperationalContextRequired();
+
+        if (pos.role() != com.tchalanet.server.common.context.operational.OperationalContextRole.SELLER) {
+            throw ProblemRest.forbidden(
+                "operational_context.wrong_role: seller operational context is required");
+        }
+
+        return new com.tchalanet.server.common.context.operational.SellerOperationalContext(
+            pos.terminalId(),
+            pos.outletId(),
+            pos.salesSessionId(),
+            pos.sellerUserId(),
+            pos.source(),
+            pos.trustLevel());
+    }
+
+    public com.tchalanet.server.common.context.operational.AdminOperationalContext
+    adminOperationalContextRequired() {
+        var pos = trustedPosOperationalContextRequired();
+
+        if (pos.role() != com.tchalanet.server.common.context.operational.OperationalContextRole.ADMIN) {
+            throw ProblemRest.forbidden(
+                "operational_context.wrong_role: admin operational context is required");
+        }
+
+        return new com.tchalanet.server.common.context.operational.AdminOperationalContext(
+            pos.terminalId(),
+            pos.outletId(),
+            pos.salesSessionId(),
+            userId(),
+            pos.source(),
+            pos.trustLevel());
+    }
+
+    public com.tchalanet.server.common.context.operational.SuperAdminOperationalContext
+    superAdminOverrideRequired() {
+        if (!isSuperAdmin() || !tenantOverridden || effectiveTenantIdOrNull() == null) {
+            throw ProblemRest.forbidden(
+                "tenant_override.required: super-admin tenant override is required");
+        }
+
+        if (tenantOverrideReason == null || tenantOverrideReason.isBlank()) {
+            throw ProblemRest.forbidden(
+                "tenant_override.reason_required: override reason is required");
+        }
+
+        return new com.tchalanet.server.common.context.operational.SuperAdminOperationalContext(
+            effectiveTenantIdRequired(),
+            userId(),
+            tenantOverrideReason.trim(),
+            com.tchalanet.server.common.context.operational.OperationalContextSource.SUPER_ADMIN_OVERRIDE,
+            com.tchalanet.server.common.context.operational.TrustLevel.STRONG);
+    }
+
+    private com.tchalanet.server.common.context.operational.PosOperationalContext toPosOperationalContext(
+        OperationalRequestContext op) {
+
+        return new com.tchalanet.server.common.context.operational.PosOperationalContext(
+            op.terminalId(),
+            op.outletId(),
+            op.salesSessionId(),
+            userId(),
+            inferOperationalRole(op),
+            com.tchalanet.server.common.context.operational.OperationalContextSource.valueOf(
+                op.source().name()),
+            com.tchalanet.server.common.context.operational.TrustLevel.valueOf(
+                op.source().trustLevel().name()));
+    }
+
+    private com.tchalanet.server.common.context.operational.OperationalContextRole inferOperationalRole(
+        OperationalRequestContext op) {
+
+        if (isSuperAdmin()) {
+            return com.tchalanet.server.common.context.operational.OperationalContextRole.SUPER_ADMIN;
+        }
+
+        if (isCashier() || isOperator()) {
+            return com.tchalanet.server.common.context.operational.OperationalContextRole.SELLER;
+        }
+
+        if (isTenantAdmin() || op.source() == OperationalContextSource.ADMIN_SELECTION) {
+            return com.tchalanet.server.common.context.operational.OperationalContextRole.ADMIN;
+        }
+
+        if (systemRoles != null && systemRoles.contains(TchRole.SYSTEM)) {
+            return com.tchalanet.server.common.context.operational.OperationalContextRole.SYSTEM;
+        }
+
+        return com.tchalanet.server.common.context.operational.OperationalContextRole.NONE;
     }
 }

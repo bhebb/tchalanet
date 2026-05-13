@@ -82,7 +82,7 @@ The following are no longer core domains after the platform migration:
 core.audit        -> platform.audit
 core.accesscontrol -> platform.accesscontrol
 core.tenanttheme  -> platform.tenanttheme
-core.tenantuser   -> platform.usercontext
+core.tenantuser   -> platform.identity
 core.tenantconfig -> platform.tenantconfig
 ```
 

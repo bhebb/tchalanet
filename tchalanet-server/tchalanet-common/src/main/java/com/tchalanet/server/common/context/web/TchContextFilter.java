@@ -1,6 +1,8 @@
 package com.tchalanet.server.common.context.web;
 
 import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILITY;
+import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_OVERRIDE_REASON;
+import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_TENANT_OVERRIDE;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.context.ActorContextResolver;
@@ -45,6 +47,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final ActorContextResolver actorContextResolver;
     private final TchRequestContextFactory contextFactory;
     private final TchContextBinder contextBinder;
+    private final OperationalContextHeaderParser operationalContextHeaderParser;
 
     @Override
     protected void doFilterInternal(
@@ -68,6 +71,13 @@ public class TchContextFilter extends OncePerRequestFilter {
                 return;
             }
 
+            if (ctx.isSuperAdmin()
+                && hasTenantOverride(req)
+                && StringUtils.isBlank(req.getHeader(X_TCH_OVERRIDE_REASON))) {
+                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin override reason required");
+                return;
+            }
+
             ctx = tenantContextResolver.resolveForScope(req, res, ctx, scope, defaultTenantCode);
 
             if (ctx == null) {
@@ -79,6 +89,8 @@ public class TchContextFilter extends OncePerRequestFilter {
             if (ctx == null) {
                 return;
             }
+
+            ctx = ctx.withOperationalContext(operationalContextHeaderParser.parseBridge(req));
             contextBinder.bind(req, ctx);
 
             chain.doFilter(req, res);
@@ -90,7 +102,13 @@ public class TchContextFilter extends OncePerRequestFilter {
 
     private boolean hasSensitiveOverrideHeaders(HttpServletRequest req) {
         return StringUtils.isNotBlank(req.getHeader(X_TENANT_ID))
+            || StringUtils.isNotBlank(req.getHeader(X_TCH_TENANT_OVERRIDE))
             || StringUtils.isNotBlank(req.getHeader(X_DELETED_VISIBILITY));
+    }
+
+    private boolean hasTenantOverride(HttpServletRequest req) {
+        return StringUtils.isNotBlank(req.getHeader(X_TENANT_ID))
+            || StringUtils.isNotBlank(req.getHeader(X_TCH_TENANT_OVERRIDE));
     }
 
     private static String normalize(String value) {

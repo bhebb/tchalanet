@@ -31,7 +31,7 @@
 - [x] Create initial empty platform capabilities:
   - [x] `platform.audit`
   - [x] `platform.accesscontrol`
-  - [ ] `platform.usercontext`
+  - [ ] `platform.identity`
   - [x] `platform.tenantconfig`
   - [x] `platform.tenanttheme`
   - [x] `platform.document`
@@ -113,9 +113,9 @@ High fan-in migration:
 
 High fan-in migration:
 
-- [ ] PR1: Create `platform.usercontext.api` bridge to legacy `core.tenantuser`.
+- [ ] PR1: Create `platform.identity.api` bridge to legacy `core.tenantuser`.
 - [ ] PR2: Flip consumers by area.
-- [ ] PR3: Move implementation to `platform.usercontext.internal`.
+- [ ] PR3: Move implementation to `platform.identity.internal`.
 - [ ] PR4: Delete `core.tenantuser`.
 
 ### 5.7 Notification

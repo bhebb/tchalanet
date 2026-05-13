@@ -13,8 +13,8 @@ We need explicit boundaries for:
 
 ## Goals
 
-- Replace the `platform.usercontext` concept with `platform.identity`.
-- Keep request/runtime context in `common.context` and web argument resolvers in `common.web.context`.
+- Replace the former user-context platform concept with `platform.identity`.
+- Keep request/runtime context in `common.context` and web argument resolver wiring in `common.context.web`.
 - Define operational context as a runtime/application resolution concern.
 - Prepare POS/seller flows to validate terminal/outlet/session before sales/offline sync actions.
 

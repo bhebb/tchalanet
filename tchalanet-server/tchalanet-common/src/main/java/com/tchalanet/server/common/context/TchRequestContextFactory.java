@@ -14,6 +14,7 @@ import static com.tchalanet.server.common.constant.TchHeaders.IDEMPOTENCY_KEY;
 import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILITY;
 import static com.tchalanet.server.common.constant.TchHeaders.X_FORWARDED_FOR;
 import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
+import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_OVERRIDE_REASON;
 
 @Component
 @RequiredArgsConstructor
@@ -51,6 +52,11 @@ public class TchRequestContextFactory {
 
         var deletedVisibility =
             resolveDeletedVisibility(req, authData.systemRoles().contains(TchRole.SUPER_ADMIN));
+        var tenantOverrideReason =
+            Optional.ofNullable(req.getHeader(X_TCH_OVERRIDE_REASON))
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .orElse(null);
 
         return new TchRequestContext(
             authData.originalTenantCode(),
@@ -66,6 +72,7 @@ public class TchRequestContextFactory {
             clientIp,
             userAgent,
             authData.overridden(),
+            tenantOverrideReason,
             deletedVisibility,
             scope,
             idempotencyKey,

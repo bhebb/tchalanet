@@ -26,6 +26,9 @@ import com.tchalanet.server.features.cashier.model.CashierSellPrintResponse;
 import com.tchalanet.server.features.cashier.model.CashierSendReceiptRequest;
 import com.tchalanet.server.features.cashier.model.CashierSendReceiptResponse;
 import com.tchalanet.server.features.cashier.model.CashierTicketView;
+import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
+import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
+import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +47,7 @@ public class CashierService {
   private final TicketReceiptFormatter pdfFormatter;
   private final TicketReceiptFormatter escPosFormatter;
   private final CommunicationApi outboundMessageGateway;
+  private final SellerOperationalContextResolver sellerContextResolver;
 
   public CashierService(
       CommandBus commandBus,
@@ -53,7 +57,8 @@ public class CashierService {
       DocumentApi documentApi,
       @Qualifier("ticketReceiptFormatterPdf") TicketReceiptFormatter pdfFormatter,
       @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter escPosFormatter,
-      CommunicationApi outboundMessageGateway) {
+      CommunicationApi outboundMessageGateway,
+      SellerOperationalContextResolver sellerContextResolver) {
     this.commandBus = commandBus;
     this.contextResolver = contextResolver;
     this.printReader = printReader;
@@ -62,16 +67,21 @@ public class CashierService {
     this.pdfFormatter = pdfFormatter;
     this.escPosFormatter = escPosFormatter;
     this.outboundMessageGateway = outboundMessageGateway;
+    this.sellerContextResolver = sellerContextResolver;
   }
 
   public CashierSellPrintResponse sellAndPrint(CashierSellPrintRequest request) {
     var ctx = contextResolver.currentOrThrow();
-    var command = new SellTicketCommand(
-        ctx.effectiveTenantIdRequired(),
-        ctx.currentUserIdRequired(),
+    var sellerContext = sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
+        ctx,
         TerminalId.of(request.terminalId()),
-        null,
-        null,
+        SellerOperation.SELL));
+    var command = new SellTicketCommand(
+        sellerContext.tenantId(),
+        sellerContext.actorUserId(),
+        sellerContext.terminalId(),
+        sellerContext.outletId(),
+        sellerContext.salesSessionId(),
         DrawId.of(request.drawId()),
         request.currency(),
         java.math.BigDecimal.ZERO,

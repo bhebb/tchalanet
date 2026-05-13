@@ -10,10 +10,10 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.outlet.api.query.OutletOperation;
 import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
-import com.tchalanet.server.core.session.internal.domain.model.SalesSessionOperation;
+import com.tchalanet.server.core.session.api.query.SalesSessionOperation;
 import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
 import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
-import com.tchalanet.server.core.terminal.internal.domain.model.TerminalOperation;
+import com.tchalanet.server.core.terminal.api.query.TerminalOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

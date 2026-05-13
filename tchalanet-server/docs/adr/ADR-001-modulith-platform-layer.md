@@ -155,7 +155,7 @@ Intra-platform rule:
 
 - Direct `platform.* -> platform.*` imports are forbidden by default.
 - Cross-platform communication should use events or a documented ADR exception.
-- This avoids cycles such as `platform.audit <-> platform.usercontext`.
+- This avoids cycles such as `platform.audit <-> platform.identity`.
 
 ## Decision 6 — Events
 
@@ -189,7 +189,7 @@ Examples:
 ```text
 platform.audit
 platform.accesscontrol
-platform.usercontext
+platform.identity
 platform.tenantconfig
 platform.tenanttheme
 platform.document

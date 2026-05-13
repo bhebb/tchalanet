@@ -173,7 +173,7 @@ Platform event rules:
 |---|---|---|
 | `core.audit` | `platform.audit` | Audit is transversal compliance/traceability, not a core lottery domain. |
 | `core.accesscontrol` | `platform.accesscontrol` | Permissions/role checks are application-support policy. Domain eligibility still remains in owning core. |
-| `core.tenantuser` | `platform.usercontext` | App user profile/context is transversal support state. |
+| `core.tenantuser` | `platform.identity` | App user profile/context is transversal support state. |
 | `core.tenantconfig` | `platform.tenantconfig` | Effective tenant settings/overrides are transversal support state. |
 | `core.tenanttheme` | `platform.tenanttheme` | Effective tenant theme/overrides are platform support. Global presets remain catalog. |
 | document workflows | `platform.document` | Document generation/storage/delivery metadata is transversal application service. Pure render helpers may remain common only if stateless. |
@@ -222,7 +222,7 @@ After this ADR is accepted:
 
 5. **High-impact transversal migrations**
    - `core.accesscontrol` -> `platform.accesscontrol`;
-   - `core.tenantuser` -> `platform.usercontext`;
+   - `core.tenantuser` -> `platform.identity`;
    - `core.tenantconfig` -> `platform.tenantconfig`;
    - `core.tenanttheme` -> `platform.tenanttheme`.
 

@@ -4,7 +4,7 @@
 
 ```text
 common.context
-common.web.context
+common.context.web
 platform.identity
 platform.accesscontrol
 platform.operationalcontext   # only if reusable resolver is promoted
@@ -21,6 +21,7 @@ Owns technical/runtime context:
 - `TchContextResolver`
 - request/thread binding primitives
 - batch/startup context binding primitives
+- web argument resolver wiring under `common.context.web`
 
 It must not depend on `platform`, `core`, `catalog`, or `features`.
 
