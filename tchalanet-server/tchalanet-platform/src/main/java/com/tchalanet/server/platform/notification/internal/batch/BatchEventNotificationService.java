@@ -32,8 +32,8 @@ public class BatchEventNotificationService {
             return;
         }
 
-        communicationApi.send(toPayload(notice));
-        log.debug("Batch notification sent: jobKey={} status={} code={}",
+        communicationApi.enqueue(toPayload(notice));
+        log.debug("Batch notification enqueued: jobKey={} status={} code={}",
             notice.jobKey(), notice.status(), notice.code());
     }
 
@@ -60,7 +60,7 @@ public class BatchEventNotificationService {
 
         return new SendOutboundMessageRequest(
             "BATCH_MESSAGE",
-            CommunicationChannel.SLACK,
+            CommunicationChannel.SLACK_INTERNAL,
             OutboundRecipient.slack("batch-draws"),
             Locale.ENGLISH,
             data

@@ -38,6 +38,10 @@ CREATE TRIGGER trg_tchala_entry__set_updated_at BEFORE UPDATE ON tchala_entry FO
 CREATE TRIGGER trg_notification__set_updated_at BEFORE UPDATE ON notification FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_notification_delivery__set_updated_at BEFORE UPDATE ON notification_delivery FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_notification_preference__set_updated_at BEFORE UPDATE ON notification_preference FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_outbound_message__set_updated_at BEFORE UPDATE ON outbound_message FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_message_delivery_attempt__set_updated_at BEFORE UPDATE ON message_delivery_attempt FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_message_template__set_updated_at BEFORE UPDATE ON message_template FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_tenant_communication_settings__set_updated_at BEFORE UPDATE ON tenant_communication_settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_idempotency_record__set_updated_at BEFORE UPDATE ON idempotency_record FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 CREATE OR REPLACE FUNCTION public.increment_draw_exposure(

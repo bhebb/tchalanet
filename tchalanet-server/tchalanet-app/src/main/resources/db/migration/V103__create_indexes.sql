@@ -178,6 +178,14 @@ CREATE INDEX idx_notification_delivery_notification_channel
 CREATE INDEX idx_notification_delivery_status_next
   ON notification_delivery (status, next_attempt_at);
 
+CREATE UNIQUE INDEX uq_outbound_message_correlation
+  ON outbound_message (COALESCE(tenant_id, '00000000-0000-0000-0000-000000000000'::uuid), correlation_key)
+  WHERE correlation_key IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX idx_outbound_message_pending
+  ON outbound_message (status, next_attempt_at, priority);
+CREATE INDEX idx_message_delivery_attempt_message
+  ON message_delivery_attempt (message_id, attempted_at DESC);
+
 -- ─── Technical: processed events / idempotency / stats ──────────────
 CREATE INDEX ix_processed_event__lookup ON processed_event (tenant_id, handler_key, event_id);
 CREATE INDEX ix_idempotency_record__lookup ON idempotency_record (tenant_id, scope, idem_key);

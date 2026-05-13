@@ -66,6 +66,19 @@ class PlatformLayerGatesTest {
           .as("no module may import platform.<capability>.internal; only platform.<capability>.api is public")
           .check(allClasses);
     }
+
+    @Test
+    @DisplayName("communication provider adapters are internal only")
+    void communicationProviderAdaptersAreInternalOnly() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.communication.internal..")
+          .should().dependOnClassesThat()
+          .resideInAnyPackage(
+              "com.tchalanet.server.platform.communication.internal.adapter..",
+              "com.tchalanet.server.platform.communication.internal.provider..")
+          .as("Slack/email/SMS providers are implementation details of platform.communication")
+          .check(allClasses);
+    }
   }
 
   @Nested

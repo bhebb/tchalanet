@@ -65,7 +65,7 @@ public class SendNotificationCommandHandler
         String idempotencyKey
     ) {
         outboundMessageMapper.toOutbound(command, recipient, idempotencyKey)
-            .ifPresent(communicationApi::send);
+            .ifPresent(communicationApi::enqueue);
     }
 
     private String generateIdempotencyKey(SendNotificationCommand command) {

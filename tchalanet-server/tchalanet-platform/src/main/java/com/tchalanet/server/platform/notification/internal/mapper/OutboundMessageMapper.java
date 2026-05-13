@@ -37,7 +37,7 @@ public class OutboundMessageMapper {
 
     private Optional<CommunicationChannel> mapExternalChannel(NotificationChannel channel) {
         return switch (channel) {
-            case SLACK -> Optional.of(CommunicationChannel.SLACK);
+            case SLACK -> Optional.of(CommunicationChannel.SLACK_INTERNAL);
             case EMAIL -> Optional.of(CommunicationChannel.EMAIL);
             case SMS -> Optional.of(CommunicationChannel.SMS);
             case WHATSAPP -> Optional.of(CommunicationChannel.WHATSAPP);

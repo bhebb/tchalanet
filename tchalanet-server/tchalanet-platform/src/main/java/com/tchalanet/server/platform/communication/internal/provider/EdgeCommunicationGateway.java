@@ -78,7 +78,7 @@ public class EdgeCommunicationGateway {
     var recipient = request.recipient();
 
     return switch (request.channel()) {
-      case SLACK ->
+      case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK ->
           List.of(
               new EdgeCommunicationRecipient(
                   channel,
@@ -87,7 +87,7 @@ public class EdgeCommunicationGateway {
                       recipient != null ? recipient.channelKey() : null,
                       extractOptionalString(request, "channelKey"),
                       "batch-draws")));
-      case EMAIL, SMS, WHATSAPP ->
+      case EMAIL, SMS, WHATSAPP, PUSH ->
           List.of(
               new EdgeCommunicationRecipient(
                   channel,

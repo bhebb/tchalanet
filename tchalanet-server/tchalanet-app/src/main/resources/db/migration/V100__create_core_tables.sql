@@ -1161,3 +1161,91 @@ CREATE TABLE notification_preference (
   CONSTRAINT chk_notification_preference__channel CHECK (channel IN ('WEB','SMS','WHATSAPP','EMAIL','PUSH')),
   CONSTRAINT uq_notification_preference__scope UNIQUE (tenant_id, scope_type, scope_value, category, kind, channel)
 );
+
+CREATE TABLE outbound_message (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid REFERENCES tenant(id),
+  source_event_id uuid,
+  channel varchar(32) NOT NULL,
+  recipient_type varchar(32) NOT NULL,
+  recipient_value varchar(255) NOT NULL,
+  template_key varchar(120) NOT NULL,
+  locale varchar(20),
+  subject varchar(255),
+  body text NOT NULL,
+  payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+  priority varchar(32) NOT NULL DEFAULT 'NORMAL',
+  status varchar(32) NOT NULL DEFAULT 'PENDING',
+  correlation_key varchar(180),
+  next_attempt_at timestamptz,
+  sent_at timestamptz,
+  failed_at timestamptz,
+  failure_reason text,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_outbound_message__channel CHECK (channel IN ('SLACK','SLACK_INTERNAL','SLACK_TENANT_WEBHOOK','EMAIL','SMS','WHATSAPP','PUSH')),
+  CONSTRAINT chk_outbound_message__priority CHECK (priority IN ('LOW','NORMAL','HIGH','CRITICAL')),
+  CONSTRAINT chk_outbound_message__status CHECK (status IN ('PENDING','DISPATCHING','SENT','FAILED','SKIPPED','CANCELLED'))
+);
+
+CREATE TABLE message_delivery_attempt (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  message_id uuid NOT NULL REFERENCES outbound_message(id),
+  attempted_at timestamptz NOT NULL,
+  status varchar(32) NOT NULL,
+  provider varchar(80) NOT NULL,
+  provider_message_id varchar(255),
+  error_code varchar(120),
+  error_message text,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_message_delivery_attempt__status CHECK (status IN ('PENDING','DISPATCHING','SENT','FAILED','SKIPPED','CANCELLED'))
+);
+
+CREATE TABLE message_template (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid REFERENCES tenant(id),
+  template_key varchar(120) NOT NULL,
+  channel varchar(32) NOT NULL,
+  locale varchar(20) NOT NULL,
+  subject_template text,
+  body_template text NOT NULL,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_message_template__channel CHECK (channel IN ('SLACK','SLACK_INTERNAL','SLACK_TENANT_WEBHOOK','EMAIL','SMS','WHATSAPP','PUSH')),
+  CONSTRAINT uq_message_template__scope UNIQUE (tenant_id, template_key, channel, locale)
+);
+
+CREATE TABLE tenant_communication_settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  email_enabled boolean NOT NULL DEFAULT true,
+  sms_enabled boolean NOT NULL DEFAULT false,
+  tenant_slack_enabled boolean NOT NULL DEFAULT false,
+  tenant_slack_webhook_secret_ref varchar(255),
+  critical_alert_email varchar(255),
+  ops_alert_email varchar(255),
+  default_locale varchar(20) NOT NULL DEFAULT 'fr',
+  quiet_hours_start time,
+  quiet_hours_end time,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_tenant_communication_settings__tenant UNIQUE (tenant_id)
+);

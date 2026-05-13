@@ -7,6 +7,7 @@ import com.tchalanet.server.platform.communication.api.CommunicationApi;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import com.tchalanet.server.platform.document.api.DocumentApi;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -17,7 +18,6 @@ import com.tchalanet.server.core.sales.api.command.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.SoldTicketView;
 import com.tchalanet.server.core.sales.api.print.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.api.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.print.TicketReceiptFormatter;
 import com.tchalanet.server.core.sales.api.print.TicketVerificationUrlBuilder;
 import com.tchalanet.server.features.cashier.model.CashierPrintFormat;
 import com.tchalanet.server.features.cashier.model.CashierPrintableReceipt;
@@ -29,11 +29,10 @@ import com.tchalanet.server.features.cashier.model.CashierTicketView;
 import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
+import com.tchalanet.server.features.receipt.app.TicketReceiptDocumentRequestFactory;
 import java.util.Base64;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -126,11 +125,13 @@ public class CashierService {
     }
 
     var recipient = switch (request.channel()) {
-      case SLACK -> new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), null, request.channelKey());
+      case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK ->
+          new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), null, request.channelKey());
       case EMAIL, SMS, WHATSAPP -> new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), request.to(), null);
+      case PUSH -> new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), request.to(), null);
     };
 
-    outboundMessageGateway.send(new SendOutboundMessageRequest(
+    outboundMessageGateway.enqueue(new SendOutboundMessageRequest(
         "TICKET_RECEIPT",
         request.channel(),
         recipient,
@@ -212,9 +213,15 @@ public class CashierService {
     if (request.channel() == null) {
       throw ProblemRest.badRequest("channel.required");
     }
-    if (request.channel() != CommunicationChannel.SLACK && isBlank(request.to())) {
+    if (!isSlackChannel(request.channel()) && isBlank(request.to())) {
       throw ProblemRest.badRequest("recipient.to.required");
     }
+  }
+
+  private boolean isSlackChannel(CommunicationChannel channel) {
+    return channel == CommunicationChannel.SLACK
+        || channel == CommunicationChannel.SLACK_INTERNAL
+        || channel == CommunicationChannel.SLACK_TENANT_WEBHOOK;
   }
 
   private static boolean isBlank(String value) {
