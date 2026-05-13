@@ -1,24 +1,28 @@
 package com.tchalanet.server.features.cashier.app;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.communication.api.CommunicationChannel;
-import com.tchalanet.server.common.communication.api.OutboundMessageGateway;
-import com.tchalanet.server.common.communication.api.OutboundMessageRequest;
-import com.tchalanet.server.common.communication.api.OutboundRecipient;
-import com.tchalanet.server.common.document.escpos.EscPosBuilder;
-import com.tchalanet.server.common.document.pdf.ReceiptPdfRenderer;
-import com.tchalanet.server.common.document.qr.QrRenderer;
+import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
+import com.tchalanet.server.platform.communication.api.CommunicationApi;
+import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
+import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
+import com.tchalanet.server.platform.document.internal.escpos.EscPosBuilder;
+import com.tchalanet.server.platform.document.internal.pdf.ReceiptPdfRenderer;
+import com.tchalanet.server.platform.document.internal.qr.QrRenderer;
+import com.tchalanet.server.platform.document.internal.receipt.ReceiptLine;
+import com.tchalanet.server.platform.document.internal.receipt.ReceiptModel;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketCommand;
-import com.tchalanet.server.core.sales.application.command.model.SellTicketOutcome;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
-import com.tchalanet.server.core.sales.application.print.TicketReceiptFormatter;
-import com.tchalanet.server.core.sales.application.print.TicketVerificationUrlBuilder;
-import com.tchalanet.server.core.sales.domain.model.Ticket;
+import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
+import com.tchalanet.server.core.sales.api.command.SellTicketOutcome;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.internal.application.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import com.tchalanet.server.features.cashier.model.CashierPrintFormat;
 import com.tchalanet.server.features.cashier.model.CashierPrintableReceipt;
 import com.tchalanet.server.features.cashier.model.CashierSellPrintRequest;
@@ -46,7 +50,7 @@ public class CashierService {
   private final EscPosBuilder escpos;
   private final TicketReceiptFormatter pdfFormatter;
   private final TicketReceiptFormatter escPosFormatter;
-  private final OutboundMessageGateway outboundMessageGateway;
+  private final CommunicationApi outboundMessageGateway;
 
   public CashierService(
       CommandBus commandBus,
@@ -59,7 +63,7 @@ public class CashierService {
       EscPosBuilder escpos,
       @Qualifier("ticketReceiptFormatterPdf") TicketReceiptFormatter pdfFormatter,
       @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter escPosFormatter,
-      OutboundMessageGateway outboundMessageGateway) {
+      CommunicationApi outboundMessageGateway) {
     this.commandBus = commandBus;
     this.contextResolver = contextResolver;
     this.printReader = printReader;
@@ -77,18 +81,22 @@ public class CashierService {
     var ctx = contextResolver.currentOrThrow();
     var command = new SellTicketCommand(
         ctx.effectiveTenantIdRequired(),
-        TerminalId.of(request.terminalId()),
         ctx.currentUserIdRequired(),
+        TerminalId.of(request.terminalId()),
+        null,
+        null,
         DrawId.of(request.drawId()),
+        request.currency(),
+        java.math.BigDecimal.ZERO,
         request.lines().stream()
-            .map(line -> new SellTicketCommand.LineCommand(
+            .map(line -> new SellTicketLineInput(
                 line.gameCode(),
                 line.selection(),
-                line.stake(),
                 line.betType(),
-                line.betOption()))
-            .toList(),
-        request.currency());
+                line.betOption(),
+                line.stake(),
+                java.math.BigDecimal.ONE))
+            .toList());
 
     var result = commandBus.execute(command);
     var ticket = toView(result.ticket());
@@ -125,7 +133,7 @@ public class CashierService {
       case EMAIL, SMS, WHATSAPP -> new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), request.to(), null);
     };
 
-    outboundMessageGateway.send(new OutboundMessageRequest(
+    outboundMessageGateway.send(new SendOutboundMessageRequest(
         "TICKET_RECEIPT",
         request.channel(),
         recipient,
@@ -140,12 +148,12 @@ public class CashierService {
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
     return switch (format) {
       case PDF -> {
-        var model = pdfFormatter.formatModel(ticket, verifyUrl);
+        var model = receiptModel(pdfFormatter.formatText(ticket, verifyUrl));
         var qrBytes = qrPng.render(verifyUrl, new QrRenderer.QrRenderSpec(300));
         yield printable(format, "application/pdf", "ticket-" + ticketId + ".pdf", pdf.render(model, qrBytes));
       }
       case ESC_POS -> {
-        var model = escPosFormatter.formatModel(ticket, verifyUrl);
+        var model = receiptModel(escPosFormatter.formatText(ticket, verifyUrl));
         var parts = new ArrayList<byte[]>();
         parts.add(escpos.init());
         parts.add(escpos.alignLeft());
@@ -186,6 +194,13 @@ public class CashierService {
   private TicketPrintView findTicket(TicketId ticketId, Locale locale) {
     return printReader.findTicketPrintView(ticketId, locale)
         .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
+  }
+
+  private ReceiptModel receiptModel(String text) {
+    var lines = text == null ? java.util.List.<String>of() : text.lines().toList();
+    var title = lines.isEmpty() ? "Ticket Tchalanet" : lines.get(0);
+    var body = lines.stream().skip(1).map(ReceiptLine::text).toList();
+    return new ReceiptModel(title, body);
   }
 
   private CashierTicketView toView(Ticket ticket) {

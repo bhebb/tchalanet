@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.publicdrawresults;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.core.drawresult.application.query.model.ListPublicDrawResultSlotDetailsQuery;
-import com.tchalanet.server.core.drawresult.application.query.model.ListPublicDrawResultSlotsQuery;
-import com.tchalanet.server.core.drawresult.application.query.model.SearchPublicDrawResultsQuery;
+import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotDetailsQuery;
+import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotsQuery;
+import com.tchalanet.server.core.drawresult.api.query.SearchPublicDrawResultsQuery;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultListResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSearchCriteria;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotsResponse;

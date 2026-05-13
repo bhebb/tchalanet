@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.ops.drawresult;
 
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.core.drawresult.application.port.out.DrawResultProjection;
-import com.tchalanet.server.core.drawresult.application.view.DrawResultView;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
+import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
 import com.tchalanet.server.features.ops.drawresult.model.DrawResultOpsResponse;
 import com.tchalanet.server.features.ops.drawresult.model.DrawResultProjectionOpsResponse;
 import org.springframework.stereotype.Component;

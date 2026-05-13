@@ -2,8 +2,8 @@ package com.tchalanet.server.features.stats.platformdashboard;
 
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryJpaEntity;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryRepository;
-import com.tchalanet.server.core.outlet.infra.persistence.OutletSpringRepository;
-import com.tchalanet.server.core.tenantuser.infra.persistence.TenantUserJpaRepository;
+import com.tchalanet.server.core.outlet.internal.infra.persistence.OutletSpringRepository;
+import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;

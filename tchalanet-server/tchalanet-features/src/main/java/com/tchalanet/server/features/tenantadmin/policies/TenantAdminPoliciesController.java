@@ -1,13 +1,16 @@
 package com.tchalanet.server.features.tenantadmin.policies;
 
+import com.tchalanet.server.common.context.CurrentContext;
+
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
-import com.tchalanet.server.core.autonomy.domain.model.AutonomyTargetId;
-import com.tchalanet.server.core.limitpolicy.application.query.model.assignment.ListLimitAssignmentsByScopeQuery;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitScopeRef;
-import com.tchalanet.server.core.limitpolicy.domain.model.LimitTarget;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.autonomy.api.query.GetAutonomyOverviewQuery;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
+import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

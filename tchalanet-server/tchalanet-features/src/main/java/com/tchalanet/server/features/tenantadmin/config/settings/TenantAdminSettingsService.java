@@ -1,10 +1,12 @@
 package com.tchalanet.server.features.tenantadmin.config.settings;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.internal.web.model.SearchSettingsCriteria;
 import com.tchalanet.server.catalog.settings.internal.write.SettingsAdminService;
-import com.tchalanet.server.common.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.features.tenantadmin.config.settings.model.UpsertTenantSettingResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

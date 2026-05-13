@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionCashSummary;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
 import com.tchalanet.server.core.session.internal.infra.persistence.SalesSessionJpaRepository;
 import com.tchalanet.server.core.session.internal.infra.persistence.SalesSessionMapper;
@@ -21,7 +22,6 @@ public class SalesSessionWriterJpaAdapter implements SalesSessionWriterPort {
     private final SalesSessionMapper mapper;
     private final SalesSessionWriterPort writer;
 
-    @Override
     public long closeAllOpenSessions(OutletId outletId, UserId userId, long closingFloatCents, String reason) {
         var entities =
             repo.findByOutletIdAndStatus(
@@ -29,7 +29,17 @@ public class SalesSessionWriterJpaAdapter implements SalesSessionWriterPort {
         long count = 0;
         for (var e : entities) {
             SalesSession session = mapper.toDomain(e);
-            SalesSession updated = session.close(userId, Instant.now(), closingFloatCents, reason);
+            SalesSession updated = session.close(
+                userId,
+                Instant.now(),
+                new SalesSessionCashSummary(
+                    session.openingFloatCents(),
+                    null,
+                    null,
+                    closingFloatCents,
+                    closingFloatCents,
+                    0L),
+                reason);
             writer.save(updated);
             count++;
         }

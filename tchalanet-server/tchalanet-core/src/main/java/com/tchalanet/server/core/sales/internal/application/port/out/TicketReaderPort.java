@@ -15,11 +15,17 @@ import java.util.Optional;
 public interface TicketReaderPort {
     Optional<Ticket> findById(TicketId ticketId);
 
-    Ticket getById(TicketId ticketId);
+    default Ticket getById(TicketId ticketId) {
+        return findById(ticketId).orElseThrow(() -> new java.util.NoSuchElementException("Ticket not found: " + ticketId));
+    }
 
-    boolean existsAcceptedOfflineCode(String offlineCode);
+    default boolean existsAcceptedOfflineCode(String offlineCode) {
+        return false;
+    }
 
-    boolean existsAcceptedLocalSequence(String terminalKey, long localSequence);
+    default boolean existsAcceptedLocalSequence(String terminalKey, long localSequence) {
+        return false;
+    }
 
     Optional<Ticket> findByPublicCode(String publicCode);
 

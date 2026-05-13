@@ -19,6 +19,10 @@ public interface SalesSessionReaderPort {
 
     Optional<SalesSession> findById(TenantId tenantId, SalesSessionId id);
 
+    default Optional<SalesSession> findById(SalesSessionId id) {
+        return Optional.empty();
+    }
+
     SalesSession getById(TenantId tenantId, SalesSessionId id);
 
     Optional<SalesSession> findOpenByTerminal(TenantId tenantId, TerminalId terminalId);

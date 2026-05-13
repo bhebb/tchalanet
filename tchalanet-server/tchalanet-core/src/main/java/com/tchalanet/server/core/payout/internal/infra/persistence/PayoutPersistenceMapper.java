@@ -15,57 +15,60 @@ import org.springframework.stereotype.Component;
 public class PayoutPersistenceMapper {
 
     public Payout toDomain(PayoutJpaEntity e) {
-        return Payout.load(
+        return new Payout(
             PayoutId.of(e.getId()),
             TenantId.of(e.getTenantId()),
             TicketId.of(e.getTicketId()),
             e.getAmountCents(),
             e.getCurrency(),
+            e.getStatus(),
             OutletId.nullableOf(e.getSellingOutletId()),
             SalesSessionId.nullableOf(e.getSellingSessionId()),
-            e.getCreatedAt(),
-            PayoutStatus.valueOf(e.getStatus()),
             OutletId.nullableOf(e.getPayingOutletId()),
             SalesSessionId.nullableOf(e.getPayingSessionId()),
             TerminalId.nullableOf(e.getPayingTerminalId()),
             UserId.nullableOf(e.getRequestedBy()),
+            e.getCreatedAt(),
             UserId.nullableOf(e.getApprovedBy()),
-            UserId.nullableOf(e.getRejectedBy()),
-            UserId.nullableOf(e.getPaidBy()),
             e.getApprovedAt(),
+            UserId.nullableOf(e.getRejectedBy()),
             e.getRejectedAt(),
-            e.getPaidAt(),
             e.getRejectedReason(),
+            UserId.nullableOf(e.getPaidBy()),
+            e.getPaidAt(),
+            null,
+            null,
+            null,
             e.getReason());
     }
 
     public void updateEntity(Payout p, PayoutJpaEntity e) {
-        if (p.getId() != null) e.setId(p.getId().value());
-        if (p.getTenantId() != null) e.setTenantId(p.getTenantId().value());
-        if (p.getTicketId() != null) e.setTicketId(p.getTicketId().value());
+        if (p.id() != null) e.setId(p.id().value());
+        if (p.tenantId() != null) e.setTenantId(p.tenantId().value());
+        if (p.ticketId() != null) e.setTicketId(p.ticketId().value());
 
-        e.setAmountCents(p.getAmountCents());
-        e.setCurrency(p.getCurrency());
-        e.setStatus(p.getStatus().name());
+        e.setAmountCents(p.amountCents());
+        e.setCurrency(p.currency());
+        e.setStatus(p.status());
 
-        e.setSellingOutletId(p.getSellingOutletId() == null ? null : p.getSellingOutletId().value());
-        e.setSellingSessionId(p.getSellingSessionId() == null ? null : p.getSellingSessionId().value());
+        e.setSellingOutletId(p.sellingOutletId() == null ? null : p.sellingOutletId().value());
+        e.setSellingSessionId(p.sellingSessionId() == null ? null : p.sellingSessionId().value());
 
-        e.setPayingOutletId(p.getPayingOutletId() == null ? null : p.getPayingOutletId().value());
-        e.setPayingSessionId(p.getPayingSessionId() == null ? null : p.getPayingSessionId().value());
-        e.setPayingTerminalId(p.getPayingTerminalId() == null ? null : p.getPayingTerminalId().value());
+        e.setPayingOutletId(p.payingOutletId() == null ? null : p.payingOutletId().value());
+        e.setPayingSessionId(p.payingSessionId() == null ? null : p.payingSessionId().value());
+        e.setPayingTerminalId(p.payingTerminalId() == null ? null : p.payingTerminalId().value());
 
-        e.setRequestedBy(p.getRequestedBy() == null ? null : p.getRequestedBy().value());
-        e.setApprovedBy(p.getApprovedBy() == null ? null : p.getApprovedBy().value());
-        e.setRejectedBy(p.getRejectedBy() == null ? null : p.getRejectedBy().value());
-        e.setPaidBy(p.getPaidBy() == null ? null : p.getPaidBy().value());
+        e.setRequestedBy(p.requestedBy() == null ? null : p.requestedBy().value());
+        e.setApprovedBy(p.approvedBy() == null ? null : p.approvedBy().value());
+        e.setRejectedBy(p.rejectedBy() == null ? null : p.rejectedBy().value());
+        e.setPaidBy(p.paidBy() == null ? null : p.paidBy().value());
 
-        e.setApprovedAt(p.getApprovedAt());
-        e.setRejectedAt(p.getRejectedAt());
-        e.setPaidAt(p.getPaidAt());
+        e.setApprovedAt(p.approvedAt());
+        e.setRejectedAt(p.rejectedAt());
+        e.setPaidAt(p.paidAt());
 
-        e.setRejectedReason(p.getRejectedReason());
-        e.setReason(p.getReason());
+        e.setRejectedReason(p.rejectedReason());
+        e.setReason(p.reason());
     }
 
     public PayoutJpaEntity toNewEntity(Payout p) {

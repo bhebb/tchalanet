@@ -1,8 +1,10 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import java.util.List;
 import java.util.Map;

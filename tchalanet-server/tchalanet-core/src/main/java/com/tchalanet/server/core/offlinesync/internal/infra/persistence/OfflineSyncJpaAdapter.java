@@ -15,6 +15,7 @@ import com.tchalanet.server.core.offlinesync.internal.application.port.out.Offli
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineSubmissionReaderPort;
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineSubmissionWriterPort;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineBatch;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineBatchStatus;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineCodeBatch;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineCodeReservation;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineCodeReservationStatus;
@@ -121,7 +122,24 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
   }
 
   public Optional<OfflineBatch> findById(OfflineBatchId id) {
-    return batchRepo.findById(id.value()).map(mapper::toDomain);
+    return batchRepo.findById(id.value()).map(this::batchToDomain);
+  }
+
+  private OfflineBatch batchToDomain(OfflineBatchJpaEntity e) {
+    return new OfflineBatch(
+        OfflineBatchId.of(e.getId()),
+        TenantId.of(e.getTenantId()),
+        com.tchalanet.server.common.types.id.TerminalId.of(e.getTerminalId()),
+        com.tchalanet.server.common.types.id.OfflineSalesGrantId.of(e.getGrantId()),
+        OfflineCodeBatchId.of(e.getCodeBatchId()),
+        e.getClientBatchId(),
+        e.getReceivedAt(),
+        OfflineBatchStatus.valueOf(e.getStatus()),
+        e.getTicketCount(),
+        e.getTechnicalRejectCount(),
+        e.getSalesAcceptCount(),
+        e.getSalesRejectCount(),
+        e.getReviewCount());
   }
 
   public Optional<OfflineSalesGrant> findById(OfflineSalesGrantId id) {

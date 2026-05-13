@@ -32,7 +32,7 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
     @Override
     public Optional<SalesSession> findById(TenantId tenantId, SalesSessionId id) {
         return jpaRepository
-            .findByTenantIdAndIdAndDeletedAtIsNull(tenantId.value(), id.value())
+            .findByTenantIdAndId(tenantId.value(), id.value())
             .map(mapper::toDomain);
     }
 
@@ -45,7 +45,7 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
     @Override
     public Optional<SalesSession> findOpenByTerminal(TenantId tenantId, TerminalId terminalId) {
         return jpaRepository
-            .findByTenantIdAndTerminalIdAndStatusAndDeletedAtIsNull(
+            .findByTenantIdAndTerminalIdAndStatus(
                 tenantId.value(), terminalId.value(), SalesSessionStatus.OPEN)
             .map(mapper::toDomain);
     }
@@ -53,7 +53,7 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
     @Override
     public Optional<SalesSession> findCurrentOpenByUser(TenantId tenantId, UserId userId) {
         return jpaRepository
-            .findCurrentOpenByUser(tenantId.value(), userId.value())
+            .findCurrentOpenByUser(tenantId.value(), userId.value(), SalesSessionStatus.OPEN)
             .map(mapper::toDomain);
     }
 
@@ -63,7 +63,7 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
         OutletId outletId,
         UserId openedBy,
         LocalDate businessDate) {
-        return jpaRepository.existsByTenantIdAndOutletIdAndOpenedByAndBusinessDateAndDeletedAtIsNull(
+        return jpaRepository.existsByTenantIdAndOutletIdAndOpenedByAndBusinessDate(
             tenantId.value(), outletId.value(), openedBy.value(), businessDate);
     }
 
@@ -75,14 +75,14 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
         UserId userId) {
 
         if (userId != null) {
-            return jpaRepository.findCurrentOpenByUser(tenantId.value(), userId.value()).stream()
+            return jpaRepository.findCurrentOpenByUser(tenantId.value(), userId.value(), SalesSessionStatus.OPEN).stream()
                 .map(mapper::toDomain)
                 .toList();
         }
 
         if (terminalId != null) {
             return jpaRepository
-                .findByTenantIdAndTerminalIdAndStatusAndDeletedAtIsNull(
+                .findByTenantIdAndTerminalIdAndStatus(
                     tenantId.value(), terminalId.value(), SalesSessionStatus.OPEN)
                 .stream()
                 .map(mapper::toDomain)
@@ -91,24 +91,19 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
 
         if (outletId != null) {
             return jpaRepository
-                .findByTenantIdAndOutletIdAndStatusAndDeletedAtIsNull(
+                .findByTenantIdAndOutletIdAndStatus(
                     tenantId.value(), outletId.value(), SalesSessionStatus.OPEN)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
         }
 
-        return jpaRepository
-            .findByTenantIdAndStatusAndDeletedAtIsNull(tenantId.value(), SalesSessionStatus.OPEN)
-            .stream()
-            .map(mapper::toDomain)
-            .toList();
+        return List.of();
     }
 
     @Override
-    public boolean hasOpenSessions(TenantId tenantId, OutletId outletId) {
-        return jpaRepository.existsByTenantIdAndOutletIdAndStatusAndDeletedAtIsNull(
-            tenantId.value(), outletId.value(), SalesSessionStatus.OPEN);
+    public boolean hasOpenSessions(OutletId outletId) {
+        return !jpaRepository.findByOutletIdAndStatus(outletId.value(), SalesSessionStatus.OPEN).isEmpty();
     }
 
     @Override

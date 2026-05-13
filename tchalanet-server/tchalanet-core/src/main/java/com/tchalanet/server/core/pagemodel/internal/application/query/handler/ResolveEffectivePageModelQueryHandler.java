@@ -3,6 +3,7 @@ package com.tchalanet.server.core.pagemodel.internal.application.query.handler;
 import static com.tchalanet.server.common.constant.CommonConstants.DEFAULT_TENANT_UUID;
 
 import com.tchalanet.server.common.bus.QueryHandler;
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;

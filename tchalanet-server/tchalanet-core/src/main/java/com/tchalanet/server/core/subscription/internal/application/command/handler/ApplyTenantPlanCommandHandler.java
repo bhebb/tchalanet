@@ -8,7 +8,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.SubscriptionId;
 import com.tchalanet.server.core.subscription.api.command.ApplyTenantPlanCommand;
 import com.tchalanet.server.core.subscription.api.command.ApplyTenantPlanResult;
-import com.tchalanet.server.core.subscription.internal.application.event.TenantSubscriptionUpdatedEvent;
+import com.tchalanet.server.core.subscription.api.event.TenantSubscriptionUpdatedEvent;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionPersistencePort;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
 import com.tchalanet.server.core.subscription.internal.domain.model.Subscription;

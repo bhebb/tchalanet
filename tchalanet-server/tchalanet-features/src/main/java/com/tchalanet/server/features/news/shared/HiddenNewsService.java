@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.news.shared;
 
-import com.tchalanet.server.common.cache.CacheKeyBuilder;
+import com.tchalanet.server.common.cache.internal.CacheKeyBuilder;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

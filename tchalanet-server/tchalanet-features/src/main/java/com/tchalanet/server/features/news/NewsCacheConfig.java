@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.news;
 
-import com.tchalanet.server.common.cache.CacheKeyBuilder;
-import com.tchalanet.server.common.cache.CacheSpec;
-import com.tchalanet.server.common.cache.CacheSpecProvider;
+import com.tchalanet.server.common.cache.internal.CacheKeyBuilder;
+import com.tchalanet.server.common.cache.internal.CacheSpec;
+import com.tchalanet.server.common.cache.internal.CacheSpecProvider;
 import com.tchalanet.server.features.news.NewsConfigProperties;
 import java.time.Duration;
 import java.util.List;

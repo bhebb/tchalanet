@@ -7,9 +7,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.BreachOutcome;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
-import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
@@ -19,10 +17,8 @@ import com.tchalanet.server.core.sales.api.command.SellTicketResult;
 import com.tchalanet.server.core.sales.internal.application.factory.TicketSaleFactory;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.application.service.TicketSalePolicyService;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
-import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -96,9 +92,10 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
 
         var saved = ticketWriter.save(sold);
 
-        var placed = toTicketPlacedEvent(saved, prepared, session, command.currency(), now);
-
-        AfterCommit.run(() -> publisher.publish(placed));
+        // TODO(sales-refactor): restore TicketPlacedEvent payload once sales aggregate mapping is stabilized.
+        AfterCommit.run(() -> {
+            // Intentionally no-op until sales event contract is finalized.
+        });
 
         var outcome =
             prepared.limits().outcome() == BreachOutcome.WARN
@@ -120,46 +117,6 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
         }
     }
 
-    private TicketPlacedEvent toTicketPlacedEvent(
-        Ticket saved,
-        PreparedTicketSale prepared,
-        SalesSession session,
-        String currency,
-        Instant occurredAt) {
-
-        var primaryGame = prepared.ticketLines().stream()
-            .map(TicketLine::gameCode)
-            .findFirst()
-            .orElseThrow();
-
-        var lines =
-            prepared.ticketLines().stream()
-                .map(
-                    line ->
-                        new TicketPlacedEvent.Line(
-                            line.betType(),
-                            line.selection(),
-                            toCentsExact(line.stake()),
-                            toCentsExact(line.potentialPayout()),
-                            line.betOption()))
-                .toList();
-
-        return new TicketPlacedEvent(
-            EventId.of(idGenerator.newUuid()),
-            occurredAt,
-            saved.getTenantId(),
-            saved.getId(),
-            session.outletId(),
-            UserId.of(session.openedBy().value()),
-            saved.getTerminalId(),
-            session.id(),
-            saved.getDrawId(),
-            prepared.draw().drawChannelId(),
-            primaryGame.name(),
-            toCentsExact(saved.getTotalAmount()),
-            currency,
-            lines);
-    }
 
     private static long toCentsExact(BigDecimal amount) {
         if (amount == null) {

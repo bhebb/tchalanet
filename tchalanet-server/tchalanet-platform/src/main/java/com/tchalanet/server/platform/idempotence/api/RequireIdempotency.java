@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.stereotype;
+package com.tchalanet.server.platform.idempotence.api;
 
 import com.tchalanet.server.common.types.enums.IdempotencyScope;
 

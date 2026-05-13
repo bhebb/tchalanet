@@ -7,6 +7,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PageModelId;
+import com.tchalanet.server.common.util.JsonSchemaValidatorUtil;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.core.pagemodel.api.command.UpsertPageModelCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;

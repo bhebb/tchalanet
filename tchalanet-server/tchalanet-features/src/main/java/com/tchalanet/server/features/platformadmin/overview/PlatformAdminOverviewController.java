@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.platformadmin.overview;
 
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

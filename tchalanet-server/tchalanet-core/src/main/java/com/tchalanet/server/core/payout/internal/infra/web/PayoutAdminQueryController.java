@@ -47,7 +47,6 @@ public class PayoutAdminQueryController {
         var result =
             queryBus.ask(
                 new ListPayoutsQuery(
-                    ctx.effectiveTenantIdRequired(),
                     filters.status(),
                     filters.ticketId(),
                     filters.outletId(),
@@ -66,9 +65,7 @@ public class PayoutAdminQueryController {
 
         var result =
             queryBus.ask(
-                new GetPayoutDetailsQuery(
-                    ctx.effectiveTenantIdRequired(),
-                    payoutId));
+                new GetPayoutDetailsQuery(payoutId));
 
         return ApiResponse.success(mapper.toResponse(result));
     }

@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.ticketverify;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.core.sales.application.query.model.GetPublicTicketVerificationRecordQuery;
+import com.tchalanet.server.core.sales.api.query.GetPublicTicketVerificationRecordQuery;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyPayoutStatus;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyResponse;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyStatus;

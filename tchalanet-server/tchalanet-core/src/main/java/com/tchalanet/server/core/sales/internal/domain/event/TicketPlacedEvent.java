@@ -100,4 +100,8 @@ public record TicketPlacedEvent(
             throw new IllegalArgumentException("lines is required");
         }
     }
+
+    public long stakeCents() {
+        return stakeAmountCents;
+    }
 }

@@ -1,15 +1,19 @@
 package com.tchalanet.server.features.ops.draw;
 
+import com.tchalanet.server.common.context.CurrentContext;
+
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.core.draw.application.command.model.*;
-import com.tchalanet.server.core.draw.infra.config.DrawProperties;
+import com.tchalanet.server.core.draw.api.command.*;
+import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

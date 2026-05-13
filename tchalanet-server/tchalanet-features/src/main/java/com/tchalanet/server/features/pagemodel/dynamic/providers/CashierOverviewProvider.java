@@ -1,7 +1,10 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
+import com.tchalanet.server.core.session.api.query.GetOpenedSalesSessionQuery;
+import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import java.math.BigDecimal;
 import java.util.Map;
@@ -39,7 +42,7 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
 
     try {
       var sessions =
-          queryBus.ask(new ListCashierOpenSessionsQuery(ctx.tenantId(), ctx.userId()));
+          queryBus.ask(new GetOpenedSalesSessionQuery(ctx.tenantId(), null, ctx.userId(), null));
 
       if (sessions == null || sessions.isEmpty()) {
         return Map.of(
@@ -51,10 +54,10 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
       // Première session ouverte
       var session = sessions.get(0);
       return Map.of(
-          "ticketsToday", session.ticketsSold(),
-          "totalAmount", session.totalSales() != null ? session.totalSales() : BigDecimal.ZERO,
+          "ticketsToday", 0L,
+          "totalAmount", BigDecimal.ZERO,
           "sessionOpen", true,
-          "sessionId", session.sessionId() != null ? session.sessionId().toString() : "",
+          "sessionId", session.id() != null ? session.id().toString() : "",
           "openedAt", session.openedAt() != null ? session.openedAt().toString() : "");
     } catch (Exception e) {
       return fallback();

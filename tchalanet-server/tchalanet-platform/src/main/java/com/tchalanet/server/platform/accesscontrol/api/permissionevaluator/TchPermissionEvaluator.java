@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.accesscontrol.internal.permissionevaluator;
+package com.tchalanet.server.platform.accesscontrol.api.permissionevaluator;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;

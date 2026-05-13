@@ -41,7 +41,7 @@ public class OfflineGrantController {
         ctx.terminalIdRequired(),
         ctx.outletIdRequired(),
         ctx.salesSessionIdRequired(),
-        ctx.actorIdRequired(),
+        ctx.currentUserIdRequired(),
         OfflineCodeBatchId.parse(request.codeBatchId()),
         request.expiresAt()));
     return ApiResponse.success(Map.of("grantId", result.grantId().value().toString(), "status", result.status().name()));
@@ -56,7 +56,7 @@ public class OfflineGrantController {
     var result = commandBus.execute(new RevokeOfflineSalesGrantCommand(
         ctx.effectiveTenantIdRequired(),
         OfflineSalesGrantId.parse(grantId),
-        ctx.actorIdRequired(),
+        ctx.currentUserIdRequired(),
         request.reason()));
     return ApiResponse.success(Map.of("grantId", result.grantId().value().toString()));
   }

@@ -128,4 +128,8 @@ public record SalesSession(
     public UserId sellerUserId() {
         return openedBy;
     }
+
+    public Long closingAmountCents() {
+        return declaredClosingAmountCents;
+    }
 }

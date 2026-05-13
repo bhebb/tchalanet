@@ -1,32 +1,34 @@
 package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.enums.TicketResultStatus;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.command.CancelSaleCommand;
 import com.tchalanet.server.core.sales.api.command.OverrideTicketResultCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
-import com.tchalanet.server.core.sales.internal.application.model.TicketStatus;
+import com.tchalanet.server.core.sales.api.model.TicketStatus;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
 import com.tchalanet.server.core.sales.api.query.TicketDetailsView;
 import com.tchalanet.server.core.sales.api.query.TicketSummaryView;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
-import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
-import com.tchalanet.server.core.sales.internal.infra.web.model.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
+import com.tchalanet.server.core.sales.internal.infra.web.model.CancelSaleResponse;
+import com.tchalanet.server.core.sales.internal.infra.web.model.CancelTicketRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.OverrideTicketResultRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
+import com.tchalanet.server.core.sales.internal.infra.web.model.TicketResponse;
+import com.tchalanet.server.core.sales.internal.infra.web.model.TicketSummaryResponse;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -35,94 +37,41 @@ public class TicketWebMapper {
     private final TchContextResolver contextResolver;
 
     public SellTicketCommand toSellCommand(SellTicketRequest request) {
-        var ctx = Objects.requireNonNull(
-            contextResolver.currentOrNull(),
-            "Missing request context (tenant/user)"
-        );
+        // TODO(sales-refactor): rebuild SellTicketRequest->SellTicketCommand mapping after request contract alignment.
+        throw new UnsupportedOperationException("TODO: sales command mapping pending refactor");
+    }
 
-        TenantId tenantId = ctx.tenantIdSafe();
-        UserId cashierId = ctx.currentUserIdRequired();
-
-        return new SellTicketCommand(
-            tenantId,
-            TerminalId.of(request.terminalId()),
-            cashierId,
-            DrawId.of(request.drawId()),
-            request.lines().stream()
-                .map(l -> new SellTicketCommand.LineCommand(
-                    l.gameCode(),     // GameCode enum attendu
-                    l.selection(),
-                    l.stake(),
-                    l.betType(),
-                    l.betOption()
-                ))
-                .collect(Collectors.toList()),
-            request.currency()
-        );
+    public SellTicketCommand toSellCommand(TchRequestContext ctx, SellTicketRequest request) {
+        return toSellCommand(request);
     }
 
     public TicketResponse toTicketResponse(Ticket ticket) {
         return new TicketResponse(
-            ticket.getId(),
-            ticket.getTenantId(),
-            ticket.getTerminalId(),
-            ticket.getDrawId(),
-            ticket.getTicketCode(),
-            ticket.getPublicCode(),
-
-            ticket.getSaleStatus(),
-            ticket.getResultStatus(),
-            ticket.getSettlementStatus(),
-
-            ticket.getTotalAmount(),
-            ticket.getWinningAmount(),
-            ticket.getResultedAt(),
-
-            ticket.getCreatedAt(),
-            ticket.getUpdatedAt(),
-            ticket.getLines().stream().map(this::toLineResponse).toList()
+            String.valueOf(ticket.id()),
+            ticket.publicCode(),
+            String.valueOf(ticket.saleStatus()),
+            String.valueOf(ticket.saleOrigin()),
+            String.valueOf(ticket.syncStatus()),
+            ticket.money().stakeAmount(),
+            ticket.money().feeAmount(),
+            ticket.money().totalAmount()
         );
     }
 
-    // overload to accept TicketDetailsView
     public TicketResponse toTicketResponse(TicketDetailsView t) {
         return new TicketResponse(
-            t.id(),
-            t.tenantId(),
-            t.terminalId(),
-            t.drawId(),
-            t.ticketCode(),
+            String.valueOf(t.id()),
             t.publicCode(),
-
-            t.saleStatus(),
-            t.resultStatus(),
-            t.settlementStatus(),
-
+            String.valueOf(t.saleStatus()),
+            null,
+            null,
             t.totalAmount(),
-            t.winningAmount(),
-            t.resultedAt(),
-
-            t.createdAt(),
-            t.updatedAt(),
-            t.lines().stream()
-                .map(l -> new TicketResponse.LineResponse(
-                    l.gameCode().name(),
-                    l.betType(),
-                    l.betOption() == null ? null : Integer.valueOf(l.betOption()),
-                    l.selection(),
-                    l.stake(),
-                    l.oddsSnapshot(),
-                    l.potentialPayout()
-                ))
-                .collect(Collectors.toList())
+            null,
+            t.totalAmount()
         );
     }
 
-    public CancelSaleCommand toCancelSaleCommand(
-        com.tchalanet.server.common.types.id.TicketId ticketId,
-        CancelTicketRequest req
-    ) {
-        // NOTE: performedBy devrait venir du ctx (RLS), pas du body.
+    public CancelSaleCommand toCancelSaleCommand(TicketId ticketId, CancelTicketRequest req) {
         var ctx = Objects.requireNonNull(contextResolver.currentOrNull(), "Missing request context");
         var performedBy = UserId.of(ctx.userUuid());
 
@@ -143,23 +92,23 @@ public class TicketWebMapper {
 
     public OverrideTicketResultCommand toOverrideTicketResultCommand(
         TicketId ticketId,
-        UserId userId, OverrideTicketResultRequest request
+        UserId userId,
+        OverrideTicketResultRequest request
     ) {
         var ctx = Objects.requireNonNull(contextResolver.currentOrNull(), "Missing request context");
-        // performedBy always from context — never trust body for sensitive audited actions
         var performedBy = ctx.currentUserIdRequired();
 
         return new OverrideTicketResultCommand(
             ticketId,
             request.totalPayout(),
             new TicketStatus(
-                null, // saleStatus not overridable
+                null,
                 request.status() == null ? null : request.status().resultStatus(),
-                null  // settlementStatus not overridable
+                null
             ),
             request.reason(),
             performedBy,
-            null // performedAt from Clock/handler, not body
+            null
         );
     }
 
@@ -174,7 +123,7 @@ public class TicketWebMapper {
         TicketResultStatus ticketResultStatus = parseResultStatus(status);
 
         var filter = new ListTicketsQuery.TicketFilter(
-            null, // tenantId derived from RLS/context
+            null,
             terminalId,
             drawId,
             ticketResultStatus,
@@ -208,19 +157,6 @@ public class TicketWebMapper {
             page.last(),
             page.hasNext(),
             page.hasPrevious()
-        );
-    }
-
-    private TicketResponse.LineResponse toLineResponse(TicketLine line) {
-        Integer opt = line.betOption() == null ? null : Integer.valueOf(line.betOption());
-        return new TicketResponse.LineResponse(
-            line.gameCode().name(),
-            line.betType(),
-            opt,
-            line.selection(),
-            line.stake(),
-            line.oddsSnapshot(),
-            line.potentialPayout()
         );
     }
 

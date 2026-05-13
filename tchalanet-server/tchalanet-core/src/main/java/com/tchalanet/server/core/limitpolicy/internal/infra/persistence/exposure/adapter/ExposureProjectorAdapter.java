@@ -67,8 +67,8 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
             scopes.add(LimitScopeRef.outlet(event.outletId()));
         }
 
-        if (event.agentId() != null) {
-            scopes.add(LimitScopeRef.agent(event.agentId()));
+        if (event.sellerUserId() != null) {
+            scopes.add(LimitScopeRef.agent(event.sellerUserId()));
         }
 
         return List.copyOf(scopes);

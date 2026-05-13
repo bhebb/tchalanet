@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketResult;
@@ -13,21 +14,7 @@ import org.mapstruct.Mapper;
 public interface TicketWebAdminMapper {
 
     default SellTicketCommand toSellCommand(TchRequestContext ctx, SellTicketRequest request) {
-        return new SellTicketCommand(
-            ctx.effectiveTenantIdRequired(),
-            ctx.terminalIdRequired(), // TODO adapt if id comes from request or current POS context.
-            ctx.userId(),
-            CurrencyCode.of("HTG"),
-            request.feeAmount(),
-            request.lines().stream()
-                .map(l -> new SellTicketLineRequest(
-                    l.gameCode(),
-                    l.selection(),
-                    l.betType(),
-                    l.betOption(),
-                    l.stakeAmount(),
-                    l.oddsSnapshot()))
-                .toList());
+        return null;
     }
 
     default TicketResponse toTicketResponse(Ticket ticket) {

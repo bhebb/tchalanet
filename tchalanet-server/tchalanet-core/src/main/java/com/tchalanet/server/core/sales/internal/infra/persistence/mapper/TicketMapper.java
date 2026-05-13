@@ -24,7 +24,7 @@ public class TicketMapper {
             TicketId.of(entity.getId()),
             TenantId.of(entity.getTenantId()),
             TerminalId.of(entity.getTerminalId()),
-            entity.getSessionId() == null ? null : SalesSessionId.of(entity.getSessionId()),
+            entity.getSalesSessionId() == null ? null : SalesSessionId.of(entity.getSalesSessionId()),
             DrawId.of(entity.getDrawId()),
             entity.getTicketCode(),
             entity.getPublicCode(),
@@ -66,23 +66,35 @@ public class TicketMapper {
         entity.setId(domain.getId().value());
         entity.setTenantId(domain.getTenantId().value());
         entity.setTerminalId(domain.getTerminalId().value());
-        entity.setSessionId(domain.getSessionId() == null ? null : domain.getSessionId().value());
+        entity.setSalesSessionId(domain.getSalesSessionId() == null ? null : domain.getSalesSessionId().value());
         entity.setDrawId(domain.getDrawId().value());
 
         entity.setTicketCode(domain.getTicketCode());
         entity.setPublicCode(domain.getPublicCode());
-        entity.setCurrency(domain.getCurrency());
+        entity.setCurrency(domain.getCurrency().code());
 
         // ✅ split statuses mapped 1:1
         entity.setSaleStatus(domain.getSaleStatus());
         entity.setResultStatus(domain.getResultStatus());
         entity.setSettlementStatus(domain.getSettlementStatus());
 
-        entity.setTotalAmount(domain.getTotalAmount());
+        entity.setTotalAmount(domain.getMoney().totalAmount());
         entity.setWinningAmount(domain.getWinningAmount());
         entity.setResultedAt(domain.getResultedAt());
         entity.setApprovalRequestId(
             domain.getApprovalRequestId() == null ? null : domain.getApprovalRequestId().value());
+
+        entity.setOutletId(domain.getOutletId().value());
+        entity.setSellerUserId(domain.getSellerUserId().value());
+        entity.setVerificationCode(domain.getVerificationCode());
+        entity.setStakeAmount(domain.getMoney().stakeAmount());
+        entity.setFeeAmount(domain.getMoney().feeAmount());
+        entity.setPotentialPayoutAmount(domain.getPotentialPayoutAmount());
+        entity.setSaleOrigin(domain.getSaleOrigin().name());
+        entity.setSyncStatus(domain.getSyncStatus().name());
+        entity.setSoldAt(domain.getSoldAt());
+        entity.setPaidAt(domain.getPaidAt());
+        entity.setPaidBy(domain.getPaidBy() == null ? null : domain.getPaidBy().value());
 
         var lineEntities = domain.getLines().stream().map(this::toEntityLine).toList();
         entity.clearAndAddLines(lineEntities);
@@ -95,11 +107,11 @@ public class TicketMapper {
         lineEntity.setGameCode(line.gameCode().name());
         // ensure persisted selection is canonical
         lineEntity.setSelection(SelectionKeyCanonicalizer.canonicalize(line.betType(), line.selection()));
-        lineEntity.setStake(line.stake());
+        lineEntity.setStake(line.stakeAmount());
         lineEntity.setOddsSnapshot(line.oddsSnapshot());
-        lineEntity.setPotentialPayout(line.potentialPayout());
+        lineEntity.setPotentialPayout(line.potentialPayoutAmount());
         lineEntity.setBetType(line.betType());
-        lineEntity.setBetOption(line.betOption()); // ✅ new
+        lineEntity.setBetOption(line.betOption());
         return lineEntity;
     }
 

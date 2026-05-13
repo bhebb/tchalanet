@@ -32,6 +32,7 @@ public class AdminSalesSessionOperationalControlsController {
         @Valid @RequestBody FinalizeSalesSessionRequest request) {
 
         commandBus.execute(new FinalizeSalesSessionCommand(
+            ctx.tenantId(),
             sessionId,
             request.reason(),
             ctx.currentUserIdRequired()));

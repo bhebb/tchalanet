@@ -8,6 +8,7 @@ import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
 import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
 import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
 import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,11 @@ public class DefaultTenantConfigApi implements TenantConfigApi {
   @Override
   public List<TenantConfigView> listTenants(ListTenantsQuery request) {
     return service.listTenants(request).items();
+  }
+
+  @Override
+  public void updateTenantIdentity(UpdateTenantIdentityCommand request) {
+    service.updateTenantIdentity(request);
   }
 
   @Override

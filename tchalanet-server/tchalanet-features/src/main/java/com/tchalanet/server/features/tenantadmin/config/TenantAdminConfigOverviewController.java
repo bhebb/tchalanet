@@ -1,6 +1,10 @@
 package com.tchalanet.server.features.tenantadmin.config;
 
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.context.CurrentContext;
+
+import com.tchalanet.server.common.context.TchRequestContext;
+
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.tenantadmin.config.model.AdminConfigOverviewView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

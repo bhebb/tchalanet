@@ -20,7 +20,7 @@ public class ValidateOutletForOperationQueryHandler
     public ValidatedOutletOperationView handle(ValidateOutletForOperationQuery q) {
         var outlet = outletReader.getRequired(q.outletId());
 
-        if (outlet.suspended()) {
+        if (outlet.dayClosed()) {
             throw ProblemRest.forbidden("outlet.suspended");
         }
 
@@ -28,20 +28,20 @@ public class ValidateOutletForOperationQueryHandler
             throw ProblemRest.forbidden("outlet.sales_blocked");
         }
 
-        if (q.operation() == OutletOperation.PAYOUT && !outlet.payoutEnabled()) {
+        if (q.operation() == OutletOperation.PAYOUT && outlet.payoutBlocked()) {
             throw ProblemRest.forbidden("outlet.payout_disabled");
         }
 
-        if (q.operation() == OutletOperation.OFFLINE_GRANT && !outlet.offlineSalesEnabled()) {
+        if (q.operation() == OutletOperation.OFFLINE_GRANT && outlet.offlineSalesBlocked()) {
             throw ProblemRest.forbidden("outlet.offline_sales_disabled");
         }
 
         return new ValidatedOutletOperationView(
             outlet.id(),
             outlet.name(),
-            outlet.salesBlocked(),
-            outlet.payoutEnabled(),
-            outlet.offlineSalesEnabled()
+            !outlet.salesBlocked(),
+            !outlet.payoutBlocked(),
+            !outlet.offlineSalesBlocked()
         );
     }
 }

@@ -1,12 +1,12 @@
 package com.tchalanet.server.features.stats.aggregates;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.core.draw.domain.event.DrawResultAppliedEvent;
-import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
-import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
-import com.tchalanet.server.core.session.domain.event.SalesSessionClosedEvent;
-import com.tchalanet.server.core.session.domain.event.SalesSessionOpenedEvent;
+import com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketResultedEvent;
+import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.internal.domain.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.features.stats.aggregates.app.StatsDailyUpdaterService;
 import com.tchalanet.server.features.stats.aggregates.app.StatsDrawUpdaterService;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsEventLogEntity;
@@ -75,10 +75,10 @@ public class StatsAggregatesEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onSessionClosed(SalesSessionClosedEvent event) {
-        if (isOldEvent(event.closedAt())) return;
+        if (isOldEvent(event.occurredAt())) return;
         if (!markProcessedIfAbsent(event)) return;
 
-        var refDate = LocalDate.ofInstant(event.closedAt(), ZoneOffset.UTC);
+        var refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
         statsDailyUpdater.applySessionClosed(event, refDate);
     }
 

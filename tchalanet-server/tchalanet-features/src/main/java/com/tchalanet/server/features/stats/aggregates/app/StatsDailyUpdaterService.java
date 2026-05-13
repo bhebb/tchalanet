@@ -1,10 +1,10 @@
 package com.tchalanet.server.features.stats.aggregates.app;
 
-import com.tchalanet.server.core.sales.domain.event.TicketCancelledEvent;
-import com.tchalanet.server.core.sales.domain.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.domain.event.TicketResultedEvent;
-import com.tchalanet.server.core.session.domain.event.SalesSessionClosedEvent;
-import com.tchalanet.server.core.session.domain.event.SalesSessionOpenedEvent;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.internal.domain.event.TicketResultedEvent;
+import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.internal.domain.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +33,7 @@ public class StatsDailyUpdaterService {
         "outlet", event.outletId().value(), refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
 
     // agent (replaces former cashierId)
-    java.util.UUID agentId = event.agentId() != null ? event.agentId().value() : null;
+    java.util.UUID agentId = event.sellerUserId() != null ? event.sellerUserId().value() : null;
     statsDailyRepo.upsertAndIncrement(
         "agent", agentId, refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
   }

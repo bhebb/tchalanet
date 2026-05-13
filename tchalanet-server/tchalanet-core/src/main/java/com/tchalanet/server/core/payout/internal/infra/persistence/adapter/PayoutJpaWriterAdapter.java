@@ -18,9 +18,9 @@ public class PayoutJpaWriterAdapter implements PayoutWriterPort {
     @Override
     public Payout save(Payout payout) {
         var entity =
-            payout.getId() == null
+            payout.id() == null
                 ? new PayoutJpaEntity()
-                : jpaRepo.findById(payout.getId().value()).orElseGet(PayoutJpaEntity::new);
+                : jpaRepo.findById(payout.id().value()).orElseGet(PayoutJpaEntity::new);
 
         mapper.updateEntity(payout, entity);
 

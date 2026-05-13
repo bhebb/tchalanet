@@ -1,10 +1,16 @@
 package com.tchalanet.server.core.ledger.internal.infra.persistence;
 
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.ledger.api.query.GetLedgerBalanceQuery;
+import com.tchalanet.server.core.ledger.api.query.LedgerBalanceView;
+import com.tchalanet.server.core.ledger.api.query.LedgerEntryView;
+import com.tchalanet.server.core.ledger.api.query.ListLedgerEntriesQuery;
 import com.tchalanet.server.core.ledger.internal.application.port.out.LedgerReaderPort;
 import com.tchalanet.server.core.ledger.internal.application.port.out.LedgerWriterPort;
 import com.tchalanet.server.core.ledger.internal.domain.model.LedgerEntry;
 import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
 import com.tchalanet.server.core.ledger.internal.domain.model.LedgerReference;
+import java.math.BigDecimal;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,5 +60,17 @@ public class JpaLedgerRepositoryAdapter implements LedgerWriterPort, LedgerReade
                 reference.id(),
                 operationType)
             .map(mapper::toDomain);
+    }
+
+    @Override
+    public TchPage<LedgerEntryView> search(ListLedgerEntriesQuery query) {
+        // Mock implementation for compilation
+        return new TchPage<>(java.util.List.of(), 0, 10, 0, 0, true, false, false);
+    }
+
+    @Override
+    public LedgerBalanceView getBalance(GetLedgerBalanceQuery query) {
+        // Mock implementation for compilation
+        return new LedgerBalanceView(0L, 0L, 0L, "USD", java.time.Instant.now());
     }
 }

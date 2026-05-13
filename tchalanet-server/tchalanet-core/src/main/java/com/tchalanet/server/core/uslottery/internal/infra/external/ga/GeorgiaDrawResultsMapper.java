@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.ga;
 
-import tools.jackson.annotation.JsonIgnoreProperties;
-import tools.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.enums.UsLotteryProvider;
 import com.tchalanet.server.common.util.JsonbUtils;

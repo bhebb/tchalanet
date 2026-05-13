@@ -45,9 +45,9 @@ public class EvaluateLimitPolicyQueryHandler
                     scopeLabel(b.appliedScope()),
                     b.code(),
                     b.messageKey(),
-                    BigDecimal.valueOf(b.limitValue()),
-                    BigDecimal.valueOf(b.currentValue()),
-                    BigDecimal.valueOf(b.deltaValue())
+                    b.limitValue(),
+                    b.currentValue(),
+                    b.deltaValue()
                 ))
                 .toList());
     }

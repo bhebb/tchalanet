@@ -1,14 +1,18 @@
 package com.tchalanet.server.features.receipt.app;
 
-import com.tchalanet.server.common.document.escpos.EscPosBuilder;
-import com.tchalanet.server.common.document.pdf.ReceiptPdfRenderer;
-import com.tchalanet.server.common.document.qr.QrRenderer;
+import com.tchalanet.server.common.context.TchContextResolver;
+
+import com.tchalanet.server.platform.document.internal.escpos.EscPosBuilder;
+import com.tchalanet.server.platform.document.internal.pdf.ReceiptPdfRenderer;
+import com.tchalanet.server.platform.document.internal.qr.QrRenderer;
+import com.tchalanet.server.platform.document.internal.receipt.ReceiptLine;
+import com.tchalanet.server.platform.document.internal.receipt.ReceiptModel;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintView;
-import com.tchalanet.server.core.sales.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.application.print.TicketReceiptFormatter;
-import com.tchalanet.server.core.sales.application.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.internal.application.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.internal.application.print.TicketVerificationUrlBuilder;
 import java.util.ArrayList;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,7 +59,7 @@ public class ReceiptService {
   public byte[] renderPdf(TicketId ticketId, Locale locale) {
     var ticket = findTicket(ticketId, normalizeLocale(locale));
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    var model = pdfFormatter.formatModel(ticket, verifyUrl);
+    var model = receiptModel(pdfFormatter.formatText(ticket, verifyUrl));
     byte[] qrBytes = qrPng.render(verifyUrl, new QrRenderer.QrRenderSpec(300));
     return pdf.render(model, qrBytes);
   }
@@ -67,7 +71,7 @@ public class ReceiptService {
   public byte[] renderEscPos(TicketId ticketId, Locale locale) {
     var ticket = findTicket(ticketId, normalizeLocale(locale));
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    var model = escPosFormatter.formatModel(ticket, verifyUrl);
+    var model = receiptModel(escPosFormatter.formatText(ticket, verifyUrl));
 
     var parts = new ArrayList<byte[]>();
     parts.add(escpos.init());
@@ -116,5 +120,12 @@ public class ReceiptService {
   private TicketPrintView findTicket(TicketId ticketId, Locale locale) {
     return port.findTicketPrintView(ticketId, locale)
         .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
+  }
+
+  private ReceiptModel receiptModel(String text) {
+    var lines = text == null ? java.util.List.<String>of() : text.lines().toList();
+    var title = lines.isEmpty() ? "Ticket Tchalanet" : lines.get(0);
+    var body = lines.stream().skip(1).map(ReceiptLine::text).toList();
+    return new ReceiptModel(title, body);
   }
 }

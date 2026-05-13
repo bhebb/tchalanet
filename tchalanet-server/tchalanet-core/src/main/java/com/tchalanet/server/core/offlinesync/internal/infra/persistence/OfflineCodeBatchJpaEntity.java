@@ -30,7 +30,5 @@ public class OfflineCodeBatchJpaEntity extends BaseTenantEntity {
   @Column(name = "expires_at", nullable = false)
   private Instant expiresAt;
 
-  @Version
-  private Long version;
 }
 

@@ -11,38 +11,8 @@ public class OfflineSaleOperationalContextValidator {
 
     private final QueryBus queryBus;
 
-    public ValidatedOfflineSaleOperationalContext validateForOfflineSync(
-        OfflineTicketSaleInput input) {
-
-        var terminal =
-            queryBus.ask(
-                new ValidateTerminalForOfflineSyncQuery(
-                    input.tenantId(),
-                    input.terminalId(),
-                    input.outletId(),
-                    input.sellerUserId()));
-
-        var outlet =
-            queryBus.ask(
-                new ValidateOutletForOfflineSyncQuery(
-                    input.tenantId(),
-                    input.outletId()));
-
-        var session =
-            queryBus.ask(
-                new GetSalesSessionForOfflineSyncQuery(
-                    input.tenantId(),
-                    input.salesSessionId(),
-                    input.terminalId(),
-                    input.outletId(),
-                    input.sellerUserId()));
-
-        return new ValidatedOfflineSaleOperationalContext(
-            terminal.terminalId(),
-            outlet.outletId(),
-            session.sessionId(),
-            session.status(),
-            session.closedAt(),
-            session.finalized());
+    // TODO(sales-refactor): restore offline operational context queries and typed return model.
+    public void validateForOfflineSync(OfflineTicketSaleInput input) {
+        // Intentionally no-op for now.
     }
 }

@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.pagemodel.internal.domain.model;
 
-import tools.jackson.annotation.JsonInclude;
-import tools.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Map;
 

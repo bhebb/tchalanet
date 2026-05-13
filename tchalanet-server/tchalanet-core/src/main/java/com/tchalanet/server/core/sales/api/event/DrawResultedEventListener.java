@@ -22,6 +22,9 @@ public class DrawResultedEventListener {
             event.tenantId(), event.drawId(), event.drawResultId());
 
         commandBus.execute(new RecordDrawTicketsResultCommand(
-            event.tenantId(), event.drawId(), event.drawResultId(), event.occurredAt()));
+            event.drawId(),
+            event.tenantId(),
+            event.drawResultId(),
+            event.occurredAt()));
     }
 }

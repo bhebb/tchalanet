@@ -9,6 +9,7 @@ import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
 import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
 import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
 import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
 
 public interface TenantConfigApi {
 
@@ -16,6 +17,7 @@ public interface TenantConfigApi {
     TenantConfigView getTenantById(GetTenantByIdQuery request);
     TenantConfigView getTenantByCode(GetTenantByCodeQuery request);
     List<TenantConfigView> listTenants(ListTenantsQuery request);
+    void updateTenantIdentity(UpdateTenantIdentityCommand request);
     void activateTenant(ActivateTenantCommand request);
     void suspendTenant(SuspendTenantCommand request);
 }

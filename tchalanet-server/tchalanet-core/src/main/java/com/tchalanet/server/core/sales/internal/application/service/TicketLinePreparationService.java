@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.application.service;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.common.types.enums.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
 import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
 import com.tchalanet.server.core.sales.internal.domain.service.BetSelectionNormalizer;
@@ -39,12 +38,13 @@ public class TicketLinePreparationService {
         return out;
     }
 
-    public List<TicketLine> toTicketLines(TenantId tenantId, List<SellTicketCommand.LineCommand> lines) {
+    // TODO(sales-refactor): unify line normalization with the new SellTicketLineInput contract.
+    public List<TicketLine> toTicketLines(TenantId tenantId, List<SellTicketLineInput> lines) {
         return lines.stream()
             .map(l -> {
                 validateOption(l.betType(), l.betOption());
 
-                BigDecimal stake = requireStake(l.stake()).setScale(2, RoundingMode.UNNECESSARY);
+                BigDecimal stake = requireStake(l.stakeAmount()).setScale(2, RoundingMode.UNNECESSARY);
 
                 BigDecimal odds = pricingCatalog
                     .oddsFor(tenantId, canonicalGameCode(l.gameCode()), l.betType(), l.betOption())
@@ -91,4 +91,3 @@ public class TicketLinePreparationService {
         }
     }
 }
-

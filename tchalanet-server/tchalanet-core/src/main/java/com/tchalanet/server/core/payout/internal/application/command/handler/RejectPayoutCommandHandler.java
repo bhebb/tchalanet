@@ -32,22 +32,22 @@ public class RejectPayoutCommandHandler implements CommandHandler<RejectPayoutCo
         var payout = reader.getById(command.payoutId());
 
         var now = Instant.now(clock);
-        payout.reject(command.rejectedBy(), command.reason(), now);
-        var saved = writer.save(payout);
+        var rejected = payout.reject(command.rejectedBy(), now, command.reason());
+        var saved = writer.save(rejected);
 
         var event = new PayoutRejectedEvent(
             EventId.of(
                 idGenerator.newUuid()),
             now,
             command.tenantId(),
-            saved.getId(),
-            saved.getTicketId(),
-            saved.getAmountCents(),
-            saved.getCurrency(),
+            saved.id(),
+            saved.ticketId(),
+            saved.amountCents(),
+            saved.currency(),
             command.rejectedBy(),
             command.reason());
         AfterCommit.run(() -> events.publish(event));
 
-        return new PayoutWorkflowResult(saved.getId(), saved.getStatus(), now);
+        return new PayoutWorkflowResult(saved.id(), saved.status(), now);
     }
 }

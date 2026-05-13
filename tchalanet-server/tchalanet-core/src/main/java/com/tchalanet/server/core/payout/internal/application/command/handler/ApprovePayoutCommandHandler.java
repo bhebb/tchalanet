@@ -31,20 +31,20 @@ public class ApprovePayoutCommandHandler implements CommandHandler<ApprovePayout
     var payout = reader.getById(command.payoutId());
 
     var now = Instant.now(clock);
-    payout.approve(command.approvedBy(), now);
-    var saved = writer.save(payout);
+    var approved = payout.approve(command.approvedBy(), now);
+    var saved = writer.save(approved);
 
     var event = new PayoutApprovedEvent(
         EventId.of(idGenerator.newUuid()),
         now,
         command.tenantId(),
-        saved.getId(),
-        saved.getTicketId(),
-        saved.getAmountCents(),
-        saved.getCurrency(),
+        saved.id(),
+        saved.ticketId(),
+        saved.amountCents(),
+        saved.currency(),
         command.approvedBy());
     AfterCommit.run(() -> events.publish(event));
 
-    return new PayoutWorkflowResult(saved.getId(), saved.getStatus(), now);
+    return new PayoutWorkflowResult(saved.id(), saved.status(), now);
   }
 }

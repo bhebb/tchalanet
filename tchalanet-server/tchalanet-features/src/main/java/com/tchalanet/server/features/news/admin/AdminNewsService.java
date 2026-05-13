@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.news.admin;
 
-import com.tchalanet.server.common.cache.CacheKeyBuilder;
+import com.tchalanet.server.common.cache.internal.CacheKeyBuilder;
 import com.tchalanet.server.features.news.admin.model.AdminNewsItem;
 import com.tchalanet.server.features.news.admin.model.AdminNewsListResponse;
 import com.tchalanet.server.features.news.admin.model.AdminUpsertNewsRequest;

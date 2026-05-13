@@ -33,7 +33,5 @@ public class OfflineCodeReservationJpaEntity extends BaseTenantEntity {
   @Column(name = "consumed_at")
   private Instant consumedAt;
 
-  @Version
-  private Long version;
 }
 

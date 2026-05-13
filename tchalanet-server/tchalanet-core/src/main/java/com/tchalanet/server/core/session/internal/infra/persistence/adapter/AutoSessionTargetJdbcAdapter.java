@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.session.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.config.TchSystemProperties;
+import com.tchalanet.server.common.context.system.SystemContextProperties;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -31,7 +31,7 @@ import java.util.UUID;
 public class AutoSessionTargetJdbcAdapter implements AutoSessionTargetReaderPort {
 
     private final NamedParameterJdbcTemplate jdbc;
-    private final TchSystemProperties systemProperties;
+    private final SystemContextProperties systemProperties;
 
     @Override
     public List<AutoSessionOpenTarget> findDueOpenTargets(Instant now) {

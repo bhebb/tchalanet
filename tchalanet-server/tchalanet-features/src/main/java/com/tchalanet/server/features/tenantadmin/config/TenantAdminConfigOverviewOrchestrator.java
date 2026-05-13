@@ -1,10 +1,13 @@
 package com.tchalanet.server.features.tenantadmin.config;
 
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.enums.AutonomyTargetType;
-import com.tchalanet.server.core.autonomy.application.query.model.GetAutonomyOverviewQuery;
+import com.tchalanet.server.core.autonomy.api.query.GetAutonomyOverviewQuery;
+import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import com.tchalanet.server.features.tenantadmin.config.model.AdminConfigOverviewView;
 import com.tchalanet.server.features.tenantadmin.config.model.I18nSummaryView;
 import com.tchalanet.server.features.tenantadmin.config.model.SettingsSummaryView;
@@ -32,7 +35,7 @@ public class TenantAdminConfigOverviewOrchestrator {
         var resolved = settingsCatalog.resolve(new com.tchalanet.server.catalog.settings.api.model.ResolveSettingsCriteria(tenantId, null, null, List.of()));
         int settingsCount = resolved.size();
 
-        queryBus.ask(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, tenantId.value()));
+        queryBus.ask(new GetAutonomyOverviewQuery(AutonomyTargetType.TENANT, AutonomyTargetId.of(tenantId.value())));
 
         var theme = new ThemeSummaryView(null, null);
 

@@ -29,7 +29,7 @@ public class SalesLedgerListener {
     }
     commandBus.execute(
         new RecordTicketSaleLedgerCommand(
-            event.tenantId(), event.ticketId(), event.stakeCents(), event.occurredAt()));
+            event.tenantId(), event.ticketId(), event.stakeCents(), event.currency().code(), event.occurredAt()));
     processedEvent.markProcessedIfAbsent(CONSUMER, event.eventId().value());
   }
 }

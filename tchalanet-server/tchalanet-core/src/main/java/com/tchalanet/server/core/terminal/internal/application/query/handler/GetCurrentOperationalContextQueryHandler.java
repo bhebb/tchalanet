@@ -2,6 +2,7 @@ package com.tchalanet.server.core.terminal.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.bus.QueryHandler;
+import com.tchalanet.server.common.context.OperationalContextSource;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.session.api.query.GetCurrentSalesSessionQuery;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSession;

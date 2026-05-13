@@ -35,31 +35,30 @@ public class ExecutePayoutCommandHandler
             reader
                 .getById(command.payoutId());
 
-        if (payout.isPaid()) {
-            return new PayoutWorkflowResult(payout.getId(), payout.getStatus(), payout.getPaidAt());
+        if (payout.status() == PayoutStatus.PAID) {
+            return new PayoutWorkflowResult(payout.id(), payout.status(), payout.paidAt());
         }
 
         var now = Instant.now(clock);
 
-        payout.markPaid(
-            command.paidBy(),
+        var paid = payout.pay(
             command.payingOutletId(),
             command.payingSessionId(),
             command.terminalId(),
-            now,
-            false);
+            command.paidBy(),
+            now);
 
-        var saved = writer.save(payout);
+        var saved = writer.save(paid);
 
         var event =
             new PayoutPaidEvent(
                 EventId.of(idGenerator.newUuid()),
                 now,
                 command.tenantId(),
-                saved.getId(),
-                saved.getTicketId(),
-                saved.getAmountCents(),
-                saved.getCurrency(),
+                saved.id(),
+                saved.ticketId(),
+                saved.amountCents(),
+                saved.currency(),
                 command.paidBy(),
                 command.payingSessionId(),
                 command.payingOutletId(),
@@ -67,6 +66,6 @@ public class ExecutePayoutCommandHandler
 
         AfterCommit.run(() -> events.publish(event));
 
-        return new PayoutWorkflowResult(saved.getId(), saved.getStatus(), saved.getPaidAt());
+        return new PayoutWorkflowResult(saved.id(), saved.status(), saved.paidAt());
     }
 }

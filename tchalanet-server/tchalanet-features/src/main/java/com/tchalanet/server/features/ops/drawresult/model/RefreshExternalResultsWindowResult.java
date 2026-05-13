@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.ops.drawresult.model;
 
-import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowResult;
-import com.tchalanet.server.core.drawresult.application.command.model.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
 
 public record RefreshExternalResultsWindowResult(
     int fetched, int projectedOk, int projectedFail, int upserted, int applied, int notFound) {

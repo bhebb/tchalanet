@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.publicdrawresults;
 
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.common.paging.TchPageRequest;
-import com.tchalanet.server.common.paging.TchPaging;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultListResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSearchCriteria;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotsResponse;

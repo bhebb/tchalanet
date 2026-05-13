@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.publicpage;
 
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;

@@ -99,7 +99,10 @@ public class RecordDrawTicketsResultCommandHandler
                         saved.getId(),
                         saved.getResultStatus(),
                         saved.getSettlementStatus(),
-                        saved.getWinningAmount());
+                        saved.getWinningAmount(),
+                        saved.getCurrency().code(),
+                        saved.getOutletId(),
+                        saved.getSalesSessionId());
 
                 AfterCommit.run(() -> publisher.publish(event));
 

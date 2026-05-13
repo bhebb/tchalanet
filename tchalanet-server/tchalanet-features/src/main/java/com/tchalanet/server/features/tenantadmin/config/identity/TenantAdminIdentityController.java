@@ -1,11 +1,14 @@
 package com.tchalanet.server.features.tenantadmin.config.identity;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.context.CurrentContext;
+
+import com.tchalanet.server.common.context.TchRequestContext;
+
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
 import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
 import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.features.tenantadmin.config.model.TenantIdentityView;
 import com.tchalanet.server.features.tenantadmin.config.model.UpdateTenantIdentityRequest;
 import jakarta.validation.Valid;
@@ -19,12 +22,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TenantAdminIdentityController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+  private final TenantConfigApi tenantConfigApi;
 
   @GetMapping
   public ApiResponse<TenantIdentityView> getIdentity(@CurrentContext TchRequestContext ctx) {
-    var tenant = queryBus.ask(new GetTenantByIdQuery(ctx.tenantIdSafe()));
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdQuery(ctx.tenantIdSafe()));
     return ApiResponse.success(toView(tenant));
   }
 
@@ -32,8 +34,9 @@ public class TenantAdminIdentityController {
   public ApiResponse<TenantIdentityView> updateIdentity(
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpdateTenantIdentityRequest req) {
     var tenantId = ctx.tenantIdSafe();
-    commandBus.execute(new UpdateTenantIdentityCommand(tenantId, req.name(), req.timeZone(), req.currency()));
-    var tenant = queryBus.ask(new GetTenantByIdQuery(tenantId));
+    tenantConfigApi.updateTenantIdentity(
+        new UpdateTenantIdentityCommand(tenantId, req.name(), req.timeZone(), req.currency()));
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdQuery(tenantId));
     return ApiResponse.success(toView(tenant));
   }
 

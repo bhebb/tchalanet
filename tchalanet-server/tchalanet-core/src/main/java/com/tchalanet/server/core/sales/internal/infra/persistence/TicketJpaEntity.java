@@ -145,4 +145,8 @@ public class TicketJpaEntity extends BaseTenantEntity {
         for (var l : newLines) addLine(l);
     }
 
+    public UUID getSessionId() {
+        return salesSessionId;
+    }
+
 }

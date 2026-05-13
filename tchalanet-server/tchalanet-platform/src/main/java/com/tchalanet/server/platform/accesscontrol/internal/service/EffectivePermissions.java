@@ -3,7 +3,7 @@ package com.tchalanet.server.platform.accesscontrol.internal.service;
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.platform.accesscontrol.internal.permissionevaluator.CheckPermissionsResult;
+import com.tchalanet.server.platform.accesscontrol.api.permissionevaluator.CheckPermissionsResult;
 
 import java.util.Collection;
 import java.util.Collections;

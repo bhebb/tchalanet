@@ -6,7 +6,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.subscription.api.command.ResumeSubscriptionCommand;
 import com.tchalanet.server.core.subscription.api.command.ResumeSubscriptionResult;
-import com.tchalanet.server.core.subscription.internal.application.event.TenantSubscriptionUpdatedEvent;
+import com.tchalanet.server.core.subscription.api.event.TenantSubscriptionUpdatedEvent;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionPersistencePort;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
 import lombok.RequiredArgsConstructor;

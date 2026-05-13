@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.ticketverify;
 
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyResponse;
 import com.tchalanet.server.features.ticketverify.model.TicketVerifyStatus;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.cashier;
 
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.cashier.app.CashierService;
 import com.tchalanet.server.features.cashier.model.CashierSellPrintRequest;
 import com.tchalanet.server.features.cashier.model.CashierSellPrintResponse;

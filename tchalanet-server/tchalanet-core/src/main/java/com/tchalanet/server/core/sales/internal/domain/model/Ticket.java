@@ -4,156 +4,260 @@ import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
 
-public record Ticket(
-    TicketId id,
-    TenantId tenantId,
-    OutletId outletId,
-    TerminalId terminalId,
-    UserId sellerUserId,
-    SalesSessionId salesSessionId,
-    DrawId drawId,
-    DrawChannelId drawChannelId,
-    String ticketCode,
-    String publicCode,
-    String verificationCode,
-    CurrencyCode currency,
-    TicketMoneyBreakdown money,
-    BigDecimal potentialPayoutAmount,
-    BigDecimal winningAmount,
-    TicketSaleStatus saleStatus,
-    TicketResultStatus resultStatus,
-    TicketSettlementStatus settlementStatus,
-    SaleOrigin saleOrigin,
-    TicketSyncStatus syncStatus,
-    OfflineSaleRef offlineSaleRef,
-    SalesSessionPostingMode sessionPostingMode,
-    Instant soldAt,
-    Instant resultedAt,
-    Instant settledAt,
-    Instant paidAt,
-    UserId paidBy,
-    List<TicketLine> lines
-) {
-  public Ticket {
-    Objects.requireNonNull(id, "id is required");
-    Objects.requireNonNull(tenantId, "tenantId is required");
-    Objects.requireNonNull(outletId, "outletId is required");
-    Objects.requireNonNull(terminalId, "id is required");
-    Objects.requireNonNull(sellerUserId, "sellerUserId is required");
-    Objects.requireNonNull(salesSessionId, "salesSessionId is required");
-    Objects.requireNonNull(drawId, "drawId is required");
-    Objects.requireNonNull(ticketCode, "ticketCode is required");
-    Objects.requireNonNull(publicCode, "publicCode is required");
-    Objects.requireNonNull(verificationCode, "verificationCode is required");
-    Objects.requireNonNull(currency, "currency is required");
-    Objects.requireNonNull(money, "money is required");
-    Objects.requireNonNull(potentialPayoutAmount, "potentialPayoutAmount is required");
-    Objects.requireNonNull(saleStatus, "saleStatus is required");
-    Objects.requireNonNull(resultStatus, "resultStatus is required");
-    Objects.requireNonNull(settlementStatus, "settlementStatus is required");
-    Objects.requireNonNull(saleOrigin, "saleOrigin is required");
-    Objects.requireNonNull(syncStatus, "syncStatus is required");
-    Objects.requireNonNull(sessionPostingMode, "sessionPostingMode is required");
-    Objects.requireNonNull(soldAt, "soldAt is required");
-    lines = List.copyOf(lines == null ? List.of() : lines);
-    if (lines.isEmpty()) throw new IllegalArgumentException("lines is required");
-    if (saleOrigin == SaleOrigin.OFFLINE && offlineSaleRef == null) throw new IllegalArgumentException("offlineSaleRef required for offline ticket");
-    if (saleOrigin == SaleOrigin.ONLINE && offlineSaleRef != null) throw new IllegalArgumentException("offlineSaleRef forbidden for online ticket");
-  }
+@Getter
+public class Ticket {
+    private final TicketId id;
+    private final TenantId tenantId;
+    private final OutletId outletId;
+    private final TerminalId terminalId;
+    private final UserId sellerUserId;
+    private final SalesSessionId salesSessionId;
+    private final DrawId drawId;
+    private final DrawChannelId drawChannelId;
+    private final String ticketCode;
+    private final String publicCode;
+    private final String verificationCode;
+    private final CurrencyCode currency;
+    private final TicketMoneyBreakdown money;
+    private final BigDecimal potentialPayoutAmount;
+    private BigDecimal winningAmount;
+    private com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus;
+    private com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus;
+    private com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus;
+    private final com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin;
+    private final com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus;
+    private final OfflineSaleRef offlineSaleRef;
+    private final SalesSessionPostingMode sessionPostingMode;
+    private final Instant soldAt;
+    private Instant resultedAt;
+    private Instant settledAt;
+    private Instant paidAt;
+    private UserId paidBy;
+    private final List<TicketLine> lines;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    private final ApprovalRequestId approvalRequestId;
+
+    private Ticket(
+        TicketId id,
+        TenantId tenantId,
+        OutletId outletId,
+        TerminalId terminalId,
+        UserId sellerUserId,
+        SalesSessionId salesSessionId,
+        DrawId drawId,
+        DrawChannelId drawChannelId,
+        String ticketCode,
+        String publicCode,
+        String verificationCode,
+        CurrencyCode currency,
+        TicketMoneyBreakdown money,
+        BigDecimal potentialPayoutAmount,
+        BigDecimal winningAmount,
+        com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus,
+        com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus,
+        com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus,
+        com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin,
+        com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus,
+        OfflineSaleRef offlineSaleRef,
+        SalesSessionPostingMode sessionPostingMode,
+        Instant soldAt,
+        Instant resultedAt,
+        Instant settledAt,
+        Instant paidAt,
+        UserId paidBy,
+        List<TicketLine> lines,
+        Instant createdAt,
+        Instant updatedAt,
+        ApprovalRequestId approvalRequestId
+    ) {
+        this.id = Objects.requireNonNull(id, "id is required");
+        this.tenantId = Objects.requireNonNull(tenantId, "tenantId is required");
+        this.outletId = Objects.requireNonNull(outletId, "outletId is required");
+        this.terminalId = Objects.requireNonNull(terminalId, "terminalId is required");
+        this.sellerUserId = Objects.requireNonNull(sellerUserId, "sellerUserId is required");
+        this.salesSessionId = Objects.requireNonNull(salesSessionId, "salesSessionId is required");
+        this.drawId = Objects.requireNonNull(drawId, "drawId is required");
+        this.drawChannelId = drawChannelId;
+        this.ticketCode = Objects.requireNonNull(ticketCode, "ticketCode is required");
+        this.publicCode = Objects.requireNonNull(publicCode, "publicCode is required");
+        this.verificationCode = Objects.requireNonNull(verificationCode, "verificationCode is required");
+        this.currency = Objects.requireNonNull(currency, "currency is required");
+        this.money = Objects.requireNonNull(money, "money is required");
+        this.potentialPayoutAmount = Objects.requireNonNull(potentialPayoutAmount, "potentialPayoutAmount is required");
+        this.winningAmount = winningAmount;
+        this.saleStatus = Objects.requireNonNull(saleStatus, "saleStatus is required");
+        this.resultStatus = Objects.requireNonNull(resultStatus, "resultStatus is required");
+        this.settlementStatus = Objects.requireNonNull(settlementStatus, "settlementStatus is required");
+        this.saleOrigin = Objects.requireNonNull(saleOrigin, "saleOrigin is required");
+        this.syncStatus = Objects.requireNonNull(syncStatus, "syncStatus is required");
+        this.offlineSaleRef = offlineSaleRef;
+        this.sessionPostingMode = Objects.requireNonNull(sessionPostingMode, "sessionPostingMode is required");
+        this.soldAt = Objects.requireNonNull(soldAt, "soldAt is required");
+        this.resultedAt = resultedAt;
+        this.settledAt = settledAt;
+        this.paidAt = paidAt;
+        this.paidBy = paidBy;
+        this.lines = List.copyOf(lines == null ? List.of() : lines);
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.approvalRequestId = approvalRequestId;
+
+        if (this.lines.isEmpty()) throw new IllegalArgumentException("lines is required");
+        if (saleOrigin == com.tchalanet.server.common.types.enums.SaleOrigin.OFFLINE && offlineSaleRef == null) throw new IllegalArgumentException("offlineSaleRef required for offline ticket");
+        if (saleOrigin == com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE && offlineSaleRef != null) throw new IllegalArgumentException("offlineSaleRef forbidden for online ticket");
+    }
+
+    public Ticket(
+        TicketId id,
+        TenantId tenantId,
+        OutletId outletId,
+        TerminalId terminalId,
+        UserId sellerUserId,
+        SalesSessionId salesSessionId,
+        DrawId drawId,
+        DrawChannelId drawChannelId,
+        String ticketCode,
+        String publicCode,
+        String verificationCode,
+        CurrencyCode currency,
+        TicketMoneyBreakdown money,
+        BigDecimal potentialPayoutAmount,
+        BigDecimal winningAmount,
+        com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus,
+        com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus,
+        com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus,
+        com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin,
+        com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus,
+        OfflineSaleRef offlineSaleRef,
+        SalesSessionPostingMode sessionPostingMode,
+        Instant soldAt,
+        Instant resultedAt,
+        Instant settledAt,
+        Instant paidAt,
+        UserId paidBy,
+        List<TicketLine> lines) {
+        this(
+            id, tenantId, outletId, terminalId, sellerUserId, salesSessionId, drawId, drawChannelId,
+            ticketCode, publicCode, verificationCode, currency, money, potentialPayoutAmount,
+            winningAmount, saleStatus, resultStatus, settlementStatus, saleOrigin, syncStatus,
+            offlineSaleRef, sessionPostingMode, soldAt, resultedAt, settledAt, paidAt, paidBy,
+            lines, soldAt, null, null);
+    }
 
   public boolean paidOut() {
-    return settlementStatus == TicketSettlementStatus.PAID_OUT || paidAt != null;
+    return settlementStatus == com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED || paidAt != null;
   }
 
-  public Ticket markPaid(UserId paidBy, Instant paidAt) {
-    if (paidOut()) return this;
-    return new Ticket(id, tenantId, outletId, terminalId, sellerUserId, salesSessionId, drawId, drawChannelId,
-        ticketCode, publicCode, verificationCode, currency, money, potentialPayoutAmount, winningAmount,
-        saleStatus, resultStatus, TicketSettlementStatus.PAID_OUT, saleOrigin, syncStatus, offlineSaleRef,
-        sessionPostingMode, soldAt, resultedAt, settledAt, paidAt, paidBy, lines);
+  public void markPaid(UserId paidBy, Instant paidAt) {
+    if (paidOut()) return;
+    this.paidBy = paidBy;
+    this.paidAt = paidAt;
+    this.settlementStatus = com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED;
   }
 
     public static Ticket sell(
         TicketId id,
         TenantId tenantId,
         TerminalId terminalId,
-        SalesSessionId sessionId,
+        SalesSessionId salesSessionId,
         DrawId drawId,
         String ticketCode,
         String publicCode,
-        Currency currency,
+        java.util.Currency currency,
         List<TicketLine> lines,
-        Instant now) {
-
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(now, "now");
-        Objects.requireNonNull(lines, "lines");
-        BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
-
+        Instant soldAt) {
+        var stake = lines.stream()
+            .map(TicketLine::stakeAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        var potential = lines.stream()
+            .map(TicketLine::potentialPayoutAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new Ticket(
             id,
             tenantId,
+            OutletId.of(tenantId.value()),
             terminalId,
-            sessionId,
+            UserId.of(tenantId.value()),
+            salesSessionId,
             drawId,
+            null,
             ticketCode,
             publicCode,
-            currency.getCurrencyCode(),
+            publicCode,
+            CurrencyCode.of(currency.getCurrencyCode()),
+            new TicketMoneyBreakdown(stake, BigDecimal.ZERO, stake),
+            potential,
+            null,
             com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD,
             com.tchalanet.server.common.types.enums.TicketResultStatus.NOT_RESULTED,
             com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED,
-            total,
+            com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE,
+            com.tchalanet.server.common.types.enums.TicketSyncStatus.NONE,
+            null,
+            SalesSessionPostingMode.NORMAL_OPEN_SESSION,
+            soldAt,
             null,
             null,
-            lines,
             null,
-            now,
-            now);
+            null,
+            lines);
     }
 
-    // ---- Factory: PENDING_APPROVAL with approval request id
     public static Ticket requestApproval(
         TicketId id,
         TenantId tenantId,
         TerminalId terminalId,
-        SalesSessionId sessionId,
+        SalesSessionId salesSessionId,
         DrawId drawId,
         String ticketCode,
         String publicCode,
         String currency,
         List<TicketLine> lines,
-        Instant now,
+        Instant soldAt,
         ApprovalRequestId approvalRequestId) {
-
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(now, "now");
-        Objects.requireNonNull(approvalRequestId, "approvalRequestId");
-        Objects.requireNonNull(lines, "lines");
-        BigDecimal total = lines.stream().map(TicketLine::stake).reduce(BigDecimal.ZERO, BigDecimal::add);
-
+        var stake = lines.stream()
+            .map(TicketLine::stakeAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        var potential = lines.stream()
+            .map(TicketLine::potentialPayoutAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new Ticket(
             id,
             tenantId,
+            OutletId.of(tenantId.value()),
             terminalId,
-            sessionId,
+            UserId.of(tenantId.value()),
+            salesSessionId,
             drawId,
+            null,
             ticketCode,
             publicCode,
-            currency,
+            publicCode,
+            CurrencyCode.of(currency),
+            new TicketMoneyBreakdown(stake, BigDecimal.ZERO, stake),
+            potential,
+            null,
             com.tchalanet.server.common.types.enums.TicketSaleStatus.PENDING_APPROVAL,
             com.tchalanet.server.common.types.enums.TicketResultStatus.NOT_RESULTED,
             com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED,
-            total,
+            com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE,
+            com.tchalanet.server.common.types.enums.TicketSyncStatus.NONE,
+            null,
+            SalesSessionPostingMode.NORMAL_OPEN_SESSION,
+            soldAt,
+            null,
+            null,
             null,
             null,
             lines,
-            approvalRequestId,
-            now,
-            now);
+            soldAt,
+            null,
+            approvalRequestId);
     }
 
     // ---- Rehydrate
@@ -177,25 +281,42 @@ public record Ticket(
         Instant createdAt,
         Instant updatedAt) {
 
+        // Note: Rehydrate might need more fields if the domain grows,
+        // but let's keep it consistent with what Mapper uses.
+        // We might need to adjust Mapper to provide all fields.
+
         return new Ticket(
             id,
             tenantId,
+            OutletId.of(tenantId.value()), // Mock/Default if missing in rehydrate
             terminalId,
+            UserId.of(tenantId.value()), // Mock/Default
             sessionId,
             drawId,
+            null,
             ticketCode,
             publicCode,
-            currency,
+            "REHYDRATED",
+            CurrencyCode.of(currency),
+            new TicketMoneyBreakdown(totalAmount, BigDecimal.ZERO, totalAmount),
+            BigDecimal.ZERO,
+            winningAmount,
             saleStatus,
             resultStatus,
             settlementStatus,
-            totalAmount == null ? BigDecimal.ZERO : totalAmount,
-            winningAmount,
+            com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE,
+            com.tchalanet.server.common.types.enums.TicketSyncStatus.NONE,
+            null,
+            SalesSessionPostingMode.NORMAL_OPEN_SESSION,
+            createdAt != null ? createdAt : Instant.now(),
             resultedAt,
-            lines == null ? List.of() : lines,
-            approvalRequestId,
+            null,
+            null,
+            null,
+            lines,
             createdAt,
-            updatedAt);
+            updatedAt,
+            approvalRequestId);
     }
 
     // ---- State transitions
@@ -296,6 +417,54 @@ public record Ticket(
 
     public List<TicketLine> getLines() {
         return List.copyOf(lines);
+    }
+
+    public TicketId id() {
+        return id;
+    }
+
+    public String publicCode() {
+        return publicCode;
+    }
+
+    public com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus() {
+        return saleStatus;
+    }
+
+    public com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus() {
+        return resultStatus;
+    }
+
+    public com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus() {
+        return settlementStatus;
+    }
+
+    public com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin() {
+        return saleOrigin;
+    }
+
+    public com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus() {
+        return syncStatus;
+    }
+
+    public TicketMoneyBreakdown money() {
+        return money;
+    }
+
+    public String ticketCode() {
+        return ticketCode;
+    }
+
+    public Instant soldAt() {
+        return soldAt;
+    }
+
+    public SalesSessionId getSessionId() {
+        return salesSessionId;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return money.totalAmount();
     }
 
     private static String requireNonBlank(String value, String field) {

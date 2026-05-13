@@ -13,6 +13,7 @@ import com.tchalanet.server.core.offlinesync.internal.application.port.out.Offli
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineSubmissionWriterPort;
 import com.tchalanet.server.core.offlinesync.internal.domain.event.OfflineSubmissionSalesDecisionRecordedEvent;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSaleSubmission;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineRiskFlag;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSubmissionStatus;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.SalesOfflineDecision;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class ApproveOfflineSubmissionCommandHandler
     writer.recordSalesDecision(cmd.submissionId(), SalesOfflineDecision.ACCEPTED, null, null);
 
     var now = Instant.now(clock);
-    var riskFlags = submission.riskFlags() != null ? submission.riskFlags() : Set.of();
+    Set<OfflineRiskFlag> riskFlags = submission.riskFlags() != null ? submission.riskFlags() : Set.of();
 
     AfterCommit.run(() -> events.publish(new OfflineSubmissionSalesDecisionRecordedEvent(
         EventId.of(idGenerator.newUuid()),

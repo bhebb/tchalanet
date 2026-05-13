@@ -27,8 +27,8 @@ public class LedgerSalesEventsListener {
             new RecordTicketSaleLedgerCommand(
                 event.tenantId(),
                 event.ticketId(),
-                event.stakeCents(),
-                event.currencyCode(),
+                event.stakeAmountCents(),
+                event.currency().code(),
                 event.occurredAt()));
     }
 }

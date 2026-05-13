@@ -36,7 +36,7 @@ public class OfflineReviewAdminController {
       @RequestBody ReviewRequest request) {
     var result = commandBus.execute(new ApproveOfflineSubmissionCommand(
         OfflineSaleSubmissionId.parse(submissionId),
-        ctx.actorIdRequired(),
+        ctx.currentUserIdRequired(),
         request.reason()));
     return ApiResponse.success(Map.of("submissionId", result.submissionId().value().toString()));
   }
@@ -49,7 +49,7 @@ public class OfflineReviewAdminController {
       @RequestBody ReviewRequest request) {
     var result = commandBus.execute(new RejectOfflineSubmissionCommand(
         OfflineSaleSubmissionId.parse(submissionId),
-        ctx.actorIdRequired(),
+        ctx.currentUserIdRequired(),
         request.reason()));
     return ApiResponse.success(Map.of("submissionId", result.submissionId().value().toString(), "status", result.status()));
   }

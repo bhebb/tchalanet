@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.cashier.model;
 
-import com.tchalanet.server.common.communication.api.CommunicationChannel;
+import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import jakarta.validation.constraints.NotNull;
 
 public record CashierSendReceiptRequest(

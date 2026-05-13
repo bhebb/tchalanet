@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.ops.batch;
 
-import com.tchalanet.server.common.apiresponse.ApiResponse;
+import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.ops.batch.model.JobInfoResponse;
 import com.tchalanet.server.features.ops.batch.model.StartJobRequest;
 import com.tchalanet.server.features.ops.batch.model.StartJobResponse;

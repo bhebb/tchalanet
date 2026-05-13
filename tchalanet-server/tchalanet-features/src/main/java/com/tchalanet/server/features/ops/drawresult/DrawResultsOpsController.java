@@ -1,5 +1,9 @@
 package com.tchalanet.server.features.ops.drawresult;
 
+import com.tchalanet.server.common.context.CurrentContext;
+
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.key.BatchJobKeys;
 import com.tchalanet.server.common.bus.CommandBus;
@@ -8,17 +12,17 @@ import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.enums.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.common.paging.TchPage;
-import com.tchalanet.server.common.paging.TchPageRequest;
-import com.tchalanet.server.common.paging.TchPaging;
-import com.tchalanet.server.core.draw.application.command.model.ApplyExternalResultsWindowCommand;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.core.drawresult.application.command.model.*;
-import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultViewByIdQuery;
-import com.tchalanet.server.core.drawresult.application.query.model.GetDrawResultViewBySlotQuery;
-import com.tchalanet.server.core.drawresult.application.query.model.ListDrawResultsQuery;
-import com.tchalanet.server.core.drawresult.domain.model.DrawResultStatus;
+import com.tchalanet.server.core.drawresult.api.command.*;
+import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewByIdQuery;
+import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewBySlotQuery;
+import com.tchalanet.server.core.drawresult.api.query.ListDrawResultsQuery;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import com.tchalanet.server.features.ops.drawresult.model.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

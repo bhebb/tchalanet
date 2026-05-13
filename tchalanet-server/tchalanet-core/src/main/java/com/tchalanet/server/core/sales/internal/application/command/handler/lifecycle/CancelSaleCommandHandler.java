@@ -10,13 +10,12 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.common.types.id.EventId;
-import com.tchalanet.server.core.autonomy.internal.application.service.AutonomyResolutionService;
-import com.tchalanet.server.core.autonomy.internal.application.service.model.AutonomyResolveRequest;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
 import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitLineContext;
 import com.tchalanet.server.core.sales.api.command.CancelSaleCommand;
 import com.tchalanet.server.core.sales.api.command.CancelSaleResult;
 import com.tchalanet.server.core.sales.api.command.LimitNotice;
@@ -46,7 +45,6 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
     private final Clock clock;
 
     private final QueryBus queryBus;
-    private final AutonomyResolutionService resolveAutonomyPolicyService;
     private final SalesSessionReaderPort posSessionReaderPort;
     private final DrawLookupPort drawLookupPort;
 
@@ -62,10 +60,10 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         Instant now = Instant.now(clock);
 
         // derive outletId if possible (for autonomy + limits context)
-        var outletId =
+        com.tchalanet.server.common.types.id.OutletId outletId =
             ticket.getSessionId() == null
                 ? null
-                : posSessionReaderPort.findById(ticket.getSessionId()).map(com.tchalanet.server.core.session.internal.domain.model.SalesSession::outletId).orElse(null);
+                : posSessionReaderPort.findById(ticket.getTenantId(), ticket.getSessionId()).map(com.tchalanet.server.core.session.internal.domain.model.SalesSession::outletId).orElse(null);
 
         // limits + autonomy
         LimitEvaluationView limitView = evaluateCancelLimits(cmd, ticket, outletId, now);
@@ -79,7 +77,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
 
         // event payload
         long totalStakeCents = cents(saved.getTotalAmount());
-        String currency = saved.getCurrency() != null ? saved.getCurrency() : (cmd.currency() != null ? cmd.currency() : "HTG");
+        String currency = saved.getCurrency() != null ? saved.getCurrency().code() : (cmd.currency() != null ? cmd.currency() : "HTG");
 
         var event =
             new TicketCancelledEvent(
@@ -110,13 +108,17 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
     }
 
     private LimitEvaluationView evaluateCancelLimits(
-        CancelSaleCommand cmd, Ticket ticket, Object outletId, Instant now) {
+        CancelSaleCommand cmd, Ticket ticket, com.tchalanet.server.common.types.id.OutletId outletId, Instant now) {
 
         BigDecimal ticketStakeTotal = ticket.getTotalAmount();
 
-        List<LimitContext.BetLine> betLines =
+        List<LimitLineContext> betLines =
             ticket.getLines().stream()
-                .map(l -> new LimitContext.BetLine(l.betType(), l.selection(), l.stake(), l.betOption(), l.potentialPayout()))
+                .map(l -> new LimitLineContext(
+                    l.betType(),
+                    l.selection(),
+                    cents(l.stake()),
+                    cents(l.potentialPayout())))
                 .toList();
 
         // Use tenant from the ticket (RLS context derived from request); avoid passing tenant from external command
@@ -130,21 +132,12 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         LimitContext context =
             new LimitContext(
                 ticket.getTenantId(),
+                outletId,
+                cmd.performedBy(),
                 ticket.getDrawId(),
-                draw.drawChannelId()
-                , com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
-                ticket.getTerminalId(),
-                (com.tchalanet.server.common.types.id.OutletId) outletId, // cast if your type exists; else change signature
-                null,
-                List.of(),
-                null,
-                OperationType.CANCEL,
-                scope,
-                betLines,
-                ticketStakeTotal,
-                betLines.size(),
+                draw.drawChannelId(),
                 now,
-                drawZone(draw));
+                betLines);
 
         return queryBus.ask(new EvaluateLimitPolicyQuery(context));
     }
@@ -171,33 +164,20 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
             return;
         }
 
-        // BLOCK
-        var req = new AutonomyResolveRequest(
-            com.tchalanet.server.common.types.id.AgentId.of(cmd.performedBy().value()),
-            ticket.getTerminalId(),
-            (com.tchalanet.server.common.types.id.OutletId) outletId,
-            now);
-        var autonomyPolicy = resolveAutonomyPolicyService.resolve(req);
-        if (!autonomyPolicy.requireApprovalOnBlock()) {
-            List<LimitNotice> notices =
-                limitView.breaches().stream()
-                    .map(d -> new LimitNotice(
-                        d.ruleKey().name(),
-                        d.outcome(),
-                        d.messageKey(),
-                        d.appliedTarget(),
-                        d.code(),
-                        d.currentValue(),
-                        d.limitValue()))
-                    .toList();
+        // TODO(sales-refactor): reintroduce autonomy decision matrix after autonomy API migration.
+        List<LimitNotice> notices =
+            limitView.breaches().stream()
+                .map(d -> new LimitNotice(
+                    d.ruleKey().name(),
+                    d.outcome(),
+                    d.messageKey(),
+                    d.appliedScope(),
+                    d.code(),
+                    d.currentValue() == null ? null : BigDecimal.valueOf(d.currentValue()),
+                    d.limitValue() == null ? null : BigDecimal.valueOf(d.limitValue())))
+                .toList();
 
-            throw ProblemRest.limitBlocked(
-                "Limit breach blocked",
-                com.tchalanet.server.common.types.enums.OperationType.CANCEL,
-                notices,
-                autonomyPolicy.requireApprovalOnBlock(),
-                autonomyPolicy.approvalRole());
-        }
+        throw ProblemRest.conflict("Limit breach blocked");
     }
 
     private static List<LimitNotice> toLimitNotices(LimitEvaluationView limitView) {
@@ -207,10 +187,10 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
                 d.ruleKey().name(),
                 d.outcome(),
                 d.messageKey(),
-                d.appliedTarget(),
+                d.appliedScope(),
                 d.code(),
-                d.currentValue(),
-                d.limitValue()))
+                d.currentValue() == null ? null : BigDecimal.valueOf(d.currentValue()),
+                d.limitValue() == null ? null : BigDecimal.valueOf(d.limitValue())))
             .toList();
     }
 

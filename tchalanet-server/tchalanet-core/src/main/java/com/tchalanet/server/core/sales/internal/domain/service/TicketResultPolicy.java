@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.domain.service;
 
-import com.tchalanet.server.core.sales.internal.domain.model.TicketResultStatus;
-import com.tchalanet.server.core.sales.internal.domain.model.TicketSaleStatus;
+import com.tchalanet.server.common.types.enums.TicketResultStatus;
+import com.tchalanet.server.common.types.enums.TicketSaleStatus;
 
 public class TicketResultPolicy {
 
@@ -17,4 +17,3 @@ public class TicketResultPolicy {
     return resultStatus != TicketResultStatus.NOT_RESULTED;
   }
 }
-

@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.context.CurrentContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.sales.internal.infra.web.mapper.TicketWebMapper;
@@ -32,6 +34,7 @@ public class AdminTicketController {
   @Secured({"ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<Void> overrideResult(
+      @CurrentContext TchRequestContext ctx,
       @PathVariable TicketId ticketId, @Valid @RequestBody OverrideTicketResultRequest request) {
     var cmd = mapper.toOverrideTicketResultCommand(ticketId, ctx.userId(), request);
     commandBus.execute(cmd);

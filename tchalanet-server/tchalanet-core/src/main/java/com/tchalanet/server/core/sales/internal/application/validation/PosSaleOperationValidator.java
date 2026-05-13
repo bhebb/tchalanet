@@ -5,9 +5,10 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.outlet.api.query.OutletOperation;
 import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
-import com.tchalanet.server.core.session.api.query.SalesSessionOperation;
 import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
 import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
+import com.tchalanet.server.core.session.internal.domain.model.SalesSessionOperation;
+import com.tchalanet.server.core.terminal.internal.domain.model.TerminalOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +53,7 @@ public class PosSaleOperationValidator {
             actor.terminalId(),
             actor.outletId(),
             actor.salesSessionId(),
-            terminal.terminalCode(),
+            terminal.displayCode(),
             outlet.outletName(),
             session.openedAt()
         );

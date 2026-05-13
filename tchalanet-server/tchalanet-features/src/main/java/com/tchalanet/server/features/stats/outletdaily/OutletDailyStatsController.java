@@ -1,11 +1,15 @@
 package com.tchalanet.server.features.stats.outletdaily;
 
+import com.tchalanet.server.common.context.CurrentContext;
+
+import com.tchalanet.server.common.context.TchRequestContext;
+
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.apiresponse.ApiResponse;
-import com.tchalanet.server.core.outlet.application.query.model.GetOutletDailySummaryQuery;
-import com.tchalanet.server.core.outlet.application.query.model.OutletDailySummary;
+import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.core.outlet.api.query.GetOutletDailySummaryQuery;
+import com.tchalanet.server.core.outlet.api.query.OutletDailySummary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;

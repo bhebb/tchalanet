@@ -54,8 +54,8 @@ public record Terminal(
         Instant now) {
 
         return new Terminal(
-            id,
             tenantId,
+            id,
             outletId,
             null,
             kind == null ? TerminalKind.PHYSICAL : kind,
@@ -65,11 +65,24 @@ public record Terminal(
             null,
             label,
             inventoryTag,
+            null,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null,
+            now,
             metadata == null ? Map.of() : Map.copyOf(metadata),
             now,
-            null,
-            null,
-            null,
             null);
     }
 
@@ -319,23 +332,36 @@ public record Terminal(
         Map<String, Object> newMetadata) {
 
         return new Terminal(
-            id,
             tenantId,
+            id,
             newOutletId,
             newAssignedUserId,
             kind,
             newState,
             newAutoSessionEnabled,
             newSyncState,
-            newLastSeen,
+            code,
             newLabel,
             newInventoryTag,
-            newMetadata == null ? Map.of() : Map.copyOf(newMetadata),
-            newRegisteredAt,
-            newUnregisteredAt,
             newLockedAt,
             newLockedBy,
-            newLockReason);
+            newLockReason,
+            salesBlocked,
+            salesBlockReason,
+            salesBlockedAt,
+            salesBlockedBy,
+            payoutBlocked,
+            payoutBlockReason,
+            payoutBlockedAt,
+            payoutBlockedBy,
+            offlineBlocked,
+            offlineBlockReason,
+            offlineBlockedAt,
+            offlineBlockedBy,
+            newLastSeen,
+            newMetadata == null ? Map.of() : Map.copyOf(newMetadata),
+            newRegisteredAt,
+            newUnregisteredAt);
     }
 
     public boolean assignedTo(UserId userId) {

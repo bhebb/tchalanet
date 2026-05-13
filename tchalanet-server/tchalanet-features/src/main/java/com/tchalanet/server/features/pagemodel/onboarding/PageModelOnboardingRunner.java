@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.pagemodel.onboarding;
 
 import com.tchalanet.server.common.constant.CommonConstants;
+import com.tchalanet.server.common.context.TchContextScope;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
