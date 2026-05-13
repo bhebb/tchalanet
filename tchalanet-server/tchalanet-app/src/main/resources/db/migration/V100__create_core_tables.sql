@@ -1162,6 +1162,23 @@ CREATE TABLE notification_preference (
   CONSTRAINT uq_notification_preference__scope UNIQUE (tenant_id, scope_type, scope_value, category, kind, channel)
 );
 
+CREATE TABLE notification_template (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid REFERENCES tenant(id),
+  template_key varchar(120) NOT NULL,
+  locale varchar(20) NOT NULL,
+  title_template text NOT NULL,
+  body_template text NOT NULL,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz DEFAULT now(),
+  created_by uuid,
+  updated_at timestamptz DEFAULT now(),
+  updated_by uuid,
+  deleted_at timestamptz,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_notification_template__scope UNIQUE (tenant_id, template_key, locale)
+);
+
 CREATE TABLE outbound_message (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid REFERENCES tenant(id),

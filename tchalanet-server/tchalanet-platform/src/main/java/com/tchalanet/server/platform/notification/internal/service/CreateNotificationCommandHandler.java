@@ -28,6 +28,7 @@ public class CreateNotificationCommandHandler
   private final IdGenerator idGenerator;
   private final NotificationWriterPort notificationWriter;
   private final NotificationDeliveryWriterPort deliveryWriter;
+  private final NotificationTemplateRenderer templateRenderer;
 
   @Override
   @TchTx
@@ -41,6 +42,13 @@ public class CreateNotificationCommandHandler
 
     var now = clock.instant();
     var notificationId = NotificationId.of(idGenerator.newUuid());
+    var rendered = templateRenderer.render(
+        command.tenantId(),
+        firstNonBlank(command.titleKey(), command.messageKey()),
+        null,
+        command.titleText(),
+        command.messageText(),
+        command.payload());
     var notification =
         new Notification(
             notificationId,
@@ -55,8 +63,8 @@ public class CreateNotificationCommandHandler
             command.category(),
             command.titleKey(),
             command.messageKey(),
-            command.titleText(),
-            command.messageText(),
+            rendered.title(),
+            rendered.message(),
             command.payload(),
             new NotificationAction(command.actionType(), command.actionUrl()),
             NotificationStatus.UNREAD,
@@ -68,6 +76,13 @@ public class CreateNotificationCommandHandler
 
     var saved = notificationWriter.save(notification);
     scheduleDeliveries(saved, command.channels(), now);
+  }
+
+  private String firstNonBlank(String first, String second) {
+    if (first != null && !first.isBlank()) {
+      return first;
+    }
+    return second;
   }
 
   private void scheduleDeliveries(

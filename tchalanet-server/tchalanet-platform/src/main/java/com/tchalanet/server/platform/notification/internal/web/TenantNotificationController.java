@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/tenant/notifications")
+@RequestMapping("/tenant/me/notifications")
 @RequiredArgsConstructor
 @Tag(name = "Tenant • Notifications")
 @PreAuthorize("hasPermission('notifications:view')")

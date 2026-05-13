@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.batch.key;
+package com.tchalanet.server.common.job.key;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

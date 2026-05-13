@@ -177,6 +177,9 @@ CREATE INDEX idx_notification_delivery_notification_channel
   ON notification_delivery (notification_id, channel);
 CREATE INDEX idx_notification_delivery_status_next
   ON notification_delivery (status, next_attempt_at);
+CREATE INDEX idx_notification_template_lookup
+  ON notification_template (tenant_id, template_key, locale)
+  WHERE active = true AND deleted_at IS NULL;
 
 CREATE UNIQUE INDEX uq_outbound_message_correlation
   ON outbound_message (COALESCE(tenant_id, '00000000-0000-0000-0000-000000000000'::uuid), correlation_key)

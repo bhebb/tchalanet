@@ -365,3 +365,13 @@ CREATE TABLE notification_preference_aud (id uuid NOT NULL,
   deleted_at timestamptz,
   version bigint, tenant_id uuid, scope_type varchar(32), scope_value varchar(160), category varchar(48), kind varchar(32), channel varchar(32), enabled boolean, CONSTRAINT pk_notification_preference_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_notification_preference_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
+CREATE TABLE notification_template_aud (id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  version bigint, tenant_id uuid, template_key varchar(120), locale varchar(20), title_template text, body_template text, active boolean, CONSTRAINT pk_notification_template_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_notification_template_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));

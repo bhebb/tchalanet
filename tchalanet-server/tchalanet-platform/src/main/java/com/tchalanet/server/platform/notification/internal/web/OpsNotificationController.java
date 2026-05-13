@@ -27,12 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * Contrôleur ops pour tester les notifications.
- * SUPER_ADMIN uniquement.
- */
 @RestController
-@RequestMapping("/api/v1/ops/notifications")
+@RequestMapping("/platform/ops/notifications")
 @Tag(name = "Ops • Notifications")
 @RequiredArgsConstructor
 @Slf4j
@@ -41,9 +37,8 @@ public class OpsNotificationController {
     private final CommandBus commandBus;
 
     @Operation(
-        summary = "Test notification sending (SUPER_ADMIN only)",
-        description = "Sends a test notification through edge-service. " +
-            "Supports Slack (channelKey), Email (to), SMS (to)."
+        summary = "Create a test in-app notification (SUPER_ADMIN only)",
+        description = "Creates a persistent notification-center item for ops verification."
     )
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/test")
@@ -112,7 +107,7 @@ public class OpsNotificationController {
     }
 
     /**
-     * Request DTO pour tester l'envoi de notifications.
+     * Request DTO pour tester la création de notifications in-app.
      */
     public record SendNotificationTestRequest(
         @NotNull NotificationChannel channel,
@@ -134,4 +129,3 @@ public class OpsNotificationController {
         String channel
     ) {}
 }
-

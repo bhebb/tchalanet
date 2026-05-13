@@ -412,6 +412,25 @@ CREATE POLICY notification_preference_rls_all ON notification_preference
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 
+ALTER TABLE notification_template ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_template FORCE ROW LEVEL SECURITY;
+CREATE POLICY notification_template_rls_all ON notification_template
+  FOR ALL
+  USING (
+    (
+      public.current_tenant() IS NOT NULL
+      AND tenant_id = public.current_tenant()
+      AND (public.deleted_visibility() = 'all'
+        OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+        OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+    )
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  )
+  WITH CHECK (
+    (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+    OR (tenant_id IS NULL AND public.allow_platform_cross_tenant_select())
+  );
+
 ALTER TABLE outbound_message ENABLE ROW LEVEL SECURITY;
 ALTER TABLE outbound_message FORCE ROW LEVEL SECURITY;
 CREATE POLICY outbound_message_rls_all ON outbound_message

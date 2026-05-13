@@ -1,19 +1,23 @@
 package com.tchalanet.server.platform.notification.internal.batch;
 
-import com.tchalanet.server.platform.communication.api.CommunicationApi;
-import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
-import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
-import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
+import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
+import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
+import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
+import com.tchalanet.server.platform.notification.api.model.NotificationKind;
+import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
+import java.time.Clock;
+import java.util.HashMap;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Clock;
-import java.util.HashMap;
-import java.util.Locale;
-
 /**
- * Service orchestrateur pour les notifications techniques batch.
+ * Service orchestrateur pour les notifications techniques batch in-app.
  * Délègue les décisions de politique à BatchNotificationPolicy.
  */
 @Component
@@ -21,8 +25,9 @@ import java.util.Locale;
 @Slf4j
 public class BatchEventNotificationService {
 
-    private final CommunicationApi communicationApi;
+    private final CommandBus commandBus;
     private final BatchNotificationPolicy policy;
+    private final JsonUtils jsonUtils;
     private final Clock clock;
 
     private void sendBatchNotification(BatchNotification notice) {
@@ -32,12 +37,12 @@ public class BatchEventNotificationService {
             return;
         }
 
-        communicationApi.enqueue(toPayload(notice));
-        log.debug("Batch notification enqueued: jobKey={} status={} code={}",
+        commandBus.execute(toCommand(notice));
+        log.debug("Batch notification created: jobKey={} status={} code={}",
             notice.jobKey(), notice.status(), notice.code());
     }
 
-    private SendOutboundMessageRequest toPayload(BatchNotification n) {
+    private CreateNotificationCommand toCommand(BatchNotification n) {
         var data = n.details() == null
             ? new HashMap<String, Object>()
             : new HashMap<>(n.details());
@@ -58,13 +63,48 @@ public class BatchEventNotificationService {
         data.put("message", messageText);
         data.put("severity", n.status() == BatchNotificationStatus.FAILED ? "ERROR" : "WARNING");
 
-        return new SendOutboundMessageRequest(
-            "BATCH_MESSAGE",
-            CommunicationChannel.SLACK_INTERNAL,
-            OutboundRecipient.slack("batch-draws"),
-            Locale.ENGLISH,
-            data
+        var tenantId = parseTenantId(n.tenantId());
+        var audienceType = tenantId == null
+            ? NotificationAudienceType.PLATFORM
+            : NotificationAudienceType.TENANT;
+        var audienceValue = tenantId == null ? "platform" : tenantId.value().toString();
+
+        return new CreateNotificationCommand(
+            tenantId,
+            "BatchNotification",
+            n.jobKey(),
+            fingerprint(n),
+            audienceType,
+            audienceValue,
+            n.status() == BatchNotificationStatus.FAILED
+                ? NotificationSeverity.ERROR
+                : NotificationSeverity.WARNING,
+            n.status() == BatchNotificationStatus.FAILED
+                ? NotificationKind.SYSTEM_ERROR
+                : NotificationKind.WARNING,
+            NotificationCategory.BATCH,
+            "batch." + n.status().name().toLowerCase(),
+            "batch." + n.status().name().toLowerCase(),
+            title,
+            messageText,
+            jsonUtils.toJsonNode(data),
+            null,
+            null,
+            null,
+            Set.of(NotificationChannel.WEB)
         );
+    }
+
+    private TenantId parseTenantId(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return TenantId.parse(raw);
+        } catch (IllegalArgumentException e) {
+            log.warn("Ignoring invalid tenant id on batch notification: {}", raw);
+            return null;
+        }
     }
 
     private String buildMessage(BatchNotification n) {
@@ -80,6 +120,16 @@ public class BatchEventNotificationService {
             sb.append(" | ").append(n.message());
         }
         return sb.toString();
+    }
+
+    private String fingerprint(BatchNotification n) {
+        return String.join(":",
+            "batch",
+            n.jobKey(),
+            n.tenantId() == null ? "GLOBAL" : n.tenantId(),
+            n.status().name(),
+            n.code() == null ? "none" : n.code()
+        );
     }
 
     public void started(String jobKey) {

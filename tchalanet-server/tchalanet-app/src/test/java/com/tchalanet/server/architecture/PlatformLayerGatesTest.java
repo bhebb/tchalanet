@@ -79,6 +79,30 @@ class PlatformLayerGatesTest {
           .as("Slack/email/SMS providers are implementation details of platform.communication")
           .check(allClasses);
     }
+
+    @Test
+    @DisplayName("notification internals are private to platform.notification")
+    void notificationInternalsArePrivateToPlatformNotification() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.notification..")
+          .should().dependOnClassesThat()
+          .resideInAnyPackage(
+              "com.tchalanet.server.platform.notification.internal..",
+              "com.tchalanet.server.platform.notification.internal.persistence..")
+          .as("notification persistence and internal services are owned by platform.notification")
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("notification must not call communication")
+    void notificationMustNotCallCommunication() {
+      noClasses()
+          .that().resideInAPackage("com.tchalanet.server.platform.notification..")
+          .should().dependOnClassesThat()
+          .resideInAPackage("com.tchalanet.server.platform.communication..")
+          .as("platform.notification creates in-app records; external delivery belongs to platform.communication")
+          .check(allClasses);
+    }
   }
 
   @Nested
