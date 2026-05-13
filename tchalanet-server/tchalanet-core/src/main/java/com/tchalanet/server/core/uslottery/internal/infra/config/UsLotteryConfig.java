@@ -2,7 +2,6 @@ package com.tchalanet.server.core.uslottery.internal.infra.config;
 
 import com.tchalanet.server.common.client.http.RestClientFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -10,7 +9,6 @@ import org.springframework.web.client.RestClient;
 import java.util.Map;
 
 @Configuration
-@EnableConfigurationProperties(UsLotteryProperties.class)
 @ConditionalOnProperty(
     prefix = "tch.us-lottery",
     name = "enabled",

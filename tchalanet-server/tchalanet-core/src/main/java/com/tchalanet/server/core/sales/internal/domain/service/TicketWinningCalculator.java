@@ -8,9 +8,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class TicketWinningCalculator {
 
     private static final Pattern SEP = Pattern.compile("[,\\s\\-]+");

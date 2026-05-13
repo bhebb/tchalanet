@@ -1,6 +1,5 @@
 package com.tchalanet.server.common.context.system;
 
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.util.UUID;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -8,7 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "tch.system")
 public record SystemContextProperties(
     UUID userId,
-    UUID tenantId,
     String tenantCode,
     String actorName
 ) {
@@ -17,7 +15,21 @@ public record SystemContextProperties(
         return UserId.of(userId);
     }
 
-    public TenantId systemTenantId() {
-        return TenantId.of(tenantId);
+    public String normalizedTenantCode() {
+        return normalize(tenantCode);
+    }
+
+    public String normalizedActorName() {
+        var normalized = normalize(actorName);
+        return normalized == null ? "system" : normalized;
+    }
+
+    private static String normalize(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        var trimmed = value.trim();
+        return trimmed.isBlank() ? null : trimmed;
     }
 }

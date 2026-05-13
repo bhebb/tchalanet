@@ -62,7 +62,8 @@ class ArchitectureTest {
         .that().resideInAPackage("com.tchalanet.server.core.tenantgame..")
         .should().dependOnClassesThat().resideInAnyPackage("com.tchalanet.server.catalog.game.internal..",
                          "com.tchalanet.server.catalog.game.infra..")
-        .as("core/tenantgame must NOT depend on catalog/game/internal or infra; only api is allowed");
+        .as("core/tenantgame must NOT depend on catalog/game/internal or infra; only api is allowed")
+        .allowEmptyShould(true);
 
     rule.check(classes);
   }

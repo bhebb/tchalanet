@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketResult;
+import com.tchalanet.server.core.sales.api.command.SoldTicketView;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketLineRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
@@ -31,5 +32,17 @@ public interface TicketWebAdminMapper {
 
     default TicketResponse toTicketResponse(SellTicketResult result) {
         return toTicketResponse(result.ticket());
+    }
+
+    default TicketResponse toTicketResponse(SoldTicketView ticket) {
+        return new TicketResponse(
+            ticket.ticketId().value().toString(),
+            ticket.publicCode(),
+            ticket.saleStatus().name(),
+            null,
+            null,
+            ticket.totalAmount(),
+            null,
+            ticket.totalAmount());
     }
 }

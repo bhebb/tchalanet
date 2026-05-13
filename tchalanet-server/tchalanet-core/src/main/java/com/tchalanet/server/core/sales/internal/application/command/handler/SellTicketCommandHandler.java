@@ -14,6 +14,7 @@ import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.SellTicketResult;
+import com.tchalanet.server.core.sales.api.command.SoldTicketView;
 import com.tchalanet.server.core.sales.internal.application.factory.TicketSaleFactory;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.application.service.TicketSalePolicyService;
@@ -77,7 +78,7 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
                         NoticeSeverity.WARN,
                         Map.of("approvalRequestId", approvalRequestId.value())));
 
-            return new SellTicketResult(saved, SellTicketOutcome.PENDING_APPROVAL, approvalRequestId);
+            return new SellTicketResult(toView(saved), SellTicketOutcome.PENDING_APPROVAL, approvalRequestId);
         }
 
         var sold =
@@ -104,7 +105,19 @@ public class SellTicketCommandHandler implements CommandHandler<SellTicketComman
 
         log.info("Ticket sold ticketId={} status={}", saved.getId(), saved.getSaleStatus());
 
-        return new SellTicketResult(saved, outcome, null);
+        return new SellTicketResult(toView(saved), outcome, null);
+    }
+
+    private SoldTicketView toView(Ticket ticket) {
+        return new SoldTicketView(
+            ticket.getId(),
+            ticket.getTicketCode(),
+            ticket.getPublicCode(),
+            ticket.getSaleStatus(),
+            ticket.getResultStatus(),
+            ticket.getSettlementStatus(),
+            ticket.getTotalAmount(),
+            ticket.getCreatedAt());
     }
 
     private void enforceSingleGameCode(List<TicketLine> lines) {

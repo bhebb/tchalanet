@@ -16,7 +16,7 @@ public class AutonomyAdminWebMapper {
 
         return new AutonomyOverviewResponse(
             view.targetType(),
-            view.targetId() == null ? null : view.targetId().value().toString(),
+            view.targetId() == null ? null : view.targetId().toString(),
             toRuleResponse(view.rule()),
             toMetaResponse(view.meta()));
     }

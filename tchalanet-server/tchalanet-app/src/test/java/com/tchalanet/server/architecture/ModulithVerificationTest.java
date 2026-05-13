@@ -1,6 +1,6 @@
 package com.tchalanet.server.architecture;
 
-import com.tchalanet.server.TchalanetApiApplication;
+import com.tchalanet.server.app.TchalanetApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
 
@@ -12,7 +12,7 @@ import org.springframework.modulith.core.ApplicationModules;
  */
 class ModulithVerificationTest {
 
-  ApplicationModules modules = ApplicationModules.of(TchalanetApiApplication.class);
+  ApplicationModules modules = ApplicationModules.of(TchalanetApplication.class);
 
   @Test
   void verifyModularStructure() {

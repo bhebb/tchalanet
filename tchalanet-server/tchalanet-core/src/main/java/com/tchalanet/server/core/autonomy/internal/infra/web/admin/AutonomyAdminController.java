@@ -40,7 +40,7 @@ public class AutonomyAdminController {
         @RequestParam("targetType") AutonomyTargetType targetType,
         @RequestParam(value = "targetId", required = false) AutonomyTargetId targetId
     ) {
-        var view = queryBus.ask(new GetAutonomyOverviewQuery(targetType, targetId));
+        var view = queryBus.ask(new GetAutonomyOverviewQuery(targetType, targetId == null ? null : targetId.value()));
         return ApiResponse.success(mapper.toResponse(view));
     }
 
@@ -63,7 +63,10 @@ public class AutonomyAdminController {
 
         commandBus.execute(cmd);
 
-        var view = queryBus.ask(new GetAutonomyOverviewQuery(req.targetType(), req.targetId()));
+        var view =
+            queryBus.ask(
+                new GetAutonomyOverviewQuery(
+                    req.targetType(), req.targetId() == null ? null : req.targetId().value()));
         return ApiResponse.success(mapper.toResponse(view));
     }
 

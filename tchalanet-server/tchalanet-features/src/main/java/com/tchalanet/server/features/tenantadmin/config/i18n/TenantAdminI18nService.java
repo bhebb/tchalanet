@@ -2,10 +2,11 @@ package com.tchalanet.server.features.tenantadmin.config.i18n;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 
+import com.tchalanet.server.catalog.i18n.api.I18nOverridesAdminCatalog;
 import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;
+import com.tchalanet.server.catalog.i18n.api.model.CreateI18nOverrideAdminRequest;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
-import com.tchalanet.server.catalog.i18n.internal.write.I18nOverridesAdminService;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.features.tenantadmin.config.i18n.model.AdminI18nRow;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class TenantAdminI18nService {
 
   private final I18nOverridesCatalog i18nOverridesCatalog;
-  private final I18nOverridesAdminService adminService;
+  private final I18nOverridesAdminCatalog adminService;
 
   public TchPage<AdminI18nRow> search(TchRequestContext ctx, String locale, String q, Boolean active, TchPageRequest pageReq) {
     var criteria = new SearchI18nOverridesCriteria(
@@ -51,8 +52,8 @@ public class TenantAdminI18nService {
   }
 
   public UpsertI18nOverrideResult upsert(TchRequestContext ctx, UpsertI18nOverrideRequest req) {
-    var created = adminService.create(new com.tchalanet.server.catalog.i18n.internal.web.model.CreateI18nOverrideRequest(
-        ctx.tenantIdSafe(), req.locale(), com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.TENANT, req.i18nKey(), req.i18nValue()
+    var created = adminService.create(new CreateI18nOverrideAdminRequest(
+        ctx.tenantIdSafe(), req.locale(), I18nOverrideLevel.TENANT, req.i18nKey(), req.i18nValue()
     ));
     return new UpsertI18nOverrideResult(created.id() == null ? null : created.id().value().toString());
   }

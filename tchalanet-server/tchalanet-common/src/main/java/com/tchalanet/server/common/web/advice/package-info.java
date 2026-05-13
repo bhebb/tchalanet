@@ -7,4 +7,5 @@
  *
  * <p>Contains no business logic, only web adaptation concerns.
  */
+@org.springframework.modulith.NamedInterface
 package com.tchalanet.server.common.web.advice;

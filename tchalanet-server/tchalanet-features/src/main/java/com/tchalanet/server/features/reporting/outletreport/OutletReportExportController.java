@@ -4,7 +4,6 @@ import com.tchalanet.server.common.context.CurrentContext;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.web.api.ApiResponse;
@@ -35,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Tenant • Outlet Reports")
 public class OutletReportExportController {
 
-  private final QueryBus queryBus;
+  private final OutletReportExportService reportExportService;
 
   @Operation(summary = "Generate outlet report")
   @GetMapping("/{id}/export")
@@ -46,9 +45,8 @@ public class OutletReportExportController {
       @RequestParam("to") String to) {
     try {
       Path path =
-          queryBus.ask(
-              new GenerateOutletReportQuery(
-                  ctx.tenantIdSafe(), id, LocalDate.parse(from), LocalDate.parse(to)));
+          reportExportService.generate(
+              ctx.tenantIdSafe(), id, LocalDate.parse(from), LocalDate.parse(to));
       return ApiResponse.success(path.toString());
     } catch (DateTimeParseException e) {
       throw ProblemRest.badRequest("invalid date format: " + from + " / " + to);
@@ -68,8 +66,7 @@ public class OutletReportExportController {
       throw ProblemRest.badRequest("invalid date format: " + date);
     }
 
-    Path path =
-        queryBus.ask(new GenerateOutletReportQuery(ctx.tenantIdSafe(), id, parsedDate, parsedDate));
+    Path path = reportExportService.generate(ctx.tenantIdSafe(), id, parsedDate, parsedDate);
     if (path == null || !Files.exists(path)) {
       throw ProblemRest.notFound("outlet report not found", id);
     }

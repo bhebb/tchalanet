@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.print;
 
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.api.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.api.print.TicketPrintView;
 
 public abstract class AbstractTicketReceiptFormatter implements TicketReceiptFormatter {
 

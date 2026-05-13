@@ -30,5 +30,9 @@
       <groupId>com.tchalanet</groupId>
       <artifactId>tchalanet-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.modulith</groupId>
+      <artifactId>spring-modulith-api</artifactId>
+    </dependency>
   </dependencies>
 </project>

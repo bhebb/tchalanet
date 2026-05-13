@@ -7,8 +7,8 @@ public record TicketPublicProperties(
     String baseUrl,
     String ticketPathTemplate
 ) {
-  public TicketPublicProperties {
-    if (baseUrl == null || baseUrl.isBlank()) baseUrl = "https://app.tchalanet.com";
-    if (ticketPathTemplate == null || ticketPathTemplate.isBlank()) ticketPathTemplate = "/ticket/{code}";
-  }
+    public TicketPublicProperties {
+        if (baseUrl == null) baseUrl = "https://app.tchalanet.com";
+        if (ticketPathTemplate == null || ticketPathTemplate.isBlank()) ticketPathTemplate = "/ticket/{code}";
+    }
 }

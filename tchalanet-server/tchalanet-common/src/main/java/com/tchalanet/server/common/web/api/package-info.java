@@ -8,4 +8,5 @@
  * <p>Used by: - Controllers (explicit return types) - BFF public/private endpoints - Frontend
  * (stable contract consumption)
  */
+@org.springframework.modulith.NamedInterface
 package com.tchalanet.server.common.web.api;

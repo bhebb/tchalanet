@@ -1,5 +1,7 @@
 package com.tchalanet.server.catalog.i18n.internal.write;
 
+import com.tchalanet.server.catalog.i18n.api.I18nOverridesAdminCatalog;
+import com.tchalanet.server.catalog.i18n.api.model.CreateI18nOverrideAdminRequest;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import com.tchalanet.server.catalog.i18n.internal.web.model.CreateI18nOverrideRequest;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
@@ -31,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class I18nOverridesAdminService {
+public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
 
   private final I18nOverrideRepository repository;
   private final I18nOverrideMapper mapper;
@@ -72,6 +74,25 @@ public class I18nOverridesAdminService {
     log.info("Created i18n override with ID: {}", entity.getId());
 
     return mapper.toView(entity);
+  }
+
+  @Override
+  @Transactional
+  @CacheEvict(
+      cacheNames = {
+        I18nOverridesCacheNames.BY_TENANT,
+        I18nOverridesCacheNames.BY_TENANT_LOCALE,
+        I18nOverridesCacheNames.BY_ID
+      },
+      allEntries = true)
+  public I18nOverrideView create(CreateI18nOverrideAdminRequest request) {
+    return create(
+        new CreateI18nOverrideRequest(
+            request.tenantId(),
+            request.locale(),
+            request.level(),
+            request.i18nKey(),
+            request.i18nValue()));
   }
 
     private static @NonNull I18nOverrideEntity createI18nOverrideEntity(CreateI18nOverrideRequest request) {

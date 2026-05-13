@@ -3,8 +3,8 @@ package com.tchalanet.server.common.batch.gate;
 import java.time.Duration;
 import java.util.List;
 
-import com.tchalanet.server.common.cache.internal.CacheSpec;
-import com.tchalanet.server.common.cache.internal.CacheSpecProvider;
+import com.tchalanet.server.common.cache.CacheSpec;
+import com.tchalanet.server.common.cache.CacheSpecProvider;
 import org.springframework.stereotype.Component;
 
 import static com.tchalanet.server.common.batch.gate.BatchFlagCache.CACHE_NAME;

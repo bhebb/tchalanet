@@ -57,7 +57,7 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
           "ticketsToday", 0L,
           "totalAmount", BigDecimal.ZERO,
           "sessionOpen", true,
-          "sessionId", session.id() != null ? session.id().toString() : "",
+          "sessionId", session.sessionId() != null ? session.sessionId().toString() : "",
           "openedAt", session.openedAt() != null ? session.openedAt().toString() : "");
     } catch (Exception e) {
       return fallback();

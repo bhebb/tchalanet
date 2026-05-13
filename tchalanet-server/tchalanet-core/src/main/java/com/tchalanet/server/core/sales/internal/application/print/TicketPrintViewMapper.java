@@ -6,8 +6,8 @@ import com.tchalanet.server.core.draw.internal.domain.model.Draw;
 import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
 import com.tchalanet.server.core.sales.internal.application.formatter.DrawLabelFormat;
 import com.tchalanet.server.core.sales.internal.application.formatter.TicketDrawLabelFormatter;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintLine;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
+import com.tchalanet.server.core.sales.api.print.TicketPrintLine;
+import com.tchalanet.server.core.sales.api.print.TicketPrintView;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import org.springframework.stereotype.Component;
 

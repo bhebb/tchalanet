@@ -2,18 +2,14 @@ package com.tchalanet.server.features.receipt.app;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 
-import com.tchalanet.server.platform.document.internal.escpos.EscPosBuilder;
-import com.tchalanet.server.platform.document.internal.pdf.ReceiptPdfRenderer;
-import com.tchalanet.server.platform.document.internal.qr.QrRenderer;
-import com.tchalanet.server.platform.document.internal.receipt.ReceiptLine;
-import com.tchalanet.server.platform.document.internal.receipt.ReceiptModel;
+import com.tchalanet.server.platform.document.api.DocumentApi;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.internal.application.print.TicketReceiptFormatter;
-import com.tchalanet.server.core.sales.internal.application.print.TicketVerificationUrlBuilder;
-import java.util.ArrayList;
+import com.tchalanet.server.core.sales.api.print.TicketPrintView;
+import com.tchalanet.server.core.sales.api.print.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.api.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.api.print.TicketVerificationUrlBuilder;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -24,10 +20,7 @@ public class ReceiptService {
   private final TicketPrintReaderPort port;
   private final TchContextResolver contextResolver;
   private final TicketVerificationUrlBuilder urlBuilder;
-  private final QrRenderer qrPng;
-  private final QrRenderer qrEscPos;
-  private final ReceiptPdfRenderer pdf;
-  private final EscPosBuilder escpos;
+  private final DocumentApi documentApi;
   private final TicketReceiptFormatter pdfFormatter;
   private final TicketReceiptFormatter escPosFormatter;
 
@@ -35,19 +28,13 @@ public class ReceiptService {
       TicketPrintReaderPort port,
       TchContextResolver contextResolver,
       TicketVerificationUrlBuilder urlBuilder,
-      @Qualifier("qrPngRenderer") QrRenderer qrPng,
-      @Qualifier("qrEscPosRenderer") QrRenderer qrEscPos,
-      ReceiptPdfRenderer pdf,
-      EscPosBuilder escpos,
+      DocumentApi documentApi,
       @Qualifier("ticketReceiptFormatterPdf") TicketReceiptFormatter pdfFormatter,
       @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter escPosFormatter) {
     this.port = port;
     this.contextResolver = contextResolver;
     this.urlBuilder = urlBuilder;
-    this.qrPng = qrPng;
-    this.qrEscPos = qrEscPos;
-    this.pdf = pdf;
-    this.escpos = escpos;
+    this.documentApi = documentApi;
     this.pdfFormatter = pdfFormatter;
     this.escPosFormatter = escPosFormatter;
   }
@@ -59,9 +46,9 @@ public class ReceiptService {
   public byte[] renderPdf(TicketId ticketId, Locale locale) {
     var ticket = findTicket(ticketId, normalizeLocale(locale));
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    var model = receiptModel(pdfFormatter.formatText(ticket, verifyUrl));
-    byte[] qrBytes = qrPng.render(verifyUrl, new QrRenderer.QrRenderSpec(300));
-    return pdf.render(model, qrBytes);
+    var text = receiptText(pdfFormatter.formatText(ticket, verifyUrl));
+    byte[] qrBytes = documentApi.renderQrPng(verifyUrl, 300);
+    return documentApi.renderReceiptPdf(text.title(), text.bodyLines(), qrBytes);
   }
 
   public byte[] renderEscPos(TicketId ticketId) {
@@ -71,41 +58,15 @@ public class ReceiptService {
   public byte[] renderEscPos(TicketId ticketId, Locale locale) {
     var ticket = findTicket(ticketId, normalizeLocale(locale));
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    var model = receiptModel(escPosFormatter.formatText(ticket, verifyUrl));
-
-    var parts = new ArrayList<byte[]>();
-    parts.add(escpos.init());
-    parts.add(escpos.alignLeft());
-
-    parts.add(escpos.alignCenter());
-    parts.add(escpos.boldOn());
-    parts.add(escpos.text(model.title()));
-    parts.add(escpos.boldOff());
-    parts.add(escpos.lf());
-    parts.add(escpos.alignLeft());
-
-    for (var line : model.lines()) {
-      for (var span : line.spans()) {
-        parts.add(span.bold() ? escpos.boldOn() : escpos.boldOff());
-        parts.add(escpos.text(span.text()));
-      }
-      parts.add(escpos.boldOff());
-      parts.add(escpos.lf());
-    }
-
-    byte[] qrBytes = qrEscPos.render(verifyUrl, new QrRenderer.QrRenderSpec(280));
-    parts.add(escpos.alignCenter());
-    parts.add(qrBytes);
-    parts.add(escpos.alignLeft());
-    parts.add(escpos.cut());
-
-    return escpos.concat(parts.toArray(new byte[0][]));
+    var text = receiptText(escPosFormatter.formatText(ticket, verifyUrl));
+    byte[] qrBytes = documentApi.renderQrEscPos(verifyUrl, 280);
+    return documentApi.renderReceiptEscPos(text.title(), text.bodyLines(), qrBytes);
   }
 
   public byte[] renderQrPng(TicketId ticketId, int sizePx) {
     var ticket = findTicket(ticketId, currentLocale());
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    return qrPng.render(verifyUrl, new QrRenderer.QrRenderSpec(sizePx));
+    return documentApi.renderQrPng(verifyUrl, sizePx);
   }
 
   private Locale currentLocale() {
@@ -122,10 +83,12 @@ public class ReceiptService {
         .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
   }
 
-  private ReceiptModel receiptModel(String text) {
-    var lines = text == null ? java.util.List.<String>of() : text.lines().toList();
+  private ReceiptText receiptText(String text) {
+    var lines = text == null ? List.<String>of() : text.lines().toList();
     var title = lines.isEmpty() ? "Ticket Tchalanet" : lines.get(0);
-    var body = lines.stream().skip(1).map(ReceiptLine::text).toList();
-    return new ReceiptModel(title, body);
+    var body = lines.stream().skip(1).toList();
+    return new ReceiptText(title, body);
   }
+
+  private record ReceiptText(String title, List<String> bodyLines) {}
 }

@@ -1,5 +1,8 @@
 package com.tchalanet.server.catalog.settings.internal.write;
 
+import com.tchalanet.server.catalog.settings.api.SettingsAdminCatalog;
+import com.tchalanet.server.catalog.settings.api.model.CreateSettingAdminRequest;
+import com.tchalanet.server.catalog.settings.api.model.SearchSettingsAdminCriteria;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.cache.SettingsCacheNames;
 import com.tchalanet.server.catalog.settings.internal.mapper.SettingMapper;
@@ -36,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SettingsAdminService {
+public class SettingsAdminService implements SettingsAdminCatalog {
 
   private final SettingRepository repository;
   private final SettingMapper mapper;
@@ -69,6 +72,19 @@ public class SettingsAdminService {
         page.isLast(),
         page.hasNext(),
         page.hasPrevious());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public TchPage<SettingView> search(SearchSettingsAdminCriteria criteria, TchPageRequest pageRequest) {
+    return search(
+        new SearchSettingsCriteria(
+            criteria.namespace(),
+            criteria.settingKey(),
+            criteria.level(),
+            criteria.tenantId(),
+            criteria.active()),
+        pageRequest);
   }
 
   /**
@@ -116,6 +132,22 @@ public class SettingsAdminService {
     log.info("Created setting: {} with ID: {}", entity.fullKey(), entity.getId());
 
     return mapper.toView(entity);
+  }
+
+  @Override
+  @Transactional
+  @CacheEvict(cacheNames = SettingsCacheNames.RESOLVED_SETTINGS, allEntries = true)
+  public SettingView create(CreateSettingAdminRequest request) {
+    return create(
+        new CreateSettingRequest(
+            request.namespace(),
+            request.settingKey(),
+            request.settingValue(),
+            request.valueType(),
+            request.level(),
+            request.tenantId(),
+            request.outletId(),
+            request.terminalId()));
   }
 
     private static @NonNull SettingEntity createSettingEntity(CreateSettingRequest request) {

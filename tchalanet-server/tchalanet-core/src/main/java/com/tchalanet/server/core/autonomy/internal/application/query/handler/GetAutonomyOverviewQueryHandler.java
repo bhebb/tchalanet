@@ -10,7 +10,6 @@ import com.tchalanet.server.core.autonomy.api.query.AutonomyOverviewView;
 import com.tchalanet.server.core.autonomy.api.query.AutonomyRule;
 import com.tchalanet.server.core.autonomy.api.query.GetAutonomyOverviewQuery;
 import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyPolicyRule;
-import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -30,16 +29,13 @@ public class GetAutonomyOverviewQueryHandler
             throw new IllegalArgumentException("targetType is required");
         }
 
-        UUID effectiveTargetId =
-            query.targetId() == null ? null : query.targetId().value();
+        UUID effectiveTargetId = query.targetId();
 
         if (query.targetType() == AutonomyTargetType.TENANT && effectiveTargetId == null) {
             effectiveTargetId = tchContextResolver.currentOrThrow().tenantUuid();
         }
         // Read overview for the exact requested scope (do NOT perform hierarchy fallbacks)
         Optional<AutonomyPolicyRule> found = repository.findByTarget(query.targetType(), effectiveTargetId);
-
-        AutonomyTargetId wrappedTargetId = effectiveTargetId == null ? null : AutonomyTargetId.of(effectiveTargetId);
 
         if (found.isPresent()) {
             AutonomyPolicyRule p = found.get();
@@ -58,12 +54,12 @@ public class GetAutonomyOverviewQueryHandler
                     p.deleted(),
                     p.id());
 
-            return new AutonomyOverviewView(query.targetType(), wrappedTargetId, rule, meta);
+            return new AutonomyOverviewView(query.targetType(), effectiveTargetId, rule, meta);
         }
 
         // No configured rule for this exact scope
         AutonomyRule emptyRule = null;
         AutonomyMeta meta = new AutonomyMeta(false, false, null);
-        return new AutonomyOverviewView(query.targetType(), wrappedTargetId, emptyRule, meta);
+        return new AutonomyOverviewView(query.targetType(), effectiveTargetId, emptyRule, meta);
     }
 }

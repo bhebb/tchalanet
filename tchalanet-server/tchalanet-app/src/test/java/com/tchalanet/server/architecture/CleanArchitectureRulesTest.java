@@ -134,18 +134,20 @@ class CleanArchitectureRulesTest {
   }
 
   @Test
-  @DisplayName("Controllers dispatch use-cases through CommandBus or QueryBus")
-  void controllersUseCommandOrQueryBus() {
-    // This is an optional rule - we verify controllers have a CommandBus or QueryBus field
+  @DisplayName("Feature controllers delegate to feature services/orchestrators or buses")
+  void controllersDelegateToFeatureLayerOrBus() {
     ArchRule rule =
-        classes()
+        noClasses()
             .that()
             .resideInAPackage("..features..")
             .and()
             .haveSimpleNameEndingWith("Controller")
             .should()
             .dependOnClassesThat()
-            .haveNameMatching(".*(CommandBus|QueryBus)");
+            .haveSimpleNameEndingWith("Repository")
+            .orShould()
+            .dependOnClassesThat()
+            .resideInAnyPackage("..persistence..", "..infra.persistence..");
 
     rule.check(classes);
   }
@@ -188,4 +190,3 @@ class CleanArchitectureRulesTest {
         .check(classes);
   }
 }
-

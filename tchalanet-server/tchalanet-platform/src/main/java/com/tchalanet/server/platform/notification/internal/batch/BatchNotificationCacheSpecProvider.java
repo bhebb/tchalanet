@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.notification.internal.batch;
 
-import com.tchalanet.server.common.cache.internal.CacheSpec;
-import com.tchalanet.server.common.cache.internal.CacheSpecProvider;
+import com.tchalanet.server.common.cache.CacheSpec;
+import com.tchalanet.server.common.cache.CacheSpecProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;

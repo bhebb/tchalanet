@@ -6,7 +6,6 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -111,6 +110,7 @@ class PlatformLayerGatesTest {
           .and().areAnnotatedWith(EventListener.class)
           .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.platform..")
           .as("core modules must not @EventListener platform events; only core events are consumed by core")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
   }
@@ -145,94 +145,88 @@ class PlatformLayerGatesTest {
     }
   }
 
-  // ── Pending gates — enable ONE BY ONE as each migration completes ─────────
+  // ── Final migration gates ────────────────────────────────────────────────
 
   @Nested
   @DisplayName("Pending: legacy core modules must not exist after migration")
   class LegacyMigrationPendingGates {
 
     /**
-     * TODO: Enable after core.audit is fully migrated to platform.audit.
      * Removal condition: no Java class under com.tchalanet.server.core.audit remains.
      */
     @Test
-    @Disabled("Allowlist: core.audit pending migration to platform.audit")
     @DisplayName("core.audit must not exist")
     void coreAuditMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.audit..")
           .as("core.audit must not exist — migrate to platform.audit")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
     /**
-     * TODO: Enable after core.accesscontrol is fully migrated to platform.accesscontrol.
      * Removal condition: no Java class under com.tchalanet.server.core.accesscontrol remains.
      */
     @Test
-    @Disabled("Allowlist: core.accesscontrol pending migration to platform.accesscontrol")
     @DisplayName("core.accesscontrol must not exist")
     void coreAccessControlMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.accesscontrol..")
           .as("core.accesscontrol must not exist — migrate to platform.accesscontrol")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
     /**
-     * TODO: Enable after core.tenantuser is fully migrated to platform.identity.
      * Removal condition: no Java class under com.tchalanet.server.core.tenantuser remains.
      */
     @Test
-    @Disabled("Allowlist: core.tenantuser pending migration to platform.identity")
     @DisplayName("core.tenantuser must not exist")
     void coreTenantUserMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.tenantuser..")
           .as("core.tenantuser must not exist — migrate to platform.identity")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
     /**
-     * TODO: Enable after core.tenantconfig is fully migrated to platform.tenantconfig.
      * Removal condition: no Java class under com.tchalanet.server.core.tenantconfig remains.
      */
     @Test
-    @Disabled("Allowlist: core.tenantconfig pending migration to platform.tenantconfig")
     @DisplayName("core.tenantconfig must not exist")
     void coreTenantConfigMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.tenantconfig..")
           .as("core.tenantconfig must not exist — migrate to platform.tenantconfig")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
     /**
-     * TODO: Enable after core.tenanttheme is fully migrated to platform.tenanttheme.
      * Removal condition: no Java class under com.tchalanet.server.core.tenanttheme remains.
      */
     @Test
-    @Disabled("Allowlist: core.tenanttheme pending migration to platform.tenanttheme")
     @DisplayName("core.tenanttheme must not exist")
     void coreTenantThemeMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.tenanttheme..")
           .as("core.tenanttheme must not exist — migrate to platform.tenanttheme")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
     /**
-     * TODO: Enable after core.notification is migrated (or ADR exception documented).
      * Removal condition: no Java class under com.tchalanet.server.core.notification remains,
      * OR an ADR explicitly justifies keeping it in core.
      */
     @Test
-    @Disabled("Allowlist: core.notification pending migration to platform.notification or ADR exception")
     @DisplayName("core.notification must not exist")
     void coreNotificationMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.notification..")
           .as("core.notification must not exist — migrate to platform.notification or document ADR exception")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
@@ -241,12 +235,12 @@ class PlatformLayerGatesTest {
      * Removal condition: no Java class under com.tchalanet.server.core.address remains.
      */
     @Test
-    @Disabled("Allowlist: core.address pending migration to platform.address")
     @DisplayName("core.address must not exist")
     void coreAddressMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.address..")
           .as("core.address must not exist — migrate to platform.address")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
@@ -255,12 +249,12 @@ class PlatformLayerGatesTest {
      * Removal condition: no Java class under com.tchalanet.server.core.external remains.
      */
     @Test
-    @Disabled("Allowlist: core.external pending migration to platform.external")
     @DisplayName("core.external must not exist")
     void coreExternalMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.external..")
           .as("core.external must not exist — migrate to platform.external")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
@@ -269,12 +263,12 @@ class PlatformLayerGatesTest {
      * Removal condition: no Java class under com.tchalanet.server.core.featureflags remains.
      */
     @Test
-    @Disabled("Allowlist: core.featureflags pending migration to platform.featureflags")
     @DisplayName("core.featureflags must not exist")
     void coreFeatureFlagsMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.featureflags..")
           .as("core.featureflags must not exist — migrate to platform.featureflags")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
 
@@ -283,12 +277,12 @@ class PlatformLayerGatesTest {
      * Removal condition: no Java class under com.tchalanet.server.core.tenantgame remains.
      */
     @Test
-    @Disabled("Allowlist: core.tenantgame pending migration to platform.tenantgame")
     @DisplayName("core.tenantgame must not exist")
     void coreTenantGameMustNotExist() {
       noClasses()
           .should().resideInAPackage("com.tchalanet.server.core.tenantgame..")
           .as("core.tenantgame must not exist — migrate to platform.tenantgame")
+          .allowEmptyShould(true)
           .check(allClasses);
     }
   }

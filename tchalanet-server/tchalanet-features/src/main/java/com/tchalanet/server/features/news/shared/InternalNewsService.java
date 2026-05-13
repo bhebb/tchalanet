@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.news.shared;
 
-import com.tchalanet.server.common.cache.internal.CacheKeyBuilder;
+import com.tchalanet.server.common.cache.CacheKeyBuilder;
 import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;

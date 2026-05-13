@@ -18,6 +18,7 @@ import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsBySco
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
 import com.tchalanet.server.core.limitpolicy.api.query.ListAvailableLimitRulesQuery;
+import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.infra.web.admin.model.UpsertLimitAssignmentRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,7 +55,7 @@ public class LimitPolicyAdminController {
         @RequestParam("target") TargetType targetType,
         @RequestParam(value = "targetId", required = false) String targetId
     ) {
-        var scope = toLimitScopeRef(context, targetType, targetId);
+        var scope = toLimitScopeQueryRef(context, targetType, targetId);
 
         return ApiResponse.success(
             queryBus.ask(new ListLimitAssignmentsByScopeQuery(scope)));
@@ -125,6 +126,37 @@ public class LimitPolicyAdminController {
             case DRAW_CHANNEL -> {
                 requireTargetId(targetType, targetId);
                 yield LimitScopeRef.drawChannel(DrawChannelId.parse(targetId));
+            }
+
+            default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);
+        };
+    }
+
+    private LimitScopeQueryRef toLimitScopeQueryRef(
+        TchRequestContext context,
+        TargetType targetType,
+        String targetId
+    ) {
+        if (targetType == null) {
+            throw new IllegalArgumentException("targetType is required");
+        }
+
+        return switch (targetType) {
+            case TENANT -> LimitScopeQueryRef.tenant(context.effectiveTenantIdRequired());
+
+            case OUTLET -> {
+                requireTargetId(targetType, targetId);
+                yield LimitScopeQueryRef.outlet(OutletId.parse(targetId));
+            }
+
+            case AGENT -> {
+                requireTargetId(targetType, targetId);
+                yield LimitScopeQueryRef.agent(UserId.parse(targetId));
+            }
+
+            case DRAW_CHANNEL -> {
+                requireTargetId(targetType, targetId);
+                yield LimitScopeQueryRef.drawChannel(DrawChannelId.parse(targetId));
             }
 
             default -> throw new IllegalArgumentException("Unsupported targetType: " + targetType);

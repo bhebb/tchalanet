@@ -8,9 +8,7 @@ import com.tchalanet.server.core.haiti.internal.domain.lottery.model.HaitiProjec
 import java.util.LinkedHashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
-@Component
 @Slf4j
 public final class DefaultHaitiResultProjector implements HaitiResultProjector {
 

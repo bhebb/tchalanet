@@ -6,11 +6,7 @@ import com.tchalanet.server.platform.communication.api.model.value.Communication
 import com.tchalanet.server.platform.communication.api.CommunicationApi;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
-import com.tchalanet.server.platform.document.internal.escpos.EscPosBuilder;
-import com.tchalanet.server.platform.document.internal.pdf.ReceiptPdfRenderer;
-import com.tchalanet.server.platform.document.internal.qr.QrRenderer;
-import com.tchalanet.server.platform.document.internal.receipt.ReceiptLine;
-import com.tchalanet.server.platform.document.internal.receipt.ReceiptModel;
+import com.tchalanet.server.platform.document.api.DocumentApi;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -18,11 +14,11 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.command.SellTicketOutcome;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintView;
-import com.tchalanet.server.core.sales.internal.application.print.TicketReceiptFormatter;
-import com.tchalanet.server.core.sales.internal.application.print.TicketVerificationUrlBuilder;
-import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
+import com.tchalanet.server.core.sales.api.command.SoldTicketView;
+import com.tchalanet.server.core.sales.api.print.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.api.print.TicketPrintView;
+import com.tchalanet.server.core.sales.api.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.api.print.TicketVerificationUrlBuilder;
 import com.tchalanet.server.features.cashier.model.CashierPrintFormat;
 import com.tchalanet.server.features.cashier.model.CashierPrintableReceipt;
 import com.tchalanet.server.features.cashier.model.CashierSellPrintRequest;
@@ -30,9 +26,9 @@ import com.tchalanet.server.features.cashier.model.CashierSellPrintResponse;
 import com.tchalanet.server.features.cashier.model.CashierSendReceiptRequest;
 import com.tchalanet.server.features.cashier.model.CashierSendReceiptResponse;
 import com.tchalanet.server.features.cashier.model.CashierTicketView;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -44,10 +40,7 @@ public class CashierService {
   private final TchContextResolver contextResolver;
   private final TicketPrintReaderPort printReader;
   private final TicketVerificationUrlBuilder urlBuilder;
-  private final QrRenderer qrPng;
-  private final QrRenderer qrEscPos;
-  private final ReceiptPdfRenderer pdf;
-  private final EscPosBuilder escpos;
+  private final DocumentApi documentApi;
   private final TicketReceiptFormatter pdfFormatter;
   private final TicketReceiptFormatter escPosFormatter;
   private final CommunicationApi outboundMessageGateway;
@@ -57,10 +50,7 @@ public class CashierService {
       TchContextResolver contextResolver,
       TicketPrintReaderPort printReader,
       TicketVerificationUrlBuilder urlBuilder,
-      @Qualifier("qrPngRenderer") QrRenderer qrPng,
-      @Qualifier("qrEscPosRenderer") QrRenderer qrEscPos,
-      ReceiptPdfRenderer pdf,
-      EscPosBuilder escpos,
+      DocumentApi documentApi,
       @Qualifier("ticketReceiptFormatterPdf") TicketReceiptFormatter pdfFormatter,
       @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter escPosFormatter,
       CommunicationApi outboundMessageGateway) {
@@ -68,10 +58,7 @@ public class CashierService {
     this.contextResolver = contextResolver;
     this.printReader = printReader;
     this.urlBuilder = urlBuilder;
-    this.qrPng = qrPng;
-    this.qrEscPos = qrEscPos;
-    this.pdf = pdf;
-    this.escpos = escpos;
+    this.documentApi = documentApi;
     this.pdfFormatter = pdfFormatter;
     this.escPosFormatter = escPosFormatter;
     this.outboundMessageGateway = outboundMessageGateway;
@@ -102,7 +89,7 @@ public class CashierService {
     var ticket = toView(result.ticket());
     var receipt = result.outcome() == SellTicketOutcome.PENDING_APPROVAL
         ? null
-        : renderReceipt(result.ticket().getId(), printFormat(request.printFormat()), ctx.locale());
+        : renderReceipt(result.ticket().ticketId(), printFormat(request.printFormat()), ctx.locale());
 
     return new CashierSellPrintResponse(ticket, result.outcome(), result.approvalRequestId(), receipt);
   }
@@ -148,38 +135,28 @@ public class CashierService {
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
     return switch (format) {
       case PDF -> {
-        var model = receiptModel(pdfFormatter.formatText(ticket, verifyUrl));
-        var qrBytes = qrPng.render(verifyUrl, new QrRenderer.QrRenderSpec(300));
-        yield printable(format, "application/pdf", "ticket-" + ticketId + ".pdf", pdf.render(model, qrBytes));
+        var text = receiptText(pdfFormatter.formatText(ticket, verifyUrl));
+        var qrBytes = documentApi.renderQrPng(verifyUrl, 300);
+        yield printable(
+            format,
+            "application/pdf",
+            "ticket-" + ticketId + ".pdf",
+            documentApi.renderReceiptPdf(text.title(), text.bodyLines(), qrBytes));
       }
       case ESC_POS -> {
-        var model = receiptModel(escPosFormatter.formatText(ticket, verifyUrl));
-        var parts = new ArrayList<byte[]>();
-        parts.add(escpos.init());
-        parts.add(escpos.alignLeft());
-        for (var line : model.lines()) {
-          for (var span : line.spans()) {
-            parts.add(span.bold() ? escpos.boldOn() : escpos.boldOff());
-            parts.add(escpos.text(span.text()));
-          }
-          parts.add(escpos.boldOff());
-          parts.add(escpos.lf());
-        }
-        parts.add(escpos.alignCenter());
-        parts.add(qrEscPos.render(verifyUrl, new QrRenderer.QrRenderSpec(280)));
-        parts.add(escpos.alignLeft());
-        parts.add(escpos.cut());
+        var text = receiptText(escPosFormatter.formatText(ticket, verifyUrl));
+        var qrBytes = documentApi.renderQrEscPos(verifyUrl, 280);
         yield printable(
             format,
             "application/octet-stream",
             "ticket-" + ticketId + ".bin",
-            escpos.concat(parts.toArray(new byte[0][])));
+            documentApi.renderReceiptEscPos(text.title(), text.bodyLines(), qrBytes));
       }
       case QR_PNG -> printable(
           format,
           "image/png",
           "ticket-" + ticketId + ".png",
-          qrPng.render(verifyUrl, new QrRenderer.QrRenderSpec(280)));
+          documentApi.renderQrPng(verifyUrl, 280));
     };
   }
 
@@ -196,23 +173,25 @@ public class CashierService {
         .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
   }
 
-  private ReceiptModel receiptModel(String text) {
-    var lines = text == null ? java.util.List.<String>of() : text.lines().toList();
+  private ReceiptText receiptText(String text) {
+    var lines = text == null ? List.<String>of() : text.lines().toList();
     var title = lines.isEmpty() ? "Ticket Tchalanet" : lines.get(0);
-    var body = lines.stream().skip(1).map(ReceiptLine::text).toList();
-    return new ReceiptModel(title, body);
+    var body = lines.stream().skip(1).toList();
+    return new ReceiptText(title, body);
   }
 
-  private CashierTicketView toView(Ticket ticket) {
+  private record ReceiptText(String title, List<String> bodyLines) {}
+
+  private CashierTicketView toView(SoldTicketView ticket) {
     return new CashierTicketView(
-        ticket.getId(),
-        ticket.getTicketCode(),
-        ticket.getPublicCode(),
-        ticket.getSaleStatus(),
-        ticket.getResultStatus(),
-        ticket.getSettlementStatus(),
-        ticket.getTotalAmount(),
-        ticket.getCreatedAt());
+        ticket.ticketId(),
+        ticket.ticketCode(),
+        ticket.publicCode(),
+        ticket.saleStatus(),
+        ticket.resultStatus(),
+        ticket.settlementStatus(),
+        ticket.totalAmount(),
+        ticket.createdAt());
   }
 
   private CashierPrintFormat printFormat(CashierPrintFormat requested) {

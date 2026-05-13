@@ -3,10 +3,9 @@ package com.tchalanet.server.core.session.internal.infra.scheduler;
 import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsCommand;
 import com.tchalanet.server.core.session.api.command.OpenDueSalesSessionsCommand;
-import com.tchalanet.server.core.session.internal.infra.config.SalesSessionProperties;
+import com.tchalanet.server.core.session.internal.infra.config.SalesSessionAutoProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +19,7 @@ import static com.tchalanet.server.common.batch.key.BatchJobKeys.SALES_SESSION_A
 public class SalesSessionAutoScheduler {
 
     private final CommandBus commandBus;
-    private final SalesSessionProperties sessionProperties;
+    private final SalesSessionAutoProperties salesSessionAutoProperties;
     private final BatchGate gate;
 
     @Scheduled(cron = "${tch.session.auto.open-cron:0 0 5 * * *}")
@@ -38,7 +37,7 @@ public class SalesSessionAutoScheduler {
     }
 
     private boolean canRunSalesSessionAuto(String action) {
-        if (!sessionProperties.getAuto().isActive()) {
+        if (!salesSessionAutoProperties.active()) {
             log.info("sales_session.auto.{} skipped reason=scheduler_disabled", action);
             return false;
         }

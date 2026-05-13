@@ -13,6 +13,7 @@ import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.command.CancelSaleCommand;
 import com.tchalanet.server.core.sales.api.command.OverrideTicketResultCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.SoldTicketView;
 import com.tchalanet.server.core.sales.api.model.TicketStatus;
 import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
 import com.tchalanet.server.core.sales.api.query.TicketDetailsView;
@@ -61,6 +62,19 @@ public class TicketWebMapper {
     public TicketResponse toTicketResponse(TicketDetailsView t) {
         return new TicketResponse(
             String.valueOf(t.id()),
+            t.publicCode(),
+            String.valueOf(t.saleStatus()),
+            null,
+            null,
+            t.totalAmount(),
+            null,
+            t.totalAmount()
+        );
+    }
+
+    public TicketResponse toTicketResponse(SoldTicketView t) {
+        return new TicketResponse(
+            String.valueOf(t.ticketId()),
             t.publicCode(),
             String.valueOf(t.saleStatus()),
             null,

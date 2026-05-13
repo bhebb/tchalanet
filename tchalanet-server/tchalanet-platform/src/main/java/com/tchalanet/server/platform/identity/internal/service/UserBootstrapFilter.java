@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,7 +21,6 @@ import static com.tchalanet.server.common.constant.ContextKeys.BOOTSTRAPPED_APP_
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@EnableConfigurationProperties(UserBootstrapProperties.class)
 public class UserBootstrapFilter extends OncePerRequestFilter {
 
     private final JdbcTemplate jdbc;
@@ -30,19 +28,19 @@ public class UserBootstrapFilter extends OncePerRequestFilter {
 
     private static final String FIND_SQL =
         """
-        select id, status
-        from app_user
-        where keycloak_sub = ?
-          and deleted_at is null
-        limit 1
-        """;
+            select id, status
+            from app_user
+            where keycloak_sub = ?
+              and deleted_at is null
+            limit 1
+            """;
 
     private static final String TOUCH_SQL =
         """
-        update app_user
-        set last_login_at = now(), updated_at = now()
-        where id = ?
-        """;
+            update app_user
+            set last_login_at = now(), updated_at = now()
+            where id = ?
+            """;
 
     @Override
     protected void doFilterInternal(
@@ -112,5 +110,6 @@ public class UserBootstrapFilter extends OncePerRequestFilter {
         }
     }
 
-    private record BootstrappedUser(UUID id, UserStatus status) {}
+    private record BootstrappedUser(UUID id, UserStatus status) {
+    }
 }
