@@ -160,8 +160,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.audit must not exist")
     void coreAuditMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.audit..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.audit..")
+          .as("core.audit must not exist — migrate to platform.audit")
           .check(allClasses);
     }
 
@@ -174,8 +174,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.accesscontrol must not exist")
     void coreAccessControlMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.accesscontrol..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.accesscontrol..")
+          .as("core.accesscontrol must not exist — migrate to platform.accesscontrol")
           .check(allClasses);
     }
 
@@ -188,8 +188,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.tenantuser must not exist")
     void coreTenantUserMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.tenantuser..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.tenantuser..")
+          .as("core.tenantuser must not exist — migrate to platform.identity")
           .check(allClasses);
     }
 
@@ -202,8 +202,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.tenantconfig must not exist")
     void coreTenantConfigMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.tenantconfig..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.tenantconfig..")
+          .as("core.tenantconfig must not exist — migrate to platform.tenantconfig")
           .check(allClasses);
     }
 
@@ -216,8 +216,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.tenanttheme must not exist")
     void coreTenantThemeMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.tenanttheme..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.tenanttheme..")
+          .as("core.tenanttheme must not exist — migrate to platform.tenanttheme")
           .check(allClasses);
     }
 
@@ -231,8 +231,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.notification must not exist")
     void coreNotificationMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.notification..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.notification..")
+          .as("core.notification must not exist — migrate to platform.notification or document ADR exception")
           .check(allClasses);
     }
 
@@ -245,8 +245,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.address must not exist")
     void coreAddressMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.address..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.address..")
+          .as("core.address must not exist — migrate to platform.address")
           .check(allClasses);
     }
 
@@ -259,8 +259,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.external must not exist")
     void coreExternalMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.external..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.external..")
+          .as("core.external must not exist — migrate to platform.external")
           .check(allClasses);
     }
 
@@ -273,8 +273,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.featureflags must not exist")
     void coreFeatureFlagsMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.featureflags..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.featureflags..")
+          .as("core.featureflags must not exist — migrate to platform.featureflags")
           .check(allClasses);
     }
 
@@ -287,8 +287,8 @@ class PlatformLayerGatesTest {
     @DisplayName("core.tenantgame must not exist")
     void coreTenantGameMustNotExist() {
       noClasses()
-          .that().resideInAPackage("com.tchalanet.server.core.tenantgame..")
-          .should().exist()
+          .should().resideInAPackage("com.tchalanet.server.core.tenantgame..")
+          .as("core.tenantgame must not exist — migrate to platform.tenantgame")
           .check(allClasses);
     }
   }

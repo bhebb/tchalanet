@@ -23,11 +23,11 @@ platform/ package layer
 
 Use these terms consistently:
 
-| Concept            | Preferred wording                                          |
-| ------------------ | ---------------------------------------------------------- |
+| Concept | Preferred wording |
+|---|---|
 | Java package/layer | `platform layer`, `platform module`, `platform capability` |
-| HTTP route scope   | `platform admin scope`                                     |
-| Route prefix       | `/api/v1/platform/**`                                      |
+| HTTP route scope | `platform admin scope` |
+| Route prefix | `/api/v1/platform/**` |
 
 Avoid writing “platform endpoint” without qualifying whether it means Java platform module or HTTP platform admin scope.
 

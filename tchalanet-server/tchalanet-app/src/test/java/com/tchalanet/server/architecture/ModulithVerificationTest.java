@@ -3,7 +3,6 @@ package com.tchalanet.server.architecture;
 import com.tchalanet.server.TchalanetApiApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
-import org.springframework.modulith.docs.Documenter;
 
 /**
  * Spring Modulith verification — ensures package boundaries are respected
@@ -18,10 +17,5 @@ class ModulithVerificationTest {
   @Test
   void verifyModularStructure() {
     modules.verify();
-  }
-
-  @Test
-  void writeDocumentationSnippets() {
-    new Documenter(modules).writeModulesAsPlantUml();
   }
 }

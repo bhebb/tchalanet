@@ -18,7 +18,7 @@ If behavior is reused by multiple features or modules, it SHALL move to common, 
 
 Given two features need the same tenant profile data  
 When the logic is not UI-specific  
-Then it moves to `platform.identity.api` or the owning core/catalog API  
+Then it moves to `platform.usercontext.api` or the owning core/catalog API  
 And not to `features.shared` unless it is strictly UI-only.
 
 ## Requirement: features may consume public APIs

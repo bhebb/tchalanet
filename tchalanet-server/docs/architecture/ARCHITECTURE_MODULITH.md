@@ -40,12 +40,12 @@ features -> another feature internals by default
 
 ## Public surfaces
 
-| Root       | Public Java surface                |
-| ---------- | ---------------------------------- |
-| `common`   | technical shared primitives only   |
-| `catalog`  | `catalog.<name>.api`               |
-| `platform` | `platform.<capability>.api`        |
-| `core`     | `core.<domain>.api`                |
+| Root | Public Java surface |
+|---|---|
+| `common` | technical shared primitives only |
+| `catalog` | `catalog.<name>.api` |
+| `platform` | `platform.<capability>.api` |
+| `core` | `core.<domain>.api` |
 | `features` | none by default; HTTP/OpenAPI only |
 
 ## Platform definition
@@ -57,7 +57,7 @@ Examples:
 ```text
 platform.audit
 platform.accesscontrol
-platform.identity
+platform.usercontext
 platform.tenantconfig
 platform.tenanttheme
 platform.document
@@ -67,13 +67,13 @@ platform.idempotence
 
 ## Placement decision
 
-| Question                                  | Destination |
-| ----------------------------------------- | ----------- |
-| Stateless technical primitive?            | `common`    |
-| Read-mostly reference data?               | `catalog`   |
-| Critical business invariant/lifecycle?    | `core`      |
-| UI/BFF flow?                              | `features`  |
-| Stateful transversal application service? | `platform`  |
+| Question | Destination |
+|---|---|
+| Stateless technical primitive? | `common` |
+| Read-mostly reference data? | `catalog` |
+| Critical business invariant/lifecycle? | `core` |
+| UI/BFF flow? | `features` |
+| Stateful transversal application service? | `platform` |
 
 ## Verification
 

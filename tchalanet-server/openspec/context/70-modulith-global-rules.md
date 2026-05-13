@@ -40,13 +40,13 @@ features
 
 Precise allowed dependencies:
 
-| From     | May depend on                                                  |
-| -------- | -------------------------------------------------------------- |
-| common   | external libraries only                                        |
-| catalog  | common                                                         |
-| `<asl>`  | common, catalog api                                            |
-| core     | common, catalog api, `<asl>` api, other core api where allowed |
-| features | common, catalog api, `<asl>` api, core api                     |
+| From | May depend on |
+|---|---|
+| common | external libraries only |
+| catalog | common |
+| `<asl>` | common, catalog api |
+| core | common, catalog api, `<asl>` api, other core api where allowed |
+| features | common, catalog api, `<asl>` api, core api |
 
 ## 4. Internal package rule
 

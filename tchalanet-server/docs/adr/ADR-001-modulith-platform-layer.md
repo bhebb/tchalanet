@@ -25,12 +25,12 @@ Without a dedicated layer, those capabilities either pollute `core` or fatten `c
 
 ## Glossary
 
-| Term                 | Definition                                                                                                            |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Layer                | One of the top-level backend families: `common`, `catalog`, `platform`, `core`, `features`, `app`.                    |
-| Module               | A Spring Modulith application module such as `core.sales`, `platform.audit`, `catalog.theme`, `features.tenantadmin`. |
-| Platform capability  | A module under `platform.*`. It owns one transversal application service capability.                                  |
-| Platform admin scope | HTTP scope `/api/v1/platform/**`; distinct from the Java `platform/` layer.                                           |
+| Term | Definition |
+|---|---|
+| Layer | One of the top-level backend families: `common`, `catalog`, `platform`, `core`, `features`, `app`. |
+| Module | A Spring Modulith application module such as `core.sales`, `platform.audit`, `catalog.theme`, `features.tenantadmin`. |
+| Platform capability | A module under `platform.*`. It owns one transversal application service capability. |
+| Platform admin scope | HTTP scope `/api/v1/platform/**`; distinct from the Java `platform/` layer. |
 
 ## Decision 1 — Use `platform` as the Java layer name
 
@@ -155,7 +155,7 @@ Intra-platform rule:
 
 - Direct `platform.* -> platform.*` imports are forbidden by default.
 - Cross-platform communication should use events or a documented ADR exception.
-- This avoids cycles such as `platform.audit <-> platform.identity`.
+- This avoids cycles such as `platform.audit <-> platform.usercontext`.
 
 ## Decision 6 — Events
 
@@ -189,7 +189,7 @@ Examples:
 ```text
 platform.audit
 platform.accesscontrol
-platform.identity
+platform.usercontext
 platform.tenantconfig
 platform.tenanttheme
 platform.document

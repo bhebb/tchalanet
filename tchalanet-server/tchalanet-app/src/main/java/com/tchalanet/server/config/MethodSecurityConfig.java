@@ -1,6 +1,6 @@
 package com.tchalanet.server.config;
 
-import com.tchalanet.server.core.accesscontrol.infra.security.TchPermissionEvaluator;
+import com.tchalanet.server.platform.accesscontrol.api.permissionevaluator.TchPermissionEvaluator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

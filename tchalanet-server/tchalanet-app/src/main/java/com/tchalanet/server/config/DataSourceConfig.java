@@ -1,5 +1,6 @@
 package com.tchalanet.server.config;
 
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.persistence.rls.RlsAwareDataSource;
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;

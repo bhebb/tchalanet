@@ -10,17 +10,17 @@ This ADR captures the initial migration inventory. Unlike ADR-001, this document
 
 ## 1. Initial module placement
 
-| Current area                                | Target                | Rationale                                                  | Notes                                                |
-| ------------------------------------------- | --------------------- | ---------------------------------------------------------- | ---------------------------------------------------- |
-| `core.audit`                                | `<asl>.audit`         | transversal audit trail, stateful, non-game decision owner | audit may use `REQUIRES_NEW` for failure logging     |
-| `core.accesscontrol`                        | `<asl>.accesscontrol` | application permissions and role assignments               | core business eligibility still stays in owning core |
-| `core.tenantuser`                           | `platform.identity`   | app user/profile/context, used transversally               | high fan-in; requires bridge migration               |
-| `core.tenantconfig`                         | `<asl>.tenantconfig`  | effective tenant values and overrides                      | catalog may own setting definitions                  |
-| `core.tenanttheme`                          | `<asl>.tenanttheme`   | effective tenant theme and overrides                       | catalog may own global theme presets                 |
-| `common.document` if stateful/workflow      | `<asl>.document`      | document generation/storage lifecycle                      | pure PDF/QR utility can remain common                |
-| `common.communication` if stateful/workflow | `<asl>.communication` | delivery lifecycle, templates, providers                   | pure interface primitives can remain common          |
-| `common.idempotence` persistence/workflow   | `<asl>.idempotence`   | idempotency records and replay workflow                    | annotations/interfaces may remain common             |
-| `common.security` decisions                 | `<asl>.accesscontrol` | application authorization decisions                        | Spring glue remains common.security                  |
+| Current area | Target | Rationale | Notes |
+|---|---|---|---|
+| `core.audit` | `<asl>.audit` | transversal audit trail, stateful, non-game decision owner | audit may use `REQUIRES_NEW` for failure logging |
+| `core.accesscontrol` | `<asl>.accesscontrol` | application permissions and role assignments | core business eligibility still stays in owning core |
+| `core.tenantuser` | `<asl>.usercontext` or `<asl>.tenantuser` | app user/profile/context, used transversally | high fan-in; requires bridge migration |
+| `core.tenantconfig` | `<asl>.tenantconfig` | effective tenant values and overrides | catalog may own setting definitions |
+| `core.tenanttheme` | `<asl>.tenanttheme` | effective tenant theme and overrides | catalog may own global theme presets |
+| `common.document` if stateful/workflow | `<asl>.document` | document generation/storage lifecycle | pure PDF/QR utility can remain common |
+| `common.communication` if stateful/workflow | `<asl>.communication` | delivery lifecycle, templates, providers | pure interface primitives can remain common |
+| `common.idempotence` persistence/workflow | `<asl>.idempotence` | idempotency records and replay workflow | annotations/interfaces may remain common |
+| `common.security` decisions | `<asl>.accesscontrol` | application authorization decisions | Spring glue remains common.security |
 
 ---
 
@@ -83,11 +83,11 @@ rg "common\.document|common\.communication|common\.idempotence|common\.security"
 
 Classify:
 
-| Fan-in               | Migration style                     |
-| -------------------- | ----------------------------------- |
-| 0-5 importing files  | direct package move acceptable      |
-| 6-20 importing files | two-step API bridge recommended     |
-| >20 importing files  | mandatory three-PR bridge migration |
+| Fan-in | Migration style |
+|---|---|
+| 0-5 importing files | direct package move acceptable |
+| 6-20 importing files | two-step API bridge recommended |
+| >20 importing files | mandatory three-PR bridge migration |
 
 ### Phase 1 — Low-risk archetype pilots
 
@@ -104,7 +104,7 @@ Goal: prove structure, tests, Modulith, ArchUnit, transaction/context rules.
 
 ### Phase 3 — High fan-in user context
 
-1. `platform.identity`
+1. `<asl>.usercontext` / `<asl>.tenantuser`
 2. bridge existing imports
 3. move implementation
 4. remove legacy packages

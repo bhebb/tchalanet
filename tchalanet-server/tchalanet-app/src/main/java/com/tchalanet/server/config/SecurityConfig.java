@@ -3,7 +3,8 @@ package com.tchalanet.server.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import com.tchalanet.server.common.security.UserBootstrapFilter;
+import com.tchalanet.server.common.context.TchContextFilter;
+import com.tchalanet.server.platform.identity.internal.service.UserBootstrapFilter;
 import jakarta.servlet.DispatcherType;
 import java.util.ArrayList;
 import java.util.Collection;

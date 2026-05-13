@@ -1,0 +1,9 @@
+package com.tchalanet.server.common.context.system;
+
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@EnableConfigurationProperties(SystemContextProperties.class)
+public class SystemContextConfig {
+}

@@ -17,7 +17,7 @@ Several existing components do not fit cleanly in these four families:
 
 - audit;
 - access control;
-- tenant user / identity;
+- tenant user / user context;
 - tenant configuration;
 - tenant theme;
 - document generation/storage;
@@ -71,13 +71,13 @@ features = Vertical Slice / BFF Leaf Module
 
 Ask these questions in order:
 
-| Question                                                                                                               | Destination |
-| ---------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Is it a stateless technical primitive or interface used everywhere?                                                    | `common`    |
-| Is it read-mostly reference/lookup data with no lifecycle?                                                             | `catalog`   |
-| Does it decide money, winners, tickets, payouts, limits, draw lifecycle, settlement, or other critical business truth? | `core`      |
-| Is it a UI screen, flow, dashboard, or BFF aggregation?                                                                | `features`  |
-| Is it stateful/transversal/application-support behavior reused by multiple modules?                                    | `platform`  |
+| Question | Destination |
+|---|---|
+| Is it a stateless technical primitive or interface used everywhere? | `common` |
+| Is it read-mostly reference/lookup data with no lifecycle? | `catalog` |
+| Does it decide money, winners, tickets, payouts, limits, draw lifecycle, settlement, or other critical business truth? | `core` |
+| Is it a UI screen, flow, dashboard, or BFF aggregation? | `features` |
+| Is it stateful/transversal/application-support behavior reused by multiple modules? | `platform` |
 
 If the answer is still unclear, do not create a package. Add a short ADR or OpenSpec note before implementation.
 
@@ -169,21 +169,21 @@ Platform event rules:
 
 ## Component placement decisions
 
-| Current / candidate                       | Target                   | Decision                                                                                                                                   |
-| ----------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `core.audit`                              | `platform.audit`         | Audit is transversal compliance/traceability, not a core lottery domain.                                                                   |
-| `core.accesscontrol`                      | `platform.accesscontrol` | Permissions/role checks are application-support policy. Domain eligibility still remains in owning core.                                   |
-| `core.tenantuser`                         | `platform.identity`      | App user profile/context is transversal support state.                                                                                     |
-| `core.tenantconfig`                       | `platform.tenantconfig`  | Effective tenant settings/overrides are transversal support state.                                                                         |
-| `core.tenanttheme`                        | `platform.tenanttheme`   | Effective tenant theme/overrides are platform support. Global presets remain catalog.                                                      |
-| document workflows                        | `platform.document`      | Document generation/storage/delivery metadata is transversal application service. Pure render helpers may remain common only if stateless. |
-| communication delivery                    | `platform.communication` | Email/SMS/push delivery, routing, templates, delivery status are transversal application service.                                          |
-| idempotence persistence/workflow          | `platform.idempotence`   | Stateful idempotency records/workflows are platform. Small annotations/interfaces may remain common.                                       |
-| security technical glue                   | `common.security`        | Spring/security primitives stay common.                                                                                                    |
-| security application decisions            | `platform.accesscontrol` | Permission policies and role assignments move to platform.                                                                                 |
-| theme presets                             | `catalog.theme`          | Read-mostly preset reference data.                                                                                                         |
-| setting definitions                       | `catalog.settings`       | Read-mostly metadata/default definitions.                                                                                                  |
-| sales/draw/payout/limits/ticket lifecycle | `core.*`                 | Critical business truth.                                                                                                                   |
+| Current / candidate | Target | Decision |
+|---|---|---|
+| `core.audit` | `platform.audit` | Audit is transversal compliance/traceability, not a core lottery domain. |
+| `core.accesscontrol` | `platform.accesscontrol` | Permissions/role checks are application-support policy. Domain eligibility still remains in owning core. |
+| `core.tenantuser` | `platform.usercontext` | App user profile/context is transversal support state. |
+| `core.tenantconfig` | `platform.tenantconfig` | Effective tenant settings/overrides are transversal support state. |
+| `core.tenanttheme` | `platform.tenanttheme` | Effective tenant theme/overrides are platform support. Global presets remain catalog. |
+| document workflows | `platform.document` | Document generation/storage/delivery metadata is transversal application service. Pure render helpers may remain common only if stateless. |
+| communication delivery | `platform.communication` | Email/SMS/push delivery, routing, templates, delivery status are transversal application service. |
+| idempotence persistence/workflow | `platform.idempotence` | Stateful idempotency records/workflows are platform. Small annotations/interfaces may remain common. |
+| security technical glue | `common.security` | Spring/security primitives stay common. |
+| security application decisions | `platform.accesscontrol` | Permission policies and role assignments move to platform. |
+| theme presets | `catalog.theme` | Read-mostly preset reference data. |
+| setting definitions | `catalog.settings` | Read-mostly metadata/default definitions. |
+| sales/draw/payout/limits/ticket lifecycle | `core.*` | Critical business truth. |
 
 ## Migration strategy
 
@@ -200,39 +200,33 @@ After this ADR is accepted:
 ### Recommended order
 
 1. **Create Maven and Modulith baseline**
-
    - macro Maven modules;
    - Spring Modulith tests;
    - ArchUnit gates;
    - no behavior move yet.
 
 2. **Create `platform` skeleton**
-
    - root package;
    - package-info metadata;
    - README and package archetype;
    - no mass migration yet.
 
 3. **Low-risk platform services first**
-
    - `platform.communication`;
    - `platform.document`;
    - `platform.audit` if it has limited core imports.
 
 4. **Common defattening**
-
    - move stateful document/communication/idempotence workflows out of common;
    - keep only stateless technical primitives in common.
 
 5. **High-impact transversal migrations**
-
    - `core.accesscontrol` -> `platform.accesscontrol`;
-   - `core.tenantuser` -> `platform.identity`;
+   - `core.tenantuser` -> `platform.usercontext`;
    - `core.tenantconfig` -> `platform.tenantconfig`;
    - `core.tenanttheme` -> `platform.tenanttheme`.
 
 6. **Core API alignment**
-
    - create `core.<domain>.api.command/query/event/model`;
    - move handlers/domain/infra under `internal`;
    - update features to consume APIs only.

@@ -2,21 +2,21 @@
 
 ## 0. Decision freeze
 
-- [x] Confirm Java layer name: `platform`.
-- [x] Document `platform layer` vs `platform admin scope`.
-- [x] Add rule: no new stateful transversal code in `common`.
-- [x] Add rule: no new non-core transversal modules in `core`.
+- [ ] Confirm Java layer name: `platform`.
+- [ ] Document `platform layer` vs `platform admin scope`.
+- [ ] Add rule: no new stateful transversal code in `common`.
+- [ ] Add rule: no new non-core transversal modules in `core`.
 
 ## 1. Maven macro modules
 
-- [x] Create parent aggregator POM.
-- [x] Create `tchalanet-common`.
-- [x] Create `tchalanet-catalog`.
-- [x] Create `tchalanet-platform`.
-- [x] Create `tchalanet-core`.
-- [x] Create `tchalanet-features`.
-- [x] Create `tchalanet-app` as the only executable Spring Boot app.
-- [x] Move app bootstrap/main class to `tchalanet-app`.
+- [ ] Create parent aggregator POM.
+- [ ] Create `tchalanet-common`.
+- [ ] Create `tchalanet-catalog`.
+- [ ] Create `tchalanet-platform`.
+- [ ] Create `tchalanet-core`.
+- [ ] Create `tchalanet-features`.
+- [ ] Create `tchalanet-app` as the only executable Spring Boot app.
+- [ ] Move app bootstrap/main class to `tchalanet-app`.
 - [ ] Verify targeted builds:
   - [ ] `./mvnw -pl tchalanet-common verify`
   - [ ] `./mvnw -pl tchalanet-platform -am verify`
@@ -26,32 +26,32 @@
 
 ## 2. Create platform structure
 
-- [x] Create `com.tchalanet.server.platform` root.
-- [x] Add package-info templates for Spring Modulith modules.
-- [x] Create initial empty platform capabilities:
-  - [x] `platform.audit`
-  - [x] `platform.accesscontrol`
-  - [x] `platform.identity`
-  - [x] `platform.tenantconfig`
-  - [x] `platform.tenanttheme`
-  - [x] `platform.document`
-  - [x] `platform.communication`
-  - [x] `platform.notification`
-  - [x] `platform.idempotence`
-- [x] Each capability has `api/` and `internal/`.
+- [ ] Create `com.tchalanet.server.platform` root.
+- [ ] Add package-info templates for Spring Modulith modules.
+- [ ] Create initial empty platform capabilities:
+  - [ ] `platform.audit`
+  - [ ] `platform.accesscontrol`
+  - [ ] `platform.usercontext`
+  - [ ] `platform.tenantconfig`
+  - [ ] `platform.tenanttheme`
+  - [ ] `platform.document`
+  - [ ] `platform.communication`
+  - [ ] `platform.notification`
+  - [ ] `platform.idempotence`
+- [ ] Each capability has `api/` and `internal/`.
 
 ## 3. Add gates
 
-- [x] Add Spring Modulith verification test.
-- [x] Add ArchUnit test: no cross-module internal imports.
-- [x] Add ArchUnit test: `common` independence.
-- [x] Add ArchUnit test: `catalog` cannot depend on platform/core/features.
-- [x] Add ArchUnit test: `platform` cannot depend on core/features.
-- [x] Add ArchUnit test: `core` cannot depend on features.
-- [x] Add ArchUnit test: features are leaf modules.
-- [x] Add ArchUnit test: core must not listen to platform events.
-- [x] Add ArchUnit test: no forbidden legacy core modules when migration complete.
-- [x] Add temporary allowlists with TODO + removal condition.
+- [ ] Add Spring Modulith verification test.
+- [ ] Add ArchUnit test: no cross-module internal imports.
+- [ ] Add ArchUnit test: `common` independence.
+- [ ] Add ArchUnit test: `catalog` cannot depend on platform/core/features.
+- [ ] Add ArchUnit test: `platform` cannot depend on core/features.
+- [ ] Add ArchUnit test: `core` cannot depend on features.
+- [ ] Add ArchUnit test: features are leaf modules.
+- [ ] Add ArchUnit test: core must not listen to platform events.
+- [ ] Add ArchUnit test: no forbidden legacy core modules when migration complete.
+- [ ] Add temporary allowlists with TODO + removal condition.
 
 ## 4. Defatten common
 
@@ -109,13 +109,13 @@ High fan-in migration:
 - [ ] PR3: Move implementation to `platform.accesscontrol.internal`.
 - [ ] Delete `core.accesscontrol`.
 
-### 5.6 Identity (tenant user)
+### 5.6 Tenant user / user context
 
 High fan-in migration:
 
-- [ ] PR1: Create `platform.identity.api` bridge to legacy `core.tenantuser`.
+- [ ] PR1: Create `platform.usercontext.api` bridge to legacy `core.tenantuser`.
 - [ ] PR2: Flip consumers by area.
-- [ ] PR3: Move implementation to `platform.identity.internal`.
+- [ ] PR3: Move implementation to `platform.usercontext.internal`.
 - [ ] PR4: Delete `core.tenantuser`.
 
 ### 5.7 Notification
@@ -158,18 +158,3 @@ For each core domain:
 - [ ] Run ArchUnit tests.
 - [ ] Run Flyway + ddl validation.
 - [ ] Run `./mvnw clean verify`.
-
-## 9. Update project documentation
-
-After migration and gate cleanup:
-
-- [ ] Update `docs/ARCHITECTURE.md`: reflect 6-layer structure, remove any reference to legacy `core` buckets.
-- [ ] Update `docs/PLAYBOOK.md`: update module creation guidelines to reference `platform` layer.
-- [ ] Mark `ADR-001-modulith-platform-layer` as **Accepted** (Spring Modulith + ArchUnit gates passing, no legacy allowlists).
-- [ ] Mark `ADR-002-initial-application-service-migration-scope` as **Accepted** or **Superseded** as appropriate.
-- [ ] Update `docs/modules/platform.md`, `docs/modules/core.md`, `docs/modules/common.md`, `docs/modules/catalog.md`, `docs/modules/features.md`: align with final module shapes.
-- [ ] Update `docs/reference/platform-modules.md`: mark as finalized (remove "living inventory" qualifier if stable).
-- [ ] Update `docs/architecture/IMPLEMENTATION_PLAN.md`: mark all phases complete.
-- [ ] Update `docs/architecture/ARCHITECTURE_MODULITH.md`: remove any "Proposed" or provisional language.
-- [ ] Verify `docs/ARCHITECTURE.md` does not mention `core.tenantuser`, `core.audit`, `core.accesscontrol`, `core.tenantconfig`, `core.tenanttheme`.
-- [ ] Final doc audit: `grep -r "usercontext\|tenantuser\|core\.audit\|core\.accesscontrol" docs/` → zero results expected.

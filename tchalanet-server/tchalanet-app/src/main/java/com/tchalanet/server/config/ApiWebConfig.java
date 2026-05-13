@@ -1,6 +1,6 @@
 package com.tchalanet.server.config;
 
-import com.tchalanet.server.common.idempotency.http.RequireIdempotencyInterceptor;
+import com.tchalanet.server.common.context.CurrentContextArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +11,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties({ApiProperties.class, TchSystemProperties.class})
+@EnableConfigurationProperties({ApiProperties.class})
 @RequiredArgsConstructor
 public class ApiWebConfig implements WebMvcConfigurer {
     private final CurrentContextArgumentResolver resolver;
-    private final RequireIdempotencyInterceptor requireIdempotencyInterceptor;
+//    private final RequireIdempotencyInterceptor requireIdempotencyInterceptor;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> rs) {
@@ -25,6 +25,7 @@ public class ApiWebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // apply interceptor globally; it checks @RequireIdempotency presence per-handler
-        registry.addInterceptor(requireIdempotencyInterceptor);
+//todo get idempotency
+//        registry.addInterceptor(requireIdempotencyInterceptor);
     }
 }

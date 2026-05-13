@@ -1,0 +1,731 @@
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::staticFieldBase has been called by com.google.inject.internal.aop.HiddenClassDefiner (file:/Users/bhebb/.m2/wrapper/dists/apache-maven-3.9.11/a2d47e15/lib/guice-5.1.0-classes.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.inject.internal.aop.HiddenClassDefiner
+WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] tchalanet-server                                                   [pom]
+[INFO] tchalanet-common                                                   [jar]
+[INFO] tchalanet-catalog                                                  [jar]
+[INFO] tchalanet-platform                                                 [jar]
+[INFO] tchalanet-core                                                     [jar]
+[INFO] 
+[INFO] -------------------< com.tchalanet:tchalanet-server >-------------------
+[INFO] Building tchalanet-server 0.0.1-SNAPSHOT                           [1/5]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-server ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] 
+[INFO] -------------------< com.tchalanet:tchalanet-common >-------------------
+[INFO] Building tchalanet-common 0.0.1-SNAPSHOT                           [2/5]
+[INFO]   from tchalanet-common/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-common ---
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-common ---
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/resources
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-common ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 270 source files with javac [debug parameters release 25] to target/classes
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/java/com/tchalanet/server/common/cache/internal/RedisConfig.java:[77,25] org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer in org.springframework.data.redis.serializer has been deprecated and marked for removal
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/java/com/tchalanet/server/common/batch/gate/BatchFlagCache.java: Some input files use or override a deprecated API.
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/java/com/tchalanet/server/common/batch/gate/BatchFlagCache.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] ------------------< com.tchalanet:tchalanet-catalog >-------------------
+[INFO] Building tchalanet-catalog 0.0.1-SNAPSHOT                          [3/5]
+[INFO]   from tchalanet-catalog/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-catalog ---
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-catalog ---
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/resources
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-catalog ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 150 source files with javac [debug parameters release 25] to target/classes
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/java/com/tchalanet/server/catalog/drawchannel/internal/write/DrawChannelAdminService.java: Some input files use or override a deprecated API.
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/java/com/tchalanet/server/catalog/drawchannel/internal/write/DrawChannelAdminService.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] ------------------< com.tchalanet:tchalanet-platform >------------------
+[INFO] Building tchalanet-platform 0.0.1-SNAPSHOT                         [4/5]
+[INFO]   from tchalanet-platform/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-platform ---
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-platform ---
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/resources
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-platform ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 303 source files with javac [debug parameters release 25] to target/classes
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/java/com/tchalanet/server/platform/idempotence/internal/service/JpaIdempotencyStore.java: Some input files use or override a deprecated API.
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/java/com/tchalanet/server/platform/idempotence/internal/service/JpaIdempotencyStore.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --------------------< com.tchalanet:tchalanet-core >--------------------
+[INFO] Building tchalanet-core 0.0.1-SNAPSHOT                             [5/5]
+[INFO]   from tchalanet-core/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-core ---
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-core ---
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/resources
+[INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-core ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1133 source files with javac [debug parameters release 25] to target/classes
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/draw/internal/infra/persistence/adapter/DrawLifecycleJpaAdapter.java: Some input files use or override a deprecated API.
+[INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/draw/internal/infra/persistence/adapter/DrawLifecycleJpaAdapter.java: Recompile with -Xlint:deprecation for details.
+[INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/web/admin/mapper/OutletAdminWebMapper.java:[24,27] Unmapped target properties: "autoOpenSession, autoCloseSession".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/terminal/internal/infra/web/tenant/TerminalTenantWebMapper.java:[9,22] Unmapped target property: "lastSeenAt".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/draw/internal/infra/web/mapper/DrawAdminWebMapper.java:[50,25] Unmapped target properties: "lot1, lot2, lot3, lot4". Mapping from property "JsonNode haitiResult" to "DrawResultsResponse.HaitiResultResponse haitiResult".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/terminal/internal/infra/persistence/TerminalMapper.java:[53,30] Unmapped target properties: "register, heartbeat, assignToOutlet, assignToUser, mergeMetadata".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/terminal/internal/infra/persistence/TerminalMapper.java:[78,39] Unmapped target properties: "createdAt, updatedAt, createdBy, updatedBy, deletedAt, version".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/terminal/internal/infra/persistence/TerminalMapper.java:[103,26] Unmapped target properties: "createdAt, updatedAt, createdBy, updatedBy, deletedAt, version".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceMapper.java:[16,12] Unmapped target property: "withAddressId".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceMapper.java:[25,21] Unmapped target properties: "createdAt, updatedAt, createdBy, updatedBy, deletedAt, version, status".
+[WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceMapper.java:[30,10] Unmapped target properties: "createdAt, updatedAt, createdBy, updatedBy, deletedAt, version, status".
+[INFO] 9 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/ledger/internal/infra/persistence/JpaLedgerRepositoryAdapter.java:[74,16] constructor LedgerBalanceView in record com.tchalanet.server.core.ledger.api.query.LedgerBalanceView cannot be applied to given types;
+  required: long,long,long,java.lang.String,java.time.Instant
+  found:    java.math.BigDecimal,java.lang.String
+  reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/application/query/handler/evaluation/EvaluateLimitPolicyQueryHandler.java:[52,24] incompatible types: java.util.List<java.lang.Object> cannot be converted to java.util.List<com.tchalanet.server.core.limitpolicy.api.query.LimitBreachView>
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/application/query/handler/evaluation/EvaluateLimitPolicyQueryHandler.java:[48,39] incompatible types: java.math.BigDecimal cannot be converted to java.lang.Long
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/infra/persistence/exposure/adapter/ExposureProjectorAdapter.java:[70,18] cannot find symbol
+  symbol:   method agentId()
+  location: variable event of type com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/infra/persistence/exposure/adapter/ExposureProjectorAdapter.java:[71,49] cannot find symbol
+  symbol:   method agentId()
+  location: variable event of type com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/application/command/handler/ApproveOfflineSubmissionCommandHandler.java:[64,9] incompatible types: java.util.Set<capture#1 of ? extends java.lang.Object> cannot be converted to java.util.Set<com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineRiskFlag>
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/persistence/OfflineCodeBatchJpaEntity.java:[34,16] getVersion() in com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineCodeBatchJpaEntity cannot override getVersion() in com.tchalanet.server.common.persistence.AuditableEntity
+  return type java.lang.Long is not compatible with long
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/persistence/OfflineCodeReservationJpaEntity.java:[37,16] getVersion() in com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineCodeReservationJpaEntity cannot override getVersion() in com.tchalanet.server.common.persistence.AuditableEntity
+  return type java.lang.Long is not compatible with long
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/persistence/OfflineSyncJpaAdapter.java:[124,47] incompatible types: invalid method reference
+    incompatible types: com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineBatchJpaEntity cannot be converted to com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineSaleSubmissionJpaEntity
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/OfflineGrantController.java:[44,12] cannot find symbol
+  symbol:   method actorIdRequired()
+  location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/OfflineGrantController.java:[59,12] cannot find symbol
+  symbol:   method actorIdRequired()
+  location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/admin/OfflineReviewAdminController.java:[39,12] cannot find symbol
+  symbol:   method actorIdRequired()
+  location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/admin/OfflineReviewAdminController.java:[52,12] cannot find symbol
+  symbol:   method actorIdRequired()
+  location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[23,19] cannot find symbol
+  symbol:   method suspended()
+  location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[31,63] cannot find symbol
+  symbol:   method payoutEnabled()
+  location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[35,70] cannot find symbol
+  symbol:   method offlineSalesEnabled()
+  location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[43,19] cannot find symbol
+  symbol:   method payoutEnabled()
+  location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[44,19] cannot find symbol
+  symbol:   method offlineSalesEnabled()
+  location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/pagemodel/internal/application/query/handler/ResolveEffectivePageModelQueryHandler.java:[43,9] cannot find symbol
+  symbol:   variable TchContextScope
+  location: class com.tchalanet.server.core.pagemodel.internal.application.query.handler.ResolveEffectivePageModelQueryHandler
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[41,14] cannot find symbol
+  symbol:   method getId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[42,14] cannot find symbol
+  symbol:   method getTicketId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[43,14] cannot find symbol
+  symbol:   method getAmountCents()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[44,14] cannot find symbol
+  symbol:   method getCurrency()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[48,42] cannot find symbol
+  symbol:   method getId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[48,57] cannot find symbol
+  symbol:   method getStatus()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[38,19] cannot find symbol
+  symbol:   method isPaid()
+  location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[39,51] cannot find symbol
+  symbol:   method getId()
+  location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[39,67] cannot find symbol
+  symbol:   method getStatus()
+  location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[39,87] cannot find symbol
+  symbol:   method getPaidAt()
+  location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[44,15] cannot find symbol
+  symbol:   method markPaid(com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,com.tchalanet.server.common.types.id.TerminalId,java.time.Instant,boolean)
+  location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[59,22] cannot find symbol
+  symbol:   method getId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[60,22] cannot find symbol
+  symbol:   method getTicketId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[61,22] cannot find symbol
+  symbol:   method getAmountCents()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[62,22] cannot find symbol
+  symbol:   method getCurrency()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[70,46] cannot find symbol
+  symbol:   method getId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[70,61] cannot find symbol
+  symbol:   method getStatus()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[70,80] cannot find symbol
+  symbol:   method getPaidAt()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[35,59] incompatible types: java.lang.String cannot be converted to java.time.Instant
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[43,18] cannot find symbol
+  symbol:   method getId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[44,18] cannot find symbol
+  symbol:   method getTicketId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[45,18] cannot find symbol
+  symbol:   method getAmountCents()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[46,18] cannot find symbol
+  symbol:   method getCurrency()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[51,46] cannot find symbol
+  symbol:   method getId()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[51,61] cannot find symbol
+  symbol:   method getStatus()
+  location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/validation/PosPayoutOperationValidator.java:[47,95] incompatible types: com.tchalanet.server.core.session.api.query.SalesSessionOperation cannot be converted to com.tchalanet.server.core.session.internal.domain.model.SalesSessionOperation
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[18,22] cannot find symbol
+  symbol:   method load(com.tchalanet.server.common.types.id.PayoutId,com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.common.types.id.TicketId,java.lang.Long,java.lang.String,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,java.time.Instant,com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,com.tchalanet.server.common.types.id.TerminalId,com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.UserId,java.time.Instant,java.time.Instant,java.time.Instant,java.lang.String,java.lang.String)
+  location: class com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[43,14] cannot find symbol
+  symbol:   method getId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[43,41] cannot find symbol
+  symbol:   method getId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[44,14] cannot find symbol
+  symbol:   method getTenantId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[44,53] cannot find symbol
+  symbol:   method getTenantId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[45,14] cannot find symbol
+  symbol:   method getTicketId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[45,53] cannot find symbol
+  symbol:   method getTicketId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[47,27] cannot find symbol
+  symbol:   method getAmountCents()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[48,24] cannot find symbol
+  symbol:   method getCurrency()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[49,22] cannot find symbol
+  symbol:   method getStatus()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[51,31] cannot find symbol
+  symbol:   method getSellingOutletId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[51,71] cannot find symbol
+  symbol:   method getSellingOutletId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[52,32] cannot find symbol
+  symbol:   method getSellingSessionId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[52,73] cannot find symbol
+  symbol:   method getSellingSessionId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[54,30] cannot find symbol
+  symbol:   method getPayingOutletId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[54,69] cannot find symbol
+  symbol:   method getPayingOutletId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[55,31] cannot find symbol
+  symbol:   method getPayingSessionId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[55,71] cannot find symbol
+  symbol:   method getPayingSessionId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[56,32] cannot find symbol
+  symbol:   method getPayingTerminalId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[56,73] cannot find symbol
+  symbol:   method getPayingTerminalId()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[58,27] cannot find symbol
+  symbol:   method getRequestedBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[58,63] cannot find symbol
+  symbol:   method getRequestedBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[59,26] cannot find symbol
+  symbol:   method getApprovedBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[59,61] cannot find symbol
+  symbol:   method getApprovedBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[60,26] cannot find symbol
+  symbol:   method getRejectedBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[60,61] cannot find symbol
+  symbol:   method getRejectedBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[61,22] cannot find symbol
+  symbol:   method getPaidBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[61,53] cannot find symbol
+  symbol:   method getPaidBy()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[63,26] cannot find symbol
+  symbol:   method getApprovedAt()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[64,26] cannot find symbol
+  symbol:   method getRejectedAt()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[65,22] cannot find symbol
+  symbol:   method getPaidAt()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[67,30] cannot find symbol
+  symbol:   method getRejectedReason()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[68,22] cannot find symbol
+  symbol:   method getReason()
+  location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/web/PayoutAdminQueryController.java:[49,17] constructor ListPayoutsQuery in record com.tchalanet.server.core.payout.api.query.ListPayoutsQuery cannot be applied to given types;
+  required: com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus,com.tchalanet.server.common.types.id.TicketId,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,java.time.Instant,java.time.Instant,org.springframework.data.domain.Pageable
+  found:    com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus,com.tchalanet.server.common.types.id.TicketId,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,java.time.Instant,java.time.Instant,org.springframework.data.domain.Pageable
+  reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/web/PayoutAdminQueryController.java:[59,35] incompatible types: cannot infer type-variable(s) A,B
+    (argument mismatch; invalid method reference
+      no suitable method found for toResponse(java.lang.Object)
+          method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.command.RegisterPayoutResult) is not applicable
+            (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.command.RegisterPayoutResult)
+          method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult) is not applicable
+            (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult)
+          method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.query.PayoutRow) is not applicable
+            (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.query.PayoutRow)
+          method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.query.PayoutDetails) is not applicable
+            (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.query.PayoutDetails))
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/web/PayoutAdminQueryController.java:[69,17] constructor GetPayoutDetailsQuery in record com.tchalanet.server.core.payout.api.query.GetPayoutDetailsQuery cannot be applied to given types;
+  required: com.tchalanet.server.common.types.id.PayoutId
+  found:    com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.common.types.id.PayoutId
+  reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[119,54] cannot find symbol
+  symbol:   variable PAID_OUT
+  location: class com.tchalanet.server.common.types.enums.TicketSettlementStatus
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[126,51] cannot find symbol
+  symbol:   variable PAID_OUT
+  location: class com.tchalanet.server.common.types.enums.TicketSettlementStatus
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[176,36] cannot find symbol
+  symbol:   variable REALTIME
+  location: class com.tchalanet.server.core.sales.internal.domain.model.SalesSessionPostingMode
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[166,25] cannot find symbol
+  symbol:   method valueOf(java.lang.String)
+  location: class com.tchalanet.server.common.types.money.CurrencyCode
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/api/event/DrawResultedEventListener.java:[24,28] constructor RecordDrawTicketsResultCommand in record com.tchalanet.server.core.sales.api.command.RecordDrawTicketsResultCommand cannot be applied to given types;
+  required: com.tchalanet.server.common.types.id.DrawId
+  found:    com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.common.types.id.DrawId,com.tchalanet.server.common.types.id.DrawResultId,java.time.Instant
+  reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[65,19] cannot find symbol
+  symbol:   method getSessionId()
+  location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[69,37] cannot find symbol
+  symbol:   method getSessionId()
+  location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[82,18] cannot find symbol
+  symbol:   method getSessionId()
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[81,13] cannot infer type for local variable session
+  (variable initializer is 'null')
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[84,54] cannot find symbol
+  symbol:   method getSessionId()
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[89,31] cannot find symbol
+  symbol:   class Line
+  location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[90,44] cannot find symbol
+  symbol:   class Line
+  location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[93,18] cannot find symbol
+  symbol:   method stake()
+  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,18] cannot find symbol
+  symbol:   method potentialPayout()
+  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,53] cannot find symbol
+  symbol:   method potentialPayout()
+  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[112,22] cannot find symbol
+  symbol:   method getTotalAmount()
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[108,22] cannot find symbol
+  symbol:   method getSessionId()
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[106,71] cannot find symbol
+  symbol:   class AgentId
+  location: package com.tchalanet.server.common.types.id
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/service/TicketSalePolicyService.java:[111,26] cannot find symbol
+  symbol:   class BetLine
+  location: class com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext
+[INFO] 100 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for tchalanet-server 0.0.1-SNAPSHOT:
+[INFO] 
+[INFO] tchalanet-server ................................... SUCCESS [  0.912 s]
+[INFO] tchalanet-common ................................... SUCCESS [ 19.648 s]
+[INFO] tchalanet-catalog .................................. SUCCESS [ 14.038 s]
+[INFO] tchalanet-platform ................................. SUCCESS [ 16.091 s]
+[INFO] tchalanet-core ..................................... FAILURE [ 31.286 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:23 min
+[INFO] Finished at: 2026-05-12T16:19:57-04:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.15.0:compile (default-compile) on project tchalanet-core: Compilation failure: Compilation failure: 
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/ledger/internal/infra/persistence/JpaLedgerRepositoryAdapter.java:[74,16] constructor LedgerBalanceView in record com.tchalanet.server.core.ledger.api.query.LedgerBalanceView cannot be applied to given types;
+[ERROR]   required: long,long,long,java.lang.String,java.time.Instant
+[ERROR]   found:    java.math.BigDecimal,java.lang.String
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/application/query/handler/evaluation/EvaluateLimitPolicyQueryHandler.java:[52,24] incompatible types: java.util.List<java.lang.Object> cannot be converted to java.util.List<com.tchalanet.server.core.limitpolicy.api.query.LimitBreachView>
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/application/query/handler/evaluation/EvaluateLimitPolicyQueryHandler.java:[48,39] incompatible types: java.math.BigDecimal cannot be converted to java.lang.Long
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/infra/persistence/exposure/adapter/ExposureProjectorAdapter.java:[70,18] cannot find symbol
+[ERROR]   symbol:   method agentId()
+[ERROR]   location: variable event of type com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/limitpolicy/internal/infra/persistence/exposure/adapter/ExposureProjectorAdapter.java:[71,49] cannot find symbol
+[ERROR]   symbol:   method agentId()
+[ERROR]   location: variable event of type com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/application/command/handler/ApproveOfflineSubmissionCommandHandler.java:[64,9] incompatible types: java.util.Set<capture#1 of ? extends java.lang.Object> cannot be converted to java.util.Set<com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineRiskFlag>
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/persistence/OfflineCodeBatchJpaEntity.java:[34,16] getVersion() in com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineCodeBatchJpaEntity cannot override getVersion() in com.tchalanet.server.common.persistence.AuditableEntity
+[ERROR]   return type java.lang.Long is not compatible with long
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/persistence/OfflineCodeReservationJpaEntity.java:[37,16] getVersion() in com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineCodeReservationJpaEntity cannot override getVersion() in com.tchalanet.server.common.persistence.AuditableEntity
+[ERROR]   return type java.lang.Long is not compatible with long
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/persistence/OfflineSyncJpaAdapter.java:[124,47] incompatible types: invalid method reference
+[ERROR]     incompatible types: com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineBatchJpaEntity cannot be converted to com.tchalanet.server.core.offlinesync.internal.infra.persistence.OfflineSaleSubmissionJpaEntity
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/OfflineGrantController.java:[44,12] cannot find symbol
+[ERROR]   symbol:   method actorIdRequired()
+[ERROR]   location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/OfflineGrantController.java:[59,12] cannot find symbol
+[ERROR]   symbol:   method actorIdRequired()
+[ERROR]   location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/admin/OfflineReviewAdminController.java:[39,12] cannot find symbol
+[ERROR]   symbol:   method actorIdRequired()
+[ERROR]   location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/internal/infra/web/admin/OfflineReviewAdminController.java:[52,12] cannot find symbol
+[ERROR]   symbol:   method actorIdRequired()
+[ERROR]   location: variable ctx of type com.tchalanet.server.common.context.TchRequestContext
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[23,19] cannot find symbol
+[ERROR]   symbol:   method suspended()
+[ERROR]   location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[31,63] cannot find symbol
+[ERROR]   symbol:   method payoutEnabled()
+[ERROR]   location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[35,70] cannot find symbol
+[ERROR]   symbol:   method offlineSalesEnabled()
+[ERROR]   location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[43,19] cannot find symbol
+[ERROR]   symbol:   method payoutEnabled()
+[ERROR]   location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/application/query/handler/ValidateOutletForOperationQueryHandler.java:[44,19] cannot find symbol
+[ERROR]   symbol:   method offlineSalesEnabled()
+[ERROR]   location: variable outlet of type com.tchalanet.server.core.outlet.internal.domain.model.Outlet
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/pagemodel/internal/application/query/handler/ResolveEffectivePageModelQueryHandler.java:[43,9] cannot find symbol
+[ERROR]   symbol:   variable TchContextScope
+[ERROR]   location: class com.tchalanet.server.core.pagemodel.internal.application.query.handler.ResolveEffectivePageModelQueryHandler
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[41,14] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[42,14] cannot find symbol
+[ERROR]   symbol:   method getTicketId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[43,14] cannot find symbol
+[ERROR]   symbol:   method getAmountCents()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[44,14] cannot find symbol
+[ERROR]   symbol:   method getCurrency()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[48,42] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ApprovePayoutCommandHandler.java:[48,57] cannot find symbol
+[ERROR]   symbol:   method getStatus()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[38,19] cannot find symbol
+[ERROR]   symbol:   method isPaid()
+[ERROR]   location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[39,51] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[39,67] cannot find symbol
+[ERROR]   symbol:   method getStatus()
+[ERROR]   location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[39,87] cannot find symbol
+[ERROR]   symbol:   method getPaidAt()
+[ERROR]   location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[44,15] cannot find symbol
+[ERROR]   symbol:   method markPaid(com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,com.tchalanet.server.common.types.id.TerminalId,java.time.Instant,boolean)
+[ERROR]   location: variable payout of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[59,22] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[60,22] cannot find symbol
+[ERROR]   symbol:   method getTicketId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[61,22] cannot find symbol
+[ERROR]   symbol:   method getAmountCents()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[62,22] cannot find symbol
+[ERROR]   symbol:   method getCurrency()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[70,46] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[70,61] cannot find symbol
+[ERROR]   symbol:   method getStatus()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/ExecutePayoutCommandHandler.java:[70,80] cannot find symbol
+[ERROR]   symbol:   method getPaidAt()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[35,59] incompatible types: java.lang.String cannot be converted to java.time.Instant
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[43,18] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[44,18] cannot find symbol
+[ERROR]   symbol:   method getTicketId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[45,18] cannot find symbol
+[ERROR]   symbol:   method getAmountCents()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[46,18] cannot find symbol
+[ERROR]   symbol:   method getCurrency()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[51,46] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/command/handler/RejectPayoutCommandHandler.java:[51,61] cannot find symbol
+[ERROR]   symbol:   method getStatus()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/application/validation/PosPayoutOperationValidator.java:[47,95] incompatible types: com.tchalanet.server.core.session.api.query.SalesSessionOperation cannot be converted to com.tchalanet.server.core.session.internal.domain.model.SalesSessionOperation
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[18,22] cannot find symbol
+[ERROR]   symbol:   method load(com.tchalanet.server.common.types.id.PayoutId,com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.common.types.id.TicketId,java.lang.Long,java.lang.String,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,java.time.Instant,com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,com.tchalanet.server.common.types.id.TerminalId,com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.UserId,com.tchalanet.server.common.types.id.UserId,java.time.Instant,java.time.Instant,java.time.Instant,java.lang.String,java.lang.String)
+[ERROR]   location: class com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[43,14] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[43,41] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[44,14] cannot find symbol
+[ERROR]   symbol:   method getTenantId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[44,53] cannot find symbol
+[ERROR]   symbol:   method getTenantId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[45,14] cannot find symbol
+[ERROR]   symbol:   method getTicketId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[45,53] cannot find symbol
+[ERROR]   symbol:   method getTicketId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[47,27] cannot find symbol
+[ERROR]   symbol:   method getAmountCents()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[48,24] cannot find symbol
+[ERROR]   symbol:   method getCurrency()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[49,22] cannot find symbol
+[ERROR]   symbol:   method getStatus()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[51,31] cannot find symbol
+[ERROR]   symbol:   method getSellingOutletId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[51,71] cannot find symbol
+[ERROR]   symbol:   method getSellingOutletId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[52,32] cannot find symbol
+[ERROR]   symbol:   method getSellingSessionId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[52,73] cannot find symbol
+[ERROR]   symbol:   method getSellingSessionId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[54,30] cannot find symbol
+[ERROR]   symbol:   method getPayingOutletId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[54,69] cannot find symbol
+[ERROR]   symbol:   method getPayingOutletId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[55,31] cannot find symbol
+[ERROR]   symbol:   method getPayingSessionId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[55,71] cannot find symbol
+[ERROR]   symbol:   method getPayingSessionId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[56,32] cannot find symbol
+[ERROR]   symbol:   method getPayingTerminalId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[56,73] cannot find symbol
+[ERROR]   symbol:   method getPayingTerminalId()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[58,27] cannot find symbol
+[ERROR]   symbol:   method getRequestedBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[58,63] cannot find symbol
+[ERROR]   symbol:   method getRequestedBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[59,26] cannot find symbol
+[ERROR]   symbol:   method getApprovedBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[59,61] cannot find symbol
+[ERROR]   symbol:   method getApprovedBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[60,26] cannot find symbol
+[ERROR]   symbol:   method getRejectedBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[60,61] cannot find symbol
+[ERROR]   symbol:   method getRejectedBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[61,22] cannot find symbol
+[ERROR]   symbol:   method getPaidBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[61,53] cannot find symbol
+[ERROR]   symbol:   method getPaidBy()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[63,26] cannot find symbol
+[ERROR]   symbol:   method getApprovedAt()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[64,26] cannot find symbol
+[ERROR]   symbol:   method getRejectedAt()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[65,22] cannot find symbol
+[ERROR]   symbol:   method getPaidAt()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[67,30] cannot find symbol
+[ERROR]   symbol:   method getRejectedReason()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/persistence/PayoutPersistenceMapper.java:[68,22] cannot find symbol
+[ERROR]   symbol:   method getReason()
+[ERROR]   location: variable p of type com.tchalanet.server.core.payout.internal.domain.model.Payout
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/web/PayoutAdminQueryController.java:[49,17] constructor ListPayoutsQuery in record com.tchalanet.server.core.payout.api.query.ListPayoutsQuery cannot be applied to given types;
+[ERROR]   required: com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus,com.tchalanet.server.common.types.id.TicketId,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,java.time.Instant,java.time.Instant,org.springframework.data.domain.Pageable
+[ERROR]   found:    com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus,com.tchalanet.server.common.types.id.TicketId,com.tchalanet.server.common.types.id.OutletId,com.tchalanet.server.common.types.id.SalesSessionId,java.time.Instant,java.time.Instant,org.springframework.data.domain.Pageable
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/web/PayoutAdminQueryController.java:[59,35] incompatible types: cannot infer type-variable(s) A,B
+[ERROR]     (argument mismatch; invalid method reference
+[ERROR]       no suitable method found for toResponse(java.lang.Object)
+[ERROR]           method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.command.RegisterPayoutResult) is not applicable
+[ERROR]             (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.command.RegisterPayoutResult)
+[ERROR]           method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult) is not applicable
+[ERROR]             (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult)
+[ERROR]           method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.query.PayoutRow) is not applicable
+[ERROR]             (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.query.PayoutRow)
+[ERROR]           method com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper.toResponse(com.tchalanet.server.core.payout.api.query.PayoutDetails) is not applicable
+[ERROR]             (argument mismatch; java.lang.Object cannot be converted to com.tchalanet.server.core.payout.api.query.PayoutDetails))
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/payout/internal/infra/web/PayoutAdminQueryController.java:[69,17] constructor GetPayoutDetailsQuery in record com.tchalanet.server.core.payout.api.query.GetPayoutDetailsQuery cannot be applied to given types;
+[ERROR]   required: com.tchalanet.server.common.types.id.PayoutId
+[ERROR]   found:    com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.common.types.id.PayoutId
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[119,54] cannot find symbol
+[ERROR]   symbol:   variable PAID_OUT
+[ERROR]   location: class com.tchalanet.server.common.types.enums.TicketSettlementStatus
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[126,51] cannot find symbol
+[ERROR]   symbol:   variable PAID_OUT
+[ERROR]   location: class com.tchalanet.server.common.types.enums.TicketSettlementStatus
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[176,36] cannot find symbol
+[ERROR]   symbol:   variable REALTIME
+[ERROR]   location: class com.tchalanet.server.core.sales.internal.domain.model.SalesSessionPostingMode
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/domain/model/Ticket.java:[166,25] cannot find symbol
+[ERROR]   symbol:   method valueOf(java.lang.String)
+[ERROR]   location: class com.tchalanet.server.common.types.money.CurrencyCode
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/api/event/DrawResultedEventListener.java:[24,28] constructor RecordDrawTicketsResultCommand in record com.tchalanet.server.core.sales.api.command.RecordDrawTicketsResultCommand cannot be applied to given types;
+[ERROR]   required: com.tchalanet.server.common.types.id.DrawId
+[ERROR]   found:    com.tchalanet.server.common.types.id.TenantId,com.tchalanet.server.common.types.id.DrawId,com.tchalanet.server.common.types.id.DrawResultId,java.time.Instant
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[65,19] cannot find symbol
+[ERROR]   symbol:   method getSessionId()
+[ERROR]   location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[69,37] cannot find symbol
+[ERROR]   symbol:   method getSessionId()
+[ERROR]   location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[82,18] cannot find symbol
+[ERROR]   symbol:   method getSessionId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[81,13] cannot infer type for local variable session
+[ERROR]   (variable initializer is 'null')
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[84,54] cannot find symbol
+[ERROR]   symbol:   method getSessionId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[89,31] cannot find symbol
+[ERROR]   symbol:   class Line
+[ERROR]   location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[90,44] cannot find symbol
+[ERROR]   symbol:   class Line
+[ERROR]   location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[93,18] cannot find symbol
+[ERROR]   symbol:   method stake()
+[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,18] cannot find symbol
+[ERROR]   symbol:   method potentialPayout()
+[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,53] cannot find symbol
+[ERROR]   symbol:   method potentialPayout()
+[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[112,22] cannot find symbol
+[ERROR]   symbol:   method getTotalAmount()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[108,22] cannot find symbol
+[ERROR]   symbol:   method getSessionId()
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[106,71] cannot find symbol
+[ERROR]   symbol:   class AgentId
+[ERROR]   location: package com.tchalanet.server.common.types.id
+[ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/service/TicketSalePolicyService.java:[111,26] cannot find symbol
+[ERROR]   symbol:   class BetLine
+[ERROR]   location: class com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :tchalanet-core

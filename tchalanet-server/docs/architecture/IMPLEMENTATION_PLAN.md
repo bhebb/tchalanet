@@ -65,7 +65,7 @@ Initial capabilities:
 ```text
 platform.audit
 platform.accesscontrol
-platform.identity
+platform.usercontext
 platform.tenantconfig
 platform.tenanttheme
 platform.document
@@ -141,7 +141,7 @@ Recommended order:
 3. `core.tenanttheme` -> `platform.tenanttheme`.
 4. `core.tenantconfig` -> `platform.tenantconfig`.
 5. `core.accesscontrol` -> `platform.accesscontrol`.
-6. `core.tenantuser` -> `platform.identity`.
+6. `core.tenantuser` -> `platform.usercontext`.
 7. `core.notification` -> `platform.notification` if it exists and is not business-core.
 
 High fan-in migration pattern:
@@ -152,7 +152,7 @@ PR 2: Flip consumers to platform.<x>.api progressively.
 PR 3: Move implementation to platform.<x>.internal and delete legacy core.<x>.
 ```
 
-Use the bridge pattern for `tenantconfig`, `accesscontrol`, and `tenantuser/identity`.
+Use the bridge pattern for `tenantconfig`, `accesscontrol`, and `tenantuser/usercontext`.
 
 ## Phase 6 — Align core to Modulith API/internal
 

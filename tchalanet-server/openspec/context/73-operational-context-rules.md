@@ -14,15 +14,15 @@ HTTP context is owned by the HTTP boundary.
 
 ## 2. Boundary matrix
 
-| Flow             | Rule                                            |
-| ---------------- | ----------------------------------------------- |
-| HTTP             | bind/clear context in filter                    |
-| Batch            | create explicit context from job parameters     |
-| Scheduler        | launch batch or bind explicit scheduler context |
-| Startup tenant   | use explicit startup tenant scope               |
-| Startup platform | use explicit startup platform scope             |
-| Event listener   | use event metadata and restore prior context    |
-| Tests            | set/restore context deterministically           |
+| Flow | Rule |
+|---|---|
+| HTTP | bind/clear context in filter |
+| Batch | create explicit context from job parameters |
+| Scheduler | launch batch or bind explicit scheduler context |
+| Startup tenant | use explicit startup tenant scope |
+| Startup platform | use explicit startup platform scope |
+| Event listener | use event metadata and restore prior context |
+| Tests | set/restore context deterministically |
 
 ## 3. Platform service restrictions
 

@@ -9,7 +9,7 @@ Examples:
 ```text
 platform.audit
 platform.accesscontrol
-platform.identity
+platform.usercontext
 platform.tenantconfig
 platform.tenanttheme
 platform.document

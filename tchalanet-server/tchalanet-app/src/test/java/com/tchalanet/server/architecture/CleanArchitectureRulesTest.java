@@ -145,7 +145,7 @@ class CleanArchitectureRulesTest {
             .haveSimpleNameEndingWith("Controller")
             .should()
             .dependOnClassesThat()
-            .haveSimpleNameMatching(".*(CommandBus|QueryBus)");
+            .haveNameMatching(".*(CommandBus|QueryBus)");
 
     rule.check(classes);
   }

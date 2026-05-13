@@ -1,101 +1,87 @@
-# Operational Context — Modulith Runtime Rules
+# Operational Context Architecture
 
-> Status: NORMATIVE  
-> Scope: HTTP, batch, scheduler, startup, events, tests, migrations  
-> Goal: prevent tenant/RLS/context regressions during the platform migration.
+## Status
 
-## Principle
+Normative target for the post-platform refactor.
 
-Architecture modules do not change the runtime truth:
+## Purpose
 
-- request context is produced at system boundaries;
-- RLS reads the effective context;
-- async/event/batch boundaries must carry context explicitly;
-- platform migration must not hide tenant or actor decisions in helpers.
+Operational context answers a different question from identity and request context.
 
-## Context producers
+| Concept | Question answered | Home |
+|---|---|---|
+| Request context | Who/what is calling right now? Which tenant/scope/request? | `common.context` + `common.web.context` |
+| Identity | Who is this app user persistently? Which profile/memberships? | `platform.identity` |
+| Access control | What is this actor allowed to do? | `platform.accesscontrol` |
+| Operational context | Is this actor allowed to operate in this terminal/outlet/session frame for this use case? | Resolver/use-case layer; initially `platform.operationalcontext` only if reused broadly |
 
-| Flow                  | Context producer                      | Rule                                                                 |
-| --------------------- | ------------------------------------- | -------------------------------------------------------------------- |
-| HTTP                  | `TchContextFilter`                    | canonical request context from route/auth/tenant/actor               |
-| User bootstrap        | actor bootstrap/filter                | may enrich actor only; does not decide tenant                        |
-| Batch                 | `BatchTchContextBinder` or equivalent | creates TENANT or PLATFORM context from job params                   |
-| Scheduler             | scheduler or launched batch           | prefer launching batch; direct work needs explicit scheduler context |
-| Startup tenant work   | explicit startup tenant scope         | used for tenant seed/init work                                       |
-| Startup platform work | explicit platform/startup scope       | used for platform technical bootstrap                                |
-| Event/listener        | event payload + listener binder       | carry tenant/actor/correlation when thread hop/retry is possible     |
-| Tests                 | test helper                           | must set and restore context deterministically                       |
+## Decision
 
-## Platform migration impact
+Do not put operational context into `platform.identity`.
 
-Moving `tenantuser`, `tenantconfig`, `tenanttheme`, `accesscontrol`, `audit`, `document`, `communication` or `idempotence` must not change:
+Operational context is runtime/application state composed from:
 
-- how tenant is resolved;
-- how user/actor is resolved;
-- how RLS session variables are applied;
-- how audit actor/tenant/request id are recorded;
-- how batch/scheduler context is bound;
-- how event listeners restore context.
+- `common.context.TchRequestContext`
+- `platform.identity.api.IdentityApi`
+- `platform.accesscontrol.api.AccessControlApi`
+- `core.outlet.api`
+- `core.terminal.api`
+- `core.session.api`
+- use-case-specific input headers/body fields
 
-## Rules for platform services
+## Initial placement
 
-Platform services may consume context through approved APIs:
+For POS/seller flows, use a dedicated resolver package:
 
-- `TchRequestContext` passed explicitly;
-- `TchContextResolver`;
-- `@CurrentContext` at web boundary;
-- event payload metadata;
-- batch context binder.
+```text
+platform.operationalcontext.api
+platform.operationalcontext.internal.service
+```
 
-Platform services must not:
+Only create `platform.operationalcontext` if at least two core/features need the same seller/admin resolution logic. Otherwise keep a resolver inside the owning use case/module and promote it later.
 
-- parse JWT directly;
-- read arbitrary request headers directly;
-- set `TchContext` to make downstream code work, except explicit boundary/scope helpers;
-- call `set_config` or manipulate RLS directly;
-- trust tenant IDs from request bodies for tenant-scoped operations.
+## Seller operational context
 
-## RLS after migration
+Typical input:
 
-RLS remains a persistence/runtime concern.
+```text
+tenantId from TchRequestContext
+actorUserId from TchRequestContext
+terminalId from header/body
+outletId from header/body or terminal lookup
+salesSessionId from header/body
+```
 
-- `common` may contain low-level context primitives.
-- `platform` may contain tenant/user/access-control decisions.
-- datasource bridge remains the only code applying PostgreSQL session variables.
+Typical output:
 
-Tables moved to `platform` must still follow RLS rules:
+```text
+SellerOperationalContext
+  tenantId
+  actorUserId
+  terminalId
+  outletId
+  sessionId
+  permissions/effective role snapshot if needed
+  locale/timezone/currency effective values if needed
+```
 
-- tenant-scoped platform tables use `tenant_id` + policies;
-- global platform tables are explicitly global;
-- audit tables must preserve tenant/actor/request metadata.
+## RLS rule
 
-## Events
+Operational context does not bypass RLS.
 
-Public events crossing modules must live in the source module `api.event`.
+- Tenant-scoped system/user work binds the tenant in `TchRequestContext`.
+- Super-admin override remains explicit and auditable.
+- `SYSTEM` execution scope does not imply cross-tenant access.
 
-Event payloads must include required context facts:
+## Validation rule
 
-- tenant id when tenant-scoped;
-- actor/user id when actor-sensitive;
-- correlation/request id when traceability matters;
-- occurredAt.
+A use case must validate its operational frame before mutating critical state.
 
-Listeners must:
+Example for sell:
 
-- set/restore context if needed;
-- execute local operations through the owning module API or internal application service;
-- be idempotent where retries are possible;
-- not write cross-domain state in the source transaction.
-
-## Verification checklist
-
-After each migration step, verify:
-
-- HTTP request context still binds and clears;
-- RLS variables are applied and reset;
-- platform reads do not add manual tenant filters unless write-side or explicit exception;
-- batch/scheduler jobs set context before DB access;
-- events carry tenant/actor metadata;
-- audit records preserve tenant/user/request id;
-- security permission checks do not import old packages;
-- no module imports another module's `internal` package.
+1. Resolve request context.
+2. Resolve seller operational context.
+3. Verify terminal belongs to outlet/tenant and is active.
+4. Verify session is open and belongs to actor/terminal/outlet when required.
+5. Verify permission via `platform.accesscontrol`.
+6. Execute business command in `core.sales`.
