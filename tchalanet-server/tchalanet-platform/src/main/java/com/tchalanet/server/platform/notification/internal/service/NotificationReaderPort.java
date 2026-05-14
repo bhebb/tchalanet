@@ -5,12 +5,12 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryStatus;
-import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryView;
-import com.tchalanet.server.platform.notification.api.model.NotificationItemView;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationDeliveryView;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationItemView;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
-import com.tchalanet.server.platform.notification.api.model.NotificationSummaryView;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import java.util.Optional;
 import java.util.UUID;
 

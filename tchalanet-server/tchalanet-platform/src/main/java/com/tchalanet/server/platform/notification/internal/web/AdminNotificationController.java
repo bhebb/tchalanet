@@ -1,22 +1,21 @@
 package com.tchalanet.server.platform.notification.internal.web;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
-import com.tchalanet.server.platform.notification.api.model.ListNotificationDeliveriesQuery;
-import com.tchalanet.server.platform.notification.api.model.ListNotificationsQuery;
+import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
+import com.tchalanet.server.platform.notification.api.model.request.ListNotificationDeliveriesRequest;
+import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationDeliveryStatus;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
+import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasAuthority('TENANT_ADMIN') or hasAuthority('SUPER_ADMIN')")
 public class AdminNotificationController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+  private final NotificationService notificationService;
 
   @GetMapping
   public ApiResponse<?> list(
@@ -47,8 +45,8 @@ public class AdminNotificationController {
       @TchPaging TchPageRequest pageRequest,
       @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        queryBus.ask(
-            new ListNotificationsQuery(
+        notificationService.listNotifications(
+            new ListNotificationsRequest(
                 context.userId(),
                 context.currentRole() == null ? null : context.currentRole().name(),
                 Optional.ofNullable(status),
@@ -60,11 +58,11 @@ public class AdminNotificationController {
 
   @PostMapping
   public ApiResponse<?> create(
-      @RequestBody CreateNotificationRequest request, @CurrentContext TchRequestContext context) {
+      @RequestBody CreateNotificationBody request, @CurrentContext TchRequestContext context) {
     var audienceType =
         request.audienceType() == null ? NotificationAudienceType.TENANT : request.audienceType();
-    commandBus.execute(
-        new CreateNotificationCommand(
+    notificationService.createNotification(
+        new CreateNotificationRequest(
             context.tenantId(),
             request.sourceType(),
             request.sourceId(),
@@ -92,8 +90,8 @@ public class AdminNotificationController {
       @RequestParam(required = false) NotificationDeliveryStatus status,
       @TchPaging TchPageRequest pageRequest) {
     return ApiResponse.success(
-        queryBus.ask(
-            new ListNotificationDeliveriesQuery(
+        notificationService.listDeliveries(
+            new ListNotificationDeliveriesRequest(
                 Optional.ofNullable(notificationId), Optional.ofNullable(status), pageRequest)));
   }
 }

@@ -3,11 +3,16 @@ package com.tchalanet.server.common.context.operational;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public final class OperationalContextHeaderParser {
+
+    private static final Logger log = LoggerFactory.getLogger(OperationalContextHeaderParser.class);
 
     @FunctionalInterface
     public interface HeaderReader {
@@ -59,6 +64,14 @@ public final class OperationalContextHeaderParser {
 
         if (terminalId == null && outletId == null && salesSessionId == null) {
             return OperationalContextSource.NONE;
+        }
+
+        if (declaredSource == OperationalContextSource.SIGNED_DEVICE_BINDING) {
+            throw ProblemRest.unauthorized("operational_context.device_binding_required");
+        }
+
+        if (declaredSource == OperationalContextSource.ADMIN_SELECTION) {
+            log.warn("tch.context.admin-selection-without-token");
         }
 
         return OperationalContextSource.CLIENT_CLAIM;

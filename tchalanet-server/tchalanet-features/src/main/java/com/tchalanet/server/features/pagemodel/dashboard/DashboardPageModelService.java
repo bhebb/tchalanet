@@ -6,8 +6,8 @@ import com.tchalanet.server.common.context.TchRequestContext;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.platform.notification.api.model.GetNotificationSummaryQuery;
-import com.tchalanet.server.platform.notification.api.model.NotificationSummaryView;
+import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
@@ -58,7 +58,7 @@ public class DashboardPageModelService {
         ctxHolder == null
             ? null
             : queryBus.ask(
-                new GetNotificationSummaryQuery(
+                new GetNotificationSummaryRequest(
                     ctxHolder.userId(),
                     ctxHolder.currentRole() == null ? null : ctxHolder.currentRole().name()));
     List<String> langs =

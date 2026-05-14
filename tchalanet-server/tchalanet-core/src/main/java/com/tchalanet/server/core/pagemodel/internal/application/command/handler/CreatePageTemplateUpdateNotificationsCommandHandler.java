@@ -6,7 +6,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
-import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
@@ -48,7 +48,7 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
                   "recommendedAction", recommendedAction));
 
       commandBus.execute(
-          new CreateNotificationCommand(
+          new CreateNotificationRequest(
               tenantId,
               "PAGE_MODEL_TEMPLATE",
               command.templateId().value().toString(),

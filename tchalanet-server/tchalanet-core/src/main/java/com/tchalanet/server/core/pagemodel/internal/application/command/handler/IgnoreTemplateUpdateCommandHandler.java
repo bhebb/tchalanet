@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.platform.notification.api.model.ArchiveNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
 import com.tchalanet.server.core.pagemodel.api.command.IgnoreTemplateUpdateCommand;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ public class IgnoreTemplateUpdateCommandHandler
   public Boolean handle(IgnoreTemplateUpdateCommand command) {
     command
         .notificationId()
-        .ifPresent(id -> commandBus.execute(new ArchiveNotificationCommand(id, command.actorId())));
+        .ifPresent(id -> commandBus.execute(new ArchiveNotificationRequest(id, command.actorId())));
     return true;
   }
 }

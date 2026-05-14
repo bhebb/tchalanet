@@ -3,7 +3,6 @@ package com.tchalanet.server.core.offlinesync.internal.infra.web.mapper;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
 import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.core.offlinesync.api.command.OfflineSaleSubmissionInput;
 import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchCommand;
 import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchResult;
@@ -17,7 +16,6 @@ public interface OfflineSyncWebMapper {
   default ReceiveOfflineBatchCommand toCommand(TchRequestContext ctx, ReceiveOfflineBatchRequest request) {
     return new ReceiveOfflineBatchCommand(
         ctx.effectiveTenantIdRequired(),
-        TerminalId.parse(request.terminalId()),
         OfflineSalesGrantId.parse(request.grantId()),
         OfflineCodeBatchId.parse(request.codeBatchId()),
         request.clientBatchId(),

@@ -9,19 +9,28 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.OfflineBatchId;
+import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.offlinesync.api.command.ProcessOfflineBatchWithSalesCommand;
 import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchCommand;
 import com.tchalanet.server.core.offlinesync.api.command.ReceiveOfflineBatchResult;
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineBatchWriterPort;
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineCryptoPort;
+import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineGrantReaderPort;
 import com.tchalanet.server.core.offlinesync.internal.domain.event.OfflineBatchReadyForSalesEvent;
 import com.tchalanet.server.core.offlinesync.internal.domain.event.OfflineBatchReceivedEvent;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineBatch;
 import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineBatchStatus;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSaleSubmission;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineSubmissionStatus;
+import com.tchalanet.server.core.offlinesync.internal.domain.model.OfflineTechnicalRejectReason;
+import com.tchalanet.server.core.offlinesync.internal.domain.service.OfflineGrantPolicy;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -38,8 +47,11 @@ import java.util.UUID;
 public class ReceiveOfflineBatchCommandHandler
     implements CommandHandler<ReceiveOfflineBatchCommand, ReceiveOfflineBatchResult> {
 
+  private static final OfflineGrantPolicy GRANT_POLICY = new OfflineGrantPolicy();
+
   private final OfflineCryptoPort crypto;
   private final OfflineBatchWriterPort batchWriter;
+  private final OfflineGrantReaderPort grantReader;
   private final CommandBus commandBus;
   private final DomainEventPublisher events;
   private final IdGenerator idGenerator;
@@ -48,35 +60,80 @@ public class ReceiveOfflineBatchCommandHandler
   @Override
   @TchTx
   public ReceiveOfflineBatchResult handle(ReceiveOfflineBatchCommand cmd) {
+    var now = Instant.now(clock);
+    var grant = grantReader.findById(cmd.grantId())
+        .filter(g -> g.tenantId().equals(cmd.tenantId()))
+        .orElseThrow(() -> ProblemRest.forbidden("offline_grant.not_found"));
+
+    if (!GRANT_POLICY.isUsable(grant, now)) {
+      throw ProblemRest.forbidden("offline_grant.not_usable");
+    }
+
     int technicalRejects = 0;
     int ready = 0;
+    var batchId = OfflineBatchId.of(UUID.randomUUID());
+    var submissions = new ArrayList<OfflineSaleSubmission>();
 
     for (var submission : cmd.submissions()) {
       boolean hashOk = crypto.verifyPayloadHash(submission.payloadJson(), submission.payloadHash());
-      boolean signatureOk = crypto.verifyPayloadSignature(cmd.terminalId(), submission.payloadJson(), submission.payloadHash(), submission.signature());
+      boolean signatureOk = crypto.verifyPayloadSignature(
+          grant.terminalId(),
+          submission.payloadJson(),
+          submission.payloadHash(),
+          submission.signature());
+      var status = OfflineSubmissionStatus.READY_FOR_SALES;
+      OfflineTechnicalRejectReason rejectReason = null;
       if (!hashOk || !signatureOk) {
         technicalRejects++;
+        status = OfflineSubmissionStatus.TECHNICALLY_REJECTED;
+        rejectReason = hashOk
+            ? OfflineTechnicalRejectReason.INVALID_SIGNATURE
+            : OfflineTechnicalRejectReason.PAYLOAD_HASH_MISMATCH;
       } else {
         ready++;
       }
+
+      submissions.add(new OfflineSaleSubmission(
+          OfflineSaleSubmissionId.of(idGenerator.newUuid()),
+          cmd.tenantId(),
+          batchId,
+          cmd.grantId(),
+          cmd.codeBatchId(),
+          submission.offlineCode(),
+          grant.terminalId(),
+          grant.outletId(),
+          grant.sellerUserId(),
+          grant.salesSessionId(),
+          submission.clientTicketId(),
+          submission.localSequence(),
+          submission.createdAtDevice(),
+          now,
+          submission.payloadJson(),
+          submission.payloadHash(),
+          submission.signature(),
+          status,
+          rejectReason,
+          null,
+          null,
+          Set.of(),
+          null));
     }
 
     var batchStatus = ready > 0 ? OfflineBatchStatus.READY_FOR_SALES : OfflineBatchStatus.TECHNICALLY_REJECTED;
-    var batchId = batchWriter.saveReceivedBatch(new OfflineBatch(
-        OfflineBatchId.of(UUID.randomUUID()),
+    batchWriter.saveReceivedBatch(new OfflineBatch(
+        batchId,
         cmd.tenantId(),
-        cmd.terminalId(),
+        grant.terminalId(),
         cmd.grantId(),
         cmd.codeBatchId(),
         cmd.clientBatchId(),
-        Instant.now(clock),
+        now,
         batchStatus,
         cmd.submissions().size(),
         technicalRejects,
         0,
         0,
-        0));
-    var now = Instant.now(clock);
+        0), submissions);
     int readyFinal = ready;
 
     AfterCommit.run(() -> {
@@ -85,7 +142,7 @@ public class ReceiveOfflineBatchCommandHandler
           now,
           cmd.tenantId(),
           batchId,
-          cmd.terminalId(),
+          grant.terminalId(),
           cmd.submissions().size()));
 
       if (readyFinal > 0) {

@@ -6,14 +6,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class PurgeOldAuditEventsTasklet {
 
-  private final PurgeOldAuditEventsCommandHandler useCase;
+  private final AuditService auditService;
 
-  public PurgeOldAuditEventsTasklet(PurgeOldAuditEventsCommandHandler useCase) {
-    this.useCase = useCase;
+  public PurgeOldAuditEventsTasklet(AuditService auditService) {
+    this.auditService = auditService;
   }
 
   // Temporary: simple method to trigger purge without depending on Spring Batch types.
   public void executePurge() throws Exception {
-    useCase.handle(new PurgeOldAuditEventsRequest());
+    auditService.purgeOldAuditEvents(new PurgeOldAuditEventsRequest());
   }
 }

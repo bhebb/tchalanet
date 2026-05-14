@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record ReceiveOfflineBatchRequest(
-    @NotBlank String terminalId,
     @NotBlank String grantId,
     @NotBlank String codeBatchId,
     @NotBlank String clientBatchId,

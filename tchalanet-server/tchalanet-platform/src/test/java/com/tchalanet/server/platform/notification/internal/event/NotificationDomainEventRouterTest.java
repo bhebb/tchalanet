@@ -6,12 +6,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
+import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.internal.rule.PayoutNotificationRule;
+import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -22,34 +22,34 @@ class NotificationDomainEventRouterTest {
 
   @Test
   void duplicateEventSkipsNotificationCreation() {
-    var commandBus = mock(CommandBus.class);
+    var notificationService = mock(NotificationService.class);
     var processedEvents = provider(false);
     var router =
         new NotificationDomainEventRouter(
             List.of(new PayoutNotificationRule()),
-            commandBus,
+            notificationService,
             new JsonUtils(JsonMapper.builder().build()),
             processedEvents);
 
     router.on(new PayoutRequestedEvent(UUID.randomUUID(), TenantId.of(UUID.randomUUID())));
 
-    verify(commandBus, never()).execute(any(Command.class));
+    verify(notificationService, never()).createNotification(any(CreateNotificationRequest.class));
   }
 
   @Test
   void newEventCreatesNotification() {
-    var commandBus = mock(CommandBus.class);
+    var notificationService = mock(NotificationService.class);
     var processedEvents = provider(true);
     var router =
         new NotificationDomainEventRouter(
             List.of(new PayoutNotificationRule()),
-            commandBus,
+            notificationService,
             new JsonUtils(JsonMapper.builder().build()),
             processedEvents);
 
     router.on(new PayoutRequestedEvent(UUID.randomUUID(), TenantId.of(UUID.randomUUID())));
 
-    verify(commandBus).execute(any(Command.class));
+    verify(notificationService).createNotification(any(CreateNotificationRequest.class));
   }
 
   private static ObjectProvider<ProcessedEventPort> provider(boolean markProcessedResult) {

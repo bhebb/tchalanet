@@ -1,13 +1,13 @@
 package com.tchalanet.server.platform.notification.internal.web;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.platform.notification.api.model.NotificationType;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.notification.api.model.SendNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.request.SendNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.api.model.NotificationRecipient;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
+import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Nullable;
@@ -34,7 +34,7 @@ import java.util.Map;
 @Slf4j
 public class OpsNotificationController {
 
-    private final CommandBus commandBus;
+    private final NotificationService notificationService;
 
     @Operation(
         summary = "Create a test in-app notification (SUPER_ADMIN only)",
@@ -57,7 +57,7 @@ public class OpsNotificationController {
                 null  // no user for ops test
             );
 
-            var command = new SendNotificationCommand(
+            var command = new SendNotificationRequest(
                 NotificationType.SYSTEM_MESSAGE, // ops test uses SYSTEM_MESSAGE type
                 request.severity,
                 List.of(recipient),
@@ -69,7 +69,7 @@ public class OpsNotificationController {
                 "ops-test" // reason
             );
 
-            var result = commandBus.execute(command);
+            var result = notificationService.sendNotification(command);
 
             var response = new SendNotificationTestResponse(
                 result.success(),

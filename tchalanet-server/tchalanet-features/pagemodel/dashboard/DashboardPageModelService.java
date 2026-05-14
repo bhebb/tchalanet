@@ -2,7 +2,7 @@ package com.tchalanet.server.features.pagemodel.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.notification.application.query.model.GetNotificationSummaryQuery;
+import com.tchalanet.server.core.notification.application.query.model.GetNotificationSummaryRequest;
 import com.tchalanet.server.core.notification.application.query.model.NotificationSummaryView;
 import com.tchalanet.server.core.pagemodel.application.query.model.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.core.pagemodel.domain.model.PageModelDoc;
@@ -54,7 +54,7 @@ public class DashboardPageModelService {
         ctxHolder == null
             ? null
             : queryBus.ask(
-                new GetNotificationSummaryQuery(
+                new GetNotificationSummaryRequest(
                     ctxHolder.userId(),
                     ctxHolder.currentRole() == null ? null : ctxHolder.currentRole().name()));
     List<String> langs =

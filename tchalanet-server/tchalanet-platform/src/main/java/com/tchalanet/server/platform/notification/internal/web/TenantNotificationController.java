@@ -1,23 +1,22 @@
 package com.tchalanet.server.platform.notification.internal.web;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.platform.notification.api.model.ArchiveNotificationCommand;
-import com.tchalanet.server.platform.notification.api.model.ArchiveNotificationsCommand;
-import com.tchalanet.server.platform.notification.api.model.MarkNotificationReadCommand;
-import com.tchalanet.server.platform.notification.api.model.MarkNotificationsReadCommand;
-import com.tchalanet.server.platform.notification.api.model.GetNotificationSummaryQuery;
-import com.tchalanet.server.platform.notification.api.model.ListNotificationsQuery;
+import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationRequest;
+import com.tchalanet.server.platform.notification.api.model.request.ArchiveNotificationsRequest;
+import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationReadRequest;
+import com.tchalanet.server.platform.notification.api.model.request.MarkNotificationsReadRequest;
+import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
+import com.tchalanet.server.platform.notification.api.model.request.ListNotificationsRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationKind;
 import com.tchalanet.server.platform.notification.api.model.NotificationSeverity;
 import com.tchalanet.server.platform.notification.api.model.NotificationStatus;
+import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Optional;
@@ -38,13 +37,13 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasPermission('notifications:view')")
 public class TenantNotificationController {
 
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
+  private final NotificationService notificationService;
 
   @GetMapping("/summary")
   public ApiResponse<?> summary(@CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        queryBus.ask(new GetNotificationSummaryQuery(context.userId(), roleCode(context))));
+        notificationService.getNotificationSummary(
+            new GetNotificationSummaryRequest(context.userId(), roleCode(context))));
   }
 
   @GetMapping
@@ -56,8 +55,8 @@ public class TenantNotificationController {
       @TchPaging TchPageRequest pageRequest,
       @CurrentContext TchRequestContext context) {
     return ApiResponse.success(
-        queryBus.ask(
-            new ListNotificationsQuery(
+        notificationService.listNotifications(
+            new ListNotificationsRequest(
                 context.userId(),
                 roleCode(context),
                 Optional.ofNullable(status),
@@ -70,7 +69,7 @@ public class TenantNotificationController {
   @PostMapping("/{id}/read")
   public ApiResponse<?> markRead(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
-    commandBus.execute(new MarkNotificationReadCommand(id, context.userId()));
+    notificationService.markRead(new MarkNotificationReadRequest(id, context.userId()));
     return ApiResponse.success(true);
   }
 
@@ -78,8 +77,8 @@ public class TenantNotificationController {
   public ApiResponse<?> markRead(
       @Valid @RequestBody NotificationBulkActionRequest request,
       @CurrentContext TchRequestContext context) {
-    commandBus.execute(
-        new MarkNotificationsReadCommand(
+    notificationService.markRead(
+        new MarkNotificationsReadRequest(
             request.ids().stream().map(NotificationId::of).toList(), context.userId()));
     return ApiResponse.success(true);
   }
@@ -87,7 +86,7 @@ public class TenantNotificationController {
   @PostMapping("/{id}/archive")
   public ApiResponse<?> archive(
       @PathVariable NotificationId id, @CurrentContext TchRequestContext context) {
-    commandBus.execute(new ArchiveNotificationCommand(id, context.userId()));
+    notificationService.archiveNotification(new ArchiveNotificationRequest(id, context.userId()));
     return ApiResponse.success(true);
   }
 
@@ -95,8 +94,8 @@ public class TenantNotificationController {
   public ApiResponse<?> archive(
       @Valid @RequestBody NotificationBulkActionRequest request,
       @CurrentContext TchRequestContext context) {
-    commandBus.execute(
-        new ArchiveNotificationsCommand(
+    notificationService.archiveNotifications(
+        new ArchiveNotificationsRequest(
             request.ids().stream().map(NotificationId::of).toList(), context.userId()));
     return ApiResponse.success(true);
   }

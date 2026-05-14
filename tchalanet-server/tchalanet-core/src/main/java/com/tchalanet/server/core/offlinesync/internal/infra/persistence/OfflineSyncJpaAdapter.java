@@ -4,8 +4,11 @@ import com.tchalanet.server.common.types.id.OfflineBatchId;
 import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
 import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
 import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineBatchReaderPort;
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineBatchWriterPort;
 import com.tchalanet.server.core.offlinesync.internal.application.port.out.OfflineCodeBatchReaderPort;
@@ -36,7 +39,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, OfflineSubmissionWriterPort, OfflineBatchWriterPort {
+public class OfflineSyncJpaAdapter implements
+    OfflineSubmissionReaderPort,
+    OfflineSubmissionWriterPort,
+    OfflineBatchReaderPort,
+    OfflineBatchWriterPort,
+    OfflineCodeBatchReaderPort,
+    OfflineCodeBatchWriterPort,
+    OfflineGrantReaderPort,
+    OfflineGrantWriterPort {
 
   private final OfflineSaleSubmissionJpaRepository submissionRepo;
   private final OfflineBatchJpaRepository batchRepo;
@@ -109,8 +120,61 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
   }
 
   @Override
-  public OfflineBatchId saveReceivedBatch(OfflineBatch batch) {
+  public OfflineBatchId saveReceivedBatch(OfflineBatch batch, List<OfflineSaleSubmission> submissions) {
+    var grant = grantRepo.findById(batch.grantId().value()).orElseThrow();
+    var entity = new OfflineBatchJpaEntity();
+    entity.setId(batch.id().value());
+    entity.setTenantId(batch.tenantId().value());
+    entity.setTerminalId(batch.terminalId().value());
+    entity.setOutletId(grant.getOutletId());
+    entity.setSellerUserId(grant.getSellerUserId());
+    entity.setSalesSessionId(grant.getSalesSessionId());
+    entity.setGrantId(batch.grantId().value());
+    entity.setCodeBatchId(batch.codeBatchId().value());
+    entity.setClientBatchId(batch.clientBatchId());
+    entity.setReceivedAt(batch.receivedAt());
+    entity.setStatus(batch.status().name());
+    entity.setTicketCount(batch.ticketCount());
+    entity.setTechnicalRejectCount(batch.technicalRejectCount());
+    entity.setSalesAcceptCount(batch.salesAcceptCount());
+    entity.setSalesRejectCount(batch.salesRejectCount());
+    entity.setReviewCount(batch.reviewCount());
+    batchRepo.save(entity);
+
+    var submissionEntities = submissions.stream().map(this::submissionToEntity).toList();
+    submissionRepo.saveAll(submissionEntities);
     return batch.id();
+  }
+
+  private OfflineSaleSubmissionJpaEntity submissionToEntity(OfflineSaleSubmission submission) {
+    var entity = new OfflineSaleSubmissionJpaEntity();
+    entity.setId(submission.id().value());
+    entity.setTenantId(submission.tenantId().value());
+    entity.setBatchId(submission.batchId().value());
+    entity.setGrantId(submission.grantId().value());
+    entity.setCodeBatchId(submission.codeBatchId().value());
+    entity.setOfflineCode(submission.offlineCode());
+    entity.setTerminalId(submission.terminalId().value());
+    entity.setOutletId(submission.outletId().value());
+    entity.setSellerUserId(submission.sellerUserId().value());
+    entity.setSalesSessionId(submission.salesSessionId().value());
+    entity.setClientTicketId(submission.clientTicketId());
+    entity.setLocalSequence(submission.localSequence());
+    entity.setCreatedAtDevice(submission.createdAtDevice());
+    entity.setReceivedAt(submission.receivedAt());
+    entity.setPayloadJson(submission.payloadJson());
+    entity.setPayloadHash(submission.payloadHash());
+    entity.setSignature(submission.signature());
+    entity.setStatus(submission.status().name());
+    entity.setTechnicalRejectReason(
+        submission.technicalRejectReason() == null ? null : submission.technicalRejectReason().name());
+    entity.setSalesDecision(
+        submission.salesDecision() == null ? null : submission.salesDecision().name());
+    entity.setSalesRejectReason(
+        submission.salesRejectReason() == null ? null : submission.salesRejectReason().name());
+    entity.setSalesTicketId(submission.salesTicketId() == null ? null : submission.salesTicketId().value());
+    entity.setRiskFlagsJson("[]");
+    return entity;
   }
 
   @Override
@@ -121,6 +185,7 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
     });
   }
 
+  @Override
   public Optional<OfflineBatch> findById(OfflineBatchId id) {
     return batchRepo.findById(id.value()).map(this::batchToDomain);
   }
@@ -142,6 +207,7 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
         e.getReviewCount());
   }
 
+  @Override
   public Optional<OfflineSalesGrant> findById(OfflineSalesGrantId id) {
     return grantRepo.findById(id.value()).map(e -> new OfflineSalesGrant(
         OfflineSalesGrantId.of(e.getId()),
@@ -156,6 +222,22 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
         e.getExpiresAt()));
   }
 
+  @Override
+  public boolean existsForFrame(
+      TenantId tenantId,
+      UserId sellerUserId,
+      TerminalId terminalId,
+      SalesSessionId salesSessionId,
+      OfflineSalesGrantStatus status) {
+    return grantRepo.existsByTenantIdAndSellerUserIdAndTerminalIdAndSalesSessionIdAndStatus(
+        tenantId.value(),
+        sellerUserId.value(),
+        terminalId.value(),
+        salesSessionId.value(),
+        status.name());
+  }
+
+  @Override
   public OfflineSalesGrantId save(OfflineSalesGrant grant) {
     var entity = new OfflineSalesGrantJpaEntity();
     entity.setId(grant.id().value());
@@ -172,6 +254,7 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
     return grant.id();
   }
 
+  @Override
   public void updateStatus(OfflineSalesGrantId grantId, OfflineSalesGrantStatus status) {
     grantRepo.findById(grantId.value()).ifPresent(entity -> {
       entity.setStatus(status.name());
@@ -179,6 +262,7 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
     });
   }
 
+  @Override
   public Optional<OfflineCodeBatch> findById(OfflineCodeBatchId id) {
     return codeBatchRepo.findById(id.value()).map(e -> new OfflineCodeBatch(
         OfflineCodeBatchId.of(e.getId()),
@@ -189,6 +273,7 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
         e.getExpiresAt()));
   }
 
+  @Override
   public OfflineCodeBatchId save(OfflineCodeBatch batch) {
     var entity = new OfflineCodeBatchJpaEntity();
     entity.setId(batch.id().value());
@@ -201,6 +286,7 @@ public class OfflineSyncJpaAdapter implements OfflineSubmissionReaderPort, Offli
     return batch.id();
   }
 
+  @Override
   public void saveReservations(List<OfflineCodeReservation> reservations) {
     var entities = reservations.stream().map(r -> {
       var e = new OfflineCodeReservationJpaEntity();

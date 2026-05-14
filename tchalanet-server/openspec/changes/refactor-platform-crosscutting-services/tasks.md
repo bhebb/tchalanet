@@ -50,6 +50,6 @@
 ## 6. Migration and Acceptance
 
 - [x] Inventory remaining legacy/common cross-cutting classes and decide keep/move/remove.
-- [ ] Run OpenSpec validation for this change.
+- [x] Run OpenSpec validation for this change.
 - [ ] Run focused tests for accesscontrol/audit/idempotence where compile state allows.
 - [ ] Mark tasks complete only when the guardrail or test is actually present.

@@ -1,12 +1,12 @@
 package com.tchalanet.server.platform.notification.internal.event;
 
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
-import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
+import com.tchalanet.server.platform.notification.api.model.request.CreateNotificationRequest;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationIntent;
 import com.tchalanet.server.platform.notification.internal.rule.NotificationRule;
+import com.tchalanet.server.platform.notification.internal.service.NotificationService;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class NotificationDomainEventRouter {
 
   private final List<NotificationRule> rules;
-  private final CommandBus commandBus;
+  private final NotificationService notificationService;
   private final JsonUtils jsonUtils;
   private final ObjectProvider<ProcessedEventPort> processedEvents;
 
@@ -41,7 +41,7 @@ public class NotificationDomainEventRouter {
       return;
     }
 
-    commandBus.execute(new CreateNotificationCommand(
+    notificationService.createNotification(new CreateNotificationRequest(
         intent.tenantId(),
         intent.sourceType(),
         intent.sourceEventId() == null ? null : intent.sourceEventId().toString(),
