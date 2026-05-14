@@ -1,19 +1,21 @@
 package com.tchalanet.server.catalog.settings.internal.web;
 
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
+import com.tchalanet.server.catalog.settings.api.model.SearchSettingsAdminCriteria;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.web.model.CreateSettingRequest;
-import com.tchalanet.server.catalog.settings.internal.web.model.SearchSettingsCriteria;
 import com.tchalanet.server.catalog.settings.internal.web.model.UpdateSettingRequest;
 import com.tchalanet.server.catalog.settings.internal.write.SettingsAdminService;
 import com.tchalanet.server.common.types.id.SettingId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,12 +25,8 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Platform Settings Admin Controller
  *
- * <p>Provides CRUD operations for platform administrators to manage application settings.
- *
- * <p>Security: PLATFORM_ADMIN role required (configured in SecurityConfig).
- *
- * <p>This controller delegates all logic to {@link SettingsAdminService} and returns {@link
- * ApiResponse} wrappers.
+ * <p>Uses {@link SearchSettingsAdminCriteria} from api/ to avoid coupling controller
+ * to internal web models.
  */
 @RestController
 @RequestMapping("/platform/settings")
@@ -40,7 +38,7 @@ public class PlatformSettingsController {
   private final SettingsAdminService adminService;
   private final SettingsCatalog settingsCatalog;
 
-  @Operation(summary = "Search settings (paginated)", description = "Search settings with filters and pagination")
+  @Operation(summary = "Search settings (paginated)")
   @GetMapping
   public ApiResponse<TchPage<SettingView>> search(
       @RequestParam(required = false) String namespace,
@@ -50,13 +48,12 @@ public class PlatformSettingsController {
       @RequestParam(required = false) Boolean active,
       TchPageRequest pageRequest) {
 
-    SearchSettingsCriteria criteria =
-        new SearchSettingsCriteria(
-            namespace,
-            settingKey,
-            level,
-            tenantId != null ? com.tchalanet.server.common.types.id.TenantId.of(tenantId) : null,
-            active);
+    var criteria = new SearchSettingsAdminCriteria(
+        namespace,
+        settingKey,
+        level,
+        tenantId != null ? TenantId.of(tenantId) : null,
+        active);
 
     return ApiResponse.success(adminService.search(criteria, pageRequest));
   }
@@ -70,14 +67,14 @@ public class PlatformSettingsController {
   @Operation(summary = "Create a new setting")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<SettingView> create(@RequestBody CreateSettingRequest request) {
+  public ApiResponse<SettingView> create(@Valid @RequestBody CreateSettingRequest request) {
     return ApiResponse.success(adminService.create(request));
   }
 
   @Operation(summary = "Update an existing setting")
   @PutMapping("/{id}")
   public ApiResponse<SettingView> update(
-      @PathVariable SettingId id, @RequestBody UpdateSettingRequest request) {
+      @PathVariable SettingId id, @Valid @RequestBody UpdateSettingRequest request) {
     return ApiResponse.success(adminService.update(id, request));
   }
 

@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.config.security;
 
 import com.tchalanet.server.common.context.web.TchContextFilter;
-import com.tchalanet.server.platform.identity.internal.service.UserBootstrapFilter;
+import com.tchalanet.server.platform.identity.api.IdentityBootstrapFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Profile;
 @Profile("!insecure")
 public class SecurityFilterRegistrationConfig {
     @Bean
-    FilterRegistrationBean<UserBootstrapFilter> userBootstrapFilterRegistration(
-        UserBootstrapFilter filter) {
+    FilterRegistrationBean<IdentityBootstrapFilter> userBootstrapFilterRegistration(
+        IdentityBootstrapFilter filter) {
         var registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;

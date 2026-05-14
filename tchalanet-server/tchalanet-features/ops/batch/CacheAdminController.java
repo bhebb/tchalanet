@@ -3,7 +3,7 @@ package com.tchalanet.server.common.web;
 import com.tchalanet.server.common.types.enums.AuditAction;
 import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.core.audit.application.command.handler.AuditLoggingCommandHandler;
-import com.tchalanet.server.core.audit.application.command.model.LogAuditEventCommand;
+import com.tchalanet.server.core.audit.application.command.model.LogAuditEventRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -48,7 +48,7 @@ public class CacheAdminController {
       // audit
       var details = Map.<String, Object>of("by", "admin");
       audit.handle(
-          new LogAuditEventCommand(
+          new LogAuditEventRequest(
               AuditEntityType.CACHE, cacheName, AuditAction.CACHE_CLEAR, details));
     }
     return ResponseEntity.noContent().build();
@@ -70,7 +70,7 @@ public class CacheAdminController {
     // audit
     var detailsAll = Map.<String, Object>of("action", "clear-all");
     audit.handle(
-        new LogAuditEventCommand(AuditEntityType.CACHE, "*", AuditAction.CACHE_CLEAR, detailsAll));
+        new LogAuditEventRequest(AuditEntityType.CACHE, "*", AuditAction.CACHE_CLEAR, detailsAll));
     return ResponseEntity.noContent().build();
   }
 }

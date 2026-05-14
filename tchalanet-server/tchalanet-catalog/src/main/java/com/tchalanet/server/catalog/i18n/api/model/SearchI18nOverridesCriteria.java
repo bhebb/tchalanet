@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.i18n.api.model;
 
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TenantId;
 
 /**
  * Search I18n Overrides Criteria
@@ -16,7 +16,7 @@ public record SearchI18nOverridesCriteria(
     String locale,
     String i18nKeyContains,
     Boolean active,
-    UUID tenantId,
+    TenantId tenantId,
     String visibility // "active" | "deleted" | "all"
 ) {
   public static SearchI18nOverridesCriteria empty() {

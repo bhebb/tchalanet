@@ -5,8 +5,6 @@ import com.tchalanet.server.catalog.game.internal.cache.GameCacheNames;
 import com.tchalanet.server.catalog.game.internal.mapper.GameMapper;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaRepository;
-import com.tchalanet.server.catalog.game.internal.web.model.GameCreateRequest;
-import com.tchalanet.server.catalog.game.internal.web.model.GameUpdateRequest;
 import com.tchalanet.server.common.types.id.GameId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +27,7 @@ public class GameAdminService {
 
   @Transactional
   @CacheEvict(cacheNames = {GameCacheNames.ACTIVE_GAMES, GameCacheNames.GAME_BY_CODE, GameCacheNames.GAME_BY_ID}, allEntries = true)
-  public GameView create(GameCreateRequest req) {
+  public GameView create(CreateCommand req) {
     var entity = new GameJpaEntity();
     entity.setCode(req.code());
     entity.setName(req.name());
@@ -47,7 +45,7 @@ public class GameAdminService {
 
   @Transactional
   @CacheEvict(cacheNames = {GameCacheNames.ACTIVE_GAMES, GameCacheNames.GAME_BY_CODE, GameCacheNames.GAME_BY_ID}, allEntries = true)
-  public GameView update(GameId id, GameUpdateRequest req) {
+  public GameView update(GameId id, UpdateCommand req) {
     var entity = repository.findById(id.value())
         .orElseThrow(() -> new IllegalArgumentException("Game not found: " + id));
 
@@ -82,4 +80,29 @@ public class GameAdminService {
     entity.setActive(false);
     repository.save(entity);
   }
+
+  // ── Command records (service layer, decoupled from web/model) ─────────────
+
+  public record CreateCommand(
+      String code,
+      String name,
+      String category,
+      String combination,
+      Integer minDigits,
+      Integer maxDigits,
+      String description,
+      Boolean active,
+      Integer sortOrder
+  ) {}
+
+  public record UpdateCommand(
+      String name,
+      String category,
+      String combination,
+      Integer minDigits,
+      Integer maxDigits,
+      String description,
+      Boolean active,
+      Integer sortOrder
+  ) {}
 }

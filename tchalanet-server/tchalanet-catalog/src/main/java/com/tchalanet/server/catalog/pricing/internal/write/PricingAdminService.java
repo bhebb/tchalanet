@@ -9,7 +9,7 @@ import com.tchalanet.server.catalog.pricing.internal.web.model.UpdatePricingOdds
 import com.tchalanet.server.catalog.pricing.internal.web.model.PricingOddsView;
 import com.tchalanet.server.common.types.id.PricingOddsId;
 import com.tchalanet.server.common.types.id.TenantId;
-
+import com.tchalanet.server.common.web.error.ProblemRest;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class PricingAdminService {
   @CacheEvict(cacheNames = {PricingCacheNames.ODDS}, allEntries = true)
   public PricingOddsView update(PricingOddsId id, UpdatePricingOddsRequest req) {
     UUID uuid = id == null ? null : id.value();
-    var e = repo.findById(uuid).filter(x -> x.getDeletedAt() == null).orElseThrow(() -> new RuntimeException("pricing_odds_not_found id=" + uuid));
+    var e = repo.findById(uuid).filter(x -> x.getDeletedAt() == null).orElseThrow(() -> ProblemRest.notFound("pricing_odds", id));
     apply(req, e);
     if (req.active() != null) e.setActive(req.active());
     var saved = repo.save(e);
@@ -52,7 +52,7 @@ public class PricingAdminService {
   @CacheEvict(cacheNames = {PricingCacheNames.ODDS}, allEntries = true)
   public void softDelete(PricingOddsId id) {
     UUID uuid = id == null ? null : id.value();
-    var e = repo.findById(uuid).filter(x -> x.getDeletedAt() == null).orElseThrow(() -> new RuntimeException("pricing_odds_not_found id=" + uuid));
+    var e = repo.findById(uuid).filter(x -> x.getDeletedAt() == null).orElseThrow(() -> ProblemRest.notFound("pricing_odds", id));
     e.setDeletedAt(Instant.now());
     repo.save(e);
   }

@@ -15,7 +15,10 @@ public class GetOfflineGrantQueryHandler implements QueryHandler<GetOfflineGrant
 
   @Override
   public OfflineSalesGrant handle(GetOfflineGrantQuery query) {
-    return grantReaderPort.findById(query.grantId()).orElse(null);
+    var grant = grantReaderPort.findById(query.grantId()).orElse(null);
+    if (grant == null || !query.tenantId().equals(grant.tenantId())) {
+      return null;
+    }
+    return grant;
   }
 }
-

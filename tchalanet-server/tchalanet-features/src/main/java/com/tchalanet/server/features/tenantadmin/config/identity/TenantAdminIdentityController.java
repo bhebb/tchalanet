@@ -5,9 +5,9 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.UpdateTenantIdentityRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.features.tenantadmin.config.model.TenantIdentityView;
 import com.tchalanet.server.features.tenantadmin.config.model.UpdateTenantIdentityRequest;
@@ -26,7 +26,7 @@ public class TenantAdminIdentityController {
 
   @GetMapping
   public ApiResponse<TenantIdentityView> getIdentity(@CurrentContext TchRequestContext ctx) {
-    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdQuery(ctx.tenantIdSafe()));
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(ctx.tenantIdSafe()));
     return ApiResponse.success(toView(tenant));
   }
 
@@ -35,8 +35,8 @@ public class TenantAdminIdentityController {
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpdateTenantIdentityRequest req) {
     var tenantId = ctx.tenantIdSafe();
     tenantConfigApi.updateTenantIdentity(
-        new UpdateTenantIdentityCommand(tenantId, req.name(), req.timeZone(), req.currency()));
-    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdQuery(tenantId));
+        new UpdateTenantIdentityRequest(tenantId, req.name(), req.timeZone(), req.currency()));
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
     return ApiResponse.success(toView(tenant));
   }
 

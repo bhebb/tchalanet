@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,7 +96,7 @@ public class TicketLifecycleController {
 
   @Operation(summary = "Cancel a ticket")
   @PatchMapping("/{ticketId}/cancel")
-  @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+  @PreAuthorize("hasAnyAuthority('CASHIER', 'ADMIN', 'SUPER_ADMIN')")
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<CancelSaleResponse> cancel(
       @PathVariable TicketId ticketId, @Valid @RequestBody CancelTicketRequest request) {

@@ -3,7 +3,7 @@ package com.tchalanet.server.features.stats.platformdashboard;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryJpaEntity;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryRepository;
 import com.tchalanet.server.core.outlet.internal.infra.persistence.OutletSpringRepository;
-import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
+import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;
@@ -23,7 +23,7 @@ public class PlatformDashboardStatsService {
   private final StatsDrawJpaRepository statsDrawRepo;
   private final TenantRegistryRepository tenantRepo;
   private final OutletSpringRepository outletRepo;
-  private final TenantUserJpaRepository tenantUserRepo;
+  private final IdentityApi identityApi;
 
   @Transactional(readOnly = true)
   public PlatformDashboardStatsResponse getStats(PlatformDashboardStatsCriteria criteria) {
@@ -160,7 +160,7 @@ public class PlatformDashboardStatsService {
     // 5) summary counts
     long totalTenants = tenantRepo.count();
     long totalOutlets = outletRepo.count();
-    long totalCashiers = tenantUserRepo.count();
+    long totalCashiers = identityApi.countTenantUsers();
 
     PlatformSummaryCard summary =
         new PlatformSummaryCard(

@@ -6,23 +6,13 @@ import com.tchalanet.server.common.types.id.PlanId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.api.NoticeSeverity;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.Map;
-import java.util.UUID;
 
 
 @RestController
@@ -34,44 +24,34 @@ public class PlanAdminController {
     private final PlanAdminService planAdminService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<PlanView>> create(@RequestBody PlanAdminService.PlanCreateRequest request) {
-        PlanView view = planAdminService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.created(view));
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<PlanView> create(@Valid @RequestBody PlanAdminService.PlanCreateRequest request) {
+        return ApiResponse.created(planAdminService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PlanView>> update(@PathVariable("id") UUID id, @RequestBody PlanAdminService.PlanUpdateRequest request) {
-        PlanView view = planAdminService.update(PlanId.of(id), request);
-        return ResponseEntity.ok(ApiResponse.success(view));
+    public ApiResponse<PlanView> update(
+            @PathVariable PlanId id,
+            @Valid @RequestBody PlanAdminService.PlanUpdateRequest request) {
+        return ApiResponse.success(planAdminService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> softDelete(@PathVariable("id") UUID id) {
-        planAdminService.softDelete(PlanId.of(id));
-        return ResponseEntity.ok(ApiResponse.success(null));
+    public ApiResponse<Void> softDelete(@PathVariable PlanId id) {
+        planAdminService.softDelete(id);
+        return ApiResponse.success(null);
     }
 
     @PostMapping("/{id}/deactivate")
-    public ResponseEntity<ApiResponse<Void>> deactivate(@PathVariable("id") UUID id) {
-        planAdminService.deactivate(PlanId.of(id));
-        // Exemple d'ajout de notice (optionnel)
-        ApiNotice notice = new ApiNotice(
+    public ApiResponse<Void> deactivate(@PathVariable PlanId id) {
+        planAdminService.deactivate(id);
+        var notice = new ApiNotice(
             "PLAN_DEACTIVATED",
             "Le plan a été désactivé avec succès.",
             "plan",
             NoticeSeverity.INFO,
-            Map.of("planId", id)
+            Map.of("planId", id.value())
         );
-        return ResponseEntity.ok(ApiResponse.warn(null, notice));
-    }
-
-    // Gestion des erreurs (exemple)
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ProblemDetail> handleIllegalArgument(IllegalArgumentException ex) {
-        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
-        pd.setTitle("Validation error");
-        pd.setType(URI.create("/problem/validation-error"));
-        return ResponseEntity.badRequest().body(pd);
+        return ApiResponse.warn(null, notice);
     }
 }

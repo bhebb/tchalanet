@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.web.error.NotFoundException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
@@ -47,14 +47,14 @@ public class PayoutQueryJpaAdapter implements PayoutQueryReaderPort {
     public PayoutDetails getDetailsById(PayoutId payoutId) {
         return jpaRepo.findById(payoutId.value())
             .map(this::toDetails)
-            .orElseThrow(() -> ProblemRest.notFound("Payout not found", payoutId));
+            .orElseThrow(() -> new NotFoundException("Payout not found: " + payoutId));
     }
 
     @Override
     public PayoutReceiptView getReceiptViewById(PayoutId payoutId) {
         return jpaRepo.findById(payoutId.value())
             .map(this::toReceiptView)
-            .orElseThrow(() -> ProblemRest.notFound("Payout receipt not found", payoutId));
+            .orElseThrow(() -> new NotFoundException("Payout receipt not found: " + payoutId));
     }
 
     private PayoutReceiptView toReceiptView(PayoutJpaEntity e) {

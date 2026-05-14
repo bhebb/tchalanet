@@ -1,13 +1,14 @@
 package com.tchalanet.server.catalog.pricing.api.model;
 
+import com.tchalanet.server.common.types.id.PricingOddsId;
+import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.UUID;
 
 /** Read-only view of a pricing odds entry */
 public record PricingView(
-    UUID id,
-    UUID tenantId,
+    PricingOddsId id,
+    TenantId tenantId,
     String gameCode,
     String betType,
     Short betOption,

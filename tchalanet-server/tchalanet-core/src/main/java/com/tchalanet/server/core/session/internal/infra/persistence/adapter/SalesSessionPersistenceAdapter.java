@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.session.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.web.error.NotFoundException;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -39,7 +39,7 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
     @Override
     public SalesSession getById(TenantId tenantId, SalesSessionId id) {
         return findById(tenantId, id)
-            .orElseThrow(() -> ProblemRest.notFound("Sales session not found", id.value()));
+            .orElseThrow(() -> new NotFoundException("Sales session not found: " + id.value()));
     }
 
     @Override

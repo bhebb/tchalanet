@@ -3,7 +3,6 @@ package com.tchalanet.server.catalog.i18n.api;
 import com.tchalanet.server.catalog.i18n.api.model.I18nGlobalKeyStatsView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
-import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -46,7 +45,7 @@ public interface I18nOverridesCatalog {
      * key = i18n_key
      * value = i18n_value
      */
-    Map<String, String> resolveLocale(String locale, @CurrentContext TchRequestContext ctx);
+    Map<String, String> resolveLocale(String locale, TchRequestContext ctx);
 
     /**
      * Convenience: resolve GLOBAL-only (platform scope) when no context is available.

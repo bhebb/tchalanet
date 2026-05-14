@@ -4,10 +4,10 @@ import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
 import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.catalog.tenant.api.model.TenantStatsView;
+import com.tchalanet.server.common.web.paging.TchPage;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Read-only tenant catalog API.
@@ -76,12 +76,11 @@ public interface TenantCatalog {
   /**
    * List tenants with pagination (for admin listings).
    * Used by platform admins to browse all tenants.
-   * Superadmins see all tenants, tenant admins may see filtered list (policy-defined).
    *
    * @param pageable pagination and sorting parameters
-   * @return page of tenant registry views
+   * @return page of tenant registry views (TchPage — no Spring Data types in return)
    */
-  Page<TenantRegistryView> listTenants(Pageable pageable);
+  TchPage<TenantRegistryView> listTenants(Pageable pageable);
 
   /**
    * Get tenant statistics.

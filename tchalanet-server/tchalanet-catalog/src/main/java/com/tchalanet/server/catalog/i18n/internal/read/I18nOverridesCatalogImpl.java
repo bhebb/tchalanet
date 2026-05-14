@@ -9,7 +9,6 @@ import com.tchalanet.server.catalog.i18n.internal.cache.I18nOverridesCacheNames;
 import com.tchalanet.server.catalog.i18n.internal.mapper.I18nOverrideMapper;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideRepository;
-import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -60,7 +59,7 @@ public class I18nOverridesCatalogImpl implements I18nOverridesCatalog {
                 + " + ':' + #locale"
                 + " + ':' + (#ctx == null ? '__noctx__' : (#ctx.apiScope() == null ? '__noscope__' : #ctx.apiScope().name()))"
                 + " + ':' + (#ctx == null ? '__novis__' : (#ctx.deletedVisibilitySafe() == null ? '__novis__' : #ctx.deletedVisibilitySafe()))")
-    public Map<String, String> resolveLocale(String locale, @CurrentContext TchRequestContext ctx) {
+    public Map<String, String> resolveLocale(String locale, TchRequestContext ctx) {
         if (locale == null || locale.isBlank()) return Map.of();
         String loc = locale.trim();
 
@@ -237,7 +236,7 @@ public class I18nOverridesCatalogImpl implements I18nOverridesCatalog {
         if (criteria.tenantId() != null) {
             spec = spec.and((root, q, cb) -> {
                 q.getRoots();
-                return cb.equal(root.get("tenantId"), criteria.tenantId());
+                return cb.equal(root.get("tenantId"), criteria.tenantId().value());
             });
         }
 

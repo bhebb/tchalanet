@@ -9,6 +9,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,14 +39,14 @@ public class ResultSlotAdminController {
 
   @Operation(summary = "Create result slot (platform)")
   @PostMapping
-  public ApiResponse<ResultSlotView> create(@RequestBody CreateResultSlotRequest request) {
+  public ApiResponse<ResultSlotView> create(@Valid @RequestBody CreateResultSlotRequest request) {
     var createdView = admin.create(request);
     return ApiResponse.created(createdView);
   }
 
   @Operation(summary = "Update result slot (platform)")
   @PutMapping("/{id}")
-  public ApiResponse<ResultSlotView> update(@PathVariable ResultSlotId id, @RequestBody UpdateResultSlotRequest request) {
+  public ApiResponse<ResultSlotView> update(@PathVariable ResultSlotId id, @Valid @RequestBody UpdateResultSlotRequest request) {
     var updatedView = admin.update(id, request);
     return ApiResponse.success(updatedView);
   }

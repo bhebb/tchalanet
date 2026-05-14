@@ -52,7 +52,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
    * @return page of settings
    */
   @Transactional(readOnly = true)
-  public TchPage<SettingView> search(SearchSettingsCriteria criteria, TchPageRequest pageRequest) {
+  TchPage<SettingView> searchInternal(SearchSettingsCriteria criteria, TchPageRequest pageRequest) {
     Specification<SettingEntity> spec = buildSpecification(criteria);
 
     PageRequest springPageRequest =
@@ -77,7 +77,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
   @Override
   @Transactional(readOnly = true)
   public TchPage<SettingView> search(SearchSettingsAdminCriteria criteria, TchPageRequest pageRequest) {
-    return search(
+    return searchInternal(
         new SearchSettingsCriteria(
             criteria.namespace(),
             criteria.settingKey(),

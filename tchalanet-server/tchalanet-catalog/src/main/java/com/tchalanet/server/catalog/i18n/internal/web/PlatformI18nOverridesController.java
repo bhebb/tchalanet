@@ -26,15 +26,13 @@ import java.util.Map;
 /**
  * Platform I18n Overrides Controller
  *
- * <p>Provides CRUD operations for platform administrators to manage tenant-specific i18n
- * translation overrides.
+ * <p>Provides CRUD operations for platform administrators to manage i18n overrides (GLOBAL and
+ * TENANT levels). TENANT_ADMIN access to tenant-scoped overrides is handled via
+ * {@code features/tenantadmin} (TenantAdminI18nService).
  *
- * <p>Security: PLATFORM_ADMIN role required (configured in SecurityConfig).
- *
- * <p>This controller delegates all logic to {@link I18nOverridesAdminService} and returns {@link
- * ApiResponse} wrappers.
+ * <p>Security: SUPER_ADMIN only.
  */
-@PreAuthorize("hasRole('TENANT_ADMIN') or hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @RestController
 @RequestMapping("/platform/i18n-overrides")
 @RequiredArgsConstructor

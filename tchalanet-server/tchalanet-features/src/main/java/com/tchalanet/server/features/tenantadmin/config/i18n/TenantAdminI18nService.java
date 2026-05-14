@@ -28,7 +28,7 @@ public class TenantAdminI18nService {
         locale,
         q,
         active,
-        ctx.tenantIdSafe().value(),
+        ctx.tenantIdSafe(),
         "active");
     var page = i18nOverridesCatalog.search(criteria, pageReq);
     var rows = page.items().stream()

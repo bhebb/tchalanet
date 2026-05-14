@@ -4,7 +4,6 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import org.springframework.stereotype.Component;
 
 /**
  * Formats draw channel display labels for UI/print.
@@ -12,8 +11,9 @@ import org.springframework.stereotype.Component;
  *
  * <p>This formatter now uses structured {@code draw_channel.period} field
  * instead of parsing {@code shortLabel()} from channel name.
+ *
+ * <p>Registered as a Spring bean by {@code DrawChannelCatalogConfig} (internal).
  */
-@Component
 public class DrawChannelDisplayFormatter {
 
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");

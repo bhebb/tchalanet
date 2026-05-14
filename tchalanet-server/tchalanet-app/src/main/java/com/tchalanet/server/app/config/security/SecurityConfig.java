@@ -1,7 +1,7 @@
 package com.tchalanet.server.app.config.security;
 
 import com.tchalanet.server.common.context.web.TchContextFilter;
-import com.tchalanet.server.platform.identity.internal.service.UserBootstrapFilter;
+import com.tchalanet.server.platform.identity.api.IdentityBootstrapFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +42,7 @@ public class SecurityConfig {
     SecurityFilterChain security(
         HttpSecurity http,
         JwtDecoder jwtDecoder,
-        UserBootstrapFilter userBootstrapFilter,
+        IdentityBootstrapFilter userBootstrapFilter,
         TchContextFilter tchContextFilter)
         throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -103,7 +103,7 @@ public class SecurityConfig {
                     oauth.jwt(
                         jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(this::convert)))
             .addFilterAfter(userBootstrapFilter, BearerTokenAuthenticationFilter.class)
-            .addFilterAfter(tchContextFilter, UserBootstrapFilter.class);
+            .addFilterAfter(tchContextFilter, IdentityBootstrapFilter.class);
 
         return http.build();
     }

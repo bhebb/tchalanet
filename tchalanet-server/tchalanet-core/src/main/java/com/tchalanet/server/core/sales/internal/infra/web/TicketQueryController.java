@@ -21,6 +21,7 @@ import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,7 +65,7 @@ public class TicketQueryController {
   @Operation(summary = "Get ticket details")
   @GetMapping("/{ticketId}")
   @ResponseStatus(HttpStatus.OK)
-  @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+  @PreAuthorize("hasAnyAuthority('CASHIER', 'ADMIN', 'SUPER_ADMIN')")
   public ApiResponse<TicketResponse> details(@PathVariable TicketId ticketId) {
     var result = queryBus.ask(new GetTicketDetailsQuery(ticketId));
     if (result == null) {

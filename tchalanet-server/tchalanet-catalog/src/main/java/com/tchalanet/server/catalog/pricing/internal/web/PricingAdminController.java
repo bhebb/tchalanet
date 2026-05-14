@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.PricingOddsId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,12 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Admin controller for Pricing odds (tenant-scoped). Returns UI-friendly views.
+ * Platform controller for Pricing odds. Returns UI-friendly views.
+ * Platform-level reference data: SUPER_ADMIN only, under /platform.
  */
-@Tag(name = "Admin • Pricing", description = "Admin CRUD for pricing odds (tenant-scoped)")
+@Tag(name = "Platform • Pricing", description = "Platform CRUD for pricing odds definitions")
 @RestController
-@RequestMapping("${tch.web.paths.admin:/api/v1/admin}/pricing")
-@PreAuthorize("hasAnyRole('TENANT_ADMIN','SUPER_ADMIN')")
+@RequestMapping("/platform/pricing")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class PricingAdminController {
 
@@ -44,14 +46,14 @@ public class PricingAdminController {
   @Operation(summary = "Create new pricing odds")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<PricingOddsView> create(@RequestBody CreatePricingOddsRequest req) {
+  public ApiResponse<PricingOddsView> create(@Valid @RequestBody CreatePricingOddsRequest req) {
     var saved = adminService.create(req);
     return ApiResponse.success(saved);
   }
 
   @Operation(summary = "Update existing pricing odds")
   @PutMapping("/{id}")
-  public ApiResponse<PricingOddsView> update(@PathVariable PricingOddsId id, @RequestBody UpdatePricingOddsRequest req) {
+  public ApiResponse<PricingOddsView> update(@PathVariable PricingOddsId id, @Valid @RequestBody UpdatePricingOddsRequest req) {
     var updated = adminService.update(id, req);
     return ApiResponse.success(updated);
   }

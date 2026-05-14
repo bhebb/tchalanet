@@ -74,6 +74,11 @@ public class PageModelTemplateAdminService {
         var saved = repository.save(existing);
         var schemaVersion = view.schemaVersion() != null ? view.schemaVersion() : saved.getSchemaVersion();
 
+        // ADR-EXCEPTION: catalog.pagemodeltemplate is allowed to publish an application event here.
+        // Rationale: core.pagemodel must be notified synchronously after commit when a template
+        // is updated so affected tenant drafts can be refreshed. The event is purely a notification
+        // (not a domain event from a business invariant) and is consumed only by core.pagemodel.
+        // Documented in: tchalanet-docs/docs/03-adr/adr-001-pagemodeltemplate-catalog-event.md
         AfterCommit.run(() -> eventPublisher.publishEvent(new PageModelTemplateUpdatedEvent(
             id,
             saved.getLogicalId(),

@@ -3,8 +3,8 @@ package com.tchalanet.server.features.tenantadmin.config.identity;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.core.tenantconfig.application.command.model.UpdateTenantIdentityCommand;
-import com.tchalanet.server.core.tenantconfig.application.query.model.GetTenantByIdQuery;
+import com.tchalanet.server.core.tenantconfig.application.command.model.UpdateTenantIdentityRequest;
+import com.tchalanet.server.core.tenantconfig.application.query.model.GetTenantByIdRequest;
 import com.tchalanet.server.core.tenantconfig.application.query.model.TenantConfigView;
 import com.tchalanet.server.features.tenantadmin.config.model.TenantIdentityView;
 import com.tchalanet.server.features.tenantadmin.config.model.UpdateTenantIdentityRequest;
@@ -24,7 +24,7 @@ public class TenantAdminIdentityController {
 
   @GetMapping
   public ApiResponse<TenantIdentityView> getIdentity(@CurrentContext TchRequestContext ctx) {
-    var tenant = queryBus.ask(new GetTenantByIdQuery(ctx.tenantIdSafe()));
+    var tenant = queryBus.ask(new GetTenantByIdRequest(ctx.tenantIdSafe()));
     return ApiResponse.success(toView(tenant));
   }
 
@@ -32,8 +32,8 @@ public class TenantAdminIdentityController {
   public ApiResponse<TenantIdentityView> updateIdentity(
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpdateTenantIdentityRequest req) {
     var tenantId = ctx.tenantIdSafe();
-    commandBus.execute(new UpdateTenantIdentityCommand(tenantId, req.name(), req.timeZone(), req.currency()));
-    var tenant = queryBus.ask(new GetTenantByIdQuery(tenantId));
+    commandBus.execute(new UpdateTenantIdentityRequest(tenantId, req.name(), req.timeZone(), req.currency()));
+    var tenant = queryBus.ask(new GetTenantByIdRequest(tenantId));
     return ApiResponse.success(toView(tenant));
   }
 

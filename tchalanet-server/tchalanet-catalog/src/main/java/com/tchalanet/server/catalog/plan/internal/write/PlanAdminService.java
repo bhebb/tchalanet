@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.plan.internal.write;
 
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.catalog.plan.internal.cache.PlanCacheNames;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.catalog.plan.internal.mapper.PlanMapper;
 import com.tchalanet.server.catalog.plan.internal.persistence.PlanJpaEntity;
 import com.tchalanet.server.catalog.plan.internal.persistence.PlanJpaRepository;
@@ -49,7 +50,7 @@ public class PlanAdminService {
   @CacheEvict(cacheNames = {PlanCacheNames.ACTIVE_PLANS, PlanCacheNames.PLAN_BY_CODE, PlanCacheNames.PLAN_BY_ID}, allEntries = true)
   public PlanView update(PlanId id, PlanUpdateRequest req) {
     var entity = repository.findById(id.value())
-        .orElseThrow(() -> new IllegalArgumentException("Plan not found: " + id));
+        .orElseThrow(() -> ProblemRest.notFound("plan", id));
 
     if (req.name() != null) entity.setName(req.name());
     if (req.description() != null) entity.setDescription(req.description());
@@ -69,7 +70,7 @@ public class PlanAdminService {
   @CacheEvict(cacheNames = {PlanCacheNames.ACTIVE_PLANS, PlanCacheNames.PLAN_BY_CODE, PlanCacheNames.PLAN_BY_ID}, allEntries = true)
   public void deactivate(PlanId id) {
     var entity = repository.findById(id.value())
-        .orElseThrow(() -> new IllegalArgumentException("Plan not found: " + id));
+        .orElseThrow(() -> ProblemRest.notFound("plan", id));
     entity.setActive(false);
     repository.save(entity);
   }
@@ -78,7 +79,7 @@ public class PlanAdminService {
   @CacheEvict(cacheNames = {PlanCacheNames.ACTIVE_PLANS, PlanCacheNames.PLAN_BY_CODE, PlanCacheNames.PLAN_BY_ID}, allEntries = true)
   public void softDelete(PlanId id) {
     var entity = repository.findById(id.value())
-        .orElseThrow(() -> new IllegalArgumentException("Plan not found: " + id));
+        .orElseThrow(() -> ProblemRest.notFound("plan", id));
     entity.setDeletedAt(Instant.now());
     entity.setActive(false);
     repository.save(entity);

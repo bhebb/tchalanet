@@ -8,8 +8,9 @@ import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
 import com.tchalanet.server.catalog.tenant.internal.mapper.TenantRegistryMapper;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryRepository;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -64,9 +65,8 @@ public class TenantCatalogImpl implements TenantCatalog {
   }
 
   @Override
-  public Page<TenantRegistryView> listTenants(Pageable pageable) {
-    var entityPage = repository.findAll(pageable);
-    return entityPage.map(mapper::toRegistryView);
+  public TchPage<TenantRegistryView> listTenants(Pageable pageable) {
+    return TchPageMapper.map(repository.findAll(pageable), mapper::toRegistryView);
   }
 
   @Override

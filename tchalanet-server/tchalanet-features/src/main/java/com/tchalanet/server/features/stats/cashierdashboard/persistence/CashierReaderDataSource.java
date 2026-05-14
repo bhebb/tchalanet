@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.stats.cashierdashboard.persistence;
 
-import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import com.tchalanet.server.features.stats.cashierdashboard.model.CashierInfoProjection;
+import com.tchalanet.server.platform.identity.api.IdentityApi;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -11,17 +11,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CashierReaderDataSource implements CashierReader {
 
-  private final AppUserJpaRepository jpaAppUserRepository;
+  private final IdentityApi identityApi;
 
   @Override
   public Optional<CashierInfoProjection> findInfoById(UUID tenantId, UUID cashierId) {
-    return jpaAppUserRepository
-        .findById(cashierId)
+    return identityApi
+        .findAppUser(cashierId)
         .map(
             u ->
                 new CashierInfoProjection(
-                    u.getId(),
-                    u.getDisplayName() != null ? u.getDisplayName() : u.getUsername(),
+                    u.id().value(),
+                    u.displayName() != null ? u.displayName() : u.username(),
                     null,
                     null));
   }
