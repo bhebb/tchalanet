@@ -43,8 +43,7 @@ public class CashierService {
   private final TicketPrintReaderPort printReader;
   private final TicketVerificationUrlBuilder urlBuilder;
   private final DocumentApi documentApi;
-  private final TicketReceiptFormatter pdfFormatter;
-  private final TicketReceiptFormatter escPosFormatter;
+  private final TicketReceiptDocumentRequestFactory documentRequestFactory;
   private final CommunicationApi outboundMessageGateway;
   private final SellerOperationalContextResolver sellerContextResolver;
 
@@ -54,8 +53,7 @@ public class CashierService {
       TicketPrintReaderPort printReader,
       TicketVerificationUrlBuilder urlBuilder,
       DocumentApi documentApi,
-      @Qualifier("ticketReceiptFormatterPdf") TicketReceiptFormatter pdfFormatter,
-      @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter escPosFormatter,
+      TicketReceiptDocumentRequestFactory documentRequestFactory,
       CommunicationApi outboundMessageGateway,
       SellerOperationalContextResolver sellerContextResolver) {
     this.commandBus = commandBus;
@@ -63,8 +61,7 @@ public class CashierService {
     this.printReader = printReader;
     this.urlBuilder = urlBuilder;
     this.documentApi = documentApi;
-    this.pdfFormatter = pdfFormatter;
-    this.escPosFormatter = escPosFormatter;
+    this.documentRequestFactory = documentRequestFactory;
     this.outboundMessageGateway = outboundMessageGateway;
     this.sellerContextResolver = sellerContextResolver;
   }
@@ -142,32 +139,31 @@ public class CashierService {
   }
 
   private CashierPrintableReceipt renderReceipt(TicketId ticketId, CashierPrintFormat format, Locale locale) {
-    var ticket = findTicket(ticketId, locale == null ? Locale.FRENCH : locale);
+    var normalized = locale == null ? Locale.FRENCH : locale;
+    var ticket = findTicket(ticketId, normalized);
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
     return switch (format) {
       case PDF -> {
-        var text = receiptText(pdfFormatter.formatText(ticket, verifyUrl));
-        var qrBytes = documentApi.renderQrPng(verifyUrl, 300);
+        var request = documentRequestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.PDF, normalized);
         yield printable(
             format,
             "application/pdf",
             "ticket-" + ticketId + ".pdf",
-            documentApi.renderReceiptPdf(text.title(), text.bodyLines(), qrBytes));
+            documentApi.render(request).bytes());
       }
       case ESC_POS -> {
-        var text = receiptText(escPosFormatter.formatText(ticket, verifyUrl));
-        var qrBytes = documentApi.renderQrEscPos(verifyUrl, 280);
+        var request = documentRequestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.ESC_POS, normalized);
         yield printable(
             format,
             "application/octet-stream",
             "ticket-" + ticketId + ".bin",
-            documentApi.renderReceiptEscPos(text.title(), text.bodyLines(), qrBytes));
+            documentApi.render(request).bytes());
       }
       case QR_PNG -> printable(
           format,
           "image/png",
           "ticket-" + ticketId + ".png",
-          documentApi.renderQrPng(verifyUrl, 280));
+          documentApi.render(documentRequestFactory.qrPngRequest(verifyUrl, 280, normalized)).bytes());
     };
   }
 
@@ -183,15 +179,6 @@ public class CashierService {
     return printReader.findTicketPrintView(ticketId, locale)
         .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
   }
-
-  private ReceiptText receiptText(String text) {
-    var lines = text == null ? List.<String>of() : text.lines().toList();
-    var title = lines.isEmpty() ? "Ticket Tchalanet" : lines.get(0);
-    var body = lines.stream().skip(1).toList();
-    return new ReceiptText(title, body);
-  }
-
-  private record ReceiptText(String title, List<String> bodyLines) {}
 
   private CashierTicketView toView(SoldTicketView ticket) {
     return new CashierTicketView(

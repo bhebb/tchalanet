@@ -3,9 +3,9 @@ package com.tchalanet.server.common.batch.launch;
 import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
 import com.tchalanet.server.common.batch.gate.BatchDisabledException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
-import com.tchalanet.server.common.batch.key.JobKey;
-import com.tchalanet.server.common.batch.params.BatchParamKeys;
-import com.tchalanet.server.common.batch.params.JobParamsValidator;
+import com.tchalanet.server.common.job.key.JobKey;
+import com.tchalanet.server.common.job.params.JobParamKeys;
+import com.tchalanet.server.common.job.params.JobParamsValidator;
 import com.tchalanet.server.common.batch.registry.RegisteredJob;
 import com.tchalanet.server.common.batch.registry.TchBatchJobRegistry;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -86,7 +86,7 @@ public class BatchJobStarter {
         // 2) tenantId if needed
         TenantId tenantId = null;
         if (registered.scope() == RegisteredJob.JobScope.TENANT) {
-            String tenantIdStr = trimToNull(params.get(BatchParamKeys.TENANT_ID));
+            String tenantIdStr = trimToNull(params.get(JobParamKeys.TENANT_ID));
             if (tenantIdStr == null) {
                 throw new IllegalArgumentException("tenant_id required for TENANT job");
             }
@@ -148,23 +148,23 @@ public class BatchJobStarter {
             if (value == null) continue;
 
             // never treat user params as identifying here
-            if (!BatchParamKeys.TS.equals(key)) {
+            if (!JobParamKeys.TS.equals(key)) {
                 builder.addString(key, value, false);
             }
         }
 
         // request tracking defaults (non-identifying)
-        if (trimToNull(params.get(BatchParamKeys.REQUEST_ID)) == null) {
-            builder.addString(BatchParamKeys.REQUEST_ID, UUID.randomUUID().toString(), false);
+        if (trimToNull(params.get(JobParamKeys.REQUEST_ID)) == null) {
+            builder.addString(JobParamKeys.REQUEST_ID, UUID.randomUUID().toString(), false);
         }
-        if (trimToNull(params.get(BatchParamKeys.ACTOR)) == null) {
-            builder.addString(BatchParamKeys.ACTOR, "ops", false);
+        if (trimToNull(params.get(JobParamKeys.ACTOR)) == null) {
+            builder.addString(JobParamKeys.ACTOR, "ops", false);
         }
 
         // anti-collision (identifying)
-        String tsRaw = trimToNull(params.get(BatchParamKeys.TS));
+        String tsRaw = trimToNull(params.get(JobParamKeys.TS));
         long ts = (tsRaw != null) ? parseTs(tsRaw) : Instant.now(clock).toEpochMilli();
-        builder.addLong(BatchParamKeys.TS, ts, true);
+        builder.addLong(JobParamKeys.TS, ts, true);
 
         return builder.toJobParameters();
     }

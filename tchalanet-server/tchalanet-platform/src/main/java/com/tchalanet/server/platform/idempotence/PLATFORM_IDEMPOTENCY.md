@@ -1,4 +1,9 @@
-# Idempotence
+# Platform Capability `platform.idempotence`
+
+`platform.idempotence` owns replay safety for HTTP writes and event consumers.
+
+Idempotency is a replay guard. It is not a replacement for domain state transitions, row locks,
+unique constraints, or business invariants.
 
 Ce document décrit les deux couches d’idempotence utilisées dans Tchalanet :
 
@@ -147,7 +152,7 @@ Champs minimaux :
 
 ### Implémentation (ports / adapters)
 
-- Port : `ProcessedEventPort` (package `common.idempotency.event`)
+- Port : `ProcessedEventPort` (package `platform.idempotence.api`)
 - Adapter JDBC : `ProcessedEventJdbcAdapter`
 
 API :
@@ -160,6 +165,8 @@ boolean markProcessedIfAbsent(String handlerKey, UUID eventId);
 
 Les nouveaux consommateurs cross-domain doivent utiliser `markProcessedIfAbsent(...)`
 pour eviter le pattern non atomique `alreadyProcessed(...)` puis `markProcessed(...)`.
+
+`handler_key` est une constante de code. Il ne vient jamais du client ou d'un payload externe.
 
 #### RLS (non négociable)
 
@@ -209,3 +216,13 @@ CREATE INDEX idx_processed_event_lookup ON processed_event (handler_key, event_i
 > RLS note : on **ne** filtre pas `tenant` dans les queries applicatives. Le champ `tenant_id` existe pour la contrainte unique et pour l'audit — RLS empêche le cross-tenant access.
 
 ---
+
+## 4) Guardrails
+
+- `@RequireIdempotency` est obligatoire sur les writes dangereux, notamment sell ticket.
+- Même clé + même payload rejoue le résultat sans réexécuter la commande.
+- Même clé + payload différent renvoie `idempotency.payload_mismatch`.
+- Même clé + requête en cours renvoie `idempotency.in_progress`.
+- Les consumers event-driven utilisent des handler keys stables et `markProcessedIfAbsent`.
+- Les lignes expirées ont un comportement documenté; les invariants métier restent obligatoires.
+- Les tables idempotency/processed-event appartiennent à `platform.idempotence`, pas à `common`.

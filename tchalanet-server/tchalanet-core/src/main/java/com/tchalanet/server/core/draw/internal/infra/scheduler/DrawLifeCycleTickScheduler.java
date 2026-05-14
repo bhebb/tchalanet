@@ -1,14 +1,14 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
+import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
-import com.tchalanet.server.common.batch.exception.BatchContextClearException;
-import com.tchalanet.server.common.batch.exception.BatchPartialFailureException;
-import com.tchalanet.server.common.batch.exception.BatchSkippedException;
+import com.tchalanet.server.common.job.exception.JobContextClearException;
+import com.tchalanet.server.common.job.exception.JobPartialFailureException;
+import com.tchalanet.server.common.job.exception.JobSkippedException;
 import com.tchalanet.server.common.batch.gate.BatchGate;
-import com.tchalanet.server.common.batch.key.BatchJobKeys;
-import com.tchalanet.server.common.batch.params.BatchParamKeys;
+import com.tchalanet.server.common.job.key.BatchJobKeys;
+import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
@@ -45,7 +45,7 @@ public class DrawLifeCycleTickScheduler {
     private final DrawProperties drawProps;
     private final AtomicBoolean configLogged = new AtomicBoolean(false);
 
-    @BatchScheduledJob("draw:lifecycle:generate")
+    @TchJob("draw:lifecycle:generate")
     @Scheduled(cron = "${tch.draw.scheduler.generate.cron:0 0 5 * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_generate_next_7_days", lockAtMostFor = "PT30M", lockAtLeastFor = "PT5M")
     public void generateNext7Days() {
@@ -64,7 +64,7 @@ public class DrawLifeCycleTickScheduler {
 
         var activeTenants = tenantCatalog.listActiveTenantIds();
         if (activeTenants.isEmpty()) {
-            throw new BatchSkippedException("no_active_tenants", "No active tenants");
+            throw new JobSkippedException("no_active_tenants", "No active tenants");
         }
         var failures = new ArrayList<TenantFailure>();
 
@@ -104,7 +104,7 @@ public class DrawLifeCycleTickScheduler {
         }
 
         if (!failures.isEmpty()) {
-            throw new BatchPartialFailureException(
+            throw new JobPartialFailureException(
                 "draw_generate_partial_failure",
                 "Draw generate failed with " + failures.size() + " failures"
             );
@@ -113,18 +113,18 @@ public class DrawLifeCycleTickScheduler {
 
     private void validateGenerateCanRun() {
         if (!drawProps.getScheduler().isActive()) {
-            throw new BatchSkippedException("scheduler_disabled", "Draw scheduler disabled");
+            throw new JobSkippedException("scheduler_disabled", "Draw scheduler disabled");
         }
         if (!drawProps.getScheduler().getGenerate().isActive()) {
-            throw new BatchSkippedException("generate_disabled", "Draw generate scheduler disabled");
+            throw new JobSkippedException("generate_disabled", "Draw generate scheduler disabled");
         }
 
         if (!batchGate.enabled(BatchJobKeys.DRAW_GENERATE, null)) {
-            throw new BatchSkippedException("gate_disabled", "Draw generate gate disabled");
+            throw new JobSkippedException("gate_disabled", "Draw generate gate disabled");
         }
     }
 
-    @BatchScheduledJob("draw:lifecycle:open_today")
+    @TchJob("draw:lifecycle:open_today")
     @Scheduled(cron = "${tch.draw.scheduler.open-today.cron:0 */5 4-10 * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_open_today", lockAtMostFor = "PT10M", lockAtLeastFor = "PT1M")
     public void openToday() {
@@ -138,7 +138,7 @@ public class DrawLifeCycleTickScheduler {
         var defaultSalesOpenTime = drawProps.getScheduler().getOpenToday().getDefaultSalesOpenTime();
         var activeTenants = tenantCatalog.listActiveTenantIds();
         if (activeTenants.isEmpty()) {
-            throw new BatchSkippedException("no_active_tenants", "No active tenants");
+            throw new JobSkippedException("no_active_tenants", "No active tenants");
         }
         var failures = new ArrayList<TenantFailure>();
 
@@ -173,7 +173,7 @@ public class DrawLifeCycleTickScheduler {
         }
 
         if (!failures.isEmpty()) {
-            throw new BatchPartialFailureException(
+            throw new JobPartialFailureException(
                 "draw_open_today_partial_failure",
                 "Draw open today failed for " + failures.size() + " failures"
             );
@@ -183,13 +183,13 @@ public class DrawLifeCycleTickScheduler {
 
     private void validateOpenTodayCanRun() {
         if (!drawProps.getScheduler().isActive()) {
-            throw new BatchSkippedException("scheduler_disabled", "Draw scheduler disabled");
+            throw new JobSkippedException("scheduler_disabled", "Draw scheduler disabled");
         }
         if (!drawProps.getScheduler().getOpenToday().isActive()) {
-            throw new BatchSkippedException("open_today_disabled", "Draw open-today scheduler disabled");
+            throw new JobSkippedException("open_today_disabled", "Draw open-today scheduler disabled");
         }
         if (!batchGate.enabled(BatchJobKeys.DRAW_OPEN, null)) {
-            throw new BatchSkippedException("gate_disabled", "Draw open gate disabled");
+            throw new JobSkippedException("gate_disabled", "Draw open gate disabled");
         }
     }
 
@@ -221,9 +221,9 @@ public class DrawLifeCycleTickScheduler {
         String requestId = safeKind + "-" + now.toEpochMilli() + "-" + UUID.randomUUID();
 
         return new JobParametersBuilder()
-            .addString(BatchParamKeys.TENANT_ID, tenantId.value().toString())
-            .addString(BatchParamKeys.REQUEST_ID, requestId)
-            .addString(BatchParamKeys.ACTOR, "scheduler")
+            .addString(JobParamKeys.TENANT_ID, tenantId.value().toString())
+            .addString(JobParamKeys.REQUEST_ID, requestId)
+            .addString(JobParamKeys.ACTOR, "scheduler")
             .toJobParameters();
     }
 
@@ -238,7 +238,7 @@ public class DrawLifeCycleTickScheduler {
                 ex.getMessage(),
                 ex
             );
-            return new BatchContextClearException("context_clear_failed", ex);
+            return new JobContextClearException("context_clear_failed", ex);
         }
     }
 

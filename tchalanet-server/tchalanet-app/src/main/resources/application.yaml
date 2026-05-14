@@ -42,7 +42,11 @@ tch:
       active: true
       open-cron: "0 0 5 * * *"
       close-cron: "0 0 20 * * *"
-
+  batch:
+    executor:
+      core-pool-size: 4
+      max-pool-size: 8
+      thread-name-prefix: batch-
 kc:
   bootstrap:
     enabled: true

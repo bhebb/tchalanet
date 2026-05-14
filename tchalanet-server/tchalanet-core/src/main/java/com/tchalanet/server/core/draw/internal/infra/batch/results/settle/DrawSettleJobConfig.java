@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
-import com.tchalanet.server.common.batch.context.BatchJobExecutionListener;
 import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.Job;

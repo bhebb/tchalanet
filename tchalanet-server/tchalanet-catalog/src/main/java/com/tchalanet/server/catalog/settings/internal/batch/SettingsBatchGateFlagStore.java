@@ -3,7 +3,7 @@ package com.tchalanet.server.catalog.settings.internal.batch;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
 import com.tchalanet.server.common.batch.gate.BatchGateFlagStore;
-import com.tchalanet.server.common.batch.key.JobKey;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

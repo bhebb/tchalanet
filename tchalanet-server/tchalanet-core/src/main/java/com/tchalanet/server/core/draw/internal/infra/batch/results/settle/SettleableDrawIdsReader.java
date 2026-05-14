@@ -14,8 +14,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
-import static com.tchalanet.server.common.batch.params.BatchParamKeys.*;
-
 @Component
 @StepScope
 public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {

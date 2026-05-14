@@ -36,7 +36,7 @@ public final class RequestHasher {
     if (node.isObject()) {
       ObjectNode out = JsonNodeFactory.instance.objectNode();
       java.util.List<String> names = new java.util.ArrayList<>();
-      node.asArray().iterator().forEachRemaining(n->names.add(n.stringValue()));
+      node.properties().forEach(entry -> names.add(entry.getKey()));
       java.util.Collections.sort(names);
 
       for (String name : names) {

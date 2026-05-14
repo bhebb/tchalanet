@@ -1,47 +1,84 @@
-# Platform Capability `platform.accesscontrol` — Permissions & Access Control
+# Platform Capability `platform.accesscontrol`
 
-> Archetype : Application Service Module. Migré depuis `core.accesscontrol`.
+## Role
 
-## 1. Rôle
+`platform.accesscontrol` owns authorization policy:
 
-Évaluer les permissions applicatives, gérer l'assignation des rôles par tenant, et exposer les politiques d'accès.
+- roles;
+- permissions;
+- tenant role assignments;
+- effective permission resolution;
+- permission decisions.
 
-**Ce module fait** :
-- Vérifier qu'un actor a une permission donnée dans le contexte du tenant courant (`assertPermission`, `hasPermission`).
-- Gérer les rôles et leurs assignations (CRUD admin).
-- Exposer la liste des permissions disponibles.
+It answers: **may this actor attempt this action in this scope?**
 
-**Ce module ne fait pas** :
-- Authentification JWT / Keycloak (→ `common.security`).
-- Règles métier sur ce qu'on peut faire avec les tickets (→ `core.sales`, `core.limitpolicy`).
+It does not answer whether a target resource is in a valid business state.
 
-## 2. Structure
+## Public Surface
+
+Consumers outside the capability use only:
 
 ```text
-platform/accesscontrol/
-  api/
-    AccessControlApi.java     ← assertPermission / hasPermission
-    model/
-      Permission.java         ← enum ou record
-      RoleView.java
-  internal/
-    service/
-    persistence/              ← RoleJpaEntity, PermissionAssignmentRepository
-    web/                      ← RoleAdminController (/api/v1/platform/roles)
-    config/
+platform/accesscontrol/api/
 ```
 
-## 3. Consommation
+Implementation stays private:
+
+```text
+platform/accesscontrol/internal/
+```
+
+Core/features/platform peers must never import `platform.accesscontrol.internal.*`.
+
+## Deny-Safe Evaluation
+
+Permission evaluation is deny-by-default when security facts are missing or ambiguous.
+
+Required facts for tenant-scoped checks:
+
+- authenticated actor;
+- effective tenant from canonical context;
+- requested permission;
+- actor role/membership facts from platform-owned state.
+
+Never trust tenant ids from request bodies as authorization source-of-truth.
+
+## What AccessControl Does Not Do
+
+Access control must not validate:
+
+- payout status or payout eligibility;
+- ticket cancellability or settlement state;
+- terminal/outlet/session state;
+- seller terminal assignment;
+- offline sync business eligibility;
+- limits, draw state, cutoff, or game availability.
+
+Those checks belong to the owning `core` domain validators/handlers.
+
+## Integration
+
+HTTP controllers declare requirements using method security:
 
 ```java
-// Dans un CommandHandler core
-private final AccessControlApi acl;
-
-acl.assertPermission(cmd.actorId(), Permission.APPROVE_TICKET);
+@PreAuthorize("hasPermission('payout:approve')")
 ```
 
-## 4. Règles
+Non-HTTP or reusable application flows call `AccessControlApi`.
 
-- RLS actif sur les tables de rôles/permissions.
-- Résultat incorrect ici peut créer des accès non autorisés — vigilance.
-- `core` ne doit pas écouter les events de ce module.
+Role and permission write endpoints must be functionally audited through `platform.audit`.
+
+## Persistence
+
+Role, permission and assignment tables are owned by `platform.accesscontrol`.
+
+Tenant-scoped rows must be RLS-compatible. Application queries must not use client-provided tenant
+ids as the isolation source.
+
+## Guardrails
+
+- Platform must not depend on `core` or `features`.
+- Accesscontrol must not import core/features domain packages.
+- Permission checks deny when actor/tenant/permission facts are missing.
+- Permission write endpoints are audited.
+- Business invariants remain in core domains.

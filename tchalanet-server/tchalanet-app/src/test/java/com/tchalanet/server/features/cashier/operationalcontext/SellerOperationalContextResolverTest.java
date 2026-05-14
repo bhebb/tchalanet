@@ -2,10 +2,8 @@ package com.tchalanet.server.features.cashier.operationalcontext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.OperationalContextSource;
 import com.tchalanet.server.common.context.OperationalRequestContext;
@@ -19,11 +17,32 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.CreateRoleRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.GetEffectivePermissionsRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.GrantPermissionToRoleRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.ListPermissionsRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.ListRolePermissionsRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.ListRolesRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.RevokePermissionFromRoleRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.SetTenantUserRoleRequest;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.UpdateRoleRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.result.CheckUserPermissionsResult;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.EffectivePermissionsView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.PermissionView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.RolePermissionView;
+import com.tchalanet.server.platform.accesscontrol.api.model.view.RoleView;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
+import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
+import com.tchalanet.server.platform.identity.api.model.request.GetCurrentUserRequest;
+import com.tchalanet.server.platform.identity.api.model.request.GetUserProfileRequest;
+import com.tchalanet.server.platform.identity.api.model.result.BootstrapUserResult;
+import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
+import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -60,15 +79,10 @@ class SellerOperationalContextResolverTest {
   }
 
   private SellerOperationalContextResolver resolver(boolean permissionAllowed) {
-    var queryBus = mock(QueryBus.class);
-    var identityApi = mock(IdentityApi.class);
-    var accessControlApi = mock(AccessControlApi.class);
-    when(queryBus.ask(any())).thenReturn(null);
-    when(accessControlApi.checkPermissions(any()))
-        .thenReturn(new CheckUserPermissionsResult(
-            permissionAllowed,
-            permissionAllowed ? Set.of() : Set.of("ticket.sell")));
-    return new SellerOperationalContextResolver(queryBus, identityApi, accessControlApi);
+    return new SellerOperationalContextResolver(
+        new NoopQueryBus(),
+        new NoopIdentityApi(),
+        new TestAccessControlApi(permissionAllowed));
   }
 
   private TchRequestContext context(Ids ids) {
@@ -115,4 +129,79 @@ class SellerOperationalContextResolverTest {
       TerminalId terminalId,
       OutletId outletId,
       SalesSessionId sessionId) {}
+
+  private static class NoopQueryBus implements QueryBus {
+    @Override
+    public <R> R ask(Query<R> query) {
+      return null;
+    }
+  }
+
+  private static class NoopIdentityApi implements IdentityApi {
+    @Override
+    public CurrentUserView getCurrentUser(GetCurrentUserRequest request) {
+      return null;
+    }
+
+    @Override
+    public BootstrapUserResult bootstrapCurrentUser(BootstrapCurrentUserRequest request) {
+      return null;
+    }
+
+    @Override
+    public UserProfileView getUserProfile(GetUserProfileRequest request) {
+      return null;
+    }
+  }
+
+  private record TestAccessControlApi(boolean permissionAllowed) implements AccessControlApi {
+    @Override
+    public CheckUserPermissionsResult checkPermissions(CheckUserPermissionsRequest request) {
+      return new CheckUserPermissionsResult(
+          permissionAllowed,
+          permissionAllowed ? Set.of() : Set.of("ticket.sell"));
+    }
+
+    @Override
+    public List<RoleView> listRoles(ListRolesRequest request) {
+      return List.of();
+    }
+
+    @Override
+    public List<PermissionView> listPermissions(ListPermissionsRequest request) {
+      return List.of();
+    }
+
+    @Override
+    public List<RolePermissionView> listRolePermissions(ListRolePermissionsRequest request) {
+      return List.of();
+    }
+
+    @Override
+    public EffectivePermissionsView getEffectivePermissions(GetEffectivePermissionsRequest request) {
+      return null;
+    }
+
+    @Override
+    public RoleView createRole(CreateRoleRequest request) {
+      return null;
+    }
+
+    @Override
+    public RoleView updateRole(UpdateRoleRequest request) {
+      return null;
+    }
+
+    @Override
+    public void grantPermission(GrantPermissionToRoleRequest request) {
+    }
+
+    @Override
+    public void revokePermission(RevokePermissionFromRoleRequest request) {
+    }
+
+    @Override
+    public void setTenantUserRole(SetTenantUserRoleRequest request) {
+    }
+  }
 }

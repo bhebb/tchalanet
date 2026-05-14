@@ -1,14 +1,9 @@
 package com.tchalanet.server.platform.document.api;
 
-import java.util.List;
+import com.tchalanet.server.platform.document.api.model.DocumentRenderRequest;
+import com.tchalanet.server.platform.document.api.model.RenderedDocument;
 
 public interface DocumentApi {
 
-  byte[] renderReceiptPdf(String title, List<String> bodyLines, byte[] qrPng);
-
-  byte[] renderReceiptEscPos(String title, List<String> bodyLines, byte[] qrEscPos);
-
-  byte[] renderQrPng(String payload, int sizePx);
-
-  byte[] renderQrEscPos(String payload, int sizePx);
+  RenderedDocument render(DocumentRenderRequest request);
 }

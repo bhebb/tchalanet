@@ -4,12 +4,16 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILI
 import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_OVERRIDE_REASON;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_TENANT_OVERRIDE;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
+import static com.tchalanet.server.common.web.http.TchHeaders.X_DELETED_VISIBILITY;
+import static com.tchalanet.server.common.web.http.TchHeaders.X_TCH_OVERRIDE_REASON;
+import static com.tchalanet.server.common.web.http.TchHeaders.X_TCH_TENANT_OVERRIDE;
+import static com.tchalanet.server.common.web.http.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.context.ActorContextResolver;
 import com.tchalanet.server.common.context.TchContextBinder;
-import com.tchalanet.server.common.security.Permissions;
-import com.tchalanet.server.common.context.system.SystemContextProperties;
+import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
+import com.tchalanet.server.common.security.Permissions;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,24 +28,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/**
- * Publishes a per-request context for downstream layers.
- *
- * <p>Tenant resolution rules:
- *
- * <ul>
- *   <li>TENANT routes: tenant is required from JWT tenant_code or super-admin X-Tenant-Id override.
- *   <li>PUBLIC routes: default tenant is resolved from ApiProperties.defaultTenant when allowed.
- *   <li>PLATFORM/SDR routes: tenant is optional.
- * </ul>
- */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 50)
 @RequiredArgsConstructor
 @Slf4j
 public class TchContextFilter extends OncePerRequestFilter {
 
-    private final SystemContextProperties props;
+    private final TchContextProperties contextProperties;
     private final TenantContextResolver tenantContextResolver;
     private final ActorContextResolver actorContextResolver;
     private final TchRequestContextFactory contextFactory;
@@ -60,7 +53,7 @@ public class TchContextFilter extends OncePerRequestFilter {
 
             var defaultTenantCode =
                 ApiScopeResolver.allowDefaultTenant(req)
-                    ? normalize(props.tenantCode())
+                    ? normalize(contextProperties.publicDefaultTenantCode())
                     : null;
 
             var ctx = contextFactory.create(req, defaultTenantCode, scope);
@@ -80,7 +73,9 @@ public class TchContextFilter extends OncePerRequestFilter {
             if (ctx.isSuperAdmin()
                 && hasTenantOverride(req)
                 && !ctx.hasPermissionClaim(Permissions.Platform.TENANT_OVERRIDE)) {
-                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Super-admin tenant override permission required");
+                res.sendError(
+                    HttpServletResponse.SC_FORBIDDEN,
+                    "Super-admin tenant override permission required");
                 return;
             }
 
@@ -106,7 +101,9 @@ public class TchContextFilter extends OncePerRequestFilter {
                     ctx.requestId());
             }
 
-            ctx = ctx.withOperationalContext(operationalContextHeaderParser.parseBridge(req));
+            ctx = ctx.withOperationalContext(
+                operationalContextHeaderParser.resolve(req, ctx));
+
             contextBinder.bind(req, ctx);
 
             chain.doFilter(req, res);
@@ -132,8 +129,7 @@ public class TchContextFilter extends OncePerRequestFilter {
             return null;
         }
 
-        String trimmed = value.trim();
-
+        var trimmed = value.trim();
         return trimmed.isBlank() ? null : trimmed;
     }
 }

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.session.internal.infra.scheduler;
 
-import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
+import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsCommand;
@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.SALES_SESSION_AUTO;
+import static com.tchalanet.server.common.job.key.BatchJobKeys.SALES_SESSION_AUTO;
 
 @Component
 @RequiredArgsConstructor
@@ -23,14 +23,14 @@ public class SalesSessionAutoScheduler {
     private final BatchGate gate;
 
     @Scheduled(cron = "${tch.session.auto.open-cron:0 0 5 * * *}")
-    @BatchScheduledJob("sales-session:auto-open")
+    @TchJob("sales-session:auto-open")
     public void tickOpen() {
         if (!canRunSalesSessionAuto("open")) return;
         commandBus.execute(new OpenDueSalesSessionsCommand());
     }
 
     @Scheduled(cron = "${tch.session.auto.close-cron:0 0 20 * * *}")
-    @BatchScheduledJob("sales-session:auto-close")
+    @TchJob("sales-session:auto-close")
     public void tickClose() {
         if (!canRunSalesSessionAuto("close")) return;
         commandBus.execute(new CloseDueSalesSessionsCommand());

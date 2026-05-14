@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.accesscontrol.internal.web;
 
+import com.tchalanet.server.common.types.enums.AuditAction;
+import com.tchalanet.server.common.types.enums.AuditEntityType;
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
@@ -15,6 +17,7 @@ import com.tchalanet.server.platform.accesscontrol.internal.web.model.Permission
 import com.tchalanet.server.platform.accesscontrol.internal.web.model.RoleAdminResponse;
 import com.tchalanet.server.platform.accesscontrol.internal.web.model.UpdateRolePermissionsRequest;
 import com.tchalanet.server.platform.accesscontrol.internal.web.model.UpsertRoleRequest;
+import com.tchalanet.server.platform.audit.api.AuditLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -55,6 +58,11 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Create or update a role (admin)")
   @PostMapping("/roles")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.SYSTEM,
+      idExpression = "#request.id",
+      detailsExpression = "{ 'roleCode': #request.code(), 'tenantId': #request.tenantId() }")
   public UUID upsertRole(@Valid @RequestBody UpsertRoleRequest request) {
     if (request.id() == null) {
       return accessControlApi
@@ -105,6 +113,11 @@ public class AccessControlAdminController {
 
   @Operation(summary = "Update role permissions (admin)")
   @PutMapping("/roles/{roleId}/permissions")
+  @AuditLog(
+      action = AuditAction.UPDATE,
+      entity = AuditEntityType.SYSTEM,
+      idExpression = "#roleId",
+      detailsExpression = "{ 'permissionCodes': #request.permissionCodes() }")
   public void updateRolePermissions(
       @PathVariable RoleId roleId, @Valid @RequestBody UpdateRolePermissionsRequest request) {
 

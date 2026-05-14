@@ -1,19 +1,19 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_CLOSE;
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_PROCESSING;
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.DRAW_SETTLE;
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.RESULTS_EXTERNAL_APPLY;
-import static com.tchalanet.server.common.batch.key.BatchJobKeys.RESULTS_EXTERNAL_FETCH;
+import static com.tchalanet.server.common.job.key.BatchJobKeys.DRAW_CLOSE;
+import static com.tchalanet.server.common.job.key.BatchJobKeys.DRAW_PROCESSING;
+import static com.tchalanet.server.common.job.key.BatchJobKeys.DRAW_SETTLE;
+import static com.tchalanet.server.common.job.key.BatchJobKeys.RESULTS_EXTERNAL_APPLY;
+import static com.tchalanet.server.common.job.key.BatchJobKeys.RESULTS_EXTERNAL_FETCH;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.common.batch.annotation.BatchScheduledJob;
+import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
 import com.tchalanet.server.common.batch.gate.BatchGate;
 import com.tchalanet.server.common.batch.launch.BatchJobStarter;
-import com.tchalanet.server.common.batch.params.BatchParamKeys;
+import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.time.OccurredAtResolver;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -57,7 +57,7 @@ public class DrawProcessingTickScheduler {
     private final Clock clock;
     private final AtomicBoolean configLogged = new AtomicBoolean(false);
 
-    @BatchScheduledJob("draw:processing")
+    @TchJob("draw:processing")
     @Scheduled(cron = "${tch.draw.scheduler.processing.cron:0 */5 * * * *}", zone = "UTC")
     @SchedulerLock(name = "draw_processing_tick", lockAtMostFor = "PT4M", lockAtLeastFor = "PT30S")
     public void tick() {
@@ -288,15 +288,15 @@ public class DrawProcessingTickScheduler {
 
     private HashMap<String, String> settleParamsFor(TenantId tenantId, Instant now) {
         var params = new HashMap<String, String>();
-        params.put(BatchParamKeys.TENANT_ID, tenantId.value().toString());
-        params.put(BatchParamKeys.REQUEST_ID, requestId("draw-settle", now));
-        params.put(BatchParamKeys.ACTOR, "scheduler");
-        params.put(BatchParamKeys.DAYS_BACK, "1");
+        params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
+        params.put(JobParamKeys.REQUEST_ID, requestId("draw-settle", now));
+        params.put(JobParamKeys.ACTOR, "scheduler");
+        params.put(JobParamKeys.DAYS_BACK, "1");
         params.put(
-            BatchParamKeys.MAX_DRAWS,
+            JobParamKeys.MAX_DRAWS,
             Integer.toString(Math.max(1, drawProperties.getScheduler().getProcessing().getSettle().getMaxItemsPerTick())));
-        params.put(BatchParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
-        params.put(BatchParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
+        params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
+        params.put(JobParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));
         return params;
     }
 
@@ -306,9 +306,9 @@ public class DrawProcessingTickScheduler {
         Instant now
     ) {
         return new org.springframework.batch.core.job.parameters.JobParametersBuilder()
-            .addString(BatchParamKeys.TENANT_ID, tenantId.value().toString())
-            .addString(BatchParamKeys.REQUEST_ID, requestId(kind, now))
-            .addString(BatchParamKeys.ACTOR, "scheduler")
+            .addString(JobParamKeys.TENANT_ID, tenantId.value().toString())
+            .addString(JobParamKeys.REQUEST_ID, requestId(kind, now))
+            .addString(JobParamKeys.ACTOR, "scheduler")
             .toJobParameters();
     }
 

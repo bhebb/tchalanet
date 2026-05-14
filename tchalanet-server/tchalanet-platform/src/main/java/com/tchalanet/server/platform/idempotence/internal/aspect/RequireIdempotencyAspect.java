@@ -57,8 +57,20 @@ public class RequireIdempotencyAspect {
         }
         throw ProblemRest.conflict("idempotency.completed_no_response");
       }
-      case STARTED -> pjp.proceed();
+      case STARTED -> proceedAndRecord(pjp, ann, key, hash);
     };
+  }
+
+  private Object proceedAndRecord(
+      ProceedingJoinPoint pjp, RequireIdempotency ann, String key, String hash) throws Throwable {
+    try {
+      Object result = pjp.proceed();
+      store.complete(ann.scope(), key, hash, null, jsonUtils.toJson(result));
+      return result;
+    } catch (Throwable ex) {
+      store.fail(ann.scope(), key, hash);
+      throw ex;
+    }
   }
 
   private Optional<Object> findRequestBodyArg(Object[] args) {

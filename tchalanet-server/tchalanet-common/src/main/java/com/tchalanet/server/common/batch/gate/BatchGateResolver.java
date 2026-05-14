@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.batch.gate;
 
-import com.tchalanet.server.common.batch.key.BatchJobKeys;
-import com.tchalanet.server.common.batch.key.JobKey;
+import com.tchalanet.server.common.job.key.BatchJobKeys;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

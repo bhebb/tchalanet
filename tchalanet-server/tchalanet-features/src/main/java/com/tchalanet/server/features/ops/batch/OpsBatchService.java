@@ -9,7 +9,7 @@ import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
 import com.tchalanet.server.common.batch.gate.BatchGateCache;
 import com.tchalanet.server.common.batch.gate.BatchGateResolver;
-import com.tchalanet.server.common.batch.key.JobKey;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.batch.launch.BatchJobStarter;
 import com.tchalanet.server.common.batch.registry.TchBatchJobRegistry;
 import com.tchalanet.server.common.batch.registry.RegisteredJob;

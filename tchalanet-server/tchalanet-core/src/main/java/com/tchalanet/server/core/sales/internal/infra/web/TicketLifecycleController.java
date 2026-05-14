@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.types.enums.IdempotencyScope;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiNotice;
@@ -14,6 +15,7 @@ import com.tchalanet.server.core.sales.internal.infra.web.model.CancelSaleRespon
 import com.tchalanet.server.core.sales.internal.infra.web.model.CancelTicketRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.TicketResponse;
+import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -43,6 +45,7 @@ public class TicketLifecycleController {
   @Operation(summary = "Sell a ticket")
   @PostMapping
   @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+  @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
   public ResponseEntity<ApiResponse<TicketResponse>> sell(
       @Valid @RequestBody SellTicketRequest request) {
     var cmd = mapper.toSellCommand(request);

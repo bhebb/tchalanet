@@ -1,17 +1,14 @@
 package com.tchalanet.server.features.receipt.app;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-
-import com.tchalanet.server.platform.document.api.DocumentApi;
-import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.api.print.TicketPrintView;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.print.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.api.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.api.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.print.TicketVerificationUrlBuilder;
-import java.util.List;
+import com.tchalanet.server.platform.document.api.DocumentApi;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import java.util.Locale;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,22 +18,19 @@ public class ReceiptService {
   private final TchContextResolver contextResolver;
   private final TicketVerificationUrlBuilder urlBuilder;
   private final DocumentApi documentApi;
-  private final TicketReceiptFormatter pdfFormatter;
-  private final TicketReceiptFormatter escPosFormatter;
+  private final TicketReceiptDocumentRequestFactory requestFactory;
 
   public ReceiptService(
       TicketPrintReaderPort port,
       TchContextResolver contextResolver,
       TicketVerificationUrlBuilder urlBuilder,
       DocumentApi documentApi,
-      @Qualifier("ticketReceiptFormatterPdf") TicketReceiptFormatter pdfFormatter,
-      @Qualifier("ticketReceiptFormatterEscPos") TicketReceiptFormatter escPosFormatter) {
+      TicketReceiptDocumentRequestFactory requestFactory) {
     this.port = port;
     this.contextResolver = contextResolver;
     this.urlBuilder = urlBuilder;
     this.documentApi = documentApi;
-    this.pdfFormatter = pdfFormatter;
-    this.escPosFormatter = escPosFormatter;
+    this.requestFactory = requestFactory;
   }
 
   public byte[] renderPdf(TicketId ticketId) {
@@ -44,11 +38,11 @@ public class ReceiptService {
   }
 
   public byte[] renderPdf(TicketId ticketId, Locale locale) {
-    var ticket = findTicket(ticketId, normalizeLocale(locale));
+    var normalized = normalizeLocale(locale);
+    var ticket = findTicket(ticketId, normalized);
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    var text = receiptText(pdfFormatter.formatText(ticket, verifyUrl));
-    byte[] qrBytes = documentApi.renderQrPng(verifyUrl, 300);
-    return documentApi.renderReceiptPdf(text.title(), text.bodyLines(), qrBytes);
+    var request = requestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.PDF, normalized);
+    return documentApi.render(request).bytes();
   }
 
   public byte[] renderEscPos(TicketId ticketId) {
@@ -56,17 +50,19 @@ public class ReceiptService {
   }
 
   public byte[] renderEscPos(TicketId ticketId, Locale locale) {
-    var ticket = findTicket(ticketId, normalizeLocale(locale));
+    var normalized = normalizeLocale(locale);
+    var ticket = findTicket(ticketId, normalized);
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    var text = receiptText(escPosFormatter.formatText(ticket, verifyUrl));
-    byte[] qrBytes = documentApi.renderQrEscPos(verifyUrl, 280);
-    return documentApi.renderReceiptEscPos(text.title(), text.bodyLines(), qrBytes);
+    var request =
+        requestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.ESC_POS, normalized);
+    return documentApi.render(request).bytes();
   }
 
   public byte[] renderQrPng(TicketId ticketId, int sizePx) {
-    var ticket = findTicket(ticketId, currentLocale());
+    var locale = currentLocale();
+    var ticket = findTicket(ticketId, locale);
     var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
-    return documentApi.renderQrPng(verifyUrl, sizePx);
+    return documentApi.render(requestFactory.qrPngRequest(verifyUrl, sizePx, locale)).bytes();
   }
 
   private Locale currentLocale() {
@@ -82,13 +78,4 @@ public class ReceiptService {
     return port.findTicketPrintView(ticketId, locale)
         .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
   }
-
-  private ReceiptText receiptText(String text) {
-    var lines = text == null ? List.<String>of() : text.lines().toList();
-    var title = lines.isEmpty() ? "Ticket Tchalanet" : lines.get(0);
-    var body = lines.stream().skip(1).toList();
-    return new ReceiptText(title, body);
-  }
-
-  private record ReceiptText(String title, List<String> bodyLines) {}
 }

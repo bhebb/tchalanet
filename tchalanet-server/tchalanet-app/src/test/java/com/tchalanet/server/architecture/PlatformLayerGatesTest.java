@@ -1,6 +1,7 @@
 package com.tchalanet.server.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -103,6 +104,39 @@ class PlatformLayerGatesTest {
           .as("platform.notification creates in-app records; external delivery belongs to platform.communication")
           .check(allClasses);
     }
+
+    @Test
+    @DisplayName("accesscontrol internals are private to platform.accesscontrol")
+    void accessControlInternalsArePrivateToAccessControl() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.accesscontrol..")
+          .should().dependOnClassesThat()
+          .resideInAPackage("com.tchalanet.server.platform.accesscontrol.internal..")
+          .as("accesscontrol internals are private; other modules use platform.accesscontrol.api")
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("audit internals are private to platform.audit")
+    void auditInternalsArePrivateToAudit() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.audit..")
+          .should().dependOnClassesThat()
+          .resideInAPackage("com.tchalanet.server.platform.audit.internal..")
+          .as("audit internals are private; other modules use platform.audit.api")
+          .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("idempotence internals are private to platform.idempotence")
+    void idempotenceInternalsArePrivateToIdempotence() {
+      noClasses()
+          .that().resideOutsideOfPackage("com.tchalanet.server.platform.idempotence..")
+          .should().dependOnClassesThat()
+          .resideInAPackage("com.tchalanet.server.platform.idempotence.internal..")
+          .as("idempotence internals are private; other modules use platform.idempotence.api")
+          .check(allClasses);
+    }
   }
 
   @Nested
@@ -132,6 +166,30 @@ class PlatformLayerGatesTest {
           .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.platform..")
           .as("common must not depend on platform (common depends on nothing)")
           .check(allClasses);
+    }
+
+    @Test
+    @DisplayName("common.persistence must not contain platform cross-cutting persistence")
+    void commonPersistenceMustNotContainPlatformCrossCuttingPersistence() {
+      var misplaced =
+          allClasses.stream()
+              .filter(javaClass -> javaClass.getPackageName().contains(".common.persistence"))
+              .filter(
+                  javaClass -> {
+                    var name = javaClass.getSimpleName().toLowerCase();
+                    return name.contains("audit")
+                        || name.contains("permission")
+                        || name.contains("role")
+                        || name.contains("idempot")
+                        || name.contains("processedevent");
+                  })
+              .map(javaClass -> javaClass.getName())
+              .sorted()
+              .toList();
+
+      assertThat(misplaced)
+          .as("functional audit/accesscontrol/idempotence persistence belongs to platform, not common.persistence")
+          .isEmpty();
     }
   }
 

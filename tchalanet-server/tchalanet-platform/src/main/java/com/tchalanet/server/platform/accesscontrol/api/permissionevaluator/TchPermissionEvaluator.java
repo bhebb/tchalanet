@@ -4,24 +4,25 @@ import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.platform.accesscontrol.internal.exception.PermissionsDeniedException;
-import com.tchalanet.server.platform.accesscontrol.internal.service.DefaultAccessControlService;
+import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
 import jakarta.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class TchPermissionEvaluator implements PermissionEvaluator {
+    private static final Logger log = LoggerFactory.getLogger(TchPermissionEvaluator.class);
 
     private final TchContextResolver contextResolver;
-    private final DefaultAccessControlService service;
+    private final AccessControlApi accessControlApi;
 
     @Override
     public boolean hasPermission(
@@ -47,18 +48,11 @@ public class TchPermissionEvaluator implements PermissionEvaluator {
         }
 
         try {
-            service.checkPermissions(
-                new com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest(
-                    eval.tenantId(), eval.userId(), Set.of(eval.permissionKey())));
-            return false;
-        } catch (PermissionsDeniedException ex) {
-            log.debug(
-                "Permission denied by domain: tenant={} user={} permission={}",
-                eval.tenantId(),
-                eval.userId(),
-                eval.permissionKey(),
-                ex);
-            return false;
+            var result =
+                accessControlApi.checkPermissions(
+                    new CheckUserPermissionsRequest(
+                        eval.tenantId(), eval.userId(), Set.of(eval.permissionKey())));
+            return result.allowed();
         } catch (RuntimeException ex) {
             log.warn(
                 "Permission evaluation failed: tenant={} user={} permission={}",
