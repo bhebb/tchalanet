@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.json.mapper;
+package com.tchalanet.server.common.mapper;
 
 import com.tchalanet.server.common.time.DaysOfWeekFormatter;
 import com.tchalanet.server.common.types.id.AddressId;

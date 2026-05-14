@@ -1,15 +1,16 @@
 package com.tchalanet.server.common.context.web;
 
-import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILITY;
-import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_OVERRIDE_REASON;
-import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_TENANT_OVERRIDE;
-import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
+import static com.tchalanet.server.common.http.TchHeaders.X_DELETED_VISIBILITY;
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_TENANT_OVERRIDE;
+import static com.tchalanet.server.common.http.TchHeaders.X_TENANT_ID;
 
-import com.tchalanet.server.common.context.ActorContextResolver;
+import com.tchalanet.server.common.context.auth.ActorContextResolver;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
+import com.tchalanet.server.common.context.operational.OperationalContextHeaderParser;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
-import com.tchalanet.server.common.security.Permissions;
+import com.tchalanet.server.common.security.PlatformPermissions;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,7 +36,6 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final ActorContextResolver actorContextResolver;
     private final TchRequestContextFactory contextFactory;
     private final TchContextBinder contextBinder;
-    private final OperationalContextHeaderParser operationalContextHeaderParser;
 
     @Override
     protected void doFilterInternal(
@@ -68,7 +68,7 @@ public class TchContextFilter extends OncePerRequestFilter {
 
             if (ctx.isSuperAdmin()
                 && hasTenantOverride(req)
-                && !ctx.hasPermissionClaim(Permissions.Platform.TENANT_OVERRIDE)) {
+                && !ctx.hasPermissionClaim(PlatformPermissions.TENANT_OVERRIDE)) {
                 res.sendError(
                     HttpServletResponse.SC_FORBIDDEN,
                     "Super-admin tenant override permission required");
@@ -98,7 +98,7 @@ public class TchContextFilter extends OncePerRequestFilter {
             }
 
             ctx = ctx.withOperationalContext(
-                operationalContextHeaderParser.resolve(req, ctx));
+                OperationalContextHeaderParser.parseHint(req::getHeader));
 
             contextBinder.bind(req, ctx);
 

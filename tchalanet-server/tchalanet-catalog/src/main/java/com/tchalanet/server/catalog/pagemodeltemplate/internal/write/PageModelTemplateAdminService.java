@@ -7,12 +7,11 @@ import com.tchalanet.server.catalog.pagemodeltemplate.internal.cache.PageModelTe
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.mapper.PageModelTemplateMapper;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence.PageModelTemplateEntity;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence.PageModelTemplateRepository;
-import com.tchalanet.server.common.web.error.NotFoundException;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -60,7 +59,7 @@ public class PageModelTemplateAdminService {
     }, allEntries = true)
     public PageModelTemplateView updateFromView(PageModelTemplateId id, PageModelTemplateView view, UserId actorId) {
         var existing = repository.findById(id.value())
-            .orElseThrow(() -> new NotFoundException("page_model_template" + id));
+            .orElseThrow(() -> ProblemRest.notFound("page_model_template", id));
 
         // if logicalId changes, enforce unique among non-deleted rows
         if (view.logicalId() != null && !view.logicalId().equals(existing.getLogicalId())) {
@@ -96,7 +95,7 @@ public class PageModelTemplateAdminService {
     }, allEntries = true)
     public void softDelete(PageModelTemplateId id) {
         var existing = repository.findById(id.value())
-            .orElseThrow(() -> new NotFoundException("page_model_template" + id));
+            .orElseThrow(() -> ProblemRest.notFound("page_model_template", id));
         existing.setDeletedAt(Instant.now());
         repository.save(existing);
     }
@@ -110,7 +109,7 @@ public class PageModelTemplateAdminService {
     }, allEntries = true)
     public PageModelTemplateView setDefault(PageModelTemplateId id) {
         var existing = repository.findById(id.value())
-            .orElseThrow(() -> new NotFoundException("page_model_template" + id));
+            .orElseThrow(() -> ProblemRest.notFound("page_model_template", id));
         existing.setDefault(true);
         var saved = repository.save(existing);
         return mapper.toView(saved);
@@ -160,7 +159,7 @@ public class PageModelTemplateAdminService {
     public PageModelTemplateView preview(PageModelTemplateId id) {
         return repository.findById(id.value())
             .map(mapper::toView)
-            .orElseThrow(() -> new NotFoundException("page_model_template " + id));
+            .orElseThrow(() -> ProblemRest.notFound("page_model_template", id));
     }
 
     @Transactional
@@ -172,7 +171,7 @@ public class PageModelTemplateAdminService {
     }, allEntries = true)
     public PageModelTemplateView duplicate(PageModelTemplateId id, String newLogicalId, String newCode) {
         var source = repository.findById(id.value())
-            .orElseThrow(() -> new NotFoundException("page_model_template " + id));
+            .orElseThrow(() -> ProblemRest.notFound("page_model_template", id));
 
         String targetLogicalId = (newLogicalId != null && !newLogicalId.isBlank())
             ? newLogicalId : source.getLogicalId() + "-copy";
@@ -210,7 +209,7 @@ public class PageModelTemplateAdminService {
     }, allEntries = true)
     public PageModelTemplateView resetToDefaults(PageModelTemplateId id) {
         var existing = repository.findById(id.value())
-            .orElseThrow(() -> new NotFoundException("page_model_template " + id));
+            .orElseThrow(() -> ProblemRest.notFound("page_model_template", id));
 
         existing.setModel("{}");
         existing.setSchema("{}");

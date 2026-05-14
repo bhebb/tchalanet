@@ -19,9 +19,4 @@ public class TchContextResolver {
     }
     return ctx;
   }
-
-  public static TenantId mapToTenantId(TchRequestContext ctx) {
-    if (ctx == null) return null;
-    return ctx.tenantIdSafe();
-  }
 }

@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.game.internal.web;
 
-import com.tchalanet.server.catalog.game.api.GameView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.game.internal.web.model.GameCreateRequest;
 import com.tchalanet.server.catalog.game.internal.web.model.GameUpdateRequest;
 import com.tchalanet.server.catalog.game.internal.write.GameAdminService;

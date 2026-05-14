@@ -1,8 +1,8 @@
 package com.tchalanet.server.common.context;
 
 import com.tchalanet.server.common.constant.CommonConstants;
-import com.tchalanet.server.common.security.ApiScope;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.ZoneId;
 import java.util.Currency;

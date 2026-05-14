@@ -2,11 +2,10 @@ package com.tchalanet.server.catalog.plan.internal.mapper;
 
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.catalog.plan.internal.persistence.PlanJpaEntity;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import tools.jackson.databind.JsonNode;
 
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
-import java.util.List;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 

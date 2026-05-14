@@ -2,7 +2,7 @@ package com.tchalanet.server.catalog.i18n.internal.mapper;
 
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapper;
 

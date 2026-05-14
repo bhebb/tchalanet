@@ -1,9 +1,9 @@
 package com.tchalanet.server.catalog.game.internal.read;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
-import com.tchalanet.server.catalog.game.api.GameView;
-import com.tchalanet.server.catalog.game.api.GameStatsView;
-import com.tchalanet.server.catalog.game.api.GameSummaryView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
+import com.tchalanet.server.catalog.game.api.model.GameStatsView;
+import com.tchalanet.server.catalog.game.api.model.GameSummaryView;
 import com.tchalanet.server.catalog.game.internal.cache.GameCacheNames;
 import com.tchalanet.server.catalog.game.internal.mapper.GameMapper;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;

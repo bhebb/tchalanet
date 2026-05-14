@@ -1,8 +1,8 @@
 package com.tchalanet.server.common.persistence.converter;
 
-import com.tchalanet.server.common.util.JsonUtilsHolder;
+import com.tchalanet.server.common.json.utils.JsonUtilsHolder;
 import tools.jackson.core.type.TypeReference;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.Collections;

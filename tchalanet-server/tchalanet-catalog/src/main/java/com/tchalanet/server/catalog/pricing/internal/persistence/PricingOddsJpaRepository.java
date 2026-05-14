@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.pricing.internal.persistence;
 
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

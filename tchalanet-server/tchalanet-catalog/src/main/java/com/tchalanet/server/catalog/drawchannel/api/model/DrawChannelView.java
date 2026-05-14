@@ -1,7 +1,6 @@
 package com.tchalanet.server.catalog.drawchannel.api.model;
 
 import tools.jackson.databind.JsonNode;
-import com.tchalanet.server.common.types.enums.DrawSource;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.types.id.TenantId;

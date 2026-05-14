@@ -1,7 +1,7 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
-import com.tchalanet.server.common.util.JsonUtilsHolder;
+import com.tchalanet.server.common.json.utils.JsonUtilsHolder;
 import lombok.experimental.UtilityClass;
 
 import java.math.BigDecimal;

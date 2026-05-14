@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface TchJobRegistry {
 
-    Collection<RegisteredJob> list();
+    Optional<RegisteredJob> find(JobKey jobKey);
 
-    Optional<RegisteredJob> find(JobKey key);
+    Collection<RegisteredJob> list();
 }

@@ -1,9 +1,8 @@
 package com.tchalanet.server.common.context.tenant;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.context.TenantContextInfo;
 import com.tchalanet.server.common.context.web.ApiScopeResolver;
-import com.tchalanet.server.common.security.ApiScope;
+import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.TenantId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

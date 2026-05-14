@@ -11,7 +11,7 @@ import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideRepository;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.security.ApiScope;
+import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;

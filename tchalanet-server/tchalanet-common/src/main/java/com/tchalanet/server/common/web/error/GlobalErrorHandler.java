@@ -1,5 +1,11 @@
 package com.tchalanet.server.common.web.error;
 
+import com.tchalanet.server.common.exception.TchBusinessRuleException;
+import com.tchalanet.server.common.exception.TchConflictException;
+import com.tchalanet.server.common.exception.TchException;
+import com.tchalanet.server.common.exception.TchForbiddenException;
+import com.tchalanet.server.common.exception.TchNotFoundException;
+import com.tchalanet.server.common.exception.TchValidationException;
 import com.tchalanet.server.common.job.gate.BatchDisabledException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,185 +25,304 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 
-import static com.tchalanet.server.common.constant.TchHeaders.APP_ERROR_VERSION;
-import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
+import static com.tchalanet.server.common.http.TchHeaders.APP_ERROR_VERSION;
+import static com.tchalanet.server.common.http.TchHeaders.X_REQUEST_ID;
 
 @RestControllerAdvice
 @Slf4j
 @RequiredArgsConstructor
 public class GlobalErrorHandler {
 
-  private static final MediaType PROBLEM_JSON = MediaType.APPLICATION_PROBLEM_JSON;
+    private static final MediaType PROBLEM_JSON = MediaType.APPLICATION_PROBLEM_JSON;
 
-  /** Toujours RFC7807. Même si le client demande HAL, on renvoie problem+json. */
-  private ResponseEntity<ProblemDetail> buildResponse(
-      ProblemDetail pd, HttpServletRequest req, HttpStatus status) {
+    @ExceptionHandler(ProblemRestException.class)
+    public ResponseEntity<ProblemDetail> handleProblemRest(
+        ProblemRestException ex,
+        HttpServletRequest req
+    ) {
+        var pd = ex.getProblem();
+        decorate(pd, req, ex, false);
 
-    // sécurité : status cohérent
-    pd.setStatus(status.value());
+        var status = HttpStatus.resolve(pd.getStatus());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
 
-    var headers = new HttpHeaders();
-    headers.setContentType(PROBLEM_JSON);
-
-    // utile: exposer traceId dans un header aussi (optionnel)
-    var traceId = headerOrNull(req, X_REQUEST_ID);
-    if (traceId != null) {
-      headers.add(X_REQUEST_ID, traceId);
+        logByStatus(status, req, pd.getDetail(), ex);
+        return buildResponse(pd, req, status);
     }
 
-    return new ResponseEntity<>(pd, headers, status);
-  }
-
-  @ExceptionHandler(ProblemRestException.class)
-  public ResponseEntity<ProblemDetail> handleProblemRest(
-      ProblemRestException ex, HttpServletRequest req) {
-    var pd = ex.getProblem();
-    decorate(pd, req, ex, false);
-
-    var status = HttpStatus.resolve(pd.getStatus());
-    if (status == null) status = HttpStatus.INTERNAL_SERVER_ERROR;
-
-    if (status.is5xxServerError()) {
-      log.error(
-          "[{}] {} {} - {}",
-          status.value(),
-          req.getMethod(),
-          req.getRequestURI(),
-          ex.getMessage(),
-          ex);
-    } else {
-      log.warn(
-          "[{}] {} {} - {}", status.value(), req.getMethod(), req.getRequestURI(), pd.getDetail());
+    @ExceptionHandler(TchNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleTchNotFound(
+        TchNotFoundException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.NOT_FOUND, "Resource not found", ex);
+        decorate(pd, req, ex, true);
+        log.warn("[404] {} {} - code={} message={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.getMessage());
+        return buildResponse(pd, req, HttpStatus.NOT_FOUND);
     }
-    return buildResponse(pd, req, status);
-  }
 
-  @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<ProblemDetail> handleNotFound(
-      EntityNotFoundException ex, HttpServletRequest req) {
-    return doHandleNotFound(ex.getMessage(), ex, req);
-  }
+    @ExceptionHandler(TchValidationException.class)
+    public ResponseEntity<ProblemDetail> handleTchValidation(
+        TchValidationException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.BAD_REQUEST, "Validation failed", ex);
+        decorate(pd, req, ex, true);
+        log.warn("[400] {} {} - code={} message={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.getMessage());
+        return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+    }
 
+    @ExceptionHandler(TchForbiddenException.class)
+    public ResponseEntity<ProblemDetail> handleTchForbidden(
+        TchForbiddenException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.FORBIDDEN, "Forbidden", ex);
+        decorate(pd, req, ex, true);
+        log.warn("[403] {} {} - code={} message={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.getMessage());
+        return buildResponse(pd, req, HttpStatus.FORBIDDEN);
+    }
 
-  private ResponseEntity<ProblemDetail> doHandleNotFound(
-      String message, Exception ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, message);
-    pd.setTitle("Resource not found");
-    decorate(pd, req, ex, true);
-    log.warn("[404] {} {} - {}", req.getMethod(), req.getRequestURI(), message);
-    return buildResponse(pd, req, HttpStatus.NOT_FOUND);
-  }
+    @ExceptionHandler(TchConflictException.class)
+    public ResponseEntity<ProblemDetail> handleTchConflict(
+        TchConflictException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.CONFLICT, "Conflict", ex);
+        decorate(pd, req, ex, true);
+        log.warn("[409] {} {} - code={} message={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.getMessage());
+        return buildResponse(pd, req, HttpStatus.CONFLICT);
+    }
 
-  @ExceptionHandler(IllegalStateException.class)
-  public ResponseEntity<ProblemDetail> handleBusiness(
-      IllegalStateException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatusAndDetail(HttpStatus.valueOf(422), ex.getMessage());
-    pd.setTitle("Business rule violation");
-    decorate(pd, req, ex, true);
-    log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
-    return buildResponse(pd, req, HttpStatus.valueOf(422));
-  }
+    @ExceptionHandler(TchBusinessRuleException.class)
+    public ResponseEntity<ProblemDetail> handleTchBusinessRule(
+        TchBusinessRuleException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.UNPROCESSABLE_ENTITY, "Business rule violation", ex);
+        decorate(pd, req, ex, true);
+        log.warn("[422] {} {} - code={} message={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.getMessage());
+        return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ProblemDetail> handleBadRequest(
-      MethodArgumentNotValidException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-    pd.setTitle("Validation failed");
-    pd.setDetail(
-        ex.getBindingResult().getFieldErrors().stream()
+    @ExceptionHandler(BatchDisabledException.class)
+    public ResponseEntity<ProblemDetail> handleBatchDisabled(
+        BatchDisabledException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.LOCKED, "Batch job disabled", ex);
+        pd.setProperty("jobKey", ex.jobKey());
+
+        decorate(pd, req, ex, true);
+
+        log.warn("[423] {} {} - code={} jobKey={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.jobKey());
+
+        return buildResponse(pd, req, HttpStatus.LOCKED);
+    }
+
+    /**
+     * Fallback for other TchException subclasses not mapped explicitly.
+     *
+     * <p>Use explicit subclasses above when the HTTP status is known.
+     */
+    @ExceptionHandler(TchException.class)
+    public ResponseEntity<ProblemDetail> handleGenericTchException(
+        TchException ex,
+        HttpServletRequest req
+    ) {
+        var pd = problem(HttpStatus.UNPROCESSABLE_ENTITY, "Application error", ex);
+        decorate(pd, req, ex, true);
+
+        log.warn("[422] {} {} - code={} message={}",
+            req.getMethod(), req.getRequestURI(), ex.code(), ex.getMessage());
+
+        return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     * Temporary legacy support.
+     *
+     * <p>Prefer throwing TchNotFoundException or ProblemRestException.notFound(...).
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleJpaNotFound(
+        EntityNotFoundException ex,
+        HttpServletRequest req
+    ) {
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Resource not found");
+        decorate(pd, req, ex, true);
+
+        log.warn("[404] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+
+        return buildResponse(pd, req, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ProblemDetail> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException ex,
+        HttpServletRequest req
+    ) {
+        var detail = ex.getBindingResult().getFieldErrors().stream()
             .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
             .findFirst()
-            .orElse("Invalid request"));
-    decorate(pd, req, ex, true);
-    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), pd.getDetail());
-    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
-  }
+            .orElse("Invalid request");
 
-  @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<ProblemDetail> handleConstraintViolation(
-      ConstraintViolationException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-    pd.setTitle("Constraint violation");
-    pd.setDetail(ex.getMessage());
-    decorate(pd, req, ex, true);
-    log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
-    return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
-  }
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        pd.setTitle("Validation failed");
+        pd.setProperty("code", "validation.failed");
 
-  @ExceptionHandler(PermissionsDeniedException.class)
-  public ResponseEntity<ProblemDetail> handlePermissionsDenied(
-      PermissionsDeniedException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
-    pd.setTitle("Forbidden");
-    pd.setDetail("You are not allowed to perform this action.");
-    decorate(pd, req, ex, true);
+        decorate(pd, req, ex, true);
 
-    pd.setProperty("missingPermissions", ex.getMissingPermissions());
-    pd.setProperty("tenantId", ex.getTenantId() != null ? ex.getTenantId().toString() : null);
-    pd.setProperty("userId", ex.getUserId() != null ? ex.getUserId().toString() : null);
+        log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), detail);
 
-    log.warn(
-        "[403] {} {} - missingPermissions={} tenantId={} userId={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.getMissingPermissions(),
-        ex.getTenantId(),
-        ex.getUserId());
-
-    return buildResponse(pd, req, HttpStatus.FORBIDDEN);
-  }
-
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<ProblemDetail> handleAny(Exception ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-    pd.setTitle("Unexpected error");
-    pd.setDetail("An unexpected error occurred");
-    decorate(pd, req, ex, false);
-    log.error("[500] {} {}", req.getMethod(), req.getRequestURI(), ex);
-    return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @ExceptionHandler(BatchDisabledException.class)
-  public ResponseEntity<ProblemDetail> handleBatchDisabled(
-      BatchDisabledException ex, HttpServletRequest req) {
-    var pd = ProblemDetail.forStatus(HttpStatus.LOCKED);
-    pd.setTitle("Batch job disabled");
-    pd.setDetail(ex.getMessage());
-    decorate(pd, req, ex, true);
-
-    pd.setProperty("jobKey", ex.jobKey());
-
-    log.warn(
-        "[423] {} {} - batch disabled jobKey={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex.jobKey());
-    return buildResponse(pd, req, HttpStatus.LOCKED);
-  }
-
-  private static void decorate(
-      ProblemDetail pd, HttpServletRequest req, Throwable ex, boolean verbose) {
-    if (pd.getType() == null) {
-      pd.setType(URI.create("about:blank"));
+        return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
     }
-    pd.setProperty("timestamp", Instant.now().toString());
-    pd.setProperty("method", req.getMethod());
-    pd.setProperty("path", req.getRequestURI());
 
-    String traceId = headerOrNull(req, X_REQUEST_ID);
-    if (traceId != null) pd.setProperty("traceId", traceId);
-    pd.setProperty("errorId", UUID.randomUUID().toString());
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolation(
+        ConstraintViolationException ex,
+        HttpServletRequest req
+    ) {
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        pd.setTitle("Constraint violation");
+        pd.setProperty("code", "validation.constraint_violation");
 
-    String ver = req.getHeader(APP_ERROR_VERSION);
-    if (ver != null) pd.setProperty("version", ver);
+        decorate(pd, req, ex, true);
 
-    if (verbose) {
-      pd.setProperty("cause", ex.getClass().getSimpleName());
+        log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+
+        return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
     }
-  }
 
-  private static String headerOrNull(HttpServletRequest req, String name) {
-    var v = req.getHeader(name);
-    return (v == null || v.isBlank()) ? null : v;
-  }
+    /**
+     * Keep this only during migration.
+     *
+     * <p>IllegalStateException can be a bug, so long-term it should not be mapped blindly to 422.
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ProblemDetail> handleLegacyIllegalState(
+        IllegalStateException ex,
+        HttpServletRequest req
+    ) {
+        var pd = ProblemDetail.forStatusAndDetail(
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            ex.getMessage()
+        );
+        pd.setTitle("Business rule violation");
+        pd.setProperty("code", "business_rule.violation");
+
+        decorate(pd, req, ex, true);
+
+        log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+
+        return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ProblemDetail> handleAny(
+        Exception ex,
+        HttpServletRequest req
+    ) {
+        var pd = ProblemDetail.forStatusAndDetail(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            "An unexpected error occurred"
+        );
+        pd.setTitle("Unexpected error");
+        pd.setProperty("code", "internal.unexpected");
+
+        decorate(pd, req, ex, false);
+
+        log.error("[500] {} {}", req.getMethod(), req.getRequestURI(), ex);
+
+        return buildResponse(pd, req, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private static ProblemDetail problem(
+        HttpStatus status,
+        String title,
+        TchException ex
+    ) {
+        var pd = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+        pd.setTitle(title);
+        pd.setProperty("code", ex.code());
+        return pd;
+    }
+
+    private ResponseEntity<ProblemDetail> buildResponse(
+        ProblemDetail pd,
+        HttpServletRequest req,
+        HttpStatus status
+    ) {
+        pd.setStatus(status.value());
+
+        var headers = new HttpHeaders();
+        headers.setContentType(PROBLEM_JSON);
+
+        var traceId = headerOrNull(req, X_REQUEST_ID);
+        if (traceId != null) {
+            headers.add(X_REQUEST_ID, traceId);
+        }
+
+        return new ResponseEntity<>(pd, headers, status);
+    }
+
+    private static void decorate(
+        ProblemDetail pd,
+        HttpServletRequest req,
+        Throwable ex,
+        boolean verbose
+    ) {
+        if (pd.getType() == null) {
+            pd.setType(URI.create("about:blank"));
+        }
+
+        pd.setProperty("timestamp", Instant.now().toString());
+        pd.setProperty("method", req.getMethod());
+        pd.setProperty("path", req.getRequestURI());
+        pd.setProperty("errorId", UUID.randomUUID().toString());
+
+        var traceId = headerOrNull(req, X_REQUEST_ID);
+        if (traceId != null) {
+            pd.setProperty("traceId", traceId);
+        }
+
+        var version = req.getHeader(APP_ERROR_VERSION);
+        if (version != null && !version.isBlank()) {
+            pd.setProperty("version", version.trim());
+        }
+
+        if (verbose) {
+            pd.setProperty("cause", ex.getClass().getSimpleName());
+        }
+    }
+
+    private static void logByStatus(
+        HttpStatus status,
+        HttpServletRequest req,
+        String detail,
+        Throwable ex
+    ) {
+        if (status.is5xxServerError()) {
+            log.error("[{}] {} {} - {}",
+                status.value(), req.getMethod(), req.getRequestURI(), detail, ex);
+            return;
+        }
+
+        log.warn("[{}] {} {} - {}",
+            status.value(), req.getMethod(), req.getRequestURI(), detail);
+    }
+
+    private static String headerOrNull(HttpServletRequest req, String name) {
+        var value = req.getHeader(name);
+        return value == null || value.isBlank() ? null : value.trim();
+    }
 }

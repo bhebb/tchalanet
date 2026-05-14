@@ -1,23 +1,25 @@
 package com.tchalanet.server.common.web.advice;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-/** Servlet filter that clears the ApiResponseContext ThreadLocal at the end of each request. */
-public class ApiResponseContextFilter implements Filter {
+/** Clears ApiResponseContext ThreadLocal at the end of each HTTP request. */
+public class ApiResponseContextFilter extends OncePerRequestFilter {
 
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
-    try {
-      chain.doFilter(request, response);
-    } finally {
-      ApiResponseContext.clear();
+    @Override
+    protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain chain
+    ) throws ServletException, IOException {
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            ApiResponseContext.clear();
+        }
     }
-  }
 }

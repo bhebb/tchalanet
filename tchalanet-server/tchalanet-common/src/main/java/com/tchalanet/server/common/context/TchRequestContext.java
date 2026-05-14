@@ -1,12 +1,11 @@
 package com.tchalanet.server.common.context;
 
 import com.tchalanet.server.common.constant.CommonConstants;
-import com.tchalanet.server.common.security.ApiScope;
-import com.tchalanet.server.common.types.enums.TchRole;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.context.operational.OperationalContextHint;
+import com.tchalanet.server.common.context.tenant.TenantContextInfo;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ public record TchRequestContext(
     TenantId tenantId,
     ZoneId tenantZoneId,
     Currency tenantCurrency,
-    OperationalRequestContext operationalContext
+    OperationalContextHint operationalContext
 ) {
 
     private static final Logger log = LoggerFactory.getLogger(TchRequestContext.class);
@@ -339,26 +338,7 @@ public record TchRequestContext(
         return customRoles.contains(permission)
             || customRoles.contains(normalized);
     }
-
-    public OperationalRequestContext operationalContext() {
-        return operationalContext == null
-            ? OperationalRequestContext.empty()
-            : operationalContext;
-    }
-
-    public TerminalId terminalIdRequired() {
-        return operationalContext().terminalIdRequired();
-    }
-
-    public OutletId outletIdRequired() {
-        return operationalContext().outletIdRequired();
-    }
-
-    public SalesSessionId salesSessionIdRequired() {
-        return operationalContext().salesSessionIdRequired();
-    }
-
-    public TchRequestContext withOperationalContext(OperationalRequestContext operationalContext) {
+    public TchRequestContext withOperationalContext(OperationalContextHint operationalContext) {
         return new TchRequestContext(
             originalTenantCode,
             originalTenantUuid,
@@ -382,149 +362,5 @@ public record TchRequestContext(
             tenantCurrency,
             operationalContext
         );
-    }
-
-    public boolean canUseAdminSelectedOperationalContext() {
-        return isSuperAdmin() || isTenantAdmin();
-    }
-
-    /**
-     * Returns the operational context when it is trusted for a sensitive operation.
-     * Throws 403 when the context is missing, the source is not STRONG, or terminalId/outletId
-     * are absent. Does not validate terminal-locked / outlet-blocked / session-open.
-     */
-    public OperationalRequestContext trustedOperationalContextRequired() {
-        OperationalRequestContext op = operationalContext();
-        if (op.source() == OperationalContextSource.NONE
-            || !op.isTrustedForSensitiveOperation()
-            || op.terminalId() == null
-            || op.outletId() == null) {
-            throw ProblemRest.forbidden(
-                "operational_context.untrusted: a trusted operational context is required");
-        }
-        return op;
-    }
-
-    public com.tchalanet.server.common.context.operational.PosOperationalContext posOperationalContextRequired() {
-        OperationalRequestContext op = operationalContext();
-
-        if (op.source() == OperationalContextSource.NONE
-            || op.terminalId() == null
-            || op.outletId() == null
-            || op.salesSessionId() == null) {
-            throw ProblemRest.forbidden(
-                "operational_context.missing: POS operational context is required");
-        }
-
-        return toPosOperationalContext(op);
-    }
-
-    public com.tchalanet.server.common.context.operational.PosOperationalContext
-    trustedPosOperationalContextRequired() {
-        OperationalRequestContext op = operationalContext();
-
-        if (op.source() == OperationalContextSource.NONE
-            || !op.isTrustedForSensitiveOperation()
-            || op.terminalId() == null
-            || op.outletId() == null
-            || op.salesSessionId() == null) {
-            throw ProblemRest.forbidden(
-                "operational_context.untrusted: a trusted POS operational context is required");
-        }
-
-        return toPosOperationalContext(op);
-    }
-
-    public com.tchalanet.server.common.context.operational.SellerOperationalContext
-    sellerOperationalContextRequired() {
-        var pos = trustedPosOperationalContextRequired();
-
-        if (pos.role() != com.tchalanet.server.common.context.operational.OperationalContextRole.SELLER) {
-            throw ProblemRest.forbidden(
-                "operational_context.wrong_role: seller operational context is required");
-        }
-
-        return new com.tchalanet.server.common.context.operational.SellerOperationalContext(
-            pos.terminalId(),
-            pos.outletId(),
-            pos.salesSessionId(),
-            pos.sellerUserId(),
-            pos.source(),
-            pos.trustLevel());
-    }
-
-    public com.tchalanet.server.common.context.operational.AdminOperationalContext
-    adminOperationalContextRequired() {
-        var pos = trustedPosOperationalContextRequired();
-
-        if (pos.role() != com.tchalanet.server.common.context.operational.OperationalContextRole.ADMIN) {
-            throw ProblemRest.forbidden(
-                "operational_context.wrong_role: admin operational context is required");
-        }
-
-        return new com.tchalanet.server.common.context.operational.AdminOperationalContext(
-            pos.terminalId(),
-            pos.outletId(),
-            pos.salesSessionId(),
-            userId(),
-            pos.source(),
-            pos.trustLevel());
-    }
-
-    public com.tchalanet.server.common.context.operational.SuperAdminOperationalContext
-    superAdminOverrideRequired() {
-        if (!isSuperAdmin() || !tenantOverridden || effectiveTenantIdOrNull() == null) {
-            throw ProblemRest.forbidden(
-                "tenant_override.required: super-admin tenant override is required");
-        }
-
-        if (tenantOverrideReason == null || tenantOverrideReason.isBlank()) {
-            throw ProblemRest.forbidden(
-                "tenant_override.reason_required: override reason is required");
-        }
-
-        return new com.tchalanet.server.common.context.operational.SuperAdminOperationalContext(
-            effectiveTenantIdRequired(),
-            userId(),
-            tenantOverrideReason.trim(),
-            com.tchalanet.server.common.context.operational.OperationalContextSource.SUPER_ADMIN_OVERRIDE,
-            com.tchalanet.server.common.context.operational.TrustLevel.STRONG);
-    }
-
-    private com.tchalanet.server.common.context.operational.PosOperationalContext toPosOperationalContext(
-        OperationalRequestContext op) {
-
-        return new com.tchalanet.server.common.context.operational.PosOperationalContext(
-            op.terminalId(),
-            op.outletId(),
-            op.salesSessionId(),
-            userId(),
-            inferOperationalRole(op),
-            com.tchalanet.server.common.context.operational.OperationalContextSource.valueOf(
-                op.source().name()),
-            com.tchalanet.server.common.context.operational.TrustLevel.valueOf(
-                op.source().trustLevel().name()));
-    }
-
-    private com.tchalanet.server.common.context.operational.OperationalContextRole inferOperationalRole(
-        OperationalRequestContext op) {
-
-        if (isSuperAdmin()) {
-            return com.tchalanet.server.common.context.operational.OperationalContextRole.SUPER_ADMIN;
-        }
-
-        if (isCashier() || isOperator()) {
-            return com.tchalanet.server.common.context.operational.OperationalContextRole.SELLER;
-        }
-
-        if (isTenantAdmin() || op.source() == OperationalContextSource.ADMIN_SELECTION) {
-            return com.tchalanet.server.common.context.operational.OperationalContextRole.ADMIN;
-        }
-
-        if (systemRoles != null && systemRoles.contains(TchRole.SYSTEM)) {
-            return com.tchalanet.server.common.context.operational.OperationalContextRole.SYSTEM;
-        }
-
-        return com.tchalanet.server.common.context.operational.OperationalContextRole.NONE;
     }
 }

@@ -1,9 +1,9 @@
 package com.tchalanet.server.common.context.web;
 
-import com.tchalanet.server.common.context.AuthContextExtractor;
+import com.tchalanet.server.common.context.auth.AuthContextExtractor;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.security.ApiScope;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.security.TchRole;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.tchalanet.server.common.constant.TchHeaders.IDEMPOTENCY_KEY;
-import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILITY;
-import static com.tchalanet.server.common.constant.TchHeaders.X_FORWARDED_FOR;
-import static com.tchalanet.server.common.constant.TchHeaders.X_REQUEST_ID;
-import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_OVERRIDE_REASON;
+import static com.tchalanet.server.common.http.TchHeaders.IDEMPOTENCY_KEY;
+import static com.tchalanet.server.common.http.TchHeaders.X_DELETED_VISIBILITY;
+import static com.tchalanet.server.common.http.TchHeaders.X_FORWARDED_FOR;
+import static com.tchalanet.server.common.http.TchHeaders.X_REQUEST_ID;
+import static com.tchalanet.server.common.http.TchHeaders.X_TCH_OVERRIDE_REASON;
 
 @Component
 @RequiredArgsConstructor

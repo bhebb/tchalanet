@@ -3,7 +3,7 @@ package com.tchalanet.server.catalog.tenant.internal.mapper;
 import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
 import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryJpaEntity;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 
 import java.time.ZoneId;
 import java.util.Currency;

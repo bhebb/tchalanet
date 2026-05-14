@@ -1,7 +1,5 @@
 package com.tchalanet.server.catalog.tenant.api.model;
 
-import com.tchalanet.server.common.types.enums.TenantStatus;
-import com.tchalanet.server.common.types.enums.TenantType;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;

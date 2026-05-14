@@ -1,8 +1,8 @@
 package com.tchalanet.server.catalog.game.internal.mapper;
 
-import com.tchalanet.server.catalog.game.api.GameView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import org.mapstruct.Mapper;
 
 /**

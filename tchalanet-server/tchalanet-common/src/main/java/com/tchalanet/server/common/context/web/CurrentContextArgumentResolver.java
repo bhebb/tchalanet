@@ -11,7 +11,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
+import static com.tchalanet.server.common.context.ContextKeys.REQUEST_CONTEXT;
 
 @Component
 @RequiredArgsConstructor

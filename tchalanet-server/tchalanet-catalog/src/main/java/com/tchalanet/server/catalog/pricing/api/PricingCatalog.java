@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.pricing.api;
 
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.math.BigDecimal;
 

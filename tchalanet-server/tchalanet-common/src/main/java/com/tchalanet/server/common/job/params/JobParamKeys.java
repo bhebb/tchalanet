@@ -1,50 +1,33 @@
 package com.tchalanet.server.common.job.params;
 
+/**
+ * Technical parameter keys understood by the generic job/batch runtime.
+ *
+ * <p>Domain-specific parameters such as slot_key, provider, days_ahead,
+ * channel_code, max_draws, etc. belong to the owning core/catalog module.
+ */
 public final class JobParamKeys {
 
     private JobParamKeys() {}
 
+    /** Tenant execution context. Required for tenant-scoped jobs. */
     public static final String TENANT_ID = "tenant_id";
 
-    /** @deprecated forbidden for ops/batch. Tenant is identified by tenant_id only. */
-    @Deprecated(forRemoval = false)
-    public static final String TENANT_CODE = "tenant_code";
-
-    public static final String TENANT_ZONE_ID = "tenant_zone_id";
-    public static final String TENANT_CURRENCY = "tenant_currency";
-
+    /** Correlation/request id for logs and audit. Generated if missing. */
     public static final String REQUEST_ID = "request_id";
+
+    /** Technical actor that triggered the job: ops, scheduler, batch, system, etc. */
     public static final String ACTOR = "actor";
 
-    /** @deprecated alias for actor (legacy). Prefer actor. */
-    @Deprecated(forRemoval = false)
-    public static final String TRIGGERED_BY = "triggered_by";
-
-    public static final String OCCURRED_AT = "occurred_at";
-    public static final String FROM = "from";
-    public static final String TO = "to";
-    public static final String DATE = "date";
-
-    public static final String SLOT_KEY = "slot_key";
-    // plural form when multiple keys are passed as a param (stringified list)
-    public static final String SLOT_KEYS = "slot_keys";
-
+    /** Non-destructive execution mode. */
     public static final String DRY_RUN = "dry_run";
-    public static final String MAX_ITEMS = "max_items";
-    public static final String DAYS_AHEAD = "days_ahead";
-    // some jobs use days_back instead of days_ahead
-    public static final String DAYS_BACK = "days_back";
-    public static final String FULL_REBUILD = "full_rebuild";
 
-    // scheduler / settle specific
-    public static final String PROVIDER = "provider";
-    public static final String MAX_DRAWS = "max_draws";
+    /** Explicit operator override, must be authorized and audited by caller. */
     public static final String FORCE = "force";
-    public static final String MAX_SLOTS = "max_slots";
 
-    // common reader keys
-    public static final String SOURCE = "source";
-    public static final String CHANNEL_CODE = "channel_code";
+    /** Generic execution cap. Domain-specific caps should use domain keys. */
+    public static final String MAX_ITEMS = "max_items";
 
+    /** Spring Batch identifying timestamp parameter. */
     public static final String TS = "ts";
 }

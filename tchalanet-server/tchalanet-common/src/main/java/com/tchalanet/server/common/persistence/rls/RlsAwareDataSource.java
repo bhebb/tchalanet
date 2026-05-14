@@ -1,7 +1,7 @@
 package com.tchalanet.server.common.persistence.rls;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.security.ApiScope;
+import com.tchalanet.server.common.context.scope.ApiScope;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

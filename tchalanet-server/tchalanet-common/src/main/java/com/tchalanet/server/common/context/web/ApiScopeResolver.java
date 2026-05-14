@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.context.web;
 
-import com.tchalanet.server.common.security.ApiScope;
+import com.tchalanet.server.common.context.scope.ApiScope;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**

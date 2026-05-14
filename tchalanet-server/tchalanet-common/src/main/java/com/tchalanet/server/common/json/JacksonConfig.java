@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.json;
 
+import com.tchalanet.server.common.json.converter.TypedIdsJacksonModule;
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

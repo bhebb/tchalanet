@@ -6,7 +6,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMappe
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
 import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

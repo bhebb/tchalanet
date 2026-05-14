@@ -8,7 +8,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannel
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;

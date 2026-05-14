@@ -1,5 +1,8 @@
 package com.tchalanet.server.catalog.game.api;
 
+import com.tchalanet.server.catalog.game.api.model.GameStatsView;
+import com.tchalanet.server.catalog.game.api.model.GameSummaryView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.types.id.GameId;
 import java.util.List;
 import java.util.Optional;

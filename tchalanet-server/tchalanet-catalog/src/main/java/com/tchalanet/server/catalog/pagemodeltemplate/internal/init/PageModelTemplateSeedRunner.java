@@ -4,7 +4,7 @@ import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.write.PageModelTemplateAdminService;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;

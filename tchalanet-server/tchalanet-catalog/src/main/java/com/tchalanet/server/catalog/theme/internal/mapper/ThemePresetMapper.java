@@ -3,8 +3,8 @@ package com.tchalanet.server.catalog.theme.internal.mapper;
 
 import com.tchalanet.server.catalog.theme.api.ThemePresetView;
 import com.tchalanet.server.catalog.theme.internal.persistence.ThemePresetJpaEntity;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;

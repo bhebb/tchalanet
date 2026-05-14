@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.settings.api.model.ResolvedSettingView;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapper;
 

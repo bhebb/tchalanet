@@ -1,6 +1,5 @@
 package com.tchalanet.server.common.context.tenant;
 
-import com.tchalanet.server.common.context.TenantContextInfo;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.util.Optional;
 

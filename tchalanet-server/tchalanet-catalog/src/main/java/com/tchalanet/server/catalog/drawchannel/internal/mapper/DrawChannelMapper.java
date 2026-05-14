@@ -2,11 +2,11 @@ package com.tchalanet.server.catalog.drawchannel.internal.mapper;
 
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.CreateDrawChannelRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest;
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,7 +18,7 @@ public interface DrawChannelMapper {
 
   // Map entity -> view: fill label from name; other complex fields left null
   @Mapping(target = "label", expression = "java(e.getName())")
-  @Mapping(target = "defaultSource", expression = "java((com.tchalanet.server.common.types.enums.DrawSource) null)")
+  @Mapping(target = "defaultSource", expression = "java((com.tchalanet.server.catalog.drawchannel.api.model.DrawSource) null)")
   DrawChannelView toView(DrawChannelEntity e);
 
   default DrawChannelView toDomain(DrawChannelEntity e) {

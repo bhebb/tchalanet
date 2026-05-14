@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.context;
 
-import static com.tchalanet.server.common.constant.ContextKeys.REQUEST_CONTEXT;
+import static com.tchalanet.server.common.context.ContextKeys.REQUEST_CONTEXT;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.catalog.tenant.api.model.TenantStatsView;
-import com.tchalanet.server.common.types.enums.TenantStatus;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
 import com.tchalanet.server.catalog.tenant.internal.mapper.TenantRegistryMapper;
 import com.tchalanet.server.catalog.tenant.internal.persistence.TenantRegistryRepository;
 import com.tchalanet.server.common.types.id.TenantId;

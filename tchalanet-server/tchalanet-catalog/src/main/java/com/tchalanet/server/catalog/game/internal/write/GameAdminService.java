@@ -1,6 +1,6 @@
 package com.tchalanet.server.catalog.game.internal.write;
 
-import com.tchalanet.server.catalog.game.api.GameView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.game.internal.cache.GameCacheNames;
 import com.tchalanet.server.catalog.game.internal.mapper.GameMapper;
 import com.tchalanet.server.catalog.game.internal.persistence.GameJpaEntity;
