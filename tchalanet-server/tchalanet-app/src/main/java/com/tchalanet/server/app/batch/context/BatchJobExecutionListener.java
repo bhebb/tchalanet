@@ -1,9 +1,8 @@
 package com.tchalanet.server.app.batch.context;
 
 import com.tchalanet.server.app.batch.params.SpringBatchJobParams;
-import com.tchalanet.server.common.job.context.JobContextBindingRequest;
-import com.tchalanet.server.common.job.context.JobExecutionScope;
 import com.tchalanet.server.common.job.params.JobParamKeys;
+import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.BatchStatus;
@@ -27,12 +26,14 @@ public class BatchJobExecutionListener implements JobExecutionListener {
 
         log.info("batch.job.start jobName={} executionId={}", jobName, executionId);
         var params = SpringBatchJobParams.toStringMap(jobExecution.getJobParameters());
-
-        var scope = params.containsKey(JobParamKeys.TENANT_ID)
-            ? JobExecutionScope.TENANT
-            : JobExecutionScope.PLATFORM;
         try {
-            binder.bind(new JobContextBindingRequest(scope, params));
+            if (params.containsKey(JobParamKeys.TENANT_ID)) {
+                binder.bindTenant(
+                    TenantId.parse(params.get(JobParamKeys.TENANT_ID)),
+                    params.getOrDefault(JobParamKeys.ACTOR, "unknown"));
+            } else {
+                binder.bindPlatform(params.getOrDefault(JobParamKeys.ACTOR, "unknown"));
+            }
         } catch (Exception e) {
             try {
                 binder.clear();

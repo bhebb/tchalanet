@@ -1,25 +1,22 @@
 package com.tchalanet.server.app.batch.params;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.batch.core.job.parameters.JobParameter;
 import org.springframework.batch.core.job.parameters.JobParameters;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 public final class SpringBatchJobParams {
 
-    private SpringBatchJobParams() {
-    }
+    private SpringBatchJobParams() {}
 
     public static Map<String, String> toStringMap(JobParameters params) {
         Map<String, String> out = new HashMap<>();
 
-        for (Iterator<JobParameter<?>> it = params.parameters().iterator(); it.hasNext(); ) {
-            var entry = it.next();
-            Object value = entry.value();
+        for (JobParameter<?> parameter : params.parameters()) {
+            Object value = parameter.value();
+
             if (value != null) {
-                out.put(entry.name(), value.toString());
+                out.put(parameter.name(), value.toString());
             }
         }
 

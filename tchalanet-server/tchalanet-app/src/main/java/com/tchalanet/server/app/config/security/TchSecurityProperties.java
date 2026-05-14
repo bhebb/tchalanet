@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.security;
+package com.tchalanet.server.app.config.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

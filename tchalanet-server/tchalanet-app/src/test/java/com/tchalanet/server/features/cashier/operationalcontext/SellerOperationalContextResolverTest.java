@@ -5,11 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.OperationalContextSource;
-import com.tchalanet.server.common.context.OperationalRequestContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.security.ApiScope;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;

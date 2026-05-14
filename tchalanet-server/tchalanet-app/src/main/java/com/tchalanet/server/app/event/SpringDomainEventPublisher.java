@@ -1,12 +1,13 @@
-package com.tchalanet.server.common.event.infra.spring;
+package com.tchalanet.server.app.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.event.DomainEventPublisher;
-import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
 
 @Component
 public class SpringDomainEventPublisher implements DomainEventPublisher {

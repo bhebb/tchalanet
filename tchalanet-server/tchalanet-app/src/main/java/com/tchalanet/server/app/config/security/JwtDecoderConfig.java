@@ -1,6 +1,5 @@
 package com.tchalanet.server.app.config.security;
 
-import com.tchalanet.server.common.security.TchSecurityProperties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

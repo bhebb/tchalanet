@@ -1,4 +1,4 @@
-package com.tchalanet.server.common.event.infra.spring;
+package com.tchalanet.server.app.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
 import org.slf4j.Logger;

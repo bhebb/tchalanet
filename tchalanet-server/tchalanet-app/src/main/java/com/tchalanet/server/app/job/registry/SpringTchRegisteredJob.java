@@ -1,43 +1,24 @@
 package com.tchalanet.server.app.job.registry;
 
-import com.tchalanet.server.common.job.key.JobKey;
+import com.tchalanet.server.common.job.registry.RegisteredJob;
 import java.util.Objects;
-import java.util.Set;
 
 /**
- * Represents a registered batch job in the allowlist.
+ * Runtime registration for a Spring Batch job.
  *
- * Contains metadata about scope, required/optional params, and Spring bean name.
+ * <p>This class lives in app because it contains the Spring Batch bean name.
  */
 public record SpringTchRegisteredJob(
-    JobKey jobKey,
-    String displayName,
-    JobScope scope,
-    Set<String> requiredParams,
-    Set<String> optionalParams,
+    RegisteredJob metadata,
     String springJobBeanName
 ) {
+
     public SpringTchRegisteredJob {
-        Objects.requireNonNull(jobKey, "jobKey");
-        Objects.requireNonNull(displayName, "displayName");
-        Objects.requireNonNull(scope, "scope");
-        Objects.requireNonNull(requiredParams, "requiredParams");
-        Objects.requireNonNull(optionalParams, "optionalParams");
+        Objects.requireNonNull(metadata, "metadata");
         Objects.requireNonNull(springJobBeanName, "springJobBeanName");
-    }
 
-    /**
-     * Job scope determines whether tenant context is required.
-     */
-    public enum JobScope {
-        /**
-         * Job operates within a tenant context (requires tenant_id param).
-         */
-        TENANT,
-
-        /**
-         * Job operates globally, no tenant context (tenant_id forbidden).
-         */
-        GLOBAL
+        if (springJobBeanName.isBlank()) {
+            throw new IllegalArgumentException("springJobBeanName cannot be blank");
+        }
     }
 }

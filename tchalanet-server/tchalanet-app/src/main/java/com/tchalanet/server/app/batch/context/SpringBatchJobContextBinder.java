@@ -2,45 +2,38 @@ package com.tchalanet.server.app.batch.context;
 
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.context.tenant.TenantContextInfo;
+import com.tchalanet.server.common.context.tenant.TenantContextLookup;
 import com.tchalanet.server.common.job.context.JobContextBinder;
-import com.tchalanet.server.common.job.context.JobContextBindingRequest;
-import com.tchalanet.server.common.job.context.JobExecutionScope;
-import com.tchalanet.server.common.job.context.JobTenantBootstrapProvider;
-import com.tchalanet.server.common.job.params.JobParamKeys;
-import com.tchalanet.server.common.security.ApiScope;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
+
 import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.MDC;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class SpringBatchJobContextBinder implements JobContextBinder {
 
-    private final JobTenantBootstrapProvider tenantBootstrapProvider;
+    private final TenantContextLookup tenantContextLookup;
 
     @Override
-    public void bind(JobContextBindingRequest request) {
-        var params = request.params();
+    public void bindPlatform(String actor) {
+        bindPlatform(UUID.randomUUID().toString(), actor);
+    }
 
-        var requestId = valueOr(params.get(JobParamKeys.REQUEST_ID), UUID.randomUUID().toString());
-        var actor = valueOr(params.get(JobParamKeys.ACTOR), "batch");
-
-        if (request.scope() == JobExecutionScope.PLATFORM) {
-            bindPlatform(requestId, actor);
-            return;
-        }
-
-        var tenantId = TenantId.parse(required(params.get(JobParamKeys.TENANT_ID), JobParamKeys.TENANT_ID));
-        var info = tenantBootstrapProvider.findBootstrapById(tenantId)
+    @Override
+    public void bindTenant(TenantId tenantId, String actor) {
+        var info = tenantContextLookup.findById(tenantId)
             .orElseThrow(() -> new IllegalArgumentException("Unknown tenant_id: " + tenantId));
 
-        bindTenant(info, requestId, actor);
+        bindTenant(info, UUID.randomUUID().toString(), actor);
     }
 
     @Override
@@ -84,16 +77,16 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
     }
 
     private void bindTenant(
-        com.tchalanet.server.common.job.context.JobTenantBootstrap info,
+        TenantContextInfo info,
         String requestId,
         String actor
     ) {
-        var zone = info.timezone() == null ? ZoneId.of("UTC") : info.timezone();
+        var zone = info.tenantZoneId() == null ? ZoneId.of("UTC") : info.tenantZoneId();
 
         var ctx = new TchRequestContext(
-            info.code(),
+            info.tenantCode(),
             info.tenantId().value(),
-            info.code(),
+            info.tenantCode(),
             info.tenantId().value(),
             actor,
             null,
@@ -115,7 +108,7 @@ public class SpringBatchJobContextBinder implements JobContextBinder {
         );
 
         TchContext.set(ctx);
-        MDC.put("tenant_code", info.code());
+        MDC.put("tenant_code", info.tenantCode());
         MDC.put("tenant_uuid", info.tenantId().value().toString());
         MDC.put("tz", zone.getId());
         MDC.put("ccy", info.currency() == null ? "" : info.currency().getCurrencyCode());
