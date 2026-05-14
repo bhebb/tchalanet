@@ -1,20 +1,19 @@
 package com.tchalanet.server.platform.audit.internal.web;
 
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditEventView;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
+import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.platform.audit.api.model.ListAuditEventsQuery;
-import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsCommand;
+import com.tchalanet.server.platform.audit.api.model.request.ListAuditEventsRequest;
+import com.tchalanet.server.platform.audit.api.model.request.PurgeOldAuditEventsRequest;
 import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsResult;
-import com.tchalanet.server.platform.audit.internal.service.AuditEvent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
@@ -35,8 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Platform • Audit")
 public class AuditEventRestController {
 
-  private final QueryBus queryBus;
-  private final CommandBus commandBus;
+  private final AuditApi auditApi;
 
   @Operation(summary = "Fetch audit logs")
   @GetMapping({"", "/logs"})
@@ -53,7 +51,7 @@ public class AuditEventRestController {
           defaultSort = {"occurredAt,DESC"})
           TchPageRequest pageReq) {
 
-    var page = queryBus.ask(new ListAuditEventsQuery(
+    var page = auditApi.listAuditEvents(new ListAuditEventsRequest(
         TenantId.nullableOf(tenantId),
         entityType,
         entityId,
@@ -74,10 +72,10 @@ public class AuditEventRestController {
       idExpression = "'audit_event'",
       detailsExpression = "#result")
   public ApiResponse<PurgeOldAuditEventsResult> purgeExpiredAuditLogs() {
-    return ApiResponse.success(commandBus.execute(new PurgeOldAuditEventsCommand()));
+    return ApiResponse.success(auditApi.purgeOldAuditEvents(new PurgeOldAuditEventsRequest()));
   }
 
-  private AuditEventResponse toResponse(AuditEvent event) {
+  private AuditEventResponse toResponse(AuditEventView event) {
     return new AuditEventResponse(
         event.id(),
         event.tenantId() == null ? null : event.tenantId().value(),

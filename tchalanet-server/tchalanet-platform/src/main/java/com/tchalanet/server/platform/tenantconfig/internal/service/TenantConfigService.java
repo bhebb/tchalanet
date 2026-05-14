@@ -9,17 +9,17 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.address.api.model.AddressView;
-import com.tchalanet.server.platform.address.internal.service.AddressCrudService;
-import com.tchalanet.server.platform.tenantconfig.api.model.ActivateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.ArchiveTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.CreateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByCodeQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
-import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ActivateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ArchiveTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.CreateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByCodeRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ListTenantsRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.SuspendTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.UpdateTenantIdentityRequest;
 import com.tchalanet.server.platform.tenantconfig.internal.adapter.TenantPersistenceAdapter;
 import java.time.Clock;
 import java.time.Instant;
@@ -38,20 +38,20 @@ public class TenantConfigService {
 
   private final TenantCatalog tenantCatalog;
   private final ThemeCatalog themeCatalog;
-  private final AddressCrudService addressCrudService;
+  private final AddressApi addressApi;
   private final TenantPersistenceAdapter tenants;
   private final DomainEventPublisher publisher;
   private final Clock clock;
   private final IdGenerator idGenerator;
 
   @Transactional
-  public void createTenant(CreateTenantCommand request) {
+  public void createTenant(CreateTenantRequest request) {
     var now = Instant.now(clock);
     var tenantId = com.tchalanet.server.common.types.id.TenantId.of(idGenerator.newUuid());
     var addressId =
         request.address() == null
             ? null
-            : addressCrudService.upsertTenantPrimary(tenantId, request.address());
+            : addressApi.upsertTenantPrimary(tenantId, request.address());
     var tenant =
         TenantConfig.createDraft(
             tenantId,
@@ -69,14 +69,14 @@ public class TenantConfigService {
     publishStatus(now, saved.id(), Boolean.TRUE.equals(request.activate()) ? TenantStatus.DRAFT : null, saved.status(), Boolean.TRUE.equals(request.activate()) ? "activated_on_create" : "tenant_created");
   }
 
-  public TenantConfigView getTenantById(GetTenantByIdQuery request) {
+  public TenantConfigView getTenantById(GetTenantByIdRequest request) {
     return toView(
         tenantCatalog
             .findRegistryById(request.tenantId())
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + request.tenantId())));
   }
 
-  public TenantConfigView getTenantByCode(GetTenantByCodeQuery request) {
+  public TenantConfigView getTenantByCode(GetTenantByCodeRequest request) {
     var code = request.code().trim().toLowerCase();
     return toView(
         tenantCatalog
@@ -84,12 +84,13 @@ public class TenantConfigService {
             .orElseThrow(() -> new IllegalArgumentException("Tenant not found with code: " + code)));
   }
 
-  public TchPage<TenantConfigView> listTenants(ListTenantsQuery request) {
+  public TchPage<TenantConfigView> listTenants(ListTenantsRequest request) {
+    // listTenants now returns TchPage; use TchPageMapper.map(TchPage, mapper)
     return TchPageMapper.map(tenantCatalog.listTenants(request.pageable()), registry -> toView(registry, false));
   }
 
   @Transactional
-  public void activateTenant(ActivateTenantCommand request) {
+  public void activateTenant(ActivateTenantRequest request) {
     var tenant = load(request.tenantId());
     var previous = tenant.status();
     var now = Instant.now(clock);
@@ -100,7 +101,7 @@ public class TenantConfigService {
   }
 
   @Transactional
-  public void suspendTenant(SuspendTenantCommand request) {
+  public void suspendTenant(SuspendTenantRequest request) {
     var tenant = load(request.tenantId());
     var previous = tenant.status();
     var now = Instant.now(clock);
@@ -111,7 +112,7 @@ public class TenantConfigService {
   }
 
   @Transactional
-  public void archiveTenant(ArchiveTenantCommand request) {
+  public void archiveTenant(ArchiveTenantRequest request) {
     var tenant = load(request.tenantId());
     var previous = tenant.status();
     var now = Instant.now(clock);
@@ -122,7 +123,7 @@ public class TenantConfigService {
   }
 
   @Transactional
-  public void updateTenantIdentity(UpdateTenantIdentityCommand request) {
+  public void updateTenantIdentity(UpdateTenantIdentityRequest request) {
     var registry =
         tenantCatalog
             .findRegistryById(request.tenantId())
@@ -165,7 +166,7 @@ public class TenantConfigService {
       com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView registry, boolean includeDetails) {
     AddressView address = null;
     if (includeDetails && registry.addressId().isPresent()) {
-      address = addressCrudService.get(registry.tenantId(), registry.addressId().get()).orElse(null);
+      address = addressApi.get(registry.tenantId(), registry.addressId().get()).orElse(null);
     }
     var themeCode =
         includeDetails && registry.activeThemeId().isPresent()

@@ -5,16 +5,16 @@ import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.json.utils.JsonUtils;
-import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommand;
-import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommandResult;
-import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameCommand;
-import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameCommandResult;
-import com.tchalanet.server.platform.tenantgame.api.model.EnsureTenantGamesCommand;
-import com.tchalanet.server.platform.tenantgame.api.model.ResolveTenantGamesQuery;
+import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
+import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
+import com.tchalanet.server.platform.tenantgame.api.model.request.EnsureTenantGamesRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.ResolveTenantGamesRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantGameDisabledEvent;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantGameEnabledEvent;
 import com.tchalanet.server.platform.tenantgame.api.model.TenantGamePolicyUpdatedEvent;
-import com.tchalanet.server.platform.tenantgame.api.model.UpdateTenantGamePolicyCommand;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGamePolicyRequest;
 import com.tchalanet.server.platform.tenantgame.internal.persistence.TenantGamePersistenceAdapter;
 import java.time.Instant;
 import java.util.List;
@@ -34,7 +34,7 @@ public class TenantGameService {
   private final JsonUtils jsonUtils;
 
   @TchTx
-  public EnableTenantGameCommandResult enableTenantGame(EnableTenantGameCommand request) {
+  public EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request) {
     var gameView =
         gameCatalog
             .findByCode(request.getGameCode())
@@ -57,12 +57,12 @@ public class TenantGameService {
                 new TenantGameEnabledEvent(
                     saved.tenantGameId(), saved.tenantId(), saved.code(), Instant.now(), "system")));
 
-    return new EnableTenantGameCommandResult(
+    return new EnableTenantGameResult(
         saved.tenantGameId(), saved.gameId(), saved.code(), saved.enabled());
   }
 
   @Transactional
-  public DisableTenantGameCommandResult disableTenantGame(DisableTenantGameCommand request) {
+  public DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request) {
     var existing =
         persistenceAdapter
             .findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode())
@@ -76,11 +76,11 @@ public class TenantGameService {
                 new TenantGameDisabledEvent(
                     saved.tenantGameId(), saved.tenantId(), saved.code(), Instant.now(), "system")));
 
-    return new DisableTenantGameCommandResult(saved.tenantGameId());
+    return new DisableTenantGameResult(saved.tenantGameId());
   }
 
   @Transactional
-  public void ensureTenantGame(EnsureTenantGamesCommand request) {
+  public void ensureTenantGame(EnsureTenantGamesRequest request) {
     var game =
         gameCatalog
             .findByCode(request.getGameCode())
@@ -110,12 +110,12 @@ public class TenantGameService {
   }
 
   @Transactional(readOnly = true)
-  public List<TenantGame> resolveTenantGames(ResolveTenantGamesQuery request) {
+  public List<TenantGame> resolveTenantGames(ResolveTenantGamesRequest request) {
     return persistenceAdapter.findAllByTenantId(request.getTenantId());
   }
 
   @Transactional
-  public void updateTenantGamePolicy(UpdateTenantGamePolicyCommand request) {
+  public void updateTenantGamePolicy(UpdateTenantGamePolicyRequest request) {
     var existing =
         persistenceAdapter
             .findByTenantIdAndGameCode(request.getTenantId(), request.getGameCode())
@@ -169,7 +169,7 @@ public class TenantGameService {
         current.flags());
   }
 
-  private TenantGame createTenantGame(EnableTenantGameCommand request, GameView gameView) {
+  private TenantGame createTenantGame(EnableTenantGameRequest request, GameView gameView) {
     return new TenantGame(
         null,
         request.getTenantId(),

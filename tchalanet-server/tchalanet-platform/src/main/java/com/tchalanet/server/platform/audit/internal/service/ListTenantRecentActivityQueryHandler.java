@@ -2,7 +2,7 @@ package com.tchalanet.server.platform.audit.internal.service;
 
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.platform.audit.api.model.ActivityItemDto;
-import com.tchalanet.server.platform.audit.api.model.AuditEventQuery;
+import com.tchalanet.server.platform.audit.api.model.request.AuditEventRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class ListTenantRecentActivityQueryHandler {
   private final AuditEventReaderPort reader;
 
   @Transactional(readOnly = true)
-  public List<ActivityItemDto> handle(AuditEventQuery query) {
+  public List<ActivityItemDto> handle(AuditEventRequest query) {
     List<AuditEvent> events = reader.findRecentForTenant(query.tenant(), query.limit());
 
     return events.stream()

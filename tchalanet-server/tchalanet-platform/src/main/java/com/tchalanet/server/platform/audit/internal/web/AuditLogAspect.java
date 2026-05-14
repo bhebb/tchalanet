@@ -1,13 +1,13 @@
 package com.tchalanet.server.platform.audit.internal.web;
 
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
+import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventRequest;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,20 +29,20 @@ import tools.jackson.core.type.TypeReference;
 @Slf4j
 public class AuditLogAspect {
 
-    private final CommandBus commandBus;
+    private final AuditApi auditApi;
     private final JsonUtils jsonUtils;
     private final TchContextResolver contextResolver;
 
     private final ExpressionParser parser = new SpelExpressionParser();
 
-    public AuditLogAspect(CommandBus commandBus, JsonUtils jsonUtils) {
-        this(commandBus, jsonUtils, null);
+    public AuditLogAspect(AuditApi auditApi, JsonUtils jsonUtils) {
+        this(auditApi, jsonUtils, null);
     }
 
     @Autowired
     public AuditLogAspect(
-        CommandBus commandBus, JsonUtils jsonUtils, TchContextResolver contextResolver) {
-        this.commandBus = commandBus;
+        AuditApi auditApi, JsonUtils jsonUtils, TchContextResolver contextResolver) {
+        this.auditApi = auditApi;
         this.jsonUtils = jsonUtils;
         this.contextResolver = contextResolver;
     }
@@ -77,16 +77,16 @@ public class AuditLogAspect {
         }
     }
 
-    private void safeSend(LogAuditEventCommand cmd) {
+    private void safeSend(LogAuditEventRequest cmd) {
         try {
-            commandBus.execute(cmd);
+            auditApi.logAuditEvent(cmd);
         } catch (Exception e) {
             // never fail the main operation
             log.warn("Audit command send failed", e);
         }
     }
 
-    private LogAuditEventCommand buildCommandOrNull(
+    private LogAuditEventRequest buildCommandOrNull(
         ProceedingJoinPoint pjp, Object result, Throwable error) {
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
@@ -102,7 +102,7 @@ public class AuditLogAspect {
         String entityId = resolveEntityId(annotation, ctx);
         Map<String, Object> details = resolveDetails(annotation, ctx, error);
 
-        return new LogAuditEventCommand(entityType, entityId, action, details);
+        return new LogAuditEventRequest(entityType, entityId, action, details);
     }
 
     private StandardEvaluationContext buildEvaluationContext(

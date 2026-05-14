@@ -1,12 +1,12 @@
 package com.tchalanet.server.platform.tenantgame.internal.service;
 
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
-import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommand;
-import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommandResult;
-import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameCommand;
-import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameCommandResult;
-import com.tchalanet.server.platform.tenantgame.api.model.ResolveTenantGamesQuery;
-import com.tchalanet.server.platform.tenantgame.api.model.UpdateTenantGamePolicyCommand;
+import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
+import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
+import com.tchalanet.server.platform.tenantgame.api.model.request.ResolveTenantGamesRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGamePolicyRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,22 +18,22 @@ public class DefaultTenantGameApi implements TenantGameApi {
   private final TenantGameService service;
 
   @Override
-  public EnableTenantGameCommandResult enableTenantGame(EnableTenantGameCommand request) {
+  public EnableTenantGameResult enableTenantGame(EnableTenantGameRequest request) {
     return service.enableTenantGame(request);
   }
 
   @Override
-  public DisableTenantGameCommandResult disableTenantGame(DisableTenantGameCommand request) {
+  public DisableTenantGameResult disableTenantGame(DisableTenantGameRequest request) {
     return service.disableTenantGame(request);
   }
 
   @Override
-  public List<Object> resolveTenantGames(ResolveTenantGamesQuery request) {
+  public List<Object> resolveTenantGames(ResolveTenantGamesRequest request) {
     return List.copyOf(service.resolveTenantGames(request));
   }
 
   @Override
-  public void updateTenantGamePolicy(UpdateTenantGamePolicyCommand request) {
+  public void updateTenantGamePolicy(UpdateTenantGamePolicyRequest request) {
     service.updateTenantGamePolicy(request);
   }
 }

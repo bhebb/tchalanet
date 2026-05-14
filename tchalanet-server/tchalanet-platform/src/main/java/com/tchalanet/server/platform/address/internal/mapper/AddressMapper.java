@@ -1,11 +1,23 @@
 package com.tchalanet.server.platform.address.internal.mapper;
 
+import com.tchalanet.server.platform.address.api.model.AddressView;
 import com.tchalanet.server.platform.address.internal.persistence.AddressJpaEntity;
 import com.tchalanet.server.platform.address.internal.service.Address;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AddressMapper {
+
+  public AddressView toView(Address address) {
+    return new AddressView(
+        address.id(),
+        address.line1(),
+        address.line2(),
+        address.city(),
+        address.region(),
+        address.country(),
+        address.postalCode());
+  }
 
   public Address toDomain(AddressJpaEntity entity) {
     return new Address(

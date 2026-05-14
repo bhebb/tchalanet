@@ -3,17 +3,17 @@ package com.tchalanet.server.platform.audit.internal.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.platform.audit.api.AuditApi;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
+import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventRequest;
 import java.lang.reflect.Method;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -27,29 +27,31 @@ class AuditLogAspectTest {
 
   @Test
   void successAuditFailureDoesNotBreakBusinessResult() throws Throwable {
-    var commandBus = mock(CommandBus.class);
-    when(commandBus.execute(any(Command.class))).thenThrow(new IllegalStateException("audit down"));
-    var aspect = new AuditLogAspect(commandBus, jsonUtils);
+    var auditApi = mock(AuditApi.class);
+    doThrow(new IllegalStateException("audit down"))
+        .when(auditApi)
+        .logAuditEvent(any(LogAuditEventRequest.class));
+    var aspect = new AuditLogAspect(auditApi, jsonUtils);
     var pjp = joinPoint("ok", null);
 
     var result = aspect.aroundAudit(pjp);
 
     assertThat(result).isEqualTo("ok");
-    verify(commandBus).execute(any(LogAuditEventCommand.class));
+    verify(auditApi).logAuditEvent(any(LogAuditEventRequest.class));
   }
 
   @Test
   void failureAuditIsRecordedAndOriginalFailureIsRethrown() throws Throwable {
-    var commandBus = mock(CommandBus.class);
-    var aspect = new AuditLogAspect(commandBus, jsonUtils);
+    var auditApi = mock(AuditApi.class);
+    var aspect = new AuditLogAspect(auditApi, jsonUtils);
     var failure = new IllegalArgumentException("bad write");
     var pjp = joinPoint(null, failure);
 
     assertThatThrownBy(() -> aspect.aroundAudit(pjp))
         .isSameAs(failure);
 
-    var captor = ArgumentCaptor.forClass(LogAuditEventCommand.class);
-    verify(commandBus).execute(captor.capture());
+    var captor = ArgumentCaptor.forClass(LogAuditEventRequest.class);
+    verify(auditApi).logAuditEvent(captor.capture());
     assertThat(captor.getValue().details())
         .containsEntry("outcome", "FAIL")
         .containsEntry("error", "IllegalArgumentException")

@@ -8,12 +8,12 @@ import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.catalog.tenant.api.model.TenantStatsView;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.Test;
 
@@ -76,8 +76,8 @@ class TenantConfigContextLookupTest {
         }
 
         @Override
-        public Page<TenantRegistryView> listTenants(Pageable pageable) {
-            return Page.empty(pageable);
+        public TchPage<TenantRegistryView> listTenants(Pageable pageable) {
+            return TchPage.of(List.of(), 0, pageable.getPageSize(), 0, 0, true, false, false);
         }
 
         @Override

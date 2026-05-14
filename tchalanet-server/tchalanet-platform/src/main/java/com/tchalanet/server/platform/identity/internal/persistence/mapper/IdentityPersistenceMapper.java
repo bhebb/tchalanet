@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.UserPreferenceJpaEntity;
@@ -17,6 +18,19 @@ import com.tchalanet.server.platform.identity.internal.service.UserPreference;
 public final class IdentityPersistenceMapper {
 
   private IdentityPersistenceMapper() {}
+
+  public static AppUserView toUserView(AppUserJpaEntity e) {
+    return new AppUserView(
+        UserId.of(e.getId()),
+        KeycloakUserSub.of(e.getKeycloakSub()),
+        e.getUsername(),
+        e.getEmail(),
+        e.getPhone(),
+        e.getFirstName(),
+        e.getLastName(),
+        e.getDisplayName(),
+        e.getStatus());
+  }
 
   public static AppUser toUser(AppUserJpaEntity e) {
     return new AppUser(

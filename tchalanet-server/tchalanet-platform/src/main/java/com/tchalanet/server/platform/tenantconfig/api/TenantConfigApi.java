@@ -2,22 +2,22 @@ package com.tchalanet.server.platform.tenantconfig.api;
 
 import java.util.List;
 
-import com.tchalanet.server.platform.tenantconfig.api.model.ActivateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.CreateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByCodeQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
-import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ActivateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.CreateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByCodeRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ListTenantsRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.SuspendTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.UpdateTenantIdentityRequest;
 
 public interface TenantConfigApi {
 
-    void createTenant(CreateTenantCommand request);
-    TenantConfigView getTenantById(GetTenantByIdQuery request);
-    TenantConfigView getTenantByCode(GetTenantByCodeQuery request);
-    List<TenantConfigView> listTenants(ListTenantsQuery request);
-    void updateTenantIdentity(UpdateTenantIdentityCommand request);
-    void activateTenant(ActivateTenantCommand request);
-    void suspendTenant(SuspendTenantCommand request);
+    void createTenant(CreateTenantRequest request);
+    TenantConfigView getTenantById(GetTenantByIdRequest request);
+    TenantConfigView getTenantByCode(GetTenantByCodeRequest request);
+    List<TenantConfigView> listTenants(ListTenantsRequest request);
+    void updateTenantIdentity(UpdateTenantIdentityRequest request);
+    void activateTenant(ActivateTenantRequest request);
+    void suspendTenant(SuspendTenantRequest request);
 }

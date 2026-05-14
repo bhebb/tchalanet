@@ -1,14 +1,14 @@
 package com.tchalanet.server.platform.tenantconfig.internal.service;
 
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
-import com.tchalanet.server.platform.tenantconfig.api.model.ActivateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.CreateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByCodeQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
-import com.tchalanet.server.platform.tenantconfig.api.model.UpdateTenantIdentityCommand;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ActivateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.CreateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByCodeRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ListTenantsRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.SuspendTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.UpdateTenantIdentityRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,37 +20,37 @@ public class DefaultTenantConfigApi implements TenantConfigApi {
   private final TenantConfigService service;
 
   @Override
-  public void createTenant(CreateTenantCommand request) {
+  public void createTenant(CreateTenantRequest request) {
     service.createTenant(request);
   }
 
   @Override
-  public TenantConfigView getTenantById(GetTenantByIdQuery request) {
+  public TenantConfigView getTenantById(GetTenantByIdRequest request) {
     return service.getTenantById(request);
   }
 
   @Override
-  public TenantConfigView getTenantByCode(GetTenantByCodeQuery request) {
+  public TenantConfigView getTenantByCode(GetTenantByCodeRequest request) {
     return service.getTenantByCode(request);
   }
 
   @Override
-  public List<TenantConfigView> listTenants(ListTenantsQuery request) {
+  public List<TenantConfigView> listTenants(ListTenantsRequest request) {
     return service.listTenants(request).items();
   }
 
   @Override
-  public void updateTenantIdentity(UpdateTenantIdentityCommand request) {
+  public void updateTenantIdentity(UpdateTenantIdentityRequest request) {
     service.updateTenantIdentity(request);
   }
 
   @Override
-  public void activateTenant(ActivateTenantCommand request) {
+  public void activateTenant(ActivateTenantRequest request) {
     service.activateTenant(request);
   }
 
   @Override
-  public void suspendTenant(SuspendTenantCommand request) {
+  public void suspendTenant(SuspendTenantRequest request) {
     service.suspendTenant(request);
   }
 }

@@ -7,6 +7,7 @@ import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.address.api.model.AddressInput;
 import com.tchalanet.server.platform.address.api.model.AddressView;
 import com.tchalanet.server.platform.address.internal.adapter.AddressPersistenceAdapter;
+import com.tchalanet.server.platform.address.internal.mapper.AddressMapper;
 import com.tchalanet.server.platform.address.internal.service.Address;
 import java.time.Clock;
 import java.time.Instant;
@@ -29,6 +30,8 @@ public class AddressCrudService implements AddressApi {
   private final Clock clock;
 
   private final AddressPersistenceAdapter persistenceAdapter;
+
+  private final AddressMapper addressMapper;
 
   /**
    * Generic upsert with dedup by (tenant_id, normalized_key) for ACTIVE rows.
@@ -149,7 +152,7 @@ public class AddressCrudService implements AddressApi {
     Objects.requireNonNull(tenantId, "tenantId");
     Objects.requireNonNull(id, "id");
 
-    return persistenceAdapter.findById(tenantId, id).map(AddressView::fromDomain);
+    return persistenceAdapter.findById(tenantId, id).map(addressMapper::toView);
   }
 
   /**

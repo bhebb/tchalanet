@@ -3,9 +3,9 @@ package com.tchalanet.server.platform.tenanttheme.internal.web;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeCommand;
-import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeCommand;
-import com.tchalanet.server.platform.tenanttheme.api.model.ResolveTenantThemeQuery;
+import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeRequest;
+import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeRequest;
+import com.tchalanet.server.platform.tenanttheme.api.model.ResolveTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeView;
 import com.tchalanet.server.platform.tenanttheme.internal.service.TenantThemeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +35,7 @@ public class TenantThemeController {
   @PreAuthorize("hasAuthority('TENANT_READ')")
   public ResponseEntity<TenantThemeView> getTenantTheme(@CurrentContext TchRequestContext context) {
     TenantId tenantId = context.tenantId();
-    var theme = tenantThemeService.resolveTenantTheme(new ResolveTenantThemeQuery(tenantId));
+    var theme = tenantThemeService.resolveTenantTheme(new ResolveTenantThemeRequest(tenantId));
     return theme != null ? ResponseEntity.ok(theme) : ResponseEntity.noContent().build();
   }
 
@@ -45,7 +45,7 @@ public class TenantThemeController {
   public ResponseEntity<Void> applyTheme(
       @CurrentContext TchRequestContext context, @RequestBody ApplyThemeRequest request) {
     TenantId tenantId = context.tenantId();
-    tenantThemeService.applyTenantTheme(new ApplyTenantThemeCommand(tenantId, request.presetCode()));
+    tenantThemeService.applyTenantTheme(new ApplyTenantThemeRequest(tenantId, request.presetCode()));
     return ResponseEntity.noContent().build();
   }
 
@@ -54,7 +54,7 @@ public class TenantThemeController {
   @PreAuthorize("hasAuthority('TENANT_ADMIN')")
   public ResponseEntity<Void> deactivateTheme(@CurrentContext TchRequestContext context) {
     TenantId tenantId = context.tenantId();
-    tenantThemeService.deactivateTenantTheme(new DeactivateTenantThemeCommand(tenantId));
+    tenantThemeService.deactivateTenantTheme(new DeactivateTenantThemeRequest(tenantId));
     return ResponseEntity.noContent().build();
   }
 

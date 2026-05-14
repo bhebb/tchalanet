@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
-import com.tchalanet.server.platform.audit.api.model.PurgeOldAuditEventsCommand;
+import com.tchalanet.server.platform.audit.api.model.request.PurgeOldAuditEventsRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +14,6 @@ public class PurgeOldAuditEventsTasklet {
 
   // Temporary: simple method to trigger purge without depending on Spring Batch types.
   public void executePurge() throws Exception {
-    useCase.handle(new PurgeOldAuditEventsCommand());
+    useCase.handle(new PurgeOldAuditEventsRequest());
   }
 }

@@ -5,14 +5,14 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.platform.tenantconfig.api.model.ActivateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.ArchiveTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.CreateTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByCodeQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.GetTenantByIdQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.ListTenantsQuery;
-import com.tchalanet.server.platform.tenantconfig.api.model.SuspendTenantCommand;
-import com.tchalanet.server.platform.tenantconfig.api.model.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ActivateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ArchiveTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.CreateTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByCodeRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.ListTenantsRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.SuspendTenantRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenantconfig.internal.service.TenantConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,41 +43,41 @@ public class TenantAdminController {
   public ApiResponse<TchPage<TenantConfigView>> list(
       @TchPaging(allowedSort = {"createdAt", "code", "name", "status"}, defaultSort = {"createdAt,desc"})
           TchPageRequest pageReq) {
-    return ApiResponse.success(tenants.listTenants(new ListTenantsQuery(pageReq.pageable())));
+    return ApiResponse.success(tenants.listTenants(new ListTenantsRequest(pageReq.pageable())));
   }
 
   @GetMapping("/{id}")
   public ApiResponse<TenantConfigView> get(@PathVariable TenantId id) {
-    return ApiResponse.success(tenants.getTenantById(new GetTenantByIdQuery(id)));
+    return ApiResponse.success(tenants.getTenantById(new GetTenantByIdRequest(id)));
   }
 
   @GetMapping("/by-code")
   public ApiResponse<TenantConfigView> getByCode(@RequestParam("code") String code) {
-    return ApiResponse.success(tenants.getTenantByCode(new GetTenantByCodeQuery(code)));
+    return ApiResponse.success(tenants.getTenantByCode(new GetTenantByCodeRequest(code)));
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(@Valid @RequestBody CreateTenantCommand request) {
+  public void create(@Valid @RequestBody CreateTenantRequest request) {
     tenants.createTenant(request);
   }
 
   @PostMapping("/{id}/activate")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void activate(@PathVariable TenantId id) {
-    tenants.activateTenant(new ActivateTenantCommand(id));
+    tenants.activateTenant(new ActivateTenantRequest(id));
   }
 
   @PostMapping("/{id}/suspend")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void suspend(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
-    tenants.suspendTenant(new SuspendTenantCommand(id, body == null ? null : body.reason()));
+    tenants.suspendTenant(new SuspendTenantRequest(id, body == null ? null : body.reason()));
   }
 
   @PostMapping("/{id}/archive")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void archive(@PathVariable TenantId id, @RequestBody(required = false) ReasonRequest body) {
-    tenants.archiveTenant(new ArchiveTenantCommand(id, body == null ? null : body.reason()));
+    tenants.archiveTenant(new ArchiveTenantRequest(id, body == null ? null : body.reason()));
   }
 
   public record ReasonRequest(String reason) {}

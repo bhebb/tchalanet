@@ -1,8 +1,7 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
-import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
+import com.tchalanet.server.platform.audit.api.model.request.LogAuditEventRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,14 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 @UseCase
 @RequiredArgsConstructor
 @Slf4j
-public class AuditLoggingCommandHandler implements VoidCommandHandler<LogAuditEventCommand> {
+public class AuditLoggingCommandHandler {
 
   private final AuditEventWriterPort writer;
   private final AuditEventFactory factory;
 
-  @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void handle(LogAuditEventCommand command) {
+  public void handle(LogAuditEventRequest command) {
     if (command == null) {
       return;
     }

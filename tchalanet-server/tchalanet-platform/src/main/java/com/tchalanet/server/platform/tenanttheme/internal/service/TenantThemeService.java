@@ -4,9 +4,9 @@ import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeCommand;
-import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeCommand;
-import com.tchalanet.server.platform.tenanttheme.api.model.ResolveTenantThemeQuery;
+import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeRequest;
+import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeRequest;
+import com.tchalanet.server.platform.tenanttheme.api.model.ResolveTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeNotice;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeUpdatedEvent;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeView;
@@ -38,7 +38,7 @@ public class TenantThemeService {
   private final Clock clock;
 
   @TchTx
-  public void applyTenantTheme(ApplyTenantThemeCommand request) {
+  public void applyTenantTheme(ApplyTenantThemeRequest request) {
     var preset =
         themeCatalog
             .findByCode(request.presetCode())
@@ -79,7 +79,7 @@ public class TenantThemeService {
   }
 
   @TchTx
-  public void deactivateTenantTheme(DeactivateTenantThemeCommand request) {
+  public void deactivateTenantTheme(DeactivateTenantThemeRequest request) {
     var existing = persistenceAdapter.findByTenantId(request.tenantId());
     if (existing.isEmpty()) {
       return;
@@ -96,7 +96,7 @@ public class TenantThemeService {
   }
 
   @Transactional(readOnly = true)
-  public TenantThemeView resolveTenantTheme(ResolveTenantThemeQuery request) {
+  public TenantThemeView resolveTenantTheme(ResolveTenantThemeRequest request) {
     var tenantTheme = persistenceAdapter.findByTenantId(request.tenantId());
     if (tenantTheme.isEmpty()) {
       return applyFallback(request.tenantId(), null);
