@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.api.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.money.CurrencyCode;
+import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedLineEvent;
 import com.tchalanet.server.core.sales.internal.domain.model.SaleOrigin;
 import com.tchalanet.server.core.sales.internal.domain.model.SalesSessionPostingMode;

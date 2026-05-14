@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.money.CurrencyCode;
+import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.SellTicketResult;
 import com.tchalanet.server.core.sales.api.command.SoldTicketView;

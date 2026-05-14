@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.money.CurrencyCode;
+import com.tchalanet.server.common.types.money.CurrencyCode;
 
 public record TicketPlacedEvent(
     EventId eventId,

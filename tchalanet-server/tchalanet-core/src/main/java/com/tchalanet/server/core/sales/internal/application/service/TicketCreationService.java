@@ -6,7 +6,7 @@ import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.model.TicketSyncStatus;
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.core.money.CurrencyCode;
+import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.core.sales.internal.domain.model.OfflineSaleRef;
 import com.tchalanet.server.core.sales.internal.domain.model.SalesSessionPostingMode;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;

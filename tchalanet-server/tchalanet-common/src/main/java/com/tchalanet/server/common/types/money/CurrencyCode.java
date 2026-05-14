@@ -1,9 +1,9 @@
-package com.tchalanet.server.core.money;
+package com.tchalanet.server.common.types.money;
 
 import java.util.Currency;
 import java.util.Locale;
 
-/** ISO 4217 currency code used by core money-bearing domains. */
+/** ISO 4217 currency code used by money-bearing modules. */
 public record CurrencyCode(String value) {
 
   public CurrencyCode {
