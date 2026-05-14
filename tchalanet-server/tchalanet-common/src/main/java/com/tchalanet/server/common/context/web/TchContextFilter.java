@@ -4,10 +4,6 @@ import static com.tchalanet.server.common.constant.TchHeaders.X_DELETED_VISIBILI
 import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_OVERRIDE_REASON;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TCH_TENANT_OVERRIDE;
 import static com.tchalanet.server.common.constant.TchHeaders.X_TENANT_ID;
-import static com.tchalanet.server.common.web.http.TchHeaders.X_DELETED_VISIBILITY;
-import static com.tchalanet.server.common.web.http.TchHeaders.X_TCH_OVERRIDE_REASON;
-import static com.tchalanet.server.common.web.http.TchHeaders.X_TCH_TENANT_OVERRIDE;
-import static com.tchalanet.server.common.web.http.TchHeaders.X_TENANT_ID;
 
 import com.tchalanet.server.common.context.ActorContextResolver;
 import com.tchalanet.server.common.context.TchContextBinder;

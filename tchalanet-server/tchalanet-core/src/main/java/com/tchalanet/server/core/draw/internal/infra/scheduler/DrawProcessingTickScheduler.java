@@ -10,9 +10,10 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.job.annotation.TchJob;
-import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
-import com.tchalanet.server.common.batch.gate.BatchGate;
-import com.tchalanet.server.common.batch.launch.BatchJobStarter;
+import com.tchalanet.server.common.job.gate.BatchGate;
+import com.tchalanet.server.common.job.context.JobContextBinder;
+import com.tchalanet.server.common.job.context.JobContextBindingRequest;
+import com.tchalanet.server.common.job.launch.BatchJobStarter;
 import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.time.OccurredAtResolver;
@@ -51,7 +52,7 @@ public class DrawProcessingTickScheduler {
     private final TenantCatalog tenantCatalog;
     private final ResultSlotCatalog resultSlotCatalog;
     private final DrawResultReaderPort drawResultReader;
-    private final BatchTchContextBinder binder;
+    private final JobContextBinder binder;
     private final DrawProperties drawProperties;
     private final DrawProcessingDuePolicy duePolicy;
     private final Clock clock;
@@ -110,7 +111,7 @@ public class DrawProcessingTickScheduler {
 
         for (TenantId tenantId : tenants) {
             try {
-                binder.bind(jobParams(tenantId, "draw-close", now));
+                binder.bind(JobContextBindingRequest.tenant(jobParams(tenantId, "draw-close", now)));
                 commandBus.execute(new CloseDueDrawsCommand(
                     now,
                     Math.max(1, cfg.getMaxItemsPerTick()),
@@ -183,7 +184,7 @@ public class DrawProcessingTickScheduler {
         for (SlotDate candidate : due) {
             for (TenantId tenantId : tenants) {
                 try {
-                    binder.bind(jobParams(tenantId, "draw-results-apply", now));
+                    binder.bind(JobContextBindingRequest.tenant(jobParams(tenantId, "draw-results-apply", now)));
                     commandBus.execute(new ApplyExternalResultsWindowCommand(
                         tenantId,
                         candidate.drawDate(),
@@ -236,7 +237,7 @@ public class DrawProcessingTickScheduler {
                 log.info(
                     "draw.processing.settle started tenantId={} executionId={} dueCandidates={}",
                     tenantId,
-                    exec.getId(),
+                    exec.jobExecutionId(),
                     due.size());
                 processed++;
             } catch (Exception ex) {
@@ -300,16 +301,16 @@ public class DrawProcessingTickScheduler {
         return params;
     }
 
-    private org.springframework.batch.core.job.parameters.JobParameters jobParams(
+    private HashMap<String, String> jobParams(
         TenantId tenantId,
         String kind,
         Instant now
     ) {
-        return new org.springframework.batch.core.job.parameters.JobParametersBuilder()
-            .addString(JobParamKeys.TENANT_ID, tenantId.value().toString())
-            .addString(JobParamKeys.REQUEST_ID, requestId(kind, now))
-            .addString(JobParamKeys.ACTOR, "scheduler")
-            .toJobParameters();
+        var params = new HashMap<String, String>();
+        params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
+        params.put(JobParamKeys.REQUEST_ID, requestId(kind, now));
+        params.put(JobParamKeys.ACTOR, "scheduler");
+        return params;
     }
 
     private static String requestId(String kind, Instant now) {

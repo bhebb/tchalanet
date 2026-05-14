@@ -1,14 +1,16 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
 import com.tchalanet.server.common.job.annotation.TchJob;
-import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
+import com.tchalanet.server.common.job.context.JobContextBinder;
+import com.tchalanet.server.common.job.context.JobContextBindingRequest;
 import com.tchalanet.server.common.job.exception.JobSkippedException;
-import com.tchalanet.server.common.batch.gate.BatchGate;
+import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.BatchJobKeys;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawReaderPort;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -27,7 +29,7 @@ public class DrawProvisionalWatchdogScheduler {
     private final MeterRegistry meterRegistry;
     private final BatchGate batchGate;
     private final DrawProperties drawProps;
-    private final BatchTchContextBinder binder;
+    private final JobContextBinder binder;
 
     @TchJob("draw:watchdog:provisional")
     @Scheduled(cron = "${tch.draw.watchdog.provisional_cron:0 */15 * * * *}", zone = "UTC")
@@ -39,8 +41,7 @@ public class DrawProvisionalWatchdogScheduler {
 
         var threshold =
             Duration.ofMinutes(drawProps.getWatchdog().getProvisionalStuckMinutes());
-        //tenant or remove call to tenant context //todo
-        binder.bind(null);
+        binder.bind(JobContextBindingRequest.platform(Map.of()));
 
         var stuckDraws = drawReader.findResultedWithProvisionalOlderThan(threshold);
 

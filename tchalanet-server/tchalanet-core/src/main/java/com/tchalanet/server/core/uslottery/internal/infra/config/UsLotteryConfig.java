@@ -1,12 +1,10 @@
 package com.tchalanet.server.core.uslottery.internal.infra.config;
 
-import com.tchalanet.server.common.client.http.RestClientFactory;
+import java.util.Map;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
-
-import java.util.Map;
 
 @Configuration
 @ConditionalOnProperty(

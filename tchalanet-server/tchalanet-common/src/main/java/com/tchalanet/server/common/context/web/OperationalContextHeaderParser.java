@@ -2,6 +2,7 @@ package com.tchalanet.server.common.context.web;
 
 import com.tchalanet.server.common.context.OperationalContextSource;
 import com.tchalanet.server.common.context.OperationalRequestContext;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHeaders;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.common.types.id.OutletId;
@@ -23,6 +24,10 @@ public class OperationalContextHeaderParser {
 
     public OperationalRequestContext parseBridge(HttpServletRequest request) {
         return parseBridge(request::getHeader);
+    }
+
+    public OperationalRequestContext resolve(HttpServletRequest request, TchRequestContext ctx) {
+        return parseBridge(request);
     }
 
     public OperationalRequestContext parseBridge(HeaderReader headers) {

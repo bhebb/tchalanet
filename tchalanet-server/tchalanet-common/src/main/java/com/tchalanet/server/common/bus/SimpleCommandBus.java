@@ -1,5 +1,7 @@
 package com.tchalanet.server.common.bus;
 
+import com.tchalanet.server.common.bus.exception.NoHandlerException;
+import com.tchalanet.server.common.bus.registry.HandlerRegistry;
 import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Objects;

@@ -9,9 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.tchalanet.server.common.context.ActorContextResolver;
 import com.tchalanet.server.common.context.AuthContextExtractor;
 import com.tchalanet.server.common.context.TchContextBinder;
+import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.TenantContextInfo;
-import com.tchalanet.server.common.context.system.SystemContextProperties;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
 import com.tchalanet.server.common.security.Permissions;
@@ -41,7 +41,7 @@ class TchContextFilterTest {
     private static final UUID USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000202");
 
     private final TchContextFilter filter = new TchContextFilter(
-        new SystemContextProperties(USER_UUID, "public", "system"),
+        new TchContextProperties("public"),
         new TenantContextResolver(new FakeTenantContextLookup()),
         new ActorContextResolver(),
         new TchRequestContextFactory(new AuthContextExtractor()),

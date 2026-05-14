@@ -1,6 +1,7 @@
 package com.tchalanet.server.platform.notification.internal.batch;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.job.lifecycle.JobLifecycleNotifier;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.util.JsonUtils;
 import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BatchEventNotificationService {
+public class BatchEventNotificationService implements JobLifecycleNotifier {
 
     private final CommandBus commandBus;
     private final BatchNotificationPolicy policy;

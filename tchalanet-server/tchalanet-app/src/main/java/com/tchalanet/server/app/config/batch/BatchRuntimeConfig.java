@@ -21,6 +21,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class BatchRuntimeConfig {
 
     private final BatchExecutorProperties batchExecutorProperties;
+
+    public BatchRuntimeConfig(BatchExecutorProperties batchExecutorProperties) {
+        this.batchExecutorProperties = batchExecutorProperties;
+    }
+
     @Bean
     public JdbcTransactionManager batchTxManager(@Qualifier("batchDataSource") DataSource ds) {
         return new JdbcTransactionManager(ds);
@@ -31,7 +36,7 @@ public class BatchRuntimeConfig {
         ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
         exec.setCorePoolSize(batchExecutorProperties.corePoolSize());
         exec.setMaxPoolSize(batchExecutorProperties.maxPoolSize());
-        exec.setThreadNamePrefix(batch.threadNamePrefix());
+        exec.setThreadNamePrefix(batchExecutorProperties.threadNamePrefix());
         exec.initialize();
         return exec;
     }

@@ -118,7 +118,9 @@ abstract class AbstractNotificationRule implements NotificationRule {
 
   private Object value(Object event, String methodName) {
     try {
-      return event.getClass().getMethod(methodName).invoke(event);
+      var method = event.getClass().getDeclaredMethod(methodName);
+      method.setAccessible(true);
+      return method.invoke(event);
     } catch (ReflectiveOperationException ignored) {
       return null;
     }

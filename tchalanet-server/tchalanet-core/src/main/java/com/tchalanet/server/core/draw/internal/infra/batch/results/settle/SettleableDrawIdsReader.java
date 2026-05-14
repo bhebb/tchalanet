@@ -2,6 +2,7 @@ package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort.SettleableDrawCriteria;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -55,29 +56,29 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
         boolean force
     ) {
         static JobCtx from(JobParameters jp, Clock clock) {
-            var tenantIdStr = trimToNull(jp.getString(TENANT_ID));
+            var tenantIdStr = trimToNull(jp.getString(JobParamKeys.TENANT_ID));
             if (tenantIdStr == null) {
                 throw new IllegalArgumentException("tenant_id is required (job parameter)");
             }
             var tenantId = TenantId.parse(tenantIdStr);
 
             // optional, but avoid null surprises
-            var source = defaultStr(trimToNull(jp.getString(SOURCE)), "batch");
+            var source = defaultStr(trimToNull(jp.getString(JobParamKeys.SOURCE)), "batch");
 
             // provider is expected for this settle pipeline
-            var provider = trimToNull(jp.getString(PROVIDER));
+            var provider = trimToNull(jp.getString(JobParamKeys.PROVIDER));
             if (provider == null) {
                 throw new IllegalArgumentException("provider is required (job parameter)");
             }
 
-            var channelCode = trimToNull(jp.getString(CHANNEL_CODE));
+            var channelCode = trimToNull(jp.getString(JobParamKeys.CHANNEL_CODE));
 
-            var daysBack = jp.getLong(DAYS_BACK);
+            var daysBack = jp.getLong(JobParamKeys.DAYS_BACK);
             if (daysBack != null && daysBack < 0) {
                 throw new IllegalArgumentException("days_back must be >= 0");
             }
 
-            var maxDraws = jp.getLong(MAX_DRAWS);
+            var maxDraws = jp.getLong(JobParamKeys.MAX_DRAWS);
             if (maxDraws != null && maxDraws <= 0) {
                 throw new IllegalArgumentException("max_draws must be > 0");
             }

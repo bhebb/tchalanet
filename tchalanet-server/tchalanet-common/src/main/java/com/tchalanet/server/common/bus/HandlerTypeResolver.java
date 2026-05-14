@@ -1,5 +1,6 @@
 package com.tchalanet.server.common.bus;
 
+import com.tchalanet.server.common.bus.exception.InvalidHandlerException;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.ResolvableType;
 
@@ -7,7 +8,7 @@ import org.springframework.core.ResolvableType;
  * Resolves the message type from a handler bean using Spring ResolvableType.
  * Supports CommandHandler, VoidCommandHandler, and QueryHandler.
  */
-final class HandlerTypeResolver {
+public final class HandlerTypeResolver {
 
   private HandlerTypeResolver() {}
 
@@ -18,7 +19,7 @@ final class HandlerTypeResolver {
    * @return the command message type
    * @throws InvalidHandlerException if the type cannot be resolved or is not concrete
    */
-  static Class<?> resolveCommandHandlerMessageType(CommandHandler<?, ?> bean) {
+  public static Class<?> resolveCommandHandlerMessageType(CommandHandler<?, ?> bean) {
     return resolveMessageType(bean, CommandHandler.class, 0);
   }
 
@@ -29,7 +30,7 @@ final class HandlerTypeResolver {
    * @return the command message type
    * @throws InvalidHandlerException if the type cannot be resolved or is not concrete
    */
-  static Class<?> resolveVoidCommandHandlerMessageType(VoidCommandHandler<?> bean) {
+  public static Class<?> resolveVoidCommandHandlerMessageType(VoidCommandHandler<?> bean) {
     return resolveMessageType(bean, VoidCommandHandler.class, 0);
   }
 
@@ -40,7 +41,7 @@ final class HandlerTypeResolver {
    * @return the query message type
    * @throws InvalidHandlerException if the type cannot be resolved or is not concrete
    */
-  static Class<?> resolveQueryHandlerMessageType(QueryHandler<?, ?> bean) {
+  public static Class<?> resolveQueryHandlerMessageType(QueryHandler<?, ?> bean) {
     return resolveMessageType(bean, QueryHandler.class, 0);
   }
 
@@ -66,4 +67,3 @@ final class HandlerTypeResolver {
     return messageType;
   }
 }
-

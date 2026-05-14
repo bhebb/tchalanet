@@ -7,12 +7,11 @@ import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingRepository;
-import com.tchalanet.server.common.batch.gate.BatchGateCache;
-import com.tchalanet.server.common.batch.gate.BatchGateResolver;
+import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
-import com.tchalanet.server.common.batch.launch.BatchJobStarter;
-import com.tchalanet.server.common.batch.registry.TchBatchJobRegistry;
-import com.tchalanet.server.common.batch.registry.RegisteredJob;
+import com.tchalanet.server.common.job.launch.BatchJobStarter;
+import com.tchalanet.server.common.job.registry.TchJobRegistry;
+import com.tchalanet.server.common.job.registry.RegisteredJob;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.features.ops.batch.model.*;
 import lombok.extern.slf4j.Slf4j;
@@ -33,31 +32,28 @@ public class OpsBatchService {
 
     private static final String BATCH_NAMESPACE = "batch";
 
-    private final TchBatchJobRegistry tchBatchJobRegistry;
-    private final BatchGateResolver gateResolver;
-    private final BatchGateCache gateCache;
+    private final TchJobRegistry tchBatchJobRegistry;
+    private final BatchGate gate;
     private final BatchJobStarter jobStarter;
     private final SettingRepository appSettingRepo;
     private final JobRepository jobRepository;
 
     public OpsBatchService(
-        TchBatchJobRegistry tchBatchJobRegistry,
-        BatchGateResolver gateResolver,
-        BatchGateCache gateCache,
+        TchJobRegistry tchBatchJobRegistry,
+        BatchGate gate,
         BatchJobStarter jobStarter,
         SettingRepository appSettingRepo,
         JobRepository jobRepository
     ) {
         this.tchBatchJobRegistry = tchBatchJobRegistry;
-        this.gateResolver = gateResolver;
-        this.gateCache = gateCache;
+        this.gate = gate;
         this.jobStarter = jobStarter;
         this.appSettingRepo = appSettingRepo;
         this.jobRepository = jobRepository;
     }
 
     public List<JobInfoResponse> listJobs() {
-        return tchBatchJobRegistry.list().values().stream()
+        return tchBatchJobRegistry.list().stream()
             .map(this::toJobInfoResponse)
             .toList();
     }
@@ -76,16 +72,11 @@ public class OpsBatchService {
 
         var execution = jobStarter.start(jobKey, request.params());
 
-        var startLdt = execution.getStartTime();
-        TchRequestContext ctxStart = TchContext.currentOrNull();
-        ZoneId effectiveZoneStart = (ctxStart != null && ctxStart.tenantZoneId() != null) ? ctxStart.tenantZoneId() : ZoneId.of("UTC");
-        Instant startedAt = startLdt != null ? ZonedDateTime.of(startLdt, effectiveZoneStart).toInstant() : Instant.now();
-
         return new StartJobResponse(
             jobKey.value(),
-            execution.getId(),
-            execution.getStatus().name(),
-            startedAt
+            parseExecutionId(execution.jobExecutionId()),
+            execution.status(),
+            Instant.now()
         );
     }
 
@@ -97,12 +88,12 @@ public class OpsBatchService {
             tenantId = TenantId.parse(tenantIdStr);
         }
 
-        var res = gateResolver.resolveWithScope(jobKey, tenantId);
+        var enabled = gate.enabled(jobKey, tenantId);
 
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("job_key", jobKey.value());
-        out.put("enabled", res.enabled());
-        out.put("scope", res.scope());
+        out.put("enabled", enabled);
+        out.put("scope", tenantId == null ? "GLOBAL_OR_DEFAULT" : "TENANT_OR_DEFAULT");
         out.put("tenant_id", tenantId != null ? tenantId.toString() : null);
         return out;
     }
@@ -121,7 +112,7 @@ public class OpsBatchService {
                     result.put(raw, false);
                     continue;
                 }
-                result.put(raw, gateResolver.resolve(jk, tenantId));
+                result.put(raw, gate.enabled(jk, tenantId));
             } catch (Exception e) {
                 log.warn("ops.batch.gate.bulk.error jobKey={}", raw, e);
                 result.put(raw, false);
@@ -177,12 +168,6 @@ public class OpsBatchService {
         entity.setActive(true);
 
         appSettingRepo.save(entity);
-
-        if (tenantId != null) {
-            gateCache.cacheTenant(jobKey, tenantId, request.enabled());
-        } else {
-            gateCache.cacheGlobal(jobKey, request.enabled());
-        }
 
         log.info("ops.batch.gate.updated jobKey={} scope={} enabled={}",
             jobKey, request.scope(), request.enabled());
@@ -252,5 +237,12 @@ public class OpsBatchService {
             registered.requiredParams(),
             registered.optionalParams()
         );
+    }
+
+    private static long parseExecutionId(String executionId) {
+        if (executionId == null || executionId.isBlank()) {
+            return 0L;
+        }
+        return Long.parseLong(executionId);
     }
 }

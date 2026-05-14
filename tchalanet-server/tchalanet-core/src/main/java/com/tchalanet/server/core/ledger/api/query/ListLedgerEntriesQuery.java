@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.ledger.api.query;
 
+import com.tchalanet.server.common.bus.Query;
+import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.ledger.internal.domain.model.LedgerDirection;
 import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
 import com.tchalanet.server.core.ledger.internal.domain.model.LedgerRefType;
@@ -14,4 +16,4 @@ public record ListLedgerEntriesQuery(
     Instant occurredFrom,
     Instant occurredTo,
     Pageable pageable
-) {}
+) implements Query<TchPage<LedgerEntryView>> {}

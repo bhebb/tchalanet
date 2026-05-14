@@ -1,15 +1,16 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.annotation.TchJob;
-import com.tchalanet.server.common.batch.context.BatchTchContextBinder;
+import com.tchalanet.server.common.job.context.JobContextBinder;
+import com.tchalanet.server.common.job.context.JobContextBindingRequest;
 import com.tchalanet.server.common.job.exception.JobContextClearException;
 import com.tchalanet.server.common.job.exception.JobPartialFailureException;
 import com.tchalanet.server.common.job.exception.JobSkippedException;
-import com.tchalanet.server.common.batch.gate.BatchGate;
+import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.BatchJobKeys;
 import com.tchalanet.server.common.job.params.JobParamKeys;
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
@@ -26,6 +27,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +43,7 @@ public class DrawLifeCycleTickScheduler {
     private final CommandBus commandBus;
     private final BatchGate batchGate;
     private final Clock clock;
-    private final BatchTchContextBinder binder;
+    private final JobContextBinder jobContextBinder;
     private final DrawProperties drawProps;
     private final AtomicBoolean configLogged = new AtomicBoolean(false);
 
@@ -73,16 +75,27 @@ public class DrawLifeCycleTickScheduler {
         for (TenantId tenantId : activeTenants.stream().limit(maxTenants).toList()) {
 
             try {
-                binder.bind(jobParams(tenantId, "draw-generate", now));
+                var params = Map.of(
+                    JobParamKeys.TENANT_ID, tenantId.value().toString(),
+                    JobParamKeys.ACTOR, "draw-processing-scheduler"
+                );
 
-                commandBus.execute(new GenerateDrawsForRangeCommand(
-                    tenantId,
-                    from,
-                    to,
-                    DEFAULT_DRY_RUN,
-                    false,
-                    null
-                ));
+                try {
+
+                    jobContextBinder.bind(JobContextBindingRequest.tenant(params));
+                    commandBus.execute(new GenerateDrawsForRangeCommand(
+                        tenantId,
+                        from,
+                        to,
+                        DEFAULT_DRY_RUN,
+                        false,
+                        null
+                    ));
+                    // call commandBus / queryBus / job starter
+                } finally {
+                    jobContextBinder.clear();
+                }
+
 
             } catch (Exception ex) {
                 failures.add(new TenantFailure(tenantId, ex));
@@ -146,14 +159,19 @@ public class DrawLifeCycleTickScheduler {
             var jp = jobParams(tenantId, "draw-open-close", now);
 
             try {
-                binder.bind(jp);
+                var params = Map.of(
+                    JobParamKeys.TENANT_ID, tenantId.value().toString(),
+                    JobParamKeys.ACTOR, "draw-processing-scheduler"
+                );
+
+                jobContextBinder.bind(JobContextBindingRequest.tenant(params));
 
                 commandBus.execute(new OpenTodayDrawsCommand(
-                        now,
-                        null,
-                        defaultSalesOpenTime,
-                        maxItems,
-                        false));
+                    now,
+                    null,
+                    defaultSalesOpenTime,
+                    maxItems,
+                    false));
 
             } catch (Exception ex) {
                 failures.add(new TenantFailure(tenantId, ex));
@@ -229,7 +247,7 @@ public class DrawLifeCycleTickScheduler {
 
     private Exception clearContext(TenantId tenantId) {
         try {
-            binder.clear();
+            this.jobContextBinder.clear();
             return null;
         } catch (Exception ex) {
             log.error(

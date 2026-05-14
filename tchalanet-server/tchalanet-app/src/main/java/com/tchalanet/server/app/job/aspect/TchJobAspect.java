@@ -2,7 +2,7 @@ package com.tchalanet.server.app.job.aspect;
 
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.exception.JobSkippedException;
-import com.tchalanet.server.common.batch.service.BatchEventNotificationService;
+import com.tchalanet.server.common.job.lifecycle.JobLifecycleNotifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class TchJobAspect {
 
-    private final BatchEventNotificationService notifier;
+    private final JobLifecycleNotifier notifier;
 
     @Around("@annotation(job)")
     public Object around(ProceedingJoinPoint pjp, TchJob job) throws Throwable {

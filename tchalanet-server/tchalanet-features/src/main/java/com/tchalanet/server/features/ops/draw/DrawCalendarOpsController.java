@@ -4,7 +4,7 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 
-import com.tchalanet.server.common.batch.gate.BatchGate;
+import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.BatchJobKeys;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.enums.AuditAction;

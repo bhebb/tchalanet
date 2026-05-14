@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.listener.JobExecutionListener;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -25,7 +26,7 @@ public class DrawSettleJobConfig {
     private final ItemProcessor<DrawId, DrawId> settleProcessor;
     private final ItemWriter<DrawId> settleWriter;
 
-    private final BatchJobExecutionListener listener;
+    private final JobExecutionListener listener;
 
     @Bean(name = "settleDrawsJob") // must match TchBatchJobRegistry springJobBeanName
     public Job settleDrawsJob() {

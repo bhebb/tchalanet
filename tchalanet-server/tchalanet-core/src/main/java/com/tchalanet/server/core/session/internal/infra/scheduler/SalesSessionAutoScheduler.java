@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.session.internal.infra.scheduler;
 
 import com.tchalanet.server.common.job.annotation.TchJob;
-import com.tchalanet.server.common.batch.gate.BatchGate;
+import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsCommand;
 import com.tchalanet.server.core.session.api.command.OpenDueSalesSessionsCommand;

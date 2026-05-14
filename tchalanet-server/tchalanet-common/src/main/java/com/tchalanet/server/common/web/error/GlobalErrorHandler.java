@@ -1,6 +1,6 @@
 package com.tchalanet.server.common.web.error;
 
-import com.tchalanet.server.common.batch.gate.BatchDisabledException;
+import com.tchalanet.server.common.job.gate.BatchDisabledException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

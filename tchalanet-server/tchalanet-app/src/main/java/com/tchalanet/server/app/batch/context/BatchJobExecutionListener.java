@@ -1,5 +1,9 @@
 package com.tchalanet.server.app.batch.context;
 
+import com.tchalanet.server.app.batch.params.SpringBatchJobParams;
+import com.tchalanet.server.common.job.context.JobContextBindingRequest;
+import com.tchalanet.server.common.job.context.JobExecutionScope;
+import com.tchalanet.server.common.job.params.JobParamKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.BatchStatus;
@@ -14,7 +18,7 @@ import java.time.Duration;
 @Slf4j
 public class BatchJobExecutionListener implements JobExecutionListener {
 
-    private final BatchTchContextBinder binder;
+    private final SpringBatchJobContextBinder binder;
 
     @Override
     public void beforeJob(JobExecution jobExecution) {
@@ -22,9 +26,13 @@ public class BatchJobExecutionListener implements JobExecutionListener {
         var executionId = jobExecution.getId();
 
         log.info("batch.job.start jobName={} executionId={}", jobName, executionId);
+        var params = SpringBatchJobParams.toStringMap(jobExecution.getJobParameters());
 
+        var scope = params.containsKey(JobParamKeys.TENANT_ID)
+            ? JobExecutionScope.TENANT
+            : JobExecutionScope.PLATFORM;
         try {
-            binder.bind(jobExecution.getJobParameters());
+            binder.bind(new JobContextBindingRequest(scope, params));
         } catch (Exception e) {
             try {
                 binder.clear();

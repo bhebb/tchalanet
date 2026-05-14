@@ -1,0 +1,24 @@
+package com.tchalanet.server.app.config.persistence;
+
+import jakarta.persistence.EntityManagerFactory;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+
+@Configuration
+@EnableJpaAuditing
+@EntityScan(basePackages = "com.tchalanet.server")
+@EnableJpaRepositories(basePackages = "com.tchalanet.server")
+public class PersistenceConfig {
+
+  @Bean(name = "transactionManager")
+  @Primary
+  public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+    return new JpaTransactionManager(emf);
+  }
+}

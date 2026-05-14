@@ -1,23 +1,28 @@
 package com.tchalanet.server.catalog.tenant.internal.batch;
 
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.common.batch.context.BatchTenantBootstrap;
-import com.tchalanet.server.common.batch.context.BatchTenantBootstrapProvider;
+import com.tchalanet.server.common.job.context.JobTenantBootstrap;
+import com.tchalanet.server.common.job.context.JobTenantBootstrapProvider;
 import com.tchalanet.server.common.types.id.TenantId;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
-public class CatalogBatchTenantBootstrapProvider implements BatchTenantBootstrapProvider {
+public class CatalogBatchTenantBootstrapProvider implements JobTenantBootstrapProvider {
 
-  private final TenantCatalog tenantCatalog;
+    private final TenantCatalog tenantCatalog;
 
-  @Override
-  public Optional<BatchTenantBootstrap> findBootstrapById(TenantId tenantId) {
-    return tenantCatalog
-        .findBootstrapById(tenantId)
-        .map(view -> new BatchTenantBootstrap(view.tenantId(), view.code(), view.timezone(), view.currency()));
-  }
+    @Override
+    public Optional<JobTenantBootstrap> findBootstrapById(TenantId tenantId) {
+        return tenantCatalog.findBootstrapById(tenantId)
+            .map(t -> new JobTenantBootstrap(
+                t.tenantId(),
+                t.code(),
+                t.currency(),
+                t.timezone()
+            ));
+    }
 }

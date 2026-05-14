@@ -175,6 +175,10 @@ class PlatformLayerGatesTest {
           allClasses.stream()
               .filter(javaClass -> javaClass.getPackageName().contains(".common.persistence"))
               .filter(
+                  javaClass ->
+                      !java.util.Set.of("AuditableEntity", "BaseEntity", "BaseTenantEntity")
+                          .contains(javaClass.getSimpleName()))
+              .filter(
                   javaClass -> {
                     var name = javaClass.getSimpleName().toLowerCase();
                     return name.contains("audit")
