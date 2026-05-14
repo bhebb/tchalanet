@@ -10,15 +10,15 @@ mkdir -p "$REF_DIR/web" "$REF_DIR/server" "$REF_DIR/infra" "$REF_DIR/openspec" "
 
 # --- Web app docs (near-code)
 mkdir -p "$REF_DIR/web/app"
-cp -f "$ROOT_DIR/apps/tchalanet-web/"*.md "$REF_DIR/web/app/" 2>/dev/null || true
+cp -f "$ROOT_DIR/tchalanet-web/"*.md "$REF_DIR/web/app/" 2>/dev/null || true
 
 # --- Web libs docs
 mkdir -p "$REF_DIR/web/libs"
-cp -f "$ROOT_DIR/libs/ui/styles/README.md" "$REF_DIR/web/libs/ui-styles.md" 2>/dev/null || true
-cp -f "$ROOT_DIR/libs/ui/theme/README.md" "$REF_DIR/web/libs/ui-theme.md" 2>/dev/null || true
-cp -f "$ROOT_DIR/libs/ui/widget-renderer/README.md" "$REF_DIR/web/libs/widget-renderer.md" 2>/dev/null || true
-cp -f "$ROOT_DIR/libs/web/shell/README.md" "$REF_DIR/web/libs/web-shell.md" 2>/dev/null || true
-cp -f "$ROOT_DIR/libs/web/widgets/README.md" "$REF_DIR/web/libs/web-widgets.md" 2>/dev/null || true
+cp -f "$ROOT_DIR/tchalanet-web/libs/ui/styles/README.md" "$REF_DIR/web/libs/ui-styles.md" 2>/dev/null || true
+cp -f "$ROOT_DIR/tchalanet-web/libs/ui/theme/README.md" "$REF_DIR/web/libs/ui-theme.md" 2>/dev/null || true
+cp -f "$ROOT_DIR/tchalanet-web/libs/ui/widget-renderer/README.md" "$REF_DIR/web/libs/widget-renderer.md" 2>/dev/null || true
+cp -f "$ROOT_DIR/tchalanet-web/libs/web/shell/README.md" "$REF_DIR/web/libs/web-shell.md" 2>/dev/null || true
+cp -f "$ROOT_DIR/tchalanet-web/libs/web/widgets/README.md" "$REF_DIR/web/libs/web-widgets.md" 2>/dev/null || true
 
 # --- OpenSpec context packs
 mkdir -p "$REF_DIR/openspec/context"

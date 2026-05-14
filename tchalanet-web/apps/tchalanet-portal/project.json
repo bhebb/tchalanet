@@ -1,0 +1,137 @@
+{
+  "name": "tchalanet-portal",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "tch",
+  "sourceRoot": "apps/tchalanet-portal/src",
+  "tags": ["type:app", "scope:web"],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/tchalanet-portal",
+        "configFile": "apps/tchalanet-portal/vite.config.mts",
+        "index": "apps/tchalanet-portal/index.html",
+        "browser": "apps/tchalanet-portal/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/tchalanet-portal/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "libs/i18n/locales",
+            "output": "/assets/i18n"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/tchalanet-portal/public"
+          }
+        ]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all",
+          "mode": "production"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "mode": "development"
+        },
+        "ci": {
+          "optimization": true,
+          "sourceMap": false,
+          "budgets": [
+            { "type": "initial", "maximumWarning": "2.5mb", "maximumError": "3mb" },
+            { "type": "anyComponentStyle", "maximumWarning": "400kb", "maximumError": "600kb" }
+          ]
+        },
+        "vercel": {
+          "optimization": true,
+          "sourceMap": false,
+          "extractLicenses": true,
+          "outputHashing": "all",
+          "budgets": [
+            { "type": "initial", "maximumWarning": "2.5mb", "maximumError": "3mb" },
+            { "type": "anyComponentStyle", "maximumWarning": "400kb", "maximumError": "600kb" }
+          ]
+        },
+        "staging": {
+          "mode": "staging"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "tchalanet-portal:build",
+        "configFile": "apps/tchalanet-portal/vite.config.mts",
+        "host": "0.0.0.0",
+        "port": 4200
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "tchalanet-portal:build:development",
+          "mode": "development"
+        },
+        "staging": {
+          "buildTarget": "tchalanet-portal:build:staging",
+          "mode": "staging"
+        },
+        "production": {
+          "buildTarget": "tchalanet-portal:build:production",
+          "mode": "production"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "@angular/build:extract-i18n",
+      "options": {
+        "buildTarget": "tchalanet-portal:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/apps/tchalanet-portal"
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "tchalanet-portal:build",
+        "port": 4300,
+        "staticFilePath": "dist/apps/tchalanet-portal/browser",
+        "spa": true
+      }
+    },
+    "lint-styles": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "stylelint \"apps/tchalanet-portal/src/**/*.scss\" \"libs/**/src/**/*.scss\""
+      }
+    }
+  }
+}

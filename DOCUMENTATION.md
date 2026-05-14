@@ -55,7 +55,7 @@
 | ADR                             | `tchalanet-docs/docs/03-adr/`                       |
 | Backend archi (canonique)       | `tchalanet-server/docs/ARCHITECTURE.md`             |
 | Backend conventions             | `tchalanet-server/docs/conventions/`                |
-| Web docs                        | `apps/tchalanet-web/README.md`                      |
+| Web docs                        | `tchalanet-web/README.md`                           |
 | Infra docs                      | `tchalanet-infra/docs/`                             |
 | OpenSpec project                | `openspec/project.md`                               |
 | Specs en cours                  | `openspec/specs/`                                   |

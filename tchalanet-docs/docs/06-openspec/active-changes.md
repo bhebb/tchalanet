@@ -6,7 +6,7 @@ Use this page as the portal to active OpenSpec workspaces.
 | --- | --- | --- |
 | Global coordination | `openspec/changes/` | Cross-project changes only |
 | Backend | `tchalanet-server/openspec/changes/` | Backend implementation and domain changes |
-| Web | `apps/tchalanet-web/openspec/changes/` | Angular/Nx changes |
+| Web | `tchalanet-web/openspec/changes/` | Angular/Nx changes |
 | Mobile | `tchalanet-mobile/openspec/changes/` | Flutter/mobile changes |
 | Edge service | `tchalanet-edge-service/openspec/changes/` | Edge messaging/routing changes |
 | Infra | `tchalanet-infra/openspec/changes/` | Docker, environment, deployment changes |

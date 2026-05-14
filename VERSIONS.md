@@ -13,7 +13,7 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 
 - Backend runtime/build : `tchalanet-server/pom.xml` (+ `./mvnw`)
 - Infra images/tags : `tchalanet-infra/envs/common/compose.env` + `compose/*`
-- Web (Nx) : `package.json` racine + `pnpm-lock.yaml`
+- Web (Nx) : `tchalanet-web/package.json` + `tchalanet-web/pnpm-lock.yaml`
 - Mobile (Flutter) : `tchalanet-mobile/pubspec.yaml`
 - Version pnpm : `package.json#packageManager` + Corepack
 - Edge service : `tchalanet-edge-service/package.json`

@@ -7,7 +7,7 @@ Chaque projet autonome possède son propre OpenSpec. Utiliser **toujours** le pl
 | Projet                    | OpenSpec                           |
 | ------------------------- | ---------------------------------- |
 | Backend Spring Boot       | `tchalanet-server/openspec/`       |
-| Frontend Angular          | `apps/tchalanet-web/openspec/`     |
+| Frontend Angular          | `tchalanet-web/openspec/`          |
 | Mobile Flutter / POS      | `tchalanet-mobile/openspec/`       |
 | Edge Service              | `tchalanet-edge-service/openspec/` |
 | Infrastructure            | `tchalanet-infra/openspec/`        |

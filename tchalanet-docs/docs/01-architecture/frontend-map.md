@@ -2,14 +2,14 @@
 
 ## Web (Angular/Nx)
 
-- App docs : `apps/tchalanet-web/*.md`
-- Libs docs : `libs/**/README.md`
+- App docs : `tchalanet-web/*.md`
+- Libs docs : `tchalanet-web/libs/**/README.md`
 
 OpenSpec packs:
 
 - `openspec/context/05-version-guard.md`
-- `apps/tchalanet-web/AGENTS.md`
-- component changes/specs under `apps/tchalanet-web/openspec/`
+- `tchalanet-web/AGENTS.md`
+- component changes/specs under `tchalanet-web/openspec/`
 
 ## Mobile (Flutter)
 

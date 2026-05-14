@@ -116,7 +116,7 @@ It always points to the canonical source.
 ### Web
 
 - App-level docs:  
-  `apps/tchalanet-web/*.md`
+  `tchalanet-web/*.md`
 - Libraries & UI components:  
   `libs/**/README.md`
 
@@ -139,7 +139,7 @@ Chaque projet autonome possède son propre OpenSpec :
 | Projet                   | OpenSpec                           |
 | ------------------------ | ---------------------------------- |
 | `tchalanet-server`       | `tchalanet-server/openspec/`       |
-| `apps/tchalanet-web`     | `apps/tchalanet-web/openspec/`     |
+| `tchalanet-web`          | `tchalanet-web/openspec/`          |
 | `tchalanet-mobile`       | `tchalanet-mobile/openspec/`       |
 | `tchalanet-edge-service` | `tchalanet-edge-service/openspec/` |
 | `tchalanet-infra`        | `tchalanet-infra/openspec/`        |

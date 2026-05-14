@@ -27,7 +27,7 @@ an explicit inventory or audit.
 | Scope            | Router                             | Canonical docs                                 |
 | ---------------- | ---------------------------------- | ---------------------------------------------- |
 | Backend          | `tchalanet-server/AGENTS.md`       | `tchalanet-server/docs/`, `src/**/DOMAIN_*.md` |
-| Web              | `apps/tchalanet-web/AGENTS.md`     | `apps/tchalanet-web/`, `libs/**/README.md`     |
+| Web              | `tchalanet-web/AGENTS.md`          | `tchalanet-web/`, `tchalanet-web/libs/**/README.md` |
 | Mobile           | `tchalanet-mobile/AGENTS.md`       | `tchalanet-mobile/`, `apps/tchalanet-mobile/`  |
 | Edge service     | `tchalanet-edge-service/AGENTS.md` | `tchalanet-edge-service/`                      |
 | Infra            | `tchalanet-infra/AGENTS.md`        | `tchalanet-infra/docs/`                        |
@@ -48,7 +48,7 @@ domains, and broad documentation organization.
 
 - Global/cross-project changes: `openspec/changes/`
 - Backend changes: `tchalanet-server/openspec/changes/`
-- Web changes: `apps/tchalanet-web/openspec/changes/`
+- Web changes: `tchalanet-web/openspec/changes/`
 - Mobile changes: `tchalanet-mobile/openspec/changes/`
 - Edge changes: `tchalanet-edge-service/openspec/changes/`
 - Infra changes: `tchalanet-infra/openspec/changes/`

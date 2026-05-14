@@ -1,0 +1,131 @@
+import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
+import { AbstractSecurityStorage, LogLevel, provideAuth } from 'angular-auth-oidc-client';
+import { provideMarkdown } from 'ngx-markdown';
+
+import { HttpClient, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { ApplicationConfig, InjectionToken, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideEffects } from '@ngrx/effects';
+import { provideState, provideStore } from '@ngrx/store';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
+
+import { apiBaseInterceptor, authInterceptor, metaHeadersInterceptor } from '@tchl/api';
+import { environment } from '@tchl/config';
+import { I18nEffects, i18nFeature } from '@tchl/data-access/i18n';
+import { PageEffects, pageFeature } from '@tchl/data-access/page';
+import { FEATURE_CONTEXT, FEATURE_INITIAL, provideFeatureClient } from '@tchl/feature';
+import { LocalStorageSecurityService } from '@tchl/shared/auth';
+import { THEME_INIT_PROVIDER } from '@tchl/ui/theme';
+import { I18nMergerService, MergedTranslateLoader, MergedTranslateLoaderOptions } from '@tchl/utils/i18n';
+import { provideBuiltinWidgets } from '@tchl/web/widgets';
+
+import { appRoutes } from './app.routes';
+
+export const TRANSLATE_LOADER_OPTIONS = new InjectionToken<MergedTranslateLoaderOptions>(
+  'TRANSLATE_LOADER_OPTIONS',
+);
+
+// auth initialisation via APP_INITIALIZER removed — we avoid blocking the app bootstrap.
+// AuthService.init() will be called explicitly when appropriate (or via component lifecycle).
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    // 1. Fournir le routeur de l'application
+    provideRouter(appRoutes),
+
+    // 2. Fournir le HttpClient, essentiel pour que les Effects puissent faire des appels API
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([apiBaseInterceptor, authInterceptor, metaHeadersInterceptor]),
+    ),
+
+    // 3. Fournir le Store NgRx (avec un état racine vide au début)
+    provideStore(),
+
+    // 4. Enregistrer notre "feature state" pour la page
+    provideState(pageFeature),
+    provideState(i18nFeature),
+
+    // 5. Enregistrer nos "effects"
+    provideEffects([PageEffects, I18nEffects]),
+
+    // 6. (Optionnel mais fortement recommandé) Activer les DevTools pour le debug
+    provideStoreDevtools({
+      maxAge: 25, // Conserve les 25 derniers états
+      logOnly: false, // Mettre à true en production
+    }),
+
+    {
+      provide: TRANSLATE_LOADER_OPTIONS,
+      useValue: {
+        assetsPrefix: '/assets/i18n/',
+        backendPath: '/v1/configs/i18n',
+      },
+    },
+    provideTranslateService({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (
+          http: HttpClient,
+          i18nMergerService: I18nMergerService,
+          opts: MergedTranslateLoaderOptions,
+        ) => new MergedTranslateLoader(http, i18nMergerService, opts),
+        deps: [HttpClient, I18nMergerService, TRANSLATE_LOADER_OPTIONS],
+      },
+      fallbackLang: 'fr',
+      lang: 'fr',
+    }),
+
+    provideAuth({
+      config: {
+        authority: environment.authUrl,
+        redirectUrl: environment.appUrl + '/auth/callback',
+        postLogoutRedirectUri: environment.appUrl,
+        clientId: environment.authClientId,
+        scope: 'openid profile email',
+        responseType: 'code',
+        silentRenew: true,
+        useRefreshToken: true,
+        renewTimeBeforeTokenExpiresInSeconds: 30,
+        logLevel: LogLevel.Debug,
+        // Important : en dev derrière Traefik, on force l'origin publique et on
+        // évite que angular-auth-oidc-client essaie de découvrir un endpoint
+        // via le proxy Vite (localhost:4200). Tout doit parler directement
+        // à https://auth.localtest.me.
+        //
+        // NOTE : environment.authUrl doit pointer sur
+        //   https://auth.localtest.me/realms/tchalanet
+        // et le client Keycloak doit autoriser
+        //   redirect_uri = https://app.localtest.me/auth/callback
+        //   Web Origins = https://app.localtest.me
+        // pour éviter les erreurs CORS / redirect_uri.
+        ignoreNonceAfterRefresh: true,
+      },
+    }),
+    { provide: AbstractSecurityStorage, useClass: LocalStorageSecurityService },
+    provideBuiltinWidgets(),
+    // removed APP_INITIALIZER authInitializer to prevent bootstrap blocking
+    THEME_INIT_PROVIDER,
+
+    provideMarkdown(),
+    //features
+    { provide: FEATURE_INITIAL, useValue: [] },
+
+    // Contexte d'évaluation (tenant, user, pays…)
+    { provide: FEATURE_CONTEXT, useValue: { appName: 'tchalanet-portal', tenantId: 'default' } },
+
+    provideFeatureClient(
+      environment.feature.kind === 'memory'
+        ? { kind: 'memory', initial: [] }
+        : {
+            kind: 'unleash',
+            url: environment.feature.url,
+            clientKey: environment.feature.clientKey,
+            appName: environment.feature.appName,
+            refreshInterval: environment.feature.refresh,
+          }
+    ),
+  ],
+};
