@@ -1,24 +1,24 @@
 package com.tchalanet.server.common.context.operational;
 
 public enum OperationalContextSource {
-    NONE(TrustLevel.NONE),
-    CLIENT_CLAIM(TrustLevel.WEAK),
-    SERVER_BOOTSTRAP(TrustLevel.STRONG),
-    SIGNED_DEVICE_BINDING(TrustLevel.STRONG),
-    ADMIN_SELECTION(TrustLevel.STRONG),
-    SUPER_ADMIN_OVERRIDE(TrustLevel.STRONG);
+    NONE(OperationalContextTrust.NONE),
+    CLIENT_CLAIM(OperationalContextTrust.WEAK),
+    SERVER_BOOTSTRAP(OperationalContextTrust.STRONG),
+    SIGNED_DEVICE_BINDING(OperationalContextTrust.STRONG),
+    ADMIN_SELECTION(OperationalContextTrust.STRONG),
+    SUPER_ADMIN_OVERRIDE(OperationalContextTrust.STRONG);
 
-    private final TrustLevel trustLevel;
+    private final OperationalContextTrust trustLevel;
 
-    OperationalContextSource(TrustLevel trustLevel) {
+    OperationalContextSource(OperationalContextTrust trustLevel) {
         this.trustLevel = trustLevel;
     }
 
-    public TrustLevel trustLevel() {
+    public OperationalContextTrust trustLevel() {
         return trustLevel;
     }
 
     public boolean isTrustedForSensitiveOperation() {
-        return trustLevel == TrustLevel.STRONG;
+        return trustLevel == OperationalContextTrust.STRONG;
     }
 }

@@ -7,9 +7,9 @@ public sealed interface OperationalRequestContext
 
     OperationalContextSource source();
 
-    TrustLevel trustLevel();
+    OperationalContextTrust trustLevel();
 
     default boolean trustedForSensitiveOperation() {
-        return trustLevel() == TrustLevel.STRONG;
+        return trustLevel() == OperationalContextTrust.STRONG;
     }
 }

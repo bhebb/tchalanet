@@ -2,7 +2,6 @@ package com.tchalanet.server.common.context.operational;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
-import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
@@ -20,23 +19,11 @@ public final class OperationalContextHeaderParser {
         var outletId = parseOutletId(header(headers, OperationalContextHeaders.OUTLET_ID));
         var salesSessionId =
             parseSalesSessionId(header(headers, OperationalContextHeaders.SALES_SESSION_ID));
-        var tenantOverride =
-            parseTenantId(header(headers, OperationalContextHeaders.SUPER_ADMIN_TENANT_OVERRIDE));
-        var overrideReason = header(headers, OperationalContextHeaders.SUPER_ADMIN_OVERRIDE_REASON);
-        var source = resolveSource(header(headers, OperationalContextHeaders.OPERATIONAL_SOURCE));
+        var declaredSource = resolveSource(header(headers, OperationalContextHeaders.OPERATIONAL_SOURCE));
+        var source = deriveSource(declaredSource, terminalId, outletId, salesSessionId);
+        var trust = deriveTrust(source);
 
-        if (source == OperationalContextSource.NONE
-            && (terminalId != null || outletId != null || salesSessionId != null)) {
-            source = OperationalContextSource.CLIENT_CLAIM;
-        }
-
-        return new OperationalContextHint(
-            terminalId,
-            outletId,
-            salesSessionId,
-            tenantOverride,
-            overrideReason,
-            source);
+        return new OperationalContextHint(terminalId, outletId, salesSessionId, source, trust);
     }
 
     private static String header(HeaderReader headers, String name) {
@@ -56,15 +43,33 @@ public final class OperationalContextHeaderParser {
         return value == null ? null : SalesSessionId.parse(value);
     }
 
-    private static TenantId parseTenantId(String value) {
-        return value == null ? null : TenantId.parse(value);
-    }
-
     private static OperationalContextSource resolveSource(String value) {
         if (StringUtils.isBlank(value)) {
             return OperationalContextSource.NONE;
         }
 
         return OperationalContextSource.valueOf(value.trim().toUpperCase(Locale.ROOT));
+    }
+
+    private static OperationalContextSource deriveSource(
+        OperationalContextSource declaredSource,
+        TerminalId terminalId,
+        OutletId outletId,
+        SalesSessionId salesSessionId) {
+
+        if (terminalId == null && outletId == null && salesSessionId == null) {
+            return OperationalContextSource.NONE;
+        }
+
+        return OperationalContextSource.CLIENT_CLAIM;
+    }
+
+    private static OperationalContextTrust deriveTrust(OperationalContextSource source) {
+        return switch (source) {
+            case NONE -> OperationalContextTrust.NONE;
+            case CLIENT_CLAIM -> OperationalContextTrust.WEAK;
+            case SIGNED_DEVICE_BINDING, SERVER_BOOTSTRAP -> OperationalContextTrust.STRONG;
+            case ADMIN_SELECTION -> OperationalContextTrust.STRONG;
+        };
     }
 }

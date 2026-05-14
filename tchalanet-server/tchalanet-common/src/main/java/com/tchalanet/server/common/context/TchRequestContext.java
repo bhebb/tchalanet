@@ -338,6 +338,14 @@ public record TchRequestContext(
         return customRoles.contains(permission)
             || customRoles.contains(normalized);
     }
+
+    public OperationalContextHint operationalContextRequired() {
+        if (operationalContext == null || !operationalContext.hasPosFrame()) {
+            throw ProblemRest.unprocessable("operational_context.required");
+        }
+        return operationalContext;
+    }
+
     public TchRequestContext withOperationalContext(OperationalContextHint operationalContext) {
         return new TchRequestContext(
             originalTenantCode,

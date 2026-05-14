@@ -8,7 +8,7 @@ public record SuperAdminOperationalContext(
     UserId actorUserId,
     String overrideReason,
     OperationalContextSource source,
-    TrustLevel trustLevel
+    OperationalContextTrust trustLevel
 ) implements OperationalRequestContext {
 
     @Override
