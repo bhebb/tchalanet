@@ -24,7 +24,7 @@ public interface ExternalDrawResultPort {
       List<String> numbers,
       List<String> numbersExtra,
       Instant occurredAt,
-      com.tchalanet.server.common.types.enums.ResultQuality quality,
+      com.tchalanet.server.core.drawresult.api.model.ResultQuality quality,
       Map<String, Object> rawPayload) {
 
     public static ExternalDrawResult notFound(String status, Map<String, Object> raw) {
@@ -34,7 +34,7 @@ public interface ExternalDrawResultPort {
           List.of(),
           List.of(),
           null,
-          com.tchalanet.server.common.types.enums.ResultQuality.SUSPECT,
+          com.tchalanet.server.core.drawresult.api.model.ResultQuality.SUSPECT,
           raw);
     }
 
@@ -43,7 +43,7 @@ public interface ExternalDrawResultPort {
         List<String> main,
         List<String> extra,
         Instant occurredAt,
-        com.tchalanet.server.common.types.enums.ResultQuality quality,
+        com.tchalanet.server.core.drawresult.api.model.ResultQuality quality,
         Map<String, Object> raw) {
       return new ExternalDrawResult(true, status, main, extra, occurredAt, quality, raw);
     }

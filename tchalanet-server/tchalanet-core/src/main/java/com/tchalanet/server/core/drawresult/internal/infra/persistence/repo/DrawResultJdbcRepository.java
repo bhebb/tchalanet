@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.drawresult.internal.infra.persistence.repo;
 
-import com.tchalanet.server.common.types.enums.DrawSource;
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
 import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;

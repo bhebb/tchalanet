@@ -3,7 +3,7 @@ package com.tchalanet.server.core.payout.internal.infra.event;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.payout.api.command.RegisterPayoutCommand;
 import com.tchalanet.server.core.sales.internal.domain.event.TicketResultedEvent;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.autonomy.api.command;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.api.AutonomyTargetType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 

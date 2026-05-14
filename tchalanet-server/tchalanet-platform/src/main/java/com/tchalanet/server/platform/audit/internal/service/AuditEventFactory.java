@@ -1,13 +1,13 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditActorType;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditActorType;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.platform.audit.internal.service.AuditEvent;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;

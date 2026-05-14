@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.types.enums.DrawSource;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,8 +1,5 @@
 package com.tchalanet.server.features.ops.batch;
 
-import com.tchalanet.server.common.context.TchContext;
-import com.tchalanet.server.common.context.TchRequestContext;
-
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.internal.persistence.SettingEntity;
@@ -10,20 +7,15 @@ import com.tchalanet.server.catalog.settings.internal.persistence.SettingReposit
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.job.launch.BatchJobStarter;
-import com.tchalanet.server.common.job.registry.TchJobRegistry;
 import com.tchalanet.server.common.job.registry.RegisteredJob;
+import com.tchalanet.server.common.job.registry.TchJobRegistry;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.features.ops.batch.model.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.job.JobExecution;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -36,20 +28,17 @@ public class OpsBatchService {
     private final BatchGate gate;
     private final BatchJobStarter jobStarter;
     private final SettingRepository appSettingRepo;
-    private final JobRepository jobRepository;
 
     public OpsBatchService(
         TchJobRegistry tchBatchJobRegistry,
         BatchGate gate,
         BatchJobStarter jobStarter,
-        SettingRepository appSettingRepo,
-        JobRepository jobRepository
+        SettingRepository appSettingRepo
     ) {
         this.tchBatchJobRegistry = tchBatchJobRegistry;
         this.gate = gate;
         this.jobStarter = jobStarter;
         this.appSettingRepo = appSettingRepo;
-        this.jobRepository = jobRepository;
     }
 
     public List<JobInfoResponse> listJobs() {
@@ -174,11 +163,7 @@ public class OpsBatchService {
     }
 
     public ExecutionResponse getExecution(long executionId) {
-        JobExecution exec = jobRepository.getJobExecution(executionId);
-        if (exec == null) {
-            throw new IllegalArgumentException("Execution not found: " + executionId);
-        }
-        return toExecutionResponse(exec);
+        throw batchHistoryNotExposed();
     }
 
     public List<ExecutionResponse> listExecutions(String jobKeyStr, int limit) {
@@ -190,42 +175,15 @@ public class OpsBatchService {
         }
 
         JobKey jobKey = JobKey.of(jobKeyStr);
-        RegisteredJob reg = tchBatchJobRegistry.find(jobKey)
+        tchBatchJobRegistry.find(jobKey)
             .orElseThrow(() -> new IllegalArgumentException("Job not in allowlist: " + jobKey));
 
-        String jobName = reg.springJobBeanName();
-
-        var instances = jobRepository.getJobInstances(jobName, 0, Math.min(50, limit));
-        List<ExecutionResponse> out = new ArrayList<>(limit);
-
-        for (var instance : instances) {
-            var execs = jobRepository.getJobExecutions(instance);
-            for (var exec : execs) {
-                out.add(toExecutionResponse(exec));
-                if (out.size() >= limit) {
-                    return out;
-                }
-            }
-        }
-        return out;
+        throw batchHistoryNotExposed();
     }
 
-    private ExecutionResponse toExecutionResponse(JobExecution execution) {
-        LocalDateTime startLdt = execution.getStartTime();
-        LocalDateTime endLdt = execution.getEndTime();
-
-        TchRequestContext ctx = TchContext.currentOrNull();
-        ZoneId effectiveZone = (ctx != null && ctx.tenantZoneId() != null) ? ctx.tenantZoneId() : ZoneId.of("UTC");
-
-        Instant startedAt = startLdt != null ? ZonedDateTime.of(startLdt, effectiveZone).toInstant() : Instant.EPOCH;
-        Instant endedAt = endLdt != null ? ZonedDateTime.of(endLdt, effectiveZone).toInstant() : null;
-
-        return new ExecutionResponse(
-            execution.getId(),
-            execution.getJobInstance().getJobName(),
-            execution.getStatus().name(),
-            startedAt,
-            endedAt
+    private static UnsupportedOperationException batchHistoryNotExposed() {
+        return new UnsupportedOperationException(
+            "Batch execution history is owned by app.batch runtime and is not exposed through common.job contracts yet"
         );
     }
 

@@ -2,7 +2,7 @@ package com.tchalanet.server.platform.identity.internal.web.admin;
 
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiResponse;

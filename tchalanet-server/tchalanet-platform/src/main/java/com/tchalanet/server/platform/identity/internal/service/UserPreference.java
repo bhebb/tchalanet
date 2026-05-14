@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
-import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.catalog.theme.api.ThemeMode;
 import com.tchalanet.server.common.types.id.UserId;
 import java.time.ZoneId;
 import java.util.Currency;

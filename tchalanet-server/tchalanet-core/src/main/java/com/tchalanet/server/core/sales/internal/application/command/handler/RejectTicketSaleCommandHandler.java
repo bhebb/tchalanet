@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.command.RejectTicketSaleCommand;
 import com.tchalanet.server.core.sales.api.command.TicketRejectedResult;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;

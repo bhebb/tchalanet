@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.autonomy.internal.infra.web.admin.model;
 
-import com.tchalanet.server.common.types.enums.ApprovalRole;
-import com.tchalanet.server.common.types.enums.AutonomyLevel;
-import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.internal.domain.model.ApprovalRole;
+import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
+import com.tchalanet.server.core.autonomy.api.AutonomyTargetType;
 import com.tchalanet.server.core.autonomy.internal.domain.model.AutonomyTargetId;
 import jakarta.validation.constraints.NotNull;
 

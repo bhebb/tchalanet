@@ -4,7 +4,7 @@ import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
 import com.tchalanet.server.core.terminal.internal.domain.model.Terminal;
 import com.tchalanet.server.core.terminal.internal.domain.model.TerminalKind;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.payout.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.web.error.NotFoundException;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.payout.internal.application.port.out.PayoutReaderPort;
@@ -32,6 +32,6 @@ public class PayoutRepositoryAdapter implements PayoutReaderPort {
     @Override
     public Payout getById(PayoutId payoutId) {
         return findById(payoutId)
-            .orElseThrow(() -> new NotFoundException("Payout not found: " + payoutId));
+            .orElseThrow(() -> ProblemRest.notFound("Payout not found", payoutId));
     }
 }

@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.time.TimeProvider;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;

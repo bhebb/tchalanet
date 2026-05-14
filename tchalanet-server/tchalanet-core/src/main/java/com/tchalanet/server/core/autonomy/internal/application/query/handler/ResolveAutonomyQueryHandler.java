@@ -2,8 +2,8 @@ package com.tchalanet.server.core.autonomy.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.ApprovalRole;
-import com.tchalanet.server.common.types.enums.AutonomyLevel;
+import com.tchalanet.server.core.autonomy.internal.domain.model.ApprovalRole;
+import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
 import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
 import com.tchalanet.server.core.autonomy.api.query.AutonomyPolicyRuleView;
 import com.tchalanet.server.core.autonomy.api.query.ResolveAutonomyQuery;

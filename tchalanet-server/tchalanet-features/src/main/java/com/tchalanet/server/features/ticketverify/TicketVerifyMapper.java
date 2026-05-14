@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.ticketverify;
 
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.api.query.PublicTicketVerificationRecord;
 import com.tchalanet.server.features.ticketverify.model.*;
 import org.springframework.stereotype.Component;

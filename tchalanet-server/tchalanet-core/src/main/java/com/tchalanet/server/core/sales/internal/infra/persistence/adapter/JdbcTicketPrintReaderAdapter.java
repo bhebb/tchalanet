@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.internal.application.formatter.DrawLabelFormat;
 import com.tchalanet.server.core.sales.internal.application.formatter.TicketDrawLabelFormatter;
@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;

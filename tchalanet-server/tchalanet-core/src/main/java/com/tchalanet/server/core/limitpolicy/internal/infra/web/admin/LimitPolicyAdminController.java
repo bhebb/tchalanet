@@ -4,7 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.types.enums.TargetType;
+import com.tchalanet.server.core.limitpolicy.api.TargetType;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
 import com.tchalanet.server.common.types.id.OutletId;

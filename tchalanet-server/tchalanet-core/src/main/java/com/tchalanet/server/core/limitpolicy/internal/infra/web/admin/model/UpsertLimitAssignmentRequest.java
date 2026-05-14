@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.web.admin.model;
 
-import com.tchalanet.server.common.types.enums.BreachOutcome;
-import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.common.types.enums.TargetType;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.TargetType;
 import jakarta.validation.constraints.NotNull;
 import tools.jackson.databind.JsonNode;
 

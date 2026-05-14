@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.terminal.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.web.error.NotFoundException;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -40,7 +40,7 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
     public Terminal getById(TenantId tenantId, TerminalId terminalId) {
         return repo.findByTenantIdAndId(tenantId.value(), terminalId.value())
             .map(mapper::toDomain)
-            .orElseThrow(() -> new NotFoundException("Terminal not found: " + terminalId));
+            .orElseThrow(() -> ProblemRest.notFound("Terminal not found", terminalId));
     }
 
     @Override

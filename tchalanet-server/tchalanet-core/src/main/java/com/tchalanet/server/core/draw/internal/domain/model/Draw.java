@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.domain.model;
 
-import com.tchalanet.server.common.types.enums.DrawSource;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;

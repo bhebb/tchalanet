@@ -3,7 +3,7 @@ package com.tchalanet.server.core.session.internal.domain.model;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.core.money.CurrencyCode;
 import java.time.Instant;
 
 public record SalesSessionOfflineAdjustment(

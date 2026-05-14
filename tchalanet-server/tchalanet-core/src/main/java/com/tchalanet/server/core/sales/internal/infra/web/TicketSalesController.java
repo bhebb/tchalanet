@@ -4,7 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.common.types.enums.IdempotencyScope;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.core.sales.internal.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.internal.infra.web.model.SellTicketRequest;
 import com.tchalanet.server.core.sales.internal.infra.web.model.TicketResponse;

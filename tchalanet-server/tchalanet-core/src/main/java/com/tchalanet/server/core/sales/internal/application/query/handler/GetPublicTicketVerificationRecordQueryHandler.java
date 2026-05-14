@@ -2,10 +2,10 @@ package com.tchalanet.server.core.sales.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.api.query.GetPublicTicketVerificationRecordQuery;
 import com.tchalanet.server.core.sales.api.query.PublicTicketVerificationLineRecord;
@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @UseCase

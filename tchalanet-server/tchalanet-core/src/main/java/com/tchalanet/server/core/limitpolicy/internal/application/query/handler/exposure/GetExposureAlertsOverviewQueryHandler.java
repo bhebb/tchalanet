@@ -2,7 +2,7 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.UserId;

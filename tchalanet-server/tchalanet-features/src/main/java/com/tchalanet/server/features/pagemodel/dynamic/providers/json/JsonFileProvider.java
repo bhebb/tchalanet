@@ -2,7 +2,7 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.json;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProviderException;

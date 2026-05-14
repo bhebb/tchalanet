@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
-import com.tchalanet.server.common.types.enums.UserStatus;
+import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.UUID;
 
-import static com.tchalanet.server.common.constant.ContextKeys.BOOTSTRAPPED_APP_USER_ID;
+import static com.tchalanet.server.common.context.ContextKeys.BOOTSTRAPPED_APP_USER_ID;
 
 @Component
 @Slf4j

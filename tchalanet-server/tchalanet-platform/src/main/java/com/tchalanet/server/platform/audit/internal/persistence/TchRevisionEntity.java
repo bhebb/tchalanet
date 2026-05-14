@@ -1,7 +1,7 @@
 // common/infra/audit/TchRevisionEntity.java
 package com.tchalanet.server.platform.audit.internal.persistence;
 
-import com.tchalanet.server.common.types.enums.AuditActorType;
+import com.tchalanet.server.platform.audit.api.model.AuditActorType;
 import com.tchalanet.server.platform.audit.internal.listener.TchRevisionListener;
 import jakarta.persistence.*;
 import java.time.Instant;

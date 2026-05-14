@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.api.query;
 
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import java.math.BigDecimal;
 
 public record PublicTicketVerificationLineRecord(

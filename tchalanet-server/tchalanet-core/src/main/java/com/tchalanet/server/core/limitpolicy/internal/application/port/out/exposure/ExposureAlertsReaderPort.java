@@ -2,7 +2,7 @@ package com.tchalanet.server.core.limitpolicy.internal.application.port.out.expo
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 
 import java.math.BigDecimal;
 import java.util.List;

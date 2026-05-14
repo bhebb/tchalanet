@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.application.port.out;
 
-import com.tchalanet.server.common.types.enums.UsLotteryProvider;
+import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
 
 /**
  * Port implemented by provider adapters that fetch draws from US providers (NY/FL/GA/etc.).

@@ -5,7 +5,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;

@@ -6,7 +6,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.NotificationDeliveryId;
 import com.tchalanet.server.common.types.id.NotificationId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.notification.api.model.NotificationAudienceType;
 import com.tchalanet.server.platform.notification.api.model.NotificationCategory;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;

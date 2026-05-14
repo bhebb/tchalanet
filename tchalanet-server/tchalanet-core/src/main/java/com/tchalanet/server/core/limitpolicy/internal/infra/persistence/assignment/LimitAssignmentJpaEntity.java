@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.types.enums.BreachOutcome;
-import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.common.types.enums.ScopeType;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.ScopeType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.application.port.out;
 
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 
 import java.util.List;
 

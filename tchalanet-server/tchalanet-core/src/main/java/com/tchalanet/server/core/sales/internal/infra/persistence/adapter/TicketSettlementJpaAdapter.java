@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketSettlementPort;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;

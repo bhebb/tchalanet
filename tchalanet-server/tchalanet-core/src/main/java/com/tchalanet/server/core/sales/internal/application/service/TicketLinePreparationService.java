@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.service;
 
+import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
 import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
@@ -73,7 +74,7 @@ public class TicketLinePreparationService {
     }
 
     // With GameCode enum in web/domain, canonicalization is no-op: return enum name
-    private static String canonicalGameCode(com.tchalanet.server.common.types.enums.GameCode gameCode) {
+    private static String canonicalGameCode(GameCode gameCode) {
         if (gameCode == null) throw new IllegalArgumentException("externalGameCode is required");
         return gameCode.name();
     }

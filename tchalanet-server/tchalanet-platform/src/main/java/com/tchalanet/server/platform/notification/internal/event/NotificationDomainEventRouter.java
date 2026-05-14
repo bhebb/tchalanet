@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.notification.internal.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import com.tchalanet.server.platform.notification.api.model.CreateNotificationCommand;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;

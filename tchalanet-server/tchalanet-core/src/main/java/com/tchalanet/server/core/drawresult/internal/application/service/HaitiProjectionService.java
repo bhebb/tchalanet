@@ -2,7 +2,7 @@ package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.core.haiti.api.HaitiFlags;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.InvalidExternalPickException;

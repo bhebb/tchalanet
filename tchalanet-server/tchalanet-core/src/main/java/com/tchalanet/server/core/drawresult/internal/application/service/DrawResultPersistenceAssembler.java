@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
 import com.tchalanet.server.core.drawresult.internal.infra.util.SourceResultBuilder;
 import lombok.RequiredArgsConstructor;

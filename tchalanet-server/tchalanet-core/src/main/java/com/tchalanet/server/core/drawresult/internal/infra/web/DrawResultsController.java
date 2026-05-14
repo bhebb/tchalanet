@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.infra.web;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.api.command;
 
-import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import java.math.BigDecimal;
 
 public record LimitNotice(

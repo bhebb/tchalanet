@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.cashier.model;
 
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.GameCode;
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;

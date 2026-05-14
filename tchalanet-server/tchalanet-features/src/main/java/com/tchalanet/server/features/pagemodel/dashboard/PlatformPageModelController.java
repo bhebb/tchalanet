@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.dashboard;
 
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

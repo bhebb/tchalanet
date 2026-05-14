@@ -5,7 +5,7 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
 import com.tchalanet.server.core.drawresult.internal.infra.cache.DrawResultCacheEvictor;
 import java.sql.Timestamp;

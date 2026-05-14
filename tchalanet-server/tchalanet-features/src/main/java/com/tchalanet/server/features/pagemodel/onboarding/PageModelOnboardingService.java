@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatal
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.api.command.UpsertPageModelCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelType;

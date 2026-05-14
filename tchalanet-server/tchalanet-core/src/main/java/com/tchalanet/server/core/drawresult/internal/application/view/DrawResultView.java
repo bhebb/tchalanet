@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.internal.application.view;
 
-import com.tchalanet.server.common.types.enums.DrawSource;
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import java.time.Instant;
 

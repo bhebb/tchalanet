@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.ScopeType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.core.limitpolicy.api.ScopeType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

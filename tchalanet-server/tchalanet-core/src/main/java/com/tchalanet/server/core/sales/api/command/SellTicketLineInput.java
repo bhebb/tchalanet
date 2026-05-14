@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.api.command;
 
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.GameCode;
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
 import java.math.BigDecimal;
 
 public record SellTicketLineInput(

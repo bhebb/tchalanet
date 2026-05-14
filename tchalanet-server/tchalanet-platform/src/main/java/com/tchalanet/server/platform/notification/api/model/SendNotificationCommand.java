@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.notification.api.model;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.types.enums.NotificationType;
+import com.tchalanet.server.platform.notification.api.model.NotificationType;
 import jakarta.annotation.Nullable;
 
 import java.util.List;

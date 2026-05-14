@@ -8,7 +8,7 @@ import com.tchalanet.server.platform.communication.api.model.value.MessageId;
 import com.tchalanet.server.platform.communication.internal.adapter.DeliveryProviderRegistry;
 import com.tchalanet.server.platform.communication.internal.persistence.OutboundMessageJpaEntity;
 import com.tchalanet.server.platform.communication.internal.persistence.OutboundMessageJpaRepository;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.time.Clock;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;

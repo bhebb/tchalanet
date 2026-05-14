@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.drawresult.internal.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.common.types.enums.DrawSource;
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import jakarta.persistence.*;
 import java.time.Instant;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.domain.service;
 
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
 

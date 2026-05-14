@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure;
 
-import com.tchalanet.server.common.types.enums.ScopeType;
-import com.tchalanet.server.common.types.enums.BetType;
+import com.tchalanet.server.core.limitpolicy.api.ScopeType;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

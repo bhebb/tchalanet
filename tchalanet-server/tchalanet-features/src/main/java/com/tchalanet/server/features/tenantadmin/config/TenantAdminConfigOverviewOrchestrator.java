@@ -5,7 +5,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.api.AutonomyTargetType;
 import com.tchalanet.server.core.autonomy.api.query.GetAutonomyOverviewQuery;
 import com.tchalanet.server.features.tenantadmin.config.model.AdminConfigOverviewView;
 import com.tchalanet.server.features.tenantadmin.config.model.I18nSummaryView;

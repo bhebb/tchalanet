@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.api.query;
 
-import com.tchalanet.server.common.types.enums.BreachOutcome;
-import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 
 public record LimitBreachView(
     RuleKey ruleKey,

@@ -1,10 +1,9 @@
 package com.tchalanet.server.core.autonomy.internal.application.command.handler;
 
-import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.api.AutonomyTargetType;
 import com.tchalanet.server.core.autonomy.api.command.DeleteAutonomyRuleCommand;
 import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleReaderPort;
 import com.tchalanet.server.core.autonomy.internal.application.port.out.AutonomyRuleWriterPort;

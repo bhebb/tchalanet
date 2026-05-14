@@ -30,11 +30,11 @@ public class SalesTicketAdminAdapter implements SalesTicketAdminPort {
         sessions.stream().map(SalesSessionId::value).collect(Collectors.toList());
 
     long total = repo.countBySessionIdInAndDeletedAtIsNull(sessionUuids);
-    long sold = repo.countBySessionIdInAndSaleStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD);
-    long voided = repo.countBySessionIdInAndSaleStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID);
-    long resultedWin = repo.countBySessionIdInAndResultStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketResultStatus.WON);
-    long resultedLoss = repo.countBySessionIdInAndResultStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketResultStatus.LOST);
-    long paid = repo.countBySessionIdInAndSettlementStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED);
+    long sold = repo.countBySessionIdInAndSaleStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.core.sales.api.model.TicketSaleStatus.SOLD);
+    long voided = repo.countBySessionIdInAndSaleStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.core.sales.api.model.TicketSaleStatus.VOID);
+    long resultedWin = repo.countBySessionIdInAndResultStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.core.sales.api.model.TicketResultStatus.WON);
+    long resultedLoss = repo.countBySessionIdInAndResultStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.core.sales.api.model.TicketResultStatus.LOST);
+    long paid = repo.countBySessionIdInAndSettlementStatusAndDeletedAtIsNull(sessionUuids, com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.SETTLED);
 
     return new TicketCloseStats(total, sold, voided, resultedWin, resultedLoss, paid);
   }

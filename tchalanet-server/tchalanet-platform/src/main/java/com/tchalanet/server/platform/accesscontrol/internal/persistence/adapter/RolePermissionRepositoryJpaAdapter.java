@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.internal.persistence.adapter;
 
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.platform.accesscontrol.internal.service.Permission;
 import com.tchalanet.server.platform.accesscontrol.internal.persistence.repository.RolePermissionJpaRepository;
 import java.util.Collections;

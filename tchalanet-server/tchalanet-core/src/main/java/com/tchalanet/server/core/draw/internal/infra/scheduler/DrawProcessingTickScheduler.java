@@ -1,18 +1,12 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
-import static com.tchalanet.server.common.job.key.BatchJobKeys.DRAW_CLOSE;
-import static com.tchalanet.server.common.job.key.BatchJobKeys.DRAW_PROCESSING;
-import static com.tchalanet.server.common.job.key.BatchJobKeys.DRAW_SETTLE;
-import static com.tchalanet.server.common.job.key.BatchJobKeys.RESULTS_EXTERNAL_APPLY;
-import static com.tchalanet.server.common.job.key.BatchJobKeys.RESULTS_EXTERNAL_FETCH;
-
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.context.JobContextBinder;
-import com.tchalanet.server.common.job.context.JobContextBindingRequest;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.job.launch.BatchJobStarter;
 import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.common.bus.CommandBus;
@@ -45,6 +39,13 @@ public class DrawProcessingTickScheduler {
 
     private static final boolean DEFAULT_DRY_RUN = false;
     private static final boolean DEFAULT_FORCE = false;
+    private static final JobKey DRAW_PROCESSING = JobKey.of("draw:processing");
+    private static final JobKey DRAW_CLOSE = JobKey.of("draw:lifecycle:close");
+    private static final JobKey DRAW_SETTLE = JobKey.of("draw:lifecycle:settle");
+    private static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
+    private static final JobKey RESULTS_EXTERNAL_APPLY = JobKey.of("results:external:apply");
+    private static final String DAYS_BACK = "days_back";
+    private static final String MAX_DRAWS = "max_draws";
 
     private final CommandBus commandBus;
     private final BatchJobStarter batchJobStarter;
@@ -111,7 +112,7 @@ public class DrawProcessingTickScheduler {
 
         for (TenantId tenantId : tenants) {
             try {
-                binder.bind(JobContextBindingRequest.tenant(jobParams(tenantId, "draw-close", now)));
+                binder.bindTenant(tenantId, "scheduler");
                 commandBus.execute(new CloseDueDrawsCommand(
                     now,
                     Math.max(1, cfg.getMaxItemsPerTick()),
@@ -184,7 +185,7 @@ public class DrawProcessingTickScheduler {
         for (SlotDate candidate : due) {
             for (TenantId tenantId : tenants) {
                 try {
-                    binder.bind(JobContextBindingRequest.tenant(jobParams(tenantId, "draw-results-apply", now)));
+                    binder.bindTenant(tenantId, "scheduler");
                     commandBus.execute(new ApplyExternalResultsWindowCommand(
                         tenantId,
                         candidate.drawDate(),
@@ -292,9 +293,9 @@ public class DrawProcessingTickScheduler {
         params.put(JobParamKeys.TENANT_ID, tenantId.value().toString());
         params.put(JobParamKeys.REQUEST_ID, requestId("draw-settle", now));
         params.put(JobParamKeys.ACTOR, "scheduler");
-        params.put(JobParamKeys.DAYS_BACK, "1");
+        params.put(DAYS_BACK, "1");
         params.put(
-            JobParamKeys.MAX_DRAWS,
+            MAX_DRAWS,
             Integer.toString(Math.max(1, drawProperties.getScheduler().getProcessing().getSettle().getMaxItemsPerTick())));
         params.put(JobParamKeys.DRY_RUN, Boolean.toString(DEFAULT_DRY_RUN));
         params.put(JobParamKeys.FORCE, Boolean.toString(DEFAULT_FORCE));

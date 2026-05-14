@@ -19,6 +19,12 @@ import java.util.List;
 @StepScope
 public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
 
+    private static final String SOURCE = "source";
+    private static final String PROVIDER = "provider";
+    private static final String CHANNEL_CODE = "channel_code";
+    private static final String DAYS_BACK = "days_back";
+    private static final String MAX_DRAWS = "max_draws";
+
     public SettleableDrawIdsReader(
         FindSettleableDrawIdsPort port,
         Clock clock,
@@ -63,22 +69,22 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
             var tenantId = TenantId.parse(tenantIdStr);
 
             // optional, but avoid null surprises
-            var source = defaultStr(trimToNull(jp.getString(JobParamKeys.SOURCE)), "batch");
+            var source = defaultStr(trimToNull(jp.getString(SOURCE)), "batch");
 
             // provider is expected for this settle pipeline
-            var provider = trimToNull(jp.getString(JobParamKeys.PROVIDER));
+            var provider = trimToNull(jp.getString(PROVIDER));
             if (provider == null) {
                 throw new IllegalArgumentException("provider is required (job parameter)");
             }
 
-            var channelCode = trimToNull(jp.getString(JobParamKeys.CHANNEL_CODE));
+            var channelCode = trimToNull(jp.getString(CHANNEL_CODE));
 
-            var daysBack = jp.getLong(JobParamKeys.DAYS_BACK);
+            var daysBack = jp.getLong(DAYS_BACK);
             if (daysBack != null && daysBack < 0) {
                 throw new IllegalArgumentException("days_back must be >= 0");
             }
 
-            var maxDraws = jp.getLong(JobParamKeys.MAX_DRAWS);
+            var maxDraws = jp.getLong(MAX_DRAWS);
             if (maxDraws != null && maxDraws <= 0) {
                 throw new IllegalArgumentException("max_draws must be > 0");
             }

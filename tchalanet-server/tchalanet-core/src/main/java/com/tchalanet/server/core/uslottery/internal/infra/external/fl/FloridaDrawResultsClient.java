@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.fl;
 
-import com.tchalanet.server.common.util.Hashing;
-import com.tchalanet.server.common.types.enums.UsLotteryProvider;
+import com.tchalanet.server.common.crypto.Hashing;
+import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;

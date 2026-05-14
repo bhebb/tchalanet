@@ -10,6 +10,7 @@ import com.tchalanet.server.core.offlinesync.api.command.IssueOfflineSalesGrantC
 import com.tchalanet.server.core.offlinesync.api.command.RevokeOfflineSalesGrantCommand;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,11 +37,12 @@ public class OfflineGrantController {
   public ApiResponse<Map<String, String>> issue(
       @CurrentContext TchRequestContext ctx,
       @RequestBody IssueGrantRequest request) {
+    var operational = Objects.requireNonNull(ctx.operationalContext(), "operational context is required");
     var result = commandBus.execute(new IssueOfflineSalesGrantCommand(
         ctx.effectiveTenantIdRequired(),
-        ctx.terminalIdRequired(),
-        ctx.outletIdRequired(),
-        ctx.salesSessionIdRequired(),
+        Objects.requireNonNull(operational.terminalId(), "terminalId is required"),
+        Objects.requireNonNull(operational.outletId(), "outletId is required"),
+        Objects.requireNonNull(operational.salesSessionId(), "salesSessionId is required"),
         ctx.currentUserIdRequired(),
         OfflineCodeBatchId.parse(request.codeBatchId()),
         request.expiresAt()));
@@ -65,4 +67,3 @@ public class OfflineGrantController {
 
   public record RevokeGrantRequest(String reason) {}
 }
-

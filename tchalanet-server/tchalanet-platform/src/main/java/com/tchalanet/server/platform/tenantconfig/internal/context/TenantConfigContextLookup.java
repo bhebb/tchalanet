@@ -2,7 +2,7 @@ package com.tchalanet.server.platform.tenantconfig.internal.context;
 
 import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.catalog.tenant.api.model.TenantBootstrapView;
-import com.tchalanet.server.common.context.TenantContextInfo;
+import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.context.tenant.TenantContextLookup;
 import com.tchalanet.server.common.types.id.TenantId;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +31,7 @@ public class TenantConfigContextLookup implements TenantContextLookup {
     private TenantContextInfo toTenantContextInfo(TenantBootstrapView view) {
         return new TenantContextInfo(
             view.tenantId(),
+            view.code(),
             view.currency(),
             view.timezone());
     }

@@ -1,10 +1,12 @@
 package com.tchalanet.server.platform.notification.api.model;
 
+/** Canaux possibles pour l'envoi d'une notification. */
 public enum NotificationChannel {
-  WEB,
+  EMAIL,
   SLACK,
   SMS,
   WHATSAPP,
-  EMAIL,
-  PUSH
+  PUSH,
+  WEB,
+  IN_APP
 }

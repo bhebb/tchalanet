@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.domain.model;
 
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.core.money.CurrencyCode;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -25,11 +25,11 @@ public class Ticket {
     private final TicketMoneyBreakdown money;
     private final BigDecimal potentialPayoutAmount;
     private BigDecimal winningAmount;
-    private com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus;
-    private com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus;
-    private com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus;
-    private final com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin;
-    private final com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus;
+    private com.tchalanet.server.core.sales.api.model.TicketSaleStatus saleStatus;
+    private com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus;
+    private com.tchalanet.server.core.sales.api.model.TicketSettlementStatus settlementStatus;
+    private final com.tchalanet.server.core.sales.api.model.SaleOrigin saleOrigin;
+    private final com.tchalanet.server.core.sales.api.model.TicketSyncStatus syncStatus;
     private final OfflineSaleRef offlineSaleRef;
     private final SalesSessionPostingMode sessionPostingMode;
     private final Instant soldAt;
@@ -58,11 +58,11 @@ public class Ticket {
         TicketMoneyBreakdown money,
         BigDecimal potentialPayoutAmount,
         BigDecimal winningAmount,
-        com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus,
-        com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus,
-        com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus,
-        com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin,
-        com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus,
+        com.tchalanet.server.core.sales.api.model.TicketSaleStatus saleStatus,
+        com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus,
+        com.tchalanet.server.core.sales.api.model.TicketSettlementStatus settlementStatus,
+        com.tchalanet.server.core.sales.api.model.SaleOrigin saleOrigin,
+        com.tchalanet.server.core.sales.api.model.TicketSyncStatus syncStatus,
         OfflineSaleRef offlineSaleRef,
         SalesSessionPostingMode sessionPostingMode,
         Instant soldAt,
@@ -108,8 +108,8 @@ public class Ticket {
         this.approvalRequestId = approvalRequestId;
 
         if (this.lines.isEmpty()) throw new IllegalArgumentException("lines is required");
-        if (saleOrigin == com.tchalanet.server.common.types.enums.SaleOrigin.OFFLINE && offlineSaleRef == null) throw new IllegalArgumentException("offlineSaleRef required for offline ticket");
-        if (saleOrigin == com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE && offlineSaleRef != null) throw new IllegalArgumentException("offlineSaleRef forbidden for online ticket");
+        if (saleOrigin == com.tchalanet.server.core.sales.api.model.SaleOrigin.OFFLINE && offlineSaleRef == null) throw new IllegalArgumentException("offlineSaleRef required for offline ticket");
+        if (saleOrigin == com.tchalanet.server.core.sales.api.model.SaleOrigin.ONLINE && offlineSaleRef != null) throw new IllegalArgumentException("offlineSaleRef forbidden for online ticket");
     }
 
     public Ticket(
@@ -128,11 +128,11 @@ public class Ticket {
         TicketMoneyBreakdown money,
         BigDecimal potentialPayoutAmount,
         BigDecimal winningAmount,
-        com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus,
-        com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus,
-        com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus,
-        com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin,
-        com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus,
+        com.tchalanet.server.core.sales.api.model.TicketSaleStatus saleStatus,
+        com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus,
+        com.tchalanet.server.core.sales.api.model.TicketSettlementStatus settlementStatus,
+        com.tchalanet.server.core.sales.api.model.SaleOrigin saleOrigin,
+        com.tchalanet.server.core.sales.api.model.TicketSyncStatus syncStatus,
         OfflineSaleRef offlineSaleRef,
         SalesSessionPostingMode sessionPostingMode,
         Instant soldAt,
@@ -150,14 +150,14 @@ public class Ticket {
     }
 
   public boolean paidOut() {
-    return settlementStatus == com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED || paidAt != null;
+    return settlementStatus == com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.SETTLED || paidAt != null;
   }
 
   public void markPaid(UserId paidBy, Instant paidAt) {
     if (paidOut()) return;
     this.paidBy = paidBy;
     this.paidAt = paidAt;
-    this.settlementStatus = com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED;
+    this.settlementStatus = com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.SETTLED;
   }
 
     public static Ticket sell(
@@ -193,11 +193,11 @@ public class Ticket {
             new TicketMoneyBreakdown(stake, BigDecimal.ZERO, stake),
             potential,
             null,
-            com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD,
-            com.tchalanet.server.common.types.enums.TicketResultStatus.NOT_RESULTED,
-            com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED,
-            com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE,
-            com.tchalanet.server.common.types.enums.TicketSyncStatus.NONE,
+            com.tchalanet.server.core.sales.api.model.TicketSaleStatus.SOLD,
+            com.tchalanet.server.core.sales.api.model.TicketResultStatus.NOT_RESULTED,
+            com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.UNSETTLED,
+            com.tchalanet.server.core.sales.api.model.SaleOrigin.ONLINE,
+            com.tchalanet.server.core.sales.api.model.TicketSyncStatus.NONE,
             null,
             SalesSessionPostingMode.NORMAL_OPEN_SESSION,
             soldAt,
@@ -242,11 +242,11 @@ public class Ticket {
             new TicketMoneyBreakdown(stake, BigDecimal.ZERO, stake),
             potential,
             null,
-            com.tchalanet.server.common.types.enums.TicketSaleStatus.PENDING_APPROVAL,
-            com.tchalanet.server.common.types.enums.TicketResultStatus.NOT_RESULTED,
-            com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED,
-            com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE,
-            com.tchalanet.server.common.types.enums.TicketSyncStatus.NONE,
+            com.tchalanet.server.core.sales.api.model.TicketSaleStatus.PENDING_APPROVAL,
+            com.tchalanet.server.core.sales.api.model.TicketResultStatus.NOT_RESULTED,
+            com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.UNSETTLED,
+            com.tchalanet.server.core.sales.api.model.SaleOrigin.ONLINE,
+            com.tchalanet.server.core.sales.api.model.TicketSyncStatus.NONE,
             null,
             SalesSessionPostingMode.NORMAL_OPEN_SESSION,
             soldAt,
@@ -270,9 +270,9 @@ public class Ticket {
         String ticketCode,
         String publicCode,
         String currency,
-        com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus,
-        com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus,
-        com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus,
+        com.tchalanet.server.core.sales.api.model.TicketSaleStatus saleStatus,
+        com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus,
+        com.tchalanet.server.core.sales.api.model.TicketSettlementStatus settlementStatus,
         BigDecimal totalAmount,
         BigDecimal winningAmount,
         Instant resultedAt,
@@ -304,8 +304,8 @@ public class Ticket {
             saleStatus,
             resultStatus,
             settlementStatus,
-            com.tchalanet.server.common.types.enums.SaleOrigin.ONLINE,
-            com.tchalanet.server.common.types.enums.TicketSyncStatus.NONE,
+            com.tchalanet.server.core.sales.api.model.SaleOrigin.ONLINE,
+            com.tchalanet.server.core.sales.api.model.TicketSyncStatus.NONE,
             null,
             SalesSessionPostingMode.NORMAL_OPEN_SESSION,
             createdAt != null ? createdAt : Instant.now(),
@@ -322,78 +322,78 @@ public class Ticket {
     // ---- State transitions
 
     public void approve(Instant when) {
-        requireSaleStatus(com.tchalanet.server.common.types.enums.TicketSaleStatus.PENDING_APPROVAL);
-        this.saleStatus = com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD;
+        requireSaleStatus(com.tchalanet.server.core.sales.api.model.TicketSaleStatus.PENDING_APPROVAL);
+        this.saleStatus = com.tchalanet.server.core.sales.api.model.TicketSaleStatus.SOLD;
         touch(when);
     }
 
     public void reject(Instant when) {
-        requireSaleStatus(com.tchalanet.server.common.types.enums.TicketSaleStatus.PENDING_APPROVAL);
-        this.saleStatus = com.tchalanet.server.common.types.enums.TicketSaleStatus.REJECTED;
+        requireSaleStatus(com.tchalanet.server.core.sales.api.model.TicketSaleStatus.PENDING_APPROVAL);
+        this.saleStatus = com.tchalanet.server.core.sales.api.model.TicketSaleStatus.REJECTED;
         touch(when);
     }
 
     public void voidTicket(Instant when) {
-        if (saleStatus != com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD && saleStatus != com.tchalanet.server.common.types.enums.TicketSaleStatus.PENDING_APPROVAL) {
+        if (saleStatus != com.tchalanet.server.core.sales.api.model.TicketSaleStatus.SOLD && saleStatus != com.tchalanet.server.core.sales.api.model.TicketSaleStatus.PENDING_APPROVAL) {
             throw new IllegalStateException(
                 "Only SOLD or PENDING_APPROVAL can be voided. saleStatus=" + saleStatus);
         }
-        this.saleStatus = com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID;
+        this.saleStatus = com.tchalanet.server.core.sales.api.model.TicketSaleStatus.VOID;
         touch(when);
     }
 
     public void markResulted(BigDecimal payout, Instant when) {
         Objects.requireNonNull(payout, "payout");
         if (payout.signum() < 0) throw new IllegalArgumentException("payout must be >= 0");
-        requireSaleStatus(com.tchalanet.server.common.types.enums.TicketSaleStatus.SOLD);
+        requireSaleStatus(com.tchalanet.server.core.sales.api.model.TicketSaleStatus.SOLD);
 
         this.winningAmount = payout;
         this.resultedAt = Objects.requireNonNull(when, "when");
-        this.resultStatus = payout.signum() > 0 ? com.tchalanet.server.common.types.enums.TicketResultStatus.WON : com.tchalanet.server.common.types.enums.TicketResultStatus.LOST;
+        this.resultStatus = payout.signum() > 0 ? com.tchalanet.server.core.sales.api.model.TicketResultStatus.WON : com.tchalanet.server.core.sales.api.model.TicketResultStatus.LOST;
 
         // payout domain later; sales keeps it UNSETTLED
-        this.settlementStatus = com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED;
+        this.settlementStatus = com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.UNSETTLED;
         touch(when);
     }
 
     public void overrideAsResulted(BigDecimal payout, Instant when) {
         Objects.requireNonNull(payout, "payout");
         if (payout.signum() < 0) throw new IllegalArgumentException("payout must be >= 0");
-        if (saleStatus == com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID) {
+        if (saleStatus == com.tchalanet.server.core.sales.api.model.TicketSaleStatus.VOID) {
             throw new IllegalStateException("Cannot override result for VOID ticket");
         }
 
         this.winningAmount = payout;
         this.resultedAt = Objects.requireNonNull(when, "when");
-        this.resultStatus = com.tchalanet.server.common.types.enums.TicketResultStatus.OVERRIDDEN;
-        this.settlementStatus = com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED;
+        this.resultStatus = com.tchalanet.server.core.sales.api.model.TicketResultStatus.OVERRIDDEN;
+        this.settlementStatus = com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.UNSETTLED;
         touch(when);
     }
 
     // New overload: allow specifying explicit resultStatus (WON or LOST) when forcing result
-    public void forceResult(BigDecimal payout, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus, Instant when) {
+    public void forceResult(BigDecimal payout, com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus, Instant when) {
         Objects.requireNonNull(payout, "payout");
         Objects.requireNonNull(resultStatus, "resultStatus");
         if (payout.signum() < 0) throw new IllegalArgumentException("payout must be >= 0");
-        if (saleStatus == com.tchalanet.server.common.types.enums.TicketSaleStatus.VOID) {
+        if (saleStatus == com.tchalanet.server.core.sales.api.model.TicketSaleStatus.VOID) {
             throw new IllegalStateException("Cannot override result for VOID ticket");
         }
-        if (resultStatus != com.tchalanet.server.common.types.enums.TicketResultStatus.WON && resultStatus != com.tchalanet.server.common.types.enums.TicketResultStatus.LOST) {
+        if (resultStatus != com.tchalanet.server.core.sales.api.model.TicketResultStatus.WON && resultStatus != com.tchalanet.server.core.sales.api.model.TicketResultStatus.LOST) {
             throw new IllegalArgumentException("resultStatus must be WON or LOST");
         }
 
         this.winningAmount = payout;
         this.resultedAt = Objects.requireNonNull(when, "when");
         this.resultStatus = resultStatus;
-        this.settlementStatus = com.tchalanet.server.common.types.enums.TicketSettlementStatus.UNSETTLED;
+        this.settlementStatus = com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.UNSETTLED;
         touch(when);
     }
 
     public void settle(Instant when) {
-        if (resultStatus == com.tchalanet.server.common.types.enums.TicketResultStatus.NOT_RESULTED) {
+        if (resultStatus == com.tchalanet.server.core.sales.api.model.TicketResultStatus.NOT_RESULTED) {
             throw new IllegalStateException("Only resulted tickets can be settled");
         }
-        this.settlementStatus = com.tchalanet.server.common.types.enums.TicketSettlementStatus.SETTLED;
+        this.settlementStatus = com.tchalanet.server.core.sales.api.model.TicketSettlementStatus.SETTLED;
         touch(when);
     }
 
@@ -405,7 +405,7 @@ public class Ticket {
         return this.winningAmount == null ? java.math.BigDecimal.ZERO : this.winningAmount;
     }
 
-    private void requireSaleStatus(com.tchalanet.server.common.types.enums.TicketSaleStatus expected) {
+    private void requireSaleStatus(com.tchalanet.server.core.sales.api.model.TicketSaleStatus expected) {
         if (this.saleStatus != expected) {
             throw new IllegalStateException("Expected " + expected + " but was " + saleStatus);
         }
@@ -427,23 +427,23 @@ public class Ticket {
         return publicCode;
     }
 
-    public com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus() {
+    public com.tchalanet.server.core.sales.api.model.TicketSaleStatus saleStatus() {
         return saleStatus;
     }
 
-    public com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus() {
+    public com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus() {
         return resultStatus;
     }
 
-    public com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus() {
+    public com.tchalanet.server.core.sales.api.model.TicketSettlementStatus settlementStatus() {
         return settlementStatus;
     }
 
-    public com.tchalanet.server.common.types.enums.SaleOrigin saleOrigin() {
+    public com.tchalanet.server.core.sales.api.model.SaleOrigin saleOrigin() {
         return saleOrigin;
     }
 
-    public com.tchalanet.server.common.types.enums.TicketSyncStatus syncStatus() {
+    public com.tchalanet.server.core.sales.api.model.TicketSyncStatus syncStatus() {
         return syncStatus;
     }
 

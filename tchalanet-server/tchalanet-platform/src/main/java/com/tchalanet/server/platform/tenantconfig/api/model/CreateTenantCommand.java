@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.tenantconfig.api.model;
 
-import com.tchalanet.server.common.types.enums.TenantType;
+import com.tchalanet.server.catalog.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.model.AddressInput;
 import jakarta.validation.constraints.NotBlank;

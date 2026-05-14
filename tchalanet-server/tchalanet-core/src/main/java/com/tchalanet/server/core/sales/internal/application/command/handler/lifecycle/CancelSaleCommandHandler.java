@@ -8,10 +8,10 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.types.enums.OperationType;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
@@ -100,7 +100,7 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         List<LimitNotice> warnings = toLimitNotices(limitView);
 
         var outcome =
-            limitView.outcome() == com.tchalanet.server.common.types.enums.BreachOutcome.WARN
+            limitView.outcome() == BreachOutcome.WARN
                 ? CancelSaleResult.CancelOutcome.SUCCESS_WITH_WARNINGS
                 : CancelSaleResult.CancelOutcome.SUCCESS;
 
@@ -155,11 +155,11 @@ public class CancelSaleCommandHandler implements CommandHandler<CancelSaleComman
         LimitEvaluationView limitView,
         Instant now) {
 
-        if (limitView.outcome() == com.tchalanet.server.common.types.enums.BreachOutcome.ALLOW) {
+        if (limitView.outcome() == BreachOutcome.ALLOW) {
             return;
         }
 
-        if (limitView.outcome() == com.tchalanet.server.common.types.enums.BreachOutcome.WARN) {
+        if (limitView.outcome() == BreachOutcome.WARN) {
             log.warn("Cancel limit WARN tenantId={} ticketId={} details= {}", cmd.tenantId(), ticket.getId(), limitView.breaches());
             return;
         }

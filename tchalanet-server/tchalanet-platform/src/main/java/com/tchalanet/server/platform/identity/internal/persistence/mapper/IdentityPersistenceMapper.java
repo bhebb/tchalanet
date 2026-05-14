@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.persistence.mapper;
 
-import com.tchalanet.server.common.types.enums.TenantUserStatus;
+import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.RoleId;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.autonomy.api.query;
 
-import com.tchalanet.server.common.types.enums.AutonomyLevel;
-import com.tchalanet.server.common.types.enums.ApprovalRole;
+import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
+import com.tchalanet.server.core.autonomy.internal.domain.model.ApprovalRole;
 import java.time.Instant;
 
 public record AutonomyRule(

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.application.port.out;
 
-import com.tchalanet.server.common.types.enums.UsLotteryProvider;
+import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;

@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.catalog.theme.api.ThemeMode;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;

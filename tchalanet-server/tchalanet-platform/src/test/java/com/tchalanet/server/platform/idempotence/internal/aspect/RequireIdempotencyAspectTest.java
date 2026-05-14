@@ -11,9 +11,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tchalanet.server.common.constant.TchHeaders;
-import com.tchalanet.server.common.types.enums.IdempotencyScope;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.http.TchHeaders;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;

@@ -4,13 +4,11 @@ import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
-import com.tchalanet.server.common.job.context.JobContextBindingRequest;
 import com.tchalanet.server.common.job.exception.JobContextClearException;
 import com.tchalanet.server.common.job.exception.JobPartialFailureException;
 import com.tchalanet.server.common.job.exception.JobSkippedException;
 import com.tchalanet.server.common.job.gate.BatchGate;
-import com.tchalanet.server.common.job.key.BatchJobKeys;
-import com.tchalanet.server.common.job.params.JobParamKeys;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
@@ -18,18 +16,12 @@ import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
-import org.springframework.batch.core.job.parameters.JobParameters;
-import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
@@ -38,6 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DrawLifeCycleTickScheduler {
 
     private static final boolean DEFAULT_DRY_RUN = false;
+    private static final JobKey DRAW_GENERATE = JobKey.of("draw:lifecycle:generate");
+    private static final JobKey DRAW_OPEN = JobKey.of("draw:lifecycle:open");
 
     private final TenantCatalog tenantCatalog;
     private final CommandBus commandBus;
@@ -56,8 +50,6 @@ public class DrawLifeCycleTickScheduler {
 
         validateGenerateCanRun();
 
-        var now = clock.instant();
-
         var schedulerZone = drawProps.getScheduler().getProcessing().getTimezone();
         var from = LocalDate.now(schedulerZone);
 
@@ -75,28 +67,15 @@ public class DrawLifeCycleTickScheduler {
         for (TenantId tenantId : activeTenants.stream().limit(maxTenants).toList()) {
 
             try {
-                var params = Map.of(
-                    JobParamKeys.TENANT_ID, tenantId.value().toString(),
-                    JobParamKeys.ACTOR, "draw-processing-scheduler"
-                );
-
-                try {
-
-                    jobContextBinder.bind(JobContextBindingRequest.tenant(params));
-                    commandBus.execute(new GenerateDrawsForRangeCommand(
-                        tenantId,
-                        from,
-                        to,
-                        DEFAULT_DRY_RUN,
-                        false,
-                        null
-                    ));
-                    // call commandBus / queryBus / job starter
-                } finally {
-                    jobContextBinder.clear();
-                }
-
-
+                jobContextBinder.bindTenant(tenantId, "draw-processing-scheduler");
+                commandBus.execute(new GenerateDrawsForRangeCommand(
+                    tenantId,
+                    from,
+                    to,
+                    DEFAULT_DRY_RUN,
+                    false,
+                    null
+                ));
             } catch (Exception ex) {
                 failures.add(new TenantFailure(tenantId, ex));
 
@@ -132,7 +111,7 @@ public class DrawLifeCycleTickScheduler {
             throw new JobSkippedException("generate_disabled", "Draw generate scheduler disabled");
         }
 
-        if (!batchGate.enabled(BatchJobKeys.DRAW_GENERATE, null)) {
+        if (!batchGate.enabled(DRAW_GENERATE, null)) {
             throw new JobSkippedException("gate_disabled", "Draw generate gate disabled");
         }
     }
@@ -156,15 +135,8 @@ public class DrawLifeCycleTickScheduler {
         var failures = new ArrayList<TenantFailure>();
 
         for (TenantId tenantId : activeTenants) {
-            var jp = jobParams(tenantId, "draw-open-close", now);
-
             try {
-                var params = Map.of(
-                    JobParamKeys.TENANT_ID, tenantId.value().toString(),
-                    JobParamKeys.ACTOR, "draw-processing-scheduler"
-                );
-
-                jobContextBinder.bind(JobContextBindingRequest.tenant(params));
+                jobContextBinder.bindTenant(tenantId, "draw-processing-scheduler");
 
                 commandBus.execute(new OpenTodayDrawsCommand(
                     now,
@@ -206,7 +178,7 @@ public class DrawLifeCycleTickScheduler {
         if (!drawProps.getScheduler().getOpenToday().isActive()) {
             throw new JobSkippedException("open_today_disabled", "Draw open-today scheduler disabled");
         }
-        if (!batchGate.enabled(BatchJobKeys.DRAW_OPEN, null)) {
+        if (!batchGate.enabled(DRAW_OPEN, null)) {
             throw new JobSkippedException("gate_disabled", "Draw open gate disabled");
         }
     }
@@ -230,20 +202,6 @@ public class DrawLifeCycleTickScheduler {
             scheduler.getProcessing().getTimezone());
     }
 
-
-    private JobParameters jobParams(TenantId tenantId, String kind, Instant now) {
-        Objects.requireNonNull(tenantId, "tenantId is required");
-        Objects.requireNonNull(now, "now is required");
-
-        String safeKind = kind == null || kind.isBlank() ? "batch" : kind.trim();
-        String requestId = safeKind + "-" + now.toEpochMilli() + "-" + UUID.randomUUID();
-
-        return new JobParametersBuilder()
-            .addString(JobParamKeys.TENANT_ID, tenantId.value().toString())
-            .addString(JobParamKeys.REQUEST_ID, requestId)
-            .addString(JobParamKeys.ACTOR, "scheduler")
-            .toJobParameters();
-    }
 
     private Exception clearContext(TenantId tenantId) {
         try {

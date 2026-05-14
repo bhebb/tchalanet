@@ -38,7 +38,7 @@ public class OverrideTicketResultCommandHandler implements CommandHandler<Overri
       throw new IllegalArgumentException("totalPayout must be >= 0");
     }
     var providedResultStatus = cmd.status() != null ? cmd.status().resultStatus() : null;
-    if ((providedResultStatus != com.tchalanet.server.common.types.enums.TicketResultStatus.WON && providedResultStatus != com.tchalanet.server.common.types.enums.TicketResultStatus.LOST)) {
+    if ((providedResultStatus != com.tchalanet.server.core.sales.api.model.TicketResultStatus.WON && providedResultStatus != com.tchalanet.server.core.sales.api.model.TicketResultStatus.LOST)) {
       throw new IllegalArgumentException("status must be WON or LOST");
     }
 

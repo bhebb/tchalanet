@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.tenantconfig.internal.mapper;
 
-import com.tchalanet.server.common.json.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonIdMapper;
 import com.tchalanet.server.platform.tenantconfig.internal.service.TenantConfig;
 import com.tchalanet.server.platform.tenantconfig.internal.persistence.TenantJpaEntity;
 import org.mapstruct.Mapper;

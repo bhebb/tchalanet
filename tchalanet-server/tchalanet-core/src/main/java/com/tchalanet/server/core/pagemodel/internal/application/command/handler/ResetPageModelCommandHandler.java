@@ -10,7 +10,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.api.command.ResetPageModelCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReaderPort;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelWriterPort;

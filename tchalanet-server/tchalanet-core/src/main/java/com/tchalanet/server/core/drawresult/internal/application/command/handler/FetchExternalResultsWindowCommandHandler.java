@@ -8,7 +8,7 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
-import com.tchalanet.server.common.types.enums.DrawSource;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;

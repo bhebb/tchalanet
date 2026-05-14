@@ -6,7 +6,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

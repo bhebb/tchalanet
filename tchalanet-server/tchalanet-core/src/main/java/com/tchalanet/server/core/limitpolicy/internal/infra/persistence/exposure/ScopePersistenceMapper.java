@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure;
 
-import com.tchalanet.server.common.types.enums.ScopeType;
+import com.tchalanet.server.core.limitpolicy.api.ScopeType;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;

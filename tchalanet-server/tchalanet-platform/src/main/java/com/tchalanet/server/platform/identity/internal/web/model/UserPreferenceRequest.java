@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.web.model;
 
-import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.catalog.theme.api.ThemeMode;
 
 public record UserPreferenceRequest(
     ThemeMode themeMode,

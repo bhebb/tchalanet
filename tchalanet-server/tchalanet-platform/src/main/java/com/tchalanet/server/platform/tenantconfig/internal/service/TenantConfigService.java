@@ -4,7 +4,7 @@ import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.types.enums.TenantStatus;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.paging.TchPage;

@@ -2,8 +2,8 @@ package com.tchalanet.server.core.subscription.internal.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
 import com.tchalanet.server.common.web.api.ApiResponse;

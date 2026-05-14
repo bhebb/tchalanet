@@ -1,11 +1,9 @@
 package com.tchalanet.server.platform.tenantconfig.api.model;
 
-import com.tchalanet.server.common.types.enums.TenantStatus;
-import com.tchalanet.server.common.types.enums.TenantType;
-import com.tchalanet.server.common.types.id.AddressId;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
+import com.tchalanet.server.catalog.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
-import com.tchalanet.server.platform.address.api.model.AddressInput;
 import com.tchalanet.server.platform.address.api.model.AddressView;
 
 import java.time.ZoneId;

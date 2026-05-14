@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.audit.api;
 
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.idempotence.api;
 
-import com.tchalanet.server.common.types.enums.IdempotencyScope;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import java.util.Optional;
 import java.util.UUID;
 

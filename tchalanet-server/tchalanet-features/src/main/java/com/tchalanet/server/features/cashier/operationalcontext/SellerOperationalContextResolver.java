@@ -1,9 +1,6 @@
 package com.tchalanet.server.features.cashier.operationalcontext;
 
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.security.Permissions;
-import com.tchalanet.server.common.types.id.OutletId;
-import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.outlet.api.query.OutletOperation;
 import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
@@ -15,13 +12,14 @@ import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.platform.identity.api.model.request.GetUserProfileRequest;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SellerOperationalContextResolver {
 
-  private static final Set<String> SELL_PERMISSIONS = Set.of(Permissions.Ticket.SELL);
+  private static final Set<String> SELL_PERMISSIONS = Set.of("TICKET_SELL");
 
   private final QueryBus queryBus;
   private final IdentityApi identityApi;
@@ -40,7 +38,7 @@ public class SellerOperationalContextResolver {
     var ctx = request.requestContext();
     var tenantId = ctx.effectiveTenantIdRequired();
     var actorUserId = ctx.currentUserIdRequired();
-    var operationalContext = ctx.sellerOperationalContextRequired();
+    var operationalContext = Objects.requireNonNull(ctx.operationalContext(), "seller operational context is required");
     var terminalId = request.terminalId();
     var outletId = operationalContext.outletId();
     var salesSessionId = operationalContext.salesSessionId();

@@ -2,7 +2,7 @@ package com.tchalanet.server.platform.notification.internal.web;
 
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.types.enums.NotificationType;
+import com.tchalanet.server.platform.notification.api.model.NotificationType;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.notification.api.model.SendNotificationCommand;
 import com.tchalanet.server.platform.notification.api.model.NotificationChannel;

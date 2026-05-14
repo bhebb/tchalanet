@@ -6,7 +6,7 @@ import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelTemplateLoaderPort;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;

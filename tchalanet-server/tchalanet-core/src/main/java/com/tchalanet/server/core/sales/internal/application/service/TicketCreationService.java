@@ -1,12 +1,12 @@
 package com.tchalanet.server.core.sales.internal.application.service;
 
-import com.tchalanet.server.common.types.enums.SaleOrigin;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
-import com.tchalanet.server.common.types.enums.TicketSyncStatus;
+import com.tchalanet.server.core.sales.api.model.SaleOrigin;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSyncStatus;
 import com.tchalanet.server.common.types.id.*;
-import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.core.money.CurrencyCode;
 import com.tchalanet.server.core.sales.internal.domain.model.OfflineSaleRef;
 import com.tchalanet.server.core.sales.internal.domain.model.SalesSessionPostingMode;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;

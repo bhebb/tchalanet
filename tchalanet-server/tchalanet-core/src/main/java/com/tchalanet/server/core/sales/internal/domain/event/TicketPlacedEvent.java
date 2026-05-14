@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.internal.domain.event;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.common.types.enums.SaleOrigin;
-import com.tchalanet.server.common.types.enums.TicketSyncStatus;
+import com.tchalanet.server.core.sales.api.model.SaleOrigin;
+import com.tchalanet.server.core.sales.api.model.TicketSyncStatus;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.EventId;
@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.core.money.CurrencyCode;
 
 public record TicketPlacedEvent(
     EventId eventId,

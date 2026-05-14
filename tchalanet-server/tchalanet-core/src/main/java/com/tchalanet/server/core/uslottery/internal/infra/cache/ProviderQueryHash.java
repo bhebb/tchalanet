@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.infra.cache;
 
-import com.tchalanet.server.common.util.Hashing;
+import com.tchalanet.server.common.crypto.Hashing;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;

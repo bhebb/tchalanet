@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.catalog.theme.api.ThemeMode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

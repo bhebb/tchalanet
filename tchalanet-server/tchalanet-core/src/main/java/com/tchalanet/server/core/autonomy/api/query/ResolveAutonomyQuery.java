@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.autonomy.api.query;
 
 import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;

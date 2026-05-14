@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.idempotence.internal.aspect;
 
-import com.tchalanet.server.common.constant.TchHeaders;
+import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.idempotence.api.IdempotencyStore;
 import com.tchalanet.server.platform.idempotence.internal.service.RequestHasher;

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.autonomy.internal.application.command.handler;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
-import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.api.AutonomyTargetType;
 import com.tchalanet.server.common.types.id.AutonomyPolicyRuleId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.autonomy.api.command.UpsertAutonomyRuleCommand;

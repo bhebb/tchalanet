@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.time.TimeProvider;
-import com.tchalanet.server.common.types.enums.UserStatus;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -33,7 +32,7 @@ public class UserAdminService {
       String phone,
       String firstName,
       String lastName,
-      com.tchalanet.server.common.types.enums.ThemeMode prefThemeMode,
+      com.tchalanet.server.catalog.theme.api.ThemeMode prefThemeMode,
       Short prefDensity,
       String prefLocale,
       String prefTimeZone,

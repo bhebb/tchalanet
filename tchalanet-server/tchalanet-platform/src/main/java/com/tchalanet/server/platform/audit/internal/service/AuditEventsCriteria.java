@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.audit.internal.service;
 
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
 import org.springframework.data.domain.Pageable;

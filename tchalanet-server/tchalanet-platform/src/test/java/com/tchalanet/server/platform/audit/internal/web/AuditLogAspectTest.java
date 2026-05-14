@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.LogAuditEventCommand;
 import java.lang.reflect.Method;

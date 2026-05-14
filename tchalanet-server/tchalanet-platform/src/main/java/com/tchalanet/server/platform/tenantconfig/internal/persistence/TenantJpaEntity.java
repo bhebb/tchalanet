@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.tenantconfig.internal.persistence;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.common.types.enums.TenantStatus;
-import com.tchalanet.server.common.types.enums.TenantType;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
+import com.tchalanet.server.catalog.tenant.api.model.TenantType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

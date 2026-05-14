@@ -2,8 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.service;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.common.types.enums.BreachOutcome;
-import com.tchalanet.server.common.types.enums.OperationType;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -23,7 +22,6 @@ import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;

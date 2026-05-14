@@ -5,12 +5,12 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 
 import com.tchalanet.server.common.job.gate.BatchGate;
-import com.tchalanet.server.common.job.key.BatchJobKeys;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -47,6 +47,11 @@ import java.util.Objects;
 @Validated
 public class DrawResultsOpsController {
 
+    private static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");
+    private static final JobKey RESULTS_EXTERNAL_REFRESH = JobKey.of("results:external:refresh");
+    private static final JobKey RESULTS_EXTERNAL_OVERRIDE = JobKey.of("results:external:override");
+    private static final JobKey RESULTS_EXTERNAL_MANUAL = JobKey.of("results:external:manual");
+
     private final CommandBus commandBus;
     private final QueryBus queryBus;
     private final BatchGate gate;
@@ -62,7 +67,7 @@ public class DrawResultsOpsController {
     public ApiResponse<FetchExternalResultsWindowResult> fetch(
         @Valid @RequestBody FetchExternalResultsRequest req
     ) {
-        gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_FETCH, null);
+        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_FETCH, null);
 
         var res = commandBus.execute(
             new FetchExternalResultsWindowCommand(
@@ -92,7 +97,7 @@ public class DrawResultsOpsController {
         @Valid @RequestBody FetchExternalResultsRequest req,
         @CurrentContext TchRequestContext ctx
     ) {
-        gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_REFRESH, ctx.tenantId());
+        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_REFRESH, ctx.tenantId());
 
         var fetchRes = commandBus.execute(
             new FetchExternalResultsWindowCommand(
@@ -135,7 +140,7 @@ public class DrawResultsOpsController {
         @Valid @RequestBody OverrideDrawResultRequest req,
         @CurrentContext TchRequestContext ctx
     ) {
-        gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_OVERRIDE, ctx.tenantId());
+        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_OVERRIDE, ctx.tenantId());
 
         var res = commandBus.execute(
             new OverrideDrawResultCommand(
@@ -163,7 +168,7 @@ public class DrawResultsOpsController {
         @Valid @RequestBody RecordManualDrawResultRequest req,
         @CurrentContext TchRequestContext ctx
     ) {
-        gate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_MANUAL, ctx.tenantId());
+        gate.assertEnabledOrThrow(RESULTS_EXTERNAL_MANUAL, ctx.tenantId());
 
         var res = commandBus.execute(
             new RecordManualDrawResultCommand(

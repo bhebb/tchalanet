@@ -28,7 +28,7 @@ public class DrawSettleJobConfig {
 
     private final JobExecutionListener listener;
 
-    @Bean(name = "settleDrawsJob") // must match TchBatchJobRegistry springJobBeanName
+    @Bean(name = "settleDrawsJob") // must match app registry runtime bean name
     public Job settleDrawsJob() {
         return new JobBuilder("settle_draws", jobRepository)
             .listener(listener)

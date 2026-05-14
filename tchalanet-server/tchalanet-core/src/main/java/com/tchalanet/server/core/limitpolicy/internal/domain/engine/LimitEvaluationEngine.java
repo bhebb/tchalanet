@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.domain.engine;
 
-import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimitRule;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimits;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitBreach;

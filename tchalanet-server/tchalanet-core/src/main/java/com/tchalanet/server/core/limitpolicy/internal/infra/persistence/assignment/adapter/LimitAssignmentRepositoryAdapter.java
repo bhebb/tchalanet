@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.adapter;
 
-import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentWriterPort;

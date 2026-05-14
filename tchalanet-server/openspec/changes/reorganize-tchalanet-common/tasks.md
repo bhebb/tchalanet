@@ -10,17 +10,20 @@
 ## Phase 1 — Job/batch extraction
 
 - [x] Rename/keep annotation: `common.job.annotation.TchJob`.
-- [x] Keep `common.job.key.JobKey`; review `BatchJobKeys` for domain-specific constants. *(Per-domain split deferred to Phase 6 by design decision.)*
+- [x] Keep `common.job.key.JobKey`; remove shared `BatchJobKeys` business constants from common and replace consumers with app/runtime or local domain keys.
 - [x] Keep generic job exceptions only in `common.job.exception`.
 - [x] Convert `common.job.params.JobParamReader` to a pure `Map<String,String>` reader.
 - [x] Move any Spring Batch `JobParameters` adapter to `app.batch.params.SpringBatchJobParams`.
 - [x] Move `JobParamsValidator` to `app.job.params`. *(Deleted — zero callers; minimal required-params check inlined in `SpringBatchJobStarter`.)*
 - [x] Move `RegisteredJob`, `TchBatchJobRegistry`, and registry metadata to `app.job.registry`. *(Already done on a previous in-progress branch state; no-op for Phase 1.)*
-- [ ] Move `common.batch.config.*` to `app.config.batch` / `app.config.scheduler`. *(No `common.batch.config` package found — already handled.)*
+- [x] Move `common.batch.config.*` to `app.config.batch` / `app.config.scheduler`. *(No `common.batch.config` package found — already handled.)*
 - [x] Move `common.batch.context.*` to `app.batch.context`. *(Already done on a previous in-progress branch state.)*
 - [x] Move `common.batch.launch.BatchJobStarter` to `app.batch.launch.SpringBatchJobStarter` (impl); public interface kept as `common.job.launch.BatchJobStarter` per design decision (interfaces in common, impls in app).
 - [x] Move `common.batch.gate.*` to `app.batch.gate` (impls); public interface `BatchGate`, `BatchGateFlagStore`, `BatchDisabledException` kept as `common.job.gate.*`.
-- [x] Move `common.batch.service.*` (deleted; canonical copy already lives in `platform.notification.internal.batch.*`); new `JobLifecycleNotifier` port in `common.job.lifecycle` implemented by `platform.notification.internal.batch.BatchEventNotificationService`. `TchJobAspect` repointed to the port.
+- [x] Move `common.batch.service.*` out of common. `TchJobAspect` lives in `app.job.aspect`, publishes `JobLifecycleEvent`, and `platform.communication` listens to enqueue Slack/internal alerts for technical batch failures/skips.
+- [x] Keep Spring Batch runtime metadata in app: `SpringTchRegisteredJob` owns `springJobBeanName`, while `RegisteredJob` exposes only public metadata.
+- [x] Keep feature ops on common contracts only: `OpsBatchService` uses `TchJobRegistry`, `BatchJobStarter`, `RegisteredJob`, and `JobStartResult`; Spring Batch execution history is not exposed through the public contract yet.
+- [x] Remove Spring Batch params from simple core schedulers and use `JobContextBinder.bindTenant` / `bindPlatform` with exactly one clear path.
 - [x] Remove Spring Batch and ShedLock dependencies from `tchalanet-common/pom.xml`.
 - [x] Compile: `./mvnw -pl tchalanet-common test`. *(Passed: 15 tests.)*
 
@@ -41,10 +44,10 @@
 
 ## Phase 4 — Web/Data REST cleanup
 
-- [ ] Keep `common.web.api`, `common.web.advice`, `common.web.error`, `common.web.paging`, `common.web.converter`.
-- [ ] Move `common.web.config.DataRestConfig` to `app.config.datarest` or catalog/platform web config.
-- [ ] Remove Spring Data REST dependencies from `tchalanet-common/pom.xml`.
-- [ ] Compile common and app.
+- [x] Keep `common.web.api`, `common.web.advice`, `common.web.error`, `common.web.paging`, `common.web.converter`.
+- [x] Move `common.web.config.DataRestConfig` to `app.config.datarest` or catalog/platform web config.
+- [x] Remove Spring Data REST dependencies from `tchalanet-common/pom.xml`.
+- [x] Compile common and app. *(`./mvnw -pl tchalanet-common test` passed: 15 tests. `./mvnw -pl tchalanet-app -am -DskipTests compile` passed across common/catalog/platform/core/features/app.)*
 
 ## Phase 5 — Persistence cleanup
 
@@ -57,35 +60,35 @@
 
 ## Phase 6 — Enums and domain vocabulary
 
-- [ ] Keep typed IDs in `common.types.id` for now.
-- [ ] Move sales/ticket/offline enums to owning core APIs.
-- [ ] Move draw/result enums to owning core/catalog APIs.
-- [ ] Move audit enums to `platform.audit.api.model`.
-- [ ] Move notification enums to `platform.notification.api.model`.
-- [ ] Move idempotency enum(s) to `platform.idempotence.api.model` or endpoint owner.
-- [ ] Move access-control role/permission enums/constants to `platform.accesscontrol` / `platform.identity`, except what `TchRequestContext` needs.
-- [ ] Move `common.selection.SelectionKeyCanonicalizer` and `SelectionKey` to owning module after usage analysis.
-- [ ] Compile all modules affected.
+- [x] Keep typed IDs in `common.types.id` for now. *(Reviewed: typed IDs remain UUID wrappers with construction/parsing/nullability helpers only.)*
+- [ ] Move sales/ticket/offline enums to owning core APIs. *(Partial: `SaleOrigin`, `TicketResultStatus`, `TicketSaleStatus`, `TicketSettlementStatus`, `TicketSyncStatus` moved to `core.sales.api.model`; `BetType` remains open because it is also owned by catalog pricing/selection.)*
+- [ ] Move draw/result enums to owning core/catalog APIs. *(Partial: `ResultQuality` moved to `core.drawresult.api.model`; `UsLotteryProvider` moved to `core.uslottery.internal.application.model`. `DrawSource` and `GameCode` remain open because they cross catalog/core boundaries.)*
+- [x] Move audit enums to `platform.audit.api.model`.
+- [x] Move notification enums to `platform.notification.api.model`.
+- [x] Move idempotency enum(s) to `platform.idempotence.api.model` or endpoint owner.
+- [x] Move access-control role/permission enums/constants to `platform.accesscontrol` / `platform.identity`, except what `TchRequestContext` needs. *(Reviewed: no permission enum remains in common. `TchRole` intentionally stays in common because `TchRequestContext`, batch context binding, identity/accesscontrol APIs, and UI composition all consume the raw runtime role frame.)*
+- [x] Move `common.selection.SelectionKeyCanonicalizer` and `SelectionKey` to owning module after usage analysis. *(Moved to `core.selection`: only `core.sales` and `core.limitpolicy` use this selection business rule. `common.selection` is now empty and no source imports `common.selection.*`.)*
+- [x] Compile all modules affected. *(`./mvnw -pl tchalanet-app -am -DskipTests compile` passed across common/catalog/platform/core/features/app after the Phase 6/7 moves.)*
 
 ## Phase 7 — Utilities cleanup
 
-- [ ] Keep `Hashing` in `common.util` only if it is pure and used by multiple modules.
-- [ ] Move `JsonSchemaValidatorUtil` to `platform.document`, `platform.schema`, or owning capability.
-- [ ] Move `RoleUtils` to `platform.accesscontrol` / `platform.identity`.
-- [ ] Review `JsonUtils`, `JsonbUtils`, `ObjectMapperHolder` and move runtime holders/config out of common if needed.
-- [ ] Remove `json-schema-validator` from common POM.
+- [x] Keep `Hashing` in `common.util` only if it is pure and used by multiple modules. *(Kept: pure SHA-256 helper with JDK-only dependencies, shared by multiple `core.uslottery` provider adapters/cache helpers.)*
+- [x] Move `JsonSchemaValidatorUtil` to `platform.document`, `platform.schema`, or owning capability. *(Moved to owning `core.pagemodel.internal.application.service`; dependency moved from common to core.)*
+- [x] Move `RoleUtils` to `platform.accesscontrol` / `platform.identity`. *(Resolved by deletion: the only remaining use was JWT role extraction for the existing `AuthContextExtractor`, so the logic is private to that existing class instead of a public generic util. Moving it to platform would invert the dependency back into common context.)*
+- [ ] Review `JsonUtils`, `JsonbUtils`, `ObjectMapperHolder` and move runtime holders/config out of common if needed. *(Reviewed but not moved in this batch: these are shared Jackson 3 helpers used by common converters and multiple modules. A separate JSON-runtime decision is needed before removing Spring-managed holders.)*
+- [x] Remove `json-schema-validator` from common POM.
 
 ## Phase 8 — ArchUnit enforcement
 
-- [ ] Add ArchUnit tests for forbidden imports in `common`.
-- [ ] Add ArchUnit tests for forbidden annotations in `common`.
-- [ ] Add ArchUnit tests for no business enums in `common.types.enums`.
-- [ ] Add ArchUnit tests for no Spring Batch/ShedLock/WebFlux/Data REST/Redis/QueryDSL in common.
+- [x] Add ArchUnit tests for forbidden imports in `common`. *(Added `CommonTechnicalKernelArchitectureTest`; app test compilation is currently blocked before execution by existing `SellerOperationalContextResolverTest` referencing a missing class.)*
+- [x] Add ArchUnit tests for forbidden annotations in `common`. *(Covers runtime assembly annotations and repository/service/controller/entity annotations while allowing the existing technical `@Component`, `@Configuration`, and mapped-superclass surface.)*
+- [ ] Add ArchUnit tests for no business enums in `common.types.enums`. *(Partial guard added for enums already extracted from common. Full ban remains open because `BetType`, `DrawSource`, `GameCode`, tenant/user/theme/status enums and limit/autonomy vocabulary still cross module boundaries and need explicit ownership decisions.)*
+- [x] Add ArchUnit tests for no Spring Batch/ShedLock/WebFlux/Data REST/Redis/QueryDSL in common. *(Also guards Data REST, Redis/Lettuce, Caffeine, and json-schema-validator imports.)*
 
 ## Phase 9 — Final validation
 
-- [ ] `./mvnw -pl tchalanet-common test`
-- [ ] `./mvnw -pl tchalanet-app -am test`
+- [x] `./mvnw -pl tchalanet-common test` *(Passed: 15 tests.)*
+- [ ] `./mvnw -pl tchalanet-app -am test` *(Blocked before execution by existing app test compilation error: `SellerOperationalContextResolverTest` references missing `SellerOperationalContextResolver`.)*
 - [ ] `./mvnw clean verify`
 - [ ] Update docs: `docs/modules/common.md`, `docs/ARCHITECTURE.md`, and module README if needed.
 - [ ] Remove stale packages and imports.

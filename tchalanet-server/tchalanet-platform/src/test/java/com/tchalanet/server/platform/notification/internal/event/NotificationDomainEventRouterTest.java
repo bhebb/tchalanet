@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import com.tchalanet.server.platform.notification.internal.rule.PayoutNotificationRule;
 import java.util.List;

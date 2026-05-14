@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.security.ApiScope;
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;

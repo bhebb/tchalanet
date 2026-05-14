@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.limitpolicy.internal.domain.model;
 
-import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 
 import java.util.EnumMap;
 import java.util.Map;

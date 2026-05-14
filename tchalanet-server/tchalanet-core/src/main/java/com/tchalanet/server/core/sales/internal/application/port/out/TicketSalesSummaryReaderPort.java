@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.port.out;
 
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.sales.api.query.TicketSalesSessionSummary;

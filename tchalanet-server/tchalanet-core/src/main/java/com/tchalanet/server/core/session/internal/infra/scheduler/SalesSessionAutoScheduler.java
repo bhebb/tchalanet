@@ -2,6 +2,7 @@ package com.tchalanet.server.core.session.internal.infra.scheduler;
 
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.gate.BatchGate;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsCommand;
 import com.tchalanet.server.core.session.api.command.OpenDueSalesSessionsCommand;
@@ -11,12 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import static com.tchalanet.server.common.job.key.BatchJobKeys.SALES_SESSION_AUTO;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class SalesSessionAutoScheduler {
+
+    private static final JobKey SALES_SESSION_AUTO = JobKey.of("sales-session:auto");
 
     private final CommandBus commandBus;
     private final SalesSessionAutoProperties salesSessionAutoProperties;

@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.limitpolicy.api.command;
 
 import com.tchalanet.server.common.bus.Command;
-import com.tchalanet.server.common.types.enums.BreachOutcome;
-import com.tchalanet.server.common.types.enums.RuleKey;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import tools.jackson.databind.JsonNode;

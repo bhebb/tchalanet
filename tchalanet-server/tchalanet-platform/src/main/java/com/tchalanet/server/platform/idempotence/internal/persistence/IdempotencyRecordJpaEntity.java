@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.idempotence.internal.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.types.enums.IdempotencyScope;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

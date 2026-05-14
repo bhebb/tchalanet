@@ -6,7 +6,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DaysOfWeekParser;
-import com.tchalanet.server.common.types.enums.DrawSource;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;

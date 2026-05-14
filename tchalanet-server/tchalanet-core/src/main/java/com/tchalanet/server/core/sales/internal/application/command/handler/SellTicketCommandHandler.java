@@ -5,7 +5,7 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.types.enums.BreachOutcome;
+import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.web.advice.ApiResponseContext;
@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.util.Currency;
 import java.util.List;
 import java.util.Map;

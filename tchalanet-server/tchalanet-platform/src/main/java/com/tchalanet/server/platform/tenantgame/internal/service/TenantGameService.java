@@ -1,10 +1,10 @@
 package com.tchalanet.server.platform.tenantgame.internal.service;
 
 import com.tchalanet.server.catalog.game.api.GameCatalog;
-import com.tchalanet.server.catalog.game.api.GameView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommand;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameCommandResult;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameCommand;

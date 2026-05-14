@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.repository;
 
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
 import com.tchalanet.server.core.sales.internal.infra.persistence.TicketJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

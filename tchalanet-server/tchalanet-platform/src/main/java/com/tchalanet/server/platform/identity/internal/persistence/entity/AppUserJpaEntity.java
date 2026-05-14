@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseEntity;
-import com.tchalanet.server.common.types.enums.UserStatus;
+import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

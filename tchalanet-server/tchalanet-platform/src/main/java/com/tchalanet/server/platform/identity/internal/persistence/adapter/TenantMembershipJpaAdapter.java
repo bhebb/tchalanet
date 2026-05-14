@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
@@ -13,7 +14,7 @@ import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserRow;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.criteria.JoinType;
+
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -100,7 +101,7 @@ public class TenantMembershipJpaAdapter {
         (String) tuple.get("username"),
         (String) tuple.get("displayName"),
         (String) tuple.get("email"),
-        (com.tchalanet.server.common.types.enums.TenantUserStatus) tuple.get("status"),
+        (TenantUserStatus) tuple.get("status"),
         tuple.get("roleId") == null
             ? null
             : com.tchalanet.server.common.types.id.RoleId.of((java.util.UUID) tuple.get("roleId")),

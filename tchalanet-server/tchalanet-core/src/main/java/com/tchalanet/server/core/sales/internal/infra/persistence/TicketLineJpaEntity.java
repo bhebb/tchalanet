@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

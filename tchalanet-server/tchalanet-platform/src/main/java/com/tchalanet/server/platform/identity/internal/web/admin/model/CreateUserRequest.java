@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.internal.web.admin.model;
 
-import com.tchalanet.server.common.types.enums.TchRole;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TerminalId;
 

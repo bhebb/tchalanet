@@ -2,7 +2,7 @@ package com.tchalanet.server.platform.idempotence.internal.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

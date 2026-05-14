@@ -2,7 +2,7 @@ package com.tchalanet.server.core.drawresult.internal.infra.persistence;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.common.util.JsonUtils;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.PublicDrawResultSlotReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotScheduleCalculator;

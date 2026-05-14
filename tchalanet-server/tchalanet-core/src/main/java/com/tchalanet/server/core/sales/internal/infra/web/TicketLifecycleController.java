@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.web;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.types.enums.IdempotencyScope;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.api.ApiNotice;

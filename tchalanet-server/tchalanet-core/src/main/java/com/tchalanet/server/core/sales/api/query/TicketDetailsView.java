@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.sales.api.query;
 
-import com.tchalanet.server.common.types.enums.BetType;
-import com.tchalanet.server.common.types.enums.GameCode;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.application.port.out.external;
 
-import com.tchalanet.server.common.types.enums.ResultQuality;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 
 import java.time.Instant;
 import java.util.List;

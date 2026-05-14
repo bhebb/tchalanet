@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

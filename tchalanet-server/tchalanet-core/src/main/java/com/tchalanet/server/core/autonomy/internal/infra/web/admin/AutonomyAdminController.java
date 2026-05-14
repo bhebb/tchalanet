@@ -4,7 +4,7 @@ import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.enums.AutonomyTargetType;
+import com.tchalanet.server.core.autonomy.api.AutonomyTargetType;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.core.autonomy.api.command.DeleteAutonomyRuleCommand;
 import com.tchalanet.server.core.autonomy.api.command.UpsertAutonomyRuleCommand;

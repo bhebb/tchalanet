@@ -1,6 +1,6 @@
 package com.tchalanet.server.platform.identity.api.model.view;
 
-import com.tchalanet.server.common.types.enums.ThemeMode;
+import com.tchalanet.server.catalog.theme.api.ThemeMode;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;

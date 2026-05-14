@@ -1,9 +1,10 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
-import com.tchalanet.server.common.selection.SelectionKeyCanonicalizer;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
-import com.tchalanet.server.common.types.enums.TicketSaleStatus;
-import com.tchalanet.server.common.types.enums.TicketSettlementStatus;
+import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.core.selection.SelectionKeyCanonicalizer;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.*;
 import com.tchalanet.server.core.sales.internal.domain.model.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.TicketLine;
@@ -44,9 +45,9 @@ public class TicketMapper {
 
     private TicketLine toDomainLine(TicketLineJpaEntity lineEntity) {
         // convert persisted String externalGameCode -> enum GameCode
-        com.tchalanet.server.common.types.enums.GameCode gameCode;
+        GameCode gameCode;
         try {
-            gameCode = com.tchalanet.server.common.types.enums.GameCode.valueOf(lineEntity.getGameCode());
+            gameCode = GameCode.valueOf(lineEntity.getGameCode());
         } catch (Exception ex) {
             throw new IllegalArgumentException("Unknown externalGameCode in DB: " + lineEntity.getGameCode(), ex);
         }

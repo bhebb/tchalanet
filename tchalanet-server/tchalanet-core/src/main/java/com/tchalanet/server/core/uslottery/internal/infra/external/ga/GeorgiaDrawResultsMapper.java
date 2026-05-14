@@ -3,9 +3,9 @@ package com.tchalanet.server.core.uslottery.internal.infra.external.ga;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tchalanet.server.common.types.enums.ResultQuality;
-import com.tchalanet.server.common.types.enums.UsLotteryProvider;
-import com.tchalanet.server.common.util.JsonbUtils;
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
+import com.tchalanet.server.common.json.utils.JsonbUtils;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;

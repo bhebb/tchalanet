@@ -46,11 +46,11 @@ public interface SpringTicketJpaRepository
     // Counts for CloseDay stats — filter deleted_at IS NULL to exclude archived tickets
     long countBySessionIdInAndDeletedAtIsNull(List<UUID> sessionIds);
 
-    long countBySessionIdInAndSaleStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.common.types.enums.TicketSaleStatus saleStatus);
+    long countBySessionIdInAndSaleStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.core.sales.api.model.TicketSaleStatus saleStatus);
 
-    long countBySessionIdInAndResultStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
+    long countBySessionIdInAndResultStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus);
 
-    long countBySessionIdInAndSettlementStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.common.types.enums.TicketSettlementStatus settlementStatus);
+    long countBySessionIdInAndSettlementStatusAndDeletedAtIsNull(List<UUID> sessionIds, com.tchalanet.server.core.sales.api.model.TicketSettlementStatus settlementStatus);
 
 
     @EntityGraph(attributePaths = "lines")
@@ -62,5 +62,5 @@ public interface SpringTicketJpaRepository
 
     Page<TicketJpaEntity> findByCreatedAtBetweenAndDeletedAtIsNullOrderByCreatedAtDescIdDesc(Instant from, Instant to, Pageable pageable);
 
-    long countByDrawIdAndResultStatusAndDeletedAtIsNull(UUID drawId, com.tchalanet.server.common.types.enums.TicketResultStatus resultStatus);
+    long countByDrawIdAndResultStatusAndDeletedAtIsNull(UUID drawId, com.tchalanet.server.core.sales.api.model.TicketResultStatus resultStatus);
 }

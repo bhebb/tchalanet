@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.infra.adapter;
 
-import com.tchalanet.server.common.types.enums.UsLotteryProvider;
+import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchBundle;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultsFetchPort;

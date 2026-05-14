@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.idempotence.internal.web;
 
-import com.tchalanet.server.common.constant.TchHeaders;
+import com.tchalanet.server.common.http.TchHeaders;
 import com.tchalanet.server.platform.idempotence.api.RequireIdempotency;
-import com.tchalanet.server.common.types.enums.IdempotencyScope;
+import com.tchalanet.server.platform.idempotence.api.model.IdempotencyScope;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 import jakarta.annotation.Nonnull;

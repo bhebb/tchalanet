@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment;
 
-import com.tchalanet.server.common.types.enums.RuleKey;
-import com.tchalanet.server.common.types.enums.ScopeType;
+import com.tchalanet.server.core.limitpolicy.api.RuleKey;
+import com.tchalanet.server.core.limitpolicy.api.ScopeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

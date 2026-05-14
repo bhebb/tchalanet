@@ -5,10 +5,10 @@ import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
 
 import com.tchalanet.server.common.job.gate.BatchGate;
-import com.tchalanet.server.common.job.key.BatchJobKeys;
+import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.types.enums.AuditAction;
-import com.tchalanet.server.common.types.enums.AuditEntityType;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.audit.api.AuditLog;
@@ -34,6 +34,11 @@ import java.time.Clock;
 @Tag(name = "Ops • Scheduler")
 public class DrawCalendarOpsController {
 
+    private static final JobKey DRAW_GENERATE = JobKey.of("draw:lifecycle:generate");
+    private static final JobKey DRAW_OPEN = JobKey.of("draw:lifecycle:open");
+    private static final JobKey DRAW_CLOSE = JobKey.of("draw:lifecycle:close");
+    private static final JobKey RESULTS_EXTERNAL_APPLY = JobKey.of("results:external:apply");
+
     private final CommandBus commandBus;
     private final BatchGate batchGate;
     private final Clock clock;
@@ -47,7 +52,7 @@ public class DrawCalendarOpsController {
         idExpression = "#req.tenantId()",
         detailsExpression = "#req")
     public ApiResponse<GenerateDrawsForRangeResult> generate(@Valid @RequestBody GenerateDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_GENERATE, TenantId.parse(req.tenantId()));
+        batchGate.assertEnabledOrThrow(DRAW_GENERATE, TenantId.parse(req.tenantId()));
         var res = commandBus.execute(
             new GenerateDrawsForRangeCommand(
                 TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force(), req.reason()));
@@ -62,7 +67,7 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-open-due'",
         detailsExpression = "#req")
     public ApiResponse<OpenDueDrawsResult> openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_OPEN, null);
+        batchGate.assertEnabledOrThrow(DRAW_OPEN, null);
         Instant now = req.now() == null ? clock.instant() : req.now();
         var res = commandBus.execute(
             new OpenDueDrawsCommand(
@@ -78,7 +83,7 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-open-today'",
         detailsExpression = "#req")
     public ApiResponse<OpenDueDrawsResult> openToday(@Valid @RequestBody OpenTodayDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_OPEN, null);
+        batchGate.assertEnabledOrThrow(DRAW_OPEN, null);
         Instant now = req.now() == null ? clock.instant() : req.now();
         int limit = req.limit() == null ? 10000 : req.limit();
         var res = commandBus.execute(new OpenTodayDrawsCommand(
@@ -98,7 +103,7 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-close-due'",
         detailsExpression = "#req")
     public ApiResponse<CloseDueDrawsResult> closeDue(@Valid @RequestBody CloseDueDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(BatchJobKeys.DRAW_CLOSE, null);
+        batchGate.assertEnabledOrThrow(DRAW_CLOSE, null);
         Instant now = req.now() == null ? clock.instant() : req.now();
         var res = commandBus.execute(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
         return ApiResponse.success(res);
@@ -113,7 +118,7 @@ public class DrawCalendarOpsController {
         detailsExpression = "#req")
     public ApiResponse<ApplyExternalResultsWindowResult> apply(@Valid @RequestBody ApplyExternalResultsRequest req,
                                                                @CurrentContext TchRequestContext ctx) {
-        batchGate.assertEnabledOrThrow(BatchJobKeys.RESULTS_EXTERNAL_APPLY, ctx.tenantId());
+        batchGate.assertEnabledOrThrow(RESULTS_EXTERNAL_APPLY, ctx.tenantId());
         var res =
             commandBus.execute(
                 new ApplyExternalResultsWindowCommand(

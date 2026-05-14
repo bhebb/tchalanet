@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.internal.infra.web.mapper;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.enums.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
