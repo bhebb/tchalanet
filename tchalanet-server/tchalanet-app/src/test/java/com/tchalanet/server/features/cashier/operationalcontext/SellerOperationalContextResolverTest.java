@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.operational.OperationalContextHint;
+import com.tchalanet.server.common.context.operational.OperationalContextSource;
+import com.tchalanet.server.common.context.operational.OperationalContextTrust;
 import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.OutletId;
@@ -35,9 +38,11 @@ import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrent
 import com.tchalanet.server.platform.identity.api.model.request.GetCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.request.GetUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.result.BootstrapUserResult;
+import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import java.time.ZoneId;
+import java.util.Optional;
 import java.util.Currency;
 import java.util.EnumSet;
 import java.util.List;
@@ -105,11 +110,12 @@ class SellerOperationalContextResolverTest {
         ids.tenantId(),
         ZoneId.of("America/Toronto"),
         Currency.getInstance("CAD"),
-        new OperationalRequestContext(
+        new OperationalContextHint(
             ids.terminalId(),
             ids.outletId(),
             ids.sessionId(),
-            OperationalContextSource.ADMIN_SELECTION));
+            OperationalContextSource.ADMIN_SELECTION,
+            OperationalContextTrust.WEAK));
   }
 
   private Ids ids() {
@@ -149,6 +155,16 @@ class SellerOperationalContextResolverTest {
     @Override
     public UserProfileView getUserProfile(GetUserProfileRequest request) {
       return null;
+    }
+
+    @Override
+    public Optional<AppUserView> findAppUser(UUID userId) {
+      return Optional.empty();
+    }
+
+    @Override
+    public long countTenantUsers() {
+      return 0;
     }
   }
 

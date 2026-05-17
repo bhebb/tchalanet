@@ -1,10 +1,10 @@
 package com.tchalanet.server.features.stats.aggregates;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketCancelledEvent;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketResultedEvent;
+import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
 import com.tchalanet.server.core.session.internal.domain.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.features.stats.aggregates.app.StatsDailyUpdaterService;

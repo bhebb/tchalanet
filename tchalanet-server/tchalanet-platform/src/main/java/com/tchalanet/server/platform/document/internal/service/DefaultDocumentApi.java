@@ -17,7 +17,9 @@ public class DefaultDocumentApi implements DocumentApi {
 
   public DefaultDocumentApi(List<DocumentRenderer> renderers) {
     Map<DocumentFormat, DocumentRenderer> map = new EnumMap<>(DocumentFormat.class);
+
     for (DocumentRenderer r : renderers) {
+
       if (map.put(r.format(), r) != null) {
         throw new IllegalStateException("Duplicate renderer for format " + r.format());
       }

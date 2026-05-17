@@ -5,84 +5,84 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [INFO] Scanning for projects...
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Build Order:
-[INFO] 
+[INFO]
 [INFO] tchalanet-server                                                   [pom]
 [INFO] tchalanet-common                                                   [jar]
 [INFO] tchalanet-catalog                                                  [jar]
 [INFO] tchalanet-platform                                                 [jar]
 [INFO] tchalanet-core                                                     [jar]
-[INFO] 
+[INFO]
 [INFO] -------------------< com.tchalanet:tchalanet-server >-------------------
 [INFO] Building tchalanet-server 0.0.1-SNAPSHOT                           [1/5]
 [INFO]   from pom.xml
 [INFO] --------------------------------[ pom ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-server ---
 [INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
-[INFO] 
+[INFO]
 [INFO] -------------------< com.tchalanet:tchalanet-common >-------------------
 [INFO] Building tchalanet-common 0.0.1-SNAPSHOT                           [2/5]
 [INFO]   from tchalanet-common/pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-common ---
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-common ---
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/resources
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/resources
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-common ---
 [INFO] Recompiling the module because of changed source code.
 [INFO] Compiling 270 source files with javac [debug parameters release 25] to target/classes
 [WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/java/com/tchalanet/server/common/cache/internal/RedisConfig.java:[77,25] org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer in org.springframework.data.redis.serializer has been deprecated and marked for removal
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/java/com/tchalanet/server/common/batch/gate/BatchFlagCache.java: Some input files use or override a deprecated API.
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-common/src/main/java/com/tchalanet/server/common/batch/gate/BatchFlagCache.java: Recompile with -Xlint:deprecation for details.
-[INFO] 
+[INFO]
 [INFO] ------------------< com.tchalanet:tchalanet-catalog >-------------------
 [INFO] Building tchalanet-catalog 0.0.1-SNAPSHOT                          [3/5]
 [INFO]   from tchalanet-catalog/pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-catalog ---
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-catalog ---
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/resources
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/resources
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-catalog ---
 [INFO] Recompiling the module because of changed dependency.
 [INFO] Compiling 150 source files with javac [debug parameters release 25] to target/classes
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/java/com/tchalanet/server/catalog/drawchannel/internal/write/DrawChannelAdminService.java: Some input files use or override a deprecated API.
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-catalog/src/main/java/com/tchalanet/server/catalog/drawchannel/internal/write/DrawChannelAdminService.java: Recompile with -Xlint:deprecation for details.
-[INFO] 
+[INFO]
 [INFO] ------------------< com.tchalanet:tchalanet-platform >------------------
 [INFO] Building tchalanet-platform 0.0.1-SNAPSHOT                         [4/5]
 [INFO]   from tchalanet-platform/pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-platform ---
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-platform ---
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/resources
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/resources
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-platform ---
 [INFO] Recompiling the module because of changed dependency.
 [INFO] Compiling 303 source files with javac [debug parameters release 25] to target/classes
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/java/com/tchalanet/server/platform/idempotence/internal/service/JpaIdempotencyStore.java: Some input files use or override a deprecated API.
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-platform/src/main/java/com/tchalanet/server/platform/idempotence/internal/service/JpaIdempotencyStore.java: Recompile with -Xlint:deprecation for details.
-[INFO] 
+[INFO]
 [INFO] --------------------< com.tchalanet:tchalanet-core >--------------------
 [INFO] Building tchalanet-core 0.0.1-SNAPSHOT                             [5/5]
 [INFO]   from tchalanet-core/pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- enforcer:3.6.2:enforce (default) @ tchalanet-core ---
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:resources (default-resources) @ tchalanet-core ---
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/resources
 [INFO] skip non existing resourceDirectory /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/resources
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.15.0:compile (default-compile) @ tchalanet-core ---
 [INFO] Recompiling the module because of changed dependency.
 [INFO] Compiling 1133 source files with javac [debug parameters release 25] to target/classes
@@ -90,7 +90,7 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [INFO] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/draw/internal/infra/persistence/adapter/DrawLifecycleJpaAdapter.java: Recompile with -Xlint:deprecation for details.
 [INFO] Some messages have been simplified; recompile with -Xdiags:verbose to get full output
 [INFO] -------------------------------------------------------------
-[WARNING] COMPILATION WARNING : 
+[WARNING] COMPILATION WARNING :
 [INFO] -------------------------------------------------------------
 [WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/web/admin/mapper/OutletAdminWebMapper.java:[24,27] Unmapped target properties: "autoOpenSession, autoCloseSession".
 [WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/terminal/internal/infra/web/tenant/TerminalTenantWebMapper.java:[9,22] Unmapped target property: "lastSeenAt".
@@ -101,10 +101,10 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceMapper.java:[16,12] Unmapped target property: "withAddressId".
 [WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceMapper.java:[25,21] Unmapped target properties: "createdAt, updatedAt, createdBy, updatedBy, deletedAt, version, status".
 [WARNING] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceMapper.java:[30,10] Unmapped target properties: "createdAt, updatedAt, createdBy, updatedBy, deletedAt, version, status".
-[INFO] 9 warnings 
+[INFO] 9 warnings
 [INFO] -------------------------------------------------------------
 [INFO] -------------------------------------------------------------
-[ERROR] COMPILATION ERROR : 
+[ERROR] COMPILATION ERROR :
 [INFO] -------------------------------------------------------------
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/ledger/internal/infra/persistence/JpaLedgerRepositoryAdapter.java:[74,16] constructor LedgerBalanceView in record com.tchalanet.server.core.ledger.api.query.LedgerBalanceView cannot be applied to given types;
   required: long,long,long,java.lang.String,java.time.Instant
@@ -365,18 +365,18 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
   reason: actual and formal argument lists differ in length
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[65,19] cannot find symbol
   symbol:   method getSessionId()
-  location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+  location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[69,37] cannot find symbol
   symbol:   method getSessionId()
-  location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+  location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[82,18] cannot find symbol
   symbol:   method getSessionId()
-  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[81,13] cannot infer type for local variable session
   (variable initializer is 'null')
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[84,54] cannot find symbol
   symbol:   method getSessionId()
-  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[89,31] cannot find symbol
   symbol:   class Line
   location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
@@ -385,30 +385,30 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
   location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[93,18] cannot find symbol
   symbol:   method stake()
-  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,18] cannot find symbol
   symbol:   method potentialPayout()
-  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,53] cannot find symbol
   symbol:   method potentialPayout()
-  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+  location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[112,22] cannot find symbol
   symbol:   method getTotalAmount()
-  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[108,22] cannot find symbol
   symbol:   method getSessionId()
-  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+  location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[106,71] cannot find symbol
   symbol:   class AgentId
   location: package com.tchalanet.server.common.types.id
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/service/TicketSalePolicyService.java:[111,26] cannot find symbol
   symbol:   class BetLine
   location: class com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext
-[INFO] 100 errors 
+[INFO] 100 errors
 [INFO] -------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for tchalanet-server 0.0.1-SNAPSHOT:
-[INFO] 
+[INFO]
 [INFO] tchalanet-server ................................... SUCCESS [  0.912 s]
 [INFO] tchalanet-common ................................... SUCCESS [ 19.648 s]
 [INFO] tchalanet-catalog .................................. SUCCESS [ 14.038 s]
@@ -420,7 +420,7 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [INFO] Total time:  01:23 min
 [INFO] Finished at: 2026-05-12T16:19:57-04:00
 [INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.15.0:compile (default-compile) on project tchalanet-core: Compilation failure: Compilation failure: 
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.15.0:compile (default-compile) on project tchalanet-core: Compilation failure: Compilation failure:
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/ledger/internal/infra/persistence/JpaLedgerRepositoryAdapter.java:[74,16] constructor LedgerBalanceView in record com.tchalanet.server.core.ledger.api.query.LedgerBalanceView cannot be applied to given types;
 [ERROR]   required: long,long,long,java.lang.String,java.time.Instant
 [ERROR]   found:    java.math.BigDecimal,java.lang.String
@@ -680,18 +680,18 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [ERROR]   reason: actual and formal argument lists differ in length
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[65,19] cannot find symbol
 [ERROR]   symbol:   method getSessionId()
-[ERROR]   location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR]   location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[69,37] cannot find symbol
 [ERROR]   symbol:   method getSessionId()
-[ERROR]   location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR]   location: variable ticket of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[82,18] cannot find symbol
 [ERROR]   symbol:   method getSessionId()
-[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[81,13] cannot infer type for local variable session
 [ERROR]   (variable initializer is 'null')
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[84,54] cannot find symbol
 [ERROR]   symbol:   method getSessionId()
-[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[89,31] cannot find symbol
 [ERROR]   symbol:   class Line
 [ERROR]   location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
@@ -700,19 +700,19 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [ERROR]   location: class com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[93,18] cannot find symbol
 [ERROR]   symbol:   method stake()
-[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,18] cannot find symbol
 [ERROR]   symbol:   method potentialPayout()
-[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[94,53] cannot find symbol
 [ERROR]   symbol:   method potentialPayout()
-[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.TicketLine
+[ERROR]   location: variable l of type com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[112,22] cannot find symbol
 [ERROR]   symbol:   method getTotalAmount()
-[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[108,22] cannot find symbol
 [ERROR]   symbol:   method getSessionId()
-[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.Ticket
+[ERROR]   location: variable saved of type com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/command/handler/ApproveTicketSaleCommandHandler.java:[106,71] cannot find symbol
 [ERROR]   symbol:   class AgentId
 [ERROR]   location: package com.tchalanet.server.common.types.id
@@ -720,12 +720,12 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [ERROR]   symbol:   class BetLine
 [ERROR]   location: class com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext
 [ERROR] -> [Help 1]
-[ERROR] 
+[ERROR]
 [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
 [ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
+[ERROR]
 [ERROR] For more information about the errors and possible solutions, please read the following articles:
 [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
-[ERROR] 
+[ERROR]
 [ERROR] After correcting the problems, you can resume the build with the command
 [ERROR]   mvn <args> -rf :tchalanet-core

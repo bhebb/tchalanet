@@ -1,14 +1,15 @@
 package com.tchalanet.server.features.receipt.app;
 
-import com.tchalanet.server.core.sales.api.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.print.TicketReceiptFormatter;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketReceiptFormatter;
 import com.tchalanet.server.platform.document.api.model.DocumentAsset;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.platform.document.api.model.DocumentKind;
 import com.tchalanet.server.platform.document.api.model.DocumentLine;
 import com.tchalanet.server.platform.document.api.model.DocumentOptions;
 import com.tchalanet.server.platform.document.api.model.DocumentRenderRequest;
-import com.tchalanet.server.platform.document.api.model.GenericDocumentContent;
+import com.tchalanet.server.platform.document.api.model.DocumentTemplateKey;
+import com.tchalanet.server.platform.document.api.model.QrDocumentContent;
 import com.tchalanet.server.platform.document.api.model.ReceiptDocumentContent;
 import java.util.List;
 import java.util.Locale;
@@ -38,25 +39,29 @@ public class TicketReceiptDocumentRequestFactory {
     int qrSize = format == DocumentFormat.ESC_POS ? DEFAULT_QR_ESCPOS_SIZE : DEFAULT_QR_PDF_SIZE;
     var bodyLines = text.bodyLines().stream().map(DocumentLine::of).toList();
     return new DocumentRenderRequest(
+        DocumentTemplateKey.of("ticket-receipt"),
         DocumentKind.RECEIPT,
         format,
         text.title(),
         ReceiptDocumentContent.ofBodyLines(bodyLines),
-        List.of(DocumentAsset.qr("ticket-qr", verifyUrl, qrSize)),
+        List.of(DocumentAsset.qr(verifyUrl, qrSize)),
         DocumentOptions.defaults(),
         locale,
+        null,
         java.util.Map.of());
   }
 
   public DocumentRenderRequest qrPngRequest(String verifyUrl, int sizePx, Locale locale) {
     return new DocumentRenderRequest(
-        DocumentKind.QR,
+        DocumentTemplateKey.of("ticket-qr"),
+        DocumentKind.QR_CODE,
         DocumentFormat.PNG,
         "qr",
-        GenericDocumentContent.empty(),
-        List.of(DocumentAsset.qr("qr", verifyUrl, sizePx)),
+        QrDocumentContent.ofBodyLines(List.of()),
+        List.of(DocumentAsset.qr(verifyUrl, sizePx)),
         DocumentOptions.defaults(),
         locale,
+        null,
         java.util.Map.of());
   }
 

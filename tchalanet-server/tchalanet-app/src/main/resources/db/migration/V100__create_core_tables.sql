@@ -8,12 +8,14 @@ CREATE TABLE tenant (
   currency varchar(3) NOT NULL DEFAULT 'USD',
   status varchar(32) NOT NULL DEFAULT 'DRAFT',
   address_id uuid,
+  config jsonb NOT NULL DEFAULT '{}'::jsonb,
   active_theme_id uuid,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_tenant__status CHECK (status IN ('DRAFT','ACTIVE','SUSPENDED','REJECTED','ARCHIVED'))
 );
@@ -34,6 +36,7 @@ CREATE TABLE address (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_address__tenant_normalized UNIQUE (tenant_id, normalized_key)
 );
@@ -59,6 +62,7 @@ CREATE TABLE app_user (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_app_user__status CHECK (status IN ('INVITED','PENDING_APPROVAL','ACTIVE','SUSPENDED'))
 );
@@ -76,6 +80,7 @@ CREATE TABLE user_preference (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_user_preference__user UNIQUE (user_id)
 );
@@ -90,6 +95,7 @@ CREATE TABLE permission (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -105,6 +111,7 @@ CREATE TABLE app_role (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -128,6 +135,7 @@ CREATE TABLE tenant_user (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_tenant_user__tenant_user UNIQUE (tenant_id, user_id)
 );
@@ -148,6 +156,7 @@ CREATE TABLE app_setting (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_app_setting__level CHECK (level IN ('GLOBAL','TENANT','OUTLET','TERMINAL')),
   CONSTRAINT chk_app_setting__value_type CHECK (value_type IN ('STRING','INT','LONG','DECIMAL','BOOLEAN','JSON'))
@@ -166,6 +175,7 @@ CREATE TABLE i18n_override (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_i18n_override__level CHECK (level IN ('GLOBAL','TENANT'))
 );
@@ -183,6 +193,7 @@ CREATE TABLE theme_preset (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -197,6 +208,7 @@ CREATE TABLE tenant_theme (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -216,6 +228,7 @@ CREATE TABLE game (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -233,6 +246,7 @@ CREATE TABLE tenant_game (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_tenant_game__tenant_game UNIQUE (tenant_id, game_id)
 );
@@ -255,6 +269,7 @@ CREATE TABLE result_slot (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -279,6 +294,7 @@ CREATE TABLE draw_channel (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_draw_channel__tenant_code UNIQUE (tenant_id, code)
 );
@@ -295,6 +311,7 @@ CREATE TABLE draw_channel_game (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_draw_channel_game__tenant_channel_game UNIQUE (tenant_id, draw_channel_id, game_id)
 );
@@ -318,6 +335,7 @@ CREATE TABLE draw_result (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_draw_result__status CHECK (status IN ('PROVISIONAL','CONFIRMED','OVERRIDDEN','ERROR')),
   CONSTRAINT uq_draw_result__slot_occurred UNIQUE (result_slot_id, occurred_at)
@@ -348,6 +366,7 @@ CREATE TABLE draw (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_draw__status CHECK (status IN ('SCHEDULED','OPEN','CLOSED','RESULTED','SETTLED','CANCELED','ARCHIVED'))
 );
@@ -395,26 +414,14 @@ create table outlet (
                         address_id uuid,
 
                         created_at timestamptz not null,
+                        created_by uuid,
                         updated_at timestamptz not null,
+                        updated_by uuid,
                         deleted_at timestamptz,
+                        deleted_by uuid,
+                        status varchar(40) not null default 'ACTIVE',
                         version bigint not null default 0
 );
-
-create unique index ux_outlet_tenant_slug
-    on outlet (tenant_id, slug)
-    where deleted_at is null;
-
-create index ix_outlet_tenant_active
-    on outlet (tenant_id)
-    where deleted_at is null;
-
-create index ix_outlet_auto_session_open
-    on outlet (tenant_id, session_open_time)
-    where auto_session_open_enabled = true and deleted_at is null;
-
-create index ix_outlet_auto_session_close
-    on outlet (tenant_id, session_close_time)
-    where auto_session_close_enabled = true and deleted_at is null;
 
 comment on column outlet.day_closed is 'Closes the outlet operationally for the current day.';
 comment on column outlet.sales_blocked is 'Blocks sales for this outlet without deleting or closing the outlet.';
@@ -424,37 +431,6 @@ comment on column outlet.auto_session_close_enabled is 'Enables automatic closin
 comment on column outlet.session_open_time is 'Local outlet time used by auto-open scheduler.';
 comment on column outlet.session_close_time is 'Local outlet time used by auto-close scheduler.';
 comment on column outlet.default_opening_float_cents is 'Default opening float used for automatic session creation.';
-
-create table outlet_aud (
-                            id uuid not null,
-                            rev integer not null,
-                            revtype smallint,
-
-                            tenant_id uuid,
-                            name varchar(255),
-                            slug varchar(128),
-                            day_closed boolean,
-                            sales_blocked boolean,
-                            sales_block_reason text,
-                            sales_blocked_at timestamptz,
-                            timezone varchar(64),
-                            receipt_printing_enabled boolean,
-                            receipt_header_message text,
-                            receipt_footer_message text,
-                            require_opening_float boolean,
-                            auto_session_open_enabled boolean,
-                            auto_session_close_enabled boolean,
-                            session_open_time time,
-                            session_close_time time,
-                            default_opening_float_cents bigint,
-                            address_id uuid,
-                            created_at timestamptz,
-                            updated_at timestamptz,
-                            deleted_at timestamptz,
-                            version bigint,
-
-                            primary key (id, rev)
-);
 
 -- =========================================================
 -- TERMINAL
@@ -469,7 +445,7 @@ create table terminal (
 
                           kind varchar(16) not null default 'PHYSICAL',
                           state varchar(32) not null,
-                          active_for_user boolean not null default false,
+                          auto_session_enabled boolean not null default false,
 
                           sync_state varchar(32) not null default 'ONLINE',
                           last_seen timestamptz,
@@ -486,25 +462,27 @@ create table terminal (
                           lock_reason text,
 
                           created_at timestamptz not null,
+                          created_by uuid,
                           updated_at timestamptz not null,
+                          updated_by uuid,
                           deleted_at timestamptz,
-                          version bigint not null default 0
+                          deleted_by uuid,
+                          version bigint not null default 0,
+
+                          value varchar(80),
+                          sales_blocked boolean not null default false,
+                          sales_block_reason text,
+                          sales_blocked_at timestamptz,
+                          sales_blocked_by uuid,
+                          payout_blocked boolean not null default false,
+                          payout_block_reason text,
+                          payout_blocked_at timestamptz,
+                          payout_blocked_by uuid,
+                          offline_blocked boolean not null default false,
+                          offline_block_reason text,
+                          offline_blocked_at timestamptz,
+                          offline_blocked_by uuid
 );
-
-create index ix_terminal_tenant_outlet
-    on terminal (tenant_id, outlet_id)
-    where deleted_at is null;
-
-create index ix_terminal_assigned_user
-    on terminal (tenant_id, assigned_user_id)
-    where assigned_user_id is not null and deleted_at is null;
-
-create index ix_terminal_auto_session_eligible
-    on terminal (tenant_id, outlet_id, assigned_user_id)
-    where assigned_user_id is not null
-    and active_for_user = true
-    and state = 'ACTIVE'
-    and deleted_at is null;
 
 comment on column terminal.assigned_user_id is 'User/agent currently assigned to this terminal.';
 comment on column terminal.kind is 'Terminal kind: PHYSICAL POS or VIRTUAL phone/device.';
@@ -513,42 +491,6 @@ comment on column terminal.state is 'Operational state of the terminal.';
 comment on column terminal.sync_state is 'Connectivity/sync state for POS/mobile clients.';
 comment on column terminal.metadata is 'Flexible device metadata stored as JSONB.';
 
-create table terminal_aud (
-                              id uuid not null,
-                              rev integer not null,
-                              revtype smallint,
-                              tenant_id uuid not null,
-
-                              outlet_id uuid not null,
-                              assigned_user_id uuid,
-
-                              kind varchar(16) not null default 'PHYSICAL',
-                              state varchar(32) not null,
-                              active_for_user boolean not null default false,
-
-                              sync_state varchar(32) not null default 'ONLINE',
-                              last_seen timestamptz,
-
-                              label varchar(128),
-                              inventory_tag varchar(64),
-                              metadata jsonb not null default '{}'::jsonb,
-
-                              registered_at timestamptz,
-                              unregistered_at timestamptz,
-
-                              locked_at timestamptz,
-                              locked_by uuid,
-                              lock_reason text,
-
-                              created_at timestamptz not null,
-                              updated_at timestamptz not null,
-                              deleted_at timestamptz,
-                              version bigint not null default 0
-
-                              primary key (id, rev)
-);
-
-ALTER TABLE outlet ADD CONSTRAINT fk_outlet__auto_session_terminal FOREIGN KEY (auto_session_terminal_id) REFERENCES terminal(id);
 
 -- =========================================================
 -- SALES SESSION
@@ -581,26 +523,13 @@ create table sales_session (
                                finalize_reason text,
 
                                created_at timestamptz not null,
+                               created_by uuid,
                                updated_at timestamptz not null,
+                               updated_by uuid,
                                deleted_at timestamptz,
+                               deleted_by uuid,
                                version bigint not null default 0
 );
-
-create unique index ux_sales_session_user_business_day
-    on sales_session (tenant_id, outlet_id, opened_by, business_date)
-    where deleted_at is null;
-
-create unique index ux_sales_session_open_terminal
-    on sales_session (tenant_id, terminal_id)
-    where status = 'OPEN' and deleted_at is null;
-
-create index ix_sales_session_tenant_outlet_status
-    on sales_session (tenant_id, outlet_id, status)
-    where deleted_at is null;
-
-create index ix_sales_session_tenant_opened_by_date
-    on sales_session (tenant_id, opened_by, business_date)
-    where deleted_at is null;
 
 comment on column sales_session.business_date is 'Local business date based on outlet timezone at session opening.';
 comment on column sales_session.opening_float_cents is 'Initial float for the session.';
@@ -608,31 +537,18 @@ comment on column sales_session.expected_closing_amount_cents is 'System-calcula
 comment on column sales_session.declared_closing_amount_cents is 'Cash amount declared by user during manual close; null for auto-close.';
 comment on column sales_session.variance_cents is 'Declared closing minus expected closing.';
 
-create table sales_session_aud (
-                                   id uuid not null,
-                                   rev integer not null,
-                                   revtype smallint,
-
-                                   tenant_id uuid,
-                                   outlet_id uuid,
-                                   terminal_id uuid,
-                                   opened_by uuid,
-                                   opened_at timestamptz,
-                                   business_date date,
-                                   status varchar(32),
-                                   closed_by uuid,
-                                   closed_at timestamptz,
-                                   close_reason text,
-                                   opening_float_cents bigint,
-                                   expected_closing_amount_cents bigint,
-                                   declared_closing_amount_cents bigint,
-                                   variance_cents bigint,
-                                   created_at timestamptz,
-                                   updated_at timestamptz,
-                                   deleted_at timestamptz,
-                                   version bigint,
-
-                                   primary key (id, rev)
+CREATE TABLE sales_session_offline_adjustment (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  sales_session_id uuid NOT NULL REFERENCES sales_session(id),
+  ticket_id uuid NOT NULL,
+  amount_cents bigint NOT NULL,
+  currency varchar(3) NOT NULL,
+  source varchar(64) NOT NULL,
+  reason varchar(255) NOT NULL,
+  occurred_at_device timestamptz NOT NULL,
+  recorded_at timestamptz NOT NULL,
+  version bigint NOT NULL DEFAULT 0
 );
 
 
@@ -649,56 +565,11 @@ CREATE TABLE pricing_odds (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_pricing_odds__tenant_game_bet UNIQUE (tenant_id, game_code, bet_type, bet_option)
 );
 
-CREATE TABLE ticket (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  outlet_id uuid NOT NULL REFERENCES outlet(id),
-  terminal_id uuid REFERENCES terminal(id),
-  draw_id uuid NOT NULL REFERENCES draw(id),
-  session_id uuid NOT NULL REFERENCES sales_session(id),
-  user_id uuid NOT NULL REFERENCES app_user(id),
-  ticket_code text NOT NULL,
-  public_code varchar(32) NOT NULL,
-  sale_status varchar(24) NOT NULL,
-  result_status varchar(24) NOT NULL,
-  settlement_status varchar(24) NOT NULL,
-  currency varchar(3) NOT NULL,
-  total_amount_cents bigint NOT NULL,
-  winning_amount_cents bigint,
-  resulted_at timestamptz,
-  approval_request_id uuid,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT uq_ticket__tenant_code UNIQUE (tenant_id, ticket_code),
-  CONSTRAINT uq_ticket__public_code UNIQUE (public_code)
-);
-
-CREATE TABLE ticket_line (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  ticket_id uuid NOT NULL REFERENCES ticket(id),
-  game_code varchar(32) NOT NULL,
-  selection varchar(32) NOT NULL,
-  stake_cents bigint NOT NULL,
-  odds_snapshot numeric(12,4) NOT NULL,
-  potential_payout_cents bigint NOT NULL,
-  bet_option smallint,
-  bet_type varchar(32) NOT NULL,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0
-);
 
 -- =========================================================
 -- PAYOUT
@@ -741,22 +612,13 @@ create table payout (
                         reason text,
 
                         created_at timestamptz not null,
+                        created_by uuid,
                         updated_at timestamptz not null,
+                        updated_by uuid,
                         deleted_at timestamptz,
+                        deleted_by uuid,
                         version bigint not null default 0
 );
-
-create index ix_payout_tenant_ticket
-    on payout (tenant_id, ticket_id)
-    where deleted_at is null;
-
-create index ix_payout_paying_session_status
-    on payout (tenant_id, paying_session_id, status)
-    where paying_session_id is not null and deleted_at is null;
-
-create index ix_payout_status_requested_at
-    on payout (tenant_id, status, requested_at)
-    where deleted_at is null;
 
 comment on column payout.ticket_id is 'Winning ticket being paid.';
 comment on column payout.selling_session_id is 'Session that sold the original ticket, if known.';
@@ -764,42 +626,6 @@ comment on column payout.paying_session_id is 'Session that paid the winning tic
 comment on column payout.status is 'Payout lifecycle status.';
 comment on column payout.reason is 'General business reason/comment.';
 comment on column payout.cancel_reason is 'Reason provided when payout is cancelled.';
-
-create table payout_aud (
-                            id uuid not null,
-                            rev integer not null,
-                            revtype smallint,
-
-                            tenant_id uuid,
-                            ticket_id uuid,
-                            amount_cents bigint,
-                            currency varchar(3),
-                            status varchar(32),
-                            selling_outlet_id uuid,
-                            selling_session_id uuid,
-                            paying_outlet_id uuid,
-                            paying_session_id uuid,
-                            paying_terminal_id uuid,
-                            requested_by uuid,
-                            requested_at timestamptz,
-                            approved_by uuid,
-                            approved_at timestamptz,
-                            rejected_by uuid,
-                            rejected_at timestamptz,
-                            rejected_reason text,
-                            paid_by uuid,
-                            paid_at timestamptz,
-                            cancelled_by uuid,
-                            cancelled_at timestamptz,
-                            cancel_reason text,
-                            reason text,
-                            created_at timestamptz,
-                            updated_at timestamptz,
-                            deleted_at timestamptz,
-                            version bigint,
-
-                            primary key (id, rev)
-);
 
 
 CREATE TABLE billing_plan (
@@ -819,6 +645,7 @@ CREATE TABLE billing_plan (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -837,6 +664,7 @@ CREATE TABLE tenant_subscription (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -858,6 +686,7 @@ CREATE TABLE page_model_template (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_page_model_template__level CHECK (level IN ('GLOBAL','TENANT'))
 );
@@ -882,6 +711,7 @@ CREATE TABLE page_model (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_page_model__tenant_code UNIQUE (tenant_id, code)
 );
@@ -903,6 +733,7 @@ CREATE TABLE audit_event (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
 );
 
@@ -929,6 +760,7 @@ CREATE TABLE IF NOT EXISTS limit_assignment (
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     deleted_at timestamptz NULL,
+    deleted_by uuid,
 
     CONSTRAINT ck_limit_assignment_scope_type
     CHECK (scope_type IN ('TENANT', 'DRAWCHANNEL', 'OUTLET', 'AGENT')),
@@ -956,33 +788,11 @@ CREATE TABLE autonomy_policy_rule (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_autonomy_policy_rule__target_type CHECK (target_type IN ('TENANT','OUTLET','USER'))
 );
 
-CREATE TABLE approval_request (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  entity_type varchar(32) NOT NULL,
-  entity_id uuid NOT NULL,
-  reason_code varchar(64) NOT NULL,
-  status varchar(16) NOT NULL,
-  requested_by uuid,
-  approved_by uuid,
-  rejected_by uuid,
-  requested_at timestamptz NOT NULL DEFAULT now(),
-  decided_at timestamptz,
-  details jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_approval_request__status CHECK (status IN ('PENDING','APPROVED','REJECTED','EXPIRED'))
-);
-
-ALTER TABLE ticket ADD CONSTRAINT fk_ticket__approval_request FOREIGN KEY (approval_request_id) REFERENCES approval_request(id);
 
 CREATE TABLE IF NOT EXISTS draw_exposure (
                                              id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1009,6 +819,7 @@ CREATE TABLE IF NOT EXISTS draw_exposure (
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now(),
     deleted_at timestamptz NULL,
+    deleted_by uuid,
 
     CONSTRAINT ck_draw_exposure_scope_type
     CHECK (scope_type IN ('TENANT', 'DRAWCHANNEL', 'OUTLET', 'AGENT')),
@@ -1039,8 +850,11 @@ CREATE TABLE ledger_entry (
 
                               version bigint NOT NULL DEFAULT 0,
                               created_at timestamptz NOT NULL DEFAULT now(),
+                              created_by uuid,
                               updated_at timestamptz NOT NULL DEFAULT now(),
+                              updated_by uuid,
                               deleted_at timestamptz NULL,
+                              deleted_by uuid,
 
                               CONSTRAINT ck_ledger_entry_amount_positive CHECK (amount_cents > 0),
                               CONSTRAINT ck_ledger_entry_direction CHECK (direction IN ('CREDIT', 'DEBIT')),
@@ -1068,6 +882,7 @@ CREATE TABLE tchala_entry (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_tchala_entry__lang_dedupe UNIQUE (lang, dedupe_key)
 );
@@ -1107,6 +922,7 @@ CREATE TABLE notification (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_notification__audience_type CHECK (audience_type IN ('USER','ROLE','TENANT','OUTLET','TERMINAL','PLATFORM')),
   CONSTRAINT chk_notification__severity CHECK (severity IN ('INFO','WARNING','ERROR','CRITICAL')),
@@ -1135,6 +951,7 @@ CREATE TABLE notification_delivery (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_notification_delivery__channel CHECK (channel IN ('WEB','SMS','WHATSAPP','EMAIL','PUSH')),
   CONSTRAINT chk_notification_delivery__status CHECK (status IN ('PENDING','SENT','DELIVERED','FAILED','SKIPPED','CANCELLED'))
@@ -1154,6 +971,7 @@ CREATE TABLE notification_preference (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_notification_preference__scope_type CHECK (scope_type IN ('TENANT','ROLE','USER')),
   CONSTRAINT chk_notification_preference__category CHECK (category IN ('PAGE_MODEL','TENANT_CONFIG','USER','OUTLET','TERMINAL','SESSION','SALES','DRAW','RESULT','PAYOUT','BATCH','SYSTEM','SECURITY')),
@@ -1175,6 +993,7 @@ CREATE TABLE notification_template (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_notification_template__scope UNIQUE (tenant_id, template_key, locale)
 );
@@ -1203,6 +1022,7 @@ CREATE TABLE outbound_message (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_outbound_message__channel CHECK (channel IN ('SLACK','SLACK_INTERNAL','SLACK_TENANT_WEBHOOK','EMAIL','SMS','WHATSAPP','PUSH')),
   CONSTRAINT chk_outbound_message__priority CHECK (priority IN ('LOW','NORMAL','HIGH','CRITICAL')),
@@ -1223,6 +1043,7 @@ CREATE TABLE message_delivery_attempt (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_message_delivery_attempt__status CHECK (status IN ('PENDING','DISPATCHING','SENT','FAILED','SKIPPED','CANCELLED'))
 );
@@ -1241,6 +1062,7 @@ CREATE TABLE message_template (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT chk_message_template__channel CHECK (channel IN ('SLACK','SLACK_INTERNAL','SLACK_TENANT_WEBHOOK','EMAIL','SMS','WHATSAPP','PUSH')),
   CONSTRAINT uq_message_template__scope UNIQUE (tenant_id, template_key, channel, locale)
@@ -1263,6 +1085,318 @@ CREATE TABLE tenant_communication_settings (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_tenant_communication_settings__tenant UNIQUE (tenant_id)
+);
+
+-- =========================================================
+-- SALES TICKET (replaces legacy ticket/ticket_line)
+-- =========================================================
+
+CREATE TABLE sales_ticket (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  outlet_id uuid NOT NULL,
+  terminal_id uuid NOT NULL,
+  seller_user_id uuid NOT NULL,
+  sales_session_id uuid NOT NULL,
+  draw_id uuid NOT NULL,
+  draw_channel_id uuid NOT NULL,
+  payout_id uuid,
+  ticket_code varchar(64) NOT NULL,
+  public_code varchar(32) NOT NULL,
+  verification_code varchar(32) NOT NULL,
+  currency varchar(3) NOT NULL,
+  stake_amount numeric(19,4) NOT NULL,
+  total_amount numeric(19,4) NOT NULL,
+  potential_payout_amount numeric(19,4) NOT NULL DEFAULT 0,
+  winning_amount numeric(19,4) NOT NULL DEFAULT 0,
+  sale_status varchar(32) NOT NULL,
+  sold_at timestamptz NOT NULL,
+  placed_at timestamptz NOT NULL,
+  approval_request_id uuid,
+  approval_requested_by uuid,
+  approval_requested_at timestamptz,
+  approved_at timestamptz,
+  approved_by uuid,
+  rejected_at timestamptz,
+  rejected_by uuid,
+  rejection_reason varchar(500),
+  cancelled_at timestamptz,
+  cancelled_by uuid,
+  cancellation_reason varchar(500),
+  voided_at timestamptz,
+  voided_by uuid,
+  void_reason varchar(500),
+  result_status varchar(32) NOT NULL,
+  resulted_at timestamptz,
+  resulted_by uuid,
+  result_override_reason varchar(500),
+  settlement_status varchar(32) NOT NULL,
+  settled_at timestamptz,
+  settled_by uuid,
+  paid_at timestamptz,
+  paid_by uuid,
+  sale_channel varchar(32) NOT NULL,
+  offline_submission_id uuid,
+  offline_batch_id uuid,
+  offline_code_batch_id uuid,
+  offline_code varchar(64),
+  offline_client_sale_id varchar(64),
+  offline_local_sequence bigint,
+  offline_sold_at_device timestamptz,
+  offline_sync_status varchar(48),
+  print_status varchar(16) NOT NULL,
+  print_count integer NOT NULL DEFAULT 0,
+  first_printed_at timestamptz,
+  last_printed_at timestamptz,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uk_sales_ticket__tenant_code UNIQUE (tenant_id, ticket_code),
+  CONSTRAINT uk_sales_ticket__public_code UNIQUE (tenant_id, public_code),
+  CONSTRAINT uk_sales_ticket__verification_code UNIQUE (tenant_id, verification_code),
+  CONSTRAINT chk_sales_ticket__offline_ref CHECK (
+    (sale_channel = 'POS_OFFLINE_SYNCED'
+      AND offline_submission_id IS NOT NULL AND offline_batch_id IS NOT NULL
+      AND offline_code_batch_id IS NOT NULL AND offline_code IS NOT NULL
+      AND offline_client_sale_id IS NOT NULL AND offline_local_sequence IS NOT NULL
+      AND offline_sold_at_device IS NOT NULL AND offline_sync_status IS NOT NULL)
+    OR
+    (sale_channel <> 'POS_OFFLINE_SYNCED'
+      AND offline_submission_id IS NULL AND offline_batch_id IS NULL
+      AND offline_code_batch_id IS NULL AND offline_code IS NULL
+      AND offline_client_sale_id IS NULL AND offline_local_sequence IS NULL
+      AND offline_sold_at_device IS NULL AND offline_sync_status IS NULL)
+  )
+);
+
+CREATE TABLE sales_ticket_line (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  ticket_id uuid NOT NULL REFERENCES sales_ticket(id),
+  draw_id uuid NOT NULL,
+  line_number integer NOT NULL,
+  game_code varchar(64) NOT NULL,
+  bet_type varchar(64) NOT NULL,
+  selection_key varchar(128) NOT NULL,
+  display_selection varchar(256) NOT NULL,
+  stake_amount numeric(19,4) NOT NULL,
+  odds_snapshot numeric(19,6),
+  potential_payout_amount numeric(19,4) NOT NULL DEFAULT 0,
+  result_status varchar(16) NOT NULL,
+  payout_amount numeric(19,4) NOT NULL DEFAULT 0,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uk_ticket_line__number UNIQUE (tenant_id, ticket_id, line_number),
+  CONSTRAINT chk_ticket_line__amounts CHECK (
+    stake_amount > 0 AND potential_payout_amount >= 0 AND payout_amount >= 0
+  )
+);
+
+CREATE TABLE sales_ticket_charge (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  sales_ticket_id uuid NOT NULL REFERENCES sales_ticket(id) ON DELETE CASCADE,
+  charge_type varchar(48) NOT NULL,
+  paid_by varchar(16) NOT NULL,
+  amount numeric(19,4) NOT NULL,
+  currency varchar(3) NOT NULL,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uk_sales_ticket_charge__type UNIQUE (sales_ticket_id, charge_type, paid_by),
+  CONSTRAINT chk_sales_ticket_charge__type CHECK (charge_type IN ('SMS_DELIVERY','WHATSAPP_DELIVERY','EMAIL_DELIVERY')),
+  CONSTRAINT chk_sales_ticket_charge__paid_by CHECK (paid_by IN ('BUYER','SELLER','TENANT')),
+  CONSTRAINT chk_sales_ticket_charge__amount CHECK (amount >= 0),
+  CONSTRAINT chk_sales_ticket_charge__currency CHECK (currency ~ '^[A-Z]{3}$')
+);
+
+-- =========================================================
+-- OFFLINE SYNC
+-- =========================================================
+
+CREATE TABLE offline_grant (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  terminal_id uuid NOT NULL,
+  outlet_id uuid NOT NULL,
+  seller_user_id uuid NOT NULL,
+  sales_session_id uuid NOT NULL,
+  device_id uuid NOT NULL,
+  code_batch_id uuid,
+  status varchar(32) NOT NULL,
+  valid_from timestamptz NOT NULL,
+  valid_until timestamptz NOT NULL,
+  max_ticket_count integer,
+  max_total_amount numeric(18,2),
+  token_hash varchar(255) NOT NULL,
+  issued_at timestamptz NOT NULL,
+  revoked_at timestamptz,
+  revoked_reason varchar(255),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0
+);
+
+CREATE TABLE offline_sync_batch (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  terminal_id uuid NOT NULL,
+  outlet_id uuid NOT NULL,
+  seller_user_id uuid NOT NULL,
+  sales_session_id uuid NOT NULL,
+  device_id uuid NOT NULL,
+  grant_id uuid NOT NULL REFERENCES offline_grant(id),
+  code_batch_id uuid,
+  client_batch_id varchar(255) NOT NULL,
+  received_at timestamptz NOT NULL,
+  processed_at timestamptz,
+  status varchar(32) NOT NULL,
+  submission_count integer NOT NULL DEFAULT 0,
+  technical_reject_count integer NOT NULL DEFAULT 0,
+  sales_accept_count integer NOT NULL DEFAULT 0,
+  sales_reject_count integer NOT NULL DEFAULT 0,
+  review_count integer NOT NULL DEFAULT 0,
+  raw_manifest jsonb,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0
+);
+
+CREATE TABLE offline_code_batch (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  terminal_id uuid NOT NULL,
+  outlet_id uuid,
+  seller_user_id uuid,
+  allocated_count integer NOT NULL,
+  consumed_count integer NOT NULL DEFAULT 0,
+  status varchar(32) NOT NULL,
+  issued_at timestamptz NOT NULL,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0
+);
+
+CREATE TABLE offline_submission (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  sync_batch_id uuid REFERENCES offline_sync_batch(id),
+  grant_id uuid NOT NULL REFERENCES offline_grant(id),
+  code_batch_id uuid REFERENCES offline_code_batch(id),
+  offline_code varchar(255),
+  client_submission_id varchar(255) NOT NULL,
+  device_id uuid NOT NULL,
+  seller_user_id uuid NOT NULL,
+  terminal_id uuid NOT NULL,
+  outlet_id uuid NOT NULL,
+  sales_session_id uuid NOT NULL,
+  client_sold_at timestamptz NOT NULL,
+  received_at timestamptz NOT NULL,
+  processed_at timestamptz,
+  status varchar(32) NOT NULL,
+  technical_status varchar(32),
+  business_status varchar(32),
+  rejection_code varchar(64),
+  rejection_reason varchar(500),
+  payload_hash varchar(255) NOT NULL,
+  signature varchar(255),
+  created_ticket_id uuid REFERENCES sales_ticket(id),
+  raw_payload jsonb NOT NULL,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_offline_submission__grant_client UNIQUE (tenant_id, grant_id, client_submission_id)
+);
+
+CREATE TABLE offline_submission_line (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  submission_id uuid NOT NULL REFERENCES offline_submission(id),
+  line_no integer NOT NULL,
+  game_code varchar(64) NOT NULL,
+  bet_type varchar(64) NOT NULL,
+  bet_option varchar(64) NOT NULL,
+  selection_key varchar(255) NOT NULL,
+  stake_amount numeric(18,2) NOT NULL,
+  potential_payout numeric(18,2),
+  status varchar(32) NOT NULL,
+  rejection_code varchar(64),
+  rejection_reason varchar(500),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0
+);
+
+CREATE TABLE offline_code_reservation (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  code_batch_id uuid NOT NULL REFERENCES offline_code_batch(id),
+  grant_id uuid REFERENCES offline_grant(id),
+  submission_id uuid REFERENCES offline_submission(id),
+  ticket_id uuid REFERENCES sales_ticket(id),
+  offline_code varchar(64) NOT NULL,
+  status varchar(32) NOT NULL,
+  reserved_at timestamptz NOT NULL,
+  consumed_at timestamptz,
+  expires_at timestamptz,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0
+);
+
+CREATE TABLE offline_submission_ticket_link (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  submission_id uuid NOT NULL REFERENCES offline_submission(id),
+  ticket_id uuid NOT NULL REFERENCES sales_ticket(id),
+  link_type varchar(32) NOT NULL,
+  linked_at timestamptz NOT NULL,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0
 );

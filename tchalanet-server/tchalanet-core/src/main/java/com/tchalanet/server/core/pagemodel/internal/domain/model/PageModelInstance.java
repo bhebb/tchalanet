@@ -35,7 +35,7 @@ public final class PageModelInstance {
     private Instant archivedAt;
     private Instant deletedAt;
 
-    //todo add code
+    //todo add value
     private PageModelInstance(
         PageModelId id,
         TenantId tenantId,

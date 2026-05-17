@@ -2,7 +2,7 @@ package com.tchalanet.server.features.stats.aggregates.app;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;
 import lombok.RequiredArgsConstructor;

@@ -22,7 +22,7 @@ public class HolidayUtils {
   private final Logger log = LoggerFactory.getLogger(HolidayUtils.class);
 
   /**
-   * Check if the given local date is a holiday for the provider inferred from the channel code.
+   * Check if the given local date is a holiday for the provider inferred from the channel value.
    * Returns false if no provider could be inferred or no holidays configured.
    */
   public boolean isHolidayForChannel(String channelCode, LocalDate date) {

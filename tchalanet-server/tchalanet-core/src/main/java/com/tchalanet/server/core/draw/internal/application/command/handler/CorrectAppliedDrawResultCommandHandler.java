@@ -14,7 +14,7 @@ import com.tchalanet.server.core.draw.api.command.CorrectAppliedDrawResultComman
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSalesGuardPort;
-import com.tchalanet.server.core.draw.internal.domain.event.DrawResultCorrectedEvent;
+import com.tchalanet.server.core.draw.api.event.DrawResultCorrectedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +43,8 @@ import java.util.UUID;
 public class CorrectAppliedDrawResultCommandHandler
     implements VoidCommandHandler<CorrectAppliedDrawResultCommand> {
 
+    private static final String HANDLER_KEY = "draw.correct-applied-result";
+
     private final DrawLookupPort drawLookupPort;
     private final DrawLifecyclePort drawLifecyclePort;
     private final DrawSalesGuardPort salesGuard;
@@ -62,6 +64,9 @@ public class CorrectAppliedDrawResultCommandHandler
         if (command.reason() == null || command.reason().isBlank()) {
             throw ProblemRest.badRequest("draw.correct_result.reason_required");
         }
+        if (command.reason().trim().length() < 10) {
+            throw ProblemRest.badRequest("draw.correct_result.reason_too_short");
+        }
 
         if (command.idempotencyKey() == null || command.idempotencyKey().isBlank()) {
             throw ProblemRest.badRequest("draw.correct_result.idempotency_key_required");
@@ -72,7 +77,7 @@ public class CorrectAppliedDrawResultCommandHandler
                 .getBytes(java.nio.charset.StandardCharsets.UTF_8)
         );
 
-        if (!processedEventPort.markProcessedIfAbsent("CorrectAppliedDrawResult", idempotentEventId)) {
+        if (processedEventPort.alreadyProcessed(HANDLER_KEY, idempotentEventId)) {
             log.warn("draw.correct_result duplicate ignored drawId={} key={}",
                 command.drawId(), command.idempotencyKey());
             return;
@@ -124,7 +129,14 @@ public class CorrectAppliedDrawResultCommandHandler
             command.reason()
         );
 
-        AfterCommit.run(() -> eventPublisher.publish(event));
+        AfterCommit.run(() -> {
+            if (!processedEventPort.markProcessedIfAbsent(HANDLER_KEY, idempotentEventId)) {
+                log.warn("draw.correct_result duplicate skipped-after-commit drawId={} key={}",
+                    command.drawId(), command.idempotencyKey());
+                return;
+            }
+            eventPublisher.publish(event);
+        });
     }
 }
 

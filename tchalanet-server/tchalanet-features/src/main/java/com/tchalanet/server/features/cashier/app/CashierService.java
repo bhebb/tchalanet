@@ -2,23 +2,25 @@ package com.tchalanet.server.features.cashier.app;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchContextResolver;
-import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
-import com.tchalanet.server.platform.communication.api.CommunicationApi;
-import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
-import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
-import com.tchalanet.server.platform.document.api.DocumentApi;
-import com.tchalanet.server.platform.document.api.model.DocumentFormat;
-import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.core.sales.api.command.SellTicketCommand;
-import com.tchalanet.server.core.sales.api.command.SellTicketLineInput;
-import com.tchalanet.server.core.sales.api.command.SellTicketOutcome;
-import com.tchalanet.server.core.sales.api.command.SoldTicketView;
-import com.tchalanet.server.core.sales.api.print.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.api.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
+import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.internal.application.service.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
+import com.tchalanet.server.platform.communication.api.CommunicationApi;
+import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
+import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
+import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
+import com.tchalanet.server.platform.document.api.DocumentApi;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.features.cashier.model.CashierPrintFormat;
 import com.tchalanet.server.features.cashier.model.CashierPrintableReceipt;
 import com.tchalanet.server.features.cashier.model.CashierSellPrintRequest;
@@ -68,34 +70,34 @@ public class CashierService {
 
   public CashierSellPrintResponse sellAndPrint(CashierSellPrintRequest request) {
     var ctx = contextResolver.currentOrThrow();
-    var sellerContext = sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
+    sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
         ctx,
         TerminalId.of(request.terminalId()),
         SellerOperation.SELL));
+    var lines = request.lines();
     var command = new SellTicketCommand(
-        sellerContext.tenantId(),
-        sellerContext.actorUserId(),
-        sellerContext.terminalId(),
-        sellerContext.outletId(),
-        sellerContext.salesSessionId(),
         DrawId.of(request.drawId()),
-        request.currency(),
-        java.math.BigDecimal.ZERO,
-        request.lines().stream()
-            .map(line -> new SellTicketLineInput(
-                line.gameCode(),
-                line.selection(),
-                line.betType(),
-                line.betOption(),
-                line.stake(),
-                java.math.BigDecimal.ONE))
-            .toList());
+        null,
+        CurrencyCode.of(request.currency()),
+        java.util.stream.IntStream.range(0, lines.size())
+            .mapToObj(i -> {
+                var line = lines.get(i);
+                return new SellTicketLineInput(
+                    i + 1,
+                    line.gameCode(),
+                    line.betType(),
+                    line.selection(),
+                    line.betOption(),
+                    line.stake());
+            })
+            .toList(),
+        SaleCommunicationOptions.none());
 
     var result = commandBus.execute(command);
     var ticket = toView(result.ticket());
-    var receipt = result.outcome() == SellTicketOutcome.PENDING_APPROVAL
+    CashierPrintableReceipt receipt = result.outcome() == SellTicketOutcome.PENDING_APPROVAL
         ? null
-        : renderReceipt(result.ticket().ticketId(), printFormat(request.printFormat()), ctx.locale());
+        : renderReceipt(result.ticket().identity().id(), printFormat(request.printFormat()), ctx.locale());
 
     return new CashierSellPrintResponse(ticket, result.outcome(), result.approvalRequestId(), receipt);
   }
@@ -103,20 +105,20 @@ public class CashierService {
   public CashierSendReceiptResponse sendReceipt(TicketId ticketId, CashierSendReceiptRequest request) {
     var ctx = contextResolver.currentOrThrow();
     var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
-    var ticket = findTicket(ticketId, locale);
+    var ticket = findTicket(ticketId);
     validateRecipient(request);
-    var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
+    var verifyUrl = urlBuilder.buildUrl(ticket.identity().publicCode());
     var includeLink = request.includeVerificationLink() == null || request.includeVerificationLink();
 
     var metadata = new LinkedHashMap<String, Object>();
-    metadata.put("eventId", "ticket-receipt-" + ticket.ticketId());
+    metadata.put("eventId", "ticket-receipt-" + ticket.identity().ticketId());
     metadata.put("requestId", ctx.requestId());
     metadata.put("idempotencyKey", ctx.idempotencyKey());
     metadata.put("severity", "INFO");
-    metadata.put("title", "Ticket Tchalanet " + ticket.ticketCode());
+    metadata.put("title", "Ticket Tchalanet " + ticket.identity().ticketCode());
     metadata.put("message", receiptMessage(ticket, includeLink ? verifyUrl : null));
-    metadata.put("ticketCode", ticket.ticketCode());
-    metadata.put("publicCode", ticket.publicCode());
+    metadata.put("ticketCode", ticket.identity().ticketCode());
+    metadata.put("publicCode", ticket.identity().publicCode());
     if (includeLink) {
       metadata.put("verificationUrl", verifyUrl);
     }
@@ -140,8 +142,8 @@ public class CashierService {
 
   private CashierPrintableReceipt renderReceipt(TicketId ticketId, CashierPrintFormat format, Locale locale) {
     var normalized = locale == null ? Locale.FRENCH : locale;
-    var ticket = findTicket(ticketId, normalized);
-    var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
+    var ticket = findTicket(ticketId);
+    var verifyUrl = urlBuilder.buildUrl(ticket.identity().publicCode());
     return switch (format) {
       case PDF -> {
         var request = documentRequestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.PDF, normalized);
@@ -175,21 +177,20 @@ public class CashierService {
     return new CashierPrintableReceipt(format, contentType, filename, Base64.getEncoder().encodeToString(bytes));
   }
 
-  private TicketPrintView findTicket(TicketId ticketId, Locale locale) {
-    return printReader.findTicketPrintView(ticketId, locale)
-        .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
+  private TicketPrintView findTicket(TicketId ticketId) {
+    return printReader.findPrintViewRequired(ticketId);
   }
 
-  private CashierTicketView toView(SoldTicketView ticket) {
+  private CashierTicketView toView(Ticket ticket) {
     return new CashierTicketView(
-        ticket.ticketId(),
-        ticket.ticketCode(),
-        ticket.publicCode(),
-        ticket.saleStatus(),
-        ticket.resultStatus(),
-        ticket.settlementStatus(),
-        ticket.totalAmount(),
-        ticket.createdAt());
+        ticket.identity().id(),
+        ticket.codes().ticketCode().value(),
+        ticket.codes().publicCode().value(),
+        ticket.lifecycle().sale().status(),
+        ticket.lifecycle().result().status(),
+        ticket.lifecycle().settlement().status(),
+        ticket.money().totalAmount().amount(),
+        ticket.audit().createdAt());
   }
 
   private CashierPrintFormat printFormat(CashierPrintFormat requested) {
@@ -216,8 +217,8 @@ public class CashierService {
   }
 
   private String receiptMessage(TicketPrintView ticket, String verifyUrl) {
-    var message = "Ticket: " + ticket.ticketCode() + "\n"
-        + "Montant: " + ticket.totalAmount();
+    var message = "Ticket: " + ticket.identity().ticketCode() + "\n"
+        + "Montant: " + ticket.money().totalAmount();
     return verifyUrl == null ? message : message + "\nVerifier: " + verifyUrl;
   }
 }

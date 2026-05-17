@@ -43,15 +43,32 @@ CREATE INDEX ix_draw_result__slot_occurred ON draw_result (result_slot_id, occur
 CREATE INDEX ix_draw_result__source_hash ON draw_result (source_hash);
 
 -- ─── Outlet, terminal, sales session (canonical guards) ─────────────
+CREATE UNIQUE INDEX ux_outlet__tenant_slug
+  ON outlet (tenant_id, slug) WHERE deleted_at IS NULL;
 CREATE INDEX ix_outlet__tenant_active
   ON outlet (tenant_id, day_closed, sales_blocked) WHERE deleted_at IS NULL;
+CREATE INDEX ix_outlet__auto_session_open
+  ON outlet (tenant_id, session_open_time)
+  WHERE auto_session_open_enabled = true AND deleted_at IS NULL;
+CREATE INDEX ix_outlet__auto_session_close
+  ON outlet (tenant_id, session_close_time)
+  WHERE auto_session_close_enabled = true AND deleted_at IS NULL;
 CREATE INDEX ix_tenant_user__tenant_outlet
   ON tenant_user (tenant_id, outlet_id) WHERE outlet_id IS NOT NULL AND deleted_at IS NULL;
 CREATE INDEX ix_terminal__tenant_outlet
   ON terminal (tenant_id, outlet_id) WHERE deleted_at IS NULL;
+CREATE INDEX ix_terminal__assigned_user
+  ON terminal (tenant_id, assigned_user_id)
+  WHERE assigned_user_id IS NOT NULL AND deleted_at IS NULL;
 CREATE UNIQUE INDEX uq_terminal__one_active_per_user
   ON terminal (tenant_id, assigned_user_id)
-  WHERE assigned_user_id IS NOT NULL AND active_for_user = true AND deleted_at IS NULL;
+  WHERE assigned_user_id IS NOT NULL AND auto_session_enabled = true AND deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_terminal__auto_session_eligible
+  ON terminal (tenant_id, outlet_id, assigned_user_id)
+  WHERE assigned_user_id IS NOT NULL
+    AND auto_session_enabled = true
+    AND state = 'ACTIVE'
+    AND deleted_at IS NULL;
 CREATE INDEX ix_sales_session__tenant_user_status
   ON sales_session (tenant_id, user_id, status) WHERE deleted_at IS NULL;
 CREATE INDEX ix_sales_session__tenant_outlet_status
@@ -59,13 +76,16 @@ CREATE INDEX ix_sales_session__tenant_outlet_status
 CREATE UNIQUE INDEX uq_sales_session__one_open_per_user
   ON sales_session (tenant_id, user_id)
   WHERE status = 'OPEN' AND deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_sales_session__user_business_day
+  ON sales_session (tenant_id, outlet_id, opened_by, business_date)
+  WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_sales_session__open_terminal
+  ON sales_session (tenant_id, terminal_id)
+  WHERE status = 'OPEN' AND deleted_at IS NULL;
+CREATE INDEX ix_sales_session__tenant_opened_by_date
+  ON sales_session (tenant_id, opened_by, business_date)
+  WHERE deleted_at IS NULL;
 
--- ─── Tickets & lines ────────────────────────────────────────────────
-CREATE INDEX ix_ticket__tenant_draw ON ticket (tenant_id, draw_id) WHERE deleted_at IS NULL;
-CREATE INDEX ix_ticket__tenant_session ON ticket (tenant_id, session_id) WHERE deleted_at IS NULL;
-CREATE INDEX ix_ticket__tenant_outlet ON ticket (tenant_id, outlet_id) WHERE deleted_at IS NULL;
-CREATE INDEX ix_ticket__tenant_user ON ticket (tenant_id, user_id) WHERE deleted_at IS NULL;
-CREATE INDEX ix_ticket_line__ticket ON ticket_line (ticket_id);
 
 -- ─── Payout (1 payout max per ticket) ───────────────────────────────
 create index idx_payout_tenant_status_created
@@ -79,6 +99,14 @@ create index idx_payout_tenant_paying_session
 
 create index idx_payout_tenant_selling_session
     on payout (tenant_id, selling_session_id);
+
+CREATE INDEX ix_payout__paying_session_status
+  ON payout (tenant_id, paying_session_id, status)
+  WHERE paying_session_id IS NOT NULL AND deleted_at IS NULL;
+
+CREATE INDEX ix_payout__status_requested_at
+  ON payout (tenant_id, status, requested_at)
+  WHERE deleted_at IS NULL;
 
 -- ─── Limit policy ───────────────────────────────────────────────────
 
@@ -105,11 +133,6 @@ CREATE UNIQUE INDEX uq_autonomy_policy_rule__natural
   ON autonomy_policy_rule (tenant_id, target_type, COALESCE(target_id, '00000000-0000-0000-0000-000000000000'::uuid))
   WHERE deleted_at IS NULL;
 
--- ─── Approval requests ──────────────────────────────────────────────
-CREATE INDEX ix_approval_request__tenant_status
-  ON approval_request (tenant_id, status) WHERE deleted_at IS NULL;
-CREATE INDEX ix_approval_request__tenant_entity
-  ON approval_request (tenant_id, entity_type, entity_id) WHERE deleted_at IS NULL;
 
 -- ─── Reporting / exposure / ledger ──────────────────────────────────
 
@@ -210,3 +233,47 @@ CREATE INDEX ix_revinfo__tenant_id ON revinfo (tenant_id);
 CREATE INDEX ix_revinfo__user_id ON revinfo (user_id);
 CREATE INDEX ix_revinfo__request_id ON revinfo (request_id);
 CREATE INDEX ix_revinfo__api_scope ON revinfo (api_scope);
+
+-- ─── Sales ticket ────────────────────────────────────────────────────
+CREATE INDEX idx_sales_ticket__tenant ON sales_ticket (tenant_id);
+CREATE INDEX idx_sales_ticket__tenant_draw ON sales_ticket (tenant_id, draw_id);
+CREATE INDEX idx_sales_ticket__tenant_session ON sales_ticket (tenant_id, sales_session_id);
+CREATE INDEX idx_sales_ticket__tenant_seller ON sales_ticket (tenant_id, seller_user_id);
+CREATE INDEX idx_sales_ticket__tenant_payout ON sales_ticket (tenant_id, payout_id);
+CREATE INDEX idx_sales_ticket__tenant_outlet ON sales_ticket (tenant_id, outlet_id);
+CREATE INDEX idx_sales_ticket__tenant_terminal ON sales_ticket (tenant_id, terminal_id);
+CREATE INDEX idx_sales_ticket__tenant_sale_status ON sales_ticket (tenant_id, sale_status);
+CREATE INDEX idx_sales_ticket__tenant_result_status ON sales_ticket (tenant_id, result_status);
+CREATE INDEX idx_sales_ticket__tenant_settlement_status ON sales_ticket (tenant_id, settlement_status);
+CREATE INDEX idx_sales_ticket__offline_submission ON sales_ticket (tenant_id, offline_submission_id);
+CREATE UNIQUE INDEX uk_sales_ticket__offline_submission_not_null
+  ON sales_ticket (tenant_id, offline_submission_id)
+  WHERE offline_submission_id IS NOT NULL;
+CREATE INDEX idx_sales_ticket__sold_at_desc ON sales_ticket (tenant_id, sold_at DESC);
+CREATE INDEX idx_sales_ticket_line__tenant ON sales_ticket_line (tenant_id);
+CREATE INDEX idx_sales_ticket_line__ticket ON sales_ticket_line (ticket_id);
+CREATE INDEX idx_sales_ticket_line__tenant_draw_game ON sales_ticket_line (tenant_id, draw_id, game_code);
+CREATE INDEX idx_sales_ticket_line__result_status ON sales_ticket_line (tenant_id, result_status);
+CREATE INDEX idx_sales_ticket_charge__tenant ON sales_ticket_charge (tenant_id);
+CREATE INDEX idx_sales_ticket_charge__ticket ON sales_ticket_charge (sales_ticket_id);
+CREATE INDEX idx_sales_ticket_charge__type ON sales_ticket_charge (tenant_id, charge_type);
+
+-- ─── Offline sync ────────────────────────────────────────────────────
+CREATE INDEX idx_offline_grant__tenant ON offline_grant (tenant_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_grant__terminal ON offline_grant (tenant_id, terminal_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_grant__seller ON offline_grant (tenant_id, seller_user_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_sync_batch__tenant ON offline_sync_batch (tenant_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_sync_batch__grant ON offline_sync_batch (tenant_id, grant_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_code_batch__tenant ON offline_code_batch (tenant_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_code_batch__terminal ON offline_code_batch (tenant_id, terminal_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_submission__tenant ON offline_submission (tenant_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_submission__grant ON offline_submission (tenant_id, grant_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_submission__batch ON offline_submission (tenant_id, sync_batch_id) WHERE sync_batch_id IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX idx_offline_submission__dispatch
+  ON offline_submission (tenant_id, status, processed_at)
+  WHERE status IN ('READY_FOR_SALES','RETRY_PENDING') AND deleted_at IS NULL;
+CREATE INDEX idx_offline_submission_line__submission ON offline_submission_line (submission_id);
+CREATE INDEX idx_offline_code_reservation__batch ON offline_code_reservation (tenant_id, code_batch_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_code_reservation__code ON offline_code_reservation (tenant_id, offline_code) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_submission_ticket_link__submission ON offline_submission_ticket_link (submission_id);
+CREATE INDEX idx_offline_submission_ticket_link__ticket ON offline_submission_ticket_link (ticket_id);

@@ -18,9 +18,6 @@ public class IgnoreTemplateUpdateCommandHandler
   @Override
   @TchTx
   public Boolean handle(IgnoreTemplateUpdateCommand command) {
-    command
-        .notificationId()
-        .ifPresent(id -> commandBus.execute(new ArchiveNotificationRequest(id, command.actorId())));
-    return true;
+      return true;
   }
 }

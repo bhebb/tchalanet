@@ -5,6 +5,7 @@ import com.tchalanet.server.catalog.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.model.AddressView;
+import tools.jackson.databind.JsonNode;
 
 import java.time.ZoneId;
 import java.util.Currency;
@@ -23,5 +24,6 @@ public record TenantConfigView(
     TenantStatus status,
     ThemePresetId activeThemeId,      // ID for reference/operations
     String activeThemeCode,            // code for display (e.g. "modern-light")
-    AddressView address
+    AddressView address,
+    JsonNode internalSettings
 ) {}

@@ -1,10 +1,10 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.adapter;
 
-import com.tchalanet.server.core.selection.SelectionKeyCanonicalizer;
+import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureProjectorPort;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.ScopePersistenceMapper;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -20,6 +20,7 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
 
     private final JdbcTemplate jdbc;
 
+    private final SelectionApi selectionApi;
     @Override
     public void applyTicketSold(TicketPlacedEvent event) {
         var scopes = scopesFor(event);
@@ -28,19 +29,19 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
             var scopeRow = ScopePersistenceMapper.toRow(scope);
 
             for (var line : event.lines()) {
-                var stake = BigDecimal.valueOf(line.stakeCents(), 2);
-                var payout = BigDecimal.valueOf(line.potentialPayoutCents(), 2);
+                var stake = line.stakeAmount().amount();
+                var payout = line.potentialPayoutAmount().amount();
 
                 var canonicalSelection =
-                    SelectionKeyCanonicalizer.canonicalize(
+                    selectionApi.canonicalize(
                         line.betType(),
-                        line.selectionKeyRaw());
+                        line.selectionKey());
 
                 jdbc.update("""
             SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                     event.tenantId().value(),
-                    event.drawId().value(),
+                    event.context().drawId().value(),
                     scopeRow.scopeType().name(),
                     scopeRow.scopeId(),
                     line.betType().name(),
@@ -59,16 +60,16 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
 
         scopes.add(LimitScopeRef.tenant(event.tenantId()));
 
-        if (event.drawChannelId() != null) {
-            scopes.add(LimitScopeRef.drawChannel(event.drawChannelId()));
+        if (event.context().drawChannelId() != null) {
+            scopes.add(LimitScopeRef.drawChannel(event.context().drawChannelId()));
         }
 
-        if (event.outletId() != null) {
-            scopes.add(LimitScopeRef.outlet(event.outletId()));
+        if (event.context().outletId() != null) {
+            scopes.add(LimitScopeRef.outlet(event.context().outletId()));
         }
 
-        if (event.sellerUserId() != null) {
-            scopes.add(LimitScopeRef.agent(event.sellerUserId()));
+        if (event.context().sellerUserId() != null) {
+            scopes.add(LimitScopeRef.agent(event.context().sellerUserId()));
         }
 
         return List.copyOf(scopes);

@@ -31,6 +31,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
 import org.springframework.stereotype.Component;
 
@@ -303,6 +304,17 @@ public class CommonIdMapper {
     public ResultSlotId mapToResultSlotId(UUID id) {
         return ResultSlotId.nullableOf(id);
     }
+
+
+    // GameId
+    public UUID mapFromTicketLineId(TicketLineId id) {
+        return id == null ? null : id.value();
+    }
+
+    public TicketLineId mapToTicketLineId(UUID id) {
+        return TicketLineId.nullableOf(id);
+    }
+
 
     // GameId
     public UUID mapFromGameId(GameId id) {

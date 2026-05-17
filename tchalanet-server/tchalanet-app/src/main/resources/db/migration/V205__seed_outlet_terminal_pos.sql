@@ -10,7 +10,7 @@ DO $$ BEGIN
 END $$;
 
 -- Outlet
-INSERT INTO outlet (id, tenant_id, name, slug, timezone, receipt_printing_enabled, require_opening_float)
+INSERT INTO outlet (id, tenant_id, name, slug, timezone, receipt_printing_enabled, require_opening_float, created_at, updated_at)
 SELECT
     '00000000-0000-0000-0000-000000003001'::uuid,
     t.id,
@@ -18,7 +18,9 @@ SELECT
     'pdv-principal',
     'America/Toronto',
     true,
-    true
+    true,
+    now(),
+    now()
 FROM tenant t
 WHERE t.code = 'tchalanet'
   AND NOT EXISTS (
@@ -26,7 +28,7 @@ WHERE t.code = 'tchalanet'
   );
 
 -- Terminal
-INSERT INTO terminal (id, tenant_id, outlet_id, state, label, inventory_tag, metadata)
+INSERT INTO terminal (id, tenant_id, outlet_id, state, label, inventory_tag, metadata, created_at, updated_at)
 SELECT
     '00000000-0000-0000-0000-000000003101'::uuid,
     t.id,
@@ -34,7 +36,9 @@ SELECT
     'ACTIVE',
     'POS-01',
     'TCH-POS-01',
-    '{"app":"tch-pos","platform":"android"}'::jsonb
+    '{"app":"tch-pos","platform":"android"}'::jsonb,
+    now(),
+    now()
 FROM tenant t
 WHERE t.code = 'tchalanet'
   AND NOT EXISTS (
@@ -73,18 +77,24 @@ BEGIN
     RETURN;
   END IF;
 
-  INSERT INTO sales_session (id, tenant_id, outlet_id, terminal_id, user_id, status, source, opening_float_cents, closing_amount_cents, meta)
+  INSERT INTO sales_session (
+    id, tenant_id, outlet_id, terminal_id,
+    opened_by, opened_at, business_date,
+    status, opening_float_cents,
+    created_at, updated_at
+  )
   VALUES (
     '00000000-0000-0000-0000-000000003201'::uuid,
     t_id,
     '00000000-0000-0000-0000-000000003001'::uuid,
     '00000000-0000-0000-0000-000000003101'::uuid,
     u,
+    now(),
+    CURRENT_DATE,
     'OPEN',
-    'MANUAL',
     10000,
-    0,
-    '{}'::jsonb
+    now(),
+    now()
   );
 
   RAISE NOTICE 'V47__seed_outlet_terminal_pos: sales_session created for tenant % user %', t_id, u;

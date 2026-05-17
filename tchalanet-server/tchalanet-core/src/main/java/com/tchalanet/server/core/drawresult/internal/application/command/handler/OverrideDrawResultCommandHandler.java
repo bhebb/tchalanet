@@ -15,7 +15,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawReaderPort;
-import com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
 import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultCommand;
 import com.tchalanet.server.core.drawresult.api.command.OverrideDrawResultResult;

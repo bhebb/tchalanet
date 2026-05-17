@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Thrown when a page model JSON fails validation against its template JSON Schema.
- * code = SCHEMA_VIOLATION
+ * value = SCHEMA_VIOLATION
  */
 public class PageModelSchemaViolationException extends PageModelDomainException {
 

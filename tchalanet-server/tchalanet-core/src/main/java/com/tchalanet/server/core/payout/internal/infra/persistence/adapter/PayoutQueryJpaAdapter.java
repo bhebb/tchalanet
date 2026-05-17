@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.payout.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
@@ -7,7 +8,6 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.web.error.NotFoundException;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
@@ -15,7 +15,6 @@ import com.tchalanet.server.core.payout.api.query.PayoutDetails;
 import com.tchalanet.server.core.payout.api.query.PayoutReceiptView;
 import com.tchalanet.server.core.payout.api.query.PayoutRow;
 import com.tchalanet.server.core.payout.internal.application.port.out.PayoutQueryReaderPort;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
 import com.tchalanet.server.core.payout.internal.infra.persistence.PayoutJpaEntity;
 import com.tchalanet.server.core.payout.internal.infra.persistence.SpringPayoutJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,14 +46,14 @@ public class PayoutQueryJpaAdapter implements PayoutQueryReaderPort {
     public PayoutDetails getDetailsById(PayoutId payoutId) {
         return jpaRepo.findById(payoutId.value())
             .map(this::toDetails)
-            .orElseThrow(() -> new NotFoundException("Payout not found: " + payoutId));
+            .orElseThrow(() -> new TchNotFoundException(payoutId.toString(), "Payout not found: "));
     }
 
     @Override
     public PayoutReceiptView getReceiptViewById(PayoutId payoutId) {
         return jpaRepo.findById(payoutId.value())
             .map(this::toReceiptView)
-            .orElseThrow(() -> new NotFoundException("Payout receipt not found: " + payoutId));
+            .orElseThrow(() -> new TchNotFoundException(payoutId.toString(), "Payout receipt not found: "));
     }
 
     private PayoutReceiptView toReceiptView(PayoutJpaEntity e) {

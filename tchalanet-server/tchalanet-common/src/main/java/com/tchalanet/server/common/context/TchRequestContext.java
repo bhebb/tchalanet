@@ -2,9 +2,10 @@ package com.tchalanet.server.common.context;
 
 import com.tchalanet.server.common.constant.CommonConstants;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
-import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.context.tenant.TenantContextInfo;
 import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRest;
@@ -370,5 +371,11 @@ public record TchRequestContext(
             tenantCurrency,
             operationalContext
         );
+    }
+
+    public CorrelationId correlationId() {
+        return requestId == null || requestId.isBlank()
+            ? CorrelationId.newId()
+            : CorrelationId.of(requestId);
     }
 }

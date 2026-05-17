@@ -80,7 +80,7 @@ public class TchJobAspect {
             ));
         } catch (Exception e) {
             log.warn(
-                "job.lifecycle.publish.failed jobKey={} status={} code={}",
+                "job.lifecycle.publish.failed jobKey={} status={} value={}",
                 jobKey,
                 status,
                 code,

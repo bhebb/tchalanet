@@ -2,6 +2,8 @@ package com.tchalanet.server.platform.tenantconfig.internal.persistence;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import com.tchalanet.server.common.exception.TchNotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,7 @@ import org.springframework.data.repository.query.Param;
  * Per DOMAIN_TENANT_CONFIG.md:
  * - Query by ID and code
  * - Check code existence
+ * - Provide required active lookup helper (`getRequiredByIdActive`)
  */
 public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID> {
 
@@ -20,5 +23,13 @@ public interface TenantJpaRepository extends JpaRepository<TenantJpaEntity, UUID
 
     @Query("select t from TenantJpaEntity t where t.id = :id and t.deletedAt is null")
     Optional<TenantJpaEntity> findByIdActive(UUID id);
+
+    @Query("select t from TenantJpaEntity t where lower(t.code) = lower(:code) and t.deletedAt is null")
+    Optional<TenantJpaEntity> findByCodeActive(@Param("code") String code);
+
+    default TenantJpaEntity getRequiredByIdActive(UUID id) {
+        return findByIdActive(id)
+            .orElseThrow(() -> new TchNotFoundException(id.toString(), "Tenant not found"));
+    }
 
 }

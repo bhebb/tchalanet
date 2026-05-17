@@ -6,6 +6,7 @@ import com.tchalanet.server.catalog.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
+import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -27,6 +28,7 @@ public record TenantConfig(
     ZoneId timezone,
     Currency currency,
     TenantStatus status,            // DRAFT|ACTIVE|SUSPENDED|REJECTED|ARCHIVED
+    JsonNode config,
     AddressId addressId,            // optional
     ThemePresetId activeThemeId           // optional
 ) {
@@ -61,7 +63,7 @@ public record TenantConfig(
         String name,
         TenantType type,
         ZoneId timezone,
-        Currency currency, AddressId addressId, ThemePresetId activeThemeId) {
+        Currency currency, AddressId addressId, ThemePresetId activeThemeId, JsonNode config) {
         return new TenantConfig(
             id,
             normalizeCode(code),
@@ -70,6 +72,7 @@ public record TenantConfig(
             timezone,
             currency,
             TenantStatus.DRAFT,
+            config,
             addressId,   // no address initially
             activeThemeId
         );
@@ -89,6 +92,7 @@ public record TenantConfig(
             registryView.timezone(),                  // ZoneId → ZoneId (no conversion!)
             registryView.currency(),                  // Currency → Currency (no conversion!)
             registryView.status(),
+            null,
             registryView.addressId().orElse(null),    // Optional<AddressId> → AddressId
             registryView.activeThemeId().orElse(null) // Optional<ThemePresetId> → ThemePresetId
         );
@@ -118,6 +122,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency,
             TenantStatus.ACTIVE,
+            config,
             addressId, activeThemeId);
     }
 
@@ -131,6 +136,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency,
             TenantStatus.SUSPENDED,
+            config,
             addressId, activeThemeId);
     }
 
@@ -144,6 +150,7 @@ public record TenantConfig(
         return new TenantConfig(
             id, code, name, type, timezone, currency,
             TenantStatus.ARCHIVED,
+            config,
             addressId, activeThemeId);
     }
 
@@ -157,6 +164,7 @@ public record TenantConfig(
         }
         return new TenantConfig(
             id, code, newName, type, timezone, currency, status,
+            config,
             addressId, activeThemeId);
     }
 
@@ -168,6 +176,7 @@ public record TenantConfig(
         Objects.requireNonNull(newCurrency, "newCurrency is required");
         return new TenantConfig(
             id, code, name, type, newTimezone, newCurrency, status,
+            config,
             addressId, activeThemeId);
     }
 
@@ -177,6 +186,7 @@ public record TenantConfig(
     public TenantConfig withAddressId(AddressId newAddressId, Instant now) {
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
+            config,
             newAddressId, activeThemeId);
     }
 
@@ -186,6 +196,7 @@ public record TenantConfig(
     public TenantConfig withAddressId(AddressId newAddressId) {
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
+            config,
             newAddressId, activeThemeId);
     }
 
@@ -195,6 +206,7 @@ public record TenantConfig(
     public TenantConfig clearAddressId(Instant now) {
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
+            config,
             null, activeThemeId);
     }
 
@@ -204,6 +216,7 @@ public record TenantConfig(
     public TenantConfig withActiveThemeId(ThemePresetId themeId, Instant now) {
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
+            config,
             addressId, themeId);
     }
 
@@ -213,6 +226,15 @@ public record TenantConfig(
     public TenantConfig clearActiveThemeId(Instant now) {
         return new TenantConfig(
             id, code, name, type, timezone, currency, status,
+            config,
             addressId, null);
+    }
+
+    public TenantConfig updateConfig(JsonNode newConfig, Instant now) {
+        Objects.requireNonNull(newConfig, "newConfig is required");
+        return new TenantConfig(
+            id, code, name, type, timezone, currency, status,
+            newConfig,
+            addressId, activeThemeId);
     }
 }

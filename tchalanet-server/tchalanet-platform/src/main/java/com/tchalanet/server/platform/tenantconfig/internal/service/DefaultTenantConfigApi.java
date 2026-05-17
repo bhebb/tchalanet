@@ -8,7 +8,10 @@ import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByI
 import com.tchalanet.server.platform.tenantconfig.api.model.request.ListTenantsRequest;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.SuspendTenantRequest;
 import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantInternalCommunicationConfig;
+import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantInternalDocumentConfig;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.UpdateTenantIdentityRequest;
+import com.tchalanet.server.platform.tenantconfig.api.model.request.UpdateTenantInternalSettingsRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,6 +48,11 @@ public class DefaultTenantConfigApi implements TenantConfigApi {
   }
 
   @Override
+  public void updateTenantInternalSettings(UpdateTenantInternalSettingsRequest request) {
+    service.updateTenantInternalSettings(request);
+  }
+
+  @Override
   public void activateTenant(ActivateTenantRequest request) {
     service.activateTenant(request);
   }
@@ -52,5 +60,15 @@ public class DefaultTenantConfigApi implements TenantConfigApi {
   @Override
   public void suspendTenant(SuspendTenantRequest request) {
     service.suspendTenant(request);
+  }
+
+  @Override
+  public TenantInternalCommunicationConfig getTenantCommunicationConfig(GetTenantByIdRequest request) {
+    return service.getTenantCommunicationConfig(request);
+  }
+
+  @Override
+  public TenantInternalDocumentConfig getTenantDocumentConfig(GetTenantByIdRequest request) {
+    return service.getTenantDocumentConfig(request);
   }
 }

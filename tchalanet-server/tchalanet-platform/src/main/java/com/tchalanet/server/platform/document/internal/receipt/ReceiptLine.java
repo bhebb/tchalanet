@@ -1,42 +1,32 @@
 package com.tchalanet.server.platform.document.internal.receipt;
 
-import java.util.ArrayList;
-import java.util.List;
+public record ReceiptLine(
+    String text,
+    ReceiptLineStyle style
+) {
 
-public final class ReceiptLine {
-  private final List<ReceiptSpan> spans;
-
-  public ReceiptLine(List<ReceiptSpan> spans) {
-    this.spans = List.copyOf(spans);
-  }
-
-  public List<ReceiptSpan> spans() {
-    return spans;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static ReceiptLine text(String s) {
-    return new ReceiptLine(List.of(new ReceiptSpan(s, false)));
-  }
-
-  public static final class Builder {
-    private final List<ReceiptSpan> spans = new ArrayList<>();
-
-    public Builder normal(String text) {
-      spans.add(new ReceiptSpan(text, false));
-      return this;
+    public ReceiptLine {
+        text = text == null ? "" : text;
+        style = style == null ? ReceiptLineStyle.NORMAL : style;
     }
 
-    public Builder bold(String text) {
-      spans.add(new ReceiptSpan(text, true));
-      return this;
+    public static ReceiptLine title(String text) {
+        return new ReceiptLine(text, ReceiptLineStyle.TITLE);
     }
 
-    public ReceiptLine build() {
-      return new ReceiptLine(spans);
+    public static ReceiptLine bold(String text) {
+        return new ReceiptLine(text, ReceiptLineStyle.BOLD);
     }
-  }
+
+    public static ReceiptLine text(String text) {
+        return new ReceiptLine(text, ReceiptLineStyle.NORMAL);
+    }
+
+    public static ReceiptLine small(String text) {
+        return new ReceiptLine(text, ReceiptLineStyle.SMALL);
+    }
+
+    public static ReceiptLine warning(String text) {
+        return new ReceiptLine(text, ReceiptLineStyle.WARNING);
+    }
 }

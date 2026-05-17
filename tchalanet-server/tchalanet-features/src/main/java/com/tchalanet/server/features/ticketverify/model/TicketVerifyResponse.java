@@ -1,7 +1,10 @@
 package com.tchalanet.server.features.ticketverify.model;
 
-import java.math.BigDecimal;
+import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.sales.api.model.verification.CustomerTicketStatus;
+
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -9,12 +12,27 @@ import java.util.List;
  * (ticketId, drawId, tenantId, id, addressId, etc.).
  */
 public record TicketVerifyResponse(
-    TicketVerifyStatus status,
     String publicCode,
-    TicketVerifyPayoutStatus payoutStatus,
-    BigDecimal totalAmount,
-    BigDecimal winningAmount,
-    Instant soldAt,
+    CustomerTicketStatus status,
+    Money totalAmount,
+    Money winningAmount,
+    Instant placedAt,
     TicketVerifyOutletView outlet,
-    List<TicketVerifyLineItem> lines
-) {}
+    DrawView draw,
+    List<LineView> lines
+) {
+    public record DrawView(
+        String channelName,
+        LocalDate drawDate,
+        Instant scheduledAt
+    ) {}
+
+    public record LineView(
+        int lineNumber,
+        String gameDisplayName,
+        String betTypeLabel,
+        String selection,
+        Money stake,
+        Money potentialPayout
+    ) {}
+}

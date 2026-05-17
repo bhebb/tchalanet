@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.cashier.model;
 
-import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
-import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
-import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.common.types.id.TicketId;
 import java.math.BigDecimal;
 import java.time.Instant;

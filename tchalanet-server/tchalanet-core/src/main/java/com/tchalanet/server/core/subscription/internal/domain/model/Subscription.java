@@ -81,7 +81,7 @@ public record Subscription(
 
   /**
    * Change plan (immediate change, no prorating for MVP).
-   * @param newPlanCode the new plan code (validated by caller via PlanCatalog)
+   * @param newPlanCode the new plan value (validated by caller via PlanCatalog)
    */
   public Subscription changePlan(String newPlanCode, Instant now) {
     if (newPlanCode == null || newPlanCode.isBlank()) {
@@ -90,7 +90,7 @@ public record Subscription(
     return new Subscription(
         id,
         tenantId,
-        newPlanCode, // ✅ change plan code
+        newPlanCode, // ✅ change plan value
         status,
         startedAt,
         endsAt,

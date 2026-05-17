@@ -1,10 +1,12 @@
 package com.tchalanet.server.platform.tenantconfig.internal.adapter;
 
 import com.tchalanet.server.catalog.tenant.api.cache.TenantCacheNames;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantconfig.internal.mapper.TenantMapper;
 import com.tchalanet.server.platform.tenantconfig.internal.persistence.TenantJpaRepository;
 import com.tchalanet.server.platform.tenantconfig.internal.service.TenantConfig;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
  * - Maps domain ↔ entity via TenantMapper
  * - create() for INSERT only
  * - update() for UPDATE only (throws EntityNotFoundException if not found)
+ * - getRequiredByIdActive() for direct required reads in application services
  * - Evicts catalog/tenant caches on write (per user request)
  */
 @Component
@@ -59,6 +62,18 @@ public class TenantPersistenceAdapter {
         mapper.updateEntity(tenant, existing);
         var saved = repository.save(existing);
         return mapper.toDomain(saved);
+    }
+
+    public Optional<TenantConfig> findByIdActive(TenantId tenantId) {
+        return repository.findByIdActive(tenantId.value()).map(mapper::toDomain);
+    }
+
+    public Optional<TenantConfig> findByCodeActive(String code) {
+        return repository.findByCodeActive(code).map(mapper::toDomain);
+    }
+
+    public TenantConfig getRequiredByIdActive(TenantId tenantId) {
+        return mapper.toDomain(repository.getRequiredByIdActive(tenantId.value()));
     }
 
 }

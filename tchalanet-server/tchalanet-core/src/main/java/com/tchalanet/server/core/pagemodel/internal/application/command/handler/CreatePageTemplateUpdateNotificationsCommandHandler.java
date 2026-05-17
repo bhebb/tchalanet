@@ -46,27 +46,7 @@ public class CreatePageTemplateUpdateNotificationsCommandHandler
                   "schemaVersion", command.newSchemaVersion(),
                   "compatibility", compatibility,
                   "recommendedAction", recommendedAction));
-
-      commandBus.execute(
-          new CreateNotificationRequest(
-              tenantId,
-              "PAGE_MODEL_TEMPLATE",
-              command.templateId().value().toString(),
-              dedupeKey(tenantId, command),
-              NotificationAudienceType.ROLE,
-              TENANT_ADMIN_ROLE,
-              "MAJOR".equals(compatibility) ? NotificationSeverity.ERROR : NotificationSeverity.WARNING,
-              NotificationKind.ACTION_REQUIRED,
-              NotificationCategory.PAGE_MODEL,
-              "notifications.page_model.template_update.title",
-              "notifications.page_model.template_update.message",
-              "Page model template update requires review",
-              "A page model template changed and requires tenant-admin review.",
-              payload,
-              "PAGE_MODEL_TEMPLATE_UPDATE_REVIEW",
-              "/admin/page-model-template-updates/" + command.logicalId(),
-              null,
-              Set.of(NotificationChannel.WEB)));
+// todo add notification
       created++;
     }
     return created;

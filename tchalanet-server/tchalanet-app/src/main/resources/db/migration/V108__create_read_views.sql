@@ -1,90 +1,95 @@
 -- Read-model views for tickets and draws.
 -- These views are SELECT only — never for writes, settlements, or domain transitions.
 -- SECURITY INVOKER: RLS from underlying tables applies to the querying role.
---
--- IMPORTANT: any change to ticket / terminal / outlet / draw / draw_channel /
--- result_slot / draw_result / sales_session / address must verify these views.
 
--- ─── v_ticket_summary ────────────────────────────────────────────────────────
--- Usage: ticket lists, dashboards, tenant/admin views.
--- Lines are NOT included — query ticket_line separately when needed.
-CREATE OR REPLACE VIEW v_ticket_summary
+-- ─── sales_ticket_print_header_v ──────────────────────────────────────────────
+-- Usage: print header read-model for ticket printing.
+CREATE OR REPLACE VIEW sales_ticket_print_header_v
   WITH (security_invoker = true)
 AS
-SELECT t.id                  AS ticket_id,
+SELECT t.id                         AS ticket_id,
        t.tenant_id,
+
        t.ticket_code,
        t.public_code,
+       t.verification_code,
+
        t.sale_status,
        t.result_status,
        t.settlement_status,
-       t.currency,
-       t.total_amount_cents,
-       t.winning_amount_cents,
-       t.created_at,
-       t.updated_at,
-       t.user_id              AS seller_user_id,
-       t.session_id,
-       tm.id                  AS terminal_id,
-       tm.label               AS terminal_label,
-       o.id                   AS outlet_id,
-       o.name                 AS outlet_name,
-       d.id                   AS draw_id,
+
+       COALESCE(t.print_status, 'NOT_PRINTED') AS print_status,
+       COALESCE(t.print_count, 0) AS print_count,
+       t.first_printed_at,
+       t.last_printed_at,
+
+       t.draw_id,
        d.draw_date,
        d.scheduled_at,
-       dc.id                  AS draw_channel_id,
-       dc.code                AS draw_channel_code,
-       dc.name                AS draw_channel_label,
-       dc.period              AS draw_channel_period,
-       dc.timezone            AS draw_timezone
-FROM ticket t
-         JOIN outlet o ON o.id = t.outlet_id
-         LEFT JOIN terminal tm ON tm.id = t.terminal_id
-         JOIN draw d ON d.id = t.draw_id
-         JOIN draw_channel dc ON dc.id = d.draw_channel_id
-WHERE t.deleted_at IS NULL;
+       d.cutoff_at,
 
+       dc.id                        AS draw_channel_id,
+       dc.name                      AS draw_channel_name,
+       COALESCE(dc.name, dc.code)    AS draw_channel_display_name,
 
--- ─── v_ticket_print ──────────────────────────────────────────────────────────
--- Usage: PDF/ESC-POS receipt printing. Header only — query ticket_line separately.
-CREATE OR REPLACE VIEW v_ticket_print
-  WITH (security_invoker = true)
-AS
-SELECT t.id                   AS ticket_id,
-       t.tenant_id,
-       t.ticket_code,
-       t.public_code,
-       t.sale_status,
-       t.result_status,
-       t.settlement_status,
+       o.id                         AS outlet_id,
+       o.slug                       AS outlet_code,
+       o.name                       AS outlet_name,
+       o.receipt_header_message     AS outlet_receipt_header,
+       o.receipt_footer_message     AS outlet_receipt_footer,
+
+       tm.id                        AS terminal_id,
+       COALESCE(tm.inventory_tag, tm.label, tm.id::text) AS terminal_code,
+       tm.label                     AS terminal_label,
+
+       ss.id                        AS sales_session_id,
+       ss.id::text                  AS session_code,
+
+       t.seller_user_id,
+       COALESCE(au.display_name, au.email::text) AS seller_display_name,
+
+       COALESCE(tn.name, o.name, 'Tchalanet') AS tenant_display_name,
+       NULLIF(
+           COALESCE(
+               tn.config #>> '{receipt,header}',
+               ''
+           ),
+           ''
+       )                            AS tenant_receipt_header,
+       NULLIF(
+           COALESCE(
+               tn.config #>> '{receipt,footer}',
+               ''
+           ),
+           ''
+       )                            AS tenant_receipt_footer,
+
+       t.stake_amount,
+       t.total_amount,
+       t.potential_payout_amount,
        t.currency,
-       t.total_amount_cents,
-       t.winning_amount_cents,
-       t.created_at           AS sold_at,
-       t.user_id              AS seller_user_id,
-       tm.id                  AS terminal_id,
-       tm.label               AS terminal_label,
-       ss.id                  AS session_id,
-       o.id                   AS outlet_id,
-       o.name                 AS outlet_name,
-       a.city                 AS outlet_city,
-       a.country              AS outlet_country,
-       d.id                   AS draw_id,
-       d.draw_date,
-       d.scheduled_at,
-       dc.id                  AS draw_channel_id,
-       dc.code                AS draw_channel_code,
-       dc.name                AS draw_channel_label,
-       dc.period              AS draw_channel_period,
-       dc.draw_time           AS draw_time,
-       dc.timezone            AS draw_timezone
-FROM ticket t
-         JOIN outlet o ON o.id = t.outlet_id
-         LEFT JOIN terminal tm ON tm.id = t.terminal_id
-         LEFT JOIN address a ON a.id = o.address_id
-         JOIN sales_session ss ON ss.id = t.session_id
-         JOIN draw d ON d.id = t.draw_id
-         JOIN draw_channel dc ON dc.id = d.draw_channel_id
+
+       t.placed_at,
+       t.sale_channel               AS sale_origin,
+       COALESCE(up.locale, 'fr')     AS locale,
+       COALESCE(up.time_zone, o.timezone, 'America/Port-au-Prince') AS timezone
+FROM sales_ticket t
+JOIN draw d
+    ON d.id = t.draw_id
+LEFT JOIN draw_channel dc
+    ON dc.id = t.draw_channel_id
+LEFT JOIN outlet o
+    ON o.id = t.outlet_id
+LEFT JOIN tenant tn
+    ON tn.id = t.tenant_id
+LEFT JOIN terminal tm
+    ON tm.id = t.terminal_id
+LEFT JOIN sales_session ss
+    ON ss.id = t.sales_session_id
+LEFT JOIN app_user au
+    ON au.id = t.seller_user_id
+LEFT JOIN user_preference up
+    ON up.user_id = au.id
 WHERE t.deleted_at IS NULL;
 
 

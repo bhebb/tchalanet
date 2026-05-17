@@ -35,8 +35,8 @@ public class RecordTicketSaleLedgerCommandHandler
                 LedgerEntryId.of(idGenerator.newUuid()),
                 command.tenantId(),
                 command.ticketId(),
-                command.stakeCents(),
-                command.currency(),
+                command.stake().amount(),
+                command.stake().currency(),
                 occurredAt);
 
         var appended = ledgerWriter.appendIfAbsent(entry);

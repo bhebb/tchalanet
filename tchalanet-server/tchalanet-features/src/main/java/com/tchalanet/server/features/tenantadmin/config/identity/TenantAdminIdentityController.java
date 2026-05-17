@@ -10,7 +10,6 @@ import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByI
 import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.features.tenantadmin.config.model.TenantIdentityView;
-import com.tchalanet.server.features.tenantadmin.config.model.UpdateTenantIdentityRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +34,7 @@ public class TenantAdminIdentityController {
       @CurrentContext TchRequestContext ctx, @Valid @RequestBody UpdateTenantIdentityRequest req) {
     var tenantId = ctx.tenantIdSafe();
     tenantConfigApi.updateTenantIdentity(
-        new UpdateTenantIdentityRequest(tenantId, req.name(), req.timeZone(), req.currency()));
+        new UpdateTenantIdentityRequest(tenantId, req.name(), req.timezone(), req.currency()));
     var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
     return ApiResponse.success(toView(tenant));
   }

@@ -5,64 +5,91 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TenantEntityListener {
 
-  @PrePersist
-  public void prePersist(Object entity) {
-    if (!(entity instanceof BaseTenantEntity e)) return;
+    @PrePersist
+    public void prePersist(Object entity) {
+        if (!(entity instanceof BaseTenantEntity e)) {
+            return;
+        }
 
-    // déjà set (batch/import) => on respecte
-    if (e.getTenantId() != null) return;
+        UUID currentTenant = resolveTenantUuidOrNull();
+        UUID entityTenant = e.getTenantId();
 
-    UUID tenantUuid = resolveTenantUuidOrNull();
-    if (tenantUuid == null) {
-      // Recommandé: fail fast pour éviter des données orphelines
-      throw new IllegalStateException(
-          "Missing tenant context while persisting " + entity.getClass().getSimpleName());
-      // Alternative “soft”:
-      // log.warn("Missing tenant context while persisting {}", entity.getClass().getSimpleName());
-      // return;
+        if (entityTenant != null) {
+            if (currentTenant != null && !entityTenant.equals(currentTenant)) {
+                throw tenantMismatch("persisting", entity, entityTenant, currentTenant);
+            }
+            return;
+        }
+
+        if (currentTenant == null) {
+            throw new IllegalStateException(
+                "Missing tenant context while persisting " + entity.getClass().getSimpleName());
+        }
+
+        e.setTenantId(currentTenant);
     }
 
-    e.setTenantId(tenantUuid);
-  }
+    @PreUpdate
+    public void preUpdate(Object entity) {
+        if (!(entity instanceof BaseTenantEntity e)) {
+            return;
+        }
 
-  @PreUpdate
-  public void preUpdate(Object entity) {
-    if (!(entity instanceof BaseTenantEntity e)) return;
+        UUID currentTenant = resolveTenantUuidOrNull();
+        UUID entityTenant = e.getTenantId();
 
-    var currentTenant = resolveTenantUuidOrNull();
-    if (currentTenant == null) {
-      // hors request: on ne valide pas (ou throw si tu veux strict)
-      return;
+        if (currentTenant == null) {
+            throw new IllegalStateException(
+                "Missing tenant context while updating " + entity.getClass().getSimpleName());
+        }
+
+        if (entityTenant == null) {
+            throw new IllegalStateException(
+                "Missing entity tenant while updating " + entity.getClass().getSimpleName());
+        }
+
+        if (!entityTenant.equals(currentTenant)) {
+            throw tenantMismatch("updating", entity, entityTenant, currentTenant);
+        }
     }
 
-    var entityTenant = e.getTenantId();
-    if (entityTenant != null && !entityTenant.equals(currentTenant)) {
-      throw new IllegalStateException(
-          "Tenant mismatch on update for "
-              + entity.getClass().getSimpleName()
-              + " (entityTenant="
-              + entityTenant
-              + ", currentTenant="
-              + currentTenant
-              + ")");
+    private IllegalStateException tenantMismatch(
+        String action,
+        Object entity,
+        UUID entityTenant,
+        UUID currentTenant
+    ) {
+        return new IllegalStateException(
+            "Tenant mismatch while "
+                + action
+                + " "
+                + entity.getClass().getSimpleName()
+                + " (entityTenant="
+                + entityTenant
+                + ", currentTenant="
+                + currentTenant
+                + ")");
     }
-  }
 
-  private UUID resolveTenantUuidOrNull() {
-    try {
-      TchRequestContext tch = TchContext.currentOrNull();
-      if (tch == null) return null;
-      return tch.tenantUuid();
-    } catch (Exception e) {
-      log.debug("Failed to resolve tenant from TchContext", e);
-      return null;
+    private UUID resolveTenantUuidOrNull() {
+        try {
+            TchRequestContext tch = TchContext.currentOrNull();
+            if (tch == null) {
+                return null;
+            }
+
+            // Prefer effective tenant, especially for SUPER_ADMIN override.
+            return tch.effectiveTenantIdRequired().value();
+
+        } catch (Exception e) {
+            log.debug("Failed to resolve tenant from TchContext", e);
+            return null;
+        }
     }
-  }
 }

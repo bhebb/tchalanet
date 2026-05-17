@@ -25,6 +25,7 @@ CREATE TABLE idempotency_record (
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
+  deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_idempotency_record__tenant_scope_key UNIQUE (tenant_id, scope, idem_key)
 );

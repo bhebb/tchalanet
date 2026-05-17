@@ -40,7 +40,7 @@ public class OpenApiConfig {
     var authorizationEndpoint = issuer + "/protocol/openid-connect/auth";
     var tokenEndpoint = issuer + "/protocol/openid-connect/token";
 
-    // --- OAuth2 (authorization code) scopes
+    // --- OAuth2 (authorization value) scopes
     var oauthScopes =
         new Scopes()
             .addString("basic", "OpenID scope")

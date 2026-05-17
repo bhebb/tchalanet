@@ -1,19 +1,19 @@
 package com.tchalanet.server.platform.tenantconfig.internal.persistence;
 
-import com.tchalanet.server.common.persistence.BaseEntity;
 import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
 import com.tchalanet.server.catalog.tenant.api.model.TenantType;
+import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 /**
  * JPA entity for TenantConfig.
@@ -32,29 +32,32 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TenantJpaEntity extends BaseEntity {
 
-  @Column(name = "code", nullable = false, unique = true, length = 64)
-  private String code;
+    @Column(name = "code", nullable = false, unique = true, length = 64)
+    private String code;
 
-  @Column(name = "name", nullable = false)
-  private String name;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-  @Column(name = "type", nullable = false, length = 32)
-  @Enumerated(EnumType.STRING)
-  private TenantType type;
+    @Column(name = "type", nullable = false, length = 32)
+    @Enumerated(EnumType.STRING)
+    private TenantType type;
 
-  @Column(name = "timezone", nullable = false, length = 64)
-  private String timezone;
+    @Column(name = "timezone", nullable = false, length = 64)
+    private String timezone;
 
-  @Column(name = "currency", nullable = false, length = 3)
-  private String currency;
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
 
-  @Column(name = "status", nullable = false, length = 32)
-  @Enumerated(EnumType.STRING)
-  private TenantStatus status;
+    @Column(name = "status", nullable = false, length = 32)
+    @Enumerated(EnumType.STRING)
+    private TenantStatus status;
 
-  @Column(name = "address_id", columnDefinition = "UUID")
-  private UUID addressId;
+    @Column(name = "address_id", columnDefinition = "UUID")
+    private UUID addressId;
 
-  @Column(name = "active_theme_id", columnDefinition = "UUID")
-  private UUID activeThemeId;
+    @Column(name = "active_theme_id", columnDefinition = "UUID")
+    private UUID activeThemeId;
+
+    @Column(name = "config", nullable = false, columnDefinition = "jsonb")
+    private String config;
 }

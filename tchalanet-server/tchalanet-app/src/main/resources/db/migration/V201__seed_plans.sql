@@ -38,7 +38,7 @@ VALUES
     }'::jsonb,
     '[
       "Page publique (Home + news + résultats)",
-      "Vérifier un ticket (/verifier + /ticket/:code)",
+      "Vérifier un ticket (/verifier + /ticket/:value)",
       "Résultats US (NY/FL) en lecture",
       "Support de base (email)"
     ]'::jsonb

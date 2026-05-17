@@ -74,7 +74,7 @@ public class TerminalJpaEntity extends BaseTenantEntity {
     @Column(name = "lock_reason")
     private String lockReason;
 
-    @Column(name = "code", length = 80)
+    @Column(name = "value", length = 80)
     private String code;
 
     @Column(name = "sales_blocked", nullable = false)

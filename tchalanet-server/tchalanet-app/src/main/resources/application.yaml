@@ -37,6 +37,18 @@ tch:
     redis:
       enabled: false
 
+  sales:
+    tickets:
+      visibility:
+        public-visibility-days: 90
+
+  public:
+    tickets:
+      rate-limit:
+        enabled: true
+        requests-per-second: 10
+        burst: 20
+
   sales-session:
     auto:
       active: true

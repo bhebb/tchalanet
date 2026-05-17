@@ -2,10 +2,9 @@ package com.tchalanet.server.features.receipt.app;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.TicketId;
-import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.sales.api.print.TicketPrintReaderPort;
-import com.tchalanet.server.core.sales.api.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
+import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
+import com.tchalanet.server.core.sales.internal.application.service.print.TicketVerificationUrlBuilder;
 import com.tchalanet.server.platform.document.api.DocumentApi;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import java.util.Locale;
@@ -39,8 +38,8 @@ public class ReceiptService {
 
   public byte[] renderPdf(TicketId ticketId, Locale locale) {
     var normalized = normalizeLocale(locale);
-    var ticket = findTicket(ticketId, normalized);
-    var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
+    var ticket = findTicket(ticketId);
+    var verifyUrl = urlBuilder.buildUrl(ticket.identity().publicCode());
     var request = requestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.PDF, normalized);
     return documentApi.render(request).bytes();
   }
@@ -51,8 +50,8 @@ public class ReceiptService {
 
   public byte[] renderEscPos(TicketId ticketId, Locale locale) {
     var normalized = normalizeLocale(locale);
-    var ticket = findTicket(ticketId, normalized);
-    var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
+    var ticket = findTicket(ticketId);
+    var verifyUrl = urlBuilder.buildUrl(ticket.identity().publicCode());
     var request =
         requestFactory.receiptRequest(ticket, verifyUrl, DocumentFormat.ESC_POS, normalized);
     return documentApi.render(request).bytes();
@@ -60,8 +59,8 @@ public class ReceiptService {
 
   public byte[] renderQrPng(TicketId ticketId, int sizePx) {
     var locale = currentLocale();
-    var ticket = findTicket(ticketId, locale);
-    var verifyUrl = urlBuilder.buildUrl(ticket.publicCode());
+    var ticket = findTicket(ticketId);
+    var verifyUrl = urlBuilder.buildUrl(ticket.identity().publicCode());
     return documentApi.render(requestFactory.qrPngRequest(verifyUrl, sizePx, locale)).bytes();
   }
 
@@ -74,8 +73,7 @@ public class ReceiptService {
     return locale == null ? Locale.FRENCH : locale;
   }
 
-  private TicketPrintView findTicket(TicketId ticketId, Locale locale) {
-    return port.findTicketPrintView(ticketId, locale)
-        .orElseThrow(() -> ProblemRest.notFound("Ticket not found", ticketId));
+  private TicketPrintView findTicket(TicketId ticketId) {
+    return port.findPrintViewRequired(ticketId);
   }
 }

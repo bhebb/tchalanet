@@ -1,6 +1,6 @@
 -- V40: seed tenant (tchalanet) - moved from monolithic seed
 DO $$ BEGIN
-  RAISE NOTICE 'V40__seed_tenant: seeding tenant tchalanet';
+  RAISE NOTICE 'V200__seed_tenant: seeding tenant tchalanet';
 END $$;
 
 INSERT INTO tenant (id, code, name, timezone, currency, status, type)

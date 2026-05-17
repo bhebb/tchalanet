@@ -15,7 +15,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
-import com.tchalanet.server.core.draw.internal.domain.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

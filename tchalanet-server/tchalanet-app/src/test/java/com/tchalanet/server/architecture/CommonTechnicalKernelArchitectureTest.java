@@ -75,7 +75,7 @@ class CommonTechnicalKernelArchitectureTest {
         .orShould()
         .beAnnotatedWith(org.springframework.data.jpa.repository.config.EnableJpaRepositories.class)
         .orShould()
-        .beAnnotatedWith(org.springframework.boot.autoconfigure.domain.EntityScan.class)
+        .beAnnotatedWith("org.springframework.boot.autoconfigure.domain.EntityScan")
         .orShould()
         .beAnnotatedWith(org.springframework.data.jpa.repository.config.EnableJpaAuditing.class)
         .orShould()

@@ -4,7 +4,9 @@ import com.tchalanet.server.common.types.id.LedgerEntryId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.common.types.money.CurrencyCode;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -41,8 +43,8 @@ public record LedgerEntry(
         LedgerEntryId id,
         TenantId tenantId,
         TicketId ticketId,
-        long stakeCents,
-        String currency,
+        BigDecimal stakeCents,
+        CurrencyCode currency,
         Instant occurredAt
     ) {
         return new LedgerEntry(
@@ -50,8 +52,8 @@ public record LedgerEntry(
             tenantId,
             LedgerReference.ticketSale(ticketId),
             LedgerOperationType.TICKET_SALE_RECORDED,
-            stakeCents,
-            currency,
+            stakeCents.longValue(),
+            currency.value(),
             LedgerDirection.CREDIT,
             occurredAt,
             null,

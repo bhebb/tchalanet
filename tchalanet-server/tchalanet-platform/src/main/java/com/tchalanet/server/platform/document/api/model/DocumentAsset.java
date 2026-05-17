@@ -1,13 +1,33 @@
 package com.tchalanet.server.platform.document.api.model;
 
 public record DocumentAsset(
-    String id, AssetKind kind, byte[] bytes, String payload, Integer sizePx) {
+    AssetKind kind,
+    String name,
+    byte[] bytes,
+    String payload,
+    Integer sizePx
+) {
 
-  public static DocumentAsset qr(String id, String payload, int sizePx) {
-    return new DocumentAsset(id, AssetKind.QR, null, payload, sizePx);
-  }
+    public DocumentAsset {
+        if (kind == null) {
+            throw new IllegalArgumentException("asset kind is required");
+        }
 
-  public static DocumentAsset image(String id, byte[] bytes) {
-    return new DocumentAsset(id, AssetKind.IMAGE, bytes, null, null);
-  }
+        if (bytes != null) {
+            bytes = bytes.clone();
+        }
+    }
+
+    @Override
+    public byte[] bytes() {
+        return bytes == null ? null : bytes.clone();
+    }
+
+    public static DocumentAsset qr(String payload, int sizePx) {
+        return new DocumentAsset(AssetKind.QR, "qr", null, payload, sizePx);
+    }
+
+    public static DocumentAsset qrBytes(byte[] bytes, int sizePx) {
+        return new DocumentAsset(AssetKind.QR, "qr", bytes, null, sizePx);
+    }
 }

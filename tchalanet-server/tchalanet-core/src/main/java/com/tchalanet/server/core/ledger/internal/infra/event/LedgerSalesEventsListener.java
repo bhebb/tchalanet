@@ -2,7 +2,7 @@ package com.tchalanet.server.core.ledger.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.core.ledger.api.command.RecordTicketSaleLedgerCommand;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,8 +27,7 @@ public class LedgerSalesEventsListener {
             new RecordTicketSaleLedgerCommand(
                 event.tenantId(),
                 event.ticketId(),
-                event.stakeAmountCents(),
-                event.currency().code(),
+                event.money().stake(),
                 event.occurredAt()));
     }
 }

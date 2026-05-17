@@ -1,73 +1,36 @@
 package com.tchalanet.server.features.ticketverify;
 
-import com.tchalanet.server.core.sales.api.model.TicketResultStatus;
-import com.tchalanet.server.core.sales.api.model.TicketSaleStatus;
-import com.tchalanet.server.core.sales.api.model.TicketSettlementStatus;
-import com.tchalanet.server.core.sales.api.query.PublicTicketVerificationRecord;
-import com.tchalanet.server.features.ticketverify.model.*;
+import com.tchalanet.server.core.sales.api.model.verification.TicketVerificationView;
+import com.tchalanet.server.features.ticketverify.model.TicketVerifyOutletView;
+import com.tchalanet.server.features.ticketverify.model.TicketVerifyResponse;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class TicketVerifyMapper {
 
-  public TicketVerifyResponse toExpiredResponse(String publicCode) {
-    return new TicketVerifyResponse(
-        TicketVerifyStatus.EXPIRED, publicCode, TicketVerifyPayoutStatus.EXPIRED,
-        null, null, null, null, List.of());
-  }
-
-  public TicketVerifyResponse toVoidResponse(String publicCode) {
-    return new TicketVerifyResponse(
-        TicketVerifyStatus.VOID, publicCode, TicketVerifyPayoutStatus.VOID,
-        null, null, null, null, List.of());
-  }
-
-  public TicketVerifyResponse toResponse(PublicTicketVerificationRecord r, boolean expired) {
-    if (expired) return toExpiredResponse(r.publicCode());
-
-    if (isVoided(r.saleStatus())) return toVoidResponse(r.publicCode());
-
-    var payoutStatus = resolvePayoutStatus(r);
-    var outlet = (r.outletName() != null)
-        ? new TicketVerifyOutletView(r.outletName(), r.outletCity(), r.outletCountry())
-        : null;
-
-    var lines = r.lines().stream()
-        .map(l -> new TicketVerifyLineItem(
-            l.gameCode(),
-            l.betType() != null ? l.betType().name() : null,
-            l.selection(),
-            l.stake(),
-            l.potentialPayout()))
-        .toList();
-
-    return new TicketVerifyResponse(
-        TicketVerifyStatus.VALID,
-        r.publicCode(),
-        payoutStatus,
-        r.totalAmount(),
-        r.winningAmount(),
-        r.createdAt(),
-        outlet,
-        lines
-    );
-  }
-
-  private TicketVerifyPayoutStatus resolvePayoutStatus(PublicTicketVerificationRecord r) {
-    if (isVoided(r.saleStatus())) return TicketVerifyPayoutStatus.VOID;
-    if (r.resultStatus() == TicketResultStatus.NOT_RESULTED) return TicketVerifyPayoutStatus.PENDING_DRAW;
-    if (r.resultStatus() == TicketResultStatus.LOST) return TicketVerifyPayoutStatus.LOST;
-    if (r.resultStatus() == TicketResultStatus.WON || r.resultStatus() == TicketResultStatus.OVERRIDDEN) {
-      return r.settlementStatus() == TicketSettlementStatus.SETTLED
-          ? TicketVerifyPayoutStatus.WON_PAID
-          : TicketVerifyPayoutStatus.WON_UNCLAIMED;
+    public TicketVerifyResponse toResponse(TicketVerificationView view) {
+        return new TicketVerifyResponse(
+            view.publicCode(),
+            view.status(),
+            view.totalAmount(),
+            view.winningAmount(),
+            view.placedAt(),
+            view.outlet() != null ? new TicketVerifyOutletView(view.outlet().name()) : null,
+            new TicketVerifyResponse.DrawView(
+                view.draw().channelName(),
+                view.draw().drawDate(),
+                view.draw().scheduledAt()
+            ),
+            view.lines().stream()
+                .map(l -> new TicketVerifyResponse.LineView(
+                    l.lineNumber(),
+                    l.gameDisplayName(),
+                    l.betTypeLabel(),
+                    l.selection(),
+                    l.stake(),
+                    l.potentialPayout()
+                ))
+                .toList()
+        );
     }
-    return TicketVerifyPayoutStatus.UNKNOWN;
-  }
-
-  private boolean isVoided(TicketSaleStatus status) {
-    return status == TicketSaleStatus.VOID || status == TicketSaleStatus.REJECTED;
-  }
 }

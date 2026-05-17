@@ -3,7 +3,7 @@ package com.tchalanet.server.core.outlet.internal.domain.model;
 /**
  * Pure-domain decision returned by {@link Outlet#salesCapability()}.
  *
- * <p>Carries a verdict (allowed/blocked) and a reason code consumable by the application layer
+ * <p>Carries a verdict (allowed/blocked) and a reason value consumable by the application layer
  * without leaking domain internals.
  */
 public record SalesCapability(boolean allowed, String reason) {

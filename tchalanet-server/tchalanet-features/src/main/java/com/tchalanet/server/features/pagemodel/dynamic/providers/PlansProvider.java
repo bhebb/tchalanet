@@ -46,7 +46,7 @@ public class PlansProvider implements PageModelDynamicProvider {
 
   private Map<String, Object> toMap(PlanView plan) {
     return Map.of(
-        "code", plan.code() != null ? plan.code() : "",
+        "value", plan.code() != null ? plan.code() : "",
         "name", plan.name() != null ? plan.name() : "",
         "description", plan.description() != null ? plan.description() : "",
         "price", plan.priceAmount() != null ? plan.priceAmount() : 0,

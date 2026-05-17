@@ -1,8 +1,8 @@
 package com.tchalanet.server.features.stats.aggregates.app;
 
-import com.tchalanet.server.core.sales.internal.domain.event.TicketCancelledEvent;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketPlacedEvent;
-import com.tchalanet.server.core.sales.internal.domain.event.TicketResultedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
 import com.tchalanet.server.core.session.internal.domain.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDailyJpaRepository;
@@ -20,22 +20,25 @@ public class StatsDailyUpdaterService {
 
   @Transactional
   public void applyTicketPlaced(TicketPlacedEvent event, LocalDate refDate) {
+    long stakeCents = event.money().stake().amount().multiply(BigDecimal.valueOf(100)).longValue();
+
     // platform
     statsDailyRepo.upsertAndIncrement(
-        "platform", null, refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
+        "platform", null, refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
 
     // tenant
     statsDailyRepo.upsertAndIncrement(
-        "tenant", event.tenantId().value(), refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
+        "tenant", event.tenantId().value(), refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
 
     // outlet
     statsDailyRepo.upsertAndIncrement(
-        "outlet", event.outletId().value(), refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
+        "outlet", event.context().outletId().value(), refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
 
-    // agent (replaces former cashierId)
-    java.util.UUID agentId = event.sellerUserId() != null ? event.sellerUserId().value() : null;
+    // agent
+    java.util.UUID agentId = event.context().sellerUserId() != null
+        ? event.context().sellerUserId().value() : null;
     statsDailyRepo.upsertAndIncrement(
-        "agent", agentId, refDate, 1L, 0L, event.stakeCents(), 0L, 0L, 0L, 0L);
+        "agent", agentId, refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
   }
 
   @Transactional

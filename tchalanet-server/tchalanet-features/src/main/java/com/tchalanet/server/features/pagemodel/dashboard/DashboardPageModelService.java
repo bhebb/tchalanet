@@ -1,27 +1,20 @@
 package com.tchalanet.server.features.pagemodel.dashboard;
 
-import com.tchalanet.server.common.context.TchContextResolver;
-
-import com.tchalanet.server.common.context.TchRequestContext;
-
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
-import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
-import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
-
+import com.tchalanet.server.features.pagemodel.shared.LangResolver;
+import com.tchalanet.server.platform.notification.api.NotificationApi;
+import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
+import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * Service de résolution du PageModel pour les dashboards privés (tenants et platform).
- * Inclut le contexte tenant courant via TchRequestContext.
- */
 @Service
 @RequiredArgsConstructor
 public class DashboardPageModelService {
@@ -30,6 +23,7 @@ public class DashboardPageModelService {
   private final TchContextResolver contextResolver;
   private final LangResolver langResolver;
   private final PageModelDynamicResolver dynamicResolver;
+  private final NotificationApi notificationApi;
 
   public DashboardPageModelResponse resolve(
       String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
@@ -57,7 +51,7 @@ public class DashboardPageModelService {
     NotificationSummaryView notifications =
         ctxHolder == null
             ? null
-            : queryBus.ask(
+            : notificationApi.getNotificationSummary(
                 new GetNotificationSummaryRequest(
                     ctxHolder.userId(),
                     ctxHolder.currentRole() == null ? null : ctxHolder.currentRole().name()));

@@ -9,7 +9,6 @@ import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.payout.api.query.GetPayoutSummaryBySessionQuery;
-import com.tchalanet.server.core.sales.api.query.GetTicketSalesSummaryBySessionQuery;
 import com.tchalanet.server.core.session.api.command.CloseSalesSessionCommand;
 import com.tchalanet.server.core.session.api.command.CloseSalesSessionResult;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
@@ -38,10 +37,10 @@ public class CloseSalesSessionCommandHandler implements CommandHandler<CloseSale
         var session = reader.getById(command.tenantId(), command.sessionId());
 
         var now = Instant.now(clock);
-        var sales =
+      /*  var sales =
             queryBus.ask(new GetTicketSalesSummaryBySessionQuery(
                 command.tenantId(),
-                command.sessionId()));
+                command.sessionId()));*/
 
         var payouts =
             queryBus.ask(new GetPayoutSummaryBySessionQuery(
@@ -51,7 +50,7 @@ public class CloseSalesSessionCommandHandler implements CommandHandler<CloseSale
         var cashSummary =
             SessionCashCalculator.calculate(
                 session.openingFloatCents(),
-                sales.soldAmountCents(),
+                null,
                 payouts.paidAmountCents(),
                 command.declaredClosingAmountCents());
 

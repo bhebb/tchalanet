@@ -5,14 +5,11 @@ import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.payout.api.query.GetPayoutSummaryBySessionQuery;
-import com.tchalanet.server.core.sales.api.query.GetTicketSalesSummaryBySessionQuery;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
 import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
 import com.tchalanet.server.core.session.internal.domain.model.AutoSessionCloseTarget;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
-import com.tchalanet.server.core.session.internal.domain.service.SessionCashCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +39,8 @@ public class SalesSessionAutoCloser {
 
             var closedAt = target.closedAt() == null ? fallbackClosedAt : target.closedAt();
 
-            var sales =
+            //todo decomment
+     /*       var sales =
                 queryBus.ask(
                     new GetTicketSalesSummaryBySessionQuery(
                         target.tenantId(),
@@ -59,13 +57,13 @@ public class SalesSessionAutoCloser {
                     session.openingFloatCents(),
                     sales.soldAmountCents(),
                     payouts.paidAmountCents(),
-                    null);
+                    null);*/
 
             var closed =
                 session.close(
                     target.closedBy(),
                     closedAt,
-                    cashSummary,
+                    null,
                     target.reason());
 
             var saved = sessionWriter.save(closed);

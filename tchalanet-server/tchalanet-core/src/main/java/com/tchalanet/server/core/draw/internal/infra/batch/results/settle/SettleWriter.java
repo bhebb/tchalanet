@@ -1,11 +1,13 @@
 package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
-import com.tchalanet.server.core.sales.internal.application.port.out.TicketSettlementQueryPort;
+import com.tchalanet.server.core.sales.internal.application.query.CountPendingTicketsByDrawIdQuery;
+import com.tchalanet.server.core.sales.internal.application.query.ExistsPendingTicketsByDrawIdQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.Chunk;
@@ -24,9 +26,9 @@ public class SettleWriter implements ItemWriter<DrawId> {
 
     private final DrawLookupPort drawReaderPort;
     private final DrawLifecyclePort drawWriterPort;
-    private final TicketSettlementQueryPort ticketQuery;
     private final Clock clock;
     private final TchContextResolver contextResolver;
+    private final QueryBus queryBus;
 
     @Override
     public void write(Chunk<? extends DrawId> chunk) {
@@ -52,8 +54,10 @@ public class SettleWriter implements ItemWriter<DrawId> {
                     continue;
                 }
 
-                if (ticketQuery.existsPendingByDrawId(draw.id())) {
-                    long pending = ticketQuery.countPendingByDrawId(draw.id());
+                boolean existsPending = queryBus.ask(new ExistsPendingTicketsByDrawIdQuery(draw.id()));
+
+                if (existsPending) {
+                    long pending = queryBus.ask(new CountPendingTicketsByDrawIdQuery(draw.id()));
                     log.info("settle.skip draw={} tenant={} pendingTickets={}", drawId, draw.tenantId(), pending);
                     continue;
                 }

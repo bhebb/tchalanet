@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.terminal.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.web.error.NotFoundException;
+import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
@@ -8,9 +8,9 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
 import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
+import com.tchalanet.server.core.terminal.internal.application.port.out.TerminalReaderPort;
 import com.tchalanet.server.core.terminal.internal.domain.model.Terminal;
 import com.tchalanet.server.core.terminal.internal.domain.model.TerminalSyncState;
 import com.tchalanet.server.core.terminal.internal.infra.persistence.TerminalJpaRepository;
@@ -40,7 +40,7 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
     public Terminal getById(TenantId tenantId, TerminalId terminalId) {
         return repo.findByTenantIdAndId(tenantId.value(), terminalId.value())
             .map(mapper::toDomain)
-            .orElseThrow(() -> new NotFoundException("Terminal not found: " + terminalId));
+            .orElseThrow(() -> new TchNotFoundException(terminalId.toString(), "Terminal not found: "));
     }
 
     @Override

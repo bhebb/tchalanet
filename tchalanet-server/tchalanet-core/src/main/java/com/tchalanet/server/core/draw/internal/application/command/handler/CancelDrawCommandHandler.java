@@ -11,7 +11,7 @@ import com.tchalanet.server.core.draw.api.command.CancelDrawCommand;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSalesGuardPort;
-import com.tchalanet.server.core.draw.internal.domain.event.DrawCancelledEvent;
+import com.tchalanet.server.core.draw.api.event.DrawCancelledEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

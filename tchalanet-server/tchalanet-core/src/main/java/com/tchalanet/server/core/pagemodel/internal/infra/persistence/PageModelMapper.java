@@ -48,8 +48,8 @@ final class PageModelMapper {
     e.setTenantId(d.tenantId().value());
     e.setLogicalId(d.logicalId());
     e.setScope(d.scope());
-    e.setCode(d.logicalId() + "-" + d.schemaVersion()); // code is logicalId + schemaVersion for uniqueness
-    e.setName(d.logicalId() + "-" + d.schemaVersion()); // code is logicalId + schemaVersion for uniqueness
+    e.setCode(d.logicalId() + "-" + d.schemaVersion()); // value is logicalId + schemaVersion for uniqueness
+    e.setName(d.logicalId() + "-" + d.schemaVersion()); // value is logicalId + schemaVersion for uniqueness
     e.setSlug(d.slug());
     // [Phase 1] correction: PageStatus inexistant — le type correct est PageModelStatus (analysis §BLOQUANT)
     e.setStatus(d.status());
