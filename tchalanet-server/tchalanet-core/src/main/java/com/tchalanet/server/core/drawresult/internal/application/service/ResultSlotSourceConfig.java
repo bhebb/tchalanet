@@ -7,7 +7,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tools.jackson.databind.JsonNode;
 
-public record ResultSlotSourceConfig(SourceGame pick3, SourceGame pick4) {
+public record ResultSlotSourceConfig(
+    String providerSlotCode,
+    SourceGame pick3,
+    SourceGame pick4
+) {
+
+    public static ResultSlotSourceConfig empty() {
+        return new ResultSlotSourceConfig("", null, null);
+    }
+
+    public boolean hasProviderSlotCode() {
+        return providerSlotCode != null && !providerSlotCode.isBlank();
+    }
 
     public boolean hasAnyActiveGame() {
         return isActive(pick3) || isActive(pick4);
@@ -35,6 +47,26 @@ public record ResultSlotSourceConfig(SourceGame pick3, SourceGame pick4) {
             && !game.gameCode().isBlank();
     }
 
+    static String providerSlotCodeFrom(JsonNode sourceCfg) {
+        if (sourceCfg == null || sourceCfg.isNull() || !sourceCfg.isObject()) {
+            return "";
+        }
+
+        var node = sourceCfg.get("provider_slot_code");
+
+        if (node == null || node.isNull()) {
+            return "";
+        }
+
+        return normalize(node.asText(""));
+    }
+
+    private static String normalize(String value) {
+        return value == null
+            ? ""
+            : value.trim().toUpperCase(Locale.ROOT).replaceAll("[\\s_\\-]+", "");
+    }
+
     public record SourceGame(String gameCode, boolean active) {
 
         static SourceGame from(JsonNode node) {
@@ -48,11 +80,17 @@ public record ResultSlotSourceConfig(SourceGame pick3, SourceGame pick4) {
             var code =
                 codeNode == null || codeNode.isNull()
                     ? ""
-                    : codeNode.asText("").trim().toUpperCase(Locale.ROOT);
+                    : normalizeGameCode(codeNode.asText(""));
 
             var active = activeNode == null || activeNode.isNull() || activeNode.asBoolean(true);
 
             return new SourceGame(code, active);
+        }
+
+        private static String normalizeGameCode(String value) {
+            return value == null
+                ? ""
+                : value.trim().toUpperCase(Locale.ROOT).replaceAll("\\s+", "");
         }
     }
 }

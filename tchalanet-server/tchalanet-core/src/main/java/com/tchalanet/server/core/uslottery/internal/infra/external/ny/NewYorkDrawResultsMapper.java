@@ -1,19 +1,18 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.ny;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tchalanet.server.common.json.utils.JsonbUtils;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.common.json.utils.JsonbUtils;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsProviderSourceFlags;
+import com.tchalanet.server.core.uslottery.internal.infra.external.ProviderSlotCodeMatcher;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +22,8 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 
 @Component
 @Slf4j
@@ -30,74 +31,41 @@ import org.springframework.stereotype.Component;
 public class NewYorkDrawResultsMapper {
 
     private static final UsLotteryProvider PROVIDER = UsLotteryProvider.NY;
-    private static final String ORIGIN = "NY_OPEN_DATA";
+    private static final String ORIGIN = "NY_SOCRATA";
 
-    private final JsonbUtils jsonb;
+    private final JsonbUtils json;
 
     public UsLotteryProviderResponse map(
         String body,
         String sourceHash,
         UsLotteryProviderQuery query) {
 
-        var rows = parseRows(body);
-        if (rows.length == 0) {
+        var entries = parseEntries(body);
+        if (entries.isEmpty()) {
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
 
         var wantedCodes = normalizeSet(query.externalGameCodes());
-        var wantedSlot = resolveWantedSlot(query.drawTime());
+        var slot = resolveSlot(query.providerSlotCode());
 
-        var results = new java.util.ArrayList<UsLotteryProviderResult>();
+        if (slot == Slot.UNKNOWN) {
+            log.warn("ny-client unsupported providerSlotCode={}", query.providerSlotCode());
+            return UsLotteryProviderResponse.empty(PROVIDER, query);
+        }
 
-        for (var row : rows) {
-            var drawDate = parseDrawDate(row.drawDate());
+        var results = new ArrayList<UsLotteryProviderResult>();
+
+        for (var entry : entries) {
+            var drawDate = parseDate(entry.drawDate());
             if (drawDate == null || !query.drawDate().equals(drawDate)) {
                 continue;
             }
 
-            if (wantedSlot == Slot.MIDDAY || wantedSlot == Slot.UNKNOWN) {
-                addResultIfWanted(
-                    results,
-                    "NUMBERS",
-                    row.middayDaily(),
-                    Slot.MIDDAY,
-                    drawDate,
-                    wantedCodes,
-                    sourceHash,
-                    query);
+            addResult(results, "NUMBERS", slot.pick3(entry), 3, wantedCodes, sourceHash, query, entry, drawDate, slot);
+            addResult(results, "WIN4", slot.pick4(entry), 4, wantedCodes, sourceHash, query, entry, drawDate, slot);
 
-                addResultIfWanted(
-                    results,
-                    "WIN4",
-                    row.middayWin4(),
-                    Slot.MIDDAY,
-                    drawDate,
-                    wantedCodes,
-                    sourceHash,
-                    query);
-            }
-
-            if (wantedSlot == Slot.EVENING || wantedSlot == Slot.UNKNOWN) {
-                addResultIfWanted(
-                    results,
-                    "NUMBERS",
-                    row.eveningDaily(),
-                    Slot.EVENING,
-                    drawDate,
-                    wantedCodes,
-                    sourceHash,
-                    query);
-
-                addResultIfWanted(
-                    results,
-                    "WIN4",
-                    row.eveningWin4(),
-                    Slot.EVENING,
-                    drawDate,
-                    wantedCodes,
-                    sourceHash,
-                    query);
-            }
+            // NY endpoint is ordered DESC; once target date is found, no need to inspect older rows.
+            break;
         }
 
         return new UsLotteryProviderResponse(
@@ -109,115 +77,123 @@ public class NewYorkDrawResultsMapper {
             query.includeRaw() ? body : null);
     }
 
-    private NyRow[] parseRows(String body) {
-        try {
-            var rows = jsonb.fromJson(body, NyRow[].class);
-            return rows == null ? new NyRow[0] : rows;
-        } catch (Exception ex) {
-            log.warn("Failed to parse NY lottery response: {}", ex.getLocalizedMessage(), ex);
-            return new NyRow[0];
-        }
-    }
-
-    private void addResultIfWanted(
+    private void addResult(
         List<UsLotteryProviderResult> out,
         String gameCode,
         String rawDigits,
-        Slot slot,
-        LocalDate drawDate,
+        int expectedSize,
         Set<String> wantedCodes,
         String sourceHash,
-        UsLotteryProviderQuery query) {
+        UsLotteryProviderQuery query,
+        NewYorkEntry entry,
+        LocalDate drawDate,
+        Slot slot) {
 
-        var normalizedGameCode = normalize(gameCode);
-        if (!wantedCodes.isEmpty() && !wantedCodes.contains(normalizedGameCode)) {
+        if (!wantedCodes.isEmpty() && !wantedCodes.contains(gameCode)) {
             return;
         }
 
-        var main = digits(rawDigits);
+        var main = parseDigits(rawDigits);
         if (main.isEmpty()) {
             return;
         }
 
-        var expectedSize = expectedSize(normalizedGameCode);
         var quality = main.size() == expectedSize ? ResultQuality.COMPLETE : ResultQuality.SUSPECT;
 
         var metadata = new LinkedHashMap<String, String>();
         metadata.put("provider", PROVIDER.name());
-        metadata.put("game_code", normalizedGameCode);
+        metadata.put("game_code", gameCode);
         metadata.put("draw_date", String.valueOf(drawDate));
-        metadata.put("provider_slot", slot.name());
+        metadata.put("provider_slot_code", slot.providerSlotCode);
+        metadata.put("expected_provider_slot_code", ProviderSlotCodeMatcher.normalize(query.providerSlotCode()));
 
         var flags =
             new UsProviderSourceFlags(
                 ORIGIN,
                 sourceHash,
-                null,
+                "",
                 Map.copyOf(metadata));
 
         out.add(
             new UsLotteryProviderResult(
-                normalizedGameCode,
+                gameCode,
                 main,
                 List.of(),
                 quality,
                 flags,
-                occurredAt(drawDate, slot, query),
-                null));
+                resolveOccurredAt(query),
+                query.includeRaw() ? entry : null));
     }
 
-    private static Instant occurredAt(LocalDate drawDate, Slot slot, UsLotteryProviderQuery query) {
-        var time =
-            switch (slot) {
-                case MIDDAY -> LocalTime.of(12, 20);
-                case EVENING -> LocalTime.of(19, 30);
-                case UNKNOWN -> query.drawTime();
-            };
+    private List<NewYorkEntry> parseEntries(String body) {
+        try {
+            JsonNode root = json.readTree(body);
 
-        return drawDate.atTime(time).atZone(query.timezone()).toInstant();
-    }
+            if (root != null && root.isArray()) {
+                return json.fromJson(body, new TypeReference<>() {});
+            }
 
-    private static Slot resolveWantedSlot(LocalTime drawTime) {
-        if (drawTime == null) {
-            return Slot.UNKNOWN;
+            JsonNode data = root == null ? null : root.get("data");
+            if (data != null && data.isArray()) {
+                return json.convertValue(data, new TypeReference<>() {});
+            }
+        } catch (Exception ex) {
+            log.warn("ny-client parse failed: {}", ex.getLocalizedMessage(), ex);
         }
 
-        if (drawTime.isBefore(LocalTime.of(16, 0))) {
+        return List.of();
+    }
+
+    private static Slot resolveSlot(String providerSlotCode) {
+        var code = ProviderSlotCodeMatcher.normalize(providerSlotCode);
+
+        if (ProviderSlotCodeMatcher.matches("MIDDAY", code)) {
             return Slot.MIDDAY;
         }
 
-        return Slot.EVENING;
-    }
-
-    private static LocalDate parseDrawDate(String raw) {
-        if (raw == null || raw.isBlank() || raw.length() < 10) {
-            return null;
+        if (ProviderSlotCodeMatcher.matches("EVENING", code)) {
+            return Slot.EVENING;
         }
 
-        try {
-            return LocalDate.parse(raw.substring(0, 10));
-        } catch (Exception ex) {
-            log.warn("Failed to parse NY draw date '{}': {}", raw, ex.getLocalizedMessage(), ex);
-            return null;
-        }
+        return Slot.UNKNOWN;
     }
 
-    private static int expectedSize(String gameCode) {
-        return switch (gameCode) {
-            case "NUMBERS" -> 3;
-            case "WIN4" -> 4;
-            default -> 0;
-        };
+    private static Instant resolveOccurredAt(UsLotteryProviderQuery query) {
+        return query.drawDate()
+            .atTime(query.drawTime())
+            .atZone(query.timezone())
+            .toInstant();
     }
 
-    private static List<String> digits(String raw) {
+    private static List<String> parseDigits(String raw) {
         if (raw == null || raw.isBlank()) {
             return List.of();
         }
 
-        return Arrays.stream(raw.trim().split(""))
-            .filter(s -> !s.isBlank())
+        var compact = raw.trim().replaceAll("[^0-9]", "");
+
+        if (compact.isBlank()) {
+            return List.of();
+        }
+
+        return compact.chars()
+            .mapToObj(ch -> String.valueOf((char) ch))
             .toList();
+    }
+
+    private static LocalDate parseDate(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+
+        try {
+            var s = raw.trim();
+            var first = s.length() >= 10 ? s.substring(0, 10) : s;
+            return LocalDate.parse(first);
+        } catch (Exception ex) {
+            log.warn("Failed to parse NY draw date '{}': {}", raw, ex.getLocalizedMessage(), ex);
+            return null;
+        }
     }
 
     private static Set<String> normalizeSet(Set<String> codes) {
@@ -227,25 +203,43 @@ public class NewYorkDrawResultsMapper {
 
         return codes.stream()
             .filter(Objects::nonNull)
-            .map(NewYorkDrawResultsMapper::normalize)
+            .map(NewYorkDrawResultsMapper::normalizeGameCode)
             .filter(s -> !s.isBlank())
             .collect(java.util.stream.Collectors.toUnmodifiableSet());
     }
 
-    private static String normalize(String value) {
+    private static String normalizeGameCode(String value) {
         return value == null
             ? ""
             : value.trim().toUpperCase(Locale.ROOT).replaceAll("\\s+", "");
     }
 
     private enum Slot {
-        MIDDAY,
-        EVENING,
-        UNKNOWN
+        MIDDAY("MIDDAY") {
+            @Override String pick3(NewYorkEntry e) { return e.middayDaily(); }
+            @Override String pick4(NewYorkEntry e) { return e.middayWin4(); }
+        },
+        EVENING("EVENING") {
+            @Override String pick3(NewYorkEntry e) { return e.eveningDaily(); }
+            @Override String pick4(NewYorkEntry e) { return e.eveningWin4(); }
+        },
+        UNKNOWN("") {
+            @Override String pick3(NewYorkEntry e) { return ""; }
+            @Override String pick4(NewYorkEntry e) { return ""; }
+        };
+
+        private final String providerSlotCode;
+
+        Slot(String providerSlotCode) {
+            this.providerSlotCode = providerSlotCode;
+        }
+
+        abstract String pick3(NewYorkEntry e);
+        abstract String pick4(NewYorkEntry e);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record NyRow(
+    private record NewYorkEntry(
         @JsonProperty("draw_date") String drawDate,
         @JsonProperty("midday_daily") String middayDaily,
         @JsonProperty("evening_daily") String eveningDaily,

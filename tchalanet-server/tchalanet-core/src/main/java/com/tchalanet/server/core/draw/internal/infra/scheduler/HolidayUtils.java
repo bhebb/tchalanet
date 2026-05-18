@@ -18,8 +18,6 @@ public class HolidayUtils {
   private static final DateTimeFormatter MM_DD = DateTimeFormatter.ofPattern("MM-dd");
 
   private final UsLotteryProperties usLotteryProperties;
-  private final Map<String, Set<LocalDate>> holidayCache = new ConcurrentHashMap<>();
-  private final Logger log = LoggerFactory.getLogger(HolidayUtils.class);
 
   /**
    * Check if the given local date is a holiday for the provider inferred from the channel value.

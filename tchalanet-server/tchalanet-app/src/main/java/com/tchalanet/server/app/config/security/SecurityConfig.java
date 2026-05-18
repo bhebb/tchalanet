@@ -3,6 +3,7 @@ package com.tchalanet.server.app.config.security;
 import com.tchalanet.server.common.context.web.TchContextFilter;
 import com.tchalanet.server.platform.identity.api.IdentityBootstrapFilter;
 import jakarta.servlet.DispatcherType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@Slf4j
 public class SecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
@@ -85,7 +87,7 @@ public class SecurityConfig {
 
                         // PLATFORM scope: platform-level APIs (no tenant): require SUPER_ADMIN
                         .requestMatchers("/api/v1/platform/**", "/platform/**")
-                        .hasRole("SUPER_ADMIN")
+                        .hasAnyAuthority("SUPER_ADMIN", "ROLE_SUPER_ADMIN")
 
                         // ADMIN scope: tenant-administration APIs (tenant context required)
                         .requestMatchers("/api/v1/admin/**", "/admin/**")
@@ -132,17 +134,23 @@ public class SecurityConfig {
     private AbstractAuthenticationToken convert(Jwt jwt) {
         Collection<GrantedAuthority> auths = new ArrayList<>();
 
-        // realm_access.roles (Keycloak standard)
         Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
             roles.forEach(role -> addRoleAuthorities(auths, role));
         }
 
-        // root roles claim (ton cas)
         List<String> flatRoles = jwt.getClaimAsStringList("roles");
         if (flatRoles != null) {
             flatRoles.forEach(role -> addRoleAuthorities(auths, role));
         }
+
+        log.warn(
+            "JWT converted sub={} username={} rolesClaim={} authorities={}",
+            jwt.getSubject(),
+            jwt.getClaimAsString("preferred_username"),
+            flatRoles,
+            auths
+        );
 
         return new JwtAuthenticationToken(jwt, auths);
     }

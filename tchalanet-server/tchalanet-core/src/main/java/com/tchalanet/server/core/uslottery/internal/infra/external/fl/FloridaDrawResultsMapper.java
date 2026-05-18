@@ -1,24 +1,31 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.fl;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tchalanet.server.common.json.utils.JsonbUtils;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.common.json.utils.JsonbUtils;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsProviderSourceFlags;
+import com.tchalanet.server.core.uslottery.internal.infra.external.ProviderSlotCodeMatcher;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 @Component
 @Slf4j
@@ -84,6 +91,17 @@ public class FloridaDrawResultsMapper {
             return null;
         }
 
+        var providerSlotCode = ProviderSlotCodeMatcher.normalize(entry.drawType());
+        if (!ProviderSlotCodeMatcher.matches(providerSlotCode, query.providerSlotCode())) {
+            log.debug(
+                "fl-client skipped providerSlotCode={} expected={} gameCode={} drawDate={}",
+                providerSlotCode,
+                query.providerSlotCode(),
+                gameCode,
+                drawDate);
+            return null;
+        }
+
         var parsed = parseNumbers(entry.drawNumbers(), gameCode);
         if (parsed.main().isEmpty()) {
             return null;
@@ -92,15 +110,22 @@ public class FloridaDrawResultsMapper {
         var expectedSize = expectedSize(gameCode);
         var quality = parsed.main().size() == expectedSize ? ResultQuality.COMPLETE : ResultQuality.SUSPECT;
 
+        var metadata = new LinkedHashMap<String, String>();
+        metadata.put("provider", UsLotteryProvider.FL.name());
+        metadata.put("game_code", gameCode);
+        metadata.put("draw_date", String.valueOf(drawDate));
+        metadata.put("provider_slot_code", providerSlotCode);
+        metadata.put("expected_provider_slot_code", ProviderSlotCodeMatcher.normalize(query.providerSlotCode()));
+        if (!parsed.numberAttributes().isEmpty()) {
+            metadata.putAll(parsed.numberAttributes());
+        }
+
         var flags =
             new UsProviderSourceFlags(
                 ORIGIN,
                 sourceHash,
                 url,
-                Map.of(
-                    "provider", UsLotteryProvider.FL.name(),
-                    "game_code", gameCode,
-                    "draw_date", String.valueOf(drawDate)));
+                Map.copyOf(metadata));
 
         return new UsLotteryProviderResult(
             gameCode,
@@ -108,7 +133,7 @@ public class FloridaDrawResultsMapper {
             parsed.extras(),
             quality,
             flags,
-            null,
+            resolveOccurredAt(query),
             query.includeRaw() ? entry : null);
     }
 
@@ -117,14 +142,12 @@ public class FloridaDrawResultsMapper {
             JsonNode root = json.readTree(body);
 
             if (root != null && root.isArray()) {
-                return json.fromJson(body, new TypeReference<>() {
-                });
+                return json.fromJson(body, new TypeReference<>() {});
             }
 
             JsonNode dr = root == null ? null : root.get("DrawResults");
             if (dr != null && dr.isArray()) {
-                return json.convertValue(dr, new TypeReference<>() {
-                });
+                return json.convertValue(dr, new TypeReference<>() {});
             }
         } catch (Exception ex) {
             log.warn("fl-client parse failed: {}", ex.getLocalizedMessage(), ex);
@@ -140,8 +163,7 @@ public class FloridaDrawResultsMapper {
 
         int expectedSize = expectedSize(gameCode);
 
-        record NumberInfo(int index, String value) {
-        }
+        record NumberInfo(int index, String value) {}
 
         var winningNumbers = new ArrayList<NumberInfo>();
         var extras = new ArrayList<String>();
@@ -176,6 +198,13 @@ public class FloridaDrawResultsMapper {
                 .toList();
 
         return new NumberParseResult(main, List.copyOf(extras), Map.copyOf(numberAttributes));
+    }
+
+    private static Instant resolveOccurredAt(UsLotteryProviderQuery query) {
+        return query.drawDate()
+            .atTime(query.drawTime())
+            .atZone(query.timezone())
+            .toInstant();
     }
 
     private static int expectedSize(String gameCode) {
@@ -243,20 +272,17 @@ public class FloridaDrawResultsMapper {
     private record NumberParseResult(
         List<String> main,
         List<String> extras,
-        Map<String, String> numberAttributes) {
-    }
+        Map<String, String> numberAttributes) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record FloridaEntry(
         @JsonProperty("GameName") String gameName,
         @JsonProperty("DrawDate") String drawDate,
         @JsonProperty("DrawType") String drawType,
-        @JsonProperty("DrawNumbers") List<FloridaNumber> drawNumbers) {
-    }
+        @JsonProperty("DrawNumbers") List<FloridaNumber> drawNumbers) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record FloridaNumber(
         @JsonProperty("NumberPick") String numberPick,
-        @JsonProperty("NumberType") String numberType) {
-    }
+        @JsonProperty("NumberType") String numberType) {}
 }

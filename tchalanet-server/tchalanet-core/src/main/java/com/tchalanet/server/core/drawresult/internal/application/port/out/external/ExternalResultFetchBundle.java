@@ -16,7 +16,7 @@ public record ExternalResultFetchBundle(
 
     public static ExternalResultFetchBundle empty(
         String provider,
-        ExternalResultsFetchPort.ExternalResultFetchQuery query
+        ExternalResultFetchQuery query
     ) {
         return new ExternalResultFetchBundle(
             provider,

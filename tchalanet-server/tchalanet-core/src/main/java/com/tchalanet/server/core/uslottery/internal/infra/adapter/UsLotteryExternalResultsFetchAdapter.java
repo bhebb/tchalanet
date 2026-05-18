@@ -1,21 +1,24 @@
 package com.tchalanet.server.core.uslottery.internal.infra.adapter;
 
-import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchBundle;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchQuery;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultItem;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultsFetchPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalSourceFlags;
+import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
 import com.tchalanet.server.core.uslottery.internal.infra.registry.ProviderClientRegistry;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetchPort {
 
     private final ProviderClientRegistry registry;
@@ -23,6 +26,15 @@ public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetc
     @Override
     public ExternalResultFetchBundle fetchProviderResults(ExternalResultFetchQuery query) {
         var provider = UsLotteryProvider.valueOf(query.provider().trim().toUpperCase(Locale.ROOT));
+        log.info("fetching external results provider={} drawDate={} drawTime={} timezone={} gameCodes={} providerSlotCode={} force={} includeRaw={}",
+            provider,
+            query.drawDate(),
+            query.drawTime(),
+            query.timezone(),
+            query.gameCodes(),
+            query.providerSlotCode(),
+            query.force(),
+            query.includeRaw());
         var client = registry.get(provider);
 
         var response =
@@ -32,9 +44,12 @@ public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetc
                     query.drawTime(),
                     query.timezone(),
                     query.gameCodes(),
+                    query.providerSlotCode(),
                     query.force(),
-                    query.includeRaw()));
-
+                    query.includeRaw(),
+                    query.requestedAt()));
+        log.info("fetched external results provider={} drawDate={} drawTime={} timezone={} gameCodes={} providerSlotCode={}, response={}", provider, query.drawDate(), query.drawTime(), query.timezone(), query.gameCodes(),
+            query.providerSlotCode(), response.results().isEmpty() ?  "no results": "results");
         return toExternalBundle(response);
     }
 
@@ -62,5 +77,4 @@ public class UsLotteryExternalResultsFetchAdapter implements ExternalResultsFetc
             r.occurredAt(),
             r.rawPayload());
     }
-
 }

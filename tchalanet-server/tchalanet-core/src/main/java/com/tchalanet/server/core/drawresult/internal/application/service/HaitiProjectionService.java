@@ -1,20 +1,21 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.core.haiti.api.HaitiFlags;
 import com.tchalanet.server.common.json.utils.JsonUtils;
-import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
+import com.tchalanet.server.core.haiti.api.HaitiFlags;
 import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiLotteryPort;
+import com.tchalanet.server.core.haiti.internal.application.port.out.HaitiProjectionConfigPort;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.exception.InvalidExternalPickException;
 import com.tchalanet.server.core.haiti.internal.domain.lottery.model.ExternalPick;
 import io.micrometer.core.instrument.MeterRegistry;
-import java.time.LocalDate;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -29,10 +30,14 @@ public class HaitiProjectionService {
     public HaitiProjectionResult project(
         ResultSlotView slot,
         LocalDate date,
-        ResolvedExternalResults external) {
+        ResolvedExternalResults external
+    ) {
+        String pick3 = "";
+        String pick4 = "";
+
         try {
-            String pick3 = external.hasPick3() ? String.join("", external.pick3().main()) : "";
-            String pick4 = external.hasPick4() ? String.join("", external.pick4().main()) : "";
+            pick3 = external.hasPick3() ? String.join("", external.pick3().main()) : "";
+            pick4 = external.hasPick4() ? String.join("", external.pick4().main()) : "";
 
             var projCfg = haitiConfigPort.resolve(slot.projectionCfg());
             var pick = ExternalPick.of(pick3, pick4);
@@ -46,14 +51,25 @@ public class HaitiProjectionService {
 
         } catch (InvalidExternalPickException e) {
             log.warn(
-                "draw-results.fetch invalid_pick slot={} date={} err={}",
+                "draw-results.fetch invalid_pick slot={} date={} pick3='{}' pick3Length={} pick4='{}' pick4Length={} hasPick3={} hasPick4={} err={}",
                 slot.slotKey(),
                 date,
+                safePick(pick3),
+                pick3.length(),
+                safePick(pick4),
+                pick4.length(),
+                external.hasPick3(),
+                external.hasPick4(),
                 e.getMessage(),
-                e);
+                e
+            );
 
             meterRegistry
-                .counter("draw_external_pick_invalid_total", "slot", slot.slotKey())
+                .counter(
+                    "draw_external_pick_invalid_total",
+                    "slot", slot.slotKey(),
+                    "reason", invalidReason(pick3, pick4)
+                )
                 .increment();
 
             return new HaitiProjectionResult(
@@ -61,15 +77,25 @@ public class HaitiProjectionService {
                 HaitiFlags.fail(
                     1,
                     "INVALID_EXTERNAL_PICK",
-                    Map.of("error", String.valueOf(e.getMessage()))));
+                    Map.of(
+                        "error", String.valueOf(e.getMessage()),
+                        "pick3", safePick(pick3),
+                        "pick3Length", pick3.length(),
+                        "pick4", safePick(pick4),
+                        "pick4Length", pick4.length()
+                    )
+                ));
 
         } catch (Exception e) {
             log.warn(
-                "draw-results.fetch projection_failed slot={} date={} err={}",
+                "draw-results.fetch projection_failed slot={} date={} pick3='{}' pick4='{}' err={}",
                 slot.slotKey(),
                 date,
+                safePick(pick3),
+                safePick(pick4),
                 e.getMessage(),
-                e);
+                e
+            );
 
             return new HaitiProjectionResult(
                 emptyHaitiLots(),
@@ -78,6 +104,32 @@ public class HaitiProjectionService {
                     "PROJECTION_EXCEPTION",
                     Map.of("error", String.valueOf(e.getMessage()))));
         }
+    }
+
+    private String safePick(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        // Garde seulement une valeur courte et lisible dans les logs.
+        // Les picks sont censés être 3/4 digits, donc pas besoin de logger plus.
+        return value.length() <= 12 ? value : value.substring(0, 12) + "...";
+    }
+
+    private String invalidReason(String pick3, String pick4) {
+        if (pick3 == null || pick3.isBlank()) {
+            return "pick3_missing";
+        }
+        if (!pick3.matches("\\d{3}")) {
+            return "pick3_invalid_format";
+        }
+        if (pick4 == null || pick4.isBlank()) {
+            return "pick4_missing";
+        }
+        if (!pick4.matches("\\d{4}")) {
+            return "pick4_invalid_format";
+        }
+        return "unknown";
     }
 
     private ObjectNode coerceHaitiLots(Object anyResult) {

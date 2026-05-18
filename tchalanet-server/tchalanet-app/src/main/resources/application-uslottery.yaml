@@ -9,9 +9,10 @@ tch:
       ny:
         enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
-        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov/api/v3/views/hsys-3def/query.json}
+        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov}
+        latest-path: ${TCH_US_LOTTERY_NY_LATEST_PATH:/resource/hsys-3def.json}
         app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
-        headers: {}
+        headers: { }
 
       fl:
         enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}

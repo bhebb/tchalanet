@@ -2,13 +2,12 @@ package com.tchalanet.server.core.uslottery.internal.infra.external.fl;
 
 import com.tchalanet.server.common.crypto.Hashing;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.ProviderQueryHash;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
-
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +25,7 @@ import org.springframework.web.client.RestClient;
     matchIfMissing = true)
 public class FloridaDrawResultsClient implements UsLotteryProviderClient {
 
-    private static final String SHAPE = "FL/latest/v2";
+    private static final String SHAPE = "FL/latest/v3";
 
     private final RestClient rest;
     private final UsLotteryProperties props;
@@ -50,7 +49,7 @@ public class FloridaDrawResultsClient implements UsLotteryProviderClient {
     }
 
     @Override
-    public UsLotteryProviderResponse fetch(UsLotteryProviderQuery query){
+    public UsLotteryProviderResponse fetch(UsLotteryProviderQuery query) {
         Objects.requireNonNull(query, "query required");
 
         var providers = props.getProviders();
@@ -87,7 +86,7 @@ public class FloridaDrawResultsClient implements UsLotteryProviderClient {
             query.drawDate(),
             query.drawTime(),
             query.externalGameCodes().stream().sorted().toList(),
-            SHAPE + "|" + url);
+            SHAPE + "|" + url + "|providerSlotCode=" + StringUtils.defaultString(query.providerSlotCode()));
     }
 
     private String performFetch(String url) {

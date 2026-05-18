@@ -81,3 +81,8 @@ tch:
       defaults:
         manual_days_back: 0
         manual_max_slots: 50
+      notifications:
+        slack:
+          enabled: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_ENABLED:true}
+          channel: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_CHANNEL:general}
+          priority: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_PRIORITY:high}

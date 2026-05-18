@@ -104,49 +104,50 @@ FROM tg_src
 WITH src AS (
     SELECT *
     FROM (VALUES
-              ('NY_MID','NY','America/New_York','14:30','MON-SUN', true, 10,
-               '{"pick3":{"game_code":"NUMBERS","active":true},"pick4":{"game_code":"WIN4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('NY_MID','NY','America/New_York','14:30','MON-SUN', true, 10,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"NUMBERS","active":true},"pick4":{"game_code":"WIN4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('NY_EVE','NY','America/New_York','22:30','MON-SUN', true, 11,
-               '{"pick3":{"game_code":"NUMBERS","active":true},"pick4":{"game_code":"WIN4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('NY_EVE','NY','America/New_York','22:30','MON-SUN', true, 11,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"NUMBERS","active":true},"pick4":{"game_code":"WIN4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('FL_MID','FL','America/New_York','13:30','MON-SUN', true, 20,
-               '{"pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('FL_MID','FL','America/New_York','13:30','MON-SUN', true, 20,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('FL_EVE','FL','America/New_York','22:45','MON-SUN', true, 21,
-               '{"pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('FL_EVE','FL','America/New_York','22:45','MON-SUN', true, 21,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"PICK4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('GA_MID','GA','America/New_York','12:29','MON-SUN', true, 30,
-               '{"pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('GA_MID','GA','America/New_York','12:29','MON-SUN', true, 30,
+                  '{"provider_slot_code":"MIDDAY","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('GA_EVE','GA','America/New_York','18:59','MON-SUN', true, 31,
-               '{"pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('GA_EVE','GA','America/New_York','18:59','MON-SUN', true, 31,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('GA_LATE','GA','America/New_York','23:34','MON-SUN', true, 32,
-               '{"pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('GA_LATE','GA','America/New_York','23:34','MON-SUN', true, 32,
+                  '{"provider_slot_code":"NIGHT","pick3":{"game_code":"CASH3","active":true},"pick4":{"game_code":"CASH4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('TX_1000','TX','America/Chicago','10:00','MON-SAT', true, 50,
-               '{"pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('TX_1000','TX','America/Chicago','10:00','MON-SAT', true, 50,
+                  '{"provider_slot_code":"MORNING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('TX_1227','TX','America/Chicago','12:27','MON-SAT', true, 51,
-               '{"pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('TX_1227','TX','America/Chicago','12:27','MON-SAT', true, 51,
+                  '{"provider_slot_code":"DAY","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('TX_1800','TX','America/Chicago','18:00','MON-SAT', true, 52,
-               '{"pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
+                 ('TX_1800','TX','America/Chicago','18:00','MON-SAT', true, 52,
+                  '{"provider_slot_code":"EVENING","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb),
 
-              ('TX_2212','TX','America/Chicago','22:12','MON-SAT', true, 53,
-               '{"pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
-               '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb)
+                 ('TX_2212','TX','America/Chicago','22:12','MON-SAT', true, 53,
+                  '{"provider_slot_code":"NIGHT","pick3":{"game_code":"PICK3","active":true},"pick4":{"game_code":"DAILY4","active":true}}'::jsonb,
+                  '{"version":1,"rule_set":"DEFAULT","rules":{"lot1":"PICK3_FULL_3","lot2":"PICK4_FIRST2","lot3":"PICK4_LAST2","lot4":"PICK3_FIRST2"}}'::jsonb)
+
          ) AS v(slot_key, provider, timezone, draw_time, days_of_week, active, sort_order, source_cfg, projection_cfg)
 )
 INSERT INTO result_slot (

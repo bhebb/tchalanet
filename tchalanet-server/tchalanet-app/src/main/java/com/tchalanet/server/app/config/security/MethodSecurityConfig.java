@@ -9,7 +9,6 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class MethodSecurityConfig {
 

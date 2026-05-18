@@ -50,7 +50,6 @@ class CommonTechnicalKernelArchitectureTest {
             "net.javacrumbs.shedlock..",
             "org.springframework.web.reactive..",
             "org.springframework.web.client..",
-            "org.springframework.data.rest..",
             "org.springframework.data.redis..",
             "io.lettuce..",
             "com.querydsl..",

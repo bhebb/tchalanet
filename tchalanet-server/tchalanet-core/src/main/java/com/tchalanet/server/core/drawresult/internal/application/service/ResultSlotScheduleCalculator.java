@@ -1,16 +1,13 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.core.drawresult.internal.application.view.PublicNextResultTimeView;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +35,8 @@ public class ResultSlotScheduleCalculator {
             ? todayDrawTime
             : todayDrawTime.plusDays(1);
 
-        var countdownSeconds = Math.max(0,
+        var countdownSeconds = Math.max(
+            0,
             ChronoUnit.SECONDS.between(now, expectedAt)
         );
 

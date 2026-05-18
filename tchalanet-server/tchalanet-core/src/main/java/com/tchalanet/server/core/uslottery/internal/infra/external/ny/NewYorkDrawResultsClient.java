@@ -2,9 +2,9 @@ package com.tchalanet.server.core.uslottery.internal.infra.external.ny;
 
 import com.tchalanet.server.common.crypto.Hashing;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.ProviderQueryHash;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
@@ -26,7 +26,7 @@ import org.springframework.web.client.RestClient;
 public class NewYorkDrawResultsClient implements UsLotteryProviderClient {
 
     private static final UsLotteryProvider PROVIDER = UsLotteryProvider.NY;
-    private static final String SHAPE = "NY/soql/v3";
+    private static final String SHAPE = "NY/socrata/v5";
 
     private final RestClient nyRestClient;
     private final UsLotteryProperties props;
@@ -37,7 +37,8 @@ public class NewYorkDrawResultsClient implements UsLotteryProviderClient {
         @Qualifier("nyLotteryRestClient") RestClient nyRestClient,
         UsLotteryProperties props,
         UsLotteryProviderRawCache cache,
-        NewYorkDrawResultsMapper mapper) {
+        NewYorkDrawResultsMapper mapper
+    ) {
         this.nyRestClient = Objects.requireNonNull(nyRestClient);
         this.props = Objects.requireNonNull(props);
         this.cache = Objects.requireNonNull(cache);
@@ -54,7 +55,12 @@ public class NewYorkDrawResultsClient implements UsLotteryProviderClient {
         Objects.requireNonNull(query, "query required");
 
         var cfg = props.getProviders() == null ? null : props.getProviders().get("ny");
-        if (cfg == null || !cfg.isEnabled()) {
+
+        if (cfg == null
+            || !cfg.isEnabled()
+            || StringUtils.isBlank(cfg.getLatestPath())) {
+            log.warn("ny-client disabled_or_missing_config latestPath={}",
+                cfg == null ? null : cfg.getLatestPath());
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
 
@@ -64,46 +70,73 @@ public class NewYorkDrawResultsClient implements UsLotteryProviderClient {
                 query.drawDate(),
                 query.drawTime(),
                 query.externalGameCodes().stream().sorted().toList(),
-                SHAPE);
+                SHAPE
+                    + "|path=" + cfg.getLatestPath()
+                    + "|providerSlotCode=" + StringUtils.defaultString(query.providerSlotCode()));
 
         var body =
             cache.getOrFetch(
                 PROVIDER.name(),
                 query.drawDate(),
                 queryHash,
-                () -> performFetch(query, cfg.getAppToken()));
+                () -> performFetch(query, cfg.getAppToken(), cfg.getLatestPath()));
 
         if (StringUtils.isBlank(body)) {
+            log.warn(
+                "ny-client empty_body drawDate={} drawTime={} providerSlotCode={} gameCodes={}",
+                query.drawDate(),
+                query.drawTime(),
+                query.providerSlotCode(),
+                query.externalGameCodes());
             return UsLotteryProviderResponse.empty(PROVIDER, query);
         }
+
+        log.info(
+            "ny-client fetched drawDate={} providerSlotCode={} bodySize={} sample={}",
+            query.drawDate(),
+            query.providerSlotCode(),
+            body.length(),
+            body.substring(0, Math.min(300, body.length())));
 
         return mapper.map(body, Hashing.sha256Hex(body), query);
     }
 
-    private String performFetch(UsLotteryProviderQuery query, String appToken) {
+    private String performFetch(
+        UsLotteryProviderQuery query,
+        String appToken,
+        String latestPath
+    ) {
         try {
             return nyRestClient
                 .get()
-                .uri(
-                    uriBuilder -> {
-                        var builder =
-                            uriBuilder
-                                .queryParam("$limit", 20)
-                                .queryParam("$select",
-                                    "draw_date,midday_daily,evening_daily,midday_win_4,evening_win_4")
-                                .queryParam("$where", "draw_date <= '" + query.drawDate() + "T23:59:59.000'")
-                                .queryParam("$order", "draw_date DESC");
+                .uri(uriBuilder -> {
+                    var builder =
+                        uriBuilder
+                            .path(latestPath)
+                            .queryParam("$limit", 20)
+                            .queryParam(
+                                "$select",
+                                "draw_date,midday_daily,evening_daily,midday_win_4,evening_win_4")
+                            .queryParam(
+                                "$where",
+                                "draw_date <= '" + query.drawDate() + "T23:59:59.000'")
+                            .queryParam("$order", "draw_date DESC");
 
-                        if (StringUtils.isNotBlank(appToken)) {
-                            builder.queryParam("app_token", appToken);
-                        }
+                    if (StringUtils.isNotBlank(appToken)) {
+                        builder.queryParam("$$app_token", appToken);
+                    }
 
-                        return builder.build();
-                    })
+                    return builder.build();
+                })
                 .retrieve()
                 .body(String.class);
         } catch (Exception ex) {
-            log.warn("Failed to fetch NY lottery data: {}", ex.getLocalizedMessage(), ex);
+            log.warn(
+                "ny-client fetch_failed drawDate={} providerSlotCode={} err={}",
+                query.drawDate(),
+                query.providerSlotCode(),
+                ex.getLocalizedMessage(),
+                ex);
             return null;
         }
     }

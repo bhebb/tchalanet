@@ -2,6 +2,7 @@ package com.tchalanet.server.core.drawresult.internal.application.service;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultFetchQuery;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.external.ExternalResultsFetchPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,13 @@ public class ExternalResultFetcher {
 
         var bundle =
             fetchPort.fetchProviderResults(
-                new ExternalResultsFetchPort.ExternalResultFetchQuery(
+                new ExternalResultFetchQuery(
                     slot.provider(),
                     date,
                     slot.drawTime(),
                     slot.timezone(),
                     sourceCfg.activeGameCodes(),
+                    sourceCfg.providerSlotCode(),
                     cmd.force(),
                     cmd.includeRaw(),
                     now));

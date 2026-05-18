@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.uslottery.internal.application.port.out;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -12,8 +13,11 @@ public record UsLotteryProviderQuery(
     LocalTime drawTime,
     ZoneId timezone,
     Set<String> externalGameCodes,
+    String providerSlotCode,
     boolean force,
-    boolean includeRaw) {
+    boolean includeRaw,
+    Instant requestedAt
+) {
 
     public UsLotteryProviderQuery {
         if (drawDate == null) {

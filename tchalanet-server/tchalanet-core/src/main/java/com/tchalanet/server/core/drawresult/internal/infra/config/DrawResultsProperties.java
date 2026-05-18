@@ -13,6 +13,7 @@ public class DrawResultsProperties {
     private Scheduler scheduler = new Scheduler();
     private Limits limits = new Limits();
     private Defaults defaults = new Defaults();
+    private Notifications notifications = new Notifications();
     private Settlement settlement = new Settlement();
 
     @Getter
@@ -38,6 +39,20 @@ public class DrawResultsProperties {
     public static class Defaults {
         private int manualDaysBack = 0;
         private int manualMaxSlots = 50;
+    }
+
+    @Getter
+    @Setter
+    public static class Notifications {
+        private Slack slack = new Slack();
+    }
+
+    @Getter
+    @Setter
+    public static class Slack {
+        private boolean enabled = false;
+        private String channel = "draw-results";
+        private String priority = "LOW";
     }
 
     @Getter

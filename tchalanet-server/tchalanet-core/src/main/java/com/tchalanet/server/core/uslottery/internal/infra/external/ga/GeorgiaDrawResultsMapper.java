@@ -1,15 +1,15 @@
 package com.tchalanet.server.core.uslottery.internal.infra.external.ga;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tchalanet.server.common.json.utils.JsonbUtils;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.common.json.utils.JsonbUtils;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsProviderSourceFlags;
+import com.tchalanet.server.core.uslottery.internal.infra.external.ProviderSlotCodeMatcher;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -38,8 +38,7 @@ public class GeorgiaDrawResultsMapper {
         String body,
         String sourceHash,
         String url,
-        UsLotteryProviderQuery query
-    ) {
+        UsLotteryProviderQuery query) {
         var entries = parseEntries(body);
 
         if (entries.isEmpty()) {
@@ -85,6 +84,17 @@ public class GeorgiaDrawResultsMapper {
             return null;
         }
 
+        var providerDrawType = resolveProviderDrawType(entry);
+        if (!ProviderSlotCodeMatcher.matches(providerDrawType, query.providerSlotCode())) {
+            log.debug(
+                "ga-client skipped providerDrawType={} expected={} gameCode={} queryDate={}",
+                providerDrawType,
+                query.providerSlotCode(),
+                gameCode,
+                query.drawDate());
+            return null;
+        }
+
         var drawDate = resolveDrawDate(entry, query);
 
         if (drawDate != null && query.drawDate() != null && !query.drawDate().equals(drawDate)) {
@@ -106,15 +116,17 @@ public class GeorgiaDrawResultsMapper {
             ? ResultQuality.COMPLETE
             : ResultQuality.SUSPECT;
 
-        var providerDrawType = resolveProviderDrawType(entry);
-
         var metadata = new LinkedHashMap<String, String>();
         metadata.put("provider", UsLotteryProvider.GA.name());
         metadata.put("game_code", gameCode);
         metadata.put("draw_date", drawDate == null ? "" : drawDate.toString());
+        metadata.put("provider_draw_type", providerDrawType);
+        metadata.put("provider_slot_code", providerDrawType);
+        metadata.put("expected_provider_slot_code", ProviderSlotCodeMatcher.normalize(query.providerSlotCode()));
 
-        if (!providerDrawType.isBlank()) {
-            metadata.put("provider_draw_type", providerDrawType);
+        var providerOccurredAt = resolveProviderOccurredAt(entry);
+        if (providerOccurredAt != null) {
+            metadata.put("provider_occurred_at", providerOccurredAt.toString());
         }
 
         var flags = new UsProviderSourceFlags(
@@ -130,7 +142,7 @@ public class GeorgiaDrawResultsMapper {
             List.of(),
             quality,
             flags,
-            resolveOccurredAt(entry, query),
+            resolveSlotOccurredAt(query),
             query.includeRaw() ? entry : null
         );
     }
@@ -169,19 +181,24 @@ public class GeorgiaDrawResultsMapper {
         return parseIsoDate(entry.drawDate());
     }
 
-    private static Instant resolveOccurredAt(GeorgiaDrawEntry entry, UsLotteryProviderQuery query) {
-        if (entry.drawTime() != null) {
-            try {
-                return Instant.ofEpochMilli(entry.drawTime());
-            } catch (Exception ex) {
-                log.warn("Failed to resolve GA occurredAt from epoch: {}", ex.getLocalizedMessage(), ex);
-            }
-        }
-
+    private static Instant resolveSlotOccurredAt(UsLotteryProviderQuery query) {
         return query.drawDate()
             .atTime(query.drawTime())
             .atZone(query.timezone())
             .toInstant();
+    }
+
+    private static Instant resolveProviderOccurredAt(GeorgiaDrawEntry entry) {
+        if (entry.drawTime() == null) {
+            return null;
+        }
+
+        try {
+            return Instant.ofEpochMilli(entry.drawTime());
+        } catch (Exception ex) {
+            log.warn("Failed to resolve GA providerOccurredAt from epoch: {}", ex.getLocalizedMessage(), ex);
+            return null;
+        }
     }
 
     private static List<String> parseMainDigits(GeorgiaDrawResult result) {
@@ -196,13 +213,6 @@ public class GeorgiaDrawResultsMapper {
             .toList();
     }
 
-    /**
-     * Keep provider-native codes.
-     *
-     * GA source_cfg should use:
-     * - CASH3 for pick3
-     * - CASH4 for pick4
-     */
     private static String normalizeProviderGameCode(String raw) {
         return normalize(raw);
     }
@@ -215,13 +225,6 @@ public class GeorgiaDrawResultsMapper {
         };
     }
 
-    /**
-     * Compatibility bridge:
-     * - preferred wanted codes: CASH3/CASH4
-     * - accepted legacy aliases: PICK3/PICK4
-     *
-     * The mapper still returns provider-native CASH3/CASH4.
-     */
     private static Set<String> normalizeWantedCodes(Set<String> codes) {
         if (codes == null || codes.isEmpty()) {
             return Set.of();
@@ -269,9 +272,7 @@ public class GeorgiaDrawResultsMapper {
     }
 
     private static String normalize(String value) {
-        return value == null
-            ? ""
-            : value.trim().toUpperCase(Locale.ROOT).replaceAll("\\s+", "");
+        return ProviderSlotCodeMatcher.normalize(value);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

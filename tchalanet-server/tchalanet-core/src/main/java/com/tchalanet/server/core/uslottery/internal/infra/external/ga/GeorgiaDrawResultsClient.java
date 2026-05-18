@@ -2,9 +2,9 @@ package com.tchalanet.server.core.uslottery.internal.infra.external.ga;
 
 import com.tchalanet.server.common.crypto.Hashing;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderClient;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.ProviderQueryHash;
 import com.tchalanet.server.core.uslottery.internal.infra.cache.UsLotteryProviderRawCache;
 import com.tchalanet.server.core.uslottery.internal.infra.config.UsLotteryProperties;
@@ -25,7 +25,7 @@ import org.springframework.web.client.RestClient;
     matchIfMissing = true)
 public class GeorgiaDrawResultsClient implements UsLotteryProviderClient {
 
-    private static final String SHAPE = "GA/latest/v2";
+    private static final String SHAPE = "GA/latest/v3";
 
     private final RestClient rest;
     private final UsLotteryProperties props;
@@ -86,7 +86,7 @@ public class GeorgiaDrawResultsClient implements UsLotteryProviderClient {
             query.drawDate(),
             query.drawTime(),
             query.externalGameCodes().stream().sorted().toList(),
-            SHAPE + "|" + url);
+            SHAPE + "|" + url + "|providerSlotCode=" + StringUtils.defaultString(query.providerSlotCode()));
     }
 
     private String performFetch(String url) {

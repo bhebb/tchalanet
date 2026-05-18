@@ -10,11 +10,13 @@ public class ResultSlotSourceConfigResolver {
 
     public ResultSlotSourceConfig resolve(JsonNode sourceCfg) {
         if (sourceCfg == null || sourceCfg.isNull() || !sourceCfg.isObject()) {
-            return new ResultSlotSourceConfig(null, null);
+            return ResultSlotSourceConfig.empty();
         }
 
         return new ResultSlotSourceConfig(
+            ResultSlotSourceConfig.providerSlotCodeFrom(sourceCfg),
             ResultSlotSourceConfig.SourceGame.from(sourceCfg.get("pick3")),
-            ResultSlotSourceConfig.SourceGame.from(sourceCfg.get("pick4")));
+            ResultSlotSourceConfig.SourceGame.from(sourceCfg.get("pick4"))
+        );
     }
 }

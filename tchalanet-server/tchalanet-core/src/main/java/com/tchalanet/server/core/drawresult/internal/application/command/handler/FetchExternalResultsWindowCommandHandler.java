@@ -3,6 +3,8 @@ package com.tchalanet.server.core.drawresult.internal.application.command.handle
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.tx.AfterCommit;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.notification.DrawResultFetchNotificationPort;
 import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -21,6 +23,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,6 +41,7 @@ public class FetchExternalResultsWindowCommandHandler
     private final Clock clock;
     private final ExternalResultFetcher externalResultFetcher;
     private final ResultSlotSourceConfigResolver resultSlotSourceConfigResolver;
+    private final DrawResultFetchNotificationPort drawResultFetchNotificationPort;
 
     @Override
     @TchTx
@@ -135,6 +139,8 @@ public class FetchExternalResultsWindowCommandHandler
             } else {
                 counters.skipped++;
             }
+            AfterCommit.run(()-> drawResultFetchNotificationPort.notifyFetched(
+                buildDrawResultNotification(slot, date, occurredAt, external, payload)));
 
         } catch (Exception e) {
             counters.errors++;
@@ -145,6 +151,39 @@ public class FetchExternalResultsWindowCommandHandler
                 e.getMessage(),
                 e);
         }
+    }
+
+    private DrawResultFetchNotificationPort.DrawResultFetchNotification buildDrawResultNotification(
+        ResultSlotView slot,
+        LocalDate date,
+        Instant occurredAt,
+        ResolvedExternalResults external,
+        DrawResultPersistPayload payload) {
+
+        var gameCodes = new ArrayList<String>(2);
+        if (external.hasPick3() && external.pick3().gameCode() != null && !external.pick3().gameCode().isBlank()) {
+            gameCodes.add(external.pick3().gameCode());
+        }
+        if (external.hasPick4() && external.pick4().gameCode() != null && !external.pick4().gameCode().isBlank()) {
+            gameCodes.add(external.pick4().gameCode());
+        }
+
+        var metadata = new LinkedHashMap<String, String>();
+        metadata.put("sourceResult", payload.sourceResult() == null ? "" : payload.sourceResult().toString());
+        metadata.put("haitiProjection", payload.haitiResult() == null ? "" : payload.haitiResult().toString());
+        metadata.put("flags", payload.flags() == null ? "" : payload.flags().toString());
+        metadata.put("sourceHash", payload.sourceHash() == null ? "" : payload.sourceHash());
+
+        return new DrawResultFetchNotificationPort.DrawResultFetchNotification(
+            slot.provider(),
+            slot.slotKey(),
+            date,
+            occurredAt,
+            DrawResultStatus.PROVISIONAL.name(),
+            payload.quality(),
+            gameCodes.size(),
+            List.copyOf(gameCodes),
+            metadata);
     }
 
     private List<ResultSlotView> resolveSlots(

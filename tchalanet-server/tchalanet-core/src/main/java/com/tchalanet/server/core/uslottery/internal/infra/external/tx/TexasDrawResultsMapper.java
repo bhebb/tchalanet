@@ -6,10 +6,11 @@ import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.core.uslottery.internal.application.model.UsLotteryProvider;
-import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderQuery;
+import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResponse;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsLotteryProviderResult;
 import com.tchalanet.server.core.uslottery.internal.application.port.out.UsProviderSourceFlags;
+import com.tchalanet.server.core.uslottery.internal.infra.external.ProviderSlotCodeMatcher;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,6 +58,7 @@ public class TexasDrawResultsMapper {
                 .flatMap(Optional::stream)
                 .filter(raw -> query.drawDate().equals(raw.drawDate()))
                 .filter(raw -> wantedCodes.isEmpty() || wantedCodes.contains(raw.game().gameCode))
+                .filter(raw -> ProviderSlotCodeMatcher.matches(raw.slot().name(), query.providerSlotCode()))
                 .map(raw -> toProviderResult(raw, sourceHash, url, query))
                 .flatMap(Optional::stream)
                 .toList();
@@ -130,12 +133,12 @@ public class TexasDrawResultsMapper {
         var expectedSize = raw.game().expectedSize;
         var quality = raw.main().size() == expectedSize ? ResultQuality.COMPLETE : ResultQuality.SUSPECT;
 
-        var metadata =
-            new java.util.LinkedHashMap<String, String>();
+        var metadata = new LinkedHashMap<String, String>();
         metadata.put("provider", PROVIDER.name());
         metadata.put("game_code", raw.game().gameCode);
         metadata.put("draw_date", String.valueOf(raw.drawDate()));
-        metadata.put("provider_slot", raw.slot().name());
+        metadata.put("provider_slot_code", raw.slot().name());
+        metadata.put("expected_provider_slot_code", ProviderSlotCodeMatcher.normalize(query.providerSlotCode()));
         metadata.put("link", clean(raw.link()));
 
         if (raw.publishedAt() != null) {
@@ -151,8 +154,6 @@ public class TexasDrawResultsMapper {
 
         var extras = StringUtils.isBlank(raw.fireball()) ? List.<String>of() : List.of(raw.fireball().trim());
 
-        var occurredAt = resolveOccurredAt(raw, query);
-
         return Optional.of(
             new UsLotteryProviderResult(
                 raw.game().gameCode,
@@ -160,13 +161,11 @@ public class TexasDrawResultsMapper {
                 extras,
                 quality,
                 flags,
-                occurredAt,
+                resolveOccurredAt(raw, query),
                 query.includeRaw() ? raw : null));
     }
 
     private static Instant resolveOccurredAt(TxRawDraw raw, UsLotteryProviderQuery query) {
-        // Le slot métier reste source de vérité. Ici on retourne l'instant TX provider si utile.
-        // Si drawresult préfère OccurredAtResolver(date + slot.drawTime + slot.timezone), il peut ignorer ce champ.
         return raw.drawDate().atTime(raw.slot().drawTime).atZone(query.timezone()).toInstant();
     }
 

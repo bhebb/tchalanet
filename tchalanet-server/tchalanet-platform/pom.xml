@@ -69,10 +69,6 @@
       <artifactId>spring-batch-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-rest-core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.modulith</groupId>
       <artifactId>spring-modulith-api</artifactId>
       <version>${spring-modulith.version}</version>

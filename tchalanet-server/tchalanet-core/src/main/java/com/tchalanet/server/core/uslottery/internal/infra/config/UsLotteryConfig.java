@@ -33,7 +33,6 @@ public class UsLotteryConfig {
         matchIfMissing = true)
     public RestClient nyLotteryRestClient(RestClient.Builder builder, UsLotteryProperties props) {
         return getRestClient(builder, props, NEW_YORK_PROVIDER_KEY);
-
     }
 
     @Bean
