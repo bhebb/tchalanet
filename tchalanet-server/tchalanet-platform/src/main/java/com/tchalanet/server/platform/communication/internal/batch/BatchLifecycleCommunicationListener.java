@@ -2,6 +2,7 @@ package com.tchalanet.server.platform.communication.internal.batch;
 
 import com.tchalanet.server.common.job.lifecycle.JobLifecycleEvent;
 import com.tchalanet.server.common.job.lifecycle.JobLifecycleStatus;
+import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.platform.communication.api.CommunicationApi;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
@@ -25,6 +26,7 @@ public class BatchLifecycleCommunicationListener {
 
   private final CommunicationApi communicationApi;
   private final BatchCommunicationPolicy policy;
+  private final JobContextBinder jobContextBinder;
 
   @EventListener
   public void on(JobLifecycleEvent event) {
@@ -38,6 +40,7 @@ public class BatchLifecycleCommunicationListener {
     }
 
     try {
+      bindContext(event);
       communicationApi.enqueue(toRequest(event));
     } catch (Exception e) {
       log.warn(
@@ -46,7 +49,17 @@ public class BatchLifecycleCommunicationListener {
           event.status(),
           event.code(),
           e);
+    } finally {
+      jobContextBinder.clear();
     }
+  }
+
+  private void bindContext(JobLifecycleEvent event) {
+    if (event.tenantId() != null) {
+      jobContextBinder.bindTenant(event.tenantId(), "batch-lifecycle-communication-listener");
+      return;
+    }
+    jobContextBinder.bindPlatform("batch-lifecycle-communication-listener");
   }
 
   private SendOutboundMessageRequest toRequest(JobLifecycleEvent event) {

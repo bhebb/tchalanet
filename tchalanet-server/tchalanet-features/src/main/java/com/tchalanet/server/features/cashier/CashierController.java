@@ -33,7 +33,7 @@ public class CashierController {
   @Operation(summary = "Sell a ticket and return a printable receipt artifact")
   @PostMapping("/sell")
   @ResponseStatus(HttpStatus.CREATED)
-  @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+  @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
   public ApiResponse<CashierSellPrintResponse> sellAndPrint(
       @Valid @RequestBody CashierSellPrintRequest request) {
     return ApiResponse.created(service.sellAndPrint(request));
@@ -42,7 +42,7 @@ public class CashierController {
   @Operation(summary = "Send a ticket receipt through an external communication channel")
   @PostMapping("/tickets/{ticketId}/send")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+  @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
   public ApiResponse<CashierSendReceiptResponse> sendReceipt(
       @PathVariable TicketId ticketId,
       @Valid @RequestBody CashierSendReceiptRequest request) {

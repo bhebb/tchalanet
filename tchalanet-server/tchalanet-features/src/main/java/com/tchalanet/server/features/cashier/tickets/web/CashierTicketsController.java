@@ -7,8 +7,8 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
-import com.tchalanet.server.features.cashier.tickets.app.CashierTicketPageService;
-import com.tchalanet.server.features.cashier.tickets.app.CashierTicketPrintService;
+import com.tchalanet.server.features.cashier.tickets.app.CashierTicketsPageService;
+import com.tchalanet.server.features.cashier.tickets.app.CashierTicketsPrintService;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketDetailsResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPageResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPrintResponse;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Cashier • Tickets")
 public class CashierTicketsController {
 
-    private final CashierTicketPageService pageService;
-    private final CashierTicketPrintService printService;
+    private final CashierTicketsPageService pageService;
+    private final CashierTicketsPrintService printService;
 
     @GetMapping
     @PreAuthorize("hasPermission('cashier.ticket.list')")

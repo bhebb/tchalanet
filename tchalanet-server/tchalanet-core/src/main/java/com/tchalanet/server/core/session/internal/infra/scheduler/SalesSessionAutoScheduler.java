@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SalesSessionAutoScheduler {
 
-    private static final JobKey SALES_SESSION_AUTO = JobKey.of("sales-session:auto");
+    private static final JobKey SALES_SESSION_AUTO = JobKey.of("session:autosales:enabled");
 
     private final CommandBus commandBus;
     private final SalesSessionAutoProperties salesSessionAutoProperties;

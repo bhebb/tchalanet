@@ -18,9 +18,10 @@ import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 @ConditionalOnProperty(
@@ -75,7 +76,7 @@ public class RedisCacheRuntimeConfig {
                     new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(
-                    new GenericJackson2JsonRedisSerializer()));
+                    new GenericJacksonJsonRedisSerializer(JsonMapper.builder().build())));
 
     Map<String, RedisCacheConfiguration> perCacheCfg = new HashMap<>();
     if (specProviders != null) {

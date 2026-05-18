@@ -69,12 +69,10 @@ CREATE UNIQUE INDEX uq_terminal__auto_session_eligible
     AND auto_session_enabled = true
     AND state = 'ACTIVE'
     AND deleted_at IS NULL;
-CREATE INDEX ix_sales_session__tenant_user_status
-  ON sales_session (tenant_id, user_id, status) WHERE deleted_at IS NULL;
 CREATE INDEX ix_sales_session__tenant_outlet_status
   ON sales_session (tenant_id, outlet_id, status) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX uq_sales_session__one_open_per_user
-  ON sales_session (tenant_id, user_id)
+  ON sales_session (tenant_id, opened_by)
   WHERE status = 'OPEN' AND deleted_at IS NULL;
 CREATE UNIQUE INDEX ux_sales_session__user_business_day
   ON sales_session (tenant_id, outlet_id, opened_by, business_date)

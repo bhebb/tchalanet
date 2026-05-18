@@ -18,14 +18,14 @@ import java.util.UUID;
 @Table(
     name = "page_model",
     uniqueConstraints = {
-      @jakarta.persistence.UniqueConstraint(columnNames = {"tenant_id", "value"})
+      @jakarta.persistence.UniqueConstraint(columnNames = {"tenant_id", "code"})
     })
 @Getter
 @Setter
 @Audited
 public class PageModelJpaEntity extends BaseTenantEntity {
 
-  @Column(name = "value", nullable = false, length = 128)
+  @Column(name = "code", nullable = false, length = 128)
   private String code;
 
   @Column(name = "logical_id")

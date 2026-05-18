@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
-@Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+@Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
 @Tag(name = "Sales • Ticket Queries", description = "Read endpoints for ticket listing and details")
 public class TicketQueryController {
 

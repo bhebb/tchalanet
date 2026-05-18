@@ -52,7 +52,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PostMapping("/{ticketId}/approve")
-    @Secured({"ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+    @Secured({"ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
     @AuditLog(
         action = AuditAction.STATE_CHANGE,
         entity = AuditEntityType.TICKET,
@@ -81,7 +81,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PostMapping("/{ticketId}/reject")
-    @Secured({"ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+    @Secured({"ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
     @AuditLog(
         action = AuditAction.STATE_CHANGE,
         entity = AuditEntityType.TICKET,
@@ -110,7 +110,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PatchMapping("/{ticketId}/cancel")
-    @Secured({"ROLE_CASHIER", "ROLE_ADMIN", "ROLE_SUPER_ADMIN"})
+    @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
     @AuditLog(
         action = AuditAction.CANCEL_TICKET,
         entity = AuditEntityType.TICKET,

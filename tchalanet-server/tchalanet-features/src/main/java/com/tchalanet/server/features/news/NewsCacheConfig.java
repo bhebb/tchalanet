@@ -16,14 +16,15 @@ public class NewsCacheConfig implements CacheSpecProvider {
     private final NewsConfigProperties newsConfigProperties;
     private final CacheKeyBuilder cacheKeyBuilder;
 
+    private static final long DEFAULT_TTL_HOURS = 1L;
+
     @Override
     public List<CacheSpec> cacheSpecs() {
+        long hours = newsConfigProperties.ttl() != null
+            ? newsConfigProperties.ttl().hours()
+            : DEFAULT_TTL_HOURS;
         return List.of(
-            CacheSpec.of(
-                cacheKeyBuilder.newsExternalKey(),
-                Duration.ofHours(newsConfigProperties.ttl().hours())),
-            CacheSpec.of(
-                cacheKeyBuilder.newsInternalKey(),
-                Duration.ofHours(newsConfigProperties.ttl().hours())));
+            CacheSpec.of(cacheKeyBuilder.newsExternalKey(), Duration.ofHours(hours)),
+            CacheSpec.of(cacheKeyBuilder.newsInternalKey(), Duration.ofHours(hours)));
     }
 }

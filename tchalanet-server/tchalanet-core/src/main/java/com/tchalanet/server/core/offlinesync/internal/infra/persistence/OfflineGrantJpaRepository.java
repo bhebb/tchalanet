@@ -6,10 +6,4 @@ import java.util.UUID;
 
 public interface OfflineGrantJpaRepository extends JpaRepository<OfflineGrantJpaEntity, UUID> {
 
-    boolean existsByTenantIdAndSellerUserIdAndTerminalIdAndSalesSessionIdAndStatus(
-        UUID tenantId,
-        UUID sellerUserId,
-        UUID terminalId,
-        UUID salesSessionId,
-        String status);
 }

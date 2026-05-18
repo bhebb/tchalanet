@@ -103,7 +103,7 @@ public class SecurityConfig {
                     oauth.jwt(
                         jwt -> jwt.decoder(jwtDecoder).jwtAuthenticationConverter(this::convert)))
             .addFilterAfter(userBootstrapFilter, BearerTokenAuthenticationFilter.class)
-            .addFilterAfter(tchContextFilter, IdentityBootstrapFilter.class);
+            .addFilterAfter(tchContextFilter, userBootstrapFilter.getClass());
 
         return http.build();
     }

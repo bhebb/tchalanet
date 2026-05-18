@@ -1,5 +1,10 @@
 # Design — PageModel Dynamic Provider Query Handlers
 
+## Query reuse note
+
+`ListNextDrawsQuery` (slot-driven, `core.draw`) is reusable for `CashierNextDrawsProvider` by passing `resultSlotId=null, lookaheadHours=48`.
+The provider maps `DrawSummary` → `CashierNextDrawView` (no internal IDs) before returning the widget payload.
+
 ## Existing mechanism
 
 Keep the existing `PageModelDynamicResolver` and `PageModelDynamicProvider` contract.
@@ -54,7 +59,7 @@ Queries live in the source-of-truth bounded context:
 | Widget/provider type                     | Query owner                                                        |
 | ---------------------------------------- | ------------------------------------------------------------------ |
 | Cashier tickets, sales totals, approvals | `core.sales`                                                       |
-| Cashier session                          | `core.possession` or current session owning domain                 |
+| Cashier session                          | `core.session`                                                     |
 | Next draws / vendable draws              | `core.draw`                                                        |
 | Public results by slot                   | `core.drawresult` with `core.draw` read projection if needed       |
 | Public news                              | `features.news` or `catalog.news` depending current implementation |

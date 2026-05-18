@@ -159,22 +159,6 @@ CREATE POLICY sales_session_rls_select ON sales_session
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
-ALTER TABLE sales_session_totals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sales_session_totals FORCE ROW LEVEL SECURITY;
-CREATE POLICY sales_session_totals_rls_all ON sales_session_totals
-  FOR ALL
-  USING (
-    public.current_tenant() IS NOT NULL
-    AND tenant_id = public.current_tenant()
-    AND (public.deleted_visibility() = 'all'
-      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
-      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
-  )
-  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
-CREATE POLICY sales_session_totals_rls_select ON sales_session_totals
-  FOR SELECT
-  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
-
 ALTER TABLE pricing_odds ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pricing_odds FORCE ROW LEVEL SECURITY;
 CREATE POLICY pricing_odds_rls_all ON pricing_odds

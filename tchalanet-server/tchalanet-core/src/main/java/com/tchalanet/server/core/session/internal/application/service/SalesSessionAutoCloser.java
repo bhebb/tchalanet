@@ -25,7 +25,6 @@ public class SalesSessionAutoCloser {
     private final SalesSessionWriterPort sessionWriter;
     private final DomainEventPublisher events;
     private final IdGenerator idGenerator;
-    private final QueryBus queryBus;
 
     public int closeTargets(List<AutoSessionCloseTarget> targets, Instant fallbackClosedAt) {
         int closedCount = 0;

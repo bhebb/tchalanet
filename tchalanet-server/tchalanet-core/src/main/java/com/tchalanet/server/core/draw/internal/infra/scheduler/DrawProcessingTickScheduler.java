@@ -39,7 +39,7 @@ public class DrawProcessingTickScheduler {
 
     private static final boolean DEFAULT_DRY_RUN = false;
     private static final boolean DEFAULT_FORCE = false;
-    private static final JobKey DRAW_PROCESSING = JobKey.of("draw:processing");
+    private static final JobKey DRAW_PROCESSING = JobKey.of("draw:processing:enabled");
     private static final JobKey DRAW_CLOSE = JobKey.of("draw:lifecycle:close");
     private static final JobKey DRAW_SETTLE = JobKey.of("draw:lifecycle:settle");
     private static final JobKey RESULTS_EXTERNAL_FETCH = JobKey.of("results:external:fetch");

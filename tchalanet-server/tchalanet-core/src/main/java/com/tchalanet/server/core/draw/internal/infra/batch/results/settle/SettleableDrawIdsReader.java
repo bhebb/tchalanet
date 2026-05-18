@@ -2,11 +2,9 @@ package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.job.params.JobParamKeys;
 import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.FindSettleableDrawIdsPort.SettleableDrawCriteria;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.core.job.parameters.JobParameters;
 import org.springframework.batch.infrastructure.item.support.IteratorItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,26 +17,27 @@ import java.util.List;
 @StepScope
 public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
 
-    private static final String SOURCE = "source";
-    private static final String PROVIDER = "provider";
-    private static final String CHANNEL_CODE = "channel_code";
-    private static final String DAYS_BACK = "days_back";
-    private static final String MAX_DRAWS = "max_draws";
 
     public SettleableDrawIdsReader(
         FindSettleableDrawIdsPort port,
         Clock clock,
-        @Value("#{jobParameters}") JobParameters jobParameters
+        @Value("#{jobParameters['tenant_id']}") String tenantId,
+        @Value("#{jobParameters['days_back']}") Long daysBack,
+        @Value("#{jobParameters['max_draws']}") Long maxDraws,
+        @Value("#{jobParameters['force']}") String force
     ) {
-        super(fetch(port, clock, jobParameters));
+        super(fetch(port, clock, tenantId, daysBack, maxDraws, force));
     }
 
     private static List<DrawId> fetch(
         FindSettleableDrawIdsPort port,
         Clock clock,
-        JobParameters jobParameters
+        String tenantId,
+        Long daysBack,
+        Long maxDraws,
+        String force
     ) {
-        var ctx = JobCtx.from(jobParameters, clock);
+        var ctx = JobCtx.from(clock, tenantId, daysBack, maxDraws, force);
 
         var criteria = new SettleableDrawCriteria(
             ctx.tenantId,
@@ -53,43 +52,34 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
 
     private record JobCtx(
         TenantId tenantId,
-        String source,
-        String provider,
-        String channelCode,
         Instant from,
         Instant to,
         Long maxDraws,
         boolean force
     ) {
-        static JobCtx from(JobParameters jp, Clock clock) {
-            var tenantIdStr = trimToNull(jp.getString(JobParamKeys.TENANT_ID));
+        static JobCtx from(
+            Clock clock,
+            String tenantIdRaw,
+            Long daysBack,
+            Long maxDraws,
+            String forceRaw
+        ) {
+            var tenantIdStr = trimToNull(tenantIdRaw);
             if (tenantIdStr == null) {
                 throw new IllegalArgumentException("tenant_id is required (job parameter)");
             }
             var tenantId = TenantId.parse(tenantIdStr);
 
-            // optional, but avoid null surprises
-            var source = defaultStr(trimToNull(jp.getString(SOURCE)), "batch");
-
-            // provider is expected for this settle pipeline
-            var provider = trimToNull(jp.getString(PROVIDER));
-            if (provider == null) {
-                throw new IllegalArgumentException("provider is required (job parameter)");
-            }
-
-            var channelCode = trimToNull(jp.getString(CHANNEL_CODE));
-
-            var daysBack = jp.getLong(DAYS_BACK);
             if (daysBack != null && daysBack < 0) {
                 throw new IllegalArgumentException("days_back must be >= 0");
             }
 
-            var maxDraws = jp.getLong(MAX_DRAWS);
             if (maxDraws != null && maxDraws <= 0) {
                 throw new IllegalArgumentException("max_draws must be > 0");
             }
 
-            boolean force = "true".equalsIgnoreCase(defaultStr(trimToNull(jp.getString("force")), "false"));
+            var forceValue = trimToNull(forceRaw);
+            boolean force = "true".equalsIgnoreCase(forceValue != null ? forceValue : "false");
 
             var now = Instant.now(clock);
             long backDays = (daysBack != null ? daysBack : 6L);
@@ -97,7 +87,7 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
             var from = now.minusSeconds(backDays * 86_400L);
             var to = now;
 
-            return new JobCtx(tenantId, source, provider, channelCode, from, to, maxDraws, force);
+            return new JobCtx(tenantId, from, to, maxDraws, force);
         }
 
         private static String trimToNull(String value) {
@@ -106,8 +96,5 @@ public class SettleableDrawIdsReader extends IteratorItemReader<DrawId> {
             return trimmed.isEmpty() ? null : trimmed;
         }
 
-        private static String defaultStr(String value, String def) {
-            return (value == null) ? def : value;
-        }
     }
 }

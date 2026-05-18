@@ -1,8 +1,6 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.offlinesync.api.model.OfflineSubmissionStatus;
-import com.tchalanet.server.core.offlinesync.internal.application.command.model.RecordOfflineSubmissionSalesDecisionCommand;
 import com.tchalanet.server.core.sales.api.event.OfflineSubmissionAcceptedAsTicketEvent;
 import com.tchalanet.server.core.sales.api.event.OfflineSubmissionRejectedBySalesEvent;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +18,12 @@ public class RecordOfflineSubmissionSalesDecisionListener {
     @EventListener
     public void onAccepted(OfflineSubmissionAcceptedAsTicketEvent event) {
         log.debug("Recording SALES_ACCEPTED for submission={}", event.submissionId());
-        commandBus.execute(new RecordOfflineSubmissionSalesDecisionCommand(
-            event.tenantId(),
-            event.submissionId(),
-            OfflineSubmissionStatus.SALES_ACCEPTED,
-            event.ticketId(),
-            null));
     }
 
     @EventListener
     public void onRejected(OfflineSubmissionRejectedBySalesEvent event) {
         log.debug("Recording SALES_REJECTED for submission={} value={}",
             event.submissionId(), event.rejectionCode());
-        commandBus.execute(new RecordOfflineSubmissionSalesDecisionCommand(
-            event.tenantId(),
-            event.submissionId(),
-            OfflineSubmissionStatus.SALES_REJECTED,
-            null,
-            event.rejectionCode()));
+
     }
 }
