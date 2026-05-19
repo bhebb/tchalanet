@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.api.model.view;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -22,7 +22,7 @@ public record TicketDetailsView(
     OutletId outletId,
     TerminalId terminalId,
     UserId soldBy,
-    OfflineSaleSubmissionId offlineSubmissionId,
+    OfflineSubmissionId offlineSubmissionId,
     long totalAmountCents,
     String currency,
     Instant placedAt,

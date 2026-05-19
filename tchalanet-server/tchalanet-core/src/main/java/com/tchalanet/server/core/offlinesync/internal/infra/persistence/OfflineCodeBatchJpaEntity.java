@@ -17,6 +17,9 @@ import org.hibernate.envers.Audited;
 @Table(name = "offline_code_batch")
 public class OfflineCodeBatchJpaEntity extends BaseTenantEntity {
 
+    @Column(name = "grant_id", nullable = false)
+    private UUID grantId;
+
     @Column(name = "terminal_id", nullable = false)
     private UUID terminalId;
 

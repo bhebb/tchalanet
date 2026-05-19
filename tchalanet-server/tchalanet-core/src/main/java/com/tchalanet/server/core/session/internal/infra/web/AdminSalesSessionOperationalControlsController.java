@@ -25,7 +25,6 @@ public class AdminSalesSessionOperationalControlsController {
     private final CommandBus commandBus;
 
     @PatchMapping("/finalize")
-    @PreAuthorize("hasPermission(#sessionId, 'SALES_SESSION_FINALIZE')")
     public ApiResponse<Void> finalizeSession(
         @CurrentContext TchRequestContext ctx,
         @PathVariable SalesSessionId sessionId,

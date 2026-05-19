@@ -10,7 +10,6 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.sales.api.query.GetTicketDetailsQuery;
-import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
 import com.tchalanet.server.core.sales.internal.infra.web.mapper.TicketWebMapper;
 import com.tchalanet.server.core.sales.internal.infra.web.model.TicketResponse;
 import com.tchalanet.server.core.sales.internal.infra.web.model.TicketSummaryResponse;
@@ -19,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/tickets")
 @RequiredArgsConstructor
-@Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Sales • Ticket Queries", description = "Read endpoints for ticket listing and details")
 public class TicketQueryController {
 

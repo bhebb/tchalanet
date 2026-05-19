@@ -1,24 +1,28 @@
 package com.tchalanet.server.core.drawresult.internal.application.command.handler;
 
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.core.drawresult.internal.application.port.out.notification.DrawResultFetchNotificationPort;
-import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
 import com.tchalanet.server.common.time.OccurredAtResolver;
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowCommand;
 import com.tchalanet.server.core.drawresult.api.command.FetchExternalResultsWindowResult;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultWriterPort;
-import com.tchalanet.server.core.drawresult.internal.application.service.*;
+import com.tchalanet.server.core.drawresult.internal.application.port.out.notification.DrawResultFetchNotificationPort;
+import com.tchalanet.server.core.drawresult.internal.application.service.DrawResultPersistPayload;
+import com.tchalanet.server.core.drawresult.internal.application.service.DrawResultPersistenceAssembler;
+import com.tchalanet.server.core.drawresult.internal.application.service.ExternalResultFetcher;
+import com.tchalanet.server.core.drawresult.internal.application.service.FetchCounters;
+import com.tchalanet.server.core.drawresult.internal.application.service.HaitiProjectionService;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResolvedExternalResults;
+import com.tchalanet.server.core.drawresult.internal.application.service.ResultSlotSourceConfigResolver;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -26,6 +30,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @UseCase
 @Slf4j
@@ -36,6 +42,7 @@ public class FetchExternalResultsWindowCommandHandler
     private final HaitiProjectionService haitiProjectionService;
     private final DrawResultPersistenceAssembler drawResultPersistenceAssembler;
     private final DrawResultWriterPort writer;
+    private final DrawResultReaderPort drawResultReaderPort;
     private final ResultSlotCatalog resultSlotCatalog;
     private final DrawResultsProperties props;
     private final Clock clock;
@@ -54,12 +61,41 @@ public class FetchExternalResultsWindowCommandHandler
         var now = Instant.now(clock);
         var counters = new FetchCounters();
 
+        var fetchedNotifications =
+            new ArrayList<DrawResultFetchNotificationPort.DrawResultFetchNotification>();
+
+        var failureNotifications =
+            new ArrayList<DrawResultFetchNotificationPort.DrawResultFetchFailure>();
+
         var slots = resolveSlots(cmd.slotKeys(), maxSlots, counters);
 
         for (var date : dates) {
             for (var slot : slots) {
-                fetchOne(cmd, slot, date, now, counters);
+                fetchOne(
+                    cmd,
+                    slot,
+                    date,
+                    now,
+                    counters,
+                    fetchedNotifications,
+                    failureNotifications);
             }
+        }
+
+        if (!fetchedNotifications.isEmpty()) {
+            var notifications = List.copyOf(fetchedNotifications);
+            AfterCommit.run(() -> drawResultFetchNotificationPort.notifyFetchedBatch(notifications));
+        }
+
+        if (!failureNotifications.isEmpty()) {
+            var notification =
+                new DrawResultFetchNotificationPort.DrawResultFetchFailureBatchNotification(
+                    cmd.baseDate(),
+                    daysBack,
+                    failureNotifications.size(),
+                    List.copyOf(failureNotifications));
+
+            AfterCommit.run(() -> drawResultFetchNotificationPort.notifyFetchFailedBatch(notification));
         }
 
         return counters.toResult();
@@ -70,13 +106,34 @@ public class FetchExternalResultsWindowCommandHandler
         ResultSlotView slot,
         LocalDate date,
         Instant now,
-        FetchCounters counters) {
+        FetchCounters counters,
+        List<DrawResultFetchNotificationPort.DrawResultFetchNotification> fetchedNotifications,
+        List<DrawResultFetchNotificationPort.DrawResultFetchFailure> failureNotifications) {
+
+        var expectedOccurredAt =
+            OccurredAtResolver.resolveOrNow(
+                null,
+                date,
+                slot.drawTime(),
+                slot.timezone(),
+                clock);
 
         try {
             var sourceCfg = resultSlotSourceConfigResolver.resolve(slot.sourceCfg());
 
             if (!sourceCfg.hasAnyActiveGame()) {
                 counters.skipped++;
+                return;
+            }
+
+            if (!cmd.force()
+                && drawResultReaderPort.existsUsableExternalResult(slot.id(), expectedOccurredAt)) {
+                counters.alreadyFetched++;
+                log.debug(
+                    "draw-results.fetch.skip already_usable slot={} date={} occurredAt={}",
+                    slot.slotKey(),
+                    date,
+                    expectedOccurredAt);
                 return;
             }
 
@@ -92,21 +149,13 @@ public class FetchExternalResultsWindowCommandHandler
                 return;
             }
 
-            var occurredAt =
-                OccurredAtResolver.resolveOrNow(
-                    external.firstOccurredAt(),
-                    date,
-                    slot.drawTime(),
-                    slot.timezone(),
-                    clock);
-
             var projection = haitiProjectionService.project(slot, date, external);
 
             var payload =
                 drawResultPersistenceAssembler.assemble(
                     slot,
                     date,
-                    occurredAt,
+                    expectedOccurredAt,
                     external,
                     projection,
                     cmd.includeRaw());
@@ -114,7 +163,7 @@ public class FetchExternalResultsWindowCommandHandler
             var upsert =
                 writer.upsert(
                     slot.id(),
-                    occurredAt,
+                    expectedOccurredAt,
                     payload.sourceResult(),
                     payload.haitiResult(),
                     payload.rawPayload(),
@@ -126,24 +175,25 @@ public class FetchExternalResultsWindowCommandHandler
                     cmd.reason(),
                     cmd.force());
 
-            if (upsert == null || upsert.id() == null) {
-                counters.skipped++;
-            } else if (upsert.created()) {
-                counters.inserted++;
-            } else if (upsert.updated()) {
-                counters.updated++;
-            } else if (upsert.skippedConfirmed()) {
-                counters.skippedConfirmed++;
-            } else if (upsert.skippedOverridden()) {
-                counters.skippedOverridden++;
-            } else {
-                counters.skipped++;
+            var changed = applyUpsertCounters(upsert, counters);
+
+            if (changed) {
+                fetchedNotifications.add(
+                    buildDrawResultNotification(slot, date, expectedOccurredAt, external, payload));
             }
-            AfterCommit.run(()-> drawResultFetchNotificationPort.notifyFetched(
-                buildDrawResultNotification(slot, date, occurredAt, external, payload)));
 
         } catch (Exception e) {
             counters.errors++;
+
+            failureNotifications.add(
+                new DrawResultFetchNotificationPort.DrawResultFetchFailure(
+                    slot.provider(),
+                    slot.slotKey(),
+                    date,
+                    expectedOccurredAt,
+                    e.getClass().getSimpleName(),
+                    e.getMessage()));
+
             log.warn(
                 "draw-results.fetch failed slot={} date={} err={}",
                 slot.slotKey(),
@@ -151,6 +201,41 @@ public class FetchExternalResultsWindowCommandHandler
                 e.getMessage(),
                 e);
         }
+    }
+
+    private boolean applyUpsertCounters(DrawResultWriterPort.UpsertResult upsertResult, FetchCounters counters) {
+        if (upsertResult == null) {
+            counters.skipped++;
+            return false;
+        }
+
+        if (upsertResult.id() == null) {
+            counters.skipped++;
+            return false;
+        }
+
+        if (upsertResult.created()) {
+            counters.inserted++;
+            return true;
+        }
+
+        if (upsertResult.updated()) {
+            counters.updated++;
+            return true;
+        }
+
+        if (upsertResult.skippedConfirmed()) {
+            counters.skippedConfirmed++;
+            return false;
+        }
+
+        if (upsertResult.skippedOverridden()) {
+            counters.skippedOverridden++;
+            return false;
+        }
+
+        counters.skipped++;
+        return false;
     }
 
     private DrawResultFetchNotificationPort.DrawResultFetchNotification buildDrawResultNotification(
@@ -161,10 +246,16 @@ public class FetchExternalResultsWindowCommandHandler
         DrawResultPersistPayload payload) {
 
         var gameCodes = new ArrayList<String>(2);
-        if (external.hasPick3() && external.pick3().gameCode() != null && !external.pick3().gameCode().isBlank()) {
+
+        if (external.hasPick3()
+            && external.pick3().gameCode() != null
+            && !external.pick3().gameCode().isBlank()) {
             gameCodes.add(external.pick3().gameCode());
         }
-        if (external.hasPick4() && external.pick4().gameCode() != null && !external.pick4().gameCode().isBlank()) {
+
+        if (external.hasPick4()
+            && external.pick4().gameCode() != null
+            && !external.pick4().gameCode().isBlank()) {
             gameCodes.add(external.pick4().gameCode());
         }
 
@@ -189,32 +280,37 @@ public class FetchExternalResultsWindowCommandHandler
     private List<ResultSlotView> resolveSlots(
         List<String> rawSlotKeys,
         int maxSlots,
-        FetchCounters counters
-    ) {
+        FetchCounters counters) {
+
         var out = new ArrayList<ResultSlotView>();
 
-        for (var key : rawSlotKeys.stream()
-            .map(FetchExternalResultsWindowCommandHandler::normalizeKey)
-            .filter(normalizedKey -> !normalizedKey.isBlank())
-            .distinct()
-            .limit(maxSlots)
-            .toList()) {
+        for (var key :
+            rawSlotKeys.stream()
+                .map(FetchExternalResultsWindowCommandHandler::normalizeKey)
+                .filter(normalizedKey -> !normalizedKey.isBlank())
+                .distinct()
+                .limit(maxSlots)
+                .toList()) {
+
             var slotOpt = resultSlotCatalog.findByKey(key);
+
             if (slotOpt.isEmpty()) {
                 counters.slotNotFound++;
                 continue;
             }
+
             var slot = slotOpt.get();
+
             if (!slot.active()) {
                 counters.slotInactive++;
                 continue;
             }
+
             out.add(slot);
         }
 
         return out;
     }
-
 
     private int clampDaysBack(int requestedDays) {
         int clamped = Math.max(0, requestedDays);
@@ -237,6 +333,4 @@ public class FetchExternalResultsWindowCommandHandler
     private static String normalizeKey(String key) {
         return key == null ? "" : key.trim().toUpperCase(java.util.Locale.ROOT);
     }
-
 }
-

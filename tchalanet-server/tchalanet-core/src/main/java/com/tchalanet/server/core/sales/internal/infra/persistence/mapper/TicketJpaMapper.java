@@ -3,9 +3,9 @@ package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OfflineBatchId;
+import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
 import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
-import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
@@ -309,8 +309,7 @@ public interface TicketJpaMapper {
             return null;
         }
 
-        if (entity.getOfflineBatchId() == null
-            || entity.getOfflineCodeBatchId() == null
+        if (entity.getOfflineCodeBatchId() == null
             || entity.getOfflineCode() == null
             || entity.getOfflineClientSaleId() == null
             || entity.getOfflineLocalSequence() == null
@@ -320,8 +319,8 @@ public interface TicketJpaMapper {
         }
 
         return new OfflineSaleRef(
-            OfflineSaleSubmissionId.of(entity.getOfflineSubmissionId()),
-            OfflineBatchId.of(entity.getOfflineBatchId()),
+            OfflineSubmissionId.of(entity.getOfflineSubmissionId()),
+            null,
             OfflineCodeBatchId.of(entity.getOfflineCodeBatchId()),
             entity.getOfflineCode(),
             entity.getOfflineClientSaleId(),
@@ -498,7 +497,6 @@ public interface TicketJpaMapper {
     default void applyOfflineSaleRef(OfflineSaleRef ref, @MappingTarget TicketJpaEntity entity) {
         if (ref == null) {
             entity.setOfflineSubmissionId(null);
-            entity.setOfflineBatchId(null);
             entity.setOfflineCodeBatchId(null);
             entity.setOfflineCode(null);
             entity.setOfflineClientSaleId(null);
@@ -509,7 +507,6 @@ public interface TicketJpaMapper {
         }
 
         entity.setOfflineSubmissionId(ref.submissionId().value());
-        entity.setOfflineBatchId(ref.batchId().value());
         entity.setOfflineCodeBatchId(ref.codeBatchId().value());
         entity.setOfflineCode(ref.offlineCode());
         entity.setOfflineClientSaleId(ref.clientSaleId());

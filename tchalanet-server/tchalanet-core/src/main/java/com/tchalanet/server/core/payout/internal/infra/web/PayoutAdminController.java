@@ -35,7 +35,6 @@ public class PayoutAdminController {
     private final PayoutWebMapper mapper;
 
     @PostMapping("/{payoutId}/approve")
-    @PreAuthorize("hasPermission(null, 'PAYOUT_APPROVE')")
     public ApiResponse<PayoutWorkflowResponse> approve(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PayoutId payoutId) {
@@ -51,7 +50,6 @@ public class PayoutAdminController {
     }
 
     @PostMapping("/{payoutId}/reject")
-    @PreAuthorize("hasPermission(null, 'PAYOUT_REJECT')")
     public ApiResponse<PayoutWorkflowResponse> reject(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PayoutId payoutId,

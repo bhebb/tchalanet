@@ -11,6 +11,8 @@ public interface StatsDrawJpaRepository extends JpaRepository<StatsDrawEntity, U
 
   List<StatsDrawEntity> findByDrawId(UUID drawId);
 
+  boolean existsByDrawId(UUID drawId);
+
   List<StatsDrawEntity> findByTenantIdAndScheduledAtBetween(
       UUID tenantId, Instant from, Instant to);
 }

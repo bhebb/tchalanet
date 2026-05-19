@@ -333,4 +333,28 @@ public class DrawResultJdbcRepository {
         return List.copyOf(out);
     }
 
-}
+
+    public boolean existsUsableExternalResult(UUID resultSlotId, Instant occurredAt) {
+        var count = jdbc.queryForObject(
+            """
+                select count(1)
+                from draw_result dr
+                where dr.result_slot_id = ?
+                  and dr.occurred_at = ?
+                  and dr.deleted_at is null
+                  and dr.source = ?
+                  and dr.status in (?, ?, ?)
+                  and dr.quality = ?
+                """,
+            Long.class,
+            resultSlotId,
+            Timestamp.from(occurredAt),
+            DrawSource.EXTERNAL.name(),
+            DrawResultStatus.PROVISIONAL.name(),
+            DrawResultStatus.CONFIRMED.name(),
+            DrawResultStatus.OVERRIDDEN.name(),
+            ResultQuality.COMPLETE.name()
+        );
+
+        return count != null && count > 0;
+    }}

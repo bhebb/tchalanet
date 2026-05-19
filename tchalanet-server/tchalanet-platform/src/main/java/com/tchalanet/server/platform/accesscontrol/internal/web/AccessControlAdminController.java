@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 @Tag(name = "Admin • Access Control")
-@PreAuthorize("hasPermission('roles.manage')")
+@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 public class AccessControlAdminController {
 
   private final AccessControlApi accessControlApi;

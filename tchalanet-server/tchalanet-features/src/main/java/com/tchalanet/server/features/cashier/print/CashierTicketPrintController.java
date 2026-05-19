@@ -26,7 +26,6 @@ public class CashierTicketPrintController {
 
     @PostMapping("/{ticketId}/print")
     @Operation(summary = "Render a ticket for print or delivery")
-    @PreAuthorize("hasPermission(null, 'ticket.print')")
     @AuditLog(
         entity = AuditEntityType.TICKET,
         action = AuditAction.PRINT_TICKET,

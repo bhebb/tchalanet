@@ -295,3 +295,57 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 - `ApprovalRequestId.of(UUID.randomUUID())` non lié à un domaine d'approbation (TODO).
 - `findTicketPrintView` : la locale est fournie par le contexte appelant, avec fallback `Locale.FRENCH`.
 - Aucun scheduler `core.sales` (archivage/expiration non automatisé).
+
+---
+
+## 10. Intégration `core.offlinesync` — Promotion de ventes offline
+
+> Source : [`core/offlinesync/DOMAIN_OFFLINESYNC.md`](../offlinesync/DOMAIN_OFFLINESYNC.md) — voir aussi `openspec/changes/add-offlinesync-module/`.
+
+Quand un POS hors-réseau vend des tickets, `core.offlinesync` les valide techniquement (15 checks dont signature Ed25519, quota grant, lock code, hash canonique), puis publie un event self-contained vers `core.sales`.
+
+### Flow promotion
+
+```
+core.offlinesync                                                core.sales
+─────────────────                                              ─────────────
+OfflineSubmissionTechValidatedEvent (via outbox)
+  ├─ drawId (pinné device au moment de la vente)
+  ├─ OfflineSubmissionTicketDraft (seller, terminal, outlet, session,
+  │     device, soldAt, stake, lines[], payloadHash)
+  └─ promotionAttemptId
+                                                  → OfflineSubmissionPromotionEventListener
+                                                       ├─ idempotence (ProcessedEventPort "sales.offline-promotion")
+                                                       ├─ CreateTicketFromOfflineSubmissionCommand
+                                                       │     ├─ ticketReader.findByOfflineSubmissionId (fast-path duplicate)
+                                                       │     ├─ OfflineSubmissionToTicketMapper.toTicket
+                                                       │     │     ├─ GetDrawByIdQuery(draft.drawId)
+                                                       │     │     ├─ TicketCodes generation
+                                                       │     │     ├─ TicketLine[] depuis LineSnapshots
+                                                       │     │     └─ Ticket.place(POS_OFFLINE_SYNCED, requiresApproval=false)
+                                                       │     ├─ ticketWriter.save
+                                                       │     └─ DataIntegrityViolationException → DUPLICATE
+                                                       └─ publish OfflineSubmissionProcessedEvent
+                                                            (PROMOTED | BUSINESS_REJECTED | DUPLICATE)
+```
+
+### Composants sales touchés
+
+- **`OfflineSubmissionToTicketMapper`** (`internal/application/service/offline/`) — convertit `OfflineSubmissionTicketDraft → Ticket` via `QueryBus.ask(GetDrawByIdQuery)`.
+  - **Compromis v1** : `oddsSnapshot = 1`, `TicketMoneyBreakdown stake==total` (pas de fees offline), `Selection.displayLabel = selectionKey` brut.
+- **`CreateTicketFromOfflineSubmissionCommandHandler`** (`internal/application/command/handler/offline/`) — `@TchTx`, catch `DataIntegrityViolationException` → DUPLICATE, catch `NoSuchElementException|EntityNotFoundException` → `BUSINESS_REJECTED("sales.offline.draw_not_resolved")`.
+- **`OfflineSubmissionPromotionEventListener`** (`internal/infra/event/offline/`) — `@TransactionalEventListener(AFTER_COMMIT)`, idempotence via `ProcessedEventPort`, publie `OfflineSubmissionProcessedEvent` via `AfterCommit.run` (TODO sales-side outbox).
+- **`TicketSaleChannel.POS_OFFLINE_SYNCED`** — channel forbidden de pending approval (décision prise en amont par offlinesync).
+- **`OfflineSaleRef`** (`api/model/origin/`) — référence vers la submission offline + sync batch + device + code, attachée au ticket.
+- **DB** : `sales_ticket.offline_submission_id` (uuid, nullable) + unique partiel `(tenant_id, offline_submission_id) WHERE offline_submission_id IS NOT NULL`.
+
+### Invariants supplémentaires (offline)
+
+- Un ticket dont `origin.channel == POS_OFFLINE_SYNCED` doit avoir `offlineSaleRef != null` et `requiresApproval == false`.
+- Si `DataIntegrityViolationException` à la création : la submission a déjà été promue (idempotence DB) → outcome DUPLICATE, retourner le `ticketId` existant.
+- Si `GetDrawByIdQuery` 404 (draw archivé / id invalide) : BUSINESS_REJECTED `sales.offline.draw_not_resolved` — l'admin peut investigate via `/admin/offline/submissions/{id}`.
+
+### Risques connus (offline-side, cf. ROADMAP)
+
+- Le mapper ne valide pas encore `clientSoldAt ≤ draw.cutoffAt` (ROADMAP R4) — un ticket peut être créé pour une draw dont le cutoff est dépassé.
+- `OfflineSubmissionProcessedEvent` publié via `AfterCommit.run` direct, pas outbox sales-side (ROADMAP R2) — risque de perte si crash entre commit et publish.

@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
@@ -154,7 +154,7 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
             com.tchalanet.server.common.types.id.OutletId.of(entity.getOutletId()),
             com.tchalanet.server.common.types.id.TerminalId.of(entity.getTerminalId()),
             com.tchalanet.server.common.types.id.UserId.of(entity.getSellerUserId()),
-            entity.getOfflineSubmissionId() == null ? null : OfflineSaleSubmissionId.of(entity.getOfflineSubmissionId()),
+            entity.getOfflineSubmissionId() == null ? null : OfflineSubmissionId.of(entity.getOfflineSubmissionId()),
             cents(entity.getTotalAmount()),
             entity.getCurrency(),
             entity.getPlacedAt(),

@@ -114,7 +114,6 @@ public class PageModelAdminController {
 
   @Operation(summary = "Preview a page model (admin) — retourne le PageModel tel quel sans résolution dynamique")
   @GetMapping("/{id}/preview")
-  @PreAuthorize("hasPermission(null, 'pagemodel.admin.read')")
   public ApiResponse<PageModelAdminDetailDto> preview(
       @PathVariable PageModelId id
   ) {
@@ -125,7 +124,6 @@ public class PageModelAdminController {
 
   @Operation(summary = "Duplicate a page model (admin) — crée une copie DRAFT dans le même tenant")
   @PostMapping("/{id}/duplicate")
-  @PreAuthorize("hasPermission(null, 'pagemodel.admin.write')")
   public ApiResponse<PageModelAdminDetailDto> duplicate(
       @PathVariable PageModelId id,
       @RequestParam(required = false) @Size(max = 128) String logicalId,
@@ -145,7 +143,6 @@ public class PageModelAdminController {
 
   @Operation(summary = "Reset a page model to template defaults (admin) — repasse en DRAFT")
   @PostMapping("/{id}/reset")
-  @PreAuthorize("hasPermission(null, 'pagemodel.admin.write')")
   public ApiResponse<PageModelAdminDetailDto> reset(
       @PathVariable PageModelId id,
       @CurrentContext TchRequestContext ctx

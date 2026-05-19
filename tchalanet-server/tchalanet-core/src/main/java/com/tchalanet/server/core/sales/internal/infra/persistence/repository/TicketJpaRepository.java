@@ -27,11 +27,14 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
 
     boolean existsByOfflineSubmissionId(UUID offlineSubmissionId);
 
-    @EntityGraph(attributePaths = {"lines", "charges"})
-    Optional<TicketJpaEntity> findWithLinesAndChargesById(UUID value);
+    @EntityGraph(attributePaths = "lines")
+    List<TicketJpaEntity> findWithLinesByDrawId(UUID drawId);
 
-    @EntityGraph(attributePaths = {"lines", "charges"})
-    List<TicketJpaEntity> findWithLinesAndChargesByDrawId(UUID drawId);
+    @EntityGraph(attributePaths = "charges")
+    Optional<TicketJpaEntity> findWithChargesById(UUID id);
+
+    @EntityGraph(attributePaths = "charges")
+    List<TicketJpaEntity> findWithChargesByIdIn(List<UUID> ids);
 
     boolean existsByDrawIdAndSettlementStatusIn(UUID drawId, List<TicketSettlementStatus> statuses);
 

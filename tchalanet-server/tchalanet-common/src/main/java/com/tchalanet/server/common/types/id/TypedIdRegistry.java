@@ -34,11 +34,11 @@ public final class TypedIdRegistry {
         ThemePresetId.class,
         TicketId.class,
         UserId.class,
-        OfflineBatchId.class,
         OfflineCodeBatchId.class,
-        OfflineCodeReservationId.class,
-        OfflineSaleSubmissionId.class,
-        OfflineSalesGrantId.class,
-        OfflineTicketId.class,
+        OfflineCodeId.class,
+        OfflineGrantId.class,
+        OfflineSubmissionId.class,
+        OfflineSyncBatchId.class,
+        PromotionAttemptId.class,
     };
 }

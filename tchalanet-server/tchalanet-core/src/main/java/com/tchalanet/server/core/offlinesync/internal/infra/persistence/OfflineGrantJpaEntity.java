@@ -10,6 +10,7 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Getter
 @Setter
@@ -33,6 +34,13 @@ public class OfflineGrantJpaEntity extends BaseTenantEntity {
     @Column(name = "device_id", nullable = false)
     private UUID deviceId;
 
+    @NotAudited
+    @Column(name = "device_public_key", nullable = false, columnDefinition = "text")
+    private String devicePublicKey;
+
+    @Column(name = "key_id", nullable = false)
+    private String keyId;
+
     @Column(name = "code_batch_id")
     private UUID codeBatchId;
 
@@ -45,11 +53,23 @@ public class OfflineGrantJpaEntity extends BaseTenantEntity {
     @Column(name = "valid_until", nullable = false)
     private Instant validUntil;
 
+    @Column(name = "sync_accepted_until", nullable = false)
+    private Instant syncAcceptedUntil;
+
     @Column(name = "max_ticket_count")
     private Integer maxTicketCount;
 
     @Column(name = "max_total_amount", precision = 18, scale = 2)
     private BigDecimal maxTotalAmount;
+
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
+
+    @Column(name = "consumed_ticket_count", nullable = false)
+    private Integer consumedTicketCount = 0;
+
+    @Column(name = "consumed_total_amount", nullable = false, precision = 18, scale = 2)
+    private BigDecimal consumedTotalAmount = BigDecimal.ZERO;
 
     @Column(name = "token_hash", nullable = false)
     private String tokenHash;

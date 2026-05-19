@@ -1184,6 +1184,7 @@ CREATE TABLE sales_ticket_line (
   line_number integer NOT NULL,
   game_code varchar(64) NOT NULL,
   bet_type varchar(64) NOT NULL,
+  bet_option smallint NOT NULL,
   selection_key varchar(128) NOT NULL,
   display_selection varchar(256) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
@@ -1238,12 +1239,18 @@ CREATE TABLE offline_grant (
   seller_user_id uuid NOT NULL,
   sales_session_id uuid NOT NULL,
   device_id uuid NOT NULL,
+  device_public_key text NOT NULL,
+  key_id varchar(64) NOT NULL,
   code_batch_id uuid,
   status varchar(32) NOT NULL,
   valid_from timestamptz NOT NULL,
   valid_until timestamptz NOT NULL,
+  sync_accepted_until timestamptz NOT NULL,
   max_ticket_count integer,
   max_total_amount numeric(18,2),
+  currency varchar(3) NOT NULL,
+  consumed_ticket_count integer NOT NULL DEFAULT 0,
+  consumed_total_amount numeric(18,2) NOT NULL DEFAULT 0,
   token_hash varchar(255) NOT NULL,
   issued_at timestamptz NOT NULL,
   revoked_at timestamptz,
@@ -1254,7 +1261,8 @@ CREATE TABLE offline_grant (
   updated_by uuid,
   deleted_at timestamptz,
   deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT ck_offline_grant_windows CHECK (valid_from < valid_until AND valid_until <= sync_accepted_until)
 );
 
 CREATE TABLE offline_sync_batch (
@@ -1289,6 +1297,7 @@ CREATE TABLE offline_sync_batch (
 CREATE TABLE offline_code_batch (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL,
+  grant_id uuid NOT NULL REFERENCES offline_grant(id),
   terminal_id uuid NOT NULL,
   outlet_id uuid,
   seller_user_id uuid,
@@ -1323,12 +1332,17 @@ CREATE TABLE offline_submission (
   received_at timestamptz NOT NULL,
   processed_at timestamptz,
   status varchar(32) NOT NULL,
-  technical_status varchar(32),
-  business_status varchar(32),
   rejection_code varchar(64),
   rejection_reason varchar(500),
+  draw_id uuid NOT NULL REFERENCES draw(id),
+  total_stake_amount numeric(18,2) NOT NULL,
+  currency varchar(3) NOT NULL,
+  line_count integer NOT NULL,
   payload_hash varchar(255) NOT NULL,
   signature varchar(255),
+  promotion_attempt_id uuid,
+  promotion_requested_at timestamptz,
+  last_promotion_event_id uuid,
   created_ticket_id uuid REFERENCES sales_ticket(id),
   raw_payload jsonb NOT NULL,
   created_at timestamptz,
@@ -1364,18 +1378,36 @@ CREATE TABLE offline_submission_line (
   version bigint NOT NULL DEFAULT 0
 );
 
-CREATE TABLE offline_code_reservation (
+CREATE TABLE offline_code (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL,
   code_batch_id uuid NOT NULL REFERENCES offline_code_batch(id),
   grant_id uuid REFERENCES offline_grant(id),
-  submission_id uuid REFERENCES offline_submission(id),
+  offline_submission_id uuid REFERENCES offline_submission(id),
   ticket_id uuid REFERENCES sales_ticket(id),
-  offline_code varchar(64) NOT NULL,
+  code varchar(64) NOT NULL,
   status varchar(32) NOT NULL,
-  reserved_at timestamptz NOT NULL,
+  reserved_at timestamptz,
   consumed_at timestamptz,
   expires_at timestamptz,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_offline_code__tenant_code UNIQUE (tenant_id, code)
+);
+
+CREATE TABLE offline_submission_ticket_link (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  submission_id uuid NOT NULL REFERENCES offline_submission(id),
+  ticket_id uuid REFERENCES sales_ticket(id),
+  link_type varchar(32) NOT NULL,
+  linked_at timestamptz NOT NULL,
+  details_json jsonb,
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -1385,13 +1417,16 @@ CREATE TABLE offline_code_reservation (
   version bigint NOT NULL DEFAULT 0
 );
 
-CREATE TABLE offline_submission_ticket_link (
+CREATE TABLE offline_submission_decision (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL,
   submission_id uuid NOT NULL REFERENCES offline_submission(id),
-  ticket_id uuid NOT NULL REFERENCES sales_ticket(id),
-  link_type varchar(32) NOT NULL,
-  linked_at timestamptz NOT NULL,
+  decision_type varchar(32) NOT NULL,
+  decided_by uuid NOT NULL,
+  decided_at timestamptz NOT NULL,
+  reason text NOT NULL,
+  dry_run boolean NOT NULL DEFAULT false,
+  report_json jsonb,
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -1399,4 +1434,44 @@ CREATE TABLE offline_submission_ticket_link (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0
+);
+
+-- Per-tenant override of the offline limit policy. When absent, the global defaults from
+-- tch.limitpolicy.offline.* properties apply. Exactly one row per tenant.
+CREATE TABLE tenant_offline_policy (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  offline_enabled boolean NOT NULL,
+  batch_size integer NOT NULL,
+  validity_duration_iso varchar(64) NOT NULL,
+  sync_accepted_extension_iso varchar(64) NOT NULL,
+  max_ticket_count integer NOT NULL,
+  max_total_amount numeric(18,2) NOT NULL,
+  currency varchar(3) NOT NULL,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_tenant_offline_policy__tenant UNIQUE (tenant_id)
+);
+
+-- Outbox for offlinesync domain events (TechValidated, AdminApproved). Events are written
+-- in the same tx as the business write; a drainer scheduler picks them up after commit and
+-- publishes them via DomainEventPublisher. Guarantees at-least-once delivery across pod
+-- restarts and decouples publication latency from the request thread.
+CREATE TABLE offline_event_outbox (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  event_id uuid NOT NULL,
+  event_class varchar(255) NOT NULL,
+  payload_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  published_at timestamptz,
+  attempts integer NOT NULL DEFAULT 0,
+  last_error text,
+  next_attempt_at timestamptz,
+  CONSTRAINT uq_offline_event_outbox__event_id UNIQUE (tenant_id, event_id)
 );

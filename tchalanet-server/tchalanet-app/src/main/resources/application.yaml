@@ -23,7 +23,7 @@ tch:
     public-default-tenant-code: ${TCH_PUBLIC_DEFAULT_TENANT_CODE:tchalanet}
 
   system:
-    user-id: ${TCH_SYSTEM_USER_ID:00000000-0000-0000-0000-000000000001}
+    user-id: ${TCH_SYSTEM_USER_ID:00000000-0000-0000-0000-000000000003}
     tenant-code: ${TCH_SYSTEM_TENANT_CODE:tchalanet}
     actor-name: ${TCH_SYSTEM_ACTOR_NAME:system}
 
@@ -33,6 +33,18 @@ tch:
       enabled: ${TCH_SECURITY_USER_BOOTSTRAP_ENABLED:true}
       update-last-login: ${TCH_SECURITY_USER_BOOTSTRAP_UPDATE_LAST_LOGIN:true}
 
+  admin:
+    server:
+      enabled: ${TCH_ADMIN_SERVER_ENABLED:false}
+
+  communication:
+    edge:
+      enabled: ${TCH_COMMUNICATION_EDGE_ENABLED:true}
+      base-url: ${TCH_COMMUNICATION_EDGE_BASE_URL:http://localhost:3000}
+      messages-path: ${TCH_COMMUNICATION_EDGE_MESSAGES_PATH:/internal/messages/send}
+      hmac-secret: ${EDGE_HMAC_SECRET}
+      connect-timeout: ${TCH_COMMUNICATION_EDGE_CONNECT_TIMEOUT:2s}
+      read-timeout: ${TCH_COMMUNICATION_EDGE_READ_TIMEOUT:5s}
   cache:
     redis:
       enabled: false
@@ -58,6 +70,22 @@ tch:
         requests-per-second: 10
         burst: 20
 
+  offlinesync:
+    enabled: ${TCH_OFFLINESYNC_ENABLED:false}
+    upcoming-draws:
+      lookahead-days: ${TCH_OFFLINESYNC_UPCOMING_DRAWS_DAYS:3}
+      limit: ${TCH_OFFLINESYNC_UPCOMING_DRAWS_LIMIT:50}
+
+  limitpolicy:
+    offline:
+      enabled: ${TCH_LIMITPOLICY_OFFLINE_ENABLED:true}
+      batch-size: ${TCH_LIMITPOLICY_OFFLINE_BATCH_SIZE:50}
+      validity-duration: ${TCH_LIMITPOLICY_OFFLINE_VALIDITY:PT8H}
+      sync-accepted-extension: ${TCH_LIMITPOLICY_OFFLINE_SYNC_EXT:PT72H}
+      max-ticket-count: ${TCH_LIMITPOLICY_OFFLINE_MAX_TICKETS:50}
+      max-total-amount: ${TCH_LIMITPOLICY_OFFLINE_MAX_TOTAL:100000.00}
+      currency: ${TCH_LIMITPOLICY_OFFLINE_CURRENCY:HTG}
+
   sales-session:
     auto:
       active: true
@@ -68,9 +96,11 @@ tch:
       core-pool-size: 4
       max-pool-size: 8
       thread-name-prefix: batch-
+
 kc:
   bootstrap:
-    enabled: true
+    enabled: ${KC_BOOTSTRAP_ENABLED:false}
+    auto-run-on-startup: ${KC_BOOTSTRAP_AUTO_RUN_ON_STARTUP:false}
     base-url: ${KC_BASE_URL:https://auth.localtest.me}
     target-realm: ${KC_TARGET_REALM:tchalanet}
     admin-realm: ${KC_ADMIN_REALM:master}
@@ -85,6 +115,14 @@ kc:
 # SPRING FRAMEWORK
 # ===========================
 spring:
+  boot:
+    admin:
+      context-path: /admin/ops
+
+  profiles:
+    group:
+      local-ide-redis: local-ide
+
   # Thymeleaf — this is a REST API, no templates; silence the startup warning
   thymeleaf:
     check-template-location: false

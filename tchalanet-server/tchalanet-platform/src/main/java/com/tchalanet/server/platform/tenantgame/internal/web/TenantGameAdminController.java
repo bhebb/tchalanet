@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tenant/games")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 public class TenantGameAdminController {
 
   private final TenantGameService tenantGameService;
@@ -48,7 +49,6 @@ public class TenantGameAdminController {
    * Per request_context_usage.md: tenant is always available in context.
    */
   @GetMapping
-  @PreAuthorize("hasPermission('tenantgame.read')")
   public ApiResponse<List<TenantGameView>> getTenantGames(@CurrentContext TchRequestContext ctx) {
     var tenantId = ctx.effectiveTenantIdRequired();
     var query = ResolveTenantGamesRequest.builder()
@@ -66,7 +66,6 @@ public class TenantGameAdminController {
    */
   @PostMapping("/{gameCode}/enable")
   @ResponseStatus(HttpStatus.CREATED)
-  @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<EnableTenantGameResult> enableGame(
       @PathVariable String gameCode,
       @CurrentContext TchRequestContext ctx) {
@@ -91,7 +90,6 @@ public class TenantGameAdminController {
    * Permission check: tenantgame.write (per security_permissions.md).
    */
   @PostMapping("/{gameCode}/disable")
-  @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<DisableTenantGameResult> disableGame(
       @PathVariable String gameCode,
       @CurrentContext TchRequestContext ctx) {
@@ -115,7 +113,6 @@ public class TenantGameAdminController {
    * Permission check: tenantgame.write (per security_permissions.md).
    */
   @PutMapping("/{gameCode}/policy")
-  @PreAuthorize("hasPermission(null, 'tenantgame.write')")
   public ApiResponse<Void> updatePolicy(
       @PathVariable String gameCode,
       @RequestBody UpdatePolicyRequest request,

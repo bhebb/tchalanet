@@ -13,12 +13,12 @@ import com.tchalanet.server.common.types.id.LedgerEntryId;
 import com.tchalanet.server.common.types.id.NotificationDeliveryId;
 import com.tchalanet.server.common.types.id.NotificationId;
 import com.tchalanet.server.common.types.id.NotificationPreferenceId;
-import com.tchalanet.server.common.types.id.OfflineBatchId;
+import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
 import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
-import com.tchalanet.server.common.types.id.OfflineCodeReservationId;
-import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
-import com.tchalanet.server.common.types.id.OfflineSalesGrantId;
-import com.tchalanet.server.common.types.id.OfflineTicketId;
+import com.tchalanet.server.common.types.id.OfflineCodeId;
+import com.tchalanet.server.common.types.id.OfflineSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineGrantId;
+import com.tchalanet.server.common.types.id.PromotionAttemptId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.PayoutId;
@@ -170,13 +170,13 @@ public class CommonIdMapper {
         return ApprovalRequestId.nullableOf(id);
     }
 
-    // OfflineBatchId
-    public UUID mapFromOfflineBatchId(OfflineBatchId id) {
+    // OfflineSyncBatchId
+    public UUID mapFromOfflineSyncBatchId(OfflineSyncBatchId id) {
         return id == null ? null : id.value();
     }
 
-    public OfflineBatchId mapToOfflineBatchId(UUID id) {
-        return OfflineBatchId.nullableOf(id);
+    public OfflineSyncBatchId mapToOfflineSyncBatchId(UUID id) {
+        return OfflineSyncBatchId.nullableOf(id);
     }
 
     // OfflineCodeBatchId
@@ -188,40 +188,40 @@ public class CommonIdMapper {
         return OfflineCodeBatchId.nullableOf(id);
     }
 
-    // OfflineCodeReservationId
-    public UUID mapFromOfflineCodeReservationId(OfflineCodeReservationId id) {
+    // OfflineCodeId
+    public UUID mapFromOfflineCodeId(OfflineCodeId id) {
         return id == null ? null : id.value();
     }
 
-    public OfflineCodeReservationId mapToOfflineCodeReservationId(UUID id) {
-        return OfflineCodeReservationId.nullableOf(id);
+    public OfflineCodeId mapToOfflineCodeId(UUID id) {
+        return OfflineCodeId.nullableOf(id);
     }
 
-    // OfflineCodeReservationId
-    public UUID mapFromOfflineSalesGrantId(OfflineSalesGrantId id) {
+    // OfflineCodeId
+    public UUID mapFromOfflineGrantId(OfflineGrantId id) {
         return id == null ? null : id.value();
     }
 
-    public OfflineSalesGrantId mapToOfflineSalesGrantId(UUID id) {
-        return OfflineSalesGrantId.nullableOf(id);
+    public OfflineGrantId mapToOfflineGrantId(UUID id) {
+        return OfflineGrantId.nullableOf(id);
     }
 
-    // OfflineCodeReservationId
-    public UUID mapFromOfflineSaleSubmissionId(OfflineSaleSubmissionId id) {
+    // OfflineCodeId
+    public UUID mapFromOfflineSubmissionId(OfflineSubmissionId id) {
         return id == null ? null : id.value();
     }
 
-    public OfflineSaleSubmissionId mapToOfflineSaleSubmissionId(UUID id) {
-        return OfflineSaleSubmissionId.nullableOf(id);
+    public OfflineSubmissionId mapToOfflineSubmissionId(UUID id) {
+        return OfflineSubmissionId.nullableOf(id);
     }
 
-    // OfflineCodeReservationId
-    public UUID mapFromOfflineTicketId(OfflineTicketId id) {
+    // PromotionAttemptId
+    public UUID mapFromPromotionAttemptId(PromotionAttemptId id) {
         return id == null ? null : id.value();
     }
 
-    public OfflineTicketId mapToOfflineTicketId(UUID id) {
-        return OfflineTicketId.nullableOf(id);
+    public PromotionAttemptId mapToPromotionAttemptId(UUID id) {
+        return PromotionAttemptId.nullableOf(id);
     }
 
     // RoleId

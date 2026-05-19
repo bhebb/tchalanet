@@ -49,7 +49,6 @@ public class LimitPolicyAdminController {
     private final QueryBus queryBus;
 
     @GetMapping("/assignments")
-    @PreAuthorize("hasPermission('limitpolicy.read')")
     public ApiResponse<ListLimitAssignmentsView> listAssignments(
         @CurrentContext TchRequestContext context,
         @RequestParam("target") TargetType targetType,
@@ -62,7 +61,6 @@ public class LimitPolicyAdminController {
     }
 
     @PutMapping("/assignments")
-    @PreAuthorize("hasPermission('limitpolicy.admin')")
     public ApiResponse<UpsertLimitAssignmentResult> upsertAssignment(
         @CurrentContext TchRequestContext context,
         @Valid @RequestBody UpsertLimitAssignmentRequest req
@@ -86,7 +84,6 @@ public class LimitPolicyAdminController {
     }
 
     @DeleteMapping("/assignments/{id}")
-    @PreAuthorize("hasPermission('limitpolicy.admin')")
     public ApiResponse<DeleteLimitAssignmentResult> deleteAssignment(
         @PathVariable LimitAssignmentId id
     ) {
@@ -95,7 +92,6 @@ public class LimitPolicyAdminController {
     }
 
     @GetMapping("/rules")
-    @PreAuthorize("hasPermission('limitpolicy.read')")
     public ApiResponse<List<LimitRuleSpec>> listAvailableRules() {
         return ApiResponse.success(
             queryBus.ask(new ListAvailableLimitRulesQuery()));

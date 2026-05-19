@@ -269,9 +269,23 @@ CREATE INDEX idx_offline_submission__grant ON offline_submission (tenant_id, gra
 CREATE INDEX idx_offline_submission__batch ON offline_submission (tenant_id, sync_batch_id) WHERE sync_batch_id IS NOT NULL AND deleted_at IS NULL;
 CREATE INDEX idx_offline_submission__dispatch
   ON offline_submission (tenant_id, status, processed_at)
-  WHERE status IN ('READY_FOR_SALES','RETRY_PENDING') AND deleted_at IS NULL;
+  WHERE status IN ('TECH_VALIDATED','PROMOTION_REQUESTED','SYNC_FAILED') AND deleted_at IS NULL;
+CREATE INDEX idx_offline_submission__promotion_attempt
+  ON offline_submission (tenant_id, promotion_attempt_id)
+  WHERE promotion_attempt_id IS NOT NULL AND deleted_at IS NULL;
 CREATE INDEX idx_offline_submission_line__submission ON offline_submission_line (submission_id);
-CREATE INDEX idx_offline_code_reservation__batch ON offline_code_reservation (tenant_id, code_batch_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_offline_code_reservation__code ON offline_code_reservation (tenant_id, offline_code) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_code__batch ON offline_code (tenant_id, code_batch_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_code__code ON offline_code (tenant_id, code) WHERE deleted_at IS NULL;
+CREATE INDEX idx_offline_code__status ON offline_code (tenant_id, code_batch_id, status) WHERE deleted_at IS NULL;
 CREATE INDEX idx_offline_submission_ticket_link__submission ON offline_submission_ticket_link (submission_id);
 CREATE INDEX idx_offline_submission_ticket_link__ticket ON offline_submission_ticket_link (ticket_id);
+CREATE UNIQUE INDEX uq_offline_submission_ticket_link__created
+  ON offline_submission_ticket_link (tenant_id, submission_id)
+  WHERE link_type = 'CREATED' AND deleted_at IS NULL;
+CREATE INDEX idx_offline_submission_decision__submission ON offline_submission_decision (tenant_id, submission_id) WHERE deleted_at IS NULL;
+-- Outbox: cheap scan over pending rows; the drainer scheduler reads this hot path every few seconds.
+CREATE INDEX idx_offline_event_outbox__pending
+  ON offline_event_outbox (tenant_id, next_attempt_at)
+  WHERE published_at IS NULL;
+-- tenant_offline_policy is keyed by tenant_id (unique constraint already covers the lookup),
+-- so no extra index is needed beyond the implicit one on the PRIMARY KEY + UNIQUE.

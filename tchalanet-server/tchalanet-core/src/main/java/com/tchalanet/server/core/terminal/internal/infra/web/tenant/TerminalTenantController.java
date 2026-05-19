@@ -17,7 +17,7 @@ import com.tchalanet.server.core.terminal.internal.infra.web.tenant.model.Termin
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +36,7 @@ import java.time.Instant;
  */
 @RestController
 @RequestMapping("/tenant/terminals")
-@Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredArgsConstructor
 public class TerminalTenantController {
 

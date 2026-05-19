@@ -36,13 +36,13 @@ public final class ApiScopeResolver {
             return ApiScope.PUBLIC;
         }
 
-        // INTERNAL: Spring Data REST under /api/v1/_sdr
-        if (path.startsWith("/api/v1/_sdr")) {
-            return ApiScope.SDR;
-        }
-
         // PLATFORM (no tenant)
         if (path.startsWith("/api/v1/platform")) {
+            return ApiScope.PLATFORM;
+        }
+
+        // Ops admin console is platform-level and must not require a tenant.
+        if (path.startsWith("/api/v1/admin/ops")) {
             return ApiScope.PLATFORM;
         }
 

@@ -9,11 +9,12 @@ tch:
       ny:
         enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
-        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://data.ny.gov}
-        latest-path: ${TCH_US_LOTTERY_NY_LATEST_PATH:/resource/hsys-3def.json}
+        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://nylottery.ny.gov}
+        latest-path: ${TCH_US_LOTTERY_NY_LATEST_PATH:/drupal-api/api/v2/winning_numbers}
         app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
-        headers: { }
-
+        headers:
+          Accept: application/json, text/plain, */*
+          Referer: https://nylottery.ny.gov/all-winning-numbers
       fl:
         enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
@@ -40,6 +41,5 @@ tch:
         enabled: ${TCH_US_TX_LOTTERY_ENABLED:true}
         timezone: ${TCH_US_TX_TIMEZONE:America/Chicago}
         base-url: ${TCH_US_TX_LOTTERY_BASEURL:https://www.texaslottery.com}
-        latest-path: ${TCH_US_TX_LATEST_PATH:export/sites/lottery/rss/tlc_latest.xml}
+        latest-path: ${TCH_US_TX_LATEST_PATH:/export/sites/lottery/rss/tlc_latest.xml}
         headers: {}
-

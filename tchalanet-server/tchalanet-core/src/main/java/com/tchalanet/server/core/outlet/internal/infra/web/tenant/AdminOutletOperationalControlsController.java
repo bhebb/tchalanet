@@ -25,7 +25,6 @@ public class AdminOutletOperationalControlsController {
   private final CommandBus commandBus;
 
   @PatchMapping("/status")
-  @PreAuthorize("hasPermission(#outletId, 'OUTLET_STATUS_UPDATE')")
   public ApiResponse<Void> setStatus(
       @CurrentContext TchRequestContext ctx,
       @PathVariable OutletId outletId,
@@ -39,7 +38,6 @@ public class AdminOutletOperationalControlsController {
   }
 
   @PatchMapping("/{control}")
-  @PreAuthorize("hasPermission(#outletId, 'OUTLET_OPERATIONAL_CONTROL_UPDATE')")
   public ApiResponse<Void> setControl(
       @CurrentContext TchRequestContext ctx,
       @PathVariable OutletId outletId,

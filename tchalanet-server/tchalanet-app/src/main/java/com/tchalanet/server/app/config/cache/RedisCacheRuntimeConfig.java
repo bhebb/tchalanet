@@ -21,13 +21,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 @Configuration
 @ConditionalOnProperty(
     name = "tch.cache.redis.enabled",
-    havingValue = "true",
-    matchIfMissing = false)
+    havingValue = "true")
 public class RedisCacheRuntimeConfig {
 
   private static final Logger log = LoggerFactory.getLogger(RedisCacheRuntimeConfig.class);
@@ -76,7 +76,19 @@ public class RedisCacheRuntimeConfig {
                     new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(
-                    new GenericJacksonJsonRedisSerializer(JsonMapper.builder().build())));
+                    GenericJacksonJsonRedisSerializer.builder()
+                        .customize(
+                            builder ->
+                                builder.activateDefaultTypingAsProperty(
+                                    BasicPolymorphicTypeValidator.builder()
+                                        .allowIfSubType("com.tchalanet.server.")
+                                        .allowIfSubType("java.time.")
+                                        .allowIfSubType("java.util.")
+                                        .allowIfSubType("tools.jackson.")
+                                        .build(),
+                                    DefaultTyping.NON_FINAL_AND_RECORDS,
+                                    "@class"))
+                        .build()));
 
     Map<String, RedisCacheConfiguration> perCacheCfg = new HashMap<>();
     if (specProviders != null) {

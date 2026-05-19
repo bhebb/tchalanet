@@ -11,10 +11,12 @@ import com.tchalanet.server.core.draw.internal.application.query.projection.Draw
 import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.infra.persistence.mapper.DrawSummaryViewMapper;
 import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawSummaryViewRepository;
+import com.tchalanet.server.core.draw.internal.infra.persistence.view.DrawSummaryViewEntity;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -58,14 +60,29 @@ public class DrawSummaryPersistenceAdapter implements DrawSummaryReaderPort {
 
         var tenantId = currentTenantId();
 
-        var page = repo.search(
-            tenantId.value(),
-            criteria.resultSlotId() == null ? null : criteria.resultSlotId().value(),
-            criteria.status(),
-            criteria.from(),
-            criteria.to(),
-            pageable
-        );
+        Specification<DrawSummaryViewEntity> spec =
+            (root, query, cb) -> cb.equal(root.get("tenantId"), tenantId.value());
+
+        if (criteria.resultSlotId() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("resultSlotId"), criteria.resultSlotId().value()));
+        }
+
+        if (criteria.status() != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), criteria.status()));
+        }
+
+        if (criteria.from() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.greaterThanOrEqualTo(root.get("drawDate"), criteria.from()));
+        }
+
+        if (criteria.to() != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.lessThanOrEqualTo(root.get("drawDate"), criteria.to()));
+        }
+
+        var page = repo.findAll(spec, pageable);
 
         return TchPageMapper.map(page, mapper::toProjection);
     }

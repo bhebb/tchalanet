@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
       args:
         IMAGE_TAG: ${IMAGE_TAG:-local-build}
-    image: ghcr.io/tchalanet/api:${IMAGE_TAG:-local-build}
+    image: ${API_IMAGE_BASE:-ghcr.io/bhebb/tchalanet-api}:${IMAGE_TAG:-local-build}
     pull_policy: never
 
   keycloak:

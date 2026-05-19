@@ -34,7 +34,6 @@ public class AutonomyAdminController {
     private final AutonomyAdminWebMapper mapper;
 
     @GetMapping
-    @PreAuthorize("hasPermission('autonomy.read')")
     public ApiResponse<AutonomyOverviewResponse> getOverview(
         @RequestParam("targetType") AutonomyTargetType targetType,
         @RequestParam(value = "targetId", required = false) AutonomyTargetId targetId
@@ -44,7 +43,6 @@ public class AutonomyAdminController {
     }
 
     @PutMapping
-    @PreAuthorize("hasPermission('autonomy.admin')")
     public ApiResponse<AutonomyOverviewResponse> upsert(
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody UpsertAutonomyRuleRequest req
@@ -70,7 +68,6 @@ public class AutonomyAdminController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasPermission('autonomy.admin')")
     public ApiResponse<Void> delete(
         @CurrentContext TchRequestContext ctx,
         @RequestParam("targetType") AutonomyTargetType targetType,

@@ -30,8 +30,13 @@ public class EdgeCommunicationGateway {
 
   public SendOutboundMessageResult send(SendOutboundMessageRequest request) {
     if (!properties.enabled()) {
-      log.debug("Edge communication integration disabled, skipping send");
+      log.info("Edge communication integration disabled, skipping send");
       return SendOutboundMessageResult.skipped(PROVIDER, "disabled");
+    }
+
+    if (request.channel() == com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel.PUSH) {
+      log.warn("Edge communication does not support PUSH channel, skipping send");
+      return SendOutboundMessageResult.skipped(PROVIDER, "unsupported_channel:PUSH");
     }
 
     var requestId = extractRequestId(request);
@@ -74,7 +79,7 @@ public class EdgeCommunicationGateway {
   }
 
   private List<EdgeCommunicationRecipient> buildRecipients(SendOutboundMessageRequest request) {
-    var channel = request.channel().name();
+    var channel = toEdgeChannel(request.channel());
     var recipient = request.recipient();
 
     return switch (request.channel()) {
@@ -96,6 +101,17 @@ public class EdgeCommunicationGateway {
                       extractOptionalString(request, "to"),
                       null),
                   null));
+    };
+  }
+
+  private String toEdgeChannel(
+      com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel channel) {
+    return switch (channel) {
+      case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK -> "SLACK";
+      case EMAIL -> "EMAIL";
+      case SMS -> "SMS";
+      case WHATSAPP -> "WHATSAPP";
+      case PUSH -> "PUSH";
     };
   }
 

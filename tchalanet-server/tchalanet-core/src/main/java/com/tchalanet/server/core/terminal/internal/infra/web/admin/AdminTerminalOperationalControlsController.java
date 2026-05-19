@@ -81,7 +81,6 @@ public class AdminTerminalOperationalControlsController {
     }
 
     @PatchMapping("/lock")
-    @PreAuthorize("hasPermission(#terminalId, 'TERMINAL_LOCK')")
     @ResponseStatus(HttpStatus.OK)
     public void lock(
         @CurrentContext TchRequestContext ctx,
@@ -95,7 +94,6 @@ public class AdminTerminalOperationalControlsController {
     }
 
     @PatchMapping("/unlock")
-    @PreAuthorize("hasPermission(#terminalId, 'TERMINAL_UNLOCK')")
     @ResponseStatus(HttpStatus.OK)
     public void unlock(
         @CurrentContext TchRequestContext ctx,
@@ -109,7 +107,6 @@ public class AdminTerminalOperationalControlsController {
     }
 
     @PatchMapping("/{control}")
-    @PreAuthorize("hasPermission(#terminalId, 'TERMINAL_OPERATIONAL_CONTROL_UPDATE')")
     @ResponseStatus(HttpStatus.OK)
     public void setControl(
         @CurrentContext TchRequestContext ctx,

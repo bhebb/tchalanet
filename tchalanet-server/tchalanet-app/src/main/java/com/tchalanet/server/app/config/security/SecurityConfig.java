@@ -30,7 +30,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Slf4j
 public class SecurityConfig {
 
@@ -39,6 +38,9 @@ public class SecurityConfig {
 
     @Value("${spring.websecurity.debug:false}")
     boolean webSecurityDebug;
+
+    @Value("${tch.admin.server.local-open:false}")
+    boolean adminServerLocalOpen;
 
     @Bean
     SecurityFilterChain security(
@@ -75,6 +77,7 @@ public class SecurityConfig {
                             "/api/v1/openapi/**",
                             "/api/v1/swagger-ui/**",
                             "/api/v1/public/**",
+                            "/api/v1/actuator/**",
                             // also permit public endpoints without servlet prefix (helpers, local
                             // testing)
                             "/public/**",
@@ -84,6 +87,14 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/_sdr/**", "/api/v1/_sdr/**")
                         .authenticated()
+
+                        // Spring Boot Admin server UI/API (ops).
+                        .requestMatchers(
+                            "/api/v1/admin/ops",
+                            "/api/v1/admin/ops/**",
+                            "/admin/ops",
+                            "/admin/ops/**")
+                        .permitAll()
 
                         // PLATFORM scope: platform-level APIs (no tenant): require SUPER_ADMIN
                         .requestMatchers("/api/v1/platform/**", "/platform/**")

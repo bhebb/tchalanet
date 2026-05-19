@@ -1,19 +1,25 @@
 package com.tchalanet.server.features.ops.draw;
 
-import com.tchalanet.server.common.context.web.CurrentContext;
-
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.core.draw.api.command.*;
+import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
+import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
+import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
+import com.tchalanet.server.core.draw.api.command.CloseDueDrawsResult;
+import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
+import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeResult;
+import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
+import com.tchalanet.server.core.draw.api.command.OpenDueDrawsResult;
+import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
 import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,13 +30,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.time.Clock;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/platform/ops/draws")
 @RequiredArgsConstructor
-//@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Ops • Scheduler")
 public class DrawCalendarOpsController {
 
@@ -46,11 +52,11 @@ public class DrawCalendarOpsController {
 
     @Operation(summary = "Generate draws for a date range (ops)")
     @PostMapping("/generate")
- /*   @AuditLog(
+    @AuditLog(
         entity = AuditEntityType.DRAW,
         action = AuditAction.DRAW_GENERATE,
-        idExpression = "#req.tenantId()",
-        detailsExpression = "#req")*/
+        idExpression = "'draw-generate'",
+        detailsExpression = "#req")
     public ApiResponse<GenerateDrawsForRangeResult> generate(@Valid @RequestBody GenerateDrawsRequest req) {
         batchGate.assertEnabledOrThrow(DRAW_GENERATE, TenantId.parse(req.tenantId()));
         var res = commandBus.execute(
@@ -68,7 +74,7 @@ public class DrawCalendarOpsController {
         detailsExpression = "#req")
     public ApiResponse<OpenDueDrawsResult> openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
         batchGate.assertEnabledOrThrow(DRAW_OPEN, null);
-        Instant now = req.now() == null ? clock.instant() : req.now();
+        var now = req.now() == null ? clock.instant() : req.now();
         var res = commandBus.execute(
             new OpenDueDrawsCommand(
                 now, req.limit(), req.openHorizonHours(), req.openLagHours(), req.dryRun()));

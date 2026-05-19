@@ -607,9 +607,9 @@ CREATE POLICY offline_submission_line_rls_select ON offline_submission_line
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
-ALTER TABLE offline_code_reservation ENABLE ROW LEVEL SECURITY;
-ALTER TABLE offline_code_reservation FORCE ROW LEVEL SECURITY;
-CREATE POLICY offline_code_reservation_rls_all ON offline_code_reservation
+ALTER TABLE offline_code ENABLE ROW LEVEL SECURITY;
+ALTER TABLE offline_code FORCE ROW LEVEL SECURITY;
+CREATE POLICY offline_code_rls_all ON offline_code
   FOR ALL
   USING (
     public.current_tenant() IS NOT NULL
@@ -619,7 +619,7 @@ CREATE POLICY offline_code_reservation_rls_all ON offline_code_reservation
       OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
-CREATE POLICY offline_code_reservation_rls_select ON offline_code_reservation
+CREATE POLICY offline_code_rls_select ON offline_code
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
@@ -636,6 +636,51 @@ CREATE POLICY offline_submission_ticket_link_rls_all ON offline_submission_ticke
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY offline_submission_ticket_link_rls_select ON offline_submission_ticket_link
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE offline_submission_decision ENABLE ROW LEVEL SECURITY;
+ALTER TABLE offline_submission_decision FORCE ROW LEVEL SECURITY;
+CREATE POLICY offline_submission_decision_rls_all ON offline_submission_decision
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY offline_submission_decision_rls_select ON offline_submission_decision
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE tenant_offline_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_offline_policy FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_offline_policy_rls_all ON tenant_offline_policy
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY tenant_offline_policy_rls_select ON tenant_offline_policy
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+-- offline_event_outbox: written by application handlers in-tx; drained by a platform-scoped
+-- scheduler that must read across tenants. The drainer binds tenant context per row before
+-- publishing so the published event itself runs in the proper tenant scope.
+ALTER TABLE offline_event_outbox ENABLE ROW LEVEL SECURITY;
+ALTER TABLE offline_event_outbox FORCE ROW LEVEL SECURITY;
+CREATE POLICY offline_event_outbox_rls_all ON offline_event_outbox
+  FOR ALL
+  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY offline_event_outbox_rls_select ON offline_event_outbox
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 

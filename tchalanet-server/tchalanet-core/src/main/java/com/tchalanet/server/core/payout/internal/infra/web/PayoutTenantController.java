@@ -36,7 +36,6 @@ public class PayoutTenantController {
     private final PayoutWebMapper mapper;
 
     @PostMapping
-    @PreAuthorize("hasPermission('payout.request')")
     public ApiResponse<RegisterPayoutResponse> request(
         @CurrentContext TchRequestContext ctx,
         @Valid @RequestBody RegisterPayoutRequest body) {
@@ -58,7 +57,6 @@ public class PayoutTenantController {
     }
 
     @PostMapping("/{payoutId}/execute")
-    @PreAuthorize("hasPermission('payout.register')")
     public ApiResponse<PayoutWorkflowResponse> execute(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PayoutId payoutId,

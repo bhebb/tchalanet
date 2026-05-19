@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.port.out;
 
-import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
@@ -21,9 +21,9 @@ public interface TicketReaderPort {
 
     Optional<Ticket> findByVerificationCode(String verificationCode);
 
-    Optional<Ticket> findByOfflineSubmissionId(OfflineSaleSubmissionId submissionId);
+    Optional<Ticket> findByOfflineSubmissionId(OfflineSubmissionId submissionId);
 
     List<Ticket> findByDrawId(DrawId drawId);
 
-    boolean existsByOfflineSubmissionId(OfflineSaleSubmissionId submissionId);
+    boolean existsByOfflineSubmissionId(OfflineSubmissionId submissionId);
 }

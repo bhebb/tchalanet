@@ -13,11 +13,12 @@ import com.tchalanet.server.core.drawresult.internal.infra.persistence.mapper.Dr
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJdbcRepository;
 import com.tchalanet.server.core.drawresult.internal.infra.persistence.repo.DrawResultJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.time.Instant;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -100,5 +101,10 @@ public class DrawResultJdbcReaderAdapter implements DrawResultReaderPort {
     @Override
     public Optional<DrawResultView> findByDrawId(DrawId drawId) {
         return drawId == null ? Optional.empty() : jdbcRepo.findViewByDrawId(drawId.value());
+    }
+
+    @Override
+    public boolean existsUsableExternalResult(ResultSlotId resultSlotId, Instant occurredAt) {
+        return jdbcRepo.existsUsableExternalResult(resultSlotId.value(), occurredAt);
     }
 }

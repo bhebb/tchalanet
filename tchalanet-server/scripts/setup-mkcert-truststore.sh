@@ -94,6 +94,8 @@ cat <<EOF > "${ENV_FILE}"
 export JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=$PWD/${TRUSTSTORE} -Djavax.net.ssl.trustStorePassword=${STORE_PASS}"
 # Profils recommandés sans 'insecure' pour activer vraie validation TLS
 export SPRING_PROFILES_ACTIVE=local-ide
+# Secret HMAC partagé entre tchalanet-server et tchalanet-edge-service en local
+export EDGE_HMAC_SECRET="tch-local-ide-edge-hmac-2026"
 EOF
 
 say "[8/8] Terminé ✅"

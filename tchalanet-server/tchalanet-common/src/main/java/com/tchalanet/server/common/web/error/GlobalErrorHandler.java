@@ -262,6 +262,11 @@ public class GlobalErrorHandler {
         HttpServletRequest req,
         HttpStatus status
     ) {
+        if (isEventStreamRequest(req)) {
+            // SSE responses cannot serialize ProblemDetail (converter mismatch on text/event-stream).
+            return ResponseEntity.status(status).build();
+        }
+
         pd.setStatus(status.value());
 
         var headers = new HttpHeaders();
@@ -273,6 +278,11 @@ public class GlobalErrorHandler {
         }
 
         return new ResponseEntity<>(pd, headers, status);
+    }
+
+    private static boolean isEventStreamRequest(HttpServletRequest req) {
+        var accept = req.getHeader(HttpHeaders.ACCEPT);
+        return accept != null && accept.contains(MediaType.TEXT_EVENT_STREAM_VALUE);
     }
 
     private static void decorate(

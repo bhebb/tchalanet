@@ -48,7 +48,6 @@ public class TicketSalesController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Idempotency conflict")
     })
     @PostMapping
-    @PreAuthorize("hasPermission('ticket.sell')")
     @ResponseStatus(HttpStatus.CREATED)
     @RequireIdempotency(scope = IdempotencyScope.SALES_SELL_TICKET)
     public ApiResponse<SellTicketResponse> sell(

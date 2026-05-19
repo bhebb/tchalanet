@@ -24,7 +24,7 @@ public class TicketPrintProjectionReaderAdapter implements TicketPrintReaderPort
     @Transactional(readOnly = true)
     public TicketPrintView findPrintViewRequired(TicketId ticketId) {
         var header = headerRepository.getRequired(ticketId.value());
-        var ticketEntity = ticketRepository.findWithLinesAndChargesById(ticketId.value())
+        var ticketEntity = ticketRepository.findById(ticketId.uuid())
             .orElseThrow(() -> new IllegalStateException("Ticket aggregate not found for print header: " + ticketId));
         var ticket = ticketMapper.toDomain(ticketEntity);
         return ticketPrintViewMapper.toPrintView(header, ticket);

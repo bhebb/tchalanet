@@ -4,6 +4,7 @@ import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -60,23 +61,39 @@ public class OfflineSubmissionJpaEntity extends BaseTenantEntity {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @Column(name = "technical_status")
-    private String technicalStatus;
-
-    @Column(name = "business_status")
-    private String businessStatus;
-
     @Column(name = "rejection_code")
     private String rejectionCode;
 
     @Column(name = "rejection_reason")
     private String rejectionReason;
 
+    @Column(name = "draw_id", nullable = false)
+    private UUID drawId;
+
+    @Column(name = "total_stake_amount", nullable = false, precision = 18, scale = 2)
+    private BigDecimal totalStakeAmount;
+
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
+
+    @Column(name = "line_count", nullable = false)
+    private Integer lineCount;
+
     @Column(name = "payload_hash", nullable = false)
     private String payloadHash;
 
+    @NotAudited
     @Column(name = "signature")
     private String signature;
+
+    @Column(name = "promotion_attempt_id")
+    private UUID promotionAttemptId;
+
+    @Column(name = "promotion_requested_at")
+    private Instant promotionRequestedAt;
+
+    @Column(name = "last_promotion_event_id")
+    private UUID lastPromotionEventId;
 
     @Column(name = "created_ticket_id")
     private UUID createdTicketId;

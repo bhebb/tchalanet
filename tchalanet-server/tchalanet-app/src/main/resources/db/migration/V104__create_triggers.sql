@@ -51,8 +51,10 @@ CREATE TRIGGER trg_offline_sync_batch__set_updated_at BEFORE UPDATE ON offline_s
 CREATE TRIGGER trg_offline_code_batch__set_updated_at BEFORE UPDATE ON offline_code_batch FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_offline_submission__set_updated_at BEFORE UPDATE ON offline_submission FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_offline_submission_line__set_updated_at BEFORE UPDATE ON offline_submission_line FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-CREATE TRIGGER trg_offline_code_reservation__set_updated_at BEFORE UPDATE ON offline_code_reservation FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_offline_code__set_updated_at BEFORE UPDATE ON offline_code FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_offline_submission_ticket_link__set_updated_at BEFORE UPDATE ON offline_submission_ticket_link FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_offline_submission_decision__set_updated_at BEFORE UPDATE ON offline_submission_decision FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_tenant_offline_policy__set_updated_at BEFORE UPDATE ON tenant_offline_policy FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 CREATE OR REPLACE FUNCTION public.increment_draw_exposure(
   p_tenant_id uuid,

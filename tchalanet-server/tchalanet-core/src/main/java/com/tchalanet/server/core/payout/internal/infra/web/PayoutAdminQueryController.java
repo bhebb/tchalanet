@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/payouts")
 @RequiredArgsConstructor
 @Tags({@Tag(name = "Payouts • Query Admin")})
-@PreAuthorize("hasPermission('payout.read') and hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
+@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 public class PayoutAdminQueryController {
 
     private final QueryBus queryBus;

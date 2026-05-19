@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.adapter;
 
-import com.tchalanet.server.common.types.id.OfflineSaleSubmissionId;
+import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
@@ -34,8 +34,9 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
     @Override
     @Transactional(readOnly = true)
     public Optional<Ticket> findById(TicketId ticketId) {
-        return ticketRepository.findWithLinesAndChargesById(ticketId.value())
-            .map(mapper::toDomain);
+        var entity = ticketRepository.findWithLinesById(ticketId.value());
+        entity.ifPresent(ticket -> ticketRepository.findWithChargesById(ticket.getId()));
+        return entity.map(mapper::toDomain);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Ticket> findByOfflineSubmissionId(OfflineSaleSubmissionId submissionId) {
+    public Optional<Ticket> findByOfflineSubmissionId(OfflineSubmissionId submissionId) {
         return ticketRepository.findWithLinesByOfflineSubmissionId(submissionId.value())
             .map(mapper::toDomain);
     }
@@ -76,7 +77,13 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
     @Override
     @Transactional(readOnly = true)
     public List<Ticket> findByDrawId(DrawId drawId) {
-        return ticketRepository.findWithLinesAndChargesByDrawId(drawId.value())
+        var entities = ticketRepository.findWithLinesByDrawId(drawId.value());
+        if (!entities.isEmpty()) {
+            var ids = entities.stream().map(ticket -> ticket.getId()).toList();
+            ticketRepository.findWithChargesByIdIn(ids);
+        }
+
+        return entities
             .stream()
             .map(mapper::toDomain)
             .toList();
@@ -84,7 +91,7 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean existsByOfflineSubmissionId(OfflineSaleSubmissionId submissionId) {
+    public boolean existsByOfflineSubmissionId(OfflineSubmissionId submissionId) {
         return ticketRepository.existsByOfflineSubmissionId(submissionId.value());
     }
 }

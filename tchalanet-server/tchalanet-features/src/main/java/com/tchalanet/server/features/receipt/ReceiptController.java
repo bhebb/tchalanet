@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +26,7 @@ public class ReceiptController {
 
   @Operation(summary = "Get ESC/POS printable bytes for a ticket")
   @GetMapping(value = "/{ticketId}/print.escpos", produces = "application/octet-stream")
-  @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+  @PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
   public byte[] printEscpos(@PathVariable TicketId ticketId, HttpServletResponse res) {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".bin");
@@ -35,7 +35,7 @@ public class ReceiptController {
 
   @Operation(summary = "Get PDF printable for a ticket")
   @GetMapping(value = "/{ticketId}/print.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-  @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+  @PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
   public byte[] printPdf(@PathVariable TicketId ticketId, HttpServletResponse res) {
     res.setHeader(HttpHeaders.CACHE_CONTROL, "no-store");
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=ticket-" + ticketId + ".pdf");
@@ -44,7 +44,7 @@ public class ReceiptController {
 
   @Operation(summary = "Get QR PNG for a ticket")
   @GetMapping(value = "/{ticketId}/qr", produces = MediaType.IMAGE_PNG_VALUE)
-  @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+  @PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
   public ResponseEntity<byte[]> qrPng(
       @PathVariable TicketId ticketId,
       @RequestParam(name = "size", defaultValue = "280") int size) {

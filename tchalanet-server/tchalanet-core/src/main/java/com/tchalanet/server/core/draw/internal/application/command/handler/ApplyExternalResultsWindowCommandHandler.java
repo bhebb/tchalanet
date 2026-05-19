@@ -3,8 +3,8 @@ package com.tchalanet.server.core.draw.internal.application.command.handler;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DateWindows;
@@ -14,11 +14,13 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
-import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawApplyPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
+import com.tchalanet.server.core.drawresult.internal.infra.config.DrawResultsProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.type.TypeReference;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -26,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 @UseCase
 @Slf4j
@@ -41,6 +44,7 @@ public class ApplyExternalResultsWindowCommandHandler
     private final Clock clock;
     private final DomainEventPublisher publisher;
     private final IdGenerator idGenerator;
+    private final JsonUtils jsonUtils;
 
     @Override
     @TchTx
@@ -72,14 +76,19 @@ public class ApplyExternalResultsWindowCommandHandler
         var slotsByKey = new java.util.HashMap<String, ResultSlotView>();
 
         for (String slotKey : slotKeys) {
-            var slotOpt = resultSlotCatalog.findByKey(slotKey);
+            Optional<?> slotOpt = resultSlotCatalog.findByKey(slotKey);
 
             if (slotOpt.isEmpty()) {
                 slotNotFound++;
                 continue;
             }
 
-            var slot = slotOpt.get();
+            var slot = toResultSlotView(slotOpt.get());
+
+            if (slot == null) {
+                slotNotFound++;
+                continue;
+            }
 
             if (!slot.active()) {
                 slotInactive++;
@@ -200,20 +209,37 @@ public class ApplyExternalResultsWindowCommandHandler
                 String.join(", ", appliedDetails.stream().limit(20).toList()));
         }
 
-        log.info(
-            "draw.results.apply.summary tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
-            cmd.tenantId(),
-            cmd.baseDate(),
-            daysBack,
-            cmd.dryRun(),
-            cmd.force(),
-            applied,
-            slotInactive,
-            alreadyOrNotEligible,
-            skippedDryRun,
-            skippedPending,
-            slotNotFound,
-            errors);
+        if (applied > 0 || errors > 0) {
+            log.info(
+                "draw.results.apply.summary tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
+                cmd.tenantId(),
+                cmd.baseDate(),
+                daysBack,
+                cmd.dryRun(),
+                cmd.force(),
+                applied,
+                slotInactive,
+                alreadyOrNotEligible,
+                skippedDryRun,
+                skippedPending,
+                slotNotFound,
+                errors);
+        } else {
+            log.debug(
+                "draw.results.apply.summary tenant={} baseDate={} daysBack={} dryRun={} force={} applied={} slotInactive={} alreadyOrNotEligible={} skippedDryRun={} skippedPending={} slotNotFound={} errors={}",
+                cmd.tenantId(),
+                cmd.baseDate(),
+                daysBack,
+                cmd.dryRun(),
+                cmd.force(),
+                applied,
+                slotInactive,
+                alreadyOrNotEligible,
+                skippedDryRun,
+                skippedPending,
+                slotNotFound,
+                errors);
+        }
 
         return new ApplyExternalResultsWindowResult(
             applied,
@@ -241,5 +267,22 @@ public class ApplyExternalResultsWindowCommandHandler
 
     private static String normalizeKey(String key) {
         return key == null ? "" : key.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private ResultSlotView toResultSlotView(Object rawSlot) {
+        if (rawSlot instanceof ResultSlotView slotView) {
+            return slotView;
+        }
+
+        try {
+            return jsonUtils.convertValue(rawSlot, new TypeReference<>() {
+            });
+        } catch (Exception ex) {
+            log.warn(
+                "draw.results.apply.slot.invalid type={} err={}",
+                rawSlot == null ? "null" : rawSlot.getClass().getName(),
+                ex.getMessage());
+            return null;
+        }
     }
 }

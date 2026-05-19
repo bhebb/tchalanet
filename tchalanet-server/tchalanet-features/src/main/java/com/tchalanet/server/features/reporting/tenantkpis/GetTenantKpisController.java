@@ -25,7 +25,7 @@ public class GetTenantKpisController {
 
   @Operation(summary = "Get tenant KPIs report (platform)")
   @GetMapping
-  @PreAuthorize("hasPermission('reporting:view')")
+  @PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
   public KpisResponse get(
       @RequestParam(name = "from", required = false) LocalDate from,
       @RequestParam(name = "to", required = false) LocalDate to,

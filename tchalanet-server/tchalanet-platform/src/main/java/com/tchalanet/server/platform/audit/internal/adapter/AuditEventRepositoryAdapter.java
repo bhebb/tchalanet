@@ -12,6 +12,9 @@ import com.tchalanet.server.platform.audit.internal.service.AuditEvent;
 import com.tchalanet.server.platform.audit.internal.service.AuditEventReaderPort;
 import com.tchalanet.server.platform.audit.internal.service.AuditEventWriterPort;
 import com.tchalanet.server.platform.audit.internal.service.AuditEventsCriteria;
+import com.tchalanet.server.common.json.utils.JsonUtils;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditEventWriterPort {
 
   private final AuditEventJpaRepository jpa;
+  private final JsonUtils jsonUtils;
 
   @Override
   public AuditEvent save(AuditEvent event) {
@@ -67,8 +71,8 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
     e.setEntityType(event.entityType().name());
     e.setEntityId(event.entityId());
     e.setAction(event.action().name());
-    e.setDetails(event.detailsJson());
-    e.setIp(event.ip());
+    e.setDetails(jsonUtils.toJsonNode(event.detailsJson()));
+    e.setIp(toInetAddress(event.ip()));
     e.setUserAgent(event.userAgent());
     return e;
   }
@@ -84,9 +88,25 @@ public class AuditEventRepositoryAdapter implements AuditEventReaderPort, AuditE
         AuditEntityType.valueOf(e.getEntityType()),
         e.getEntityId(),
         AuditAction.valueOf(e.getAction()),
-        e.getDetails(),
-        e.getIp(),
+        e.getDetails() == null ? "{}" : jsonUtils.toJson(e.getDetails()),
+        toIpString(e.getIp()),
         e.getUserAgent());
+  }
+
+  private static InetAddress toInetAddress(String ip) {
+    if (ip == null || ip.isBlank()) {
+      return null;
+    }
+
+    try {
+      return InetAddress.getByName(ip.trim());
+    } catch (UnknownHostException ex) {
+      throw new IllegalArgumentException("Invalid audit IP address: " + ip, ex);
+    }
+  }
+
+  private static String toIpString(InetAddress ip) {
+    return ip == null ? null : ip.getHostAddress();
   }
 
   private static Specification<AuditEventJpaEntity> toSpecification(AuditEventsCriteria criteria) {

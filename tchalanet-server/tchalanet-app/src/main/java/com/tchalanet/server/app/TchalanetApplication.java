@@ -1,6 +1,5 @@
 package com.tchalanet.server.app;
 
-import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
@@ -13,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAsync
 @EnableAspectJAutoProxy
-@EnableAdminServer
 public class TchalanetApplication {
 
     static void main(String[] args) {

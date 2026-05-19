@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,7 +52,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PostMapping("/{ticketId}/approve")
-    @Secured({"ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
     @AuditLog(
         action = AuditAction.STATE_CHANGE,
         entity = AuditEntityType.TICKET,
@@ -81,7 +81,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PostMapping("/{ticketId}/reject")
-    @Secured({"ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+    @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
     @AuditLog(
         action = AuditAction.STATE_CHANGE,
         entity = AuditEntityType.TICKET,
@@ -110,7 +110,7 @@ public class TicketLifecycleController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found")
     })
     @PatchMapping("/{ticketId}/cancel")
-    @Secured({"ROLE_CASHIER", "ROLE_TENANT_ADMIN", "ROLE_SUPER_ADMIN"})
+    @PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN')")
     @AuditLog(
         action = AuditAction.CANCEL_TICKET,
         entity = AuditEntityType.TICKET,

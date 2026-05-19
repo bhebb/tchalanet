@@ -2,8 +2,6 @@
 # Usage: SPRING_PROFILES_ACTIVE=local-ide-redis
 
 spring:
-  profiles:
-    include: local-ide
 
   # Enable Redis autoconfiguration for this profile
   autoconfigure:

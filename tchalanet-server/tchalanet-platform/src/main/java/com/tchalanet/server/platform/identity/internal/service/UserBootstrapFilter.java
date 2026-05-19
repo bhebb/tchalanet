@@ -23,6 +23,9 @@ import static com.tchalanet.server.common.context.ContextKeys.BOOTSTRAPPED_APP_U
 @RequiredArgsConstructor
 public class UserBootstrapFilter extends OncePerRequestFilter {
 
+    private static final String OPS_SYNC_BASE = "/api/v1/platform/ops/sync/";
+    private static final String OPS_SYNC_BASE_NO_PREFIX = "/platform/ops/sync/";
+
     private final JdbcTemplate jdbc;
     private final UserBootstrapProperties props;
 
@@ -41,6 +44,16 @@ public class UserBootstrapFilter extends OncePerRequestFilter {
             set last_login_at = now(), updated_at = now()
             where id = ?
             """;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        if (uri == null) {
+            return false;
+        }
+        return uri.startsWith(OPS_SYNC_BASE)
+            || uri.startsWith(OPS_SYNC_BASE_NO_PREFIX);
+    }
 
     @Override
     protected void doFilterInternal(

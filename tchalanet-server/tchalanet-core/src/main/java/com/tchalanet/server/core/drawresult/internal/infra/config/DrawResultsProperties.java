@@ -51,7 +51,7 @@ public class DrawResultsProperties {
     @Setter
     public static class Slack {
         private boolean enabled = false;
-        private String channel = "draw-results";
+        private String channel = "batch-draws";
         private String priority = "LOW";
     }
 

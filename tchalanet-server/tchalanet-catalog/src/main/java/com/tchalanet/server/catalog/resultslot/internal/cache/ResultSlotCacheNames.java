@@ -4,7 +4,7 @@ package com.tchalanet.server.catalog.resultslot.internal.cache;
 public final class ResultSlotCacheNames {
   private ResultSlotCacheNames() {}
 
-  public static final String ACTIVE = "catalog:resultslot:active";
-  public static final String BY_KEY = "catalog:resultslot:by_key";
-  public static final String BY_ID = "catalog:resultslot:by_id";
+  public static final String ACTIVE = "catalog:resultslot:v2:active";
+  public static final String BY_KEY = "catalog:resultslot:v2:by_key";
+  public static final String BY_ID = "catalog:resultslot:v2:by_id";
 }

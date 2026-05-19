@@ -178,7 +178,10 @@ public class AuditLogAspect {
         try {
             return jsonUtils.convertValue(value, new TypeReference<Map<String, Object>>() {});
         } catch (Exception ignored) {
-            return Map.of("value", value);
+            // Avoid leaking problematic object graphs (can fail with ClassCastException during JSON serialization).
+            return Map.of(
+                "value", String.valueOf(value),
+                "valueType", value == null ? "null" : value.getClass().getName());
         }
     }
 

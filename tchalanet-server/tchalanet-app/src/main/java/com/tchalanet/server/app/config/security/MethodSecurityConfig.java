@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class MethodSecurityConfig {
 
   private final TchPermissionEvaluator tchPermissionEvaluator;

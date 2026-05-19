@@ -31,7 +31,6 @@ public class CashierTicketsController {
     private final CashierTicketsPrintService printService;
 
     @GetMapping
-    @PreAuthorize("hasPermission('cashier.ticket.list')")
     public ApiResponse<TchPage<CashierTicketPageResponse>> list(
         @TchPaging(
             allowedSort = {"placedAt", "status"},
@@ -43,7 +42,6 @@ public class CashierTicketsController {
     }
 
     @GetMapping("/{ticketId}")
-    @PreAuthorize("hasPermission('cashier.ticket.read')")
     public ApiResponse<CashierTicketDetailsResponse> get(
         @PathVariable TicketId ticketId) {
 
@@ -52,7 +50,6 @@ public class CashierTicketsController {
     }
 
     @GetMapping("/{ticketId}/print")
-    @PreAuthorize("hasPermission('cashier.ticket.print')")
     public ApiResponse<CashierTicketPrintResponse> printView(
         @CurrentContext TchRequestContext ctx,
         @PathVariable TicketId ticketId) {

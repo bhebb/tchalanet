@@ -6,14 +6,16 @@ import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawEntity;
 import com.tchalanet.server.features.stats.aggregates.persistence.StatsDrawJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class StatsDrawUpdaterService {
 
     private final StatsDrawJpaRepository statsDrawRepo;
@@ -21,8 +23,7 @@ public class StatsDrawUpdaterService {
 
     @Transactional
     public void ensureDrawRow(DrawResultAppliedEvent event) {
-        var existing = statsDrawRepo.findByDrawId(event.drawId().value());
-        if (existing != null && !existing.isEmpty()) {
+        if (statsDrawRepo.existsByDrawId(event.drawId().value())) {
             return;
         }
 
@@ -32,7 +33,6 @@ public class StatsDrawUpdaterService {
 
         var e =
             StatsDrawEntity.builder()
-                .id(UUID.randomUUID())
                 .drawId(event.drawId().value())
                 .tenantId(event.tenantId().value())
                 .gameCode(gameCode)
@@ -44,6 +44,11 @@ public class StatsDrawUpdaterService {
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
-        statsDrawRepo.save(e);
+
+        try {
+            statsDrawRepo.save(e);
+        } catch (DataIntegrityViolationException ex) {
+            log.debug("stats.draw already exists drawId={}, skipping insert", event.drawId(), ex);
+        }
     }
 }
