@@ -2,21 +2,16 @@ package com.tchalanet.server.platform.identity.internal.web.me;
 
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.KeycloakUserSub;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
-import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
-import com.tchalanet.server.platform.identity.api.model.surface.ClientSurfacePolicy;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.UserBootstrapService;
 import com.tchalanet.server.platform.identity.internal.web.model.EffectiveUiContextResponse;
-import com.tchalanet.server.platform.identity.internal.web.model.LandingResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.MeResponse;
-import com.tchalanet.server.platform.identity.internal.web.model.ProfileActionsResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.TenantContextResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.UserPreferenceResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.UserResponse;
@@ -25,7 +20,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/tenant/me/profile")
-@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN', 'OPERATOR')")
+@PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
 @Tag(name = "Tenant • Current Profile")
 public class CurrentUserProfileController {
@@ -51,7 +45,7 @@ public class CurrentUserProfileController {
     if (ctx.userId() == null) {
       throw ProblemRest.notFound("User not found for current principal");
     }
-    return ApiResponse.success(toMeResponse(profiles.getCurrentUser(ctx.userId()), ctx, false));
+    return ApiResponse.success(toMeResponse(profiles.getCurrentUser(ctx.userId()), false));
   }
 
   @PostMapping("/bootstrap")
@@ -73,7 +67,7 @@ public class CurrentUserProfileController {
                 null,
                 ctx.locale(),
                 ctx.tenantZoneId()));
-    return ApiResponse.success(toMeResponse(profiles.getCurrentUser(result.userId()), ctx, result.isNew()));
+    return ApiResponse.success(toMeResponse(profiles.getCurrentUser(result.userId()), result.isNew()));
   }
 
   @PatchMapping
@@ -104,12 +98,7 @@ public class CurrentUserProfileController {
             profile.displayName()));
   }
 
-  private static MeResponse toMeResponse(CurrentUserView view, TchRequestContext ctx, boolean isNew) {
-    var roles =
-        ctx.systemRoles() == null
-            ? Set.<TchRole>of()
-            : ctx.systemRoles();
-    var availableSurfaces = ClientSurfacePolicy.availableSurfaces(roles);
+  private static MeResponse toMeResponse(CurrentUserView view, boolean isNew) {
     return new MeResponse(
         view.id(),
         view.keycloakSub().value(),
@@ -124,18 +113,6 @@ public class CurrentUserProfileController {
         new UserPreferenceResponse(
             view.themeMode(), view.density(), view.locale(), view.timeZone(), view.currency()),
         new EffectiveUiContextResponse(
-            view.themeMode(), view.density(), view.locale(), view.timeZone(), view.currency()),
-        roles,
-        new LandingResponse(ClientSurfacePolicy.preferredSurface(roles), availableSurfaces),
-        capabilities(availableSurfaces),
-        new ProfileActionsResponse(true, true, false, true));
-  }
-
-  private static Set<String> capabilities(Set<ClientSurface> surfaces) {
-    if (surfaces.contains(ClientSurface.MOBILE_POS)
-        || surfaces.contains(ClientSurface.CASHIER_WEB)) {
-      return Set.of("cashier.sell", "cashier.print", "cashier.send", "cashier.cancel");
-    }
-    return Set.of();
+            view.themeMode(), view.density(), view.locale(), view.timeZone(), view.currency()));
   }
 }

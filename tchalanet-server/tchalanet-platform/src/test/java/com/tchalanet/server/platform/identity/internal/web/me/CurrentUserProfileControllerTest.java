@@ -16,7 +16,6 @@ import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
-import com.tchalanet.server.platform.identity.api.model.surface.ClientSurface;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.UserBootstrapService;
 import com.tchalanet.server.platform.identity.internal.web.model.MeResponse;
@@ -55,24 +54,6 @@ class CurrentUserProfileControllerTest {
 
       assertThat(response.id()).isEqualTo(userId);
       assertThat(response.isNew()).isFalse();
-    }
-
-    @Test
-    @DisplayName("should return profile landing surfaces")
-    void profile_returns_available_surfaces() {
-      var tenantId = TenantId.of(UUID.randomUUID());
-      var userId = UserId.of(UUID.randomUUID());
-      var ctx = context(tenantId, userId, UUID.randomUUID().toString(), Set.of(TchRole.CASHIER));
-
-      when(profiles.getCurrentUser(userId)).thenReturn(currentUserView(userId, tenantId));
-
-      MeResponse response = controller.me(ctx).data();
-
-      assertThat(response.landing().preferredSurface()).isEqualTo(ClientSurface.MOBILE_POS);
-      assertThat(response.landing().availableSurfaces())
-          .containsExactlyInAnyOrder(ClientSurface.MOBILE_POS, ClientSurface.CASHIER_WEB);
-      assertThat(response.capabilities()).contains("cashier.sell", "cashier.print");
-      assertThat(response.profileActions().canEditLocale()).isTrue();
     }
   }
 
@@ -156,11 +137,6 @@ class CurrentUserProfileControllerTest {
   }
 
   private static TchRequestContext context(TenantId tenantId, UserId userId, String keycloakSub) {
-    return context(tenantId, userId, keycloakSub, Set.of(TchRole.TENANT_ADMIN));
-  }
-
-  private static TchRequestContext context(
-      TenantId tenantId, UserId userId, String keycloakSub, Set<TchRole> roles) {
     return new TchRequestContext(
         "tenant-demo",
         tenantId.value(),
@@ -168,7 +144,7 @@ class CurrentUserProfileControllerTest {
         tenantId.value(),
         keycloakSub,
         userId.value(),
-        roles,
+        Set.of(TchRole.TENANT_ADMIN),
         Set.of(),
         Locale.FRANCE,
         "req-test",
@@ -185,4 +161,5 @@ class CurrentUserProfileControllerTest {
         null);
   }
 }
+
 

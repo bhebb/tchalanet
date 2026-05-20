@@ -24,7 +24,7 @@ public class TicketReceiptPrintFormatter {
         for (var section : receipt.gameSections()) {
             add(lines, section.gameLabel() == null ? section.gameCode() : section.gameLabel());
             for (var line : section.lines()) {
-                add(lines, "#" + line.lineNo() + " " + lineLabel(line.betType(), line.optionLabel()));
+                add(lines, "#" + line.lineNo() + " " + line.betType() + betOptionLabel(line.betOption()));
                 add(lines, "Selection: " + line.selection());
                 add(lines, "Mise: " + line.stake());
                 add(lines, "Gain potentiel: " + line.potentialPayout());
@@ -58,7 +58,7 @@ public class TicketReceiptPrintFormatter {
         }
     }
 
-    private String lineLabel(String betType, String optionLabel) {
-        return optionLabel == null || optionLabel.isBlank() ? betType : optionLabel;
+    private String betOptionLabel(Short betOption) {
+        return betOption == null ? "" : " option " + betOption;
     }
 }

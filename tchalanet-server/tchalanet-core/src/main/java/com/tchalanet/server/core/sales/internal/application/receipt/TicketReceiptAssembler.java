@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
-import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectionView;
@@ -8,12 +7,11 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter;
-import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
-import org.springframework.stereotype.Component;
-
+import com.tchalanet.server.core.sales.internal.application.service.print.TicketVerificationUrlBuilder;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TicketReceiptAssembler {
@@ -85,21 +83,11 @@ public class TicketReceiptAssembler {
             line.gameCode().name(),
             line.betType().name(),
             line.betOption(),
-            optionLabel(line),
             line.gameLabel(),
             line.selectionCanonical(),
             line.odds(),
             moneyFormatter.format(line.stake()),
             moneyFormatter.format(line.potentialPayout())
         );
-    }
-
-    private String optionLabel(TicketPrintLine line) {
-        try {
-            var option = BetOption.from(line.betType(), line.betOption());
-            return option == null ? null : option.label();
-        } catch (IllegalArgumentException ex) {
-            return null;
-        }
     }
 }

@@ -34,8 +34,8 @@ public class SaleAcceptanceEvaluator {
         SaleEvaluationMode mode
     ) {
         try {
-            var prepared = policyService.prepareSale(command, ctx);
             exposurePlanner.groupByExposureKey(command.lines());
+            var prepared = policyService.prepareSale(command, ctx);
             var issues = issueFactory.fromNotices(prepared.notices());
             var decision = prepared.requiresApproval()
                 ? SaleDecision.REQUIRES_CHANGES
