@@ -34,6 +34,12 @@ public class TenantMembershipJpaAdapter {
         .map(IdentityPersistenceMapper::toMembership);
   }
 
+  public Optional<Instant> findCreatedAt(TenantId tenantId, UserId userId) {
+    return repository
+        .findByTenantIdAndUserIdAndDeletedAtIsNull(tenantId.value(), userId.value())
+        .map(TenantUserJpaEntity::getCreatedAt);
+  }
+
   public TenantMembership upsert(TenantMembership membership) {
     var entity =
         repository

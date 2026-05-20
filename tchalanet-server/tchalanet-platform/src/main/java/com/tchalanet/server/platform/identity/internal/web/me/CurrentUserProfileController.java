@@ -15,6 +15,9 @@ import com.tchalanet.server.platform.identity.internal.web.model.MeResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.TenantContextResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.UserPreferenceResponse;
 import com.tchalanet.server.platform.identity.internal.web.model.UserResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +30,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/admin/profile")
+@RequestMapping("/tenant/me/profile")
 @PreAuthorize("isAuthenticated()")
 @RequiredArgsConstructor
+@Tag(name = "Tenant • Current Profile")
 public class CurrentUserProfileController {
 
   private final CurrentUserProfileService profiles;
   private final UserBootstrapService bootstrapService;
 
-  @GetMapping("/me")
+  @GetMapping
+  @Operation(summary = "Get current user profile")
   public ApiResponse<MeResponse> me(@CurrentContext TchRequestContext ctx) {
     if (ctx.userId() == null) {
       throw ProblemRest.notFound("User not found for current principal");
@@ -44,6 +49,7 @@ public class CurrentUserProfileController {
   }
 
   @PostMapping("/bootstrap")
+  @Operation(summary = "Bootstrap current user profile from Keycloak sub")
   public ApiResponse<MeResponse> bootstrap(@CurrentContext TchRequestContext ctx) {
     if (ctx.keycloakUserId() == null) {
       throw ProblemRest.forbidden("Missing Keycloak subject (sub) in token");
@@ -65,9 +71,10 @@ public class CurrentUserProfileController {
   }
 
   @PatchMapping
+  @Operation(summary = "Patch current user profile")
   public ApiResponse<UserResponse> updateProfile(
       @CurrentContext TchRequestContext ctx,
-      @RequestBody com.tchalanet.server.platform.identity.internal.web.model.UpdateUserProfileRequest req) {
+      @Valid @RequestBody com.tchalanet.server.platform.identity.internal.web.model.UpdateUserProfileRequest req) {
     if (ctx.userId() == null) {
       throw ProblemRest.notFound("User not found for current principal");
     }
@@ -76,7 +83,7 @@ public class CurrentUserProfileController {
             ctx.userId(),
             Optional.ofNullable(req.firstName()),
             Optional.ofNullable(req.lastName()),
-            Optional.ofNullable(req.email()),
+            Optional.empty(),
             Optional.ofNullable(req.phone()),
             Optional.ofNullable(req.locale()).map(Locale::forLanguageTag)));
     var profile = profiles.getUserProfile(ctx.userId());

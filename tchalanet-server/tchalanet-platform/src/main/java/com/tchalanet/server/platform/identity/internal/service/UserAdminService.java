@@ -82,7 +82,24 @@ public class UserAdminService {
 
   public UserProfile profile(UserId userId) {
     var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
-    return new UserProfile(user.id(), user.keycloakSub(), user.username(), user.email(), user.firstName(), user.lastName(), user.displayName());
+    return new UserProfile(
+        user.id(),
+        user.keycloakSub(),
+        user.username(),
+        user.email(),
+        user.phone(),
+        user.status().name(),
+        user.firstName(),
+        user.lastName(),
+        user.displayName());
+  }
+
+  public void sendInvitation(UserId userId) {
+    users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+  }
+
+  public void resyncKeycloak(UserId userId) {
+    users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
   }
 
   public TchPage<UserRow> listAll(TchPageRequest pageRequest) {
@@ -140,6 +157,8 @@ public class UserAdminService {
       KeycloakUserSub keycloakSub,
       String username,
       String email,
+      String phone,
+      String status,
       String firstName,
       String lastName,
       String displayName) {}
