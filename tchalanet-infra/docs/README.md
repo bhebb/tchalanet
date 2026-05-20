@@ -9,6 +9,7 @@
 - **[ENV-ARCHITECTURE.md](ENV-ARCHITECTURE.md)** — compose.env vs .env vs .secrets, merge flow, examples
 - **[api.env.example](api.env.example)** — Reference env file for the Spring Boot API
 - **[DEMARRAGE.md](DEMARRAGE.md)** — Service startup guide with troubleshooting
+- **[LAN-SETUP.md](LAN-SETUP.md)** — Run Tchalanet on a Manjaro LAN host and access it from a Mac
 
 ## Secrets Management
 
