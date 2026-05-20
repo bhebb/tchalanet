@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tchalanet Offline/Sales Events Map</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #fff;
+        --soft: #f8fafc;
+        --ink: #142033;
+        --muted: #64748b;
+        --line: #dbe3ef;
+        --blue: #2563eb;
+        --blue2: #dbeafe;
+        --green: #16a34a;
+        --green2: #dcfce7;
+        --amber: #d97706;
+        --amber2: #fef3c7;
+        --red: #dc2626;
+        --red2: #fee2e2;
+        --violet: #7c3aed;
+        --violet2: #ede9fe;
+        --cyan: #0891b2;
+        --cyan2: #cffafe;
+        --slate: #334155;
+        --shadow: 0 18px 55px rgba(15, 23, 42, 0.14);
+        --radius: 22px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--ink);
+        background: radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.28), transparent 28rem),
+          radial-gradient(circle at 92% 8%, rgba(124, 58, 237, 0.22), transparent 24rem),
+          linear-gradient(180deg, #0b1020 0, #111936 360px, #eef2f7 360px, #eef2f7 100%);
+      }
+      header {
+        max-width: 1280px;
+        margin: auto;
+        padding: 52px 26px 38px;
+        color: white;
+      }
+      .eyebrow {
+        display: inline-flex;
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 13px;
+        color: #dbeafe;
+      }
+      h1 {
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+        margin: 20px 0 12px;
+      }
+      header p {
+        font-size: 18px;
+        color: #cbd5e1;
+        max-width: 930px;
+      }
+      .wrap {
+        max-width: 1280px;
+        margin: auto;
+        padding: 0 26px 70px;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin: 24px 0;
+      }
+      .section-head {
+        padding: 26px 30px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent), white;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: clamp(24px, 3vw, 38px);
+        letter-spacing: -0.035em;
+      }
+      .section-head p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        max-width: 950px;
+      }
+      .content {
+        padding: 26px 30px 32px;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+      @media (max-width: 980px) {
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .content,
+        .section-head {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: var(--soft);
+        padding: 17px;
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+      .card p {
+        margin: 0 0 8px;
+        color: var(--muted);
+      }
+      .badge {
+        display: inline-flex;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        margin-bottom: 10px;
+      }
+      .b-blue {
+        background: var(--blue2);
+        color: #1d4ed8;
+      }
+      .b-green {
+        background: var(--green2);
+        color: #166534;
+      }
+      .b-amber {
+        background: var(--amber2);
+        color: #92400e;
+      }
+      .b-red {
+        background: var(--red2);
+        color: #991b1b;
+      }
+      .b-violet {
+        background: var(--violet2);
+        color: #5b21b6;
+      }
+      .b-cyan {
+        background: var(--cyan2);
+        color: #155e75;
+      }
+      .b-slate {
+        background: #e2e8f0;
+        color: #334155;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        font-size: 13.5px;
+      }
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: top;
+        text-align: left;
+      }
+      th {
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      code,
+      pre {
+        font-family: var(--mono);
+      }
+      code {
+        background: #eef2ff;
+        color: #3730a3;
+        border-radius: 6px;
+        padding: 2px 5px;
+      }
+      pre {
+        background: #0f172a;
+        color: #dbeafe;
+        border-radius: 16px;
+        padding: 16px;
+        overflow: auto;
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+      .flow {
+        display: grid;
+        gap: 12px;
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 44px 1fr;
+        gap: 13px;
+        align-items: start;
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 16px;
+      }
+      .num {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: linear-gradient(135deg, var(--blue), var(--violet));
+        color: white;
+        font-weight: 900;
+      }
+      .step h4 {
+        margin: 0 0 4px;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .note {
+        border-radius: 18px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #7c2d12;
+        padding: 16px;
+        margin-top: 16px;
+      }
+      .ok {
+        background: #ecfdf5;
+        border-color: #86efac;
+        color: #166534;
+      }
+      .danger {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #991b1b;
+      }
+      .diagram {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+        overflow: auto;
+        margin: 18px 0;
+      }
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      .footer {
+        max-width: 1280px;
+        margin: auto;
+        padding: 20px 26px 48px;
+        color: #64748b;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">Tchalanet · Offline Sales · Design pack</div>
+      <h1>Tchalanet Offline/Sales Events Map</h1>
+      <p>
+        Carte des événements levés, producteurs probables, consommateurs probables et règles de
+        listeners pour éviter les effets de bord cross-domain.
+      </p>
+    </header>
+    <main class="wrap">
+      <section>
+        <div class="section-head">
+          <h2>1. Principe événementiel</h2>
+          <p>
+            Les events métier sont publiés après commit. Les soumissions techniques offline ont
+            leurs propres events et ne doivent pas alimenter les stats Sales.
+          </p>
+        </div>
+        <div class="content">
+          <div class="grid-2">
+            <div class="card ok">
+              <h3>Events Sales</h3>
+              <p>Seulement pour tickets officiels acceptés ou transitions métier du ticket.</p>
+            </div>
+            <div class="card danger">
+              <h3>Events Offlinesync</h3>
+              <p>Pour audit, sync, risque, review. Ils ne sont pas des ventes officielles.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>2. Producteurs et consommateurs probables</h2>
+          <p>
+            Matrice cible pour vérifier qu’un nouveau flow n’introduit pas d’écriture cross-domain
+            directe.
+          </p>
+        </div>
+        <div class="content">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Domaine producteur</th>
+                <th>Producteur probable</th>
+                <th>Consommateurs probables</th>
+                <th>Quand</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>TicketPlacedEvent</strong></td>
+                <td><code>sales</code></td>
+                <td>SellTicketCommandHandler / SyncOfflineSalesCommandHandler</td>
+                <td>session, ledger, limitpolicy, stats, notification</td>
+                <td>Après création Ticket accepté</td>
+                <td>Contient stake/fee/total; jamais pour review/rejected.</td>
+              </tr>
+              <tr>
+                <td><strong>TicketCancelledEvent</strong></td>
+                <td><code>sales</code></td>
+                <td>CancelTicketCommandHandler</td>
+                <td>session, ledger, stats, payout maybe</td>
+                <td>Après annulation acceptée</td>
+                <td>Compensation cash/ledger selon statut.</td>
+              </tr>
+              <tr>
+                <td><strong>TicketResultedEvent</strong></td>
+                <td><code>sales</code></td>
+                <td>RecordDrawTicketsResultCommandHandler</td>
+                <td>payout, stats, notification</td>
+                <td>Après scoring ticket</td>
+                <td>Ne doit pas traiter tickets non acceptés offline.</td>
+              </tr>
+              <tr>
+                <td><strong>TicketResultOverriddenEvent</strong></td>
+                <td><code>sales</code></td>
+                <td>OverrideTicketResultCommandHandler</td>
+                <td>payout, audit, stats</td>
+                <td>Après override admin</td>
+                <td>Bloquer si paid out sauf reversal explicite.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineGrantIssuedEvent</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>IssueOfflineGrantCommandHandler</td>
+                <td>audit, tenantadmin dashboard</td>
+                <td>Après émission grant</td>
+                <td>Pas un event Sales.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineBatchReceivedEvent</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>ReceiveOfflineBatchCommandHandler</td>
+                <td>ops, tenantadmin dashboard</td>
+                <td>Après stockage batch brut</td>
+                <td>Peut inclure technical risk flags.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineBatchReadyForSalesEvent</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>ReceiveOfflineBatchCommandHandler</td>
+                <td>ProcessOfflineBatchWithSalesListener</td>
+                <td>Après gates techniques OK</td>
+                <td>Déclenche Sales via command after commit.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineSubmissionTechnicallyRejectedEvent</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>ReceiveOfflineBatchCommandHandler</td>
+                <td>tenantadmin risk, notification</td>
+                <td>Après rejet technique</td>
+                <td>No Sales call.</td>
+              </tr>
+              <tr>
+                <td><strong>OfflineSubmissionSalesDecisionRecordedEvent</strong></td>
+                <td><code>offlinesync</code></td>
+                <td>ProcessOfflineBatchWithSalesCommandHandler</td>
+                <td>tenantadmin dashboard, cashier sync result</td>
+                <td>Après retour Sales</td>
+                <td>Met à jour accepted/rejected/review.</td>
+              </tr>
+              <tr>
+                <td><strong>PayoutPaidEvent</strong></td>
+                <td><code>payout</code></td>
+                <td>PayPayoutCommandHandler</td>
+                <td>sales MarkTicketPayoutPaid, ledger, stats</td>
+                <td>Après payout payé</td>
+                <td>Sales marque ticket PAID_OUT idempotent.</td>
+              </tr>
+              <tr>
+                <td><strong>OutletDayClosedEvent</strong></td>
+                <td><code>outlet/session</code></td>
+                <td>CloseOutletDayCommandHandler</td>
+                <td>session auto-close, terminal maybe</td>
+                <td>Après fermeture journée</td>
+                <td>Offline sync post-close doit créer adjustment si accepté.</td>
+              </tr>
+              <tr>
+                <td><strong>TerminalLockedEvent</strong></td>
+                <td><code>terminal</code></td>
+                <td>LockTerminalCommandHandler</td>
+                <td>offlinesync revoke grants, notification</td>
+                <td>Après lock terminal</td>
+                <td>Empêche nouveaux grants et peut rejeter sync selon policy.</td>
+              </tr>
+              <tr>
+                <td><strong>LimitPolicyBlockedEvent</strong></td>
+                <td><code>limitpolicy</code></td>
+                <td>EvaluateLimitPolicy / Sales integration</td>
+                <td>audit, tenantadmin</td>
+                <td>Quand block strict</td>
+                <td>Peut être event ou reason code; pas de Ticket Sales si block.</td>
+              </tr>
+              <tr>
+                <td><strong>SalesSessionOfflineAdjustmentRecordedEvent</strong></td>
+                <td><code>session</code></td>
+                <td>RecordOfflineSessionAdjustmentHandler</td>
+                <td>ledger/stats/session report</td>
+                <td>Après adjustment post-close</td>
+                <td>N’est pas une vente; complète le reporting de session.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <div class="section-head">
+          <h2>3. Règles d’écouteurs</h2>
+          <p>À appliquer à chaque listener.</p>
+        </div>
+        <div class="content">
+          <div class="flow">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <h4>Idempotence</h4>
+                <p>Le listener doit pouvoir recevoir le même event deux fois sans double impact.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <h4>Transaction séparée</h4>
+                <p>Le domaine consommateur écrit dans sa propre transaction.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <h4>Tenant context</h4>
+                <p>
+                  L’event transporte tenantId et IDs nécessaires. Les thread hops doivent rebinder
+                  le contexte.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">4</div>
+              <div>
+                <h4>Pas d’infra cross-domain</h4>
+                <p>
+                  Un listener exécute une command locale via CommandBus, il n’appelle pas les
+                  repositories d’un autre domaine.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">Document généré pour cadrage fonctionnel + technique Tchalanet.</footer>
+  </body>
+</html>

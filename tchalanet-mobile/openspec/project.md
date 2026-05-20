@@ -16,7 +16,7 @@ Périmètres inclus :
 ## Ne pas inclure ici
 
 - Changes backend Java → `tchalanet-server/openspec/`
-- Changes Angular → `apps/tchalanet-web/openspec/`
+- Changes Angular → `tchalanet-web/openspec/`
 - Changes edge / notifications → `tchalanet-edge-service/openspec/`
 - Coordination cross-projet → `openspec/` (racine)
 

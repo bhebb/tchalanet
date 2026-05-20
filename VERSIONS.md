@@ -13,7 +13,8 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 
 - Backend runtime/build : `tchalanet-server/pom.xml` (+ `./mvnw`)
 - Infra images/tags : `tchalanet-infra/envs/common/compose.env` + `compose/*`
-- Web/Mobile (Nx) : `package.json` racine + `pnpm-lock.yaml`
+- Web (Nx) : `tchalanet-web/package.json` + `tchalanet-web/pnpm-lock.yaml`
+- Mobile (Flutter) : `tchalanet-mobile/pubspec.yaml`
 - Version pnpm : `package.json#packageManager` + Corepack
 - Edge service : `tchalanet-edge-service/package.json`
 
@@ -57,6 +58,29 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | spotless         | 2.44.5     |
 | maven-checkstyle | 3.6.0      |
 | sonar-maven      | 5.3.0.6276 |
+
+---
+
+## 2) Mobile (Flutter)
+
+- Flutter : 3.41.9 (channel stable)
+- Dart : bundled avec Flutter 3.41.9
+- App path : `tchalanet-mobile/`
+- Target platform : Android (premier)
+- Build tool : Flutter CLI + Gradle wrapper généré par Flutter
+- Android application id : `com.tchalanet.mobile`
+- Ancienne app Ionic/Capacitor : supprimée du workspace Nx par OpenSpec change `migrate-mobile-from-nx-ionic-to-flutter`
+
+### Dépendances Flutter (versions dans `tchalanet-mobile/pubspec.yaml`)
+
+| Package                | Version |
+| ---------------------- | ------- |
+| flutter_riverpod       | ^3.3.1  |
+| go_router              | ^17.2.3 |
+| dio                    | ^5.9.2  |
+| flutter_secure_storage | ^10.0.0 |
+
+---
 
 ### Notes backend
 

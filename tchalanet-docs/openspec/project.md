@@ -14,7 +14,7 @@ Périmètres inclus :
 ## Ne pas inclure ici
 
 - Changes backend → `tchalanet-server/openspec/`
-- Changes Angular → `apps/tchalanet-web/openspec/`
+- Changes Angular → `tchalanet-web/openspec/`
 - Changes Flutter → `tchalanet-mobile/openspec/`
 - Changes edge → `tchalanet-edge-service/openspec/`
 - Changes infra → `tchalanet-infra/openspec/`

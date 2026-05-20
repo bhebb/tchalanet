@@ -1,6 +1,6 @@
 # Tchalanet Edge Service
 
-Service **Node/TypeScript** sur Fastify — notifications multi-canaux (Slack, Email, SMS) appelées depuis `tchalanet-server`.
+Service **Node/TypeScript** sur Fastify — messages multi-canaux (Slack, Email, SMS) appelés depuis `tchalanet-server`.
 
 ## Stack
 
@@ -16,13 +16,17 @@ Service **Node/TypeScript** sur Fastify — notifications multi-canaux (Slack, E
 | `GET /health` | `{ status: "UP", service: "tchalanet-edge-service" }`    |
 | `GET /ready`  | `{ status: "READY", service: "tchalanet-edge-service" }` |
 
-## Endpoint notifications
+## Endpoint messages internes
 
-| Route                               | Description             |
-| ----------------------------------- | ----------------------- |
-| `POST /internal/notifications/send` | Envoie une notification |
+| Route                          | Description             |
+| ------------------------------ | ----------------------- |
+| `POST /internal/messages/send` | Envoie un message signé |
 
 Réponse HTTP **202** — même si un canal échoue, le résultat par destinataire est retourné.
+
+Ces routes sont internes et doivent être signées avec HMAC. Voir
+[`docs/internal-messages-hmac-curl.md`](docs/internal-messages-hmac-curl.md)
+pour un exemple `curl` complet avec les headers `X-Tch-*`.
 
 ## Démarrage
 
@@ -35,7 +39,7 @@ npm run dev                   # tsx watch, port 3000
 ## Commandes
 
 ```bash
-npm test            # vitest run (11 tests, sans appels provider réels)
+npm test            # vitest run (16 tests, sans appels provider réels)
 npm run test:watch  # vitest watch
 npm run typecheck   # tsc -p tsconfig.json --noEmit
 npm run build       # compile → dist/
@@ -46,6 +50,12 @@ npm start           # node dist/main.js
 
 Copier `.env.example` → `.env.local` et renseigner les variables.
 **Ne jamais committer les secrets.**
+
+### HMAC interne
+
+```env
+EDGE_HMAC_SECRET=change-me
+```
 
 ### Slack
 
@@ -77,10 +87,14 @@ TWILIO_FROM=+1234567890
 
 ## Tests manuels curl
 
-### Slack
+Les exemples ci-dessous montrent le payload. Pour un appel accepté par les routes internes,
+utiliser la variante signée documentée dans
+[`docs/internal-messages-hmac-curl.md`](docs/internal-messages-hmac-curl.md).
+
+### Slack payload
 
 ```bash
-curl -X POST http://localhost:3000/internal/notifications/send \
+curl -X POST http://localhost:3000/internal/messages/send \
   -H 'content-type: application/json' \
   -d '{
     "eventId": "local-slack-test-001",
@@ -91,10 +105,10 @@ curl -X POST http://localhost:3000/internal/notifications/send \
   }'
 ```
 
-### Email
+### Email payload
 
 ```bash
-curl -X POST http://localhost:3000/internal/notifications/send \
+curl -X POST http://localhost:3000/internal/messages/send \
   -H 'content-type: application/json' \
   -d '{
     "eventId": "local-email-test-001",
@@ -105,10 +119,10 @@ curl -X POST http://localhost:3000/internal/notifications/send \
   }'
 ```
 
-### SMS
+### SMS payload
 
 ```bash
-curl -X POST http://localhost:3000/internal/notifications/send \
+curl -X POST http://localhost:3000/internal/messages/send \
   -H 'content-type: application/json' \
   -d '{
     "eventId": "local-sms-test-001",
@@ -122,5 +136,4 @@ curl -X POST http://localhost:3000/internal/notifications/send \
 ## Canaux futurs
 
 - **WhatsApp** — type présent dans le contrat (`WHATSAPP`) mais pas d'adapter implémenté.
-- **HMAC auth** sur `/internal/*` — à implémenter dans une prochaine change OpenSpec.
 - Redis idempotency/anti-spam — change dédiée.

@@ -24,5 +24,5 @@ pour : vente de tickets, tirages, ingestion résultats, paiements, configuration
 
 - Backend: `tchalanet-server/docs/ARCHITECTURE.md`
 - Infra: `tchalanet-infra/docs/`
-- Web: `apps/tchalanet-web/*.md` et `libs/**/README.md`
+- Web: `tchalanet-web/*.md` et `tchalanet-web/libs/**/README.md`
 - OpenSpec packs: `openspec/context/*`

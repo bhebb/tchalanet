@@ -18,4 +18,14 @@ Tchalanet is a multi-tenant lottery/borlette platform (backend, web, mobile, inf
 - Specifications and planning are done with OpenSpec (`openspec/`)
 - Detailed documentation lives close to the code
 
+## Repository structure
+
+- `tchalanet-server/` — backend Spring Boot
+- `tchalanet-web/` — workspace frontend Nx/Angular
+- `tchalanet-mobile/` — application mobile Flutter
+- `tchalanet-edge-service/` — service edge Node/Fastify
+- `tchalanet-infra/` — infrastructure and deployment assets
+- `tchalanet-docs/` — published documentation
+- `openspec/` — coordination OpenSpec cross-projet
+
 This README is intentionally short.

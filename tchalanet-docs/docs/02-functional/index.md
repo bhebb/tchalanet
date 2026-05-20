@@ -68,7 +68,7 @@ Pour voir l'implémentation d'un domaine :
 
 - Backend : [99-links/backend.md](../99-links/backend.md) → `tchalanet-server/src/**/DOMAIN_*.md`
 - Features (BFF) : [99-links/backend.md](../99-links/backend.md) → `tchalanet-server/src/**/FEATURE_*.md`
-- Web/Mobile : [99-links/web.md](../99-links/web.md) → `apps/tchalanet-web/` et `apps/tchalanet-mobile/`
+- Web/Mobile : [99-links/web.md](../99-links/web.md) → `tchalanet-web/` et `tchalanet-mobile/`
 
 ---
 

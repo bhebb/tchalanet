@@ -46,11 +46,27 @@ Rules:
 - `UserBootstrapFilter` may enrich the request with `BOOTSTRAPPED_APP_USER_ID`.
 - `UserBootstrapFilter` does not decide the effective tenant.
 - `TchContextFilter` creates and binds the canonical HTTP `TchRequestContext`.
+- `TchContextFilter` may attach an operational context parsed from request headers or trusted
+  server-side inputs, but it does not validate terminal/outlet/session business state.
 - `TchContextFilter` binds request attribute, `ThreadLocal`, and MDC.
 - `TchContextFilter` clears `ThreadLocal` and MDC in `finally`.
+- No separate `OperationalContextFilter` is allowed.
 
 Over time, `UserBootstrapFilter` behavior may move behind an `ActorContextResolver`, but it remains
 actor enrichment, not tenant resolution.
+
+Canonical package ownership:
+
+```text
+common.context             -> neutral runtime request context
+common.context.web         -> HTTP context filter, @CurrentContext resolver, web parsers
+common.context.tenant      -> tenant lookup interface and tenant context resolver
+common.context.system      -> system/startup context configuration
+common.context.operational -> neutral operational context types, headers and parser results
+```
+
+`common.context.operational` must not import repositories, `CommandBus`, `QueryBus`, platform,
+core, catalog or features. Operational context values are request inputs, not resource validity.
 
 ---
 
@@ -68,6 +84,16 @@ actor enrichment, not tenant resolution.
 | `SUPER_ADMIN` + override                     | Effective tenant comes from the allowed override and must be auditable. |
 
 Client-provided tenant ids in request bodies are not trusted for tenant-scoped queries or writes.
+
+Super-admin tenant override is per request. The preferred headers are:
+
+```text
+X-Tch-Tenant-Override
+X-Tch-Override-Reason
+```
+
+The reason is required for sensitive tenant-scoped operations. The legacy `X-Tenant-Id` header may
+exist during migration, but new code should use the `X-Tch-*` names.
 
 ---
 

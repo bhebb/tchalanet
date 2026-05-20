@@ -1,0 +1,3372 @@
+{
+  "version": "6.0",
+  "nxVersion": "21.4.1",
+  "pathMappings": {
+    "@tchl/analytics": [
+      "libs/shared/analytics/src/index.ts"
+    ],
+    "@tchl/api": [
+      "libs/shared/api/src/index.ts"
+    ],
+    "@tchl/breadcrumb": [
+      "libs/ui/breadcrumb/src/index.ts"
+    ],
+    "@tchl/config": [
+      "libs/shared/config/src/index.ts"
+    ],
+    "@tchl/data-access/config": [
+      "libs/shared/data-access-config/src/index.ts"
+    ],
+    "@tchl/data-access/i18n": [
+      "libs/shared/data-access/i18n/src/index.ts"
+    ],
+    "@tchl/data-access/page": [
+      "libs/shared/data-access/page/src/index.ts"
+    ],
+    "@tchl/data-access/session": [
+      "libs/shared/data-access/session/src/index.ts"
+    ],
+    "@tchl/facades": [
+      "libs/shared/facades/src/index.ts"
+    ],
+    "@tchl/feature": [
+      "libs/shared/feature/src/index.ts"
+    ],
+    "@tchl/search": [
+      "libs/ui/search/src/index.ts"
+    ],
+    "@tchl/shared/auth": [
+      "libs/shared/auth/src/index.ts"
+    ],
+    "@tchl/types": [
+      "libs/shared/types/src/index.ts"
+    ],
+    "@tchl/ui/layout": [
+      "libs/ui/layout/src/index.ts"
+    ],
+    "@tchl/ui/plans": [
+      "libs/ui/plans/src/index.ts"
+    ],
+    "@tchl/ui/styles": [
+      "libs/ui/styles/src/index.ts"
+    ],
+    "@tchl/ui/theme": [
+      "libs/ui/theme/src/index.ts"
+    ],
+    "@tchl/ui/widget-renderer": [
+      "libs/ui/widget-renderer/src/index.ts"
+    ],
+    "@tchl/utils/constants": [
+      "libs/shared/utils/constants/src/index.ts"
+    ],
+    "@tchl/utils/i18n": [
+      "libs/shared/utils/i18n/src/index.ts"
+    ],
+    "@tchl/utils/layout": [
+      "libs/shared/utils/layout/src/index.ts"
+    ],
+    "@tchl/utils/theme": [
+      "libs/shared/ui/theme/src/index.ts"
+    ],
+    "@tchl/web": [
+      "apps/web/src/index.ts"
+    ],
+    "@tchl/web/constants": [
+      "libs/web/constants/src/index.ts"
+    ],
+    "@tchl/web/feature-home-private": [
+      "libs/web/feature-home-private/src/index.ts"
+    ],
+    "@tchl/web/feature-home-public": [
+      "libs/web/feature-home-public/src/index.ts"
+    ],
+    "@tchl/web/private-pages": [
+      "libs/web/private-pages/src/index.ts"
+    ],
+    "@tchl/web/public-pages": [
+      "libs/web/public-pages/src/index.ts"
+    ],
+    "@tchl/web/shell": [
+      "libs/web/shell/src/index.ts"
+    ],
+    "@tchl/web/widgets": [
+      "libs/web/widgets/src/index.ts"
+    ]
+  },
+  "nxJsonPlugins": [
+    {
+      "name": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
+    },
+    {
+      "name": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "name": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "vite:test",
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    }
+  ],
+  "fileMap": {
+    "projectFileMap": {
+      "analytics": [
+        {
+          "file": "libs/shared/analytics/README.md",
+          "hash": "729403698734640253"
+        },
+        {
+          "file": "libs/shared/analytics/project.json",
+          "hash": "5999912516597646354"
+        },
+        {
+          "file": "libs/shared/analytics/src/index.ts",
+          "hash": "8896467435234418046"
+        },
+        {
+          "file": "libs/shared/analytics/src/lib/analytics.init.ts",
+          "hash": "3471021394213635609",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/analytics/src/lib/analytics.router.ts",
+          "hash": "15400182467171161353",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/shared/analytics/src/lib/analytics.service.ts",
+          "hash": "3265089265639430115",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/analytics/src/lib/analytics.tokens.ts",
+          "hash": "16714754623664308535",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/analytics/src/lib/analytics.types.ts",
+          "hash": "10948261773090117503"
+        },
+        {
+          "file": "libs/shared/analytics/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/analytics/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/shared/analytics/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/analytics/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/analytics/vite.config.mts",
+          "hash": "18033422597137904185",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "file": "libs/web/constants/README.md",
+          "hash": "4559969932893867951"
+        },
+        {
+          "file": "libs/web/constants/package.json",
+          "hash": "15643105243047936209",
+          "deps": [
+            "npm:tslib"
+          ]
+        },
+        {
+          "file": "libs/web/constants/project.json",
+          "hash": "6311030494275412179"
+        },
+        {
+          "file": "libs/web/constants/src/index.ts",
+          "hash": "59831201904335374"
+        },
+        {
+          "file": "libs/web/constants/src/lib/constants.spec.ts",
+          "hash": "3942182014290355603"
+        },
+        {
+          "file": "libs/web/constants/src/lib/constants.ts",
+          "hash": "13886671584621868109"
+        },
+        {
+          "file": "libs/web/constants/tsconfig.json",
+          "hash": "9505886339790543345"
+        },
+        {
+          "file": "libs/web/constants/tsconfig.lib.json",
+          "hash": "2310906518119603203"
+        },
+        {
+          "file": "libs/web/constants/tsconfig.spec.json",
+          "hash": "2829456023087870280"
+        },
+        {
+          "file": "libs/web/constants/vite.config.ts",
+          "hash": "6387763083683903406",
+          "deps": [
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "styles": [
+        {
+          "file": "libs/ui/styles/README.md",
+          "hash": "9295519771580296967"
+        },
+        {
+          "file": "libs/ui/styles/project.json",
+          "hash": "5730274694599768224"
+        },
+        {
+          "file": "libs/ui/styles/src/index.scss",
+          "hash": "12761724139402545585"
+        },
+        {
+          "file": "libs/ui/styles/src/index.ts",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_breakpoints.scss",
+          "hash": "510994431169712140"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_functions.scss",
+          "hash": "1653639884779290731"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_mixins.scss",
+          "hash": "17411228920971264586"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_overlay.scss",
+          "hash": "11100243002435087712"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_tokens.scss",
+          "hash": "17523875805808939776"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_typography.scss",
+          "hash": "17693796823288562390"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/_utilities.scss",
+          "hash": "3011777869003235076"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/components/_footer.scss",
+          "hash": "16533534504523938339"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/components/_header.scss",
+          "hash": "11056327899483142977"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/components/carte.scss",
+          "hash": "9132057850703755756"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/primitives/_badge.scss",
+          "hash": "17091537747606993677"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/primitives/_button.scss",
+          "hash": "13660278490202974431"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/primitives/_card.scss",
+          "hash": "10883168218303663187"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/primitives/_index.scss",
+          "hash": "17780233139206831806"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/primitives/_input.scss",
+          "hash": "15134759094704494603"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/primitives/_link.scss",
+          "hash": "429490306395285476"
+        },
+        {
+          "file": "libs/ui/styles/src/lib/theme-help.md",
+          "hash": "13243962366313716402"
+        },
+        {
+          "file": "libs/ui/styles/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/ui/styles/tsconfig.lib.json",
+          "hash": "4374220781941404143"
+        },
+        {
+          "file": "libs/ui/styles/tsconfig.spec.json",
+          "hash": "2838058730552418577"
+        },
+        {
+          "file": "libs/ui/styles/vite.config.mts",
+          "hash": "9188918407737885228",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "i18n": [
+        {
+          "file": "libs/shared/data-access/i18n/README.md",
+          "hash": "5379493050505127506"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/project.json",
+          "hash": "7084905209220827868"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/index.ts",
+          "hash": "16366113732908156484"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/lib/store/i18n.actions.ts",
+          "hash": "15708650002036885186",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/lib/store/i18n.effects.ts",
+          "hash": "15434490543565490477",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:rxjs",
+            "npm:@angular/core",
+            "npm:@ngrx/effects",
+            "constants"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/lib/store/i18n.reducer.ts",
+          "hash": "991521181957796879",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/lib/store/i18n.selectors.ts",
+          "hash": "2890929629785468735",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/lib/store/i18n.state.ts",
+          "hash": "11132337257940777917"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/i18n/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/tsconfig.spec.json",
+          "hash": "10616371895249057201"
+        },
+        {
+          "file": "libs/shared/data-access/i18n/vite.config.mts",
+          "hash": "8480941326381063820",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "feature": [
+        {
+          "file": "libs/shared/feature/README.md",
+          "hash": "13790967894665321138"
+        },
+        {
+          "file": "libs/shared/feature/project.json",
+          "hash": "16394135936773687240"
+        },
+        {
+          "file": "libs/shared/feature/src/index.ts",
+          "hash": "4334971335081321398"
+        },
+        {
+          "file": "libs/shared/feature/src/lib/clients/memory.client.ts",
+          "hash": "13147483734178039157",
+          "deps": [
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/clients/unleash-proxy.client.ts",
+          "hash": "9832968005711759888",
+          "deps": [
+            "npm:unleash-proxy-client",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.directive.ts",
+          "hash": "12761085263075623197",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.guard.ts",
+          "hash": "17970776386070381276",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.pipe.ts",
+          "hash": "3978836876740406103",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.provider.ts",
+          "hash": "10321529837573622816",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.service.ts",
+          "hash": "15942919507680475684",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.tokens.ts",
+          "hash": "13625393685793541833",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/lib/feature.types.ts",
+          "hash": "13351713416844738180",
+          "deps": [
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/feature/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/shared/feature/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/feature/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/feature/vite.config.mts",
+          "hash": "12036602440132026214",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "web/feature-home-public": [
+        {
+          "file": "libs/web/feature-home-public/README.md",
+          "hash": "11577871624848178743"
+        },
+        {
+          "file": "libs/web/feature-home-public/project.json",
+          "hash": "17057662836153295866"
+        },
+        {
+          "file": "libs/web/feature-home-public/src/index.ts",
+          "hash": "11461013292936844294"
+        },
+        {
+          "file": "libs/web/feature-home-public/src/lib/home-public.page.ts",
+          "hash": "16674707014396137941",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/facades",
+            "shared/ui-shell-material"
+          ]
+        },
+        {
+          "file": "libs/web/feature-home-public/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/web/feature-home-public/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/web/feature-home-public/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/web/feature-home-public/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/web/feature-home-public/vite.config.mts",
+          "hash": "15980148624330926307",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/config": [
+        {
+          "file": "libs/shared/config/README.md",
+          "hash": "4892843028727828919"
+        },
+        {
+          "file": "libs/shared/config/project.json",
+          "hash": "9042952064188825598"
+        },
+        {
+          "file": "libs/shared/config/src/index.ts",
+          "hash": "17818475148440210277"
+        },
+        {
+          "file": "libs/shared/config/src/lib/config.json",
+          "hash": "7105138814460287834"
+        },
+        {
+          "file": "libs/shared/config/src/lib/environments/environment-local-ide.ts",
+          "hash": "7834897957086707763"
+        },
+        {
+          "file": "libs/shared/config/src/lib/environments/environment-local.ts",
+          "hash": "11861597561597877239"
+        },
+        {
+          "file": "libs/shared/config/src/lib/environments/environment-prod.ts",
+          "hash": "17252886126220602365"
+        },
+        {
+          "file": "libs/shared/config/src/lib/environments/environment-staging.ts",
+          "hash": "14260964661889355628"
+        },
+        {
+          "file": "libs/shared/config/src/lib/environments/environment.ts",
+          "hash": "336969631202826032"
+        },
+        {
+          "file": "libs/shared/config/src/lib/environments/environment.types.ts",
+          "hash": "15551781833995988519"
+        },
+        {
+          "file": "libs/shared/config/src/lib/features-toggle-default.json",
+          "hash": "7813905942678566607"
+        },
+        {
+          "file": "libs/shared/config/src/lib/integration-settings.json",
+          "hash": "16033527532817032339"
+        },
+        {
+          "file": "libs/shared/config/src/lib/page-default.json",
+          "hash": "7105138814460287834"
+        },
+        {
+          "file": "libs/shared/config/src/lib/roles-default.json",
+          "hash": "11338389873914873612"
+        },
+        {
+          "file": "libs/shared/config/src/lib/theming.json",
+          "hash": "12035567707812898316"
+        },
+        {
+          "file": "libs/shared/config/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/config/src/vite-env.d.ts",
+          "hash": "12026329535378027803"
+        },
+        {
+          "file": "libs/shared/config/tsconfig.json",
+          "hash": "2898173503493847498"
+        },
+        {
+          "file": "libs/shared/config/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/config/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/config/vite.config.mts",
+          "hash": "1772702827121826114",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/api": [
+        {
+          "file": "libs/shared/api/README.md",
+          "hash": "9704761659612717664"
+        },
+        {
+          "file": "libs/shared/api/project.json",
+          "hash": "17022645384624789747"
+        },
+        {
+          "file": "libs/shared/api/src/index.ts",
+          "hash": "1622754179341164837"
+        },
+        {
+          "file": "libs/shared/api/src/lib/api/context.api.ts",
+          "hash": "5125263749583742145",
+          "deps": [
+            "npm:angular-auth-oidc-client",
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/api/features.api.ts",
+          "hash": "16508645704163521885",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/api/kpis.api.ts",
+          "hash": "7503899007167994041",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/api/me.api.ts",
+          "hash": "8733979492540445056",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/api/page.api.ts",
+          "hash": "10329576688019388161",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "auth",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/api/translation-override.api.ts",
+          "hash": "667751204212826490",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/interceptors/api-base.interceptor.ts",
+          "hash": "15889311302787173340",
+          "deps": [
+            "npm:@angular/common",
+            "shared/config"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/interceptors/auth.interceptor.ts",
+          "hash": "4658096217804093104",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@ngrx/store",
+            "session",
+            "auth"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/interceptors/meta-headers.interceptor.ts",
+          "hash": "13029914796989506039",
+          "deps": [
+            "npm:@angular/common",
+            "shared/config"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/lib/utils/http.utils.ts",
+          "hash": "3697741514800069273",
+          "deps": [
+            "shared/config"
+          ]
+        },
+        {
+          "file": "libs/shared/api/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/api/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/shared/api/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/api/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/api/vite.config.mts",
+          "hash": "9863475356400041721",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "plans": [
+        {
+          "file": "libs/ui/plans/README.md",
+          "hash": "7169651611537827464"
+        },
+        {
+          "file": "libs/ui/plans/project.json",
+          "hash": "10866913605590772681"
+        },
+        {
+          "file": "libs/ui/plans/src/index.ts",
+          "hash": "2328283286621527239"
+        },
+        {
+          "file": "libs/ui/plans/src/lib/models/plans.model.ts",
+          "hash": "4525100216713088750"
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-item/plan-item.html",
+          "hash": "13370581297814929778"
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-item/plan-item.scss",
+          "hash": "6787720858277323357"
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-item/plan-item.spec.ts",
+          "hash": "2114830989856562350",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-item/plan-item.ts",
+          "hash": "3555155640966289155",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-list/plan-list.html",
+          "hash": "668862127796522979"
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-list/plan-list.scss",
+          "hash": "11342439411938457856"
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-list/plan-list.spec.ts",
+          "hash": "659588446996836303",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/plans/src/lib/plan-list/plan-list.ts",
+          "hash": "11935415794422453971",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/plans/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/ui/plans/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/ui/plans/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/ui/plans/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/ui/plans/vite.config.mts",
+          "hash": "3963476932692949514",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "tchalanet-portal": [
+        {
+          "file": "apps/tchalanet-portal/.env",
+          "hash": "923244223482986365"
+        },
+        {
+          "file": "apps/tchalanet-portal/API-PROXY-FIX.md",
+          "hash": "4995476694730085338"
+        },
+        {
+          "file": "apps/tchalanet-portal/DEV-MODES.md",
+          "hash": "2203521592248502793"
+        },
+        {
+          "file": "apps/tchalanet-portal/ENV-MIGRATION-SUMMARY.md",
+          "hash": "6943005542313748223"
+        },
+        {
+          "file": "apps/tchalanet-portal/ENVIRONMENT-CONFIG.md",
+          "hash": "11087190281232763808"
+        },
+        {
+          "file": "apps/tchalanet-portal/I18N-ASSETS-FIX.md",
+          "hash": "10586336242203065100"
+        },
+        {
+          "file": "apps/tchalanet-portal/PORTS-CONFIG.md",
+          "hash": "461880117662016439"
+        },
+        {
+          "file": "apps/tchalanet-portal/SESSION-RECAP.md",
+          "hash": "9382809657966026806"
+        },
+        {
+          "file": "apps/tchalanet-portal/STYLES-FIX.md",
+          "hash": "9668673008838115082"
+        },
+        {
+          "file": "apps/tchalanet-portal/copy-i18n.sh",
+          "hash": "793214838345832624"
+        },
+        {
+          "file": "apps/tchalanet-portal/index.html",
+          "hash": "13678774867668318006"
+        },
+        {
+          "file": "apps/tchalanet-portal/project.json",
+          "hash": "2608397820489086076"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/autres_page_accueil.png",
+          "hash": "8849838016682624392"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/hero-loto-stats.svg",
+          "hash": "11772524389670836289"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo-dark.png",
+          "hash": "8378016480270454645"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo-full.svg",
+          "hash": "12005063171692936682"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo-icon.svg",
+          "hash": "5857535977076983574"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo-light.png",
+          "hash": "8378016480270454645"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo-tchalanet.svg",
+          "hash": "8597524040964363814"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo.png",
+          "hash": "15327968009570735270"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/logo_tchalanet.png",
+          "hash": "7216988695715234899"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/lotto-simple-balls.svg",
+          "hash": "10985203163896091005"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/single-ball-3-d.svg",
+          "hash": "11168289796043752007"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/branding/stats-today-sales.svg",
+          "hash": "4000201544257829820"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/config/page-default.json",
+          "hash": "9860149031374809755"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/config/page-private-fallback.json",
+          "hash": "1315317739657244237"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/config/test.json",
+          "hash": "525576925740094733"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/explanations.md",
+          "hash": "2056411441729220538"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/legal/privacy.md",
+          "hash": "3943125856194635736"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/legal/regulation.md",
+          "hash": "3760497516457624715"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/legal/responsible.md",
+          "hash": "12915207258210712294"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/official-reports.md",
+          "hash": "10089214007303605303"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/security.md",
+          "hash": "18188525465980011378"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/support.md",
+          "hash": "10771131039229380936"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/en/tchala.md",
+          "hash": "16084178865244277323"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/explanations.md",
+          "hash": "4881712702175075002"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/legal/privacy.md",
+          "hash": "11282026828188153350"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/legal/regulation.md",
+          "hash": "1898924575269010486"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/legal/responsible.md",
+          "hash": "17943614216038175264"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/official-reports.md",
+          "hash": "17066918847453155446"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/security.md",
+          "hash": "4151730025672154937"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/support.md",
+          "hash": "15235668243935706097"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/fr/tchala.md",
+          "hash": "3342277373496412245"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/explanations.md",
+          "hash": "4257281786274687405"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/legal/privacy.md",
+          "hash": "13026684881996667058"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/legal/regulation.md",
+          "hash": "8065667826473023365"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/legal/responsible.md",
+          "hash": "7891369726380561235"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/official-reports.md",
+          "hash": "16524555073533836991"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/security.md",
+          "hash": "8313680769929081389"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/support.md",
+          "hash": "17071601724270759027"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/content/ht/tchala.md",
+          "hash": "4352485086787452071"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/favicon-mono.svg",
+          "hash": "5618926102623049985"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-analytics.svg",
+          "hash": "843471898197445865"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-configurable.svg",
+          "hash": "13768338633678609376"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-connected-bank.svg",
+          "hash": "13981202213753689514"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-mobile-app.svg",
+          "hash": "14329612675576709637"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-multiple-login.svg",
+          "hash": "5462761786884644402"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-multitenant.svg",
+          "hash": "8251965580016078419"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-pos-integration.svg",
+          "hash": "14673818330244701369"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-secure.svg",
+          "hash": "8697515330900087273"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/feature-ticket.svg",
+          "hash": "9957980739386606506"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/features/loto.svg",
+          "hash": "17368973638674607531"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/hero/connected-bank.svg",
+          "hash": "13981202213753689514"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/hero/cta-hero-illustration-2.svg",
+          "hash": "16220701439734462451"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/hero/cta-simple.svg",
+          "hash": "13102741028556336112"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/hero/hero-main.svg",
+          "hash": "6286492143686131399"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/feature-analytics-reporting.svg",
+          "hash": "17068752650731600559"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/feature-cloud-scalability.svg",
+          "hash": "17354282558549590544"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/feature-compliance-fairness.svg",
+          "hash": "15313755659966538116"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/feature-network-multitenant.svg",
+          "hash": "14160359440752955414"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/feature-secure-shield.svg",
+          "hash": "13468289978653280621"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/feature-support-headset.svg",
+          "hash": "3564055444493673585"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/multicolor-nodes.svg",
+          "hash": "13419040259558499263"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/pos-monitor.svg",
+          "hash": "4731021291915101539"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/security-shield.svg",
+          "hash": "15295438019226432007"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/illustrations/user-card.svg",
+          "hash": "2390581593233206905"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/i18n/en.svg",
+          "hash": "8996652583045834758"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/i18n/fr.svg",
+          "hash": "8734635249429673528"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/i18n/ht.svg",
+          "hash": "3671587302395020241"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/socials/facebook.svg",
+          "hash": "14360463152008078432"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/socials/instagram.svg",
+          "hash": "1783856045128533212"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/socials/linkedin.svg",
+          "hash": "15217745532789143296"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/socials/x.svg",
+          "hash": "11921670630856471303"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/assets/svg/socials/youtube.svg",
+          "hash": "6372176995180908506"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/favicon.ico",
+          "hash": "1032133437451643664"
+        },
+        {
+          "file": "apps/tchalanet-portal/public/tchalanet_feature_catalog.html",
+          "hash": "7561678151906277926"
+        },
+        {
+          "file": "apps/tchalanet-portal/src/app/app.config.ts",
+          "hash": "11047614897666513774",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:angular-auth-oidc-client",
+            "npm:ngx-markdown",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@ngrx/effects",
+            "npm:@ngrx/store",
+            "npm:@ngrx/store-devtools",
+            "shared/api",
+            "shared/config",
+            "i18n",
+            "shared/data-access",
+            "feature",
+            "auth",
+            "shared/ui",
+            "shared/util-i18n",
+            "web/widgets"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal/src/app/app.routes.ts",
+          "hash": "13352313907042519233",
+          "deps": [
+            "npm:@angular/router",
+            "npm:@ngrx/effects",
+            "npm:@ngrx/store",
+            "shared/data-access",
+            "session",
+            "auth",
+            "web/feature-home-public",
+            "public-pages",
+            [
+              "shared/ui-shell-material",
+              "dynamic"
+            ],
+            [
+              "private-pages",
+              "dynamic"
+            ]
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal/src/app/app.spec.ts",
+          "hash": "10922523535053444868",
+          "deps": [
+            "npm:@angular/core",
+            "auth"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal/src/app/app.ts",
+          "hash": "11405746108968629396",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "auth"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal/src/app/purge-oidc-cache.ts",
+          "hash": "16669983940769258245"
+        },
+        {
+          "file": "apps/tchalanet-portal/src/main.ts",
+          "hash": "824071333226514808",
+          "deps": [
+            "npm:@angular/platform-browser",
+            "npm:zone.js"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal/src/styles.scss",
+          "hash": "15422605287241565095"
+        },
+        {
+          "file": "apps/tchalanet-portal/src/test-setup.ts",
+          "hash": "3791648620616607453",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal/src/vite-env.d.ts",
+          "hash": "8972312480294491078"
+        },
+        {
+          "file": "apps/tchalanet-portal/start-dev.sh",
+          "hash": "3901523195910229590"
+        },
+        {
+          "file": "apps/tchalanet-portal/tsconfig.app.json",
+          "hash": "14015480133463777547"
+        },
+        {
+          "file": "apps/tchalanet-portal/tsconfig.json",
+          "hash": "4663124578817442910"
+        },
+        {
+          "file": "apps/tchalanet-portal/tsconfig.spec.json",
+          "hash": "11359119564988205903"
+        },
+        {
+          "file": "apps/tchalanet-portal/vite.config.mts",
+          "hash": "9345698385718273182",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "breadcrumb": [
+        {
+          "file": "libs/ui/breadcrumb/README.md",
+          "hash": "3739259743076389271"
+        },
+        {
+          "file": "libs/ui/breadcrumb/project.json",
+          "hash": "12686676156466604050"
+        },
+        {
+          "file": "libs/ui/breadcrumb/src/index.ts",
+          "hash": "6754185589805969932"
+        },
+        {
+          "file": "libs/ui/breadcrumb/src/lib/breadcrumb/breadcrumb.component.scss",
+          "hash": "3028714071183233299"
+        },
+        {
+          "file": "libs/ui/breadcrumb/src/lib/breadcrumb/breadcrumb.component.ts",
+          "hash": "2381693942876762185",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "shared/facades"
+          ]
+        },
+        {
+          "file": "libs/ui/breadcrumb/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/ui/breadcrumb/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/ui/breadcrumb/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/ui/breadcrumb/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/ui/breadcrumb/vite.config.mts",
+          "hash": "5096341199691235867",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "private-pages": [
+        {
+          "file": "libs/web/private-pages/README.md",
+          "hash": "16294594850601576442"
+        },
+        {
+          "file": "libs/web/private-pages/project.json",
+          "hash": "5487498543932446920"
+        },
+        {
+          "file": "libs/web/private-pages/src/index.ts",
+          "hash": "1388581853983788170"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/admin-dashboard/admin.page.ts",
+          "hash": "1693590168906570685",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "auth"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/admin-page/admin.page.html",
+          "hash": "13013414552844463438"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/admin-page/admin.page.scss",
+          "hash": "13759041760121032824"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/admin-page/admin.page.spec.ts",
+          "hash": "2101637453779912195",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/admin-page/admin.page.ts",
+          "hash": "10674901553589145942",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/cashier-dashboard/cashier-dashboard.page.ts",
+          "hash": "12733789295356273148",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/dashboard-container/dashboard-container.component.ts",
+          "hash": "1827024672468821995",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/dashboard-container/role-dashboard-routing.ts",
+          "hash": "16514847161799302116",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "auth"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/dashboard-page/dashboard.page.html",
+          "hash": "3244421341483603138"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/dashboard-page/dashboard.page.scss",
+          "hash": "14207321583589823496"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/dashboard-page/dashboard.page.ts",
+          "hash": "9139177324468470098",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@ngrx/store",
+            "shared/data-access",
+            "shared/ui-shell-material"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/draws-page/draws.page.html",
+          "hash": "2026079131038240324"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/draws-page/draws.page.scss",
+          "hash": "16916390348263324389"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/draws-page/draws.page.spec.ts",
+          "hash": "9685190197105269044",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/draws-page/draws.page.ts",
+          "hash": "1855410850422083774",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/private-shell/private-shell.component.html",
+          "hash": "16483393637556817503"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/private-shell/private-shell.component.scss",
+          "hash": "12239735178340817833"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/private-shell/private-shell.component.spec.ts",
+          "hash": "13113666298660318679",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/private-shell/private-shell.component.ts",
+          "hash": "16801973883760113696",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "breadcrumb",
+            "shared/facades",
+            "auth",
+            "shared/ui-shell-material",
+            "web/ui-shell-public"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/private.routes.ts",
+          "hash": "15482685796534223242",
+          "deps": [
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/profile-page/profile.page.html",
+          "hash": "8376169750450880724"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/profile-page/profile.page.scss",
+          "hash": "6847372038948527576"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/profile-page/profile.page.spec.ts",
+          "hash": "10773755363663579267",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/profile-page/profile.page.ts",
+          "hash": "13594169442702791416",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "shared/facades",
+            "auth"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/reports-page/reports.page.html",
+          "hash": "8438031635488042633"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/reports-page/reports.page.scss",
+          "hash": "1605228709696091483"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/reports-page/reports.page.spec.ts",
+          "hash": "6470582398949229891",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/reports-page/reports.page.ts",
+          "hash": "13342650353795508473",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/super-admin-dashboard/super-admin-dashboard.page.ts",
+          "hash": "6601728429230336619",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/tenant-admin-dashboard/tenant-admin-dashboard.page.ts",
+          "hash": "226602687643690942",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/tickets-page/tickets.page.html",
+          "hash": "7082742113112201395"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/tickets-page/tickets.page.scss",
+          "hash": "115613874046882622"
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/tickets-page/tickets.page.spec.ts",
+          "hash": "17495987310183232969",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/lib/tickets-page/tickets.page.ts",
+          "hash": "95303776981190628",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/web/private-pages/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/web/private-pages/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/web/private-pages/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/web/private-pages/vite.config.mts",
+          "hash": "13371091601130785800",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "web/ui-shell-public": [
+        {
+          "file": "libs/web/shell/README.md",
+          "hash": "13991887529601564460"
+        },
+        {
+          "file": "libs/web/shell/project.json",
+          "hash": "15802185377969477396"
+        },
+        {
+          "file": "libs/web/shell/src/index.ts",
+          "hash": "7437946747602976906"
+        },
+        {
+          "file": "libs/web/shell/src/lib/markdown-page.component/markdown-page.component.ts",
+          "hash": "1812098995010937938",
+          "deps": [
+            "npm:ngx-markdown",
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/router",
+            "npm:@ngrx/store",
+            "i18n",
+            "shared/facades"
+          ]
+        },
+        {
+          "file": "libs/web/shell/src/lib/public-stub-page.component/public-sub-page.component.ts",
+          "hash": "14617983181661550072",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/web/shell/src/lib/shell/shell.component.html",
+          "hash": "13287862402296325415"
+        },
+        {
+          "file": "libs/web/shell/src/lib/shell/shell.component.scss",
+          "hash": "13374527483177556855"
+        },
+        {
+          "file": "libs/web/shell/src/lib/shell/shell.component.ts",
+          "hash": "7791641008707751313",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/shell/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/web/shell/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/web/shell/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/web/shell/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/web/shell/vite.config.mts",
+          "hash": "1212780873808754150",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/facades": [
+        {
+          "file": "libs/shared/facades/README.md",
+          "hash": "17104896925938425831"
+        },
+        {
+          "file": "libs/shared/facades/project.json",
+          "hash": "13494156163228155578"
+        },
+        {
+          "file": "libs/shared/facades/src/index.ts",
+          "hash": "10632920490106980240"
+        },
+        {
+          "file": "libs/shared/facades/src/lib/i18n.facade.ts",
+          "hash": "13204903569690376098",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/core",
+            "npm:@ngrx/store",
+            "i18n"
+          ]
+        },
+        {
+          "file": "libs/shared/facades/src/lib/page.facade.ts",
+          "hash": "16057485567199634626",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@ngrx/store",
+            "shared/data-access"
+          ]
+        },
+        {
+          "file": "libs/shared/facades/src/lib/session.facade.ts",
+          "hash": "12466905384633686935",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/facades/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/facades/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/shared/facades/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/facades/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/facades/vite.config.mts",
+          "hash": "195305633142398502",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/utils": [
+        {
+          "file": "libs/shared/utils/layout/README.md",
+          "hash": "16221505251583894857"
+        },
+        {
+          "file": "libs/shared/utils/layout/project.json",
+          "hash": "8102772238204485030"
+        },
+        {
+          "file": "libs/shared/utils/layout/src/asset.util.ts",
+          "hash": "2113416182209654208"
+        },
+        {
+          "file": "libs/shared/utils/layout/src/index.ts",
+          "hash": "14923137081561564582"
+        },
+        {
+          "file": "libs/shared/utils/layout/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/utils/layout/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "libs/shared/utils/layout/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/utils/layout/tsconfig.spec.json",
+          "hash": "10616371895249057201"
+        },
+        {
+          "file": "libs/shared/utils/layout/vite.config.mts",
+          "hash": "6673952056133039605",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "ui/widget-renderer": [
+        {
+          "file": "libs/ui/widget-renderer/README.md",
+          "hash": "3035150266239687726"
+        },
+        {
+          "file": "libs/ui/widget-renderer/project.json",
+          "hash": "5945673252327651403"
+        },
+        {
+          "file": "libs/ui/widget-renderer/src/index.ts",
+          "hash": "13351295944200384543"
+        },
+        {
+          "file": "libs/ui/widget-renderer/src/lib/widget-renderer.component.ts",
+          "hash": "1230358280736409981",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "shared/types",
+            "web/widgets"
+          ]
+        },
+        {
+          "file": "libs/ui/widget-renderer/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/ui/widget-renderer/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/ui/widget-renderer/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/ui/widget-renderer/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/ui/widget-renderer/vite.config.mts",
+          "hash": "2525131685657778332",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "auth": [
+        {
+          "file": "libs/shared/auth/README.md",
+          "hash": "9370648284768385907"
+        },
+        {
+          "file": "libs/shared/auth/project.json",
+          "hash": "13702680161878924530"
+        },
+        {
+          "file": "libs/shared/auth/src/index.ts",
+          "hash": "9688644324168336420"
+        },
+        {
+          "file": "libs/shared/auth/src/lib/auth.guard.ts",
+          "hash": "6311217872441489356",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/lib/components/auth-callback.component.ts",
+          "hash": "3786341792924486932",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@ngrx/store",
+            "session"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/lib/components/auth-login.component.ts",
+          "hash": "5116962223759975602",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/material"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/lib/role.guard.ts",
+          "hash": "3530842382621353473",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/lib/services/auth.service.spec.ts",
+          "hash": "1083514398293325462",
+          "deps": [
+            "npm:angular-auth-oidc-client",
+            "npm:vitest",
+            "npm:rxjs"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/lib/services/auth.service.ts",
+          "hash": "18044724737503599664",
+          "deps": [
+            "npm:angular-auth-oidc-client",
+            "npm:rxjs",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/lib/services/local-storage-security.service.ts",
+          "hash": "16016180174279189213",
+          "deps": [
+            "npm:angular-auth-oidc-client",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/auth/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/shared/auth/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/auth/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/auth/vite.config.mts",
+          "hash": "16326380201792868007",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "tchalanet-portal-e2e": [
+        {
+          "file": "apps/tchalanet-portal-e2e/playwright.config.ts",
+          "hash": "11605003860944380104",
+          "deps": [
+            "npm:@nx/devkit",
+            "npm:@nx/playwright",
+            "npm:@playwright/test"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal-e2e/project.json",
+          "hash": "1816283450649504372"
+        },
+        {
+          "file": "apps/tchalanet-portal-e2e/src/example.spec.ts",
+          "hash": "2617822881957773046",
+          "deps": [
+            "npm:@playwright/test"
+          ]
+        },
+        {
+          "file": "apps/tchalanet-portal-e2e/tsconfig.json",
+          "hash": "15726545290547512047"
+        }
+      ],
+      "shared/types": [
+        {
+          "file": "libs/shared/types/README.md",
+          "hash": "16865305315750181877"
+        },
+        {
+          "file": "libs/shared/types/project.json",
+          "hash": "15220277811629232252"
+        },
+        {
+          "file": "libs/shared/types/src/index.ts",
+          "hash": "3845776317791302580"
+        },
+        {
+          "file": "libs/shared/types/src/lib/auth.model.ts",
+          "hash": "14621500119763325154"
+        },
+        {
+          "file": "libs/shared/types/src/lib/lottery.model.ts",
+          "hash": "5530351771107191821"
+        },
+        {
+          "file": "libs/shared/types/src/lib/page.model.ts",
+          "hash": "9971430347651357847",
+          "deps": [
+            "npm:@angular/router",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/shared/types/src/lib/widget.model.ts",
+          "hash": "16359909437605029768"
+        },
+        {
+          "file": "libs/shared/types/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/types/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/shared/types/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/types/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/shared/types/vite.config.mts",
+          "hash": "17493186266026543801",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "web/feature-home-private": [
+        {
+          "file": "libs/web/feature-home-private/README.md",
+          "hash": "18428874616856101935"
+        },
+        {
+          "file": "libs/web/feature-home-private/project.json",
+          "hash": "7523086448761396690"
+        },
+        {
+          "file": "libs/web/feature-home-private/src/index.ts",
+          "hash": "16256386135790345082"
+        },
+        {
+          "file": "libs/web/feature-home-private/src/lib/home-private.page.ts",
+          "hash": "15280784922415845153",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/web/feature-home-private/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/web/feature-home-private/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/web/feature-home-private/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/web/feature-home-private/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/web/feature-home-private/vite.config.mts",
+          "hash": "17614523619984652036",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared-util-constants": [
+        {
+          "file": "libs/shared/utils/constants/README.md",
+          "hash": "6606471215181729195"
+        },
+        {
+          "file": "libs/shared/utils/constants/package.json",
+          "hash": "16809526882458680503",
+          "deps": [
+            "npm:tslib"
+          ]
+        },
+        {
+          "file": "libs/shared/utils/constants/project.json",
+          "hash": "949445745405641995"
+        },
+        {
+          "file": "libs/shared/utils/constants/src/index.ts",
+          "hash": "7773816820801655882"
+        },
+        {
+          "file": "libs/shared/utils/constants/src/lib/shared-util-constants.spec.ts",
+          "hash": "7458676383104532484"
+        },
+        {
+          "file": "libs/shared/utils/constants/src/lib/shared-util-constants.ts",
+          "hash": "14373445567224576634"
+        },
+        {
+          "file": "libs/shared/utils/constants/tsconfig.json",
+          "hash": "7846400365888195640"
+        },
+        {
+          "file": "libs/shared/utils/constants/tsconfig.lib.json",
+          "hash": "7724353352098402329"
+        },
+        {
+          "file": "libs/shared/utils/constants/tsconfig.spec.json",
+          "hash": "917466382069000416"
+        },
+        {
+          "file": "libs/shared/utils/constants/vite.config.ts",
+          "hash": "77368826751392577",
+          "deps": [
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "session": [
+        {
+          "file": "libs/shared/data-access/session/README.md",
+          "hash": "6009076202519494829"
+        },
+        {
+          "file": "libs/shared/data-access/session/project.json",
+          "hash": "16552405799543687527"
+        },
+        {
+          "file": "libs/shared/data-access/session/src/index.ts",
+          "hash": "10496055013493585816"
+        },
+        {
+          "file": "libs/shared/data-access/session/src/lib/store/session.actions.ts",
+          "hash": "965475376546478831",
+          "deps": [
+            "npm:@ngrx/store",
+            "shared/types",
+            "shared/api"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/session/src/lib/store/session.effects.ts",
+          "hash": "6976137165130386403",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@ngrx/effects",
+            "shared/data-access",
+            "auth"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/session/src/lib/store/session.reducer.ts",
+          "hash": "12300871627367363790",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/session/src/lib/store/session.selectors.ts",
+          "hash": "17060098422251921372",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/session/src/lib/store/session.state.ts",
+          "hash": "10835707935197203383",
+          "deps": [
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/session/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/session/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "libs/shared/data-access/session/tsconfig.lib.json",
+          "hash": "4374220781941404143"
+        },
+        {
+          "file": "libs/shared/data-access/session/tsconfig.spec.json",
+          "hash": "8445581699757985060"
+        },
+        {
+          "file": "libs/shared/data-access/session/vite.config.mts",
+          "hash": "13474150288910677736",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/ui-shell-material": [
+        {
+          "file": "libs/ui/layout/README.md",
+          "hash": "11941385637846416458"
+        },
+        {
+          "file": "libs/ui/layout/project.json",
+          "hash": "16636841807196458695"
+        },
+        {
+          "file": "libs/ui/layout/src/index.ts",
+          "hash": "10468032975867276584"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/brand/brand.component.ts",
+          "hash": "15223123171360244005",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/breakpoints/breakpoint.service.ts",
+          "hash": "15739007712053605586",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/core",
+            "npm:@angular/cdk"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/breakpoints/breakpoints.ts",
+          "hash": "7550411443784866940"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/error-block/error-block.component.ts",
+          "hash": "2588211788021288392",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/footer/footer.component.html",
+          "hash": "8173074208454210761"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/footer/footer.component.scss",
+          "hash": "2120600204742410308"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/footer/footer.component.ts",
+          "hash": "6495327036157000894",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/router",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/grid-layout/grid-layout.component.scss",
+          "hash": "11656062073587133317"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/grid-layout/grid-layout.component.ts",
+          "hash": "13555185469722130657",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "shared/types",
+            "ui/widget-renderer"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/header-public.viewmodel.ts",
+          "hash": "10502362876130627224",
+          "deps": [
+            "shared/types",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/private-header/private-header.component.html",
+          "hash": "10927383571327830383"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/private-header/private-header.component.scss",
+          "hash": "7356774455829006579"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/private-header/private-header.component.ts",
+          "hash": "7037546365397548038",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/material",
+            "shared/facades",
+            "shared/types",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/public-header/public-header.component.html",
+          "hash": "13468612736503427362"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/public-header/public-header.component.scss",
+          "hash": "17665228405131573298"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/public-header/public-header.component.ts",
+          "hash": "7166575203288012045",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/material",
+            "shared/config",
+            "shared/facades",
+            "feature",
+            "shared/types",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/row-main/header-row-main.component.html",
+          "hash": "7292858444462864508"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/row-main/header-row-main.component.ts",
+          "hash": "5615017123059665544",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/row-secondary/header-row-secondary.component.html",
+          "hash": "12001263417348525555"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/header/row-secondary/header-row-secondary.component.ts",
+          "hash": "8007828592763444223",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/lang-switcher/lang-switcher.component.html",
+          "hash": "9841984186829785143"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/lang-switcher/lang-switcher.component.scss",
+          "hash": "4060013080913446859"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/lang-switcher/lang-switcher.component.ts",
+          "hash": "9363774892992153312",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/material"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/lang-theme-group/lang-theme-group.component.ts",
+          "hash": "11356756877666485765",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/nav/nav.component.html",
+          "hash": "10145706870900805704"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/nav/nav.component.scss",
+          "hash": "17405515647201598538"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/nav/nav.component.ts",
+          "hash": "15386629995159178487",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/not-found/not-found.component.ts",
+          "hash": "6405825506259011476",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/overlay-nav/overlay-nav.component.html",
+          "hash": "1731838510667156630"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/overlay-nav/overlay-nav.component.scss",
+          "hash": "10940054591340452024"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/overlay-nav/overlay-nav.component.ts",
+          "hash": "5642321709640135978",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/lib/sidebar-nav/sidebar-nav.component.html",
+          "hash": "4964963328855654435"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/sidebar-nav/sidebar-nav.component.scss",
+          "hash": "4429069675403831823"
+        },
+        {
+          "file": "libs/ui/layout/src/lib/sidebar-nav/sidebar-nav.component.ts",
+          "hash": "5358980927113080260",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/ui/layout/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/ui/layout/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/ui/layout/tsconfig.spec.json",
+          "hash": "10616371895249057201"
+        },
+        {
+          "file": "libs/ui/layout/vite.config.mts",
+          "hash": "8211163989736584193",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "web/widgets": [
+        {
+          "file": "libs/web/widgets/README.md",
+          "hash": "8491177283145298734"
+        },
+        {
+          "file": "libs/web/widgets/project.json",
+          "hash": "6416038830711438697"
+        },
+        {
+          "file": "libs/web/widgets/src/index.ts",
+          "hash": "14369146027074062557"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/buildin-widgets.provider.ts",
+          "hash": "9193789210962458365",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/draw-card/draw-card.component.scss",
+          "hash": "14952144018972786320"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/draw-card/draw-card.component.ts",
+          "hash": "1893591213210674053",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/draw-switcher/draw-switcher.component.scss",
+          "hash": "2383825913393125493"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/draw-switcher/draw-switcher.component.ts",
+          "hash": "18210904126585225743",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/feature-card/feature-card.component.scss",
+          "hash": "6857891386996242960"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/feature-card/feature-card.component.ts",
+          "hash": "10127006006279370320",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/generic-info-widget/generic-info-widget.component.ts",
+          "hash": "2850320754761817910",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/hero/hero.component.scss",
+          "hash": "18174779039561985522"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/hero/hero.component.ts",
+          "hash": "2896590259252852655",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/info-widget/info-widget.component.ts",
+          "hash": "196868769715421380",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/kpi/kpi.component.ts",
+          "hash": "9493410477801700467",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/lottery-carousel/lottery-carousel.component.scss",
+          "hash": "4070786555651081982"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/lottery-carousel/lottery-carousel.component.ts",
+          "hash": "5323168132200984267",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/material"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/news-banner/news-banner.component.scss",
+          "hash": "18034869501733839879"
+        },
+        {
+          "file": "libs/web/widgets/src/lib/news-banner/news-banner.component.ts",
+          "hash": "11947486932935616862",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/material",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/quick-actions/quick-actions.component.ts",
+          "hash": "13246448753650073307",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/lib/widget.token.ts",
+          "hash": "14936090503630955424",
+          "deps": [
+            "npm:@angular/core",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/web/widgets/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/web/widgets/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/web/widgets/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/web/widgets/vite.config.mts",
+          "hash": "6474399105334290251",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/data-access": [
+        {
+          "file": "libs/shared/data-access/page/README.md",
+          "hash": "11185793730919232796"
+        },
+        {
+          "file": "libs/shared/data-access/page/project.json",
+          "hash": "3790544894283790174"
+        },
+        {
+          "file": "libs/shared/data-access/page/src/index.ts",
+          "hash": "16919755300831696284"
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/navigation/nav.actions.ts",
+          "hash": "211034203073721022",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/navigation/nav.reducer.ts",
+          "hash": "4397796105498163212",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/page/page.actions.ts",
+          "hash": "12255894919634930704",
+          "deps": [
+            "npm:@ngrx/store",
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/page/page.effects.ts",
+          "hash": "15652544229115344300",
+          "deps": [
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "npm:@ngrx/effects",
+            "npm:@ngrx/operators",
+            "npm:@ngrx/store",
+            "shared/api",
+            "shared/facades",
+            "shared/types",
+            "shared/ui"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/page/page.reducer.ts",
+          "hash": "5409625764180844107",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/page/page.selectors.ts",
+          "hash": "13325168128063443094",
+          "deps": [
+            "npm:@ngrx/store"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/lib/store/page/page.state.ts",
+          "hash": "6200010888951631940",
+          "deps": [
+            "shared/types"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/data-access/page/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "libs/shared/data-access/page/tsconfig.lib.json",
+          "hash": "4374220781941404143"
+        },
+        {
+          "file": "libs/shared/data-access/page/tsconfig.spec.json",
+          "hash": "8445581699757985060"
+        },
+        {
+          "file": "libs/shared/data-access/page/vite.config.mts",
+          "hash": "7236860228300591771",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/util-i18n": [
+        {
+          "file": "libs/shared/utils/i18n/README.md",
+          "hash": "13843790437707370867"
+        },
+        {
+          "file": "libs/shared/utils/i18n/project.json",
+          "hash": "7457134361143872062"
+        },
+        {
+          "file": "libs/shared/utils/i18n/src/index.ts",
+          "hash": "11008602038366681434"
+        },
+        {
+          "file": "libs/shared/utils/i18n/src/lib/i18n-merger.service.ts",
+          "hash": "16108821536137902657",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/utils/i18n/src/lib/loader/merged-translate-loader.ts",
+          "hash": "4637033416801763838",
+          "deps": [
+            "npm:@ngx-translate/core",
+            "npm:rxjs",
+            "npm:@angular/common",
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/shared/utils/i18n/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/shared/utils/i18n/tsconfig.json",
+          "hash": "17094599609342217009"
+        },
+        {
+          "file": "libs/shared/utils/i18n/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/shared/utils/i18n/tsconfig.spec.json",
+          "hash": "10616371895249057201"
+        },
+        {
+          "file": "libs/shared/utils/i18n/vite.config.mts",
+          "hash": "5419088412670643260",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "public-pages": [
+        {
+          "file": "libs/web/public-pages/README.md",
+          "hash": "8003051215442433655"
+        },
+        {
+          "file": "libs/web/public-pages/project.json",
+          "hash": "4617669055293539642"
+        },
+        {
+          "file": "libs/web/public-pages/src/index.ts",
+          "hash": "9898616908739244784"
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/features-page/features.page.ts",
+          "hash": "14477948554883250630",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "feature"
+          ]
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/plans-page/plans.page.html",
+          "hash": "12670556679072758692"
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/plans-page/plans.page.scss",
+          "hash": "6207222119471031869"
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/plans-page/plans.page.spec.ts",
+          "hash": "884475309465575447",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/plans-page/plans.page.ts",
+          "hash": "14808970938269927959",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/public-shell/public-shell.component.ts",
+          "hash": "8679903135867304717",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/router",
+            "shared/facades",
+            "shared/ui-shell-material",
+            "web/ui-shell-public"
+          ]
+        },
+        {
+          "file": "libs/web/public-pages/src/lib/public.routes.ts",
+          "hash": "17235354376970761865",
+          "deps": [
+            "npm:@angular/router",
+            "web/ui-shell-public"
+          ]
+        },
+        {
+          "file": "libs/web/public-pages/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/web/public-pages/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/web/public-pages/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/web/public-pages/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/web/public-pages/vite.config.mts",
+          "hash": "1823153526313575572",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ],
+      "shared/ui": [
+        {
+          "file": "libs/ui/theme/README.md",
+          "hash": "18429670711607508257"
+        },
+        {
+          "file": "libs/ui/theme/project.json",
+          "hash": "4706849215870475588"
+        },
+        {
+          "file": "libs/ui/theme/src/index.ts",
+          "hash": "16281528864168890232"
+        },
+        {
+          "file": "libs/ui/theme/src/json-theme.schema.json",
+          "hash": "4955637424997637587"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/scss/_theme-presets.scss",
+          "hash": "4769838751309997643"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/scss/runtime-root.scss",
+          "hash": "15101480345863712689"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/scss/runtime-vars.scss",
+          "hash": "14852666938664385563"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/scss/tchalanet/_theme-colors.scss",
+          "hash": "10473509358197275179"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/scss/theme-presets.scss",
+          "hash": "13712844152632764320"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme-presets.registry.ts",
+          "hash": "5755885219704348215"
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.dom-applier.ts",
+          "hash": "15097201372325290608",
+          "deps": [
+            "npm:@angular/common",
+            "npm:@angular/core",
+            "npm:@angular/cdk"
+          ]
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.init.service.ts",
+          "hash": "8374923273269401244",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.repository.ts",
+          "hash": "1019390971651703071",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.service.ts",
+          "hash": "2921545115360921569",
+          "deps": [
+            "npm:@angular/core"
+          ]
+        },
+        {
+          "file": "libs/ui/theme/src/lib/theme.types.ts",
+          "hash": "1006921235638097470"
+        },
+        {
+          "file": "libs/ui/theme/src/test-setup.ts",
+          "hash": "7269083439716718770",
+          "deps": [
+            "npm:@angular/core",
+            "npm:@angular/platform-browser",
+            "npm:@angular/compiler",
+            "npm:@analogjs/vitest-angular"
+          ]
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.json",
+          "hash": "7926296956335143092"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.lib.json",
+          "hash": "9162017831943094349"
+        },
+        {
+          "file": "libs/ui/theme/tsconfig.spec.json",
+          "hash": "17510586545033859175"
+        },
+        {
+          "file": "libs/ui/theme/vite.config.mts",
+          "hash": "11531055560529144960",
+          "deps": [
+            "npm:@analogjs/vite-plugin-angular",
+            "npm:@nx/vite",
+            "npm:vite"
+          ]
+        }
+      ]
+    },
+    "nonProjectFiles": [
+      {
+        "file": ".claude/skills/angular-nx/SKILL.md",
+        "hash": "8143929581702853105"
+      },
+      {
+        "file": "AGENTS.md",
+        "hash": "7535269428538603969"
+      },
+      {
+        "file": "CLAUDE.md",
+        "hash": "9008021010500730872"
+      },
+      {
+        "file": "README.md",
+        "hash": "18362892549162584856"
+      },
+      {
+        "file": "docs/web/WEB_AGENTS.md",
+        "hash": "209329110730677622"
+      },
+      {
+        "file": "docs/web/WEB_ARCHITECTURE.md",
+        "hash": "9849878969838555172"
+      },
+      {
+        "file": "docs/web/WEB_FEATURE_PLAYBOOK.md",
+        "hash": "11640478875275898362"
+      },
+      {
+        "file": "docs/web/WEB_NAMING.md",
+        "hash": "663929922857832612"
+      },
+      {
+        "file": "docs/web/WEB_NX_BOUNDARIES.md",
+        "hash": "13626899714821408926"
+      },
+      {
+        "file": "docs/web/WEB_PLACEMENT_GUIDE.md",
+        "hash": "9438910088843186885"
+      },
+      {
+        "file": "docs/web/WEB_STATE_MANAGEMENT.md",
+        "hash": "17029324544414921556"
+      },
+      {
+        "file": "eslint.config.mjs",
+        "hash": "459637764022846146"
+      },
+      {
+        "file": "libs/i18n/locales/en.json",
+        "hash": "10706052077402161309"
+      },
+      {
+        "file": "libs/i18n/locales/fr.json",
+        "hash": "7450037502849606664"
+      },
+      {
+        "file": "libs/i18n/locales/ht.json",
+        "hash": "3032829935624007041"
+      },
+      {
+        "file": "libs/i18n/locales/versions.json",
+        "hash": "331954795662654425"
+      },
+      {
+        "file": "nx",
+        "hash": "17165975525224888679"
+      },
+      {
+        "file": "nx-aliases.sh",
+        "hash": "5208797763194632972"
+      },
+      {
+        "file": "nx.bat",
+        "hash": "2258436063572697004"
+      },
+      {
+        "file": "nx.json",
+        "hash": "6615162596169031745"
+      },
+      {
+        "file": "openspec/archive/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "openspec/changes/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/design.md",
+        "hash": "7984374170381867254"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/proposal.md",
+        "hash": "7790057368297818043"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/specs/pagemodel-runtime/spec.md",
+        "hash": "13067775554916917233"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/tasks.md",
+        "hash": "9045583484541670954"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/platform.dashboard.super_admin.json",
+        "hash": "7686840618190866289"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/private.dashboard.cashier.patch.json",
+        "hash": "7697567612564275420"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/private.dashboard.tenant_admin.json",
+        "hash": "13081048516792436634"
+      },
+      {
+        "file": "openspec/changes/extend-pagemodel-runtime-role-dashboards/templates/public.home.patch.json",
+        "hash": "6428522623714254414"
+      },
+      {
+        "file": "openspec/changes/restore-tchalanet-web-on-track/design.md",
+        "hash": "8552496956013974773"
+      },
+      {
+        "file": "openspec/changes/restore-tchalanet-web-on-track/proposal.md",
+        "hash": "1933922617621629974"
+      },
+      {
+        "file": "openspec/changes/restore-tchalanet-web-on-track/tasks.md",
+        "hash": "5663505820587433208"
+      },
+      {
+        "file": "openspec/context/90-web-rules.md",
+        "hash": "4508975260242493133"
+      },
+      {
+        "file": "openspec/project.md",
+        "hash": "9528278165344331033"
+      },
+      {
+        "file": "openspec/specs/.gitkeep",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "package.json",
+        "hash": "6734569045929163695"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "hash": "3645766405010201820"
+      },
+      {
+        "file": "pnpm-workspace.yaml",
+        "hash": "308461997091186615"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "1619277774839122506"
+      },
+      {
+        "file": "vitest.workspace.ts",
+        "hash": "4665328684042819579"
+      }
+    ]
+  }
+}

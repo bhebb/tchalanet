@@ -32,7 +32,13 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - edge
+      edge:
+        aliases:
+          - traefik.localtest.me
+          - api.localtest.me
+          - app.localtest.me
+          - flags.localtest.me
+          - stats.localtest.me
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 10s
@@ -45,4 +51,3 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-

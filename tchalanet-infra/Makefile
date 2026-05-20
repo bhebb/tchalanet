@@ -237,7 +237,7 @@ doppler-download-prod:
 # P0 strict — Traefik + PostgreSQL + Keycloak
 # ============================================================================
 
-p0-up: env-merge render-traefik mkcert-local get-realm ensure-exec networks
+p0-up: env-merge render-traefik mkcert-local get-realm ensure-exec networks ensure-keycloak-image
 	@echo "→ P0 up ENV=$(ENV)"
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up traefik $(ENV)
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up postgres $(ENV)

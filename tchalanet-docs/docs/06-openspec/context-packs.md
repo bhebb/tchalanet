@@ -12,7 +12,7 @@ Canonical global context:
 Component-specific context belongs in component OpenSpec workspaces, such as:
 
 - `tchalanet-server/openspec/`
-- `apps/tchalanet-web/openspec/`
+- `tchalanet-web/openspec/`
 - `tchalanet-mobile/openspec/`
 - `tchalanet-edge-service/openspec/`
 - `tchalanet-infra/openspec/`

@@ -1,0 +1,6 @@
+package com.tchalanet.server.core.drawresult.internal.application.service;
+
+import com.tchalanet.server.core.haiti.api.HaitiFlags;
+import tools.jackson.databind.node.ObjectNode;
+
+public record HaitiProjectionResult(ObjectNode haitiResult, HaitiFlags flags) {}

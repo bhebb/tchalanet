@@ -1,0 +1,21 @@
+package com.tchalanet.server.core.drawresult.internal.application.port.out;
+
+import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
+import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
+import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDate;
+
+/**
+ * Criteria for searching draw results (read-only). Used by DrawResult readers.
+ */
+
+public record DrawResultsCriteria(
+    String slotKey,
+    DrawResultStatus status,
+    ResultQuality quality,
+    LocalDate from,
+    LocalDate to,
+    Pageable pageable
+) {
+}

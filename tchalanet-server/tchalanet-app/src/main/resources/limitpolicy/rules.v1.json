@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "ruleKey": "MAX_STAKE_PER_LINE",
+      "label": "Mise maximum par ligne",
+      "description": "Limite la mise sur une seule ligne du ticket.",
+      "defaultOutcome": "BLOCK",
+      "category": "TICKET",
+      "stateless": true,
+      "paramsTemplate": {
+        "valueCents": 50000
+      }
+    },
+    {
+      "ruleKey": "MAX_LINES_PER_TICKET",
+      "label": "Nombre maximum de lignes par ticket",
+      "description": "Limite les tickets trop longs.",
+      "defaultOutcome": "BLOCK",
+      "category": "TICKET",
+      "stateless": true,
+      "paramsTemplate": {
+        "maxCount": 25
+      }
+    },
+    {
+      "ruleKey": "MAX_STAKE_PER_TICKET",
+      "label": "Mise maximum par ticket",
+      "description": "Limite la mise totale du ticket.",
+      "defaultOutcome": "BLOCK",
+      "category": "TICKET",
+      "stateless": true,
+      "paramsTemplate": {
+        "valueCents": 500000
+      }
+    },
+    {
+      "ruleKey": "MAX_POTENTIAL_PAYOUT_PER_TICKET",
+      "label": "Gain potentiel maximum par ticket",
+      "description": "Limite le paiement potentiel total d’un ticket.",
+      "defaultOutcome": "BLOCK",
+      "category": "PAYOUT_RISK",
+      "stateless": true,
+      "paramsTemplate": {
+        "valueCents": 5000000
+      }
+    },
+    {
+      "ruleKey": "BLOCK_BET_TYPE",
+      "label": "Bloquer un type de pari",
+      "description": "Bloque un type de jeu comme mariage, lotto3 ou lotto4.",
+      "defaultOutcome": "BLOCK",
+      "category": "BLOCKING",
+      "stateless": true,
+      "paramsTemplate": {
+        "betType": "MARRIAGE_2D2D"
+      }
+    },
+    {
+      "ruleKey": "BLOCK_SELECTION_PER_DRAW",
+      "label": "Bloquer un numéro pour un tirage",
+      "description": "Bloque une sélection chaude pour un tirage.",
+      "defaultOutcome": "BLOCK",
+      "category": "BLOCKING",
+      "stateless": true,
+      "paramsTemplate": {
+        "selections": ["05"]
+      }
+    },
+    {
+      "ruleKey": "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW",
+      "label": "Exposition maximum de mise par numéro",
+      "description": "Limite la mise totale déjà vendue sur une sélection pour un tirage.",
+      "defaultOutcome": "BLOCK",
+      "category": "EXPOSURE",
+      "stateless": false,
+      "paramsTemplate": {
+        "valueCents": 500000
+      }
+    },
+    {
+      "ruleKey": "MAX_POTENTIAL_PAYOUT_EXPOSURE_PER_SELECTION_PER_DRAW",
+      "label": "Exposition maximum de gain potentiel par numéro",
+      "description": "Limite le gain potentiel total déjà exposé sur une sélection pour un tirage.",
+      "defaultOutcome": "BLOCK",
+      "category": "EXPOSURE",
+      "stateless": false,
+      "paramsTemplate": {
+        "valueCents": 5000000
+      }
+    },
+    {
+      "ruleKey": "MAX_SALES_COUNT_PER_SELECTION_PER_DRAW",
+      "label": "Nombre maximum de ventes par numéro",
+      "description": "Limite le nombre de lignes déjà vendues sur une sélection pour un tirage.",
+      "defaultOutcome": "WARN",
+      "category": "EXPOSURE",
+      "stateless": false,
+      "paramsTemplate": {
+        "maxCount": 100
+      }
+    }
+  ]
+}

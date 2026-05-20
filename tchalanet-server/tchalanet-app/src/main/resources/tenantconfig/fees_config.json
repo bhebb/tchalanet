@@ -1,0 +1,24 @@
+{
+  "communication": {
+    "buyerTicketDelivery": {
+      "sms": {
+        "enabled": true,
+        "amount": 5.00,
+        "currency": "HTG",
+        "paidBy": "BUYER"
+      },
+      "whatsapp": {
+        "enabled": true,
+        "amount": 5.00,
+        "currency": "HTG",
+        "paidBy": "BUYER"
+      },
+      "email": {
+        "enabled": true,
+        "amount": 0.00,
+        "currency": "HTG",
+        "paidBy": "TENANT"
+      }
+    }
+  }
+}

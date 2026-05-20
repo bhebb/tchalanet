@@ -1,0 +1,45 @@
+tch:
+  us-lottery:
+    enabled: ${TCH_US_LOTTERY_ENABLED:true}
+
+    common:
+      holidays: [ "01-01", "12-25" ]
+
+    providers:
+      ny:
+        enabled: ${TCH_US_NY_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_NY_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_LOTTERY_NY_BASEURL:https://nylottery.ny.gov}
+        latest-path: ${TCH_US_LOTTERY_NY_LATEST_PATH:/drupal-api/api/v2/winning_numbers}
+        app-token: ${TCH_US_LOTTERY_NY_APP_TOKEN:wEXP9hRoJxlnHdkl9MbNbBuBA}
+        headers:
+          Accept: application/json, text/plain, */*
+          Referer: https://nylottery.ny.gov/all-winning-numbers
+      fl:
+        enabled: ${TCH_US_FL_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_FL_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_FL_LOTTERY_BASEURL:https://apim-website-prod-eastus.azure-api.net}
+        latest-path: ${TCH_US_FL_LATEST_PATH:/drawgamesapp/getLatestDrawGames}
+        alert-path: ${TCH_US_FL_ALERT_PATH:/site/services/alert}
+        headers:
+          Accept: application/json
+          x-partner: web
+          Origin: https://floridalottery.com
+          Referer: https://floridalottery.com/
+          User-Agent: Tchalanet/1.0 (+https://tchalanet.com)
+
+      ga:
+        enabled: ${TCH_US_GA_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_GA_TIMEZONE:America/New_York}
+        base-url: ${TCH_US_GA_LOTTERY_BASEURL:https://www.galottery.com}
+        latest-path: ${TCH_US_GA_LATEST_PATH:/api/v2/draw-games/draws?previous-draws=10&game-names=CASH+3,CASH+4}
+        headers:
+          Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8
+          Accept-Language: en-US,en;q=0.9
+
+      tx:
+        enabled: ${TCH_US_TX_LOTTERY_ENABLED:true}
+        timezone: ${TCH_US_TX_TIMEZONE:America/Chicago}
+        base-url: ${TCH_US_TX_LOTTERY_BASEURL:https://www.texaslottery.com}
+        latest-path: ${TCH_US_TX_LATEST_PATH:/export/sites/lottery/rss/tlc_latest.xml}
+        headers: {}

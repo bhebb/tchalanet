@@ -15,7 +15,7 @@ Purpose:
 Load these for every feature.
 
 - `05-version-guard.md` — Runtime and framework version enforcement.
-- `10-non-negotiables.md` — Global invariants, architecture rules, hard constraints.
+- `tchalanet-server/openspec/context/10-non-negotiables.md` — Architecture layers, dependency graph, hard constraints (backend). Source unique — ne pas dupliquer ici.
 
 ---
 
@@ -69,7 +69,7 @@ For each feature spec, load 2 to 4 packs max.
 Always load:
 
 - `05-version-guard.md`
-- `10-non-negotiables.md`
+- `tchalanet-server/openspec/context/10-non-negotiables.md`
 
 Then load only what is needed:
 

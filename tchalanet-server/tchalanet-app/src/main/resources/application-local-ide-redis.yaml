@@ -1,0 +1,21 @@
+# Profil pour dev avec Redis activé
+# Usage: SPRING_PROFILES_ACTIVE=local-ide-redis
+
+spring:
+
+  # Enable Redis autoconfiguration for this profile
+  autoconfigure:
+    exclude: []
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:devredis}
+
+# Enable Redis cache
+tch:
+  cache:
+    redis:
+      enabled: true
+

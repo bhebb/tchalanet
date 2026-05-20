@@ -1,0 +1,19 @@
+package com.tchalanet.server.core.ledger.api.query;
+
+import com.tchalanet.server.common.bus.Query;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerDirection;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerOperationType;
+import com.tchalanet.server.core.ledger.internal.domain.model.LedgerRefType;
+import org.springframework.data.domain.Pageable;
+
+import java.time.Instant;
+
+public record ListLedgerEntriesQuery(
+    LedgerRefType refType,
+    LedgerOperationType operationType,
+    LedgerDirection direction,
+    Instant occurredFrom,
+    Instant occurredTo,
+    Pageable pageable
+) implements Query<TchPage<LedgerEntryView>> {}

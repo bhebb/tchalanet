@@ -63,8 +63,10 @@ services:
       start_period: 240s
 
     networks:
-      - back
-      - edge
+      back: {}
+      edge:
+        aliases:
+          - auth.localtest.me
 
     restart: unless-stopped
     logging:

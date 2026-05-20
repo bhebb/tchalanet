@@ -1,0 +1,97 @@
+server:
+  port: 8083
+app:
+  cors:
+    allowed-origins: https://app.localtest.me,https://auth.localtest.me,http://localhost:4200
+  apiBaseUrl: ${APP_API_BASEURL:http://localhost:8083}
+  security:
+    required-audience: ""
+# Feature flag to disable scheduled tasks inside the app even if @EnableScheduling is present
+  scheduling:
+    enabled: false
+
+spring:
+  # Disable scheduling globally for this profile (stops @Scheduled methods)
+  scheduling:
+    enabled: false
+
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://auth.localtest.me/realms/tchalanet
+          # Explicit JWKS endpoint (use http if your local Keycloak uses self-signed certs
+          # to avoid JVM trust issues). Adjust to https if Keycloak serves valid TLS.
+          jwk-set-uri: https://auth.localtest.me/realms/tchalanet/protocol/openid-connect/certs
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
+  flyway:
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
+
+  boot:
+    admin:
+      client:
+        enabled: true
+        url: http://localhost:8083/api/v1/admin/ops
+        auto-registration: true
+        register-once: false
+        period: 10s
+        instance:
+          name: tchalanet-app-local
+          service-url: http://localhost:8083/api/v1
+          management-url: http://localhost:8083/api/v1/actuator
+          health-url: http://localhost:8083/api/v1/actuator/health
+
+tch:
+  admin:
+    server:
+      enabled: true
+      local-open: true
+
+  offlinesync:
+    enabled: ${TCH_OFFLINESYNC_ENABLED:true}
+    crypto:
+      server-private-key: ${TCH_OFFLINESYNC_CRYPTO_SERVER_PRIVATE_KEY:}
+      server-public-key: ${TCH_OFFLINESYNC_CRYPTO_SERVER_PUBLIC_KEY:}
+
+  communication:
+    edge:
+      hmac-secret: ${EDGE_HMAC_SECRET:tch-local-ide-edge-hmac-2026}
+
+  draw:
+    results:
+      notifications:
+        slack:
+          enabled: true
+          channel: batch-draws   # → SLACK_WEBHOOK_BATCH_DRAWS sur l'edge
+          priority: LOW
+      scheduler:
+        due:
+          min_minutes_after_draw: 0
+          max_minutes_after_draw: 1440
+          lookback_minutes: 1440
+        min-minutes-after-draw: 0
+        max-minutes-after-draw: 1440
+        cooldown-minutes: 10
+
+  # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
+  batch:
+    job:
+      enabled: false
+
+kc:
+  bootstrap:
+    enabled: ${KC_BOOTSTRAP_ENABLED:false}
+
+# Swagger / OpenAPI OAuth2 redirect URL (used by Swagger UI Authorize button)
+springdoc:
+  swagger-ui:
+    oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html
+

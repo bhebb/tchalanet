@@ -1,4 +1,0 @@
-schema: spec-driven
-created: 2026-04-26
-status: draft
-summary: Wire ticket_settlement table for batch idempotency, prevent override from downgrading SETTLED→UNSETTLED, add ProcessedEventPort to DrawResultedEventListener.

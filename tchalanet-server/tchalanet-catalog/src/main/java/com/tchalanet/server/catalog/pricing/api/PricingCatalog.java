@@ -1,0 +1,12 @@
+package com.tchalanet.server.catalog.pricing.api;
+
+import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.common.types.id.TenantId;
+import java.math.BigDecimal;
+
+public interface PricingCatalog {
+  BigDecimal oddsFor(TenantId tenantId, String gameCode, BetType betType, Short betOption);
+
+  // NEW: stats for platform admin
+  com.tchalanet.server.catalog.pricing.api.model.PricingStatsView stats();
+ }

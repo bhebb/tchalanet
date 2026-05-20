@@ -1,0 +1,88 @@
+tch:
+  draw:
+    cache:
+      ttl:
+        last7m: ${DRAW_CACHE_TTL_LAST7M:5}
+        todaym: ${DRAW_CACHE_TTL_TODAYM:5}
+        nexts: ${DRAW_CACHE_TTL_NEXTS:60}
+
+    scheduler:
+      active: true
+      generate:
+        active: true
+        cron: "0 0 5 * * *"
+        days-ahead: 7
+        max-tenants-per-run: 1000
+      open-today:
+        active: true
+        cron: "0 */5 4-10 * * *"
+        default-sales-open-time: "05:30"
+        max-items-per-run: 10000
+      processing:
+        active: true
+        cron: "0 */5 * * * *"
+        timezone: America/New_York
+        close:
+          active: true
+          max-items-per-tick: 500
+        fetch:
+          active: true
+          start-minutes-after-draw: 5
+          retry-every-minutes: 10
+          stop-minutes-after-draw: 240
+          max-slots-per-tick: 10
+        apply:
+          active: true
+          start-minutes-after-draw: 10
+          retry-every-minutes: 30
+          stop-minutes-after-draw: 720
+          max-items-per-tick: 500
+        settle:
+          active: true
+          start-minutes-after-draw: 20
+          retry-every-minutes: 30
+          stop-minutes-after-draw: 1440
+          max-items-per-tick: 1000
+      windows:
+        enabled: false
+        timezone: America/New_York
+        fetch_results: "12:00-14:00,20:00-23:00"
+        apply_results: "12:00-14:30,20:00-23:30"
+        settle_draws: "12:00-15:00,20:00-23:30"
+        close_draws: "11:30-14:00,19:30-23:00"
+        open_draws: "02:00-06:00"
+
+    lifecycle:
+      active: true
+      generate_cron: "0 0 5 * * *"
+      open_close_cron: "0 */5 * * * *"
+      generation_days: 7
+      batch_size: 500
+      lookahead_hours: 24
+      lag_hours: 1
+
+    settlement:
+      active: true
+      cron: "0 */5 * * * *"
+      days_back: 1
+      max_draws_per_tenant: 500
+
+    results:
+      active: true
+      scheduler:
+        active: true
+        cron: "0 */5 * * * *"
+        min_minutes_after_draw: 3
+        max_minutes_after_draw: 120
+        cooldown_minutes: 10
+      limits:
+        max_slots_per_tick: 100
+        hard_days_back: 7
+      defaults:
+        manual_days_back: 0
+        manual_max_slots: 50
+      notifications:
+        slack:
+          enabled: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_ENABLED:true}
+          channel: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_CHANNEL:general}
+          priority: ${TCH_DRAW_RESULTS_NOTIFICATIONS_SLACK_PRIORITY:high}

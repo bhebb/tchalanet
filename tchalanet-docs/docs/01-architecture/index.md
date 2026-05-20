@@ -6,7 +6,7 @@ Elle reste volontairement **stable** et **courte**.
 - Les détails d’implémentation vivent près du code :
   - backend : `tchalanet-server/docs/`
   - infra : `tchalanet-infra/docs/`
-  - web : `apps/tchalanet-web/*.md` + `libs/**/README.md`
+  - web : `tchalanet-web/*.md` + `tchalanet-web/libs/**/README.md`
 - Les règles IA / SDD vivent dans OpenSpec :
   - `openspec/project.md`
   - `openspec/context/*`
@@ -61,7 +61,7 @@ Ces "maps" sont des **pointeurs** vers les docs détaillées (proches du code).
 Pour des détails techniques précis, voir :
 
 - Backend : [99-links/backend.md](../99-links/backend.md) → `tchalanet-server/docs/`
-- Web : [99-links/web.md](../99-links/web.md) → `apps/tchalanet-web/docs/`
+- Web : [99-links/web.md](../99-links/web.md) → `tchalanet-web/docs/`
 - Mobile : [99-links/mobile.md](../99-links/mobile.md) → `apps/tchalanet-mobile/docs/`
 - Infra : [99-links/infra.md](../99-links/infra.md) → `tchalanet-infra/docs/`
 

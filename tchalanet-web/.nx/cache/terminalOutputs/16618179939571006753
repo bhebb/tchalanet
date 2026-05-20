@@ -1,0 +1,7 @@
+> nx run tchalanet-portal:lint
+
+
+Linting "tchalanet-portal"...
+
+✔ All files pass linting
+

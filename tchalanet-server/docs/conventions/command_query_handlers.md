@@ -232,7 +232,97 @@ public record ResolveTenantThemeQuery(
 
 ---
 
-## 5) Dispatch via buses (MUST)
+## 5) CommandBus & QueryBus — P0 Infrastructure Rules (MUST)
+
+### 5.1 Bus semantics
+
+`CommandBus` and `QueryBus` are **in-process synchronous dispatchers**, not external service buses.
+
+- Commands and queries are dispatched to their handlers **in the same JVM call path**.
+- The bus performs **O(1) map lookup** by exact message class.
+- There is **no async/eventual delivery, no Kafka, no RabbitMQ, no SQS** at the bus layer.
+
+External async integration belongs to:
+
+- Domain event publishing (via `DomainEventPublisher` + Spring events for MVP)
+- Future outbox patterns (separate from command/query buses)
+
+### 5.2 Handler registration — fail-fast
+
+The buses **fail at startup** if:
+
+- A handler's generic message type cannot be resolved.
+- Two handlers are registered for the same message class.
+- A command has both a `CommandHandler` and a `VoidCommandHandler`.
+
+Every handler MUST implement the interface **with concrete type parameters**:
+
+✅ **Valid:**
+
+```java
+public class SellTicketHandler implements CommandHandler<SellTicketCommand, SellTicketResult> { ... }
+```
+
+❌ **Invalid (raw types):**
+
+```java
+@SuppressWarnings("rawtypes")
+public class SellTicketHandler implements CommandHandler { ... }
+```
+
+If a handler uses a base class, the message type MUST still be concretely resolved through Spring `ResolvableType`.
+
+### 5.3 Dispatch contract
+
+- **Exact class lookup**: `bus.send(command)` searches for `command.getClass()`, not polymorphic superclasses.
+- **Null rejection**: Sending `null` throws `NullPointerException`.
+- **Missing handler**: Dispatching a command/query with no handler throws `NoHandlerException`.
+
+### 5.4 Immutability
+
+Handler registries are **immutable after startup**. The internal registry is built during `@PostConstruct` and sealed using `Map.copyOf(...)`.
+
+No runtime handler registration or mutation is allowed.
+
+### 5.5 Startup observability
+
+The buses log a summary at startup:
+
+```
+CommandBus initialized: commandHandlers=143, voidCommandHandlers=27, totalMessages=170, initTimeMs=42
+QueryBus initialized: queryHandlers=96, totalMessages=96, initTimeMs=18
+```
+
+Optional debug logs show each registered handler mapping.
+
+### 5.6 Fixing unresolved handlers
+
+If startup fails with `BusRegistrationException` or `InvalidHandlerException`:
+
+1. **Check the handler implements the interface with concrete type parameters.**
+2. **If using a base class, ensure generic types are preserved through the hierarchy.**
+3. **Remove raw type declarations and `@SuppressWarnings("rawtypes")`.**
+4. **Verify the message class is a concrete class, not an interface or raw type.**
+
+Example fix:
+
+Before:
+
+```java
+public abstract class BaseHandler<C> implements CommandHandler<C, String> { }
+public class MyHandler extends BaseHandler { } // ❌ raw type
+```
+
+After:
+
+```java
+public abstract class BaseHandler<C extends Command<String>> implements CommandHandler<C, String> { }
+public class MyHandler extends BaseHandler<MyCommand> { } // ✅ concrete type
+```
+
+---
+
+## 6) Dispatch via buses (MUST)
 
 Use cases MUST be executed through:
 
@@ -245,7 +335,7 @@ Controllers do mapping + validation + bus dispatch. No business logic in control
 
 ---
 
-## 6) Testing expectations (MUST)
+## 7) Testing expectations (MUST)
 
 - Unit test each handler with in-memory/fake ports when possible.
 - AssertJ only, JUnit 5, `@Nested` for scenarios.

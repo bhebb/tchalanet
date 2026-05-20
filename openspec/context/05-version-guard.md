@@ -9,7 +9,7 @@ Any generated code MUST comply with the versions defined in `VERSIONS.md`.
 
 - Versions file: `VERSIONS.md`
 - Backend POM: `tchalanet-server/pom.xml`
-- Frontend: `package.json`, `pnpm-lock.yaml`
+- Frontend: `tchalanet-web/package.json`, `tchalanet-web/pnpm-lock.yaml`
 - Infra: `tchalanet-infra/envs/common/compose.env`
 
 ---
