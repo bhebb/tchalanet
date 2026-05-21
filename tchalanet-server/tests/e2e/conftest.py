@@ -54,10 +54,39 @@ def super_admin_token(keycloak: KeycloakAuth) -> str:
 
 
 @pytest.fixture(scope="session")
-def cashier_token(keycloak: KeycloakAuth) -> str:
-    return keycloak.password_grant(
-        username=os.environ["TCH_SELLER_USERNAME"],
-        password=os.environ["TCH_SELLER_PASSWORD"],
+def cashier_token(keycloak: KeycloakAuth, base_url: str) -> str:
+    seller_username = os.environ["TCH_SELLER_USERNAME"]
+    seller_password = os.environ["TCH_SELLER_PASSWORD"]
+
+    cashier_token_value = keycloak.password_grant(
+        username=seller_username,
+        password=seller_password,
+    )
+    probe = ApiClient(base_url=base_url, token=cashier_token_value).get("/tenant/me/profile")
+    if probe.status_code == 200:
+        return cashier_token_value
+
+    super_admin_token = keycloak.password_grant(
+        username=os.environ["TCH_SUPER_ADMIN_USERNAME"],
+        password=os.environ["TCH_SUPER_ADMIN_PASSWORD"],
+    )
+    sync_response = ApiClient(base_url=base_url, token=super_admin_token).post(
+        "/platform/ops/sync/identity/keycloak-bootstrap-users"
+    )
+    if sync_response.status_code in (200, 201, 202, 204):
+        cashier_token_value = keycloak.password_grant(
+            username=seller_username,
+            password=seller_password,
+        )
+        retry_probe = ApiClient(base_url=base_url, token=cashier_token_value).get("/tenant/me/profile")
+        if retry_probe.status_code == 200:
+            return cashier_token_value
+
+    raise RuntimeError(
+        "Cashier token is valid in Keycloak but not usable on API. "
+        f"/tenant/me/profile returned {probe.status_code} before sync for seller '{seller_username}'. "
+        "Automatic bootstrap sync was attempted with SUPER_ADMIN but the seller is still unusable. "
+        "Check kc.bootstrap.users and seller credentials in scripts/.env.local."
     )
 
 
