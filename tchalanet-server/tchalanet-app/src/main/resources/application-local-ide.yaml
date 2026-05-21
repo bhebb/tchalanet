@@ -33,7 +33,7 @@ spring:
       maximum-pool-size: 10
       jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
   flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
 
   boot:
     admin:
@@ -89,16 +89,6 @@ tch:
 kc:
   bootstrap:
     enabled: ${KC_BOOTSTRAP_ENABLED:true}
-    auto-run-on-startup: ${KC_BOOTSTRAP_AUTO_RUN_ON_STARTUP:true}
-    users:
-      - super_admin
-      - admin
-      - cashier
-      - cashier_blocked
-      - cashier_no_terminal
-      - cashier_offline_allowed
-      - cashier_offline_denied
-      - operator
 
 logging:
   level:
@@ -108,3 +98,4 @@ logging:
 springdoc:
   swagger-ui:
     oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html
+

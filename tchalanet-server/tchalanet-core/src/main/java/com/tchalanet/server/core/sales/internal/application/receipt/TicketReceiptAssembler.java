@@ -7,7 +7,7 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter;
-import com.tchalanet.server.core.sales.internal.application.service.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;

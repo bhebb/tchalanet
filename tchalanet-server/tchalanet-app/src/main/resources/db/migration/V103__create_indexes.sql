@@ -214,12 +214,12 @@ CREATE INDEX idx_message_delivery_attempt_message
 CREATE INDEX ix_processed_event__lookup ON processed_event (tenant_id, handler_key, event_id);
 CREATE INDEX ix_idempotency_record__lookup ON idempotency_record (tenant_id, scope, idem_key);
 CREATE INDEX ix_stats_draw__tenant_scheduled ON stats_draw (tenant_id, scheduled_at);
--- Single full-row unique index (NULLS NOT DISTINCT so the null-dimension case still collapses).
--- Required so the upsert in StatsDailyCustomRepositoryImpl can target
---   ON CONFLICT (dimension_type, dimension_id, ref_date)
--- without having to specify a partial WHERE predicate.
-CREATE UNIQUE INDEX ux_stats_daily__dimension_date
-  ON stats_daily (dimension_type, dimension_id, ref_date) NULLS NOT DISTINCT;
+CREATE UNIQUE INDEX ux_stats_daily__dimension_date_not_null
+  ON stats_daily (dimension_type, dimension_id, ref_date)
+  WHERE dimension_id IS NOT NULL;
+CREATE UNIQUE INDEX ux_stats_daily__dimension_date_null
+  ON stats_daily (dimension_type, ref_date)
+  WHERE dimension_id IS NULL;
 
 -- ─── Audit event (formerly V210) ────────────────────────────────────
 CREATE INDEX ix_audit_event__tenant_occurred

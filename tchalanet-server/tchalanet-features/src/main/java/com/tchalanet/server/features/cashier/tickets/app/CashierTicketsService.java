@@ -8,32 +8,33 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
-import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageMapper;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.api.model.communication.SaleCommunicationOptions;
-import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMessageQuery;
+import com.tchalanet.server.core.sales.api.query.GetTicketDetailsQuery;
+import com.tchalanet.server.core.sales.api.query.ListTicketsQuery;
 import com.tchalanet.server.core.sales.api.query.preview.PreviewTicketSaleQuery;
 import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
+import com.tchalanet.server.features.cashier.tickets.mapper.CashierTicketMapper;
+import com.tchalanet.server.features.cashier.tickets.model.CashierSellTicketRequest;
+import com.tchalanet.server.features.cashier.tickets.model.CashierSellTicketResponse;
+import com.tchalanet.server.features.cashier.tickets.model.CashierTicketBackupView;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketCancelRequest;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketCancelResponse;
+import com.tchalanet.server.features.cashier.tickets.model.CashierTicketDetailsResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketLineRequest;
+import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPageResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPreviewRequest;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPreviewResponse;
-import com.tchalanet.server.features.cashier.tickets.model.CashierTicketSellRequest;
-import com.tchalanet.server.features.cashier.tickets.model.CashierTicketSellResponse;
-import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptRequest;
-import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptResponse;
-import com.tchalanet.server.platform.communication.api.CommunicationApi;
-import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
-import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
-import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
-import java.util.LinkedHashMap;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,7 +44,7 @@ public class CashierTicketsService {
     private final QueryBus queryBus;
     private final CommandBus commandBus;
     private final SellerOperationalContextResolver sellerContextResolver;
-    private final CommunicationApi communicationApi;
+    private final CashierTicketMapper mapper;
 
     public CashierTicketPreviewResponse preview(
         TchRequestContext ctx,
@@ -65,7 +66,7 @@ public class CashierTicketsService {
         );
     }
 
-    public CashierTicketSellResponse sell(TchRequestContext ctx, CashierTicketSellRequest request) {
+    public CashierSellTicketResponse sell(TchRequestContext ctx, CashierSellTicketRequest request) {
         validateSellerContext(ctx, request.terminalId());
         var result = commandBus.execute(new SellTicketCommand(
             DrawId.of(request.drawId()),
@@ -74,14 +75,14 @@ public class CashierTicketsService {
             lines(request.lines()),
             SaleCommunicationOptions.none()
         ));
-        return new CashierTicketSellResponse(
+        return new CashierSellTicketResponse(
             result.outcome(),
             result.ticketId(),
             result.ticketCode(),
             result.publicCode(),
             result.saleStatus(),
             result.issues(),
-            result.backup(),
+            CashierTicketBackupView.from(result.backup()),
             result.actionAvailability(),
             result.sellerInstruction()
         );
@@ -102,43 +103,15 @@ public class CashierTicketsService {
         );
     }
 
-    public SendTicketReceiptResponse send(
-        TchRequestContext ctx,
-        TicketId ticketId,
-        SendTicketReceiptRequest request
-    ) {
-        validateSellerContext(ctx, request.terminalId());
-        validateRecipient(request);
-        var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.locale()));
-        var recipient = recipient(ctx, request);
-        var metadata = new LinkedHashMap<String, Object>();
-        metadata.put("templateKey", "ticket.receipt.text.v1");
-        metadata.put("ticketId", ticketId.value().toString());
-        metadata.put("publicCode", message.metadata().get("publicCode"));
-        metadata.put("channel", request.channel().name());
-        metadata.put("recipient", recipientValue(request));
-        metadata.put("dedupKey", dedupKey(ticketId, request.channel(), recipientValue(request)));
-        metadata.put("correlationKey", dedupKey(ticketId, request.channel(), recipientValue(request)));
-        metadata.put("idempotencyKey", dedupKey(ticketId, request.channel(), recipientValue(request)));
-        metadata.put("subject", message.subject());
-        metadata.put("body", message.body());
-        metadata.put("message", message.body());
+    public TchPage<CashierTicketPageResponse> listTickets(Pageable pageable) {
+        var result = queryBus.ask(new ListTicketsQuery(
+            null, null, null, null, null, null, new TchPageRequest(pageable)));
+        return TchPageMapper.map(result, mapper::toPageResponse);
+    }
 
-        communicationApi.enqueue(new SendOutboundMessageRequest(
-            "TICKET_RECEIPT",
-            request.channel(),
-            recipient,
-            message.locale(),
-            metadata
-        ));
-
-        return new SendTicketReceiptResponse(
-            ticketId,
-            request.channel(),
-            recipientValue(request),
-            true,
-            false
-        );
+    public CashierTicketDetailsResponse getDetails(TicketId ticketId) {
+        var view = queryBus.ask(new GetTicketDetailsQuery(ticketId));
+        return mapper.toDetailsResponse(view);
     }
 
     private void validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
@@ -151,36 +124,6 @@ public class CashierTicketsService {
 
     private DrawChannelId drawChannelId(java.util.UUID value) {
         return value == null ? null : DrawChannelId.of(value);
-    }
-
-    private OutboundRecipient recipient(TchRequestContext ctx, SendTicketReceiptRequest request) {
-        return switch (request.channel()) {
-            case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK ->
-                new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), null, request.channelKey());
-            case EMAIL, SMS, WHATSAPP, PUSH ->
-                new OutboundRecipient(ctx.effectiveTenantIdOrNull(), ctx.userId(), request.to(), null);
-        };
-    }
-
-    private void validateRecipient(SendTicketReceiptRequest request) {
-        if (request.channel() == null) {
-            throw ProblemRest.badRequest("channel.required");
-        }
-        var recipient = recipientValue(request);
-        if (recipient == null || recipient.isBlank()) {
-            throw ProblemRest.badRequest("recipient.required");
-        }
-    }
-
-    private String recipientValue(SendTicketReceiptRequest request) {
-        return switch (request.channel()) {
-            case SLACK, SLACK_INTERNAL, SLACK_TENANT_WEBHOOK -> request.channelKey();
-            case EMAIL, SMS, WHATSAPP, PUSH -> request.to();
-        };
-    }
-
-    private String dedupKey(TicketId ticketId, CommunicationChannel channel, String recipient) {
-        return ticketId.value() + ":" + channel.name() + ":" + recipient;
     }
 
     private List<SellTicketLineInput> lines(List<CashierTicketLineRequest> lines) {

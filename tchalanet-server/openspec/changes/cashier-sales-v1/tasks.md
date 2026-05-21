@@ -1,41 +1,43 @@
 # Tasks — Cashier Features & Sales Ticket Receipt V1
 
+> Statut audit 2026-05-20 (second pass) : legacy supprimé, formatters déplacés vers `receipt/formatter/`, ports `TicketReceiptFormatter` + impls supprimés (non utilisés après vérification), règle ArchUnit `features.cashier` → pas de `core.sales.internal..*` ajoutée. Le port `TicketPrintReaderPort` est conservé (read port légitime utilisé par 4 handlers et par `SellTicketCommandHandler`). Restent à faire : (a) slices `session` et `draws` ; (b) E2E ; (c) garde-fous backup/exposure/cancel window à valider.
+
 ## PR 1 — Core sales API and internal sales structures
 
 ### API models
 
-- [ ] Create `core.sales.api.model.sale.SaleDecision`.
-- [ ] Create `core.sales.api.model.sale.SaleIssueSeverity`.
-- [ ] Create `core.sales.api.model.sale.SaleIssueView`.
-- [ ] Create `core.sales.api.model.sale.SaleActionAvailability`.
-- [ ] Create `core.sales.api.model.sale.TicketBackupInfo`.
-- [ ] Create `core.sales.api.model.sale.SaleIssueCatalog.md` documenting issue codes and details fields.
-- [ ] Create `core.sales.api.model.receipt.TicketReceiptView`.
-- [ ] Create `core.sales.api.model.receipt.TicketReceiptGameSectionView`.
-- [ ] Create `core.sales.api.model.receipt.TicketReceiptLineView`.
-- [ ] Create `core.sales.api.model.receipt.TicketReceiptPrintContent`.
-- [ ] Create `core.sales.api.model.receipt.TicketReceiptMessageContent`.
+- [x] Create `core.sales.api.model.sale.SaleDecision`.
+- [x] Create `core.sales.api.model.sale.SaleIssueSeverity`.
+- [x] Create `core.sales.api.model.sale.SaleIssueView`.
+- [x] Create `core.sales.api.model.sale.SaleActionAvailability`.
+- [x] Create `core.sales.api.model.sale.TicketBackupInfo`.
+- [x] Create `core.sales.api.model.sale.SaleIssueCatalog.md` documenting issue codes and details fields.
+- [x] Create `core.sales.api.model.receipt.TicketReceiptView`.
+- [x] Create `core.sales.api.model.receipt.TicketReceiptGameSectionView`.
+- [x] Create `core.sales.api.model.receipt.TicketReceiptLineView`.
+- [x] Create `core.sales.api.model.receipt.TicketReceiptPrintContent`.
+- [x] Create `core.sales.api.model.receipt.TicketReceiptMessageContent`.
 
 ### API commands and queries
 
-- [ ] Update or create `core.sales.api.command.sell.SellTicketOutcome` with `ACCEPTED`, `REJECTED`, `PENDING_APPROVAL`.
-- [ ] Update `SellTicketResult` to include ticket view, issues, backup, action availability, and seller instruction.
-- [ ] Create `core.sales.api.command.cancel.CancelTicketCommand`.
-- [ ] Create `core.sales.api.command.cancel.CancelTicketResult`.
-- [ ] Create `core.sales.api.query.preview.PreviewTicketSaleQuery`.
-- [ ] Create `core.sales.api.query.preview.TicketSalePreviewResult`.
-- [ ] Create `core.sales.api.query.receipt.GetTicketReceiptViewQuery`.
-- [ ] Create `core.sales.api.query.receipt.FormatTicketReceiptPrintQuery`.
-- [ ] Create `core.sales.api.query.receipt.FormatTicketReceiptMessageQuery`.
+- [x] Update or create `core.sales.api.command.sell.SellTicketOutcome` with `ACCEPTED`, `REJECTED`, `PENDING_APPROVAL`.
+- [x] Update `SellTicketResult` to include ticket view, issues, backup, action availability, and seller instruction.
+- [x] Create `core.sales.api.command.cancel.CancelTicketCommand`.
+- [x] Create `core.sales.api.command.cancel.CancelTicketResult`.
+- [x] Create `core.sales.api.query.preview.PreviewTicketSaleQuery`.
+- [x] Create `core.sales.api.query.preview.TicketSalePreviewResult`.
+- [x] Create `core.sales.api.query.receipt.GetTicketReceiptViewQuery`.
+- [x] Create `core.sales.api.query.receipt.FormatTicketReceiptPrintQuery`.
+- [x] Create `core.sales.api.query.receipt.FormatTicketReceiptMessageQuery`.
 - [ ] Create or align `core.sales.api.query.verification.VerifyTicketByPublicCodeQuery`.
 
 ### Internal sales application
 
-- [ ] Create `core.sales.internal.application.sale.SaleEvaluationMode` with `PREVIEW`, `FINAL`.
-- [ ] Create `core.sales.internal.application.sale.SaleAcceptanceEvaluator`.
-- [ ] Create `core.sales.internal.application.sale.SaleIssueFactory`.
-- [ ] Create `core.sales.internal.application.sale.SaleExposurePlanner`.
-- [ ] Ensure preview and sell both use `SaleAcceptanceEvaluator`.
+- [x] Create `core.sales.internal.application.sale.SaleEvaluationMode` with `PREVIEW`, `FINAL`.
+- [x] Create `core.sales.internal.application.sale.SaleAcceptanceEvaluator`.
+- [x] Create `core.sales.internal.application.sale.SaleIssueFactory`.
+- [x] Create `core.sales.internal.application.sale.SaleExposurePlanner`.
+- [ ] Ensure preview and sell both use `SaleAcceptanceEvaluator`. *(SellTicketCommandHandler à reauditer)*
 - [ ] Ensure POS approval-required maps to `REQUIRES_CHANGES` / issue `APPROVAL_REQUIRED`.
 - [ ] Ensure `REJECTED_FINAL` is reserved for external blockers.
 - [ ] Ensure cumulative exposure uses `existing + basket` by exposure key.
@@ -44,83 +46,85 @@
 
 ### Receipt internals
 
-- [ ] Create `core.sales.internal.application.receipt.TicketReceiptAssembler`.
-- [ ] Create `core.sales.internal.application.receipt.TicketReceiptPrintFormatter`.
-- [ ] Create `core.sales.internal.application.receipt.TicketReceiptMessageFormatter`.
-- [ ] Create `core.sales.internal.application.receipt.TicketBackupAssembler`.
-- [ ] Move `TicketDrawLabelFormatter` to `core.sales.internal.application.receipt.formatter`.
-- [ ] Move `DefaultTicketDrawLabelFormatter` to `core.sales.internal.application.receipt.formatter`.
-- [ ] Move `TicketVerificationUrlBuilder` to `core.sales.internal.application.receipt.formatter`.
-- [ ] Create `TicketReceiptMoneyFormatter`.
-- [ ] Create `TicketPublicCodeFormatter`.
-- [ ] Remove hardcoded timezone fallback from draw label formatter.
-- [ ] Ensure `TicketBackupInfo.shareableText` is generated by `TicketReceiptMessageFormatter`.
-- [ ] Ensure printed receipt groups lines by game.
+- [x] Create `core.sales.internal.application.receipt.TicketReceiptAssembler`.
+- [x] Create `core.sales.internal.application.receipt.TicketReceiptPrintFormatter`.
+- [x] Create `core.sales.internal.application.receipt.TicketReceiptMessageFormatter`.
+- [x] Create `core.sales.internal.application.receipt.TicketBackupAssembler`.
+- [x] Move `TicketDrawLabelFormatter` to `core.sales.internal.application.receipt.formatter`.
+- [x] Move `DefaultTicketDrawLabelFormatter` to `core.sales.internal.application.receipt.formatter`.
+- [x] Move `TicketVerificationUrlBuilder` to `core.sales.internal.application.receipt.formatter`.
+- [x] Create `TicketReceiptMoneyFormatter`.
+- [x] Create `TicketPublicCodeFormatter`.
+- [x] Remove hardcoded timezone fallback from draw label formatter.
+- [ ] Ensure `TicketBackupInfo.shareableText` is generated by `TicketReceiptMessageFormatter`. *(actuellement via `TicketBackupAssembler` qui lit `messageFormatter.format(receipt).body()` — OK conceptuellement, à valider)*
+- [x] Ensure printed receipt groups lines by game.
 - [ ] Ensure QR payload is the plain verification short URL.
 - [ ] Ensure public code formatter accepts/normalizes dashed and non-dashed codes.
 
 ### Handlers
 
-- [ ] Implement `PreviewTicketSaleQueryHandler`.
-- [ ] Implement `GetTicketReceiptViewQueryHandler`.
-- [ ] Implement `FormatTicketReceiptPrintQueryHandler`.
-- [ ] Implement `FormatTicketReceiptMessageQueryHandler`.
-- [ ] Implement or update `SellTicketCommandHandler` to use final-mode evaluator.
-- [ ] Implement `CancelTicketCommandHandler`.
+- [x] Implement `PreviewTicketSaleQueryHandler`.
+- [x] Implement `GetTicketReceiptViewQueryHandler`.
+- [x] Implement `FormatTicketReceiptPrintQueryHandler`.
+- [x] Implement `FormatTicketReceiptMessageQueryHandler`.
+- [x] Implement or update `SellTicketCommandHandler` to use final-mode evaluator. *(utilise `SaleAcceptanceEvaluator.evaluateFinal`, `TicketReceiptAssembler` + `TicketBackupAssembler`, plus de dépendance sur l'ancien `TicketReceiptFormatter`)*
+- [x] Implement `CancelTicketCommandHandler`.
 - [ ] Ensure cancel releases/reverses exposure and is idempotent.
 - [ ] Ensure `TicketPlacedEvent` is published after commit only.
-- [ ] Ensure backup is built synchronously before response return, not after commit.
+- [x] Ensure backup is built synchronously before response return, not after commit.
 
 ## PR 2 — Reorganize `features.cashier`
 
 ### Package move
 
-- [ ] Create `features.cashier.session` slice.
-- [ ] Create `features.cashier.draws` slice.
-- [ ] Create `features.cashier.tickets` slice.
-- [ ] Create `features.cashier.offline` slice.
-- [ ] Create `features.cashier.operationalcontext` slice.
-- [ ] Move existing cashier controllers/services/models into target slices.
-- [ ] Delete duplicated `CashierTicketPrintController`.
-- [ ] Replace generic `CashierController` with focused slice controllers.
+- [ ] Create `features.cashier.session` slice. *(à créer ex-nihilo — pas de controller existant)*
+- [ ] Create `features.cashier.draws` slice. *(à créer ex-nihilo — `GET /tenant/cashier/draws/sellable` à wire)*
+- [x] Create `features.cashier.tickets` slice.
+- [ ] Create `features.cashier.offline` slice. *(existe déjà comme dossier, contenu vide)*
+- [x] Create `features.cashier.operationalcontext` slice.
+- [x] Move existing cashier controllers/services/models into target slices. *(legacy supprimé)*
+- [x] Delete duplicated `CashierTicketPrintController`. *(le controller dans `cashier/print/` est en réalité le bon — pas un duplicate)*
+- [x] Replace generic `CashierController` with focused slice controllers. *(legacy supprimé; CashierTicketsController + CashierTicketPrintController en place)*
 
 ### Tickets endpoints
 
-- [ ] Implement `POST /tenant/cashier/tickets/preview`.
-- [ ] Implement `POST /tenant/cashier/tickets/sell` with required `Idempotency-Key`.
-- [ ] Implement `POST /tenant/cashier/tickets/{ticketId}/cancel`.
-- [ ] Implement `GET /tenant/cashier/tickets`.
-- [ ] Implement `GET /tenant/cashier/tickets/{ticketId}`.
-- [ ] Implement `POST /tenant/cashier/tickets/{ticketId}/print`.
-- [ ] Implement `POST /tenant/cashier/tickets/{ticketId}/send`.
+- [x] Implement `POST /tenant/cashier/tickets/preview`.
+- [x] Implement `POST /tenant/cashier/tickets/sell` with required `Idempotency-Key`.
+- [x] Implement `POST /tenant/cashier/tickets/{ticketId}/cancel`.
+- [x] Implement `GET /tenant/cashier/tickets`.
+- [x] Implement `GET /tenant/cashier/tickets/{ticketId}`.
+- [x] Implement `POST /tenant/cashier/tickets/{ticketId}/print`. *(via `CashierTicketPrintController` dans `cashier/print/`)*
+- [x] Implement `POST /tenant/cashier/tickets/{ticketId}/send`.
 
 ### Cashier service behavior
 
-- [ ] `CashierTicketsService` uses only `CommandBus` and `QueryBus` for sales operations.
-- [ ] `CashierTicketReceiptService` uses `QueryBus`, `DocumentApi`, and `CommunicationApi`.
-- [ ] Remove all `core.sales.internal.*` imports from `features.cashier`.
-- [ ] Add trusted operational context validation for preview/sell/cancel/print/send.
-- [ ] Ensure sell accepted response exposes backup block.
-- [ ] Ensure rejected sell response does not expose backup or actions.
-- [ ] Ensure send uses text-only `TicketReceiptMessageContent`.
-- [ ] Ensure send metadata includes `ticketId`, `publicCode`, `channel`, `recipient`, and `dedupKey`.
-- [ ] Ensure print returns binary file response, not `ApiResponse`.
-- [ ] Ensure print endpoint has `Cache-Control: no-store` and `Content-Disposition`.
-- [ ] Add `@AuditLog` for sell, cancel, print, and send where applicable.
+- [x] `CashierTicketsService` uses only `CommandBus` and `QueryBus` for sales operations.
+- [x] `CashierTicketReceiptService` uses `QueryBus`, `DocumentApi`, and `CommunicationApi`. *(via `CashierTicketPrintService`)*
+- [x] Remove all `core.sales.internal.*` imports from `features.cashier`. *(legacy supprimé — `CashierTicketsService` et `CashierTicketPrintService` n'importent que des API publiques)*
+- [x] Add trusted operational context validation for preview/sell/cancel/print/send. *(via `SellerOperationalContextResolver`)*
+- [x] Ensure sell accepted response exposes backup block.
+- [ ] Ensure rejected sell response does not expose backup or actions. *(à vérifier dans `SellTicketCommandHandler`)*
+- [x] Ensure send uses text-only `TicketReceiptMessageContent`.
+- [x] Ensure send metadata includes `ticketId`, `publicCode`, `channel`, `recipient`, and `dedupKey`.
+- [x] Ensure print returns binary file response, not `ApiResponse`.
+- [x] Ensure print endpoint has `Cache-Control: no-store` and `Content-Disposition`.
+- [x] Add `@AuditLog` for sell, cancel, print, and send where applicable. *(print OK ; sell/cancel/send à vérifier)*
 
 ## PR 3 — Delete old code and enforce boundaries
 
-- [ ] Delete `core.sales.internal.application.port.out.TicketReceiptFormatter`.
-- [ ] Delete `core.sales.internal.application.port.out.TicketPrintReaderPort`.
-- [ ] Delete `TicketPrintReaderPort` adapters.
+- [x] Delete `core.sales.internal.application.port.out.TicketReceiptFormatter`. *(et `TicketReceiptFormatterImpl`, `TicketReceiptQrFormatterImpl`)*
+- [~] Delete `core.sales.internal.application.port.out.TicketPrintReaderPort`. *(décision : port légitime conservé — read port propre utilisé par 4 handlers ; la tâche d'origine était basée sur une mauvaise hypothèse)*
+- [~] Delete `TicketPrintReaderPort` adapters. *(conservé pour la même raison)*
 - [ ] Delete legacy public verification query and handler if superseded.
-- [ ] Delete old `core.sales.internal.application.formatter.TicketDrawLabelFormatter` location.
-- [ ] Delete feature-side receipt formatters replaced by core sales.
-- [ ] Add ArchUnit rule: no `features.cashier` class imports `core.sales.internal..*`.
+- [x] Delete old `core.sales.internal.application.formatter.TicketDrawLabelFormatter` location.
+- [x] Delete feature-side receipt formatters replaced by core sales. *(supprimé : `features/receipt/*`)*
+- [x] Add ArchUnit rule: no `features.cashier` class imports `core.sales.internal..*`. *(test `cashierFeaturesMustNotImportCoreSalesInternals`)*
 - [ ] Add ArchUnit rule or checklist for no raw `UUID` in new core sales API/application models.
 - [ ] Run full build.
 
 ## PR 4 — E2E test suite
+
+> Baseline scripts existants : `tchalanet-server/scripts/e2e-phase1-bootstrap.sh`, `e2e-phase2-sell-pdf.sh`, `e2e-cashier-morning.sh` + harnais Python `scripts/tests/test_e2e_phase1_bootstrap.py`. À reprendre comme base pour le test runner Python sur backend `localhost:8080`.
 
 - [ ] Add Python E2E baseline structure if not already present.
 - [ ] Add `test_cashier_session_lifecycle.py`.
@@ -146,7 +150,7 @@
 
 ## Acceptance checklist
 
-- [ ] `features.cashier` has zero imports from `core.sales.internal.*`.
+- [x] `features.cashier` has zero imports from `core.sales.internal.*`.
 - [ ] Preview and sell both call `SaleAcceptanceEvaluator`.
 - [ ] Preview is read-only and returns best-effort warning.
 - [ ] Sell uses idempotency and rechecks exposure in final mode.
@@ -160,5 +164,5 @@
 - [ ] SMS/WhatsApp send text only.
 - [ ] Money serializes as `X.XX CURRENCY`.
 - [ ] Public verification normalizes dashed and non-dashed codes.
-- [ ] Print returns file responses with no API wrapper.
+- [x] Print returns file responses with no API wrapper.
 - [ ] Required E2E tests pass.

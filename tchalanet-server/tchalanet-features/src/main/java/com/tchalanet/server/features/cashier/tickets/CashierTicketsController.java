@@ -90,8 +90,8 @@ public class CashierTicketsController {
     @Operation(summary = "List cashier tickets")
     public ApiResponse<TchPage<CashierTicketPageResponse>> list(
         @TchPaging(
-            allowedSort = {"createdAt", "totalAmount", "ticketCode"},
-            defaultSort = {"createdAt,desc"})
+            allowedSort = {"placedAt", "status"},
+            defaultSort = {"placedAt,desc"})
         TchPageRequest page
     ) {
         return ApiResponse.success(ticketsService.listTickets(page.pageable()));
