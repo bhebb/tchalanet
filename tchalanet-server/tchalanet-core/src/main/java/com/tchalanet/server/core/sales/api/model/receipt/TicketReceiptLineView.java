@@ -8,6 +8,7 @@ public record TicketReceiptLineView(
     String gameCode,
     String betType,
     Short betOption,
+    String optionLabel,
     String gameLabel,
     String selection,
     BigDecimal odds,
