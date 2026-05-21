@@ -40,7 +40,7 @@ public class OpsNotificationController {
         summary = "Create a test in-app notification (SUPER_ADMIN only)",
         description = "Creates a persistent notification-center item for ops verification."
     )
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     @PostMapping("/test")
     public ResponseEntity<ApiResponse<SendNotificationTestResponse>> testNotification(
         @Valid @RequestBody SendNotificationTestRequest request

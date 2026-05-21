@@ -30,7 +30,7 @@ public class PlatformCommunicationOpsController {
   private final CommunicationApi communicationApi;
 
   @PostMapping("/slack-test")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAuthority('SUPER_ADMIN')")
   public ResponseEntity<ApiResponse<CommunicationTestResponse>> testSlack(
       @Valid @RequestBody SlackTestRequest request) {
     var result = communicationApi.sendNow(new SendOutboundMessageRequest(
@@ -48,7 +48,7 @@ public class PlatformCommunicationOpsController {
   }
 
   @PostMapping("/email-test")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAuthority('SUPER_ADMIN')")
   public ResponseEntity<ApiResponse<CommunicationTestResponse>> testEmail(
       @Valid @RequestBody EmailTestRequest request) {
     var result = communicationApi.sendNow(new SendOutboundMessageRequest(

@@ -19,7 +19,7 @@ public class PlatformSyncOpsController {
   private final KeycloakBootstrapSyncService syncService;
 
   @PostMapping("/identity/keycloak-bootstrap-users")
-  @PreAuthorize("hasRole('SUPER_ADMIN')")
+  @PreAuthorize("hasAuthority('SUPER_ADMIN')")
   public ResponseEntity<ApiResponse<KeycloakBootstrapSyncResponse>> triggerKeycloakBootstrapSync() {
     return runKeycloakBootstrapSync();
   }

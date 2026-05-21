@@ -1,4 +1,4 @@
-# Design — Fix TicketJpaAdapter merge pattern
+# Design — Fix P0 JPA merge pattern
 
 ## Current state (what's broken and why)
 
@@ -47,6 +47,28 @@ patch in the mapper or the adapter. We've already patched:
 
 This list grows linearly with every new column. The architecture is wrong, not the
 individual columns.
+
+## P0 sensitive aggregate rule
+
+`Ticket` is the concrete failure, but the design rule applies to every sensitive row:
+
+```text
+existing P0 row + JPA update
+    ⇒ load managed entity
+    ⇒ assert immutable identity/context
+    ⇒ mutate allowed fields only
+    ⇒ let Hibernate own tenant/audit/version
+```
+
+The only approved alternatives are:
+
+- create-only mapping for rows that cannot already exist;
+- append-only inserts that fail on duplicate id/natural key;
+- explicit SQL with tenant/status/version/idempotency guards.
+
+For this change, "P0 sensitive" includes draw, draw result, ticket, payout, terminal,
+outlet, sales session, limit policy operational controls, ledger, and offline sync
+records. See `p0-sensitive-entity-analysis.md` for the audit matrix and rollout order.
 
 ## Proposed design
 
@@ -119,6 +141,21 @@ Same shape for charges.
 - New columns added to entities → automatically managed, no mapper change needed
 - Optimistic lock genuinely guards against concurrent edits instead of being defeated
   by our transplant
+
+## Rollout beyond Ticket
+
+Apply the same rule in descending risk order:
+
+| Area | Design decision |
+| --- | --- |
+| `SalesSessionWriterJpaAdapter#save` | Same anti-pattern as ticket. Load managed session by tenant+id, call `SalesSessionMapper#applyToEntity`, assert immutable opening context. |
+| `DrawLifecycleJpaAdapter#save` | Generic `repo.save(mapper.toEntity(draw))` must become managed mutation or be removed in favor of explicit guarded lifecycle methods. Existing bulk open/close SQL remains valid if guarded. |
+| `DrawResultWriterJdbcAdapter` | Keep SQL-first. It already avoids detached merge and protects final/overridden states. Verify all update paths bump `version` and preserve final-state guards. |
+| `PayoutJpaWriterAdapter` | Shape is close: load existing then update. Harden missing existing id to fail, and assert immutable tenant/ticket/amount/currency. |
+| `JpaTerminalWriterAdapter` / `OutletPersistenceAdapter` | Managed mutation shape is acceptable; harden with tenant-scoped loads and complete operational block/status mutators. |
+| `LimitAssignmentRepositoryAdapter` | Replace rebuild save with managed mutation for existing assignments; scope/rule are immutable. |
+| `JpaLedgerRepositoryAdapter` | Treat as append-only: insert once, duplicate id is an error, no update path. |
+| Offline sync adapters | Existing `toEntity(domain, existing)` shape is acceptable only if `existing` is the managed row and missing-row behavior is explicit. |
 
 ## Alternatives considered
 
