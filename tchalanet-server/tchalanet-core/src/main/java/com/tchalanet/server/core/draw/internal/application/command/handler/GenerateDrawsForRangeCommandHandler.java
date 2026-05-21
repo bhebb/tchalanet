@@ -36,7 +36,6 @@ public class GenerateDrawsForRangeCommandHandler
     private final DrawLifecyclePort drawLifecyclePort;
     private final IdGenerator idGenerator;
     private final TchTimeProvider timeProvider;
-    private final DrawScheduleCalculator scheduleCalculator;
 
     @Override
     @TchTx
@@ -163,7 +162,7 @@ public class GenerateDrawsForRangeCommandHandler
                     throw new IllegalArgumentException("cutoffSec must be >= 1 for channel " + c.code());
                 }
 
-                var snap = scheduleCalculator.compute(
+                var snap = DrawScheduleCalculator.compute(
                     date,
                     c.drawTime(),
                     zone,
