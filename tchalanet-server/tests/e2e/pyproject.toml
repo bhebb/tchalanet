@@ -16,7 +16,6 @@ addopts = "-ra --strict-markers -p no:cacheprovider"
 markers = [
     "happy_path: end-to-end happy path scenarios",
     "tenant_onboarding: tenant provisioning scenarios",
-    "profile: current-user profile and surface home scenarios",
     "slow: tests that hit the document service or external providers",
 ]
 

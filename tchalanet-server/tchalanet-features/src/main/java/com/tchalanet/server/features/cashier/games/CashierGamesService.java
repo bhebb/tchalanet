@@ -3,8 +3,9 @@ package com.tchalanet.server.features.cashier.games;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
-import java.util.List;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CashierGamesService {
@@ -14,9 +15,6 @@ public class CashierGamesService {
             option(GameCode.HT_BOLET, "Bolet", BetType.MATCH_1_2D, "1er lot"),
             option(GameCode.HT_BOLET, "Bolet", BetType.MATCH_2_2D, "2e lot"),
             option(GameCode.HT_BOLET, "Bolet", BetType.MATCH_3_2D, "3e lot"),
-            option(GameCode.HT_NUMERO, "Numero", BetType.MATCH_1_2D, "1er lot"),
-            option(GameCode.HT_NUMERO, "Numero", BetType.MATCH_2_2D, "2e lot"),
-            option(GameCode.HT_NUMERO, "Numero", BetType.MATCH_3_2D, "3e lot"),
             option(GameCode.HT_MARYAJ, "Maryaj", BetType.MARRIAGE_2D2D, "Maryaj"),
             option(GameCode.HT_LOTO3, "Loto 3", BetType.LOTTO3_3D, "Loto 3"),
             option(GameCode.HT_LOTO4, "Loto 4", BetType.LOTTO4_PATTERN, "Loto 4"),
@@ -59,18 +57,12 @@ public class CashierGamesService {
 
     private String optionSelectionHint(BetOption option) {
         return switch (option) {
-            case MARRIAGE_EXACT_ORDER, MARRIAGE_REVERSE_ALLOWED ->
-                "Deux numeros de 2 chiffres, ex: 12-45";
-            case LOTTO3_STRAIGHT, LOTTO3_BOX ->
-                "3 chiffres, ex: 123";
-            case LOTTO4_STRAIGHT, LOTTO4_BOX ->
-                "4 chiffres, ex: 1245";
-            case LOTTO4_FRONT_PAIR ->
-                "2 chiffres, ex: 12";
-            case LOTTO4_BACK_PAIR ->
-                "2 chiffres, ex: 45";
-            case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 ->
-                "5 chiffres, ex: 12345";
+            case MARRIAGE_EXACT_ORDER, MARRIAGE_REVERSE_ALLOWED -> "Deux numeros de 2 chiffres, ex: 12-45";
+            case LOTTO3_STRAIGHT, LOTTO3_BOX -> "3 chiffres, ex: 123";
+            case LOTTO4_STRAIGHT, LOTTO4_BOX -> "4 chiffres, ex: 1245";
+            case LOTTO4_FRONT_PAIR -> "2 chiffres, ex: 12";
+            case LOTTO4_BACK_PAIR -> "2 chiffres, ex: 45";
+            case LOTTO5_LOT1_LOT2, LOTTO5_LOT1_LOT3, LOTTO5_MIXED_1_2_3 -> "5 chiffres, ex: 12345";
         };
     }
 }

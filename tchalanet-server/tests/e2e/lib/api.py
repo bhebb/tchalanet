@@ -47,12 +47,8 @@ class ApiClient:
     # --- core verbs --------------------------------------------------------
 
     def get(self, path: str, *, params: Mapping[str, Any] | None = None,
-            context: CashierContext | None = None,
-            headers: Mapping[str, str] | None = None) -> httpx.Response:
-        merged = dict(_ctx_headers(context))
-        if headers:
-            merged.update(headers)
-        return self._client.get(path, params=params, headers=merged)
+            context: CashierContext | None = None) -> httpx.Response:
+        return self._client.get(path, params=params, headers=_ctx_headers(context))
 
     def post(self, path: str, *, json: Any = None, context: CashierContext | None = None,
              idempotency_key: str | bool | None = None,
@@ -65,13 +61,6 @@ class ApiClient:
         elif isinstance(idempotency_key, str):
             merged["Idempotency-Key"] = idempotency_key
         return self._client.post(path, json=json, headers=merged)
-
-    def patch(self, path: str, *, json: Any = None, context: CashierContext | None = None,
-              headers: Mapping[str, str] | None = None) -> httpx.Response:
-        merged = dict(_ctx_headers(context))
-        if headers:
-            merged.update(headers)
-        return self._client.patch(path, json=json, headers=merged)
 
     def delete(self, path: str, *, context: CashierContext | None = None) -> httpx.Response:
         return self._client.delete(path, headers=_ctx_headers(context))

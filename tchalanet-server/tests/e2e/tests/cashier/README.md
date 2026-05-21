@@ -1,53 +1,12 @@
 # Cashier E2E tests
 
-Quatre suites pytest, du plus large au plus ciblé :
+Trois suites pytest, du plus large au plus ciblé :
 
-| Fichier                       | Portée                                          | Quand le lancer                              |
-| ----------------------------- | ----------------------------------------------- | -------------------------------------------- |
-| `test_happy_path.py`          | Journée complète vendeur (matrice draws × jeux) | Smoke test global après chaque déploiement   |
-| `test_profile_and_home.py`    | Login → me → home (3 branches) → web-home       | Smoke parcours mobile/POS et profil          |
-| `test_single_ticket.py`       | Un ticket multi-jeux sur un tirage              | Itération sur le contrat sell/print/send     |
-| `test_layouts.py`             | 8 scénarios paramétrés pour le rendu reçu       | Itération sur le format PDF / ESC-POS        |
-
-## Tout d'un coup (login → me → home → tickets)
-
-Pour exécuter un parcours complet « connexion → profil → home → vente / impression /
-liste tickets » en une commande :
-
-```bash
-cd tchalanet-server/tests/e2e
-uv run pytest tests/cashier -v -s \
-    tests/cashier/test_profile_and_home.py \
-    tests/cashier/test_happy_path.py
-```
-
-Ordre d'exécution conseillé (pytest le respecte via l'ordre des arguments **et**
-l'ordre alphabétique à l'intérieur d'un fichier) :
-
-1. **Login** — implicite via les fixtures `super_admin_client` / `cashier_client`
-   (password grant Keycloak, scope `session`, token réutilisé).
-2. **Me** — `test_user_can_read_profile` puis `test_user_can_modify_profile`
-   (GET / PATCH `/tenant/me/profile`).
-3. **Home** — `test_a_..._operational_context` → `test_b_..._open_session` →
-   `test_c_..._happy_path` → `test_d_web_home_returns_widgets` →
-   `test_e_..._rejects_wrong_surface`.
-4. **Tickets** — `test_cashier_morning_happy_path` (preview / sell / print /
-   send_slack / get / list pour chaque draw × game).
-
-Filtres utiles :
-
-```bash
-# Juste login + me + home (sans la matrice tickets)
-uv run pytest -v -s -m profile
-
-# Juste le parcours tickets
-uv run pytest -v -s -m happy_path
-
-# Tout marqué (profile + happy_path)
-uv run pytest -v -s -m "profile or happy_path"
-```
-
-Les marqueurs sont déclarés dans `pyproject.toml` (`[tool.pytest.ini_options].markers`).
+| Fichier                  | Portée                                          | Quand le lancer                              |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------- |
+| `test_happy_path.py`     | Journée complète vendeur (matrice draws × jeux) | Smoke test global après chaque déploiement   |
+| `test_single_ticket.py`  | Un ticket multi-jeux sur un tirage              | Itération sur le contrat sell/print/send     |
+| `test_layouts.py`        | 8 scénarios paramétrés pour le rendu reçu       | Itération sur le format PDF / ESC-POS        |
 
 ## Bootstrap commun
 
@@ -61,26 +20,6 @@ single_ticket) ou une fois par test (layouts) :
    sinon `POST /tenant/cashier/session/open`
 
 Tout est sans effet si déjà fait → re-runs gratuits.
-
-## test_profile_and_home.py
-
-Couvre le parcours **identity + home BFF** sans dépendre du contrat sell.
-
-| #   | Test                                              | Couverture côté `CashierHomeService` / `CurrentUserProfileController` |
-| --- | ------------------------------------------------- | --------------------------------------------------------------------- |
-| 1   | `test_user_can_read_profile`                      | `GET /tenant/me/profile` — id, username, roles, landing.preferredSurface, availableSurfaces |
-| 2   | `test_user_can_modify_profile`                    | `PATCH /tenant/me/profile` — drop 2 lettres + 2 random sur firstName, round-trip via re-GET |
-| 3   | `test_a_mobile_home_requires_operational_context` | Branche `!operational.ready()` → `requiredStep=SELECT_OPERATIONAL_CONTEXT`, primaryAction `/operational-context/select`, quickActions=[], nav=[profile] |
-| 4   | `test_b_mobile_home_requires_open_session`        | Branche `session.closed` → ferme la session, valide `requiredStep=OPEN_SESSION` + primaryAction `/session/open`, **ré-ouvre** dans `finally` |
-| 5   | `test_c_mobile_home_happy_path`                   | Branche complète → primaryAction `SELL_TICKET`, quickActions=[RECENT_TICKETS,SESSION,PROFILE], widgets={session_status, primary_draw}, nav 4 items |
-| 6   | `test_d_web_home_returns_widgets`                 | `GET /tenant/cashier/web-home` → surface=CASHIER_WEB, widgets={session_summary, next_draw, recent_tickets} |
-| 7   | `test_e_mobile_home_rejects_wrong_surface`        | 403 `surface.not_allowed` sur les deux endpoints quand `X-Tch-Surface` ne correspond pas |
-
-L'ordre `a/b/c/d/e` est volontaire : `test_b` ferme la session courante,
-`test_c` la ré-ouvre via `ensure_pos_session_open`. Ne pas activer
-`pytest-randomly` sans passer ces tests dans une classe ordonnée.
-
-Sortie : aucun artefact (texte uniquement).
 
 ## test_happy_path.py
 

@@ -1,0 +1,47 @@
+{
+  "surface": "CASHIER_WEB",
+  "version": "home.v1",
+  "header": {
+    "title": "Caisse",
+    "subtitle": "PDV Principal • TCH-POS-01",
+    "displayName": "Agent"
+  },
+  "primaryAction": {
+    "type": "SELL_TICKET",
+    "label": "Vendre un ticket",
+    "enabled": true,
+    "route": "/cashier/sell"
+  },
+  "widgets": [
+    {
+      "key": "session_summary",
+      "title": "Session",
+      "type": "SUMMARY_CARD",
+      "data": {
+        "open": true,
+        "openedAtLabel": "08:00",
+        "ticketCount": 47,
+        "salesTotal": "2385.00 HTG"
+      }
+    },
+    {
+      "key": "next_draw",
+      "title": "Tirage actif",
+      "type": "DRAW_CARD",
+      "data": {
+        "label": "Haïti • Texas • 10:00",
+        "cutoffLabel": "Clôture dans 24 min",
+        "status": "OPEN"
+      }
+    },
+    {
+      "key": "recent_tickets",
+      "title": "Tickets récents",
+      "type": "RECENT_TICKETS",
+      "data": {
+        "items": []
+      }
+    }
+  ],
+  "notices": []
+}

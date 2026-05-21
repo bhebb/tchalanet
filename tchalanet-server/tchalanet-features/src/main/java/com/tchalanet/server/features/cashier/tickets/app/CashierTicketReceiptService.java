@@ -9,10 +9,8 @@ import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
 import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.query.GetTicketPrintViewQuery;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMessageQuery;
-import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
 import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
@@ -26,20 +24,12 @@ import com.tchalanet.server.platform.communication.api.model.request.SendOutboun
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 import com.tchalanet.server.platform.document.api.DocumentApi;
-import com.tchalanet.server.platform.document.api.model.DocumentAsset;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
-import com.tchalanet.server.platform.document.api.model.DocumentKind;
-import com.tchalanet.server.platform.document.api.model.DocumentLine;
-import com.tchalanet.server.platform.document.api.model.DocumentOptions;
-import com.tchalanet.server.platform.document.api.model.DocumentRenderRequest;
-import com.tchalanet.server.platform.document.api.model.DocumentTemplateKey;
 import com.tchalanet.server.platform.document.api.model.RenderedDocument;
-import com.tchalanet.server.platform.document.api.model.ReceiptDocumentContent;
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
 import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantInternalDocumentConfig;
 import java.util.LinkedHashMap;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.CacheControl;
@@ -73,14 +63,15 @@ public class CashierTicketReceiptService {
         PrintTicketRequest request
     ) {
         validateSellerContextForPrint(ctx, request);
-        var printContent = queryBus.ask(new FormatTicketReceiptPrintQuery(
-            ticketId,
-            request.format(),
-            request.buyerLocale()
-        ));
-        var receiptConfig = resolveReceiptConfig(ctx);
 
-        var rendered = documentApi.render(toRenderRequest(printContent, request));
+        // Render via TicketPrintDocumentMapper (rich receipt: header + per-game sections + totals
+        // + footer + QR + tenant branding). Replaces the previous flat-lines path which fed only
+        // the metadata bodyLines from FormatTicketReceiptPrintQuery into ReceiptDocumentContent.
+        var printView = queryBus.ask(new GetTicketPrintViewQuery(ticketId));
+        var receiptConfig = resolveReceiptConfig(ctx);
+        var rendered = documentApi.render(
+            documentMapper.toRenderRequest(printView, request, receiptConfig)
+        );
 
         if (request.recordPrint()) {
             commandBus.execute(new RecordTicketPrintCommand(
@@ -91,7 +82,6 @@ public class CashierTicketReceiptService {
         }
 
         if (request.shouldSendToBuyer()) {
-            var printView = queryBus.ask(new GetTicketPrintViewQuery(ticketId));
             var outboundDocument = toCommunicationDocument(printView, request, rendered, receiptConfig);
             communicationMapper.toOutboundMessages(ctx, printView, outboundDocument, request)
                 .forEach(communicationApi::enqueue);
@@ -151,39 +141,6 @@ public class CashierTicketReceiptService {
             new GetTenantByIdRequest(ctx.effectiveTenantIdRequired())
         );
         return tenantDocument == null ? null : tenantDocument.receipt();
-    }
-
-    private DocumentRenderRequest toRenderRequest(
-        TicketReceiptPrintContent content,
-        PrintTicketRequest request
-    ) {
-        var bodyLines = content.bodyLines().stream().map(DocumentLine::of).toList();
-        return new DocumentRenderRequest(
-            DocumentTemplateKey.of("sales.ticket.receipt." + request.format().name().toLowerCase() + ".v1"),
-            DocumentKind.RECEIPT,
-            toDocumentFormat(request.format()),
-            content.title(),
-            ReceiptDocumentContent.ofBodyLines(bodyLines),
-            qrAssets(content.qrPayload(), request.format()),
-            DocumentOptions.defaults(),
-            content.locale(),
-            null,
-            content.metadata()
-        );
-    }
-
-    private List<DocumentAsset> qrAssets(String qrPayload, PrintOutputFormat format) {
-        if (qrPayload == null || qrPayload.isBlank()) {
-            return List.of();
-        }
-        return List.of(DocumentAsset.qr(qrPayload, format == PrintOutputFormat.ESC_POS ? 280 : 300));
-    }
-
-    private DocumentFormat toDocumentFormat(PrintOutputFormat format) {
-        return switch (format) {
-            case PDF -> DocumentFormat.PDF;
-            case ESC_POS -> DocumentFormat.ESC_POS;
-        };
     }
 
     private ResponseEntity<ByteArrayResource> toFileResponse(RenderedDocument document) {

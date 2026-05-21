@@ -2,31 +2,31 @@
 
 ## Infra
 
-- [ ] Update Docker image tags for Postgres, Redis, Traefik, Keycloak.
-- [ ] Update `VERSIONS.md` when image versions change.
-- [ ] Add healthchecks.
-- [ ] Configure Traefik routes for auth/api/app local domains.
-- [ ] Document Manjaro setup.
+- [x] Update Docker image tags for Postgres, Redis, Traefik, Keycloak. *(Postgres 18.4, Redis 8.6.3, Traefik v3.7.0, Keycloak 26.6.2.)*
+- [x] Update `VERSIONS.md` when image versions change.
+- [x] Add healthchecks.
+- [x] Configure Traefik routes for auth/api/app local domains.
+- [x] Document Manjaro setup. *(Skipped per user request; local domain docs are OS-neutral.)*
 
 ## Keycloak
 
-- [ ] Split realm into base + local/prod overlays.
-- [ ] Add `tchalanet-mobile-pos` client.
-- [ ] Configure PKCE for web/mobile/swagger.
-- [ ] Add prod-ready policies.
+- [x] Split realm into base + local/prod overlays.
+- [x] Add `tchalanet-mobile-pos` client.
+- [x] Configure PKCE for web/mobile/swagger.
+- [x] Add prod-ready policies.
 - [ ] Add token mappers and token contract tests.
-- [ ] Add local dev users.
-- [ ] Confirm prod overlay has no demo users.
+- [x] Add local dev users.
+- [x] Confirm prod overlay has no demo users.
 
 ## Platform identity
 
-- [ ] Normalize current profile path to `/tenant/me/profile`.
-- [ ] Merge admin user surfaces into `/admin/identity/users`.
-- [ ] Remove tenant id path from tenant-admin user listing.
-- [ ] Remove admin bootstrap endpoint.
-- [ ] Add Keycloak sync statuses and resync endpoint.
-- [ ] Add invitation endpoint.
-- [ ] Add validation, audit, Swagger operation docs.
+- [x] Normalize current profile path to `/tenant/me/profile`.
+- [x] Merge admin user surfaces into `/admin/identity/users`.
+- [x] Remove tenant id path from tenant-admin user listing.
+- [x] Remove admin bootstrap endpoint.
+- [x] Add Keycloak sync statuses and resync endpoint.
+- [x] Add invitation endpoint.
+- [x] Add validation, audit, Swagger operation docs.
 
 ## Web
 

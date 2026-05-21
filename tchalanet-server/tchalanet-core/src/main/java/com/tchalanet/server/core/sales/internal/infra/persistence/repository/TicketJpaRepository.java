@@ -43,9 +43,8 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
     long countByDrawIdAndSettlementStatusIn(UUID drawId, List<TicketSettlementStatus> statuses);
 
     /**
-     * Returns just the @Version of an existing ticket.
-     * Kept as a narrow persistence diagnostic API; updates must mutate managed entities
-     * instead of transplanting versions onto rebuilt detached graphs.
+     * Returns just the @Version of an existing ticket. Used by TicketJpaAdapter#save to
+     * transplant the current version onto a fresh entity rebuilt from the domain aggregate.
      */
     @Query("select t.version from TicketJpaEntity t where t.id = :id")
     Optional<Long> findVersionById(@Param("id") UUID id);

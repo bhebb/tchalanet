@@ -185,9 +185,9 @@ export TCH_AUTH_TOKEN_URL='http://auth.tchalanet.lan/realms/tchalanet/protocol/o
 export TCH_AUTH_CLIENT_ID='tchalanet-swagger'
 export TCH_AUTH_CLIENT_SECRET='' # ou le secret si Client authentication = ON
 export TCH_SUPER_ADMIN_USERNAME='super_admin'
-export TCH_SUPER_ADMIN_PASSWORD='changeme'
+export TCH_SUPER_ADMIN_PASSWORD='Changeme1!'
 export TCH_SELLER_USERNAME='agent'
-export TCH_SELLER_PASSWORD='changeme'
+export TCH_SELLER_PASSWORD='Changeme1!'
 ```
 
 Exemple de ligne `crontab -e` complète (07:00 tous les jours):

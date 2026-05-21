@@ -102,6 +102,9 @@ public class SellTicketCommandHandler
         );
 
         var saved = ticketWriter.save(ticket);
+        // Push the freshly persisted ticket to DB so the SQL view
+        // (sales_ticket_print_header_v) used by the print reader sees it within the same tx.
+        ticketWriter.flushPending();
         var receipt = ticketReceiptAssembler.assemble(
             ticketPrintReader.findPrintViewRequired(saved.identity().id()),
             ctx.locale()

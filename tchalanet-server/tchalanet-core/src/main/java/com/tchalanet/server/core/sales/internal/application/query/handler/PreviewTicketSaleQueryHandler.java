@@ -9,13 +9,17 @@ import com.tchalanet.server.core.sales.api.query.preview.PreviewTicketSaleQuery;
 import com.tchalanet.server.core.sales.api.query.preview.TicketSalePreviewResult;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleAcceptanceEvaluator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @UseCase
-@RequiredArgsConstructor
 public class PreviewTicketSaleQueryHandler
     implements QueryHandler<PreviewTicketSaleQuery, TicketSalePreviewResult> {
 
     private final SaleAcceptanceEvaluator evaluator;
+
+    public PreviewTicketSaleQueryHandler(SaleAcceptanceEvaluator evaluator) {
+        this.evaluator = evaluator;
+    }
 
     @Override
     public TicketSalePreviewResult handle(PreviewTicketSaleQuery query) {
