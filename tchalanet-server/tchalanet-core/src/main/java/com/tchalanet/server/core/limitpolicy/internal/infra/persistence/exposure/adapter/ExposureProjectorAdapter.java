@@ -35,6 +35,7 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                 var canonicalSelection =
                     selectionApi.canonicalize(
                         line.betType(),
+                        line.betOption(),
                         line.selectionKey());
 
                 jdbc.update("""

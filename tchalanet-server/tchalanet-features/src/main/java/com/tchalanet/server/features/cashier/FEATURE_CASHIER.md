@@ -24,3 +24,14 @@ Le module ne doit pas:
 
 - `POST /tenant/cashier/sell`
 - `POST /tenant/cashier/tickets/{ticketId}/send`
+- `GET /tenant/cashier/games/available`
+
+## Game options
+
+`GET /tenant/cashier/games/available` fournit au POS les libellés vendeur des
+jeux, bet types, bet options, descriptions et hints de saisie. Le POS envoie
+toujours la saisie brute du vendeur; `core.sales` canonicalise avec
+`betType + betOption`.
+
+Le POS ne doit pas afficher les noms techniques d'enum (`LOTTO4_PATTERN`,
+`MARRIAGE_2D2D`, etc.) ni des codes d'option bruts sans libellé.

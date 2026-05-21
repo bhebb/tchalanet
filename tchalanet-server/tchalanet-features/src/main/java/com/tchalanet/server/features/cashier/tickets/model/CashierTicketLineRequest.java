@@ -13,7 +13,7 @@ public record CashierTicketLineRequest(
     @NotNull GameCode gameCode,
     @NotNull BetType betType,
     @NotBlank String selection,
-    @Min(1) @Max(3) Short betOption,
+    @Min(1) @Max(4) Short betOption,
     @NotNull @DecimalMin("0.01") BigDecimal stake
 ) {
 }

@@ -64,7 +64,8 @@ Classe mutable, multi-tenant (`BaseTenantEntity` côté JPA).
 ### `TicketLine` (record `domain/model/TicketLine.java`)
 
 - `gameCode (GameCode)`, `selection (String — déjà normalisé)`, `stake (scale 2)`, `oddsSnapshot (scale 4)`, `potentialPayout (scale 2)`, `betType`, `betOption (Short nullable)`.
-- Invariants compact constructor : montants > 0, `betOption` requis pour `LOTTO4_PATTERN`/`LOTTO5_PATTERN` (1..3), cohérence `potentialPayout == round(stake × oddsSnapshot, 2, HALF_UP)`.
+- `betOption` est validé via `catalog.game.api.model.BetOption`: absent pour les 2D simples, requis pour Maryaj, Loto 3, Loto 4 et Loto 5.
+- Invariants compact constructor : montants > 0, cohérence `potentialPayout == round(stake × oddsSnapshot, 2, HALF_UP)`.
 
 ### `TicketVerificationResult` (record exposé en public)
 
@@ -108,7 +109,7 @@ Code mort/orphelin : `ExpireTicketsCommand` (sans handler), `ApprovePendingTicke
 - `DrawCutoffRule` (`application/rule/`) : `requireBeforeCutoff(drawId)` via `GetDrawQuery`.
 - `TicketLinePreparationService` (`application/service/`) : normalize + merge + odds → `TicketLine[]`.
 - `TicketSaleFactory` (`domain/service/`) : génération codes (`TicketNumberGeneratorPort`, `TicketPublicCodeGeneratorPort`) + factory `Ticket.sell()` ou `Ticket.pendingApproval()`.
-- `TicketWinningCalculator` (`domain/service/`) : switch sur `BetType` ; lit `lot1/lot2/lot3/pick3/twoDigits` du `DrawResultMatchView`. ⚠ `LOTTO5_PATTERN` option 3 non supportée (MVP).
+- `TicketWinningCalculator` (`domain/service/`) : switch sur `BetType` ; résout `BetOption` pour les familles à options ; lit/derive les faits ordonnés depuis `DrawResultProjection` (`lot1/lot2/lot3/lot4`, paires dérivées, pick3/pick4 quand disponibles).
 
 ---
 
@@ -290,7 +291,7 @@ Toutes les réponses utilisent `ApiResponse<T>` sauf les endpoints de print bina
 
 **P2 / Comportements MVP**
 
-- `TicketWinningCalculator` : `LOTTO5_PATTERN` option 3 hardcodé `false`.
+- `TicketWinningCalculator` : option-aware pour Maryaj exact/revers, Loto 3 exact/box, Loto 4 exact/box/front/back, Loto 5 options 1/2/3.
 - `SalesTicketAdminAdapter.refuseNewTickets/allowNewTickets` : no-op v1.
 - `ApprovalRequestId.of(UUID.randomUUID())` non lié à un domaine d'approbation (TODO).
 - `findTicketPrintView` : la locale est fournie par le contexte appelant, avec fallback `Locale.FRENCH`.

@@ -73,7 +73,7 @@ public class TicketLinePreparationService {
             input.lineNumber(),
             input.gameCode(),
             input.betType(),
-            selectionApi.canonicalize(input.betType(), input.rawSelection()),
+            selectionApi.canonicalize(input.betType(), input.betOption(), input.rawSelection()),
             new Money(stake, currency),
             odds,
             new Money(potential, currency),

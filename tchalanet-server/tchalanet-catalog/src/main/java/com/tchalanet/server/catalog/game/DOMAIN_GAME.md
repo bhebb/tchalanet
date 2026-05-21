@@ -49,6 +49,10 @@
   - Exposée via API publique (GameCatalog)
   - Jamais exposée en JPA entity brut
   - Mapping via MapStruct (GameMapper)
+- **BetOption** (enum API publique)
+  - Référentiel MVP des formules commerciales par `BetType`.
+  - Porte le code stable vendu/persisté (`short`), le libellé vendeur et la description.
+  - Source de vérité pour savoir si un `BetType` exige ou refuse `betOption`.
 
 ### Invariants métier
 
@@ -227,6 +231,22 @@ void softDelete(GameId id)
 ---
 
 ## 9. Patterns appliqués
+
+### Bet options cashier/sales V1
+
+`BetOption` appartient à `catalog.game.api.model` parce que les options sont des
+données de référence stables consommées par `core.sales` et `features.cashier`.
+Le code d'option est interprété uniquement dans le contexte de son `BetType`.
+
+Options MVP:
+
+- `MARRIAGE_2D2D`: ordre exact, revers/double.
+- `LOTTO3_3D`: exact, désordre/box.
+- `LOTTO4_PATTERN`: exact, désordre/box, 2 premiers chiffres, 2 derniers chiffres.
+- `LOTTO5_PATTERN`: 1er+2e lot, 1er+3e lot, mixte 1er/2e/3e lot.
+
+Les bet types 2D simples (`MATCH_1_2D`, `MATCH_2_2D`, `MATCH_3_2D`) ne
+supportent pas `betOption`.
 
 - ✅ **Pure Catalog Pattern** (75-catalog-rules.md)
 - ✅ **Typed IDs** (typed_ids.md)

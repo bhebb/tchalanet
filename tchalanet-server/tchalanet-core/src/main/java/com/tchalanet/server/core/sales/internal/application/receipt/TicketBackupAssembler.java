@@ -17,7 +17,7 @@ public class TicketBackupAssembler {
         return new TicketBackupInfo(
             receipt.displayCode(),
             receipt.verificationUrl(),
-            messageFormatter.format(receipt).body(),
+            messageFormatter.formatShareableText(receipt),
             "Votre code est " + receipt.displayCode() + ".",
             "Verifier sur " + receipt.verificationUrl()
         );
