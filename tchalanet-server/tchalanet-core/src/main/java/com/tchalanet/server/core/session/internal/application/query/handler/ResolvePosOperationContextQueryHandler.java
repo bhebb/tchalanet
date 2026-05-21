@@ -10,16 +10,23 @@ import com.tchalanet.server.core.session.api.query.ResolvePosOperationContextQue
 import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
 import com.tchalanet.server.core.session.internal.application.service.PosActionPolicy;
 import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
-import java.time.Instant;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
-@UseCase
-@RequiredArgsConstructor
+import java.time.Instant;
+
+@Component
 public class ResolvePosOperationContextQueryHandler
     implements QueryHandler<ResolvePosOperationContextQuery, ValidatedPosOperationContext> {
 
     private final QueryBus queryBus;
     private final PosActionPolicy policy;
+
+    public ResolvePosOperationContextQueryHandler(@Lazy QueryBus queryBus, PosActionPolicy policy) {
+        this.queryBus = queryBus;
+        this.policy = policy;
+    }
+
 
     @Override
     public ValidatedPosOperationContext handle(ResolvePosOperationContextQuery query) {

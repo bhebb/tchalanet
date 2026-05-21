@@ -758,7 +758,9 @@ CREATE TABLE IF NOT EXISTS limit_assignment (
     version bigint NOT NULL DEFAULT 0,
 
     created_at timestamptz NOT NULL DEFAULT now(),
+    created_by uuid,
     updated_at timestamptz NOT NULL DEFAULT now(),
+    updated_by uuid,
     deleted_at timestamptz NULL,
     deleted_by uuid,
 
@@ -817,7 +819,9 @@ CREATE TABLE IF NOT EXISTS draw_exposure (
     version bigint NOT NULL DEFAULT 0,
 
     created_at timestamptz NOT NULL DEFAULT now(),
+    created_by uuid,
     updated_at timestamptz NOT NULL DEFAULT now(),
+    updated_by uuid,
     deleted_at timestamptz NULL,
     deleted_by uuid,
 
@@ -1184,7 +1188,7 @@ CREATE TABLE sales_ticket_line (
   line_number integer NOT NULL,
   game_code varchar(64) NOT NULL,
   bet_type varchar(64) NOT NULL,
-  bet_option smallint NOT NULL,
+  bet_option smallint,
   selection_key varchar(128) NOT NULL,
   display_selection varchar(256) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
@@ -1469,6 +1473,7 @@ CREATE TABLE offline_event_outbox (
   event_class varchar(255) NOT NULL,
   payload_json jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid,
   published_at timestamptz,
   attempts integer NOT NULL DEFAULT 0,
   last_error text,

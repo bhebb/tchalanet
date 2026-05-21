@@ -38,9 +38,9 @@ spring:
   boot:
     admin:
       client:
-        enabled: true
+        enabled: false
         url: http://localhost:8083/api/v1/admin/ops
-        auto-registration: true
+        auto-registration: false
         register-once: false
         period: 10s
         instance:
@@ -88,7 +88,11 @@ tch:
 
 kc:
   bootstrap:
-    enabled: ${KC_BOOTSTRAP_ENABLED:false}
+    enabled: ${KC_BOOTSTRAP_ENABLED:true}
+
+logging:
+  level:
+    com.tchalanet.server.common.bus: DEBUG
 
 # Swagger / OpenAPI OAuth2 redirect URL (used by Swagger UI Authorize button)
 springdoc:

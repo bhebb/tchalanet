@@ -138,12 +138,19 @@ public class DrawLifeCycleTickScheduler {
             try {
                 jobContextBinder.bindTenant(tenantId, "draw-processing-scheduler");
 
-                commandBus.execute(new OpenTodayDrawsCommand(
+                var result = commandBus.execute(new OpenTodayDrawsCommand(
                     now,
                     null,
                     defaultSalesOpenTime,
                     maxItems,
                     false));
+                log.info(
+                    "draw.open_today tenant summary tenantId={} opened={} alreadyOpen={} notEligible={}",
+                    tenantId,
+                    result.opened(),
+                    result.skippedLocked(),
+                    result.skippedTooLateOrCutoffPassed()
+                );
 
             } catch (Exception ex) {
                 failures.add(new TenantFailure(tenantId, ex));

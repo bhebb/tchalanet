@@ -32,15 +32,17 @@ public class TicketWebMapper {
     public SellTicketResponse toSellResponse(SellTicketResult result) {
         return new SellTicketResponse(
             toWebOutcome(result.outcome()),
-            toTicketResponse(result.ticket()),
+            result.ticket() == null ? null : toTicketResponse(result.ticket()),
             result.approvalRequestId()
         );
     }
 
     private SellTicketResponseOutcome toWebOutcome(SellTicketOutcome outcome) {
-        return outcome == SellTicketOutcome.PENDING_APPROVAL
-            ? SellTicketResponseOutcome.PENDING_APPROVAL
-            : SellTicketResponseOutcome.SOLD;
+        return switch (outcome) {
+            case ACCEPTED -> SellTicketResponseOutcome.SOLD;
+            case REJECTED -> SellTicketResponseOutcome.REJECTED;
+            case PENDING_APPROVAL -> SellTicketResponseOutcome.PENDING_APPROVAL;
+        };
     }
 
     public TicketResponse toTicketResponse(Ticket ticket) {

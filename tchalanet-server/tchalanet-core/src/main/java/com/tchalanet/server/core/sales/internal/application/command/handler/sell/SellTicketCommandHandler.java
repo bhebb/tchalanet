@@ -19,9 +19,12 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketCodeGeneratorPort;
+import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
+import com.tchalanet.server.core.sales.internal.application.receipt.TicketBackupAssembler;
+import com.tchalanet.server.core.sales.internal.application.receipt.TicketReceiptAssembler;
+import com.tchalanet.server.core.sales.internal.application.sale.SaleAcceptanceEvaluator;
 import com.tchalanet.server.core.sales.internal.application.service.communication.TicketCommunicationRequestDispatcher;
-import com.tchalanet.server.core.sales.internal.application.service.sell.TicketSalePolicyService;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
@@ -39,8 +42,11 @@ public class SellTicketCommandHandler
     private final IdGenerator idGenerator;
     private final TicketCodeGeneratorPort ticketCodeGenerator;
     private final TicketWriterPort ticketWriter;
+    private final TicketPrintReaderPort ticketPrintReader;
     private final DomainEventPublisher eventPublisher;
-    private final TicketSalePolicyService ticketSalePolicyService;
+    private final SaleAcceptanceEvaluator saleAcceptanceEvaluator;
+    private final TicketReceiptAssembler ticketReceiptAssembler;
+    private final TicketBackupAssembler ticketBackupAssembler;
     private final TicketCommunicationRequestDispatcher communicationDispatcher;
 
 
@@ -53,7 +59,20 @@ public class SellTicketCommandHandler
         var correlationId = ctx.correlationId();
 
         // 1. All business decisions in one place.
-        var prepared = ticketSalePolicyService.prepareSale(command, ctx);
+        var evaluation = saleAcceptanceEvaluator.evaluateFinal(command, ctx);
+        var prepared = evaluation.preparedSale();
+        if (!evaluation.acceptable()) {
+            return new SellTicketResult(
+                null,
+                SellTicketOutcome.REJECTED,
+                null,
+                List.of(),
+                evaluation.issues(),
+                null,
+                evaluation.actionAvailability(),
+                evaluation.sellerInstruction()
+            );
+        }
 
         // 2. Build and persist the aggregate.
         var ticketId = TicketId.of(idGenerator.newUuid());
@@ -83,6 +102,11 @@ public class SellTicketCommandHandler
         );
 
         var saved = ticketWriter.save(ticket);
+        var receipt = ticketReceiptAssembler.assemble(
+            ticketPrintReader.findPrintViewRequired(saved.identity().id()),
+            ctx.locale()
+        );
+        var backup = ticketBackupAssembler.assemble(receipt);
 
         // 3. Publish AFTER COMMIT.
         AfterCommit.run(() -> {
@@ -98,13 +122,17 @@ public class SellTicketCommandHandler
         // 4. Return result with notices propagated.
         var outcome = prepared.requiresApproval()
             ? SellTicketOutcome.PENDING_APPROVAL
-            : SellTicketOutcome.SOLD;
+            : SellTicketOutcome.ACCEPTED;
 
         return new SellTicketResult(
             saved,
             outcome,
             prepared.approvalRequestId(),
-            prepared.notices()
+            prepared.notices(),
+            evaluation.issues(),
+            backup,
+            evaluation.actionAvailability(),
+            evaluation.sellerInstruction()
         );
     }
 

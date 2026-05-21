@@ -31,8 +31,14 @@ public class ListCashierNextDrawsQueryHandler
 
         return page.items().stream()
             .map(d -> new CashierNextDrawView(
+                d.drawId(),
+                d.drawChannelId(),
+                d.resultSlotId(),
+                d.resultSlotKey(),
                 d.drawChannelCode(),
                 d.drawChannelLabel(),
+                d.drawDate(),
+                d.drawTime(),
                 d.scheduledAt(),
                 d.cutoffAt(),
                 d.status().name()))
