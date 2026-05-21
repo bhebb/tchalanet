@@ -125,12 +125,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             join draw_channel dc on dc.id = d.draw_channel_id
             where d.deleted_at is null
               and dc.deleted_at is null
-          and dc.active = true
+              and dc.active = true
               and d.tenant_id = :tenantId
               and d.status = 'SCHEDULED'
-          and d.opened_at is null
+              and d.opened_at is null
               and d.locked = false
-          and ((d.draw_date + coalesce(dc.sales_open_time, :defaultSalesOpenTime)) at time zone dc.timezone) <= :now
+              and d.draw_date = (:now at time zone dc.timezone)::date
+              and ((d.draw_date + coalesce(dc.sales_open_time, :defaultSalesOpenTime)) at time zone dc.timezone) <= :now
               and d.cutoff_at > :now
             order by d.scheduled_at asc
             limit :limit
