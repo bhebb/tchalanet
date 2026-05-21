@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.selection.internal.domain.service;
 
+import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
 
@@ -18,6 +19,57 @@ public final class SelectionKeyCanonicalizer {
     private SelectionKeyCanonicalizer() {
     }
 
+    public static SelectionKey canonicalize(
+        BetType betType,
+        Short rawBetOption,
+        String rawSelectionKey
+    ) {
+        Objects.requireNonNull(betType, "betType");
+        Objects.requireNonNull(rawSelectionKey, "selectionKey");
+
+        String s = rawSelectionKey.trim();
+        if (s.isEmpty()) {
+            throw new IllegalArgumentException("selectionKey cannot be blank");
+        }
+
+        String canonical = switch (betType) {
+            case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D ->
+                canonicalizeDigitsStrict(s, 2);
+
+            case MARRIAGE_2D2D ->
+                canonicalize2dPair(s, false);
+
+            case LOTTO3_3D ->
+                canonicalizeDigitsStrict(s, 3);
+
+            case LOTTO4_PATTERN ->
+                canonicalizeLotto4(rawBetOption, s);
+
+            case LOTTO5_PATTERN ->
+                canonicalizeDigitsStrict(s, 5);
+        };
+
+        return SelectionKey.of(canonical);
+    }
+
+    private static String canonicalizeLotto4(Short rawOption, String s) {
+        BetOption option = BetOption.from(BetType.LOTTO4_PATTERN, rawOption);
+
+        assert option != null;
+        return switch (option) {
+            case LOTTO4_STRAIGHT, LOTTO4_BOX ->
+                canonicalizeDigitsStrict(s, 4);
+
+            case LOTTO4_FRONT_PAIR ->
+                canonicalizeDigitsStrict(s, 2) + "**";
+
+            case LOTTO4_BACK_PAIR ->
+                "**" + canonicalizeDigitsStrict(s, 2);
+
+            default ->
+                throw new IllegalArgumentException("Unsupported LOTTO4 option: " + option);
+        };
+    }
     public static SelectionKey canonicalize(BetType betType, String rawSelectionKey) {
         Objects.requireNonNull(betType, "betType");
         Objects.requireNonNull(rawSelectionKey, "selectionKey");

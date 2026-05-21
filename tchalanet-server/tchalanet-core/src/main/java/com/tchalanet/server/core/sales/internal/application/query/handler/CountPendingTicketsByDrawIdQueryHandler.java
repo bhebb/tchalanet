@@ -2,7 +2,7 @@ package com.tchalanet.server.core.sales.internal.application.query.handler;
 
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
-import com.tchalanet.server.core.sales.internal.application.query.CountPendingTicketsByDrawIdQuery;
+import com.tchalanet.server.core.sales.internal.application.query.model.CountPendingTicketsByDrawIdQuery;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
