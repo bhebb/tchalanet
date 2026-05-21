@@ -1,6 +1,16 @@
-# Tasks — Fix TicketJpaAdapter merge pattern
+# Tasks — Fix P0 JPA merge pattern for sensitive aggregates
 
-## Phase 1 — Introduce the mutator
+## Phase 0 — P0 sensitive entity audit
+
+- [x] Classify the bug as a backend P0 persistence pattern, not a ticket-only defect.
+- [x] Add `p0-sensitive-entity-analysis.md` covering ticket, draw, drawresult, payout,
+      terminal, outlet, session, limit policy, ledger, and offline sync.
+- [ ] Decide the allowlist for explicit guarded SQL writers (`DrawResultWriterJdbcAdapter`,
+      draw bulk lifecycle methods, append-only ledger insert).
+- [x] Promote the rule into a backend persistence convention:
+      existing sensitive rows must use managed mutation or guarded SQL, never detached merge.
+
+## Phase 1 — Introduce the ticket mutator
 
 - [ ] Create `core.sales.internal.infra.persistence.mapper.TicketAggregateMutator`
       (or extend `TicketJpaMapper` with a `applyTo(TicketJpaEntity managed, Ticket domain)`
@@ -14,6 +24,13 @@
       `identity`, `context.outletId/terminalId/sellerUserId/salesSessionId/drawId`,
       `codes.ticketCode/publicCode/verificationCode`, `origin.channel`. These should
       never change; if they do it's a bug upstream.
+- [ ] Maintain an explicit Ticket mutable/immutable field matrix in tests or helper
+      assertions:
+      immutable = tenantId, ticketId, initial outletId, initial terminalId,
+      sellerId, salesSessionId, drawId, businessDate, codes, createdAt/createdBy,
+      currency; mutable = sale status, print state, cancel/void traces, result state,
+      settlement state, payout/paid refs where applicable, and audit update fields via
+      listeners only.
 - [ ] Unit-test the mutator without a database:
   - status transition PLACED → APPROVED preserves all immutable fields
   - marking printed updates `print.printedAt` only
@@ -47,20 +64,43 @@
 - [ ] Run the existing core integration tests for sales (`SellTicketCommandHandlerTest`,
       `CancelTicketCommandHandlerTest`, `ApproveTicketSaleCommandHandlerTest`,
       `RecordTicketPrintCommandHandlerTest`).
+- [ ] Add/adjust command-level integration tests that exercise real handlers and assert
+      both expected mutation and immutable-field preservation:
+      `RecordTicketPrintCommandHandler`, `ApproveTicketSaleCommandHandler`,
+      `CancelTicketCommandHandler`, `VoidTicket` flow if exposed, and
+      `CreateTicketFromOfflineSubmissionCommandHandler` / offline sync promotion if applicable.
 - [ ] Add a new integration test that does sell → record-print → cancel in sequence to
       exercise the multi-update flow.
 
-## Phase 4 — Generalize (optional, decide after Phase 3)
+## Phase 4 — Generalize to other P0 entities
 
-- [ ] Audit other aggregates for the same anti-pattern:
-  - `core.draw` — does the draw adapter rebuild from domain on save?
-  - `core.outlet` / `core.terminal` — same question.
-  - `core.offlinesync` (grants, submissions) — same question.
-- [ ] If any of them share the pattern, file a follow-up change.
-- [ ] Add an ArchUnit / convention check: any `XxxJpaAdapter` implementing a write port
-      whose target entity extends `BaseTenantEntity` AND has `@Version` MUST use the
-      load-managed-and-mutate pattern (smoke test: grep for `mapper.toEntity` + immediate
-      `save` in adapters).
+- [ ] Change `SalesSessionWriterJpaAdapter#save` to load managed by tenant+id, then call
+      `SalesSessionMapper#applyToEntity`; assert tenant/outlet/terminal/openedBy/businessDate
+      are immutable after creation.
+- [ ] Replace or constrain `DrawLifecycleJpaAdapter#save(Draw)`: update path must use a
+      managed `DrawMutator` or be removed in favor of explicit guarded SQL lifecycle ports.
+- [ ] Keep `DrawResultWriterJdbcAdapter` SQL-first, but verify all update paths increment
+      `version` and preserve `CONFIRMED`/`OVERRIDDEN` guards.
+- [ ] Harden `PayoutJpaWriterAdapter`: if `payout.id()` is present and no row exists,
+      fail instead of creating; assert tenant/ticket/amount/currency immutability.
+- [ ] Harden `JpaTerminalWriterAdapter`: tenant-scoped lookup for all writes; assert
+      immutable outlet/kind fields; make block toggles explicit managed mutations.
+- [ ] Complete `OutletPersistenceAdapter` operational mutators with managed entity updates
+      for status/sales/payout/offline blocks.
+- [ ] Harden `LimitAssignmentRepositoryAdapter`: managed mutation for existing assignments;
+      scope/rule immutable; create-only through natural key path.
+- [ ] Mark `JpaLedgerRepositoryAdapter` append-only: fail on duplicate id and never update
+      an existing ledger entry.
+- [ ] Verify offline sync adapters that use `toEntity(domain, existing)` always pass a
+      managed existing entity on updates and fail on unexpected missing rows.
+
+## Phase 5 — Convention enforcement
+
+- [ ] Add an ArchUnit / convention check: core adapters must not call
+      `save(mapper.toEntity(...))` for update-capable sensitive entities.
+- [ ] Allowlist create-only and append-only paths explicitly.
+- [ ] Allowlist guarded SQL writers explicitly when they include tenant/status/version
+      predicates or equivalent natural-key/idempotency guards.
 
 ## Decisions to challenge with codex (record outcomes here)
 
@@ -70,4 +110,5 @@
       leaks persistence concerns into the domain.
 - [ ] Should we keep `TicketWriterPort#flushPending`? Yes for the SELL view-read trick,
       but rename to something like `flushPendingForViewRead`.
-- [ ] Same pattern audit for other aggregates — go now or defer?
+- [x] Same pattern audit for other aggregates — go now or defer? Go now for P0
+      classification; implement in phases after Ticket and SalesSession.

@@ -1,4 +1,4 @@
-# Fix TicketJpaAdapter merge pattern (rebuild-from-domain loses JPA state)
+# Fix P0 JPA merge pattern for sensitive aggregates
 
 ## Why
 
@@ -36,10 +36,30 @@ This is **band-aid on top of band-aid**. Every column with `updatable=false` sem
 every audit/versioning field, every cascading collection becomes a new potential leak.
 The design treats the JPA entity like a DTO instead of a managed persistence object.
 
+This is not only a ticket bug. The same failure class is P0 for every sensitive
+aggregate/entity that combines lifecycle transitions, tenant ownership, audit/version
+columns, money/accounting state, or concurrency-sensitive status changes:
+
+- draw / draw result
+- ticket / ticket line / ticket charge
+- payout
+- terminal
+- outlet
+- sales session
+- limit assignment / exposure-like operational controls
+- append-only financial records that must never be updated accidentally
+
+The change therefore establishes a backend persistence rule: **for existing sensitive
+rows, never rebuild a fresh JPA entity and call `save` as an update path**. Existing rows
+must be loaded as managed entities and mutated in place, or updated through explicit SQL
+with compare-and-set/status guards.
+
 ## What Changes
 
-Replace the rebuild-from-domain pattern with a **load-managed-then-mutate** pattern in
-`TicketJpaAdapter#save`:
+Replace the rebuild-from-domain pattern with a **load-managed-then-mutate** pattern for
+JPA-managed sensitive aggregates, starting with `TicketJpaAdapter#save` and
+`SalesSessionWriterJpaAdapter#save`, then hardening already-near-correct adapters
+(`Payout`, `Terminal`, `Outlet`) with immutable-field assertions and tenant-scoped loads.
 
 1. If the ticket exists in DB → load the managed `TicketJpaEntity` (with lines + charges).
 2. Apply only the domain-level mutations from the input `Ticket` onto the managed entity
@@ -50,6 +70,11 @@ Replace the rebuild-from-domain pattern with a **load-managed-then-mutate** patt
    propagation automatically — no manual transplant.
 
 For brand-new tickets, the flow stays as today: build a fresh entity, save once.
+
+For draws/draw results, prefer the existing explicit SQL shape where it already encodes
+domain concurrency (`bulkOpen`, `bulkClose`, result upsert, mark overridden). Where a
+domain `Draw` aggregate is saved through JPA, it must follow the same managed-mutation
+rule or be replaced by explicit guarded SQL.
 
 ## Impact
 
@@ -74,6 +99,16 @@ For brand-new tickets, the flow stays as today: build a fresh entity, save once.
 
 - A `TicketAggregateMutator` (or in-place merge inside the adapter) that takes a managed
   `TicketJpaEntity` + a domain `Ticket` and applies the diff field-by-field.
+- A `SensitiveJpaUpdate` convention documented by this change:
+  - create path may map domain → new entity once;
+  - update path must load managed entity first;
+  - immutable columns are asserted, not overwritten;
+  - tenant/version/audit fields are never transplanted;
+  - append-only tables reject updates instead of silently merging detached state.
+- The stable backend norm lives in
+  `docs/conventions/persistence/sensitive_jpa_updates.md`.
+- A P0 audit matrix covering draw, drawresult, ticket, payout, terminal, outlet,
+  session, limit policy, ledger, and offline sync persistence paths.
 - New tests in `tchalanet-core/src/test/java/.../persistence/adapter/`:
   - update path (record print, cancel, approve) does not lose tenant/version/audit
   - new sale insert path still works (no managed entity exists yet)
@@ -88,6 +123,9 @@ For brand-new tickets, the flow stays as today: build a fresh entity, save once.
 - Mitigation: write the mutator alongside the existing rebuild, run both in parallel in
   a feature-flagged path for one or two iterations, compare the DB output. Or replace
   outright and rely on integration tests covering each command handler.
+- The broader P0 sweep can accidentally over-normalize safe cases. Append-only ledger
+  writes and guarded SQL result ingestion are not the same problem; they must be
+  explicitly classified instead of rewritten mechanically.
 
 ### Decisions to challenge (asked of codex)
 
@@ -102,6 +140,9 @@ For brand-new tickets, the flow stays as today: build a fresh entity, save once.
 4. **Are there other aggregates with the same pattern** (Draw, Outlet, Terminal,
    OfflineSubmission)? If so we should fix the pattern across the board, not just for
    Ticket.
+5. **Which sensitive entities are allowed to use explicit SQL instead of managed JPA?**
+   DrawResult upsert and draw bulk lifecycle updates currently do this for good reasons;
+   the rule should bless guarded SQL, not force everything through JPA.
 
 ## Out of Scope
 
