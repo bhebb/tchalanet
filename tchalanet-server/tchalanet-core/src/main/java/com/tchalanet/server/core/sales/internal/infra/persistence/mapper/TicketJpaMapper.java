@@ -87,14 +87,9 @@ public interface TicketJpaMapper {
         }
 
         var entity = new TicketJpaEntity();
-        var tenantUuid = ticket.identity().tenantId().value();
-
         // BaseEntity id
         entity.setId(ticket.identity().id().value());
-        // Propagate tenant on the parent ticket. The column is updatable=false, so JPA won't
-        // re-write it on update; setting it here satisfies TenantEntityListener#preUpdate which
-        // inspects the in-memory value (otherwise null on freshly mapped entities).
-        entity.setTenantId(tenantUuid);
+        entity.setTenantId(ticket.identity().tenantId().value());
 
         applyIdentity(ticket.identity(), entity);
         applyContext(ticket.context(), entity);
@@ -108,16 +103,12 @@ public interface TicketJpaMapper {
             .map(this::toLineEntity)
             .peek(line -> {
                 line.setDrawId(ticket.context().drawId().value());
-                // Same rationale as above: required for TenantEntityListener#preUpdate on
-                // existing line rows that are flushed when the parent ticket is updated.
-                line.setTenantId(tenantUuid);
             })
             .toList();
         entity.replaceLines(lineEntities);
 
         var chargeEntities = ticket.money().breakdown().charges().stream()
             .map(this::toChargeEntity)
-            .peek(charge -> charge.setTenantId(tenantUuid))
             .toList();
         entity.replaceCharges(chargeEntities);
 
@@ -571,4 +562,3 @@ public interface TicketJpaMapper {
         return id == null ? null : id.value();
     }
 }
-
