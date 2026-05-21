@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/tenant/me/profile")
-@PreAuthorize("isAuthenticated()")
+@PreAuthorize("hasAnyAuthority('CASHIER', 'TENANT_ADMIN', 'SUPER_ADMIN', 'OPERATOR')")
 @RequiredArgsConstructor
 @Tag(name = "Tenant • Current Profile")
 public class CurrentUserProfileController {

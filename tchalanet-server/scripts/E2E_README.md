@@ -186,14 +186,14 @@ export TCH_AUTH_CLIENT_ID='tchalanet-swagger'
 export TCH_AUTH_CLIENT_SECRET='' # ou le secret si Client authentication = ON
 export TCH_SUPER_ADMIN_USERNAME='super_admin'
 export TCH_SUPER_ADMIN_PASSWORD='Changeme1!'
-export TCH_SELLER_USERNAME='agent'
+export TCH_SELLER_USERNAME='cashier'
 export TCH_SELLER_PASSWORD='Changeme1!'
 ```
 
 Exemple de ligne `crontab -e` complète (07:00 tous les jours):
 
 ```zsh
-0 7 * * * TCH_BASE_URL='http://api.tchalanet.lan/api/v1' TCH_AUTH_TOKEN_URL='http://auth.tchalanet.lan/realms/tchalanet/protocol/openid-connect/token' TCH_AUTH_CLIENT_ID='tchalanet-swagger' TCH_SUPER_ADMIN_USERNAME='super_admin' TCH_SUPER_ADMIN_PASSWORD='***' TCH_SELLER_USERNAME='agent' TCH_SELLER_PASSWORD='***' TCH_SELECTION_PLAN='BOLET=2,MARYAJ=3,LOTO3=2,LOTO4=2,LOTO5=1' TCH_DRAW_LIMIT='20' /bin/zsh /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/scripts/e2e-cashier-morning.sh
+0 7 * * * TCH_BASE_URL='http://api.tchalanet.lan/api/v1' TCH_AUTH_TOKEN_URL='http://auth.tchalanet.lan/realms/tchalanet/protocol/openid-connect/token' TCH_AUTH_CLIENT_ID='tchalanet-swagger' TCH_SUPER_ADMIN_USERNAME='super_admin' TCH_SUPER_ADMIN_PASSWORD='***' TCH_SELLER_USERNAME='cashier' TCH_SELLER_PASSWORD='***' TCH_SELECTION_PLAN='BOLET=2,MARYAJ=3,LOTO3=2,LOTO4=2,LOTO5=1' TCH_DRAW_LIMIT='20' /bin/zsh /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/scripts/e2e-cashier-morning.sh
 ```
 
 ### Exemple curl mobile vendeur

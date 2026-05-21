@@ -49,14 +49,11 @@ public class TenantEntityListener {
                 "Missing tenant context while updating " + entity.getClass().getSimpleName());
         }
 
-        // Symmetric with prePersist: if the entity was rebuilt from a domain aggregate without a
-        // tenant value in memory (mapper omitted the field, or the column is updatable=false so
-        // JPA never reads it back into a fresh instance), fill it from the current request
-        // context. The column is updatable=false on BaseTenantEntity, so this only affects the
-        // in-memory guard — never the SQL UPDATE.
         if (entityTenant == null) {
-            e.setTenantId(currentTenant);
-            return;
+            // Updates must operate on a managed entity that already carries its tenant.
+            // Auto-filling here would hide detached-merge bugs in sensitive writers.
+            throw new IllegalStateException(
+                "Missing entity tenant while updating " + entity.getClass().getSimpleName());
         }
 
         if (!entityTenant.equals(currentTenant)) {
