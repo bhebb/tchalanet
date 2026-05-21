@@ -52,4 +52,12 @@ public class LimitAssignmentMapper {
 
         return entity;
     }
+
+    public void applyMutableFields(LimitAssignment assignment, LimitAssignmentJpaEntity entity) {
+        entity.setEnabled(assignment.enabled());
+        entity.setOnBreach(assignment.onBreach());
+        entity.setParams(assignment.params());
+        entity.setStartsAt(assignment.startsAt());
+        entity.setEndsAt(assignment.endsAt());
+    }
 }

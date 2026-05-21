@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -90,8 +91,18 @@ public class LimitAssignmentRepositoryAdapter
 
     @Override
     public LimitAssignment save(LimitAssignment assignment) {
-        var saved = repo.save(mapper.toEntity(assignment));
-        return mapper.toDomain(saved);
+        var existing = assignment.id() == null
+            ? Optional.<LimitAssignmentJpaEntity>empty()
+            : repo.findById(assignment.id().value());
+        if (existing.isEmpty()) {
+            var saved = repo.save(mapper.toEntity(assignment));
+            return mapper.toDomain(saved);
+        }
+
+        var entity = existing.get();
+        assertImmutableFields(entity, assignment);
+        mapper.applyMutableFields(assignment, entity);
+        return mapper.toDomain(entity);
     }
 
     @Override
@@ -103,6 +114,24 @@ public class LimitAssignmentRepositoryAdapter
             .orElseThrow(() -> new IllegalArgumentException("limit assignment not found"));
 
         entity.setDeletedAt(deletedAt);
-        repo.save(entity);
+    }
+
+    private void assertImmutableFields(LimitAssignmentJpaEntity entity, LimitAssignment assignment) {
+        requireSame("assignmentId", entity.getId(), assignment.id().value());
+        requireSame("ruleKey", entity.getRuleKey(), assignment.ruleKey());
+        requireSame("scopeType", entity.getScopeType(), scopeMapper.toType(assignment.scope()));
+        requireSame("scopeId", entity.getScopeId(), scopeMapper.toId(assignment.scope()));
+    }
+
+    private static void requireSame(String field, Object actual, Object expected) {
+        if (!Objects.equals(actual, expected)) {
+            throw new IllegalStateException(
+                "LimitAssignment immutable field changed: "
+                    + field
+                    + " expected="
+                    + actual
+                    + " actual="
+                    + expected);
+        }
     }
 }

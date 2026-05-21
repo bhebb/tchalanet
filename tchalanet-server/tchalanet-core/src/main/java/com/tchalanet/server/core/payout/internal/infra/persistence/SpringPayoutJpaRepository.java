@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 public interface SpringPayoutJpaRepository extends JpaRepository<PayoutJpaEntity, UUID> {
   Optional<PayoutJpaEntity> findByTicketId(UUID ticketId);
 
+    Optional<PayoutJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
+
     @Query("""
     select p
     from PayoutJpaEntity p
