@@ -11,7 +11,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 @Component
-public class TimeProvider {
+public class TimeProvider implements TchTimeProvider {
 
     private static final ZoneId UTC = ZoneId.of("UTC");
 
@@ -21,20 +21,46 @@ public class TimeProvider {
         this.clock = clock;
     }
 
-    public Instant nowInstant() {
+    /** {@inheritDoc} */
+    @Override
+    public Instant now() {
         return clock.instant();
     }
 
-    public ZonedDateTime now(ZoneId zone) {
-        return ZonedDateTime.ofInstant(clock.instant(), zoneOrUtc(zone));
+    /**
+     * Legacy alias for {@link #now()}.
+     *
+     * @deprecated use {@link #now()} instead
+     */
+    @Deprecated(forRemoval = false)
+    public Instant nowInstant() {
+        return now();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public ZonedDateTime nowAt(ZoneId zoneId) {
+        return ZonedDateTime.ofInstant(clock.instant(), zoneOrUtc(zoneId));
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public LocalDate today(ZoneId zone) {
-        return now(zone).toLocalDate();
+        return nowAt(zone).toLocalDate();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Clock clock() {
+        return clock;
+    }
+
+    public ZonedDateTime now(ZoneId zone) {
+        return nowAt(zone);
     }
 
     public ZonedDateTime now(TchRequestContext ctx) {
-        return now(ctx == null ? null : ctx.tenantZoneId());
+        return nowAt(ctx == null ? null : ctx.tenantZoneId());
     }
 
     public LocalDate today(TchRequestContext ctx) {
