@@ -34,7 +34,7 @@ public final class DrawScheduleCalculator {
      * @param cutoffBeforeDraw how long before {@code scheduledAt} the cutoff is set
      * @return a fully populated {@link DrawScheduleSnapshot}
      */
-    public static DrawScheduleSnapshot compute(
+    public DrawScheduleSnapshot compute(
         LocalDate drawDate,
         LocalTime drawTime,
         ZoneId zoneId,
