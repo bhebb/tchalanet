@@ -122,6 +122,19 @@
 - [ ] Add ArchUnit rule or checklist for no raw `UUID` in new core sales API/application models.
 - [ ] Run full build.
 
+## Receipt formatting (follow-ups identified via E2E layout test)
+
+- [ ] Optional compact mode that collapses duplicate `(selection, stake, betOption)` rows
+      into a single row showing the cumulative stake + payout
+      (e.g. `12345  5.00  125 000.00` instead of 5 identical lines).
+      Decision pending: keep verbose default (auditable from a printed ticket) and add a
+      `compactDuplicates: true` flag on `PrintTicketRequest`?
+- [ ] Validate the column widths (`COL_SELECTION=8`, `COL_STAKE=8`, `COL_GAIN=12`) hold for
+      paper sizes other than RECEIPT_80MM (currently the 58mm path would overflow).
+- [ ] Edge cases to cover in `tests/cashier/test_layouts.py`:
+      mixed currency (HTG + CAD), long selection (>12 chars if any game allows),
+      gain max in the billions, and a ticket with **no** buyer-paid charges.
+
 ## PR 4 — E2E test suite
 
 > Baseline scripts existants : `tchalanet-server/scripts/e2e-phase1-bootstrap.sh`, `e2e-phase2-sell-pdf.sh`, `e2e-cashier-morning.sh` + harnais Python `scripts/tests/test_e2e_phase1_bootstrap.py`. À reprendre comme base pour le test runner Python sur backend `localhost:8080`.
