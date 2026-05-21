@@ -33,7 +33,7 @@ spring:
       maximum-pool-size: 10
       jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
   flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:false}
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
 
   boot:
     admin:
@@ -98,4 +98,3 @@ logging:
 springdoc:
   swagger-ui:
     oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html
-

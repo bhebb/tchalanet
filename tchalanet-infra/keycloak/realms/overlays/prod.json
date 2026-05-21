@@ -1,14 +1,25 @@
 {
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "verifyEmail": true,
+  "bruteForceProtected": true,
+  "sslRequired": "external",
   "clients": [
     {
       "clientId": "tchalanet-web",
-      "redirectUris": ["https://tchalanet.com/*", "https://tchalanet.com/auth/callback*"],
-      "webOrigins": ["https://tchalanet.com"]
+      "redirectUris": ["https://app.tchalanet.com/*"],
+      "webOrigins": ["https://app.tchalanet.com"]
+    },
+    {
+      "clientId": "tchalanet-mobile-pos",
+      "redirectUris": ["com.tchalanet.mobile:/oauth2redirect"],
+      "webOrigins": ["+"]
     },
     {
       "clientId": "tchalanet-swagger",
       "redirectUris": ["https://api.tchalanet.com/swagger-ui/oauth2-redirect.html"],
       "webOrigins": ["https://api.tchalanet.com"]
     }
-  ]
+  ],
+  "users": []
 }

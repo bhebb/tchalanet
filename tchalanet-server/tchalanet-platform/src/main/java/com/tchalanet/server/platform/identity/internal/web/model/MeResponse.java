@@ -1,6 +1,8 @@
 package com.tchalanet.server.platform.identity.internal.web.model;
 
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.UserId;
+import java.util.Set;
 import java.util.UUID;
 
 public record MeResponse(
@@ -14,4 +16,8 @@ public record MeResponse(
     boolean isNew,
     TenantContextResponse tenant,
     UserPreferenceResponse preferences,
-    EffectiveUiContextResponse effective) {}
+    EffectiveUiContextResponse effective,
+    Set<TchRole> roles,
+    LandingResponse landing,
+    Set<String> capabilities,
+    ProfileActionsResponse profileActions) {}

@@ -38,15 +38,20 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
                         line.betOption(),
                         line.selectionKey());
 
-                jdbc.update("""
-            SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
+                // `SELECT fn(...)` returns a row (the function's return value), so we use
+                // query(...) with a no-op extractor instead of update(...) which would throw
+                // "A result was returned when none was expected".
+                jdbc.query(
+                    """
+                    SELECT increment_draw_exposure(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    rs -> null,
                     event.tenantId().value(),
                     event.context().drawId().value(),
                     scopeRow.scopeType().name(),
                     scopeRow.scopeId(),
                     line.betType().name(),
-                    canonicalSelection,
+                    canonicalSelection.key().value(),
                     stake,
                     payout,
                     event.eventId().value(),

@@ -5,7 +5,7 @@ WORKDIR /build
 COPY tchalanet-keycloak-provider/ .
 RUN mvn -q -DskipTests clean package && echo "✔ Provider JAR built"
 
-FROM quay.io/keycloak/keycloak:26.4.7
+FROM quay.io/keycloak/keycloak:26.6.2
 
 # Activer mgmt port pour /health et /metrics
 ENV KC_HEALTH_ENABLED=true \
@@ -21,4 +21,10 @@ COPY --chown=keycloak:keycloak realms/*-realm.json /opt/keycloak/data/import/
 
 USER keycloak
 WORKDIR /opt/keycloak
-RUN /opt/keycloak/bin/kc.sh build
+# Build-time options only. Per Keycloak 26 docs:
+#   - db, transaction-xa-enabled  →  BUILD-TIME (require re-augmentation if changed)
+#   - http-enabled, http-management-enabled, cache, proxy-headers  →  RUNTIME
+# Runtime options live in docker-compose-keycloak.yml's `command:` block.
+RUN /opt/keycloak/bin/kc.sh build \
+    --db=postgres \
+    --transaction-xa-enabled=false

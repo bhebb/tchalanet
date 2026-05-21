@@ -56,7 +56,7 @@ WITH t AS (
      g AS (
          SELECT id AS game_id, code, name
          FROM game
-         WHERE code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+         WHERE code IN ('HT_BOLET','HT_MARYAJ','HT_LOTO3','HT_LOTO4','HT_LOTO5')
            AND deleted_at IS NULL
      ),
      tg_src AS (
@@ -270,7 +270,7 @@ WITH t AS (
      games AS (
          SELECT id AS game_id
          FROM game
-         WHERE code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+         WHERE code IN ('HT_BOLET','HT_MARYAJ','HT_LOTO3','HT_LOTO4','HT_LOTO5')
            AND deleted_at IS NULL
      ),
      pairs AS (

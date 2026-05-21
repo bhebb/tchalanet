@@ -765,7 +765,7 @@ CREATE TABLE IF NOT EXISTS limit_assignment (
     deleted_by uuid,
 
     CONSTRAINT ck_limit_assignment_scope_type
-    CHECK (scope_type IN ('TENANT', 'DRAWCHANNEL', 'OUTLET', 'AGENT')),
+    CHECK (scope_type IN ('TENANT', 'DRAW_CHANNEL', 'OUTLET', 'AGENT')),
 
     CONSTRAINT ck_limit_assignment_on_breach
     CHECK (on_breach IN ('ALLOW', 'WARN', 'REQUIRE_APPROVAL', 'BLOCK')),
@@ -826,7 +826,7 @@ CREATE TABLE IF NOT EXISTS draw_exposure (
     deleted_by uuid,
 
     CONSTRAINT ck_draw_exposure_scope_type
-    CHECK (scope_type IN ('TENANT', 'DRAWCHANNEL', 'OUTLET', 'AGENT')),
+    CHECK (scope_type IN ('TENANT', 'DRAW_CHANNEL', 'OUTLET', 'AGENT')),
 
     CONSTRAINT ck_draw_exposure_amounts_non_negative
     CHECK (

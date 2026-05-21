@@ -8,27 +8,68 @@ import com.tchalanet.server.core.sales.internal.application.port.out.TicketReade
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.infra.persistence.mapper.TicketJpaMapper;
+import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketChargeJpaRepository;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketJpaRepository;
+import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketLineJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
 
     private final TicketJpaRepository ticketRepository;
+    private final TicketLineJpaRepository lineRepository;
+    private final TicketChargeJpaRepository chargeRepository;
     private final TicketJpaMapper mapper;
 
     @Override
     @Transactional
     public Ticket save(Ticket ticket) {
         var entity = mapper.toEntity(ticket);
+        // The mapper rebuilds the entity (and its lines/charges) from the domain aggregate,
+        // which loses Hibernate's managed state including @Version. For the update path,
+        // transplant the current versions from the DB so JPA's optimistic-locking merge passes.
+        var ticketId = entity.getId();
+        ticketRepository.findVersionById(ticketId).ifPresent(entity::setVersion);
+
+        Map<UUID, Long> lineVersions = lineRepository.findVersionsByTicketId(ticketId).stream()
+            .collect(Collectors.toMap(
+                TicketLineJpaRepository.TicketLineVersionView::getId,
+                TicketLineJpaRepository.TicketLineVersionView::getVersion));
+        for (var line : entity.getLines()) {
+            var v = lineVersions.get(line.getId());
+            if (v != null) {
+                line.setVersion(v);
+            }
+        }
+
+        Map<UUID, Long> chargeVersions = chargeRepository.findVersionsByTicketId(ticketId).stream()
+            .collect(Collectors.toMap(
+                TicketChargeJpaRepository.TicketChargeVersionView::getId,
+                TicketChargeJpaRepository.TicketChargeVersionView::getVersion));
+        for (var charge : entity.getCharges()) {
+            var v = chargeVersions.get(charge.getId());
+            if (v != null) {
+                charge.setVersion(v);
+            }
+        }
+
         var saved = ticketRepository.save(entity);
         return mapper.toDomain(saved);
+    }
+
+    @Override
+    @Transactional
+    public void flushPending() {
+        ticketRepository.flush();
     }
 
     @Override

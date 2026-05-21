@@ -4,6 +4,8 @@ import com.tchalanet.server.common.persistence.repository.TchJpaRepository;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,4 +41,11 @@ public interface TicketJpaRepository extends TchJpaRepository<TicketJpaEntity, U
     boolean existsByDrawIdAndSettlementStatusIn(UUID drawId, List<TicketSettlementStatus> statuses);
 
     long countByDrawIdAndSettlementStatusIn(UUID drawId, List<TicketSettlementStatus> statuses);
+
+    /**
+     * Returns just the @Version of an existing ticket. Used by TicketJpaAdapter#save to
+     * transplant the current version onto a fresh entity rebuilt from the domain aggregate.
+     */
+    @Query("select t.version from TicketJpaEntity t where t.id = :id")
+    Optional<Long> findVersionById(@Param("id") UUID id);
 }

@@ -79,9 +79,8 @@ public class TicketPrintDocumentMapper {
         lines.add(line("--------------------------------", LineStyle.NORMAL));
 
         lines.add(line("Ticket: " + view.identity().ticketCode(), LineStyle.BOLD));
-        lines.add(line("Public: " + view.identity().publicCode(), LineStyle.NORMAL));
-        lines.add(line("Code: " + view.identity().verificationCode(), LineStyle.NORMAL));
-        lines.add(line("Vente: " + view.metadata().placedAt(), LineStyle.SMALL));
+        lines.add(line("Code:   " + dashedPublicCode(view.identity().publicCode()), LineStyle.BOLD));
+        lines.add(line("Vente:  " + formatPlacedAt(view), LineStyle.SMALL));
         lines.add(line("Terminal: " + view.context().terminalCode(), LineStyle.NORMAL));
 
         if (showSellerName(tenantReceiptConfig)) {
@@ -99,20 +98,23 @@ public class TicketPrintDocumentMapper {
     ) {
         var lines = new ArrayList<DocumentLine>();
 
-        int footerStart = lines.size();
+        // Top separator — guarantees the message block doesn't glue to the totals block.
+        lines.add(line("--------------------------------", LineStyle.NORMAL));
 
+        int messageStart = lines.size();
         addIfPresent(lines, resolveOutletFooter(view), LineStyle.NORMAL);
         addIfPresent(lines, resolveFooterMessage(view, tenantReceiptConfig), LineStyle.NORMAL);
-
-        if (lines.size() == footerStart) {
+        if (lines.size() == messageStart) {
             lines.add(line(SYSTEM_FOOTER_FALLBACK, LineStyle.NORMAL));
         }
 
-        lines.add(line("--------------------------------", LineStyle.NORMAL));
-
         if (showQrCode(tenantReceiptConfig)) {
-            lines.add(line("Scannez le QR pour verifier", LineStyle.SMALL));
-            lines.add(line(view.qr().verificationUrl(), LineStyle.SMALL));
+            // Separator between the goodbye message and the verification block.
+            lines.add(line("--------------------------------", LineStyle.NORMAL));
+            lines.add(line("Verif:", LineStyle.SMALL));
+            lines.add(line(displayVerificationUrl(view), LineStyle.SMALL));
+            // Empty line above the QR asset so it doesn't glue to the URL text.
+            lines.add(line("", LineStyle.NORMAL));
         }
 
         if (view.metadata().disclaimers() != null) {
@@ -188,28 +190,159 @@ public class TicketPrintDocumentMapper {
 
     private List<DocumentSection> sections(TicketPrintView view) {
         return List.of(
-            new DocumentSection(
-                "Tirage",
-                List.of(line(view.draw().label(), LineStyle.BOLD))
-            ),
-            new DocumentSection(
-                "Jeux",
-                view.lines().stream()
-                    .flatMap(this::lineRows)
-                    .toList()
-            )
+            new DocumentSection("Tirage", drawLines(view)),
+            new DocumentSection("Jeux", gameSectionLines(view))
         );
     }
 
-    private java.util.stream.Stream<DocumentLine> lineRows(TicketPrintLine line) {
-        return java.util.stream.Stream.of(
-            line("#" + line.lineNo() + " " + line.gameCode(), LineStyle.BOLD),
-            line("Selection: " + line.selectionCanonical(), LineStyle.NORMAL),
-            line("Mise: " + line.stake(), LineStyle.NORMAL),
-            line("Gain potentiel: " + line.potentialPayout(), LineStyle.NORMAL),
-            line("--------------------------------", LineStyle.NORMAL)
-        );
+    private List<DocumentLine> drawLines(TicketPrintView view) {
+        var lines = new ArrayList<DocumentLine>();
+        var draw = view.draw();
+        if (draw == null) {
+            return lines;
+        }
+        var channelLabel = draw.label() == null ? draw.drawChannelName() : draw.label();
+        // The label produced upstream sometimes embeds " - {scheduledAt}". Split on the first
+        // " - " to keep the channel description on its own line above the scheduled time.
+        if (channelLabel != null) {
+            int sep = channelLabel.indexOf(" - ");
+            if (sep > 0) {
+                lines.add(line(channelLabel.substring(0, sep), LineStyle.BOLD));
+            } else {
+                lines.add(line(channelLabel, LineStyle.BOLD));
+            }
+        }
+        if (draw.scheduledAt() != null) {
+            var zone = view.metadata() != null && view.metadata().timezone() != null
+                ? view.metadata().timezone()
+                : java.time.ZoneId.systemDefault();
+            lines.add(line(DRAW_SCHEDULED_FMT.withZone(zone).format(draw.scheduledAt()), LineStyle.NORMAL));
+        }
+        return lines;
     }
+
+    // Column widths for the per-game tabular layout (fits within 32 chars / 80mm thermal).
+    private static final int COL_SELECTION = 8;
+    private static final int COL_STAKE = 8;
+    private static final int COL_GAIN = 12;
+
+    private List<DocumentLine> gameSectionLines(TicketPrintView view) {
+        var lines = new ArrayList<DocumentLine>();
+        // Group successive lines by (gameCode, betType, betOption). Preserves the cart order.
+        // TODO (cashier-sales-v1, future): optional compact mode that collapses duplicate
+        // (selection, stake) rows into a single row showing the cumulative stake + payout.
+        // For now we keep one row per cart line so the client can see exactly what was sold.
+        String currentKey = null;
+        for (var line : view.lines()) {
+            var key = line.gameCode().name()
+                + "|" + line.betType().name()
+                + "|" + (line.betOption() == null ? "" : line.betOption());
+            if (!key.equals(currentKey)) {
+                // No blank line between groups — the bold section header is enough visual
+                // separation, and a blank line balloons the receipt height on long tickets.
+                lines.add(line(gameSectionHeader(line), LineStyle.BOLD));
+                lines.add(line(columnHeader(), LineStyle.SMALL));
+                currentKey = key;
+            }
+            lines.add(line(tableRow(line), LineStyle.NORMAL));
+        }
+        return lines;
+    }
+
+    private static String columnHeader() {
+        return rightPad("No", COL_SELECTION)
+            + leftPad("Mise", COL_STAKE)
+            + leftPad("Gain", COL_GAIN);
+    }
+
+    private static String tableRow(TicketPrintLine line) {
+        return rightPad(line.selectionCanonical(), COL_SELECTION)
+            + leftPad(formatAmount(line.stake()), COL_STAKE)
+            + leftPad(formatAmount(line.potentialPayout()), COL_GAIN);
+    }
+
+    private String gameSectionHeader(TicketPrintLine line) {
+        var game = humanGameLabel(line.gameCode());
+        var option = humanBetOptionLabel(line.betType(), line.betOption());
+        return option == null || option.isBlank() ? game : game + " - " + option;
+    }
+
+    private static String humanGameLabel(com.tchalanet.server.catalog.game.api.model.GameCode code) {
+        if (code == null) return "";
+        // HT_LOTO3 → "LOTO 3"; HT_BOLET → "BOLET"; HT_MARYAJ → "MARYAJ".
+        var raw = code.name();
+        if (raw.startsWith("HT_")) raw = raw.substring(3);
+        return switch (raw) {
+            case "LOTO3" -> "LOTO 3";
+            case "LOTO4" -> "LOTO 4";
+            case "LOTO5" -> "LOTO 5";
+            default -> raw;
+        };
+    }
+
+    private static String humanBetOptionLabel(
+        com.tchalanet.server.catalog.game.api.model.BetType betType,
+        Short betOption
+    ) {
+        if (betType == null || betOption == null) {
+            return null;
+        }
+        try {
+            var option = com.tchalanet.server.catalog.game.api.model.BetOption.from(betType, betOption);
+            return option == null ? null : option.label();
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    private static String displayVerificationUrl(TicketPrintView view) {
+        var url = view.qr() == null ? null : view.qr().verificationUrl();
+        if (url == null || url.isBlank()) return "";
+        // Strip protocol for human readability on the receipt (QR keeps the full URL).
+        var shown = url.startsWith("https://") ? url.substring(8)
+                  : url.startsWith("http://") ? url.substring(7)
+                  : url;
+        // Inject the dash into the trailing code segment if it looks like /ticket/XXXXXXXX.
+        int slash = shown.lastIndexOf('/');
+        if (slash > 0 && slash < shown.length() - 1) {
+            var tail = shown.substring(slash + 1);
+            if (tail.matches("[A-Z0-9]{8}")) {
+                shown = shown.substring(0, slash + 1) + tail.substring(0, 4) + "-" + tail.substring(4);
+            }
+        }
+        return shown;
+    }
+
+    private static String dashedPublicCode(String publicCode) {
+        if (publicCode == null || publicCode.isBlank()) return "";
+        var clean = publicCode.replace("-", "").replace(" ", "");
+        if (clean.length() != 8) return publicCode;
+        return clean.substring(0, 4) + "-" + clean.substring(4);
+    }
+
+    private static String rightPad(String value, int width) {
+        var s = value == null ? "" : value;
+        if (s.length() >= width) return s + " ";
+        return s + " ".repeat(width - s.length());
+    }
+
+    private static String leftPad(String value, int width) {
+        var s = value == null ? "" : value;
+        if (s.length() >= width) return s;
+        return " ".repeat(width - s.length()) + s;
+    }
+
+    /** Amount only (no currency suffix), used in the per-line tabular layout. */
+    private static String formatAmount(com.tchalanet.server.common.types.money.Money m) {
+        if (m == null) {
+            return "";
+        }
+        var amount = m.amount().setScale(2, java.math.RoundingMode.HALF_UP);
+        return MONEY_FORMAT.format(amount);
+    }
+
+    // Width of the totals block: label left-padded, amount+currency right-aligned.
+    private static final int TOTALS_WIDTH = 32;
 
     private List<DocumentLine> totals(
         TicketPrintView view,
@@ -217,24 +350,72 @@ public class TicketPrintDocumentMapper {
     ) {
         var lines = new ArrayList<DocumentLine>();
 
-        lines.add(line("Mise: " + view.money().stake(), LineStyle.NORMAL));
+        // Visual break between the games block and the totals block:
+        // empty line + separator → guarantees the previous "Gain" amount doesn't glue
+        // to the "Mise:" total under it.
+        lines.add(line("", LineStyle.NORMAL));
+        lines.add(line("--------------------------------", LineStyle.NORMAL));
+        lines.add(totalLine("Mise:", formatMoney(view.money().stake()), LineStyle.NORMAL));
 
         for (var charge : view.money().charges()) {
             if (charge.paidBy().name().equals("BUYER")) {
-                lines.add(line(charge.label() + ": " + charge.amount(), LineStyle.NORMAL));
+                lines.add(totalLine(charge.label() + ":", formatMoney(charge.amount()), LineStyle.NORMAL));
             }
         }
 
-        lines.add(line("TOTAL: " + view.money().totalAmount(), LineStyle.BOLD));
+        lines.add(totalLine("TOTAL:", formatMoney(view.money().totalAmount()), LineStyle.BOLD));
         if (showPotentialPayout(tenantReceiptConfig)) {
-            lines.add(line("Gain max: " + view.money().potentialPayoutAmount(), LineStyle.BOLD));
+            lines.add(totalLine("Gain max:", formatMoney(view.money().potentialPayoutAmount()), LineStyle.BOLD));
         }
 
         return lines;
     }
 
+    private DocumentLine totalLine(String label, String amountWithCurrency, LineStyle style) {
+        var l = label == null ? "" : label;
+        var r = amountWithCurrency == null ? "" : amountWithCurrency;
+        int spacing = Math.max(1, TOTALS_WIDTH - l.length() - r.length());
+        return line(l + " ".repeat(spacing) + r, style);
+    }
+
     private DocumentLine line(String text, LineStyle style) {
         return new DocumentLine(text, style);
+    }
+
+    // ─── Formatters ─────────────────────────────────────────────────────────
+
+    private static final java.text.DecimalFormat MONEY_FORMAT = buildMoneyFormat();
+    private static final java.time.format.DateTimeFormatter PLACED_AT_FMT =
+        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    // Draw scheduledAt is shown to the minute only — seconds add noise for a draw time.
+    private static final java.time.format.DateTimeFormatter DRAW_SCHEDULED_FMT =
+        java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    private static java.text.DecimalFormat buildMoneyFormat() {
+        var symbols = new java.text.DecimalFormatSymbols(java.util.Locale.ROOT);
+        symbols.setGroupingSeparator(' ');
+        symbols.setDecimalSeparator('.');
+        var df = new java.text.DecimalFormat("#,##0.00", symbols);
+        df.setGroupingSize(3);
+        return df;
+    }
+
+    private static String formatMoney(com.tchalanet.server.common.types.money.Money m) {
+        if (m == null) {
+            return "";
+        }
+        var amount = m.amount().setScale(2, java.math.RoundingMode.HALF_UP);
+        return MONEY_FORMAT.format(amount) + " " + m.currency().value();
+    }
+
+    private static String formatPlacedAt(TicketPrintView view) {
+        var placed = view.metadata() == null ? null : view.metadata().placedAt();
+        if (placed == null) {
+            return "";
+        }
+        var zone = view.metadata().timezone();
+        var z = zone == null ? java.time.ZoneId.systemDefault() : zone;
+        return PLACED_AT_FMT.withZone(z).format(placed);
     }
 
     private boolean addIfPresent(List<DocumentLine> lines, String value, LineStyle style) {

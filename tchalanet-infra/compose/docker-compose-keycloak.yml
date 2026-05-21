@@ -1,4 +1,42 @@
 services:
+  # One-shot init: imports the realm into the Keycloak DB, then exits.
+  # Runs before the main keycloak service via depends_on / service_completed_successfully.
+  # Idempotent (--override true) so realm.json edits are picked up on every `up`.
+  keycloak-init:
+    image: ${KEYCLOAK_IMAGE}
+    container_name: ${KEYCLOAK_CONTAINER:-tchl-keycloak}-init-${ENV}
+    env_file:
+      - ../envs/${ENV}/.env.merged
+      - ../envs/${ENV}/.secrets
+    command: >
+      import
+      --dir /opt/keycloak/data/import
+      --override true
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres/keycloak_db
+      KC_DB_USERNAME: ${KC_DB_USERNAME:-kc_user}
+      JAVA_OPTS: >
+        -Xms256m -Xmx512m
+        -XX:+UseG1GC
+      TZ: UTC
+      KC_LOG_LEVEL: INFO
+      KC_LOG_CONSOLE_COLOR: "false"
+    volumes:
+      - ${KEYCLOAK_DATA_VOLUME:-keycloak-data}:/opt/keycloak/data
+      - ../keycloak/realms/${KC_REALM:-tchalanet}-realm.json:/opt/keycloak/data/import/${KC_REALM:-tchalanet}-realm.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      back: {}
+    restart: "no"
+    logging:
+      driver: json-file
+      options:
+        max-size: ${KC_LOG_MAX_SIZE:-10m}
+        max-file: ${KC_LOG_MAX_FILES:-3}
+
   keycloak:
     image: ${KEYCLOAK_IMAGE}
     container_name: ${KEYCLOAK_CONTAINER:-tchl-keycloak}-${ENV}
@@ -10,17 +48,20 @@ services:
     ports:
       - "${KC_MGMT_PORT:-9000}:9000"
 
+    # Build-time options (db, transaction-xa-enabled) are baked into the image via the
+    # Dockerfile's `kc.sh build`. Everything below is RUNTIME-only.
+    # Hostname / strict are read from env_file (KC_HOSTNAME, KC_HOSTNAME_STRICT).
+    #
+    # The realm is imported by the `keycloak-init` one-shot service (see above) before
+    # this service starts. That avoids Keycloak 26.6.2's `start --import-realm` loop
+    # where the server shuts down cleanly after import.
     command: >
       start
       --http-enabled=true
-      --hostname-strict=false
       --http-port=8080
-      --http-management-enabled=true
       --http-management-port=9000
-      --hostname=${KC_HOSTNAME:-auth.localtest.me}
-      --proxy-headers=xforwarded
-      --import-realm
       --cache=local
+      --proxy-headers=xforwarded
       ${KC_EXTRA_ARGS}
     environment:
       # DB (secrets via env_file)
@@ -33,11 +74,9 @@ services:
         -XX:MaxMetaspaceSize=${KC_MAX_METASPACE_SIZE:-256m}
         -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication
       TZ: UTC
-      KC_PROXY_HEADERS: xforwarded
-      KC_HOSTNAME: ${KC_HOSTNAME:-auth.localtest.me}
-      KC_HOSTNAME_URL: ${KC_HOSTNAME_URL:-https://auth.localtest.me}
-      KC_HOSTNAME_STRICT: "false"
-      KC_HOSTNAME_STRICT_HTTPS: "false"
+      # KC_HOSTNAME / KC_HOSTNAME_STRICT are loaded from env_file (envs/<env>/keycloak.env)
+      # so we don't repeat them here — repeating would bypass env_file values via compose
+      # shell-scope interpolation.
       KC_LOG_LEVEL: INFO
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
@@ -51,6 +90,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak-init:
+        condition: service_completed_successfully
     healthcheck:
       test:
         [
@@ -78,10 +119,12 @@ services:
     labels:
       - traefik.enable=${UNLEASH_TRAEFIK_ENABLE:-true}
       - traefik.docker.network=${DOCKER_NETWORK_EDGE:-edge-${ENV}}
-      - traefik.http.routers.keycloak.rule=Host(`auth.localtest.me`)
-      - traefik.http.routers.keycloak.entrypoints=websecure
-      - traefik.http.routers.keycloak.tls=true
-      - traefik.http.middlewares.keycloak-https-headers.headers.customrequestheaders.X-Forwarded-Proto=https
+      # KC_HOST is the bare hostname (no scheme) used by Traefik's Host matcher.
+      # KC_HOSTNAME is the full URL used by Keycloak v2 — not suitable for Host(...).
+      - traefik.http.routers.keycloak.rule=Host(`${KC_HOST:-auth.localtest.me}`)
+      - traefik.http.routers.keycloak.entrypoints=${KC_TRAEFIK_ENTRYPOINTS:-websecure}
+      - traefik.http.routers.keycloak.tls=${KC_TRAEFIK_TLS:-true}
+      - traefik.http.middlewares.keycloak-https-headers.headers.customrequestheaders.X-Forwarded-Proto=${KC_FORWARDED_PROTO:-https}
       - traefik.http.routers.keycloak.middlewares=keycloak-https-headers@docker
       - traefik.http.services.keycloak.loadbalancer.server.port=8080
       - prometheus.scrape=true

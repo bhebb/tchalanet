@@ -22,7 +22,8 @@ public class CashierOverviewProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return "private.dashboard.cashier".equals(logicalId) && "cashier_overview".equals(source);
+    return ("private.dashboard.cashier".equals(logicalId) || "private.dashboard.cashier.web".equals(logicalId))
+        && "cashier_overview".equals(source);
   }
 
   @Override

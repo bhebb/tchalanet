@@ -6,7 +6,7 @@ Cette image Keycloak inclut:
 - Un mécanisme de génération de realm par environnement (via `scripts/keycloak/get-realm.sh`)
 
 ## Provider (tch-json-claim-mapper)
-- Source: `keycloak/tchalanet-keycloak-provider/` (Java 21, Keycloak 26.4.0)
+- Source: `keycloak/tchalanet-keycloak-provider/` (Java 21, Keycloak 26.6.2)
 - Build: fait automatiquement au build de l’image (Dockerfile) via `./mvnw -DskipTests clean package`
 - Déploiement: le JAR est copié dans l’image (répertoire `/opt/keycloak/providers`)
 - Mapper ID: `tch-json-claim-mapper` (claim JSON `tch` dans ID/Access/UserInfo)
@@ -29,7 +29,7 @@ Important:
 export KC_LOGIN_THEME=tchalanet
 export DEFAULT_LOCALE=fr
 export SUPPORTED_LOCALES="en,fr,ht"
-export TEST_USER_PASSWORD=changeme
+export TEST_USER_PASSWORD=Changeme1!
 
 # Génère keycloak/realms/<realm>-realm.json (suffixe -realm.json)
 ./scripts/keycloak/get-realm.sh staging
@@ -37,7 +37,10 @@ export TEST_USER_PASSWORD=changeme
 - Overlay (optionnel): `keycloak/realms/overlays/<ENV>.json` (fusion simple, l’overlay gagne)
 - Import auto: le Dockerfile copie uniquement les fichiers `*-realm.json` dans `/opt/keycloak/data/import/` (le template base n’est pas importé)
 - Le script ajoute un client scope `tch` avec le mapper custom et l’attache aux `defaultClientScopes` des clients.
-- Utilisateurs de test: 1 par rôle, login = nom du rôle en minuscules, mot de passe = `changeme` (surchageable via `TEST_USER_PASSWORD`).
+- Utilisateurs de test: 1 par rôle, login = nom du rôle en minuscules, mot de passe = `Changeme1!` (surchageable via `TEST_USER_PASSWORD`).
+  - Le mot de passe doit satisfaire la `passwordPolicy` du realm (`length(10) and upperCase(1) and lowerCase(1) and digits(1)`).
+  - `Changeme1!` est conforme : 10 chars, 1 majuscule (`C`), minuscules, 1 chiffre (`1`), 1 spécial.
+  - Si tu changes la policy : aligne tous les seed users + les `.env.local` de `tchalanet-server/scripts/` et de `tchalanet-server/tests/e2e/`.
 
 ## Build & Run
 ```bash
@@ -58,4 +61,3 @@ make -C tchalanet-infra up-core ENV=staging
 
 ## Pinning d’une version du provider (optionnel)
 - Si vous publiez le JAR sur un registre (ex: GitHub Releases), ajoutez ici l’URL et la procédure de pinning (wget/curl + COPY dans Dockerfile ou volume runtime). Par défaut, nous construisons le JAR lors du build de l’image.
-

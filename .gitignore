@@ -1,6 +1,14 @@
 /tmp
 /out-tsc
 
+# Python E2E tests (tchalanet-server/tests/e2e)
+**/.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+**/.tmp/
+
 /node_modules
 npm-debug.log*
 yarn-debug.log*

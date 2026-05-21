@@ -18,7 +18,7 @@ CREATE TABLE idempotency_record (
   request_hash varchar(64) NOT NULL,
   status varchar(20) NOT NULL,
   resource_id uuid,
-  response_json jsonb,
+  response_json text,
   expires_at timestamptz NOT NULL,
   created_at timestamptz DEFAULT now(),
   created_by uuid,

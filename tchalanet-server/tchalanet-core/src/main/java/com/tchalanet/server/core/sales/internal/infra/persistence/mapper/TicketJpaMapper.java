@@ -87,9 +87,14 @@ public interface TicketJpaMapper {
         }
 
         var entity = new TicketJpaEntity();
+        var tenantUuid = ticket.identity().tenantId().value();
 
         // BaseEntity id
         entity.setId(ticket.identity().id().value());
+        // Propagate tenant on the parent ticket. The column is updatable=false, so JPA won't
+        // re-write it on update; setting it here satisfies TenantEntityListener#preUpdate which
+        // inspects the in-memory value (otherwise null on freshly mapped entities).
+        entity.setTenantId(tenantUuid);
 
         applyIdentity(ticket.identity(), entity);
         applyContext(ticket.context(), entity);
@@ -101,11 +106,19 @@ public interface TicketJpaMapper {
 
         var lineEntities = ticket.lines().stream()
             .map(this::toLineEntity)
-            .peek(line -> line.setDrawId(ticket.context().drawId().value()))
+            .peek(line -> {
+                line.setDrawId(ticket.context().drawId().value());
+                // Same rationale as above: required for TenantEntityListener#preUpdate on
+                // existing line rows that are flushed when the parent ticket is updated.
+                line.setTenantId(tenantUuid);
+            })
             .toList();
         entity.replaceLines(lineEntities);
 
-        var chargeEntities = toChargeEntities(ticket.money().breakdown().charges());
+        var chargeEntities = ticket.money().breakdown().charges().stream()
+            .map(this::toChargeEntity)
+            .peek(charge -> charge.setTenantId(tenantUuid))
+            .toList();
         entity.replaceCharges(chargeEntities);
 
         return entity;
@@ -383,8 +396,8 @@ public interface TicketJpaMapper {
     // ---------------------------------------------------------------------------
 
     default void applyIdentity(TicketIdentity identity, @MappingTarget TicketJpaEntity entity) {
-        // id is already set directly in toEntity(...)
-        // tenant_id is handled by BaseTenantEntity/TenantEntityListener.
+        // id and tenant_id are set directly in toEntity(...); listener auto-fills on insert and
+        // verifies on update.
     }
 
     default void applyContext(TicketContext context, @MappingTarget TicketJpaEntity entity) {

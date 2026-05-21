@@ -19,6 +19,7 @@ public final class TypedIdRegistry {
         DrawResultId.class,
         GameId.class,
         I18nOverrideId.class,
+        OutletId.class,
         PageModelTemplateId.class,
         PayoutId.class,
         PlanId.class,

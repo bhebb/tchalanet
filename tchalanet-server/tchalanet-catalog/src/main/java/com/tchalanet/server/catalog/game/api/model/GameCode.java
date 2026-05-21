@@ -15,8 +15,6 @@ public enum GameCode {
 
     HT_BOLET(Set.of(BetType.MATCH_1_2D, BetType.MATCH_2_2D, BetType.MATCH_3_2D)),
 
-    HT_NUMERO(Set.of(BetType.MATCH_1_2D, BetType.MATCH_2_2D, BetType.MATCH_3_2D)),
-
     HT_MARYAJ(Set.of(BetType.MARRIAGE_2D2D)),
 
     HT_LOTO3(Set.of(BetType.LOTTO3_3D)),

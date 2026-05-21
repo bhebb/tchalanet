@@ -33,10 +33,20 @@ cashier_offline_denied
 ## Default password
 
 ```text
-changeme
+Changeme1!
 ```
 
-Only for local/dev.
+Only for local/dev. Must satisfy the realm `passwordPolicy`:
+
+```text
+length(10) and upperCase(1) and lowerCase(1) and digits(1)
+```
+
+`Changeme1!` = 10 chars · 1 upper (`C`) · lowercase letters · 1 digit (`1`) · 1 special.
+
+If the policy changes, update all seed users + every doc/script referencing the value
+(see `tchalanet-server/scripts/.env.local`, `tchalanet-infra/docs/DEMARRAGE.md`,
+`tchalanet-infra/QUICK-START.md`, `tchalanet-infra/keycloak/README.md`).
 
 ## User definitions
 
@@ -49,7 +59,7 @@ Only for local/dev.
     "firstName": "Super",
     "lastName": "Admin",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["SUPER_ADMIN"],
     "groups": [],
     "attributes": {
@@ -66,7 +76,7 @@ Only for local/dev.
     "firstName": "Tenant",
     "lastName": "Admin",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["TENANT_ADMIN"],
     "groups": ["/tenants/tchalanet/admins"],
     "attributes": {
@@ -83,7 +93,7 @@ Only for local/dev.
     "firstName": "Operator",
     "lastName": "Tchalanet",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["OPERATOR"],
     "groups": ["/tenants/tchalanet/agents"],
     "attributes": {
@@ -100,7 +110,7 @@ Only for local/dev.
     "firstName": "Marie",
     "lastName": "Joseph",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["CASHIER"],
     "groups": ["/tenants/tchalanet/agents"],
     "attributes": {
@@ -118,7 +128,7 @@ Only for local/dev.
     "firstName": "Jean",
     "lastName": "Bloque",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["CASHIER"],
     "groups": ["/tenants/tchalanet/agents"],
     "attributes": {
@@ -136,7 +146,7 @@ Only for local/dev.
     "firstName": "Paul",
     "lastName": "Sans Terminal",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["CASHIER"],
     "groups": ["/tenants/tchalanet/agents"],
     "attributes": {
@@ -154,7 +164,7 @@ Only for local/dev.
     "firstName": "Nadia",
     "lastName": "Offline",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["CASHIER"],
     "groups": ["/tenants/tchalanet/agents"],
     "attributes": {
@@ -172,7 +182,7 @@ Only for local/dev.
     "firstName": "Marc",
     "lastName": "OfflineDenied",
     "emailVerified": true,
-    "credentials": [{ "type": "password", "value": "changeme", "temporary": false }],
+    "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
     "realmRoles": ["CASHIER"],
     "groups": ["/tenants/tchalanet/agents"],
     "attributes": {
