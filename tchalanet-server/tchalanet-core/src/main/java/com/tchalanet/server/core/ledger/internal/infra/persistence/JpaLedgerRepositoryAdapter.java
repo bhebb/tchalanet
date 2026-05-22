@@ -27,6 +27,10 @@ public class JpaLedgerRepositoryAdapter implements LedgerWriterPort, LedgerReade
 
     @Override
     public boolean appendIfAbsent(LedgerEntry entry) {
+        if (repository.existsById(entry.id().value())) {
+            throw new IllegalStateException("Ledger entry id already exists: " + entry.id().value());
+        }
+
         try {
             repository.save(mapper.toEntity(entry));
             return true;

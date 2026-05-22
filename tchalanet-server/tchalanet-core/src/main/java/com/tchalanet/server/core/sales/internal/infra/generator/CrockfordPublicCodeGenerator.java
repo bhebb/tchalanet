@@ -21,12 +21,16 @@ public class CrockfordPublicCodeGenerator {
     private static final String CROCKFORD_BASE32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
     private static final SecureRandom RNG = new SecureRandom();
 
-    // 12 gives huge space: 32^12 ≈ 1.15e18
-    private static final int LENGTH = 12;
+    // 4-4 format (XXXX-XXXX): matches PublicCode pattern, 32^8 ≈ 1.1e12 keyspace.
+    private static final int GROUP_LENGTH = 4;
 
     public String generate() {
-        StringBuilder sb = new StringBuilder(LENGTH);
-        for (int i = 0; i < LENGTH; i++) {
+        StringBuilder sb = new StringBuilder(GROUP_LENGTH * 2 + 1);
+        for (int i = 0; i < GROUP_LENGTH; i++) {
+            sb.append(CROCKFORD_BASE32.charAt(RNG.nextInt(CROCKFORD_BASE32.length())));
+        }
+        sb.append('-');
+        for (int i = 0; i < GROUP_LENGTH; i++) {
             sb.append(CROCKFORD_BASE32.charAt(RNG.nextInt(CROCKFORD_BASE32.length())));
         }
         return sb.toString();

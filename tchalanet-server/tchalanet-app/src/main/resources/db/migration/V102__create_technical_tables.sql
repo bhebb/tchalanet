@@ -18,7 +18,7 @@ CREATE TABLE idempotency_record (
   request_hash varchar(64) NOT NULL,
   status varchar(20) NOT NULL,
   resource_id uuid,
-  response_json jsonb,
+  response_json text,
   expires_at timestamptz NOT NULL,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
@@ -41,7 +41,9 @@ CREATE TABLE stats_draw (
   winnings_sum_cents bigint NOT NULL DEFAULT 0,
   net_revenue_cents bigint NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  created_by uuid,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid
 );
 
 CREATE TABLE stats_daily (
@@ -59,7 +61,9 @@ CREATE TABLE stats_daily (
   sessions_closed_count bigint NOT NULL DEFAULT 0,
   version bigint NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  created_by uuid,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid
 );
 
 CREATE TABLE stats_event_log (

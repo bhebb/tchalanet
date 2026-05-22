@@ -1,12 +1,12 @@
 # docker-compose-dev-local.yml
-# Local-dev overlay: exposes host ports and adds extra_hosts for localtest.me DNS fix.
+# Local-dev overlay: exposes host ports and adds extra_hosts for local desktop DNS fix.
 # Usage: add "-f compose/docker-compose-dev-local.yml" to any service-up.sh / Makefile call.
 # Do NOT include in staging/prod.
 services:
   api:
     ports:
       - "8081:8080"
-    # localtest.me resolves to 127.0.0.1 (loopback) inside Docker — map to host so
+    # local desktop hostnames may resolve to 127.0.0.1 inside Docker — map to host so
     # Spring Security can reach Traefik → Keycloak for OIDC discovery and JWKS.
     extra_hosts:
       - "auth.localtest.me:host-gateway"
@@ -24,7 +24,7 @@ services:
       - "8082:8080"
 
   edge:
-    # localtest.me resolves to 127.0.0.1 (loopback) inside Docker — same fix as api.
+    # Same local desktop DNS fix as api.
     extra_hosts:
       - "auth.localtest.me:host-gateway"
 

@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.selection.internal.domain.service;
 
+import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
 
@@ -12,13 +13,16 @@ import java.util.regex.Pattern;
 public final class SelectionKeyCanonicalizer {
 
     private static final Pattern DIGITS = Pattern.compile("^\\d+$");
-    private static final Pattern MASK_4 = Pattern.compile("^[0-9*]{4}$");
-    private static final Pattern MASK_5 = Pattern.compile("^[0-9*]{5}$");
-
+    private static final Pattern LOTTO4_FRONT_PAIR_CANONICAL = Pattern.compile("^\\d{2}\\*\\*$");
+    private static final Pattern LOTTO4_BACK_PAIR_CANONICAL = Pattern.compile("^\\*\\*\\d{2}$");
     private SelectionKeyCanonicalizer() {
     }
 
-    public static SelectionKey canonicalize(BetType betType, String rawSelectionKey) {
+    public static SelectionKey canonicalize(
+        BetType betType,
+        Short rawBetOption,
+        String rawSelectionKey
+    ) {
         Objects.requireNonNull(betType, "betType");
         Objects.requireNonNull(rawSelectionKey, "selectionKey");
 
@@ -28,14 +32,59 @@ public final class SelectionKeyCanonicalizer {
         }
 
         String canonical = switch (betType) {
-            case MATCH_1_2D, LOTTO3_3D -> canonicalizeDigitsStrict(s, betType.canonicalWidth());
-            case MATCH_2_2D -> canonicalize2dPair(s, false);
-            case MATCH_3_2D -> canonicalize3x2d(s);
-            case MARRIAGE_2D2D -> canonicalize2dPair(s, true);
-            case LOTTO4_PATTERN, LOTTO5_PATTERN -> canonicalizePatternStrict(s, betType.canonicalWidth());
+            case MATCH_1_2D, MATCH_2_2D, MATCH_3_2D ->
+                canonicalizeDigitsStrict(s, 2);
+
+            case MARRIAGE_2D2D ->
+                canonicalize2dPair(BetOption.from(betType, rawBetOption), s);
+
+            case LOTTO3_3D ->
+                canonicalizeDigits(BetOption.from(betType, rawBetOption), s, 3);
+
+            case LOTTO4_PATTERN ->
+                canonicalizeLotto4(rawBetOption, s);
+
+            case LOTTO5_PATTERN ->
+                canonicalizeDigits(BetOption.from(betType, rawBetOption), s, 5);
         };
 
         return SelectionKey.of(canonical);
+    }
+
+    private static String canonicalizeLotto4(Short rawOption, String s) {
+        BetOption option = BetOption.from(BetType.LOTTO4_PATTERN, rawOption);
+
+        assert option != null;
+        return switch (option) {
+            case LOTTO4_STRAIGHT, LOTTO4_BOX ->
+                canonicalizeExactDigits(s, 4);
+
+            case LOTTO4_FRONT_PAIR ->
+                canonicalizeLotto4FrontPair(s);
+
+            case LOTTO4_BACK_PAIR ->
+                canonicalizeLotto4BackPair(s);
+
+            default ->
+                throw new IllegalArgumentException("Unsupported LOTTO4 option: " + option);
+        };
+    }
+
+    private static String canonicalizeLotto4FrontPair(String s) {
+        if (LOTTO4_FRONT_PAIR_CANONICAL.matcher(s).matches()) {
+            return s;
+        }
+        return canonicalizeExactDigits(s, 2) + "**";
+    }
+
+    private static String canonicalizeLotto4BackPair(String s) {
+        if (LOTTO4_BACK_PAIR_CANONICAL.matcher(s).matches()) {
+            return s;
+        }
+        return "**" + canonicalizeExactDigits(s, 2);
+    }
+    public static SelectionKey canonicalize(BetType betType, String rawSelectionKey) {
+        return canonicalize(betType, null, rawSelectionKey);
     }
 
     private static String canonicalizeDigitsStrict(String s, int width) {
@@ -49,7 +98,25 @@ public final class SelectionKeyCanonicalizer {
         return "0".repeat(width - digits.length()) + digits;
     }
 
-    private static String canonicalize2dPair(String s, boolean sortPair) {
+    private static String canonicalizeDigits(BetOption ignored, String s, int width) {
+        if (width == 5) {
+            return canonicalizeExactDigits(s, width);
+        }
+        return canonicalizeDigitsStrict(s, width);
+    }
+
+    private static String canonicalizeExactDigits(String s, int width) {
+        String digits = s.trim();
+        if (!DIGITS.matcher(digits).matches()) {
+            throw new IllegalArgumentException("selection must be numeric: " + s);
+        }
+        if (digits.length() != width) {
+            throw new IllegalArgumentException("selection must be " + width + " digits: " + s);
+        }
+        return digits;
+    }
+
+    private static String canonicalize2dPair(BetOption ignored, String s) {
         String cleaned = s.replace('/', '-').replace(' ', '-');
         String[] p = cleaned.split("-");
         if (p.length != 2) {
@@ -59,37 +126,6 @@ public final class SelectionKeyCanonicalizer {
         String a = canonicalizeDigitsStrict(p[0], 2);
         String b = canonicalizeDigitsStrict(p[1], 2);
 
-        if (sortPair && a.compareTo(b) > 0) {
-            String tmp = a;
-            a = b;
-            b = tmp;
-        }
         return a + "-" + b;
-    }
-
-    private static String canonicalize3x2d(String s) {
-        String cleaned = s.replace('/', '-').replace(' ', '-');
-        String[] p = cleaned.split("-");
-        if (p.length != 3) {
-            throw new IllegalArgumentException("invalid 3x2D selection: " + s);
-        }
-
-        return canonicalizeDigitsStrict(p[0], 2)
-            + "-"
-            + canonicalizeDigitsStrict(p[1], 2)
-            + "-"
-            + canonicalizeDigitsStrict(p[2], 2);
-    }
-
-    private static String canonicalizePatternStrict(String s, int expectedLen) {
-        String m = s.replace(" ", "");
-        if (m.length() != expectedLen) {
-            throw new IllegalArgumentException("mask must be length " + expectedLen + ": " + s);
-        }
-        Pattern regex = (expectedLen == 4) ? MASK_4 : MASK_5;
-        if (!regex.matcher(m).matches()) {
-            throw new IllegalArgumentException("invalid mask pattern (allowed digits and *): " + s);
-        }
-        return m;
     }
 }

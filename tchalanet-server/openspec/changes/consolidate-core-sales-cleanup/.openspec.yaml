@@ -1,9 +1,0 @@
-schema: spec-driven
-created: 2026-05-07
-status: draft
-summary: Consolidate overlapping core.sales cleanup OpenSpecs, align receipt/delivery with common.document/common.communication, keep verify/cashier boundaries explicit, and fix priority settlement/event bugs.
-supersedes:
-  - harden-core-sales-sell-print
-  - fix-sales-pipeline-audit-gaps
-  - harden-ticket-settlement-integrity
-  - harden-public-ticket-verification

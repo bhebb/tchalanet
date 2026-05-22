@@ -1,13 +1,13 @@
 -- V42: seed IAM roles, permissions and mappings
 
--- Seed local test users (super_admin, admin, agent)
+-- Seed local test users (super_admin, admin, cashier)
 DO $$
 DECLARE
   t_id uuid;
   u_id uuid;
   r_id uuid;
 BEGIN
-  RAISE NOTICE 'V42__seed_iam_roles_permissions: seeding local users (super_admin, admin, agent)';
+  RAISE NOTICE 'V42__seed_iam_roles_permissions: seeding local users (super_admin, admin, cashier)';
 
   -- find tenant 'default' if present (optional)
   SELECT id INTO t_id FROM tenant WHERE code = 'default' LIMIT 1;
@@ -58,17 +58,17 @@ BEGIN
     END IF;
   END IF;
 
-  -- --- agent ---
+  -- --- cashier ---
   IF NOT EXISTS (SELECT 1 FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid AND deleted_at IS NULL) THEN
     INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
     VALUES (
       '00000000-0000-0000-0000-000000010003'::uuid,
       '00000000-0000-0000-0000-000000010003'::uuid,
-      'agent', 'agent@local', 'Agent', 'ACTIVE', now(), now()
+      'cashier', 'cashier@local', 'Cashier', 'ACTIVE', now(), now()
     );
   ELSE
     UPDATE app_user
-    SET username = 'agent', email = 'agent@local', display_name = 'Agent', status = 'ACTIVE', updated_at = now()
+    SET username = 'cashier', email = 'cashier@local', display_name = 'Cashier', status = 'ACTIVE', updated_at = now()
     WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid;
   END IF;
 

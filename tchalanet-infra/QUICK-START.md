@@ -111,7 +111,7 @@ TOKEN="$(curl -sk -X POST https://auth.localtest.me/realms/tchalanet/protocol/op
   -d 'grant_type=password' \
   -d 'client_id=tchalanet-web' \
   -d 'username=super_admin' \
-  -d 'password=changeme' | jq -r .access_token)"
+  -d 'password=Changeme1!' | jq -r .access_token)"
 
 curl -i -H "Authorization: Bearer $TOKEN" http://localhost:8083/api/v1/tenant/draws
 ```
@@ -127,7 +127,7 @@ The token must be a JWT string and `GET /tenant/draws` must return HTTP 200.
 - [ ] `make ps ENV=dev` shows services as healthy
 - [ ] Keycloak issuer is `https://auth.localtest.me/realms/tchalanet`
 - [ ] API health returns `"UP"`
-- [ ] `super_admin` / `changeme` can obtain a token
+- [ ] `super_admin` / `Changeme1!` can obtain a token
 - [ ] `GET /tenant/draws` returns HTTP 200 with that token
 - [ ] `./scripts/local/setup-api-env.sh dev` generates correct DB, realm, port, and `ddl-auto=validate`
 

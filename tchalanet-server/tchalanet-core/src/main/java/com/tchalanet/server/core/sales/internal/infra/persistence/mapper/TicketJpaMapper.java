@@ -87,9 +87,9 @@ public interface TicketJpaMapper {
         }
 
         var entity = new TicketJpaEntity();
-
         // BaseEntity id
         entity.setId(ticket.identity().id().value());
+        entity.setTenantId(ticket.identity().tenantId().value());
 
         applyIdentity(ticket.identity(), entity);
         applyContext(ticket.context(), entity);
@@ -101,11 +101,15 @@ public interface TicketJpaMapper {
 
         var lineEntities = ticket.lines().stream()
             .map(this::toLineEntity)
-            .peek(line -> line.setDrawId(ticket.context().drawId().value()))
+            .peek(line -> {
+                line.setDrawId(ticket.context().drawId().value());
+            })
             .toList();
         entity.replaceLines(lineEntities);
 
-        var chargeEntities = toChargeEntities(ticket.money().breakdown().charges());
+        var chargeEntities = ticket.money().breakdown().charges().stream()
+            .map(this::toChargeEntity)
+            .toList();
         entity.replaceCharges(chargeEntities);
 
         return entity;
@@ -383,8 +387,8 @@ public interface TicketJpaMapper {
     // ---------------------------------------------------------------------------
 
     default void applyIdentity(TicketIdentity identity, @MappingTarget TicketJpaEntity entity) {
-        // id is already set directly in toEntity(...)
-        // tenant_id is handled by BaseTenantEntity/TenantEntityListener.
+        // id and tenant_id are set directly in toEntity(...); listener auto-fills on insert and
+        // verifies on update.
     }
 
     default void applyContext(TicketContext context, @MappingTarget TicketJpaEntity entity) {
@@ -558,4 +562,3 @@ public interface TicketJpaMapper {
         return id == null ? null : id.value();
     }
 }
-

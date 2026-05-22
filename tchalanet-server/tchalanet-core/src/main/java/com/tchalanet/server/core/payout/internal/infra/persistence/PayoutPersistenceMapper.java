@@ -28,7 +28,7 @@ public class PayoutPersistenceMapper {
             SalesSessionId.nullableOf(e.getPayingSessionId()),
             TerminalId.nullableOf(e.getPayingTerminalId()),
             UserId.nullableOf(e.getRequestedBy()),
-            e.getCreatedAt(),
+            e.getRequestedAt(),
             UserId.nullableOf(e.getApprovedBy()),
             e.getApprovedAt(),
             UserId.nullableOf(e.getRejectedBy()),
@@ -36,9 +36,9 @@ public class PayoutPersistenceMapper {
             e.getRejectedReason(),
             UserId.nullableOf(e.getPaidBy()),
             e.getPaidAt(),
-            null,
-            null,
-            null,
+            UserId.nullableOf(e.getCancelledBy()),
+            e.getCancelledAt(),
+            e.getCancelReason(),
             e.getReason());
     }
 
@@ -62,12 +62,16 @@ public class PayoutPersistenceMapper {
         e.setApprovedBy(p.approvedBy() == null ? null : p.approvedBy().value());
         e.setRejectedBy(p.rejectedBy() == null ? null : p.rejectedBy().value());
         e.setPaidBy(p.paidBy() == null ? null : p.paidBy().value());
+        e.setCancelledBy(p.cancelledBy() == null ? null : p.cancelledBy().value());
 
+        e.setRequestedAt(p.requestedAt());
         e.setApprovedAt(p.approvedAt());
         e.setRejectedAt(p.rejectedAt());
         e.setPaidAt(p.paidAt());
+        e.setCancelledAt(p.cancelledAt());
 
         e.setRejectedReason(p.rejectedReason());
+        e.setCancelReason(p.cancelReason());
         e.setReason(p.reason());
     }
 

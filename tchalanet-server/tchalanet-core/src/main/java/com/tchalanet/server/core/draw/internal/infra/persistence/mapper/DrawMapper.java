@@ -80,6 +80,16 @@ public class DrawMapper {
 
         var jpaEntity = new DrawJpaEntity();
 
+        applyToEntity(drawAggregate, jpaEntity);
+
+        return jpaEntity;
+    }
+
+    public void applyToEntity(Draw drawAggregate, DrawJpaEntity jpaEntity) {
+        if (drawAggregate == null || jpaEntity == null) {
+            return;
+        }
+
         jpaEntity.setId(drawAggregate.id().value());
         jpaEntity.setTenantId(drawAggregate.tenantId().value());
         jpaEntity.setDrawChannelId(drawAggregate.drawChannelId().value());
@@ -109,7 +119,5 @@ public class DrawMapper {
 
         jpaEntity.setLocked(drawAggregate.locked());
         jpaEntity.setSystemGenerated(drawAggregate.systemGenerated());
-
-        return jpaEntity;
     }
 }

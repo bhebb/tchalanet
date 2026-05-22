@@ -6,6 +6,7 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.time.DaysOfWeekParser;
+import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.IdGenerator;
@@ -15,6 +16,7 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecycl
 import com.tchalanet.server.core.draw.internal.application.query.projection.ExistingDrawKey;
 import com.tchalanet.server.core.draw.internal.application.query.projection.NewDrawRow;
 import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.domain.service.DrawScheduleCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +35,7 @@ public class GenerateDrawsForRangeCommandHandler
     private final DrawChannelCatalog drawChannelCatalog;
     private final DrawLifecyclePort drawLifecyclePort;
     private final IdGenerator idGenerator;
-    private final Clock clock;
+    private final TchTimeProvider timeProvider;
 
     @Override
     @TchTx
@@ -136,47 +138,47 @@ public class GenerateDrawsForRangeCommandHandler
             daysCache.put(c.channelId().value(), parsed);
         }
 
-        LocalDate date = command.from();
+        var date = command.from();
 
         while (!date.isAfter(command.to())) {
             for (var c : channels) {
                 var zone = ZoneId.of(c.timezone());
-                var scheduledZdt = ZonedDateTime.of(date, c.drawTime(), zone);
-                var drawDateLocal = scheduledZdt.toLocalDate();
 
                 EnumSet<DayOfWeek> allowed =
                     daysCache.getOrDefault(c.channelId().value(), EnumSet.noneOf(DayOfWeek.class));
 
-                if (!allowed.contains(drawDateLocal.getDayOfWeek())) {
+                if (!allowed.contains(date.getDayOfWeek())) {
                     skippedNotDay++;
                     continue;
                 }
 
-                var key = new ExistingDrawKey(c.channelId().value(), drawDateLocal);
+                var key = new ExistingDrawKey(c.channelId().value(), date);
                 if (existingKeys.contains(key)) {
                     alreadyExists++;
                     continue;
                 }
 
-                var now = clock.instant();
-                var scheduledAt = scheduledZdt.toInstant();
-
-                boolean pastBackfill = command.force() && scheduledAt.isBefore(now);
-
-                if (c.cutoffSec() < 0) {
-                    throw new IllegalArgumentException("cutoffSec must be >= 0 for channel " + c.code());
+                if (c.cutoffSec() < 1) {
+                    throw new IllegalArgumentException("cutoffSec must be >= 1 for channel " + c.code());
                 }
-                long cutoffSec = c.cutoffSec();
-                var cutoffAt = scheduledAt.minusSeconds(cutoffSec);
+
+                var snap = DrawScheduleCalculator.compute(
+                    date,
+                    c.drawTime(),
+                    zone,
+                    Duration.ofSeconds(c.cutoffSec()));
+
+                var now = timeProvider.now();
+                boolean pastBackfill = command.force() && snap.scheduledAt().isBefore(now);
 
                 rows.add(
                     new NewDrawRow(
                         DrawId.of(idGenerator.newUuid()),
                         command.tenantId(),
                         c.channelId(),
-                        drawDateLocal,
-                        scheduledAt,
-                        cutoffAt,
+                        snap.drawDate(),
+                        snap.scheduledAt(),
+                        snap.cutoffAt(),
                         DrawSource.SYSTEM.name(),
                         pastBackfill ? DrawStatus.CLOSED.name() : DrawStatus.SCHEDULED.name(),
                         now,

@@ -64,6 +64,7 @@ public class CurrentUserProfileService {
         user.username(),
         user.email(),
         user.phone(),
+        user.status(),
         user.firstName(),
         user.lastName(),
         user.displayName(),

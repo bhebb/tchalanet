@@ -19,7 +19,9 @@ mktemp_safe() {
   local template="$1"
   local tmp
   if tmp=$(mktemp "$template" 2>/dev/null); then
-    echo "$tmp"; return 0
+    if [ -f "$tmp" ]; then
+      echo "$tmp"; return 0
+    fi
   fi
   local prefix
   prefix=$(basename "${template%%.*}")

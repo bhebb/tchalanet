@@ -61,7 +61,7 @@ open https://app.localtest.me
 - [ ] Keycloak démarre et est healthy (peut prendre 2-3 minutes)
 - [ ] Issuer retourné = `https://auth.localtest.me/realms/tchalanet`
 - [ ] Frontend Angular se connecte sans erreur "Issuer mismatch"
-- [ ] Login fonctionne (super_admin / changeme)
+- [ ] Login fonctionne (super_admin / Changeme1!)
 
 ## 📋 Pour staging/prod (plus tard)
 

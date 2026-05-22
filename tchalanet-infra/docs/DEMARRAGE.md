@@ -119,7 +119,7 @@ Une fois tous les conteneurs "healthy" ou "running" :
 
 | Service               | URL                               | Credentials                                                                |
 | --------------------- | --------------------------------- | -------------------------------------------------------------------------- |
-| **Keycloak**          | http://localhost:8082             | `super_admin` / `changeme`<br>`admin` / `changeme`<br>`agent` / `changeme` |
+| **Keycloak**          | http://localhost:8082             | `super_admin` / `Changeme1!`<br>`admin` / `Changeme1!`<br>`agent` / `Changeme1!` |
 | **Traefik Dashboard** | http://localhost:8080             | -                                                                          |
 | **Unleash**           | http://localhost:4242             | Token: `*:*.devtoken123456789`                                             |
 | **Unleash Edge**      | http://localhost:3063/edge/health | -                                                                          |
@@ -299,7 +299,7 @@ make realm-generate ENV=dev
 - [ ] `make up-all ENV=dev` exécuté
 - [ ] Tous les conteneurs en état "running" ou "healthy"
 - [ ] Keycloak accessible sur http://localhost:8082
-- [ ] Login Keycloak fonctionne avec `super_admin` / `changeme`
+- [ ] Login Keycloak fonctionne avec `super_admin` / `Changeme1!`
 
 ---
 

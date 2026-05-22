@@ -16,8 +16,7 @@ public class PageModelTypeResolver {
             case SUPER_ADMIN -> PageModelType.DASHBOARD_SUPERADMIN;
             case TENANT_ADMIN, SYSTEM -> PageModelType.DASHBOARD_TENANT_ADMIN;
             case OPERATOR -> PageModelType.DASHBOARD_OPERATOR;
-            case CASHIER -> PageModelType.DASHBOARD_CASHIER;
+            case CASHIER -> PageModelType.DASHBOARD_CASHIER_WEB;
         };
     }
 }
-

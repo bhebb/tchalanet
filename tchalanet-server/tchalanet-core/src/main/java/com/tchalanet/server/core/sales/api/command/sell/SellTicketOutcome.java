@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.api.command.sell;
 
 public enum SellTicketOutcome {
-    SOLD,
+    ACCEPTED,
+    REJECTED,
     PENDING_APPROVAL
 }

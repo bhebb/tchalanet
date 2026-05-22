@@ -41,7 +41,7 @@ public class IdempotencyRecordJpaEntity extends BaseTenantEntity {
     @Column(name = "resource_id")
     private UUID resourceId;
 
-    @Column(name = "response_json", columnDefinition = "jsonb")
+    @Column(name = "response_json", columnDefinition = "text")
     private String responseJson;
 
     @Column(name = "expires_at", nullable = false)

@@ -308,6 +308,11 @@ public class TicketJpaEntity extends BaseTenantEntity {
         charge.setTicket(this);
     }
 
+    public void removeCharge(TicketChargeJpaEntity charge) {
+        charges.remove(charge);
+        charge.setTicket(null);
+    }
+
     public void replaceCharges(List<TicketChargeJpaEntity> newCharges) {
         charges.clear();
         if (newCharges != null) {
@@ -318,6 +323,11 @@ public class TicketJpaEntity extends BaseTenantEntity {
     public void addLine(TicketLineJpaEntity line) {
         lines.add(line);
         line.setTicket(this);
+    }
+
+    public void removeLine(TicketLineJpaEntity line) {
+        lines.remove(line);
+        line.setTicket(null);
     }
 
     public void replaceLines(List<TicketLineJpaEntity> newLines) {

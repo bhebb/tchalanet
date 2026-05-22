@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.core.autonomy.api.query.ResolveAutonomyQuery;
 import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
 import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
@@ -22,6 +23,7 @@ import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.core.session.api.model.ValidatedPosOperationContext;
 import com.tchalanet.server.core.session.api.query.PosOperationAction;
 import com.tchalanet.server.core.session.api.query.ResolvePosOperationContextQuery;
@@ -53,6 +55,7 @@ public class TicketSalePolicyService {
     private final DrawCutoffRule drawCutoffRule;
     private final QueryBus queryBus;
     private final TicketLinePreparationService ticketLinePreparationService;
+    private final SelectionApi selectionApi;
     private final CommunicationFeePolicy communicationFeePolicy;
     private final IdGenerator idGenerator;
     private final Clock clock;
@@ -160,18 +163,28 @@ public class TicketSalePolicyService {
         if (line.stakeAmount() == null || line.stakeAmount().signum() <= 0)
             throw ProblemRest.badRequest("sales.invalid_stake_amount");
         validateBetOption(line);
+        validateSelection(line);
+    }
+
+    private void validateSelection(SellTicketLineInput line) {
+        try {
+            selectionApi.canonicalize(line.betType(), line.betOption(), line.rawSelection());
+        } catch (IllegalArgumentException ex) {
+            throw ProblemRest.badRequest("sales.selection_invalid");
+        }
     }
 
     private void validateBetOption(SellTicketLineInput line) {
-        var betType = line.betType();
-        var betOption = line.betOption();
-        if (betType.requiresBetOption()) {
-            if (betOption == null) throw ProblemRest.badRequest("sales.bet_option_required");
-            if (betOption < betType.betOptionMin() || betOption > betType.betOptionMax()) {
-                throw ProblemRest.badRequest("sales.bet_option_out_of_range");
+        try {
+            BetOption.from(line.betType(), line.betOption());
+        } catch (IllegalArgumentException ex) {
+            if (line.betType().requiresOption() && line.betOption() == null) {
+                throw ProblemRest.badRequest("sales.bet_option_required");
             }
-        } else if (betOption != null) {
-            throw ProblemRest.badRequest("sales.bet_option_not_allowed");
+            if (!line.betType().requiresOption() && line.betOption() != null) {
+                throw ProblemRest.badRequest("sales.bet_option_not_allowed");
+            }
+            throw ProblemRest.badRequest("sales.bet_option_out_of_range");
         }
     }
 

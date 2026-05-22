@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sales.internal.application.port.out.TicketReade
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.infra.persistence.mapper.TicketJpaMapper;
+import com.tchalanet.server.core.sales.internal.infra.persistence.mapper.TicketAggregateMutator;
 import com.tchalanet.server.core.sales.internal.infra.persistence.repository.TicketJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,13 +23,28 @@ public class TicketJpaAdapter implements TicketReaderPort, TicketWriterPort {
 
     private final TicketJpaRepository ticketRepository;
     private final TicketJpaMapper mapper;
+    private final TicketAggregateMutator mutator;
 
     @Override
     @Transactional
     public Ticket save(Ticket ticket) {
-        var entity = mapper.toEntity(ticket);
-        var saved = ticketRepository.save(entity);
-        return mapper.toDomain(saved);
+        var ticketId = ticket.identity().id().value();
+        var existing = ticketRepository.findWithLinesById(ticketId);
+        if (existing.isEmpty()) {
+            var entity = mapper.toEntity(ticket);
+            return mapper.toDomain(ticketRepository.save(entity));
+        }
+
+        var managed = existing.get();
+        ticketRepository.findWithChargesById(ticketId);
+        mutator.applyTo(managed, ticket);
+        return mapper.toDomain(managed);
+    }
+
+    @Override
+    @Transactional
+    public void flushPending() {
+        ticketRepository.flush();
     }
 
     @Override

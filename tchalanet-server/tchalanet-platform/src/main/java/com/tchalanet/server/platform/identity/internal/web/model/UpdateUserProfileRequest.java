@@ -1,5 +1,9 @@
 package com.tchalanet.server.platform.identity.internal.web.model;
 
-// Added phone field so controller can pass it to UpdateUserProfileCommand
+import jakarta.validation.constraints.Size;
+
 public record UpdateUserProfileRequest(
-    String firstName, String lastName, String email, String phone, String locale) {}
+    @Size(max = 120) String firstName,
+    @Size(max = 120) String lastName,
+    @Size(max = 32) String phone,
+    @Size(max = 16) String locale) {}

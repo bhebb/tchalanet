@@ -17,7 +17,7 @@ traefik/
     │   ├── 01-tls.yaml
     │   └── 02-middlewares.yaml
     └── env/                       # Configurations par environnement
-        ├── dev.yaml               # Local (*.localtest.me + certificat mkcert)
+        ├── dev.yaml               # Local (*.localtest.me HTTPS + *.tchalanet.lan HTTP)
         ├── staging.yaml           # Staging (*.stg.tchalanet.com + Let's Encrypt)
         ├── prod.yaml              # Production (*.tchalanet.com + Let's Encrypt)
         └── active.yaml            # → Symlink créé automatiquement vers {ENV}.yaml
@@ -79,7 +79,7 @@ docker exec tchl-traefik-dev ls -la /etc/traefik/dynamic/
 
 | Environnement | Domaines | Certificats | Resolver |
 |--------------|----------|-------------|----------|
-| **dev** | `*.localtest.me` | mkcert (local-cert.pem) | - |
+| **dev** | `*.localtest.me`, `*.tchalanet.lan` | mkcert/HTTPS for Mac-local `*.localtest.me`; HTTP for LAN `*.tchalanet.lan` | - |
 | **staging** | `*.stg.tchalanet.com` | Let's Encrypt | `le` |
 | **prod** | `*.tchalanet.com` | Let's Encrypt | `le` |
 
@@ -158,11 +158,19 @@ curl -s http://localhost:8080/api/http/routers | jq
 ### Tester les domaines locaux
 
 ```bash
-# Keycloak
-curl -k https://auth.localtest.me/health
+# Mac-local, sans hosts custom
+curl -k https://auth.localtest.me
+curl -k https://api.localtest.me/api/v1/actuator/health
 
-# API
-curl -k https://api.localtest.me/actuator/health
+# LAN: à utiliser quand la stack tourne sur un autre ordinateur du réseau.
+# Le DNS local ou /etc/hosts du poste client doit pointer vers l'IP de cet ordinateur.
+127.0.0.1 auth.tchalanet.lan api.tchalanet.lan app.tchalanet.lan
+
+# Keycloak via le domaine LAN
+curl http://auth.tchalanet.lan
+
+# API via le domaine LAN
+curl http://api.tchalanet.lan/api/v1/actuator/health
 
 # Dashboard Traefik
 open https://traefik.localtest.me
@@ -245,4 +253,3 @@ Ou attendre le rechargement automatique (watch activé).
 - [Documentation Traefik](https://doc.traefik.io/traefik/)
 - [mkcert](https://github.com/FiloSottile/mkcert)
 - [Let's Encrypt](https://letsencrypt.org/)
-

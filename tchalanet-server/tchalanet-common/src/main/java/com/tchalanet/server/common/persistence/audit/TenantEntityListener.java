@@ -50,6 +50,8 @@ public class TenantEntityListener {
         }
 
         if (entityTenant == null) {
+            // Updates must operate on a managed entity that already carries its tenant.
+            // Auto-filling here would hide detached-merge bugs in sensitive writers.
             throw new IllegalStateException(
                 "Missing entity tenant while updating " + entity.getClass().getSimpleName());
         }

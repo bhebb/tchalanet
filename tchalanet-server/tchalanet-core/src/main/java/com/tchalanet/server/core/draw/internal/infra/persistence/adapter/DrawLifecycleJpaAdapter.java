@@ -185,7 +185,15 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
 
     @Override
     public Draw save(Draw draw) {
-        var entity = repo.save(mapper.toEntity(draw));
+        var existing = repo.findById(draw.id().value());
+        if (existing.isEmpty()) {
+            var entity = repo.save(mapper.toEntity(draw));
+            return mapper.toDomain(entity);
+        }
+
+        var entity = existing.get();
+        assertImmutableFields(entity, draw);
+        mapper.applyToEntity(draw, entity);
         return mapper.toDomain(entity);
     }
 
@@ -206,5 +214,30 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
                     (UUID) rs.getObject("draw_channel_id"), rs.getDate("draw_date").toLocalDate());
         List<ExistingDrawKey> list = jdbc.query(sql, new Object[]{tenantId.value(), from, to}, mapper);
         return new HashSet<>(list);
+    }
+
+    private static void assertImmutableFields(
+        com.tchalanet.server.core.draw.internal.infra.persistence.DrawJpaEntity entity,
+        Draw draw
+    ) {
+        requireSame("drawId", entity.getId(), draw.id().value());
+        requireSame("tenantId", entity.getTenantId(), draw.tenantId().value());
+        requireSame("drawChannelId", entity.getDrawChannelId(), draw.drawChannelId().value());
+        requireSame("drawDate", entity.getDrawDate(), draw.drawDate());
+        requireSame("scheduledAt", entity.getScheduledAt(), draw.scheduledAt());
+        requireSame("cutoffAt", entity.getCutoffAt(), draw.cutoffAt());
+        requireSame("systemGenerated", entity.isSystemGenerated(), draw.systemGenerated());
+    }
+
+    private static void requireSame(String field, Object actual, Object expected) {
+        if (!Objects.equals(actual, expected)) {
+            throw new IllegalStateException(
+                "Draw immutable field changed: "
+                    + field
+                    + " expected="
+                    + actual
+                    + " actual="
+                    + expected);
+        }
     }
 }

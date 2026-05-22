@@ -119,4 +119,14 @@ class FeatureArchitectureTest {
 
     rule.check(classes);
   }
+
+  @Test
+  void cashierFeaturesMustNotImportCoreSalesInternals() {
+    ArchRule rule = noClasses()
+        .that().resideInAPackage("com.tchalanet.server.features.cashier..")
+        .should().dependOnClassesThat().resideInAPackage("com.tchalanet.server.core.sales.internal..")
+        .because("features.cashier must only use core.sales public API (commands, queries, models) via CommandBus/QueryBus");
+
+    rule.check(classes);
+  }
 }

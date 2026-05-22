@@ -17,7 +17,7 @@ En développement local, on a deux options pour démarrer les services :
 
 ### Keycloak
 
-- **Image publiée** : `quay.io/keycloak/keycloak:26.4.0` (base) + customisation
+- **Image publiée** : `quay.io/keycloak/keycloak:26.6.2` (base) + customisation
 - **Dockerfile local** : `tchalanet-infra/keycloak/Dockerfile`
 - **Quand rebuilder** :
   - Changements dans les thèmes
@@ -105,7 +105,7 @@ COPY tchalanet-keycloak-provider/ .
 RUN mvn -q -DskipTests clean package
 
 # Étape 2 : Image Keycloak finale
-FROM quay.io/keycloak/keycloak:26.4.0
+FROM quay.io/keycloak/keycloak:26.6.2
 
 # Copier les thèmes
 COPY --chown=keycloak:keycloak themes/ /opt/keycloak/themes/

@@ -9,6 +9,7 @@ import com.tchalanet.server.common.job.exception.JobPartialFailureException;
 import com.tchalanet.server.common.job.exception.JobSkippedException;
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
+import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
@@ -19,7 +20,6 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +36,7 @@ public class DrawLifeCycleTickScheduler {
     private final TenantCatalog tenantCatalog;
     private final CommandBus commandBus;
     private final BatchGate batchGate;
-    private final Clock clock;
+    private final TchTimeProvider timeProvider;
     private final JobContextBinder jobContextBinder;
     private final DrawProperties drawProps;
     private final AtomicBoolean configLogged = new AtomicBoolean(false);
@@ -51,7 +51,7 @@ public class DrawLifeCycleTickScheduler {
         validateGenerateCanRun();
 
         var schedulerZone = drawProps.getScheduler().getProcessing().getTimezone();
-        var from = LocalDate.now(schedulerZone);
+        var from = timeProvider.today(schedulerZone);
 
         int generationDays = Math.max(1, drawProps.getScheduler().getGenerate().getDaysAhead());
         var to = from.plusDays(generationDays - 1L);
@@ -122,7 +122,7 @@ public class DrawLifeCycleTickScheduler {
     public void openToday() {
         log.info("draw.open_today.tick fired");
         logEffectiveConfigOnce();
-        var now = clock.instant();
+        var now = timeProvider.now();
 
         validateOpenTodayCanRun();
 
@@ -138,12 +138,20 @@ public class DrawLifeCycleTickScheduler {
             try {
                 jobContextBinder.bindTenant(tenantId, "draw-processing-scheduler");
 
-                commandBus.execute(new OpenTodayDrawsCommand(
+                var result = commandBus.execute(new OpenTodayDrawsCommand(
                     now,
                     null,
                     defaultSalesOpenTime,
                     maxItems,
                     false));
+                log.info(
+                    "draw.open_today tenant summary tenantId={} now={} opened={} alreadyOpen={} notEligible={}",
+                    tenantId,
+                    now,
+                    result.opened(),
+                    result.skippedLocked(),
+                    result.skippedTooLateOrCutoffPassed()
+                );
 
             } catch (Exception ex) {
                 failures.add(new TenantFailure(tenantId, ex));

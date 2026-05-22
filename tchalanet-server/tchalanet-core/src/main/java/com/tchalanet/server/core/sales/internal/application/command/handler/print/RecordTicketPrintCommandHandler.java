@@ -39,7 +39,7 @@ public class RecordTicketPrintCommandHandler
         var context = TchContext.currentOrThrow();
         var ticket = reader.getRequired(command.ticketId());
         printPolicy.requirePrintAllowed(ticket, command);
-        ticket.markPrinted(context.userId(), now);
+        ticket = ticket.markPrinted(context.userId(), now);
 
         Ticket saved = writer.save(ticket);
 

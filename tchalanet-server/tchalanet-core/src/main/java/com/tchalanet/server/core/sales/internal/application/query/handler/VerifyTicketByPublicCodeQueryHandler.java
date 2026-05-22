@@ -9,11 +9,10 @@ import com.tchalanet.server.core.sales.api.model.verification.TicketVerification
 import com.tchalanet.server.core.sales.api.query.VerifyTicketByPublicCodeQuery;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketVerificationProjection;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketVerificationReaderPort;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
 import com.tchalanet.server.core.sales.internal.domain.service.CustomerTicketStatusResolver;
 import com.tchalanet.server.core.sales.internal.domain.service.TicketVisibilityPolicy;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @UseCase
 @RequiredArgsConstructor
@@ -24,11 +23,12 @@ public class VerifyTicketByPublicCodeQueryHandler
     private final CustomerTicketStatusResolver statusResolver;
     private final TicketVisibilityPolicy visibilityPolicy;
     private final GameCatalog gameCatalog;
+    private final TicketPublicCodeFormatter publicCodeFormatter;
 
     @Override
     public TicketVerificationView handle(VerifyTicketByPublicCodeQuery query) {
         var projection = reader.findByPublicCodeAndVerificationCode(
-                query.publicCode(),
+                publicCodeFormatter.normalize(query.publicCode()),
                 query.verificationCode()
             )
             .orElseThrow(() -> ProblemRest.notFound("ticket.not_found"));
@@ -72,8 +72,8 @@ public class VerifyTicketByPublicCodeQueryHandler
     private TicketVerificationView.TicketLineView toLineView(TicketVerificationProjection.LineProjection line) {
         var gameDisplayName = line.gameCode() != null
             ? gameCatalog.findByCode(line.gameCode().name())
-                .map(g -> g.name())
-                .orElse(line.gameCode().name())
+            .map(g -> g.name())
+            .orElse(line.gameCode().name())
             : null;
         var betTypeLabel = line.betType() != null ? line.betType().name() : null;
         return new TicketVerificationView.TicketLineView(

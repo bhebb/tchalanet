@@ -19,7 +19,8 @@ public class CashierRecentTicketsProvider implements PageModelDynamicProvider {
 
   @Override
   public boolean supports(String logicalId, String widgetType, String source) {
-    return "private.dashboard.cashier".equals(logicalId) && "cashier_recent_tickets".equals(source);
+    return ("private.dashboard.cashier".equals(logicalId) || "private.dashboard.cashier.web".equals(logicalId))
+        && "cashier_recent_tickets".equals(source);
   }
 
   @Override

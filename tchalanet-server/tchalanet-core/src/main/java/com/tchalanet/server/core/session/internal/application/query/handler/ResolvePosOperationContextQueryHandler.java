@@ -3,6 +3,7 @@ package com.tchalanet.server.core.session.internal.application.query.handler;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.outlet.api.query.ValidateOutletForOperationQuery;
 import com.tchalanet.server.core.session.api.model.ValidatedPosOperationContext;
@@ -10,16 +11,27 @@ import com.tchalanet.server.core.session.api.query.ResolvePosOperationContextQue
 import com.tchalanet.server.core.session.api.query.ValidateSalesSessionForOperationQuery;
 import com.tchalanet.server.core.session.internal.application.service.PosActionPolicy;
 import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
-import java.time.Instant;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
-@UseCase
-@RequiredArgsConstructor
+
+@Component
 public class ResolvePosOperationContextQueryHandler
     implements QueryHandler<ResolvePosOperationContextQuery, ValidatedPosOperationContext> {
 
     private final QueryBus queryBus;
     private final PosActionPolicy policy;
+    private final TchTimeProvider timeProvider;
+
+    public ResolvePosOperationContextQueryHandler(
+        @Lazy QueryBus queryBus,
+        PosActionPolicy policy,
+        TchTimeProvider timeProvider) {
+        this.queryBus = queryBus;
+        this.policy = policy;
+        this.timeProvider = timeProvider;
+    }
+
 
     @Override
     public ValidatedPosOperationContext handle(ResolvePosOperationContextQuery query) {
@@ -61,6 +73,6 @@ public class ResolvePosOperationContextQueryHandler
             hint.salesSessionId(),
             hint.source(),
             hint.trust(),
-            Instant.now());
+            timeProvider.now());
     }
 }

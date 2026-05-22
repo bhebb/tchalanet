@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.session.internal.application.command.handler;
 
 import com.tchalanet.server.common.bus.CommandHandler;
+import com.tchalanet.server.common.exception.TchConflictException;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -41,6 +42,15 @@ public class OpenSalesSessionCommandHandler implements CommandHandler<OpenSalesS
       }
 
       var now = Instant.now(clock);
+      var businessDate = LocalDate.now(clock);
+
+      if (reader.existsForBusinessDate(command.tenantId(), command.outletId(), command.openedBy(), businessDate)) {
+          throw new TchConflictException(
+              "sales.session.duplicate-user-business-day",
+              "Sales session already exists for this user and business day"
+          );
+      }
+
       var sessionId = SalesSessionId.of(idGenerator.newUuid());
       var session =
           SalesSession.open(
@@ -49,7 +59,7 @@ public class OpenSalesSessionCommandHandler implements CommandHandler<OpenSalesS
               command.outletId(),
               command.terminalId(),
               command.openedBy(),
-              LocalDate.now(clock),
+              businessDate,
               now, command.openingFloatCents());
 
       var saved = writer.save(session);

@@ -10,7 +10,6 @@ package com.tchalanet.server.common.context.scope;
 public enum ApiScope {
   PUBLIC,
   PLATFORM,
-  SDR,
   ADMIN,
   TENANT
 }

@@ -76,6 +76,25 @@ public abstract class BaseTenantEntity extends BaseEntity {
 
 ---
 
+## 4.1) Updates JPA sensibles (NORMATIVE)
+
+Les entités sensibles (`ticket`, `draw`, `draw_result`, `payout`, `terminal`,
+`outlet`, `sales_session`, `ledger_entry`, offline sync, etc.) ne doivent pas être
+mises à jour via un rebuild détaché `mapper.toEntity(domain)` suivi de `save`.
+
+Règle canonique :
+
+- création : mapping vers une nouvelle entité autorisé ;
+- update JPA : charger l'entité managée puis muter les champs autorisés ;
+- alternative : SQL explicite avec garde tenant/status/version/idempotency ;
+- interdit : transplanter `tenantId`, `version`, `createdAt`, `createdBy` pour faire
+  passer un `merge`.
+
+Voir la norme dédiée :
+`docs/conventions/persistence/sensitive_jpa_updates.md`.
+
+---
+
 ## 5) Stratégie d'ID (alignée Typed IDs)
 
 - `UUID` autorisé uniquement en persistence
@@ -238,6 +257,8 @@ Toute modification de table SQL doit être propagée à l'ensemble de la stack p
 - ❌ Relation JPA complexe cross-aggregate
 - ❌ Filtrage tenant dans le code
 - ❌ `UUID` utilisé hors persistence
+- ❌ Update d'une entité sensible via `mapper.toEntity(domain)` + `save`
+- ❌ Création silencieuse quand un update avec id existant attendu ne trouve pas la ligne
 
 ---
 

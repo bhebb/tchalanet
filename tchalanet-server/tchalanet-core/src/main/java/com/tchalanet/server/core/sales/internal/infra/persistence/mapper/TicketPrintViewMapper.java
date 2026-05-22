@@ -23,9 +23,9 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
-import com.tchalanet.server.core.sales.internal.application.formatter.DrawLabelFormat;
-import com.tchalanet.server.core.sales.internal.application.formatter.TicketDrawLabelFormatter;
-import com.tchalanet.server.core.sales.internal.application.service.print.TicketVerificationUrlBuilder;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.DrawLabelFormat;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketDrawLabelFormatter;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.sales.internal.infra.persistence.view.TicketPrintHeaderViewEntity;
@@ -138,6 +138,8 @@ public class TicketPrintViewMapper {
         return new TicketPrintLine(
             line.lineNumber(),
             line.gameCode(),
+            line.betType(),
+            line.betOption(),
             line.gameCode() == null ? null : line.gameCode().name(),
             line.selection() == null ? null : line.selection().displayLabel(),
             line.selection() == null ? null : line.selection().key().value(),
@@ -192,4 +194,3 @@ public class TicketPrintViewMapper {
         };
     }
 }
-

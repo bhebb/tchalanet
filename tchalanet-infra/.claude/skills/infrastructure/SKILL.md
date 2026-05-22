@@ -28,11 +28,11 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 | Service     | Image                                             |
 | ----------- | ------------------------------------------------- |
-| PostgreSQL  | `postgres:18.1`                                   |
-| Redis       | `redis:8.4.0`                                     |
+| PostgreSQL  | `postgres:18.4`                                   |
+| Redis       | `redis:8.6.3`                                     |
 | Meilisearch | `getmeili/meilisearch:v1.11`                      |
-| Keycloak    | `ghcr.io/bhebb/tchalanet-keycloak:stg-20251116-2` |
-| Traefik     | `traefik:v3.6.5`                                  |
+| Keycloak    | `ghcr.io/bhebb/tchalanet-keycloak:keycloak-26.6.2` |
+| Traefik     | `traefik:v3.7.0`                                  |
 | Unleash     | `unleashorg/unleash-server:7.4.0`                 |
 | API         | `ghcr.io/bhebb/tchalanet-api:${IMAGE_TAG}`        |
 | Doppler CLI | `dopplerhq/cli:3.75.1`                            |

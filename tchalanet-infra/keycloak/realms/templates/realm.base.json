@@ -5,6 +5,16 @@
   "defaultLocale": "fr",
   "supportedLocales": ["fr", "en", "ht"],
   "loginTheme": "keycloak",
+  "sslRequired": "external",
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "passwordPolicy": "length(10) and upperCase(1) and lowerCase(1) and digits(1)",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
   "roles": {
     "realm": [{ "name": "SUPER_ADMIN" }, { "name": "TENANT_ADMIN" }, { "name": "OPERATOR" }, { "name": "CASHIER" }]
   },
@@ -33,6 +43,28 @@
   ],
 
   "clientScopes": [
+    {
+      "name": "tch-basic",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "sub",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+
     {
       "name": "email",
       "protocol": "openid-connect",
@@ -101,6 +133,45 @@
             "id.token.claim": "true",
             "access.token.claim": "true"
           }
+        },
+        {
+          "name": "given-name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "firstName",
+            "claim.name": "given_name",
+            "jsonType.label": "String",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "family-name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "lastName",
+            "claim.name": "family_name",
+            "jsonType.label": "String",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "full-name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-full-name-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
         }
       ]
     },
@@ -119,6 +190,21 @@
             "multivalued": "true",
             "realm.roles": "true",
             "claim.name": "roles",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "realm-roles-realm-access",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "realm.roles": "true",
+            "claim.name": "realm_access.roles",
             "jsonType.label": "String",
             "access.token.claim": "true",
             "id.token.claim": "true",
@@ -197,7 +283,7 @@
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
-      "defaultClientScopes": ["basic", "email", "profile", "tch", "tch-groups", "web-origins", "roles"],
+      "defaultClientScopes": ["tch-basic", "email", "profile", "tch", "tch-groups", "web-origins", "roles"],
       "optionalClientScopes": ["offline_access"],
       "protocolMappers": [
         {
@@ -223,79 +309,45 @@
     },
 
     {
+      "clientId": "tchalanet-mobile-pos",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["com.tchalanet.mobile:/oauth2redirect"],
+      "webOrigins": ["+"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": ["tch-basic", "email", "profile", "tch", "tch-groups", "roles"],
+      "optionalClientScopes": ["offline_access"],
+      "protocolMappers": [
+        {
+          "name": "aud-tchalanet-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "tchalanet-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+
+    {
       "clientId": "tchalanet-swagger",
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
       "redirectUris": ["http://localhost:8081/swagger-ui/oauth2-redirect.html"],
       "webOrigins": ["http://localhost:8081"],
-      "defaultClientScopes": ["basic", "profile", "email", "roles", "tch", "web-origins"]
-    }
-  ],
-
-  "users": [
-    {
-      "username": "super_admin",
-      "enabled": true,
-      "email": "super_admin@local",
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "changeme",
-          "temporary": false
-        }
-      ],
-      "realmRoles": ["SUPER_ADMIN"],
-      "groups": [],
       "attributes": {
-        "locale": ["fr"],
-        "tenant_code": ["tchalanet"],
-        "plan": ["free"],
-        "featureSetId": ["base"]
-      }
-    },
-    {
-      "username": "admin",
-      "enabled": true,
-      "email": "admin@local",
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "changeme",
-          "temporary": false
-        }
-      ],
-      "realmRoles": ["TENANT_ADMIN"],
-      "groups": ["/tenants/tchalanet/admins"],
-      "attributes": {
-        "locale": ["fr"],
-        "tenant_code": ["tchalanet"],
-        "plan": ["pro"],
-        "featureSetId": ["base"]
-      }
-    },
-    {
-      "username": "agent",
-      "enabled": true,
-      "email": "agent@local",
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "changeme",
-          "temporary": false
-        }
-      ],
-      "realmRoles": ["OPERATOR"],
-      "groups": ["/tenants/tchalanet/agents"],
-      "attributes": {
-        "locale": ["fr"],
-        "tenant_code": ["tchalanet"],
-        "plan": ["free"],
-        "featureSetId": ["base"]
-      }
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": ["tch-basic", "profile", "email", "roles", "tch", "web-origins"]
     }
   ]
 }
