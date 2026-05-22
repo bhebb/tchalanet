@@ -63,8 +63,8 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 
 ## 2) Mobile (Flutter)
 
-- Flutter : 3.41.9 (channel stable)
-- Dart : bundled avec Flutter 3.41.9
+- Flutter : 3.44.0 (channel stable)
+- Dart : 3.12.0 (bundled avec Flutter 3.44.0)
 - App path : `tchalanet-mobile/`
 - Target platform : Android (premier)
 - Build tool : Flutter CLI + Gradle wrapper généré par Flutter
@@ -75,10 +75,12 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 
 | Package                | Version |
 | ---------------------- | ------- |
+| cupertino_icons        | ^1.0.9  |
 | flutter_riverpod       | ^3.3.1  |
 | go_router              | ^17.2.3 |
 | dio                    | ^5.9.2  |
-| flutter_secure_storage | ^10.0.0 |
+| flutter_secure_storage | ^10.2.0 |
+| flutter_lints          | ^6.0.0  |
 
 ---
 

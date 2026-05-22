@@ -11,7 +11,7 @@ class App extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'Tchalanet',
+      title: 'Tchalanet POS',
       theme: buildAppTheme(),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
