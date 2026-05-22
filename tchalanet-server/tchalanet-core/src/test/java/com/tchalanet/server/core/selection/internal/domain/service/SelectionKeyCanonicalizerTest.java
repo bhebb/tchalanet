@@ -35,6 +35,14 @@ class SelectionKeyCanonicalizerTest {
     }
 
     @Test
+    void loto4PairCanonicalizationIsIdempotentForProjectors() {
+        assertThat(SelectionKeyCanonicalizer.canonicalize(BetType.LOTTO4_PATTERN, (short) 3, "12**").value())
+            .isEqualTo("12**");
+        assertThat(SelectionKeyCanonicalizer.canonicalize(BetType.LOTTO4_PATTERN, (short) 4, "**45").value())
+            .isEqualTo("**45");
+    }
+
+    @Test
     void cashierWildcardInputIsRejected() {
         assertThatThrownBy(() -> SelectionKeyCanonicalizer.canonicalize(
             BetType.LOTTO4_PATTERN,

@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 public final class SelectionKeyCanonicalizer {
 
     private static final Pattern DIGITS = Pattern.compile("^\\d+$");
+    private static final Pattern LOTTO4_FRONT_PAIR_CANONICAL = Pattern.compile("^\\d{2}\\*\\*$");
+    private static final Pattern LOTTO4_BACK_PAIR_CANONICAL = Pattern.compile("^\\*\\*\\d{2}$");
     private SelectionKeyCanonicalizer() {
     }
 
@@ -58,14 +60,28 @@ public final class SelectionKeyCanonicalizer {
                 canonicalizeExactDigits(s, 4);
 
             case LOTTO4_FRONT_PAIR ->
-                canonicalizeExactDigits(s, 2) + "**";
+                canonicalizeLotto4FrontPair(s);
 
             case LOTTO4_BACK_PAIR ->
-                "**" + canonicalizeExactDigits(s, 2);
+                canonicalizeLotto4BackPair(s);
 
             default ->
                 throw new IllegalArgumentException("Unsupported LOTTO4 option: " + option);
         };
+    }
+
+    private static String canonicalizeLotto4FrontPair(String s) {
+        if (LOTTO4_FRONT_PAIR_CANONICAL.matcher(s).matches()) {
+            return s;
+        }
+        return canonicalizeExactDigits(s, 2) + "**";
+    }
+
+    private static String canonicalizeLotto4BackPair(String s) {
+        if (LOTTO4_BACK_PAIR_CANONICAL.matcher(s).matches()) {
+            return s;
+        }
+        return "**" + canonicalizeExactDigits(s, 2);
     }
     public static SelectionKey canonicalize(BetType betType, String rawSelectionKey) {
         return canonicalize(betType, null, rawSelectionKey);
