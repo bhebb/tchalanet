@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class PlanMapper {
 
   @Autowired
-  protected JsonUtils jsonUtils;
+  public JsonUtils jsonUtils;
 
   @Autowired
   protected CommonIdMapper idMapper;
@@ -32,8 +32,8 @@ public abstract class PlanMapper {
       return null;
     }
 
-    JsonNode limitsNode = jsonUtils.valueToTree(entity.getLimitsJson());
-    JsonNode featuresNode = jsonUtils.valueToTree(entity.getFeaturesJson());
+    JsonNode limitsNode = jsonUtils.toJsonNode(entity.getLimitsJson());
+    JsonNode featuresNode = jsonUtils.toJsonNode(entity.getFeaturesJson());
 
     return new PlanView(
         idMapper.mapToPlanId(entity.getId()),

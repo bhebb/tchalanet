@@ -294,3 +294,23 @@ CREATE INDEX idx_offline_event_outbox__pending
   WHERE published_at IS NULL;
 -- tenant_offline_policy is keyed by tenant_id (unique constraint already covers the lookup),
 -- so no extra index is needed beyond the implicit one on the PRIMARY KEY + UNIQUE.
+
+CREATE INDEX idx_promotion_rule_active_window
+    ON promotion_rule (tenant_id, active, starts_at, ends_at)
+    WHERE archived_at IS NULL;
+
+CREATE INDEX idx_promotion_rule_code
+    ON promotion_rule (tenant_id, code)
+    WHERE archived_at IS NULL;
+
+CREATE INDEX idx_promotion_rule_type
+    ON promotion_rule (tenant_id, rule_type)
+    WHERE archived_at IS NULL;
+
+-- This table can live in sales migration if ticket_line is owned by sales.
+
+CREATE INDEX idx_ticket_line_applied_rule_ticket
+    ON ticket_line_applied_rule (tenant_id, ticket_id);
+
+CREATE INDEX idx_ticket_line_applied_rule_line
+    ON ticket_line_applied_rule (tenant_id, ticket_line_id);

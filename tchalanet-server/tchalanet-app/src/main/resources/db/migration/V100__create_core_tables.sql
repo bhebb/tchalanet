@@ -1480,3 +1480,72 @@ CREATE TABLE offline_event_outbox (
   next_attempt_at timestamptz,
   CONSTRAINT uq_offline_event_outbox__event_id UNIQUE (tenant_id, event_id)
 );
+
+
+CREATE TABLE promotion_rule (
+                                id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                                tenant_id uuid NOT NULL REFERENCES tenant(id),
+
+                                code varchar(96) NOT NULL,
+                                name varchar(160) NOT NULL,
+                                description text NULL,
+
+                                active boolean NOT NULL DEFAULT false,
+                                archived_at timestamptz NULL,
+
+                                rule_type varchar(64) NOT NULL,
+                                engine_type varchar(64) NOT NULL DEFAULT 'SIMPLE_JSON_V1',
+                                schema_version integer NOT NULL DEFAULT 1,
+                                rule_version integer NOT NULL DEFAULT 1,
+
+                                priority integer NOT NULL DEFAULT 100,
+                                stackable boolean NOT NULL DEFAULT true,
+                                exclusive_group varchar(96) NULL,
+
+                                starts_at timestamptz NULL,
+                                ends_at timestamptz NULL,
+                                timezone varchar(64) NOT NULL DEFAULT 'America/Port-au-Prince',
+
+                                condition_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+                                effect_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+                                offline_allowed boolean NOT NULL DEFAULT false,
+
+                                created_at timestamptz NOT NULL DEFAULT now(),
+                                updated_at timestamptz NOT NULL DEFAULT now(),
+                                deleted_at timestamptz NOT NULL DEFAULT now(),
+                                created_by uuid NULL,
+                                updated_by uuid NULL,
+                                deleted_by uuid NULL,
+                                version bigint NOT NULL DEFAULT 0,
+
+                                CONSTRAINT uq_promotion_rule_tenant_code_version UNIQUE (tenant_id, code, rule_version),
+                                CONSTRAINT chk_promotion_rule_dates CHECK (ends_at IS NULL OR starts_at IS NULL OR ends_at > starts_at),
+                                CONSTRAINT chk_promotion_rule_priority CHECK (priority >= 0),
+                                CONSTRAINT chk_promotion_rule_schema_version CHECK (schema_version >= 1),
+                                CONSTRAINT chk_promotion_rule_rule_version CHECK (rule_version >= 1)
+);
+
+CREATE TABLE ticket_line_applied_rule (
+                                          id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                                          tenant_id uuid NOT NULL REFERENCES tenant(id),
+                                          ticket_id uuid NOT NULL,
+                                          ticket_line_id uuid NOT NULL,
+                                          promotion_rule_id uuid NULL REFERENCES promotion_rule(id),
+
+                                          rule_code varchar(96) NOT NULL,
+                                          rule_version integer NOT NULL,
+                                          effect_type varchar(64) NOT NULL,
+                                          effect_snapshot_json jsonb NOT NULL,
+
+                                          applied_at timestamptz NOT NULL DEFAULT now(),
+                                          created_at timestamptz NOT NULL DEFAULT now(),
+                                          updated_at timestamptz NOT NULL DEFAULT now(),
+                                          deleted_at timestamptz NOT NULL DEFAULT now(),
+                                          created_by uuid NULL,
+                                          updated_by uuid NULL,
+                                          deleted_by uuid NULL,
+                                          version bigint NOT NULL DEFAULT 0,
+
+                                          CONSTRAINT uq_ticket_line_applied_rule UNIQUE (tenant_id, ticket_line_id, rule_code, rule_version, effect_type)
+);

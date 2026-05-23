@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * Admin service for Plan CRUD (internal write operations).
@@ -30,6 +31,9 @@ public class PlanAdminService {
   @Transactional
   @CacheEvict(cacheNames = {PlanCacheNames.ACTIVE_PLANS, PlanCacheNames.PLAN_BY_CODE, PlanCacheNames.PLAN_BY_ID}, allEntries = true)
   public PlanView create(PlanCreateRequest req) {
+    validateJson(req.limitsJson(), "limits");
+    validateJson(req.featuresJson(), "features");
+
     var entity = new PlanJpaEntity();
     entity.setCode(req.code());
     entity.setName(req.name());
@@ -49,6 +53,9 @@ public class PlanAdminService {
   @Transactional
   @CacheEvict(cacheNames = {PlanCacheNames.ACTIVE_PLANS, PlanCacheNames.PLAN_BY_CODE, PlanCacheNames.PLAN_BY_ID}, allEntries = true)
   public PlanView update(PlanId id, PlanUpdateRequest req) {
+    if (req.limitsJson() != null) validateJson(req.limitsJson(), "limits");
+    if (req.featuresJson() != null) validateJson(req.featuresJson(), "features");
+
     var entity = repository.findById(id.value())
         .orElseThrow(() -> ProblemRest.notFound("plan", id));
 
@@ -83,6 +90,18 @@ public class PlanAdminService {
     entity.setDeletedAt(Instant.now());
     entity.setActive(false);
     repository.save(entity);
+  }
+
+  private void validateJson(String json, String context) {
+    if (json == null || json.isBlank()) return;
+    try {
+      var node = mapper.jsonUtils.toJsonNode(json);
+      if (node != null && !node.isObject()) {
+        throw ProblemRest.badRequest("plan." + context + "_must_be_object");
+      }
+    } catch (Exception e) {
+      throw ProblemRest.badRequest("plan.invalid_" + context + "_json");
+    }
   }
 
   public record PlanCreateRequest(

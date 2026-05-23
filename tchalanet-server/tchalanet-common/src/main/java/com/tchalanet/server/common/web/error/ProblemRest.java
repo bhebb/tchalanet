@@ -3,6 +3,8 @@ package com.tchalanet.server.common.web.error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 
+import java.util.Map;
+
 public final class ProblemRest {
 
     private ProblemRest() {
@@ -11,6 +13,13 @@ public final class ProblemRest {
     public static ProblemRestException of(HttpStatus status, String detail) {
         ProblemDetail pd = ProblemDetail.forStatus(status);
         pd.setDetail(detail);
+        return new ProblemRestException(pd);
+    }
+
+    public static ProblemRestException of(HttpStatus status, String detail, Map<String, Object> properties) {
+        ProblemDetail pd = ProblemDetail.forStatus(status);
+        pd.setDetail(detail);
+        pd.setProperties(properties);
         return new ProblemRestException(pd);
     }
 
@@ -24,6 +33,10 @@ public final class ProblemRest {
 
     public static ProblemRestException forbidden(String detail) {
         return of(HttpStatus.FORBIDDEN, detail);
+    }
+
+    public static ProblemRestException forbidden(String detail, Map<String, Object> properties) {
+        return of(HttpStatus.FORBIDDEN, detail, properties);
     }
 
     public static ProblemRestException notFound(String detail) {

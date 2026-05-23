@@ -36,7 +36,8 @@ public class RenewSubscriptionCommandHandler
         .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
 
     // 2. Renew via domain method
-    var renewed = subscription.renew(cmd.newEndsAt());
+    Instant now = Instant.now(clock);
+    var renewed = subscription.renew(cmd.newEndsAt(), now);
 
     // 3. Persist
     var saved = persistencePort.save(renewed);

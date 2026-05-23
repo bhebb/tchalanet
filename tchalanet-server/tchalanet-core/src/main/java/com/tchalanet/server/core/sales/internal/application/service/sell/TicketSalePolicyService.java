@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.common.web.api.ApiNotice;
+import com.tchalanet.server.common.web.api.NoticeSeverity;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.core.autonomy.api.query.ResolveAutonomyQuery;
@@ -15,12 +16,18 @@ import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitLineContext;
+import com.tchalanet.server.core.promotion.api.model.PromotionCartLine;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
+import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationContext;
+import com.tchalanet.server.core.promotion.api.model.PromotionPhase;
+import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionsQuery;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
+import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.SelectionApi;
@@ -36,8 +43,11 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -60,9 +70,14 @@ public class TicketSalePolicyService {
     private final IdGenerator idGenerator;
     private final Clock clock;
 
-    public PreparedSale prepareSale(SellTicketCommand command, TchRequestContext ctx) {
+    public PreparedSale prepareSale(
+        SellTicketCommand command,
+        TchRequestContext ctx,
+        SaleEvaluationMode mode
+    ) {
         Objects.requireNonNull(command, "command is required");
         Objects.requireNonNull(ctx, "ctx is required");
+        Objects.requireNonNull(mode, "mode is required");
 
         validateCommand(command);
 
@@ -81,6 +96,10 @@ public class TicketSalePolicyService {
         var charges = computeCharges(tenantId, command);
         var moneyBreakdown = computeMoneyBreakdown(ticketLines, charges, command);
 
+        var promotionDecision = mode == SaleEvaluationMode.FINAL
+            ? evaluatePromotions(tenantId, command, pos, now, moneyBreakdown.total())
+            : null;
+
         var policyDecision = evaluateLimitsAndAutonomy(
             tenantId, command, pos, draw, mergedLines, now
         );
@@ -89,6 +108,9 @@ public class TicketSalePolicyService {
         var notices = new ArrayList<ApiNotice>();
         notices.addAll(SalesNoticeFactory.fromLimits(policyDecision.limits()));
         notices.addAll(SalesNoticeFactory.fromCharges(charges));
+        if (promotionDecision != null) {
+            notices.addAll(toApiNotices(promotionDecision));
+        }
         if (policyDecision.requiresApproval()) {
             notices.add(SalesNoticeFactory.approvalRequired(
                 policyDecision.approvalLevel().name()
@@ -107,8 +129,74 @@ public class TicketSalePolicyService {
             policyDecision.requiresApproval(),
             policyDecision.approvalLevel(),
             approvalRequestId,
+            promotionDecision,
             List.copyOf(notices)
         );
+    }
+
+    private PromotionDecision evaluatePromotions(
+        TenantId tenantId,
+        SellTicketCommand command,
+        ValidatedPosOperationContext pos,
+        Instant now,
+        Money paidTotal
+    ) {
+        var cartLines = command.lines().stream()
+            .map(this::toPromotionCartLine)
+            .toList();
+
+        var context = new PromotionEvaluationContext(
+            tenantId,
+            pos.outletId(),
+            pos.terminalId(),
+            pos.actorUserId(),
+            now,
+            ZoneOffset.UTC,
+            command.drawId(),
+            command.drawChannelId(),
+            cartLines,
+            paidTotal.amount(),
+            PromotionPhase.SALE_CONFIRMATION,
+            false
+        );
+
+        return queryBus.ask(new EvaluatePromotionsQuery(context));
+    }
+
+    private PromotionCartLine toPromotionCartLine(SellTicketLineInput line) {
+        return new PromotionCartLine(
+            String.valueOf(line.lineNumber()),
+            line.gameCode().name(),
+            line.stakeAmount(),
+            line.stakeAmount()
+        );
+    }
+
+    private List<ApiNotice> toApiNotices(PromotionDecision promotionDecision) {
+        if (promotionDecision == null || promotionDecision.notices() == null || promotionDecision.notices().isEmpty()) {
+            return List.of();
+        }
+
+        return promotionDecision.notices().stream()
+            .map(notice -> new ApiNotice(
+                notice.code(),
+                notice.message(),
+                "promotion",
+                parseSeverity(notice.severity()),
+                notice.meta() == null ? Map.of() : notice.meta()
+            ))
+            .toList();
+    }
+
+    private static NoticeSeverity parseSeverity(String severity) {
+        if (severity == null || severity.isBlank()) {
+            return NoticeSeverity.INFO;
+        }
+        return switch (severity.toUpperCase(Locale.ROOT)) {
+            case "ERROR" -> NoticeSeverity.ERROR;
+            case "WARN", "WARNING" -> NoticeSeverity.WARN;
+            default -> NoticeSeverity.INFO;
+        };
     }
 
     // -------------------------------------------------------------------------
@@ -359,6 +447,7 @@ public class TicketSalePolicyService {
         boolean requiresApproval,
         AutonomyLevel approvalLevel,
         ApprovalRequestId approvalRequestId,
+        PromotionDecision promotionDecision,
         List<ApiNotice> notices
     ) {
         public PreparedSale {

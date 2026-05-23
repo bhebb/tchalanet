@@ -19,6 +19,7 @@ import com.tchalanet.server.common.types.id.OfflineCodeId;
 import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
 import com.tchalanet.server.common.types.id.PromotionAttemptId;
+import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.PayoutId;
@@ -222,6 +223,15 @@ public class CommonIdMapper {
 
     public PromotionAttemptId mapToPromotionAttemptId(UUID id) {
         return PromotionAttemptId.nullableOf(id);
+    }
+
+    // PromotionRuleId
+    public UUID mapFromPromotionRuleId(PromotionRuleId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionRuleId mapToPromotionRuleId(UUID id) {
+        return PromotionRuleId.nullableOf(id);
     }
 
     // RoleId

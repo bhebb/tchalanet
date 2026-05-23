@@ -12,17 +12,24 @@ public final class TypedIdRegistry {
     public static final Class<?>[] ALL = {
         // --- Add all your *Id here (alphabetical) ---
         AddressId.class,
-        LedgerEntryId.class,
         DrawChannelGameId.class,
         DrawChannelId.class,
         DrawId.class,
         DrawResultId.class,
         GameId.class,
         I18nOverrideId.class,
+        LedgerEntryId.class,
+        OfflineCodeBatchId.class,
+        OfflineCodeId.class,
+        OfflineGrantId.class,
+        OfflineSubmissionId.class,
+        OfflineSyncBatchId.class,
         OutletId.class,
         PageModelTemplateId.class,
         PayoutId.class,
         PlanId.class,
+        PromotionAttemptId.class,
+        PromotionRuleId.class, // Added PromotionRuleId
         ResultSlotId.class,
         RoleId.class,
         SalesSessionId.class,
@@ -35,11 +42,5 @@ public final class TypedIdRegistry {
         ThemePresetId.class,
         TicketId.class,
         UserId.class,
-        OfflineCodeBatchId.class,
-        OfflineCodeId.class,
-        OfflineGrantId.class,
-        OfflineSubmissionId.class,
-        OfflineSyncBatchId.class,
-        PromotionAttemptId.class,
     };
 }

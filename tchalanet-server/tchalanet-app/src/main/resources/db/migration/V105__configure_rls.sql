@@ -692,3 +692,20 @@ CREATE POLICY sales_session_offline_adjustment_rls_all ON sales_session_offline_
 CREATE POLICY sales_session_offline_adjustment_rls_select ON sales_session_offline_adjustment
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE promotion_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ticket_line_applied_rule ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY promotion_rule_rls_all ON promotion_rule FOR ALL
+  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY promotion_rule_rls_select ON promotion_rule
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+CREATE POLICY ticket_line_applied_rule_rls_all ON ticket_line_applied_rule FOR ALL
+  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY ticket_line_applied_rule_rls_select ON ticket_line_applied_rule
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
