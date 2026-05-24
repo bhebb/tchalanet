@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.promotion.api.model;
+package com.tchalanet.server.core.promotion.api.model.rule;
 
 import com.tchalanet.server.common.types.id.PromotionRuleId;
 

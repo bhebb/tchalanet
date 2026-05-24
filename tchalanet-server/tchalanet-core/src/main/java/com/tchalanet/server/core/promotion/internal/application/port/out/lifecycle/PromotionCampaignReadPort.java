@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.promotion.internal.application.port.out;
+package com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle;
 
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.web.paging.TchPage;

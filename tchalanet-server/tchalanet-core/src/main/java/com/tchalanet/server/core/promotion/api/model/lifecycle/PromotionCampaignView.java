@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.promotion.api.model;
+package com.tchalanet.server.core.promotion.api.model.lifecycle;
 
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 

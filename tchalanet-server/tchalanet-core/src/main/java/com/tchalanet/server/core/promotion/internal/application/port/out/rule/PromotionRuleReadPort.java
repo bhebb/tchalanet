@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.promotion.internal.application.port.out;
+package com.tchalanet.server.core.promotion.internal.application.port.out.rule;
 
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionRule;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
