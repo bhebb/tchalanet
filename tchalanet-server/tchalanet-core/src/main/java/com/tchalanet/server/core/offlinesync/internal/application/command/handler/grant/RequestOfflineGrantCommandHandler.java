@@ -9,7 +9,7 @@ import com.tchalanet.server.common.types.id.OfflineCodeBatchId;
 import com.tchalanet.server.common.types.id.OfflineCodeId;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
 import com.tchalanet.server.core.draw.api.query.ListUpcomingDrawsTenantWideQuery;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.limitpolicy.api.model.offline.OfflineLimitPolicy;
 import com.tchalanet.server.core.limitpolicy.api.query.GetOfflineLimitPolicyQuery;
 import com.tchalanet.server.core.offlinesync.api.command.grant.OfflineUpcomingDrawSnapshot;

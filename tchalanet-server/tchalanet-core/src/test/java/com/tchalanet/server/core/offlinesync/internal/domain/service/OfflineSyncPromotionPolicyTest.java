@@ -74,7 +74,7 @@ class OfflineSyncPromotionPolicyTest {
 
             assertThat(outcome).isInstanceOfSatisfying(
                 OfflineSyncPromotionPolicy.Outcome.Ignore.class,
-                ig -> assertThat(ig.reason()).contains("stale promotion attempt"));
+                ig -> assertThat(ig.reason()).contains("stale promotionDecision attempt"));
         }
 
         @Test

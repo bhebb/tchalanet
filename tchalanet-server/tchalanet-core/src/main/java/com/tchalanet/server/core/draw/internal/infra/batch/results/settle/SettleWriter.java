@@ -5,7 +5,7 @@ import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.sales.internal.application.query.model.CountPendingTicketsByDrawIdQuery;
 import com.tchalanet.server.core.sales.internal.application.query.model.ExistsPendingTicketsByDrawIdQuery;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.repo;
 
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.infra.persistence.view.DrawSummaryViewEntity;
 import java.time.Instant;
 import java.time.LocalDate;

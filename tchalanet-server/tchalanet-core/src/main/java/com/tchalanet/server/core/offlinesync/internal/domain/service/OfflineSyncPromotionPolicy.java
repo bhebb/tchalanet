@@ -22,7 +22,7 @@ public final class OfflineSyncPromotionPolicy {
             return new Outcome.Ignore("missing promotionAttemptId");
         }
         if (!submission.isCurrentPromotionAttempt(incoming)) {
-            return new Outcome.Ignore("stale promotion attempt: incoming=" + incoming
+            return new Outcome.Ignore("stale promotionDecision attempt: incoming=" + incoming
                 + " current=" + submission.promotionAttemptId());
         }
         if (submission.status() != OfflineSubmissionStatus.PROMOTION_REQUESTED

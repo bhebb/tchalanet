@@ -19,6 +19,7 @@ WITH g_src AS (
               ('HT_BOLET',  'Bolet',   'HAITI', 'SINGLE',         2, 4, 'Jeu haïtien basé sur lots (lot1..lot4).', true, 10),
               ('HT_NUMERO', 'Numéros', 'HAITI', 'EXACT',          2, 4, 'Numéros exacts dérivés des résultats externes.', true, 20),
               ('HT_MARYAJ', 'Mariage', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Mariage, paire non ordonnée.', true, 30),
+              ('HT_MARYAJ_GRATUIT', 'Maryaj gratuit', 'HAITI', 'PAIR_UNORDERED', 2, 2, 'Variante promotionnelle du Maryaj.', true, 35),
               ('HT_LOTO3',  'Loto 3',  'HAITI', 'EXACT',          3, 3, 'Loto 3, 3 chiffres.', true, 40),
               ('HT_LOTO4',  'Loto 4',  'HAITI', 'EXACT',          4, 4, 'Loto 4, 4 chiffres.', true, 50),
               ('HT_LOTO5',  'Loto 5',  'HAITI', 'EXACT',          5, 5, 'Loto 5, 5 chiffres.', true, 60)
@@ -55,8 +56,8 @@ WITH t AS (
 ),
      g AS (
          SELECT id AS game_id, code, name
-         FROM game
-         WHERE code IN ('HT_BOLET','HT_MARYAJ','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+          FROM game
+          WHERE code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_MARYAJ_GRATUIT','HT_LOTO3','HT_LOTO4','HT_LOTO5')
            AND deleted_at IS NULL
      ),
      tg_src AS (
@@ -68,7 +69,12 @@ WITH t AS (
              g.name AS display_name,
              CASE g.code
                  WHEN 'HT_BOLET'  THEN jsonb_build_object('odds', jsonb_build_object('lot2', 50, 'lot3', 20, 'lot4', 10))
-                 WHEN 'HT_MARYAJ' THEN jsonb_build_object('multiplier', 1000)
+                  WHEN 'HT_MARYAJ' THEN jsonb_build_object('multiplier', 1000)
+                  WHEN 'HT_MARYAJ_GRATUIT' THEN jsonb_build_object(
+                      'multiplier', 1000,
+                      'promotionGame', true,
+                      'baseGameCode', 'HT_MARYAJ'
+                  )
                  WHEN 'HT_LOTO3'  THEN jsonb_build_object('multiplier', 500)
                  WHEN 'HT_LOTO4'  THEN jsonb_build_object('multiplier', 5000)
                  WHEN 'HT_LOTO5'  THEN jsonb_build_object('multiplier', 25000)
@@ -270,7 +276,7 @@ WITH t AS (
      games AS (
          SELECT id AS game_id
          FROM game
-         WHERE code IN ('HT_BOLET','HT_MARYAJ','HT_LOTO3','HT_LOTO4','HT_LOTO5')
+          WHERE code IN ('HT_BOLET','HT_NUMERO','HT_MARYAJ','HT_MARYAJ_GRATUIT','HT_LOTO3','HT_LOTO4','HT_LOTO5')
            AND deleted_at IS NULL
      ),
      pairs AS (

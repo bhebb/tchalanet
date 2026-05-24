@@ -22,7 +22,7 @@ public interface OfflineSubmissionJpaRepository extends JpaRepository<OfflineSub
         UUID tenantId, UUID sellerUserId, Pageable pageable);
 
     /**
-     * Submissions stuck in promotion: any of the listed statuses with
+     * Submissions stuck in promotionDecision: any of the listed statuses with
      * {@code promotion_requested_at < threshold}. Used by the recovery scheduler.
      */
     List<OfflineSubmissionJpaEntity> findAllByStatusInAndPromotionRequestedAtLessThan(

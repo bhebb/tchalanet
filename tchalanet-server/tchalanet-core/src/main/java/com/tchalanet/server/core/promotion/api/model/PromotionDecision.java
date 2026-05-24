@@ -1,16 +1,25 @@
 package com.tchalanet.server.core.promotion.api.model;
 
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import java.time.Instant;
 import java.util.List;
 
 public record PromotionDecision(
-    List<FreeLineGrant> freeLineGrants,
-    List<PayoutModifier> payoutModifiers,
-    List<DiscountModifier> discountModifiers,
-    List<CommissionModifier> commissionModifiers,
-    List<PromotionNotice> notices,
-    List<AppliedPromotionSnapshot> snapshots
+    PromotionDecisionId decisionId,
+    PromotionDecisionStatus status,
+    PromotionEvaluationPhase phase,
+    Instant evaluatedAt,
+    String contextHash,
+    String engineVersion,
+    List<PromotionEffect> effects,
+    List<String> notices
 ) {
-  public static PromotionDecision empty() {
-    return new PromotionDecision(List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
-  }
+    public PromotionDecision {
+        effects = effects == null ? List.of() : List.copyOf(effects);
+        notices = notices == null ? List.of() : List.copyOf(notices);
+    }
+
+    public boolean applied() {
+        return status == PromotionDecisionStatus.APPLIED;
+    }
 }

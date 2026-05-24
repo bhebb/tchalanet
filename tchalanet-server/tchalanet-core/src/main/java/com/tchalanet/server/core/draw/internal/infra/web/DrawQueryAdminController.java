@@ -10,7 +10,7 @@ import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.draw.api.query.*;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.internal.infra.web.mapper.DrawAdminWebMapper;
 import com.tchalanet.server.core.draw.internal.infra.web.model.DrawSearchRequest;
 import com.tchalanet.server.core.draw.internal.infra.web.model.DrawSummaryResponse;

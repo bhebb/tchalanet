@@ -403,7 +403,7 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
   location: package com.tchalanet.server.common.types.id
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/service/TicketSalePolicyService.java:[111,26] cannot find symbol
   symbol:   class BetLine
-  location: class com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext
+  location: class com.tchalanet.server.core.limitpolicy.api.model.LimitContext
 [INFO] 100 errors
 [INFO] -------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------
@@ -718,7 +718,7 @@ WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
 [ERROR]   location: package com.tchalanet.server.common.types.id
 [ERROR] /Users/bhebb/Documents/projets/tchalanet/tchalanet-server/tchalanet-core/src/main/java/com/tchalanet/server/core/sales/internal/application/service/TicketSalePolicyService.java:[111,26] cannot find symbol
 [ERROR]   symbol:   class BetLine
-[ERROR]   location: class com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext
+[ERROR]   location: class com.tchalanet.server.core.limitpolicy.api.model.LimitContext
 [ERROR] -> [Help 1]
 [ERROR]
 [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.

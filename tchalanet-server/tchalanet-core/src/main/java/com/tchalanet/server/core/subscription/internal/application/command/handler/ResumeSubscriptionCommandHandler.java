@@ -35,7 +35,8 @@ public class ResumeSubscriptionCommandHandler
     public ResumeSubscriptionResult handle(ResumeSubscriptionCommand cmd) {
         var subscription = readerPort.findByTenantId(cmd.tenantId())
             .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
-        var resumed = subscription.resume(Instant.now(clock));
+        Instant now = Instant.now(clock);
+        var resumed = subscription.resume(now);
         var saved = persistencePort.save(resumed);
         AfterCommit.run(() -> {
             entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
@@ -48,6 +49,6 @@ public class ResumeSubscriptionCommandHandler
                 "system"
             ));
         });
-        return new ResumeSubscriptionResult(saved.id(), saved.status());
+        return new ResumeSubscriptionResult(saved.id());
     }
 }

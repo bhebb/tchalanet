@@ -13,6 +13,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
@@ -38,6 +39,9 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
@@ -126,10 +130,15 @@ public interface TicketJpaMapper {
         entity.setOddsSnapshot(line.oddsSnapshot());
         entity.setDisplaySelection(line.selection().displayLabel());
         entity.setStakeAmount(line.stakeAmount().amount());
+        entity.setPayoutBaseAmount(line.payoutBaseAmount().amount());
         entity.setBetOption(line.betOption());
         entity.setPotentialPayoutAmount(line.potentialPayoutAmount().amount());
         entity.setResultStatus(line.resultStatus());
         entity.setPayoutAmount(line.payoutAmount().amount());
+        entity.setOrigin(line.origin());
+        entity.setPricingSource(line.pricingSource());
+        entity.setSelectionSource(line.selectionSource());
+        entity.setPromotionDecisionId(line.promotionDecisionId() == null ? null : line.promotionDecisionId().value());
 
         return entity;
     }
@@ -374,9 +383,14 @@ public interface TicketJpaMapper {
                 entity.getDisplaySelection()
             ),
             new Money(entity.getStakeAmount(), currency),
+            new Money(entity.getPayoutBaseAmount(), currency),
             entity.getOddsSnapshot(),
             new Money(entity.getPotentialPayoutAmount(), currency),
             entity.getBetOption(),
+            entity.getOrigin() == null ? TicketLineOrigin.CUSTOMER : entity.getOrigin(),
+            entity.getPricingSource() == null ? TicketLinePricingSource.STANDARD : entity.getPricingSource(),
+            entity.getSelectionSource() == null ? TicketLineSelectionSource.CUSTOMER_SELECTED : entity.getSelectionSource(),
+            entity.getPromotionDecisionId() == null ? null : PromotionDecisionId.of(entity.getPromotionDecisionId()),
             entity.getResultStatus(),
             new Money(entity.getPayoutAmount(), currency)
         );

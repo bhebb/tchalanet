@@ -35,7 +35,8 @@ public class SuspendSubscriptionCommandHandler
     public SuspendSubscriptionResult handle(SuspendSubscriptionCommand cmd) {
         var subscription = readerPort.findByTenantId(cmd.tenantId())
             .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
-        var suspended = subscription.suspend(Instant.now(clock));
+        Instant now = Instant.now(clock);
+        var suspended = subscription.suspend(now);
         var saved = persistencePort.save(suspended);
         AfterCommit.run(() -> {
             entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
@@ -48,6 +49,6 @@ public class SuspendSubscriptionCommandHandler
                 "system"
             ));
         });
-        return new SuspendSubscriptionResult(saved.id(), saved.status());
+        return new SuspendSubscriptionResult(saved.id());
     }
 }

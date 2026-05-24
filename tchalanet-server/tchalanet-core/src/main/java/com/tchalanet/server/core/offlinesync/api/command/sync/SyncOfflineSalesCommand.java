@@ -53,7 +53,7 @@ public record SyncOfflineSalesCommand(
         public int lineCount() { return lines == null ? 0 : lines.size(); }
     }
 
-    /** A single line of a submitted sale, mirrored into the promotion event for sales. */
+    /** A single line of a submitted sale, mirrored into the promotionDecision event for sales. */
     public record Line(
         int lineNo,
         @NotBlank String gameCode,

@@ -4,6 +4,7 @@ import java.util.Set;
 
 public final class PlanFeatureKeys {
 
+
     private PlanFeatureKeys() {}
 
     public static final String TENANT_PROFILE_BASIC = "tenant.profile.basic";
@@ -72,6 +73,7 @@ public final class PlanFeatureKeys {
     public static final String OFFLINE_SYNC_REVIEW = "offline.sync.review";
     public static final String OFFLINE_GRANT_BASIC = "offline.grant.basic";
 
+    public static final String PROMOTION_CAMPAIGN_ADMIN = "promotion.campaigns.config";
     public static final String PROMOTION_RULES_BASIC = "promotion.rules.basic";
     public static final String PROMOTION_FREE_GAME = "promotion.free_game";
     public static final String PROMOTION_PRIZE_MULTIPLIER = "promotion.prize_multiplier";

@@ -44,7 +44,7 @@ public class RenewSubscriptionCommandHandler
         // 3. Persist
         var saved = persistencePort.save(renewed);
 
-        // 4. Publish event after-commit
+        // 4. Publish event after-commit and evict cache
         AfterCommit.run(() -> {
             entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
             eventPublisher.publishEvent(new TenantSubscriptionUpdatedEvent(

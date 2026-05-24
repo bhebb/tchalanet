@@ -2,7 +2,7 @@ package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposur
 
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureAlertsReaderPort;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.DrawExposureJpaRepository;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.ScopePersistenceMapper;
 import lombok.RequiredArgsConstructor;

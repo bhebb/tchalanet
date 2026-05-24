@@ -23,7 +23,7 @@ import java.util.UUID;
 /**
  * OfflineSubmission — Aggregate root.
  *
- * <p>Server-side representation of an offline sale before promotion to a {@code Ticket}.
+ * <p>Server-side representation of an offline sale before promotionDecision to a {@code Ticket}.
  * Composed of {@link SubmissionIdentity}, {@link SubmissionContext}, {@link SubmissionPayload},
  * {@link SubmissionLifecycle} and {@link SubmissionPromotionTrace}.
  */
@@ -40,7 +40,7 @@ public record OfflineSubmission(
         if (context == null) throw new IllegalArgumentException("context required");
         if (payload == null) throw new IllegalArgumentException("payload required");
         if (lifecycle == null) throw new IllegalArgumentException("lifecycle required");
-        if (promotion == null) throw new IllegalArgumentException("promotion required");
+        if (promotion == null) throw new IllegalArgumentException("promotionDecision required");
     }
 
     public static OfflineSubmission receive(
@@ -86,7 +86,7 @@ public record OfflineSubmission(
         if (lifecycle.status() != OfflineSubmissionStatus.TECH_VALIDATED
             && lifecycle.status() != OfflineSubmissionStatus.SYNC_FAILED) {
             throw new IllegalStateException(
-                "submission " + identity.id() + " cannot request promotion from " + lifecycle.status());
+                "submission " + identity.id() + " cannot request promotionDecision from " + lifecycle.status());
         }
         return new OfflineSubmission(
             identity, context, payload,

@@ -3,7 +3,7 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.core.limitpolicy.api.query.GetLimitsOverviewQuery;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
 import lombok.RequiredArgsConstructor;

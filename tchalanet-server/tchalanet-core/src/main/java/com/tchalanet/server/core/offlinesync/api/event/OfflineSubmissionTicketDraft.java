@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Self-contained ticket draft carried by offline promotion events. Holds every field that
+ * Self-contained ticket draft carried by offline promotionDecision events. Holds every field that
  * {@code core.sales} needs to materialise (or reject) a ticket — no callback into
  * {@code core.offlinesync} is allowed.
  *

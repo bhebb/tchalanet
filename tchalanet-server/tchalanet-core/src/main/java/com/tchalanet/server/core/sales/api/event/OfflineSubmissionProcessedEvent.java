@@ -10,7 +10,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import java.time.Instant;
 
 /**
- * Published after-commit by {@code core.sales} once it has processed a promotion attempt
+ * Published after-commit by {@code core.sales} once it has processed a promotionDecision attempt
  * (either by creating the {@link TicketId} or by rejecting it for a business reason).
  *
  * <p>Self-contained — carries the {@link PromotionAttemptId} so the {@code core.offlinesync}

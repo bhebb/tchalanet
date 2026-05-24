@@ -1,29 +1,36 @@
 package com.tchalanet.server.core.promotion.api.model;
 
-import com.tchalanet.server.common.types.id.DrawChannelId;
-import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.AgentId;
+import com.tchalanet.server.common.types.id.AgentZoneId;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 public record PromotionEvaluationContext(
-    @NotNull TenantId tenantId,
+    TenantId tenantId,
+    PromotionEvaluationPhase phase,
+    Instant evaluatedAt,
+    AgentId agentId,
+    List<AgentId> agentPath,
+    AgentZoneId zoneId,
+    List<AgentZoneId> zonePath,
     OutletId outletId,
     TerminalId terminalId,
-    UserId sellerId,
-    @NotNull Instant saleAt,
-    @NotNull ZoneId tenantZoneId,
-    DrawId drawId,
-    DrawChannelId drawChannelId,
-    @NotNull @Valid List<PromotionCartLine> cartLines,
-    @NotNull BigDecimal paidTotal,
-    @NotNull PromotionPhase phase,
+    SalesSessionId salesSessionId,
+    UserId sellerUserId,
+    BigDecimal paidTotal,
+    String currency,
+    List<String> paidGameCodes,
     boolean offline
-) {}
+) {
+    public PromotionEvaluationContext {
+        agentPath = agentPath == null ? List.of() : List.copyOf(agentPath);
+        zonePath = zonePath == null ? List.of() : List.copyOf(zonePath);
+        paidGameCodes = paidGameCodes == null ? List.of() : List.copyOf(paidGameCodes);
+    }
+}

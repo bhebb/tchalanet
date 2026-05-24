@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.offlinesync.api.event.OfflineSubmissionLineSnapshot;
 import com.tchalanet.server.core.offlinesync.api.event.OfflineSubmissionTicketDraft;
@@ -34,7 +35,7 @@ import java.util.List;
  * Maps a self-contained {@link OfflineSubmissionTicketDraft} into a {@link Ticket} aggregate.
  *
  * <p>The {@code drawId} comes from the draft itself — the cashier had it pinned at sale
- * time. We look up the matching {@link com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary}
+ * time. We look up the matching {@link DrawSummary}
  * via {@link GetDrawByIdQuery} to populate {@link TicketContext#drawChannelId()}.
  *
  * <p>Compromises kept explicit for v1:
@@ -64,7 +65,7 @@ public class OfflineSubmissionToTicketMapper {
         }
 
         // The draw was pinned by the device when the cashier sold offline — look it up
-        // directly. Throws if the drawId no longer exists (sales rejects the promotion).
+        // directly. Throws if the drawId no longer exists (sales rejects the promotionDecision).
         var draw = queryBus.ask(new GetDrawByIdQuery(draft.drawId()));
 
         var identity = new TicketIdentity(TicketId.of(idGenerator.newUuid()), tenantId);

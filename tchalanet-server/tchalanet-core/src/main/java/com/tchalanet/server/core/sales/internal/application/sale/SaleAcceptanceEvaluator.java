@@ -5,7 +5,7 @@ import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.model.sale.SaleActionAvailability;
 import com.tchalanet.server.core.sales.api.model.sale.SaleDecision;
-import com.tchalanet.server.core.sales.internal.application.service.sell.TicketSalePolicyService;
+import com.tchalanet.server.core.sales.internal.application.service.sell.SalePreparationOrchestrator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class SaleAcceptanceEvaluator {
     public static final String PREVIEW_ACCEPTED_WARNING =
         "Ce resultat est indicatif. D'autres ventes en cours peuvent modifier les limites disponibles.";
 
-    private final TicketSalePolicyService policyService;
+    private final SalePreparationOrchestrator policyService;
     private final SaleIssueFactory issueFactory;
     private final SaleExposurePlanner exposurePlanner;
 

@@ -18,7 +18,7 @@ import java.time.Clock;
 
 /**
  * Materialises a {@link com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket}
- * from an offline submission promotion request. Final defence against double promotion is
+ * from an offline submission promotionDecision request. Final defence against double promotionDecision is
  * the unique constraint {@code (tenant_id, offline_submission_id)} on {@code sales_ticket}.
  */
 @UseCase

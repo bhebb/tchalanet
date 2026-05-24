@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>This service trusts its caller for input validity: command-level checks
  * (line number, stake positive, bet type / option range, game support) live in
- * {@link TicketSalePolicyService#validateCommand}. The checks left here are
+ * {@link SalePreparationOrchestrator#validateCommand}. The checks left here are
  * internal invariants that should never fire if the policy service did its job
  * — if they do, it's a bug, not a user error.
  *

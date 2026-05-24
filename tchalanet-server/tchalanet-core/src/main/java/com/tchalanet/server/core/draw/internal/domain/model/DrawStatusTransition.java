@@ -1,5 +1,7 @@
 package com.tchalanet.server.core.draw.internal.domain.model;
 
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;

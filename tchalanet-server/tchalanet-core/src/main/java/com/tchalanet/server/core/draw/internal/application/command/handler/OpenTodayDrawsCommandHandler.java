@@ -6,7 +6,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsResult;
 import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.internal.application.query.projection.OpenableDrawRow;
+import com.tchalanet.server.core.draw.api.query.OpenableDrawRow;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

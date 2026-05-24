@@ -43,7 +43,7 @@ public class ReleaseOrphanedReservedCodeCommandHandler
             submissionReader.findById(submissionId).ifPresent(s ->
                 submissionWriter.save(s.markSyncFailed(
                     "offlinesync.code.orphaned_reservation",
-                    "Code RESERVED past SLA without promotion outcome", now)));
+                    "Code RESERVED past SLA without promotionDecision outcome", now)));
         }
         log.warn("offlinesync: released orphaned RESERVED code {} (submission={})",
             code.id(), submissionId);

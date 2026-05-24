@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.sel
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.event.DomainEventPublisher;
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
@@ -10,6 +11,8 @@ import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
+import com.tchalanet.server.core.promotion.api.command.CreateAppliedPromotionSnapshotCommand;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
@@ -45,6 +48,7 @@ public class SellTicketCommandHandler
     private final TicketPrintReaderPort ticketPrintReader;
     private final DomainEventPublisher eventPublisher;
     private final SaleAcceptanceEvaluator saleAcceptanceEvaluator;
+    private final CommandBus commandBus;
     private final TicketReceiptAssembler ticketReceiptAssembler;
     private final TicketBackupAssembler ticketBackupAssembler;
     private final TicketCommunicationRequestDispatcher communicationDispatcher;
@@ -120,6 +124,16 @@ public class SellTicketCommandHandler
                 command.communicationOptions(),
                 correlationId
             );
+
+            // If promotionDecision applied, create an applied promotionDecision snapshot after commit
+            var promo = prepared.promotionDecision();
+            if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
+                commandBus.execute(new CreateAppliedPromotionSnapshotCommand(
+                    tenantId,
+                    ticketId,
+                    promo
+                ));
+            }
         });
 
         // 4. Return result with notices propagated.

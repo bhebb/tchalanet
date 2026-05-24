@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.LimitAssignmentId;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentWriterPort;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitAssignment;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.LimitAssignmentJpaEntity;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.LimitAssignmentJpaRepository;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.mapper.LimitAssignmentMapper;

@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  *
  * This annotation relies on {@link EntitlementApi#requireFeature(com.tchalanet.server.common.types.id.TenantId, String)}.
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequiredFeature {
     /**

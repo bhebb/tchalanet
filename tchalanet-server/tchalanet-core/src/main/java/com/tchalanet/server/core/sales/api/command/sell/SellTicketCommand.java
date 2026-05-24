@@ -13,6 +13,7 @@ public record SellTicketCommand(
     DrawChannelId drawChannelId,
     CurrencyCode currency,
     List<SellTicketLineInput> lines,
-    SaleCommunicationOptions communicationOptions
+    SaleCommunicationOptions communicationOptions,
+    List<PromotionChoiceInput> promotionChoices
 ) implements Command<SellTicketResult> {
 }

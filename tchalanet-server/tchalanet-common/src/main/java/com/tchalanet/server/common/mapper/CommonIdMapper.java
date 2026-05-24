@@ -20,6 +20,11 @@ import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
 import com.tchalanet.server.common.types.id.PromotionAttemptId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
+import com.tchalanet.server.common.types.id.AgentZoneId;
+import com.tchalanet.server.common.types.id.AppliedPromotionId;
+import com.tchalanet.server.common.types.id.PromotionCampaignId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.common.types.id.PromotionQuotaId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.PayoutId;
@@ -232,6 +237,51 @@ public class CommonIdMapper {
 
     public PromotionRuleId mapToPromotionRuleId(UUID id) {
         return PromotionRuleId.nullableOf(id);
+    }
+
+    // AgentZoneId
+    public UUID mapFromAgentZoneId(AgentZoneId id) {
+        return id == null ? null : id.value();
+    }
+
+    public AgentZoneId mapToAgentZoneId(UUID id) {
+        return AgentZoneId.nullableOf(id);
+    }
+
+    // AppliedPromotionId
+    public UUID mapFromAppliedPromotionId(AppliedPromotionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public AppliedPromotionId mapToAppliedPromotionId(UUID id) {
+        return AppliedPromotionId.nullableOf(id);
+    }
+
+    // PromotionDecisionId
+    public UUID mapFromPromotionDecisionId(PromotionDecisionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionDecisionId mapToPromotionDecisionId(UUID id) {
+        return PromotionDecisionId.nullableOf(id);
+    }
+
+    // PromotionCampaignId
+    public UUID mapFromPromotionCampaignId(PromotionCampaignId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionCampaignId mapToPromotionCampaignId(UUID id) {
+        return PromotionCampaignId.nullableOf(id);
+    }
+
+    // PromotionQuotaId
+    public UUID mapFromPromotionQuotaId(PromotionQuotaId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionQuotaId mapToPromotionQuotaId(UUID id) {
+        return PromotionQuotaId.nullableOf(id);
     }
 
     // RoleId

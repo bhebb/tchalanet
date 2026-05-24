@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.sales.api.event.payload.OfflineSaleRefPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
 import com.tchalanet.server.core.sales.api.event.payload.TicketMoneyPayload;
@@ -53,7 +54,8 @@ public record TicketPlacedEvent(
     TicketContextPayload context,
     TicketMoneyPayload money,
     List<TicketLinePlacedItem> lines,
-    OfflineSaleRefPayload offlineRef       // null unless POS_OFFLINE_SYNCED
+    OfflineSaleRefPayload offlineRef,       // null unless POS_OFFLINE_SYNCED,
+    PromotionDecision promotionDecision
 ) implements DomainEvent {
     public static final int CURRENT_SCHEMA = 1;
 

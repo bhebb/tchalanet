@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import java.time.Instant;
 
 /**
- * Trace of the promotion exchange between {@code core.offlinesync} and {@code core.sales}.
+ * Trace of the promotionDecision exchange between {@code core.offlinesync} and {@code core.sales}.
  * A current {@code promotionAttemptId} is the key that lets returning events be matched
  * against the latest attempt and stale ones ignored.
  */

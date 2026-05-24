@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.domain.model;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 
 import java.util.Map;
 

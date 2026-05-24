@@ -10,7 +10,7 @@ import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assig
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsByScopeQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

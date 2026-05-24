@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.web.model;
 
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 

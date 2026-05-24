@@ -45,7 +45,7 @@ public class CancelSubscriptionCommandHandler
         // 3. Persist
         var saved = persistencePort.save(canceled);
 
-        // 4. Publish event after-commit
+        // 4. Publish event after-commit and evict cache
         AfterCommit.run(() -> {
             entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
 
