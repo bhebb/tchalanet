@@ -19,4 +19,6 @@ public interface TerminalJpaRepository
     Optional<TerminalJpaEntity> findFirstByAssignedUserIdAndAutoSessionEnabledIsTrue(UUID assignedUserId);
 
     List<TerminalJpaEntity> findBySyncState(String syncState);
+
+    int countByTenantIdAndSyncState(UUID tenantId, String syncState);
 }

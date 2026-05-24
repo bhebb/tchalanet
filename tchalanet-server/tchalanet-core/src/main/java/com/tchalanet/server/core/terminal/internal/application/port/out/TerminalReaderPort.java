@@ -17,6 +17,7 @@ import java.util.Optional;
 public interface TerminalReaderPort {
 
     Optional<Terminal> findById(TenantId tenantId, TerminalId terminalId);
+
     Terminal getById(TenantId tenantId, TerminalId terminalId);
 
     List<Terminal> listByOutlet(TenantId tenantId, OutletId outletId, PageRequest pageRequest);
@@ -47,4 +48,6 @@ public interface TerminalReaderPort {
         return findById(tenantId, terminalId)
             .orElseThrow(() -> new IllegalArgumentException("Terminal not found: " + terminalId));
     }
+
+    int countActiveByTenant(TenantId tenantId);
 }

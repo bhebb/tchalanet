@@ -14,121 +14,344 @@ INSERT INTO billing_plan (
   price_amount,
   currency,
   billing_period,
+  features_json,
+  limits_json,
   active,
   is_default,
-  limits_json,
-  features_json
+  created_at,
+  updated_at
 )
-VALUES
-  -- STARTER: default platform plan
-  (
-    '00000000-0000-0000-0000-000000000201',
-    'STARTER',
-    'Starter',
-    'Découverte: 1 PDV, 3 terminaux, vente manuelle uniquement',
-    0.00,
-    'USD',
-    'MONTHLY',
-    true,
-    true,  -- is_default: platform default
-    '{
-      "outlets": 1,
-      "terminals": 3,
-      "users": 5,
-      "maxTicketsPerDay": 200
-    }'::jsonb,
-    '{
-      "sale.manual": true,
-      "sale.offline": false,
-      "promotion.basic": false,
-      "payout.auto_approve": false
-    }'::jsonb
-  ),
+VALUES (
+  gen_random_uuid(),
+  'STARTER',
+  'Starter',
+  'Petit tenant avec opérations de base.',
+  0,
+  'USD',
+  'MONTHLY',
+  '{
+    "tenant.profile.basic": true,
+    "auth.login.basic": true,
+    "user.self.profile": true,
+    "sales.ticket.sell": true,
+    "sales.ticket.lookup": true,
+    "sales.ticket.reprint": true,
+    "draw.active.list": true,
+    "drawresult.public.view": true,
+    "payout.basic": true,
+    "document.receipt.basic": true,
+    "pos.web.basic": true,
+    "reporting.daily.basic": true,
+    "security.role.basic": true,
+    "audit.basic": true,
+    "user.management.basic": true,
+    "outlet.management.basic": true,
+    "terminal.management.basic": true,
+    "session.cashier.basic": true,
+    "sales.ticket.cancel.basic": true,
+    "payout.session.basic": true,
+    "reporting.sales.summary": true,
+    "reporting.payout.summary": true,
+    "tenant.theme.logo": true,
+    "document.receipt.logo": true
+  }'::jsonb,
+  '{
+    "limits.users.max": 5,
+    "limits.outlets.max": 1,
+    "limits.terminals.max": 2,
+    "limits.mobile_devices.max": 0,
+    "limits.promotion_rules.max": 0,
+    "limits.offline_days.max": 0,
+    "limits.exports.rows.max": 1000
+  }'::jsonb,
+  true,
+  true,
+  now(),
+  now()
+)
+ON CONFLICT (code) DO NOTHING;
 
-  -- STANDARD: standard paid plan
-  (
-    '00000000-0000-0000-0000-000000000202',
-    'STANDARD',
-    'Standard',
-    'Pour un opérateur: 5 PDV, 25 terminaux, vente offline incluse',
-    99.00,
-    'USD',
-    'MONTHLY',
-    true,
-    false,
-    '{
-      "outlets": 5,
-      "terminals": 25,
-      "users": 30,
-      "maxTicketsPerDay": 5000
-    }'::jsonb,
-    '{
-      "sale.manual": true,
-      "sale.offline": true,
-      "promotion.basic": true,
-      "payout.auto_approve": false
-    }'::jsonb
-  ),
+INSERT INTO billing_plan (
+  id,
+  code,
+  name,
+  description,
+  price_amount,
+  currency,
+  billing_period,
+  features_json,
+  limits_json,
+  active,
+  is_default,
+  created_at,
+  updated_at
+)
+VALUES (
+  gen_random_uuid(),
+  'STANDARD',
+  'Standard',
+  'Tenant structuré avec multi-outlet léger et terminaux.',
+  0,
+  'USD',
+  'MONTHLY',
+  '{
+    "tenant.profile.basic": true,
+    "auth.login.basic": true,
+    "user.self.profile": true,
+    "sales.ticket.sell": true,
+    "sales.ticket.lookup": true,
+    "sales.ticket.reprint": true,
+    "draw.active.list": true,
+    "drawresult.public.view": true,
+    "payout.basic": true,
+    "document.receipt.basic": true,
+    "pos.web.basic": true,
+    "reporting.daily.basic": true,
+    "security.role.basic": true,
+    "audit.basic": true,
 
-  -- PRO: advanced plan
-  (
-    '00000000-0000-0000-0000-000000000203',
-    'PRO',
-    'Pro',
-    'Multi-PDV, terminaux illimités, workflows avancés',
-    299.00,
-    'USD',
-    'MONTHLY',
-    true,
-    false,
-    '{
-      "outlets": 25,
-      "terminals": 500,
-      "users": 200,
-      "maxTicketsPerDay": 100000
-    }'::jsonb,
-    '{
-      "sale.manual": true,
-      "sale.offline": true,
-      "promotion.basic": true,
-      "payout.auto_approve": true
-    }'::jsonb
-  ),
+    "user.management.basic": true,
+    "outlet.management.basic": true,
+    "terminal.management.basic": true,
+    "session.cashier.basic": true,
+    "sales.ticket.cancel.basic": true,
+    "payout.session.basic": true,
+    "reporting.sales.summary": true,
+    "reporting.payout.summary": true,
+    "tenant.theme.logo": true,
+    "document.receipt.logo": true,
 
-  -- DEMO: full feature plan for trials
-  (
-    '00000000-0000-0000-0000-000000000204',
-    'DEMO',
-    'Demo / Trial',
-    'Accès complet à toutes les fonctionnalités pour évaluation',
-    0.00,
-    'USD',
-    'MONTHLY',
-    true,
-    false,
-    '{
-      "outlets": 999,
-      "terminals": 9999,
-      "users": 9999,
-      "maxTicketsPerDay": 999999
-    }'::jsonb,
-    '{
-      "sale.manual": true,
-      "sale.offline": true,
-      "promotion.basic": true,
-      "payout.auto_approve": true
-    }'::jsonb
-  )
-ON CONFLICT (code) DO UPDATE SET
-  name = EXCLUDED.name,
-  description = EXCLUDED.description,
-  price_amount = EXCLUDED.price_amount,
-  currency = EXCLUDED.currency,
-  billing_period = EXCLUDED.billing_period,
-  active = EXCLUDED.active,
-  is_default = EXCLUDED.is_default,
-  limits_json = EXCLUDED.limits_json,
-  features_json = EXCLUDED.features_json;
+    "user.management.standard": true,
+    "user.role.assignment.basic": true,
+    "outlet.management.multi": true,
+    "terminal.licensing": true,
+    "terminal.device.binding": true,
+    "session.supervision": true,
+    "sales.ticket.void.admin": true,
+    "payout.admin.review": true,
+    "reporting.dashboard.standard": true,
+    "reporting.export.csv": true,
+    "document.receipt.pdf": true,
+    "notification.in_app": true,
+    "tenant.theme.basic_branding": true,
+    "limitpolicy.basic": true
+  }'::jsonb,
+  '{
+    "limits.users.max": 15,
+    "limits.outlets.max": 3,
+    "limits.terminals.max": 10,
+    "limits.mobile_devices.max": 2,
+    "limits.promotion_rules.max": 0,
+    "limits.offline_days.max": 0,
+    "limits.exports.rows.max": 10000
+  }'::jsonb,
+  true,
+  false,
+  now(),
+  now()
+)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO billing_plan (
+  id,
+  code,
+  name,
+  description,
+  price_amount,
+  currency,
+  billing_period,
+  features_json,
+  limits_json,
+  active,
+  is_default,
+  created_at,
+  updated_at
+)
+VALUES (
+  gen_random_uuid(),
+  'PRO',
+  'Pro',
+  'Mobile, offline, promotions simples et limites avancées.',
+  0,
+  'USD',
+  'MONTHLY',
+  '{
+    "tenant.profile.basic": true,
+    "auth.login.basic": true,
+    "user.self.profile": true,
+    "sales.ticket.sell": true,
+    "sales.ticket.lookup": true,
+    "sales.ticket.reprint": true,
+    "draw.active.list": true,
+    "drawresult.public.view": true,
+    "payout.basic": true,
+    "document.receipt.basic": true,
+    "pos.web.basic": true,
+    "reporting.daily.basic": true,
+    "security.role.basic": true,
+    "audit.basic": true,
+
+    "user.management.basic": true,
+    "outlet.management.basic": true,
+    "terminal.management.basic": true,
+    "session.cashier.basic": true,
+    "sales.ticket.cancel.basic": true,
+    "payout.session.basic": true,
+    "reporting.sales.summary": true,
+    "reporting.payout.summary": true,
+    "tenant.theme.logo": true,
+    "document.receipt.logo": true,
+
+    "user.management.standard": true,
+    "user.role.assignment.basic": true,
+    "outlet.management.multi": true,
+    "terminal.licensing": true,
+    "terminal.device.binding": true,
+    "session.supervision": true,
+    "sales.ticket.void.admin": true,
+    "payout.admin.review": true,
+    "reporting.dashboard.standard": true,
+    "reporting.export.csv": true,
+    "document.receipt.pdf": true,
+    "notification.in_app": true,
+    "tenant.theme.basic_branding": true,
+    "limitpolicy.basic": true,
+
+    "mobile.pos.basic": true,
+    "mobile.device.management": true,
+    "offline.sales.basic": true,
+    "offline.sync.review": true,
+    "offline.grant.basic": true,
+    "promotion.rules.basic": true,
+    "promotion.free_game": true,
+    "promotion.prize_multiplier": true,
+    "limitpolicy.advanced": true,
+    "payout.approval.workflow": true,
+    "reporting.dashboard.pro": true,
+    "reporting.export.excel": true,
+    "document.receipt.custom_template.basic": true,
+    "notification.email": true,
+    "audit.viewer": true
+  }'::jsonb,
+  '{
+    "limits.users.max": 50,
+    "limits.outlets.max": 10,
+    "limits.terminals.max": 30,
+    "limits.mobile_devices.max": 20,
+    "limits.promotion_rules.max": 10,
+    "limits.offline_days.max": 2,
+    "limits.offline_tickets_per_device.max": 500,
+    "limits.exports.rows.max": 100000
+  }'::jsonb,
+  true,
+  false,
+  now(),
+  now()
+)
+ON CONFLICT (code) DO NOTHING;
+
+INSERT INTO billing_plan (
+  id,
+  code,
+  name,
+  description,
+  price_amount,
+  currency,
+  billing_period,
+  features_json,
+  limits_json,
+  active,
+  is_default,
+  created_at,
+  updated_at
+)
+VALUES (
+  gen_random_uuid(),
+  'DEMO',
+  'Demo / Trial',
+  'Accès complet à toutes les fonctionnalités pour évaluation',
+  0.00,
+  'USD',
+  'MONTHLY',
+  '{
+      "tenant.profile.basic": true,
+      "auth.login.basic": true,
+      "user.self.profile": true,
+      "sales.ticket.sell": true,
+      "sales.ticket.lookup": true,
+      "sales.ticket.reprint": true,
+      "draw.active.list": true,
+      "drawresult.public.view": true,
+      "payout.basic": true,
+      "document.receipt.basic": true,
+      "pos.web.basic": true,
+      "reporting.daily.basic": true,
+      "security.role.basic": true,
+      "audit.basic": true,
+
+      "user.management.basic": true,
+      "outlet.management.basic": true,
+      "terminal.management.basic": true,
+      "session.cashier.basic": true,
+      "sales.ticket.cancel.basic": true,
+      "payout.session.basic": true,
+      "reporting.sales.summary": true,
+      "reporting.payout.summary": true,
+      "tenant.theme.logo": true,
+      "document.receipt.logo": true,
+
+      "user.management.standard": true,
+      "user.role.assignment.basic": true,
+      "outlet.management.multi": true,
+      "terminal.licensing": true,
+      "terminal.device.binding": true,
+      "session.supervision": true,
+      "sales.ticket.void.admin": true,
+      "payout.admin.review": true,
+      "reporting.dashboard.standard": true,
+      "reporting.export.csv": true,
+      "document.receipt.pdf": true,
+      "notification.in_app": true,
+      "tenant.theme.basic_branding": true,
+      "limitpolicy.basic": true,
+
+      "mobile.pos.basic": true,
+      "mobile.device.management": true,
+      "offline.sales.basic": true,
+      "offline.sync.review": true,
+      "offline.grant.basic": true,
+      "promotion.rules.basic": true,
+      "promotion.free_game": true,
+      "promotion.prize_multiplier": true,
+      "limitpolicy.advanced": true,
+      "payout.approval.workflow": true,
+      "reporting.dashboard.pro": true,
+      "reporting.export.excel": true,
+      "document.receipt.custom_template.basic": true,
+      "notification.email": true,
+      "audit.viewer": true,
+
+      "demo.full_access": true,
+      "demo.seed_data": true,
+      "demo.external_delivery.mock": true,
+      "demo.expires": true
+  }'::jsonb,
+  '{
+      "limits.users.max": 9999,
+      "limits.outlets.max": 999,
+      "limits.terminals.max": 9999,
+      "limits.mobile_devices.max": 9999,
+      "limits.promotion_rules.max": 999,
+      "limits.offline_days.max": 999,
+      "limits.offline_tickets_per_device.max": 999999,
+      "limits.exports.rows.max": 9999999
+  }'::jsonb,
+  true,
+  false,
+  now(),
+  now()
+)
+ON CONFLICT (code) DO NOTHING;
 
 -- Sanity check: ensure all 4 plans exist and exactly one is default
 DO $$
@@ -157,5 +380,3 @@ BEGIN
 
   RAISE NOTICE 'V201__seed_plans sanity check OK: % plans present, % default plan', plan_count, default_count;
 END $$;
-
-

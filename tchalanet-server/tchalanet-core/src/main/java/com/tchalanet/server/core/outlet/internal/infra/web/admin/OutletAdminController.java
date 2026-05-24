@@ -1,13 +1,10 @@
 package com.tchalanet.server.core.outlet.internal.infra.web.admin;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.outlet.api.command.BlockOutletSalesCommand;
 import com.tchalanet.server.core.outlet.api.command.CloseOutletDayCommand;
 import com.tchalanet.server.core.outlet.api.command.CloseOutletDayPayload;
@@ -18,6 +15,12 @@ import com.tchalanet.server.core.outlet.api.command.UpdateOutletConfigCommand;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.BlockSalesRequest;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.CloseOutletDayRequest;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.CreateOutletRequest;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.catalog.plan.api.PlanLimitKeys; // Import LimitKeys
+import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
+import com.tchalanet.server.platform.entitlement.api.UsageKeys; // Import UsageKeys
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +42,10 @@ public class OutletAdminController {
     private final CommandBus commandBus;
 
     @PostMapping
+    @RequiredQuota(
+        limit = PlanLimitKeys.OUTLETS_MAX,
+        usage = UsageKeys.OUTLETS_ACTIVE
+    )
     @AuditLog(
         entity = AuditEntityType.OUTLET,
         action = AuditAction.OUTLET_CREATE,

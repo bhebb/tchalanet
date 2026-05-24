@@ -9,6 +9,7 @@ import com.tchalanet.server.core.subscription.api.command.RenewSubscriptionResul
 import com.tchalanet.server.core.subscription.api.event.TenantSubscriptionUpdatedEvent;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionPersistencePort;
 import com.tchalanet.server.core.subscription.internal.application.port.out.SubscriptionReaderPort;
+import com.tchalanet.server.platform.entitlement.api.EntitlementCacheInvalidationApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -23,37 +24,39 @@ import java.time.Instant;
 public class RenewSubscriptionCommandHandler
     implements CommandHandler<RenewSubscriptionCommand, RenewSubscriptionResult> {
 
-  private final SubscriptionReaderPort readerPort;
-  private final SubscriptionPersistencePort persistencePort;
-  private final ApplicationEventPublisher eventPublisher;
-  private final Clock clock;
+    private final SubscriptionReaderPort readerPort;
+    private final SubscriptionPersistencePort persistencePort;
+    private final ApplicationEventPublisher eventPublisher;
+    private final Clock clock;
+    private final EntitlementCacheInvalidationApi entitlementCacheInvalidationApi;
 
-  @Override
-  @TchTx
-  public RenewSubscriptionResult handle(RenewSubscriptionCommand cmd) {
-    // 1. Read existing subscription
-    var subscription = readerPort.findByTenantId(cmd.tenantId())
-        .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
+    @Override
+    @TchTx
+    public RenewSubscriptionResult handle(RenewSubscriptionCommand cmd) {
+        // 1. Read existing subscription
+        var subscription = readerPort.findByTenantId(cmd.tenantId())
+            .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
 
-    // 2. Renew via domain method
-    Instant now = Instant.now(clock);
-    var renewed = subscription.renew(cmd.newEndsAt(), now);
+        // 2. Renew via domain method
+        Instant now = Instant.now(clock);
+        var renewed = subscription.renew(cmd.newEndsAt(), now);
 
-    // 3. Persist
-    var saved = persistencePort.save(renewed);
+        // 3. Persist
+        var saved = persistencePort.save(renewed);
 
-    // 4. Publish event after-commit
-    AfterCommit.run(() -> {
-      eventPublisher.publishEvent(new TenantSubscriptionUpdatedEvent(
-          saved.tenantId(),
-          saved.planCode(),
-          saved.status(),
-          saved.version(),
-          Instant.now(clock),
-          "system"
-      ));
-    });
+        // 4. Publish event after-commit
+        AfterCommit.run(() -> {
+            entitlementCacheInvalidationApi.evictTenantSnapshot(cmd.tenantId());
+            eventPublisher.publishEvent(new TenantSubscriptionUpdatedEvent(
+                saved.tenantId(),
+                saved.planCode(),
+                saved.status(),
+                saved.version(),
+                Instant.now(clock),
+                "system"
+            ));
+        });
 
-    return new RenewSubscriptionResult(saved.id(), saved.endsAt());
-  }
+        return new RenewSubscriptionResult(saved.id(), saved.endsAt());
+    }
 }

@@ -6,6 +6,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.entitlement.api.TenantPlanSnapshotProvider;
 import com.tchalanet.server.platform.entitlement.api.model.TenantCapabilitySnapshot;
+import com.tchalanet.server.platform.entitlement.internal.infra.cache.EntitlementCacheSpecProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,7 +29,10 @@ public class EntitlementCapabilitiesGetterImpl implements EntitlementCapabilitie
     private final Clock clock;
 
     @Override
-    @Cacheable(cacheNames = "platform.entitlement.tenant_snapshot", key = "#tenantId")
+    @Cacheable(
+        cacheNames = EntitlementCacheSpecProvider.TENANT_SNAPSHOT_CACHE,
+        key = "#tenantId.value()"
+    )
     public TenantCapabilitySnapshot getSnapshot(TenantId tenantId) {
         log.debug("Resolving entitlement snapshot for tenant {}", tenantId);
 
@@ -46,8 +50,8 @@ public class EntitlementCapabilitiesGetterImpl implements EntitlementCapabilitie
             .orElseThrow(() -> new IllegalStateException("Plan not found: " + sub.planCode()));
 
         // 3. Parse JSON capabilities
-        Map<String, Boolean> features = parseFeatures(plan);
-        Map<String, Integer> limits = parseLimits(plan);
+        var features = parseFeatures(plan);
+        var limits = parseLimits(plan);
 
         return new TenantCapabilitySnapshot(
             tenantId,

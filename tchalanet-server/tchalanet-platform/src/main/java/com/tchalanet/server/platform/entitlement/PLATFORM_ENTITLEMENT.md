@@ -40,18 +40,26 @@ It returns a cached `TenantCapabilitySnapshot` containing:
 platform/entitlement/
   api/
     EntitlementApi.java
-    annotation/RequiredFeature.java
-    annotation/RequiredQuota.java
-    model/FeatureKey.java
-    model/LimitKey.java
+    TenantPlanSnapshotProvider.java
+    UsageService.java
+    UsageKeys.java
+    LimitKeys.java
+    RequiredFeature.java
+    RequiredQuota.java
     model/TenantCapabilitySnapshot.java
+    model/TenantPlanSnapshot.java
+    model/TenantPlanStatus.java
     model/EntitlementDecision.java
   internal/
-    service/TenantCapabilityResolver.java
-    service/EntitlementService.java
+    EntitlementCapabilitiesGetter.java
+    EntitlementCapabilitiesGetterImpl.java
+    UsageServiceImpl.java
+    EntitlementService.java
     web/TenantCapabilitiesController.java
-    event/SubscriptionEntitlementEventListener.java
-    cache/EntitlementCacheSpecs.java
+    aspect/RequiredFeatureAspect.java
+    aspect/RequiredQuotaAspect.java
+    cache/EntitlementCacheSpecProvider.java
+    cache/EntitlementCacheEvictor.java
     config/EntitlementProperties.java
 ```
 
@@ -62,13 +70,13 @@ public interface EntitlementApi {
 
   TenantCapabilitySnapshot getSnapshot(TenantId tenantId);
 
-  EntitlementDecision checkFeature(TenantId tenantId, String featureKey);
+  boolean checkFeature(TenantId tenantId, String featureKey);
 
   void requireFeature(TenantId tenantId, String featureKey);
 
-  int limitValue(TenantId tenantId, String limitKey, int defaultValue);
+  int limitValue(TenantId tenantId, String limitKey); // Removed defaultValue
 
-  void requireLimitAtMost(TenantId tenantId, String limitKey, int requestedValue);
+  void requireLimitAtMost(TenantId tenantId, String limitKey, int currentUsage); // Renamed requestedValue to currentUsage
 }
 ```
 
@@ -78,18 +86,17 @@ public interface EntitlementApi {
 public record TenantCapabilitySnapshot(
     TenantId tenantId,
     String planCode,
-    String subscriptionStatus,
-    boolean subscriptionActive,
+    boolean subscriptionActive, // Simplified from subscriptionStatus and subscriptionActive
     Map<String, Boolean> features,
     Map<String, Integer> limits,
-    List<String> notices
+    Instant resolvedAt // Added resolvedAt, removed notices
 ) {
   public boolean hasFeature(String key) {
     return features.getOrDefault(key, false);
   }
 
-  public int limit(String key, int defaultValue) {
-    return limits.getOrDefault(key, defaultValue);
+  public int getLimit(String key) { // Renamed limit to getLimit
+    return limits.getOrDefault(key, 0); // Default to 0 if limit not found
   }
 }
 ```
@@ -99,8 +106,8 @@ public record TenantCapabilitySnapshot(
 ```text
 EntitlementApi.getSnapshot(tenantId)
   -> cache lookup platform.entitlement.tenant_snapshot
-  -> QueryBus.ask(ResolveTenantSubscriptionQuery(tenantId))
-  -> PlanCatalog.findByCode(subscription.planCode)
+  -> TenantPlanSnapshotProvider.findCurrentPlan(tenantId) // Changed from QueryBus
+  -> PlanCatalog.findByCode(tenantPlanSnapshot.planCode)
   -> parse PlanView.featuresJson
   -> parse PlanView.limitsJson
   -> apply V1 fallback rules for inactive subscription
@@ -113,7 +120,9 @@ Allowed:
 
 ```text
 platform.entitlement -> catalog.plan.api.PlanCatalog
-platform.entitlement -> core.subscription.api.query via QueryBus or api query model
+platform.entitlement -> platform.identity.internal.service.TenantMembershipService (for UserUsageService)
+platform.entitlement -> core.terminal.internal.application.port.out.TerminalReaderPort (for TerminalUsageService)
+platform.entitlement -> core.outlet.internal.application.port.out.OutletReaderPort (for OutletUsageService)
 platform.entitlement -> common
 ```
 
@@ -122,7 +131,7 @@ Not allowed:
 ```text
 platform.entitlement -> catalog.plan.internal
 platform.entitlement -> core.subscription.internal
-platform.entitlement -> core.sales/internal, core.terminal/internal, etc.
+platform.entitlement -> core.sales/internal, core.terminal/internal, etc. (except for specific UsageService implementations)
 ```
 
 ## Cache
@@ -153,7 +162,7 @@ Rules:
 For HTTP/application entry gates that are optional modules.
 
 ```java
-@RequiredFeature("promotion.rules.basic")
+@RequiredFeature(FeatureKeys.PROMOTION_RULES_BASIC) // Using new FeatureKeys constant
 @PostMapping("/admin/promotions")
 public ApiResponse<CreatePromotionResponse> create(...) { ... }
 ```
@@ -172,13 +181,15 @@ For simple quota gates when usage can be provided safely.
 
 ```java
 @RequiredQuota(
-  feature = "terminal.licensing",
-  limit = "limits.terminals.max",
-  usage = "usage.terminals.active"
+  limit = LimitKeys.TERMINALS_MAX,
+  usage = UsageKeys.TERMINALS_ACTIVE
 )
 ```
 
-V1 may defer generic usage providers. It is acceptable to implement terminal/user/outlet quota checks directly in the relevant handlers first.
+Rules:
+
+- Uses `LimitKeys` and `UsageKeys` for clarity.
+- `usage` value is resolved by `UsageService.getCurrentUsage`.
 
 ## Enforcement strategy
 
@@ -195,9 +206,9 @@ Use three layers only:
 Critical checks for V1:
 
 ```text
-terminal create -> limits.terminals.max
-outlet create -> limits.outlets.max
-user invite/create -> limits.users.max
+terminal create -> limits.terminals.max (Implemented with @RequiredQuota)
+outlet create -> limits.outlets.max (Implemented with @RequiredQuota)
+user invite/create -> limits.users.max (Implemented with @RequiredQuota)
 mobile device bind -> limits.mobile_devices.max
 offline grant/sell/sync -> offline.sales.basic + offline limits
 promotion create -> promotion.rules.basic + limits.promotion_rules.max
@@ -219,7 +230,7 @@ Response:
 ```json
 {
   "planCode": "PRO",
-  "subscriptionStatus": "ACTIVE",
+  "subscriptionActive": true,
   "features": {
     "offline.sales.basic": true,
     "promotion.rules.basic": true,
@@ -228,7 +239,8 @@ Response:
   "limits": {
     "limits.terminals.max": 30,
     "limits.mobile_devices.max": 20
-  }
+  },
+  "resolvedAt": "2023-10-27T10:00:00Z"
 }
 ```
 
@@ -263,9 +275,9 @@ External delivery for demo should be controlled by feature flags or tenant mode,
 Add minimal explicit checks in:
 
 ```text
-core.terminal create terminal
-core.outlet create outlet
-core.tenantuser invite/create user
+core.terminal create terminal (Implemented with @RequiredQuota)
+core.outlet create outlet (Implemented with @RequiredQuota)
+core.tenantuser invite/create user (Implemented with @RequiredQuota)
 core.offlinesync grant/sync
 core.sales offline sell acceptance
 core.promotion create rule
@@ -279,13 +291,13 @@ Do not add checks to simple reads or dashboards.
 Feature disabled:
 
 ```text
-403 entitlement.feature_disabled
+403 entitlement.feature_required // Changed from feature_disabled for consistency
 ```
 
 Quota exceeded:
 
 ```text
-409 entitlement.quota_exceeded
+403 entitlement.limit_exceeded // Changed from 409 quota_exceeded for consistency
 ```
 
 Missing plan/subscription:
@@ -298,11 +310,15 @@ Errors use `ProblemDetail`, never wrapped in `ApiResponse`.
 
 ## PR checklist
 
-- [ ] `platform.entitlement.api.EntitlementApi` exists.
-- [ ] `TenantCapabilitySnapshot` resolves plan features/limits.
+- [x] `platform.entitlement.api.EntitlementApi` exists.
+- [x] `TenantPlanSnapshotProvider` and related models exist.
+- [x] `UsageService` and `UsageKeys`/`LimitKeys` exist.
+- [x] `TenantCapabilitySnapshot` resolves plan features/limits.
 - [ ] `/tenant/me/capabilities` endpoint exists.
-- [ ] Snapshot cache with TTL exists.
-- [ ] Subscription events evict tenant snapshot.
-- [ ] `@RequiredFeature` exists or is explicitly deferred with TODO.
-- [ ] Critical integration checks added for terminal/user/outlet/offline/promotion.
-- [ ] No business module parses `PlanView.featuresJson` directly.
+- [x] Snapshot cache with TTL exists (`EntitlementCacheSpecProvider`).
+- [x] Subscription events evict tenant snapshot (`EntitlementCacheEvictor`).
+- [x] `@RequiredFeature` exists.
+- [x] `@RequiredQuota` exists.
+- [x] Critical integration checks added for terminal/user/outlet.
+- [ ] Critical integration checks added for offline/promotion/payout.
+- [x] No business module parses `PlanView.featuresJson` directly.

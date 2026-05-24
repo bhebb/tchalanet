@@ -1,13 +1,10 @@
 package com.tchalanet.server.core.terminal.internal.infra.web.admin;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.core.terminal.api.command.LockTerminalCommand;
 import com.tchalanet.server.core.terminal.api.command.RegisterTerminalCommand;
 import com.tchalanet.server.core.terminal.api.command.SetTerminalOperationalControlCommand;
@@ -19,6 +16,13 @@ import com.tchalanet.server.core.terminal.internal.infra.web.admin.model.Registe
 import com.tchalanet.server.core.terminal.internal.infra.web.admin.model.SetOperationalControlRequest;
 import com.tchalanet.server.core.terminal.internal.infra.web.admin.model.TerminalLockRequest;
 import com.tchalanet.server.core.terminal.internal.infra.web.admin.model.UnregisterTerminalRequest;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.catalog.plan.api.PlanLimitKeys;
+import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
+import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
+import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +49,17 @@ public class AdminTerminalOperationalControlsController {
 
 
     @PostMapping
+    @RequiredFeature("terminal.licensing")
+    @RequiredQuota(
+        limit = PlanLimitKeys.TERMINALS_MAX,
+        usage = UsageKeys.TERMINALS_ACTIVE
+    )
     @AuditLog(
         entity = AuditEntityType.TERMINAL,
         action = AuditAction.TERMINAL_REGISTER,
         idExpression = "#result.data.value().toString()",
         detailsExpression = "#req")
+
     public ApiResponse<TerminalId> register(
         @CurrentContext TchRequestContext ctx, @Valid @RequestBody RegisterTerminalRequest req) {
         return ApiResponse.success(

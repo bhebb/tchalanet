@@ -42,7 +42,8 @@ public class EntitlementService implements EntitlementApi {
     @Override
     public void requireLimitAtMost(TenantId tenantId, String limitKey, int currentUsage) {
         int limit = limitValue(tenantId, limitKey);
-        if (currentUsage >= limit) {
+        // Changed condition from currentUsage >= limit to currentUsage > limit
+        if (currentUsage > limit) {
             throw ProblemRest.forbidden("entitlement.limit_exceeded",
                 Map.of("limitKey", limitKey, "limit", limit, "current", currentUsage));
         }

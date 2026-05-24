@@ -1,18 +1,23 @@
-package com.tchalanet.server.core.outlet.internal.infra.persistence;
+package com.tchalanet.server.core.outlet.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
-import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.core.outlet.api.query.OutletSearchCriteria;
+import com.tchalanet.server.core.outlet.api.query.OutletSummaryView;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletLookupPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
-import com.tchalanet.server.core.outlet.api.query.OutletSearchCriteria;
-import com.tchalanet.server.core.outlet.api.query.OutletSummaryView;
 import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
 import com.tchalanet.server.core.outlet.internal.domain.model.OutletStatus;
+import com.tchalanet.server.core.outlet.internal.infra.persistence.OutletJpaEntity;
+import com.tchalanet.server.core.outlet.internal.infra.persistence.OutletPersistenceMapper;
+import com.tchalanet.server.core.outlet.internal.infra.persistence.OutletSpecifications;
+import com.tchalanet.server.core.outlet.internal.infra.persistence.OutletSpringRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -98,6 +103,11 @@ public class OutletPersistenceAdapter
         return repo.findById(outletId.value())
             .map(OutletJpaEntity::isSalesBlocked)
             .orElse(false);
+    }
+
+    @Override
+    public int countActiveByTenant(TenantId tenantId) {
+        return Math.toIntExact(repo.countByTenantIdAndStatus(tenantId.value(), OutletStatus.ACTIVE));
     }
 
     @Override
