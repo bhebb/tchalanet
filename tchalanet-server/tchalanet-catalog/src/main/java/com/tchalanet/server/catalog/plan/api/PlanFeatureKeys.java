@@ -12,6 +12,7 @@ public final class PlanFeatureKeys {
     public static final String USER_SELF_PROFILE = "user.self.profile";
 
     public static final String SALES_TICKET_SELL = "sales.ticket.sell";
+    public static final String SALES_PHONE_SELL = "sales.phone.sell";
     public static final String SALES_TICKET_LOOKUP = "sales.ticket.lookup";
     public static final String SALES_TICKET_REPRINT = "sales.ticket.reprint";
     public static final String SALES_TICKET_CANCEL_BASIC = "sales.ticket.cancel.basic";
@@ -88,6 +89,7 @@ public final class PlanFeatureKeys {
         AUTH_LOGIN_BASIC,
         USER_SELF_PROFILE,
         SALES_TICKET_SELL,
+        SALES_PHONE_SELL,
         SALES_TICKET_LOOKUP,
         SALES_TICKET_REPRINT,
         SALES_TICKET_CANCEL_BASIC,

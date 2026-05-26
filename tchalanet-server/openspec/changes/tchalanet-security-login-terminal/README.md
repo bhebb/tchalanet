@@ -7,8 +7,11 @@ Ce livrable contient la documentation fonctionnelle et technique pour sécuriser
 - `docs/01_DOC_FONCTIONNELLE_SECURITE_LOGIN_POS_MOBILE.md`
 - `docs/02_DOC_TECHNIQUE_SECURITE_LOGIN_POS_MOBILE.md`
 - `docs/03_PROCESSUS_TESTS_SECURITE_TRANSACTIONNELLE.md`
+- `docs/04_SELLER_ONBOARDING_ET_OPERATION_VENTE.md`
+- `docs/05_TERMINAL_ONBOARDING_ET_UTILISATION.md`
 - `diagrams/DIAGRAMMES_MERMAID.md`
-- `openspec/changes/secure-login-terminal-context/`
+- `specs/**`
+- `tasks.md`
 
 ## Objectif
 
@@ -17,4 +20,3 @@ Affirmer Tchalanet comme une plateforme viable de vente par téléphone et POS :
 > Un login ouvre une session utilisateur.  
 > Un terminal trusted ouvre une capacité de vendre.  
 > Une session opérationnelle valide permet une transaction.
-

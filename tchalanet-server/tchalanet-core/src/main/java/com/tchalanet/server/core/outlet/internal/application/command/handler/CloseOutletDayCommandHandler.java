@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.internal.application.command.handler;
+package com.tchalanet.server.core.outlet.internal.application.command.handler.lifecycle;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.bus.VoidCommandHandler;
@@ -8,9 +8,9 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.outlet.api.command.CloseDayMode;
-import com.tchalanet.server.core.outlet.api.command.CloseOutletDayCommand;
-import com.tchalanet.server.core.outlet.api.command.CloseOutletDayPayload;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseDayMode;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseOutletDayCommand;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseOutletDayPayload;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.SalesTicketAdminPort;
@@ -71,7 +71,7 @@ public class CloseOutletDayCommandHandler implements VoidCommandHandler<CloseOut
                 ? "closed_by_outlet_day"
                 : payload.getReason();
 
-        var updated = outlet.closeDay().blockSales(reason, now);
+        var updated = outlet.closeDay().blockSales(reason, now, cmd.actorUserId());
 
         if (updated.equals(outlet)) {
             return;

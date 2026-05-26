@@ -21,6 +21,7 @@ import com.tchalanet.server.core.promotion.internal.infra.web.admin.mapper.Promo
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.CreatePromotionCampaignRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionCampaignRequest;
 import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredFeature(PlanFeatureKeys.PROMOTION_CAMPAIGN_ADMIN)
+@Tag(name = "Promotion • Campaigns • Admin")
+
 public class PromotionCampaignAdminController {
 
     private final CommandBus commandBus;

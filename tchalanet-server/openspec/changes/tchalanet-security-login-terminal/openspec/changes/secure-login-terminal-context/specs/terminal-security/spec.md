@@ -8,7 +8,7 @@ The system SHALL model POS and phone sales surfaces as terminals.
 
 #### Scenario: Physical POS terminal
 
-- **GIVEN** a tenant admin creates a `PHYSICAL_POS` terminal
+- **GIVEN** a tenant admin creates a `PHYSICAL + POS` terminal
 - **WHEN** the terminal is assigned to a seller and outlet
 - **THEN** it can be activated through a pairing challenge
 - **AND** it cannot sell until an active binding exists
@@ -16,7 +16,7 @@ The system SHALL model POS and phone sales surfaces as terminals.
 #### Scenario: Virtual phone terminal
 
 - **GIVEN** tenant entitlement `PHONE_SALES_ENABLED=true`
-- **WHEN** an admin assigns a `VIRTUAL_PHONE` terminal to a seller
+- **WHEN** an admin assigns a `VIRTUAL + MOBILE` terminal to a seller
 - **THEN** the seller may activate it using an approved activation challenge
 - **AND** phone sales require `ticket.sell.phone`
 
@@ -51,4 +51,3 @@ The system SHALL enforce tenant plan/entitlement limits during terminal creation
 - **GIVEN** tenant does not have `PHONE_SALES_ENABLED`
 - **WHEN** an admin attempts to activate a virtual phone terminal
 - **THEN** the request is rejected with a plan/entitlement error
-

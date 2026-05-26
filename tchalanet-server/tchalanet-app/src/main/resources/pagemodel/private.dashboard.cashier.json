@@ -7,7 +7,7 @@
   "schema": {},
   "is_default": true,
   "is_system": true,
-  "description": "Tableau de bord pour le caissier: identité, ventes rapides, tickets récents et gestion de session.",
+  "description": "Dashboard web cashier V1: identité, readiness opérationnelle, session, prochains tirages, tickets récents et alertes.",
   "model": {
     "meta": {
       "id": "private.dashboard.cashier",
@@ -15,9 +15,13 @@
       "slug": "dashboard",
       "context": "private_dashboard_cashier",
       "schema_version": 1,
-      "langs": ["fr", "en", "ht"],
+      "langs": [
+        "fr",
+        "en",
+        "ht"
+      ],
       "default_lang": "fr",
-      "description": "Interface simplifiée pour le caissier: identité, quick sales, tickets et résumé de session."
+      "description": "Dashboard web pour le caissier. POS/mobile utilise /tenant/cashier/home, pas ce PageModel."
     },
     "theme": {
       "presetId": "tchalanet_default",
@@ -68,87 +72,48 @@
             "columns": [
               {
                 "span": 12,
-                "widgets": ["dashboard.cashier.identity"]
+                "widgets": [
+                  "dashboard.cashier.identity"
+                ]
               }
             ]
           },
           {
-            "id": "overview",
-            "label_key": "layout.private_dashboard_cashier.overview",
+            "id": "readiness_session",
+            "label_key": "layout.private_dashboard_cashier.readiness_session",
             "columns": [
               {
                 "span": 12,
-                "widgets": ["dashboard.cashier.overview"]
+                "widgets": [
+                  "dashboard.cashier.readiness",
+                  "dashboard.cashier.session"
+                ]
               }
             ]
           },
           {
-            "id": "quick_sale",
-            "label_key": "layout.private_dashboard_cashier.quick_sale",
+            "id": "sell_draws",
+            "label_key": "layout.private_dashboard_cashier.sell_draws",
             "columns": [
               {
                 "span": 12,
-                "widgets": ["dashboard.cashier.quick_sale"]
+                "widgets": [
+                  "dashboard.cashier.primary_action",
+                  "dashboard.cashier.next_draws"
+                ]
               }
             ]
           },
           {
-            "id": "top_selections",
-            "label_key": "layout.private_dashboard_cashier.top_selections",
+            "id": "recent_alerts",
+            "label_key": "layout.private_dashboard_cashier.recent_alerts",
             "columns": [
               {
                 "span": 12,
-                "widgets": ["dashboard.cashier.top_selections"]
-              }
-            ]
-          },
-          {
-            "id": "recent_tickets",
-            "label_key": "layout.private_dashboard_cashier.recent_tickets",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.cashier.recent_tickets"]
-              }
-            ]
-          },
-          {
-            "id": "pending_approvals",
-            "label_key": "layout.private_dashboard_cashier.pending_approvals",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.cashier.pending_approvals"]
-              }
-            ]
-          },
-          {
-            "id": "next_draws",
-            "label_key": "layout.private_dashboard_cashier.next_draws",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.cashier.next_draws"]
-              }
-            ]
-          },
-          {
-            "id": "session",
-            "label_key": "layout.private_dashboard_cashier.session",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.cashier.session"]
-              }
-            ]
-          },
-          {
-            "id": "limits",
-            "label_key": "layout.private_dashboard_cashier.limits",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": ["dashboard.cashier.limits"]
+                "widgets": [
+                  "dashboard.cashier.recent_tickets",
+                  "dashboard.cashier.alerts"
+                ]
               }
             ]
           }
@@ -159,108 +124,74 @@
           "type": "CashierIdentityWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_identity"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.identity.title"
           }
         },
-        "dashboard.cashier.overview": {
-          "type": "CashierOverviewWidget",
+        "dashboard.cashier.readiness": {
+          "type": "CashierReadinessWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_overview"
+            "source": "cashier_dashboard"
           },
           "props": {
-            "title_key": "dashboard.cashier.overview.title"
-          }
-        },
-        "dashboard.cashier.quick_sale": {
-          "type": "QuickSaleWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "cashier_quick_sale"
-          },
-          "props": {
-            "title_key": "dashboard.cashier.quick_sale.title",
-            "max_games": 8,
-            "include_next_draws": true
-          }
-        },
-        "dashboard.cashier.top_selections": {
-          "type": "TopSelectionsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "cashier_top_selections"
-          },
-          "props": {
-            "title_key": "dashboard.cashier.top_selections.title",
-            "limit_per_draw": 5
-          }
-        },
-        "dashboard.cashier.recent_tickets": {
-          "type": "RecentTicketsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "cashier_recent_tickets"
-          },
-          "props": {
-            "title_key": "dashboard.cashier.recent_tickets.title",
-            "limit": 10
-          }
-        },
-        "dashboard.cashier.pending_approvals": {
-          "type": "PendingApprovalsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "cashier_pending_approvals"
-          },
-          "props": {
-            "title_key": "dashboard.cashier.pending_approvals.title",
-            "limit": 10
-          }
-        },
-        "dashboard.cashier.next_draws": {
-          "type": "NextDrawsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "cashier_next_draws"
-          },
-          "props": {
-            "title_key": "dashboard.cashier.next_draws.title",
-            "limit": 10,
-            "include_countdown": true
+            "title_key": "dashboard.cashier.readiness.title"
           }
         },
         "dashboard.cashier.session": {
           "type": "SessionSummaryWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_session"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.session.title"
           }
         },
-        "dashboard.cashier.limits": {
-          "type": "CashierLimitsWidget",
+        "dashboard.cashier.primary_action": {
+          "type": "PrimaryActionWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_limits"
+            "source": "cashier_dashboard"
           },
           "props": {
-            "title_key": "dashboard.cashier.limits.title"
+            "title_key": "dashboard.cashier.primary_action.title"
           }
         },
-        "dashboard.cashier.quick_actions": {
-          "type": "QuickActionsWidget",
+        "dashboard.cashier.next_draws": {
+          "type": "NextDrawsWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "json_file"
+            "source": "cashier_dashboard"
           },
           "props": {
-            "title_key": "dashboard.cashier.quick_actions.title",
-            "file_key": "private_cashier_quick_actions"
+            "title_key": "dashboard.cashier.next_draws.title",
+            "limit": 8,
+            "include_countdown": true
+          }
+        },
+        "dashboard.cashier.recent_tickets": {
+          "type": "RecentTicketsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "cashier_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.cashier.recent_tickets.title",
+            "limit": 10
+          }
+        },
+        "dashboard.cashier.alerts": {
+          "type": "CashierAlertsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "cashier_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.cashier.alerts.title",
+            "max_items": 5
           }
         }
       }

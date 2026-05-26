@@ -16,7 +16,7 @@
 - [ ] Add terminal device binding model.
 - [ ] Add terminal activation challenge model.
 - [ ] Add typed ids if missing: `TerminalBindingId`, `TerminalActivationChallengeId`.
-- [ ] Add enums: `TerminalType`, `TerminalStatus`, `TerminalCapability`, `BindingStatus`, `ActivationChallengeStatus`.
+- [ ] Add enums: `TerminalSurface`, `TerminalStatus`, `TerminalCapability`, `TerminalOperation`, `TerminalBindingStatus`, `TerminalChallengeStatus`.
 - [ ] Add Flyway migrations with RLS.
 - [ ] Add JPA entities and repositories in infra.persistence.
 - [ ] Add mappers.
@@ -43,7 +43,7 @@
 - [ ] Integrate `platform.accesscontrol` permission keys.
 - [ ] Integrate `platform.audit` on all sensitive actions.
 - [ ] Integrate `platform.idempotence` / `@RequireIdempotency` for sales.
-- [ ] Integrate `core.entitlement`/plan checks for phone sales.
+- [ ] Integrate `platform.entitlement`/plan checks for phone sales.
 
 ## Phase 5 — Web/API endpoints
 
@@ -78,4 +78,3 @@
 - [ ] Idempotency retry tests.
 - [ ] Concurrency tests.
 - [ ] Audit assertions.
-

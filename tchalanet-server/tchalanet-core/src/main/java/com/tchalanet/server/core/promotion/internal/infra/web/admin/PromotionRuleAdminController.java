@@ -19,6 +19,7 @@ import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.Upda
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleEligibilityRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleRequest;
 import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 @RequiredFeature(PlanFeatureKeys.PROMOTION_RULES_BASIC)
+@Tag(name = "Promotion • Rules • Admin")
 public class PromotionRuleAdminController {
 
     private final CommandBus commandBus;

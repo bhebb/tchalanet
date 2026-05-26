@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.outlet.api.command.CloseDayMode;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseDayMode;
 
 import java.time.Instant;
 import java.time.LocalDate;

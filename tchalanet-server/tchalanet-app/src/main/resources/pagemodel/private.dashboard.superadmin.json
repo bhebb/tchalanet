@@ -7,7 +7,7 @@
   "schema": {},
   "is_default": true,
   "is_system": true,
-  "description": "Tableau de bord global pour le superadmin: surveillance de la plateforme, tenants, utilisateurs et indicateurs système.",
+  "description": "Dashboard global superadmin V1: santé plateforme, tenants, subscriptions, onboarding et alertes.",
   "model": {
     "meta": {
       "id": "private.dashboard.superadmin",
@@ -15,9 +15,13 @@
       "slug": "dashboard",
       "context": "private_dashboard_superadmin",
       "schema_version": 1,
-      "langs": ["fr", "en", "ht"],
+      "langs": [
+        "fr",
+        "en",
+        "ht"
+      ],
       "default_lang": "fr",
-      "description": "Tableau de bord pour le superadmin — accès aux KPIs globaux, gestion des tenants et monitoring."
+      "description": "Dashboard superadmin: KPI plateforme, santé système, onboarding tenants et alertes."
     },
     "theme": {
       "presetId": "tchalanet_default",
@@ -27,50 +31,35 @@
     "shell": {
       "header": {
         "component": "PrivateHeader",
-        "nav": {
-          "primary": [],
-          "secondary": []
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
         },
         "props": {
-          "show_profile_menu": true
+          "show_profile_menu": true,
+          "file_key": "private_header_superadmin"
         }
       },
       "sidenav": {
         "component": "PrivateSidenav",
-        "nav": {
-          "primary": [
-            { "label_key": "nav.dashboard", "path": "/app/superadmin", "icon": "dashboard" },
-            { "label_key": "nav.tenants", "path": "/app/superadmin/tenants", "icon": "apartment" },
-            { "label_key": "nav.users", "path": "/app/superadmin/users", "icon": "group" },
-            {
-              "label_key": "nav.platform_health",
-              "path": "/app/superadmin/health",
-              "icon": "monitor_heart"
-            },
-            {
-              "label_key": "nav.releases",
-              "path": "/app/superadmin/releases",
-              "icon": "rocket_launch"
-            }
-          ]
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
         },
         "props": {
-          "collapsible": true
+          "collapsible": true,
+          "file_key": "private_sidebar_superadmin"
         }
       },
       "footer": {
         "component": "PrivateFooter",
-        "nav": {
-          "primary": [],
-          "secondary": [
-            {
-              "label_key": "footer.release_notes",
-              "path": "/app/superadmin/releases",
-              "icon": "article"
-            }
-          ]
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
         },
-        "props": {}
+        "props": {
+          "file_key": "private_footer_links"
+        }
       }
     },
     "content": {
@@ -78,67 +67,119 @@
         "component": "GridLayout",
         "rows": [
           {
-            "id": "overview",
-            "label_key": "layout.private_dashboard_superadmin.overview",
-            "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.overview"] }]
+            "id": "health",
+            "label_key": "layout.private_dashboard_superadmin.health",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "dashboard.superadmin.health"
+                ]
+              }
+            ]
           },
           {
-            "id": "kpi_global",
-            "label_key": "layout.private_dashboard_superadmin.kpi_global",
-            "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.kpi_global"] }]
+            "id": "tenant_kpis",
+            "label_key": "layout.private_dashboard_superadmin.tenant_kpis",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "dashboard.superadmin.tenants",
+                  "dashboard.superadmin.subscriptions"
+                ]
+              }
+            ]
           },
           {
-            "id": "kpi_draws",
-            "label_key": "layout.private_dashboard_superadmin.kpi_draws",
-            "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.kpi_draws"] }]
+            "id": "onboarding_alerts",
+            "label_key": "layout.private_dashboard_superadmin.onboarding_alerts",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "dashboard.superadmin.onboarding",
+                  "dashboard.superadmin.alerts"
+                ]
+              }
+            ]
           },
           {
-            "id": "kpi_sales",
-            "label_key": "layout.private_dashboard_superadmin.kpi_sales",
-            "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.kpi_sales"] }]
-          },
-          {
-            "id": "alerts",
-            "label_key": "layout.private_dashboard_superadmin.alerts",
-            "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.alerts"] }]
-          },
-          {
-            "id": "recent_activity",
-            "label_key": "layout.private_dashboard_superadmin.recent_activity",
-            "columns": [{ "span": 12, "widgets": ["dashboard.superadmin.recent_activity"] }]
+            "id": "quick_actions",
+            "label_key": "layout.private_dashboard_superadmin.quick_actions",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "dashboard.superadmin.quick_actions"
+                ]
+              }
+            ]
           }
         ]
       },
       "widgets": {
-        "dashboard.superadmin.overview": {
-          "type": "SuperadminOverviewWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin_system_health" },
-          "props": { "title_key": "dashboard.superadmin.overview.title" }
+        "dashboard.superadmin.health": {
+          "type": "PlatformHealthWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.superadmin.health.title"
+          }
         },
-        "dashboard.superadmin.kpi_global": {
-          "type": "KpiGridWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin_tenants" },
-          "props": { "title_key": "dashboard.superadmin.kpi_global.title" }
+        "dashboard.superadmin.tenants": {
+          "type": "TenantKpiSummaryWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.superadmin.tenants.title"
+          }
         },
-        "dashboard.superadmin.kpi_draws": {
-          "type": "KpiDrawsWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin_batch_status" },
-          "props": { "title_key": "dashboard.superadmin.kpi_draws.title" }
+        "dashboard.superadmin.subscriptions": {
+          "type": "SubscriptionSummaryWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.superadmin.subscriptions.title"
+          }
         },
-        "dashboard.superadmin.kpi_sales": {
-          "type": "KpiSalesWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin_version" },
-          "props": { "title_key": "dashboard.superadmin.kpi_sales.title" }
+        "dashboard.superadmin.onboarding": {
+          "type": "TenantOnboardingAlertsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.superadmin.onboarding.title",
+            "max_items": 5
+          }
         },
         "dashboard.superadmin.alerts": {
-          "type": "AlertsWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin_system_health" },
-          "props": { "title_key": "dashboard.superadmin.alerts.title" }
+          "type": "PlatformAlertsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.superadmin.alerts.title",
+            "max_items": 5
+          }
         },
-        "dashboard.superadmin.recent_activity": {
-          "type": "ActivityFeedWidget",
-          "binding": { "mode": "dynamic", "source": "superadmin_batch_status" },
-          "props": { "title_key": "dashboard.superadmin.recent_activity.title" }
+        "dashboard.superadmin.quick_actions": {
+          "type": "QuickActionsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "platform_admin_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.superadmin.quick_actions.title"
+          }
         }
       }
     }

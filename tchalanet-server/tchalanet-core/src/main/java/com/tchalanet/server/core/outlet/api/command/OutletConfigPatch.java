@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.outlet.api.command;
 
+import com.tchalanet.server.common.types.id.SalesZoneId;
 import com.tchalanet.server.platform.address.api.model.AddressInput;
 
 /**
@@ -7,10 +8,12 @@ import com.tchalanet.server.platform.address.api.model.AddressInput;
  *
  * <p>Boolean wrappers (vs primitive) are required to differentiate "not provided" from "set to
  * false".
+ *
+ * <p>Note: {@code kind} is intentionally absent — OutletKind is immutable after creation.
  */
 public record OutletConfigPatch(
-    Boolean salesBlocked,
-    String salesBlockReason,
+    String partnerRef,
+    SalesZoneId zoneId,
     String timezone,
     Boolean receiptPrintingEnabled,
     String receiptHeaderMessage,

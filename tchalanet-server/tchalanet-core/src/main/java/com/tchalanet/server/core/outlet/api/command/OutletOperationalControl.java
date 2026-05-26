@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.api.command;
+package com.tchalanet.server.core.outlet.api.command.block;
 
 public enum OutletOperationalControl {
   SALES,

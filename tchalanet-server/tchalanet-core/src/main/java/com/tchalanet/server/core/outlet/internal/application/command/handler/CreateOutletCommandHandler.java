@@ -32,7 +32,8 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
     @TchTx
     public OutletId handle(CreateOutletCommand cmd) {
         var newId = OutletId.of(idGenerator.newUuid());
-        var outlet = Outlet.createNew(cmd.tenantId(), cmd.name(), cmd.slug(), newId);
+        var outlet = Outlet.createNew(cmd.tenantId(), cmd.name(), cmd.slug(), newId,
+            cmd.kind(), cmd.partnerRef(), cmd.zoneId());
 
         var addressId = cmd.addressId();
         var input = cmd.addressInput();

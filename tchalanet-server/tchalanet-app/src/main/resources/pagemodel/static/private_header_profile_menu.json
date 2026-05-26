@@ -1,0 +1,20 @@
+{
+  "primary": [],
+  "secondary": [
+    {
+      "label_key": "nav.profile",
+      "path": "/app/profile",
+      "icon": "account_circle"
+    },
+    {
+      "label_key": "nav.settings",
+      "path": "/app/settings",
+      "icon": "settings"
+    },
+    {
+      "label_key": "nav.logout",
+      "path": "/logout",
+      "icon": "logout"
+    }
+  ]
+}

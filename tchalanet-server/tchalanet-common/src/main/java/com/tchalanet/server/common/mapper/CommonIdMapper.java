@@ -20,6 +20,7 @@ import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
 import com.tchalanet.server.common.types.id.PromotionAttemptId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
+import com.tchalanet.server.common.types.id.SalesZoneId;
 import com.tchalanet.server.common.types.id.SellerId;
 import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
 import com.tchalanet.server.common.types.id.SellerCommissionPolicyId;
@@ -414,7 +415,16 @@ public class CommonIdMapper {
         return DrawChannelGameId.nullableOf(id);
     }
 
-    // ZoneId
+    // SalesZoneId
+    public UUID mapFromSalesZoneId(SalesZoneId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SalesZoneId mapToSalesZoneId(UUID id) {
+        return SalesZoneId.nullableOf(id);
+    }
+
+    // ZoneId (java.time.ZoneId — timezone, not sales zone)
     public String mapFromZoneId(ZoneId zoneId) {
         return zoneId == null ? null : zoneId.getId();
     }

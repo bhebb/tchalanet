@@ -37,9 +37,8 @@ Tchalanet wants to offer a strong differentiator: tenants can sell from a phone 
 - `core.terminal`: terminal, assignment, activation, binding, context validation.
 - `core.session`: session validation.
 - `core.sales`: final sale transaction and idempotent ticket creation.
-- `core.entitlement`: effective plan capabilities consumed by terminal/sales.
+- `platform.entitlement`: effective plan capabilities consumed by terminal/sales.
 
 ## Security posture
 
 A login identifies a user. A trusted terminal binding authorizes an operational surface. A valid session permits a transaction.
-

@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.internal.application.command.handler;
+package com.tchalanet.server.core.outlet.internal.application.command.handler.block;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
@@ -7,7 +7,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.outlet.api.command.UnblockOutletSalesCommand;
+import com.tchalanet.server.core.outlet.api.command.block.UnblockOutletSalesCommand;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletSalesUnblockedEvent;

@@ -69,7 +69,7 @@ sequenceDiagram
   participant T as core.terminal
   participant C as platform.communication
 
-  Admin->>W: Crée terminal PHYSICAL_POS
+  Admin->>W: Crée terminal PHYSICAL + POS
   W->>T: CreateTerminalCommand
   Admin->>W: Assigne user + outlet
   W->>T: AssignTerminalToUserCommand
@@ -91,7 +91,7 @@ sequenceDiagram
   actor V as Vendeur
   participant W as Angular Admin
   participant M as Flutter Mobile
-  participant E as core.entitlement
+  participant E as platform.entitlement
   participant T as core.terminal
   participant C as platform.communication
   participant K as Keycloak
@@ -99,7 +99,7 @@ sequenceDiagram
   Admin->>W: Active vente téléphone pour vendeur
   W->>E: Check PHONE_SALES_ENABLED
   E-->>W: allowed
-  W->>T: Create/Assign VIRTUAL_PHONE terminal
+  W->>T: Create/Assign VIRTUAL + MOBILE terminal
   V->>M: Demande activation
   M->>T: Create activation challenge
   T->>C: Send OTP/email/admin code
@@ -195,7 +195,6 @@ flowchart LR
   API --> Idem[platform.idempotence]
   API --> Audit[platform.audit]
   API --> Sales[core.sales]
-  Terminal --> Ent[core.entitlement / catalog.plan]
+  Terminal --> Ent[platform.entitlement / catalog.plan]
   Terminal --> Comm[platform.communication]
 ```
-

@@ -1,0 +1,53 @@
+{
+  "primary": [
+    {
+      "label_key": "nav.home",
+      "path": "/",
+      "icon": "home"
+    },
+    {
+      "label_key": "nav.results",
+      "path": "/results",
+      "icon": "emoji_events"
+    },
+    {
+      "label_key": "nav.check_ticket",
+      "path": "/verifier",
+      "icon": "qr_code_scanner"
+    },
+    {
+      "label_key": "nav.games",
+      "path": "/games",
+      "icon": "casino"
+    },
+    {
+      "label_key": "nav.features",
+      "path": "/features",
+      "icon": "widgets"
+    },
+    {
+      "label_key": "nav.pricing",
+      "path": "/pricing",
+      "icon": "payments"
+    },
+    {
+      "label_key": "nav.about",
+      "path": "/about",
+      "icon": "info"
+    }
+  ],
+  "secondary": [
+    {
+      "label_key": "cta.request_demo",
+      "path": "/demo",
+      "icon": "rocket_launch",
+      "style": "tertiary"
+    },
+    {
+      "label_key": "nav.login",
+      "path": "/login",
+      "icon": "login",
+      "style": "primary"
+    }
+  ]
+}

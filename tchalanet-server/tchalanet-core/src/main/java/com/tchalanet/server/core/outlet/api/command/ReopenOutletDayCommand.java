@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.api.command;
+package com.tchalanet.server.core.outlet.api.command.lifecycle;
 
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.OutletId;

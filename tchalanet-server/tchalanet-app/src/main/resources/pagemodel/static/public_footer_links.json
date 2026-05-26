@@ -1,0 +1,53 @@
+{
+  "primary": [
+    {
+      "label_key": "footer.results",
+      "path": "/results",
+      "icon": "emoji_events"
+    },
+    {
+      "label_key": "footer.check_ticket",
+      "path": "/verifier",
+      "icon": "qr_code_scanner"
+    },
+    {
+      "label_key": "footer.games",
+      "path": "/games",
+      "icon": "casino"
+    },
+    {
+      "label_key": "footer.contact_demo",
+      "path": "/demo",
+      "icon": "rocket_launch"
+    }
+  ],
+  "secondary": [
+    {
+      "label_key": "footer.support",
+      "path": "/support",
+      "icon": "support_agent"
+    },
+    {
+      "label_key": "footer.legal",
+      "path": "/legal",
+      "icon": "gavel"
+    },
+    {
+      "label_key": "footer.privacy",
+      "path": "/privacy",
+      "icon": "shield"
+    },
+    {
+      "label_key": "footer.regulation",
+      "path": "/regulation",
+      "icon": "verified_user"
+    }
+  ],
+  "social": [
+    {
+      "label_key": "footer.linkedin",
+      "path": "https://www.linkedin.com/company/tchalanet",
+      "icon": "linkedin"
+    }
+  ]
+}

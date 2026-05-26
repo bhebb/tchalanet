@@ -1,9 +1,7 @@
 package com.tchalanet.server.common.context.operational;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.tchalanet.server.common.web.error.ProblemRestException;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -59,13 +57,15 @@ class OperationalContextHeaderParserTest {
     }
 
     @Test
-    void signedDeviceBindingWithoutProofIsRejected() {
-        assertThatThrownBy(() -> OperationalContextHeaderParser.parseHint(headers(
+    void signedDeviceBindingWithoutServerVerificationDowngradesToWeakClientClaim() {
+        var hint = OperationalContextHeaderParser.parseHint(headers(
             OperationalContextHeaders.TERMINAL_ID, TERMINAL_ID,
             OperationalContextHeaders.OUTLET_ID, OUTLET_ID,
             OperationalContextHeaders.SALES_SESSION_ID, SALES_SESSION_ID,
-            OperationalContextHeaders.OPERATIONAL_SOURCE, "SIGNED_DEVICE_BINDING")))
-            .isInstanceOf(ProblemRestException.class);
+            OperationalContextHeaders.OPERATIONAL_SOURCE, "SIGNED_DEVICE_BINDING"));
+
+        assertThat(hint.source()).isEqualTo(OperationalContextSource.CLIENT_CLAIM);
+        assertThat(hint.trust()).isEqualTo(OperationalContextTrust.WEAK);
     }
 
     private static OperationalContextHeaderParser.HeaderReader headers(String... pairs) {

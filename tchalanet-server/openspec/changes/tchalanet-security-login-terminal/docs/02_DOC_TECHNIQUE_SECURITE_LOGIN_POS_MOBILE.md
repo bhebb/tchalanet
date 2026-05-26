@@ -14,6 +14,7 @@ platform.communication   -> email/SMS/OTP
 platform.audit           -> audit fonctionnel
 platform.idempotence     -> idempotency records
 core.terminal            -> terminal, assignment, device binding, activation
+core.seller              -> seller business identity and outlet assignment
 core.session             -> session de vente
 core.sales               -> vente ticket et règles transactionnelles
 core.payout              -> paiement de gains
@@ -115,9 +116,11 @@ terminal
 - outlet_id uuid null
 - code varchar unique per tenant
 - label varchar
-- type varchar: PHYSICAL_POS | VIRTUAL_PHONE | VIRTUAL_WEB
-- status varchar: PENDING_ACTIVATION | ACTIVE | LOCKED | REVOKED | EXPIRED
-- capabilities jsonb or separate table
+- kind varchar: PHYSICAL | VIRTUAL
+- surface varchar: POS | MOBILE | WEB | BACK_OFFICE
+- status varchar: REGISTERED | PENDING_ACTIVATION | ACTIVE | LOCKED | REVOKED | RETIRED
+- sync_state varchar: ONLINE | OFFLINE | SYNC_PENDING | SYNC_CONFLICT
+- capabilities via terminal_capability table
 - created_at timestamptz
 - updated_at timestamptz
 - version int
@@ -152,11 +155,11 @@ terminal_device_binding
 - id uuid pk
 - tenant_id uuid not null
 - terminal_id uuid not null
-- binding_type varchar: PHYSICAL_DEVICE | VIRTUAL_PHONE
+- binding_type varchar: POS_DEVICE | MOBILE_APP | ADMIN_SELECTION
 - binding_public_key text null
 - binding_secret_hash text null
 - device_fingerprint_hash text null
-- verified_channel varchar null: SMS | EMAIL | ADMIN_CODE | QR
+- verified_channel varchar null: SMS | EMAIL | ADMIN_MANUAL | QR
 - status varchar: ACTIVE | REVOKED | EXPIRED
 - bound_at timestamptz
 - expires_at timestamptz null
@@ -173,15 +176,15 @@ terminal_activation_challenge
 - tenant_id uuid not null
 - terminal_id uuid not null
 - user_id uuid not null
-- challenge_type varchar: POS_PAIRING | VIRTUAL_PHONE_OTP | ADMIN_CODE
+- challenge_type varchar: POS_PAIRING | MOBILE_OTP | ADMIN_PAIRING_CODE
 - channel varchar: QR | SMS | EMAIL | ADMIN_MANUAL
 - code_hash text not null
 - expires_at timestamptz not null
 - attempt_count int default 0
 - max_attempts int default 5
-- status varchar: PENDING | VERIFIED | EXPIRED | CANCELLED
+- status varchar: PENDING | CONSUMED | EXPIRED | CANCELLED
 - created_at timestamptz
-- verified_at timestamptz null
+- consumed_at timestamptz null
 ```
 
 ## 6. Commands et Queries
@@ -271,6 +274,10 @@ X-Sales-Session-Id: <session-id>
 Idempotency-Key: <uuid>
 ```
 
+Seed local: le POS de demo peut utiliser `X-Device-Binding: local-dev-binding-token`.
+Ce credential est reserve au developpement local et son hash est precharge dans
+`V205__seed_outlet_terminal_pos.sql`.
+
 ### Flutter vente téléphone
 
 ```http
@@ -316,7 +323,7 @@ Placement recommandé :
 
 - `catalog.plan` pour les définitions de plan ;
 - `core.subscription` pour l’état d’abonnement tenant ;
-- `core.entitlement` pour la résolution effective des capacités ;
+- `platform.entitlement` pour la résolution effective des capacités ;
 - `core.terminal` consomme une query/API stable pour valider les limites.
 
 ## 11. Idempotence
@@ -376,8 +383,8 @@ Pour une vente :
 9. binding actif et compatible
 10. outlet existe / actif
 11. session existe / ouverte / compatible
-12. plan entitlement compatible
-13. sales business gates: draw, cutoff, pricing, limits
-14. transaction + audit + events after commit
+12. seller résolu côté serveur et assigné à l'outlet
+13. plan entitlement compatible
+14. sales business gates: draw, cutoff, pricing, limits
+15. transaction + audit + events after commit
 ```
-

@@ -42,6 +42,7 @@ public record Terminal(
     Instant registeredAt,
     Instant unregisteredAt
 ) {
+    private static final String SURFACE_METADATA_KEY = "surface";
 
     public static Terminal createNew(
         TerminalId id,
@@ -388,5 +389,35 @@ public record Terminal(
 
     public boolean canReceiveOfflineSyncForAudit() {
         return !locked();
+    }
+
+    public TerminalSurface effectiveSurface() {
+        var explicitSurface = metadataValue(SURFACE_METADATA_KEY);
+        if (explicitSurface != null && !explicitSurface.isBlank()) {
+            try {
+                return TerminalSurface.valueOf(explicitSurface.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // Fall through to the V0 inference while surface is still metadata-backed.
+            }
+        }
+
+        return kind == TerminalKind.PHYSICAL ? TerminalSurface.POS : TerminalSurface.MOBILE;
+    }
+
+    public TerminalStatus lifecycleStatus() {
+        return switch (state) {
+            case REGISTERED -> TerminalStatus.REGISTERED;
+            case ACTIVE, OFFLINE -> TerminalStatus.ACTIVE;
+            case LOCKED -> TerminalStatus.LOCKED;
+            case UNREGISTERED -> TerminalStatus.RETIRED;
+        };
+    }
+
+    private String metadataValue(String key) {
+        if (metadata == null || metadata.isEmpty()) {
+            return null;
+        }
+        var raw = metadata.get(key);
+        return raw == null ? null : String.valueOf(raw);
     }
 }

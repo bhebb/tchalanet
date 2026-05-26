@@ -1,0 +1,10 @@
+{
+  "primary": [],
+  "secondary": [
+    {
+      "label_key": "footer.support",
+      "path": "/support",
+      "icon": "support_agent"
+    }
+  ]
+}

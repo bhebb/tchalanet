@@ -22,10 +22,10 @@ public class PosActionPolicy {
 
     public TerminalOperation terminalOperation(PosOperationAction action) {
         return switch (action) {
-            case ADMIN_POS_SELL, SELL_TICKET_ONLINE -> TerminalOperation.SELL;
+            case ADMIN_POS_SELL, SELL_TICKET_ONLINE -> TerminalOperation.SELL_TICKET;
             case REQUEST_OFFLINE_GRANT -> TerminalOperation.OFFLINE_GRANT;
             case SYNC_OFFLINE_SALES -> TerminalOperation.OFFLINE_SYNC;
-            case PAYOUT -> TerminalOperation.PAYOUT;
+            case PAYOUT -> TerminalOperation.PAYOUT_CLAIM;
             case CLOSE_SESSION -> TerminalOperation.CANCEL;
         };
     }

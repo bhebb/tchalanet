@@ -7,7 +7,7 @@
   "schema": {},
   "is_default": true,
   "is_system": true,
-  "description": "Page d'accueil publique: présentation des fonctionnalités, tirages, actualités et plans.",
+  "description": "Page d'accueil publique V1: hero, résultats courts, vérification ticket, jeux, bénéfices et plans/démo.",
   "model": {
     "meta": {
       "id": "public.home",
@@ -15,9 +15,13 @@
       "slug": "home",
       "context": "public_home",
       "schema_version": 1,
-      "langs": ["fr", "en", "ht"],
+      "langs": [
+        "fr",
+        "en",
+        "ht"
+      ],
       "default_lang": "fr",
-      "description": "Page d'accueil publique — sections hero, draws, features, news et plans."
+      "description": "Page d'accueil publique V1 — page légère, sans données privées, alimentée par providers groupés."
     },
     "theme": {
       "presetId": "tchalanet_default",
@@ -35,7 +39,9 @@
           "file_key": "public_header_links",
           "show_search": true,
           "show_language": true,
-          "show_theme_toggle": true
+          "show_theme_toggle": true,
+          "show_login": true,
+          "show_demo_cta": true
         }
       },
       "sidenav": null,
@@ -59,65 +65,94 @@
           {
             "id": "hero",
             "label_key": "layout.public_home.hero",
-            "columns": [{ "span": 12, "widgets": ["home.hero"] }]
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.hero"
+                ]
+              }
+            ]
           },
           {
             "id": "draws",
             "label_key": "layout.public_home.draws",
-            "columns": [{ "span": 12, "widgets": ["home.draws", "home.check_ticket"] }]
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.draws",
+                  "home.check_ticket"
+                ]
+              }
+            ]
           },
           {
             "id": "features",
             "label_key": "layout.public_home.features",
-            "columns": [{ "span": 12, "widgets": ["home.features"] }]
-          },
-          {
-            "id": "news",
-            "label_key": "layout.public_home.news",
-            "columns": [{ "span": 12, "widgets": ["home.news"] }]
-          },
-          {
-            "id": "tchala",
-            "label_key": "layout.public_home.tchala",
-            "columns": [{ "span": 12, "widgets": ["home.tchala"] }]
-          },
-          {
-            "id": "testimonials",
-            "label_key": "layout.public_home.testimonials",
-            "columns": [{ "span": 12, "widgets": ["home.testimonials"] }]
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.features"
+                ]
+              }
+            ]
           },
           {
             "id": "plans",
             "label_key": "layout.public_home.plans",
-            "columns": [{ "span": 12, "widgets": ["home.plans"] }]
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.plans"
+                ]
+              }
+            ]
           }
         ]
       },
       "widgets": {
         "home.hero": {
           "type": "HeroWidget",
-          "binding": { "mode": "dynamic", "source": "hero" },
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_home"
+          },
           "props": {
             "title_key": "home.hero.title",
             "subtitle_key": "home.hero.subtitle",
-            "primary_cta_key": "cta.try_now",
-            "secondary_cta_key": "cta.request_demo"
+            "primary_cta_key": "cta.login",
+            "primary_route": "/login",
+            "secondary_cta_key": "cta.request_demo",
+            "secondary_route": "/demo",
+            "tertiary_cta_key": "cta.check_ticket",
+            "tertiary_route": "/verifier"
           }
         },
         "home.draws": {
           "type": "PublicDrawResultsWidget",
-          "binding": { "mode": "dynamic", "source": "public_draw_results" },
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_draw_results"
+          },
           "props": {
             "title_key": "home.draws.title",
             "include_history": false,
             "history_limit": 0,
             "include_next_by_slot": true,
-            "include_latest_by_slot": true
+            "include_latest_by_slot": true,
+            "max_slots": 6,
+            "more_route": "/results"
           }
         },
         "home.check_ticket": {
           "type": "CheckTicketWidget",
-          "binding": { "mode": "static", "source": null },
+          "binding": {
+            "mode": "static",
+            "source": null
+          },
           "props": {
             "title_key": "home.check_ticket.title",
             "description_key": "home.check_ticket.description",
@@ -127,40 +162,27 @@
         },
         "home.features": {
           "type": "FeatureGridWidget",
-          "binding": { "mode": "dynamic", "source": "public_features" },
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_home"
+          },
           "props": {
             "title_key": "home.features.title",
-            "layout": "LMSS"
-          }
-        },
-        "home.news": {
-          "type": "NewsListWidget",
-          "binding": { "mode": "dynamic", "source": "public_news" },
-          "props": {
-            "title_key": "home.news.title",
-            "max_items": 4
-          }
-        },
-        "home.tchala": {
-          "type": "TchalaWidget",
-          "binding": { "mode": "dynamic", "source": "public_tchala" },
-          "props": {
-            "title_key": "home.tchala.title"
-          }
-        },
-        "home.testimonials": {
-          "type": "TestimonialsWidget",
-          "binding": { "mode": "dynamic", "source": "public_testimonials" },
-          "props": {
-            "title_key": "home.testimonials.title"
+            "layout": "LMSS",
+            "items_key": "features"
           }
         },
         "home.plans": {
           "type": "PlansWidget",
-          "binding": { "mode": "dynamic", "source": "public_plans" },
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_home"
+          },
           "props": {
             "title_key": "home.plans.title",
-            "show_toggle_billing_period": true
+            "show_toggle_billing_period": true,
+            "items_key": "plans",
+            "demo_route": "/demo"
           }
         }
       }

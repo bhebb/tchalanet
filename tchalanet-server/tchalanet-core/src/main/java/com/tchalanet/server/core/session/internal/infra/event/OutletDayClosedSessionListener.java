@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.session.internal.infra.event;
 
 import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.core.outlet.api.command.CloseDayMode;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseDayMode;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletDayClosedEvent;
 import com.tchalanet.server.core.session.api.command.CloseOutletOpenSalesSessionsCommand;
 import lombok.RequiredArgsConstructor;

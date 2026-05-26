@@ -7,7 +7,7 @@
   "schema": {},
   "is_default": true,
   "is_system": true,
-  "description": "Page publique des résultats avec derniers résultats et recherche historique.",
+  "description": "Page publique des résultats avec derniers résultats et recherche historique limitée.",
   "model": {
     "meta": {
       "id": "public.draw_results",
@@ -15,7 +15,11 @@
       "slug": "results",
       "context": "public_draw_results",
       "schema_version": 1,
-      "langs": ["fr", "en", "ht"],
+      "langs": [
+        "fr",
+        "en",
+        "ht"
+      ],
       "default_lang": "fr",
       "description": "Résultats publics par slot avec prochain tirage et historique limité."
     },
@@ -38,6 +42,7 @@
           "show_theme_toggle": true
         }
       },
+      "sidenav": null,
       "footer": {
         "component": "PublicFooter",
         "binding": {
@@ -59,7 +64,9 @@
             "columns": [
               {
                 "span": 12,
-                "widgets": ["public.draw_results.main"]
+                "widgets": [
+                  "public.draw_results.main"
+                ]
               }
             ]
           }
@@ -77,7 +84,8 @@
             "include_history": true,
             "history_limit": 10,
             "include_next_by_slot": true,
-            "include_latest_by_slot": true
+            "include_latest_by_slot": true,
+            "show_filters": true
           }
         }
       }

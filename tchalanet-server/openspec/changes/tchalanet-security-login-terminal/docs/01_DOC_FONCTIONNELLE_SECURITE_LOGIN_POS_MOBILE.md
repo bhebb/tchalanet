@@ -25,10 +25,11 @@ Pour vendre un ticket, payer un gain, synchroniser des ventes offline ou demande
 5. terminal assigné à l’utilisateur ;
 6. appareil ou terminal virtuel activé ;
 7. outlet actif ;
-8. session de vente ouverte ;
-9. contexte opérationnel trusted ;
-10. idempotency key ;
-11. audit fonctionnel.
+8. seller actif et assigné à l'outlet ;
+9. session de vente ouverte ;
+10. contexte opérationnel trusted ;
+11. idempotency key ;
+12. audit fonctionnel.
 
 ## 3. Surfaces applicatives
 
@@ -53,8 +54,10 @@ Utilisé par les vendeurs/caissiers sur un appareil dédié ou semi-dédié.
 
 Le POS physique nécessite :
 
-- un terminal `PHYSICAL_POS` ;
+- un terminal `PHYSICAL + POS` ;
 - une assignation user ;
+- un seller métier actif lié au user ;
+- une assignation seller-outlet active ;
 - un outlet ;
 - un device binding signé ;
 - une session de vente ;
@@ -66,9 +69,11 @@ Utilisé par un vendeur autorisé à vendre par téléphone.
 
 La vente téléphone nécessite :
 
-- un terminal virtuel `VIRTUAL_PHONE` ;
+- un terminal virtuel `VIRTUAL + MOBILE` ;
 - un entitlement tenant `PHONE_SALES_ENABLED` ;
 - une assignation user ;
+- un seller métier actif lié au user ;
+- une assignation seller-outlet active ;
 - un binding virtuel signé ;
 - une session compatible ;
 - la permission `ticket.sell.phone`.
@@ -221,4 +226,3 @@ Le MVP doit garantir :
 10. RLS tenant obligatoire ;
 11. auth locale = déverrouillage, pas autorisation métier ;
 12. OTP = activation / reset / risque, pas login quotidien.
-

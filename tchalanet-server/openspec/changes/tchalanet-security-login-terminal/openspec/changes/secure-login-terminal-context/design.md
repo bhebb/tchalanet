@@ -38,9 +38,9 @@ Sensitive handlers must call `ctx.trustedOperationalContextRequired()`.
 
 ### Terminal types
 
-- `PHYSICAL_POS`
-- `VIRTUAL_PHONE`
-- `VIRTUAL_WEB`
+- `PHYSICAL + POS`
+- `VIRTUAL + MOBILE`
+- `VIRTUAL + WEB`
 
 ### Terminal statuses
 
@@ -53,9 +53,9 @@ Sensitive handlers must call `ctx.trustedOperationalContextRequired()`.
 ### Terminal capabilities
 
 - `SELL_TICKET`
-- `PHONE_SALE`
+- `SELL_PHONE`
 - `OFFLINE_SELL`
-- `PAYOUT`
+- `PAYOUT_CLAIM`
 - `ADMIN_POS_MODE`
 
 ## 4. Plan / entitlement checks
@@ -88,4 +88,3 @@ Sales endpoint requires `Idempotency-Key` with scope `SALES_SELL_TICKET`.
 ## 7. Audit
 
 Audit all terminal, binding, phone sales activation, operational context selection and sensitive transaction events.
-

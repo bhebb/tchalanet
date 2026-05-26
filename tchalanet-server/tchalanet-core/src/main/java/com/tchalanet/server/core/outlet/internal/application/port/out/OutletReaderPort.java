@@ -2,7 +2,6 @@ package com.tchalanet.server.core.outlet.internal.application.port.out;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.outlet.api.query.OutletSearchCriteria;
 import com.tchalanet.server.core.outlet.api.query.OutletSummaryView;
 import com.tchalanet.server.core.outlet.internal.domain.model.Outlet;
@@ -10,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.tchalanet.server.common.web.paging.TchPage;
 
 public interface OutletReaderPort {
 
@@ -23,8 +24,6 @@ public interface OutletReaderPort {
         return findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Outlet not found: " + id));
     }
-
-    boolean isSalesBlocked(OutletId outletId);
 
     int countActiveByTenant(TenantId tenantId);
 }

@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.internal.application.command.handler;
+package com.tchalanet.server.core.outlet.internal.application.command.handler.lifecycle;
 
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
@@ -7,8 +7,8 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.outlet.api.command.ReopenOutletDayCommand;
-import com.tchalanet.server.core.outlet.api.command.ReopenOutletDayResult;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.ReopenOutletDayCommand;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.ReopenOutletDayResult;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletDayReopenedEvent;
@@ -47,6 +47,6 @@ public class ReopenOutletDayCommandHandler
       AfterCommit.run(() -> publisher.publish(event));
     }
     return new ReopenOutletDayResult(
-        updated.id(), wasClosed, updated.salesBlocked(), updated.salesBlockReason());
+        updated.id(), wasClosed, updated.salesBlock().blocked(), updated.salesBlock().reason());
   }
 }

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.outlet.internal.infra.web.admin.model;
 
-import com.tchalanet.server.core.outlet.api.command.CloseDayMode;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseDayMode;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;

@@ -111,6 +111,20 @@ CREATE POLICY draw_rls_select ON draw
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+ALTER TABLE sales_zone ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sales_zone FORCE ROW LEVEL SECURITY;
+CREATE POLICY sales_zone_rls_all ON sales_zone FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active'  AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY sales_zone_rls_select ON sales_zone FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
 ALTER TABLE outlet ENABLE ROW LEVEL SECURITY;
 ALTER TABLE outlet FORCE ROW LEVEL SECURITY;
 CREATE POLICY outlet_rls_all ON outlet
@@ -140,6 +154,70 @@ CREATE POLICY terminal_rls_all ON terminal
   )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY terminal_rls_select ON terminal
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE terminal_capability ENABLE ROW LEVEL SECURITY;
+ALTER TABLE terminal_capability FORCE ROW LEVEL SECURITY;
+CREATE POLICY terminal_capability_rls_all ON terminal_capability
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY terminal_capability_rls_select ON terminal_capability
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE terminal_assignment ENABLE ROW LEVEL SECURITY;
+ALTER TABLE terminal_assignment FORCE ROW LEVEL SECURITY;
+CREATE POLICY terminal_assignment_rls_all ON terminal_assignment
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY terminal_assignment_rls_select ON terminal_assignment
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE terminal_binding ENABLE ROW LEVEL SECURITY;
+ALTER TABLE terminal_binding FORCE ROW LEVEL SECURITY;
+CREATE POLICY terminal_binding_rls_all ON terminal_binding
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY terminal_binding_rls_select ON terminal_binding
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE terminal_challenge ENABLE ROW LEVEL SECURITY;
+ALTER TABLE terminal_challenge FORCE ROW LEVEL SECURITY;
+CREATE POLICY terminal_challenge_rls_all ON terminal_challenge
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY terminal_challenge_rls_select ON terminal_challenge
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
@@ -788,4 +866,46 @@ CREATE POLICY applied_promotion_snapshot_rls_all ON applied_promotion_snapshot
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY applied_promotion_snapshot_rls_select ON applied_promotion_snapshot
   FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE seller ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_rls_all ON seller FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active'  AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY seller_rls_select ON seller FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE seller_outlet_assignment ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller_outlet_assignment FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_assignment_rls_all ON seller_outlet_assignment FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active'  AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY seller_assignment_rls_select ON seller_outlet_assignment FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE seller_commission_policy ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seller_commission_policy FORCE ROW LEVEL SECURITY;
+CREATE POLICY seller_commission_rls_all ON seller_commission_policy FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active'  AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY seller_commission_rls_select ON seller_commission_policy FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));

@@ -38,6 +38,6 @@ public class GetOutletDailySummaryQueryHandler
         stats.paid(),
         0,
         outlet.name(),
-        outlet.salesBlocked());
+        outlet.salesBlock().blocked());
   }
 }

@@ -68,7 +68,7 @@ Tenant B: PHONE_SALES_ENABLED = false
 
 ### POS-001 Pairing initial OK
 
-1. Admin creates terminal PHYSICAL_POS.
+1. Admin creates terminal `PHYSICAL + POS`.
 2. Admin assigns terminal to Seller A1 and Outlet A1.
 3. Seller logs in on Flutter POS.
 4. Pairing challenge is verified.
@@ -103,13 +103,13 @@ Tenant B: PHONE_SALES_ENABLED = false
 ### PHONE-001 Activation requires entitlement
 
 1. Tenant B has PHONE_SALES_ENABLED=false.
-2. Admin B attempts to create/activate VIRTUAL_PHONE.
+2. Admin B attempts to create/activate `VIRTUAL + MOBILE`.
 3. Expect 403/409 plan.capability_missing.
 
 ### PHONE-002 Activation OK with entitlement
 
 1. Tenant A has PHONE_SALES_ENABLED=true.
-2. Admin A creates VIRTUAL_PHONE for Seller A1.
+2. Admin A creates `VIRTUAL + MOBILE` for Seller A1.
 3. Seller verifies activation code.
 4. Virtual binding is created.
 
@@ -251,4 +251,3 @@ Verify audit records for :
 - [ ] OpenAPI docs updated.
 - [ ] Flutter handles refresh-token-missing flow.
 - [ ] Angular admin cannot perform POS sale unless explicit admin POS mode.
-
