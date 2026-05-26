@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.pagemodel.internal.domain.model;
+package com.tchalanet.server.core.pagemodel.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

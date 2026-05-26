@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.pagemodel.internal.domain.model;
+package com.tchalanet.server.core.pagemodel.api.model;
 
 public enum PageModelType {
   PUBLIC_HOME("public.home", "public", "home", "public_home"),

@@ -101,7 +101,7 @@ public class SellerOperationalContextResolver {
 
   private TerminalOperation terminalOperation(SellerOperation operation) {
     return switch (operation) {
-      case SELL -> TerminalOperation.SELL;
+      case SELL -> TerminalOperation.SELL_TICKET;
     };
   }
 

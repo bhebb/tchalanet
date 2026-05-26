@@ -4,8 +4,8 @@ import com.tchalanet.server.common.context.TchRequestContext;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotsQuery;
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
-import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,8 @@ public class PublicDrawResultsProvider implements PageModelDynamicProvider {
       String widgetId,
       PageModelDoc.WidgetConfig widgetConfig,
       String lang,
-      TchRequestContext ctx) {
+      TchRequestContext ctx,
+      com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext resolutionContext) {
     var props = widgetConfig == null ? null : widgetConfig.props();
     var slotKeys = readStringList(props, "slot_keys");
     var provider = readString(props, "provider");

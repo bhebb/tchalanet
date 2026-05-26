@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers.json;
 
-import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProviderException;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 

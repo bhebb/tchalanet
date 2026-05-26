@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.api.command.UpsertPageModelCommand;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelType;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

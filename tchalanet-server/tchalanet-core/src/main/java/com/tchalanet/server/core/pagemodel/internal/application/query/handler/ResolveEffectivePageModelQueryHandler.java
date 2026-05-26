@@ -10,7 +10,7 @@ import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelReadPort;
 import com.tchalanet.server.core.pagemodel.internal.application.port.out.PageModelTemplateLoaderPort;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

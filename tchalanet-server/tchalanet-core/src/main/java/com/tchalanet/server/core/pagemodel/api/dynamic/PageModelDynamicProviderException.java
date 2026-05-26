@@ -1,4 +1,4 @@
-package com.tchalanet.server.features.pagemodel.dynamic;
+package com.tchalanet.server.core.pagemodel.api.dynamic;
 
 public class PageModelDynamicProviderException extends RuntimeException {
 

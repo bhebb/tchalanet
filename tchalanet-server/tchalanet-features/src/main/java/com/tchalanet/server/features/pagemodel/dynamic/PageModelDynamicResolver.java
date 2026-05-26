@@ -2,7 +2,10 @@ package com.tchalanet.server.features.pagemodel.dynamic;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.shared.PageDynamicPayload;
 import com.tchalanet.server.features.pagemodel.shared.WidgetDynamicError;
 import java.util.*;
@@ -18,11 +21,12 @@ public class PageModelDynamicResolver {
   public PageDynamicPayload resolve(PageModelDoc doc, String lang, TchRequestContext ctx) {
     Map<String, Object> widgets = new LinkedHashMap<>();
     List<WidgetDynamicError> errors = new ArrayList<>();
+    PageModelResolutionContext resolutionContext = new PageModelResolutionContext();
 
     if (doc == null) return new PageDynamicPayload(widgets, errors);
-    resolveShell(doc, "shell.header", doc.shell() == null ? null : doc.shell().header(), lang, ctx, widgets, errors);
-    resolveShell(doc, "shell.sidenav", doc.shell() == null ? null : doc.shell().sidenav(), lang, ctx, widgets, errors);
-    resolveShell(doc, "shell.footer", doc.shell() == null ? null : doc.shell().footer(), lang, ctx, widgets, errors);
+    resolveShell(doc, "shell.header", doc.shell() == null ? null : doc.shell().header(), lang, ctx, resolutionContext, widgets, errors);
+    resolveShell(doc, "shell.sidenav", doc.shell() == null ? null : doc.shell().sidenav(), lang, ctx, resolutionContext, widgets, errors);
+    resolveShell(doc, "shell.footer", doc.shell() == null ? null : doc.shell().footer(), lang, ctx, resolutionContext, widgets, errors);
 
     if (doc.content() == null || doc.content().widgets() == null) {
       return new PageDynamicPayload(widgets, errors);
@@ -35,9 +39,8 @@ public class PageModelDynamicResolver {
 
       String source = config.binding().source();
       String widgetType = config.type();
-      String logicalId = doc.meta() != null ? doc.meta().id() : null;
 
-      resolveDynamicConfig(doc, widgetId, widgetType, config, source, lang, ctx, widgets, errors);
+      resolveDynamicConfig(doc, widgetId, widgetType, config, source, lang, ctx, resolutionContext, widgets, errors);
     });
 
     return new PageDynamicPayload(widgets, errors);
@@ -49,6 +52,7 @@ public class PageModelDynamicResolver {
       PageModelDoc.ShellSectionConfig section,
       String lang,
       TchRequestContext ctx,
+      PageModelResolutionContext resolutionContext,
       Map<String, Object> widgets,
       List<WidgetDynamicError> errors) {
     if (section == null || section.binding() == null) return;
@@ -65,6 +69,7 @@ public class PageModelDynamicResolver {
         section.binding().source(),
         lang,
         ctx,
+        resolutionContext,
         widgets,
         errors);
   }
@@ -77,6 +82,7 @@ public class PageModelDynamicResolver {
       String source,
       String lang,
       TchRequestContext ctx,
+      PageModelResolutionContext resolutionContext,
       Map<String, Object> widgets,
       List<WidgetDynamicError> errors) {
     String logicalId = doc.meta() != null ? doc.meta().id() : null;
@@ -86,7 +92,7 @@ public class PageModelDynamicResolver {
         .findFirst()
         .ifPresentOrElse(provider -> {
           try {
-            Object payload = provider.load(doc, widgetId, config, lang, ctx);
+            Object payload = provider.load(doc, widgetId, config, lang, ctx, resolutionContext);
             widgets.put(widgetId, payload);
           } catch (PageModelDynamicProviderException e) {
             errors.add(new WidgetDynamicError(

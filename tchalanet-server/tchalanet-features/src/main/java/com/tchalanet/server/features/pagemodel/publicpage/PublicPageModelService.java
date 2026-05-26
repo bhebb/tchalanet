@@ -5,7 +5,7 @@ import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
 

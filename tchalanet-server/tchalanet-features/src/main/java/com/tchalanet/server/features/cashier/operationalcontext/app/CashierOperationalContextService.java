@@ -53,7 +53,7 @@ public class CashierOperationalContextService {
             request.terminalId(),
             request.outletId(),
             actorUserId,
-            TerminalOperation.SELL
+            TerminalOperation.SELL_TICKET
         ));
         queryBus.ask(new ValidateOutletForOperationQuery(
             tenantId,

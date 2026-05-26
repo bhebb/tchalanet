@@ -37,4 +37,15 @@ class PageModelArchTest {
 
     rule.check(classes);
   }
+
+  @Test
+  void features_do_not_import_core_pagemodel_internal() {
+    ArchRule rule = noClasses()
+        .that().resideInAPackage("..features..")
+        .should().dependOnClassesThat()
+        .resideInAPackage("..core.pagemodel.internal..")
+        .because("features must depend on core.pagemodel.api only (V1 runtime invariant)");
+
+    rule.check(classes);
+  }
 }

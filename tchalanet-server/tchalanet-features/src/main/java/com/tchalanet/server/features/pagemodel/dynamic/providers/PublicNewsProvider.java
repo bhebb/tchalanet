@@ -2,9 +2,9 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers;
 
 import com.tchalanet.server.common.context.TchRequestContext;
 
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.features.news.publicnews.PublicNewsService;
-import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,8 @@ public class PublicNewsProvider implements PageModelDynamicProvider {
   }
 
   @Override
-  public Object load(PageModelDoc pageModel, String widgetId, PageModelDoc.WidgetConfig widgetConfig, String lang, TchRequestContext ctx) {
+  public Object load(PageModelDoc pageModel, String widgetId, PageModelDoc.WidgetConfig widgetConfig, String lang, TchRequestContext ctx,
+      com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext resolutionContext) {
     int max = readInt(widgetConfig == null ? null : widgetConfig.props(), "max_items", 4);
     return newsService.listAll().stream().limit(max).toList();
   }
