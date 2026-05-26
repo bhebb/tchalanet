@@ -4,8 +4,8 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
-import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCampaignWritePort;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignWritePort;
 import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCacheEvictorPort;
 import lombok.RequiredArgsConstructor;
 

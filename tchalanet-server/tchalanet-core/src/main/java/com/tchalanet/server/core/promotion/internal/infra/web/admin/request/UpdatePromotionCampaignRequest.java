@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.promotion.internal.infra.web.admin.request;
 
-import com.tchalanet.server.core.promotion.api.model.PromotionStackingPolicy;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 
@@ -15,8 +14,5 @@ public record UpdatePromotionCampaignRequest(
 
     Instant endsAt,
 
-    Integer priority,
-
-    PromotionStackingPolicy stackingPolicy
+    Integer priority
 ) {}
-

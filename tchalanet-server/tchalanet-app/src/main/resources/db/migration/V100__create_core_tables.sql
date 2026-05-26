@@ -1222,6 +1222,7 @@ CREATE TABLE sales_ticket_charge (
   paid_by varchar(16) NOT NULL,
   amount numeric(19,4) NOT NULL,
   currency varchar(3) NOT NULL,
+  waived_by_rule_id uuid,
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -1485,3 +1486,130 @@ CREATE TABLE offline_event_outbox (
   next_attempt_at timestamptz,
   CONSTRAINT uq_offline_event_outbox__event_id UNIQUE (tenant_id, event_id)
 );
+
+-- =========================================================
+-- PROMOTION DOMAIN
+-- =========================================================
+-- BaseTenantEntity columns are physically present in every tenant table:
+-- id, tenant_id, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by, version.
+-- Repositories must not filter tenant_id or deleted_at manually; RLS handles tenant isolation.
+
+CREATE TABLE promotion_campaign (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  code varchar(96) NOT NULL,
+  name varchar(160) NOT NULL,
+  status varchar(32) NOT NULL,
+  priority integer NOT NULL DEFAULT 100,
+  starts_at timestamptz NULL,
+  ends_at timestamptz NULL,
+  config_version varchar(48) NOT NULL DEFAULT 'v1',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_promotion_campaign_tenant_code UNIQUE (tenant_id, code)
+);
+
+CREATE TABLE promotion_rule (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  campaign_id uuid NOT NULL REFERENCES promotion_campaign(id),
+  rule_key varchar(96) NOT NULL,
+  priority integer NOT NULL DEFAULT 100,
+  min_paid_total numeric(19,4) NULL,
+  before_local_time time NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_promotion_rule_tenant_campaign_key UNIQUE (tenant_id, campaign_id, rule_key)
+);
+
+CREATE TABLE promotion_rule_effect (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  rule_id uuid NOT NULL REFERENCES promotion_rule(id),
+  effect_type varchar(32) NOT NULL,
+  game_code varchar(64) NULL,
+  payout_base_amount numeric(19,4) NULL,
+  quantity integer NULL,
+  odds_override numeric(19,6) NULL,
+  charge_type varchar(64) NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_promotion_rule_effect_type CHECK (effect_type IN ('FREE_GAME_LINE','BOOST_ODDS','WAIVE_CHARGE')),
+  CONSTRAINT chk_promotion_rule_effect_quantity CHECK (quantity IS NULL OR quantity > 0),
+  CONSTRAINT chk_promotion_rule_effect_amount CHECK (payout_base_amount IS NULL OR payout_base_amount > 0),
+  CONSTRAINT chk_promotion_rule_effect_odds CHECK (odds_override IS NULL OR odds_override > 0)
+);
+
+CREATE TABLE promotion_rule_eligibility_line (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  rule_id uuid NOT NULL REFERENCES promotion_rule(id),
+  game_code varchar(64) NOT NULL,
+  min_count integer NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_promotion_rule_eligibility_line_min_count CHECK (min_count > 0)
+);
+
+CREATE TABLE promotion_decision (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  decision_status varchar(32) NOT NULL,
+  evaluation_phase varchar(48) NOT NULL,
+  evaluated_at timestamptz NOT NULL,
+  context_hash varchar(128) NOT NULL,
+  engine_version varchar(48) NOT NULL,
+  decision_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_promotion_decision_tenant_hash_phase UNIQUE (tenant_id, context_hash, evaluation_phase)
+);
+
+CREATE TABLE applied_promotion_snapshot (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  ticket_id uuid NOT NULL,
+  promotion_decision_id uuid NOT NULL,
+  decision_status varchar(32) NOT NULL,
+  applied_at timestamptz NOT NULL,
+  snapshot_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_applied_promotion_tenant_ticket_decision UNIQUE (tenant_id, ticket_id, promotion_decision_id)
+);
+
+-- FK from sales_ticket_charge.waived_by_rule_id to promotion_rule
+-- (column already exists in sales_ticket_charge; both tables are defined in this migration)
+ALTER TABLE sales_ticket_charge
+  ADD CONSTRAINT fk_sales_ticket_charge__waived_by_rule
+    FOREIGN KEY (waived_by_rule_id) REFERENCES promotion_rule(id);

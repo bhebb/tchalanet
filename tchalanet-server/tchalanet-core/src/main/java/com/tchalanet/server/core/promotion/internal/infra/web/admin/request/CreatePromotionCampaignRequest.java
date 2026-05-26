@@ -1,10 +1,13 @@
 package com.tchalanet.server.core.promotion.internal.infra.web.admin.request;
 
-import com.tchalanet.server.core.promotion.api.model.PromotionStackingPolicy;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleConfigInput;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 
 public record CreatePromotionCampaignRequest(
     @NotBlank
@@ -22,7 +25,6 @@ public record CreatePromotionCampaignRequest(
     @NotNull
     Integer priority,
 
-    @NotNull
-    PromotionStackingPolicy stackingPolicy
+    @NotEmpty
+    List<@Valid PromotionRuleConfigInput> rules
 ) {}
-

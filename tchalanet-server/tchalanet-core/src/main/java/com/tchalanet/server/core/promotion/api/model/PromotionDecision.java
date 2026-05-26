@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.promotion.api.model;
 
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+
 import java.time.Instant;
 import java.util.List;
 

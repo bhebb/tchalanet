@@ -3,11 +3,12 @@ package com.tchalanet.server.core.sales.internal.application.service.sell.promot
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffect;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.math.RoundingMode;
 
 @Component

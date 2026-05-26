@@ -128,6 +128,28 @@ public record TicketLine(
         );
     }
 
+    public TicketLine withResult(com.tchalanet.server.core.sales.api.model.line.TicketLineResult result) {
+        if (result == null) throw new IllegalArgumentException("result.required");
+        return new TicketLine(
+            id,
+            lineNumber,
+            gameCode,
+            betType,
+            selection,
+            stakeAmount,
+            payoutBaseAmount,
+            oddsSnapshot,
+            potentialPayoutAmount,
+            betOption,
+            origin,
+            pricingSource,
+            selectionSource,
+            promotionDecisionId,
+            result.status(),
+            result.payoutAmount()
+        );
+    }
+
     public static TicketLine promotionLine(
         TicketLineId id,
         int lineNumber,

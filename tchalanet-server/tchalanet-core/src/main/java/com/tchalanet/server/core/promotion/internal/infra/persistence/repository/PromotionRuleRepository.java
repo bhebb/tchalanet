@@ -12,11 +12,11 @@ public interface PromotionRuleRepository extends JpaRepository<PromotionRuleJpaE
     @Query("""
         select r
         from PromotionRuleJpaEntity r
-        where r.status = 'ACTIVE'
-          and r.evaluationPhase = :phase
-        order by r.ruleKey asc
+          join PromotionCampaignJpaEntity c on c.id = r.campaignId
+        where c.status = com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus.ACTIVE
+        order by c.priority asc, r.priority asc, r.ruleKey asc
         """)
-    List<PromotionRuleJpaEntity> findActiveRulesForPhase(String phase);
+    List<PromotionRuleJpaEntity> findActiveRules();
 
 
     Optional<PromotionRuleJpaEntity> findByIdAndCampaignId(UUID id, UUID campaignId);
@@ -25,4 +25,3 @@ public interface PromotionRuleRepository extends JpaRepository<PromotionRuleJpaE
 
     boolean existsByCampaignIdAndRuleKey(UUID campaignId, String ruleKey);
 }
-

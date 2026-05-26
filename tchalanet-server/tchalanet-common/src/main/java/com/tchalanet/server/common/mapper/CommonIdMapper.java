@@ -20,7 +20,9 @@ import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
 import com.tchalanet.server.common.types.id.PromotionAttemptId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
-import com.tchalanet.server.common.types.id.AgentZoneId;
+import com.tchalanet.server.common.types.id.SellerId;
+import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
+import com.tchalanet.server.common.types.id.SellerCommissionPolicyId;
 import com.tchalanet.server.common.types.id.AppliedPromotionId;
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
@@ -239,13 +241,31 @@ public class CommonIdMapper {
         return PromotionRuleId.nullableOf(id);
     }
 
-    // AgentZoneId
-    public UUID mapFromAgentZoneId(AgentZoneId id) {
+    // SellerId
+    public UUID mapFromSellerId(SellerId id) {
         return id == null ? null : id.value();
     }
 
-    public AgentZoneId mapToAgentZoneId(UUID id) {
-        return AgentZoneId.nullableOf(id);
+    public SellerId mapToSellerId(UUID id) {
+        return SellerId.nullableOf(id);
+    }
+
+    // SellerOutletAssignmentId
+    public UUID mapFromSellerOutletAssignmentId(SellerOutletAssignmentId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SellerOutletAssignmentId mapToSellerOutletAssignmentId(UUID id) {
+        return SellerOutletAssignmentId.nullableOf(id);
+    }
+
+    // SellerCommissionPolicyId
+    public UUID mapFromSellerCommissionPolicyId(SellerCommissionPolicyId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SellerCommissionPolicyId mapToSellerCommissionPolicyId(UUID id) {
+        return SellerCommissionPolicyId.nullableOf(id);
     }
 
     // AppliedPromotionId

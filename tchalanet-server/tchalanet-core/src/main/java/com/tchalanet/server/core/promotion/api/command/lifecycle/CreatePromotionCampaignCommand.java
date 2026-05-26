@@ -2,10 +2,13 @@ package com.tchalanet.server.core.promotion.api.command.lifecycle;
 
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
-import com.tchalanet.server.core.promotion.api.model.PromotionStackingPolicy;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleConfigInput;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.List;
 
 public record CreatePromotionCampaignCommand(
     @NotNull TenantId tenantId,
@@ -14,7 +17,5 @@ public record CreatePromotionCampaignCommand(
     @NotNull Instant startsAt,
     Instant endsAt,
     @NotNull Integer priority,
-    @NotNull PromotionStackingPolicy stackingPolicy
+    @NotEmpty List<@Valid PromotionRuleConfigInput> rules
 ) implements Command<PromotionCampaignView> {}
-
-

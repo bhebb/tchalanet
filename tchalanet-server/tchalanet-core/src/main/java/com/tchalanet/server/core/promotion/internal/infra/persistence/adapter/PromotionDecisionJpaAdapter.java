@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionDecisionPort;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionDecisionJpaEntity;
@@ -13,6 +14,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 class PromotionDecisionJpaAdapter implements PromotionDecisionPort {
     private final PromotionDecisionRepository repository;
+
+    @Override
+    public Optional<PromotionDecision> findById(PromotionDecisionId decisionId) {
+        return repository.findById(decisionId.value())
+            .map(e -> PromotionJsonMapper.fromJson(e.getId(), e.getDecisionJson()));
+    }
 
     @Override
     public Optional<PromotionDecision> findByContextHashAndPhase(String contextHash, String phase) {

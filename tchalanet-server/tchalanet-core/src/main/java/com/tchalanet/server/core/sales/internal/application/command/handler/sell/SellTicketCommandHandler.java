@@ -3,7 +3,6 @@ package com.tchalanet.server.core.sales.internal.application.command.handler.sel
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.event.DomainEventPublisher;
-import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
@@ -12,7 +11,6 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
-import com.tchalanet.server.core.promotion.api.command.CreateAppliedPromotionSnapshotCommand;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
@@ -21,6 +19,7 @@ import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
+import com.tchalanet.server.core.sales.internal.application.port.out.AppliedPromotionSnapshotWriterPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketCodeGeneratorPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
@@ -48,7 +47,7 @@ public class SellTicketCommandHandler
     private final TicketPrintReaderPort ticketPrintReader;
     private final DomainEventPublisher eventPublisher;
     private final SaleAcceptanceEvaluator saleAcceptanceEvaluator;
-    private final CommandBus commandBus;
+    private final AppliedPromotionSnapshotWriterPort appliedPromotionSnapshotWriter;
     private final TicketReceiptAssembler ticketReceiptAssembler;
     private final TicketBackupAssembler ticketBackupAssembler;
     private final TicketCommunicationRequestDispatcher communicationDispatcher;
@@ -88,7 +87,9 @@ public class SellTicketCommandHandler
                 prepared.pos().actorUserId(),
                 prepared.pos().salesSessionId(),
                 command.drawId(),
-                command.drawChannelId()
+                command.drawChannelId(),
+                prepared.sellerId(),
+                prepared.sellerAssignmentId()
             ),
             new TicketCodes(
                 ticketCodeGenerator.nextTicketCode(),
@@ -106,6 +107,12 @@ public class SellTicketCommandHandler
         );
 
         var saved = ticketWriter.save(ticket);
+
+        var promo = prepared.promotionDecision();
+        if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
+            appliedPromotionSnapshotWriter.createIfAbsent(ticketId, promo, prepared.now());
+        }
+
         // Push the freshly persisted ticket to DB so the SQL view
         // (sales_ticket_print_header_v) used by the print reader sees it within the same tx.
         ticketWriter.flushPending();
@@ -117,23 +124,13 @@ public class SellTicketCommandHandler
 
         // 3. Publish AFTER COMMIT.
         AfterCommit.run(() -> {
-            eventPublisher.publish(toTicketPlacedEvent(saved, prepared.now(), correlationId));
+            eventPublisher.publish(toTicketPlacedEvent(saved, prepared.now(), correlationId, prepared.promotionDecision()));
 
             communicationDispatcher.enqueueTicketPlaced(
                 saved,
                 command.communicationOptions(),
                 correlationId
             );
-
-            // If promotionDecision applied, create an applied promotionDecision snapshot after commit
-            var promo = prepared.promotionDecision();
-            if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
-                commandBus.execute(new CreateAppliedPromotionSnapshotCommand(
-                    tenantId,
-                    ticketId,
-                    promo
-                ));
-            }
         });
 
         // 4. Return result with notices propagated.
@@ -153,7 +150,8 @@ public class SellTicketCommandHandler
         );
     }
 
-    private TicketPlacedEvent toTicketPlacedEvent(Ticket saved, Instant now, CorrelationId correlationId
+    private TicketPlacedEvent toTicketPlacedEvent(Ticket saved, Instant now, CorrelationId correlationId,
+        com.tchalanet.server.core.promotion.api.model.PromotionDecision promotionDecision
     ) {
         var context = new TicketContextPayload(
             saved.context().outletId(),
@@ -192,7 +190,8 @@ public class SellTicketCommandHandler
             context,
             money,
             lines,
-            null  // offlineRef: always null for POS_ONLINE flow
+            null,  // offlineRef: always null for POS_ONLINE flow
+            promotionDecision
         );
     }
 

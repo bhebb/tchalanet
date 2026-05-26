@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.promotion.internal.infra.web.admin.request;
 
-import com.tchalanet.server.core.promotion.api.model.PromotionEligibilityType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

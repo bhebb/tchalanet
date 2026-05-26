@@ -24,6 +24,9 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdenti
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +75,8 @@ public class OfflineSubmissionToTicketMapper {
         var context = new TicketContext(
             draft.outletId(), draft.terminalId(), draft.sellerUserId(),
             draft.salesSessionId(),
-            draw.drawId(), draw.drawChannelId()
+            draw.drawId(), draw.drawChannelId(),
+            null, null
         );
         var codes = TicketCodes.of(
             codeGenerator.nextTicketCode(),
@@ -108,9 +112,14 @@ public class OfflineSubmissionToTicketMapper {
             BetType.valueOf(l.betType()),
             new Selection(SelectionKey.of(l.selectionKey()), l.selectionKey()),
             stake,
-            BigDecimal.ONE,
+            stake, // payoutBaseAmount = stake for offline sales
+            BigDecimal.ONE, // odds snapshot unknown in offline, default to 1
             potentialPayout,
             betOption,
+            TicketLineOrigin.CUSTOMER,
+            TicketLinePricingSource.STANDARD,
+            TicketLineSelectionSource.CUSTOMER_SELECTED,
+            null,
             TicketLineResultStatus.PENDING,
             Money.zero(stake.currency())
         );

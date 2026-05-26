@@ -693,19 +693,99 @@ CREATE POLICY sales_session_offline_adjustment_rls_select ON sales_session_offli
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
-ALTER TABLE promotion_rule ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ticket_line_applied_rule ENABLE ROW LEVEL SECURITY;
+-- ─── Promotion domain ────────────────────────────────────────────────
+ALTER TABLE promotion_campaign ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promotion_campaign FORCE ROW LEVEL SECURITY;
+CREATE POLICY promotion_campaign_rls_all ON promotion_campaign
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY promotion_campaign_rls_select ON promotion_campaign
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
-CREATE POLICY promotion_rule_rls_all ON promotion_rule FOR ALL
-  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+ALTER TABLE promotion_rule ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promotion_rule FORCE ROW LEVEL SECURITY;
+CREATE POLICY promotion_rule_rls_all ON promotion_rule
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY promotion_rule_rls_select ON promotion_rule
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
-CREATE POLICY ticket_line_applied_rule_rls_all ON ticket_line_applied_rule FOR ALL
-  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+ALTER TABLE promotion_rule_effect ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promotion_rule_effect FORCE ROW LEVEL SECURITY;
+CREATE POLICY promotion_rule_effect_rls_all ON promotion_rule_effect
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
-CREATE POLICY ticket_line_applied_rule_rls_select ON ticket_line_applied_rule
+CREATE POLICY promotion_rule_effect_rls_select ON promotion_rule_effect
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE promotion_rule_eligibility_line ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promotion_rule_eligibility_line FORCE ROW LEVEL SECURITY;
+CREATE POLICY promotion_rule_eligibility_line_rls_all ON promotion_rule_eligibility_line
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY promotion_rule_eligibility_line_rls_select ON promotion_rule_eligibility_line
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE promotion_decision ENABLE ROW LEVEL SECURITY;
+ALTER TABLE promotion_decision FORCE ROW LEVEL SECURITY;
+CREATE POLICY promotion_decision_rls_all ON promotion_decision
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY promotion_decision_rls_select ON promotion_decision
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+ALTER TABLE applied_promotion_snapshot ENABLE ROW LEVEL SECURITY;
+ALTER TABLE applied_promotion_snapshot FORCE ROW LEVEL SECURITY;
+CREATE POLICY applied_promotion_snapshot_rls_all ON applied_promotion_snapshot
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active' AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY applied_promotion_snapshot_rls_select ON applied_promotion_snapshot
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));

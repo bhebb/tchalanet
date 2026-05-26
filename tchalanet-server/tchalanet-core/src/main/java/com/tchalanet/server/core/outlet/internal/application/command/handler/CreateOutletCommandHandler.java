@@ -35,24 +35,21 @@ public class CreateOutletCommandHandler implements CommandHandler<CreateOutletCo
         var outlet = Outlet.createNew(cmd.tenantId(), cmd.name(), cmd.slug(), newId);
 
         var addressId = cmd.addressId();
-
         var input = cmd.addressInput();
         if (addressId == null && input != null) {
             addressId = addressService.upsertTenantPrimary(cmd.tenantId(), input);
         }
-
         if (addressId != null) {
             outlet = outlet.withAddressId(addressId);
         }
 
         writer.save(outlet);
 
-        var event =
-            new OutletCreatedEvent(
-                EventId.of(idGenerator.newUuid()),
-                Instant.now(clock),
-                cmd.tenantId(),
-                newId);
+        var event = new OutletCreatedEvent(
+            EventId.of(idGenerator.newUuid()),
+            Instant.now(clock),
+            cmd.tenantId(),
+            newId);
 
         AfterCommit.run(() -> publisher.publish(event));
 

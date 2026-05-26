@@ -8,7 +8,9 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.core.sales.api.event.TicketApprovedEvent;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.internal.application.command.model.ApproveTicketSaleCommand;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
@@ -45,6 +47,15 @@ public class ApproveTicketSaleCommandHandler implements CommandHandler<ApproveTi
         // Persist
         var saved = ticketWriter.save(updated);
 
+        // Extract promotion decision ID from lines (null when no promotion was applied)
+        var promotionDecisionId = saved.lines().stream()
+            .filter(l -> l.pricingSource() == TicketLinePricingSource.PROMOTION
+                || l.promotionDecisionId() != null)
+            .map(l -> l.promotionDecisionId())
+            .filter(id -> id != null)
+            .findFirst()
+            .orElse(null);
+
         // Publish TicketApprovedEvent after commit
         AfterCommit.run(() -> {
             var approvalRequest = saved.approvalRequestId();
@@ -58,7 +69,8 @@ public class ApproveTicketSaleCommandHandler implements CommandHandler<ApproveTi
                     saved.identity().id(),
                     approvalRequest.orElse(null),
                     cmd.approvedBy(),
-                    cmd.reason()
+                    cmd.reason(),
+                    promotionDecisionId
                 )
             );
         });

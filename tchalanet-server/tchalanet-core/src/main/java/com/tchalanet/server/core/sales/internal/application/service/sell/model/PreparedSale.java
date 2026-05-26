@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.model;
 
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
+import com.tchalanet.server.common.types.id.SellerId;
+import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
 import com.tchalanet.server.common.web.api.ApiNotice;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
@@ -16,8 +18,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-// TODO sales-sell: split PreparedSale into grouped records when agent/commission/offline/tax
-// preparation starts adding more fields.
 public record PreparedSale(
     ValidatedPosOperationContext pos,
     DrawSummary draw,
@@ -32,7 +32,9 @@ public record PreparedSale(
     AutonomyLevel approvalLevel,
     ApprovalRequestId approvalRequestId,
     PromotionDecision promotionDecision,
-    List<ApiNotice> notices
+    List<ApiNotice> notices,
+    SellerId sellerId,
+    SellerOutletAssignmentId sellerAssignmentId
 ) {
     public PreparedSale {
         Objects.requireNonNull(pos);

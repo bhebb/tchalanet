@@ -49,6 +49,6 @@ public class ResumeSubscriptionCommandHandler
                 "system"
             ));
         });
-        return new ResumeSubscriptionResult(saved.id());
+        return new ResumeSubscriptionResult(saved.id(), saved.status());
     }
 }

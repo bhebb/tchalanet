@@ -1,26 +1,72 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.mapper;
 
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
-import com.tchalanet.server.core.promotion.api.model.*;
-import com.tchalanet.server.core.promotion.internal.domain.model.*;
-import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleJpaEntity;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
+import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
+import java.util.UUID;
 
 public class PromotionJsonMapper {
     private PromotionJsonMapper() {}
 
-    public static PromotionRule toDomain(PromotionRuleJpaEntity e) {
-        return new PromotionRule(
-            PromotionRuleId.of(e.getId()),
-            com.tchalanet.server.common.types.id.PromotionCampaignId.of(e.getCampaignId()),
-            e.getRuleKey(),
-            PromotionRuleStatus.valueOf(e.getStatus()),
-            PromotionEvaluationPhase.valueOf(e.getEvaluationPhase()),
-            e.getEligibilityJson() == null ? Map.of() : Map.copyOf(e.getEligibilityJson()),
-            e.getEffectsJson() == null ? Map.of() : Map.copyOf(e.getEffectsJson()),
-            e.getQuotaKey(),
-            e.getMaxUses()
+    /** Reconstruct a {@link PromotionDecision} from the {@code decision_json} column. */
+    @SuppressWarnings("unchecked")
+    public static PromotionDecision fromJson(UUID id, Map<String, Object> json) {
+        var effectsRaw = json.get("effects");
+        var effects = (effectsRaw instanceof List<?> list)
+            ? list.stream()
+                .filter(e -> e instanceof Map<?, ?>)
+                .map(e -> effectFromJson((Map<String, Object>) e))
+                .toList()
+            : List.<PromotionEffect>of();
+
+        var noticesRaw = json.get("notices");
+        var notices = (noticesRaw instanceof List<?> list)
+            ? list.stream().filter(n -> n instanceof String).map(n -> (String) n).toList()
+            : List.<String>of();
+
+        return new PromotionDecision(
+            PromotionDecisionId.of(id),
+            PromotionDecisionStatus.valueOf((String) json.get("status")),
+            PromotionEvaluationPhase.valueOf((String) json.get("phase")),
+            Instant.parse((String) json.get("evaluatedAt")),
+            (String) json.get("contextHash"),
+            (String) json.get("engineVersion"),
+            effects,
+            notices
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private static PromotionEffect effectFromJson(Map<String, Object> m) {
+        var ruleIdRaw = m.get("ruleId");
+        var ruleId = ruleIdRaw != null ? PromotionRuleId.of(UUID.fromString((String) ruleIdRaw)) : null;
+        var typeRaw = m.get("type");
+        var type = typeRaw != null ? PromotionEffectType.valueOf((String) typeRaw) : null;
+        var choiceModeRaw = m.get("choiceMode");
+        var choiceMode = choiceModeRaw != null ? PromotionChoiceMode.valueOf((String) choiceModeRaw) : null;
+        var amountRaw = m.get("amount");
+        var amount = amountRaw instanceof Number n ? new BigDecimal(n.toString())
+            : amountRaw != null ? new BigDecimal((String) amountRaw) : null;
+        var quantityRaw = m.get("quantity");
+        int quantity = quantityRaw instanceof Number n ? n.intValue() : 0;
+        return new PromotionEffect(
+            ruleId, type,
+            (String) m.get("gameCode"),
+            quantity,
+            amount,
+            (String) m.get("currency"),
+            (String) m.get("appliesTo"),
+            (String) m.get("reason"),
+            choiceMode
         );
     }
 

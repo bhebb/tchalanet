@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.promotion.internal.domain.service;
 
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignStatus;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionCampaignTransition;
 import org.springframework.stereotype.Component;
 

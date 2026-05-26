@@ -7,7 +7,9 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
+import com.tchalanet.server.core.sales.internal.application.service.sell.model.AppliedSalePromotionEffects;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
+import com.tchalanet.server.core.sales.internal.application.service.sell.promotion.SalePromotionEffectApplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,12 +33,13 @@ public class SalePreparationOrchestrator {
     private final SaleChargeCalculator saleChargeCalculator;
     private final SaleLimitAutonomyEvaluator saleLimitAutonomyEvaluator;
     private final SalePromotionEvaluator salePromotionEvaluator;
+    private final SalePromotionEffectApplier salePromotionEffectApplier;
     private final SaleCommandValidator saleCommandValidator;
     private final IdGenerator idGenerator;
     private final TchTimeProvider tchTimeProvider;
     private final PosSaleContextResolver posSaleContextResolver;
     private final SaleMoneyCalculator saleMoneyCalculator;
-    private final  PosSaleContextResolver saleAgentPromotionContextResolver;
+    private final SaleSellerContextResolver saleSellerContextResolver;
 
     public PreparedSale prepareSale(
         SellTicketCommand command,
@@ -56,59 +59,29 @@ public class SalePreparationOrchestrator {
 
         var draw = drawCutoffRule.requireBeforeCutoff(command.drawId());
 
-        // V1: no normalize/merge; restore canonical merge here later.
         var mergedLines = command.lines();
 
-        var ticketLines = ticketLinePreparationService.toTicketLines(
-            tenantId,
-            mergedLines,
-            command.currency()
-        );
-
-        var charges = saleChargeCalculator.compute(tenantId, command);
-        var moneyBreakdown = saleMoneyCalculator.compute(ticketLines, charges, command);
-
-        var agentPromotionContext = saleAgentPromotionContextResolver.resolve(pos);
-
-        var paidLines = ticketLinePreparationService.toTicketLines(
-            tenantId,
-            mergedLines,
-            command.currency()
-        );
-
+        var paidLines = ticketLinePreparationService.toTicketLines(tenantId, mergedLines, command.currency());
         var initialCharges = saleChargeCalculator.compute(tenantId, command);
         var initialMoney = saleMoneyCalculator.compute(paidLines, initialCharges, command);
+
+        var sellerContext = saleSellerContextResolver.resolve(pos);
 
         var promotionDecision = salePromotionEvaluator.evaluate(
             tenantId,
             command,
             pos,
             now,
-            initialMoney.total(),
-            mode
+            initialMoney.total()
         );
 
-        var appliedPromotion = salePromotionEffectApplier.apply(
-            promotionDecision,
-            paidLines,
-            initialCharges,
-            command,
-            command.currency()
-        );
+        var appliedPromotion = mode == SaleEvaluationMode.FINAL
+            ? salePromotionEffectApplier.apply(promotionDecision, paidLines, initialCharges, command, command.currency())
+            : AppliedSalePromotionEffects.none(paidLines, initialCharges);
 
         var finalLines = appliedPromotion.ticketLines();
         var finalCharges = appliedPromotion.charges();
-
         var finalMoney = saleMoneyCalculator.compute(finalLines, finalCharges, command);
-
-        var policyDecision = saleLimitAutonomyEvaluator.evaluate(
-            tenantId,
-            command,
-            pos,
-            draw,
-            toLimitInputs(finalLines),
-            now
-        );
 
         var policyDecision = saleLimitAutonomyEvaluator.evaluate(
             tenantId,
@@ -121,7 +94,7 @@ public class SalePreparationOrchestrator {
 
         var notices = SalesNoticeAssembler.assemble(
             policyDecision,
-            charges,
+            finalCharges,
             promotionDecision
         );
 
@@ -134,16 +107,18 @@ public class SalePreparationOrchestrator {
             draw,
             now,
             mergedLines,
-            ticketLines,
-            charges,
-            moneyBreakdown,
+            finalLines,
+            finalCharges,
+            finalMoney,
             policyDecision.limits(),
             policyDecision.autonomy(),
             policyDecision.requiresApproval(),
             policyDecision.approvalLevel(),
             approvalRequestId,
             promotionDecision,
-            List.copyOf(notices)
+            List.copyOf(notices),
+            sellerContext.sellerId(),
+            sellerContext.sellerAssignmentId()
         );
     }
 }

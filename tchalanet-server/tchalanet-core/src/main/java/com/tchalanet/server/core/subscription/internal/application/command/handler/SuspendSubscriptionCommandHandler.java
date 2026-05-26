@@ -3,6 +3,7 @@ package com.tchalanet.server.core.subscription.internal.application.command.hand
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.subscription.api.command.SuspendSubscriptionCommand;
 import com.tchalanet.server.core.subscription.api.command.SuspendSubscriptionResult;
@@ -12,9 +13,6 @@ import com.tchalanet.server.core.subscription.internal.application.port.out.Subs
 import com.tchalanet.server.platform.entitlement.api.EntitlementCacheInvalidationApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-
-import java.time.Clock;
-import java.time.Instant;
 
 /**
  * Handler for SuspendSubscriptionCommand.
@@ -27,7 +25,7 @@ public class SuspendSubscriptionCommandHandler
     private final SubscriptionReaderPort readerPort;
     private final SubscriptionPersistencePort persistencePort;
     private final ApplicationEventPublisher eventPublisher;
-    private final Clock clock;
+    private final TchTimeProvider timeProvider;
     private final EntitlementCacheInvalidationApi entitlementCacheInvalidationApi;
 
     @Override
@@ -35,7 +33,7 @@ public class SuspendSubscriptionCommandHandler
     public SuspendSubscriptionResult handle(SuspendSubscriptionCommand cmd) {
         var subscription = readerPort.findByTenantId(cmd.tenantId())
             .orElseThrow(() -> new IllegalArgumentException("Subscription not found for tenant: " + cmd.tenantId()));
-        Instant now = Instant.now(clock);
+        var now = timeProvider.now();
         var suspended = subscription.suspend(now);
         var saved = persistencePort.save(suspended);
         AfterCommit.run(() -> {
@@ -45,10 +43,10 @@ public class SuspendSubscriptionCommandHandler
                 saved.planCode(),
                 saved.status(),
                 saved.version(),
-                Instant.now(clock),
+                now,
                 "system"
             ));
         });
-        return new SuspendSubscriptionResult(saved.id());
+        return new SuspendSubscriptionResult(saved.id(), saved.status());
     }
 }

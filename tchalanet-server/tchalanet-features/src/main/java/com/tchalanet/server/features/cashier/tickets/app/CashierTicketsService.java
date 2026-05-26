@@ -73,7 +73,8 @@ public class CashierTicketsService {
             drawChannelId(request.drawChannelId()),
             CurrencyCode.of(request.currency()),
             lines(request.lines()),
-            SaleCommunicationOptions.none()
+            SaleCommunicationOptions.none(),
+            request.promotionChoices()
         ));
         return new CashierSellTicketResponse(
             result.outcome(),

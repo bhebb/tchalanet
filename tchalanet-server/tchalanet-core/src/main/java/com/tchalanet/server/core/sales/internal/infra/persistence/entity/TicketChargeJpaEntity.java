@@ -64,4 +64,7 @@ public class TicketChargeJpaEntity extends BaseTenantEntity {
 
     @Column(name = "currency", nullable = false, length = 3, updatable = false)
     private String currency;
+
+    @Column(name = "waived_by_rule_id", updatable = false)
+    private java.util.UUID waivedByRuleId;
 }

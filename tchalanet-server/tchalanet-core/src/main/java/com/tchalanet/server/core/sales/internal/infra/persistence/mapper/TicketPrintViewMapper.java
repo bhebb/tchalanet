@@ -107,7 +107,10 @@ public class TicketPrintViewMapper {
                 header.getOutletReceiptHeader(),
                 header.getOutletReceiptFooter()
             ),
-            ticket.lines().stream().map(this::toPrintLine).toList(),
+            ticket.lines().stream()
+                .sorted(java.util.Comparator.comparingInt(
+                    com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine::lineNumber))
+                .map(this::toPrintLine).toList(),
             new TicketPrintMoney(
                 ticket.money().stakeAmount(),
                 ticket.money().breakdown().charges().stream().map(this::toPrintCharge).toList(),
@@ -145,7 +148,9 @@ public class TicketPrintViewMapper {
             line.selection() == null ? null : line.selection().key().value(),
             line.oddsSnapshot(),
             line.stakeAmount(),
-            line.potentialPayoutAmount()
+            line.potentialPayoutAmount(),
+            line.origin(),
+            line.pricingSource()
         );
     }
 
@@ -154,7 +159,8 @@ public class TicketPrintViewMapper {
             charge.type(),
             charge.paidBy(),
             chargeLabel(charge.type()),
-            charge.amount()
+            charge.amount(),
+            charge.waivedByRuleId()
         );
     }
 

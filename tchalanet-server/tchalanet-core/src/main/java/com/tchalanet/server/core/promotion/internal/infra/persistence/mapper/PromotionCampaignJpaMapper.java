@@ -3,27 +3,26 @@ package com.tchalanet.server.core.promotion.internal.infra.persistence.mapper;
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.CreatePromotionCampaignCommand;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignStatus;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffectConfigView;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffectType;
-import com.tchalanet.server.core.promotion.api.model.PromotionEligibilityConfigView;
-import com.tchalanet.server.core.promotion.api.model.PromotionEligibilityType;
-import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
-import com.tchalanet.server.core.promotion.api.model.PromotionRuleStatus;
-import com.tchalanet.server.core.promotion.api.model.PromotionRuleView;
+import com.tchalanet.server.core.promotion.api.command.lifecycle.UpdatePromotionCampaignCommand;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigView;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityConfigView;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionCampaignJpaEntity;
+import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleEffectJpaEntity;
+import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleEligibilityLineJpaEntity;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionRuleJpaEntity;
-import org.mapstruct.Mapper;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PromotionCampaignJpaMapper {
     default void updateFromCreate(CreatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
-        e.setCode(cmd.name()); //todo Nulll
+        e.setCode(cmd.name());
         e.setName(cmd.name());
         e.setStatus(PromotionCampaignStatus.DRAFT);
         e.setPriority(cmd.priority());
@@ -31,19 +30,16 @@ public interface PromotionCampaignJpaMapper {
         e.setEndsAt(cmd.endsAt());
     }
 
-    default void updateFromUpdate(com.tchalanet.server.core.promotion.api.command.lifecycle.UpdatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
+    default void updateFromUpdate(UpdatePromotionCampaignCommand cmd, PromotionCampaignJpaEntity e) {
         e.setName(cmd.name());
-        e.setPriority(cmd.priority());
-        e.setStartsAt(cmd.startsAt());
         e.setPriority(cmd.priority());
         e.setStartsAt(cmd.startsAt());
         e.setEndsAt(cmd.endsAt());
     }
 
-
     default PromotionCampaignView toView(
         PromotionCampaignJpaEntity campaign,
-        List<PromotionRuleJpaEntity> rules
+        List<PromotionRuleView> rules
     ) {
         return new PromotionCampaignView(
             PromotionCampaignId.of(campaign.getId()),
@@ -53,93 +49,62 @@ public interface PromotionCampaignJpaMapper {
             campaign.getPriority(),
             campaign.getStartsAt(),
             campaign.getEndsAt(),
-            rules == null ? List.of() : rules.stream().map(this::toRuleView).toList()
+            rules == null ? List.of() : List.copyOf(rules)
         );
     }
 
-    default PromotionRuleView toRuleView(PromotionRuleJpaEntity rule) {
+    default PromotionRuleView toRuleView(
+        PromotionRuleJpaEntity rule,
+        List<PromotionRuleEligibilityLineJpaEntity> eligibilityLines,
+        List<PromotionRuleEffectJpaEntity> effects
+    ) {
+        var eligibility = new java.util.ArrayList<PromotionEligibilityConfigView>();
+        if (rule.getMinPaidTotal() != null) {
+            eligibility.add(new PromotionEligibilityConfigView(
+                PromotionEligibilityType.MIN_PAID_TOTAL,
+                Map.of("amount", rule.getMinPaidTotal())
+            ));
+        }
+        if (rule.getBeforeLocalTime() != null) {
+            eligibility.add(new PromotionEligibilityConfigView(
+                PromotionEligibilityType.BEFORE_LOCAL_TIME,
+                Map.of("time", rule.getBeforeLocalTime().toString())
+            ));
+        }
+        if (eligibilityLines != null) {
+            eligibility.addAll(eligibilityLines.stream()
+                .map(line -> new PromotionEligibilityConfigView(
+                    PromotionEligibilityType.PAID_LINE_COUNT,
+                    Map.of("gameCode", line.getGameCode(), "minCount", line.getMinCount())))
+                .toList());
+        }
+
         return new PromotionRuleView(
             PromotionRuleId.of(rule.getId()),
             rule.getRuleKey(),
-            parseRuleStatus(rule.getStatus()),
-            parseEvaluationPhase(rule.getEvaluationPhase()),
             rule.getPriority(),
-            toEligibilityViews(rule.getEligibilityJson()),
-            toEffectViews(rule.getEffectsJson()),
-            rule.getQuotaKey(),
-            rule.getMaxUses()
+            eligibility,
+            effects == null ? List.of() : effects.stream().map(this::toEffectView).toList()
         );
     }
 
-    default List<PromotionEligibilityConfigView> toEligibilityViews(Map<String, Object> json) {
-        return readItems(json).stream()
-            .map(this::toEligibilityView)
-            .toList();
-    }
-
-    default List<PromotionEffectConfigView> toEffectViews(Map<String, Object> json) {
-        return readItems(json).stream()
-            .map(this::toEffectView)
-            .toList();
-    }
-
-    default PromotionEligibilityConfigView toEligibilityView(Map<String, Object> item) {
-        var copy = new LinkedHashMap<>(item);
-        var typeRaw = copy.remove("type");
-
-        if (typeRaw == null) {
-            typeRaw = copy.remove("conditionType");
+    default PromotionEffectConfigView toEffectView(PromotionRuleEffectJpaEntity effect) {
+        var params = new LinkedHashMap<String, Object>();
+        if (effect.getGameCode() != null) {
+            params.put("gameCode", effect.getGameCode());
         }
-
-        if (typeRaw == null) {
-            typeRaw = copy.remove("eligibilityType");
+        if (effect.getPayoutBaseAmount() != null) {
+            params.put("payoutBaseAmount", effect.getPayoutBaseAmount());
         }
-
-        var type = PromotionEligibilityType.valueOf(String.valueOf(typeRaw));
-
-        return new PromotionEligibilityConfigView(type, copy);
-    }
-
-    default PromotionEffectConfigView toEffectView(Map<String, Object> item) {
-        var copy = new LinkedHashMap<>(item);
-        var typeRaw = copy.remove("type");
-
-        if (typeRaw == null) {
-            typeRaw = copy.remove("effectType");
+        if (effect.getQuantity() != null) {
+            params.put("quantity", effect.getQuantity());
         }
-
-        var type = PromotionEffectType.valueOf(String.valueOf(typeRaw));
-
-        return new PromotionEffectConfigView(type, copy);
-    }
-
-    @SuppressWarnings("unchecked")
-    default List<Map<String, Object>> readItems(Map<String, Object> json) {
-        if (json == null || json.isEmpty()) {
-            return List.of();
+        if (effect.getOddsOverride() != null) {
+            params.put("oddsOverride", effect.getOddsOverride());
         }
-
-        var raw = json.get("items");
-
-        if (raw == null) {
-            return List.of();
+        if (effect.getChargeType() != null) {
+            params.put("chargeType", effect.getChargeType());
         }
-
-        if (!(raw instanceof List<?> list)) {
-            return List.of();
-        }
-
-        return list.stream()
-            .filter(Map.class::isInstance)
-            .map(item -> (Map<String, Object>) item)
-            .toList();
-    }
-
-    default PromotionRuleStatus parseRuleStatus(String value) {
-        return value == null ? null : PromotionRuleStatus.valueOf(value);
-    }
-
-    default PromotionEvaluationPhase parseEvaluationPhase(String value) {
-        return value == null ? null : PromotionEvaluationPhase.valueOf(value);
+        return new PromotionEffectConfigView(effect.getEffectType(), params);
     }
 }

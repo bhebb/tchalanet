@@ -74,10 +74,15 @@ public class TicketLinePreparationService {
             input.gameCode(),
             input.betType(),
             selectionApi.canonicalize(input.betType(), input.betOption(), input.rawSelection()),
-            new Money(stake, currency),
-            odds,
-            new Money(potential, currency),
+            new Money(stake, currency), // stakeAmount
+            new Money(stake, currency), // payoutBaseAmount = stake for normal lines
+            odds, // oddsSnapshot
+            new Money(potential, currency), // potentialPayoutAmount
             input.betOption(),
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin.CUSTOMER,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource.STANDARD,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.CUSTOMER_SELECTED,
+            null,
             TicketLineResultStatus.PENDING,
             Money.zero(currency)
         );

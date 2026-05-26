@@ -6,8 +6,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.core.promotion.api.model.*;
 import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionQuery;
-import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionDecisionPort;
-import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionRuleReadPort;
+import com.tchalanet.server.core.promotion.internal.application.port.out.rule.PromotionRuleReadPort;
 import com.tchalanet.server.core.promotion.internal.application.service.PromotionContextHasher;
 import com.tchalanet.server.core.promotion.internal.application.service.PromotionRuleEvaluator;
 import java.time.Clock;
@@ -20,7 +19,6 @@ public class EvaluatePromotionQueryHandler implements QueryHandler<EvaluatePromo
     private static final String ENGINE_VERSION = "promotionDecision-mvp-1";
 
     private final PromotionRuleReadPort rules;
-    private final PromotionDecisionPort decisions;
     private final PromotionRuleEvaluator evaluator;
     private final PromotionContextHasher hasher;
     private final IdGenerator idGenerator;
@@ -30,7 +28,7 @@ public class EvaluatePromotionQueryHandler implements QueryHandler<EvaluatePromo
     public PromotionDecision handle(EvaluatePromotionQuery q) {
         var ctx = q.context();
         var hash = hasher.hash(ctx);
-        var effects = rules.findActiveRulesForPhase(ctx.phase()).stream()
+        var effects = rules.findActiveRules().stream()
             .flatMap(rule -> evaluator.evaluate(rule, ctx).stream())
             .toList();
 
@@ -46,10 +44,6 @@ public class EvaluatePromotionQueryHandler implements QueryHandler<EvaluatePromo
             effects.isEmpty() ? java.util.List.of() : java.util.List.of("promotionDecision.applied")
         );
 
-        // Persist decision on SALE_CONFIRMATION, not necessarily on preview.
-        if (ctx.phase() == PromotionEvaluationPhase.SALE_CONFIRMATION) {
-            return decisions.save(decision);
-        }
         return decision;
     }
 }

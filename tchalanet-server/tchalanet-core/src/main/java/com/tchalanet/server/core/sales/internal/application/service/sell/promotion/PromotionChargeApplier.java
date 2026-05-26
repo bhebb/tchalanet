@@ -1,8 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell.promotion;
 
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffect;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffectType;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +20,10 @@ public class PromotionChargeApplier {
             return;
         }
 
-        var chargeType = effect.appliesTo(); // ex: BUYER_SMS
+        var chargeType = effect.appliesTo();
 
-        charges.removeIf(c -> c.type().name().equals(chargeType));
-
-        // Option alternative:
-        // garder une charge amount=0 pour affichage/audit.
+        // Mark as waived (keeps original amount for print/audit) instead of removing.
+        // isBuyerFacing() returns false for waived charges so the total is unaffected.
+        charges.replaceAll(c -> c.type().name().equals(chargeType) ? c.asWaived(effect.ruleId()) : c);
     }
 }

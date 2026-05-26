@@ -5,10 +5,11 @@ import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.core.promotion.api.command.lifecycle.ActivatePromotionCampaignCommand;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCacheEvictorPort;
-import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCampaignReadPort;
-import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCampaignWritePort;
+import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignReadPort;
+import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignWritePort;
+import com.tchalanet.server.core.promotion.internal.application.service.lifecycle.PromotionCampaignActivationPolicy;
 import com.tchalanet.server.core.promotion.internal.domain.model.PromotionCampaignTransition;
 import com.tchalanet.server.core.promotion.internal.domain.service.PromotionCampaignStateMachine;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,15 @@ public class ActivatePromotionCampaignCommandHandler
     private final PromotionCampaignReadPort readerPort;
     private final PromotionCampaignWritePort writePort;
     private final PromotionCampaignStateMachine stateMachine;
+    private final PromotionCampaignActivationPolicy activationPolicy;
     private final PromotionCacheEvictorPort cacheEvictor;
 
     @Override
     @TchTx
     public PromotionCampaignView handle(ActivatePromotionCampaignCommand cmd) {
         var campaign = readerPort.getRequired(cmd.campaignId());
+
+        activationPolicy.validate(campaign);
 
         var nextStatus = stateMachine.apply(
             campaign.status(),

@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
+import com.tchalanet.server.common.types.id.SellerId;
+import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
@@ -14,6 +16,7 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
@@ -160,6 +163,7 @@ public interface TicketJpaMapper {
         entity.setPaidBy(charge.paidBy());
         entity.setAmount(charge.amount().amount());
         entity.setCurrency(charge.amount().currency().value());
+        entity.setWaivedByRuleId(charge.waivedByRuleId() == null ? null : charge.waivedByRuleId().value());
 
         return entity;
     }
@@ -182,7 +186,9 @@ public interface TicketJpaMapper {
             UserId.of(entity.getSellerUserId()),
             SalesSessionId.of(entity.getSalesSessionId()),
             DrawId.of(entity.getDrawId()),
-            DrawChannelId.of(entity.getDrawChannelId())
+            DrawChannelId.of(entity.getDrawChannelId()),
+            SellerId.nullableOf(entity.getSellerId()),
+            SellerOutletAssignmentId.nullableOf(entity.getSellerAssignmentId())
         );
     }
 
@@ -412,6 +418,8 @@ public interface TicketJpaMapper {
         entity.setSalesSessionId(context.salesSessionId().value());
         entity.setDrawId(context.drawId().value());
         entity.setDrawChannelId(context.drawChannelId().value());
+        entity.setSellerId(context.sellerId() == null ? null : context.sellerId().value());
+        entity.setSellerAssignmentId(context.sellerAssignmentId() == null ? null : context.sellerAssignmentId().value());
     }
 
     default void applyCodes(TicketCodes codes, @MappingTarget TicketJpaEntity entity) {
@@ -560,7 +568,8 @@ public interface TicketJpaMapper {
         return new TicketCharge(
             entity.getChargeType(),
             new Money(entity.getAmount(), currency),
-            entity.getPaidBy()
+            entity.getPaidBy(),
+            entity.getWaivedByRuleId() == null ? null : PromotionRuleId.of(entity.getWaivedByRuleId())
         );
     }
 

@@ -561,6 +561,7 @@ CREATE TABLE sales_ticket_charge_aud (
   paid_by varchar(16),
   amount numeric(19,4),
   currency varchar(3),
+  waived_by_rule_id uuid,
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -795,4 +796,128 @@ CREATE TABLE sales_session_offline_adjustment_aud (
   version bigint,
   CONSTRAINT pk_sales_session_offline_adjustment_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_sales_session_offline_adjustment_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+-- ─── Promotion audit tables ──────────────────────────────────────────
+CREATE TABLE promotion_campaign_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  code varchar(96),
+  name varchar(160),
+  status varchar(32),
+  priority integer,
+  starts_at timestamptz,
+  ends_at timestamptz,
+  config_version varchar(48),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_rule_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  campaign_id uuid,
+  rule_key varchar(96),
+  priority integer,
+  min_paid_total numeric(19,4),
+  before_local_time time,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_rule_effect_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  rule_id uuid,
+  effect_type varchar(32),
+  game_code varchar(64),
+  payout_base_amount numeric(19,4),
+  quantity integer,
+  odds_override numeric(19,6),
+  charge_type varchar(64),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_rule_eligibility_line_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  rule_id uuid,
+  game_code varchar(64),
+  min_count integer,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_decision_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  decision_status varchar(32),
+  evaluation_phase varchar(48),
+  evaluated_at timestamptz,
+  context_hash varchar(128),
+  engine_version varchar(48),
+  decision_json jsonb,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE applied_promotion_snapshot_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  ticket_id uuid,
+  promotion_decision_id uuid,
+  decision_status varchar(32),
+  applied_at timestamptz,
+  snapshot_json jsonb,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
 );

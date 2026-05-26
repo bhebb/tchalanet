@@ -4,6 +4,7 @@ import com.tchalanet.server.common.types.id.PromotionCampaignId;
 
 import java.time.Instant;
 import java.util.List;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionRuleView;
 
 public record PromotionCampaignView(
     PromotionCampaignId id,

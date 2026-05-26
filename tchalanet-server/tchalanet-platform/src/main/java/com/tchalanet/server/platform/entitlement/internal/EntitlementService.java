@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.OptionalInt;
 
 @Slf4j
 @Service
@@ -35,14 +36,14 @@ public class EntitlementService implements EntitlementApi {
     }
 
     @Override
-    public int limitValue(TenantId tenantId, String limitKey) {
+    public OptionalInt limitValue(TenantId tenantId, String limitKey) {
         return entitlementCapabilitiesGetter.getSnapshot(tenantId).getLimit(limitKey);
     }
 
     @Override
     public void requireLimitAtMost(TenantId tenantId, String limitKey, int currentUsage) {
-        int limit = limitValue(tenantId, limitKey);
-        // Changed condition from currentUsage >= limit to currentUsage > limit
+        int limit = limitValue(tenantId, limitKey)
+            .orElseThrow(() -> ProblemRest.internal("Missing entitlement limit: " + limitKey));
         if (currentUsage > limit) {
             throw ProblemRest.forbidden("entitlement.limit_exceeded",
                 Map.of("limitKey", limitKey, "limit", limit, "current", currentUsage));

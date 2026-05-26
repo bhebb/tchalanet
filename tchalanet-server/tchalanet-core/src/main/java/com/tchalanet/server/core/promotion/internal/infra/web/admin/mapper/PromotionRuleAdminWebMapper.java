@@ -3,17 +3,18 @@ package com.tchalanet.server.core.promotion.internal.infra.web.admin.mapper;
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.promotion.api.command.AddPromotionRuleCommand;
-import com.tchalanet.server.core.promotion.api.command.UpdatePromotionRuleCommand;
-import com.tchalanet.server.core.promotion.api.command.UpdatePromotionRuleEffectsCommand;
-import com.tchalanet.server.core.promotion.api.command.UpdatePromotionRuleEligibilityCommand;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffectConfigInput;
-import com.tchalanet.server.core.promotion.api.model.PromotionEligibilityConfigInput;
+import com.tchalanet.server.core.promotion.api.command.rule.AddPromotionRuleCommand;
+import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleCommand;
+import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
+import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectConfigInput;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEligibilityConfigInput;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.AddPromotionRuleRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleEffectsRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleEligibilityRequest;
 import com.tchalanet.server.core.promotion.internal.infra.web.admin.request.UpdatePromotionRuleRequest;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 public class PromotionRuleAdminWebMapper {
@@ -27,9 +28,9 @@ public class PromotionRuleAdminWebMapper {
             tenantId,
             campaignId,
             request.ruleKey(),
-            request.phase(),
             request.priority(),
-            request.active()
+            request.eligibilityItems(),
+            request.effectItems()
         );
     }
 
@@ -44,9 +45,7 @@ public class PromotionRuleAdminWebMapper {
             campaignId,
             ruleId,
             request.ruleKey(),
-            request.phase(),
-            request.priority(),
-            request.active()
+            request.priority()
         );
     }
 
@@ -86,4 +85,3 @@ public class PromotionRuleAdminWebMapper {
         );
     }
 }
-

@@ -2,7 +2,7 @@ package com.tchalanet.server.core.promotion.internal.application.port.out.lifecy
 
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
 
@@ -16,6 +16,5 @@ public interface PromotionCampaignReadPort {
     PromotionCampaignView getRequired(@NotNull PromotionCampaignId promotionCampaignId);
 
 }
-
 
 

@@ -2,8 +2,8 @@ package com.tchalanet.server.core.promotion.internal.application.port.out.lifecy
 
 import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.TenantId;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignStatus;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
 
 public interface PromotionCampaignWritePort {
     PromotionCampaignView create(com.tchalanet.server.core.promotion.api.command.lifecycle.CreatePromotionCampaignCommand cmd);
@@ -20,5 +20,4 @@ public interface PromotionCampaignWritePort {
     PromotionCampaignView updateRuleEffects(com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand cmd);
     PromotionCampaignView updateRuleEligibility(com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand cmd);
 }
-
 

@@ -7,11 +7,16 @@ import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
-import com.tchalanet.server.core.promotion.api.model.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
+import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.SelectionApi;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,18 +32,21 @@ public class PromotionTicketLineFactory {
     public List<TicketLine> createLines(
         PromotionEffect effect,
         PromotionDecision decision,
+        List<TicketLine> existingLines,
         SellTicketCommand command,
         CurrencyCode currency
     ) {
-        if (effect.type() != PromotionEffectType.FREE_GAME_LINE
-            && effect.type() != PromotionEffectType.FREE_EXTRA_LINES) {
+        if (effect.type() != PromotionEffectType.FREE_GAME_LINE) {
             return List.of();
         }
+
+        var baseLineNumber = existingLines == null ? 0
+            : existingLines.stream().mapToInt(TicketLine::lineNumber).max().orElse(0);
 
         var out = new ArrayList<TicketLine>();
 
         for (int i = 0; i < effect.quantity(); i++) {
-            out.add(createLine(effect, decision, command, currency, i));
+            out.add(createLine(effect, decision, command, currency, baseLineNumber + i + 1, i));
         }
 
         return List.copyOf(out);
@@ -49,6 +57,7 @@ public class PromotionTicketLineFactory {
         PromotionDecision decision,
         SellTicketCommand command,
         CurrencyCode currency,
+        int lineNumber,
         int index
     ) {
         var gameCode = GameCode.valueOf(effect.gameCode());
@@ -74,7 +83,7 @@ public class PromotionTicketLineFactory {
 
         return TicketLine.promotionLine(
             TicketLineId.of(idGenerator.newUuid()),
-            nextPromotionLineNumber(command, index),
+            lineNumber,
             gameCode,
             betType,
             selectionApi.canonicalize(betType, betOption, selectionResult.rawSelection()),
@@ -83,8 +92,19 @@ public class PromotionTicketLineFactory {
             odds,
             new Money(potential, currency),
             betOption,
-            selectionResult.source(),
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.valueOf(String.valueOf(selectionResult.source())),
             decision.decisionId()
         );
     }
+
+    private BetType resolveBetTypeForPromoGame(GameCode gameCode) {
+        // Use the game's first allowed bet type (EnumSet preserves declaration order).
+        // TODO: add betType field to PromotionEffect if multi-bet-type games need explicit selection.
+        return gameCode.allowedBetTypes().iterator().next();
+    }
+
+    private Short resolveBetOptionForPromoGame(GameCode gameCode) {
+        return null;
+    }
+
 }

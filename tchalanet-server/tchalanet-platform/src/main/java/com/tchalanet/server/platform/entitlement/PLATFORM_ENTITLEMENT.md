@@ -74,7 +74,7 @@ public interface EntitlementApi {
 
   void requireFeature(TenantId tenantId, String featureKey);
 
-  int limitValue(TenantId tenantId, String limitKey); // Removed defaultValue
+  OptionalInt limitValue(TenantId tenantId, String limitKey);
 
   void requireLimitAtMost(TenantId tenantId, String limitKey, int currentUsage); // Renamed requestedValue to currentUsage
 }
@@ -95,8 +95,8 @@ public record TenantCapabilitySnapshot(
     return features.getOrDefault(key, false);
   }
 
-  public int getLimit(String key) { // Renamed limit to getLimit
-    return limits.getOrDefault(key, 0); // Default to 0 if limit not found
+  public OptionalInt getLimit(String key) {
+    return limits.containsKey(key) ? OptionalInt.of(limits.get(key)) : OptionalInt.empty();
   }
 }
 ```
@@ -243,6 +243,12 @@ Response:
   "resolvedAt": "2023-10-27T10:00:00Z"
 }
 ```
+
+Rules:
+
+- Absent limits stay absent in the REST `limits` object.
+- Java callers use `OptionalInt` to distinguish absent from `0`.
+- Do not use sentinel values such as `-1` for unlimited or missing limits.
 
 Admin/platform variants can come later.
 

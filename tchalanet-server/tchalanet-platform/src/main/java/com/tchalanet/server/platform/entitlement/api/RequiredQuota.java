@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation to mark an application entry point (e.g., a controller method)
  * as requiring a specific quota to be respected for the current tenant.
- * If the current usage exceeds or meets the defined limit, a {@code ProblemRest.forbidden}
+ * If the current usage exceeds the defined limit, a {@code ProblemRest.forbidden}
  * exception will be thrown.
  * <p>
  * This annotation relies on {@link EntitlementApi#requireLimitAtMost(com.tchalanet.server.common.types.id.TenantId, String, int)}.

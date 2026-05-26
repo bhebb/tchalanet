@@ -7,12 +7,7 @@ import java.util.List;
 public record PromotionRuleView(
     PromotionRuleId id,
     String ruleKey,
-    PromotionRuleStatus status,
-    PromotionEvaluationPhase evaluationPhase,
     int priority,
     List<PromotionEligibilityConfigView> eligibility,
-    List<PromotionEffectConfigView> effects,
-    String quotaKey,
-    Integer maxUses
+    List<PromotionEffectConfigView> effects
 ) {}
-

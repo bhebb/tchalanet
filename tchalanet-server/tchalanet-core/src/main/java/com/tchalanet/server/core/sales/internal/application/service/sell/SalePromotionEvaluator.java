@@ -8,13 +8,12 @@ import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationContext;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.promotion.api.query.EvaluatePromotionQuery;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
-import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
-import com.tchalanet.server.core.sales.internal.application.service.sell.model.SaleAgentPromotionContext;
 import com.tchalanet.server.core.session.api.model.ValidatedPosOperationContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -26,29 +25,25 @@ public class SalePromotionEvaluator {
         TenantId tenantId,
         SellTicketCommand command,
         ValidatedPosOperationContext pos,
-        SaleAgentPromotionContext agentCtx,
         Instant now,
-        Money paidTotal,
-        SaleEvaluationMode mode
+        Money paidTotal
     ) {
         var paidGameCodes = command.lines().stream()
             .map(l -> l.gameCode().name())
             .distinct()
             .toList();
 
-        var phase = switch (mode) {
-            case PREVIEW -> PromotionEvaluationPhase.SALE_PREVIEW;
-            case FINAL -> PromotionEvaluationPhase.SALE_CONFIRMATION;
-        };
+        var phase = PromotionEvaluationPhase.SALE_CONFIRMATION;
 
+        // Seller context is resolved separately; agent fields are null pending promotion redesign.
         var context = new PromotionEvaluationContext(
             tenantId,
             phase,
             now,
-            agentCtx.agentId(),
-            agentCtx.agentPath(),
-            agentCtx.zoneId(),
-            agentCtx.zonePath(),
+            null,
+            List.of(),
+            null,
+            List.of(),
             pos.outletId(),
             pos.terminalId(),
             pos.salesSessionId(),

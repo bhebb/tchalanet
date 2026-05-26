@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.api.model.money;
 
+import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.money.Money;
 
 import java.util.Objects;
@@ -7,18 +8,15 @@ import java.util.Objects;
 /**
  * A single charge applied to a ticket sale, on top of the stake.
  *
- * <p>Examples: SMS notification fee, WhatsApp notification fee, optional
- * insurance, weekend surcharge. Each charge declares its type and who pays it.
- *
- * <p>Only charges where {@code paidBy == BUYER} contribute to the ticket's
- * {@code total}. Charges paid by the seller or the tenant are tracked for
- * internal cost accounting (via a separate ledger flow) but do NOT inflate
- * the buyer-facing total.
+ * <p>Only charges where {@code paidBy == BUYER && waivedByRuleId == null} contribute to the
+ * ticket's {@code total}. Waived charges keep their original amount for audit
+ * and print display but are excluded from the buyer-facing total.
  */
 public record TicketCharge(
     TicketChargeType type,
     Money amount,
-    ChargePaidBy paidBy
+    ChargePaidBy paidBy,
+    PromotionRuleId waivedByRuleId
 ) {
     public TicketCharge {
         Objects.requireNonNull(type, "type is required");
@@ -29,7 +27,20 @@ public record TicketCharge(
         }
     }
 
+    public TicketCharge(TicketChargeType type, Money amount, ChargePaidBy paidBy) {
+        this(type, amount, paidBy, null);
+    }
+
+    public boolean isWaived() {
+        return waivedByRuleId != null;
+    }
+
     public boolean isBuyerFacing() {
-        return paidBy == ChargePaidBy.BUYER;
+        return paidBy == ChargePaidBy.BUYER && waivedByRuleId == null;
+    }
+
+    public TicketCharge asWaived(PromotionRuleId ruleId) {
+        Objects.requireNonNull(ruleId, "ruleId is required");
+        return new TicketCharge(type, amount, paidBy, ruleId);
     }
 }

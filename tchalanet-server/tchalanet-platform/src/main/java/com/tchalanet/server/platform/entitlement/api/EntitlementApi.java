@@ -3,7 +3,7 @@ package com.tchalanet.server.platform.entitlement.api;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.entitlement.api.model.TenantCapabilitySnapshot;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * Public API for checking tenant entitlements (features and limits).
@@ -26,9 +26,9 @@ public interface EntitlementApi {
     void requireFeature(TenantId tenantId, String featureKey);
 
     /**
-     * Gets the numeric limit for a key. Returns 0 if not found.
+     * Gets the numeric limit for a key, if the tenant plan defines one.
      */
-    int limitValue(TenantId tenantId, String limitKey);
+    OptionalInt limitValue(TenantId tenantId, String limitKey);
 
     /**
      * Ensures current usage is within limit.

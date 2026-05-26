@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignStatus;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

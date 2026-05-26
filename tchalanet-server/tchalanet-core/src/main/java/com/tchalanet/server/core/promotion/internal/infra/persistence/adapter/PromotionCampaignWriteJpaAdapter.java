@@ -9,9 +9,9 @@ import com.tchalanet.server.core.promotion.api.command.lifecycle.UpdatePromotion
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEffectsCommand;
 import com.tchalanet.server.core.promotion.api.command.rule.UpdatePromotionRuleEligibilityCommand;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignStatus;
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignView;
-import com.tchalanet.server.core.promotion.internal.application.port.out.PromotionCampaignWritePort;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignView;
+import com.tchalanet.server.core.promotion.internal.application.port.out.lifecycle.PromotionCampaignWritePort;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.entity.PromotionCampaignJpaEntity;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.mapper.PromotionCampaignJpaMapper;
 import com.tchalanet.server.core.promotion.internal.infra.persistence.repository.PromotionCampaignRepository;
@@ -38,6 +38,7 @@ class PromotionCampaignWriteJpaAdapter implements PromotionCampaignWritePort {
         }
 
         var saved = campaignRepository.save(e);
+        ruleWriteSupport.addRules(saved, cmd.rules());
         return promotionCampaignViewAssembler.toCampaignView(saved.getId());
     }
 

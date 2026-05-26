@@ -22,7 +22,7 @@ public class PromotionCampaignAdminWebMapper {
             request.startsAt(),
             request.endsAt(),
             request.priority(),
-            request.stackingPolicy()
+            request.rules()
         );
     }
 
@@ -38,9 +38,7 @@ public class PromotionCampaignAdminWebMapper {
             request.description(),
             request.startsAt(),
             request.endsAt(),
-            request.priority(),
-            request.stackingPolicy()
+            request.priority()
         );
     }
 }
-

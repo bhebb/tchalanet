@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.promotion.internal.domain.model;
 
-import com.tchalanet.server.core.promotion.api.model.PromotionCampaignStatus;
+import com.tchalanet.server.core.promotion.api.model.lifecycle.PromotionCampaignStatus;
 
 public enum PromotionCampaignTransition {
     ACTIVATE,

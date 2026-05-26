@@ -34,11 +34,11 @@ public class StatsDailyUpdaterService {
     statsDailyRepo.upsertAndIncrement(
         "outlet", event.context().outletId().value(), refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
 
-    // agent
-    java.util.UUID agentId = event.context().sellerUserId() != null
+    // seller
+    java.util.UUID sellerUserId = event.context().sellerUserId() != null
         ? event.context().sellerUserId().value() : null;
     statsDailyRepo.upsertAndIncrement(
-        "agent", agentId, refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
+        "seller", sellerUserId, refDate, 1L, 0L, stakeCents, 0L, 0L, 0L, 0L);
   }
 
   @Transactional
