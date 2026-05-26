@@ -38,7 +38,7 @@ class PromotionCampaignReadJpaAdapter implements PromotionCampaignReadPort {
             PromotionCampaignId.of(p.id()),
             p.code(),
             p.name(),
-            PromotionCampaignStatus.valueOf(p.status()),
+            p.status(),
             p.priority(),
             p.startsAt(),
             p.endsAt(),
