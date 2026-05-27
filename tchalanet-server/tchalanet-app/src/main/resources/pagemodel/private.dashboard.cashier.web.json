@@ -73,6 +73,16 @@
             ]
           },
           {
+            "id": "readiness",
+            "label_key": "layout.private_dashboard_cashier.readiness",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": ["dashboard.cashier.readiness", "dashboard.cashier.alerts"]
+              }
+            ]
+          },
+          {
             "id": "overview",
             "label_key": "layout.private_dashboard_cashier.overview",
             "columns": [
@@ -133,6 +143,27 @@
           },
           "props": {
             "title_key": "dashboard.cashier.identity.title"
+          }
+        },
+        "dashboard.cashier.readiness": {
+          "type": "OperationalReadinessWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "cashier_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.cashier.readiness.title"
+          }
+        },
+        "dashboard.cashier.alerts": {
+          "type": "AlertsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "cashier_dashboard"
+          },
+          "props": {
+            "title_key": "dashboard.cashier.alerts.title",
+            "max_items": 5
           }
         },
         "dashboard.cashier.overview": {

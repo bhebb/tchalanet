@@ -2,6 +2,7 @@ package com.tchalanet.server.features.cashier.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
@@ -9,6 +10,7 @@ import com.tchalanet.server.core.session.api.query.GetCashierIdentityQuery;
 import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +21,19 @@ import org.springframework.stereotype.Component;
  * Loads the grouped payload for source {@code cashier_dashboard}.
  * One assembly per request — memoized via {@code PageModelResolutionContext}.
  *
- * Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12):
- *   1. identity (GetCashierIdentityQuery)
- *   2. session  (GetCashierSessionSummaryQuery)
- *   3. overview (GetCashierDashboardOverviewQuery — only if session active)
- *   4. nextDraws (ListCashierNextDrawsQuery)
- *   5. recentTickets (ListCashierRecentTicketsQuery)
+ * Grouped reads (target ≤ 4 per dashboard-overview-runtime-v1 §12) :
+ *   1. identity       — {@link GetCashierIdentityQuery}
+ *   2. session        — {@link GetCashierSessionSummaryQuery}
+ *   3. overview       — {@link GetCashierDashboardOverviewQuery} (only when session active)
+ *   4. nextDraws      — {@link ListCashierNextDrawsQuery}
+ *   5. recentTickets  — {@link ListCashierRecentTicketsQuery}
+ *
+ * Note: overview is conditional on an active session — most-common case is therefore
+ * ≤ 4 grouped reads. When a session is open, count goes to 5 (one over target, which
+ * is acceptable for V1 — the overview query is materially cheap).
+ *
+ * Readiness and alerts are derived from {@link OperationalContextHint} already
+ * carried by the HTTP request — no extra read.
  */
 @Component
 @RequiredArgsConstructor
@@ -46,8 +55,10 @@ public class CashierDashboardPayloadAssembler {
     Map<String, Object> overview = loadOverview(ctx, session);
     List<?> nextDraws = loadNextDraws();
     List<?> recentTickets = loadRecentTickets(ctx);
+    Map<String, Object> readiness = buildReadiness(ctx.operationalContext());
+    Map<String, Object> alerts = buildAlerts(ctx.operationalContext(), session);
 
-    return new Payload(identity, session, overview, nextDraws, recentTickets);
+    return new Payload(identity, session, overview, nextDraws, recentTickets, readiness, alerts);
   }
 
   private Map<String, Object> loadIdentity(TchRequestContext ctx) {
@@ -75,7 +86,6 @@ public class CashierDashboardPayloadAssembler {
         "ticketCount", view.ticketCount());
   }
 
-  @SuppressWarnings("unchecked")
   private Map<String, Object> loadOverview(TchRequestContext ctx, Map<String, Object> session) {
     if (!Boolean.TRUE.equals(session.get("active"))) {
       return Map.of(
@@ -119,15 +129,74 @@ public class CashierDashboardPayloadAssembler {
     return items != null ? items : List.of();
   }
 
+  /**
+   * Operational readiness derived from {@link OperationalContextHint} carried by the
+   * HTTP context — no extra DB read.
+   */
+  private Map<String, Object> buildReadiness(OperationalContextHint hint) {
+    List<String> missing = new ArrayList<>();
+    if (hint == null || hint.outletId() == null)   missing.add("OUTLET");
+    if (hint == null || hint.terminalId() == null) missing.add("TERMINAL");
+
+    boolean trusted = hint != null && hint.trustedForSensitiveOperation();
+    boolean ready = missing.isEmpty() && trusted;
+
+    return Map.of(
+        "ready", ready,
+        "trusted", trusted,
+        "source", hint != null && hint.source() != null ? hint.source().name() : "NONE",
+        "missing", List.copyOf(missing));
+  }
+
+  /**
+   * Operational alerts (blockers/warnings) — combines context flags + session state.
+   * No extra DB read; uses the data already loaded by session + the hint.
+   */
+  private Map<String, Object> buildAlerts(
+      OperationalContextHint hint, Map<String, Object> session) {
+    List<Map<String, Object>> warnings = new ArrayList<>();
+
+    if (hint == null || hint.outletId() == null) {
+      warnings.add(Map.of("severity", "BLOCKER", "code", "OUTLET_MISSING",
+          "messageKey", "alert.cashier.outlet_missing"));
+    }
+    if (hint == null || hint.terminalId() == null) {
+      warnings.add(Map.of("severity", "BLOCKER", "code", "TERMINAL_MISSING",
+          "messageKey", "alert.cashier.terminal_missing"));
+    }
+    if (hint != null && !hint.trustedForSensitiveOperation()) {
+      warnings.add(Map.of("severity", "WARNING", "code", "CONTEXT_UNTRUSTED",
+          "messageKey", "alert.cashier.context_untrusted"));
+    }
+    if (!Boolean.TRUE.equals(session.get("active"))) {
+      warnings.add(Map.of("severity", "WARNING", "code", "SESSION_CLOSED",
+          "messageKey", "alert.cashier.session_closed"));
+    }
+
+    return Map.of(
+        "count", warnings.size(),
+        "items", List.copyOf(warnings));
+  }
+
   public record Payload(
       Map<String, Object> identity,
       Map<String, Object> session,
       Map<String, Object> overview,
       List<?> nextDraws,
-      List<?> recentTickets) {
+      List<?> recentTickets,
+      Map<String, Object> readiness,
+      Map<String, Object> alerts) {
 
     public static Payload empty() {
-      return new Payload(Map.of(), Map.of("active", false), Map.of(), List.of(), List.of());
+      return new Payload(
+          Map.of(),
+          Map.of("active", false),
+          Map.of(),
+          List.of(),
+          List.of(),
+          Map.of("ready", false, "trusted", false, "source", "NONE",
+              "missing", List.of("OUTLET", "TERMINAL")),
+          Map.of("count", 0, "items", List.of()));
     }
   }
 }

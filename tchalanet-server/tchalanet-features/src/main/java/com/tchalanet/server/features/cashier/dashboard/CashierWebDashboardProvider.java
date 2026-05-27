@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
  *   - dashboard.cashier.next_draws
  *   - dashboard.cashier.recent_tickets
  *   - dashboard.cashier.quick_sale
+ *   - dashboard.cashier.readiness  (operational context : ready, trusted, missing)
+ *   - dashboard.cashier.alerts     (operational blockers + warnings)
  */
 @Component
 @RequiredArgsConstructor
@@ -58,6 +60,8 @@ public class CashierWebDashboardProvider implements PageModelDynamicProvider {
           "actionId", "SELL_TICKET",
           "label", "Vendre un ticket",
           "route", "/cashier/sell");
+      case "dashboard.cashier.readiness" -> payload.readiness();
+      case "dashboard.cashier.alerts" -> payload.alerts();
       default -> throw new PageModelDynamicProviderException(
           "CASHIER_DASHBOARD_UNKNOWN_WIDGET",
           "Unknown widgetId for source=" + SOURCE + ": " + widgetId);
