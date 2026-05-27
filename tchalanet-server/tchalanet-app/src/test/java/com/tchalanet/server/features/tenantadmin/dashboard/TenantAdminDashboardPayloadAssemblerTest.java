@@ -1,0 +1,213 @@
+package com.tchalanet.server.features.tenantadmin.dashboard;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.catalog.game.api.model.GameView;
+import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
+import com.tchalanet.server.catalog.tenant.api.model.TenantType;
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.scope.ApiScope;
+import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
+import com.tchalanet.server.core.outlet.api.query.OutletView;
+import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
+import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
+import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
+import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
+import com.tchalanet.server.features.stats.tenantdashboard.app.TenantDashboardStatsService;
+import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsResponse;
+import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsView;
+import com.tchalanet.server.features.stats.tenantdashboard.model.TenantSummaryCard;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Currency;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+class TenantAdminDashboardPayloadAssemblerTest {
+
+  private final TenantDashboardStatsService statsService = mock(TenantDashboardStatsService.class);
+  private final TenantCatalog tenantCatalog = mock(TenantCatalog.class);
+  private final GameCatalog gameCatalog = mock(GameCatalog.class);
+  private final DrawChannelCatalog drawChannelCatalog = mock(DrawChannelCatalog.class);
+  private final QueryBus queryBus = mock(QueryBus.class);
+
+  private final TenantAdminDashboardPayloadAssembler assembler =
+      new TenantAdminDashboardPayloadAssembler(
+          statsService, tenantCatalog, gameCatalog, drawChannelCatalog, queryBus);
+
+  private final TenantId tenantId = TenantId.of(UUID.randomUUID());
+
+  @Test
+  @DisplayName("returns Payload.empty when ctx is null")
+  void nullContext() {
+    var payload = assembler.assemble(null);
+
+    assertThat(payload.header()).isEmpty();
+    assertThat(payload.kpis()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("returns Payload.empty when ctx has no tenant id")
+  void noTenant() {
+    var payload = assembler.assemble(context(null));
+
+    assertThat(payload.header()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("header includes tenant catalog data when available")
+  void headerEnriched() {
+    when(tenantCatalog.findRegistryById(tenantId)).thenReturn(Optional.of(registry()));
+    when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
+    when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
+    when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+
+    var payload = assembler.assemble(context(tenantId));
+
+    assertThat(payload.header())
+        .containsEntry("tenantName", "Demo Tenant")
+        .containsEntry("tenantStatus", "ACTIVE")
+        .containsEntry("tenantType", "BORLETTE");
+  }
+
+  @Test
+  @DisplayName("KPIs propagate sales/tickets from TenantDashboardStatsService")
+  void kpisFromStats() {
+    var summary = new TenantSummaryCard(
+        42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO);
+    var stats = new TenantDashboardStatsView(LocalDate.now(), LocalDate.now(), summary, List.of(), List.of());
+    when(statsService.getStats(any(), any(), any()))
+        .thenReturn(new TenantDashboardStatsResponse(stats));
+    when(tenantCatalog.findRegistryById(tenantId)).thenReturn(Optional.empty());
+    when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
+    when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
+    when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+
+    var payload = assembler.assemble(context(tenantId));
+
+    assertThat(payload.kpis())
+        .containsEntry("salesToday", new BigDecimal("123.45"))
+        .containsEntry("ticketCountToday", 42L)
+        .containsEntry("activeSessions", 0L)
+        .containsEntry("openDraws", 0L)
+        .containsEntry("pendingApprovals", 0L);
+  }
+
+  @Test
+  @DisplayName("readiness is MISSING when every bundle is empty")
+  void readinessMissing() {
+    when(tenantCatalog.findRegistryById(tenantId)).thenReturn(Optional.empty());
+    when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
+    when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
+    when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
+    when(gameCatalog.listActive()).thenReturn(List.of());
+    when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+
+    var payload = assembler.assemble(context(tenantId));
+
+    assertThat(payload.readiness()).containsEntry("status", "MISSING").containsEntry("missingCount", 6);
+  }
+
+  @Test
+  @DisplayName("operations + commercial counts derived from grouped bundles")
+  void operationsAndCommercial() {
+    when(tenantCatalog.findRegistryById(tenantId)).thenReturn(Optional.of(registry()));
+    when(queryBus.ask(any(ListOutletsByTenantQuery.class)))
+        .thenReturn(List.of(mock(OutletView.class), mock(OutletView.class)));
+    when(queryBus.ask(any(ListSellersQuery.class)))
+        .thenReturn(List.of(mock(SellerSummaryView.class)));
+    when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(pageWithTotal(3L));
+    when(gameCatalog.listActive()).thenReturn(List.of(mock(GameView.class)));
+    when(drawChannelCatalog.listAll(any(), any()))
+        .thenReturn(List.of(mock(DrawChannelSummaryView.class), mock(DrawChannelSummaryView.class)));
+
+    var payload = assembler.assemble(context(tenantId));
+
+    assertThat(payload.operations()).extractingByKey("outlets").asInstanceOf(
+        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 2);
+    assertThat(payload.operations()).extractingByKey("terminals").asInstanceOf(
+        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 3L);
+    assertThat(payload.operations()).extractingByKey("users").asInstanceOf(
+        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 1);
+    assertThat(payload.commercial()).extractingByKey("gamesPricing").asInstanceOf(
+        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 1);
+    assertThat(payload.commercial()).extractingByKey("drawChannels").asInstanceOf(
+        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 2);
+
+    // Single bundle invocation — each grouped read called exactly once per assemble.
+    verify(queryBus, times(1)).ask(any(ListOutletsByTenantQuery.class));
+    verify(queryBus, times(1)).ask(any(ListSellersQuery.class));
+    verify(queryBus, times(1)).ask(any(ListTerminalsQuery.class));
+    verify(gameCatalog, times(1)).listActive();
+    verify(drawChannelCatalog, times(1)).listAll(any(), any());
+  }
+
+  // ---------------------- helpers ----------------------
+
+  private TchRequestContext context(TenantId boundTenant) {
+    return new TchRequestContext(
+        "tenant-demo",
+        boundTenant != null ? boundTenant.value() : null,
+        "tenant-demo",
+        boundTenant != null ? boundTenant.value() : null,
+        UUID.randomUUID().toString(),
+        UUID.randomUUID(),
+        Set.of(TchRole.TENANT_ADMIN),
+        Set.of(),
+        Locale.FRANCE,
+        "req-test",
+        "127.0.0.1",
+        null,
+        false,
+        null,
+        "active",
+        ApiScope.TENANT,
+        null,
+        boundTenant,
+        java.time.ZoneId.of("America/Port-au-Prince"),
+        Currency.getInstance("HTG"),
+        null);
+  }
+
+  private TenantRegistryView registry() {
+    return new TenantRegistryView(
+        tenantId, "tenant-demo", "Demo Tenant",
+        TenantStatus.ACTIVE, TenantType.BORLETTE,
+        java.time.ZoneId.of("America/Port-au-Prince"),
+        Currency.getInstance("HTG"),
+        Optional.empty(), Optional.empty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private TchPage<TerminalSummaryView> emptyPage() {
+    return new TchPage<>(List.of(), 0, 1, 0L, 0, true, false, false);
+  }
+
+  @SuppressWarnings("unchecked")
+  private TchPage<TerminalSummaryView> pageWithTotal(long total) {
+    return new TchPage<>(List.of(), 0, 1, total, 1, true, false, false);
+  }
+}

@@ -57,7 +57,7 @@ public record TicketPlacedEvent(
     OfflineSaleRefPayload offlineRef,       // null unless POS_OFFLINE_SYNCED,
     PromotionDecision promotionDecision
 ) implements DomainEvent {
-    public static final int CURRENT_SCHEMA = 1;
+    public static final int CURRENT_SCHEMA = 2;
 
     public TicketPlacedEvent {
         if (saleStatus != TicketSaleStatus.APPROVED

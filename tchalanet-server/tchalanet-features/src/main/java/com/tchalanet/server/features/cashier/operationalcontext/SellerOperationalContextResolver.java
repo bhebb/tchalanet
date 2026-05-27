@@ -48,7 +48,7 @@ public class SellerOperationalContextResolver {
     }
 
     identityApi.getUserProfile(new GetUserProfileRequest(actorUserId));
-//    assertAllowed(tenantId, actorUserId, permissionsFor(request.operation()));
+    //assertAllowed(tenantId, actorUserId, permissionsFor(request.operation()));
 
     queryBus.ask(new ValidateTerminalForOperationQuery(
         tenantId,
@@ -95,25 +95,27 @@ public class SellerOperationalContextResolver {
 
   private Set<String> permissionsFor(SellerOperation operation) {
     return switch (operation) {
-      case SELL -> SELL_PERMISSIONS;
+      case SELL, PRINT_TICKET, REPRINT_TICKET, SEND_RECEIPT -> SELL_PERMISSIONS;
     };
   }
 
   private TerminalOperation terminalOperation(SellerOperation operation) {
     return switch (operation) {
       case SELL -> TerminalOperation.SELL_TICKET;
+      case PRINT_TICKET, SEND_RECEIPT -> TerminalOperation.PRINT_TICKET;
+      case REPRINT_TICKET -> TerminalOperation.REPRINT_TICKET;
     };
   }
 
   private OutletOperation outletOperation(SellerOperation operation) {
     return switch (operation) {
-      case SELL -> OutletOperation.SELL;
+      case SELL, PRINT_TICKET, REPRINT_TICKET, SEND_RECEIPT -> OutletOperation.SELL;
     };
   }
 
   private SalesSessionOperation sessionOperation(SellerOperation operation) {
     return switch (operation) {
-      case SELL -> SalesSessionOperation.SELL;
+      case SELL, PRINT_TICKET, REPRINT_TICKET, SEND_RECEIPT -> SalesSessionOperation.SELL;
     };
   }
 }

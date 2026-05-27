@@ -10,6 +10,7 @@ import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.SelectionApi;
 import com.tchalanet.server.catalog.game.api.model.BetType;
@@ -93,8 +94,17 @@ public class PromotionTicketLineFactory {
             new Money(potential, currency),
             betOption,
             com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.valueOf(String.valueOf(selectionResult.source())),
-            decision.decisionId()
+            decision.decisionId(),
+            promotionLabel(effect),
+            effect.type().name()
         );
+    }
+
+    private String promotionLabel(PromotionEffect effect) {
+        if (effect.reason() != null && !effect.reason().isBlank()) {
+            return effect.reason().trim();
+        }
+        return TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE;
     }
 
     private BetType resolveBetTypeForPromoGame(GameCode gameCode) {

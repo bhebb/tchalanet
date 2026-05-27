@@ -23,6 +23,7 @@ import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
@@ -148,6 +149,7 @@ class SalePromotionEffectsTest {
             assertThat(boosted.oddsSnapshot()).isEqualByComparingTo("20.0");
             assertThat(boosted.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
             assertThat(boosted.promotionDecisionId()).isEqualTo(decision.decisionId());
+            assertThat(boosted.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS);
         }
 
         @Test
@@ -203,6 +205,7 @@ class SalePromotionEffectsTest {
             assertThat(promoLine.payoutBaseAmount().amount()).isEqualByComparingTo("125");
             assertThat(promoLine.oddsSnapshot()).isEqualByComparingTo("12.5");
             assertThat(promoLine.promotionDecisionId()).isEqualTo(decision.decisionId());
+            assertThat(promoLine.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_FREE_GAME_LINE);
         }
 
         @Test
@@ -277,6 +280,8 @@ class SalePromotionEffectsTest {
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
+            null,
+            null,
             null,
             null,
             TicketLineResultStatus.PENDING,

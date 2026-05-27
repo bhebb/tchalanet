@@ -241,6 +241,8 @@ class TicketAggregateMutatorTest {
             TicketLinePricingSource.STANDARD,
             null,
             null,
+            null,
+            null,
             TicketLineResultStatus.PENDING,
             money("0"));
     }
@@ -259,6 +261,8 @@ class TicketAggregateMutatorTest {
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
+            null,
+            null,
             null,
             null,
             TicketLineResultStatus.PENDING,

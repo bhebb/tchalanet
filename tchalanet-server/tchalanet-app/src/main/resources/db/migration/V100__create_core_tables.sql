@@ -1332,6 +1332,8 @@ CREATE TABLE sales_ticket_line (
   pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
   selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',
   promotion_decision_id uuid,
+  promotion_label varchar(128),
+  promotion_effect_type varchar(32),
   result_status varchar(16) NOT NULL,
   payout_amount numeric(19,4) NOT NULL DEFAULT 0,
   created_at timestamptz,

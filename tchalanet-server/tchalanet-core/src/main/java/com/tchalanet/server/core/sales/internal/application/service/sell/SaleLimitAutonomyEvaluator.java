@@ -12,6 +12,8 @@ import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyDecision;
+import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyInput;
+import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.session.api.model.ValidatedPosOperationContext;
 import com.tchalanet.server.platform.identity.api.model.AutonomyLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +35,10 @@ public class SaleLimitAutonomyEvaluator {
         SellTicketCommand command,
         ValidatedPosOperationContext pos,
         DrawSummary draw,
-        List<SellTicketLineInput> mergedLines,
+        SalePolicyInput policyInput,
         Instant now
     ) {
-        var limitContext = toLimitContext(tenantId, command, pos, draw, mergedLines, now);
+        var limitContext = toLimitContext(tenantId, command, pos, draw, policyInput, now);
         var limits = queryBus.ask(new EvaluateLimitPolicyQuery(limitContext));
 
         if (limits == null) {
@@ -83,11 +85,14 @@ public class SaleLimitAutonomyEvaluator {
         SellTicketCommand command,
         ValidatedPosOperationContext pos,
         DrawSummary draw,
-        List<SellTicketLineInput> mergedLines,
+        SalePolicyInput policyInput,
         Instant now
     ) {
-        var lineContexts = mergedLines.stream()
-            .map(this::toLimitLineContext)
+        var finalBasis = policyInput.finalBasis().isEmpty()
+            ? policyInput.paidBasis().stream().map(this::toLimitLineContext).toList()
+            : policyInput.finalBasis().stream().map(this::toLimitLineContext).toList();
+
+        var lineContexts = finalBasis.stream()
             .toList();
 
         return new LimitContext(
@@ -107,6 +112,15 @@ public class SaleLimitAutonomyEvaluator {
             line.rawSelection(),
             toCents(line.stakeAmount()),
             0L
+        );
+    }
+
+    private LimitLineContext toLimitLineContext(TicketLine line) {
+        return new LimitLineContext(
+            line.betType(),
+            line.selection().key().value(),
+            toCents(line.stakeAmount().amount()),
+            toCents(line.potentialPayoutAmount().amount())
         );
     }
 

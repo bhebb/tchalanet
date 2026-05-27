@@ -32,23 +32,24 @@ public class PublicPageModelService {
     Optional<TenantId> tenantId =
         Optional.ofNullable(ctxHolder == null ? null : ctxHolder.tenantId());
 
-    PageModelDoc doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
+    var doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
 
-    String currentLang =
+      boolean isDocLangPresent = doc != null && doc.meta() != null && doc.meta().langs() != null;
+      var currentLang =
         langResolver.resolve(
             new LangResolver.LangResolverContext(
                 langFromUrl,
                 Optional.empty(),
                 Optional.empty(),
                 Optional.ofNullable(doc != null && doc.meta() != null ? doc.meta().defaultLang() : null),
-                doc != null && doc.meta() != null && doc.meta().langs() != null
+                isDocLangPresent
                     ? doc.meta().langs()
                     : List.of(),
                 "fr"));
 
     var dynamic = dynamicResolver.resolve(doc, currentLang, ctxHolder);
     List<String> langs =
-        doc != null && doc.meta() != null && doc.meta().langs() != null
+        isDocLangPresent
             ? doc.meta().langs()
             : List.of();
     return new PublicPageModelResponse(currentLang, langs, doc, dynamic);

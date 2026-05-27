@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public record PrintTicketRequest(
+    UUID terminalId,
     PrintOutputFormat format,
     boolean recordPrint,
     @Size(max = 500) String reprintReason,

@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
@@ -18,6 +19,12 @@ public class DefaultTicketDrawLabelFormatter implements TicketDrawLabelFormatter
     private static final DateTimeFormatter ADMIN_FMT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    private final TicketReceiptI18nResolver i18nResolver;
+
+    public DefaultTicketDrawLabelFormatter(TicketReceiptI18nResolver i18nResolver) {
+        this.i18nResolver = i18nResolver;
+    }
+
     @Override
     public String format(
         String drawChannelName,
@@ -29,7 +36,8 @@ public class DefaultTicketDrawLabelFormatter implements TicketDrawLabelFormatter
         DrawLabelFormat format
     ) {
         ZonedDateTime zdt = resolve(drawDate, drawTime, zone, scheduledAt);
-        String channel = normalizeChannel(drawChannelName);
+        var translations = i18nResolver.resolve(locale, null);
+        String channel = normalizeChannel(drawChannelName, translations);
 
         if (zdt == null) {
             return channel;
@@ -37,7 +45,7 @@ public class DefaultTicketDrawLabelFormatter implements TicketDrawLabelFormatter
 
         return switch (format) {
             case TICKET_SHORT -> channel + " - " + formatTicketShort(zdt, locale);
-            case TICKET_FULL -> channel + " - " + formatTicketFull(zdt, locale);
+            case TICKET_FULL -> channel + " - " + formatTicketFull(zdt, locale, translations);
             case SMS_SHORT -> channel + " - " + formatSmsShort(zdt, locale);
             case ADMIN_DISPLAY -> formatAdmin(zdt, locale);
             case ISO_DEBUG -> formatIso(zdt);
@@ -61,9 +69,12 @@ public class DefaultTicketDrawLabelFormatter implements TicketDrawLabelFormatter
         return null;
     }
 
-    private String normalizeChannel(String drawChannelName) {
+    private String normalizeChannel(
+        String drawChannelName,
+        TicketReceiptI18nResolver.TicketReceiptTranslations translations
+    ) {
         if (drawChannelName == null || drawChannelName.isBlank()) {
-            return "Tirage";
+            return translations.text(TicketReceiptI18nKeys.DRAW_SECTION);
         }
         return drawChannelName.trim();
     }
@@ -72,8 +83,12 @@ public class DefaultTicketDrawLabelFormatter implements TicketDrawLabelFormatter
         return TICKET_SHORT_FMT.withLocale(locale).format(zdt);
     }
 
-    private String formatTicketFull(ZonedDateTime zdt, Locale locale) {
-        return "Tirage du " +
+    private String formatTicketFull(
+        ZonedDateTime zdt,
+        Locale locale,
+        TicketReceiptI18nResolver.TicketReceiptTranslations translations
+    ) {
+        return translations.text(TicketReceiptI18nKeys.DRAW_FULL_PREFIX) + " " +
             TICKET_SHORT_FMT.withLocale(locale).format(zdt) +
             " (" + zdt.getZone().getId() + ")";
     }

@@ -43,78 +43,78 @@ Modéliser le “grand livre” interne de Tchalanet : mouvements financiers, so
 ## 1. Rôle du domaine
 
 - Ouvrir des claims pour tickets SETTLED.
-- Poster des paiements (split possible) avec idempotence.
-- Fermer les claims quand payé net == due.
+  - Poster des paiements (split possible) avec idempotence.
+  - Fermer les claims quand payé net == due.
 
 **Ne fait pas**
 
 - Émission ticket.
-- Écritures comptables (ledger).
+  - Écritures comptables (ledger).
 
 ---
 
 ## 2. Modèle & invariants
 
 - `PayoutClaim`: OPEN → PARTIALLY_PAID → PAID (VOIDED possible).
-- `PayoutPayment`: POSTED → REVERSED.
-- Invariants:
-  - netPaid <= amount_due.
-  - Paiement immutable (append-only); reversal via entry miroir.
+  - `PayoutPayment`: POSTED → REVERSED.
+  - Invariants:
+    - netPaid <= amount_due.
+    - Paiement immutable (append-only); reversal via entry miroir.
 
 ---
 
 ## 3. Use Cases
 
 - `OpenPayoutClaimCommandHandler`
-- `PostPayoutPaymentCommandHandler`
-- `ReversePayoutPaymentCommandHandler`
+  - `PostPayoutPaymentCommandHandler`
+  - `ReversePayoutPaymentCommandHandler`
 
 ---
 
 ## 4. Ports out
 
 - `PayoutClaimRepoPort`
-- `PayoutPaymentRepoPort`
-- (futur) provider paiement externe
+  - `PayoutPaymentRepoPort`
+  - (futur) provider paiement externe
 
 ---
 
 ## 5. Événements
 
 - `PayoutClaimOpenedEvent`, `PayoutPaymentPostedEvent`, `PayoutPaymentReversedEvent`, `PayoutClaimClosedEvent`.
-- Publier via `AfterCommit`.
+  - Publier via `AfterCommit`.
 
 ---
 
 ## 6. Idempotence & Concurrence
 
 - Idempotency-Key obligatoire pour post payment.
-- Optimistic lock `version` sur claim.
+  - Optimistic lock `version` sur claim.
 
 ---
 
 ## 7. Mapping & DTOs
 
 - MapStruct; DTO `PayoutClaimResponse`, `PayoutPaymentResponse`.
-- Wrappers ID en web.
+  - Wrappers ID en web.
 
 ---
 
 ## 8. Intégrations
 
 - `core.sales` fournit tickets SETTLED.
-- `core.ledger` poste entries sur events.
+  - `core.ledger` poste entries sur events.
 
 ---
 
 ## 9. Notes techniques
 
 - Multi-tenant strict; RLS.
-- Unique constraint idempotence sur payments.
+  - Unique constraint idempotence sur payments.
 
 ---
 
 ## 10. Incohérences / TODO
 
 - Confirmer statuts et transitions exacts implémentés.
-- Vérifier clé d’unicité ledger pour idempotence.
+  - Vérifier clé d’unicité ledger pour idempotence.

@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
@@ -21,6 +22,7 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintSellerContext;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.DrawLabelFormat;
@@ -64,6 +66,7 @@ public class TicketPrintViewMapper {
         return new TicketPrintView(
             new TicketPrintIdentity(
                 ticket.identity().id(),
+                TenantId.of(header.getTenantId()),
                 header.getTicketCode(),
                 header.getPublicCode(),
                 header.getVerificationCode()
@@ -150,7 +153,12 @@ public class TicketPrintViewMapper {
             line.stakeAmount(),
             line.potentialPayoutAmount(),
             line.origin(),
-            line.pricingSource()
+            line.pricingSource(),
+            line.selectionSource(),
+            line.payoutBaseAmount(),
+            line.promotionDecisionId(),
+            line.promotionLabel(),
+            line.promotionEffectType()
         );
     }
 
@@ -183,9 +191,9 @@ public class TicketPrintViewMapper {
             return null;
         }
         return switch (type) {
-            case BUYER_SMS -> "Frais SMS";
-            case BUYER_WHATSAPP -> "Frais WhatsApp";
-            case BUYER_EMAIL, EMAIL_NOTIFICATION -> "Frais email";
+            case BUYER_SMS -> TicketReceiptI18nKeys.CHARGE_SMS;
+            case BUYER_WHATSAPP -> TicketReceiptI18nKeys.CHARGE_WHATSAPP;
+            case BUYER_EMAIL, EMAIL_NOTIFICATION -> TicketReceiptI18nKeys.CHARGE_EMAIL;
         };
     }
 

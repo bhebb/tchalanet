@@ -58,7 +58,12 @@ public class TicketCommunicationRequestDispatcher {
         var request = new SendOutboundMessageRequest(
             MESSAGE_TYPE_TICKET_PLACED,
             channel,
-            OutboundRecipient.of(destination),
+            new OutboundRecipient(
+                ticket.identity().tenantId(),
+                ticket.context().sellerUserId(),
+                destination,
+                null
+            ),
             locale,
             metadata
         );
@@ -74,6 +79,8 @@ public class TicketCommunicationRequestDispatcher {
         var metadata = new HashMap<String, Object>();
 
         metadata.put("ticketId", ticket.identity().id().value().toString());
+        metadata.put("tenantId", ticket.identity().tenantId().value().toString());
+        metadata.put("actorUserId", ticket.context().sellerUserId().value().toString());
         metadata.put("ticketCode", ticket.codes().ticketCode().value());
         metadata.put("publicCode", ticket.codes().publicCode().value());
         metadata.put("verificationCode", ticket.codes().verificationCode().value());

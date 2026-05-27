@@ -110,7 +110,7 @@ public class SellTicketCommandHandler
 
         var promo = prepared.promotionDecision();
         if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
-            appliedPromotionSnapshotWriter.createIfAbsent(ticketId, promo, prepared.now());
+            appliedPromotionSnapshotWriter.createIfAbsent(ticketId, promo, saved, prepared.now());
         }
 
         // Push the freshly persisted ticket to DB so the SQL view
@@ -206,7 +206,14 @@ public class SellTicketCommandHandler
             line.betOption(),
             line.stakeAmount(),
             line.oddsSnapshot(),
-            line.potentialPayoutAmount()
+            line.potentialPayoutAmount(),
+            line.origin(),
+            line.pricingSource(),
+            line.selectionSource(),
+            line.payoutBaseAmount(),
+            line.promotionDecisionId(),
+            line.promotionLabel(),
+            line.promotionEffectType()
         );
     }
 }

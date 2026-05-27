@@ -8,6 +8,7 @@ import java.util.List;
 
 public record TicketVerificationView(
     String publicCode,
+    String displayCode,
     CustomerTicketStatus status,
     Money totalAmount,
     Money winningAmount,
@@ -18,6 +19,7 @@ public record TicketVerificationView(
 ) {
     public record DrawInfoView(
         String channelName,
+        String channelLabel,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}
@@ -30,8 +32,11 @@ public record TicketVerificationView(
         int lineNumber,
         String gameDisplayName,
         String betTypeLabel,
+        String optionLabel,
         String selection,
         Money stake,
-        Money potentialPayout
+        Money potentialPayout,
+        boolean promotional,
+        String promotionLabel
     ) {}
 }

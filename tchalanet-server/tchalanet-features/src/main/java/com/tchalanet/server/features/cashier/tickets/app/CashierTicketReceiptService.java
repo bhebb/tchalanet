@@ -8,12 +8,13 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
 import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
-import com.tchalanet.server.core.sales.api.query.GetTicketPrintViewQuery;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMessageQuery;
+import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
 import com.tchalanet.server.features.cashier.operationalcontext.ResolveSellerOperationalContextRequest;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperation;
 import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextResolver;
+import com.tchalanet.server.features.cashier.operationalcontext.SellerOperationalContextView;
 import com.tchalanet.server.features.cashier.tickets.mapper.TicketPrintCommunicationMapper;
 import com.tchalanet.server.features.cashier.tickets.mapper.TicketPrintDocumentMapper;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
@@ -62,28 +63,31 @@ public class CashierTicketReceiptService {
         TicketId ticketId,
         PrintTicketRequest request
     ) {
-        validateSellerContextForPrint(ctx, request);
+        var sellerContext = validateSellerContextForPrint(ctx, request);
 
-        // Render via TicketPrintDocumentMapper (rich receipt: header + per-game sections + totals
-        // + footer + QR + tenant branding). Replaces the previous flat-lines path which fed only
-        // the metadata bodyLines from FormatTicketReceiptPrintQuery into ReceiptDocumentContent.
-        var printView = queryBus.ask(new GetTicketPrintViewQuery(ticketId));
+        var receipt = queryBus.ask(new FormatTicketReceiptPrintQuery(ticketId, request.format(), request.buyerLocale()));
         var receiptConfig = resolveReceiptConfig(ctx);
         var rendered = documentApi.render(
-            documentMapper.toRenderRequest(printView, request, receiptConfig)
+            documentMapper.toRenderRequest(receipt, request, receiptConfig)
         );
 
         if (request.recordPrint()) {
             commandBus.execute(new RecordTicketPrintCommand(
                 ticketId,
                 request.format(),
-                request.reprintReason()
+                request.reprintReason(),
+                sellerContext.actorUserId(),
+                sellerContext.terminalId(),
+                sellerContext.outletId(),
+                sellerContext.salesSessionId(),
+                ctx.correlationId()
             ));
         }
 
         if (request.shouldSendToBuyer()) {
-            var outboundDocument = toCommunicationDocument(printView, request, rendered, receiptConfig);
-            communicationMapper.toOutboundMessages(ctx, printView, outboundDocument, request)
+            var outboundDocument = toCommunicationDocument(receipt, request, rendered, receiptConfig);
+            var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.buyerLocale()));
+            communicationMapper.toOutboundMessages(ctx, receipt, message, outboundDocument, request)
                 .forEach(communicationApi::enqueue);
         }
 
@@ -95,7 +99,7 @@ public class CashierTicketReceiptService {
         TicketId ticketId,
         SendTicketReceiptRequest request
     ) {
-        validateSellerContext(ctx, request.terminalId());
+        validateSellerContext(ctx, request.terminalId(), SellerOperation.SEND_RECEIPT);
         validateRecipient(request);
         var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.locale()));
         var recipient = recipient(ctx, request);
@@ -161,7 +165,7 @@ public class CashierTicketReceiptService {
     }
 
     private RenderedDocument toCommunicationDocument(
-        TicketPrintView printView,
+        TicketReceiptPrintContent receipt,
         PrintTicketRequest request,
         RenderedDocument rendered,
         TenantInternalDocumentConfig.ReceiptConfig receiptConfig
@@ -171,6 +175,7 @@ public class CashierTicketReceiptService {
         }
 
         var pdfRequest = new PrintTicketRequest(
+            request.terminalId(),
             PrintOutputFormat.PDF,
             false,
             request.reprintReason(),
@@ -180,7 +185,7 @@ public class CashierTicketReceiptService {
             request.buyerLocale()
         );
 
-        return documentApi.render(documentMapper.toRenderRequest(printView, pdfRequest, receiptConfig));
+        return documentApi.render(documentMapper.toRenderRequest(receipt, pdfRequest, receiptConfig));
     }
 
     // -- send helpers -------------------------------------------------------------
@@ -217,20 +222,29 @@ public class CashierTicketReceiptService {
 
     // -- operational context ------------------------------------------------------
 
-    private void validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
+    private SellerOperationalContextView validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
+        return validateSellerContext(ctx, terminalId, SellerOperation.SELL);
+    }
+
+    private SellerOperationalContextView validateSellerContext(
+        TchRequestContext ctx,
+        java.util.UUID terminalId,
+        SellerOperation operation
+    ) {
         if (terminalId == null) {
-            return;
+            throw ProblemRest.forbidden("cashier.operational_context_required");
         }
-        sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
+        return sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
             ctx,
             TerminalId.of(terminalId),
-            SellerOperation.SELL
+            operation
         ));
     }
 
-    private void validateSellerContextForPrint(TchRequestContext ctx, PrintTicketRequest request) {
-        // PrintTicketRequest does not currently carry a terminalId. Trusted context is enforced
-        // upstream via Spring Security + TchContextFilter; revisit when terminalId moves into
-        // the print payload.
+    private SellerOperationalContextView validateSellerContextForPrint(TchRequestContext ctx, PrintTicketRequest request) {
+        var operation = request.recordPrint() && request.reprintReason() != null && !request.reprintReason().isBlank()
+            ? SellerOperation.REPRINT_TICKET
+            : SellerOperation.PRINT_TICKET;
+        return validateSellerContext(ctx, request.terminalId(), operation);
     }
 }

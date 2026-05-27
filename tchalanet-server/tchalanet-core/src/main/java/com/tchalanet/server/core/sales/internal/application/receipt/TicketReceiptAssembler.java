@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
@@ -33,9 +34,12 @@ public class TicketReceiptAssembler {
     }
 
     public TicketReceiptView assemble(TicketPrintView printView, Locale requestedLocale) {
+        var currentContext = TchContext.currentOrNull();
         var locale = requestedLocale != null
             ? requestedLocale
-            : printView.metadata() == null ? Locale.FRENCH : printView.metadata().locale();
+            : currentContext != null && currentContext.locale() != null
+                ? currentContext.locale()
+                : printView.metadata() == null ? Locale.FRENCH : printView.metadata().locale();
         if (locale == null) {
             locale = Locale.FRENCH;
         }
@@ -45,6 +49,7 @@ public class TicketReceiptAssembler {
 
         return new TicketReceiptView(
             printView.identity().ticketId(),
+            printView.identity().tenantId(),
             printView.identity().ticketCode(),
             displayCode,
             publicCode,
@@ -52,16 +57,23 @@ public class TicketReceiptAssembler {
             printView.lifecycle().saleStatus(),
             printView.lifecycle().resultStatus(),
             printView.lifecycle().settlementStatus(),
+            printView.branding() == null ? null : printView.branding().tenantDisplayName(),
+            printView.branding() == null ? null : printView.branding().tenantReceiptHeader(),
+            printView.branding() == null ? null : printView.branding().outletReceiptHeader(),
             printView.draw().label(),
+            printView.draw().scheduledAt(),
             printView.context().outletName(),
             printView.context().terminalCode(),
             printView.context().sellerDisplayName(),
             printView.metadata().placedAt(),
             locale,
+            printView.metadata().timezone(),
             gameSections(printView.lines()),
             moneyFormatter.format(printView.money().stake()),
             moneyFormatter.format(printView.money().totalAmount()),
             moneyFormatter.format(printView.money().potentialPayoutAmount()),
+            printView.branding() == null ? null : printView.branding().outletReceiptFooter(),
+            printView.branding() == null ? null : printView.branding().tenantReceiptFooter(),
             verificationUrl
         );
     }
@@ -90,7 +102,10 @@ public class TicketReceiptAssembler {
             line.selectionCanonical(),
             line.odds(),
             moneyFormatter.format(line.stake()),
-            moneyFormatter.format(line.potentialPayout())
+            moneyFormatter.format(line.potentialPayout()),
+            line.promotional(),
+            line.promotionLabel(),
+            line.promotionEffectType()
         );
     }
 

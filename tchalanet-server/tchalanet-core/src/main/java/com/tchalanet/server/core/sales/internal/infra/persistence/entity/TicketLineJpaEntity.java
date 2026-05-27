@@ -117,6 +117,12 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
     @Column(name = "promotion_decision_id", columnDefinition = "uuid")
     private UUID promotionDecisionId;
 
+    @Column(name = "promotion_label", length = 128)
+    private String promotionLabel;
+
+    @Column(name = "promotion_effect_type", length = 32)
+    private String promotionEffectType;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "result_status", nullable = false, length = 16)
     private TicketLineResultStatus resultStatus;

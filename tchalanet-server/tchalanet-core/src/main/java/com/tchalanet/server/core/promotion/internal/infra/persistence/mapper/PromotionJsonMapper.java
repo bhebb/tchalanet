@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.promotion.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.common.types.id.PromotionCampaignId;
 import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.PromotionChoiceMode;
@@ -49,6 +50,9 @@ public class PromotionJsonMapper {
     private static PromotionEffect effectFromJson(Map<String, Object> m) {
         var ruleIdRaw = m.get("ruleId");
         var ruleId = ruleIdRaw != null ? PromotionRuleId.of(UUID.fromString((String) ruleIdRaw)) : null;
+        var campaignIdRaw = m.get("campaignId");
+        var campaignId = campaignIdRaw != null ? PromotionCampaignId.of(UUID.fromString((String) campaignIdRaw)) : null;
+        var ruleKey = (String) m.get("ruleKey");
         var typeRaw = m.get("type");
         var type = typeRaw != null ? PromotionEffectType.valueOf((String) typeRaw) : null;
         var choiceModeRaw = m.get("choiceMode");
@@ -59,7 +63,10 @@ public class PromotionJsonMapper {
         var quantityRaw = m.get("quantity");
         int quantity = quantityRaw instanceof Number n ? n.intValue() : 0;
         return new PromotionEffect(
-            ruleId, type,
+            ruleId,
+            campaignId,
+            ruleKey,
+            type,
             (String) m.get("gameCode"),
             quantity,
             amount,
@@ -86,6 +93,8 @@ public class PromotionJsonMapper {
     public static Map<String,Object> effectToJson(PromotionEffect effect) {
         Map<String,Object> out = new LinkedHashMap<>();
         out.put("ruleId", effect.ruleId() == null ? null : effect.ruleId().value().toString());
+        out.put("campaignId", effect.campaignId() == null ? null : effect.campaignId().value().toString());
+        out.put("ruleKey", effect.ruleKey());
         out.put("type", effect.type() == null ? null : effect.type().name());
         out.put("gameCode", effect.gameCode());
         out.put("quantity", effect.quantity());

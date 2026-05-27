@@ -13,6 +13,7 @@ import java.util.List;
  */
 public record TicketVerifyResponse(
     String publicCode,
+    String displayCode,
     CustomerTicketStatus status,
     Money totalAmount,
     Money winningAmount,
@@ -23,6 +24,7 @@ public record TicketVerifyResponse(
 ) {
     public record DrawView(
         String channelName,
+        String channelLabel,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}
@@ -31,8 +33,11 @@ public record TicketVerifyResponse(
         int lineNumber,
         String gameDisplayName,
         String betTypeLabel,
+        String optionLabel,
         String selection,
         Money stake,
-        Money potentialPayout
+        Money potentialPayout,
+        boolean promotional,
+        String promotionLabel
     ) {}
 }

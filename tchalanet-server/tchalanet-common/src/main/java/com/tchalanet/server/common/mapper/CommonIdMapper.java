@@ -42,6 +42,10 @@ import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.ReconciliationRunId;
+import com.tchalanet.server.common.types.id.ReconciliationCheckResultId;
+import com.tchalanet.server.common.types.id.ReconciliationAnomalyId;
+import com.tchalanet.server.common.types.id.ReconciliationRepairActionId;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -440,5 +444,38 @@ public class CommonIdMapper {
 
     public List<DayOfWeek> mapToDaysOfWeek(String days) {
         return (days == null || days.isBlank()) ? List.of() : DaysOfWeekFormatter.parse(days);
+    }
+
+    // Reconciliation IDs
+    public UUID mapFromReconciliationRunId(ReconciliationRunId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationRunId mapToReconciliationRunId(UUID id) {
+        return ReconciliationRunId.nullableOf(id);
+    }
+
+    public UUID mapFromReconciliationCheckResultId(ReconciliationCheckResultId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationCheckResultId mapToReconciliationCheckResultId(UUID id) {
+        return ReconciliationCheckResultId.nullableOf(id);
+    }
+
+    public UUID mapFromReconciliationAnomalyId(ReconciliationAnomalyId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationAnomalyId mapToReconciliationAnomalyId(UUID id) {
+        return ReconciliationAnomalyId.nullableOf(id);
+    }
+
+    public UUID mapFromReconciliationRepairActionId(ReconciliationRepairActionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationRepairActionId mapToReconciliationRepairActionId(UUID id) {
+        return ReconciliationRepairActionId.nullableOf(id);
     }
 }

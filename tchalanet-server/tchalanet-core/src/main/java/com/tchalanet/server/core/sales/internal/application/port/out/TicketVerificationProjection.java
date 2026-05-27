@@ -6,13 +6,16 @@ import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSettlementStatus;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.common.types.id.TenantId;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
 public record TicketVerificationProjection(
+    TenantId tenantId,
     String publicCode,
+    String displayCode,
     TicketSaleStatus saleStatus,
     TicketResultStatus resultStatus,
     TicketSettlementStatus settlementStatus,
@@ -25,6 +28,7 @@ public record TicketVerificationProjection(
 ) {
     public record DrawProjection(
         String drawChannelName,
+        String drawChannelLabel,
         LocalDate drawDate,
         Instant scheduledAt
     ) {}
@@ -37,8 +41,14 @@ public record TicketVerificationProjection(
         int lineNumber,
         GameCode gameCode,
         BetType betType,
+        Short betOption,
+        String gameLabel,
+        String betTypeLabel,
+        String optionLabel,
         String displaySelection,
         Money stake,
-        Money potentialPayout
+        Money potentialPayout,
+        boolean promotional,
+        String promotionLabel
     ) {}
 }

@@ -120,6 +120,8 @@ public class OfflineSubmissionToTicketMapper {
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,
             null,
+            null,
+            null,
             TicketLineResultStatus.PENDING,
             Money.zero(stake.currency())
         );

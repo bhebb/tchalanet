@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,7 +28,11 @@ public class PublicTicketRateLimiter {
         var bucket = buckets.computeIfAbsent(ip, k -> new IpBucket(props.burst()));
 
         if (!bucket.tryConsume(props.requestsPerSecond(), props.burst())) {
-            throw ProblemRest.of(HttpStatus.TOO_MANY_REQUESTS, "ticket.verify.rate_limit_exceeded");
+            throw ProblemRest.of(
+                HttpStatus.TOO_MANY_REQUESTS,
+                "ticket.verify.rate_limit_exceeded",
+                Map.of("retryAfterSeconds", bucket.retryAfterSeconds(props.requestsPerSecond()))
+            );
         }
     }
 
@@ -56,6 +61,13 @@ public class PublicTicketRateLimiter {
                 if (current <= 0) return false;
             } while (!tokens.compareAndSet(current, current - 1));
             return true;
+        }
+
+        long retryAfterSeconds(int ratePerSecond) {
+            long nanosPerToken = 1_000_000_000L / Math.max(1, ratePerSecond);
+            long elapsed = System.nanoTime() - lastRefillNanos.get();
+            long remaining = Math.max(0L, nanosPerToken - elapsed);
+            return Math.max(1L, (long) Math.ceil(remaining / 1_000_000_000.0));
         }
 
         private void refill(int ratePerSecond, int maxTokens) {

@@ -1,17 +1,37 @@
 package com.tchalanet.server.features.tenantadmin.dashboard;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.catalog.game.api.model.GameView;
+import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
+import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
+import com.tchalanet.server.core.outlet.api.query.OutletView;
+import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
+import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
+import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
+import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
+import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
 import com.tchalanet.server.features.stats.tenantdashboard.app.TenantDashboardStatsService;
 import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsView;
 import com.tchalanet.server.features.stats.tenantdashboard.model.TenantSummaryCard;
-import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;
+import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
+import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,65 +39,177 @@ import org.springframework.stereotype.Component;
  * One assembly per request — memoized via {@code PageModelResolutionContext}.
  *
  * Grouped reads (target ≤ 5 per dashboard-overview-runtime-v1 §12):
- *   1. header info (tenant context)
- *   2. tenant dashboard stats (TenantDashboardStatsService — KPI day-window)
+ *   1. tenant registry  → TenantCatalog.findRegistryById        (header + identity)
+ *   2. day-window stats → TenantDashboardStatsService.getStats  (kpi.sales/tickets)
+ *   3. operations bundle (outlets + terminals + sellers, 3 calls grouped) → readiness + operations
+ *   4. commercial bundle (games + draw channels, 2 calls grouped)         → commercial
  *
- * Readiness/alerts/summaries are placeholder maps in V1; they are enriched in
- * Vague 5 once GetTenantReadinessQuery is in place.
+ * Alerts / kpi.openDraws / kpi.activeSessions / kpi.pendingApprovals are V1
+ * placeholders — no tenant-wide aggregate query exists yet (TODO V2).
  */
 @Component
 @RequiredArgsConstructor
 public class TenantAdminDashboardPayloadAssembler {
 
   private final TenantDashboardStatsService statsService;
-  private final TenantReadinessAssembler readinessAssembler;
+  private final TenantCatalog tenantCatalog;
+  private final GameCatalog gameCatalog;
+  private final DrawChannelCatalog drawChannelCatalog;
+  private final QueryBus queryBus;
 
   public Payload assemble(TchRequestContext ctx) {
     if (ctx == null || ctx.tenantId() == null) {
       return Payload.empty();
     }
 
-    Map<String, Object> header = buildHeader(ctx);
-    Map<String, Object> kpis = buildKpis(ctx);
-    Map<String, Object> readiness = buildReadinessSummary(ctx);
+    TenantId tenantId = ctx.tenantId();
+
+    // Grouped reads — loaded once, shared across builders.
+    TenantRegistryView registry = tenantCatalog.findRegistryById(tenantId).orElse(null);
+    OperationsBundle ops = loadOperationsBundle(tenantId);
+    CommercialBundle commercial = loadCommercialBundle(tenantId);
+
+    Map<String, Object> header = buildHeader(ctx, registry);
+    Map<String, Object> kpis = buildKpis(ctx, ops);
+    Map<String, Object> readiness = buildReadinessSummary(registry, ops, commercial);
     Map<String, Object> alerts = buildAlerts();
-    Map<String, Object> operations = buildOperationsSummary();
-    Map<String, Object> commercial = buildCommercialSummary();
+    Map<String, Object> operations = buildOperationsSummary(ops);
+    Map<String, Object> commercialSummary = buildCommercialSummary(commercial);
     Map<String, Object> quickActions = buildQuickActions();
 
-    return new Payload(header, kpis, readiness, alerts, operations, commercial, quickActions);
+    return new Payload(header, kpis, readiness, alerts, operations, commercialSummary, quickActions);
   }
 
-  private Map<String, Object> buildHeader(TchRequestContext ctx) {
+  // ---------------------- grouped bundle loaders ----------------------
+
+  private OperationsBundle loadOperationsBundle(TenantId tenantId) {
+    List<OutletView> outlets;
+    try {
+      outlets = queryBus.ask(new ListOutletsByTenantQuery(tenantId));
+    } catch (RuntimeException e) {
+      outlets = List.of();
+    }
+
+    long terminalCount;
+    try {
+      TchPage<TerminalSummaryView> page = queryBus.ask(new ListTerminalsQuery(
+          TerminalSearchCriteria.empty(),
+          new TchPageRequest(PageRequest.of(0, 1))));
+      terminalCount = page != null ? page.totalElements() : 0L;
+    } catch (RuntimeException e) {
+      terminalCount = 0L;
+    }
+
+    List<SellerSummaryView> sellers;
+    try {
+      sellers = queryBus.ask(new ListSellersQuery(tenantId));
+    } catch (RuntimeException e) {
+      sellers = List.of();
+    }
+
+    return new OperationsBundle(outlets, terminalCount, sellers);
+  }
+
+  private CommercialBundle loadCommercialBundle(TenantId tenantId) {
+    List<GameView> games;
+    try {
+      games = gameCatalog.listActive();
+    } catch (RuntimeException e) {
+      games = List.of();
+    }
+
+    List<DrawChannelSummaryView> channels;
+    try {
+      channels = drawChannelCatalog.listAll(tenantId, Boolean.TRUE);
+    } catch (RuntimeException e) {
+      channels = List.of();
+    }
+
+    return new CommercialBundle(games, channels);
+  }
+
+  // ---------------------- per-widget builders ----------------------
+
+  private Map<String, Object> buildHeader(TchRequestContext ctx, TenantRegistryView registry) {
     return Map.of(
         "tenantCode", ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "",
         "tenantId", ctx.tenantId() != null ? ctx.tenantId().value().toString() : "",
+        "tenantName", registry != null && registry.name() != null ? registry.name() : "",
+        "tenantStatus", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN",
+        "tenantType", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN",
         "timezone", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC",
         "currency", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
   }
 
-  private Map<String, Object> buildKpis(TchRequestContext ctx) {
+  private Map<String, Object> buildKpis(TchRequestContext ctx, OperationsBundle ops) {
     LocalDate today = LocalDate.now(ZoneOffset.UTC);
-    var response = statsService.getStats(ctx.tenantId(), today, today);
-    TenantDashboardStatsView stats = response != null ? response.stats() : null;
-    TenantSummaryCard summary = stats != null ? stats.summary() : null;
+    BigDecimal salesToday = BigDecimal.ZERO;
+    long ticketCountToday = 0L;
+    try {
+      var response = statsService.getStats(ctx.tenantId(), today, today);
+      TenantDashboardStatsView stats = response != null ? response.stats() : null;
+      TenantSummaryCard summary = stats != null ? stats.summary() : null;
+      if (summary != null) {
+        salesToday = summary.totalSales() != null ? summary.totalSales() : BigDecimal.ZERO;
+        ticketCountToday = summary.ticketsSold();
+      }
+    } catch (RuntimeException e) {
+      // grouped read failed — leave KPIs at zero (no silent catch on cache; we still
+      // expose the field with zero to keep the payload shape stable for the widget).
+    }
 
     return Map.of(
-        "salesToday", summary != null && summary.totalSales() != null
-            ? summary.totalSales() : BigDecimal.ZERO,
-        "ticketCountToday", summary != null ? summary.ticketsSold() : 0L,
+        "salesToday", salesToday,
+        "ticketCountToday", ticketCountToday,
+        // V1 placeholders — no tenant-wide aggregate exists yet.
         "activeSessions", 0L,
         "openDraws", 0L,
         "pendingApprovals", 0L);
   }
 
   /**
-   * Readiness summary projection — short form for the dashboard.
-   * Never contains KPI fields. See TenantReadinessSummary contract.
+   * Operational readiness — derived from the loaded bundles.
+   * READY when identity present + outlets + terminals + sellers + (games OR channels) configured.
+   * PARTIAL if at least one configured. MISSING if none. UNKNOWN if no tenant.
    */
-  private Map<String, Object> buildReadinessSummary(TchRequestContext ctx) {
-    TenantReadinessSummary summary = readinessAssembler.toSummary(
-        readinessAssembler.assemble(ctx));
+  private Map<String, Object> buildReadinessSummary(
+      TenantRegistryView registry, OperationsBundle ops, CommercialBundle commercial) {
+    List<TenantReadinessIssue> issues = new ArrayList<>();
+    int missing = 0;
+
+    if (registry == null) {
+      issues.add(new TenantReadinessIssue("identity", "readiness.identity.missing", "/app/admin"));
+      missing++;
+    }
+    if (ops.outlets().isEmpty()) {
+      issues.add(new TenantReadinessIssue("outlets", "readiness.outlets.empty", "/app/admin/outlets"));
+      missing++;
+    }
+    if (ops.terminalCount() == 0L) {
+      issues.add(new TenantReadinessIssue("terminals", "readiness.terminals.empty", "/app/admin/terminals"));
+      missing++;
+    }
+    if (ops.sellers().isEmpty()) {
+      issues.add(new TenantReadinessIssue("sellers", "readiness.sellers.empty", "/app/admin/users"));
+      missing++;
+    }
+    if (commercial.games().isEmpty()) {
+      issues.add(new TenantReadinessIssue("games_pricing", "readiness.games.empty", "/app/admin/games-pricing"));
+      missing++;
+    }
+    if (commercial.channels().isEmpty()) {
+      issues.add(new TenantReadinessIssue("draws", "readiness.channels.empty", "/app/admin/draws"));
+      missing++;
+    }
+
+    TenantReadinessStatus status;
+    if (missing == 0) status = TenantReadinessStatus.READY;
+    else if (missing >= 6) status = TenantReadinessStatus.MISSING;
+    else status = TenantReadinessStatus.PARTIAL;
+
+    TenantReadinessSummary summary = new TenantReadinessSummary(
+        status, missing, issues.stream().limit(4).toList());
+
     return Map.of(
         "status", summary.status().name(),
         "missingCount", summary.missingCount(),
@@ -85,7 +217,8 @@ public class TenantAdminDashboardPayloadAssembler {
   }
 
   /**
-   * V1: empty placeholder. Wire to notification summary when available.
+   * V1 placeholder: no tenant-wide alerts/notification aggregate query exists yet.
+   * Will be wired in V2 via GetTenantAlertsSummaryQuery (core.notification or equivalent).
    */
   private Map<String, Object> buildAlerts() {
     return Map.of(
@@ -93,18 +226,26 @@ public class TenantAdminDashboardPayloadAssembler {
         "topWarnings", List.of());
   }
 
-  private Map<String, Object> buildOperationsSummary() {
+  private Map<String, Object> buildOperationsSummary(OperationsBundle ops) {
     return Map.of(
-        "users", Map.of("status", "UNKNOWN", "count", 0),
-        "outlets", Map.of("status", "UNKNOWN", "count", 0),
-        "terminals", Map.of("status", "UNKNOWN", "count", 0),
-        "sessions", Map.of("status", "UNKNOWN", "count", 0));
+        "users",
+            Map.of("status", ops.sellers().isEmpty() ? "MISSING" : "READY", "count", ops.sellers().size()),
+        "outlets",
+            Map.of("status", ops.outlets().isEmpty() ? "MISSING" : "READY", "count", ops.outlets().size()),
+        "terminals",
+            Map.of("status", ops.terminalCount() == 0L ? "MISSING" : "READY", "count", ops.terminalCount()),
+        "sessions",
+            Map.of("status", "UNKNOWN", "count", 0));
   }
 
-  private Map<String, Object> buildCommercialSummary() {
+  private Map<String, Object> buildCommercialSummary(CommercialBundle commercial) {
     return Map.of(
-        "gamesPricing", Map.of("status", "UNKNOWN"),
-        "drawChannels", Map.of("status", "UNKNOWN"),
+        "gamesPricing",
+            Map.of("status", commercial.games().isEmpty() ? "MISSING" : "READY",
+                "count", commercial.games().size()),
+        "drawChannels",
+            Map.of("status", commercial.channels().isEmpty() ? "MISSING" : "READY",
+                "count", commercial.channels().size()),
         "limits", Map.of("status", "UNKNOWN"),
         "promotions", Map.of("status", "UNKNOWN"));
   }
@@ -131,4 +272,15 @@ public class TenantAdminDashboardPayloadAssembler {
       return new Payload(Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of());
     }
   }
+
+  /** Grouped operational data — loaded once, shared by readiness + kpis + operations builders. */
+  record OperationsBundle(
+      List<OutletView> outlets,
+      long terminalCount,
+      List<SellerSummaryView> sellers) {}
+
+  /** Grouped commercial data — loaded once, shared by readiness + commercial builders. */
+  record CommercialBundle(
+      List<GameView> games,
+      List<DrawChannelSummaryView> channels) {}
 }

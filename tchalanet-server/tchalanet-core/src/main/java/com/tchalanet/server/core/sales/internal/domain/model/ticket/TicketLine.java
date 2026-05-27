@@ -12,6 +12,7 @@ import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.selection.api.model.Selection;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public record TicketLine(
     TicketLineId id,
@@ -28,6 +29,8 @@ public record TicketLine(
     TicketLinePricingSource pricingSource,
     TicketLineSelectionSource selectionSource,
     PromotionDecisionId promotionDecisionId,
+    String promotionLabel,
+    String promotionEffectType,
     TicketLineResultStatus resultStatus,
     Money payoutAmount
 ) {
@@ -68,6 +71,9 @@ public record TicketLine(
             && promotionDecisionId != null) {
             throw new IllegalArgumentException("ticket_line.standard_customer_line_cannot_have_promotion");
         }
+
+        promotionLabel = normalizePromotionText(promotionLabel);
+        promotionEffectType = normalizePromotionText(promotionEffectType);
     }
 
     public static TicketLine customerLine(
@@ -98,6 +104,8 @@ public record TicketLine(
             TicketLinePricingSource.STANDARD,
             TicketLineSelectionSource.CUSTOMER_SELECTED,
             null,
+            null,
+            null,
             resultStatus,
             payoutAmount
         );
@@ -106,7 +114,9 @@ public record TicketLine(
     public TicketLine withPromotionPricing(
         BigDecimal boostedOddsSnapshot,
         Money boostedPotentialPayout,
-        PromotionDecisionId decisionId
+        PromotionDecisionId decisionId,
+        String promotionLabel,
+        String promotionEffectType
     ) {
         return new TicketLine(
             id,
@@ -123,6 +133,8 @@ public record TicketLine(
             TicketLinePricingSource.PROMOTION,
             selectionSource,
             decisionId,
+            promotionLabel,
+            promotionEffectType,
             resultStatus,
             payoutAmount
         );
@@ -145,6 +157,8 @@ public record TicketLine(
             pricingSource,
             selectionSource,
             promotionDecisionId,
+            promotionLabel,
+            promotionEffectType,
             result.status(),
             result.payoutAmount()
         );
@@ -162,7 +176,9 @@ public record TicketLine(
         Money potentialPayoutAmount,
         Short betOption,
         TicketLineSelectionSource selectionSource,
-        PromotionDecisionId promotionDecisionId
+        PromotionDecisionId promotionDecisionId,
+        String promotionLabel,
+        String promotionEffectType
     ) {
         return new TicketLine(
             id,
@@ -179,8 +195,17 @@ public record TicketLine(
             TicketLinePricingSource.PROMOTION,
             selectionSource,
             promotionDecisionId,
+            promotionLabel,
+            promotionEffectType,
             TicketLineResultStatus.PENDING,
             Money.zero(stakeAmount.currency())
         );
+    }
+
+    private static String normalizePromotionText(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return Objects.requireNonNull(value).trim();
     }
 }

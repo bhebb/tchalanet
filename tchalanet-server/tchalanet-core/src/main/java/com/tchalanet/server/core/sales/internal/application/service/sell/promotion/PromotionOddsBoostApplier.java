@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.promotion.api.model.PromotionDecision;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import org.springframework.stereotype.Component;
 
@@ -42,8 +43,17 @@ public class PromotionOddsBoostApplier {
             lines.set(i, line.withPromotionPricing(
                 boostedOdds,
                 new Money(potential, currency),
-                decision.decisionId()
+                decision.decisionId(),
+                promotionLabel(effect),
+                effect.type().name()
             ));
         }
+    }
+
+    private String promotionLabel(PromotionEffect effect) {
+        if (effect.reason() != null && !effect.reason().isBlank()) {
+            return effect.reason().trim();
+        }
+        return TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS;
     }
 }

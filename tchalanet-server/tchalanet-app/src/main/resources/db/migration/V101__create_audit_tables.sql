@@ -666,6 +666,8 @@ CREATE TABLE sales_ticket_line_aud (
   pricing_source varchar(16),
   selection_source varchar(32),
   promotion_decision_id uuid,
+  promotion_label varchar(128),
+  promotion_effect_type varchar(32),
   result_status varchar(16),
   payout_amount numeric(19,4),
   created_at timestamptz,

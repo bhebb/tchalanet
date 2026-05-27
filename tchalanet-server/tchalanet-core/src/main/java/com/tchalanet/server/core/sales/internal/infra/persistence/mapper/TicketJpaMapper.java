@@ -142,6 +142,8 @@ public interface TicketJpaMapper {
         entity.setPricingSource(line.pricingSource());
         entity.setSelectionSource(line.selectionSource());
         entity.setPromotionDecisionId(line.promotionDecisionId() == null ? null : line.promotionDecisionId().value());
+        entity.setPromotionLabel(line.promotionLabel());
+        entity.setPromotionEffectType(line.promotionEffectType());
 
         return entity;
     }
@@ -397,6 +399,8 @@ public interface TicketJpaMapper {
             entity.getPricingSource() == null ? TicketLinePricingSource.STANDARD : entity.getPricingSource(),
             entity.getSelectionSource() == null ? TicketLineSelectionSource.CUSTOMER_SELECTED : entity.getSelectionSource(),
             entity.getPromotionDecisionId() == null ? null : PromotionDecisionId.of(entity.getPromotionDecisionId()),
+            entity.getPromotionLabel(),
+            entity.getPromotionEffectType(),
             entity.getResultStatus(),
             new Money(entity.getPayoutAmount(), currency)
         );

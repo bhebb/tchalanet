@@ -13,7 +13,10 @@ public record TicketReceiptLineView(
     String selection,
     BigDecimal odds,
     String stake,
-    String potentialPayout
+    String potentialPayout,
+    boolean promotional,
+    String promotionLabel,
+    String promotionEffectType
 ) {
     public TicketReceiptLineView {
         Objects.requireNonNull(gameCode, "gameCode is required");

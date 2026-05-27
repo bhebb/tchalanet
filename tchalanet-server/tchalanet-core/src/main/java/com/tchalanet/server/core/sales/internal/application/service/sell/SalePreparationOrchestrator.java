@@ -9,6 +9,7 @@ import com.tchalanet.server.core.sales.internal.application.rule.DrawCutoffRule;
 import com.tchalanet.server.core.sales.internal.application.sale.SaleEvaluationMode;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.AppliedSalePromotionEffects;
 import com.tchalanet.server.core.sales.internal.application.service.sell.model.PreparedSale;
+import com.tchalanet.server.core.sales.internal.application.service.sell.model.SalePolicyInput;
 import com.tchalanet.server.core.sales.internal.application.service.sell.promotion.SalePromotionEffectApplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -88,7 +89,7 @@ public class SalePreparationOrchestrator {
             command,
             pos,
             draw,
-            mergedLines,
+            new SalePolicyInput(mergedLines, finalLines, finalMoney),
             now
         );
 

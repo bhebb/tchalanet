@@ -15,7 +15,9 @@ public class PromotionRuleEvaluator {
         if (!eligible(rule, ctx)) {
             return List.of();
         }
-        return rule.effects();
+        return rule.effects().stream()
+            .map(effect -> effect.withRuleContext(rule.campaignId(), rule.ruleKey()))
+            .toList();
     }
 
     private boolean eligible(PromotionRule rule, PromotionEvaluationContext ctx) {

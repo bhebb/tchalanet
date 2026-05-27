@@ -83,6 +83,8 @@ public class TicketLinePreparationService {
             com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource.STANDARD,
             com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.CUSTOMER_SELECTED,
             null,
+            null,
+            null,
             TicketLineResultStatus.PENDING,
             Money.zero(currency)
         );

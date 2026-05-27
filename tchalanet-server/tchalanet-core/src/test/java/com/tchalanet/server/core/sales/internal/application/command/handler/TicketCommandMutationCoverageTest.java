@@ -90,6 +90,11 @@ class TicketCommandMutationCoverageTest {
         handler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
             PrintOutputFormat.PDF,
+            null,
+            USER,
+            original.context().terminalId(),
+            original.context().outletId(),
+            original.context().salesSessionId(),
             null));
 
         assertImmutableTicketFields(writer.saved, original);
@@ -175,6 +180,11 @@ class TicketCommandMutationCoverageTest {
         printHandler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
             PrintOutputFormat.PDF,
+            null,
+            USER,
+            original.context().terminalId(),
+            original.context().outletId(),
+            original.context().salesSessionId(),
             null));
         cancelHandler.handle(new CancelTicketCommand(
             TENANT,
@@ -269,6 +279,8 @@ class TicketCommandMutationCoverageTest {
             null,
             TicketLineOrigin.CUSTOMER,
             TicketLinePricingSource.STANDARD,
+            null,
+            null,
             null,
             null,
             TicketLineResultStatus.PENDING,

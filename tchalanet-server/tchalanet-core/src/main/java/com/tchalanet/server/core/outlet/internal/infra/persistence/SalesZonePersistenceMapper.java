@@ -1,12 +1,13 @@
 package com.tchalanet.server.core.outlet.internal.infra.persistence;
 
 import com.tchalanet.server.common.mapper.CommonIdMapper;
+import com.tchalanet.server.common.mapper.CommonAuditMapper;
 import com.tchalanet.server.core.outlet.internal.domain.model.SalesZone;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = CommonIdMapper.class)
+@Mapper(componentModel = "spring", uses = {CommonIdMapper.class, CommonAuditMapper.class})
 public interface SalesZonePersistenceMapper {
 
     @Mapping(target = "id", source = "id")

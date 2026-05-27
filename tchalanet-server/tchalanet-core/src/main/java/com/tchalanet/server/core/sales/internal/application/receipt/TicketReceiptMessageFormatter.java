@@ -1,31 +1,44 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectionView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageContent;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class TicketReceiptMessageFormatter {
 
+    private final TicketReceiptI18nResolver i18nResolver;
+
     public TicketReceiptMessageContent format(TicketReceiptView receipt) {
+        var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
         var subject = "Ticket Tchalanet " + receipt.displayCode();
         var body = """
-            Ticket Tchalanet valide
-            Code: %s
-            Tirage: %s
-            Jeux: %s
-            Montant: %s
-            Verification: %s
+            %s
+            %s: %s
+            %s: %s
+            %s: %s
+            %s: %s
+            %s: %s
             """.formatted(
+            translations.text(TicketReceiptI18nKeys.MESSAGE_VALID_TICKET),
+            translations.text(TicketReceiptI18nKeys.MESSAGE_CODE),
             receipt.displayCode(),
+            translations.text(TicketReceiptI18nKeys.DRAW_SECTION),
             receipt.drawLabel(),
+            translations.text(TicketReceiptI18nKeys.MESSAGE_GAMES),
             String.join("; ", lineSummaries(receipt)),
+            translations.text(TicketReceiptI18nKeys.MESSAGE_AMOUNT),
             receipt.totalAmount(),
+            translations.text(TicketReceiptI18nKeys.VERIFICATION),
             receipt.verificationUrl()
         );
         return new TicketReceiptMessageContent(
@@ -41,17 +54,18 @@ public class TicketReceiptMessageFormatter {
     }
 
     public String formatShareableText(TicketReceiptView receipt) {
+        var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
         var lines = new ArrayList<String>();
-        lines.add("Ticket Tchalanet valide");
-        lines.add("Code: " + receipt.displayCode());
+        lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_VALID_TICKET));
+        lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_CODE) + ": " + receipt.displayCode());
         if (receipt.drawLabel() != null && !receipt.drawLabel().isBlank()) {
-            lines.add("Tirage: " + receipt.drawLabel());
+            lines.add(translations.text(TicketReceiptI18nKeys.DRAW_SECTION) + ": " + receipt.drawLabel());
         }
         receipt.gameSections().forEach(section ->
             section.lines().forEach(line ->
-                lines.add("Jeu: " + lineLabel(section, line))));
-        lines.add("Montant: " + receipt.totalAmount());
-        lines.add("Verification: " + receipt.verificationUrl());
+                lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_GAME) + ": " + lineLabel(section, line))));
+        lines.add(translations.text(TicketReceiptI18nKeys.MESSAGE_AMOUNT) + ": " + receipt.totalAmount());
+        lines.add(translations.text(TicketReceiptI18nKeys.VERIFICATION) + ": " + receipt.verificationUrl());
         return String.join(System.lineSeparator(), lines);
     }
 
