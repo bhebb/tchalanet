@@ -3,6 +3,8 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.publichome;
 import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.features.news.publicnews.PublicNewsService;
+import com.tchalanet.server.features.news.shared.LotteryNewsModels.LotteryNewsArticle;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -12,41 +14,52 @@ import org.springframework.stereotype.Component;
  * Loads the grouped payload for source {@code public_home}.
  * One assembly per request — sub-payloads are extracted by widgetId in
  * {@link PublicHomeProvider}.
+ *
+ * V1 (révision 2) ne traite plus que les widgets dynamiques :
+ *   - home.news  : ticker des dernières news via {@link PublicNewsService}
+ *   - home.plans : grille des plans actifs via {@link PlanCatalog}
+ *
+ * Hero, features et tchala sont sortis du provider — ils passent désormais
+ * par {@code json_file} (fragments {@code public_hero}, {@code public_features},
+ * {@code public_tchala}).
  */
 @Component
 @RequiredArgsConstructor
 public class PublicHomePayloadAssembler {
 
+  static final int DEFAULT_NEWS_LIMIT = 5;
+  static final int MAX_NEWS_LIMIT = 20;
+
+  private final PublicNewsService newsService;
   private final PlanCatalog planCatalog;
 
-  public Payload assemble(String lang, TchRequestContext ctx) {
-    boolean hasTenant = ctx != null && ctx.tenantId() != null;
-    return new Payload(
-        buildHero(lang, hasTenant, ctx),
-        buildFeatures(lang),
-        buildPlans()
-    );
+  public Payload assemble(int newsLimit, TchRequestContext ctx) {
+    return new Payload(buildNews(newsLimit), buildPlans());
   }
 
-  private Map<String, Object> buildHero(String lang, boolean hasTenant, TchRequestContext ctx) {
-    return Map.of(
-        "tagline", resolveTagline(lang),
-        "ctaLinks", buildCtaLinks(lang, hasTenant),
-        "stats", hasTenant ? Map.of("tenantCode",
-            ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "") : Map.of(),
-        "backgroundUrl", "");
-  }
-
-  private List<Map<String, Object>> buildFeatures(String lang) {
-    // V1: feature grid is rendered from PageModel props (items_key) — provider returns
-    // metadata only. Replace with catalog-driven feature list once available.
-    return List.of();
+  private List<Map<String, Object>> buildNews(int requestedLimit) {
+    int limit = requestedLimit <= 0 ? DEFAULT_NEWS_LIMIT
+        : Math.min(requestedLimit, MAX_NEWS_LIMIT);
+    return newsService.listAll().stream()
+        .limit(limit)
+        .map(PublicHomePayloadAssembler::toNewsMap)
+        .toList();
   }
 
   private List<Map<String, Object>> buildPlans() {
     return planCatalog.listActive().stream()
         .map(PublicHomePayloadAssembler::toPlanMap)
         .toList();
+  }
+
+  private static Map<String, Object> toNewsMap(LotteryNewsArticle article) {
+    return Map.of(
+        "id", article.id() != null ? article.id() : "",
+        "title", article.title() != null ? article.title() : "",
+        "snippet", article.description() != null ? article.description() : "",
+        "link", article.url() != null ? article.url().toString() : "",
+        "source", article.sourceId() != null ? article.sourceId() : "",
+        "publishedAt", article.publishedAt() != null ? article.publishedAt().toString() : "");
   }
 
   private static Map<String, Object> toPlanMap(PlanView plan) {
@@ -61,39 +74,7 @@ public class PublicHomePayloadAssembler {
         "isDefault", plan.isDefault());
   }
 
-  private static String resolveTagline(String lang) {
-    if ("ht".equals(lang)) return "Jwè ak konfyans";
-    if ("en".equals(lang)) return "Play with confidence";
-    return "Jouez en toute confiance";
-  }
-
-  private static List<Map<String, Object>> buildCtaLinks(String lang, boolean hasTenant) {
-    if (hasTenant) {
-      return List.of(
-          Map.of("label", label("dashboard", lang), "href", "/dashboard"),
-          Map.of("label", label("tickets", lang), "href", "/tickets"));
-    }
-    return List.of(
-        Map.of("label", label("register", lang), "href", "/register"),
-        Map.of("label", label("learn_more", lang), "href", "/about"));
-  }
-
-  private static String label(String key, String lang) {
-    return switch (key + ":" + (lang != null ? lang : "fr")) {
-      case "dashboard:ht" -> "Tablo de bò";
-      case "dashboard:en" -> "Dashboard";
-      case "tickets:ht" -> "Tikè";
-      case "tickets:en" -> "Tickets";
-      case "register:ht" -> "Enskri";
-      case "register:en" -> "Register";
-      case "learn_more:ht" -> "Aprann plis";
-      case "learn_more:en" -> "Learn more";
-      default -> key;
-    };
-  }
-
   public record Payload(
-      Map<String, Object> hero,
-      List<Map<String, Object>> features,
+      List<Map<String, Object>> news,
       List<Map<String, Object>> plans) {}
 }

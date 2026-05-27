@@ -1,0 +1,38 @@
+{
+  "title_key": "home.tchala.title",
+  "subtitle_key": "home.tchala.subtitle",
+  "search_form": {
+    "action": "/public/tchala/search",
+    "method": "GET",
+    "query_param": "q",
+    "lang_param": "lang",
+    "placeholder_key": "home.tchala.search_placeholder",
+    "submit_label_key": "home.tchala.search_submit"
+  },
+  "by_number_link": {
+    "label_key": "home.tchala.by_number_label",
+    "href": "/tchala?by=number"
+  },
+  "by_dream_link": {
+    "label_key": "home.tchala.by_dream_label",
+    "href": "/tchala?by=dream"
+  },
+  "quick_dreams": [
+    {
+      "label_key": "home.tchala.dream.poisson",
+      "href": "/public/tchala/by-dream?dream=poisson"
+    },
+    {
+      "label_key": "home.tchala.dream.serpent",
+      "href": "/public/tchala/by-dream?dream=serpent"
+    },
+    {
+      "label_key": "home.tchala.dream.argent",
+      "href": "/public/tchala/by-dream?dream=argent"
+    },
+    {
+      "label_key": "home.tchala.dream.mariage",
+      "href": "/public/tchala/by-dream?dream=mariage"
+    }
+  ]
+}

@@ -7,7 +7,7 @@
   "schema": {},
   "is_default": true,
   "is_system": true,
-  "description": "Page d'accueil publique V1: hero, résultats courts, vérification ticket, jeux, bénéfices et plans/démo.",
+  "description": "Page d'accueil publique V1: hero (static), résultats courts, vérification ticket, tchala (static), news (5 brèves), features (static) et plans.",
   "model": {
     "meta": {
       "id": "public.home",
@@ -15,13 +15,9 @@
       "slug": "home",
       "context": "public_home",
       "schema_version": 1,
-      "langs": [
-        "fr",
-        "en",
-        "ht"
-      ],
+      "langs": ["fr", "en", "ht"],
       "default_lang": "fr",
-      "description": "Page d'accueil publique V1 — page légère, sans données privées, alimentée par providers groupés."
+      "description": "Page d'accueil publique V1 — page légère, sans données privées, fragments statiques + news/plans/draws dynamiques."
     },
     "theme": {
       "presetId": "tchalanet_default",
@@ -66,49 +62,42 @@
             "id": "hero",
             "label_key": "layout.public_home.hero",
             "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.hero"
-                ]
-              }
+              { "span": 12, "widgets": ["home.hero"] }
+            ]
+          },
+          {
+            "id": "news",
+            "label_key": "layout.public_home.news",
+            "columns": [
+              { "span": 12, "widgets": ["home.news"] }
             ]
           },
           {
             "id": "draws",
             "label_key": "layout.public_home.draws",
             "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.draws",
-                  "home.check_ticket"
-                ]
-              }
+              { "span": 12, "widgets": ["home.draws", "home.check_ticket"] }
+            ]
+          },
+          {
+            "id": "tchala",
+            "label_key": "layout.public_home.tchala",
+            "columns": [
+              { "span": 12, "widgets": ["home.tchala"] }
             ]
           },
           {
             "id": "features",
             "label_key": "layout.public_home.features",
             "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.features"
-                ]
-              }
+              { "span": 12, "widgets": ["home.features"] }
             ]
           },
           {
             "id": "plans",
             "label_key": "layout.public_home.plans",
             "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.plans"
-                ]
-              }
+              { "span": 12, "widgets": ["home.plans"] }
             ]
           }
         ]
@@ -118,17 +107,22 @@
           "type": "HeroWidget",
           "binding": {
             "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "public_hero"
+          }
+        },
+        "home.news": {
+          "type": "NewsTickerWidget",
+          "binding": {
+            "mode": "dynamic",
             "source": "public_home"
           },
           "props": {
-            "title_key": "home.hero.title",
-            "subtitle_key": "home.hero.subtitle",
-            "primary_cta_key": "cta.login",
-            "primary_route": "/login",
-            "secondary_cta_key": "cta.request_demo",
-            "secondary_route": "/demo",
-            "tertiary_cta_key": "cta.check_ticket",
-            "tertiary_route": "/verifier"
+            "title_key": "home.news.title",
+            "limit": 5,
+            "show_dates": true
           }
         },
         "home.draws": {
@@ -160,16 +154,25 @@
             "route": "/verifier"
           }
         },
+        "home.tchala": {
+          "type": "TchalaSearchWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "public_tchala"
+          }
+        },
         "home.features": {
           "type": "FeatureGridWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "public_home"
+            "source": "json_file"
           },
           "props": {
-            "title_key": "home.features.title",
-            "layout": "LMSS",
-            "items_key": "features"
+            "file_key": "public_features",
+            "layout": "LMSS"
           }
         },
         "home.plans": {

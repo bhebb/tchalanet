@@ -1,0 +1,42 @@
+{
+  "title_key": "home.features.title",
+  "subtitle_key": "home.features.subtitle",
+  "items": [
+    {
+      "id": "results_live",
+      "icon": "emoji_events",
+      "title_key": "home.features.results_live.title",
+      "description_key": "home.features.results_live.description"
+    },
+    {
+      "id": "check_ticket",
+      "icon": "qr_code_scanner",
+      "title_key": "home.features.check_ticket.title",
+      "description_key": "home.features.check_ticket.description"
+    },
+    {
+      "id": "multi_game",
+      "icon": "casino",
+      "title_key": "home.features.multi_game.title",
+      "description_key": "home.features.multi_game.description"
+    },
+    {
+      "id": "secure",
+      "icon": "verified_user",
+      "title_key": "home.features.secure.title",
+      "description_key": "home.features.secure.description"
+    },
+    {
+      "id": "multi_tenant",
+      "icon": "store",
+      "title_key": "home.features.multi_tenant.title",
+      "description_key": "home.features.multi_tenant.description"
+    },
+    {
+      "id": "mobile_ready",
+      "icon": "smartphone",
+      "title_key": "home.features.mobile_ready.title",
+      "description_key": "home.features.mobile_ready.description"
+    }
+  ]
+}
