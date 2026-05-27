@@ -4,6 +4,8 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.features.stats.tenantdashboard.app.TenantDashboardStatsService;
 import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsView;
 import com.tchalanet.server.features.stats.tenantdashboard.model.TenantSummaryCard;
+import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;
+import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Component;
 public class TenantAdminDashboardPayloadAssembler {
 
   private final TenantDashboardStatsService statsService;
+  private final TenantReadinessAssembler readinessAssembler;
 
   public Payload assemble(TchRequestContext ctx) {
     if (ctx == null || ctx.tenantId() == null) {
@@ -36,7 +39,7 @@ public class TenantAdminDashboardPayloadAssembler {
 
     Map<String, Object> header = buildHeader(ctx);
     Map<String, Object> kpis = buildKpis(ctx);
-    Map<String, Object> readiness = buildReadinessSummary();
+    Map<String, Object> readiness = buildReadinessSummary(ctx);
     Map<String, Object> alerts = buildAlerts();
     Map<String, Object> operations = buildOperationsSummary();
     Map<String, Object> commercial = buildCommercialSummary();
@@ -69,13 +72,16 @@ public class TenantAdminDashboardPayloadAssembler {
   }
 
   /**
-   * V1: empty placeholder. Wired to GetTenantReadinessQuery in Vague 5.
+   * Readiness summary projection — short form for the dashboard.
+   * Never contains KPI fields. See TenantReadinessSummary contract.
    */
-  private Map<String, Object> buildReadinessSummary() {
+  private Map<String, Object> buildReadinessSummary(TchRequestContext ctx) {
+    TenantReadinessSummary summary = readinessAssembler.toSummary(
+        readinessAssembler.assemble(ctx));
     return Map.of(
-        "status", "UNKNOWN",
-        "missingCount", 0,
-        "topIssues", List.of());
+        "status", summary.status().name(),
+        "missingCount", summary.missingCount(),
+        "topIssues", summary.topIssues());
   }
 
   /**
