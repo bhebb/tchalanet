@@ -25,6 +25,12 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+/**
+ * @deprecated Replaced by {@code core.analytics.internal.infra.event.AnalyticsEventListener}.
+ *             Will be removed once analytics_daily tables are fully backfilled.
+ *             TODO: remove after backfill confirmed in production.
+ */
+@Deprecated(since = "analytics-v1", forRemoval = true)
 @Component
 @RequiredArgsConstructor
 public class StatsAggregatesEventListener {

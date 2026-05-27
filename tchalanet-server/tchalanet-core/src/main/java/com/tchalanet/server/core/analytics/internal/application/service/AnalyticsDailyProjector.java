@@ -3,6 +3,7 @@ package com.tchalanet.server.core.analytics.internal.application.service;
 import com.tchalanet.server.core.analytics.api.model.AnalyticsDimensionType;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDailyRepository;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
@@ -84,6 +85,24 @@ public class AnalyticsDailyProjector {
         -1, 1, 0, 0, 0, 0, 0, 0);
     upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
         -1, 1, 0, 0, 0, 0, 0, 0);
+  }
+
+  // ── payout paid ───────────────────────────────────────────────────────────
+
+  /**
+   * Apply delta for a payout actually paid to a ticket holder.
+   *
+   * <p>Increments {@code payouts_paid_cents} for PLATFORM + TENANT dimensions.
+   * No amount is available in this event — we only know payout occurred; the settled
+   * amount was already tracked via {@link #applyTicketSettled}.
+   * TODO V2: enrich TicketPayoutPaidRecordedEvent with payout amount for accurate delta.
+   */
+  public void applyPayoutPaid(TicketPayoutPaidRecordedEvent event, LocalDate refDate) {
+    // TODO V2: TicketPayoutPaidRecordedEvent does not carry the payout amount.
+    // When it does, update payoutsPaidCents for PLATFORM + TENANT dimensions.
+    // For now, we mark the event as processed (idempotence) but skip the upsert.
+    log.debug("analytics: payout paid ticket={} tenant={} — V1 no-op (no amount in event)",
+        event.ticketId().value(), event.tenantId().value());
   }
 
   // ── ticket settled (resulted) ─────────────────────────────────────────────

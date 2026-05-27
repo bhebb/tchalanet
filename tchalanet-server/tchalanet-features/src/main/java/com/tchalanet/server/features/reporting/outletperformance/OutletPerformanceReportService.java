@@ -1,34 +1,36 @@
 package com.tchalanet.server.features.reporting.outletperformance;
 
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.core.analytics.api.query.GetOutletReportQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/** Outlet performance report service — delegates to core.analytics via QueryBus. */
 @Service
 @RequiredArgsConstructor
 public class OutletPerformanceReportService {
 
-  private final OutletPerformanceReader outletPerformanceReader;
+  private final QueryBus queryBus;
 
   public OutletPerformanceReportResponse getReport(OutletPerformanceReportCriteria criteria) {
+    TenantId tenantId = criteria.tenantId() != null ? TenantId.of(criteria.tenantId()) : null;
 
-    var snapshot =
-        outletPerformanceReader.findOutletPerformance(
-            criteria.tenantId(), criteria.fromDate(), criteria.toDate(), criteria.gameCode());
+    var analyticsLines = queryBus.ask(new GetOutletReportQuery(
+        tenantId, criteria.fromDate(), criteria.toDate(), criteria.gameCode()));
 
-    var lines =
-        snapshot.stream()
-            .map(
-                line ->
-                    new OutletPerformanceLine(
-                        line.outletId(),
-                        line.outletCode(),
-                        line.outletName(),
-                        line.gameCode(),
-                        line.ticketsSold(),
-                        line.totalSales(),
-                        line.totalPayout(),
-                        line.netRevenue()))
-            .toList();
+    // Map from core.analytics OutletReportLine to local OutletPerformanceLine
+    var lines = analyticsLines.stream()
+        .map(l -> new OutletPerformanceLine(
+            l.outletId().value(),
+            l.outletCode(),
+            l.outletName(),
+            l.gameCode(),
+            l.ticketsSold(),
+            l.totalSales(),
+            l.totalPayout(),
+            l.netRevenue()))
+        .toList();
 
     return new OutletPerformanceReportResponse(
         criteria.fromDate(), criteria.toDate(), criteria.gameCode(), lines);

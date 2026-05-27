@@ -18,9 +18,8 @@ import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
 import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
 import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
 import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
-import com.tchalanet.server.features.stats.tenantdashboard.app.TenantDashboardStatsService;
-import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsView;
-import com.tchalanet.server.features.stats.tenantdashboard.model.TenantSummaryCard;
+import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
@@ -51,7 +50,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TenantAdminDashboardPayloadAssembler {
 
-  private final TenantDashboardStatsService statsService;
   private final TenantCatalog tenantCatalog;
   private final GameCatalog gameCatalog;
   private final DrawChannelCatalog drawChannelCatalog;
@@ -146,16 +144,14 @@ public class TenantAdminDashboardPayloadAssembler {
     BigDecimal salesToday = BigDecimal.ZERO;
     long ticketCountToday = 0L;
     try {
-      var response = statsService.getStats(ctx.tenantId(), today, today);
-      TenantDashboardStatsView stats = response != null ? response.stats() : null;
-      TenantSummaryCard summary = stats != null ? stats.summary() : null;
-      if (summary != null) {
-        salesToday = summary.totalSales() != null ? summary.totalSales() : BigDecimal.ZERO;
-        ticketCountToday = summary.ticketsSold();
+      TenantDashboardStatsView view =
+          queryBus.ask(GetTenantDashboardStatsQuery.today(ctx.tenantId(), today));
+      if (view != null && view.summary() != null) {
+        salesToday = view.summary().grossSales() != null ? view.summary().grossSales() : BigDecimal.ZERO;
+        ticketCountToday = view.summary().ticketsSold();
       }
     } catch (RuntimeException e) {
-      // grouped read failed — leave KPIs at zero (no silent catch on cache; we still
-      // expose the field with zero to keep the payload shape stable for the widget).
+      // grouped read failed — leave KPIs at zero to keep payload shape stable
     }
 
     return Map.of(

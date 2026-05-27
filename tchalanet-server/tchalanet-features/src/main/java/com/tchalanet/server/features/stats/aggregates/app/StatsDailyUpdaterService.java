@@ -12,6 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * @deprecated Replaced by {@code core.analytics.internal.application.service.AnalyticsDailyProjector}.
+ *             TODO: remove after analytics backfill confirmed.
+ */
+@Deprecated(since = "analytics-v1", forRemoval = true)
 @Component
 @RequiredArgsConstructor
 public class StatsDailyUpdaterService {

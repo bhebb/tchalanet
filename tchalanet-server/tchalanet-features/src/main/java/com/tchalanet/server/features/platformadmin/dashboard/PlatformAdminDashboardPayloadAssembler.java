@@ -9,12 +9,6 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.subscription.api.query.GetPlatformSubscriptionStatsQuery;
 import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
-import com.tchalanet.server.features.stats.platformdashboard.PlatformDashboardModels.PlatformDashboardStatsCriteria;
-import com.tchalanet.server.features.stats.platformdashboard.PlatformDashboardModels.PlatformDashboardStatsResponse;
-import com.tchalanet.server.features.stats.platformdashboard.PlatformDashboardModels.PlatformSummaryCard;
-import com.tchalanet.server.features.stats.platformdashboard.PlatformDashboardStatsService;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +33,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PlatformAdminDashboardPayloadAssembler {
 
-  private final PlatformDashboardStatsService statsService;
   private final TenantCatalog tenantCatalog;
   private final QueryBus queryBus;
   /** Optional — adapter typically lives in the app layer (wraps actuator HealthEndpoint). */
@@ -88,19 +81,6 @@ public class PlatformAdminDashboardPayloadAssembler {
       }
     } catch (RuntimeException e) {
       // leave at zero — payload shape stays stable
-    }
-
-    try {
-      LocalDate today = LocalDate.now(ZoneOffset.UTC);
-      PlatformDashboardStatsResponse stats =
-          statsService.getStats(new PlatformDashboardStatsCriteria(today, today));
-      PlatformSummaryCard summary = stats != null ? stats.summary() : null;
-      if (summary != null && total == 0L) {
-        // fall back to platform stats when catalog stats are empty (no view materialized yet)
-        total = summary.totalTenants();
-      }
-    } catch (RuntimeException e) {
-      // ignore — keep catalog values
     }
 
     long actionRequired = suspended;

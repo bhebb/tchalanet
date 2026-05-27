@@ -13,6 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
+/**
+ * @deprecated Replaced by {@code core.analytics.internal.application.service.AnalyticsDrawProjector}.
+ *             TODO: remove after analytics backfill confirmed.
+ */
+@Deprecated(since = "analytics-v1", forRemoval = true)
 @Component
 @RequiredArgsConstructor
 @Slf4j
