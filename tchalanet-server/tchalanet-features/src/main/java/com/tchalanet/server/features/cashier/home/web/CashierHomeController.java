@@ -31,12 +31,4 @@ public class CashierHomeController {
       @RequestHeader(name = ClientSurfaceResolver.HEADER_NAME, required = false) String surface) {
     return ApiResponse.success(service.mobileHome(ctx, surface));
   }
-
-  @GetMapping("/web-home")
-  @Operation(summary = "Get widget-based cashier web home")
-  public ApiResponse<CashierHomeResponse> webHome(
-      @CurrentContext TchRequestContext ctx,
-      @RequestHeader(name = ClientSurfaceResolver.HEADER_NAME, required = false) String surface) {
-    return ApiResponse.success(service.webHome(ctx, surface));
-  }
 }

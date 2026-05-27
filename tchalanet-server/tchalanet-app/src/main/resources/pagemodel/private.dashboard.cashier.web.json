@@ -7,7 +7,7 @@
   "schema": {},
   "is_default": true,
   "is_system": true,
-  "description": "Tableau de bord pour le caissier: identité, ventes rapides, tickets récents et gestion de session.",
+  "description": "Tableau de bord cashier web — source unifiée cashier_dashboard (dashboard-overview-runtime-v1).",
   "model": {
     "meta": {
       "id": "private.dashboard.cashier.web",
@@ -17,7 +17,7 @@
       "schema_version": 1,
       "langs": ["fr", "en", "ht"],
       "default_lang": "fr",
-      "description": "Dashboard web caissier: identité, ventes rapides, tickets, tirages et résumé de session."
+      "description": "Dashboard web caissier — payload groupé via source cashier_dashboard."
     },
     "theme": {
       "presetId": "tchalanet_default",
@@ -33,7 +33,7 @@
         },
         "props": {
           "show_profile_menu": true,
-          "file_key": "private_header_cashier"
+          "file_key": "private_header_profile_menu"
         }
       },
       "sidenav": {
@@ -129,7 +129,7 @@
           "type": "CashierIdentityWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_identity"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.identity.title"
@@ -139,7 +139,7 @@
           "type": "CashierOverviewWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_overview"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.overview.title"
@@ -149,30 +149,17 @@
           "type": "QuickSaleWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_quick_sale"
+            "source": "cashier_dashboard"
           },
           "props": {
-            "title_key": "dashboard.cashier.quick_sale.title",
-            "max_games": 8,
-            "include_next_draws": true
-          }
-        },
-        "dashboard.cashier.top_selections": {
-          "type": "TopSelectionsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "cashier_top_selections"
-          },
-          "props": {
-            "title_key": "dashboard.cashier.top_selections.title",
-            "limit_per_draw": 5
+            "title_key": "dashboard.cashier.quick_sale.title"
           }
         },
         "dashboard.cashier.recent_tickets": {
           "type": "RecentTicketsWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_recent_tickets"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.recent_tickets.title",
@@ -183,7 +170,7 @@
           "type": "NextDrawsWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_next_draws"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.next_draws.title",
@@ -195,7 +182,7 @@
           "type": "SessionSummaryWidget",
           "binding": {
             "mode": "dynamic",
-            "source": "cashier_session"
+            "source": "cashier_dashboard"
           },
           "props": {
             "title_key": "dashboard.cashier.session.title"

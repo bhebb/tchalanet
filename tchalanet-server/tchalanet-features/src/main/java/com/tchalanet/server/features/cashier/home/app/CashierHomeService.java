@@ -4,7 +4,6 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
 import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
 import com.tchalanet.server.features.cashier.draws.CashierAvailableDrawView;
 import com.tchalanet.server.features.cashier.draws.CashierDrawsService;
@@ -90,52 +89,6 @@ public class CashierHomeService {
                     "cutoffLabel", primaryDraw != null ? value(primaryDraw.cutoffLabel()) : "",
                     "status", primaryDraw != null ? value(primaryDraw.status()) : ""))),
         mobileNavigation(),
-        List.of());
-  }
-
-  public CashierHomeResponse webHome(TchRequestContext ctx, String requestedSurface) {
-    var surface = surfaceResolver.resolve(ctx, requestedSurface);
-    if (surface != ClientSurface.CASHIER_WEB) {
-      throw ProblemRest.forbidden("surface.not_allowed");
-    }
-
-    var operational = operationalContext(ctx);
-    var session = sessionSummary(ctx);
-    var primaryDraw = primaryDraw(ctx);
-    return new CashierHomeResponse(
-        surface,
-        VERSION,
-        new HomeHeader("Caisse", subtitle(operational), null),
-        null,
-        operational,
-        session,
-        primaryDraw,
-        new HomeAction("SELL_TICKET", "Vendre un ticket", true, "/cashier/sell"),
-        List.of(),
-        List.of(
-            new HomeWidget(
-                "session_summary",
-                "Session",
-                "SUMMARY_CARD",
-                Map.of(
-                    "open", session != null && session.open(),
-                    "openedAtLabel", session != null ? value(session.openedAtLabel()) : "",
-                    "ticketCount", session != null ? session.ticketCount() : 0,
-                    "salesTotal", session != null ? value(session.salesTotal()) : money(0, ctx))),
-            new HomeWidget(
-                "next_draw",
-                "Tirage actif",
-                "DRAW_CARD",
-                Map.of(
-                    "label", primaryDraw != null ? value(primaryDraw.label()) : "",
-                    "cutoffLabel", primaryDraw != null ? value(primaryDraw.cutoffLabel()) : "",
-                    "status", primaryDraw != null ? value(primaryDraw.status()) : "")),
-            new HomeWidget(
-                "recent_tickets",
-                "Tickets récents",
-                "RECENT_TICKETS",
-                Map.of("items", recentTickets(ctx)))),
-        List.of(),
         List.of());
   }
 
@@ -239,18 +192,6 @@ public class CashierHomeService {
         draw.status());
   }
 
-  private List<Map<String, Object>> recentTickets(TchRequestContext ctx) {
-    var rows = queryBus.ask(new ListCashierRecentTicketsQuery(ctx.currentUserIdRequired(), 5));
-    return rows.stream()
-        .map(ticket -> Map.<String, Object>of(
-            "publicCode", value(ticket.publicCode()),
-            "status", value(ticket.statusCode()),
-            "soldAt", ticket.soldAt() != null ? ticket.soldAt().toString() : "",
-            "stakeTotal", money(ticket.stakeTotalCents(), ctx),
-            "drawLabel", value(ticket.drawLabel()),
-            "lineCount", ticket.lineCount()))
-        .toList();
-  }
 
   private List<HomeNavigationItem> mobileNavigation() {
     return List.of(
