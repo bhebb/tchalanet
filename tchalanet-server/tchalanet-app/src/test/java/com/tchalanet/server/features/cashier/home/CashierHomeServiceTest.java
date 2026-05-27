@@ -114,15 +114,9 @@ class CashierHomeServiceTest {
         .doesNotContain("pending_approvals", "limits", "top_selections");
   }
 
-  @Test
-  void cashier_web_home_returns_widgets() {
-    var response = service.webHome(context(Set.of(TchRole.CASHIER), true), "CASHIER_WEB");
-
-    assertThat(response.surface()).isEqualTo(ClientSurface.CASHIER_WEB);
-    assertThat(response.primaryAction().type()).isEqualTo("SELL_TICKET");
-    assertThat(response.widgets()).extracting("key")
-        .contains("session_summary", "next_draw", "recent_tickets");
-  }
+  // Note: cashier web home is now served by the PageModel cashier dashboard
+  // (source cashier_dashboard) — see CashierWebDashboardProvider. The legacy
+  // service.webHome() endpoint was removed in dashboard-overview-runtime-v1 Vague 2.
 
   @Test
   void surface_header_not_allowed_returns_403() {
