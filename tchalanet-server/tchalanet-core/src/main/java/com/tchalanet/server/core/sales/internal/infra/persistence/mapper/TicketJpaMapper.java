@@ -166,6 +166,9 @@ public interface TicketJpaMapper {
         entity.setAmount(charge.amount().amount());
         entity.setCurrency(charge.amount().currency().value());
         entity.setWaivedByRuleId(charge.waivedByRuleId() == null ? null : charge.waivedByRuleId().value());
+        entity.setWaivedByDecisionId(charge.waivedByDecisionId() == null ? null : charge.waivedByDecisionId().value());
+        entity.setWaivedEffectType(charge.waivedEffectType());
+        entity.setWaivedLabel(charge.waivedLabel());
 
         return entity;
     }
@@ -573,7 +576,10 @@ public interface TicketJpaMapper {
             entity.getChargeType(),
             new Money(entity.getAmount(), currency),
             entity.getPaidBy(),
-            entity.getWaivedByRuleId() == null ? null : PromotionRuleId.of(entity.getWaivedByRuleId())
+            entity.getWaivedByDecisionId() == null ? null : PromotionDecisionId.of(entity.getWaivedByDecisionId()),
+            entity.getWaivedByRuleId() == null ? null : PromotionRuleId.of(entity.getWaivedByRuleId()),
+            entity.getWaivedEffectType(),
+            entity.getWaivedLabel()
         );
     }
 

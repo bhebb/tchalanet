@@ -18,7 +18,7 @@ class SensitiveJpaUpdateConventionTest {
         "com/tchalanet/server/core/draw/internal/infra/persistence/adapter/DrawLifecycleJpaAdapter.java",
         "com/tchalanet/server/core/ledger/internal/infra/persistence/JpaLedgerRepositoryAdapter.java",
         "com/tchalanet/server/core/limitpolicy/internal/infra/persistence/assignment/adapter/LimitAssignmentRepositoryAdapter.java",
-        "com/tchalanet/server/core/outlet/internal/infra/persistence/OutletPersistenceAdapter.java"
+        "com/tchalanet/server/core/outlet/internal/infra/persistence/adapter/OutletPersistenceAdapter.java"
     );
     private static final Set<String> GUARDED_SQL_WRITERS = Set.of(
         "com/tchalanet/server/core/drawresult/internal/infra/persistence/adapter/DrawResultWriterJdbcAdapter.java",

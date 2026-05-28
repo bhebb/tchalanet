@@ -1,0 +1,38 @@
+{
+  "brand": {
+    "label_key": "app.name",
+    "route": "/app/platform/dashboard"
+  },
+  "primary": [
+    {
+      "label_key": "nav.platform_dashboard",
+      "path": "/app/platform/dashboard",
+      "icon": "dashboard"
+    },
+    {
+      "label_key": "nav.platform_overview",
+      "path": "/app/platform/overview",
+      "icon": "admin_panel_settings"
+    }
+  ],
+  "secondary": [
+    {
+      "label_key": "nav.profile",
+      "path": "/app/profile",
+      "icon": "account_circle"
+    },
+    {
+      "label_key": "auth.logout",
+      "path": "/logout",
+      "icon": "logout",
+      "style": "danger"
+    }
+  ],
+  "actions": [
+    {
+      "id": "OPEN_PROFILE_MENU",
+      "icon": "account_circle",
+      "label_key": "nav.profile"
+    }
+  ]
+}

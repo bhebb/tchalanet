@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.drawresult.api.query;
 
 import com.tchalanet.server.common.bus.Query;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import java.time.Instant;
 
 public record GetDrawResultViewBySlotQuery(

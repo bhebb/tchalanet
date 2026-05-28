@@ -10,6 +10,7 @@ import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
+import com.tchalanet.server.core.sales.api.command.sell.SoldTicketView;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import com.tchalanet.server.core.sales.api.model.view.TicketDetailsView;
@@ -65,6 +66,29 @@ public class TicketWebMapper {
             toPrintStatus(ticket.print().status()),
             ticket.lifecycle().sale().soldAt(),
             ticket.lifecycle().sale().placedAt()
+        );
+    }
+
+    public TicketResponse toTicketResponse(SoldTicketView ticket) {
+        return new TicketResponse(
+            ticket.ticketId(),
+            ticket.ticketCode(),
+            ticket.publicCode(),
+            ticket.verificationCode(),
+            ticket.saleStatus(),
+            ticket.resultStatus(),
+            ticket.settlementStatus(),
+            ticket.saleChannel(),
+            ticket.drawId(),
+            ticket.outletId(),
+            ticket.terminalId(),
+            ticket.salesSessionId(),
+            ticket.sellerUserId(),
+            ticket.totalAmount(),
+            ticket.potentialPayoutAmount(),
+            ticket.printStatus(),
+            ticket.soldAt(),
+            ticket.placedAt()
         );
     }
 

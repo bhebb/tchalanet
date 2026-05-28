@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.infra.web.mapper;
 
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
 import com.tchalanet.server.core.drawresult.internal.infra.web.model.DrawResultResponse;
 import org.springframework.stereotype.Component;

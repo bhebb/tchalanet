@@ -83,6 +83,10 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         @Param("windowEnd") Instant windowEnd
     );
 
+    List<DrawJpaEntity> findByDrawResultId(UUID drawResultId);
+
+    List<DrawJpaEntity> findByTenantIdAndDrawDate(UUID tenantId, java.time.LocalDate drawDate);
+
     @Query(
         value = """
             select d.tenant_id as tenantId,

@@ -3,8 +3,8 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.publicdrawresu
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotsQuery;
 import com.tchalanet.server.core.drawresult.api.query.SearchPublicDrawResultsQuery;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultHistoryRowView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultHistoryRowView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultSlotView;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

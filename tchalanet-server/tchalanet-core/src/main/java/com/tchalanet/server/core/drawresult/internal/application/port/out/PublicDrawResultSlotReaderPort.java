@@ -1,9 +1,9 @@
 package com.tchalanet.server.core.drawresult.internal.application.port.out;
 
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultHistoryRowView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotDetailsView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultHistoryRowView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultSlotDetailsView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultSlotView;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Pageable;

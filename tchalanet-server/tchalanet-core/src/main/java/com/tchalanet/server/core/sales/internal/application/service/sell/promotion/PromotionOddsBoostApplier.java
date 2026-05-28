@@ -25,8 +25,15 @@ public class PromotionOddsBoostApplier {
             return;
         }
 
+        // V1 targets BOOST_ODDS by gameCode only; betType/betOption targeting is future scope.
         var targetGameCode = effect.gameCode();
-        var boostedOdds = effect.amount(); // V1: amount = oddsOverride
+        if (targetGameCode == null || targetGameCode.isBlank()) {
+            throw new IllegalArgumentException("promotion.boost_odds_game_required");
+        }
+        if (effect.amount() == null || effect.amount().signum() <= 0) {
+            throw new IllegalArgumentException("promotion.boost_odds_amount_required");
+        }
+        var boostedOdds = effect.amount().setScale(4, RoundingMode.UNNECESSARY);
 
         for (int i = 0; i < lines.size(); i++) {
             var line = lines.get(i);

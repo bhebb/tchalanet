@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.drawresult.internal.application.view;
+package com.tchalanet.server.core.drawresult.api.query.view;
 
 import tools.jackson.databind.JsonNode;
 

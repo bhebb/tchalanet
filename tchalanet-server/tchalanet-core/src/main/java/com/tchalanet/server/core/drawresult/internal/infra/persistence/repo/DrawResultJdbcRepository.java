@@ -5,7 +5,7 @@ import com.tchalanet.server.core.drawresult.api.model.ResultQuality;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultProjection;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResultStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NavigationDrawer",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "brand": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "topDestinations": {
+      "type": "array"
+    },
+    "sections": {
+      "type": "array"
+    },
+    "footerDestinations": {
+      "type": "array"
+    },
+    "actions": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "brand",
+    "topDestinations",
+    "sections",
+    "footerDestinations",
+    "actions"
+  ]
+}

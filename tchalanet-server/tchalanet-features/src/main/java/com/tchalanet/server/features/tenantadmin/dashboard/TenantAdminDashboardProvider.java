@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
  *   - dashboard.tenant_admin.alerts
  *   - dashboard.tenant_admin.operations
  *   - dashboard.tenant_admin.commercial
+ *   - dashboard.tenant_admin.public_content
  *   - dashboard.tenant_admin.quick_actions
  */
 @Component
@@ -55,6 +56,7 @@ public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.tenant_admin.alerts" -> payload.alerts();
       case "dashboard.tenant_admin.operations" -> payload.operations();
       case "dashboard.tenant_admin.commercial" -> payload.commercial();
+      case "dashboard.tenant_admin.public_content" -> payload.publicContent();
       case "dashboard.tenant_admin.quick_actions" -> payload.quickActions();
       default -> throw new PageModelDynamicProviderException(
           "TENANT_ADMIN_DASHBOARD_UNKNOWN_WIDGET",

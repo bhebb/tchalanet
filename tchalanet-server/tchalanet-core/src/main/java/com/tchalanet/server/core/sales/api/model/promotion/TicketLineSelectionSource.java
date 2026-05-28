@@ -13,5 +13,7 @@ package com.tchalanet.server.core.sales.api.model.promotion;
 public enum TicketLineSelectionSource {
     CUSTOMER,
     CUSTOMER_SELECTED,
-    PROMOTION
+    PROMOTION,
+    PROMOTION_DEFINED,
+    PROMOTION_GENERATED
 }

@@ -24,6 +24,19 @@ public class PromotionChargeApplier {
 
         // Mark as waived (keeps original amount for print/audit) instead of removing.
         // isBuyerFacing() returns false for waived charges so the total is unaffected.
-        charges.replaceAll(c -> c.type().name().equals(chargeType) ? c.asWaived(effect.ruleId()) : c);
+        charges.replaceAll(c -> c.type().name().equals(chargeType)
+            ? c.asWaived(
+                decision.decisionId(),
+                effect.ruleId(),
+                effect.type().name(),
+                promotionLabel(effect))
+            : c);
+    }
+
+    private String promotionLabel(PromotionEffect effect) {
+        if (effect.reason() != null && !effect.reason().isBlank()) {
+            return effect.reason().trim();
+        }
+        return effect.type().name();
     }
 }

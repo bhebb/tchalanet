@@ -7,7 +7,7 @@ import com.tchalanet.server.core.draw.internal.infra.web.model.DrawResultsRespon
 import com.tchalanet.server.core.draw.internal.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.internal.infra.web.model.HaitiDrawResultSummaryReponse;
 import com.tchalanet.server.core.draw.internal.infra.web.model.HaitiResultResponse;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import tools.jackson.databind.JsonNode;

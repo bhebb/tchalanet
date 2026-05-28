@@ -4,10 +4,9 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import com.tchalanet.server.core.drawresult.internal.domain.model.DrawResult;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Optional;
 
 public interface DrawResultReaderPort {

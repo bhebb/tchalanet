@@ -1,5 +1,6 @@
 package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 
+import com.tchalanet.server.core.sales.api.model.receipt.ReceiptBrandingDisplayMode;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import java.util.ArrayList;
@@ -10,11 +11,17 @@ import org.springframework.stereotype.Component;
 public class TicketReceiptBrandingFormatter {
 
     public List<TicketReceiptTextLine> headerLines(TicketReceiptView receipt) {
+        return headerLines(receipt, ReceiptBrandingDisplayMode.AUTO, ReceiptBrandingDisplayMode.AUTO);
+    }
+
+    public List<TicketReceiptTextLine> headerLines(
+        TicketReceiptView receipt,
+        ReceiptBrandingDisplayMode tenantMode,
+        ReceiptBrandingDisplayMode outletMode
+    ) {
         var lines = new ArrayList<TicketReceiptTextLine>();
-        add(lines, firstNonBlank(receipt.tenantDisplayName(), "TCHALANET"), true);
-        add(lines, receipt.tenantReceiptHeader(), false);
-        add(lines, receipt.outletName(), true);
-        add(lines, receipt.outletReceiptHeader(), false);
+        addBranding(lines, firstNonBlank(receipt.tenantDisplayName(), "TCHALANET"), receipt.tenantReceiptHeader(), tenantMode);
+        addBranding(lines, receipt.outletName(), receipt.outletReceiptHeader(), outletMode);
         return List.copyOf(lines);
     }
 
@@ -28,6 +35,29 @@ public class TicketReceiptBrandingFormatter {
     private void add(List<TicketReceiptTextLine> lines, String value, boolean bold) {
         if (value != null && !value.isBlank()) {
             lines.add(bold ? TicketReceiptTextLine.bold(value) : TicketReceiptTextLine.normal(value));
+        }
+    }
+
+    private void addBranding(
+        List<TicketReceiptTextLine> lines,
+        String name,
+        String header,
+        ReceiptBrandingDisplayMode mode
+    ) {
+        switch (mode == null ? ReceiptBrandingDisplayMode.AUTO : mode) {
+            case NAME_ONLY -> add(lines, name, true);
+            case HEADER_ONLY -> add(lines, header, false);
+            case NAME_AND_HEADER -> {
+                add(lines, name, true);
+                add(lines, header, false);
+            }
+            case AUTO -> {
+                if (header != null && !header.isBlank()) {
+                    add(lines, header, false);
+                } else {
+                    add(lines, name, true);
+                }
+            }
         }
     }
 

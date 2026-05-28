@@ -23,13 +23,17 @@ import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuer
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
+import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -48,12 +52,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class TenantAdminDashboardPayloadAssembler {
+
+  private static final int PUBLIC_CONTENT_LIMIT = 5;
 
   private final TenantCatalog tenantCatalog;
   private final GameCatalog gameCatalog;
   private final DrawChannelCatalog drawChannelCatalog;
   private final QueryBus queryBus;
+  private final PublicContentApi publicContentApi;
 
   public Payload assemble(TchRequestContext ctx) {
     if (ctx == null || ctx.tenantId() == null) {
@@ -62,20 +70,25 @@ public class TenantAdminDashboardPayloadAssembler {
 
     TenantId tenantId = ctx.tenantId();
 
+    // Use tenant timezone for business-date "today"
+    ZoneId tz = ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneOffset.UTC;
+
     // Grouped reads — loaded once, shared across builders.
     TenantRegistryView registry = tenantCatalog.findRegistryById(tenantId).orElse(null);
     OperationsBundle ops = loadOperationsBundle(tenantId);
     CommercialBundle commercial = loadCommercialBundle(tenantId);
 
-    Map<String, Object> header = buildHeader(ctx, registry);
-    Map<String, Object> kpis = buildKpis(ctx, ops);
-    Map<String, Object> readiness = buildReadinessSummary(registry, ops, commercial);
-    Map<String, Object> alerts = buildAlerts();
-    Map<String, Object> operations = buildOperationsSummary(ops);
+    Map<String, Object> header         = buildHeader(ctx, registry);
+    Map<String, Object> kpis           = buildKpis(ctx, ops, tz);
+    Map<String, Object> readiness      = buildReadinessSummary(registry, ops, commercial);
+    Map<String, Object> alerts         = buildAlerts();
+    Map<String, Object> operations     = buildOperationsSummary(ops);
     Map<String, Object> commercialSummary = buildCommercialSummary(commercial);
-    Map<String, Object> quickActions = buildQuickActions();
+    Map<String, Object> publicContent  = buildPublicContent();
+    Map<String, Object> quickActions   = buildQuickActions();
 
-    return new Payload(header, kpis, readiness, alerts, operations, commercialSummary, quickActions);
+    return new Payload(header, kpis, readiness, alerts, operations,
+        commercialSummary, publicContent, quickActions);
   }
 
   // ---------------------- grouped bundle loaders ----------------------
@@ -139,28 +152,63 @@ public class TenantAdminDashboardPayloadAssembler {
         "currency", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
   }
 
-  private Map<String, Object> buildKpis(TchRequestContext ctx, OperationsBundle ops) {
-    LocalDate today = LocalDate.now(ZoneOffset.UTC);
-    BigDecimal salesToday = BigDecimal.ZERO;
-    long ticketCountToday = 0L;
+  private Map<String, Object> buildKpis(TchRequestContext ctx, OperationsBundle ops, ZoneId tz) {
+    LocalDate today     = LocalDate.now(tz);
+    LocalDate yesterday = today.minusDays(1);
+
+    BigDecimal salesToday     = BigDecimal.ZERO;
+    BigDecimal salesYesterday = BigDecimal.ZERO;
+    long ticketsToday         = 0L;
+    long ticketsYesterday     = 0L;
+    BigDecimal winningsToday  = BigDecimal.ZERO;
+    BigDecimal payoutsToday   = BigDecimal.ZERO;
+    BigDecimal netToday       = BigDecimal.ZERO;
+
     try {
-      TenantDashboardStatsView view =
-          queryBus.ask(GetTenantDashboardStatsQuery.today(ctx.tenantId(), today));
-      if (view != null && view.summary() != null) {
-        salesToday = view.summary().grossSales() != null ? view.summary().grossSales() : BigDecimal.ZERO;
-        ticketCountToday = view.summary().ticketsSold();
+      // One query covering yesterday+today — split by refDate from dailyBreakdown
+      TenantDashboardStatsView view = queryBus.ask(
+          new GetTenantDashboardStatsQuery(ctx.tenantId(), yesterday, today, 5));
+      if (view != null) {
+        // today's row
+        var todayRow = view.dailyBreakdown() == null ? null :
+            view.dailyBreakdown().stream().filter(p -> today.equals(p.refDate())).findFirst().orElse(null);
+        if (todayRow != null) {
+          salesToday   = todayRow.grossSales() != null ? todayRow.grossSales() : BigDecimal.ZERO;
+          ticketsToday = todayRow.ticketsSold();
+        }
+        // yesterday's row
+        var yestRow = view.dailyBreakdown() == null ? null :
+            view.dailyBreakdown().stream().filter(p -> yesterday.equals(p.refDate())).findFirst().orElse(null);
+        if (yestRow != null) {
+          salesYesterday   = yestRow.grossSales() != null ? yestRow.grossSales() : BigDecimal.ZERO;
+          ticketsYesterday = yestRow.ticketsSold();
+        }
+        // summary-level for winnings / payouts / net (full window, use today row for single-day)
+        if (view.summary() != null) {
+          winningsToday = view.summary().winningsCalculated() != null
+              ? view.summary().winningsCalculated() : BigDecimal.ZERO;
+          payoutsToday  = view.summary().payoutsPaid() != null
+              ? view.summary().payoutsPaid() : BigDecimal.ZERO;
+          netToday      = view.summary().netRevenueEstimated() != null
+              ? view.summary().netRevenueEstimated() : BigDecimal.ZERO;
+        }
       }
     } catch (RuntimeException e) {
-      // grouped read failed — leave KPIs at zero to keep payload shape stable
+      log.warn("tenant_admin_dashboard: failed to load KPI stats — {}", e.getMessage());
     }
 
-    return Map.of(
-        "salesToday", salesToday,
-        "ticketCountToday", ticketCountToday,
-        // V1 placeholders — no tenant-wide aggregate exists yet.
-        "activeSessions", 0L,
-        "openDraws", 0L,
-        "pendingApprovals", 0L);
+    return Map.ofEntries(
+        Map.entry("salesToday",            salesToday),
+        Map.entry("salesYesterday",        salesYesterday),
+        Map.entry("ticketCountToday",      ticketsToday),
+        Map.entry("ticketCountYesterday",  ticketsYesterday),
+        Map.entry("winningsToday",         winningsToday),
+        Map.entry("payoutsToday",          payoutsToday),
+        Map.entry("netRevenueToday",       netToday),
+        // V1 placeholders — no tenant-wide session/draw query yet
+        Map.entry("activeSessions",        0L),
+        Map.entry("openDraws",             0L),
+        Map.entry("pendingApprovals",      0L));
   }
 
   /**
@@ -246,6 +294,26 @@ public class TenantAdminDashboardPayloadAssembler {
         "promotions", Map.of("status", "UNKNOWN"));
   }
 
+  private Map<String, Object> buildPublicContent() {
+    try {
+      List<PublicContentItemView> items =
+          publicContentApi.listTenantAdminDashboardNews(PUBLIC_CONTENT_LIMIT);
+      return Map.of(
+          "items", items.stream()
+              .map(i -> Map.<String, Object>of(
+                  "id",          i.id() != null ? i.id().toString() : "",
+                  "title",       i.title() != null ? i.title() : "",
+                  "snippet",     i.content() != null ? i.content() : "",
+                  "link",        i.sourceUrl() != null ? i.sourceUrl() : "",
+                  "publishedAt", i.publishedAt() != null ? i.publishedAt().toString() : ""))
+              .toList(),
+          "count", items.size());
+    } catch (RuntimeException e) {
+      log.warn("tenant_admin_dashboard: could not load public content — {}", e.getMessage());
+      return Map.of("items", List.of(), "count", 0);
+    }
+  }
+
   private Map<String, Object> buildQuickActions() {
     return Map.of(
         "actions", List.of(
@@ -262,10 +330,12 @@ public class TenantAdminDashboardPayloadAssembler {
       Map<String, Object> alerts,
       Map<String, Object> operations,
       Map<String, Object> commercial,
+      Map<String, Object> publicContent,
       Map<String, Object> quickActions) {
 
     public static Payload empty() {
-      return new Payload(Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), Map.of());
+      return new Payload(Map.of(), Map.of(), Map.of(), Map.of(),
+          Map.of(), Map.of(), Map.of(), Map.of());
     }
   }
 

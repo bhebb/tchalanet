@@ -80,42 +80,25 @@ CREATE TABLE shedlock (
 );
 
 
--- Reconciliation tables (init-ops-reconciliation)
+-- Reconciliation tables
 
 CREATE TABLE reconciliation_run (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid REFERENCES tenant(id),
-  scope varchar(128) NOT NULL,
-  business_date date,
-  started_at timestamptz,
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  business_date date NOT NULL,
+  run_type varchar(32) NOT NULL,
+  status varchar(32) NOT NULL,
+  forced boolean NOT NULL DEFAULT false,
+  reason text,
+  started_at timestamptz NOT NULL,
   completed_at timestamptz,
-  status varchar(32),
-  triggered_by varchar(128),
-  triggered_by_user_id uuid,
-  reason varchar(512),
-  summary_json jsonb,
-  version bigint NOT NULL DEFAULT 0,
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  deleted_by uuid
-);
-
-CREATE TABLE reconciliation_check_result (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  run_id uuid NOT NULL REFERENCES reconciliation_run(id),
-  tenant_id uuid REFERENCES tenant(id),
-  check_key varchar(256) NOT NULL,
-  status varchar(32),
-  severity varchar(32),
-  expected_count bigint,
-  actual_count bigint,
-  anomaly_count bigint,
-  summary_json jsonb,
-  started_at timestamptz,
-  completed_at timestamptz,
+  checked_draw_count bigint NOT NULL DEFAULT 0,
+  checked_ticket_count bigint NOT NULL DEFAULT 0,
+  anomaly_count bigint NOT NULL DEFAULT 0,
+  critical_count bigint NOT NULL DEFAULT 0,
+  high_count bigint NOT NULL DEFAULT 0,
+  medium_count bigint NOT NULL DEFAULT 0,
+  low_count bigint NOT NULL DEFAULT 0,
   version bigint NOT NULL DEFAULT 0,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
@@ -127,56 +110,42 @@ CREATE TABLE reconciliation_check_result (
 
 CREATE TABLE reconciliation_anomaly (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  run_id uuid NOT NULL REFERENCES reconciliation_run(id),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
-  check_key varchar(256) NOT NULL,
-  anomaly_type varchar(128) NOT NULL,
-  severity varchar(32),
-  status varchar(32),
-  resource_type varchar(128),
-  resource_id uuid,
-  related_resource_type varchar(128),
-  related_resource_id uuid,
-  message_key varchar(256),
-  details_json jsonb,
-  detected_at timestamptz NOT NULL DEFAULT now(),
+  run_id uuid NOT NULL REFERENCES reconciliation_run(id),
+  business_date date NOT NULL,
+  severity varchar(32) NOT NULL,
+  anomaly_type varchar(96) NOT NULL,
+  status varchar(32) NOT NULL,
+  fingerprint varchar(256) NOT NULL,
+  draw_id uuid,
+  draw_channel_id uuid,
+  draw_result_id uuid,
+  ticket_id uuid,
+  ticket_code varchar(96),
+  public_code varchar(96),
+  display_code varchar(96),
+  payout_claim_id uuid,
+  payout_payment_id uuid,
+  expected_status varchar(64),
+  actual_status varchar(64),
+  expected_amount numeric(19,2),
+  actual_amount numeric(19,2),
+  currency varchar(8),
+  message text NOT NULL,
+  details_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+  first_seen_at timestamptz NOT NULL DEFAULT now(),
+  last_seen_at timestamptz NOT NULL DEFAULT now(),
   resolved_at timestamptz,
-  resolved_by uuid,
-  resolution_reason varchar(512),
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
   deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_reconciliation_anomaly_fingerprint UNIQUE (tenant_id, fingerprint)
 );
 
-CREATE TABLE reconciliation_repair_action (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  anomaly_id uuid NOT NULL REFERENCES reconciliation_anomaly(id),
-  run_id uuid NOT NULL REFERENCES reconciliation_run(id),
-  tenant_id uuid NOT NULL REFERENCES tenant(id),
-  action_type varchar(128) NOT NULL,
-  status varchar(32),
-  command_name varchar(256),
-  command_payload_json jsonb,
-  executed_at timestamptz,
-  executed_by uuid,
-  failure_message varchar(1024),
-  created_at timestamptz DEFAULT now(),
-  created_by uuid,
-  updated_at timestamptz DEFAULT now(),
-  updated_by uuid,
-  deleted_at timestamptz,
-  deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0
-);
-
--- Indexes to speed common lookups
-CREATE INDEX idx_reconciliation_run_tenant_businessdate ON reconciliation_run(tenant_id, business_date);
-CREATE INDEX idx_reconciliation_check_result_run_key ON reconciliation_check_result(run_id, check_key);
-CREATE INDEX idx_reconciliation_anomaly_run_key ON reconciliation_anomaly(run_id, check_key);
-CREATE INDEX idx_reconciliation_anomaly_tenant_detected ON reconciliation_anomaly(tenant_id, detected_at);
-CREATE INDEX idx_reconciliation_repair_action_anomaly ON reconciliation_repair_action(anomaly_id);
-
+CREATE INDEX idx_reconciliation_run_tenant_date ON reconciliation_run(tenant_id, business_date DESC) WHERE deleted_at IS NULL;
+CREATE INDEX idx_reconciliation_anomaly_run ON reconciliation_anomaly(tenant_id, run_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_reconciliation_anomaly_status_severity ON reconciliation_anomaly(tenant_id, status, severity) WHERE deleted_at IS NULL;

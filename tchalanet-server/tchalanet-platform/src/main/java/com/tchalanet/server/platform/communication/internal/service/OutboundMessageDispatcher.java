@@ -1,5 +1,7 @@
 package com.tchalanet.server.platform.communication.internal.service;
 
+import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.platform.communication.api.model.request.OutboundAttachment;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
 import com.tchalanet.server.platform.communication.api.model.value.DeliveryStatus;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
@@ -9,6 +11,8 @@ import com.tchalanet.server.platform.communication.internal.persistence.MessageD
 import com.tchalanet.server.platform.communication.internal.persistence.OutboundMessageJpaEntity;
 import com.tchalanet.server.platform.communication.internal.persistence.OutboundMessageJpaRepository;
 import java.time.Clock;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,7 @@ public class OutboundMessageDispatcher {
   private final MessageDeliveryAttemptJpaRepository attempts;
   private final DeliveryProviderRegistry providers;
   private final DeliveryRetryPlanner retryPlanner;
+  private final JsonUtils jsonUtils;
   private final Clock clock;
 
   @Transactional
@@ -91,19 +96,39 @@ public class OutboundMessageDispatcher {
       case EMAIL, SMS, WHATSAPP, PUSH -> new OutboundRecipient(null, null, message.getRecipientValue(), null);
     };
 
-    var metadata = Map.<String, Object>of(
-        "subject", nullToEmpty(message.getSubject()),
-        "title", nullToEmpty(message.getSubject()),
-        "message", nullToEmpty(message.getBody()),
-        "body", nullToEmpty(message.getBody()),
-        "correlationKey", nullToEmpty(message.getCorrelationKey()));
+    var persistedMetadata = metadata(message);
+    var metadata = new LinkedHashMap<String, Object>(persistedMetadata);
+    var attachments = attachments(metadata.remove("attachments"));
+    metadata.put("subject", nullToEmpty(message.getSubject()));
+    metadata.put("title", nullToEmpty(message.getSubject()));
+    metadata.put("message", nullToEmpty(message.getBody()));
+    metadata.put("body", nullToEmpty(message.getBody()));
+    metadata.put("correlationKey", nullToEmpty(message.getCorrelationKey()));
 
     return new SendOutboundMessageRequest(
         message.getTemplateKey(),
         message.getChannel(),
         recipient,
         message.getLocale() == null ? Locale.FRENCH : Locale.forLanguageTag(message.getLocale()),
-        metadata);
+        metadata,
+        attachments);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> metadata(OutboundMessageJpaEntity message) {
+    if (message.getPayload() == null || message.getPayload().isNull()) {
+      return Map.of();
+    }
+    return jsonUtils.convertValue(message.getPayload(), new tools.jackson.core.type.TypeReference<Map<String, Object>>() {});
+  }
+
+  private List<OutboundAttachment> attachments(Object raw) {
+    if (!(raw instanceof List<?> list)) {
+      return List.of();
+    }
+    return list.stream()
+        .map(OutboundAttachment::fromMetadata)
+        .toList();
   }
 
   private String nullToEmpty(String value) {

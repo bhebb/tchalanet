@@ -93,7 +93,7 @@ public class PromotionTicketLineFactory {
             odds,
             new Money(potential, currency),
             betOption,
-            com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.valueOf(String.valueOf(selectionResult.source())),
+            selectionResult.source(),
             decision.decisionId(),
             promotionLabel(effect),
             effect.type().name()

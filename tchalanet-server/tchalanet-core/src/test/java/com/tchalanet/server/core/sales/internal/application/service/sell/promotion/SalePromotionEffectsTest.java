@@ -18,11 +18,13 @@ import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffect;
 import com.tchalanet.server.core.promotion.api.model.rule.PromotionEffectType;
 import com.tchalanet.server.core.promotion.api.model.PromotionEvaluationPhase;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
+import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
 import com.tchalanet.server.core.sales.api.model.money.ChargePaidBy;
 import com.tchalanet.server.core.sales.api.model.money.TicketCharge;
 import com.tchalanet.server.core.sales.api.model.money.TicketChargeType;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
@@ -108,7 +110,9 @@ class SalePromotionEffectsTest {
             assertThat(result.charges()).hasSize(1);
             var waived = result.charges().get(0);
             assertThat(waived.isWaived()).isTrue();
+            assertThat(waived.waivedByDecisionId()).isEqualTo(decision.decisionId());
             assertThat(waived.waivedByRuleId()).isEqualTo(waivableEffect.ruleId());
+            assertThat(waived.waivedEffectType()).isEqualTo(PromotionEffectType.WAIVE_CHARGE.name());
             assertThat(waived.amount()).isEqualTo(money("5"));
             assertThat(result.ticketLines()).hasSize(1);
         }
@@ -139,14 +143,14 @@ class SalePromotionEffectsTest {
         @DisplayName("updates odds snapshot and potential payout on matching game line")
         void boostsMatchingLine() {
             var line = customerLine(); // HT_BOLET, stakeAmount=10, odds=12.5
-            var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_BOLET", null, new BigDecimal("20.0"));
+            var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_BOLET", null, new BigDecimal("20.0000"));
             var decision = decision(boostEffect);
 
             var result = applier.apply(decision, new ArrayList<>(List.of(line)), List.of(), null, HTG);
 
             assertThat(result.ticketLines()).hasSize(1);
             var boosted = result.ticketLines().get(0);
-            assertThat(boosted.oddsSnapshot()).isEqualByComparingTo("20.0");
+            assertThat(boosted.oddsSnapshot()).isEqualByComparingTo("20.0000");
             assertThat(boosted.pricingSource()).isEqualTo(TicketLinePricingSource.PROMOTION);
             assertThat(boosted.promotionDecisionId()).isEqualTo(decision.decisionId());
             assertThat(boosted.promotionLabel()).isEqualTo(TicketReceiptI18nKeys.PROMOTION_BOOST_ODDS);
@@ -156,7 +160,7 @@ class SalePromotionEffectsTest {
         @DisplayName("does not affect lines for a different game code")
         void ignoresOtherGameCode() {
             var line = customerLine(); // HT_BOLET
-            var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_MEGA_LOT", null, new BigDecimal("20.0"));
+            var boostEffect = effect(PromotionEffectType.BOOST_ODDS, "HT_MEGA_LOT", null, new BigDecimal("20.0000"));
             var decision = decision(boostEffect);
 
             var result = applier.apply(decision, new ArrayList<>(List.of(line)), List.of(), null, HTG);
@@ -228,6 +232,61 @@ class SalePromotionEffectsTest {
 
             var promoLine = result.ticketLines().get(1);
             assertThat(promoLine.lineNumber()).isGreaterThan(customerLine().lineNumber());
+        }
+
+        @Test
+        @DisplayName("requires explicit customer selection when configured")
+        void requiresExplicitSelectionWhenConfigured() {
+            var freeEffect = new PromotionEffect(
+                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_BOLET",
+                1,
+                new BigDecimal("125"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.CUSTOMER_SELECTS
+            );
+
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                applier.apply(decision(freeEffect), new ArrayList<>(List.of(customerLine())), List.of(), command(), HTG))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("promotion.free_game_selection_required");
+        }
+
+        @Test
+        @DisplayName("uses customer-selected promotion choice when provided")
+        void usesCustomerSelectedPromotionChoice() {
+            var freeEffect = new PromotionEffect(
+                PromotionRuleId.of(UUID.fromString("B1000000-0000-0000-0000-000000000001")),
+                PromotionEffectType.FREE_GAME_LINE,
+                "HT_BOLET",
+                1,
+                new BigDecimal("125"),
+                "HTG",
+                null,
+                null,
+                PromotionChoiceMode.CUSTOMER_SELECTS
+            );
+            var decision = decision(freeEffect);
+            var result = applier.apply(
+                decision,
+                new ArrayList<>(List.of(customerLine())),
+                List.of(),
+                command(List.of(new PromotionChoiceInput(
+                    decision.decisionId(),
+                    "HT_BOLET",
+                    0,
+                    "77",
+                    TicketLineSelectionSource.CUSTOMER_SELECTED
+                ))),
+                HTG
+            );
+
+            var promoLine = result.ticketLines().get(1);
+            assertThat(promoLine.selection().key().value()).isEqualTo("77");
+            assertThat(promoLine.selectionSource()).isEqualTo(TicketLineSelectionSource.CUSTOMER_SELECTED);
         }
     }
 
@@ -317,13 +376,17 @@ class SalePromotionEffectsTest {
     }
 
     private static SellTicketCommand command() {
+        return command(List.of());
+    }
+
+    private static SellTicketCommand command(List<PromotionChoiceInput> promotionChoices) {
         return new SellTicketCommand(
             DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
             DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
             HTG,
             List.of(),
             null,
-            List.of()
+            promotionChoices
         );
     }
 

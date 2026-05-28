@@ -12,8 +12,8 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.drawresult.api.query.ListPublicDrawResultSlotsQuery;
 import com.tchalanet.server.core.drawresult.api.query.SearchPublicDrawResultsQuery;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultHistoryRowView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultHistoryRowView;
+
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

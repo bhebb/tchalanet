@@ -1,0 +1,38 @@
+{
+  "brand": {
+    "label_key": "app.name",
+    "route": "/app/admin/dashboard"
+  },
+  "primary": [
+    {
+      "label_key": "nav.dashboard",
+      "path": "/app/admin/dashboard",
+      "icon": "dashboard"
+    },
+    {
+      "label_key": "nav.tenant_overview",
+      "path": "/app/admin/overview",
+      "icon": "tenant"
+    }
+  ],
+  "secondary": [
+    {
+      "label_key": "nav.profile",
+      "path": "/app/profile",
+      "icon": "account_circle"
+    },
+    {
+      "label_key": "auth.logout",
+      "path": "/logout",
+      "icon": "logout",
+      "style": "danger"
+    }
+  ],
+  "actions": [
+    {
+      "id": "OPEN_PROFILE_MENU",
+      "icon": "account_circle",
+      "label_key": "nav.profile"
+    }
+  ]
+}

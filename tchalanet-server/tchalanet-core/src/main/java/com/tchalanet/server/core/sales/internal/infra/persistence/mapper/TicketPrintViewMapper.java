@@ -168,7 +168,10 @@ public class TicketPrintViewMapper {
             charge.paidBy(),
             chargeLabel(charge.type()),
             charge.amount(),
-            charge.waivedByRuleId()
+            charge.waivedByDecisionId(),
+            charge.waivedByRuleId(),
+            charge.waivedEffectType(),
+            charge.waivedLabel()
         );
     }
 

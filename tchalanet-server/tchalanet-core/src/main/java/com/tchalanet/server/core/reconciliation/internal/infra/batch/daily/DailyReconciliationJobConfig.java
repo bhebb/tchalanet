@@ -3,6 +3,7 @@ package com.tchalanet.server.core.reconciliation.internal.infra.batch.daily;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
+import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
 import com.tchalanet.server.core.reconciliation.internal.application.ReconciliationDailyRunService;
 import com.tchalanet.server.core.reconciliation.internal.domain.model.ReconciliationRunType;
 import com.tchalanet.server.core.reconciliation.internal.infra.config.ReconciliationDailyJobProperties;
@@ -47,7 +48,7 @@ public class DailyReconciliationJobConfig {
         var tenants = tenantConfigApi.listTenants(new ListTenantsRequest(
                 PageRequest.of(0, Math.max(1, properties.getMaxTenantsPerTick()))))
             .stream()
-            .filter(tenant -> tenant.status().name().equals("ACTIVE"))
+            .filter(tenant -> tenant.status() == TenantStatus.ACTIVE)
             .sorted(Comparator.comparing(tenant -> tenant.code() == null ? "" : tenant.code()))
             .toList();
         for (var tenant : tenants) {

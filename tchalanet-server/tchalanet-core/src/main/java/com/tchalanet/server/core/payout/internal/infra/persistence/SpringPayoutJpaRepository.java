@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.payout.internal.infra.persistence;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface SpringPayoutJpaRepository extends JpaRepository<PayoutJpaEntity, UUID> {
   Optional<PayoutJpaEntity> findByTicketId(UUID ticketId);
+
+    List<PayoutJpaEntity> findByTicketIdIn(List<UUID> ticketIds);
 
     Optional<PayoutJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
 

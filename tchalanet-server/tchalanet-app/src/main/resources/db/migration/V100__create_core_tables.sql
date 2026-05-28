@@ -1345,7 +1345,7 @@ CREATE TABLE sales_ticket_line (
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uk_ticket_line__number UNIQUE (tenant_id, ticket_id, line_number),
   CONSTRAINT chk_ticket_line__amounts CHECK (
-    stake_amount > 0 AND potential_payout_amount >= 0 AND payout_amount >= 0
+    stake_amount >= 0 AND potential_payout_amount >= 0 AND payout_amount >= 0
   )
 );
 
@@ -1358,6 +1358,9 @@ CREATE TABLE sales_ticket_charge (
   amount numeric(19,4) NOT NULL,
   currency varchar(3) NOT NULL,
   waived_by_rule_id uuid,
+  waived_by_decision_id uuid,
+  waived_effect_type varchar(64),
+  waived_label varchar(256),
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -1748,6 +1751,10 @@ CREATE TABLE applied_promotion_snapshot (
 ALTER TABLE sales_ticket_charge
   ADD CONSTRAINT fk_sales_ticket_charge__waived_by_rule
     FOREIGN KEY (waived_by_rule_id) REFERENCES promotion_rule(id);
+
+ALTER TABLE sales_ticket_charge
+  ADD CONSTRAINT fk_sales_ticket_charge__waived_by_decision
+    FOREIGN KEY (waived_by_decision_id) REFERENCES promotion_decision(id);
 
 -- =========================================================
 -- SELLER DOMAIN

@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.receipt;
 
-import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintLine;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Component
 public class TicketReceiptAssembler {
@@ -34,12 +34,16 @@ public class TicketReceiptAssembler {
     }
 
     public TicketReceiptView assemble(TicketPrintView printView, Locale requestedLocale) {
-        var currentContext = TchContext.currentOrNull();
+        Objects.requireNonNull(printView, "ticket_receipt.print_view_required");
+        Objects.requireNonNull(printView.identity(), "ticket_receipt.identity_required");
+        Objects.requireNonNull(printView.lifecycle(), "ticket_receipt.lifecycle_required");
+        Objects.requireNonNull(printView.draw(), "ticket_receipt.draw_required");
+        Objects.requireNonNull(printView.context(), "ticket_receipt.context_required");
+        Objects.requireNonNull(printView.money(), "ticket_receipt.money_required");
+        Objects.requireNonNull(printView.metadata(), "ticket_receipt.metadata_required");
         var locale = requestedLocale != null
             ? requestedLocale
-            : currentContext != null && currentContext.locale() != null
-                ? currentContext.locale()
-                : printView.metadata() == null ? Locale.FRENCH : printView.metadata().locale();
+            : printView.metadata().locale();
         if (locale == null) {
             locale = Locale.FRENCH;
         }

@@ -12,6 +12,7 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
+import com.tchalanet.server.core.sales.api.model.receipt.ReceiptBrandingDisplayMode;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectionView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
@@ -51,9 +52,7 @@ class TicketReceiptPrintFormatterTest {
         var content = formatter.format(receipt(), PrintOutputFormat.PDF);
 
         assertThat(texts(content.headerLines())).containsSubsequence(
-            "Tenant Demo",
             "Tenant header",
-            "Outlet Centre",
             "Outlet header",
             "--------------------------------",
             "Ticket: TCK-001",
@@ -76,6 +75,24 @@ class TicketReceiptPrintFormatterTest {
             "QR: ABCD-EFGH"
         );
         assertThat(content.qr().payload()).isEqualTo("https://verify.example/t/ABCDEFGH");
+    }
+
+    @Test
+    void brandingFormatterSupportsExplicitDisplayModes() {
+        var formatter = new TicketReceiptBrandingFormatter();
+        var receipt = receipt();
+
+        assertThat(texts(formatter.headerLines(
+            receipt,
+            ReceiptBrandingDisplayMode.NAME_AND_HEADER,
+            ReceiptBrandingDisplayMode.NAME_AND_HEADER)))
+            .containsSubsequence("Tenant Demo", "Tenant header", "Outlet Centre", "Outlet header");
+
+        assertThat(texts(formatter.headerLines(
+            receipt,
+            ReceiptBrandingDisplayMode.NAME_ONLY,
+            ReceiptBrandingDisplayMode.HEADER_ONLY)))
+            .containsExactly("Tenant Demo", "Outlet header");
     }
 
     private static List<String> texts(List<TicketReceiptTextLine> lines) {

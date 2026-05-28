@@ -3,11 +3,12 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.publichome;
 import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.features.news.publicnews.PublicNewsService;
-import com.tchalanet.server.features.news.shared.LotteryNewsModels.LotteryNewsArticle;
+import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,22 +16,21 @@ import org.springframework.stereotype.Component;
  * One assembly per request — sub-payloads are extracted by widgetId in
  * {@link PublicHomeProvider}.
  *
- * V1 (révision 2) ne traite plus que les widgets dynamiques :
- *   - home.news  : ticker des dernières news via {@link PublicNewsService}
+ * V1 (révision 2) widgets dynamiques :
+ *   - home.news  : actualités publiques via {@link PublicContentApi}
  *   - home.plans : grille des plans actifs via {@link PlanCatalog}
  *
- * Hero, features et tchala sont sortis du provider — ils passent désormais
- * par {@code json_file} (fragments {@code public_hero}, {@code public_features},
- * {@code public_tchala}).
+ * Hero, features et tchala passent par {@code json_file}.
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PublicHomePayloadAssembler {
 
   static final int DEFAULT_NEWS_LIMIT = 5;
   static final int MAX_NEWS_LIMIT = 20;
 
-  private final PublicNewsService newsService;
+  private final PublicContentApi publicContentApi;
   private final PlanCatalog planCatalog;
 
   public Payload assemble(int newsLimit, TchRequestContext ctx) {
@@ -40,10 +40,14 @@ public class PublicHomePayloadAssembler {
   private List<Map<String, Object>> buildNews(int requestedLimit) {
     int limit = requestedLimit <= 0 ? DEFAULT_NEWS_LIMIT
         : Math.min(requestedLimit, MAX_NEWS_LIMIT);
-    return newsService.listAll().stream()
-        .limit(limit)
-        .map(PublicHomePayloadAssembler::toNewsMap)
-        .toList();
+    try {
+      return publicContentApi.listPublicHomeNews(limit).stream()
+          .map(PublicHomePayloadAssembler::toContentMap)
+          .toList();
+    } catch (RuntimeException e) {
+      log.warn("public_home: could not load news — {}", e.getMessage());
+      return List.of();
+    }
   }
 
   private List<Map<String, Object>> buildPlans() {
@@ -52,14 +56,14 @@ public class PublicHomePayloadAssembler {
         .toList();
   }
 
-  private static Map<String, Object> toNewsMap(LotteryNewsArticle article) {
+  static Map<String, Object> toContentMap(PublicContentItemView item) {
     return Map.of(
-        "id", article.id() != null ? article.id() : "",
-        "title", article.title() != null ? article.title() : "",
-        "snippet", article.description() != null ? article.description() : "",
-        "link", article.url() != null ? article.url().toString() : "",
-        "source", article.sourceId() != null ? article.sourceId() : "",
-        "publishedAt", article.publishedAt() != null ? article.publishedAt().toString() : "");
+        "id",          item.id() != null ? item.id().toString() : "",
+        "title",       item.title() != null ? item.title() : "",
+        "snippet",     item.content() != null ? item.content() : "",
+        "link",        item.sourceUrl() != null ? item.sourceUrl() : "",
+        "source",      item.sourceType() != null ? item.sourceType().name() : "",
+        "publishedAt", item.publishedAt() != null ? item.publishedAt().toString() : "");
   }
 
   private static Map<String, Object> toPlanMap(PlanView plan) {

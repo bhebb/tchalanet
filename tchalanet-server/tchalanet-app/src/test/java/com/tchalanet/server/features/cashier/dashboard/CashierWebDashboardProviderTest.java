@@ -129,6 +129,9 @@ class CashierWebDashboardProviderTest {
         List.of(Map.of("drawId", "d-1")),
         List.of(Map.of("ticketId", "t-1")),
         Map.of("ready", true, "trusted", true, "source", "SIGNED_DEVICE_BINDING", "missing", List.of()),
-        Map.of("count", 0, "items", List.of()));
+        Map.of("count", 0, "items", List.of()),
+        Map.of("stats", 0, "items", List.of()),
+        Map.of("offlineSync", 0, "items", List.of())
+        );
   }
 }

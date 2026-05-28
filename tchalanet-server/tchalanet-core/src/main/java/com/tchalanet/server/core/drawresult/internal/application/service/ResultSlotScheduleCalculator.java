@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.drawresult.internal.application.service;
 
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicNextResultTimeView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicNextResultTimeView;
 import java.time.Clock;
 import java.time.LocalTime;
 import java.time.ZoneId;
