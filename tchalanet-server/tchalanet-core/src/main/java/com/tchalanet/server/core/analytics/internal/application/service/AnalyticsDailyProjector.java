@@ -7,6 +7,8 @@ import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
+import com.tchalanet.server.core.session.api.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -92,17 +94,17 @@ public class AnalyticsDailyProjector {
   /**
    * Apply delta for a payout actually paid to a ticket holder.
    *
-   * <p>Increments {@code payouts_paid_cents} for PLATFORM + TENANT dimensions.
-   * No amount is available in this event — we only know payout occurred; the settled
-   * amount was already tracked via {@link #applyTicketSettled}.
-   * TODO V2: enrich TicketPayoutPaidRecordedEvent with payout amount for accurate delta.
+   * <p>Increments {@code payouts_paid_cents} for PLATFORM + TENANT dimensions
+   * using the {@code payoutAmount} carried in the event.
    */
   public void applyPayoutPaid(TicketPayoutPaidRecordedEvent event, LocalDate refDate) {
-    // TODO V2: TicketPayoutPaidRecordedEvent does not carry the payout amount.
-    // When it does, update payoutsPaidCents for PLATFORM + TENANT dimensions.
-    // For now, we mark the event as processed (idempotence) but skip the upsert.
-    log.debug("analytics: payout paid ticket={} tenant={} — V1 no-op (no amount in event)",
-        event.ticketId().value(), event.tenantId().value());
+    long payoutCents = toCents(event.payoutAmount() != null ? event.payoutAmount() : BigDecimal.ZERO);
+    UUID tenantId    = event.tenantId().value();
+
+    upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
+        0, 0, 0, 0, 0, payoutCents, 0, 0);
+    upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
+        0, 0, 0, 0, 0, payoutCents, 0, 0);
   }
 
   // ── ticket settled (resulted) ─────────────────────────────────────────────
@@ -115,6 +117,44 @@ public class AnalyticsDailyProjector {
         0, 0, 0, 0, winningsCents, 0, 0, 0);
     upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
         0, 0, 0, 0, winningsCents, 0, 0, 0);
+  }
+
+  // ── session opened ───────────────────────────────────────────────────────
+
+  /**
+   * Increments {@code sessions_opened_count} for PLATFORM + TENANT + OUTLET dimensions.
+   */
+  public void applySessionOpened(SalesSessionOpenedEvent event, LocalDate refDate) {
+    UUID tenantId  = event.tenantId().value();
+    UUID outletId  = event.outletId() != null ? event.outletId().value() : null;
+
+    upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
+        0, 0, 0, 0, 0, 0, 1, 0);
+    upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
+        0, 0, 0, 0, 0, 0, 1, 0);
+    if (outletId != null) {
+      upsert(AnalyticsDimensionType.OUTLET, outletId, tenantId, refDate,
+          0, 0, 0, 0, 0, 0, 1, 0);
+    }
+  }
+
+  // ── session closed ────────────────────────────────────────────────────────
+
+  /**
+   * Increments {@code sessions_closed_count} for PLATFORM + TENANT + OUTLET dimensions.
+   */
+  public void applySessionClosed(SalesSessionClosedEvent event, LocalDate refDate) {
+    UUID tenantId  = event.tenantId().value();
+    UUID outletId  = event.outletId() != null ? event.outletId().value() : null;
+
+    upsert(AnalyticsDimensionType.PLATFORM, null, null, refDate,
+        0, 0, 0, 0, 0, 0, 0, 1);
+    upsert(AnalyticsDimensionType.TENANT, null, tenantId, refDate,
+        0, 0, 0, 0, 0, 0, 0, 1);
+    if (outletId != null) {
+      upsert(AnalyticsDimensionType.OUTLET, outletId, tenantId, refDate,
+          0, 0, 0, 0, 0, 0, 0, 1);
+    }
   }
 
   // ── helper ────────────────────────────────────────────────────────────────

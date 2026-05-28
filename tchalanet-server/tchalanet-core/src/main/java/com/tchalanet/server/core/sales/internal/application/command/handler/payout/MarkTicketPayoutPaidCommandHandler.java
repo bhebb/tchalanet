@@ -46,7 +46,8 @@ public class MarkTicketPayoutPaidCommandHandler
             saved.identity().id(),
             command.payoutId(),
             command.paidBy(),
-            saved.lifecycle().settlement().status()
+            saved.lifecycle().settlement().status(),
+            saved.winningAmount() != null ? saved.winningAmount().amount() : java.math.BigDecimal.ZERO
         );
 
         AfterCommit.run(() -> {

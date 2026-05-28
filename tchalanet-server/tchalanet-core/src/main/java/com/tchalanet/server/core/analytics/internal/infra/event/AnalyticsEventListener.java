@@ -7,6 +7,8 @@ import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -27,11 +29,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
  *   <li>{@link TransactionPhase#AFTER_COMMIT} — analytics projections are derived
  *       read truth, never the financial source of truth.</li>
  * </ul>
- *
- * <p>Session events (SalesSessionOpened/Closed) are not yet consumed here
- * because they are not exposed via a public API event.
- * TODO V2: add SalesSessionOpenedEvent / SalesSessionClosedEvent to core.session.api.event
- *          and wire them in AnalyticsDailyProjector.
  */
 @Component
 @RequiredArgsConstructor
@@ -91,6 +88,30 @@ public class AnalyticsEventListener {
     }
     LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
     dailyProjector.applyPayoutPaid(event, refDate);
+  }
+
+  // ── session opened ───────────────────────────────────────────────────────
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void onSessionOpened(SalesSessionOpenedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
+      log.debug("analytics: duplicate SalesSessionOpenedEvent {}", event.eventId().value());
+      return;
+    }
+    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    dailyProjector.applySessionOpened(event, refDate);
+  }
+
+  // ── session closed ────────────────────────────────────────────────────────
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void onSessionClosed(SalesSessionClosedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
+      log.debug("analytics: duplicate SalesSessionClosedEvent {}", event.eventId().value());
+      return;
+    }
+    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    dailyProjector.applySessionClosed(event, refDate);
   }
 
   // ── draw resulted ─────────────────────────────────────────────────────────

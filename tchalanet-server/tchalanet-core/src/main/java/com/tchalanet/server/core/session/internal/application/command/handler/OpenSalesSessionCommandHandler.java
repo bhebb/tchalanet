@@ -14,7 +14,7 @@ import com.tchalanet.server.core.session.api.command.OpenSalesSessionResult;
 import com.tchalanet.server.core.session.internal.application.exception.SalesSessionAlreadyOpenException;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
-import com.tchalanet.server.core.session.internal.domain.event.SalesSessionOpenedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import java.time.Clock;
 import java.time.Instant;
