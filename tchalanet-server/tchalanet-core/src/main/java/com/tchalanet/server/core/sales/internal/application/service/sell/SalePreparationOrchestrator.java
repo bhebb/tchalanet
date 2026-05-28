@@ -73,7 +73,8 @@ public class SalePreparationOrchestrator {
             command,
             pos,
             now,
-            initialMoney.total()
+            initialMoney.total(),
+            mode
         );
 
         var appliedPromotion = mode == SaleEvaluationMode.FINAL
