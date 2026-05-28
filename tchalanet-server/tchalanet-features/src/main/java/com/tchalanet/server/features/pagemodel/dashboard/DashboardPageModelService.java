@@ -2,10 +2,12 @@ package com.tchalanet.server.features.pagemodel.dashboard;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchContextResolver;
+import com.tchalanet.server.common.exception.TchForbiddenException;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
+import com.tchalanet.server.features.pagemodel.security.PageModelAccessPolicy;
 import com.tchalanet.server.features.pagemodel.shared.LangResolver;
 import com.tchalanet.server.platform.notification.api.NotificationApi;
 import com.tchalanet.server.platform.notification.api.model.request.GetNotificationSummaryRequest;
@@ -24,10 +26,21 @@ public class DashboardPageModelService {
   private final LangResolver langResolver;
   private final PageModelDynamicResolver dynamicResolver;
   private final NotificationApi notificationApi;
+  private final PageModelAccessPolicy accessPolicy;
 
   public DashboardPageModelResponse resolve(
       String logicalId, Optional<TenantId> tenantIdOverride, Optional<String> langFromUrl) {
     var ctxHolder = contextResolver.currentOrNull();
+
+    // [harden-pagemodel-security-v2 / D2] Check role-based access before loading providers.
+    // No silent fallback — unauthorized access returns 403.
+    var currentRole = ctxHolder != null ? ctxHolder.currentRole() : null;
+    if (!accessPolicy.permits(logicalId, currentRole)) {
+      throw new TchForbiddenException(
+          "PAGE_MODEL_ACCESS_DENIED",
+          "Role " + currentRole + " is not authorized to access PageModel: " + logicalId);
+    }
+
     Optional<TenantId> tenantId =
         tenantIdOverride.isPresent()
             ? tenantIdOverride

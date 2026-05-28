@@ -10,12 +10,11 @@ import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuer
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
 import com.tchalanet.server.core.session.api.query.GetCashierIdentityQuery;
 import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -52,73 +51,68 @@ public class CashierDashboardPayloadAssembler {
       return Payload.empty();
     }
 
-    Map<String, Object> identity = loadIdentity(ctx);
-    Map<String, Object> session = loadSession(ctx);
-    Map<String, Object> overview = loadOverview(ctx, session);
-    List<?> nextDraws = loadNextDraws();
-    List<?> recentTickets = loadRecentTickets(ctx);
-    Map<String, Object> readiness = buildReadiness(ctx.operationalContext());
-    Map<String, Object> alerts = buildAlerts(ctx.operationalContext(), session);
-    Map<String, Object> stats = loadAnalyticsStats(ctx);
-    Map<String, Object> offlineSync = buildOfflineSyncPlaceholder();
+    CashierIdentityPayload identity    = loadIdentity(ctx);
+    CashierSessionPayload session      = loadSession(ctx);
+    CashierOverviewPayload overview    = loadOverview(ctx, session);
+    List<?> nextDraws                  = loadNextDraws();
+    List<?> recentTickets              = loadRecentTickets(ctx);
+    CashierReadinessPayload readiness  = buildReadiness(ctx.operationalContext());
+    CashierAlertsPayload alerts        = buildAlerts(ctx.operationalContext(), session);
+    CashierStatsPayload stats          = loadAnalyticsStats(ctx);
+    CashierOfflineSyncPayload offline  = buildOfflineSyncPlaceholder();
 
-    return new Payload(identity, session, overview, nextDraws, recentTickets, readiness, alerts, stats, offlineSync);
+    return new Payload(identity, session, overview, nextDraws, recentTickets,
+        readiness, alerts, stats, offline);
   }
 
-  private Map<String, Object> loadIdentity(TchRequestContext ctx) {
+  private CashierIdentityPayload loadIdentity(TchRequestContext ctx) {
     var view = queryBus.ask(new GetCashierIdentityQuery(ctx.tenantId(), ctx.userId()));
-    if (view == null) return Map.of();
-    var result = new HashMap<String, Object>();
-    if (view.cashierDisplayName() != null) result.put("cashierDisplayName", view.cashierDisplayName());
-    if (view.outletName() != null)         result.put("outletName", view.outletName());
-    if (view.terminalLabel() != null)      result.put("terminalLabel", view.terminalLabel());
-    if (view.tenantCode() != null)         result.put("tenantCode", view.tenantCode());
-    return result;
+    if (view == null) {
+      return new CashierIdentityPayload("", "", "", "");
+    }
+    return new CashierIdentityPayload(
+        view.cashierDisplayName() != null ? view.cashierDisplayName() : "",
+        view.outletName() != null ? view.outletName() : "",
+        view.terminalLabel() != null ? view.terminalLabel() : "",
+        view.tenantCode() != null ? view.tenantCode() : "");
   }
 
-  private Map<String, Object> loadSession(TchRequestContext ctx) {
+  private CashierSessionPayload loadSession(TchRequestContext ctx) {
     var view = queryBus.ask(new GetCashierSessionSummaryQuery(ctx.tenantId(), ctx.userId()));
     if (view == null || !view.active()) {
-      return Map.of("active", false);
+      return CashierSessionPayload.inactive();
     }
-    return Map.of(
-        "active", true,
-        "sessionRef", view.sessionRef() != null ? view.sessionRef() : "",
-        "openedAt", view.openedAt() != null ? view.openedAt().toString() : "",
-        "openingFloatCents", view.openingFloatCents(),
-        "salesTotalCents", view.salesTotalCents(),
-        "ticketCount", view.ticketCount());
+    return new CashierSessionPayload(
+        true,
+        view.sessionRef() != null ? view.sessionRef() : "",
+        view.openedAt() != null ? view.openedAt().toString() : "",
+        view.openingFloatCents(),
+        view.salesTotalCents(),
+        view.ticketCount());
   }
 
-  private Map<String, Object> loadOverview(TchRequestContext ctx, Map<String, Object> session) {
-    if (!Boolean.TRUE.equals(session.get("active"))) {
-      return Map.of(
-          "sessionOpen", false,
-          "ticketCount", 0L,
-          "salesTotalCents", 0L,
-          "cancelledCount", 0L,
-          "pendingApprovalCount", 0L);
+  private CashierOverviewPayload loadOverview(TchRequestContext ctx, CashierSessionPayload session) {
+    if (!session.active()) {
+      return CashierOverviewPayload.noSession();
     }
 
-    String openedAtStr = (String) session.getOrDefault("openedAt", "");
-    LocalDate businessDate = !openedAtStr.isBlank()
-        ? java.time.Instant.parse(openedAtStr).atZone(ZoneOffset.UTC).toLocalDate()
+    LocalDate businessDate = !session.openedAt().isBlank()
+        ? java.time.Instant.parse(session.openedAt()).atZone(ZoneOffset.UTC).toLocalDate()
         : LocalDate.now(ZoneOffset.UTC);
 
-    var overview = queryBus.ask(
+    var view = queryBus.ask(
         new GetCashierDashboardOverviewQuery(ctx.tenantId(), ctx.userId(), businessDate));
 
-    var result = new HashMap<String, Object>();
-    result.put("sessionOpen", true);
-    result.put("sessionRef", session.getOrDefault("sessionRef", ""));
-    result.put("openedAt", openedAtStr);
-    result.put("businessDate", businessDate.toString());
-    result.put("ticketCount", overview != null ? overview.ticketCount() : 0L);
-    result.put("salesTotalCents", overview != null ? overview.salesTotalCents() : 0L);
-    result.put("cancelledCount", overview != null ? overview.cancelledCount() : 0L);
-    result.put("pendingApprovalCount", overview != null ? overview.pendingApprovalCount() : 0L);
-    result.put("byDraw", overview != null && overview.byDraw() != null ? overview.byDraw() : List.of());
-    return result;
+    return new CashierOverviewPayload(
+        true,
+        session.sessionRef(),
+        session.openedAt(),
+        businessDate.toString(),
+        view != null ? view.ticketCount() : 0L,
+        view != null ? view.salesTotalCents() : 0L,
+        view != null ? view.cancelledCount() : 0L,
+        view != null ? view.pendingApprovalCount() : 0L,
+        view != null && view.byDraw() != null ? view.byDraw() : List.of());
   }
 
   private List<?> loadNextDraws() {
@@ -137,44 +131,47 @@ public class CashierDashboardPayloadAssembler {
    * Pre-aggregated analytics stats for today (seller scope).
    * Falls back to empty if analytics data is not yet available.
    */
-  private Map<String, Object> loadAnalyticsStats(TchRequestContext ctx) {
+  private CashierStatsPayload loadAnalyticsStats(TchRequestContext ctx) {
     try {
       LocalDate today = LocalDate.now(ZoneOffset.UTC);
       CashierDashboardStatsView view = queryBus.ask(
           new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
       if (view == null || view.today() == null) {
-        return Map.of("available", false);
+        return CashierStatsPayload.unavailable();
       }
       var card = view.today();
-      var result = new HashMap<String, Object>();
-      result.put("available", true);
-      result.put("refDate", view.refDate() != null ? view.refDate().toString() : today.toString());
-      result.put("ticketsSold", card.ticketsSold());
-      result.put("grossSales", card.grossSales() != null ? card.grossSales() : 0);
-      result.put("winningsCalculated", card.winningsCalculated() != null ? card.winningsCalculated() : 0);
-      result.put("netRevenue", card.netRevenueEstimated() != null ? card.netRevenueEstimated() : 0);
-      result.put("gameBreakdown", view.gameBreakdown() != null ? view.gameBreakdown().stream()
-          .map(g -> Map.<String, Object>of(
-              "gameCode", g.gameCode() != null ? g.gameCode() : "",
-              "ticketsSold", g.ticketsSold(),
-              "grossSales", g.grossSales() != null ? g.grossSales() : 0))
-          .toList() : List.of());
-      return result;
+      List<GameBreakdownItem> breakdown = List.of();
+      if (view.gameBreakdown() != null) {
+        breakdown = view.gameBreakdown().stream()
+            .map(g -> new GameBreakdownItem(
+                g.gameCode() != null ? g.gameCode() : "",
+                g.ticketsSold(),
+                g.grossSales() != null ? g.grossSales() : BigDecimal.ZERO))
+            .toList();
+      }
+      return new CashierStatsPayload(
+          true,
+          view.refDate() != null ? view.refDate().toString() : today.toString(),
+          card.ticketsSold(),
+          card.grossSales() != null ? card.grossSales() : BigDecimal.ZERO,
+          card.winningsCalculated() != null ? card.winningsCalculated() : BigDecimal.ZERO,
+          card.netRevenueEstimated() != null ? card.netRevenueEstimated() : BigDecimal.ZERO,
+          breakdown);
     } catch (RuntimeException e) {
-      return Map.of("available", false);
+      return CashierStatsPayload.unavailable();
     }
   }
 
   /** V1 placeholder — offline/sync status is not yet tracked server-side. */
-  private Map<String, Object> buildOfflineSyncPlaceholder() {
-    return Map.of("status", "UNKNOWN", "pendingSyncCount", 0);
+  private CashierOfflineSyncPayload buildOfflineSyncPlaceholder() {
+    return new CashierOfflineSyncPayload("UNKNOWN", 0);
   }
 
   /**
    * Operational readiness derived from {@link OperationalContextHint} carried by the
    * HTTP context — no extra DB read.
    */
-  private Map<String, Object> buildReadiness(OperationalContextHint hint) {
+  private CashierReadinessPayload buildReadiness(OperationalContextHint hint) {
     List<String> missing = new ArrayList<>();
     if (hint == null || hint.outletId() == null)   missing.add("OUTLET");
     if (hint == null || hint.terminalId() == null) missing.add("TERMINAL");
@@ -182,66 +179,150 @@ public class CashierDashboardPayloadAssembler {
     boolean trusted = hint != null && hint.trustedForSensitiveOperation();
     boolean ready = missing.isEmpty() && trusted;
 
-    return Map.of(
-        "ready", ready,
-        "trusted", trusted,
-        "source", hint != null && hint.source() != null ? hint.source().name() : "NONE",
-        "missing", List.copyOf(missing));
+    return new CashierReadinessPayload(
+        ready,
+        trusted,
+        hint != null && hint.source() != null ? hint.source().name() : "NONE",
+        List.copyOf(missing));
   }
 
   /**
    * Operational alerts (blockers/warnings) — combines context flags + session state.
    * No extra DB read; uses the data already loaded by session + the hint.
    */
-  private Map<String, Object> buildAlerts(
-      OperationalContextHint hint, Map<String, Object> session) {
-    List<Map<String, Object>> warnings = new ArrayList<>();
+  private CashierAlertsPayload buildAlerts(
+      OperationalContextHint hint, CashierSessionPayload session) {
+    List<CashierAlertItem> warnings = new ArrayList<>();
 
     if (hint == null || hint.outletId() == null) {
-      warnings.add(Map.of("severity", "BLOCKER", "code", "OUTLET_MISSING",
-          "messageKey", "alert.cashier.outlet_missing"));
+      warnings.add(new CashierAlertItem("BLOCKER", "OUTLET_MISSING",
+          "alert.cashier.outlet_missing"));
     }
     if (hint == null || hint.terminalId() == null) {
-      warnings.add(Map.of("severity", "BLOCKER", "code", "TERMINAL_MISSING",
-          "messageKey", "alert.cashier.terminal_missing"));
+      warnings.add(new CashierAlertItem("BLOCKER", "TERMINAL_MISSING",
+          "alert.cashier.terminal_missing"));
     }
     if (hint != null && !hint.trustedForSensitiveOperation()) {
-      warnings.add(Map.of("severity", "WARNING", "code", "CONTEXT_UNTRUSTED",
-          "messageKey", "alert.cashier.context_untrusted"));
+      warnings.add(new CashierAlertItem("WARNING", "CONTEXT_UNTRUSTED",
+          "alert.cashier.context_untrusted"));
     }
-    if (!Boolean.TRUE.equals(session.get("active"))) {
-      warnings.add(Map.of("severity", "WARNING", "code", "SESSION_CLOSED",
-          "messageKey", "alert.cashier.session_closed"));
+    if (!session.active()) {
+      warnings.add(new CashierAlertItem("WARNING", "SESSION_CLOSED",
+          "alert.cashier.session_closed"));
     }
 
-    return Map.of(
-        "count", warnings.size(),
-        "items", List.copyOf(warnings));
+    return new CashierAlertsPayload(warnings.size(), List.copyOf(warnings));
   }
 
+  // ---- Payload record ----
+
   public record Payload(
-      Map<String, Object> identity,
-      Map<String, Object> session,
-      Map<String, Object> overview,
+      CashierIdentityPayload identity,
+      CashierSessionPayload session,
+      CashierOverviewPayload overview,
       List<?> nextDraws,
       List<?> recentTickets,
-      Map<String, Object> readiness,
-      Map<String, Object> alerts,
-      Map<String, Object> stats,
-      Map<String, Object> offlineSync) {
+      CashierReadinessPayload readiness,
+      CashierAlertsPayload alerts,
+      CashierStatsPayload stats,
+      CashierOfflineSyncPayload offlineSync) {
 
     public static Payload empty() {
       return new Payload(
-          Map.of(),
-          Map.of("active", false),
-          Map.of(),
+          new CashierIdentityPayload("", "", "", ""),
+          CashierSessionPayload.inactive(),
+          CashierOverviewPayload.noSession(),
           List.of(),
           List.of(),
-          Map.of("ready", false, "trusted", false, "source", "NONE",
-              "missing", List.of("OUTLET", "TERMINAL")),
-          Map.of("count", 0, "items", List.of()),
-          Map.of("available", false),
-          Map.of("status", "UNKNOWN", "pendingSyncCount", 0));
+          new CashierReadinessPayload(false, false, "NONE", List.of("OUTLET", "TERMINAL")),
+          new CashierAlertsPayload(0, List.of()),
+          CashierStatsPayload.unavailable(),
+          new CashierOfflineSyncPayload("UNKNOWN", 0));
     }
   }
+
+  // ---- surface-specific typed payload records ----
+
+  /** Cashier identity — display name, outlet, terminal, tenant context. */
+  public record CashierIdentityPayload(
+      String cashierDisplayName,
+      String outletName,
+      String terminalLabel,
+      String tenantCode) {}
+
+  /** Cashier session state. */
+  public record CashierSessionPayload(
+      boolean active,
+      String sessionRef,
+      String openedAt,
+      long openingFloatCents,
+      long salesTotalCents,
+      long ticketCount) {
+
+    public static CashierSessionPayload inactive() {
+      return new CashierSessionPayload(false, "", "", 0L, 0L, 0L);
+    }
+  }
+
+  /** Sales overview for the current session / business date. */
+  public record CashierOverviewPayload(
+      boolean sessionOpen,
+      String sessionRef,
+      String openedAt,
+      String businessDate,
+      long ticketCount,
+      long salesTotalCents,
+      long cancelledCount,
+      long pendingApprovalCount,
+      List<?> byDraw) {
+
+    public static CashierOverviewPayload noSession() {
+      return new CashierOverviewPayload(false, "", "", "", 0L, 0L, 0L, 0L, List.of());
+    }
+  }
+
+  /** Operational readiness flags derived from HTTP context — no extra DB read. */
+  public record CashierReadinessPayload(
+      boolean ready,
+      boolean trusted,
+      String source,
+      List<String> missing) {}
+
+  /** Single operational alert item. */
+  public record CashierAlertItem(
+      String severity,
+      String code,
+      String messageKey) {}
+
+  /** Cashier alerts summary (blockers + warnings). */
+  public record CashierAlertsPayload(
+      int count,
+      List<CashierAlertItem> items) {}
+
+  /** Per-game breakdown inside analytics stats. */
+  public record GameBreakdownItem(
+      String gameCode,
+      long ticketsSold,
+      BigDecimal grossSales) {}
+
+  /** Analytics stats for today (seller scope). */
+  public record CashierStatsPayload(
+      boolean available,
+      String refDate,
+      long ticketsSold,
+      BigDecimal grossSales,
+      BigDecimal winningsCalculated,
+      BigDecimal netRevenue,
+      List<GameBreakdownItem> gameBreakdown) {
+
+    public static CashierStatsPayload unavailable() {
+      return new CashierStatsPayload(false, "", 0L,
+          BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, List.of());
+    }
+  }
+
+  /** Offline/sync placeholder — V1, no server-side sync tracking yet. */
+  public record CashierOfflineSyncPayload(
+      String status,
+      int pendingSyncCount) {}
 }

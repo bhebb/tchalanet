@@ -20,6 +20,11 @@ import com.tchalanet.server.core.terminal.api.query.TerminalSearchCriteria;
 import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
 import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
 import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
+import com.tchalanet.server.features.pagemodel.contract.ActionItem;
+import com.tchalanet.server.features.pagemodel.contract.AlertItem;
+import com.tchalanet.server.features.pagemodel.contract.NewsItem;
+import com.tchalanet.server.features.pagemodel.contract.PublicContentPayload;
+import com.tchalanet.server.features.pagemodel.contract.QuickActionsPayload;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessIssue;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessStatus;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessSummary;
@@ -31,7 +36,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -78,14 +82,14 @@ public class TenantAdminDashboardPayloadAssembler {
     OperationsBundle ops = loadOperationsBundle(tenantId);
     CommercialBundle commercial = loadCommercialBundle(tenantId);
 
-    Map<String, Object> header         = buildHeader(ctx, registry);
-    Map<String, Object> kpis           = buildKpis(ctx, ops, tz);
-    Map<String, Object> readiness      = buildReadinessSummary(registry, ops, commercial);
-    Map<String, Object> alerts         = buildAlerts();
-    Map<String, Object> operations     = buildOperationsSummary(ops);
-    Map<String, Object> commercialSummary = buildCommercialSummary(commercial);
-    Map<String, Object> publicContent  = buildPublicContent();
-    Map<String, Object> quickActions   = buildQuickActions();
+    TenantDashboardHeaderPayload header    = buildHeader(ctx, registry);
+    TenantKpiGridPayload kpis              = buildKpis(ctx, ops, tz);
+    TenantReadinessSummaryPayload readiness = buildReadinessSummary(registry, ops, commercial);
+    TenantAlertsPayload alerts             = buildAlerts();
+    TenantOperationsSummaryPayload operations = buildOperationsSummary(ops);
+    TenantCommercialSummaryPayload commercialSummary = buildCommercialSummary(commercial);
+    PublicContentPayload publicContent     = buildPublicContent();
+    QuickActionsPayload quickActions       = buildQuickActions();
 
     return new Payload(header, kpis, readiness, alerts, operations,
         commercialSummary, publicContent, quickActions);
@@ -141,18 +145,18 @@ public class TenantAdminDashboardPayloadAssembler {
 
   // ---------------------- per-widget builders ----------------------
 
-  private Map<String, Object> buildHeader(TchRequestContext ctx, TenantRegistryView registry) {
-    return Map.of(
-        "tenantCode", ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "",
-        "tenantId", ctx.tenantId() != null ? ctx.tenantId().value().toString() : "",
-        "tenantName", registry != null && registry.name() != null ? registry.name() : "",
-        "tenantStatus", registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN",
-        "tenantType", registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN",
-        "timezone", ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC",
-        "currency", ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
+  private TenantDashboardHeaderPayload buildHeader(TchRequestContext ctx, TenantRegistryView registry) {
+    return new TenantDashboardHeaderPayload(
+        ctx.effectiveTenantCode() != null ? ctx.effectiveTenantCode() : "",
+        ctx.tenantId() != null ? ctx.tenantId().value().toString() : "",
+        registry != null && registry.name() != null ? registry.name() : "",
+        registry != null && registry.status() != null ? registry.status().name() : "UNKNOWN",
+        registry != null && registry.type() != null ? registry.type().name() : "UNKNOWN",
+        ctx.tenantZoneId() != null ? ctx.tenantZoneId().getId() : "UTC",
+        ctx.tenantCurrency() != null ? ctx.tenantCurrency().getCurrencyCode() : "");
   }
 
-  private Map<String, Object> buildKpis(TchRequestContext ctx, OperationsBundle ops, ZoneId tz) {
+  private TenantKpiGridPayload buildKpis(TchRequestContext ctx, OperationsBundle ops, ZoneId tz) {
     LocalDate today     = LocalDate.now(tz);
     LocalDate yesterday = today.minusDays(1);
 
@@ -197,18 +201,11 @@ public class TenantAdminDashboardPayloadAssembler {
       log.warn("tenant_admin_dashboard: failed to load KPI stats — {}", e.getMessage());
     }
 
-    return Map.ofEntries(
-        Map.entry("salesToday",            salesToday),
-        Map.entry("salesYesterday",        salesYesterday),
-        Map.entry("ticketCountToday",      ticketsToday),
-        Map.entry("ticketCountYesterday",  ticketsYesterday),
-        Map.entry("winningsToday",         winningsToday),
-        Map.entry("payoutsToday",          payoutsToday),
-        Map.entry("netRevenueToday",       netToday),
-        // V1 placeholders — no tenant-wide session/draw query yet
-        Map.entry("activeSessions",        0L),
-        Map.entry("openDraws",             0L),
-        Map.entry("pendingApprovals",      0L));
+    return new TenantKpiGridPayload(
+        salesToday, salesYesterday,
+        ticketsToday, ticketsYesterday,
+        winningsToday, payoutsToday, netToday,
+        0L, 0L, 0L); // activeSessions / openDraws / pendingApprovals: V1 placeholders
   }
 
   /**
@@ -216,7 +213,7 @@ public class TenantAdminDashboardPayloadAssembler {
    * READY when identity present + outlets + terminals + sellers + (games OR channels) configured.
    * PARTIAL if at least one configured. MISSING if none. UNKNOWN if no tenant.
    */
-  private Map<String, Object> buildReadinessSummary(
+  private TenantReadinessSummaryPayload buildReadinessSummary(
       TenantRegistryView registry, OperationsBundle ops, CommercialBundle commercial) {
     List<TenantReadinessIssue> issues = new ArrayList<>();
     int missing = 0;
@@ -254,90 +251,136 @@ public class TenantAdminDashboardPayloadAssembler {
     TenantReadinessSummary summary = new TenantReadinessSummary(
         status, missing, issues.stream().limit(4).toList());
 
-    return Map.of(
-        "status", summary.status().name(),
-        "missingCount", summary.missingCount(),
-        "topIssues", summary.topIssues());
+    return new TenantReadinessSummaryPayload(
+        summary.status().name(), summary.missingCount(), summary.topIssues());
   }
 
   /**
    * V1 placeholder: no tenant-wide alerts/notification aggregate query exists yet.
    * Will be wired in V2 via GetTenantAlertsSummaryQuery (core.notification or equivalent).
    */
-  private Map<String, Object> buildAlerts() {
-    return Map.of(
-        "unreadCount", 0,
-        "topWarnings", List.of());
+  private TenantAlertsPayload buildAlerts() {
+    return new TenantAlertsPayload(0, List.of());
   }
 
-  private Map<String, Object> buildOperationsSummary(OperationsBundle ops) {
-    return Map.of(
-        "users",
-            Map.of("status", ops.sellers().isEmpty() ? "MISSING" : "READY", "count", ops.sellers().size()),
-        "outlets",
-            Map.of("status", ops.outlets().isEmpty() ? "MISSING" : "READY", "count", ops.outlets().size()),
-        "terminals",
-            Map.of("status", ops.terminalCount() == 0L ? "MISSING" : "READY", "count", ops.terminalCount()),
-        "sessions",
-            Map.of("status", "UNKNOWN", "count", 0));
+  private TenantOperationsSummaryPayload buildOperationsSummary(OperationsBundle ops) {
+    return new TenantOperationsSummaryPayload(
+        new SectionStatus(ops.sellers().isEmpty() ? "MISSING" : "READY", ops.sellers().size()),
+        new SectionStatus(ops.outlets().isEmpty() ? "MISSING" : "READY", ops.outlets().size()),
+        new SectionStatus(ops.terminalCount() == 0L ? "MISSING" : "READY", ops.terminalCount()),
+        new SectionStatus("UNKNOWN", 0));
   }
 
-  private Map<String, Object> buildCommercialSummary(CommercialBundle commercial) {
-    return Map.of(
-        "gamesPricing",
-            Map.of("status", commercial.games().isEmpty() ? "MISSING" : "READY",
-                "count", commercial.games().size()),
-        "drawChannels",
-            Map.of("status", commercial.channels().isEmpty() ? "MISSING" : "READY",
-                "count", commercial.channels().size()),
-        "limits", Map.of("status", "UNKNOWN"),
-        "promotions", Map.of("status", "UNKNOWN"));
+  private TenantCommercialSummaryPayload buildCommercialSummary(CommercialBundle commercial) {
+    return new TenantCommercialSummaryPayload(
+        new SectionStatus(commercial.games().isEmpty() ? "MISSING" : "READY", commercial.games().size()),
+        new SectionStatus(commercial.channels().isEmpty() ? "MISSING" : "READY", commercial.channels().size()),
+        new SectionStatus("UNKNOWN", 0),
+        new SectionStatus("UNKNOWN", 0));
   }
 
-  private Map<String, Object> buildPublicContent() {
+  private PublicContentPayload buildPublicContent() {
     try {
       List<PublicContentItemView> items =
           publicContentApi.listTenantAdminDashboardNews(PUBLIC_CONTENT_LIMIT);
-      return Map.of(
-          "items", items.stream()
-              .map(i -> Map.<String, Object>of(
-                  "id",          i.id() != null ? i.id().toString() : "",
-                  "title",       i.title() != null ? i.title() : "",
-                  "snippet",     i.content() != null ? i.content() : "",
-                  "link",        i.sourceUrl() != null ? i.sourceUrl() : "",
-                  "publishedAt", i.publishedAt() != null ? i.publishedAt().toString() : ""))
-              .toList(),
-          "count", items.size());
+      List<NewsItem> news = items.stream()
+          .map(i -> new NewsItem(
+              i.id() != null ? i.id().toString() : "",
+              i.title() != null ? i.title() : "",
+              i.content() != null ? i.content() : "",
+              i.sourceUrl() != null ? i.sourceUrl() : "",
+              "",
+              i.publishedAt() != null ? i.publishedAt().toString() : ""))
+          .toList();
+      return new PublicContentPayload(news, news.size());
     } catch (RuntimeException e) {
       log.warn("tenant_admin_dashboard: could not load public content — {}", e.getMessage());
-      return Map.of("items", List.of(), "count", 0);
+      return PublicContentPayload.empty();
     }
   }
 
-  private Map<String, Object> buildQuickActions() {
-    return Map.of(
-        "actions", List.of(
-            Map.of("id", "CREATE_OUTLET", "label", "Créer un point de vente", "route", "/app/admin/outlets/new"),
-            Map.of("id", "CREATE_TERMINAL", "label", "Créer un terminal", "route", "/app/admin/terminals/new"),
-            Map.of("id", "CREATE_SELLER", "label", "Créer un vendeur", "route", "/app/admin/users/new"),
-            Map.of("id", "TENANT_OVERVIEW", "label", "Aperçu du tenant", "route", "/app/admin/overview")));
+  private QuickActionsPayload buildQuickActions() {
+    return new QuickActionsPayload(List.of(
+        new ActionItem("CREATE_OUTLET",   "quickaction.admin.create_outlet",   "storefront",    "/app/admin/outlets/new"),
+        new ActionItem("CREATE_TERMINAL", "quickaction.admin.create_terminal", "point_of_sale", "/app/admin/terminals/new"),
+        new ActionItem("CREATE_SELLER",   "quickaction.admin.create_seller",   "person_add",    "/app/admin/users/new"),
+        new ActionItem("TENANT_OVERVIEW", "quickaction.admin.overview",        "map",           "/app/admin/overview")));
   }
 
   public record Payload(
-      Map<String, Object> header,
-      Map<String, Object> kpis,
-      Map<String, Object> readiness,
-      Map<String, Object> alerts,
-      Map<String, Object> operations,
-      Map<String, Object> commercial,
-      Map<String, Object> publicContent,
-      Map<String, Object> quickActions) {
+      TenantDashboardHeaderPayload header,
+      TenantKpiGridPayload kpis,
+      TenantReadinessSummaryPayload readiness,
+      TenantAlertsPayload alerts,
+      TenantOperationsSummaryPayload operations,
+      TenantCommercialSummaryPayload commercial,
+      PublicContentPayload publicContent,
+      QuickActionsPayload quickActions) {
 
     public static Payload empty() {
-      return new Payload(Map.of(), Map.of(), Map.of(), Map.of(),
-          Map.of(), Map.of(), Map.of(), Map.of());
+      return new Payload(
+          new TenantDashboardHeaderPayload("", "", "", "UNKNOWN", "UNKNOWN", "UTC", ""),
+          new TenantKpiGridPayload(BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L,
+              BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L, 0L, 0L),
+          new TenantReadinessSummaryPayload("UNKNOWN", 0, List.of()),
+          new TenantAlertsPayload(0, List.of()),
+          new TenantOperationsSummaryPayload(
+              new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0),
+              new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)),
+          new TenantCommercialSummaryPayload(
+              new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0),
+              new SectionStatus("UNKNOWN", 0), new SectionStatus("UNKNOWN", 0)),
+          PublicContentPayload.empty(),
+          QuickActionsPayload.empty());
     }
   }
+
+  // ---- surface-specific typed payload records ----
+
+  public record TenantDashboardHeaderPayload(
+      String tenantCode,
+      String tenantId,
+      String tenantName,
+      String tenantStatus,
+      String tenantType,
+      String timezone,
+      String currency) {}
+
+  public record TenantKpiGridPayload(
+      BigDecimal salesToday,
+      BigDecimal salesYesterday,
+      long ticketCountToday,
+      long ticketCountYesterday,
+      BigDecimal winningsToday,
+      BigDecimal payoutsToday,
+      BigDecimal netRevenueToday,
+      long activeSessions,
+      long openDraws,
+      long pendingApprovals) {}
+
+  public record TenantReadinessSummaryPayload(
+      String status,
+      int missingCount,
+      List<TenantReadinessIssue> topIssues) {}
+
+  public record TenantAlertsPayload(
+      int unreadCount,
+      List<AlertItem> topWarnings) {}
+
+  /** Status + count for an operational/commercial section. */
+  public record SectionStatus(String status, long count) {}
+
+  public record TenantOperationsSummaryPayload(
+      SectionStatus users,
+      SectionStatus outlets,
+      SectionStatus terminals,
+      SectionStatus sessions) {}
+
+  public record TenantCommercialSummaryPayload(
+      SectionStatus gamesPricing,
+      SectionStatus drawChannels,
+      SectionStatus limits,
+      SectionStatus promotions) {}
 
   /** Grouped operational data — loaded once, shared by readiness + kpis + operations builders. */
   record OperationsBundle(

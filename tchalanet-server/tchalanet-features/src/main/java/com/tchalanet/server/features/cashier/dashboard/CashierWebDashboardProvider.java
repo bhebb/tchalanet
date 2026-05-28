@@ -1,11 +1,13 @@
 package com.tchalanet.server.features.cashier.dashboard;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
-import java.util.Map;
+import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
+@PageModelAllowedRoles(TchRole.CASHIER)
 public class CashierWebDashboardProvider implements PageModelDynamicProvider {
 
   static final String SOURCE = "cashier_dashboard";
@@ -56,12 +59,9 @@ public class CashierWebDashboardProvider implements PageModelDynamicProvider {
       case "dashboard.cashier.identity" -> payload.identity();
       case "dashboard.cashier.session" -> payload.session();
       case "dashboard.cashier.overview" -> payload.overview();
-      case "dashboard.cashier.next_draws" -> Map.of("items", payload.nextDraws());
-      case "dashboard.cashier.recent_tickets" -> Map.of("items", payload.recentTickets());
-      case "dashboard.cashier.quick_sale" -> Map.of(
-          "actionId", "SELL_TICKET",
-          "label", "Vendre un ticket",
-          "route", "/cashier/sell");
+      case "dashboard.cashier.next_draws" -> new ItemsPayload(payload.nextDraws());
+      case "dashboard.cashier.recent_tickets" -> new ItemsPayload(payload.recentTickets());
+      case "dashboard.cashier.quick_sale" -> QUICK_SALE;
       case "dashboard.cashier.readiness"    -> payload.readiness();
       case "dashboard.cashier.alerts"       -> payload.alerts();
       case "dashboard.cashier.stats"        -> payload.stats();
@@ -76,4 +76,14 @@ public class CashierWebDashboardProvider implements PageModelDynamicProvider {
   public String providerKey() {
     return SOURCE;
   }
+
+  /** Static payload for the quick-sale shortcut widget. */
+  private static final QuickSalePayload QUICK_SALE =
+      new QuickSalePayload("SELL_TICKET", "cashier.quicksale.label", "/cashier/sell");
+
+  /** Generic list wrapper — avoids raw Map for next_draws / recent_tickets dispatch. */
+  record ItemsPayload(List<?> items) {}
+
+  /** Quick-sale shortcut widget payload. */
+  record QuickSalePayload(String actionId, String labelKey, String path) {}
 }

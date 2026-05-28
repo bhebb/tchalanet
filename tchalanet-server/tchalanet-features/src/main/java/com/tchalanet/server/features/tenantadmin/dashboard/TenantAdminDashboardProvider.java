@@ -1,10 +1,12 @@
 package com.tchalanet.server.features.tenantadmin.dashboard;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
+@PageModelAllowedRoles(TchRole.TENANT_ADMIN)
 public class TenantAdminDashboardProvider implements PageModelDynamicProvider {
 
   static final String SOURCE = "tenant_admin_dashboard";

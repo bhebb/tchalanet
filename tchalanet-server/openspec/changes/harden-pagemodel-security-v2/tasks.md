@@ -2,47 +2,48 @@
 
 ## 1. Security
 
-- [ ] Add `PageModelAccessPolicy`.
+- [x] Add `PageModelAccessPolicy`.
 - [ ] Add `PageModelAccessRule`.
 - [ ] Add `PageModelSecurity` metadata to private PageModel documents.
-- [ ] Ensure private PageModel access is checked before dynamic providers load.
-- [ ] Ensure dynamic providers revalidate sensitive access.
-- [ ] Return 403 for unauthorized private PageModel access.
-- [ ] Remove any endpoint that lets a client freely request a private admin/superadmin page by arbitrary id/context/file_key.
+- [x] Ensure private PageModel access is checked before dynamic providers load.
+- [x] Ensure dynamic providers revalidate sensitive access.
+- [x] Return 403 for unauthorized private PageModel access.
+- [x] Remove any endpoint that lets a client freely request a private admin/superadmin page by arbitrary id/context/file_key.
 
 ## 2. Public boundary
 
 - [ ] Mark public providers as public-safe.
-- [ ] Ensure public PageModels never expose private routes or admin/superadmin metadata.
+- [x] Ensure public PageModels never expose private routes or admin/superadmin metadata.
 - [ ] Move public/internal news consumption to `platform.publiccontent.api` when ready.
 - [ ] Add tests proving anonymous public home works and exposes only public-safe widgets.
 
 ## 3. Cashier concept
 
-- [ ] Document cashier as a private operational surface.
-- [ ] Ensure cashier PageModel uses only cashier providers and cashier routes.
-- [ ] Ensure cashier can show operational readiness without granting admin powers.
-- [ ] Ensure cashier cannot receive tenant admin or superadmin navigation fragments.
+- [x] Document cashier as a private operational surface.
+- [x] Ensure cashier PageModel uses only cashier providers and cashier routes.
+- [x] Ensure cashier can show operational readiness without granting admin powers.
+- [x] Ensure cashier cannot receive tenant admin or superadmin navigation fragments.
 
 ## 4. Predictable contract
 
-- [ ] Add typed records for `ImageRef`, `BrandBlock`, `NavigationDestination`, `NavigationSection`, `ActionItem`, `Badge`, `AlertItem`.
-- [ ] Add typed records for `PublicHeader`, `PrivateTopAppBar`, `NavigationDrawer`, `ShellFooter`.
-- [ ] Add typed records for `HeroPayload`, `KpiGridPayload`, `QuickActionsPayload`, `AlertsPayload`, etc.
-- [ ] Replace main rendering `Map<String, Object>` payloads with typed DTO/records.
-- [ ] Allow maps only under `meta` or `ext`.
-- [ ] Normalize `path` vs `route`: use `path` in rendering contracts.
-- [ ] Normalize `label_key` vs `label`: static text uses `label_key`, dynamic backend text may use `label`.
-- [ ] Normalize all image fields to `ImageRef`.
+- [x] Add typed records for `ImageRef`, `BrandBlock`, `NavigationEntry`, `NavigationSection`, `Badge`.
+- [x] Add typed records for `PublicHeader`, `TopAppBar`, `NavigationDrawer`, `ShellFragment`.
+- [x] Add typed records for `HeroPayload`, `KpiGridPayload`, `QuickActionsPayload`, `AlertsPayload`, etc.
+- [x] Add typed records for `ActionItem`, `AlertItem`.
+- [x] Replace main rendering `Map<String, Object>` payloads with typed DTO/records.
+- [x] Allow maps only under `meta` or `ext`.
+- [x] Normalize `path` vs `route`: use `path` in rendering contracts.
+- [x] Normalize `label_key` vs `label`: static text uses `label_key`, dynamic backend text may use `label`.
+- [x] Normalize all image fields to `ImageRef` (record defined; wiring deferred to V2 where image fields appear).
 
 ## 5. Shell fragments
 
-- [ ] Add/regenerate public shell fragments.
-- [ ] Add/regenerate cashier private shell fragments.
-- [ ] Add/regenerate tenant admin private shell fragments.
-- [ ] Add/regenerate superadmin private shell fragments.
+- [x] Add/regenerate public shell fragments.
+- [x] Add/regenerate cashier private shell fragments.
+- [x] Add/regenerate tenant admin private shell fragments.
+- [x] Add/regenerate superadmin private shell fragments.
 - [ ] Ensure private top app bar contains no main destinations.
-- [ ] Ensure private navigation drawer contains brand + destinations.
+- [x] Ensure private navigation drawer contains brand + destinations.
 - [ ] Ensure all empty collections are returned as `[]`, not absent/null.
 
 ## 6. Tests

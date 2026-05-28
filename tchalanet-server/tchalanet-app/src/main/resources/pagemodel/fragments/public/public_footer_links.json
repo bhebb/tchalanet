@@ -1,53 +1,159 @@
 {
+  "brand": {
+    "id": "tchalanet-footer",
+    "label_key": "app.name",
+    "label": null,
+    "subtitle_key": null,
+    "path": "/",
+    "image": {
+      "url": "/assets/brand/tchalanet-logo.svg",
+      "alt_key": "brand.logo_alt",
+      "title_key": null,
+      "width": 36,
+      "height": 36,
+      "aspect_ratio": "1:1",
+      "loading": "eager"
+    }
+  },
   "primary": [
     {
+      "id": "results",
+      "type": "destination",
       "label_key": "footer.results",
+      "label": null,
       "path": "/results",
-      "icon": "emoji_events"
+      "kind": "internal",
+      "icon": "emoji_events",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "check_ticket",
+      "type": "destination",
       "label_key": "footer.check_ticket",
+      "label": null,
       "path": "/verifier",
-      "icon": "qr_code_scanner"
+      "kind": "internal",
+      "icon": "qr_code_scanner",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "games",
+      "type": "destination",
       "label_key": "footer.games",
+      "label": null,
       "path": "/games",
-      "icon": "casino"
+      "kind": "internal",
+      "icon": "casino",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "contact_demo",
+      "type": "destination",
       "label_key": "footer.contact_demo",
+      "label": null,
       "path": "/demo",
-      "icon": "rocket_launch"
+      "kind": "internal",
+      "icon": "rocket_launch",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
   ],
   "secondary": [
     {
+      "id": "support",
+      "type": "destination",
       "label_key": "footer.support",
+      "label": null,
       "path": "/support",
-      "icon": "support_agent"
+      "kind": "internal",
+      "icon": "support_agent",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
-      "label_key": "footer.legal",
+      "id": "terms",
+      "type": "destination",
+      "label_key": "legal.terms",
+      "label": null,
       "path": "/legal",
-      "icon": "gavel"
+      "kind": "internal",
+      "icon": "gavel",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
-      "label_key": "footer.privacy",
+      "id": "privacy",
+      "type": "destination",
+      "label_key": "legal.privacy",
+      "label": null,
       "path": "/privacy",
-      "icon": "shield"
+      "kind": "internal",
+      "icon": "privacy_tip",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
-      "label_key": "footer.regulation",
+      "id": "responsible_gaming",
+      "type": "destination",
+      "label_key": "legal.responsible_gaming",
+      "label": null,
       "path": "/regulation",
-      "icon": "verified_user"
+      "kind": "internal",
+      "icon": "verified_user",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
   ],
   "social": [
     {
+      "id": "linkedin",
+      "type": "destination",
       "label_key": "footer.linkedin",
+      "label": null,
       "path": "https://www.linkedin.com/company/tchalanet",
-      "icon": "linkedin"
+      "kind": "external",
+      "icon": "linkedin",
+      "image": null,
+      "active_match": "none",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
   ]
 }

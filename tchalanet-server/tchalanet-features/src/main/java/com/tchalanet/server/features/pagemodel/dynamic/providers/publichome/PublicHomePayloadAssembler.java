@@ -3,6 +3,8 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.publichome;
 import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.features.pagemodel.contract.NewsItem;
+import com.tchalanet.server.features.pagemodel.contract.PlanItem;
 import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
 import java.util.List;
@@ -37,12 +39,12 @@ public class PublicHomePayloadAssembler {
     return new Payload(buildNews(newsLimit), buildPlans());
   }
 
-  private List<Map<String, Object>> buildNews(int requestedLimit) {
+  private List<NewsItem> buildNews(int requestedLimit) {
     int limit = requestedLimit <= 0 ? DEFAULT_NEWS_LIMIT
         : Math.min(requestedLimit, MAX_NEWS_LIMIT);
     try {
       return publicContentApi.listPublicHomeNews(limit).stream()
-          .map(PublicHomePayloadAssembler::toContentMap)
+          .map(PublicHomePayloadAssembler::toNewsItem)
           .toList();
     } catch (RuntimeException e) {
       log.warn("public_home: could not load news — {}", e.getMessage());
@@ -50,35 +52,39 @@ public class PublicHomePayloadAssembler {
     }
   }
 
-  private List<Map<String, Object>> buildPlans() {
+  private List<PlanItem> buildPlans() {
     return planCatalog.listActive().stream()
-        .map(PublicHomePayloadAssembler::toPlanMap)
+        .map(PublicHomePayloadAssembler::toPlanItem)
         .toList();
   }
 
-  static Map<String, Object> toContentMap(PublicContentItemView item) {
-    return Map.of(
-        "id",          item.id() != null ? item.id().toString() : "",
-        "title",       item.title() != null ? item.title() : "",
-        "snippet",     item.content() != null ? item.content() : "",
-        "link",        item.sourceUrl() != null ? item.sourceUrl() : "",
-        "source",      item.sourceType() != null ? item.sourceType().name() : "",
-        "publishedAt", item.publishedAt() != null ? item.publishedAt().toString() : "");
+  static NewsItem toNewsItem(PublicContentItemView item) {
+    return new NewsItem(
+        item.id() != null ? item.id().toString() : "",
+        item.title() != null ? item.title() : "",
+        item.content() != null ? item.content() : "",
+        item.sourceUrl() != null ? item.sourceUrl() : "",
+        item.sourceType() != null ? item.sourceType().name() : "",
+        item.publishedAt() != null ? item.publishedAt().toString() : "");
   }
 
-  private static Map<String, Object> toPlanMap(PlanView plan) {
-    return Map.of(
-        "value", plan.code() != null ? plan.code() : "",
-        "name", plan.name() != null ? plan.name() : "",
-        "description", plan.description() != null ? plan.description() : "",
-        "price", plan.priceAmount() != null ? plan.priceAmount() : 0,
-        "currency", plan.currency() != null ? plan.currency() : "",
-        "billingPeriod", plan.billingPeriod() != null ? plan.billingPeriod() : "",
-        "features", plan.featuresJson() != null ? plan.featuresJson() : Map.of(),
-        "isDefault", plan.isDefault());
+  @SuppressWarnings("unchecked")
+  private static PlanItem toPlanItem(PlanView plan) {
+    Object featuresRaw = plan.featuresJson() != null ? plan.featuresJson() : Map.of();
+    Map<String, Object> features = featuresRaw instanceof Map<?, ?> m
+        ? (Map<String, Object>) m : Map.of();
+    return new PlanItem(
+        plan.code() != null ? plan.code() : "",
+        plan.name() != null ? plan.name() : "",
+        plan.description() != null ? plan.description() : "",
+        plan.priceAmount() != null ? plan.priceAmount() : 0,
+        plan.currency() != null ? plan.currency() : "",
+        plan.billingPeriod() != null ? plan.billingPeriod() : "",
+        features,
+        plan.isDefault());
   }
 
   public record Payload(
-      List<Map<String, Object>> news,
-      List<Map<String, Object>> plans) {}
+      List<NewsItem> news,
+      List<PlanItem> plans) {}
 }

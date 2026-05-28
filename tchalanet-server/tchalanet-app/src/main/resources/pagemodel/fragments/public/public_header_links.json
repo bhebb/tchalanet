@@ -1,53 +1,143 @@
 {
+  "brand": {
+    "id": "tchalanet-public",
+    "label_key": "app.name",
+    "label": null,
+    "subtitle_key": null,
+    "path": "/",
+    "image": {
+      "url": "/assets/brand/tchalanet-logo.svg",
+      "alt_key": "brand.logo_alt",
+      "title_key": null,
+      "width": 36,
+      "height": 36,
+      "aspect_ratio": "1:1",
+      "loading": "eager"
+    }
+  },
   "primary": [
     {
+      "id": "home",
+      "type": "destination",
       "label_key": "nav.home",
+      "label": null,
       "path": "/",
-      "icon": "home"
+      "kind": "internal",
+      "icon": "home",
+      "image": null,
+      "active_match": "exact",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "draw_results",
+      "type": "destination",
       "label_key": "nav.results",
+      "label": null,
       "path": "/results",
-      "icon": "emoji_events"
+      "kind": "internal",
+      "icon": "emoji_events",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "check_ticket",
+      "type": "destination",
       "label_key": "nav.check_ticket",
+      "label": null,
       "path": "/verifier",
-      "icon": "qr_code_scanner"
+      "kind": "internal",
+      "icon": "qr_code_scanner",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
-      "label_key": "nav.games",
-      "path": "/games",
-      "icon": "casino"
-    },
-    {
+      "id": "features",
+      "type": "destination",
       "label_key": "nav.features",
+      "label": null,
       "path": "/features",
-      "icon": "widgets"
+      "kind": "internal",
+      "icon": "widgets",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "pricing",
+      "type": "destination",
       "label_key": "nav.pricing",
+      "label": null,
       "path": "/pricing",
-      "icon": "payments"
+      "kind": "internal",
+      "icon": "payments",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "about",
+      "type": "destination",
       "label_key": "nav.about",
+      "label": null,
       "path": "/about",
-      "icon": "info"
+      "kind": "internal",
+      "icon": "info",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
   ],
   "secondary": [
     {
-      "label_key": "cta.request_demo",
-      "path": "/demo",
-      "icon": "rocket_launch",
-      "style": "tertiary"
-    },
-    {
-      "label_key": "nav.login",
+      "id": "login",
+      "type": "destination",
+      "label_key": "cta.login",
+      "label": null,
       "path": "/login",
+      "kind": "internal",
       "icon": "login",
-      "style": "primary"
+      "image": null,
+      "active_match": "none",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
+    }
+  ],
+  "actions": [
+    {
+      "id": "REQUEST_DEMO",
+      "type": "action",
+      "label_key": "cta.request_demo",
+      "label": null,
+      "path": "/demo",
+      "kind": "internal",
+      "icon": "rocket_launch",
+      "image": null,
+      "style": "primary",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
     }
   ]
 }

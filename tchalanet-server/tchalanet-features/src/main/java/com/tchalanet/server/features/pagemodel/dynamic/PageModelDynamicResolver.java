@@ -6,6 +6,7 @@ import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import com.tchalanet.server.features.pagemodel.shared.PageDynamicPayload;
 import com.tchalanet.server.features.pagemodel.shared.WidgetDynamicError;
 import java.util.*;
@@ -91,6 +92,28 @@ public class PageModelDynamicResolver {
         .filter(p -> p.supports(logicalId, widgetType, source))
         .findFirst()
         .ifPresentOrElse(provider -> {
+          // [harden-pagemodel-security-v2 / D2] Provider-level role revalidation.
+          // If the provider declares @PageModelAllowedRoles and the current role is not in the set,
+          // record a widget-level error instead of returning data or throwing a 500.
+          PageModelAllowedRoles roleAnnotation =
+              provider.getClass().getAnnotation(PageModelAllowedRoles.class);
+          if (roleAnnotation != null) {
+            var currentRole = ctx != null ? ctx.currentRole() : null;
+            boolean permitted =
+                currentRole != null
+                    && Arrays.asList(roleAnnotation.value()).contains(currentRole);
+            if (!permitted) {
+              errors.add(new WidgetDynamicError(
+                  widgetId,
+                  provider.providerKey(),
+                  "PROVIDER_ROLE_DENIED",
+                  "Provider " + provider.providerKey()
+                      + " requires one of " + Arrays.toString(roleAnnotation.value())
+                      + " but current role is " + currentRole
+              ));
+              return;
+            }
+          }
           try {
             Object payload = provider.load(doc, widgetId, config, lang, ctx, resolutionContext);
             widgets.put(widgetId, payload);

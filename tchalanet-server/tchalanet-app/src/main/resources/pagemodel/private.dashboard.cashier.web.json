@@ -26,35 +26,13 @@
     },
     "shell": {
       "header": {
-        "component": "PrivateHeader",
+        "component": "PrivateShell",
         "binding": {
           "mode": "dynamic",
           "source": "json_file"
         },
         "props": {
-          "show_profile_menu": true,
-          "file_key": "private_header_profile_menu"
-        }
-      },
-      "sidenav": {
-        "component": "PrivateSidenav",
-        "binding": {
-          "mode": "dynamic",
-          "source": "json_file"
-        },
-        "props": {
-          "collapsible": true,
-          "file_key": "private_sidebar_cashier"
-        }
-      },
-      "footer": {
-        "component": "PrivateFooter",
-        "binding": {
-          "mode": "dynamic",
-          "source": "json_file"
-        },
-        "props": {
-          "file_key": "private_footer_links"
+          "file_key": "private_shell_cashier"
         }
       }
     },

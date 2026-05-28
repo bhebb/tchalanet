@@ -9,19 +9,21 @@ public class PageModelJsonFragmentRegistry {
 
   private static final Map<String, String> FRAGMENTS =
       Map.ofEntries(
-          // Legacy (kept for backwards compat with /fragments/ layout)
-          Map.entry("public_header_links", "pagemodel/fragments/public/header.links.json"),
-          Map.entry("public_footer_links", "pagemodel/fragments/public/footer.links.json"),
-          Map.entry("private_footer_links", "pagemodel/fragments/private/footer.links.json"),
-          Map.entry("private_header_cashier", "pagemodel/fragments/private/cashier/header.links.json"),
-          Map.entry("private_sidebar_cashier", "pagemodel/fragments/private/cashier/sidebar.links.json"),
+          // Public shell fragments (v2 typed NavigationDestination format)
+          Map.entry("public_header_links", "pagemodel/fragments/public/public_header_links.json"),
+          Map.entry("public_footer_links", "pagemodel/fragments/public/public_footer_links.json"),
+          // Public content fragments
+          Map.entry("public_hero", "pagemodel/fragments/public/public_hero.json"),
+          Map.entry("public_features", "pagemodel/fragments/public/public_features.json"),
+          Map.entry("public_tchala", "pagemodel/fragments/public/public_tchala.json"),
+          // Private shell fragments (v2 typed — topAppBar + navigationDrawer per surface)
+          Map.entry("private_shell_cashier", "pagemodel/fragments/private/cashier/private_shell_cashier.json"),
+          Map.entry("private_shell_tenantadmin", "pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json"),
+          Map.entry("private_shell_superadmin", "pagemodel/fragments/private/superadmin/private_shell_superadmin.json"),
+          // Private action fragments
           Map.entry(
               "private_cashier_quick_actions",
-              "pagemodel/fragments/private/cashier/quick_actions.links.json"),
-          // V1 public widgets — static fragments (dashboard-overview-runtime-v1)
-          Map.entry("public_hero", "pagemodel/static/public_hero.json"),
-          Map.entry("public_features", "pagemodel/static/public_features.json"),
-          Map.entry("public_tchala", "pagemodel/static/public_tchala.json"));
+              "pagemodel/fragments/private/cashier/private_quick_actions_cashier.json"));
 
   public String resolve(String fileKey) {
     if (fileKey == null || fileKey.isBlank()) {

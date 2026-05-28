@@ -1,10 +1,12 @@
 package com.tchalanet.server.features.platformadmin.dashboard;
 
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.security.PageModelAllowedRoles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
+@PageModelAllowedRoles(TchRole.SUPER_ADMIN)
 public class PlatformAdminDashboardProvider implements PageModelDynamicProvider {
 
   static final String SOURCE = "platform_admin_dashboard";
