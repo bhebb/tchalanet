@@ -15,7 +15,7 @@
 - [x] Add explicit free-line selection source enum handling.
 - [x] Extend waived charges with promotion decision id, rule id, effect type, and label.
 - [x] Ensure ticket money excludes waived buyer-facing charges but retains original charge for audit/print.
-- [ ] Ensure preview and final promotion evaluation phases are distinct if preview is supported.
+- [x] Ensure preview and final promotion evaluation phases are distinct if preview is supported.
 - [x] Add unit tests for FREE_GAME_LINE, BOOST_ODDS, WAIVE_CHARGE.
 
 ## 3. Sales reconciliation query support

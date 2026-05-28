@@ -5,7 +5,7 @@
 - [x] Create `core.analytics.api` packages for query/command/model.
 - [x] Create `core.analytics.internal.application` packages.
 - [x] Create `core.analytics.internal.infra.persistence`, `infra.event`, `infra.scheduler`, `infra.web.ops`.
-- [ ] Add ArchUnit/module boundary expectations if needed.
+- [x] Add ArchUnit/module boundary expectations. *(added `forbidInternal("core.analytics")` and `featuresAndPlatformMustNotAccessCoreAnalyticsInternal` rules)*
 
 ## 2. Tables and migrations
 

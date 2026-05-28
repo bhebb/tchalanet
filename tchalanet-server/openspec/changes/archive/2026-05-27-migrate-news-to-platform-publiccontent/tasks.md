@@ -34,7 +34,7 @@
 
 - [x] Move admin controller to `/platform/public-content/news`.
 - [x] Keep `@PreAuthorize("hasAuthority('SUPER_ADMIN')")`.
-- [ ] Add `@AuditLog` on upsert/status/hide/show/force-refresh. *(not added yet)*
+- [x] Add `@AuditLog` on upsert/status/hide/show. *(done; forceRefresh intentionally excluded — no target entity)*
 - [x] Add `@Valid` on request bodies.
 - [x] Replace raw `UUID` path variable with `String` ID.
 - [ ] Use `ApiResponse` explicitly for new code if consistent with current controller style. *(returns raw objects — needs review)*
@@ -43,7 +43,7 @@
 
 - [x] Keep `/public/news` endpoint.
 - [x] Add optional `limit` support.
-- [ ] Add optional `surface` query param support. *(hardcoded to PUBLIC_HOME — surface param not exposed)*
+- [x] Add optional `surface` query param support. *(added `@RequestParam(defaultValue = "PUBLIC_HOME") PublicContentSurface surface`)*
 - [x] Ensure public response model does not expose internal implementation classes.
 
 ## 6. PageModel integration

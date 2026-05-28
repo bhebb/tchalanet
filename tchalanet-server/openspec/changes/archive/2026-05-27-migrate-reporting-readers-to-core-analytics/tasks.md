@@ -17,7 +17,7 @@
 - [x] Move `SalesReportReader` to `core.analytics.internal.infra.persistence` (as `SalesReportAnalyticsReader`).
 - [x] Add or move `OutletReportReader` if needed (as `OutletReportAnalyticsReader`).
 - [x] Rename readers with analytics ownership.
-- [ ] Delete legacy readers from `features.reporting` (`TenantKpisReader`, `SalesReportReader`, `OutletPerformanceReader`) — duplicates still present.
+- [x] Delete legacy readers from `features.reporting` (`TenantKpisReader`, `SalesReportReader`, `OutletPerformanceReader`).
 
 ## 3. Query handlers
 
@@ -31,7 +31,7 @@
 - [x] Update `GetTenantKpisService` to call `QueryBus`.
 - [x] Update sales report flow to call `QueryBus`.
 - [x] Keep `OutletReportExportService` in features but source data from `core.analytics`.
-- [ ] Remove `EntityManager` usage from `features.reporting`. *(`SalesReportReader` and `OutletPerformanceReader` still use `EntityManager` — legacy readers not yet deleted)*
+- [x] Remove `EntityManager` usage from `features.reporting`. *(resolved by deleting the legacy readers)*
 
 ## 5. Export
 

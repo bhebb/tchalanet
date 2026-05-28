@@ -25,21 +25,21 @@
 
 ## 4. Cashier POS dashboard
 
-- [ ] Define `GetCashierDashboardStatsQuery` or equivalent. *(query exists in core.analytics.api but not wired to cashier assembler — cashier web uses GetCashierDashboardOverviewQuery from core.sales)*
-- [ ] Return identity/session summary.
-- [ ] Return sales by open draw.
-- [ ] Return payout attention.
-- [ ] Return offline sync attention placeholder if needed.
-- [ ] Keep payload compact for POS/mobile.
+- [x] Wire `GetCashierDashboardStatsQuery` to cashier web assembler. *(added `loadAnalyticsStats()` in CashierDashboardPayloadAssembler)*
+- [x] Return offline sync attention placeholder. *(buildOfflineSyncPlaceholder() added)*
+- [ ] Return identity/session summary. *(covered by existing identity/session widgets — V2 if enrichment needed)*
+- [ ] Return sales by open draw. *(V2 — requires per-draw breakdown in analytics)*
+- [ ] Return payout attention. *(V2)*
+- [ ] Keep payload compact for POS/mobile. *(POS uses /tenant/cashier/home endpoint, not PageModel — N/A)*
 
 ## 5. PageModel dynamic resolver hardening
 
-- [ ] Enrich `NO_PROVIDER` errors with logicalId, widgetId, widgetType and source.
-- [ ] Consider provider support lock by logicalId.
-- [ ] Ensure `doc == null` returns 404 in public runtime if page is missing.
-- [ ] Return at least `List.of(currentLang)` if languages are absent.
-- [ ] Review `JsonFileProvider` cache key for language if localized fragments are introduced.
-- [ ] Consider `JsonNode.deepCopy()` if consumers may mutate cached nodes.
+- [x] Enrich `NO_PROVIDER` errors with logicalId, widgetType and source. *(PageModelDynamicResolver updated)*
+- [x] Ensure `doc == null` returns 404 in public runtime if page is missing. *(PublicPageModelService throws TchNotFoundException)*
+- [x] Return at least `List.of(currentLang)` if languages are absent. *(PublicPageModelService langs fallback fixed)*
+- [x] `JsonNode.deepCopy()` to prevent consumers mutating cached nodes. *(JsonFileProvider.load() now returns deepCopy)*
+- [ ] Consider provider support lock by logicalId. *(deferred V2)*
+- [ ] Review `JsonFileProvider` cache key for language if localized fragments are introduced. *(deferred V2)*
 
 ## 6. V2 backlog
 

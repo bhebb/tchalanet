@@ -27,12 +27,12 @@
 
 - [x] Expose `SalesSessionOpenedEvent` and `SalesSessionClosedEvent` under `core.session.api.event`.
 - [x] Replace internal imports (4 publishers updated; internal copies `@Deprecated`).
-- [ ] Add ArchUnit/compile validation for no imports from `core.session.internal`.
+- [x] Add ArchUnit/compile validation for no imports from `core.session.internal`. *(added `coreSessionInternalShouldNotLeakToAnalytics` rule in ArchitectureTest)*
 
 ## 5. Fix time and ID handling
 
-- [ ] Inject `Clock` where time is used. *(`AnalyticsDrawProjector` still has `Instant.now()` without injected Clock)*
-- [ ] Replace `Instant.now()` with `Instant.now(clock)`. *(same — AnalyticsDrawProjector)*
+- [x] Inject `Clock` where time is used. *(`AnalyticsDrawProjector` now injects Clock via @RequiredArgsConstructor)*
+- [x] Replace `Instant.now()` with `Instant.now(clock)`. *(done in AnalyticsDrawProjector)*
 - [x] Use tenant timezone for tenant daily metrics when semantically tenant-local.
 - [x] Remove `UUID.randomUUID()` from application services.
 
