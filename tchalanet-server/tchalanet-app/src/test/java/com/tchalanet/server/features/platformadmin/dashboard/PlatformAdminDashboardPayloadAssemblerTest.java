@@ -11,7 +11,7 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.subscription.api.query.GetPlatformSubscriptionStatsQuery;
 import com.tchalanet.server.core.subscription.api.query.PlatformSubscriptionStatsView;
-import com.tchalanet.server.features.stats.platformdashboard.PlatformDashboardStatsService;
+import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -20,14 +20,14 @@ import org.springframework.beans.factory.ObjectProvider;
 
 class PlatformAdminDashboardPayloadAssemblerTest {
 
-  private final PlatformDashboardStatsService statsService = mock(PlatformDashboardStatsService.class);
   private final TenantCatalog tenantCatalog = mock(TenantCatalog.class);
   private final QueryBus queryBus = mock(QueryBus.class);
+  private final PublicContentApi publicContentApi = mock(PublicContentApi.class);
   @SuppressWarnings("unchecked")
   private final ObjectProvider<PlatformHealthProbe> healthProvider = mock(ObjectProvider.class);
 
   private final PlatformAdminDashboardPayloadAssembler assembler =
-      new PlatformAdminDashboardPayloadAssembler(statsService, tenantCatalog, queryBus, healthProvider);
+      new PlatformAdminDashboardPayloadAssembler(tenantCatalog, queryBus, publicContentApi, healthProvider);
 
   @Test
   @DisplayName("health is UNKNOWN when no probe is registered")
@@ -35,6 +35,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
     when(healthProvider.getIfAvailable()).thenReturn(null);
     when(tenantCatalog.stats()).thenReturn(new TenantStatsView(0, 0, 0));
     when(tenantCatalog.listTenants(any())).thenReturn(emptyPage());
+    when(publicContentApi.listPlatformAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(null);
 
@@ -48,6 +49,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
     when(healthProvider.getIfAvailable()).thenReturn(probe);
     when(tenantCatalog.stats()).thenReturn(new TenantStatsView(0, 0, 0));
     when(tenantCatalog.listTenants(any())).thenReturn(emptyPage());
+    when(publicContentApi.listPlatformAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(null);
 
@@ -60,6 +62,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
     when(healthProvider.getIfAvailable()).thenReturn(null);
     when(tenantCatalog.stats()).thenReturn(new TenantStatsView(15, 12, 2));
     when(tenantCatalog.listTenants(any())).thenReturn(emptyPage());
+    when(publicContentApi.listPlatformAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(null);
 
@@ -75,6 +78,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
     when(healthProvider.getIfAvailable()).thenReturn(null);
     when(tenantCatalog.stats()).thenReturn(new TenantStatsView(0, 0, 0));
     when(tenantCatalog.listTenants(any())).thenReturn(emptyPage());
+    when(publicContentApi.listPlatformAdminDashboardNews(any(int.class))).thenReturn(List.of());
     when(queryBus.ask(any(GetPlatformSubscriptionStatsQuery.class)))
         .thenReturn(new PlatformSubscriptionStatsView(10, 7, 1, 2, List.of()));
 
@@ -93,6 +97,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
     when(healthProvider.getIfAvailable()).thenReturn(null);
     when(tenantCatalog.stats()).thenReturn(new TenantStatsView(0, 0, 0));
     when(tenantCatalog.listTenants(any())).thenReturn(emptyPage());
+    when(publicContentApi.listPlatformAdminDashboardNews(any(int.class))).thenReturn(List.of());
     when(queryBus.ask(any(GetPlatformSubscriptionStatsQuery.class)))
         .thenThrow(new RuntimeException("boom"));
 

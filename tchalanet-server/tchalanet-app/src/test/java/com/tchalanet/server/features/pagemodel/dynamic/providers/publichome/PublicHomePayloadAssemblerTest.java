@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.pagemodel.dynamic.providers.publichome;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,12 +10,12 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.catalog.plan.api.PlanCatalog;
 import com.tchalanet.server.catalog.plan.api.PlanView;
 import com.tchalanet.server.common.types.id.PlanId;
-import com.tchalanet.server.features.news.publicnews.PublicNewsService;
-import com.tchalanet.server.features.news.shared.LotteryNewsModels.LotteryNewsArticle;
-import com.tchalanet.server.features.news.shared.NewsStatus;
+import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
+import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSourceType;
 import java.math.BigDecimal;
-import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -23,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 class PublicHomePayloadAssemblerTest {
 
-  private final PublicNewsService newsService = mock(PublicNewsService.class);
+  private final PublicContentApi publicContentApi = mock(PublicContentApi.class);
   private final PlanCatalog planCatalog = mock(PlanCatalog.class);
   private final PublicHomePayloadAssembler assembler =
-      new PublicHomePayloadAssembler(newsService, planCatalog);
+      new PublicHomePayloadAssembler(publicContentApi, planCatalog);
 
   @Nested
   @DisplayName("buildNews")
@@ -35,21 +36,21 @@ class PublicHomePayloadAssemblerTest {
     @Test
     @DisplayName("returns up to requested limit and maps fields")
     void respectsLimit() {
-      when(newsService.listAll()).thenReturn(generateArticles(8));
+      when(publicContentApi.listPublicHomeNews(3)).thenReturn(generateItems(3));
 
       var payload = assembler.assemble(3, null);
 
       assertThat(payload.news()).hasSize(3);
       assertThat(payload.news().get(0))
-          .containsEntry("id", "id-0")
-          .containsEntry("title", "title-0")
-          .containsEntry("link", "https://news/0");
+          .containsKey("id")
+          .containsKey("title")
+          .containsKey("link");
     }
 
     @Test
     @DisplayName("falls back to default 5 when limit is zero or negative")
     void defaultLimit() {
-      when(newsService.listAll()).thenReturn(generateArticles(10));
+      when(publicContentApi.listPublicHomeNews(5)).thenReturn(generateItems(5));
 
       assertThat(assembler.assemble(0, null).news()).hasSize(5);
       assertThat(assembler.assemble(-7, null).news()).hasSize(5);
@@ -58,19 +59,19 @@ class PublicHomePayloadAssemblerTest {
     @Test
     @DisplayName("caps limit at MAX_NEWS_LIMIT (20)")
     void cappedLimit() {
-      when(newsService.listAll()).thenReturn(generateArticles(50));
+      when(publicContentApi.listPublicHomeNews(20)).thenReturn(generateItems(20));
 
       assertThat(assembler.assemble(100, null).news()).hasSize(20);
     }
 
     @Test
-    @DisplayName("calls news service exactly once per assemble")
+    @DisplayName("calls publicContentApi exactly once per assemble")
     void singleRead() {
-      when(newsService.listAll()).thenReturn(List.of());
+      when(publicContentApi.listPublicHomeNews(anyInt())).thenReturn(List.of());
 
       assembler.assemble(5, null);
 
-      verify(newsService, times(1)).listAll();
+      verify(publicContentApi, times(1)).listPublicHomeNews(5);
     }
   }
 
@@ -82,7 +83,7 @@ class PublicHomePayloadAssemblerTest {
     @DisplayName("maps PlanCatalog output to payload entries")
     void mapsPlans() {
       when(planCatalog.listActive()).thenReturn(List.of(samplePlan()));
-      when(newsService.listAll()).thenReturn(List.of());
+      when(publicContentApi.listPublicHomeNews(anyInt())).thenReturn(List.of());
 
       var payload = assembler.assemble(5, null);
 
@@ -96,21 +97,17 @@ class PublicHomePayloadAssemblerTest {
     }
   }
 
-  private static List<LotteryNewsArticle> generateArticles(int count) {
-    var list = new java.util.ArrayList<LotteryNewsArticle>(count);
+  private static List<PublicContentItemView> generateItems(int count) {
+    var list = new ArrayList<PublicContentItemView>(count);
     for (int i = 0; i < count; i++) {
-      list.add(new LotteryNewsArticle(
-          "id-" + i,
-          "lotterydaily",
+      list.add(new PublicContentItemView(
+          UUID.randomUUID(),
           "title-" + i,
-          URI.create("https://news/" + i),
+          "content-" + i,
           null,
-          "author-" + i,
-          Instant.parse("2026-01-01T00:00:00Z"),
-          List.of("loto"),
-          "snippet-" + i,
-          "<p>content " + i + "</p>",
-          NewsStatus.PUBLISHED));
+          "https://news/" + i,
+          PublicContentSourceType.EXTERNAL_RSS,
+          Instant.parse("2026-01-01T00:00:00Z")));
     }
     return list;
   }

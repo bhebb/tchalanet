@@ -21,16 +21,15 @@ import com.tchalanet.server.common.context.scope.ApiScope;
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.analytics.api.model.TenantDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.query.GetTenantDashboardStatsQuery;
 import com.tchalanet.server.core.outlet.api.query.ListOutletsByTenantQuery;
 import com.tchalanet.server.core.outlet.api.query.OutletView;
 import com.tchalanet.server.core.seller.api.query.ListSellersQuery;
 import com.tchalanet.server.core.seller.api.query.model.SellerSummaryView;
 import com.tchalanet.server.core.terminal.api.query.ListTerminalsQuery;
 import com.tchalanet.server.core.terminal.api.query.TerminalSummaryView;
-import com.tchalanet.server.features.stats.tenantdashboard.app.TenantDashboardStatsService;
-import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsResponse;
-import com.tchalanet.server.features.stats.tenantdashboard.model.TenantDashboardStatsView;
-import com.tchalanet.server.features.stats.tenantdashboard.model.TenantSummaryCard;
+import com.tchalanet.server.platform.publiccontent.api.PublicContentApi;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Currency;
@@ -44,15 +43,15 @@ import org.junit.jupiter.api.Test;
 
 class TenantAdminDashboardPayloadAssemblerTest {
 
-  private final TenantDashboardStatsService statsService = mock(TenantDashboardStatsService.class);
   private final TenantCatalog tenantCatalog = mock(TenantCatalog.class);
   private final GameCatalog gameCatalog = mock(GameCatalog.class);
   private final DrawChannelCatalog drawChannelCatalog = mock(DrawChannelCatalog.class);
   private final QueryBus queryBus = mock(QueryBus.class);
+  private final PublicContentApi publicContentApi = mock(PublicContentApi.class);
 
   private final TenantAdminDashboardPayloadAssembler assembler =
       new TenantAdminDashboardPayloadAssembler(
-          statsService, tenantCatalog, gameCatalog, drawChannelCatalog, queryBus);
+          tenantCatalog, gameCatalog, drawChannelCatalog, queryBus, publicContentApi);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
 
@@ -82,6 +81,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
     when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
     when(gameCatalog.listActive()).thenReturn(List.of());
     when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(context(tenantId));
 
@@ -92,19 +92,24 @@ class TenantAdminDashboardPayloadAssemblerTest {
   }
 
   @Test
-  @DisplayName("KPIs propagate sales/tickets from TenantDashboardStatsService")
+  @DisplayName("KPIs propagate sales/tickets from analytics query")
   void kpisFromStats() {
-    var summary = new TenantSummaryCard(
-        42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO);
-    var stats = new TenantDashboardStatsView(LocalDate.now(), LocalDate.now(), summary, List.of(), List.of());
-    when(statsService.getStats(any(), any(), any()))
-        .thenReturn(new TenantDashboardStatsResponse(stats));
+    LocalDate today = LocalDate.now();
+    var summary = new TenantDashboardStatsView.TenantSummaryCard(
+        42L, new BigDecimal("123.45"), BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, 0L);
+    var dailyPoint = new TenantDashboardStatsView.TenantDailyPoint(
+        today, 42L, new BigDecimal("123.45"));
+    var statsView = new TenantDashboardStatsView(today.minusDays(1), today, summary,
+        List.of(dailyPoint), List.of());
+
+    when(queryBus.ask(any(GetTenantDashboardStatsQuery.class))).thenReturn(statsView);
     when(tenantCatalog.findRegistryById(tenantId)).thenReturn(Optional.empty());
     when(queryBus.ask(any(ListOutletsByTenantQuery.class))).thenReturn(List.of());
     when(queryBus.ask(any(ListSellersQuery.class))).thenReturn(List.of());
     when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
     when(gameCatalog.listActive()).thenReturn(List.of());
     when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(context(tenantId));
 
@@ -125,6 +130,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
     when(queryBus.ask(any(ListTerminalsQuery.class))).thenReturn(emptyPage());
     when(gameCatalog.listActive()).thenReturn(List.of());
     when(drawChannelCatalog.listAll(any(), any())).thenReturn(List.of());
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(context(tenantId));
 
@@ -143,6 +149,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
     when(gameCatalog.listActive()).thenReturn(List.of(mock(GameView.class)));
     when(drawChannelCatalog.listAll(any(), any()))
         .thenReturn(List.of(mock(DrawChannelSummaryView.class), mock(DrawChannelSummaryView.class)));
+    when(publicContentApi.listTenantAdminDashboardNews(any(int.class))).thenReturn(List.of());
 
     var payload = assembler.assemble(context(tenantId));
 
