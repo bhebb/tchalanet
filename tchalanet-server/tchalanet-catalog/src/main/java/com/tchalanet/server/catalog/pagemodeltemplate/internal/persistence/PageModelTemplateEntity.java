@@ -39,6 +39,12 @@ public class PageModelTemplateEntity extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private String schema;
 
+    @Column(name = "scope", nullable = false, length = 32)
+    private String scope;
+
+    @Column(name = "slug", nullable = false, length = 128)
+    private String slug;
+
     @Column(name = "model", nullable = false, columnDefinition = "jsonb")
     @JdbcTypeCode(SqlTypes.JSON)
     private String model;

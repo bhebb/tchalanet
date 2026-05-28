@@ -1,4 +1,6 @@
 {
+  "fragment_type": "PublicHeader",
+  "schema_version": 2,
   "brand": {
     "id": "tchalanet-public",
     "label_key": "app.name",

@@ -1,4 +1,6 @@
 {
+  "fragment_type": "PrivateShell",
+  "schema_version": 2,
   "topAppBar": {
     "title": {
       "label_key": "surface.tenant_admin",

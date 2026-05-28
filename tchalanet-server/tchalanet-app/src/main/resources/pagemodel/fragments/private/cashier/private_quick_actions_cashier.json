@@ -1,22 +1,48 @@
 {
+  "fragment_type": "QuickActionsPayload",
+  "schema_version": 2,
   "actions": [
     {
+      "id": "SELL_TICKET",
+      "type": "action",
       "label_key": "cta.sell_ticket",
+      "label": null,
       "path": "/app/cashier/sale",
+      "kind": "internal",
       "icon": "point_of_sale",
-      "style": "primary"
+      "image": null,
+      "style": "primary",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
     },
     {
+      "id": "VERIFY_TICKET",
+      "type": "action",
       "label_key": "cta.verify_ticket",
+      "label": null,
       "path": "/app/cashier/tickets/verify",
+      "kind": "internal",
       "icon": "qr_code_scanner",
-      "style": "secondary"
+      "image": null,
+      "style": "secondary",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
     },
     {
+      "id": "CLOSE_SESSION",
+      "type": "action",
       "label_key": "cta.close_session",
+      "label": null,
       "path": "/app/cashier/session",
+      "kind": "internal",
       "icon": "account_balance_wallet",
-      "style": "neutral"
+      "image": null,
+      "style": "neutral",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
     }
   ]
 }

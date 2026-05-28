@@ -1,38 +1,106 @@
 {
+  "fragment_type": "TchalaPayload",
+  "schema_version": 2,
   "title_key": "home.tchala.title",
   "subtitle_key": "home.tchala.subtitle",
   "search_form": {
-    "action": "/public/tchala/search",
+    "path": "/public/tchala/search",
     "method": "GET",
     "query_param": "q",
     "lang_param": "lang",
     "placeholder_key": "home.tchala.search_placeholder",
     "submit_label_key": "home.tchala.search_submit"
   },
-  "by_number_link": {
+  "by_number_destination": {
+    "id": "tchala_by_number",
+    "type": "destination",
     "label_key": "home.tchala.by_number_label",
-    "href": "/tchala?by=number"
+    "label": null,
+    "path": "/tchala?by=number",
+    "kind": "internal",
+    "icon": "tag",
+    "image": null,
+    "active_match": "prefix",
+    "disabled": false,
+    "reason_key": null,
+    "badge": null,
+    "children": []
   },
-  "by_dream_link": {
+  "by_dream_destination": {
+    "id": "tchala_by_dream",
+    "type": "destination",
     "label_key": "home.tchala.by_dream_label",
-    "href": "/tchala?by=dream"
+    "label": null,
+    "path": "/tchala?by=dream",
+    "kind": "internal",
+    "icon": "bedtime",
+    "image": null,
+    "active_match": "prefix",
+    "disabled": false,
+    "reason_key": null,
+    "badge": null,
+    "children": []
   },
   "quick_dreams": [
     {
+      "id": "dream_poisson",
+      "type": "destination",
       "label_key": "home.tchala.dream.poisson",
-      "href": "/public/tchala/by-dream?dream=poisson"
+      "label": null,
+      "path": "/public/tchala/by-dream?dream=poisson",
+      "kind": "internal",
+      "icon": "water",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "dream_serpent",
+      "type": "destination",
       "label_key": "home.tchala.dream.serpent",
-      "href": "/public/tchala/by-dream?dream=serpent"
+      "label": null,
+      "path": "/public/tchala/by-dream?dream=serpent",
+      "kind": "internal",
+      "icon": "pest_control",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "dream_argent",
+      "type": "destination",
       "label_key": "home.tchala.dream.argent",
-      "href": "/public/tchala/by-dream?dream=argent"
+      "label": null,
+      "path": "/public/tchala/by-dream?dream=argent",
+      "kind": "internal",
+      "icon": "payments",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "dream_mariage",
+      "type": "destination",
       "label_key": "home.tchala.dream.mariage",
-      "href": "/public/tchala/by-dream?dream=mariage"
+      "label": null,
+      "path": "/public/tchala/by-dream?dream=mariage",
+      "kind": "internal",
+      "icon": "favorite",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
   ]
 }

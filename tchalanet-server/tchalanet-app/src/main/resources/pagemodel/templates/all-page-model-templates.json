@@ -1,0 +1,874 @@
+[
+  {
+    "code": "public.home",
+    "logical_id": "public.home",
+    "scope": "public",
+    "slug": "home",
+    "name": "Public home",
+    "label": "public home",
+    "schema_version": 2,
+    "schema": {},
+    "is_default": true,
+    "level": "GLOBAL",
+    "tenant_id": null,
+    "description": "Public home PageModel V1: hero, news, public draw results, ticket verification, Tchala, features and plans.",
+    "model": {
+      "meta": {
+        "id": "public.home",
+        "scope": "public",
+        "slug": "home",
+        "context": "public_home",
+        "schema_version": 2,
+        "langs": [
+          "fr",
+          "en",
+          "ht"
+        ],
+        "default_lang": "fr"
+      },
+      "theme": {
+        "presetId": "tchalanet_default",
+        "mode": "light",
+        "density": 0
+      },
+      "shell": {
+        "header": {
+          "component": "PublicHeader",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "public_header_links"
+          }
+        },
+        "footer": {
+          "component": "PublicFooter",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "public_footer_links"
+          }
+        }
+      },
+      "content": {
+        "layout": {
+          "component": "GridLayout",
+          "rows": [
+            {
+              "id": "hero",
+              "label_key": "layout.public_home.hero",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "home.hero"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "news",
+              "label_key": "layout.public_home.news",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "home.news"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "draws",
+              "label_key": "layout.public_home.draws",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "home.draws",
+                    "home.check_ticket"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tchala",
+              "label_key": "layout.public_home.tchala",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "home.tchala"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "features",
+              "label_key": "layout.public_home.features",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "home.features"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "plans",
+              "label_key": "layout.public_home.plans",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "home.plans"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "widgets": {
+          "home.hero": {
+            "type": "HeroWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "json_file"
+            },
+            "props": {
+              "file_key": "public_hero"
+            }
+          },
+          "home.news": {
+            "type": "NewsTickerWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "public_home"
+            },
+            "props": {
+              "limit": 5,
+              "title_key": "home.news.title",
+              "show_dates": true
+            }
+          },
+          "home.draws": {
+            "type": "PublicDrawResultsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "public_draw_results"
+            },
+            "props": {
+              "max_slots": 6,
+              "title_key": "home.draws.title",
+              "moreDestination": {
+                "id": "more_results",
+                "type": "destination",
+                "label_key": "nav.results",
+                "label": null,
+                "path": "/results",
+                "kind": "internal",
+                "icon": "emoji_events",
+                "image": null,
+                "active_match": "prefix",
+                "disabled": false,
+                "reason_key": null,
+                "badge": null,
+                "children": []
+              },
+              "history_limit": 0,
+              "include_history": false,
+              "include_next_by_slot": true,
+              "include_latest_by_slot": true
+            }
+          },
+          "home.plans": {
+            "type": "PlansWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "public_home"
+            },
+            "props": {
+              "items_key": "plans",
+              "title_key": "home.plans.title",
+              "demoDestination": {
+                "id": "request_demo",
+                "type": "destination",
+                "label_key": "cta.request_demo",
+                "label": null,
+                "path": "/demo",
+                "kind": "internal",
+                "icon": "rocket_launch",
+                "image": null,
+                "active_match": "prefix",
+                "disabled": false,
+                "reason_key": null,
+                "badge": null,
+                "children": []
+              },
+              "show_toggle_billing_period": true
+            }
+          },
+          "home.tchala": {
+            "type": "TchalaSearchWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "json_file"
+            },
+            "props": {
+              "file_key": "public_tchala"
+            }
+          },
+          "home.features": {
+            "type": "FeatureGridWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "json_file"
+            },
+            "props": {
+              "layout": "LMSS",
+              "file_key": "public_features"
+            }
+          },
+          "home.check_ticket": {
+            "type": "CheckTicketWidget",
+            "binding": {
+              "mode": "static"
+            },
+            "props": {
+              "path": "/verifier",
+              "cta_key": "cta.check_ticket",
+              "title_key": "home.check_ticket.title",
+              "description_key": "home.check_ticket.description"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "code": "private.dashboard.cashier.web",
+    "logical_id": "private.dashboard.cashier.web",
+    "scope": "private",
+    "slug": "dashboard",
+    "name": "Cashier dashboard",
+    "label": "cashier dashboard",
+    "schema_version": 2,
+    "schema": {},
+    "is_default": true,
+    "level": "GLOBAL",
+    "tenant_id": null,
+    "description": "Operational cashier dashboard V1: identity, readiness, alerts, sales overview, quick sale, recent tickets, next draws and session.",
+    "model": {
+      "meta": {
+        "id": "private.dashboard.cashier.web",
+        "scope": "private",
+        "slug": "dashboard",
+        "context": "private_dashboard_cashier",
+        "schema_version": 2,
+        "langs": [
+          "fr",
+          "en",
+          "ht"
+        ],
+        "default_lang": "fr"
+      },
+      "theme": {
+        "presetId": "tchalanet_default",
+        "mode": "light",
+        "density": 0
+      },
+      "shell": {
+        "header": {
+          "component": "PrivateShell",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "private_shell_cashier"
+          }
+        }
+      },
+      "content": {
+        "layout": {
+          "component": "GridLayout",
+          "rows": [
+            {
+              "id": "identity",
+              "label_key": "layout.private_dashboard_cashier.identity",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.identity"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "readiness",
+              "label_key": "layout.private_dashboard_cashier.readiness",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.readiness",
+                    "dashboard.cashier.alerts"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "overview",
+              "label_key": "layout.private_dashboard_cashier.overview",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.overview"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "quick_sale",
+              "label_key": "layout.private_dashboard_cashier.quick_sale",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.quick_sale"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "quick_actions",
+              "label_key": "layout.private_dashboard_cashier.quick_actions",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.quick_actions"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "recent_tickets",
+              "label_key": "layout.private_dashboard_cashier.recent_tickets",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.recent_tickets"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "next_draws",
+              "label_key": "layout.private_dashboard_cashier.next_draws",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.next_draws"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "session",
+              "label_key": "layout.private_dashboard_cashier.session",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.cashier.session"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "widgets": {
+          "dashboard.cashier.alerts": {
+            "type": "AlertsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "max_items": 5,
+              "title_key": "dashboard.cashier.alerts.title"
+            }
+          },
+          "dashboard.cashier.session": {
+            "type": "SessionSummaryWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.cashier.session.title"
+            }
+          },
+          "dashboard.cashier.identity": {
+            "type": "CashierIdentityWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.cashier.identity.title"
+            }
+          },
+          "dashboard.cashier.overview": {
+            "type": "CashierOverviewWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.cashier.overview.title"
+            }
+          },
+          "dashboard.cashier.readiness": {
+            "type": "OperationalReadinessWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.cashier.readiness.title"
+            }
+          },
+          "dashboard.cashier.next_draws": {
+            "type": "NextDrawsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "limit": 10,
+              "title_key": "dashboard.cashier.next_draws.title",
+              "include_countdown": true
+            }
+          },
+          "dashboard.cashier.quick_sale": {
+            "type": "QuickSaleWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.cashier.quick_sale.title"
+            }
+          },
+          "dashboard.cashier.quick_actions": {
+            "type": "QuickActionsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "json_file"
+            },
+            "props": {
+              "file_key": "private_quick_actions_cashier",
+              "title_key": "dashboard.cashier.quick_actions.title"
+            }
+          },
+          "dashboard.cashier.recent_tickets": {
+            "type": "RecentTicketsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "cashier_dashboard"
+            },
+            "props": {
+              "limit": 10,
+              "title_key": "dashboard.cashier.recent_tickets.title"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "code": "private.dashboard.tenant_admin",
+    "logical_id": "private.dashboard.tenant_admin",
+    "scope": "private",
+    "slug": "dashboard",
+    "name": "Tenant admin dashboard",
+    "label": "tenant admin dashboard",
+    "schema_version": 2,
+    "schema": {},
+    "is_default": true,
+    "level": "GLOBAL",
+    "tenant_id": null,
+    "description": "Tenant admin dashboard V1: tenant KPIs, readiness, alerts, operations summary, commercial summary and quick actions.",
+    "model": {
+      "meta": {
+        "id": "private.dashboard.tenant_admin",
+        "scope": "private",
+        "slug": "dashboard",
+        "context": "private_dashboard_tenant_admin",
+        "schema_version": 2,
+        "langs": [
+          "fr",
+          "en",
+          "ht"
+        ],
+        "default_lang": "fr"
+      },
+      "theme": {
+        "presetId": "tchalanet_default",
+        "mode": "light",
+        "density": 0
+      },
+      "shell": {
+        "header": {
+          "component": "PrivateShell",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "private_shell_tenant_admin"
+          }
+        }
+      },
+      "content": {
+        "layout": {
+          "component": "GridLayout",
+          "rows": [
+            {
+              "id": "header",
+              "label_key": "layout.dashboard.tenant_admin.header",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.tenant_admin.header"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "kpis",
+              "label_key": "layout.dashboard.tenant_admin.kpis",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.tenant_admin.kpis"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "readiness_alerts",
+              "label_key": "layout.dashboard.tenant_admin.readiness_alerts",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.tenant_admin.readiness",
+                    "dashboard.tenant_admin.alerts"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "summaries",
+              "label_key": "layout.dashboard.tenant_admin.summaries",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.tenant_admin.operations",
+                    "dashboard.tenant_admin.commercial"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "quick_actions",
+              "label_key": "layout.dashboard.tenant_admin.quick_actions",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.tenant_admin.quick_actions"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "widgets": {
+          "dashboard.tenant_admin.kpis": {
+            "type": "KpiGridWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "items": [
+                "salesToday",
+                "ticketCountToday",
+                "activeSessions",
+                "openDraws",
+                "pendingApprovals"
+              ],
+              "title_key": "dashboard.tenant_admin.kpis.title"
+            }
+          },
+          "dashboard.tenant_admin.alerts": {
+            "type": "AlertsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "max_items": 5,
+              "title_key": "dashboard.tenant_admin.alerts.title"
+            }
+          },
+          "dashboard.tenant_admin.header": {
+            "type": "TenantDashboardHeaderWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.tenant_admin.header.title"
+            }
+          },
+          "dashboard.tenant_admin.readiness": {
+            "type": "ReadinessSummaryWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.tenant_admin.readiness.title",
+              "max_issues": 4
+            }
+          },
+          "dashboard.tenant_admin.commercial": {
+            "type": "CommercialSummaryWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "sections": [
+                "gamesPricing",
+                "drawChannels",
+                "limits",
+                "promotions"
+              ],
+              "title_key": "dashboard.tenant_admin.commercial.title"
+            }
+          },
+          "dashboard.tenant_admin.operations": {
+            "type": "OperationsSummaryWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "sections": [
+                "users",
+                "outlets",
+                "terminals",
+                "sessions"
+              ],
+              "title_key": "dashboard.tenant_admin.operations.title"
+            }
+          },
+          "dashboard.tenant_admin.quick_actions": {
+            "type": "QuickActionsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "tenant_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.tenant_admin.quick_actions.title"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "code": "private.dashboard.superadmin",
+    "logical_id": "private.dashboard.superadmin",
+    "scope": "private",
+    "slug": "dashboard",
+    "name": "Superadmin dashboard",
+    "label": "superadmin dashboard",
+    "schema_version": 2,
+    "schema": {},
+    "is_default": true,
+    "level": "GLOBAL",
+    "tenant_id": null,
+    "description": "Dashboard global superadmin V1: santé plateforme, tenants, subscriptions, onboarding et alertes.",
+    "model": {
+      "meta": {
+        "id": "private.dashboard.superadmin",
+        "scope": "private",
+        "slug": "dashboard",
+        "context": "private_dashboard_superadmin",
+        "schema_version": 2,
+        "langs": [
+          "fr",
+          "en",
+          "ht"
+        ],
+        "default_lang": "fr"
+      },
+      "theme": {
+        "presetId": "tchalanet_default",
+        "mode": "light",
+        "density": 0
+      },
+      "shell": {
+        "header": {
+          "component": "PrivateShell",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "private_shell_super_admin"
+          }
+        }
+      },
+      "content": {
+        "layout": {
+          "component": "GridLayout",
+          "rows": [
+            {
+              "id": "health",
+              "label_key": "layout.private_dashboard_superadmin.health",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.superadmin.health"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tenant_kpis",
+              "label_key": "layout.private_dashboard_superadmin.tenant_kpis",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.superadmin.tenants",
+                    "dashboard.superadmin.subscriptions"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "onboarding_alerts",
+              "label_key": "layout.private_dashboard_superadmin.onboarding_alerts",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.superadmin.onboarding",
+                    "dashboard.superadmin.alerts"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "quick_actions",
+              "label_key": "layout.private_dashboard_superadmin.quick_actions",
+              "columns": [
+                {
+                  "span": 12,
+                  "widgets": [
+                    "dashboard.superadmin.quick_actions"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "widgets": {
+          "dashboard.superadmin.alerts": {
+            "type": "PlatformAlertsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "platform_admin_dashboard"
+            },
+            "props": {
+              "max_items": 5,
+              "title_key": "dashboard.superadmin.alerts.title"
+            }
+          },
+          "dashboard.superadmin.health": {
+            "type": "PlatformHealthWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "platform_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.superadmin.health.title"
+            }
+          },
+          "dashboard.superadmin.tenants": {
+            "type": "TenantKpiSummaryWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "platform_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.superadmin.tenants.title"
+            }
+          },
+          "dashboard.superadmin.onboarding": {
+            "type": "TenantOnboardingAlertsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "platform_admin_dashboard"
+            },
+            "props": {
+              "max_items": 5,
+              "title_key": "dashboard.superadmin.onboarding.title"
+            }
+          },
+          "dashboard.superadmin.quick_actions": {
+            "type": "QuickActionsWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "platform_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.superadmin.quick_actions.title"
+            }
+          },
+          "dashboard.superadmin.subscriptions": {
+            "type": "SubscriptionSummaryWidget",
+            "binding": {
+              "mode": "dynamic",
+              "source": "platform_admin_dashboard"
+            },
+            "props": {
+              "title_key": "dashboard.superadmin.subscriptions.title"
+            }
+          }
+        }
+      }
+    }
+  }
+]

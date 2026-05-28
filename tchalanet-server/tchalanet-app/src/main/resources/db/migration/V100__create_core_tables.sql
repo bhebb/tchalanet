@@ -821,6 +821,8 @@ CREATE TABLE page_model_template (
   logical_id varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
   label varchar(255),
+  scope varchar(32),
+  slug varchar(128),
   description text,
   schema jsonb NOT NULL,
   model jsonb NOT NULL,

@@ -1,0 +1,250 @@
+{
+  "code": "public.home",
+  "logical_id": "public.home",
+  "scope": "public",
+  "slug": "home",
+  "name": "Public home",
+  "label": "public home",
+  "schema_version": 2,
+  "schema": {},
+  "is_default": true,
+  "level": "GLOBAL",
+  "tenant_id": null,
+  "description": "Public home PageModel V1: hero, news, public draw results, ticket verification, Tchala, features and plans.",
+  "model": {
+    "meta": {
+      "id": "public.home",
+      "scope": "public",
+      "slug": "home",
+      "context": "public_home",
+      "schema_version": 2,
+      "langs": [
+        "fr",
+        "en",
+        "ht"
+      ],
+      "default_lang": "fr"
+    },
+    "theme": {
+      "presetId": "tchalanet_default",
+      "mode": "light",
+      "density": 0
+    },
+    "shell": {
+      "header": {
+        "component": "PublicHeader",
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
+        },
+        "props": {
+          "file_key": "public_header_links"
+        }
+      },
+      "footer": {
+        "component": "PublicFooter",
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
+        },
+        "props": {
+          "file_key": "public_footer_links"
+        }
+      }
+    },
+    "content": {
+      "layout": {
+        "component": "GridLayout",
+        "rows": [
+          {
+            "id": "hero",
+            "label_key": "layout.public_home.hero",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.hero"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "news",
+            "label_key": "layout.public_home.news",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.news"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "draws",
+            "label_key": "layout.public_home.draws",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.draws",
+                  "home.check_ticket"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tchala",
+            "label_key": "layout.public_home.tchala",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.tchala"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "features",
+            "label_key": "layout.public_home.features",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.features"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "plans",
+            "label_key": "layout.public_home.plans",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.plans"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "widgets": {
+        "home.hero": {
+          "type": "HeroWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "public_hero"
+          }
+        },
+        "home.news": {
+          "type": "NewsTickerWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_home"
+          },
+          "props": {
+            "limit": 5,
+            "title_key": "home.news.title",
+            "show_dates": true
+          }
+        },
+        "home.draws": {
+          "type": "PublicDrawResultsWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_draw_results"
+          },
+          "props": {
+            "max_slots": 6,
+            "title_key": "home.draws.title",
+            "moreDestination": {
+              "id": "more_results",
+              "type": "destination",
+              "label_key": "nav.results",
+              "label": null,
+              "path": "/results",
+              "kind": "internal",
+              "icon": "emoji_events",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            "history_limit": 0,
+            "include_history": false,
+            "include_next_by_slot": true,
+            "include_latest_by_slot": true
+          }
+        },
+        "home.plans": {
+          "type": "PlansWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "public_home"
+          },
+          "props": {
+            "items_key": "plans",
+            "title_key": "home.plans.title",
+            "demoDestination": {
+              "id": "request_demo",
+              "type": "destination",
+              "label_key": "cta.request_demo",
+              "label": null,
+              "path": "/demo",
+              "kind": "internal",
+              "icon": "rocket_launch",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            "show_toggle_billing_period": true
+          }
+        },
+        "home.tchala": {
+          "type": "TchalaSearchWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "file_key": "public_tchala"
+          }
+        },
+        "home.features": {
+          "type": "FeatureGridWidget",
+          "binding": {
+            "mode": "dynamic",
+            "source": "json_file"
+          },
+          "props": {
+            "layout": "LMSS",
+            "file_key": "public_features"
+          }
+        },
+        "home.check_ticket": {
+          "type": "CheckTicketWidget",
+          "binding": {
+            "mode": "static"
+          },
+          "props": {
+            "path": "/verifier",
+            "cta_key": "cta.check_ticket",
+            "title_key": "home.check_ticket.title",
+            "description_key": "home.check_ticket.description"
+          }
+        }
+      }
+    }
+  }
+}

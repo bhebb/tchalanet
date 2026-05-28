@@ -1,192 +1,234 @@
 {
-  "code": "public.home",
-  "logical_id": "public.home",
-  "name": "Public home",
-  "label": "public home",
-  "schema_version": 1,
-  "schema": {},
-  "is_default": true,
-  "is_system": true,
-  "description": "Page d'accueil publique V1: hero (static), résultats courts, vérification ticket, tchala (static), news (5 brèves), features (static) et plans.",
-  "model": {
-    "meta": {
-      "id": "public.home",
-      "scope": "public",
-      "slug": "home",
-      "context": "public_home",
-      "schema_version": 1,
-      "langs": ["fr", "en", "ht"],
-      "default_lang": "fr",
-      "description": "Page d'accueil publique V1 — page légère, sans données privées, fragments statiques + news/plans/draws dynamiques."
-    },
-    "theme": {
-      "presetId": "tchalanet_default",
-      "mode": "light",
-      "density": 0
-    },
-    "shell": {
-      "header": {
-        "component": "PublicHeader",
-        "binding": {
-          "mode": "dynamic",
-          "source": "json_file"
-        },
-        "props": {
-          "file_key": "public_header_links",
-          "show_search": true,
-          "show_language": true,
-          "show_theme_toggle": true,
-          "show_login": true,
-          "show_demo_cta": true
-        }
+  "meta": {
+    "id": "public.home",
+    "scope": "public",
+    "slug": "home",
+    "context": "public_home",
+    "schema_version": 2,
+    "langs": [
+      "fr",
+      "en",
+      "ht"
+    ],
+    "default_lang": "fr"
+  },
+  "theme": {
+    "presetId": "tchalanet_default",
+    "mode": "light",
+    "density": 0
+  },
+  "shell": {
+    "header": {
+      "component": "PublicHeader",
+      "binding": {
+        "mode": "dynamic",
+        "source": "json_file"
       },
-      "sidenav": null,
-      "footer": {
-        "component": "PublicFooter",
-        "binding": {
-          "mode": "dynamic",
-          "source": "json_file"
-        },
-        "props": {
-          "file_key": "public_footer_links",
-          "show_social_linkedin": true,
-          "show_regulation_link": true
-        }
+      "props": {
+        "file_key": "public_header_links"
       }
     },
-    "content": {
-      "layout": {
-        "component": "GridLayout",
-        "rows": [
-          {
-            "id": "hero",
-            "label_key": "layout.public_home.hero",
-            "columns": [
-              { "span": 12, "widgets": ["home.hero"] }
-            ]
-          },
-          {
-            "id": "news",
-            "label_key": "layout.public_home.news",
-            "columns": [
-              { "span": 12, "widgets": ["home.news"] }
-            ]
-          },
-          {
-            "id": "draws",
-            "label_key": "layout.public_home.draws",
-            "columns": [
-              { "span": 12, "widgets": ["home.draws", "home.check_ticket"] }
-            ]
-          },
-          {
-            "id": "tchala",
-            "label_key": "layout.public_home.tchala",
-            "columns": [
-              { "span": 12, "widgets": ["home.tchala"] }
-            ]
-          },
-          {
-            "id": "features",
-            "label_key": "layout.public_home.features",
-            "columns": [
-              { "span": 12, "widgets": ["home.features"] }
-            ]
-          },
-          {
-            "id": "plans",
-            "label_key": "layout.public_home.plans",
-            "columns": [
-              { "span": 12, "widgets": ["home.plans"] }
-            ]
-          }
-        ]
+    "footer": {
+      "component": "PublicFooter",
+      "binding": {
+        "mode": "dynamic",
+        "source": "json_file"
       },
-      "widgets": {
-        "home.hero": {
-          "type": "HeroWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "json_file"
-          },
-          "props": {
-            "file_key": "public_hero"
-          }
+      "props": {
+        "file_key": "public_footer_links"
+      }
+    }
+  },
+  "content": {
+    "layout": {
+      "component": "GridLayout",
+      "rows": [
+        {
+          "id": "hero",
+          "label_key": "layout.public_home.hero",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": [
+                "home.hero"
+              ]
+            }
+          ]
         },
-        "home.news": {
-          "type": "NewsTickerWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "public_home"
-          },
-          "props": {
-            "title_key": "home.news.title",
-            "limit": 5,
-            "show_dates": true
-          }
+        {
+          "id": "news",
+          "label_key": "layout.public_home.news",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": [
+                "home.news"
+              ]
+            }
+          ]
         },
-        "home.draws": {
-          "type": "PublicDrawResultsWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "public_draw_results"
-          },
-          "props": {
-            "title_key": "home.draws.title",
-            "include_history": false,
-            "history_limit": 0,
-            "include_next_by_slot": true,
-            "include_latest_by_slot": true,
-            "max_slots": 6,
-            "more_route": "/results"
-          }
+        {
+          "id": "draws",
+          "label_key": "layout.public_home.draws",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": [
+                "home.draws",
+                "home.check_ticket"
+              ]
+            }
+          ]
         },
-        "home.check_ticket": {
-          "type": "CheckTicketWidget",
-          "binding": {
-            "mode": "static",
-            "source": null
-          },
-          "props": {
-            "title_key": "home.check_ticket.title",
-            "description_key": "home.check_ticket.description",
-            "cta_key": "cta.check_ticket",
-            "route": "/verifier"
-          }
+        {
+          "id": "tchala",
+          "label_key": "layout.public_home.tchala",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": [
+                "home.tchala"
+              ]
+            }
+          ]
         },
-        "home.tchala": {
-          "type": "TchalaSearchWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "json_file"
-          },
-          "props": {
-            "file_key": "public_tchala"
-          }
+        {
+          "id": "features",
+          "label_key": "layout.public_home.features",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": [
+                "home.features"
+              ]
+            }
+          ]
         },
-        "home.features": {
-          "type": "FeatureGridWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "json_file"
-          },
-          "props": {
-            "file_key": "public_features",
-            "layout": "LMSS"
-          }
+        {
+          "id": "plans",
+          "label_key": "layout.public_home.plans",
+          "columns": [
+            {
+              "span": 12,
+              "widgets": [
+                "home.plans"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "widgets": {
+      "home.hero": {
+        "type": "HeroWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
         },
-        "home.plans": {
-          "type": "PlansWidget",
-          "binding": {
-            "mode": "dynamic",
-            "source": "public_home"
+        "props": {
+          "file_key": "public_hero"
+        }
+      },
+      "home.news": {
+        "type": "NewsTickerWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "public_home"
+        },
+        "props": {
+          "limit": 5,
+          "title_key": "home.news.title",
+          "show_dates": true
+        }
+      },
+      "home.draws": {
+        "type": "PublicDrawResultsWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "public_draw_results"
+        },
+        "props": {
+          "max_slots": 6,
+          "title_key": "home.draws.title",
+          "moreDestination": {
+            "id": "more_results",
+            "type": "destination",
+            "label_key": "nav.results",
+            "label": null,
+            "path": "/results",
+            "kind": "internal",
+            "icon": "emoji_events",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
           },
-          "props": {
-            "title_key": "home.plans.title",
-            "show_toggle_billing_period": true,
-            "items_key": "plans",
-            "demo_route": "/demo"
-          }
+          "history_limit": 0,
+          "include_history": false,
+          "include_next_by_slot": true,
+          "include_latest_by_slot": true
+        }
+      },
+      "home.plans": {
+        "type": "PlansWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "public_home"
+        },
+        "props": {
+          "items_key": "plans",
+          "title_key": "home.plans.title",
+          "demoDestination": {
+            "id": "request_demo",
+            "type": "destination",
+            "label_key": "cta.request_demo",
+            "label": null,
+            "path": "/demo",
+            "kind": "internal",
+            "icon": "rocket_launch",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          "show_toggle_billing_period": true
+        }
+      },
+      "home.tchala": {
+        "type": "TchalaSearchWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
+        },
+        "props": {
+          "file_key": "public_tchala"
+        }
+      },
+      "home.features": {
+        "type": "FeatureGridWidget",
+        "binding": {
+          "mode": "dynamic",
+          "source": "json_file"
+        },
+        "props": {
+          "layout": "LMSS",
+          "file_key": "public_features"
+        }
+      },
+      "home.check_ticket": {
+        "type": "CheckTicketWidget",
+        "binding": {
+          "mode": "static"
+        },
+        "props": {
+          "path": "/verifier",
+          "cta_key": "cta.check_ticket",
+          "title_key": "home.check_ticket.title",
+          "description_key": "home.check_ticket.description"
         }
       }
     }

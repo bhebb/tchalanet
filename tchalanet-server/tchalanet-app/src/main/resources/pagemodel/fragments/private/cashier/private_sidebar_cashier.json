@@ -1,41 +1,129 @@
 {
-  "primary": [
+  "brand": {
+    "id": "cashier-brand",
+    "label_key": "app.name",
+    "label": null,
+    "subtitle_key": "surface.cashier",
+    "path": "/app/cashier",
+    "image": {
+      "url": "/assets/brand/tchalanet-logo.svg",
+      "alt_key": "brand.logo_alt",
+      "title_key": null,
+      "width": 36,
+      "height": 36,
+      "aspect_ratio": "1:1",
+      "loading": "eager"
+    }
+  },
+  "topDestinations": [
     {
+      "id": "dashboard",
+      "type": "destination",
       "label_key": "nav.dashboard",
+      "label": null,
       "path": "/app/cashier",
-      "icon": "dashboard"
+      "kind": "internal",
+      "icon": "dashboard",
+      "image": null,
+      "active_match": "exact",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "quick_sale",
+      "type": "destination",
       "label_key": "nav.quick_sale",
+      "label": null,
       "path": "/app/cashier/sale",
-      "icon": "point_of_sale"
+      "kind": "internal",
+      "icon": "point_of_sale",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "tickets",
+      "type": "destination",
       "label_key": "nav.tickets",
+      "label": null,
       "path": "/app/cashier/tickets",
-      "icon": "receipt_long"
+      "kind": "internal",
+      "icon": "receipt_long",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "verify_ticket",
+      "type": "destination",
       "label_key": "nav.verify_ticket",
+      "label": null,
       "path": "/app/cashier/tickets/verify",
-      "icon": "qr_code_scanner"
+      "kind": "internal",
+      "icon": "qr_code_scanner",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "draws",
+      "type": "destination",
       "label_key": "nav.draws",
+      "label": null,
       "path": "/app/cashier/draws",
-      "icon": "event"
+      "kind": "internal",
+      "icon": "event",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     },
     {
+      "id": "session",
+      "type": "destination",
       "label_key": "nav.session",
+      "label": null,
       "path": "/app/cashier/session",
-      "icon": "account_balance_wallet"
+      "kind": "internal",
+      "icon": "account_balance_wallet",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
   ],
-  "secondary": [
+  "sections": [],
+  "footerDestinations": [
     {
+      "id": "support",
+      "type": "destination",
       "label_key": "footer.support",
+      "label": null,
       "path": "/support",
-      "icon": "support_agent"
+      "kind": "internal",
+      "icon": "support_agent",
+      "image": null,
+      "active_match": "prefix",
+      "disabled": false,
+      "reason_key": null,
+      "badge": null,
+      "children": []
     }
-  ]
+  ],
+  "actions": []
 }

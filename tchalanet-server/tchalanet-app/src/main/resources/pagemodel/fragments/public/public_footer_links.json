@@ -1,4 +1,6 @@
 {
+  "fragment_type": "PublicFooter",
+  "schema_version": 2,
   "brand": {
     "id": "tchalanet-footer",
     "label_key": "app.name",
