@@ -1,18 +1,15 @@
 package com.tchalanet.server.core.payout.internal.infra.web;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.payout.api.command.ExecutePayoutCommand;
-import com.tchalanet.server.core.payout.api.command.RegisterPayoutCommand;
 import com.tchalanet.server.core.payout.internal.infra.web.mapper.PayoutWebMapper;
 import com.tchalanet.server.core.payout.internal.infra.web.model.ExecutePayoutRequest;
 import com.tchalanet.server.core.payout.internal.infra.web.model.PayoutWorkflowResponse;
-import com.tchalanet.server.core.payout.internal.infra.web.model.RegisterPayoutRequest;
-import com.tchalanet.server.core.payout.internal.infra.web.model.RegisterPayoutResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;
@@ -36,44 +33,22 @@ public class PayoutTenantController {
     private final CommandBus commandBus;
     private final PayoutWebMapper mapper;
 
-    @PostMapping
-    public ApiResponse<RegisterPayoutResponse> request(
-        @CurrentContext TchRequestContext ctx,
-        @Valid @RequestBody RegisterPayoutRequest body) {
-
-        var result =
-            commandBus.execute(
-                new RegisterPayoutCommand(
-                    ctx.effectiveTenantIdRequired(),
-                    body.ticketId(),
-                    ctx.userId(),
-
-                    body.payingSessionId(),
-                    body.payingOutletId(),
-
-                    body.terminalId(),
-                    body.reason()));
-
-        return ApiResponse.success(mapper.toResponse(result));
-    }
-
     @PostMapping("/{payoutId}/execute")
     public ApiResponse<PayoutWorkflowResponse> execute(
         @CurrentContext TchRequestContext ctx,
         @PathVariable PayoutId payoutId,
         @Valid @RequestBody ExecutePayoutRequest body) {
+
         validateTrustedPayoutContext(ctx, body);
 
-        var result =
-            commandBus.execute(
-                new ExecutePayoutCommand(
-                    ctx.effectiveTenantIdRequired(),
-                    payoutId,
-                    ctx.userId(),
-                    body.payingSessionId(),
-                    body.payingOutletId(),
-                    body.terminalId(),
-                    body.reason()));
+        var result = commandBus.execute(new ExecutePayoutCommand(
+            ctx.effectiveTenantIdRequired(),
+            payoutId,
+            ctx.userId(),
+            body.payingSessionId(),
+            body.payingOutletId(),
+            body.terminalId(),
+            body.reason()));
 
         return ApiResponse.success(mapper.toResponse(result));
     }

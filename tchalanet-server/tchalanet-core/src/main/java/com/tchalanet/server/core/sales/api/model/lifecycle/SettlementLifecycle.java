@@ -29,4 +29,8 @@ public record SettlementLifecycle(
         return new SettlementLifecycle(
             TicketSettlementStatus.PAID, settledAt, settledBy, new PaymentTrace(payoutId, at, by));
     }
+
+    public SettlementLifecycle reversed(UserId by, Instant at) {
+        return new SettlementLifecycle(TicketSettlementStatus.REVERSED, settledAt, settledBy, null);
+    }
 }

@@ -3,7 +3,7 @@ package com.tchalanet.server.core.payout.api.query.reconciliation;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.money.Money;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import java.time.Instant;
 
 public record PayoutClaimForDrawRow(
@@ -12,9 +12,9 @@ public record PayoutClaimForDrawRow(
     String ticketCode,
     String publicCode,
     String displayCode,
-    PayoutStatus status,
+    PayoutClaimStatus status,
     Money amount,
-    Instant requestedAt,
-    Instant approvedAt,
-    Instant rejectedAt
+    Instant openedAt,
+    Instant paidAt,
+    Instant cancelledAt
 ) {}

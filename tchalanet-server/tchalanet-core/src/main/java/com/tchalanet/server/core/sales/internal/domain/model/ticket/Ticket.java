@@ -311,6 +311,15 @@ public record Ticket(
             .touchedBy(paidBy, paidAt);
     }
 
+    public Ticket markPayoutReversed(UserId reversedBy, Instant reversedAt) {
+        if (lifecycle.settlement().status() != TicketSettlementStatus.PAID) {
+            throw new IllegalStateException(
+                "Ticket " + identity.id() + " is not in PAID state, cannot reverse payout");
+        }
+        return withSettlement(lifecycle.settlement().reversed(reversedBy, reversedAt))
+            .touchedBy(reversedBy, reversedAt);
+    }
+
     // ===========================================================================
     // Print
     // ===========================================================================

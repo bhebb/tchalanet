@@ -12,7 +12,7 @@ import com.tchalanet.server.core.payout.api.command.PayoutWorkflowResult;
 import com.tchalanet.server.core.payout.internal.application.port.out.PayoutReaderPort;
 import com.tchalanet.server.core.payout.internal.application.port.out.PayoutWriterPort;
 import com.tchalanet.server.core.payout.internal.domain.event.PayoutPaidEvent;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +31,10 @@ public class ExecutePayoutCommandHandler
     @Override
     @TchTx
     public PayoutWorkflowResult handle(ExecutePayoutCommand command) {
-        var payout =
-            reader
-                .getById(command.payoutId());
+        // Acquire pessimistic lock to prevent concurrent double-pay
+        var payout = writer.lockByIdForPayment(command.payoutId());
 
-        if (payout.status() == PayoutStatus.PAID) {
+        if (payout.status() == PayoutClaimStatus.PAID) {
             return new PayoutWorkflowResult(payout.id(), payout.status(), payout.paidAt());
         }
 

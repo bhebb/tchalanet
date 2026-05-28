@@ -16,6 +16,8 @@ import com.tchalanet.server.core.sales.internal.application.port.out.TicketReade
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
 import com.tchalanet.server.core.sales.internal.application.service.result.TicketWinningCalculator;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketWinningSettlementCreatedEvent;
+import com.tchalanet.server.core.sales.api.model.status.TicketResultStatus;
 import com.tchalanet.server.core.sales.internal.infra.cache.SalesTicketCacheEvictor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +62,7 @@ public class RecordDrawTicketsResultCommandHandler
         var now = clock.instant();
 
         var resultedEvents = new java.util.ArrayList<TicketResultedEvent>();
+        var winningSettlementEvents = new java.util.ArrayList<TicketWinningSettlementCreatedEvent>();
         var affectedTicketIds = new java.util.ArrayList<com.tchalanet.server.common.types.id.TicketId>();
         int skipped = 0;
 
@@ -88,18 +91,37 @@ public class RecordDrawTicketsResultCommandHandler
 
                 affectedTicketIds.add(saved.identity().id());
 
+                var resultStatus = saved.lifecycle().result().status();
+                var winningAmount = saved.winningAmount().amount();
+
                 resultedEvents.add(new TicketResultedEvent(
                     EventId.of(idGenerator.newUuid()),
                     now,
                     saved.identity().tenantId(),
                     saved.identity().id(),
-                    saved.lifecycle().result().status(),
+                    resultStatus,
                     saved.lifecycle().settlement().status(),
-                    saved.winningAmount().amount(),
+                    winningAmount,
                     saved.money().currency().code(),
                     saved.context().outletId(),
                     saved.context().salesSessionId()
                 ));
+
+                if (resultStatus == TicketResultStatus.WON
+                        && winningAmount != null
+                        && winningAmount.signum() > 0) {
+                    winningSettlementEvents.add(new TicketWinningSettlementCreatedEvent(
+                        EventId.of(idGenerator.newUuid()),
+                        now,
+                        saved.identity().tenantId(),
+                        saved.identity().id(),
+                        command.drawId(),
+                        winningAmount.movePointRight(2).longValueExact(),
+                        saved.money().currency().code(),
+                        saved.context().outletId(),
+                        saved.context().salesSessionId()
+                    ));
+                }
             } catch (Exception ex) {
                 skipped++;
                 log.warn(
@@ -113,6 +135,7 @@ public class RecordDrawTicketsResultCommandHandler
 
         AfterCommit.run(() -> {
             resultedEvents.forEach(eventPublisher::publish);
+            winningSettlementEvents.forEach(eventPublisher::publish);
             salesTicketCacheEvictor.evictByDraw(command.drawId());
             affectedTicketIds.forEach(salesTicketCacheEvictor::evictByTicket);
         });

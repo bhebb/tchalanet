@@ -707,56 +707,72 @@ CREATE TABLE pricing_odds (
 -- =========================================================
 
 create table payout (
-                        id uuid primary key default gen_random_uuid(),
-                        tenant_id uuid not null,
+  id              uuid         primary key default gen_random_uuid(),
+  tenant_id       uuid         not null,
 
-                        ticket_id uuid not null,
+  -- claim identity
+  ticket_id       uuid         not null,
+  draw_id         uuid,
+  source_event_id uuid,
+  source          varchar(32)  not null,
 
-                        amount_cents bigint not null,
-                        currency varchar(3) not null default 'HTG',
-                        status varchar(32) not null,
+  amount_cents    bigint       not null,
+  currency        varchar(3)   not null default 'HTG',
+  status          varchar(32)  not null,
 
-                        selling_outlet_id uuid,
-                        selling_session_id uuid,
+  -- claim opening
+  opened_at       timestamptz  not null,
 
-                        paying_outlet_id uuid,
-                        paying_session_id uuid,
-                        paying_terminal_id uuid,
+  -- selling context (immutable, set at claim creation)
+  selling_outlet_id  uuid,
+  selling_session_id uuid,
 
-                        requested_by uuid,
-                        requested_at timestamptz not null,
+  -- payment execution
+  paying_outlet_id   uuid,
+  paying_session_id  uuid,
+  paying_terminal_id uuid,
+  paid_by            uuid,
+  paid_at            timestamptz,
 
-                        approved_by uuid,
-                        approved_at timestamptz,
+  -- block (admin correction)
+  blocked_by    uuid,
+  blocked_at    timestamptz,
+  block_reason  text,
 
-                        rejected_by uuid,
-                        rejected_at timestamptz,
-                        rejected_reason text,
+  -- cancel (admin correction)
+  cancelled_by  uuid,
+  cancelled_at  timestamptz,
+  cancel_reason text,
 
-                        paid_by uuid,
-                        paid_at timestamptz,
+  -- reversal (admin correction)
+  reversed_by   uuid,
+  reversed_at   timestamptz,
+  reverse_reason text,
 
-                        cancelled_by uuid,
-                        cancelled_at timestamptz,
-                        cancel_reason text,
+  -- base audit columns (BaseTenantEntity / AuditableEntity)
+  created_at  timestamptz not null,
+  created_by  uuid,
+  updated_at  timestamptz not null,
+  updated_by  uuid,
+  deleted_at  timestamptz,
+  deleted_by  uuid,
+  version     bigint      not null default 0,
 
-                        reason text,
-
-                        created_at timestamptz not null,
-                        created_by uuid,
-                        updated_at timestamptz not null,
-                        updated_by uuid,
-                        deleted_at timestamptz,
-                        deleted_by uuid,
-                        version bigint not null default 0
+  -- one claim per winning ticket per tenant (idempotence guard)
+  constraint uq_payout_tenant_ticket unique (tenant_id, ticket_id)
 );
 
-comment on column payout.ticket_id is 'Winning ticket being paid.';
-comment on column payout.selling_session_id is 'Session that sold the original ticket, if known.';
-comment on column payout.paying_session_id is 'Session that paid the winning ticket.';
-comment on column payout.status is 'Payout lifecycle status.';
-comment on column payout.reason is 'General business reason/comment.';
-comment on column payout.cancel_reason is 'Reason provided when payout is cancelled.';
+comment on column payout.ticket_id       is 'Winning ticket this claim covers.';
+comment on column payout.draw_id         is 'Draw that produced the winning ticket.';
+comment on column payout.source_event_id is 'EventId of the TicketWinningSettlementCreatedEvent that triggered this claim.';
+comment on column payout.source          is 'Claim origin: SALES_SETTLEMENT | OPS_RECONCILIATION | MANUAL_ADMIN_CORRECTION.';
+comment on column payout.opened_at       is 'Timestamp when the claim was first opened.';
+comment on column payout.status          is 'Claim lifecycle status: OPEN | BLOCKED | PAID | CANCELLED | REVERSED.';
+comment on column payout.selling_session_id  is 'Session that sold the original ticket.';
+comment on column payout.paying_session_id   is 'Session that paid the winning ticket.';
+comment on column payout.block_reason        is 'Reason provided when an admin blocks the claim.';
+comment on column payout.cancel_reason       is 'Reason provided when the claim is cancelled.';
+comment on column payout.reverse_reason      is 'Reason provided when a paid claim is reversed.';
 
 
 CREATE TABLE billing_plan (

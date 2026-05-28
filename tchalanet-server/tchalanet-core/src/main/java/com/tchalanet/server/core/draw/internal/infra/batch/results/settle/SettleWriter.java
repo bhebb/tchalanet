@@ -1,11 +1,11 @@
 package com.tchalanet.server.core.draw.internal.infra.batch.results.settle;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
-import com.tchalanet.server.common.context.TchContextResolver;
 import com.tchalanet.server.common.types.id.DrawId;
-import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
-import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
+import com.tchalanet.server.core.draw.api.command.SettleDrawCommand;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
+import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.sales.internal.application.query.model.CountPendingTicketsByDrawIdQuery;
 import com.tchalanet.server.core.sales.internal.application.query.model.ExistsPendingTicketsByDrawIdQuery;
 import lombok.RequiredArgsConstructor;
@@ -14,31 +14,17 @@ import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.batch.infrastructure.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class SettleWriter implements ItemWriter<DrawId> {
 
     private final DrawLookupPort drawReaderPort;
-    private final DrawLifecyclePort drawWriterPort;
-    private final Clock clock;
-    private final TchContextResolver contextResolver;
+    private final CommandBus commandBus;
     private final QueryBus queryBus;
 
     @Override
     public void write(Chunk<? extends DrawId> chunk) {
-        var now = Instant.now(clock);
-
-        var ctx = contextResolver.currentOrNull();
-        var tenantZone = ctx != null && ctx.tenantZoneId() != null ? ctx.tenantZoneId() : ZoneId.of("UTC");
-
-        ZonedDateTime settledAt = now.atZone(tenantZone);
-
         for (DrawId drawId : chunk.getItems()) {
             var drawOpt = drawReaderPort.findById(drawId);
             if (drawOpt.isEmpty()) continue;
@@ -55,21 +41,16 @@ public class SettleWriter implements ItemWriter<DrawId> {
                 }
 
                 boolean existsPending = queryBus.ask(new ExistsPendingTicketsByDrawIdQuery(draw.id()));
-
                 if (existsPending) {
                     long pending = queryBus.ask(new CountPendingTicketsByDrawIdQuery(draw.id()));
                     log.info("settle.skip draw={} tenant={} pendingTickets={}", drawId, draw.tenantId(), pending);
                     continue;
                 }
 
-                // Source truth = Instant now; conversion explicit via tenantZone
-                draw.settle(settledAt.toInstant());
-
-                drawWriterPort.save(draw);
+                commandBus.execute(new SettleDrawCommand(drawId, null, false));
             } catch (Exception e) {
                 log.error("settle.fail draw={} cause={}", drawId, e.getMessage(), e);
             }
         }
     }
-
 }

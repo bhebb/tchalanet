@@ -114,12 +114,16 @@ CREATE INDEX ix_sales_session__tenant_opened_by_date
   WHERE deleted_at IS NULL;
 
 
--- ─── Payout (1 payout max per ticket) ───────────────────────────────
-create index idx_payout_tenant_status_created
-    on payout (tenant_id, status, created_at desc);
+-- ─── Payout claim (1 claim max per ticket — enforced by uq_payout_tenant_ticket) ──
+-- idx_payout_tenant_ticket is intentionally omitted: the unique constraint already
+-- creates an index on (tenant_id, ticket_id).
 
-create index idx_payout_tenant_ticket
-    on payout (tenant_id, ticket_id);
+create index idx_payout_tenant_status_opened
+    on payout (tenant_id, status, opened_at desc);
+
+create index idx_payout_tenant_draw_status
+    on payout (tenant_id, draw_id, status)
+    where draw_id is not null;
 
 create index idx_payout_tenant_paying_session
     on payout (tenant_id, paying_session_id);
@@ -131,8 +135,8 @@ CREATE INDEX ix_payout__paying_session_status
   ON payout (tenant_id, paying_session_id, status)
   WHERE paying_session_id IS NOT NULL AND deleted_at IS NULL;
 
-CREATE INDEX ix_payout__status_requested_at
-  ON payout (tenant_id, status, requested_at)
+CREATE INDEX ix_payout__status_opened_at
+  ON payout (tenant_id, status, opened_at)
   WHERE deleted_at IS NULL;
 
 -- ─── Limit policy ───────────────────────────────────────────────────

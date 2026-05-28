@@ -10,7 +10,7 @@ import com.tchalanet.server.core.payout.api.query.reconciliation.ListPayoutClaim
 import com.tchalanet.server.core.payout.api.query.reconciliation.ListPayoutPaymentsForDrawQuery;
 import com.tchalanet.server.core.payout.api.query.reconciliation.PayoutClaimForDrawRow;
 import com.tchalanet.server.core.payout.api.query.reconciliation.PayoutPaymentForDrawRow;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.reconciliation.internal.domain.model.ReconciliationAnomaly;
 import com.tchalanet.server.core.reconciliation.internal.domain.model.ReconciliationAnomalyStatus;
 import com.tchalanet.server.core.reconciliation.internal.domain.model.ReconciliationAnomalyType;
@@ -254,7 +254,7 @@ public class DailyReconciliationProcessor {
     }
 
     private boolean allowsPayment(PayoutClaimForDrawRow claim) {
-        return claim.status() == PayoutStatus.APPROVED || claim.status() == PayoutStatus.PAID;
+        return claim.status() == PayoutClaimStatus.OPEN || claim.status() == PayoutClaimStatus.PAID;
     }
 
     private static boolean positive(BigDecimal value) {

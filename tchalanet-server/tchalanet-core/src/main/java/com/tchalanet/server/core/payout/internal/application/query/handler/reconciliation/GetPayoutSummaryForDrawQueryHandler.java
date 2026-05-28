@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.payout.api.query.reconciliation.GetPayoutSummaryForDrawQuery;
 import com.tchalanet.server.core.payout.api.query.reconciliation.PayoutSummaryForDrawRow;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.payout.internal.infra.persistence.PayoutJpaEntity;
 import com.tchalanet.server.core.payout.internal.infra.persistence.SpringPayoutJpaRepository;
 import java.math.BigDecimal;
@@ -29,9 +29,9 @@ public class GetPayoutSummaryForDrawQueryHandler
         return new PayoutSummaryForDrawRow(
             query.drawId(),
             payouts.size(),
-            payouts.stream().filter(p -> p.getStatus() == PayoutStatus.APPROVED).count(),
-            payouts.stream().filter(p -> p.getStatus() == PayoutStatus.REJECTED).count(),
-            payouts.stream().filter(p -> p.getStatus() == PayoutStatus.PAID).count(),
+            payouts.stream().filter(p -> p.getStatus() == PayoutClaimStatus.OPEN).count(),
+            payouts.stream().filter(p -> p.getStatus() == PayoutClaimStatus.CANCELLED).count(),
+            payouts.stream().filter(p -> p.getStatus() == PayoutClaimStatus.PAID).count(),
             new Money(sum(payouts, false), currency),
             new Money(sum(payouts, true), currency)
         );
@@ -39,7 +39,7 @@ public class GetPayoutSummaryForDrawQueryHandler
 
     private static BigDecimal sum(java.util.List<PayoutJpaEntity> payouts, boolean paidOnly) {
         return payouts.stream()
-            .filter(payout -> !paidOnly || payout.getStatus() == PayoutStatus.PAID)
+            .filter(payout -> !paidOnly || payout.getStatus() == PayoutClaimStatus.PAID)
             .map(payout -> BigDecimal.valueOf(payout.getAmountCents(), 2))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

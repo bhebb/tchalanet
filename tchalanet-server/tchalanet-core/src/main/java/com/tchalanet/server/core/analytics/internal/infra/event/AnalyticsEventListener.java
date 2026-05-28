@@ -5,6 +5,7 @@ import com.tchalanet.server.core.analytics.internal.application.service.Analytic
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketCancelledEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPayoutPaidRecordedEvent;
+import com.tchalanet.server.core.sales.api.event.TicketPayoutReversedRecordedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.TicketResultedEvent;
 import com.tchalanet.server.core.session.api.event.SalesSessionClosedEvent;
@@ -88,6 +89,18 @@ public class AnalyticsEventListener {
     }
     LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
     dailyProjector.applyPayoutPaid(event, refDate);
+  }
+
+  // ── payout reversed ──────────────────────────────────────────────────────
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void onPayoutReversed(TicketPayoutReversedRecordedEvent event) {
+    if (!processedEvent.markProcessedIfAbsent(HANDLER_KEY_DAILY, event.eventId().value())) {
+      log.debug("analytics: duplicate TicketPayoutReversedRecordedEvent {}", event.eventId().value());
+      return;
+    }
+    LocalDate refDate = LocalDate.ofInstant(event.occurredAt(), ZoneOffset.UTC);
+    dailyProjector.applyPayoutReversed(event, refDate);
   }
 
   // ── session opened ───────────────────────────────────────────────────────

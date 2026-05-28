@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.payout.internal.infra.persistence.adapter;
 
 import com.tchalanet.server.common.exception.TchNotFoundException;
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
@@ -67,7 +68,7 @@ public class PayoutQueryJpaAdapter implements PayoutQueryReaderPort {
             OutletId.nullableOf(e.getPayingOutletId()),
             SalesSessionId.nullableOf(e.getPayingSessionId()),
             TerminalId.nullableOf(e.getPayingTerminalId()),
-            null // TODO resolve paidBy label via user/read model if needed
+            null
         );
     }
 
@@ -81,12 +82,12 @@ public class PayoutQueryJpaAdapter implements PayoutQueryReaderPort {
             TicketId.of(e.getTicketId()),
             centsToAmount(e.getAmountCents()),
             e.getStatus(),
-            e.getCreatedAt(),
+            e.getOpenedAt(),
             OutletId.nullableOf(
                 e.getPayingOutletId() != null
                     ? e.getPayingOutletId()
                     : e.getSellingOutletId()),
-            null // TODO outlet projection/join
+            null
         );
     }
 
@@ -94,14 +95,16 @@ public class PayoutQueryJpaAdapter implements PayoutQueryReaderPort {
         return new PayoutDetails(
             PayoutId.of(e.getId()),
             TicketId.of(e.getTicketId()),
+            e.getDrawId() != null ? DrawId.of(e.getDrawId()) : null,
             centsToAmount(e.getAmountCents()),
             e.getStatus(),
+            e.getSource(),
 
             OutletId.nullableOf(
                 e.getPayingOutletId() != null
                     ? e.getPayingOutletId()
                     : e.getSellingOutletId()),
-            null, // TODO outlet projection/join
+            null,
 
             SalesSessionId.nullableOf(
                 e.getPayingSessionId() != null
@@ -110,16 +113,20 @@ public class PayoutQueryJpaAdapter implements PayoutQueryReaderPort {
 
             TerminalId.nullableOf(e.getPayingTerminalId()),
 
-            UserId.nullableOf(e.getRequestedBy()),
-            UserId.nullableOf(e.getApprovedBy()),
             UserId.nullableOf(e.getPaidBy()),
+            UserId.nullableOf(e.getBlockedBy()),
+            UserId.nullableOf(e.getCancelledBy()),
+            UserId.nullableOf(e.getReversedBy()),
 
-            e.getCreatedAt(),
-            e.getApprovedAt(),
+            e.getOpenedAt(),
             e.getPaidAt(),
+            e.getBlockedAt(),
+            e.getCancelledAt(),
+            e.getReversedAt(),
 
-            e.getRejectedReason(),
-            e.getReason()
+            e.getBlockReason(),
+            e.getCancelReason(),
+            e.getReverseReason()
         );
     }
 }

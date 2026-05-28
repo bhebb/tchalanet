@@ -5,12 +5,12 @@ import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import java.time.Instant;
 import org.springframework.data.domain.Pageable;
 
 public record ListPayoutsQuery(
-    PayoutStatus status,
+    PayoutClaimStatus status,
     TicketId ticketId,
     OutletId outletId,
     SalesSessionId sessionId,

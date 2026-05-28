@@ -5,7 +5,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
 import com.tchalanet.server.features.cashier.home.model.CashierAttentionLevel;
 import com.tchalanet.server.features.cashier.home.model.CashierBadge;
@@ -236,11 +236,10 @@ public class CashierHomeService {
   private long previousUnpaidPayoutCount(TchRequestContext ctx) {
     var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
     var todayStart = java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant();
-    return oldPayoutCount(PayoutStatus.REQUESTED, todayStart)
-        + oldPayoutCount(PayoutStatus.APPROVED, todayStart);
+    return oldPayoutCount(PayoutClaimStatus.OPEN, todayStart);
   }
 
-  private long oldPayoutCount(PayoutStatus status, Instant before) {
+  private long oldPayoutCount(PayoutClaimStatus status, Instant before) {
     return queryBus.ask(new ListPayoutsQuery(
         status,
         null,

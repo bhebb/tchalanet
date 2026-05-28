@@ -14,7 +14,7 @@ import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
 import com.tchalanet.server.core.payout.api.query.PayoutRow;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.sales.api.command.cancel.CancelTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketLineInput;
@@ -190,7 +190,7 @@ public class CashierTicketsService {
             return status(ticket, payout, CashierTicketVerificationStatus.NOT_PAYABLE_LOST,
                 CashierTicketVerificationSeverity.INFO, baseParams);
         }
-        if (payout != null && payout.status() == PayoutStatus.PAID) {
+        if (payout != null && payout.status() == PayoutClaimStatus.PAID) {
             return status(ticket, payout, CashierTicketVerificationStatus.ALREADY_PAID,
                 CashierTicketVerificationSeverity.SUCCESS, baseParams);
         }
@@ -207,7 +207,7 @@ public class CashierTicketsService {
                 return status(ticket, null, CashierTicketVerificationStatus.REPAIR_REQUIRED,
                     CashierTicketVerificationSeverity.WARNING, baseParams);
             }
-            if (payout.status() == PayoutStatus.REQUESTED || payout.status() == PayoutStatus.APPROVED) {
+            if (payout.status() == PayoutClaimStatus.OPEN) {
                 return status(ticket, payout, CashierTicketVerificationStatus.PAYABLE,
                     CashierTicketVerificationSeverity.SUCCESS, baseParams);
             }

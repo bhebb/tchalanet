@@ -538,39 +538,60 @@ CREATE TABLE sales_session_aud (
 );
 
 CREATE TABLE payout_aud (
-  id uuid NOT NULL,
-  rev integer NOT NULL,
+  -- Envers metadata
+  id      uuid     NOT NULL,
+  rev     integer  NOT NULL,
   revtype smallint,
-  tenant_id uuid,
-  ticket_id uuid,
+
+  -- claim identity
+  tenant_id       uuid,
+  ticket_id       uuid,
+  draw_id         uuid,
+  source_event_id uuid,
+  source          varchar(32),
+
   amount_cents bigint,
-  currency varchar(3),
-  status varchar(32),
-  selling_outlet_id uuid,
+  currency     varchar(3),
+  status       varchar(32),
+
+  -- claim opening
+  opened_at timestamptz,
+
+  -- selling context
+  selling_outlet_id  uuid,
   selling_session_id uuid,
-  paying_outlet_id uuid,
-  paying_session_id uuid,
+
+  -- payment execution
+  paying_outlet_id   uuid,
+  paying_session_id  uuid,
   paying_terminal_id uuid,
-  requested_by uuid,
-  requested_at timestamptz,
-  approved_by uuid,
-  approved_at timestamptz,
-  rejected_by uuid,
-  rejected_at timestamptz,
-  rejected_reason text,
-  paid_by uuid,
-  paid_at timestamptz,
-  cancelled_by uuid,
-  cancelled_at timestamptz,
+  paid_by            uuid,
+  paid_at            timestamptz,
+
+  -- block
+  blocked_by   uuid,
+  blocked_at   timestamptz,
+  block_reason text,
+
+  -- cancel
+  cancelled_by  uuid,
+  cancelled_at  timestamptz,
   cancel_reason text,
-  reason text,
+
+  -- reversal
+  reversed_by    uuid,
+  reversed_at    timestamptz,
+  reverse_reason text,
+
+  -- base audit columns
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
   updated_by uuid,
   deleted_at timestamptz,
   deleted_by uuid,
-  version bigint,
+  version    bigint,
+
   CONSTRAINT pk_payout_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_payout_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
 );
