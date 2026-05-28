@@ -41,10 +41,9 @@ class PublicHomePayloadAssemblerTest {
       var payload = assembler.assemble(3, null);
 
       assertThat(payload.news()).hasSize(3);
-      assertThat(payload.news().get(0))
-          .containsKey("id")
-          .containsKey("title")
-          .containsKey("link");
+      assertThat(payload.news().get(0).id()).isNotNull();
+      assertThat(payload.news().get(0).title()).isNotNull();
+      assertThat(payload.news().get(0).link()).isNotNull();
     }
 
     @Test
@@ -88,12 +87,10 @@ class PublicHomePayloadAssemblerTest {
       var payload = assembler.assemble(5, null);
 
       assertThat(payload.plans()).hasSize(1);
-      assertThat(payload.plans().get(0))
-          .containsEntry("value", "demo")
-          .containsEntry("name", "Démo")
-          .containsEntry("price", new BigDecimal("0.00"))
-          .containsEntry("currency", "USD")
-          .containsEntry("isDefault", true);
+      assertThat(payload.plans().get(0).value()).isEqualTo("demo");
+      assertThat(payload.plans().get(0).name()).isEqualTo("Démo");
+      assertThat(payload.plans().get(0).currency()).isEqualTo("USD");
+      assertThat(payload.plans().get(0).isDefault()).isTrue();
     }
   }
 

@@ -65,12 +65,12 @@ class CashierWebDashboardProviderTest {
           new PageModelResolutionContext()))
           .isEqualTo(payload.alerts());
 
-      assertThat(provider.load(null, "dashboard.cashier.next_draws", null, "fr", null,
-          new PageModelResolutionContext()))
-          .isInstanceOfSatisfying(Map.class, m -> assertThat(m.get("items")).isEqualTo(payload.nextDraws()));
-      assertThat(provider.load(null, "dashboard.cashier.recent_tickets", null, "fr", null,
-          new PageModelResolutionContext()))
-          .isInstanceOfSatisfying(Map.class, m -> assertThat(m.get("items")).isEqualTo(payload.recentTickets()));
+      var nextDrawsResult = (CashierWebDashboardProvider.ItemsPayload) provider.load(
+          null, "dashboard.cashier.next_draws", null, "fr", null, new PageModelResolutionContext());
+      assertThat(nextDrawsResult.items()).isEqualTo(payload.nextDraws());
+      var recentTicketsResult = (CashierWebDashboardProvider.ItemsPayload) provider.load(
+          null, "dashboard.cashier.recent_tickets", null, "fr", null, new PageModelResolutionContext());
+      assertThat(recentTicketsResult.items()).isEqualTo(payload.recentTickets());
     }
 
     @Test
@@ -81,9 +81,9 @@ class CashierWebDashboardProviderTest {
       Object result = provider.load(null, "dashboard.cashier.quick_sale", null, "fr", null,
           new PageModelResolutionContext());
 
-      assertThat(result).isInstanceOfSatisfying(Map.class, m -> {
-        assertThat(m.get("actionId")).isEqualTo("SELL_TICKET");
-        assertThat(m.get("route")).isEqualTo("/cashier/sell");
+      assertThat(result).isInstanceOfSatisfying(CashierWebDashboardProvider.QuickSalePayload.class, p -> {
+        assertThat(p.actionId()).isEqualTo("SELL_TICKET");
+        assertThat(p.path()).isEqualTo("/cashier/sell");
       });
     }
 
@@ -123,15 +123,17 @@ class CashierWebDashboardProviderTest {
 
   private static CashierDashboardPayloadAssembler.Payload samplePayload() {
     return new CashierDashboardPayloadAssembler.Payload(
-        Map.of("cashierDisplayName", "Caissier Test"),
-        Map.of("active", true, "sessionRef", "S-001"),
-        Map.of("sessionOpen", true, "ticketCount", 5L),
-        List.of(Map.of("drawId", "d-1")),
-        List.of(Map.of("ticketId", "t-1")),
-        Map.of("ready", true, "trusted", true, "source", "SIGNED_DEVICE_BINDING", "missing", List.of()),
-        Map.of("count", 0, "items", List.of()),
-        Map.of("stats", 0, "items", List.of()),
-        Map.of("offlineSync", 0, "items", List.of())
-        );
+        new CashierDashboardPayloadAssembler.CashierIdentityPayload(
+            "Caissier Test", "Outlet Test", "T-001", "tenant-demo"),
+        new CashierDashboardPayloadAssembler.CashierSessionPayload(
+            true, "S-001", "", 0L, 0L, 0L),
+        CashierDashboardPayloadAssembler.CashierOverviewPayload.noSession(),
+        List.of(),
+        List.of(),
+        new CashierDashboardPayloadAssembler.CashierReadinessPayload(
+            true, true, "SIGNED_DEVICE_BINDING", List.of()),
+        new CashierDashboardPayloadAssembler.CashierAlertsPayload(0, List.of()),
+        CashierDashboardPayloadAssembler.CashierStatsPayload.unavailable(),
+        new CashierDashboardPayloadAssembler.CashierOfflineSyncPayload("UNKNOWN", 0));
   }
 }

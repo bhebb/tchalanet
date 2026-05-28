@@ -236,7 +236,8 @@ public class CashierHomeService {
   private long previousUnpaidPayoutCount(TchRequestContext ctx) {
     var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
     var todayStart = java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant();
-    return oldPayoutCount(PayoutClaimStatus.OPEN, todayStart);
+    return oldPayoutCount(PayoutClaimStatus.OPEN, todayStart)
+        + oldPayoutCount(PayoutClaimStatus.BLOCKED, todayStart);
   }
 
   private long oldPayoutCount(PayoutClaimStatus status, Instant before) {

@@ -9,6 +9,10 @@ import static org.mockito.Mockito.when;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.web.paging.TchPage;
+import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
+import com.tchalanet.server.features.cashier.home.model.CashierAttentionLevel;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.common.context.operational.OperationalContextSource;
 import com.tchalanet.server.common.context.operational.OperationalContextTrust;
@@ -130,6 +134,56 @@ class CashierHomeServiceTest {
     var response = service.mobileHome(context(Set.of(TchRole.CASHIER), true), null);
 
     assertThat(response.surface()).isEqualTo(ClientSurface.MOBILE_POS);
+  }
+
+  @Test
+  void readiness_no_old_unpaid_claims_returns_ready_with_no_notifications() {
+    when(queryBus.ask(any(ListPayoutsQuery.class)))
+        .thenReturn(TchPage.of(List.of(), 0, 1, 0, 0, true, false, false));
+
+    var response = service.readiness(context(Set.of(TchRole.CASHIER), true));
+
+    assertThat(response.ready()).isTrue();
+    assertThat(response.notifications()).isEmpty();
+    assertThat(response.badges()).isEmpty();
+    assertThat(response.attentionLevel()).isEqualTo(CashierAttentionLevel.NONE);
+  }
+
+  @Test
+  void readiness_with_old_open_payout_claims_returns_previous_unpaid_notification() {
+    when(queryBus.ask(any(ListPayoutsQuery.class)))
+        .thenAnswer(inv -> {
+          var q = (ListPayoutsQuery) inv.getArgument(0);
+          if (q.status() == PayoutClaimStatus.OPEN) {
+            return TchPage.of(List.of(), 0, 1, 3, 1, false, true, false);
+          }
+          return TchPage.of(List.of(), 0, 1, 0, 0, true, false, false);
+        });
+
+    var response = service.readiness(context(Set.of(TchRole.CASHIER), true));
+
+    assertThat(response.ready()).isTrue();
+    assertThat(response.notifications()).hasSize(1);
+    assertThat(response.notifications().get(0).type()).isEqualTo("PREVIOUS_UNPAID_PAYOUTS");
+    assertThat(response.attentionLevel()).isEqualTo(CashierAttentionLevel.CARD);
+  }
+
+  @Test
+  void readiness_with_old_blocked_payout_claims_returns_previous_unpaid_notification() {
+    when(queryBus.ask(any(ListPayoutsQuery.class)))
+        .thenAnswer(inv -> {
+          var q = (ListPayoutsQuery) inv.getArgument(0);
+          if (q.status() == PayoutClaimStatus.BLOCKED) {
+            return TchPage.of(List.of(), 0, 1, 2, 1, false, true, false);
+          }
+          return TchPage.of(List.of(), 0, 1, 0, 0, true, false, false);
+        });
+
+    var response = service.readiness(context(Set.of(TchRole.CASHIER), true));
+
+    assertThat(response.ready()).isTrue();
+    assertThat(response.notifications()).hasSize(1);
+    assertThat(response.notifications().get(0).type()).isEqualTo("PREVIOUS_UNPAID_PAYOUTS");
   }
 
   private CashierSessionSummaryView openSession() {

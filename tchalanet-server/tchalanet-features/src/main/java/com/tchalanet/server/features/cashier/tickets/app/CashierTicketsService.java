@@ -295,7 +295,7 @@ public class CashierTicketsService {
             PageRequest.of(0, 20)
         ));
         return payouts.items().stream()
-            .max(Comparator.comparing(PayoutRow::requestedAt))
+            .max(Comparator.comparing(PayoutRow::openedAt))
             .orElse(null);
     }
 

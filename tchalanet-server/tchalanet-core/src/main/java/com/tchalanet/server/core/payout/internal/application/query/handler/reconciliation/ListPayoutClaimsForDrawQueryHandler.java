@@ -36,9 +36,9 @@ public class ListPayoutClaimsForDrawQueryHandler
                     ticket.displayCode(),
                     payout.getStatus(),
                     new Money(BigDecimal.valueOf(payout.getAmountCents(), 2), CurrencyCode.of(payout.getCurrency())),
-                    payout.getRequestedAt(),
-                    payout.getApprovedAt(),
-                    payout.getRejectedAt()
+                    payout.getOpenedAt(),
+                    payout.getPaidAt(),
+                    payout.getCancelledAt()
                 );
             })
             .toList();

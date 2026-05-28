@@ -39,7 +39,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(null);
 
-    assertThat(payload.health()).containsEntry("global", "UNKNOWN");
+    assertThat(payload.health().global()).isEqualTo("UNKNOWN");
   }
 
   @Test
@@ -53,7 +53,7 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(null);
 
-    assertThat(payload.health()).containsEntry("global", "UP");
+    assertThat(payload.health().global()).isEqualTo("UP");
   }
 
   @Test
@@ -66,10 +66,9 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(null);
 
-    assertThat(payload.tenants())
-        .containsEntry("total", 15L)
-        .containsEntry("active", 12L)
-        .containsEntry("suspended", 2L);
+    assertThat(payload.tenants().total()).isEqualTo(15L);
+    assertThat(payload.tenants().active()).isEqualTo(12L);
+    assertThat(payload.tenants().suspended()).isEqualTo(2L);
   }
 
   @Test
@@ -84,11 +83,10 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(null);
 
-    assertThat(payload.subscriptions())
-        .containsEntry("active", 7L)
-        .containsEntry("pastDue", 1L)
-        .containsEntry("expired", 2L)
-        .containsEntry("total", 10L);
+    assertThat(payload.subscriptions().active()).isEqualTo(7L);
+    assertThat(payload.subscriptions().pastDue()).isEqualTo(1L);
+    assertThat(payload.subscriptions().expired()).isEqualTo(2L);
+    assertThat(payload.subscriptions().total()).isEqualTo(10L);
   }
 
   @Test
@@ -103,9 +101,8 @@ class PlatformAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(null);
 
-    assertThat(payload.subscriptions())
-        .containsEntry("active", 0L)
-        .containsEntry("total", 0L);
+    assertThat(payload.subscriptions().active()).isEqualTo(0L);
+    assertThat(payload.subscriptions().total()).isEqualTo(0L);
   }
 
   private static <T> TchPage<T> emptyPage() {

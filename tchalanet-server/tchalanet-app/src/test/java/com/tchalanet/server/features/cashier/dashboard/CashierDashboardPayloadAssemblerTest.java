@@ -56,10 +56,10 @@ class CashierDashboardPayloadAssemblerTest {
     void nullContext() {
       var payload = assembler.assemble(null);
 
-      assertThat(payload.identity()).isEmpty();
-      assertThat(payload.session()).containsEntry("active", false);
-      assertThat(payload.readiness()).containsEntry("ready", false);
-      assertThat(payload.alerts()).containsEntry("count", 0);
+      assertThat(payload.identity().cashierDisplayName()).isEmpty();
+      assertThat(payload.session().active()).isFalse();
+      assertThat(payload.readiness().ready()).isFalse();
+      assertThat(payload.alerts().count()).isEqualTo(0);
       verify(queryBus, never()).ask(any());
     }
 
@@ -70,7 +70,7 @@ class CashierDashboardPayloadAssemblerTest {
 
       var payload = assembler.assemble(ctx);
 
-      assertThat(payload.session()).containsEntry("active", false);
+      assertThat(payload.session().active()).isFalse();
       verify(queryBus, never()).ask(any());
     }
   }
@@ -111,9 +111,9 @@ class CashierDashboardPayloadAssemblerTest {
       var payload = assembler.assemble(context(Set.of(TchRole.CASHIER), true, true, true));
 
       verify(queryBus, times(1)).ask(any(GetCashierDashboardOverviewQuery.class));
-      assertThat(payload.session()).containsEntry("active", true);
-      assertThat(payload.overview()).containsEntry("sessionOpen", true);
-      assertThat(payload.overview()).containsEntry("ticketCount", 12L);
+      assertThat(payload.session().active()).isTrue();
+      assertThat(payload.overview().sessionOpen()).isTrue();
+      assertThat(payload.overview().ticketCount()).isEqualTo(12L);
     }
   }
 
@@ -128,11 +128,10 @@ class CashierDashboardPayloadAssemblerTest {
 
       var payload = assembler.assemble(context(Set.of(TchRole.CASHIER), true, true, true));
 
-      assertThat(payload.readiness())
-          .containsEntry("ready", true)
-          .containsEntry("trusted", true)
-          .containsEntry("source", OperationalContextSource.SIGNED_DEVICE_BINDING.name());
-      assertThat((List<?>) payload.readiness().get("missing")).isEmpty();
+      assertThat(payload.readiness().ready()).isTrue();
+      assertThat(payload.readiness().trusted()).isTrue();
+      assertThat(payload.readiness().source()).isEqualTo(OperationalContextSource.SIGNED_DEVICE_BINDING.name());
+      assertThat(payload.readiness().missing()).isEmpty();
     }
 
     @Test
@@ -149,9 +148,8 @@ class CashierDashboardPayloadAssemblerTest {
 
       var payload = assembler.assemble(ctx);
 
-      assertThat(payload.readiness())
-          .containsEntry("ready", false)
-          .containsEntry("trusted", false);
+      assertThat(payload.readiness().ready()).isFalse();
+      assertThat(payload.readiness().trusted()).isFalse();
     }
 
     @Test
@@ -168,9 +166,7 @@ class CashierDashboardPayloadAssemblerTest {
 
       var payload = assembler.assemble(ctx);
 
-      @SuppressWarnings("unchecked")
-      List<String> missing = (List<String>) payload.readiness().get("missing");
-      assertThat(missing).contains("OUTLET");
+      assertThat(payload.readiness().missing()).contains("OUTLET");
     }
   }
 
@@ -185,13 +181,9 @@ class CashierDashboardPayloadAssemblerTest {
 
       var payload = assembler.assemble(contextWithHint(null));
 
-      @SuppressWarnings("unchecked")
-      List<java.util.Map<String, Object>> items =
-          (List<java.util.Map<String, Object>>) payload.alerts().get("items");
-
-      assertThat(items)
-          .anySatisfy(a -> assertThat(a).containsEntry("code", "OUTLET_MISSING"))
-          .anySatisfy(a -> assertThat(a).containsEntry("code", "TERMINAL_MISSING"));
+      assertThat(payload.alerts().items())
+          .anySatisfy(a -> assertThat(a.code()).isEqualTo("OUTLET_MISSING"))
+          .anySatisfy(a -> assertThat(a.code()).isEqualTo("TERMINAL_MISSING"));
     }
 
     @Test
@@ -201,11 +193,8 @@ class CashierDashboardPayloadAssemblerTest {
 
       var payload = assembler.assemble(context(Set.of(TchRole.CASHIER), true, true, true));
 
-      @SuppressWarnings("unchecked")
-      List<java.util.Map<String, Object>> items =
-          (List<java.util.Map<String, Object>>) payload.alerts().get("items");
-
-      assertThat(items).anySatisfy(a -> assertThat(a).containsEntry("code", "SESSION_CLOSED"));
+      assertThat(payload.alerts().items())
+          .anySatisfy(a -> assertThat(a.code()).isEqualTo("SESSION_CLOSED"));
     }
   }
 

@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.features.pagemodel.contract.NewsItem;
+import com.tchalanet.server.features.pagemodel.contract.PlanItem;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +44,7 @@ class PublicHomeProviderTest {
     @Test
     @DisplayName("home.news returns items from payload.news()")
     void newsWidget() {
-      var news = List.<Map<String, Object>>of(Map.of("id", "1", "title", "n1"));
+      var news = List.of(new NewsItem("1", "n1", null, null, null, null));
       when(assembler.assemble(anyInt(), any())).thenReturn(
           new PublicHomePayloadAssembler.Payload(news, List.of()));
 
@@ -57,7 +59,7 @@ class PublicHomeProviderTest {
     @Test
     @DisplayName("home.plans returns plans from payload.plans()")
     void plansWidget() {
-      var plans = List.<Map<String, Object>>of(Map.of("value", "demo"));
+      var plans = List.of(new PlanItem("demo", null, null, null, null, null, Map.of(), false));
       when(assembler.assemble(anyInt(), any())).thenReturn(
           new PublicHomePayloadAssembler.Payload(List.of(), plans));
 

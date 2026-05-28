@@ -60,8 +60,8 @@ class TenantAdminDashboardPayloadAssemblerTest {
   void nullContext() {
     var payload = assembler.assemble(null);
 
-    assertThat(payload.header()).isEmpty();
-    assertThat(payload.kpis()).isEmpty();
+    assertThat(payload.header().tenantName()).isEmpty();
+    assertThat(payload.kpis().salesToday()).isEqualByComparingTo(BigDecimal.ZERO);
   }
 
   @Test
@@ -69,7 +69,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
   void noTenant() {
     var payload = assembler.assemble(context(null));
 
-    assertThat(payload.header()).isEmpty();
+    assertThat(payload.header().tenantName()).isEmpty();
   }
 
   @Test
@@ -85,10 +85,9 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(context(tenantId));
 
-    assertThat(payload.header())
-        .containsEntry("tenantName", "Demo Tenant")
-        .containsEntry("tenantStatus", "ACTIVE")
-        .containsEntry("tenantType", "BORLETTE");
+    assertThat(payload.header().tenantName()).isEqualTo("Demo Tenant");
+    assertThat(payload.header().tenantStatus()).isEqualTo("ACTIVE");
+    assertThat(payload.header().tenantType()).isEqualTo("BORLETTE");
   }
 
   @Test
@@ -113,12 +112,11 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(context(tenantId));
 
-    assertThat(payload.kpis())
-        .containsEntry("salesToday", new BigDecimal("123.45"))
-        .containsEntry("ticketCountToday", 42L)
-        .containsEntry("activeSessions", 0L)
-        .containsEntry("openDraws", 0L)
-        .containsEntry("pendingApprovals", 0L);
+    assertThat(payload.kpis().salesToday()).isEqualByComparingTo(new BigDecimal("123.45"));
+    assertThat(payload.kpis().ticketCountToday()).isEqualTo(42L);
+    assertThat(payload.kpis().activeSessions()).isEqualTo(0L);
+    assertThat(payload.kpis().openDraws()).isEqualTo(0L);
+    assertThat(payload.kpis().pendingApprovals()).isEqualTo(0L);
   }
 
   @Test
@@ -134,7 +132,8 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(context(tenantId));
 
-    assertThat(payload.readiness()).containsEntry("status", "MISSING").containsEntry("missingCount", 6);
+    assertThat(payload.readiness().status()).isEqualTo("MISSING");
+    assertThat(payload.readiness().missingCount()).isEqualTo(6);
   }
 
   @Test
@@ -153,16 +152,11 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     var payload = assembler.assemble(context(tenantId));
 
-    assertThat(payload.operations()).extractingByKey("outlets").asInstanceOf(
-        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 2);
-    assertThat(payload.operations()).extractingByKey("terminals").asInstanceOf(
-        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 3L);
-    assertThat(payload.operations()).extractingByKey("users").asInstanceOf(
-        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 1);
-    assertThat(payload.commercial()).extractingByKey("gamesPricing").asInstanceOf(
-        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 1);
-    assertThat(payload.commercial()).extractingByKey("drawChannels").asInstanceOf(
-        org.assertj.core.api.InstanceOfAssertFactories.MAP).containsEntry("count", 2);
+    assertThat(payload.operations().outlets().count()).isEqualTo(2);
+    assertThat(payload.operations().terminals().count()).isEqualTo(3L);
+    assertThat(payload.operations().users().count()).isEqualTo(1);
+    assertThat(payload.commercial().gamesPricing().count()).isEqualTo(1);
+    assertThat(payload.commercial().drawChannels().count()).isEqualTo(2);
 
     // Single bundle invocation — each grouped read called exactly once per assemble.
     verify(queryBus, times(1)).ask(any(ListOutletsByTenantQuery.class));
