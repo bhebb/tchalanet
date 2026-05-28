@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.publiccontent.internal.web;
 
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentItemView;
-import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentQueryService;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSurface;
+import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -26,8 +26,9 @@ public class PublicNewsController {
   @Operation(summary = "List public news articles")
   @GetMapping
   public List<PublicContentItemView> listPublicNews(
-      @RequestParam(defaultValue = "20") int limit) {
-    return queryService.listForSurface(PublicContentSurface.PUBLIC_HOME, limit)
+      @RequestParam(defaultValue = "20") int limit,
+      @RequestParam(defaultValue = "PUBLIC_HOME") PublicContentSurface surface) {
+    return queryService.listForSurface(surface, limit)
         .stream()
         .map(item -> new PublicContentItemView(
             toUuid(item.id()),

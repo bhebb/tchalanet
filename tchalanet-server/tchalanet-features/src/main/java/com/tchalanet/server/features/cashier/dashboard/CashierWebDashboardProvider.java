@@ -23,6 +23,8 @@ import org.springframework.stereotype.Component;
  *   - dashboard.cashier.quick_sale
  *   - dashboard.cashier.readiness  (operational context : ready, trusted, missing)
  *   - dashboard.cashier.alerts     (operational blockers + warnings)
+ *   - dashboard.cashier.stats      (analytics KPIs for today, seller-scoped)
+ *   - dashboard.cashier.offline_sync (offline/sync status placeholder)
  */
 @Component
 @RequiredArgsConstructor
@@ -60,8 +62,10 @@ public class CashierWebDashboardProvider implements PageModelDynamicProvider {
           "actionId", "SELL_TICKET",
           "label", "Vendre un ticket",
           "route", "/cashier/sell");
-      case "dashboard.cashier.readiness" -> payload.readiness();
-      case "dashboard.cashier.alerts" -> payload.alerts();
+      case "dashboard.cashier.readiness"    -> payload.readiness();
+      case "dashboard.cashier.alerts"       -> payload.alerts();
+      case "dashboard.cashier.stats"        -> payload.stats();
+      case "dashboard.cashier.offline_sync" -> payload.offlineSync();
       default -> throw new PageModelDynamicProviderException(
           "CASHIER_DASHBOARD_UNKNOWN_WIDGET",
           "Unknown widgetId for source=" + SOURCE + ": " + widgetId);

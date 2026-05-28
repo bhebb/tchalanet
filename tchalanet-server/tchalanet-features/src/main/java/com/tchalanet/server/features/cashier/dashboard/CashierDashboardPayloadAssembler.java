@@ -3,6 +3,8 @@ package com.tchalanet.server.features.cashier.dashboard;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
+import com.tchalanet.server.core.analytics.api.model.CashierDashboardStatsView;
+import com.tchalanet.server.core.analytics.api.query.GetCashierDashboardStatsQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.core.sales.api.query.GetCashierDashboardOverviewQuery;
 import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
@@ -57,8 +59,10 @@ public class CashierDashboardPayloadAssembler {
     List<?> recentTickets = loadRecentTickets(ctx);
     Map<String, Object> readiness = buildReadiness(ctx.operationalContext());
     Map<String, Object> alerts = buildAlerts(ctx.operationalContext(), session);
+    Map<String, Object> stats = loadAnalyticsStats(ctx);
+    Map<String, Object> offlineSync = buildOfflineSyncPlaceholder();
 
-    return new Payload(identity, session, overview, nextDraws, recentTickets, readiness, alerts);
+    return new Payload(identity, session, overview, nextDraws, recentTickets, readiness, alerts, stats, offlineSync);
   }
 
   private Map<String, Object> loadIdentity(TchRequestContext ctx) {
@@ -130,6 +134,43 @@ public class CashierDashboardPayloadAssembler {
   }
 
   /**
+   * Pre-aggregated analytics stats for today (seller scope).
+   * Falls back to empty if analytics data is not yet available.
+   */
+  private Map<String, Object> loadAnalyticsStats(TchRequestContext ctx) {
+    try {
+      LocalDate today = LocalDate.now(ZoneOffset.UTC);
+      CashierDashboardStatsView view = queryBus.ask(
+          new GetCashierDashboardStatsQuery(ctx.tenantId(), ctx.userId(), today));
+      if (view == null || view.today() == null) {
+        return Map.of("available", false);
+      }
+      var card = view.today();
+      var result = new HashMap<String, Object>();
+      result.put("available", true);
+      result.put("refDate", view.refDate() != null ? view.refDate().toString() : today.toString());
+      result.put("ticketsSold", card.ticketsSold());
+      result.put("grossSales", card.grossSales() != null ? card.grossSales() : 0);
+      result.put("winningsCalculated", card.winningsCalculated() != null ? card.winningsCalculated() : 0);
+      result.put("netRevenue", card.netRevenueEstimated() != null ? card.netRevenueEstimated() : 0);
+      result.put("gameBreakdown", view.gameBreakdown() != null ? view.gameBreakdown().stream()
+          .map(g -> Map.<String, Object>of(
+              "gameCode", g.gameCode() != null ? g.gameCode() : "",
+              "ticketsSold", g.ticketsSold(),
+              "grossSales", g.grossSales() != null ? g.grossSales() : 0))
+          .toList() : List.of());
+      return result;
+    } catch (RuntimeException e) {
+      return Map.of("available", false);
+    }
+  }
+
+  /** V1 placeholder — offline/sync status is not yet tracked server-side. */
+  private Map<String, Object> buildOfflineSyncPlaceholder() {
+    return Map.of("status", "UNKNOWN", "pendingSyncCount", 0);
+  }
+
+  /**
    * Operational readiness derived from {@link OperationalContextHint} carried by the
    * HTTP context — no extra DB read.
    */
@@ -185,7 +226,9 @@ public class CashierDashboardPayloadAssembler {
       List<?> nextDraws,
       List<?> recentTickets,
       Map<String, Object> readiness,
-      Map<String, Object> alerts) {
+      Map<String, Object> alerts,
+      Map<String, Object> stats,
+      Map<String, Object> offlineSync) {
 
     public static Payload empty() {
       return new Payload(
@@ -196,7 +239,9 @@ public class CashierDashboardPayloadAssembler {
           List.of(),
           Map.of("ready", false, "trusted", false, "source", "NONE",
               "missing", List.of("OUTLET", "TERMINAL")),
-          Map.of("count", 0, "items", List.of()));
+          Map.of("count", 0, "items", List.of()),
+          Map.of("available", false),
+          Map.of("status", "UNKNOWN", "pendingSyncCount", 0));
     }
   }
 }

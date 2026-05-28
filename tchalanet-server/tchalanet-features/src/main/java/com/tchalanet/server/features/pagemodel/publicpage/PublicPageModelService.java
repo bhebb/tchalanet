@@ -3,6 +3,7 @@ package com.tchalanet.server.features.pagemodel.publicpage;
 import com.tchalanet.server.common.context.TchContextResolver;
 
 import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.pagemodel.api.query.ResolveEffectivePageModelQuery;
 import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
@@ -34,14 +35,20 @@ public class PublicPageModelService {
 
     var doc = queryBus.ask(new ResolveEffectivePageModelQuery(tenantId, logicalId));
 
-      boolean isDocLangPresent = doc != null && doc.meta() != null && doc.meta().langs() != null;
-      var currentLang =
+    if (doc == null) {
+      throw new TchNotFoundException("PAGE_MODEL_NOT_FOUND",
+          "Page model not found: " + logicalId);
+    }
+
+    boolean isDocLangPresent = doc.meta() != null && doc.meta().langs() != null
+        && !doc.meta().langs().isEmpty();
+    var currentLang =
         langResolver.resolve(
             new LangResolver.LangResolverContext(
                 langFromUrl,
                 Optional.empty(),
                 Optional.empty(),
-                Optional.ofNullable(doc != null && doc.meta() != null ? doc.meta().defaultLang() : null),
+                Optional.ofNullable(doc.meta() != null ? doc.meta().defaultLang() : null),
                 isDocLangPresent
                     ? doc.meta().langs()
                     : List.of(),
@@ -51,7 +58,7 @@ public class PublicPageModelService {
     List<String> langs =
         isDocLangPresent
             ? doc.meta().langs()
-            : List.of();
+            : List.of(currentLang);
     return new PublicPageModelResponse(currentLang, langs, doc, dynamic);
   }
 }

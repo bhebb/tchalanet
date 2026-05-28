@@ -16,6 +16,11 @@
       "icon": "receipt_long"
     },
     {
+      "label_key": "nav.verify_ticket",
+      "path": "/app/cashier/tickets/verify",
+      "icon": "qr_code_scanner"
+    },
+    {
       "label_key": "nav.draws",
       "path": "/app/cashier/draws",
       "icon": "event"
@@ -26,5 +31,11 @@
       "icon": "account_balance_wallet"
     }
   ],
-  "secondary": []
+  "secondary": [
+    {
+      "label_key": "footer.support",
+      "path": "/support",
+      "icon": "support_agent"
+    }
+  ]
 }

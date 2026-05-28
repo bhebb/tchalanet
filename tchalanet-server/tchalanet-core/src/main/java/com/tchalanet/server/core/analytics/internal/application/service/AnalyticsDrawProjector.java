@@ -3,6 +3,7 @@ package com.tchalanet.server.core.analytics.internal.application.service;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawEntity;
 import com.tchalanet.server.core.analytics.internal.infra.persistence.AnalyticsDrawRepository;
 import com.tchalanet.server.core.draw.api.event.DrawResultAppliedEvent;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 public class AnalyticsDrawProjector {
 
   private final AnalyticsDrawRepository repo;
+  private final Clock clock;
 
   /**
    * Ensure a draw row exists. Idempotent — does nothing if the row already
@@ -35,7 +37,7 @@ public class AnalyticsDrawProjector {
       return;
     }
 
-    Instant now = Instant.now();
+    Instant now = Instant.now(clock);
     AnalyticsDrawEntity entity = AnalyticsDrawEntity.builder()
         .drawId(drawId)
         .tenantId(event.tenantId().value())

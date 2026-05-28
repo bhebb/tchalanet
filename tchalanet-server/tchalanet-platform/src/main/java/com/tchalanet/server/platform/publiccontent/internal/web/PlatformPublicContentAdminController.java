@@ -1,5 +1,8 @@
 package com.tchalanet.server.platform.publiccontent.internal.web;
 
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentAdminItemView;
 import com.tchalanet.server.platform.publiccontent.api.model.PublicContentSourceType;
 import com.tchalanet.server.platform.publiccontent.internal.news.PublicContentAdminService;
@@ -37,6 +40,8 @@ public class PlatformPublicContentAdminController {
 
   @Operation(summary = "Create or update a public content item")
   @PostMapping
+  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.UPDATE,
+      idExpression = "#request.id()", detailsExpression = "#request.title()")
   public PublicContentAdminItemView upsert(@Valid @RequestBody UpsertPublicContentRequest request) {
     var item = adminService.upsert(
         request.id(), request.title(), request.content(), request.contentHtml(),
@@ -47,6 +52,8 @@ public class PlatformPublicContentAdminController {
 
   @Operation(summary = "Change status of a public content item")
   @PostMapping("/{id}/status")
+  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.STATE_CHANGE,
+      idExpression = "#id", detailsExpression = "#request.status()")
   public PublicContentAdminItemView changeStatus(
       @PathVariable String id,
       @Valid @RequestBody ChangePublicContentStatusRequest request) {
@@ -55,12 +62,16 @@ public class PlatformPublicContentAdminController {
 
   @Operation(summary = "Hide a public content item (admin overlay)")
   @PostMapping("/{id}/hide")
+  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.STATE_CHANGE,
+      idExpression = "#id")
   public void hide(@PathVariable String id) {
     adminService.hide(id);
   }
 
   @Operation(summary = "Show (unhide) a public content item")
   @PostMapping("/{id}/show")
+  @AuditLog(entity = AuditEntityType.PUBLIC_CONTENT, action = AuditAction.STATE_CHANGE,
+      idExpression = "#id")
   public void show(@PathVariable String id) {
     adminService.show(id);
   }

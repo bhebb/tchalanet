@@ -25,6 +25,58 @@ class ArchitectureTest {
     forbidInternal("catalog.game", classes);
     forbidInternal("catalog.drawresult", classes);
     forbidInternal("catalog.pricing", classes);
+    forbidInternal("core.analytics", classes);
+  }
+
+  /**
+   * TODO(v2): CashierSessionView.from(SalesSession) is a known violation — features.cashier.session
+   * directly maps from core.session.internal domain model. Needs SalesSession promoted to
+   * core.session.api before this rule can be enforced. Track in core.session refactor.
+   */
+  @Test
+  public void coreSessionInternalShouldNotLeakToAnalytics() {
+    JavaClasses classes = new ClassFileImporter()
+        .importPackages("com.tchalanet.server.core.analytics..");
+
+    noClasses()
+        .that().resideInAPackage("com.tchalanet.server.core.analytics..")
+        .should().dependOnClassesThat()
+        .resideInAPackage("com.tchalanet.server.core.session.internal..")
+        .as("core.analytics must not depend on core.session.internal")
+        .allowEmptyShould(true)
+        .check(classes);
+  }
+
+  @Test
+  public void featuresAndPlatformMustNotAccessCoreAnalyticsInternal() {
+    JavaClasses classes = new ClassFileImporter()
+        .importPackages(
+            "com.tchalanet.server.features..",
+            "com.tchalanet.server.platform..");
+
+    noClasses()
+        .that().resideInAnyPackage(
+            "com.tchalanet.server.features..",
+            "com.tchalanet.server.platform..")
+        .should().dependOnClassesThat()
+        .resideInAPackage("com.tchalanet.server.core.analytics.internal..")
+        .as("features and platform must only use core.analytics.api, never core.analytics.internal")
+        .check(classes);
+  }
+
+  @Test
+  void coreSalesApiMustNotDependOnCoreSalesInternal() {
+    var classes = new ClassFileImporter()
+        .importPackages("com.tchalanet.server.core.sales.api");
+
+    noClasses()
+        .that()
+        .resideInAPackage("com.tchalanet.server.core.sales.api..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage("com.tchalanet.server.core.sales.internal..")
+        .as("core.sales.api must expose public DTOs, not internal sales aggregates")
+        .check(classes);
   }
 
   private static void forbidInternal(String domainPath, JavaClasses classes) {

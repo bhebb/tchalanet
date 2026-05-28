@@ -39,7 +39,8 @@ public class JsonFileProvider implements PageModelDynamicProvider {
       com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext resolutionContext) {
     String fileKey = readString(widgetConfig == null ? null : widgetConfig.props(), "file_key");
     String resourcePath = registry.resolve(fileKey);
-    return cache.computeIfAbsent(fileKey, ignored -> loadJson(fileKey, resourcePath));
+    JsonNode cached = cache.computeIfAbsent(fileKey, ignored -> loadJson(fileKey, resourcePath));
+    return cached.deepCopy();
   }
 
   private JsonNode loadJson(String fileKey, String resourcePath) {

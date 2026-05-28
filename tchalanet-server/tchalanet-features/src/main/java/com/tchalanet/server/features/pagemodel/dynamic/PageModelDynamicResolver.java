@@ -113,7 +113,9 @@ public class PageModelDynamicResolver {
             widgetId,
             "resolver",
             "NO_PROVIDER",
-            "No provider found for source=" + source
+            "No provider found for logicalId=" + logicalId
+                + ", widgetType=" + widgetType
+                + ", source=" + source
         )));
   }
 
