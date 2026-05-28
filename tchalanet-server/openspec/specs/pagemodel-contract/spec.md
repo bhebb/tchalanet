@@ -1,6 +1,9 @@
-# Spec — Predictable PageModel Contract
+# pagemodel-contract Specification
 
-## Requirement: PageModel is dynamic by composition, not by shape
+## Purpose
+TBD - created by archiving change harden-pagemodel-security-v2. Update Purpose after archive.
+## Requirements
+### Requirement: PageModel is dynamic by composition, not by shape
 
 All rendering contracts must use stable typed schemas. Free maps are forbidden in the main rendering contract.
 
@@ -20,7 +23,7 @@ Given an image appears in brand, hero, avatar, card, or feature item
 Then it uses the `ImageRef` schema
 And it does not use ad-hoc fields like `image_url`, `logoUrl`, or `avatarUrl`
 
-## Requirement: Private shell separates top app bar from navigation drawer
+### Requirement: Private shell separates top app bar from navigation drawer
 
 Private top app bar must not duplicate navigation.
 
@@ -30,7 +33,7 @@ Then `topAppBar.actions` contains utility actions only
 And `navigationDrawer` contains main destinations
 And top app bar contains no admin main navigation links
 
-## Requirement: Navigation drawer follows Material-like vocabulary
+### Requirement: Navigation drawer follows Material-like vocabulary
 
 The side menu contract uses a navigation drawer vocabulary.
 
@@ -40,3 +43,4 @@ Then `navigationDrawer.brand` contains logo/name
 And `navigationDrawer.topDestinations` contains top links such as dashboard and overview
 And `navigationDrawer.sections` contains grouped destinations
 And `navigationDrawer.footerDestinations` contains support/release notes if any
+

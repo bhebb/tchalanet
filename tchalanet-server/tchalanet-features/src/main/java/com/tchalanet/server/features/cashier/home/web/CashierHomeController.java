@@ -6,6 +6,7 @@ import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.cashier.home.app.CashierHomeService;
 import com.tchalanet.server.features.cashier.home.app.ClientSurfaceResolver;
 import com.tchalanet.server.features.cashier.home.model.CashierHomeResponse;
+import com.tchalanet.server.features.cashier.home.model.CashierReadinessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,11 @@ public class CashierHomeController {
       @CurrentContext TchRequestContext ctx,
       @RequestHeader(name = ClientSurfaceResolver.HEADER_NAME, required = false) String surface) {
     return ApiResponse.success(service.mobileHome(ctx, surface));
+  }
+
+  @GetMapping("/readiness")
+  @Operation(summary = "Get cashier readiness and lightweight attention notifications")
+  public ApiResponse<CashierReadinessResponse> readiness(@CurrentContext TchRequestContext ctx) {
+    return ApiResponse.success(service.readiness(ctx));
   }
 }

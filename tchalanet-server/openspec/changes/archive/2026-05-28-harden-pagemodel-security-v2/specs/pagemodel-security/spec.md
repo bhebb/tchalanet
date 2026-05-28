@@ -1,6 +1,8 @@
 # Spec — PageModel Security
 
-## Requirement: Public PageModels expose only public-safe content
+## ADDED Requirements
+
+### Requirement: Public PageModels expose only public-safe content
 
 Public PageModels must not expose private operational/admin/superadmin content.
 
@@ -12,7 +14,7 @@ And the response contains only public-safe widgets
 And the response contains no private/admin/platform routes
 And the response contains no operational context
 
-## Requirement: Private PageModel is resolved from server context
+### Requirement: Private PageModel is resolved from server context
 
 The server must resolve the concrete private PageModel using `TchRequestContext`.
 
@@ -31,7 +33,7 @@ Given an authenticated user with authority SUPER_ADMIN
 When the user requests `/private/page-model/dashboard`
 Then the server returns `private.dashboard.superadmin`
 
-## Requirement: Unauthorized private PageModel access is forbidden
+### Requirement: Unauthorized private PageModel access is forbidden
 
 ### Scenario: cashier attempts tenant admin dashboard
 Given an authenticated user with authority CASHIER
@@ -45,7 +47,7 @@ When the user attempts to request `private.dashboard.superadmin`
 Then the server returns 403
 And no platform admin dashboard provider is invoked
 
-## Requirement: Dynamic providers revalidate access
+### Requirement: Dynamic providers revalidate access
 
 Sensitive dynamic providers must revalidate access.
 
@@ -54,7 +56,7 @@ Given an authenticated user with authority CASHIER
 When a platform admin dashboard provider is invoked
 Then the provider rejects the call with 403
 
-## Requirement: No silent fallback
+### Requirement: No silent fallback
 
 Unauthorized access must not return another PageModel.
 
