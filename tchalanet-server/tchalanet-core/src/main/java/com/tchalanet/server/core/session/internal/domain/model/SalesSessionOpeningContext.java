@@ -54,6 +54,8 @@ public record SalesSessionOpeningContext(
 
     /* business calendar */
     boolean businessDayOpen,
+    String businessDayReasonCode,   // nullable — set when businessDayOpen = false
+    String businessDayLabel,        // nullable — human-readable reason
 
     /* current session */
     Optional<SalesSessionId> currentOpenSessionId

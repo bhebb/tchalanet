@@ -10,12 +10,12 @@ import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsComman
 import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsResult;
 import com.tchalanet.server.core.session.internal.application.port.out.AutoSessionTargetReaderPort;
 import com.tchalanet.server.core.session.internal.application.service.SalesSessionAutoCloser;
+import com.tchalanet.server.platform.tenantconfig.api.TenantZoneApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 /**
  * Nightly auto-close of POS sessions left OPEN past the business day.
@@ -40,6 +40,7 @@ public class CloseDueSalesSessionsCommandHandler
     private final AutoSessionTargetReaderPort autoSessionTargetReader;
     private final SalesSessionAutoCloser autoCloser;
     private final TenantCatalog tenantCatalog;
+    private final TenantZoneApi tenantZoneApi;
     private final JobContextBinder jobContextBinder;
     private final Clock clock;
 
@@ -54,11 +55,9 @@ public class CloseDueSalesSessionsCommandHandler
             try {
                 jobContextBinder.bindTenant(tenantId, ACTOR);
 
-                // Compute tenant-local today using the timezone stored on the tenant.
+                // Compute tenant-local today using the dedicated TenantZoneApi.
                 // Sessions with businessDate < tenantToday belong to a past business day.
-                var zone = tenantCatalog.findBootstrapById(tenantId)
-                    .map(b -> b.timezone())
-                    .orElse(ZoneId.of("UTC"));
+                var zone = tenantZoneApi.resolveTenantZone(tenantId);
                 var tenantToday = LocalDate.now(zone);
 
                 var targets = autoSessionTargetReader.findOpenSessionsBeforeBusinessDate(

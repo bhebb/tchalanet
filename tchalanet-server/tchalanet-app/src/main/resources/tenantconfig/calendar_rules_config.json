@@ -1,0 +1,9 @@
+{
+  "rules": {
+    "businessCalendar": {
+      "defaultOpen": true,
+      "closedWeekdays": [],
+      "holidaySalesAllowed": false
+    }
+  }
+}

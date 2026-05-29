@@ -15,12 +15,13 @@ import com.tchalanet.server.core.session.api.command.OpenSalesSessionResult;
 import com.tchalanet.server.core.session.internal.application.exception.SalesSessionAlreadyOpenException;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionOpeningContextReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
+import com.tchalanet.server.core.session.internal.application.service.opening.SalesSessionOpeningEligibility;
 import com.tchalanet.server.core.session.internal.application.service.opening.SalesSessionOpeningEligibilityPolicy;
+import com.tchalanet.server.core.session.internal.application.service.time.SalesSessionBusinessDateResolver;
 import com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OpenSalesSessionCommandHandler implements CommandHandler<OpenSalesSessionCommand, OpenSalesSessionResult> {
 
+  private final SalesSessionBusinessDateResolver businessDateResolver;
   private final SalesSessionOpeningContextReaderPort openingContextReader;
   private final SalesSessionOpeningEligibilityPolicy eligibilityPolicy;
   private final SalesSessionWriterPort writer;
@@ -39,34 +41,21 @@ public class OpenSalesSessionCommandHandler implements CommandHandler<OpenSalesS
   @TchTx
   public OpenSalesSessionResult handle(OpenSalesSessionCommand command) {
       var now = Instant.now(clock);
-      var businessDate = LocalDate.now(clock);
 
-      var ctx = openingContextReader.loadForOpening(
+      var businessDate = businessDateResolver.resolve(
+          command.tenantId(), command.outletId(), now);
+
+      var openingContext = openingContextReader.loadForOpening(
           command.tenantId(),
           command.outletId(),
           command.terminalId(),
           command.openedBy(),
           businessDate);
 
-      var eligibility = eligibilityPolicy.evaluate(ctx);
+      var eligibility = eligibilityPolicy.evaluate(openingContext);
 
       if (!eligibility.canOpen()) {
-          var code = eligibility.denialCode();
-          var message = eligibility.message();
-
-          if ("sales.session.already-open".equals(code)) {
-              throw new SalesSessionAlreadyOpenException(
-                  command.openedBy(),
-                  eligibility.currentOpenSessionId().get());
-          }
-
-          if (code.contains("inactive") || code.contains("not-found")
-              || code.contains("mismatch") || code.contains("not-bound")
-              || code.contains("not-allowed") || code.contains("business-day")) {
-              throw new TchForbiddenException(code, message);
-          }
-
-          throw new TchConflictException(code, message);
+          throw toOpeningException(command, eligibility);
       }
 
       var sessionId = SalesSessionId.of(idGenerator.newUuid());
@@ -95,5 +84,27 @@ public class OpenSalesSessionCommandHandler implements CommandHandler<OpenSalesS
       AfterCommit.run(() -> events.publish(event));
 
       return new OpenSalesSessionResult(saved.id(), now);
+  }
+
+  private RuntimeException toOpeningException(
+      OpenSalesSessionCommand command,
+      SalesSessionOpeningEligibility eligibility
+  ) {
+      if ("sales.session.already-open".equals(eligibility.denialCode())) {
+          var openSessionId = eligibility.currentOpenSessionId()
+              .orElseThrow(() -> new IllegalStateException(
+                  "sales.session.already-open without currentOpenSessionId"));
+
+          return new SalesSessionAlreadyOpenException(command.openedBy(), openSessionId);
+      }
+
+      return switch (eligibility.denialKind()) {
+          case FORBIDDEN -> new TchForbiddenException(
+              eligibility.denialCode(),
+              eligibility.message());
+          case CONFLICT -> new TchConflictException(
+              eligibility.denialCode(),
+              eligibility.message());
+      };
   }
 }

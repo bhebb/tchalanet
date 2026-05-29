@@ -1842,3 +1842,27 @@ CREATE TABLE seller_commission_policy (
 ALTER TABLE sales_ticket
   ADD CONSTRAINT fk_sales_ticket__seller            FOREIGN KEY (seller_id)            REFERENCES seller(id),
   ADD CONSTRAINT fk_sales_ticket__seller_assignment FOREIGN KEY (seller_assignment_id) REFERENCES seller_outlet_assignment(id);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- business_day_override
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE business_day_override (
+    id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id     uuid        NOT NULL REFERENCES tenant(id),
+    outlet_id     uuid        NULL     REFERENCES outlet(id),   -- NULL = tenant-level
+    business_date date        NOT NULL,
+    open          boolean     NOT NULL,
+    reason_code   varchar(96) NULL,
+    label         varchar(255) NULL,
+    created_at    timestamptz NOT NULL DEFAULT now(),
+    created_by    uuid        NULL,
+    updated_at    timestamptz NOT NULL DEFAULT now(),
+    updated_by    uuid        NULL,
+    deleted_at    timestamptz NULL,
+    deleted_by    uuid        NULL,
+    version       bigint      NOT NULL DEFAULT 0
+);
+
+COMMENT ON TABLE business_day_override IS
+    'Tenant or outlet-level business day open/close overrides (holidays, exceptional closures/openings).
+     outlet_id IS NULL = tenant-level rule. outlet_id IS NOT NULL = outlet-level override (wins over tenant).';

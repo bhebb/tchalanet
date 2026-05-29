@@ -7,6 +7,7 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionOpeningContextReaderPort;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSessionOpeningContext;
+import com.tchalanet.server.platform.tenantconfig.api.TenantBusinessCalendarApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -72,8 +73,8 @@ public class JdbcSalesSessionOpeningContextAdapter
             (soa.id IS NOT NULL)                             AS seller_allowed_for_outlet,
             (ta.id IS NOT NULL)                              AS seller_allowed_for_terminal,
 
-            /* business calendar — outlet.day_closed is set by CloseOutletDayCommandHandler */
-            COALESCE(NOT o.day_closed, true)                 AS business_day_open,
+            /* business calendar — raw facts; Java combines with TenantBusinessCalendarApi */
+            COALESCE(o.day_closed, false)                    AS outlet_day_closed,
 
             /* current open session */
             open_session.id                                  AS current_open_session_id
@@ -130,6 +131,7 @@ public class JdbcSalesSessionOpeningContextAdapter
         """;
 
     private final NamedParameterJdbcTemplate jdbc;
+    private final TenantBusinessCalendarApi calendarApi;
 
     @Override
     public SalesSessionOpeningContext loadForOpening(
@@ -140,48 +142,76 @@ public class JdbcSalesSessionOpeningContextAdapter
         LocalDate businessDate
     ) {
         var params = new MapSqlParameterSource()
-            .addValue("tenant_id",     tenantId.value())
-            .addValue("outlet_id",     outletId.value())
-            .addValue("terminal_id",   terminalId.value())
+            .addValue("tenant_id",      tenantId.value())
+            .addValue("outlet_id",      outletId.value())
+            .addValue("terminal_id",    terminalId.value())
             .addValue("seller_user_id", openedBy.value());
 
-        return jdbc.queryForObject(SQL, params, (rs, rowNum) ->
-            new SalesSessionOpeningContext(
-                tenantId,
-                outletId,
-                terminalId,
-                openedBy,
+        var raw = jdbc.queryForObject(SQL, params, (rs, rowNum) -> new RawFacts(
+            rs.getBoolean("tenant_exists"),
+            rs.getBoolean("tenant_active"),
+            rs.getBoolean("user_exists"),
+            rs.getBoolean("user_active"),
+            rs.getBoolean("seller_exists_in_tenant"),
+            rs.getBoolean("seller_active_in_tenant"),
+            rs.getBoolean("seller_can_open_pos_session"),
+            rs.getBoolean("outlet_exists"),
+            rs.getBoolean("outlet_belongs_to_tenant"),
+            rs.getBoolean("outlet_active"),
+            rs.getBoolean("outlet_blocked"),
+            rs.getBoolean("terminal_exists"),
+            rs.getBoolean("terminal_belongs_to_tenant"),
+            rs.getBoolean("terminal_belongs_to_outlet"),
+            rs.getBoolean("terminal_active"),
+            rs.getBoolean("terminal_blocked"),
+            rs.getBoolean("terminal_bound"),
+            rs.getBoolean("seller_allowed_for_outlet"),
+            rs.getBoolean("seller_allowed_for_terminal"),
+            rs.getBoolean("outlet_day_closed"),
+            Optional.ofNullable((UUID) rs.getObject("current_open_session_id"))
+                .map(SalesSessionId::of)
+        ));
 
-                rs.getBoolean("tenant_exists"),
-                rs.getBoolean("tenant_active"),
+        // outlet.day_closed is the immediate operational flag — blocks regardless of calendar.
+        // Otherwise, evaluate the full calendar hierarchy (overrides + weekday rules + defaultOpen).
+        boolean businessDayOpen;
+        String businessDayReasonCode = null;
+        String businessDayLabel = null;
 
-                rs.getBoolean("user_exists"),
-                rs.getBoolean("user_active"),
+        if (raw.outletDayClosed()) {
+            businessDayOpen      = false;
+            businessDayReasonCode = "OUTLET_DAY_CLOSED";
+            businessDayLabel      = "Outlet business day is closed";
+        } else {
+            var calView = calendarApi.resolveBusinessDay(tenantId, outletId, businessDate);
+            businessDayOpen      = calView.open();
+            businessDayReasonCode = calView.reasonCode();
+            businessDayLabel      = calView.label();
+        }
 
-                rs.getBoolean("seller_exists_in_tenant"),
-                rs.getBoolean("seller_active_in_tenant"),
-                rs.getBoolean("seller_can_open_pos_session"),
-
-                rs.getBoolean("outlet_exists"),
-                rs.getBoolean("outlet_belongs_to_tenant"),
-                rs.getBoolean("outlet_active"),
-                rs.getBoolean("outlet_blocked"),
-
-                rs.getBoolean("terminal_exists"),
-                rs.getBoolean("terminal_belongs_to_tenant"),
-                rs.getBoolean("terminal_belongs_to_outlet"),
-                rs.getBoolean("terminal_active"),
-                rs.getBoolean("terminal_blocked"),
-                rs.getBoolean("terminal_bound"),
-
-                rs.getBoolean("seller_allowed_for_outlet"),
-                rs.getBoolean("seller_allowed_for_terminal"),
-
-                rs.getBoolean("business_day_open"),
-
-                Optional.ofNullable((UUID) rs.getObject("current_open_session_id"))
-                    .map(SalesSessionId::of)
-            )
+        return new SalesSessionOpeningContext(
+            tenantId, outletId, terminalId, openedBy,
+            raw.tenantExists(), raw.tenantActive(),
+            raw.userExists(), raw.userActive(),
+            raw.sellerExistsInTenant(), raw.sellerActiveInTenant(), raw.sellerCanOpenPosSession(),
+            raw.outletExists(), raw.outletBelongsToTenant(), raw.outletActive(), raw.outletBlocked(),
+            raw.terminalExists(), raw.terminalBelongsToTenant(), raw.terminalBelongsToOutlet(),
+            raw.terminalActive(), raw.terminalBlocked(), raw.terminalBound(),
+            raw.sellerAllowedForOutlet(), raw.sellerAllowedForTerminal(),
+            businessDayOpen, businessDayReasonCode, businessDayLabel,
+            raw.currentOpenSessionId()
         );
     }
+
+    private record RawFacts(
+        boolean tenantExists, boolean tenantActive,
+        boolean userExists, boolean userActive,
+        boolean sellerExistsInTenant, boolean sellerActiveInTenant, boolean sellerCanOpenPosSession,
+        boolean outletExists, boolean outletBelongsToTenant, boolean outletActive, boolean outletBlocked,
+        boolean terminalExists, boolean terminalBelongsToTenant, boolean terminalBelongsToOutlet,
+        boolean terminalActive, boolean terminalBlocked, boolean terminalBound,
+        boolean sellerAllowedForOutlet, boolean sellerAllowedForTerminal,
+        boolean outletDayClosed,
+        Optional<SalesSessionId> currentOpenSessionId
+    ) {}
 }

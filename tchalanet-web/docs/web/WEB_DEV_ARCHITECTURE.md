@@ -14,7 +14,7 @@
 
 3. Générer l’application principale (sans --changeDetection) :
   ```bash
-  pnpm nx g @nx/angular:app --name=tch-portal --directory=apps/tch-portal --routing --style=scss --prefix=tch --standalone --unitTestRunner=vitest --e2eTestRunner=playwright --tags=lottery,haiti,borlette
+  pnpm nx g @nx/angular:app --name=tch-portal --directory=apps/tch-portal --routing --style=scss --prefix=tch --standalone --unitTestRunner=vitest-angular --e2eTestRunner=playwright --tags=lottery,haiti,borlette
   ```
 
 4. Démarrer le serveur de dev :
