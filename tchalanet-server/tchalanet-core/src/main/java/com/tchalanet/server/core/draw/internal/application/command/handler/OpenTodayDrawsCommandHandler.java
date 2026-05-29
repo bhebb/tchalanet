@@ -6,6 +6,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsResult;
 import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.core.draw.api.query.OpenableDrawRow;
 import java.util.List;
 import java.util.Objects;
@@ -22,16 +23,18 @@ public class OpenTodayDrawsCommandHandler
     private static final int LOG_SAMPLE_IDS = 10;
 
     private final DrawLifecyclePort port;
+    private final DrawProperties drawProperties;
 
     @Override
     @TchTx
     public OpenDueDrawsResult handle(OpenTodayDrawsCommand command) {
         validate(command);
 
+        var defaultSalesOpenTime = drawProperties.getScheduler().getOpenToday().getDefaultSalesOpenTime();
         var openable = port.findOpenableForSalesOpenTime(
             command.now(),
             command.drawDate(),
-            command.defaultSalesOpenTime(),
+            defaultSalesOpenTime,
             command.batchSize());
         int openableCount = openable.size();
         int skippedLocked = (int) openable.stream().filter(OpenableDrawRow::locked).count();
@@ -81,7 +84,6 @@ public class OpenTodayDrawsCommandHandler
     private static void validate(OpenTodayDrawsCommand command) {
         Objects.requireNonNull(command, "command is required");
         Objects.requireNonNull(command.now(), "now is required");
-        Objects.requireNonNull(command.defaultSalesOpenTime(), "defaultSalesOpenTime is required");
         if (command.batchSize() <= 0) {
             throw new IllegalArgumentException("batchSize must be > 0");
         }

@@ -14,7 +14,7 @@ import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseOutletDayPayl
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.SalesTicketAdminPort;
-import com.tchalanet.server.core.outlet.internal.domain.event.OutletDayClosedEvent;
+import com.tchalanet.server.core.outlet.api.event.OutletDayClosedEvent;
 import com.tchalanet.server.core.session.api.query.GetOpenedSalesSessionQuery;
 import lombok.RequiredArgsConstructor;
 

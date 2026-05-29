@@ -63,9 +63,14 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
         OutletId outletId,
         UserId openedBy,
         LocalDate businessDate) {
-        // Exclude terminal statuses so that a finalized or cancelled session does
-        // not block a new session from being opened on the same business day.
-        var excluded = java.util.List.of(SalesSessionStatus.FINALIZED, SalesSessionStatus.CANCELLED);
+        // V1 business rule: only an OPEN session blocks opening a new one on the same
+        // business day. CLOSED, FINALIZED and CANCELLED sessions are excluded so that a
+        // seller can close their session and immediately open a new one (e.g. after a
+        // session-close E2E test, after an admin finalize, or after a drawer mistake).
+        var excluded = java.util.List.of(
+            SalesSessionStatus.CLOSED,
+            SalesSessionStatus.FINALIZED,
+            SalesSessionStatus.CANCELLED);
         return jpaRepository.existsActiveForBusinessDate(
             tenantId.value(), outletId.value(), openedBy.value(), businessDate, excluded);
     }

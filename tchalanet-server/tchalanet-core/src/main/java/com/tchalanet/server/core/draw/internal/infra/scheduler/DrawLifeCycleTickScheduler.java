@@ -127,7 +127,6 @@ public class DrawLifeCycleTickScheduler {
         validateOpenTodayCanRun();
 
         var maxItems = Math.max(1, drawProps.getScheduler().getOpenToday().getMaxItemsPerRun());
-        var defaultSalesOpenTime = drawProps.getScheduler().getOpenToday().getDefaultSalesOpenTime();
         var activeTenants = tenantCatalog.listActiveTenantIds();
         if (activeTenants.isEmpty()) {
             throw new JobSkippedException("no_active_tenants", "No active tenants");
@@ -141,7 +140,6 @@ public class DrawLifeCycleTickScheduler {
                 var result = commandBus.execute(new OpenTodayDrawsCommand(
                     now,
                     null,
-                    defaultSalesOpenTime,
                     maxItems,
                     false));
                 log.info(

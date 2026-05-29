@@ -2,7 +2,7 @@ package com.tchalanet.server.core.outlet.internal.infra.cache;
 
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletConfigUpdatedEvent;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletCreatedEvent;
-import com.tchalanet.server.core.outlet.internal.domain.event.OutletDayClosedEvent;
+import com.tchalanet.server.core.outlet.api.event.OutletDayClosedEvent;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletDayReopenedEvent;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletSalesBlockedEvent;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletSalesUnblockedEvent;
