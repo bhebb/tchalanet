@@ -7,6 +7,7 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
+@Audited
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)

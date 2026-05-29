@@ -1,0 +1,54 @@
+services:
+  edge:
+    build:
+      context: ../../tchalanet-edge-service
+      dockerfile: Dockerfile
+    image: ${TCH_EDGE_IMAGE:-tchalanet-edge-service:${TCH_EDGE_TAG:-local}}
+    container_name: tchalanet-edge-${ENV:-dev}
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+
+      # Required. Must match the backend/platform.communication client secret.
+      EDGE_HMAC_SECRET: ${EDGE_HMAC_SECRET:?EDGE_HMAC_SECRET is required}
+
+      SLACK_ENABLED: ${SLACK_ENABLED:-false}
+      SLACK_WEBHOOK_TCHALANET: ${SLACK_WEBHOOK_TCHALANET:-}
+      SLACK_WEBHOOK_BATCH_DRAWS: ${SLACK_WEBHOOK_BATCH_DRAWS:-}
+      SLACK_WEBHOOK_DELIVERY: ${SLACK_WEBHOOK_DELIVERY:-}
+      SLACK_WEBHOOK_OPS_ALERTS: ${SLACK_WEBHOOK_OPS_ALERTS:-}
+      SLACK_WEBHOOK_SECURITY_AUDIT: ${SLACK_WEBHOOK_SECURITY_AUDIT:-}
+
+      EMAIL_ENABLED: ${EMAIL_ENABLED:-false}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-brevo}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-Tchalanet}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-no-reply@example.com}
+
+      SMS_ENABLED: ${SMS_ENABLED:-false}
+      SMS_PROVIDER: ${SMS_PROVIDER:-twilio}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN:-}
+      TWILIO_FROM: ${TWILIO_FROM:-}
+
+    # Internal-to-compose only. Do not publish with `ports:`.
+    expose:
+      - "3000"
+
+    networks:
+      - back
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  back:
+    name: back-${ENV:-dev}
+    external: true

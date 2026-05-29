@@ -7,9 +7,11 @@ import jakarta.persistence.MappedSuperclass;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
 
 @MappedSuperclass
 @EntityListeners({TenantEntityListener.class})
+@Audited
 @Getter
 @Setter
 public abstract class BaseTenantEntity extends BaseEntity {

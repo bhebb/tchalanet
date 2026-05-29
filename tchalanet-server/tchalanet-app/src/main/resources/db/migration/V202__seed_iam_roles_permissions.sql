@@ -10,7 +10,7 @@ BEGIN
   RAISE NOTICE 'V42__seed_iam_roles_permissions: seeding local users (super_admin, admin, cashier)';
 
   -- find tenant 'default' if present (optional)
-  SELECT id INTO t_id FROM tenant WHERE code = 'default' LIMIT 1;
+  SELECT id INTO t_id FROM tenant WHERE code = 'tchalanet' LIMIT 1;
 
   -- --- super_admin ---
   IF NOT EXISTS (SELECT 1 FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010001'::uuid AND deleted_at IS NULL) THEN
@@ -93,6 +93,7 @@ VALUES
     ('session.read', 'Session Read', 'Read session totals and status'),
     ('session.totals.recompute', 'Session Totals Recompute', 'Force recompute of session totals'),
     ('reporting.view', 'Reporting View', 'View tenant reports'),
+    ('ticket.sell', 'Ticket create', 'Create / Sell Ticket'),
     ('terminal.challenge.create', 'Terminal Challenge Create', 'Create POS terminal activation challenges'),
     ('terminal.binding.create', 'Terminal Binding Create', 'Verify POS challenges and bind terminal devices'),
     ('terminal.phone.challenge.create', 'Phone Terminal Challenge Create', 'Create virtual phone terminal activation challenges'),

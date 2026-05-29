@@ -10,6 +10,7 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.SellerId;
 import com.tchalanet.server.core.seller.api.command.CreateSellerCommand;
 import com.tchalanet.server.core.seller.api.model.SellerStatus;
+import com.tchalanet.server.core.seller.internal.application.port.out.SellerReaderPort;
 import com.tchalanet.server.core.seller.internal.application.port.out.SellerWriterPort;
 import com.tchalanet.server.core.seller.internal.domain.event.SellerCreatedEvent;
 import com.tchalanet.server.core.seller.internal.domain.model.Seller;
@@ -22,6 +23,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class CreateSellerCommandHandler implements CommandHandler<CreateSellerCommand, SellerId> {
 
+    private final SellerReaderPort reader;
     private final SellerWriterPort writer;
     private final IdGenerator idGenerator;
     private final Clock clock;
@@ -30,6 +32,14 @@ public class CreateSellerCommandHandler implements CommandHandler<CreateSellerCo
     @Override
     @TchTx
     public SellerId handle(CreateSellerCommand command) {
+        // Idempotent: if a seller already exists for this userId, return the existing id.
+        if (command.userId() != null) {
+            var existing = reader.findSellerByUserId(command.tenantId(), command.userId());
+            if (existing.isPresent()) {
+                return existing.get().id();
+            }
+        }
+
         var now = Instant.now(clock);
         var sellerId = SellerId.of(idGenerator.newUuid());
 

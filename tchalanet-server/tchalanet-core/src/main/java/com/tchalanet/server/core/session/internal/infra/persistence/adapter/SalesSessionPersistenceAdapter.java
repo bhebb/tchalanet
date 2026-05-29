@@ -63,8 +63,11 @@ public class SalesSessionPersistenceAdapter implements SalesSessionReaderPort {
         OutletId outletId,
         UserId openedBy,
         LocalDate businessDate) {
-        return jpaRepository.existsByTenantIdAndOutletIdAndOpenedByAndBusinessDate(
-            tenantId.value(), outletId.value(), openedBy.value(), businessDate);
+        // Exclude terminal statuses so that a finalized or cancelled session does
+        // not block a new session from being opened on the same business day.
+        var excluded = java.util.List.of(SalesSessionStatus.FINALIZED, SalesSessionStatus.CANCELLED);
+        return jpaRepository.existsActiveForBusinessDate(
+            tenantId.value(), outletId.value(), openedBy.value(), businessDate, excluded);
     }
 
     @Override
