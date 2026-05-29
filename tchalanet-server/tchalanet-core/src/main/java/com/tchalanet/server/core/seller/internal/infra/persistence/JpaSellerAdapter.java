@@ -10,12 +10,14 @@ import com.tchalanet.server.core.seller.api.model.SellerAssignmentStatus;
 import com.tchalanet.server.core.seller.api.model.SellerCommissionBase;
 import com.tchalanet.server.core.seller.api.model.SellerCommissionType;
 import com.tchalanet.server.core.seller.api.model.SellerStatus;
+import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.seller.internal.application.port.out.SellerReaderPort;
 import com.tchalanet.server.core.seller.internal.application.port.out.SellerWriterPort;
 import com.tchalanet.server.core.seller.internal.domain.model.Seller;
 import com.tchalanet.server.core.seller.internal.domain.model.SellerCommissionPolicy;
 import com.tchalanet.server.core.seller.internal.domain.model.SellerOutletAssignment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -92,8 +94,14 @@ class JpaSellerAdapter implements SellerReaderPort, SellerWriterPort {
 
     @Override
     public Seller saveSeller(Seller seller) {
-        var entity = toEntity(seller);
-        return toDomain(sellerRepo.save(entity));
+        try {
+            var entity = toEntity(seller);
+            return toDomain(sellerRepo.save(entity));
+        } catch (DataIntegrityViolationException ex) {
+            // Translate constraint violation (e.g. uq_seller_tenant_code) to a 409
+            // so callers receive a structured conflict error instead of a 500.
+            throw ProblemRestException.conflict("seller.code_already_exists");
+        }
     }
 
     @Override

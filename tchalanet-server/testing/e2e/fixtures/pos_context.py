@@ -134,7 +134,26 @@ def build_pos_context(
         except _pytest.outcomes.OutcomeException:
             pass  # WIP or 409 — seeded seller assumed already present
 
-    # Step 1b — idempotent terminal bind
+    # Step 1b — assign the terminal to the cashier user.
+    # The seed assigns the terminal to the tenant admin, but the cashier is the one
+    # operating it. ValidateTerminalForOperationQueryHandler requires BOTH
+    # terminal.assigned_user_id == cashier AND an ACTIVE terminal_assignment row for
+    # the cashier; the assign-user command maintains both. Idempotent: 200 on (re)assign,
+    # 409 if already assigned — both fine. This keeps onboarding self-sufficient and
+    # reproducible instead of depending on the seed's terminal→user assignment.
+    if seed_ids.cashier_user_id:
+        assign = admin_client.post(
+            f"/admin/terminals/{seed_ids.terminal_id}/assign-user",
+            json={"userId": seed_ids.cashier_user_id},
+        )
+        # 404/405 = endpoint not routed (older backend); 422 = business rule — tolerate,
+        # the seed assignment is then assumed correct. Only a 5xx is a real surprise.
+        if assign.status_code >= 500:
+            raise AssertionError(
+                f"assign-user returned {assign.status_code}: {assign.text}"
+            )
+
+    # Step 1c — idempotent terminal bind
     # 409 = already bound; pytest.skip = endpoint WIP; both are fine
     try:
         OnboardingFlow(super_admin_client).bind_terminal(

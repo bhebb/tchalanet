@@ -1,85 +1,74 @@
-# Web Agent Rules — Tchalanet
 
-> Status: DRAFT v0.1
+# Règles pour agents IA — Tchalanet Web (2026)
 
-Ce document donne les règles minimales pour les agents IA qui modifient le frontend.
+Ce document définit les règles pour les agents IA qui modifient le frontend Angular/Nx.
 
-## 1. Règle centrale
+## 1. Architecture cible
 
-```text
-core connecte l'app.
-features composent les écrans.
-data-access parle au backend.
-ui dessine.
-shared aide.
-```
-
-## 2. Avant de créer un fichier
-
-Choisir une seule maison :
+Respecter la structure suivante :
 
 ```text
-Global technique ? core
-Écran/route/flow ? features
-API/backend/state réutilisable ? data-access
-Composant visuel pur ? ui
-Utilitaire générique ? shared
+libs/
+	api/
+	shared-auth/
+	shared-i18n/
+	shared-config/
+	ui/
+	page-model/
+	widgets/
+	web/
 ```
 
-## 3. Interdits
+Ne jamais créer de micro-lib ou de nouveau dossier top-level sans justification claire et validation humaine.
 
-- Ne pas créer de nouveau top-level folder sans validation.
-- Ne pas mettre `AuthService` dans `shared`.
-- Ne pas mettre `HttpClient` dans un composant de feature si une lib `data-access` existe.
-- Ne pas mettre des composants visuels dans `shared`.
-- Ne pas faire dépendre `ui` de `data-access`.
-- Ne pas faire dépendre `data-access` de `features`.
-- Ne pas recoder des règles métier critiques côté frontend.
+## 2. Placement des fichiers
 
-## 4. Feature
+- Contrats, modèles, clients HTTP : `api/`
+- Auth, guards, login : `shared-auth/`
+- I18n, loader, switcher : `shared-i18n/`
+- Config, env, feature flags : `shared-config/`
+- Composants visuels réutilisables : `ui/`
+- Moteur PageModel, rendering, state : `page-model/`
+- Widgets dynamiques : `widgets/`
+- Pages routées, shells, containers : `web/`
 
-Par défaut :
+## 3. Conventions et suffixes
 
-```text
-apps/tch-web/src/app/features/<scope>/<feature>
-```
+- Page routée : `*.page.ts`
+- Container interne : `*.container.ts`
+- Composant visuel : `*.component.ts`
+- Widget dynamique : `*.widget.ts`
+- Shell global : `*.shell.ts`
 
-Ne pas créer `components/`, `pages/`, `state/` automatiquement. Rester plat au début.
+## 4. Tags Nx et dépendances
 
-## 5. Header / Footer / Sidebar
+- Taguer chaque lib avec : `type:<lib>` et `scope:<domaine>`
+- Respecter les dépendances Nx :
+	- `web` peut dépendre de `ui`, `widgets`, `api`, `shared-*`
+	- `ui` ne dépend que de `shared-*`
+	- `widgets` peut dépendre de `ui`, `api`, `shared-*`
+	- `api` ne dépend que de `shared-*`
+	- `shared-*` ne dépend que de code générique
 
-```text
-visuel pur -> ui/layout
-connecté auth/nav/tenant -> core/shell
-```
+## 5. Interdits
 
-## 6. PageModel
+- Ne pas créer de nouvelle lib sans frontière claire et stable
+- Ne pas mettre de logique métier critique dans le frontend
+- Ne pas faire dépendre `ui` de `data-access` ou `api`
+- Ne pas faire dépendre `widgets` de `web`
+- Ne pas mettre de composants visuels dans `shared-*`
+- Ne pas mettre d’appel HTTP dans un composant UI
 
-```text
-API/models -> data-access/page-model
-renderer -> ui/page-renderer
-widgets -> ui/widgets
-runtime public -> features/public/dynamic-page
-admin editor -> features/platform/page-models
-```
+## 6. Quand extraire une feature en lib Nx
 
-## 7. State
+Seulement si :
 
-```text
-local simple -> signal dans composant
-écran -> feature store
-API réutilisable -> data-access state
-global -> core
-```
+- partagée par plusieurs apps
+- grosse ou stratégique
+- besoin de tests/build séparés
+- besoin de boundaries Nx propres
 
-## 8. Quand extraire une feature en lib Nx
+## 7. Références
 
-Seulement si :
-
-```text
-partagée par plusieurs apps
-grosse
-stratégique
-besoin de tests/build séparés
-besoin de boundaries Nx propres
-```
+- `WEB_DEV_ARCHITECTURE.md` — conventions dev et agents
+- `frontend-architecture-todo.md` — mapping détaillé

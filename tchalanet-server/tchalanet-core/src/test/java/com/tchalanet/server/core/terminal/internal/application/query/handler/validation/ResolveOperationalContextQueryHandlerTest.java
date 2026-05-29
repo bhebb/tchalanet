@@ -219,6 +219,11 @@ class ResolveOperationalContextQueryHandlerTest {
         public Optional<TerminalAssignment> findActive(TenantId tenantId, TerminalId terminalId, UserId userId) {
             return exists ? Optional.of(assignment()) : Optional.empty();
         }
+
+        @Override
+        public Optional<TerminalAssignment> findActiveAssignmentByTerminal(TenantId tenantId, TerminalId terminalId) {
+            return exists ? Optional.of(assignment()) : Optional.empty();
+        }
     }
 
     private record StubBindingReaderPort(List<TerminalDeviceBinding> bindings) implements TerminalDeviceBindingReaderPort {

@@ -26,23 +26,25 @@ pnpm nx serve tchalanet-portal
 - `openspec/` — OpenSpec projet-local web
 - `docs/web/` — règles d’architecture frontend
 
+
 ## Architecture docs
 
-Première version des règles d'architecture web Tchalanet.
+**Important : Avant toute modification, lire :**
 
-Objectif : donner aux développeurs et agents IA un modèle mental simple, aligné avec Angular/Nx, sans sur-ingénierie.
+- `docs/web/WEB_DEV_ARCHITECTURE.md` — conventions de développement, structure cible, checklist, commande Nx recommandée
+- `docs/web/WEB_AGENTS.md` — règles pour agents IA (placement, interdits, tags Nx)
+- `docs/web/frontend-architecture-todo.md` — mapping détaillé, migration, rôles des libs
 
-## Documents
+Autres documents :
 
-- `docs/web/WEB_ARCHITECTURE.md` — modèle mental, couches, responsabilités.
-- `docs/web/WEB_STATE_MANAGEMENT.md` — règles Signals / SignalStore / NgRx.
-- `docs/web/WEB_NX_BOUNDARIES.md` — tags Nx et règles de dépendances.
-- `docs/web/WEB_FEATURE_PLAYBOOK.md` — comment ajouter une feature.
-- `docs/web/WEB_PLACEMENT_GUIDE.md` — où placer auth, header, PageModel, widgets, i18n, etc.
-- `docs/web/WEB_NAMING.md` — conventions de nommage frontend.
-- `docs/web/WEB_AGENTS.md` — règles pour agents IA.
-- `openspec/context/90-web-rules.md` — règles normatives compactes.
-- `examples/` — snippets ESLint, feature template, state template.
+- `docs/web/WEB_ARCHITECTURE.md` — modèle mental, familles, structure cible
+- `docs/web/WEB_STATE_MANAGEMENT.md` — state placement rules
+- `docs/web/WEB_NX_BOUNDARIES.md` — Nx tags et dépendances
+- `docs/web/WEB_FEATURE_PLAYBOOK.md` — workflow feature
+- `docs/web/WEB_PLACEMENT_GUIDE.md` — où placer chaque concept
+- `docs/web/WEB_NAMING.md` — conventions de nommage frontend
+- `openspec/context/90-web-rules.md` — règles normatives compactes
+- `examples/` — snippets ESLint, feature template, state template
 
 ## Références officielles
 

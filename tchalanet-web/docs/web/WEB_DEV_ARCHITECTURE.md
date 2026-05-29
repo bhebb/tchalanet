@@ -1,183 +1,148 @@
-# Web Development Architecture — Tchalanet
+## Guide de démarrage rapide
 
-> Status: DRAFT v0.1
-> Scope: `tchalanet-web`
-> Goal: define the development architecture we will apply while building the
+1. Initialiser le workspace (si besoin) :
+  ```bash
+  pnpm init # si package.json absent
+  npx create-nx-workspace@latest . # si Nx pas encore initialisé
+  pnpm install
+  ```
+
+2. Installer le plugin Angular pour Nx :
+  ```bash
+  pnpm add -D @nx/angular
+  ```
+
+3. Générer l’application principale (sans --changeDetection) :
+  ```bash
+  pnpm nx g @nx/angular:app --name=tch-portal --directory=apps/tch-portal --routing --style=scss --prefix=tch --standalone --unitTestRunner=vitest --e2eTestRunner=playwright --tags=lottery,haiti,borlette
+  ```
+
+4. Démarrer le serveur de dev :
+  ```bash
+  pnpm nx serve tch-portal
+  ```
+
+5. Lancer les tests unitaires (Vitest) :
+  ```bash
+  pnpm nx test tch-portal
+  ```
+
+6. Lancer les tests end-to-end (Playwright) :
+  ```bash
+  pnpm nx e2e tch-portal-e2e
+  ```
+
+Respecte ensuite la structure cible et les conventions de la doc pour créer libs/pages/features.
 > Angular/Nx web app.
-
-## 1. Baseline
-
-Tchalanet Web is an Angular/Nx workspace. Runtime and framework lines are owned
-by `../../VERSIONS.md`.
-
-Current development line:
-
-- Angular 20.x
-- Nx 21.x
-- TypeScript 5.8.x
-- pnpm lockfile is authoritative for resolved package versions
-
-Upgrades stay inside those lines unless a dedicated version change updates
-`../../VERSIONS.md` and the related build/runtime files.
-
-## 2. Architecture Intent
-
-The web app should stay easy to navigate while it grows.
-
-The target architecture is intentionally small:
-
-```text
-core         application wiring and global runtime services
-features     routed screens and user flows
-data-access  backend contracts, API clients and reusable API state
-ui           presentational components and renderers
-shared       generic utilities and low-level types
-```
-
-Every new file should have one obvious home. If a file does not fit, we decide
-whether the concept belongs to an existing family before creating a new one.
-
-## 3. Development Model
-
-Features start close to the app when they are product-specific:
-
-```text
-apps/tchalanet-portal/src/app/features/<scope>/<feature>
-```
-
-Allowed scopes:
-
-```text
-public
-tenant
-admin
-platform
-```
-
-Extract a feature into an Nx lib only when it becomes shared, large, strategic,
 or needs isolated boundaries and tests.
 
-## 4. Runtime Flow
+# Architecture de développement frontend — Tchalanet
 
-The default flow for a screen is:
+> Version : 2026-05 — Architecture cible Nx/Angular
 
-```text
-route -> feature page -> feature store -> data-access API -> backend
-                  |
-                  +-> ui components
-```
+## 1. Objectif
 
-Rules:
+Stabiliser l’architecture Angular Nx de `tchalanet-web` avant de développer massivement les pages public, admin, cashier/POS et superadmin.
 
-- Pages compose the screen and route data.
-- Feature stores own screen state such as filters, pagination, selected item,
-  loading and errors.
-- API calls live in `data-access`, not directly in UI components.
-- UI components receive data through inputs and emit user intent through
-  outputs.
-- Critical business rules stay on the backend; the web app can guide, validate
-  and present, but must not become the source of business truth.
+Le but est de réduire le nombre de libs, clarifier les responsabilités, éviter les abstractions prématurées et poser une base cohérente avec l’architecture backend Tchalanet.
 
-## 5. State Placement
+---
 
-Use the narrowest useful state owner:
+## 2. Décision de base
 
-| Need                                         | Placement                    |
-| -------------------------------------------- | ---------------------------- |
-| Local toggle, tab, dialog state              | Component `signal()`         |
-| Screen state                                 | Feature store                |
-| Reusable API cache                           | `data-access/<domain>/state` |
-| Session, permissions, locale, runtime config | `core`                       |
-
-NgRx is available, but not the default answer for every screen. Prefer Angular
-signals and explicit stores until a flow clearly needs global action-based
-state.
-
-## 6. Contracts And Backend Integration
-
-Backend-facing code belongs in `data-access`.
-
-Expected shape:
+Démarrer avec un nombre limité de libs stables :
 
 ```text
-data-access/<domain>/
+libs/
   api/
-  model/
-  state/
+  shared-auth/
+  shared-i18n/
+  shared-config/
+  ui/
+  page-model/
+  widgets/
+  web/
 ```
 
-Frontend DTOs should mirror backend contracts:
+Ne pas créer une lib pour chaque petit composant, widget ou facade.
+Une lib Nx doit exister seulement si elle porte une frontière claire, stable et utile.
 
-- successful responses use the backend `ApiResponse<T>` shape when applicable
-- errors use `ProblemDetail`
-- paginated responses use the shared page shape
+---
 
-Mapping to view models can live in the feature when it is screen-specific. A
-mapper moves to `data-access` only when several features reuse it.
+## 3. Rôle des libs
 
-## 7. UI And Theming
+Voir frontend-architecture-todo.md pour le détail des responsabilités de chaque lib.
 
-`ui` is for presentation:
+Résumé :
 
-- no `HttpClient`
-- no auth token or tenant resolution
-- no backend orchestration
-- no critical business decisions
+- `api` : contrats backend/frontend, modèles, clients HTTP, interceptors
+- `shared-auth` : auth, guards, login, secure storage
+- `shared-i18n` : i18n, loader, switcher
+- `shared-config` : env, feature flags, settings
+- `ui` : design system, composants visuels, layout, feedback, actions, forms, status
+- `page-model` : moteur PageModel, state, rendering, facade
+- `widgets` : registry, widgets dynamiques, public/private/cashier/admin
+- `web` : pages routées, shells, containers, assemblage écran
 
-Theme and layout must remain mobile-first, token-themed and i18n-aware. Shared
-layout primitives live in `ui/layout`; connected shell containers live in
-`core/shell`.
+---
 
-## 8. Nx Boundaries
-
-Nx is the enforcement layer, not the architecture itself.
-
-When a concept becomes an Nx lib, tag it with:
+## 4. Convention Page / Container / Component / Widget
 
 ```text
-type:<core|feature|data-access|ui|shared>
-scope:<public|tenant|admin|platform|shared|core|domain-name>
+Route -> Page -> Container(s) -> Component(s)
 ```
 
-Default allowed dependencies:
+- Page : composant routé, suffixe `*.page.ts`, layout principal, peut injecter facade/store/router
+- Container : interne à une Page, suffixe `*.container.ts`, orchestre une sous-zone logique
+- Component : visuel, suffixe `*.component.ts`, reçoit `input()`, émet `output()`, stateless
+- Widget : rendu dynamiquement par PageModel, suffixe `*.widget.ts`, reçoit des props
+- Shell : structure globale d’une surface, suffixe `*.shell.ts`
 
-```text
-features    -> data-access, ui, core, shared
-core        -> shared, selected ui layout primitives
-data-access -> core/http, shared
-ui          -> shared
-shared      -> no internal project dependencies
+---
+
+## 5. Checklist développement
+
+- Ne pas créer de nouvelle lib sans frontière claire et stable
+- Placer les pages dans `web/` (public, private, cashier, admin, etc.)
+- Placer les widgets dynamiques dans `widgets/`
+- Placer les composants visuels réutilisables dans `ui/`
+- Placer les contrats, modèles, clients HTTP dans `api/`
+- Placer l’auth dans `shared-auth/`, l’i18n dans `shared-i18n/`, la config dans `shared-config/`
+- Utiliser les tags Nx pour chaque lib :
+  - `type:api|ui|web|widgets|page-model|shared-auth|shared-i18n|shared-config`
+  - `scope:public|private|cashier|admin|platform|shared`
+- Respecter les dépendances Nx :
+  - `web` peut dépendre de `ui`, `widgets`, `api`, `shared-*`
+  - `ui` ne dépend que de `shared-*`
+  - `widgets` peut dépendre de `ui`, `api`, `shared-*`
+  - `api` ne dépend que de `shared-*`
+  - `shared-*` ne dépend que de code générique
+
+---
+
+## 6. Commande Nx recommandée pour une nouvelle app
+
+```bash
+pnpm nx g @nx/angular:app tch-portal \
+  --directory=apps/tch-portal \
+  --routing \
+  --style=scss \
+  --prefix=tch \
+  --standalone \
+  --unitTestRunner=vitest \
+  --e2eTestRunner=playwright \
+  --changeDetection=OnPush \
+  --tags=lottery,haiti,borlette
 ```
 
-## 9. Development Checklist
+---
 
-Before adding or changing a feature:
+## 7. Liens et docs complémentaires
 
-- Confirm whether an OpenSpec change is required.
-- Choose the scope: `public`, `tenant`, `admin` or `platform`.
-- Put backend calls in `data-access`.
-- Put screen state in a feature store when component signals are not enough.
-- Keep reusable visual pieces pure and move them to `ui` only when reuse is
-  real.
-- Add or adjust Nx tags when a new lib is created.
-- Validate with the narrowest relevant Nx target first.
-
-## 10. Open Decisions
-
-These decisions should be resolved as development progresses:
-
-- exact path for future app-local features under `apps/tchalanet-portal`
-- whether PageModel editing becomes a platform feature lib or remains app-local
-- whether reusable API state uses plain service stores or a formal SignalStore
-  helper
-- final ESLint module-boundary rules once the current libs are normalized
-- migration path for any legacy `libs/web/*` structure that does not match the
-  five-family model
-
-## 11. Related Docs
-
-- `WEB_ARCHITECTURE.md` — model, families and responsibilities
-- `WEB_STATE_MANAGEMENT.md` — state placement rules
-- `WEB_NX_BOUNDARIES.md` — Nx tags and dependency constraints
-- `WEB_FEATURE_PLAYBOOK.md` — feature creation workflow
-- `WEB_PLACEMENT_GUIDE.md` — placement guide for common frontend concepts
+- `frontend-architecture-todo.md` — plan détaillé, mapping, migration
+- `WEB_ARCHITECTURE.md` — modèle mental, familles, structure cible
+- `WEB_AGENTS.md` — règles pour agents IA
+- `WEB_STATE_MANAGEMENT.md` — state placement
+- `WEB_NX_BOUNDARIES.md` — Nx tags et dépendances
+- `WEB_FEATURE_PLAYBOOK.md` — workflow feature
+- `WEB_PLACEMENT_GUIDE.md` — où placer chaque concept

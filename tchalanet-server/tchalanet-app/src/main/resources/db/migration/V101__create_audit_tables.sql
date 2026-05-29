@@ -934,6 +934,8 @@ CREATE TABLE sales_ticket_aud
     outlet_id               uuid,
     terminal_id             uuid,
     seller_user_id          uuid,
+    seller_id               uuid,
+    seller_assignment_id    uuid,
     sales_session_id        uuid,
     draw_id                 uuid,
     draw_channel_id         uuid,

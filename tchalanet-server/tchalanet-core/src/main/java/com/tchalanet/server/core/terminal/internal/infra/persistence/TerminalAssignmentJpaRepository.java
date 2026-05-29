@@ -13,4 +13,10 @@ public interface TerminalAssignmentJpaRepository extends TchJpaRepository<Termin
         UUID userId,
         TerminalAssignmentStatus status
     );
+
+    Optional<TerminalAssignmentJpaEntity> findByTenantIdAndTerminalIdAndStatus(
+        UUID tenantId,
+        UUID terminalId,
+        TerminalAssignmentStatus status
+    );
 }

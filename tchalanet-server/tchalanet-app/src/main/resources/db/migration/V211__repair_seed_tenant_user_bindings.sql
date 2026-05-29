@@ -76,8 +76,10 @@ BEGIN
 
   -- ── terminal_binding ─────────────────────────────────────────────────────
   -- Seed a known dev binding so local E2E can authenticate with credential 'e2e-cred-dev'.
-  -- Hash = SHA256Hex(tenantId + "|" + terminalId + "|" + "e2e-cred-dev")
-  -- = 4d0e4221f2911bd2acd91765ec95b6dba87b965e5ecd2218f0a7b3ed638e10cf
+  -- binding_secret_hash MUST equal TerminalBindingCredentialHasher.hash(...) =
+  --   SHA256Hex(tenantId + "|" + terminalId + "|" + "e2e-cred-dev")
+  -- Computed in-DB via pgcrypto so it stays correct for any tenant id (a hardcoded
+  -- literal here was previously wrong, which broke STRONG operational-context trust).
   INSERT INTO terminal_binding (
     id, tenant_id, terminal_id, binding_type, status,
     binding_public_key, binding_secret_hash, device_fingerprint_hash,
@@ -90,7 +92,7 @@ BEGIN
     'POS_DEVICE',
     'ACTIVE',
     'local-dev-public-key',
-    '4d0e4221f2911bd2acd91765ec95b6dba87b965e5ecd2218f0a7b3ed638e10cf',
+    encode(digest(t_id::text || '|' || '00000000-0000-0000-0000-000000003101' || '|' || 'e2e-cred-dev', 'sha256'), 'hex'),
     'local-dev-device-fingerprint-hash',
     now(), now(), now()
   )

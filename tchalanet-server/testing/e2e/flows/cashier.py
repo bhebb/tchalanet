@@ -186,6 +186,7 @@ class CashierFlow:
         response = self.client.post(
             f"/tenant/cashier/tickets/{ticket_id}/print",
             json={
+                "terminalId": self.context.terminal_id,
                 "format": fmt,
                 "recordPrint": True,
                 "deliveryOptions": ["RETURN_FILE"],
