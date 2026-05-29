@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.internal.application.command.handler;
+package com.tchalanet.server.core.outlet.internal.application.command.handler.assignment;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
@@ -7,7 +7,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.outlet.api.command.RemoveUserFromOutletCommand;
+import com.tchalanet.server.core.outlet.api.command.assignment.RemoveUserFromOutletCommand;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletMembershipPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletUserRemovedEvent;

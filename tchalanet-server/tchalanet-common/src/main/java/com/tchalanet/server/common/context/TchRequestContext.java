@@ -347,6 +347,14 @@ public record TchRequestContext(
         return operationalContext;
     }
 
+    public OperationalContextHint trustedOperationalContextRequired() {
+        var context = operationalContextRequired();
+        if (!context.trustedForSensitiveOperation()) {
+            throw ProblemRest.forbidden("operational_context.untrusted");
+        }
+        return context;
+    }
+
     public TchRequestContext withOperationalContext(OperationalContextHint operationalContext) {
         return new TchRequestContext(
             originalTenantCode,

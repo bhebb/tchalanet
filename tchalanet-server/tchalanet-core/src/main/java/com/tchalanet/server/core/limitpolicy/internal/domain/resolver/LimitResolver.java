@@ -4,8 +4,8 @@ import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimitRule;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimits;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitAssignment;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 
 import java.util.EnumMap;
 import java.util.List;

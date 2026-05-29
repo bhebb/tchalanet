@@ -1,6 +1,6 @@
 package com.tchalanet.server.features.publicdrawresults.model;
 
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicNextResultTimeView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicNextResultTimeView;
 import java.time.LocalTime;
 import java.util.List;
 

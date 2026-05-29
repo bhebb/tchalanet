@@ -60,7 +60,7 @@ class CommunicationApiService implements CommunicationApi {
             entity.setLocale(request.locale() == null ? null : request.locale().toLanguageTag());
             entity.setSubject(rendered.subject());
             entity.setBody(rendered.body());
-            entity.setPayload(jsonUtils.toJsonNode(request.metadata()));
+            entity.setPayload(jsonUtils.toJsonNode(request.metadataWithAttachments()));
             entity.setPriority(request.priority());
             entity.setStatus(DeliveryStatus.PENDING);
             entity.setCorrelationKey(correlationKey);

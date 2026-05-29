@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Endpoint public (anonymous) pour résoudre un PageModel par logicalId.
- * Route : GET /api/v1/public/pagemodel/{logicalId}
+ * Endpoint public (anonymous) pour résoudre un PageModel public par logicalId.
+ * Route : GET /api/v1/public/page-models/{logicalId}
+ * Le logicalId est explicite pour les pages publiques (ex: public.home, public.draw_results).
  */
 @RestController
-@RequestMapping("/public/pagemodel")
+@RequestMapping("/public/page-models")
 @RequiredArgsConstructor
 @Tag(name = "Public • PageModel")
 public class PublicPageModelController {

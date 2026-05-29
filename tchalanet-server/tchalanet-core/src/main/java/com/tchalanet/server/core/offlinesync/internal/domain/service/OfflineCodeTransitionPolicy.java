@@ -10,7 +10,7 @@ import java.util.Map;
  * Pure transition rule book for {@link OfflineCodeStatus}.
  *
  * <p>Hard rule: a submitted code ({@code RESERVED}) NEVER returns to {@code AVAILABLE}.
- * Technical rejection leads to {@code CONSUMED_REJECTED}; promotion success to
+ * Technical rejection leads to {@code CONSUMED_REJECTED}; promotionDecision success to
  * {@code CONSUMED_PROMOTED}. {@code AVAILABLE} codes may expire or be voided.
  */
 public final class OfflineCodeTransitionPolicy {

@@ -42,11 +42,19 @@ CREATE INDEX ix_draw__draw_result_id ON draw (draw_result_id);
 CREATE INDEX ix_draw_result__slot_occurred ON draw_result (result_slot_id, occurred_at DESC);
 CREATE INDEX ix_draw_result__source_hash ON draw_result (source_hash);
 
+-- ─── Sales zone ──────────────────────────────────────────────────────
+CREATE INDEX ix_sales_zone__tenant  ON sales_zone (tenant_id, active)    WHERE deleted_at IS NULL;
+CREATE INDEX ix_sales_zone__parent  ON sales_zone (tenant_id, parent_id) WHERE parent_id IS NOT NULL AND deleted_at IS NULL;
+
 -- ─── Outlet, terminal, sales session (canonical guards) ─────────────
 CREATE UNIQUE INDEX ux_outlet__tenant_slug
   ON outlet (tenant_id, slug) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_outlet__tenant_partner_ref
+  ON outlet (tenant_id, partner_ref) WHERE partner_ref IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX ix_outlet__kind        ON outlet (tenant_id, kind)    WHERE deleted_at IS NULL;
+CREATE INDEX ix_outlet__zone        ON outlet (tenant_id, zone_id) WHERE zone_id IS NOT NULL AND deleted_at IS NULL;
 CREATE INDEX ix_outlet__tenant_active
-  ON outlet (tenant_id, day_closed, sales_blocked) WHERE deleted_at IS NULL;
+  ON outlet (tenant_id, status, outlet_blocked, day_closed) WHERE deleted_at IS NULL;
 CREATE INDEX ix_outlet__auto_session_open
   ON outlet (tenant_id, session_open_time)
   WHERE auto_session_open_enabled = true AND deleted_at IS NULL;
@@ -69,6 +77,27 @@ CREATE UNIQUE INDEX uq_terminal__auto_session_eligible
     AND auto_session_enabled = true
     AND state = 'ACTIVE'
     AND deleted_at IS NULL;
+CREATE INDEX ix_terminal_capability__terminal
+  ON terminal_capability (tenant_id, terminal_id)
+  WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_terminal_assignment__active_terminal_user
+  ON terminal_assignment (tenant_id, terminal_id, user_id)
+  WHERE status = 'ACTIVE' AND deleted_at IS NULL;
+CREATE INDEX ix_terminal_assignment__user
+  ON terminal_assignment (tenant_id, user_id, status)
+  WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_terminal_binding__active_terminal_type
+  ON terminal_binding (tenant_id, terminal_id, binding_type)
+  WHERE status = 'ACTIVE' AND deleted_at IS NULL;
+CREATE INDEX ix_terminal_binding__terminal_status
+  ON terminal_binding (tenant_id, terminal_id, status)
+  WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX ux_terminal_challenge__pending_terminal_user_type
+  ON terminal_challenge (tenant_id, terminal_id, user_id, challenge_type)
+  WHERE status = 'PENDING' AND deleted_at IS NULL;
+CREATE INDEX ix_terminal_challenge__expires
+  ON terminal_challenge (tenant_id, status, expires_at)
+  WHERE deleted_at IS NULL;
 CREATE INDEX ix_sales_session__tenant_outlet_status
   ON sales_session (tenant_id, outlet_id, status) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX uq_sales_session__one_open_per_user
@@ -85,12 +114,16 @@ CREATE INDEX ix_sales_session__tenant_opened_by_date
   WHERE deleted_at IS NULL;
 
 
--- ─── Payout (1 payout max per ticket) ───────────────────────────────
-create index idx_payout_tenant_status_created
-    on payout (tenant_id, status, created_at desc);
+-- ─── Payout claim (1 claim max per ticket — enforced by uq_payout_tenant_ticket) ──
+-- idx_payout_tenant_ticket is intentionally omitted: the unique constraint already
+-- creates an index on (tenant_id, ticket_id).
 
-create index idx_payout_tenant_ticket
-    on payout (tenant_id, ticket_id);
+create index idx_payout_tenant_status_opened
+    on payout (tenant_id, status, opened_at desc);
+
+create index idx_payout_tenant_draw_status
+    on payout (tenant_id, draw_id, status)
+    where draw_id is not null;
 
 create index idx_payout_tenant_paying_session
     on payout (tenant_id, paying_session_id);
@@ -102,8 +135,8 @@ CREATE INDEX ix_payout__paying_session_status
   ON payout (tenant_id, paying_session_id, status)
   WHERE paying_session_id IS NOT NULL AND deleted_at IS NULL;
 
-CREATE INDEX ix_payout__status_requested_at
-  ON payout (tenant_id, status, requested_at)
+CREATE INDEX ix_payout__status_opened_at
+  ON payout (tenant_id, status, opened_at)
   WHERE deleted_at IS NULL;
 
 -- ─── Limit policy ───────────────────────────────────────────────────
@@ -294,3 +327,20 @@ CREATE INDEX idx_offline_event_outbox__pending
   WHERE published_at IS NULL;
 -- tenant_offline_policy is keyed by tenant_id (unique constraint already covers the lookup),
 -- so no extra index is needed beyond the implicit one on the PRIMARY KEY + UNIQUE.
+
+-- ─── Promotion ──────────────────────────────────────────────────────
+CREATE INDEX idx_promotion_campaign_active ON promotion_campaign (tenant_id, status, starts_at, ends_at);
+CREATE INDEX idx_promotion_rule_campaign ON promotion_rule (tenant_id, campaign_id, priority, rule_key);
+CREATE INDEX idx_promotion_rule_effect_rule ON promotion_rule_effect (tenant_id, rule_id, effect_type);
+CREATE INDEX idx_promotion_rule_eligibility_line_rule ON promotion_rule_eligibility_line (tenant_id, rule_id, game_code);
+CREATE INDEX idx_promotion_decision_lookup ON promotion_decision (tenant_id, context_hash, evaluation_phase);
+CREATE INDEX idx_applied_promotion_ticket ON applied_promotion_snapshot (tenant_id, ticket_id);
+
+-- ─── Seller ─────────────────────────────────────────────────────────
+CREATE INDEX idx_seller__tenant_status ON seller (tenant_id, status) WHERE deleted_at IS NULL;
+CREATE INDEX idx_seller__tenant_user   ON seller (tenant_id, user_id) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX idx_seller_assignment__seller ON seller_outlet_assignment (tenant_id, seller_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_seller_assignment__outlet ON seller_outlet_assignment (tenant_id, outlet_id) WHERE status = 'ACTIVE' AND deleted_at IS NULL;
+CREATE INDEX idx_seller_commission__seller ON seller_commission_policy (tenant_id, seller_id) WHERE status = 'ACTIVE' AND deleted_at IS NULL;
+CREATE INDEX idx_sales_ticket__seller     ON sales_ticket (tenant_id, seller_id)            WHERE seller_id IS NOT NULL;
+CREATE INDEX idx_sales_ticket__assignment ON sales_ticket (tenant_id, seller_assignment_id) WHERE seller_assignment_id IS NOT NULL;

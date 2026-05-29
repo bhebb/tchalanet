@@ -1,13 +1,13 @@
 package com.tchalanet.server.core.draw.internal.infra.web.mapper;
 
 import com.tchalanet.server.common.mapper.CommonIdMapper;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawResultSummary;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawResultSummary;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.internal.infra.web.model.DrawResultsResponse;
 import com.tchalanet.server.core.draw.internal.infra.web.model.DrawSummaryResponse;
 import com.tchalanet.server.core.draw.internal.infra.web.model.HaitiDrawResultSummaryReponse;
 import com.tchalanet.server.core.draw.internal.infra.web.model.HaitiResultResponse;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import tools.jackson.databind.JsonNode;

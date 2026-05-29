@@ -22,5 +22,6 @@ public enum AuditEntityType {
   PAYMENT,
   FEATURE_FLAG,
   BATCH_JOB,
-  CACHE
+  CACHE,
+  PUBLIC_CONTENT
 }

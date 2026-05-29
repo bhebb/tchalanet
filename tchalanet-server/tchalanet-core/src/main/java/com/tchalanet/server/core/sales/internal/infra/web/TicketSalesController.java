@@ -58,7 +58,8 @@ public class TicketSalesController {
             body.drawChannelId(),
             body.currency(),
             toLines(body.lines()),
-            body.serviceOptions())
+            body.serviceOptions(),
+            List.of())
         );
 
         // Bridge application notices → request-scoped context for the wrapper.

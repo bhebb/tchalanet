@@ -1,7 +1,8 @@
 package com.tchalanet.server.features.cashier.tickets.mapper;
 
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptMessageContent;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.features.cashier.tickets.model.PrintDeliveryOption;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.platform.communication.api.model.request.SendOutboundMessageRequest;
@@ -24,22 +25,24 @@ public class TicketPrintCommunicationMapper {
 
     public List<SendOutboundMessageRequest> toOutboundMessages(
         TchRequestContext ctx,
-        TicketPrintView view,
+        TicketReceiptPrintContent receipt,
+        TicketReceiptMessageContent message,
         RenderedDocument rendered,
         PrintTicketRequest request
     ) {
-        var locale = request.buyerLocale() == null ? defaultLocale(view) : request.buyerLocale();
+        var locale = message == null ? receipt.locale() : message.locale();
 
         return request.deliveryOptions().stream()
             .distinct()
             .filter(PrintDeliveryOption::external)
-            .map(option -> toOutboundMessage(ctx, view, rendered, locale, option, request))
+            .map(option -> toOutboundMessage(ctx, receipt, message, rendered, locale, option, request))
             .toList();
     }
 
     private SendOutboundMessageRequest toOutboundMessage(
         TchRequestContext ctx,
-        TicketPrintView view,
+        TicketReceiptPrintContent receipt,
+        TicketReceiptMessageContent message,
         RenderedDocument rendered,
         Locale locale,
         PrintDeliveryOption option,
@@ -58,39 +61,40 @@ public class TicketPrintCommunicationMapper {
             channel,
             recipient,
             locale,
-            metadata(ctx, view, rendered, channel)
+            metadata(ctx, receipt, message, rendered, channel)
         );
     }
 
     private Map<String, Object> metadata(
         TchRequestContext ctx,
-        TicketPrintView view,
+        TicketReceiptPrintContent receipt,
+        TicketReceiptMessageContent message,
         RenderedDocument rendered,
         CommunicationChannel channel
     ) {
+        var ticketId = receipt.metadata().get("ticketId");
+        var publicCode = receipt.metadata().get("publicCode");
+        var displayCode = receipt.metadata().get("displayCode");
         var metadata = new LinkedHashMap<String, Object>();
         metadata.put("templateKey", TEMPLATE_KEY);
-        metadata.put("eventId", "ticket-print-" + view.identity().ticketId().value() + ":" + channel.name());
-        metadata.put("correlationKey", "ticket-print:" + view.identity().ticketId().value() + ":" + channel.name());
+        metadata.put("eventId", "ticket-print-" + ticketId + ":" + channel.name());
+        metadata.put("correlationKey", "ticket-print:" + ticketId + ":" + channel.name());
         var baseIdem = ctx.idempotencyKey();
         metadata.put(
             "idempotencyKey",
             baseIdem == null || baseIdem.isBlank()
-                ? "ticket-print:" + view.identity().ticketId().value() + ":" + channel.name()
+                ? "ticket-print:" + ticketId + ":" + channel.name()
                 : baseIdem + ":" + channel.name());
         metadata.put("requestId", ctx.requestId());
         metadata.put("priority", "NORMAL");
-        metadata.put("title", subject(view));
-        metadata.put("subject", subject(view));
-        metadata.put("message", message(view));
-        metadata.put("body", message(view));
-        metadata.put("ticketId", view.identity().ticketId().value().toString());
-        metadata.put("ticketCode", view.identity().ticketCode());
-        metadata.put("publicCode", view.identity().publicCode());
-        metadata.put("drawName", view.draw().label());
-        metadata.put("totalAmount", view.money().totalAmount().toString());
-        metadata.put("verificationCode", view.identity().verificationCode());
-        metadata.put("verificationUrl", view.qr().verificationUrl());
+        metadata.put("title", message == null ? null : message.subject());
+        metadata.put("subject", message == null ? null : message.subject());
+        metadata.put("message", message == null ? null : message.body());
+        metadata.put("body", message == null ? null : message.body());
+        metadata.put("ticketId", ticketId);
+        metadata.put("publicCode", publicCode);
+        metadata.put("displayCode", displayCode);
+        metadata.put("verificationUrl", receipt.qr() == null ? null : receipt.qr().verificationUrl());
         metadata.put("channel", channel.name());
         metadata.put("documentFilename", rendered.filename());
         metadata.put("documentContentType", rendered.contentType());
@@ -132,29 +136,4 @@ public class TicketPrintCommunicationMapper {
         };
     }
 
-    private Locale defaultLocale(TicketPrintView view) {
-        return view.metadata() == null || view.metadata().locale() == null
-            ? Locale.FRENCH
-            : view.metadata().locale();
-    }
-
-    private String subject(TicketPrintView view) {
-        return "Ticket Tchalanet " + view.identity().ticketCode();
-    }
-
-    private String message(TicketPrintView view) {
-        return """
-            Votre ticket Tchalanet %s est disponible.
-            Tirage: %s
-            Montant total: %s
-            Vérification: %s
-            Code: %s
-            """.formatted(
-            view.identity().ticketCode(),
-            view.draw().label(),
-            view.money().totalAmount(),
-            view.qr().verificationUrl(),
-            view.identity().verificationCode()
-        );
-    }
 }

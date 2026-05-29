@@ -28,7 +28,8 @@ public class PreviewTicketSaleQueryHandler
             query.drawChannelId(),
             query.currency(),
             query.lines(),
-            SaleCommunicationOptions.none()
+            SaleCommunicationOptions.none(),
+            java.util.List.of()
         );
         var evaluation = evaluator.evaluatePreview(command, TchContext.currentOrThrow());
         return new TicketSalePreviewResult(

@@ -10,7 +10,7 @@ public interface OfflineSubmissionLineReaderPort {
 
     /**
      * Hydrate persisted lines into the same {@link OfflineSubmissionLineSnapshot} format
-     * used in promotion events — so the recovery handler can rebuild a fresh draft.
+     * used in promotionDecision events — so the recovery handler can rebuild a fresh draft.
      *
      * @param currency currency to apply on the Money fields (the line table stores plain
      *                 BigDecimals; the canonical currency lives on the parent submission).

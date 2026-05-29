@@ -37,8 +37,8 @@ public class UpdateOutletConfigCommandHandler
 
         var updated =
             outlet.applyConfigPatch(
-                patch.salesBlocked(),
-                patch.salesBlockReason(),
+                patch.partnerRef(),
+                patch.zoneId(),
                 patch.timezone(),
                 patch.receiptPrintingEnabled(),
                 patch.receiptHeaderMessage(),
@@ -48,8 +48,7 @@ public class UpdateOutletConfigCommandHandler
                 patch.autoSessionCloseEnabled(),
                 parseLocalTime(patch.sessionOpenTime()),
                 parseLocalTime(patch.sessionCloseTime()),
-                patch.defaultOpeningFloatCents(),
-                now);
+                patch.defaultOpeningFloatCents());
 
         // Address write path is temporarily disabled until platform AddressApi exposes write methods.
         if (patch.address() != null) {

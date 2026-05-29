@@ -13,7 +13,7 @@ import com.tchalanet.server.core.session.api.command.CloseSalesSessionCommand;
 import com.tchalanet.server.core.session.api.command.CloseSalesSessionResult;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
-import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionClosedEvent;
 import com.tchalanet.server.core.session.internal.domain.service.SessionCashCalculator;
 import lombok.RequiredArgsConstructor;
 

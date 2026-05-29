@@ -1,6 +1,5 @@
 package com.tchalanet.server.core.sales.internal.application.rule;
 
-import com.tchalanet.server.common.bus.Query;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.time.TimeProvider;
 import com.tchalanet.server.common.types.id.DrawChannelId;
@@ -8,8 +7,8 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

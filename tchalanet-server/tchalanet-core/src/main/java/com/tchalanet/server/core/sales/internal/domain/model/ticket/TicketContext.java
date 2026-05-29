@@ -4,6 +4,8 @@ import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
+import com.tchalanet.server.common.types.id.SellerId;
+import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 
@@ -15,7 +17,9 @@ public record TicketContext(
     UserId sellerUserId,
     SalesSessionId salesSessionId,
     DrawId drawId,
-    DrawChannelId drawChannelId
+    DrawChannelId drawChannelId,
+    SellerId sellerId,
+    SellerOutletAssignmentId sellerAssignmentId
 ) {
     public TicketContext {
         Objects.requireNonNull(outletId, "outletId is required");

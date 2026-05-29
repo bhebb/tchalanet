@@ -9,6 +9,7 @@ import com.tchalanet.server.common.context.auth.ActorContextResolver;
 import com.tchalanet.server.common.context.TchContextBinder;
 import com.tchalanet.server.common.context.TchContextProperties;
 import com.tchalanet.server.common.context.operational.OperationalContextHeaderParser;
+import com.tchalanet.server.common.context.operational.OperationalContextResolver;
 import com.tchalanet.server.common.context.tenant.TenantContextResolver;
 import com.tchalanet.server.common.security.PlatformPermissions;
 import jakarta.annotation.Nonnull;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,6 +38,7 @@ public class TchContextFilter extends OncePerRequestFilter {
     private final ActorContextResolver actorContextResolver;
     private final TchRequestContextFactory contextFactory;
     private final TchContextBinder contextBinder;
+    private final ObjectProvider<OperationalContextResolver> operationalContextResolver;
 
     @Override
     protected void doFilterInternal(
@@ -97,8 +100,11 @@ public class TchContextFilter extends OncePerRequestFilter {
                     ctx.requestId());
             }
 
+            var resolver = operationalContextResolver.getIfAvailable();
             ctx = ctx.withOperationalContext(
-                OperationalContextHeaderParser.parseHint(req::getHeader));
+                resolver == null
+                    ? OperationalContextHeaderParser.parseHint(req::getHeader)
+                    : resolver.resolve(ctx, req::getHeader));
 
             contextBinder.bind(req, ctx);
 

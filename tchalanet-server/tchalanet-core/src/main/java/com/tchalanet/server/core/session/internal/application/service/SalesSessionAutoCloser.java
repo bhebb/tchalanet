@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
-import com.tchalanet.server.core.session.internal.domain.event.SalesSessionClosedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionClosedEvent;
 import com.tchalanet.server.core.session.internal.domain.model.AutoSessionCloseTarget;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSessionStatus;
 import lombok.RequiredArgsConstructor;

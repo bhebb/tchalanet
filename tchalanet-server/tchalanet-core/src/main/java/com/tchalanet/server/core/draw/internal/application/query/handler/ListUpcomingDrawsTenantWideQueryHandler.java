@@ -6,7 +6,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.draw.api.query.DrawSearchCriteria;
 import com.tchalanet.server.core.draw.api.query.ListUpcomingDrawsTenantWideQuery;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSummaryReaderPort;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 

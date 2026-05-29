@@ -1,0 +1,60 @@
+{
+  "fragment_type": "HeroPayload",
+  "schema_version": 2,
+  "title_key": "home.hero.title",
+  "tagline_key": "home.hero.tagline",
+  "subtitle_key": "home.hero.subtitle",
+  "image": {
+    "url": "",
+    "alt_key": "home.hero.image_alt",
+    "title_key": null,
+    "width": null,
+    "height": null,
+    "aspect_ratio": "16:9",
+    "loading": "eager"
+  },
+  "actions": [
+    {
+      "id": "LOGIN",
+      "type": "action",
+      "label_key": "cta.login",
+      "label": null,
+      "path": "/login",
+      "kind": "internal",
+      "icon": "login",
+      "image": null,
+      "style": "primary",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
+    },
+    {
+      "id": "REQUEST_DEMO",
+      "type": "action",
+      "label_key": "cta.request_demo",
+      "label": null,
+      "path": "/demo",
+      "kind": "internal",
+      "icon": "rocket_launch",
+      "image": null,
+      "style": "secondary",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
+    },
+    {
+      "id": "CHECK_TICKET",
+      "type": "action",
+      "label_key": "cta.check_ticket",
+      "label": null,
+      "path": "/verifier",
+      "kind": "internal",
+      "icon": "qr_code_scanner",
+      "image": null,
+      "style": "tertiary",
+      "disabled": false,
+      "reason_key": null,
+      "confirm": null
+    }
+  ]
+}

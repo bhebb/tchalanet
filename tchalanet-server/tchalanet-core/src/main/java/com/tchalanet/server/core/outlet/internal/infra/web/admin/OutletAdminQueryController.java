@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.types.id.OutletId;
+import com.tchalanet.server.common.types.id.SalesZoneId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -11,6 +12,7 @@ import com.tchalanet.server.common.web.paging.TchPaging;
 import com.tchalanet.server.core.outlet.api.query.GetOutletByIdQuery;
 import com.tchalanet.server.core.outlet.api.query.ListOutletsQuery;
 import com.tchalanet.server.core.outlet.api.query.OutletSearchCriteria;
+import com.tchalanet.server.core.outlet.internal.domain.model.OutletKind;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.mapper.OutletAdminWebMapper;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletResponse;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.OutletSummaryResponse;
@@ -39,11 +41,14 @@ public class OutletAdminQueryController {
         @RequestParam(required = false) Boolean active,
         @RequestParam(required = false) Boolean salesBlocked,
         @RequestParam(required = false) Boolean dayClosed,
+        @RequestParam(required = false) Boolean outletBlocked,
+        @RequestParam(required = false) OutletKind kind,
+        @RequestParam(required = false) SalesZoneId zoneId,
         @TchPaging(defaultSort = {"name,ASC"}, allowedSort = {"name", "slug", "createdAt"})
         TchPageRequest pageRequest) {
-        OutletSearchCriteria criteria = new OutletSearchCriteria(q, active, salesBlocked, dayClosed);
+        OutletSearchCriteria criteria =
+            new OutletSearchCriteria(q, active, salesBlocked, dayClosed, outletBlocked, kind, zoneId);
         var outlets = queryBus.ask(new ListOutletsQuery(criteria, pageRequest));
-
         return ApiResponse.success(mapper.toSummaryResponsePage(outlets));
     }
 
@@ -52,7 +57,6 @@ public class OutletAdminQueryController {
         @CurrentContext TchRequestContext ctx,
         @PathVariable OutletId id) {
         var outlet = queryBus.ask(new GetOutletByIdQuery(ctx.tenantIdSafe(), id));
-
         return ApiResponse.success(mapper.toResponse(outlet));
     }
 }

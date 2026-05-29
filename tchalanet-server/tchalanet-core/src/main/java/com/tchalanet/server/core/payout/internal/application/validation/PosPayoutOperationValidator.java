@@ -36,7 +36,7 @@ public class PosPayoutOperationValidator {
         }
 
         var terminal = queryBus.ask(new ValidateTerminalForOperationQuery(
-            tenantId, terminalId, outletId, actorUserId, TerminalOperation.PAYOUT
+            tenantId, terminalId, outletId, actorUserId, TerminalOperation.PAYOUT_CLAIM
         ));
 
         var outlet = queryBus.ask(new ValidateOutletForOperationQuery(

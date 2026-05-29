@@ -7,12 +7,11 @@ import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
 import com.tchalanet.server.core.sales.api.model.sale.SaleActionAvailability;
 import com.tchalanet.server.core.sales.api.model.sale.SaleIssueView;
 import com.tchalanet.server.core.sales.api.model.sale.TicketBackupInfo;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 
 import java.util.List;
 
 public record SellTicketResult(
-    Ticket ticket,
+    SoldTicketView ticket,
     SellTicketOutcome outcome,
     ApprovalRequestId approvalRequestId,
     List<ApiNotice> notices,
@@ -43,7 +42,7 @@ public record SellTicketResult(
     }
 
     public SellTicketResult(
-        Ticket ticket,
+        SoldTicketView ticket,
         SellTicketOutcome outcome,
         ApprovalRequestId approvalRequestId,
         List<ApiNotice> notices
@@ -58,18 +57,22 @@ public record SellTicketResult(
     }
 
     public TicketId ticketId() {
-        return ticket == null ? null : ticket.identity().id();
+        return ticket == null ? null : ticket.ticketId();
     }
 
     public String ticketCode() {
-        return ticket == null ? null : ticket.codes().ticketCode().value();
+        return ticket == null ? null : ticket.ticketCode();
     }
 
     public String publicCode() {
-        return ticket == null ? null : ticket.codes().publicCode().value();
+        return ticket == null ? null : ticket.publicCode();
+    }
+
+    public String displayCode() {
+        return ticket == null ? null : ticket.displayCode();
     }
 
     public TicketSaleStatus saleStatus() {
-        return ticket == null ? null : ticket.lifecycle().sale().status();
+        return ticket == null ? null : ticket.saleStatus();
     }
 }

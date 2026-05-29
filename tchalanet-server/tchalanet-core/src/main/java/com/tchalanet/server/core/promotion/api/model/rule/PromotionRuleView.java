@@ -1,0 +1,13 @@
+package com.tchalanet.server.core.promotion.api.model.rule;
+
+import com.tchalanet.server.common.types.id.PromotionRuleId;
+
+import java.util.List;
+
+public record PromotionRuleView(
+    PromotionRuleId id,
+    String ruleKey,
+    int priority,
+    List<PromotionEligibilityConfigView> eligibility,
+    List<PromotionEffectConfigView> effects
+) {}

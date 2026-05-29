@@ -26,6 +26,8 @@ import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintComman
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.status.TicketSaleStatus;
@@ -88,6 +90,11 @@ class TicketCommandMutationCoverageTest {
         handler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
             PrintOutputFormat.PDF,
+            null,
+            USER,
+            original.context().terminalId(),
+            original.context().outletId(),
+            original.context().salesSessionId(),
             null));
 
         assertImmutableTicketFields(writer.saved, original);
@@ -173,6 +180,11 @@ class TicketCommandMutationCoverageTest {
         printHandler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
             PrintOutputFormat.PDF,
+            null,
+            USER,
+            original.context().terminalId(),
+            original.context().outletId(),
+            original.context().salesSessionId(),
             null));
         cancelHandler.handle(new CancelTicketCommand(
             TENANT,
@@ -248,7 +260,9 @@ class TicketCommandMutationCoverageTest {
             USER,
             SalesSessionId.of(UUID.fromString("70000000-0000-0000-0000-000000000001")),
             DrawId.of(UUID.fromString("80000000-0000-0000-0000-000000000001")),
-            DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")));
+            DrawChannelId.of(UUID.fromString("90000000-0000-0000-0000-000000000001")),
+            null,
+            null);
     }
 
     private static TicketLine line() {
@@ -259,8 +273,15 @@ class TicketCommandMutationCoverageTest {
             BetType.MATCH_1_2D,
             new Selection(SelectionKey.of("05"), "05"),
             money("10"),
+            money("125"),
             new BigDecimal("12.5"),
             money("125"),
+            null,
+            TicketLineOrigin.CUSTOMER,
+            TicketLinePricingSource.STANDARD,
+            null,
+            null,
+            null,
             null,
             TicketLineResultStatus.PENDING,
             money("0"));

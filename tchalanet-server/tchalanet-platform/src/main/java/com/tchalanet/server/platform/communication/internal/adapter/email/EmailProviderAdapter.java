@@ -18,9 +18,10 @@ public class EmailProviderAdapter implements DeliveryProvider {
 
   @Override
   public SendOutboundMessageResult send(SendOutboundMessageRequest request) {
-    log.info("DEV email delivery skipped recipient={} subject={}",
+    log.info("DEV email delivery skipped recipient={} subject={} attachments={}",
         request.recipient() == null ? null : request.recipient().to(),
-        request.subject());
+        request.subject(),
+        request.attachments().size());
     return SendOutboundMessageResult.skipped("dev-email", "dev adapter");
   }
 }

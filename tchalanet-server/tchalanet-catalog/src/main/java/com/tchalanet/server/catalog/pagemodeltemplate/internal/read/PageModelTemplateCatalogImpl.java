@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.read;
 
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateStatsView;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateView;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.cache.PageModelTemplateCacheNames;
@@ -91,5 +92,15 @@ public class PageModelTemplateCatalogImpl implements PageModelTemplateCatalog {
         //todo add link to pagemodel to get the numbers of pagemodels active for the pagetemplate ??
         long active = repository.countByDeletedAtIsNull();
         return new PageModelTemplateStatsView((int) total, (int) active);
+    }
+
+    @Cacheable(value = PageModelTemplateCacheNames.VISIBLE_LIST, key = "'default-global'")
+    public List<PageModelTemplateView> findDefaultGlobalTemplates() {
+        return mapper.toViews(
+            repository.findByIsDefaultAndLevelAndDeletedAtIsNullOrderByLogicalId(
+                true,
+                PageModelTemplateLevel.GLOBAL
+            )
+        );
     }
 }

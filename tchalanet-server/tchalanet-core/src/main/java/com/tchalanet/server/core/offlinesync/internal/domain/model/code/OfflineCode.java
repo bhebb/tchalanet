@@ -16,7 +16,7 @@ import java.time.Instant;
  *
  * <p>Invariant: a code that has been submitted (i.e. transitioned to {@code RESERVED}) NEVER
  * returns to {@code AVAILABLE}. Technical rejection takes it to {@code CONSUMED_REJECTED};
- * accepted promotion takes it to {@code CONSUMED_PROMOTED}.
+ * accepted promotionDecision takes it to {@code CONSUMED_PROMOTED}.
  */
 public record OfflineCode(
     CodeIdentity identity,

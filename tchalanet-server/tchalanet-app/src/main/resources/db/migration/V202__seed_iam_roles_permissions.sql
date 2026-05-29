@@ -92,7 +92,16 @@ INSERT INTO permission (code, name, description)
 VALUES
     ('session.read', 'Session Read', 'Read session totals and status'),
     ('session.totals.recompute', 'Session Totals Recompute', 'Force recompute of session totals'),
-    ('reporting.view', 'Reporting View', 'View tenant reports')
+    ('reporting.view', 'Reporting View', 'View tenant reports'),
+    ('terminal.challenge.create', 'Terminal Challenge Create', 'Create POS terminal activation challenges'),
+    ('terminal.binding.create', 'Terminal Binding Create', 'Verify POS challenges and bind terminal devices'),
+    ('terminal.phone.challenge.create', 'Phone Terminal Challenge Create', 'Create virtual phone terminal activation challenges'),
+    ('terminal.phone.binding.create', 'Phone Terminal Binding Create', 'Verify virtual phone challenges and bind mobile app instances'),
+    ('terminal.operational_context.read', 'Terminal Operational Context Read', 'Read the current request operational context'),
+    ('terminal.create', 'Terminal Create', 'Create tenant terminals'),
+    ('terminal.retire', 'Terminal Retire', 'Retire tenant terminals'),
+    ('terminal.lock', 'Terminal Lock', 'Lock tenant terminals'),
+    ('terminal.unlock', 'Terminal Unlock', 'Unlock tenant terminals')
     ON CONFLICT (code) DO NOTHING;
 
 -- system roles (tenant_id NULL)
@@ -109,6 +118,24 @@ SELECT r.id, p.code
 FROM app_role r
          JOIN permission p
               ON p.code IN ('session.read','session.totals.recompute','reporting.view')
+WHERE r.tenant_id IS NULL
+  AND r.code IN ('SUPER_ADMIN','TENANT_ADMIN','CASHIER')
+    ON CONFLICT DO NOTHING;
+
+INSERT INTO role_permission (role_id, permission_code)
+SELECT r.id, p.code
+FROM app_role r
+         JOIN permission p
+              ON p.code IN (
+                  'terminal.challenge.create',
+                  'terminal.binding.create',
+                  'terminal.phone.challenge.create',
+                  'terminal.phone.binding.create',
+                  'terminal.operational_context.read',
+                  'terminal.create',
+                  'terminal.retire',
+                  'terminal.lock',
+                  'terminal.unlock')
 WHERE r.tenant_id IS NULL
   AND r.code IN ('SUPER_ADMIN','TENANT_ADMIN','CASHIER')
     ON CONFLICT DO NOTHING;

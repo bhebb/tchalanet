@@ -291,6 +291,26 @@ CREATE TABLE notification_template_aud (id uuid NOT NULL,
   version bigint, tenant_id uuid, template_key varchar(120), locale varchar(20), title_template text, body_template text, active boolean, CONSTRAINT pk_notification_template_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_notification_template_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev));
 
+CREATE TABLE sales_zone_aud (
+  id          uuid        NOT NULL,
+  rev         integer     NOT NULL,
+  revtype     smallint    NULL,
+  tenant_id   uuid,
+  code        varchar(80),
+  label       varchar(160),
+  active      boolean,
+  parent_id   uuid,
+  created_at  timestamptz,
+  created_by  uuid,
+  updated_at  timestamptz,
+  updated_by  uuid,
+  deleted_at  timestamptz,
+  deleted_by  uuid,
+  version     bigint,
+  CONSTRAINT pk_sales_zone_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_sales_zone_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
 CREATE TABLE outlet_aud (
   id uuid NOT NULL,
   rev integer NOT NULL,
@@ -299,18 +319,34 @@ CREATE TABLE outlet_aud (
   name varchar(255),
   slug varchar(128),
   status varchar(40),
+  -- classification
+  kind varchar(40),
+  partner_ref varchar(120),
+  zone_id uuid,
+  metadata_json jsonb,
+  -- day
   day_closed boolean,
+  -- outlet-level block
+  outlet_blocked boolean,
+  outlet_block_reason text,
+  outlet_blocked_at timestamptz,
+  outlet_blocked_by uuid,
+  -- sales block
   sales_blocked boolean,
   sales_block_reason text,
   sales_blocked_at timestamptz,
+  sales_blocked_by uuid,
+  -- payout block
   payout_blocked boolean,
   payout_block_reason text,
   payout_blocked_at timestamptz,
   payout_blocked_by uuid,
+  -- offline sales block
   offline_sales_blocked boolean,
   offline_sales_block_reason text,
   offline_sales_blocked_at timestamptz,
   offline_sales_blocked_by uuid,
+  -- config
   timezone varchar(64),
   receipt_printing_enabled boolean,
   receipt_header_message text,
@@ -377,6 +413,98 @@ CREATE TABLE terminal_aud (
   CONSTRAINT fk_terminal_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
 );
 
+CREATE TABLE terminal_capability_aud (
+  id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint,
+  tenant_id uuid,
+  terminal_id uuid,
+  capability varchar(64),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  CONSTRAINT pk_terminal_capability_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_terminal_capability_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+CREATE TABLE terminal_assignment_aud (
+  id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint,
+  tenant_id uuid,
+  terminal_id uuid,
+  user_id uuid,
+  status varchar(32),
+  assigned_at timestamptz,
+  revoked_at timestamptz,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  CONSTRAINT pk_terminal_assignment_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_terminal_assignment_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+CREATE TABLE terminal_binding_aud (
+  id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint,
+  tenant_id uuid,
+  terminal_id uuid,
+  binding_type varchar(32),
+  status varchar(32),
+  binding_public_key text,
+  binding_secret_hash text,
+  device_fingerprint_hash text,
+  bound_at timestamptz,
+  expires_at timestamptz,
+  revoked_at timestamptz,
+  last_seen_at timestamptz,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  CONSTRAINT pk_terminal_binding_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_terminal_binding_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+CREATE TABLE terminal_challenge_aud (
+  id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint,
+  tenant_id uuid,
+  terminal_id uuid,
+  user_id uuid,
+  challenge_type varchar(32),
+  channel varchar(32),
+  code_hash text,
+  expires_at timestamptz,
+  attempt_count integer,
+  max_attempts integer,
+  status varchar(32),
+  consumed_at timestamptz,
+  cancelled_at timestamptz,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  CONSTRAINT pk_terminal_challenge_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_terminal_challenge_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
 CREATE TABLE sales_session_aud (
   id uuid NOT NULL,
   rev integer NOT NULL,
@@ -410,39 +538,60 @@ CREATE TABLE sales_session_aud (
 );
 
 CREATE TABLE payout_aud (
-  id uuid NOT NULL,
-  rev integer NOT NULL,
+  -- Envers metadata
+  id      uuid     NOT NULL,
+  rev     integer  NOT NULL,
   revtype smallint,
-  tenant_id uuid,
-  ticket_id uuid,
+
+  -- claim identity
+  tenant_id       uuid,
+  ticket_id       uuid,
+  draw_id         uuid,
+  source_event_id uuid,
+  source          varchar(32),
+
   amount_cents bigint,
-  currency varchar(3),
-  status varchar(32),
-  selling_outlet_id uuid,
+  currency     varchar(3),
+  status       varchar(32),
+
+  -- claim opening
+  opened_at timestamptz,
+
+  -- selling context
+  selling_outlet_id  uuid,
   selling_session_id uuid,
-  paying_outlet_id uuid,
-  paying_session_id uuid,
+
+  -- payment execution
+  paying_outlet_id   uuid,
+  paying_session_id  uuid,
   paying_terminal_id uuid,
-  requested_by uuid,
-  requested_at timestamptz,
-  approved_by uuid,
-  approved_at timestamptz,
-  rejected_by uuid,
-  rejected_at timestamptz,
-  rejected_reason text,
-  paid_by uuid,
-  paid_at timestamptz,
-  cancelled_by uuid,
-  cancelled_at timestamptz,
+  paid_by            uuid,
+  paid_at            timestamptz,
+
+  -- block
+  blocked_by   uuid,
+  blocked_at   timestamptz,
+  block_reason text,
+
+  -- cancel
+  cancelled_by  uuid,
+  cancelled_at  timestamptz,
   cancel_reason text,
-  reason text,
+
+  -- reversal
+  reversed_by    uuid,
+  reversed_at    timestamptz,
+  reverse_reason text,
+
+  -- base audit columns
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
   updated_by uuid,
   deleted_at timestamptz,
   deleted_by uuid,
-  version bigint,
+  version    bigint,
+
   CONSTRAINT pk_payout_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_payout_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
 );
@@ -531,8 +680,15 @@ CREATE TABLE sales_ticket_line_aud (
   selection_key varchar(128),
   display_selection varchar(256),
   stake_amount numeric(19,4),
+  payout_base_amount numeric(19,4),
   odds_snapshot numeric(19,6),
   potential_payout_amount numeric(19,4),
+  origin varchar(16),
+  pricing_source varchar(16),
+  selection_source varchar(32),
+  promotion_decision_id uuid,
+  promotion_label varchar(128),
+  promotion_effect_type varchar(32),
   result_status varchar(16),
   payout_amount numeric(19,4),
   created_at timestamptz,
@@ -556,6 +712,10 @@ CREATE TABLE sales_ticket_charge_aud (
   paid_by varchar(16),
   amount numeric(19,4),
   currency varchar(3),
+  waived_by_rule_id uuid,
+  waived_by_decision_id uuid,
+  waived_effect_type varchar(64),
+  waived_label varchar(256),
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -790,4 +950,194 @@ CREATE TABLE sales_session_offline_adjustment_aud (
   version bigint,
   CONSTRAINT pk_sales_session_offline_adjustment_aud PRIMARY KEY (id, rev),
   CONSTRAINT fk_sales_session_offline_adjustment_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+-- ─── Promotion audit tables ──────────────────────────────────────────
+CREATE TABLE promotion_campaign_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  code varchar(96),
+  name varchar(160),
+  status varchar(32),
+  priority integer,
+  starts_at timestamptz,
+  ends_at timestamptz,
+  config_version varchar(48),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_rule_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  campaign_id uuid,
+  rule_key varchar(96),
+  priority integer,
+  min_paid_total numeric(19,4),
+  before_local_time time,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_rule_effect_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  rule_id uuid,
+  effect_type varchar(32),
+  game_code varchar(64),
+  payout_base_amount numeric(19,4),
+  quantity integer,
+  odds_override numeric(19,6),
+  charge_type varchar(64),
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_rule_eligibility_line_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  rule_id uuid,
+  game_code varchar(64),
+  min_count integer,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE promotion_decision_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  decision_status varchar(32),
+  evaluation_phase varchar(48),
+  evaluated_at timestamptz,
+  context_hash varchar(128),
+  engine_version varchar(48),
+  decision_json jsonb,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE applied_promotion_snapshot_aud (
+  id uuid NOT NULL,
+  tenant_id uuid NOT NULL,
+  rev integer NOT NULL,
+  revtype smallint NULL,
+  ticket_id uuid,
+  promotion_decision_id uuid,
+  decision_status varchar(32),
+  applied_at timestamptz,
+  snapshot_json jsonb,
+  created_at timestamptz,
+  created_by uuid,
+  updated_at timestamptz,
+  updated_by uuid,
+  deleted_at timestamptz,
+  deleted_by uuid,
+  version bigint,
+  PRIMARY KEY (id, rev)
+);
+
+CREATE TABLE seller_aud (
+  id           uuid        NOT NULL,
+  tenant_id    uuid        NOT NULL,
+  rev          integer     NOT NULL,
+  revtype      smallint    NULL,
+  user_id      uuid,
+  code         varchar(80),
+  display_name varchar(180),
+  status       varchar(24),
+  created_at   timestamptz,
+  created_by   uuid,
+  updated_at   timestamptz,
+  updated_by   uuid,
+  deleted_at   timestamptz,
+  deleted_by   uuid,
+  version      bigint,
+  CONSTRAINT pk_seller_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_seller_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+CREATE TABLE seller_outlet_assignment_aud (
+  id          uuid        NOT NULL,
+  tenant_id   uuid        NOT NULL,
+  rev         integer     NOT NULL,
+  revtype     smallint    NULL,
+  seller_id   uuid,
+  outlet_id   uuid,
+  starts_at   timestamptz,
+  ends_at     timestamptz,
+  status      varchar(24),
+  created_at  timestamptz,
+  created_by  uuid,
+  updated_at  timestamptz,
+  updated_by  uuid,
+  deleted_at  timestamptz,
+  deleted_by  uuid,
+  version     bigint,
+  CONSTRAINT pk_seller_outlet_assignment_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_seller_outlet_assignment_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
+);
+
+CREATE TABLE seller_commission_policy_aud (
+  id              uuid         NOT NULL,
+  tenant_id       uuid         NOT NULL,
+  rev             integer      NOT NULL,
+  revtype         smallint     NULL,
+  seller_id       uuid,
+  commission_type varchar(40),
+  commission_base varchar(40),
+  rate_percent    numeric(8,4),
+  fixed_amount    numeric(18,4),
+  currency        varchar(8),
+  starts_at       timestamptz,
+  ends_at         timestamptz,
+  status          varchar(24),
+  created_at      timestamptz,
+  created_by      uuid,
+  updated_at      timestamptz,
+  updated_by      uuid,
+  deleted_at      timestamptz,
+  deleted_by      uuid,
+  version         bigint,
+  CONSTRAINT pk_seller_commission_policy_aud PRIMARY KEY (id, rev),
+  CONSTRAINT fk_seller_commission_policy_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo(rev)
 );

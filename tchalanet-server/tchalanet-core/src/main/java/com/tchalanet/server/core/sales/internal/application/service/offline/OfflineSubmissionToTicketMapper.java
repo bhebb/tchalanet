@@ -8,6 +8,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.offlinesync.api.event.OfflineSubmissionLineSnapshot;
 import com.tchalanet.server.core.offlinesync.api.event.OfflineSubmissionTicketDraft;
@@ -23,6 +24,9 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdenti
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
 import com.tchalanet.server.core.selection.api.model.Selection;
 import com.tchalanet.server.core.selection.api.model.SelectionKey;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +38,7 @@ import java.util.List;
  * Maps a self-contained {@link OfflineSubmissionTicketDraft} into a {@link Ticket} aggregate.
  *
  * <p>The {@code drawId} comes from the draft itself — the cashier had it pinned at sale
- * time. We look up the matching {@link com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary}
+ * time. We look up the matching {@link DrawSummary}
  * via {@link GetDrawByIdQuery} to populate {@link TicketContext#drawChannelId()}.
  *
  * <p>Compromises kept explicit for v1:
@@ -64,14 +68,15 @@ public class OfflineSubmissionToTicketMapper {
         }
 
         // The draw was pinned by the device when the cashier sold offline — look it up
-        // directly. Throws if the drawId no longer exists (sales rejects the promotion).
+        // directly. Throws if the drawId no longer exists (sales rejects the promotionDecision).
         var draw = queryBus.ask(new GetDrawByIdQuery(draft.drawId()));
 
         var identity = new TicketIdentity(TicketId.of(idGenerator.newUuid()), tenantId);
         var context = new TicketContext(
             draft.outletId(), draft.terminalId(), draft.sellerUserId(),
             draft.salesSessionId(),
-            draw.drawId(), draw.drawChannelId()
+            draw.drawId(), draw.drawChannelId(),
+            null, null
         );
         var codes = TicketCodes.of(
             codeGenerator.nextTicketCode(),
@@ -107,9 +112,16 @@ public class OfflineSubmissionToTicketMapper {
             BetType.valueOf(l.betType()),
             new Selection(SelectionKey.of(l.selectionKey()), l.selectionKey()),
             stake,
-            BigDecimal.ONE,
+            stake, // payoutBaseAmount = stake for offline sales
+            BigDecimal.ONE, // odds snapshot unknown in offline, default to 1
             potentialPayout,
             betOption,
+            TicketLineOrigin.CUSTOMER,
+            TicketLinePricingSource.STANDARD,
+            TicketLineSelectionSource.CUSTOMER_SELECTED,
+            null,
+            null,
+            null,
             TicketLineResultStatus.PENDING,
             Money.zero(stake.currency())
         );

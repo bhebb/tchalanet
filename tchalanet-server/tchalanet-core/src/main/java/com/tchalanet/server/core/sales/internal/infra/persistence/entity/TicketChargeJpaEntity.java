@@ -64,4 +64,16 @@ public class TicketChargeJpaEntity extends BaseTenantEntity {
 
     @Column(name = "currency", nullable = false, length = 3, updatable = false)
     private String currency;
+
+    @Column(name = "waived_by_rule_id", updatable = false)
+    private java.util.UUID waivedByRuleId;
+
+    @Column(name = "waived_by_decision_id", updatable = false)
+    private java.util.UUID waivedByDecisionId;
+
+    @Column(name = "waived_effect_type", length = 64, updatable = false)
+    private String waivedEffectType;
+
+    @Column(name = "waived_label", length = 256, updatable = false)
+    private String waivedLabel;
 }

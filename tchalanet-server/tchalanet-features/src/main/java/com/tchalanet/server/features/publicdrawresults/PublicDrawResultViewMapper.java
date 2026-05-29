@@ -1,10 +1,10 @@
 package com.tchalanet.server.features.publicdrawresults;
 
 import com.tchalanet.server.common.web.paging.TchPage;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultHistoryRowView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotDetailsView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultSlotView;
-import com.tchalanet.server.core.drawresult.internal.application.view.PublicDrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultHistoryRowView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultSlotDetailsView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultSlotView;
+import com.tchalanet.server.core.drawresult.api.query.view.PublicDrawResultView;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultItemResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultListResponse;
 import com.tchalanet.server.features.publicdrawresults.model.PublicDrawResultSlotResponse;

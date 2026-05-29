@@ -11,11 +11,11 @@ import com.tchalanet.server.core.offlinesync.api.event.OfflineSubmissionTicketDr
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Internal sales command issued by the offline promotion listener to materialise a ticket
+ * Internal sales command issued by the offline promotionDecision listener to materialise a ticket
  * from a self-contained {@link OfflineSubmissionTicketDraft}.
  *
  * <p>The unique constraint {@code (tenant_id, offline_submission_id)} on {@code sales_ticket}
- * is the ultimate protection against double promotion.
+ * is the ultimate protection against double promotionDecision.
  */
 public record CreateTicketFromOfflineSubmissionCommand(
     @NotNull TenantId tenantId,

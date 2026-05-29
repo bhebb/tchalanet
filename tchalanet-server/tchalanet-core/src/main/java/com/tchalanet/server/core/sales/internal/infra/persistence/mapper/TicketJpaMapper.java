@@ -1,6 +1,8 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.mapper;
 
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
+import com.tchalanet.server.common.types.id.SellerId;
+import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OfflineSyncBatchId;
@@ -13,6 +15,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.common.types.id.PromotionRuleId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
 import com.tchalanet.server.common.types.money.Money;
@@ -38,6 +42,9 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketChargeJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketJpaEntity;
 import com.tchalanet.server.core.sales.internal.infra.persistence.entity.TicketLineJpaEntity;
@@ -126,10 +133,17 @@ public interface TicketJpaMapper {
         entity.setOddsSnapshot(line.oddsSnapshot());
         entity.setDisplaySelection(line.selection().displayLabel());
         entity.setStakeAmount(line.stakeAmount().amount());
+        entity.setPayoutBaseAmount(line.payoutBaseAmount().amount());
         entity.setBetOption(line.betOption());
         entity.setPotentialPayoutAmount(line.potentialPayoutAmount().amount());
         entity.setResultStatus(line.resultStatus());
         entity.setPayoutAmount(line.payoutAmount().amount());
+        entity.setOrigin(line.origin());
+        entity.setPricingSource(line.pricingSource());
+        entity.setSelectionSource(line.selectionSource());
+        entity.setPromotionDecisionId(line.promotionDecisionId() == null ? null : line.promotionDecisionId().value());
+        entity.setPromotionLabel(line.promotionLabel());
+        entity.setPromotionEffectType(line.promotionEffectType());
 
         return entity;
     }
@@ -151,6 +165,10 @@ public interface TicketJpaMapper {
         entity.setPaidBy(charge.paidBy());
         entity.setAmount(charge.amount().amount());
         entity.setCurrency(charge.amount().currency().value());
+        entity.setWaivedByRuleId(charge.waivedByRuleId() == null ? null : charge.waivedByRuleId().value());
+        entity.setWaivedByDecisionId(charge.waivedByDecisionId() == null ? null : charge.waivedByDecisionId().value());
+        entity.setWaivedEffectType(charge.waivedEffectType());
+        entity.setWaivedLabel(charge.waivedLabel());
 
         return entity;
     }
@@ -173,7 +191,9 @@ public interface TicketJpaMapper {
             UserId.of(entity.getSellerUserId()),
             SalesSessionId.of(entity.getSalesSessionId()),
             DrawId.of(entity.getDrawId()),
-            DrawChannelId.of(entity.getDrawChannelId())
+            DrawChannelId.of(entity.getDrawChannelId()),
+            SellerId.nullableOf(entity.getSellerId()),
+            SellerOutletAssignmentId.nullableOf(entity.getSellerAssignmentId())
         );
     }
 
@@ -374,9 +394,16 @@ public interface TicketJpaMapper {
                 entity.getDisplaySelection()
             ),
             new Money(entity.getStakeAmount(), currency),
+            new Money(entity.getPayoutBaseAmount(), currency),
             entity.getOddsSnapshot(),
             new Money(entity.getPotentialPayoutAmount(), currency),
             entity.getBetOption(),
+            entity.getOrigin() == null ? TicketLineOrigin.CUSTOMER : entity.getOrigin(),
+            entity.getPricingSource() == null ? TicketLinePricingSource.STANDARD : entity.getPricingSource(),
+            entity.getSelectionSource() == null ? TicketLineSelectionSource.CUSTOMER_SELECTED : entity.getSelectionSource(),
+            entity.getPromotionDecisionId() == null ? null : PromotionDecisionId.of(entity.getPromotionDecisionId()),
+            entity.getPromotionLabel(),
+            entity.getPromotionEffectType(),
             entity.getResultStatus(),
             new Money(entity.getPayoutAmount(), currency)
         );
@@ -398,6 +425,8 @@ public interface TicketJpaMapper {
         entity.setSalesSessionId(context.salesSessionId().value());
         entity.setDrawId(context.drawId().value());
         entity.setDrawChannelId(context.drawChannelId().value());
+        entity.setSellerId(context.sellerId() == null ? null : context.sellerId().value());
+        entity.setSellerAssignmentId(context.sellerAssignmentId() == null ? null : context.sellerAssignmentId().value());
     }
 
     default void applyCodes(TicketCodes codes, @MappingTarget TicketJpaEntity entity) {
@@ -546,7 +575,11 @@ public interface TicketJpaMapper {
         return new TicketCharge(
             entity.getChargeType(),
             new Money(entity.getAmount(), currency),
-            entity.getPaidBy()
+            entity.getPaidBy(),
+            entity.getWaivedByDecisionId() == null ? null : PromotionDecisionId.of(entity.getWaivedByDecisionId()),
+            entity.getWaivedByRuleId() == null ? null : PromotionRuleId.of(entity.getWaivedByRuleId()),
+            entity.getWaivedEffectType(),
+            entity.getWaivedLabel()
         );
     }
 

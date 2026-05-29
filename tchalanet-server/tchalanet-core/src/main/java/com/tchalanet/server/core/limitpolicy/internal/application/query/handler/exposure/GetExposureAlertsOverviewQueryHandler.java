@@ -12,8 +12,8 @@ import com.tchalanet.server.core.limitpolicy.api.query.ExposureAlertItemView;
 import com.tchalanet.server.core.limitpolicy.api.query.ExposureAlertsOverviewView;
 import com.tchalanet.server.core.limitpolicy.api.query.GetExposureAlertsOverviewQuery;
 import com.tchalanet.server.core.limitpolicy.internal.domain.model.EffectiveLimitRule;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitContext;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.domain.resolver.LimitResolver;
 import lombok.RequiredArgsConstructor;
 

@@ -20,28 +20,32 @@ public class ValidateOutletForOperationQueryHandler
     public ValidatedOutletOperationView handle(ValidateOutletForOperationQuery q) {
         var outlet = outletReader.getRequired(q.outletId());
 
+        if (outlet.outletBlock().blocked()) {
+            throw ProblemRest.forbidden("outlet.blocked");
+        }
+
         if (outlet.dayClosed()) {
             throw ProblemRest.forbidden("outlet.suspended");
         }
 
-        if (q.operation() == OutletOperation.SELL && outlet.salesBlocked()) {
+        if (q.operation() == OutletOperation.SELL && outlet.salesBlock().blocked()) {
             throw ProblemRest.forbidden("outlet.sales_blocked");
         }
 
-        if (q.operation() == OutletOperation.PAYOUT && outlet.payoutBlocked()) {
+        if (q.operation() == OutletOperation.PAYOUT && outlet.payoutBlock().blocked()) {
             throw ProblemRest.forbidden("outlet.payout_disabled");
         }
 
-        if (q.operation() == OutletOperation.OFFLINE_GRANT && outlet.offlineSalesBlocked()) {
+        if (q.operation() == OutletOperation.OFFLINE_GRANT && outlet.offlineSalesBlock().blocked()) {
             throw ProblemRest.forbidden("outlet.offline_sales_disabled");
         }
 
         return new ValidatedOutletOperationView(
             outlet.id(),
             outlet.name(),
-            !outlet.salesBlocked(),
-            !outlet.payoutBlocked(),
-            !outlet.offlineSalesBlocked()
+            !outlet.salesBlock().blocked(),
+            !outlet.payoutBlock().blocked(),
+            !outlet.offlineSalesBlock().blocked()
         );
     }
 }

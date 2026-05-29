@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  *
  * <p>This service trusts its caller for input validity: command-level checks
  * (line number, stake positive, bet type / option range, game support) live in
- * {@link TicketSalePolicyService#validateCommand}. The checks left here are
+ * {@link SalePreparationOrchestrator#validateCommand}. The checks left here are
  * internal invariants that should never fire if the policy service did its job
  * — if they do, it's a bug, not a user error.
  *
@@ -74,10 +74,17 @@ public class TicketLinePreparationService {
             input.gameCode(),
             input.betType(),
             selectionApi.canonicalize(input.betType(), input.betOption(), input.rawSelection()),
-            new Money(stake, currency),
-            odds,
-            new Money(potential, currency),
+            new Money(stake, currency), // stakeAmount
+            new Money(stake, currency), // payoutBaseAmount = stake for normal lines
+            odds, // oddsSnapshot
+            new Money(potential, currency), // potentialPayoutAmount
             input.betOption(),
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin.CUSTOMER,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource.STANDARD,
+            com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource.CUSTOMER_SELECTED,
+            null,
+            null,
+            null,
             TicketLineResultStatus.PENDING,
             Money.zero(currency)
         );

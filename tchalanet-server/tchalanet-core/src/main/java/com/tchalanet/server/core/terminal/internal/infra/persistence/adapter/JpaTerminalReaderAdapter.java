@@ -88,4 +88,9 @@ public class JpaTerminalReaderAdapter implements TerminalReaderPort {
         return repo.findFirstByAssignedUserIdAndAutoSessionEnabledIsTrue(userId.value())
             .map(mapper::toDomain);
     }
+
+    @Override
+    public int countActiveByTenant(TenantId tenantId) {
+        return repo.countByTenantIdAndSyncState(tenantId.value(), TerminalSyncState.ONLINE.name());
+    }
 }

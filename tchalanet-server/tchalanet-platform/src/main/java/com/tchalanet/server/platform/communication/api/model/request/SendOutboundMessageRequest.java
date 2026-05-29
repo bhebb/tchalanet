@@ -4,6 +4,8 @@ import com.tchalanet.server.platform.communication.api.model.value.Communication
 import com.tchalanet.server.platform.communication.api.model.value.MessagePriority;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -12,10 +14,22 @@ public record SendOutboundMessageRequest(
     CommunicationChannel channel,
     OutboundRecipient recipient,
     Locale locale,
-    Map<String, Object> metadata) {
+    Map<String, Object> metadata,
+    List<OutboundAttachment> attachments) {
+
+    public SendOutboundMessageRequest(
+        String type,
+        CommunicationChannel channel,
+        OutboundRecipient recipient,
+        Locale locale,
+        Map<String, Object> metadata
+    ) {
+        this(type, channel, recipient, locale, metadata, List.of());
+    }
 
     public SendOutboundMessageRequest {
         metadata = metadata == null ? Map.of() : Map.copyOf(metadata);
+        attachments = attachments == null ? List.of() : List.copyOf(attachments);
     }
 
     public String correlationKey() {
@@ -42,6 +56,17 @@ public record SendOutboundMessageRequest(
         } catch (IllegalArgumentException ignored) {
             return MessagePriority.NORMAL;
         }
+    }
+
+    public Map<String, Object> metadataWithAttachments() {
+        if (attachments.isEmpty()) {
+            return metadata;
+        }
+        var enriched = new LinkedHashMap<String, Object>(metadata);
+        enriched.put("attachments", attachments.stream()
+            .map(OutboundAttachment::toMetadata)
+            .toList());
+        return Map.copyOf(enriched);
     }
 
     private String optionalString(String key, String defaultValue) {

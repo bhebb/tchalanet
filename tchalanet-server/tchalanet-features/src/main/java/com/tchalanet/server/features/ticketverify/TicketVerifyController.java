@@ -11,7 +11,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +44,7 @@ public class TicketVerifyController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Too many requests")
     })
     @GetMapping("/{publicCode}/verify")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<TicketVerifyResponse>> verify(
         HttpServletRequest httpRequest,
         @PathVariable
@@ -61,7 +64,9 @@ public class TicketVerifyController {
 
         return ResponseEntity.ok()
             .header("X-Robots-Tag", "noindex, nofollow")
-            .header("Cache-Control", "no-store")
+            .cacheControl(CacheControl.noStore())
+            .header("Pragma", "no-cache")
+            .header("Expires", "0")
             .body(ApiResponse.success(response));
     }
 }

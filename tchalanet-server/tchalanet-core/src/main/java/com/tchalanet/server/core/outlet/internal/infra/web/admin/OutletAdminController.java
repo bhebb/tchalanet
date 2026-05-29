@@ -1,23 +1,28 @@
 package com.tchalanet.server.core.outlet.internal.infra.web.admin;
 
+import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
-import com.tchalanet.server.common.bus.CommandBus;
-import com.tchalanet.server.platform.audit.api.model.AuditAction;
-import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.audit.api.AuditLog;
-import com.tchalanet.server.core.outlet.api.command.BlockOutletSalesCommand;
-import com.tchalanet.server.core.outlet.api.command.CloseOutletDayCommand;
-import com.tchalanet.server.core.outlet.api.command.CloseOutletDayPayload;
+import com.tchalanet.server.core.outlet.api.command.block.BlockOutletCommand;
+import com.tchalanet.server.core.outlet.api.command.block.BlockOutletSalesCommand;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseOutletDayCommand;
+import com.tchalanet.server.core.outlet.api.command.lifecycle.CloseOutletDayPayload;
 import com.tchalanet.server.core.outlet.api.command.CreateOutletCommand;
 import com.tchalanet.server.core.outlet.api.command.OutletConfigPatch;
-import com.tchalanet.server.core.outlet.api.command.UnblockOutletSalesCommand;
+import com.tchalanet.server.core.outlet.api.command.block.UnblockOutletCommand;
+import com.tchalanet.server.core.outlet.api.command.block.UnblockOutletSalesCommand;
 import com.tchalanet.server.core.outlet.api.command.UpdateOutletConfigCommand;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.BlockSalesRequest;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.CloseOutletDayRequest;
 import com.tchalanet.server.core.outlet.internal.infra.web.admin.model.CreateOutletRequest;
+import com.tchalanet.server.platform.audit.api.AuditLog;
+import com.tchalanet.server.platform.audit.api.model.AuditAction;
+import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.catalog.plan.api.PlanLimitKeys;
+import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
+import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +44,10 @@ public class OutletAdminController {
     private final CommandBus commandBus;
 
     @PostMapping
+    @RequiredQuota(
+        limit = PlanLimitKeys.OUTLETS_MAX,
+        usage = UsageKeys.OUTLETS_ACTIVE
+    )
     @AuditLog(
         entity = AuditEntityType.OUTLET,
         action = AuditAction.OUTLET_CREATE,
@@ -48,7 +57,15 @@ public class OutletAdminController {
         @CurrentContext TchRequestContext ctx, @Valid @RequestBody CreateOutletRequest req) {
         return ApiResponse.success(
             commandBus.execute(
-                new CreateOutletCommand(ctx.tenantIdSafe(), req.name(), req.slug(), null, req.address())));
+                new CreateOutletCommand(
+                    ctx.tenantIdSafe(),
+                    req.name(),
+                    req.slug(),
+                    req.kind(),
+                    req.partnerRef(),
+                    req.zoneId(),
+                    null,
+                    req.address())));
     }
 
     @PatchMapping("/{id}/config")
@@ -62,6 +79,31 @@ public class OutletAdminController {
         @PathVariable OutletId id,
         @RequestBody OutletConfigPatch patch) {
         commandBus.execute(new UpdateOutletConfigCommand(ctx.tenantIdSafe(), id, patch));
+        return ApiResponse.success(null);
+    }
+
+    @PostMapping("/{id}/block")
+    @AuditLog(
+        entity = AuditEntityType.OUTLET,
+        action = AuditAction.OUTLET_BLOCK,
+        idExpression = "#id.value().toString()",
+        detailsExpression = "#req")
+    public ApiResponse<Void> blockOutlet(
+        @CurrentContext TchRequestContext ctx,
+        @PathVariable OutletId id,
+        @Valid @RequestBody BlockSalesRequest req) {
+        commandBus.execute(new BlockOutletCommand(ctx.tenantIdSafe(), id, req.reason()));
+        return ApiResponse.success(null);
+    }
+
+    @PostMapping("/{id}/unblock")
+    @AuditLog(
+        entity = AuditEntityType.OUTLET,
+        action = AuditAction.OUTLET_UNBLOCK,
+        idExpression = "#id.value().toString()")
+    public ApiResponse<Void> unblockOutlet(
+        @CurrentContext TchRequestContext ctx, @PathVariable OutletId id) {
+        commandBus.execute(new UnblockOutletCommand(ctx.tenantIdSafe(), id));
         return ApiResponse.success(null);
     }
 
@@ -80,7 +122,6 @@ public class OutletAdminController {
                 ctx.tenantIdSafe(), id, req.reason(), ctx.currentUserIdRequired()));
         return ApiResponse.success(null);
     }
-
 
     @PostMapping("/{id}/unblock-sales")
     @AuditLog(
@@ -102,8 +143,6 @@ public class OutletAdminController {
         var outletDayPayload = new CloseOutletDayPayload(req.from(), req.to(), req.mode(), req.reason());
         var cmd = new CloseOutletDayCommand(ctx.tenantIdSafe(), id, outletDayPayload, ctx.currentUserIdRequired());
         var result = commandBus.execute(cmd);
-
         return ApiResponse.success(result);
     }
-
 }

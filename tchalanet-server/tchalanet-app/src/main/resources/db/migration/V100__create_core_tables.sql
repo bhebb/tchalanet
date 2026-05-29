@@ -372,61 +372,105 @@ CREATE TABLE draw (
 );
 
 -- =========================================================
+-- SALES ZONE
+-- =========================================================
+
+CREATE TABLE sales_zone (
+  id          uuid         PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id   uuid         NOT NULL REFERENCES tenant(id),
+  code        varchar(80)  NOT NULL,
+  label       varchar(160) NOT NULL,
+  active      boolean      NOT NULL DEFAULT true,
+  parent_id   uuid         NULL REFERENCES sales_zone(id),
+  created_at  timestamptz  NOT NULL DEFAULT now(),
+  created_by  uuid         NULL,
+  updated_at  timestamptz  NOT NULL DEFAULT now(),
+  updated_by  uuid         NULL,
+  deleted_at  timestamptz  NULL,
+  deleted_by  uuid         NULL,
+  version     bigint       NOT NULL DEFAULT 0,
+  CONSTRAINT uq_sales_zone_tenant_code UNIQUE (tenant_id, code)
+);
+
+-- =========================================================
 -- OUTLET
 -- =========================================================
 
-create table outlet (
-                        id uuid primary key default gen_random_uuid(),
-                        tenant_id uuid not null,
+CREATE TABLE outlet (
+  id          uuid         PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id   uuid         NOT NULL,
 
-                        name varchar(255) not null,
-                        slug varchar(128) not null,
+  name        varchar(255) NOT NULL,
+  slug        varchar(128) NOT NULL,
 
-                        day_closed boolean not null default false,
-                        sales_blocked boolean not null default false,
-                        sales_block_reason text,
-                        sales_blocked_at timestamptz,
+  -- Classification
+  kind        varchar(40)  NOT NULL DEFAULT 'OWNED_SHOP',
+  partner_ref varchar(120) NULL,
+  zone_id     uuid         NULL REFERENCES sales_zone(id),
+  metadata_json jsonb      NULL,
 
-                        payout_blocked boolean not null default false,
-                        payout_block_reason text,
-                        payout_blocked_at timestamptz,
-                        payout_blocked_by uuid,
+  -- Day / lifecycle
+  day_closed  boolean      NOT NULL DEFAULT false,
+  status      varchar(40)  NOT NULL DEFAULT 'DRAFT',
 
-                        offline_sales_blocked boolean not null default false,
-                        offline_sales_block_reason text,
-                        offline_sales_blocked_at timestamptz,
-                        offline_sales_blocked_by uuid,
+  -- Outlet-level block (global override — blocks everything)
+  outlet_blocked      boolean      NOT NULL DEFAULT false,
+  outlet_block_reason text         NULL,
+  outlet_blocked_at   timestamptz  NULL,
+  outlet_blocked_by   uuid         NULL,
 
-                        timezone varchar(64) not null default 'America/Port-au-Prince',
+  -- Sales block
+  sales_blocked       boolean      NOT NULL DEFAULT false,
+  sales_block_reason  text         NULL,
+  sales_blocked_at    timestamptz  NULL,
+  sales_blocked_by    uuid         NULL,
 
-                        receipt_printing_enabled boolean not null default true,
-                        receipt_header_message text,
-                        receipt_footer_message text,
+  -- Payout block
+  payout_blocked      boolean      NOT NULL DEFAULT false,
+  payout_block_reason text         NULL,
+  payout_blocked_at   timestamptz  NULL,
+  payout_blocked_by   uuid         NULL,
 
-                        require_opening_float boolean not null default true,
+  -- Offline sales block
+  offline_sales_blocked      boolean     NOT NULL DEFAULT false,
+  offline_sales_block_reason text        NULL,
+  offline_sales_blocked_at   timestamptz NULL,
+  offline_sales_blocked_by   uuid        NULL,
 
-                        auto_session_open_enabled boolean not null default false,
-                        auto_session_close_enabled boolean not null default false,
-                        session_open_time time,
-                        session_close_time time,
-                        default_opening_float_cents bigint,
+  -- Config
+  timezone                   varchar(64) NOT NULL DEFAULT 'America/Port-au-Prince',
+  receipt_printing_enabled   boolean     NOT NULL DEFAULT true,
+  receipt_header_message     text        NULL,
+  receipt_footer_message     text        NULL,
+  require_opening_float      boolean     NOT NULL DEFAULT true,
+  auto_session_open_enabled  boolean     NOT NULL DEFAULT false,
+  auto_session_close_enabled boolean     NOT NULL DEFAULT false,
+  session_open_time          time        NULL,
+  session_close_time         time        NULL,
+  default_opening_float_cents bigint     NULL,
 
-                        address_id uuid,
+  address_id  uuid         NULL,
 
-                        created_at timestamptz not null,
-                        created_by uuid,
-                        updated_at timestamptz not null,
-                        updated_by uuid,
-                        deleted_at timestamptz,
-                        deleted_by uuid,
-                        status varchar(40) not null default 'ACTIVE',
-                        version bigint not null default 0
+  created_at  timestamptz  NOT NULL DEFAULT now(),
+  created_by  uuid         NULL,
+  updated_at  timestamptz  NOT NULL DEFAULT now(),
+  updated_by  uuid         NULL,
+  deleted_at  timestamptz  NULL,
+  deleted_by  uuid         NULL,
+  version     bigint       NOT NULL DEFAULT 0,
+
+  CONSTRAINT ck_outlet_kind CHECK (kind IN (
+    'OWNED_SHOP','KIOSK','MOBILE_POINT','BANK_BRANCH',
+    'PARTNER_INSTITUTION','PARTNER_TENANT','REGIONAL_OFFICE')),
+  CONSTRAINT ck_outlet_status CHECK (status IN (
+    'DRAFT','ACTIVE','SUSPENDED','CLOSED','ARCHIVED'))
 );
 
-comment on column outlet.day_closed is 'Closes the outlet operationally for the current day.';
-comment on column outlet.sales_blocked is 'Blocks sales for this outlet without deleting or closing the outlet.';
-comment on column outlet.timezone is 'Local timezone used for business date and auto-session scheduling.';
-comment on column outlet.auto_session_open_enabled is 'Enables automatic session opening for eligible terminals/users.';
+COMMENT ON COLUMN outlet.kind IS 'Outlet classification: OWNED_SHOP, KIOSK, MOBILE_POINT, BANK_BRANCH, PARTNER_INSTITUTION, PARTNER_TENANT, REGIONAL_OFFICE. Immutable after creation.';
+COMMENT ON COLUMN outlet.partner_ref IS 'External commercial reference (distributor code, commerce code, imported ref). Unique per tenant.';
+COMMENT ON COLUMN outlet.outlet_blocked IS 'Global operational block — overrides sales/payout/offline blocks. Use for emergencies or audits.';
+COMMENT ON COLUMN outlet.day_closed IS 'Closes the outlet operationally for the current business day (POS concept).';
+COMMENT ON COLUMN outlet.timezone IS 'Local timezone used for business date and auto-session scheduling.';
 comment on column outlet.auto_session_close_enabled is 'Enables automatic closing of open sessions.';
 comment on column outlet.session_open_time is 'Local outlet time used by auto-open scheduler.';
 comment on column outlet.session_close_time is 'Local outlet time used by auto-close scheduler.';
@@ -491,6 +535,93 @@ comment on column terminal.state is 'Operational state of the terminal.';
 comment on column terminal.sync_state is 'Connectivity/sync state for POS/mobile clients.';
 comment on column terminal.metadata is 'Flexible device metadata stored as JSONB.';
 
+create table terminal_capability (
+                                     id uuid primary key default gen_random_uuid(),
+                                     tenant_id uuid not null,
+                                     terminal_id uuid not null references terminal(id),
+                                     capability varchar(64) not null,
+
+                                     created_at timestamptz not null,
+                                     created_by uuid,
+                                     updated_at timestamptz not null,
+                                     updated_by uuid,
+                                     deleted_at timestamptz,
+                                     deleted_by uuid,
+                                     version bigint not null default 0,
+
+                                     constraint uq_terminal_capability__tenant_terminal_capability
+                                       unique (tenant_id, terminal_id, capability)
+);
+
+create table terminal_assignment (
+                                     id uuid primary key default gen_random_uuid(),
+                                     tenant_id uuid not null,
+                                     terminal_id uuid not null references terminal(id),
+                                     user_id uuid not null references app_user(id),
+                                     status varchar(32) not null,
+                                     assigned_at timestamptz not null,
+                                     revoked_at timestamptz,
+
+                                     created_at timestamptz not null,
+                                     created_by uuid,
+                                     updated_at timestamptz not null,
+                                     updated_by uuid,
+                                     deleted_at timestamptz,
+                                     deleted_by uuid,
+                                     version bigint not null default 0
+);
+
+create table terminal_binding (
+                                  id uuid primary key default gen_random_uuid(),
+                                  tenant_id uuid not null,
+                                  terminal_id uuid not null references terminal(id),
+                                  binding_type varchar(32) not null,
+                                  status varchar(32) not null,
+                                  binding_public_key text,
+                                  binding_secret_hash text,
+                                  device_fingerprint_hash text,
+                                  bound_at timestamptz not null,
+                                  expires_at timestamptz,
+                                  revoked_at timestamptz,
+                                  last_seen_at timestamptz,
+
+                                  created_at timestamptz not null,
+                                  created_by uuid,
+                                  updated_at timestamptz not null,
+                                  updated_by uuid,
+                                  deleted_at timestamptz,
+                                  deleted_by uuid,
+                                  version bigint not null default 0
+);
+
+create table terminal_challenge (
+                                    id uuid primary key default gen_random_uuid(),
+                                    tenant_id uuid not null,
+                                    terminal_id uuid not null references terminal(id),
+                                    user_id uuid not null references app_user(id),
+                                    challenge_type varchar(32) not null,
+                                    channel varchar(32) not null,
+                                    code_hash text not null,
+                                    expires_at timestamptz not null,
+                                    attempt_count integer not null default 0,
+                                    max_attempts integer not null,
+                                    status varchar(32) not null,
+                                    consumed_at timestamptz,
+                                    cancelled_at timestamptz,
+
+                                    created_at timestamptz not null,
+                                    created_by uuid,
+                                    updated_at timestamptz not null,
+                                    updated_by uuid,
+                                    deleted_at timestamptz,
+                                    deleted_by uuid,
+                                    version bigint not null default 0
+);
+
+comment on table terminal_capability is 'Authorized/capable actions for a terminal. User permissions remain a separate gate.';
+comment on table terminal_assignment is 'Terminal-to-user assignment lifecycle. Outlet remains owned by terminal/session.';
+comment on table terminal_binding is 'Trusted device/app binding for a terminal. Secrets and fingerprints are stored only as hashes.';
+comment on table terminal_challenge is 'Short-lived activation proof. Clear challenge codes are never stored.';
 
 -- =========================================================
 -- SALES SESSION
@@ -576,56 +707,72 @@ CREATE TABLE pricing_odds (
 -- =========================================================
 
 create table payout (
-                        id uuid primary key default gen_random_uuid(),
-                        tenant_id uuid not null,
+  id              uuid         primary key default gen_random_uuid(),
+  tenant_id       uuid         not null,
 
-                        ticket_id uuid not null,
+  -- claim identity
+  ticket_id       uuid         not null,
+  draw_id         uuid,
+  source_event_id uuid,
+  source          varchar(32)  not null,
 
-                        amount_cents bigint not null,
-                        currency varchar(3) not null default 'HTG',
-                        status varchar(32) not null,
+  amount_cents    bigint       not null,
+  currency        varchar(3)   not null default 'HTG',
+  status          varchar(32)  not null,
 
-                        selling_outlet_id uuid,
-                        selling_session_id uuid,
+  -- claim opening
+  opened_at       timestamptz  not null,
 
-                        paying_outlet_id uuid,
-                        paying_session_id uuid,
-                        paying_terminal_id uuid,
+  -- selling context (immutable, set at claim creation)
+  selling_outlet_id  uuid,
+  selling_session_id uuid,
 
-                        requested_by uuid,
-                        requested_at timestamptz not null,
+  -- payment execution
+  paying_outlet_id   uuid,
+  paying_session_id  uuid,
+  paying_terminal_id uuid,
+  paid_by            uuid,
+  paid_at            timestamptz,
 
-                        approved_by uuid,
-                        approved_at timestamptz,
+  -- block (admin correction)
+  blocked_by    uuid,
+  blocked_at    timestamptz,
+  block_reason  text,
 
-                        rejected_by uuid,
-                        rejected_at timestamptz,
-                        rejected_reason text,
+  -- cancel (admin correction)
+  cancelled_by  uuid,
+  cancelled_at  timestamptz,
+  cancel_reason text,
 
-                        paid_by uuid,
-                        paid_at timestamptz,
+  -- reversal (admin correction)
+  reversed_by   uuid,
+  reversed_at   timestamptz,
+  reverse_reason text,
 
-                        cancelled_by uuid,
-                        cancelled_at timestamptz,
-                        cancel_reason text,
+  -- base audit columns (BaseTenantEntity / AuditableEntity)
+  created_at  timestamptz not null,
+  created_by  uuid,
+  updated_at  timestamptz not null,
+  updated_by  uuid,
+  deleted_at  timestamptz,
+  deleted_by  uuid,
+  version     bigint      not null default 0,
 
-                        reason text,
-
-                        created_at timestamptz not null,
-                        created_by uuid,
-                        updated_at timestamptz not null,
-                        updated_by uuid,
-                        deleted_at timestamptz,
-                        deleted_by uuid,
-                        version bigint not null default 0
+  -- one claim per winning ticket per tenant (idempotence guard)
+  constraint uq_payout_tenant_ticket unique (tenant_id, ticket_id)
 );
 
-comment on column payout.ticket_id is 'Winning ticket being paid.';
-comment on column payout.selling_session_id is 'Session that sold the original ticket, if known.';
-comment on column payout.paying_session_id is 'Session that paid the winning ticket.';
-comment on column payout.status is 'Payout lifecycle status.';
-comment on column payout.reason is 'General business reason/comment.';
-comment on column payout.cancel_reason is 'Reason provided when payout is cancelled.';
+comment on column payout.ticket_id       is 'Winning ticket this claim covers.';
+comment on column payout.draw_id         is 'Draw that produced the winning ticket.';
+comment on column payout.source_event_id is 'EventId of the TicketWinningSettlementCreatedEvent that triggered this claim.';
+comment on column payout.source          is 'Claim origin: SALES_SETTLEMENT | OPS_RECONCILIATION | MANUAL_ADMIN_CORRECTION.';
+comment on column payout.opened_at       is 'Timestamp when the claim was first opened.';
+comment on column payout.status          is 'Claim lifecycle status: OPEN | BLOCKED | PAID | CANCELLED | REVERSED.';
+comment on column payout.selling_session_id  is 'Session that sold the original ticket.';
+comment on column payout.paying_session_id   is 'Session that paid the winning ticket.';
+comment on column payout.block_reason        is 'Reason provided when an admin blocks the claim.';
+comment on column payout.cancel_reason       is 'Reason provided when the claim is cancelled.';
+comment on column payout.reverse_reason      is 'Reason provided when a paid claim is reversed.';
 
 
 CREATE TABLE billing_plan (
@@ -674,6 +821,8 @@ CREATE TABLE page_model_template (
   logical_id varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
   label varchar(255),
+  scope varchar(32),
+  slug varchar(128),
   description text,
   schema jsonb NOT NULL,
   model jsonb NOT NULL,
@@ -1151,6 +1300,8 @@ CREATE TABLE sales_ticket (
   offline_local_sequence bigint,
   offline_sold_at_device timestamptz,
   offline_sync_status varchar(48),
+  seller_id uuid NULL,
+  seller_assignment_id uuid NULL,
   print_status varchar(16) NOT NULL,
   print_count integer NOT NULL DEFAULT 0,
   first_printed_at timestamptz,
@@ -1192,8 +1343,15 @@ CREATE TABLE sales_ticket_line (
   selection_key varchar(128) NOT NULL,
   display_selection varchar(256) NOT NULL,
   stake_amount numeric(19,4) NOT NULL,
+  payout_base_amount numeric(19,4) NOT NULL,
   odds_snapshot numeric(19,6),
   potential_payout_amount numeric(19,4) NOT NULL DEFAULT 0,
+  origin varchar(16) NOT NULL DEFAULT 'CUSTOMER',
+  pricing_source varchar(16) NOT NULL DEFAULT 'STANDARD',
+  selection_source varchar(32) NOT NULL DEFAULT 'CUSTOMER_SELECTED',
+  promotion_decision_id uuid,
+  promotion_label varchar(128),
+  promotion_effect_type varchar(32),
   result_status varchar(16) NOT NULL,
   payout_amount numeric(19,4) NOT NULL DEFAULT 0,
   created_at timestamptz,
@@ -1205,7 +1363,7 @@ CREATE TABLE sales_ticket_line (
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uk_ticket_line__number UNIQUE (tenant_id, ticket_id, line_number),
   CONSTRAINT chk_ticket_line__amounts CHECK (
-    stake_amount > 0 AND potential_payout_amount >= 0 AND payout_amount >= 0
+    stake_amount >= 0 AND potential_payout_amount >= 0 AND payout_amount >= 0
   )
 );
 
@@ -1217,6 +1375,10 @@ CREATE TABLE sales_ticket_charge (
   paid_by varchar(16) NOT NULL,
   amount numeric(19,4) NOT NULL,
   currency varchar(3) NOT NULL,
+  waived_by_rule_id uuid,
+  waived_by_decision_id uuid,
+  waived_effect_type varchar(64),
+  waived_label varchar(256),
   created_at timestamptz,
   created_by uuid,
   updated_at timestamptz,
@@ -1480,3 +1642,203 @@ CREATE TABLE offline_event_outbox (
   next_attempt_at timestamptz,
   CONSTRAINT uq_offline_event_outbox__event_id UNIQUE (tenant_id, event_id)
 );
+
+-- =========================================================
+-- PROMOTION DOMAIN
+-- =========================================================
+-- BaseTenantEntity columns are physically present in every tenant table:
+-- id, tenant_id, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by, version.
+-- Repositories must not filter tenant_id or deleted_at manually; RLS handles tenant isolation.
+
+CREATE TABLE promotion_campaign (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  code varchar(96) NOT NULL,
+  name varchar(160) NOT NULL,
+  status varchar(32) NOT NULL,
+  priority integer NOT NULL DEFAULT 100,
+  starts_at timestamptz NULL,
+  ends_at timestamptz NULL,
+  config_version varchar(48) NOT NULL DEFAULT 'v1',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_promotion_campaign_tenant_code UNIQUE (tenant_id, code)
+);
+
+CREATE TABLE promotion_rule (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  campaign_id uuid NOT NULL REFERENCES promotion_campaign(id),
+  rule_key varchar(96) NOT NULL,
+  priority integer NOT NULL DEFAULT 100,
+  min_paid_total numeric(19,4) NULL,
+  before_local_time time NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_promotion_rule_tenant_campaign_key UNIQUE (tenant_id, campaign_id, rule_key)
+);
+
+CREATE TABLE promotion_rule_effect (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  rule_id uuid NOT NULL REFERENCES promotion_rule(id),
+  effect_type varchar(32) NOT NULL,
+  game_code varchar(64) NULL,
+  payout_base_amount numeric(19,4) NULL,
+  quantity integer NULL,
+  odds_override numeric(19,6) NULL,
+  charge_type varchar(64) NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_promotion_rule_effect_type CHECK (effect_type IN ('FREE_GAME_LINE','BOOST_ODDS','WAIVE_CHARGE')),
+  CONSTRAINT chk_promotion_rule_effect_quantity CHECK (quantity IS NULL OR quantity > 0),
+  CONSTRAINT chk_promotion_rule_effect_amount CHECK (payout_base_amount IS NULL OR payout_base_amount > 0),
+  CONSTRAINT chk_promotion_rule_effect_odds CHECK (odds_override IS NULL OR odds_override > 0)
+);
+
+CREATE TABLE promotion_rule_eligibility_line (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  rule_id uuid NOT NULL REFERENCES promotion_rule(id),
+  game_code varchar(64) NOT NULL,
+  min_count integer NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_promotion_rule_eligibility_line_min_count CHECK (min_count > 0)
+);
+
+CREATE TABLE promotion_decision (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  decision_status varchar(32) NOT NULL,
+  evaluation_phase varchar(48) NOT NULL,
+  evaluated_at timestamptz NOT NULL,
+  context_hash varchar(128) NOT NULL,
+  engine_version varchar(48) NOT NULL,
+  decision_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_promotion_decision_tenant_hash_phase UNIQUE (tenant_id, context_hash, evaluation_phase)
+);
+
+CREATE TABLE applied_promotion_snapshot (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  ticket_id uuid NOT NULL,
+  promotion_decision_id uuid NOT NULL,
+  decision_status varchar(32) NOT NULL,
+  applied_at timestamptz NOT NULL,
+  snapshot_json jsonb NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  updated_at timestamptz NULL,
+  updated_by uuid NULL,
+  deleted_at timestamptz NULL,
+  deleted_by uuid NULL,
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT uq_applied_promotion_tenant_ticket_decision UNIQUE (tenant_id, ticket_id, promotion_decision_id)
+);
+
+-- FK from sales_ticket_charge.waived_by_rule_id to promotion_rule
+-- (column already exists in sales_ticket_charge; both tables are defined in this migration)
+ALTER TABLE sales_ticket_charge
+  ADD CONSTRAINT fk_sales_ticket_charge__waived_by_rule
+    FOREIGN KEY (waived_by_rule_id) REFERENCES promotion_rule(id);
+
+ALTER TABLE sales_ticket_charge
+  ADD CONSTRAINT fk_sales_ticket_charge__waived_by_decision
+    FOREIGN KEY (waived_by_decision_id) REFERENCES promotion_decision(id);
+
+-- =========================================================
+-- SELLER DOMAIN
+-- =========================================================
+
+CREATE TABLE seller (
+  id           uuid         PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id    uuid         NOT NULL REFERENCES tenant(id),
+  user_id      uuid         NULL,
+  code         varchar(80)  NOT NULL,
+  display_name varchar(180) NOT NULL,
+  status       varchar(24)  NOT NULL,
+  created_at   timestamptz  NOT NULL DEFAULT now(),
+  created_by   uuid         NULL,
+  updated_at   timestamptz  NOT NULL DEFAULT now(),
+  updated_by   uuid         NULL,
+  deleted_at   timestamptz  NULL,
+  deleted_by   uuid         NULL,
+  version      bigint       NOT NULL DEFAULT 0,
+  CONSTRAINT uq_seller_tenant_code UNIQUE (tenant_id, code),
+  CONSTRAINT ck_seller_status CHECK (status IN ('ACTIVE','SUSPENDED','INACTIVE'))
+);
+
+CREATE TABLE seller_outlet_assignment (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id   uuid        NOT NULL REFERENCES tenant(id),
+  seller_id   uuid        NOT NULL REFERENCES seller(id),
+  outlet_id   uuid        NOT NULL REFERENCES outlet(id),
+  starts_at   timestamptz NOT NULL,
+  ends_at     timestamptz NULL,
+  status      varchar(24) NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  created_by  uuid        NULL,
+  updated_at  timestamptz NOT NULL DEFAULT now(),
+  updated_by  uuid        NULL,
+  deleted_at  timestamptz NULL,
+  deleted_by  uuid        NULL,
+  version     bigint      NOT NULL DEFAULT 0,
+  CONSTRAINT ck_seller_assignment_status CHECK (status IN ('ACTIVE','ENDED','SUSPENDED'))
+);
+
+CREATE TABLE seller_commission_policy (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id       uuid          NOT NULL REFERENCES tenant(id),
+  seller_id       uuid          NOT NULL REFERENCES seller(id),
+  commission_type varchar(40)   NOT NULL,
+  commission_base varchar(40)   NOT NULL,
+  rate_percent    numeric(8,4)  NULL,
+  fixed_amount    numeric(18,4) NULL,
+  currency        varchar(8)    NOT NULL,
+  starts_at       timestamptz   NOT NULL,
+  ends_at         timestamptz   NULL,
+  status          varchar(24)   NOT NULL,
+  created_at      timestamptz   NOT NULL DEFAULT now(),
+  created_by      uuid          NULL,
+  updated_at      timestamptz   NOT NULL DEFAULT now(),
+  updated_by      uuid          NULL,
+  deleted_at      timestamptz   NULL,
+  deleted_by      uuid          NULL,
+  version         bigint        NOT NULL DEFAULT 0,
+  CONSTRAINT ck_seller_commission_type CHECK (commission_type IN ('NONE','PERCENT','FIXED_PER_TICKET','FIXED_PLUS_PERCENT')),
+  CONSTRAINT ck_seller_commission_base CHECK (commission_base IN ('GROSS_SALES','NET_SALES','PROFIT','TICKET_COUNT')),
+  CONSTRAINT ck_seller_commission_status CHECK (status IN ('ACTIVE','ENDED','SUSPENDED'))
+);
+
+-- FK snapshots on sales_ticket back to seller tables (deferred; seller is defined after sales_ticket above)
+ALTER TABLE sales_ticket
+  ADD CONSTRAINT fk_sales_ticket__seller            FOREIGN KEY (seller_id)            REFERENCES seller(id),
+  ADD CONSTRAINT fk_sales_ticket__seller_assignment FOREIGN KEY (seller_assignment_id) REFERENCES seller_outlet_assignment(id);

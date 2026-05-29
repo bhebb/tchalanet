@@ -17,6 +17,8 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.error.ProblemRestException;
+import com.tchalanet.server.core.terminal.api.query.TerminalOperation;
+import com.tchalanet.server.core.terminal.api.query.ValidateTerminalForOperationQuery;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.CheckUserPermissionsRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.CreateRoleRequest;
@@ -81,9 +83,38 @@ class SellerOperationalContextResolverTest {
         SellerOperation.SELL)));
   }
 
+  @Test
+  void mapsPrintReprintAndSendToTerminalValidationOperations() {
+    var ids = ids();
+    var queryBus = new CapturingQueryBus();
+    var resolver = resolver(true, queryBus);
+
+    resolver.resolve(new ResolveSellerOperationalContextRequest(
+        context(ids),
+        ids.terminalId(),
+        SellerOperation.PRINT_TICKET));
+    assertEquals(TerminalOperation.PRINT_TICKET, queryBus.lastTerminalOperation());
+
+    resolver.resolve(new ResolveSellerOperationalContextRequest(
+        context(ids),
+        ids.terminalId(),
+        SellerOperation.REPRINT_TICKET));
+    assertEquals(TerminalOperation.REPRINT_TICKET, queryBus.lastTerminalOperation());
+
+    resolver.resolve(new ResolveSellerOperationalContextRequest(
+        context(ids),
+        ids.terminalId(),
+        SellerOperation.SEND_RECEIPT));
+    assertEquals(TerminalOperation.PRINT_TICKET, queryBus.lastTerminalOperation());
+  }
+
   private SellerOperationalContextResolver resolver(boolean permissionAllowed) {
+    return resolver(permissionAllowed, new NoopQueryBus());
+  }
+
+  private SellerOperationalContextResolver resolver(boolean permissionAllowed, QueryBus queryBus) {
     return new SellerOperationalContextResolver(
-        new NoopQueryBus(),
+        queryBus,
         new NoopIdentityApi(),
         new TestAccessControlApi(permissionAllowed));
   }
@@ -138,6 +169,22 @@ class SellerOperationalContextResolverTest {
     @Override
     public <R> R ask(Query<R> query) {
       return null;
+    }
+  }
+
+  private static class CapturingQueryBus implements QueryBus {
+    private TerminalOperation lastTerminalOperation;
+
+    @Override
+    public <R> R ask(Query<R> query) {
+      if (query instanceof ValidateTerminalForOperationQuery terminalQuery) {
+        lastTerminalOperation = terminalQuery.operation();
+      }
+      return null;
+    }
+
+    TerminalOperation lastTerminalOperation() {
+      return lastTerminalOperation;
     }
   }
 

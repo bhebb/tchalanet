@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.cashier.tickets.model;
 
+import com.tchalanet.server.core.sales.api.command.sell.PromotionChoiceInput;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ public record CashierSellTicketRequest(
     @NotNull UUID drawId,
     UUID drawChannelId,
     @NotBlank String currency,
-    @NotNull @Size(min = 1) @Valid List<CashierTicketLineRequest> lines
+    @NotNull @Size(min = 1) @Valid List<CashierTicketLineRequest> lines,
+    List<PromotionChoiceInput> promotionChoices
 ) {
 }

@@ -13,7 +13,7 @@ import com.tchalanet.server.core.session.api.command.OpenDueSalesSessionsResult;
 import com.tchalanet.server.core.session.internal.application.port.out.AutoSessionTargetReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionReaderPort;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionWriterPort;
-import com.tchalanet.server.core.session.internal.domain.event.SalesSessionOpenedEvent;
+import com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSession;
 import lombok.RequiredArgsConstructor;
 

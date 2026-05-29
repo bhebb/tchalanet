@@ -16,11 +16,11 @@ import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecycl
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawSalesGuardPort;
 import com.tchalanet.server.core.draw.internal.application.query.projection.DueToCloseRow;
-import com.tchalanet.server.core.draw.internal.application.query.projection.ExistingDrawKey;
-import com.tchalanet.server.core.draw.internal.application.query.projection.NewDrawRow;
-import com.tchalanet.server.core.draw.internal.application.query.projection.OpenableDrawRow;
+import com.tchalanet.server.core.draw.api.query.ExistingDrawKey;
+import com.tchalanet.server.core.draw.api.query.NewDrawRow;
+import com.tchalanet.server.core.draw.api.query.OpenableDrawRow;
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.platform.idempotence.api.ProcessedEventPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

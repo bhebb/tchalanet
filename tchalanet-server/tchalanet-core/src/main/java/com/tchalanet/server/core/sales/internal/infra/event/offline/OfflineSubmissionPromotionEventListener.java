@@ -20,20 +20,20 @@ import java.time.Clock;
 import java.util.UUID;
 
 /**
- * Subscribes to the two offline promotion-trigger events ({@code TechValidated} and
+ * Subscribes to the two offline promotionDecision-trigger events ({@code TechValidated} and
  * {@code AdminApproved}), dispatches a {@link CreateTicketFromOfflineSubmissionCommand}
  * to materialise the ticket, then publishes the {@link OfflineSubmissionProcessedEvent}
  * back so {@code core.offlinesync} can record the outcome.
  *
  * <p>Idempotence enforced via {@link ProcessedEventPort} with handler key
- * {@code "sales.offline-promotion"}.
+ * {@code "sales.offline-promotionDecision"}.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class OfflineSubmissionPromotionEventListener {
 
-    static final String HANDLER_KEY = "sales.offline-promotion";
+    static final String HANDLER_KEY = "sales.offline-promotionDecision";
 
     private final CommandBus commandBus;
     private final DomainEventPublisher eventPublisher;
@@ -66,7 +66,7 @@ public class OfflineSubmissionPromotionEventListener {
 
     private void promote(EventId sourceEventId, CreateTicketFromOfflineSubmissionCommand command) {
         if (!processedEventPort.markProcessedIfAbsent(HANDLER_KEY, sourceEventId.value())) {
-            log.debug("sales: promotion already processed for event {}", sourceEventId);
+            log.debug("sales: promotionDecision already processed for event {}", sourceEventId);
             return;
         }
 

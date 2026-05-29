@@ -8,11 +8,9 @@ import com.tchalanet.server.core.limitpolicy.api.query.EvaluateLimitPolicyQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitBreachView;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitEvaluationView;
 import com.tchalanet.server.core.limitpolicy.internal.domain.engine.LimitEvaluationEngine;
-import com.tchalanet.server.core.limitpolicy.internal.domain.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.domain.resolver.LimitResolver;
 import lombok.RequiredArgsConstructor;
-
-import java.math.BigDecimal;
 
 @UseCase
 @RequiredArgsConstructor

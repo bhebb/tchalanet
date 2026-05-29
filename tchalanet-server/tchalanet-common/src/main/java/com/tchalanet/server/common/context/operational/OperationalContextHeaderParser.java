@@ -3,7 +3,6 @@ package com.tchalanet.server.common.context.operational;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TerminalId;
-import com.tchalanet.server.common.web.error.ProblemRest;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -66,12 +65,12 @@ public final class OperationalContextHeaderParser {
             return OperationalContextSource.NONE;
         }
 
-        if (declaredSource == OperationalContextSource.SIGNED_DEVICE_BINDING) {
-            throw ProblemRest.unauthorized("operational_context.device_binding_required");
-        }
-
         if (declaredSource == OperationalContextSource.ADMIN_SELECTION) {
             log.warn("tch.context.admin-selection-without-token");
+        }
+
+        if (declaredSource == OperationalContextSource.SIGNED_DEVICE_BINDING) {
+            log.warn("tch.context.signed-binding-without-server-verification");
         }
 
         return OperationalContextSource.CLIENT_CLAIM;

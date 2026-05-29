@@ -118,6 +118,12 @@ public class TicketJpaEntity extends BaseTenantEntity {
     @Column(name = "draw_channel_id", nullable = false, columnDefinition = "uuid")
     private UUID drawChannelId;
 
+    @Column(name = "seller_id", columnDefinition = "uuid")
+    private UUID sellerId;
+
+    @Column(name = "seller_assignment_id", columnDefinition = "uuid")
+    private UUID sellerAssignmentId;
+
     // -------------------- Codes --------------------
 
     @Column(name = "ticket_code", nullable = false, length = 64)

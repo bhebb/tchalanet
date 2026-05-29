@@ -19,6 +19,15 @@ import com.tchalanet.server.common.types.id.OfflineCodeId;
 import com.tchalanet.server.common.types.id.OfflineSubmissionId;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
 import com.tchalanet.server.common.types.id.PromotionAttemptId;
+import com.tchalanet.server.common.types.id.PromotionRuleId;
+import com.tchalanet.server.common.types.id.SalesZoneId;
+import com.tchalanet.server.common.types.id.SellerId;
+import com.tchalanet.server.common.types.id.SellerOutletAssignmentId;
+import com.tchalanet.server.common.types.id.SellerCommissionPolicyId;
+import com.tchalanet.server.common.types.id.AppliedPromotionId;
+import com.tchalanet.server.common.types.id.PromotionCampaignId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
+import com.tchalanet.server.common.types.id.PromotionQuotaId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.PayoutId;
@@ -33,6 +42,10 @@ import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.common.types.id.ReconciliationRunId;
+import com.tchalanet.server.common.types.id.ReconciliationCheckResultId;
+import com.tchalanet.server.common.types.id.ReconciliationAnomalyId;
+import com.tchalanet.server.common.types.id.ReconciliationRepairActionId;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -224,6 +237,78 @@ public class CommonIdMapper {
         return PromotionAttemptId.nullableOf(id);
     }
 
+    // PromotionRuleId
+    public UUID mapFromPromotionRuleId(PromotionRuleId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionRuleId mapToPromotionRuleId(UUID id) {
+        return PromotionRuleId.nullableOf(id);
+    }
+
+    // SellerId
+    public UUID mapFromSellerId(SellerId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SellerId mapToSellerId(UUID id) {
+        return SellerId.nullableOf(id);
+    }
+
+    // SellerOutletAssignmentId
+    public UUID mapFromSellerOutletAssignmentId(SellerOutletAssignmentId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SellerOutletAssignmentId mapToSellerOutletAssignmentId(UUID id) {
+        return SellerOutletAssignmentId.nullableOf(id);
+    }
+
+    // SellerCommissionPolicyId
+    public UUID mapFromSellerCommissionPolicyId(SellerCommissionPolicyId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SellerCommissionPolicyId mapToSellerCommissionPolicyId(UUID id) {
+        return SellerCommissionPolicyId.nullableOf(id);
+    }
+
+    // AppliedPromotionId
+    public UUID mapFromAppliedPromotionId(AppliedPromotionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public AppliedPromotionId mapToAppliedPromotionId(UUID id) {
+        return AppliedPromotionId.nullableOf(id);
+    }
+
+    // PromotionDecisionId
+    public UUID mapFromPromotionDecisionId(PromotionDecisionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionDecisionId mapToPromotionDecisionId(UUID id) {
+        return PromotionDecisionId.nullableOf(id);
+    }
+
+    // PromotionCampaignId
+    public UUID mapFromPromotionCampaignId(PromotionCampaignId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionCampaignId mapToPromotionCampaignId(UUID id) {
+        return PromotionCampaignId.nullableOf(id);
+    }
+
+    // PromotionQuotaId
+    public UUID mapFromPromotionQuotaId(PromotionQuotaId id) {
+        return id == null ? null : id.value();
+    }
+
+    public PromotionQuotaId mapToPromotionQuotaId(UUID id) {
+        return PromotionQuotaId.nullableOf(id);
+    }
+
     // RoleId
     public UUID mapFromRoleId(RoleId id) {
         return id == null ? null : id.value();
@@ -334,7 +419,16 @@ public class CommonIdMapper {
         return DrawChannelGameId.nullableOf(id);
     }
 
-    // ZoneId
+    // SalesZoneId
+    public UUID mapFromSalesZoneId(SalesZoneId id) {
+        return id == null ? null : id.value();
+    }
+
+    public SalesZoneId mapToSalesZoneId(UUID id) {
+        return SalesZoneId.nullableOf(id);
+    }
+
+    // ZoneId (java.time.ZoneId — timezone, not sales zone)
     public String mapFromZoneId(ZoneId zoneId) {
         return zoneId == null ? null : zoneId.getId();
     }
@@ -350,5 +444,38 @@ public class CommonIdMapper {
 
     public List<DayOfWeek> mapToDaysOfWeek(String days) {
         return (days == null || days.isBlank()) ? List.of() : DaysOfWeekFormatter.parse(days);
+    }
+
+    // Reconciliation IDs
+    public UUID mapFromReconciliationRunId(ReconciliationRunId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationRunId mapToReconciliationRunId(UUID id) {
+        return ReconciliationRunId.nullableOf(id);
+    }
+
+    public UUID mapFromReconciliationCheckResultId(ReconciliationCheckResultId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationCheckResultId mapToReconciliationCheckResultId(UUID id) {
+        return ReconciliationCheckResultId.nullableOf(id);
+    }
+
+    public UUID mapFromReconciliationAnomalyId(ReconciliationAnomalyId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationAnomalyId mapToReconciliationAnomalyId(UUID id) {
+        return ReconciliationAnomalyId.nullableOf(id);
+    }
+
+    public UUID mapFromReconciliationRepairActionId(ReconciliationRepairActionId id) {
+        return id == null ? null : id.value();
+    }
+
+    public ReconciliationRepairActionId mapToReconciliationRepairActionId(UUID id) {
+        return ReconciliationRepairActionId.nullableOf(id);
     }
 }

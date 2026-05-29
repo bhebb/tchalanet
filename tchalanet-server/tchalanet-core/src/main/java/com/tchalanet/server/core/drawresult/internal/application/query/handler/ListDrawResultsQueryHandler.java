@@ -6,7 +6,7 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultsCriteria;
 import com.tchalanet.server.core.drawresult.api.query.ListDrawResultsQuery;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

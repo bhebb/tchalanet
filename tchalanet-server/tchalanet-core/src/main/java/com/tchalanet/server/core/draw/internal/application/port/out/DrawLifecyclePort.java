@@ -3,9 +3,9 @@ package com.tchalanet.server.core.draw.internal.application.port.out;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.internal.application.query.projection.DueToCloseRow;
-import com.tchalanet.server.core.draw.internal.application.query.projection.ExistingDrawKey;
-import com.tchalanet.server.core.draw.internal.application.query.projection.NewDrawRow;
-import com.tchalanet.server.core.draw.internal.application.query.projection.OpenableDrawRow;
+import com.tchalanet.server.core.draw.api.query.ExistingDrawKey;
+import com.tchalanet.server.core.draw.api.query.NewDrawRow;
+import com.tchalanet.server.core.draw.api.query.OpenableDrawRow;
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
 
 import java.time.Instant;

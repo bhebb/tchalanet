@@ -86,6 +86,12 @@
       </exclusions>
     </dependency>
 
+    <!-- RSS feed parsing (public content external provider) -->
+    <dependency>
+      <groupId>com.rometools</groupId>
+      <artifactId>rome</artifactId>
+    </dependency>
+
     <!-- Platform integration libraries -->
     <dependency>
       <groupId>org.keycloak</groupId>

@@ -17,6 +17,8 @@ import com.tchalanet.server.features.cashier.tickets.model.CashierTicketDetailsR
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPageResponse;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPreviewRequest;
 import com.tchalanet.server.features.cashier.tickets.model.CashierTicketPreviewResponse;
+import com.tchalanet.server.features.cashier.tickets.model.CashierTicketVerificationResponse;
+import com.tchalanet.server.features.cashier.tickets.model.CashierVerifyTicketRequest;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptRequest;
 import com.tchalanet.server.features.cashier.tickets.model.SendTicketReceiptResponse;
@@ -58,6 +60,15 @@ public class CashierTicketsController {
         @Valid @RequestBody CashierTicketPreviewRequest request
     ) {
         return ApiResponse.success(ticketsService.preview(ctx, request));
+    }
+
+    @PostMapping("/verify")
+    @Operation(summary = "Verify a scanned public ticket code or URL for POS payout readiness")
+    public ApiResponse<CashierTicketVerificationResponse> verify(
+        @CurrentContext TchRequestContext ctx,
+        @Valid @RequestBody CashierVerifyTicketRequest request
+    ) {
+        return ApiResponse.success(ticketsService.verify(ctx, request));
     }
 
     @PostMapping("/sell")

@@ -1,7 +1,7 @@
 package com.tchalanet.server.features.pagemodel.dashboard;
 
 import com.tchalanet.server.common.security.TchRole;
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelType;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelType;
 import org.springframework.stereotype.Service;
 
 @Service

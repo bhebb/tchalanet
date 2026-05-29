@@ -29,11 +29,28 @@ public class PlanAdminController {
         return ApiResponse.created(planAdminService.create(request));
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<PlanView> update(
-            @PathVariable PlanId id,
-            @Valid @RequestBody PlanAdminService.PlanUpdateRequest request) {
-        return ApiResponse.success(planAdminService.update(id, request));
+    @PatchMapping("/{id}/metadata")
+    public ApiResponse<PlanView> updateMetadata(
+        @PathVariable PlanId id,
+        @Valid @RequestBody PlanAdminService.PlanMetadataUpdateRequest request
+    ) {
+        return ApiResponse.success(planAdminService.updateMetadata(id, request));
+    }
+
+    @PutMapping("/{id}/features")
+    public ApiResponse<PlanView> replaceFeatures(
+        @PathVariable PlanId id,
+        @Valid @RequestBody PlanAdminService.PlanFeaturesUpdateRequest request
+    ) {
+        return ApiResponse.success(planAdminService.replaceFeatures(id, request));
+    }
+
+    @PutMapping("/{id}/limits")
+    public ApiResponse<PlanView> replaceLimits(
+        @PathVariable PlanId id,
+        @Valid @RequestBody PlanAdminService.PlanLimitsUpdateRequest request
+    ) {
+        return ApiResponse.success(planAdminService.replaceLimits(id, request));
     }
 
     @DeleteMapping("/{id}")
@@ -45,6 +62,7 @@ public class PlanAdminController {
     @PostMapping("/{id}/deactivate")
     public ApiResponse<Void> deactivate(@PathVariable PlanId id) {
         planAdminService.deactivate(id);
+
         var notice = new ApiNotice(
             "PLAN_DEACTIVATED",
             "Le plan a été désactivé avec succès.",
@@ -52,6 +70,7 @@ public class PlanAdminController {
             NoticeSeverity.INFO,
             Map.of("planId", id.value())
         );
+
         return ApiResponse.warn(null, notice);
     }
 }

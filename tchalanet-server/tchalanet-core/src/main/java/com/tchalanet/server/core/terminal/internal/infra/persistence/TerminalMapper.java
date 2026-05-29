@@ -21,7 +21,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {com.tchalanet.server.common.mapper.CommonAuditMapper.class})
 public abstract class TerminalMapper {
 
     @Autowired
@@ -75,6 +75,13 @@ public abstract class TerminalMapper {
     @Mapping(target = "offlineBlockReason", source = "offlineBlockReason")
     @Mapping(target = "offlineBlockedAt", source = "offlineBlockedAt")
     @Mapping(target = "offlineBlockedBy", source = "offlineBlockedBy", qualifiedByName = "fromUserId")
+    @org.mapstruct.Mapping(target = "createdAt", ignore = true)
+    @org.mapstruct.Mapping(target = "updatedAt", ignore = true)
+    @org.mapstruct.Mapping(target = "createdBy", ignore = true)
+    @org.mapstruct.Mapping(target = "updatedBy", ignore = true)
+    @org.mapstruct.Mapping(target = "deletedAt", ignore = true)
+    @org.mapstruct.Mapping(target = "deletedBy", ignore = true)
+    @org.mapstruct.Mapping(target = "version", ignore = true)
     public abstract TerminalJpaEntity toEntity(Terminal domain);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "fromTerminalId")
@@ -100,6 +107,13 @@ public abstract class TerminalMapper {
     @Mapping(target = "offlineBlockReason", source = "offlineBlockReason")
     @Mapping(target = "offlineBlockedAt", source = "offlineBlockedAt")
     @Mapping(target = "offlineBlockedBy", source = "offlineBlockedBy", qualifiedByName = "fromUserId")
+    @org.mapstruct.Mapping(target = "createdAt", ignore = true)
+    @org.mapstruct.Mapping(target = "updatedAt", ignore = true)
+    @org.mapstruct.Mapping(target = "createdBy", ignore = true)
+    @org.mapstruct.Mapping(target = "updatedBy", ignore = true)
+    @org.mapstruct.Mapping(target = "deletedAt", ignore = true)
+    @org.mapstruct.Mapping(target = "deletedBy", ignore = true)
+    @org.mapstruct.Mapping(target = "version", ignore = true)
     public abstract void updateEntity(Terminal domain, @MappingTarget TerminalJpaEntity entity);
 
     @Mapping(target = "id", source = "id", qualifiedByName = "toTerminalId")

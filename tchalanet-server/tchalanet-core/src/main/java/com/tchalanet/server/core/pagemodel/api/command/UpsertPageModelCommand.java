@@ -1,10 +1,12 @@
 package com.tchalanet.server.core.pagemodel.api.command;
 
-import tools.jackson.databind.JsonNode;
 import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.PageModelId;
+import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import tools.jackson.databind.JsonNode;
+
 import java.util.Optional;
 
 /**
@@ -23,20 +25,20 @@ public record UpsertPageModelCommand(
     String slug,
     Integer schemaVersion,
     JsonNode modelJson,
-    Optional<String> templateId,
+    Optional<PageModelTemplateId> templateId,
     boolean publish
 ) implements Command<com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelInstance> {
 
-  public UpsertPageModelCommand(
-      Optional<PageModelId> id,
-      TenantId tenantId,
-      UserId actorId,
-      String logicalId,
-      String scope,
-      String slug,
-      Integer schemaVersion,
-      JsonNode modelJson,
-      Optional<String> templateId) {
-    this(id, tenantId, actorId, logicalId, scope, slug, schemaVersion, modelJson, templateId, false);
-  }
+    public UpsertPageModelCommand(
+        Optional<PageModelId> id,
+        TenantId tenantId,
+        UserId actorId,
+        String logicalId,
+        String scope,
+        String slug,
+        Integer schemaVersion,
+        JsonNode modelJson,
+        Optional<PageModelTemplateId> templateId) {
+        this(id, tenantId, actorId, logicalId, scope, slug, schemaVersion, modelJson, templateId, false);
+    }
 }

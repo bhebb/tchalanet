@@ -39,7 +39,13 @@ public class GetOutletByIdQueryHandler implements QueryHandler<GetOutletByIdQuer
             outlet.tenantId(),
             outlet.name(),
             outlet.slug(),
+            outlet.kind(),
+            outlet.partnerRef(),
+            outlet.zoneId(),
+            outlet.status(),
             outlet.dayClosed(),
+            outlet.outletBlock().blocked(),
+            outlet.outletBlock().reason(),
             outlet.receiptPrintingEnabled(),
             address);
     }

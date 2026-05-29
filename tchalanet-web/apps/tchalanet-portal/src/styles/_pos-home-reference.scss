@@ -1,0 +1,57 @@
+.tch-pos-home {
+  min-height: 100dvh;
+  background: var(--tch-color-background);
+  color: var(--tch-color-on-surface);
+}
+
+.tch-pos-action-primary {
+  min-height: 200px;
+  border-radius: var(--tch-radius-lg);
+  background: var(--tch-color-primary);
+  color: var(--tch-color-on-primary);
+  box-shadow: var(--tch-elevation-1);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tch-pos-action-secondary {
+  min-height: 160px;
+  border-radius: var(--tch-radius-lg);
+  background: var(--tch-color-secondary);
+  color: var(--tch-color-on-secondary);
+  box-shadow: var(--tch-elevation-1);
+  font-weight: 700;
+}
+
+.tch-pos-sync-action {
+  min-height: 88px;
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-bright);
+  color: var(--tch-color-primary-strong);
+  border: 1px solid var(--tch-color-outline);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.tch-pos-main-total {
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-bright);
+  border: 1px solid var(--tch-color-outline);
+  box-shadow: var(--tch-elevation-1);
+}
+
+.tch-pos-main-total__amount {
+  color: var(--tch-color-primary-strong);
+  font-weight: 800;
+  font-size: clamp(48px, 12vw, 72px);
+  line-height: 1;
+}
+
+.tch-pos-financial-attention {
+  border-left: 6px solid var(--tch-color-tertiary);
+}
+
+.tch-pos-financial-attention__value {
+  color: var(--tch-color-tertiary);
+}

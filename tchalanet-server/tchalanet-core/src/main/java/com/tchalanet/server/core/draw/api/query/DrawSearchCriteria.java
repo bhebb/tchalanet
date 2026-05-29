@@ -1,7 +1,7 @@
 package com.tchalanet.server.core.draw.api.query;
 
 import com.tchalanet.server.common.types.id.ResultSlotId;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import java.time.LocalDate;
 import java.util.List;
 

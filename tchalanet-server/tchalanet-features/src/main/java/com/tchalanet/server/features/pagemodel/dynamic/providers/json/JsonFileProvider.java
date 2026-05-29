@@ -3,9 +3,9 @@ package com.tchalanet.server.features.pagemodel.dynamic.providers.json;
 import com.tchalanet.server.common.context.TchRequestContext;
 
 import com.tchalanet.server.common.json.utils.JsonUtils;
-import com.tchalanet.server.core.pagemodel.internal.domain.model.PageModelDoc;
-import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProvider;
-import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicProviderException;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProvider;
+import com.tchalanet.server.core.pagemodel.api.dynamic.PageModelDynamicProviderException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,10 +35,12 @@ public class JsonFileProvider implements PageModelDynamicProvider {
       String widgetId,
       PageModelDoc.WidgetConfig widgetConfig,
       String lang,
-      TchRequestContext ctx) {
+      TchRequestContext ctx,
+      com.tchalanet.server.core.pagemodel.api.dynamic.PageModelResolutionContext resolutionContext) {
     String fileKey = readString(widgetConfig == null ? null : widgetConfig.props(), "file_key");
     String resourcePath = registry.resolve(fileKey);
-    return cache.computeIfAbsent(fileKey, ignored -> loadJson(fileKey, resourcePath));
+    JsonNode cached = cache.computeIfAbsent(fileKey, ignored -> loadJson(fileKey, resourcePath));
+    return cached.deepCopy();
   }
 
   private JsonNode loadJson(String fileKey, String resourcePath) {

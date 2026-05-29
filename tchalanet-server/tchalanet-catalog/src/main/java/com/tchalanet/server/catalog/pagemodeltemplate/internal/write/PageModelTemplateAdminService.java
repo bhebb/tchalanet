@@ -7,18 +7,20 @@ import com.tchalanet.server.catalog.pagemodeltemplate.internal.cache.PageModelTe
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.mapper.PageModelTemplateMapper;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence.PageModelTemplateEntity;
 import com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence.PageModelTemplateRepository;
-import com.tchalanet.server.common.web.error.ProblemRest;
+import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.PageModelTemplateId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.common.tx.AfterCommit;
-import com.tchalanet.server.common.json.utils.JsonUtils;
-import java.time.Instant;
+import com.tchalanet.server.common.web.error.ProblemRest;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -131,6 +133,12 @@ public class PageModelTemplateAdminService {
         if (seed.logicalId() == null || seed.logicalId().isBlank()) {
             throw new IllegalArgumentException("Seed template requires logicalId");
         }
+        if (seed.scope() == null || seed.scope().isBlank()) {
+            throw new IllegalArgumentException("Seed template requires scope for logicalId=" + seed.logicalId());
+        }
+        if (seed.slug() == null || seed.slug().isBlank()) {
+            throw new IllegalArgumentException("Seed template requires slug for logicalId=" + seed.logicalId());
+        }
 
         var existingOpt = repository.findFirstByLogicalIdAndDeletedAtIsNull(seed.logicalId());
 
@@ -148,12 +156,16 @@ public class PageModelTemplateAdminService {
         e.setLevel(PageModelTemplateLevel.GLOBAL);
         e.setTenantId(null);
 
+        // required routing/runtime metadata
+        e.setScope(seed.scope().trim());
+        e.setSlug(seed.slug().trim());
+
         // update fields
         e.setLabel(seed.label());
         e.setDescription(seed.description());
         e.setSchema(jsonUtils.toJson(seed.schema()));
         e.setModel(jsonUtils.toJson(seed.model()));
-        e.setSchemaVersion(seed.schemaVersion() <= 0 ? 1 : seed.schemaVersion());
+        e.setSchemaVersion(seed.schemaVersion() == null || seed.schemaVersion() <= 0 ? 1 : seed.schemaVersion());
         e.setDefault(seed.isDefault());
 
         var saved = repository.save(e);
@@ -188,9 +200,17 @@ public class PageModelTemplateAdminService {
                 throw ProblemRest.conflict("page_model_template.logical_id " + targetLogicalId);
             });
 
+        var copy = createNewModelTemplateEntity(targetCode, targetLogicalId, source);
+        var saved = repository.save(copy);
+        return mapper.toView(saved);
+    }
+
+    private static @NonNull PageModelTemplateEntity createNewModelTemplateEntity(String targetCode, String targetLogicalId, PageModelTemplateEntity source) {
         var copy = new PageModelTemplateEntity();
         copy.setCode(targetCode);
         copy.setLogicalId(targetLogicalId);
+        copy.setScope(source.getScope());
+        copy.setSlug(source.getSlug());
         copy.setName(source.getName() + " (copy)");
         copy.setLabel(source.getLabel());
         copy.setDescription(source.getDescription());
@@ -200,9 +220,7 @@ public class PageModelTemplateAdminService {
         copy.setDefault(false);
         copy.setLevel(source.getLevel());
         copy.setTenantId(source.getTenantId());
-
-        var saved = repository.save(copy);
-        return mapper.toView(saved);
+        return copy;
     }
 
     @Transactional
@@ -224,5 +242,4 @@ public class PageModelTemplateAdminService {
         var saved = repository.save(existing);
         return mapper.toView(saved);
     }
-
 }

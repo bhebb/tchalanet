@@ -1,12 +1,14 @@
 package com.tchalanet.server.core.payout.api.query;
 
+import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.PayoutId;
 import com.tchalanet.server.common.types.id.SalesSessionId;
 import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
-import com.tchalanet.server.core.payout.internal.domain.model.PayoutStatus;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimSource;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,8 +16,10 @@ import java.time.Instant;
 public record PayoutDetails(
     PayoutId id,
     TicketId ticketId,
+    DrawId drawId,
     BigDecimal amount,
-    PayoutStatus status,
+    PayoutClaimStatus status,
+    PayoutClaimSource source,
 
     OutletId outletId,
     String outletName,
@@ -23,15 +27,18 @@ public record PayoutDetails(
     SalesSessionId sessionId,
     TerminalId terminalId,
 
-    UserId requestedBy,
-    UserId approvedBy,
-    UserId executedBy,
+    UserId paidBy,
+    UserId blockedBy,
+    UserId cancelledBy,
+    UserId reversedBy,
 
-    Instant requestedAt,
-    Instant approvedAt,
-    Instant executedAt,
+    Instant openedAt,
+    Instant paidAt,
+    Instant blockedAt,
+    Instant cancelledAt,
+    Instant reversedAt,
 
-    String rejectionReason,
-    String notes
-) {
-}
+    String blockReason,
+    String cancelReason,
+    String reverseReason
+) {}

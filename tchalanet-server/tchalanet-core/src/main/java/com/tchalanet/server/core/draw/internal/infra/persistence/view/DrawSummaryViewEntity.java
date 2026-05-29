@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.view;
 
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.Immutable;

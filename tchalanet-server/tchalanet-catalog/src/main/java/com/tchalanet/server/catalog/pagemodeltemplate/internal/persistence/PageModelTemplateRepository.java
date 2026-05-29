@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.pagemodeltemplate.internal.persistence;
 
+import com.tchalanet.server.catalog.pagemodeltemplate.api.model.PageModelTemplateLevel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,6 @@ public interface PageModelTemplateRepository
     Page<PageModelTemplateEntity> findAllByOrderByUpdatedAtDesc(Pageable pageable);
 
     long countByDeletedAtIsNull();
+
+    List<PageModelTemplateEntity> findByIsDefaultAndLevelAndDeletedAtIsNullOrderByLogicalId(boolean isDefault, PageModelTemplateLevel level);
 }

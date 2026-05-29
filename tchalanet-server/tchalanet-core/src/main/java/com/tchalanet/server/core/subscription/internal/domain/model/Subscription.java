@@ -41,20 +41,19 @@ public record Subscription(
     if (status == SubscriptionStatus.CANCELED) {
       throw new IllegalStateException("Subscription already canceled: " + id);
     }
-    Instant at = now != null ? now : Instant.now();
     return new Subscription(
         id,
         tenantId,
         planCode,
         SubscriptionStatus.CANCELED,
         startedAt,
-        at, // ends_at = canceled_at
+        now, // ends_at = canceled_at
         trialEndsAt,
-        at, // canceled_at
+        now, // canceled_at
         metadata,
         version,
         createdAt,
-        Instant.now(),
+        now,
         createdBy
     );
   }
@@ -66,7 +65,7 @@ public record Subscription(
     if (status != SubscriptionStatus.SUSPENDED) {
       throw new IllegalStateException("Cannot resume subscription with status: " + status);
     }
-    return withStatus(SubscriptionStatus.ACTIVE);
+    return withStatus(SubscriptionStatus.ACTIVE, now);
   }
 
   /**
@@ -76,7 +75,7 @@ public record Subscription(
     if (status != SubscriptionStatus.ACTIVE) {
       throw new IllegalStateException("Cannot suspend subscription with status: " + status);
     }
-    return withStatus(SubscriptionStatus.SUSPENDED);
+    return withStatus(SubscriptionStatus.SUSPENDED, now);
   }
 
   /**
@@ -99,7 +98,7 @@ public record Subscription(
         metadata,
         version,
         createdAt,
-        Instant.now(),
+        now,
         createdBy
     );
   }
@@ -107,7 +106,7 @@ public record Subscription(
   /**
    * Renew subscription (extend ends_at).
    */
-  public Subscription renew(Instant newEndsAt) {
+  public Subscription renew(Instant newEndsAt, Instant now) {
     if (newEndsAt == null) {
       throw new IllegalArgumentException("newEndsAt is required");
     }
@@ -123,7 +122,7 @@ public record Subscription(
         metadata,
         version,
         createdAt,
-        Instant.now(),
+        now,
         createdBy
     );
   }
@@ -131,7 +130,7 @@ public record Subscription(
   /**
    * Update metadata (generic).
    */
-  public Subscription withMetadata(Map<String, String> newMetadata) {
+  public Subscription withMetadata(Map<String, String> newMetadata, Instant now) {
     return new Subscription(
         id,
         tenantId,
@@ -144,7 +143,7 @@ public record Subscription(
         newMetadata != null ? newMetadata : new HashMap<>(),
         version,
         createdAt,
-        Instant.now(),
+        now,
         createdBy
     );
   }
@@ -152,7 +151,7 @@ public record Subscription(
   /**
    * Change status (generic helper).
    */
-  public Subscription withStatus(SubscriptionStatus newStatus) {
+  public Subscription withStatus(SubscriptionStatus newStatus, Instant now) {
     if (newStatus == null) {
       throw new IllegalArgumentException("newStatus is required");
     }
@@ -168,7 +167,7 @@ public record Subscription(
         metadata,
         version,
         createdAt,
-        Instant.now(),
+        now,
         createdBy
     );
   }

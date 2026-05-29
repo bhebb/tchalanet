@@ -32,8 +32,7 @@ public class CustomerTicketStatusResolver {
             return switch (settlementStatus) {
                 case PAID, SETTLED -> CustomerTicketStatus.WON_PAID;
                 case PAYOUT_PENDING, NOT_SETTLED, NO_PAYOUT -> CustomerTicketStatus.WON_CLAIMABLE;
-                case REVERSED -> throw new IllegalStateException(
-                    "Unexpected settlement status REVERSED for WON ticket");
+                case REVERSED -> CustomerTicketStatus.WON_CLAIMABLE;
             };
         }
 

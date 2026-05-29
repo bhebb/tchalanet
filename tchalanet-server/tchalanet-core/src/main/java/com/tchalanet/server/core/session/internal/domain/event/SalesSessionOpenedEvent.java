@@ -9,6 +9,11 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.time.Instant;
 
+/**
+ * @deprecated Use {@link com.tchalanet.server.core.session.api.event.SalesSessionOpenedEvent}
+ *             (public API). This internal copy will be removed in a future release.
+ */
+@Deprecated(since = "analytics-v1", forRemoval = true)
 public record SalesSessionOpenedEvent(
     EventId eventId,
     Instant occurredAt,

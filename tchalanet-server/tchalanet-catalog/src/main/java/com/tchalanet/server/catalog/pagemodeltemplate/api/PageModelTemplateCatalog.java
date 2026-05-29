@@ -28,4 +28,10 @@ public interface PageModelTemplateCatalog {
 
     // NEW: global stats for console
     PageModelTemplateStatsView stats();
+    /**
+     * Returns templates that should be instantiated for a tenant during onboarding.
+     *
+     * Ordering should be stable by code/logicalId.
+     */
+    List<PageModelTemplateView> findDefaultGlobalTemplates();
 }

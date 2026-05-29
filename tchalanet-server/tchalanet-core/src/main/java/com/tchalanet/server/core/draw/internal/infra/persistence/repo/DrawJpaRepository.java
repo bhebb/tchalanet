@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.persistence.repo;
 
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.infra.persistence.DrawJpaEntity;
 import com.tchalanet.server.core.draw.internal.infra.persistence.projection.DueToCloseProjection;
 import com.tchalanet.server.core.draw.internal.infra.persistence.projection.OpenableDrawProjection;
@@ -82,6 +82,10 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         @Param("windowStart") Instant windowStart,
         @Param("windowEnd") Instant windowEnd
     );
+
+    List<DrawJpaEntity> findByDrawResultId(UUID drawResultId);
+
+    List<DrawJpaEntity> findByTenantIdAndDrawDate(UUID tenantId, java.time.LocalDate drawDate);
 
     @Query(
         value = """

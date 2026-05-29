@@ -1,0 +1,45 @@
+package com.tchalanet.server.core.payout.internal.application.query.handler.reconciliation;
+
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.bus.QueryHandler;
+import com.tchalanet.server.common.stereotype.UseCase;
+import com.tchalanet.server.common.types.id.PayoutId;
+import com.tchalanet.server.common.types.money.CurrencyCode;
+import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.payout.api.query.reconciliation.ListPayoutPaymentsForDrawQuery;
+import com.tchalanet.server.core.payout.api.query.reconciliation.PayoutPaymentForDrawRow;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
+import com.tchalanet.server.core.payout.internal.infra.persistence.SpringPayoutJpaRepository;
+import java.math.BigDecimal;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+
+@UseCase
+@RequiredArgsConstructor
+public class ListPayoutPaymentsForDrawQueryHandler
+    implements QueryHandler<ListPayoutPaymentsForDrawQuery, List<PayoutPaymentForDrawRow>> {
+
+    private final QueryBus queryBus;
+    private final SpringPayoutJpaRepository repository;
+
+    @Override
+    public List<PayoutPaymentForDrawRow> handle(ListPayoutPaymentsForDrawQuery query) {
+        var tickets = PayoutReconciliationRows.ticketRows(queryBus, query.drawId());
+        var ticketIds = tickets.keySet().stream().map(ticketId -> ticketId.value()).toList();
+        return repository.findByTicketIdIn(ticketIds).stream()
+            .filter(payout -> payout.getStatus() == PayoutClaimStatus.PAID)
+            .map(payout -> {
+                var ticket = tickets.get(PayoutReconciliationRows.ticketId(payout.getTicketId()));
+                return new PayoutPaymentForDrawRow(
+                    PayoutId.of(payout.getId()),
+                    ticket.ticketId(),
+                    ticket.ticketCode(),
+                    ticket.publicCode(),
+                    ticket.displayCode(),
+                    new Money(BigDecimal.valueOf(payout.getAmountCents(), 2), CurrencyCode.of(payout.getCurrency())),
+                    payout.getPaidAt()
+                );
+            })
+            .toList();
+    }
+}

@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.api.event;
 import com.tchalanet.server.common.types.id.ApprovalRequestId;
 import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.EventId;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
@@ -18,6 +19,10 @@ import java.time.Instant;
  * how a ticket reached APPROVED state. Consumers that aggregate official sales
  * MUST subscribe to both (with deduplication on {@code ticketId}) to avoid
  * missing tickets that were approved via the workflow path.
+ *
+ * <p>{@code promotionDecisionId} is non-null when the original ticket placement
+ * had an applied promotion. Listeners must persist the promotion snapshot on this
+ * event rather than on {@link TicketPlacedEvent} for the PENDING_APPROVAL path.
  */
 public record TicketApprovedEvent(
     // Envelope
@@ -33,7 +38,10 @@ public record TicketApprovedEvent(
     // Approval metadata
     ApprovalRequestId approvalRequestId,
     UserId approvedBy,
-    String reason
+    String reason,
+
+    // Promotion — null when no promotion was applied to this ticket
+    PromotionDecisionId promotionDecisionId
 ) implements com.tchalanet.server.common.event.DomainEvent {
     public static final int CURRENT_SCHEMA = 1;
 }

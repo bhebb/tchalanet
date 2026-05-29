@@ -5,8 +5,8 @@ import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
-import com.tchalanet.server.core.draw.internal.application.query.projection.DrawSummary;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

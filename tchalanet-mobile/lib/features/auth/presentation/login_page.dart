@@ -62,7 +62,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Tchalanet',
+                    'Tchalanet POS',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -72,7 +72,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   TextFormField(
                     controller: _usernameController,
                     decoration: const InputDecoration(
-                      labelText: "Nom d'utilisateur",
+                      labelText: "User name",
                       border: OutlineInputBorder(),
                     ),
                     textInputAction: TextInputAction.next,

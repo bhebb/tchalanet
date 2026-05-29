@@ -2,8 +2,12 @@ package com.tchalanet.server.core.sales.api.event;
 
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.common.types.id.PromotionDecisionId;
 import com.tchalanet.server.common.types.id.TicketLineId;
 import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 
 import java.math.BigDecimal;
 
@@ -23,6 +27,13 @@ public record TicketLinePlacedItem(
     Short betOption,             // null when betType doesn't require one
     Money stakeAmount,
     BigDecimal oddsSnapshot,
-    Money potentialPayoutAmount
+    Money potentialPayoutAmount,
+    TicketLineOrigin origin,
+    TicketLinePricingSource pricingSource,
+    TicketLineSelectionSource selectionSource,
+    Money payoutBaseAmount,
+    PromotionDecisionId promotionDecisionId,
+    String promotionLabel,
+    String promotionEffectType
 ) {
 }

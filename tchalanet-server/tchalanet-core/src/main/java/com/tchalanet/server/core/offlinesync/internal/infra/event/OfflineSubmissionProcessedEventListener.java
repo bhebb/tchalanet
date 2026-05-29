@@ -27,7 +27,7 @@ import java.time.Clock;
 @Slf4j
 public class OfflineSubmissionProcessedEventListener {
 
-    static final String HANDLER_KEY = "offlinesync.sales-offline-promotion-return";
+    static final String HANDLER_KEY = "offlinesync.sales-offline-promotionDecision-return";
 
     private final OfflineSubmissionReaderPort submissionReader;
     private final OfflineSubmissionWriterPort submissionWriter;
@@ -50,7 +50,7 @@ public class OfflineSubmissionProcessedEventListener {
 
         var outcome = OfflineSyncPromotionPolicy.evaluateReturn(submission, event.promotionAttemptId());
         if (outcome instanceof OfflineSyncPromotionPolicy.Outcome.Ignore ignore) {
-            log.info("offlinesync: ignoring stale promotion event {} for submission {} — {}",
+            log.info("offlinesync: ignoring stale promotionDecision event {} for submission {} — {}",
                 event.eventId(), event.submissionId(), ignore.reason());
             return;
         }

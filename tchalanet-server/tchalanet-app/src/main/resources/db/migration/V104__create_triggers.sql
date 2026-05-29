@@ -19,6 +19,10 @@ CREATE TRIGGER trg_draw_result__set_updated_at BEFORE UPDATE ON draw_result FOR 
 CREATE TRIGGER trg_draw__set_updated_at BEFORE UPDATE ON draw FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_outlet__set_updated_at BEFORE UPDATE ON outlet FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_terminal__set_updated_at BEFORE UPDATE ON terminal FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_terminal_capability__set_updated_at BEFORE UPDATE ON terminal_capability FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_terminal_assignment__set_updated_at BEFORE UPDATE ON terminal_assignment FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_terminal_binding__set_updated_at BEFORE UPDATE ON terminal_binding FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_terminal_challenge__set_updated_at BEFORE UPDATE ON terminal_challenge FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_sales_session__set_updated_at BEFORE UPDATE ON sales_session FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_pricing_odds__set_updated_at BEFORE UPDATE ON pricing_odds FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 CREATE TRIGGER trg_payout__set_updated_at BEFORE UPDATE ON payout FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();

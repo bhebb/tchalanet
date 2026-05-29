@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Runs at startup after PageModelTemplateSeedRunner (@Order(10)).
- * Seeds default PageModel instances from templates for the default tenant.
+ *
+ * Creates tenant-scoped PageModel instances from catalog templates
+ * for the default tenant.
  */
 @Component
 @RequiredArgsConstructor
@@ -28,9 +30,10 @@ public class PageModelOnboardingRunner implements ApplicationRunner {
       TchContextScope.runStartupTenant(
           CommonConstants.DEFAULT_TENANT_UUID,
           "pagemodel:onboarding",
-          onboardingService::seedDefaultsForDefaultTenant);
+          onboardingService::seedDefaultsForDefaultTenant
+      );
     } catch (Exception e) {
-      log.warn("PageModel onboarding skipped (non-fatal): {}", e.getMessage());
+      log.warn("PageModel onboarding skipped (non-fatal): {}", e.getMessage(), e);
     }
   }
 }

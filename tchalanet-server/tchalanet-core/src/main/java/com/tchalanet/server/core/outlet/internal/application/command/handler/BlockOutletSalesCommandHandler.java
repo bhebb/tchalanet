@@ -1,4 +1,4 @@
-package com.tchalanet.server.core.outlet.internal.application.command.handler;
+package com.tchalanet.server.core.outlet.internal.application.command.handler.block;
 
 import com.tchalanet.server.common.bus.VoidCommandHandler;
 import com.tchalanet.server.common.event.DomainEventPublisher;
@@ -7,7 +7,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.tx.AfterCommit;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
-import com.tchalanet.server.core.outlet.api.command.BlockOutletSalesCommand;
+import com.tchalanet.server.core.outlet.api.command.block.BlockOutletSalesCommand;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletReaderPort;
 import com.tchalanet.server.core.outlet.internal.application.port.out.OutletWriterPort;
 import com.tchalanet.server.core.outlet.internal.domain.event.OutletSalesBlockedEvent;
@@ -33,7 +33,7 @@ public class BlockOutletSalesCommandHandler
     public void handle(BlockOutletSalesCommand cmd) {
         Outlet outlet = reader.getRequired(cmd.outletId());
         Instant when = Instant.now(clock);
-        Outlet updated = outlet.blockSales(cmd.reason(), when);
+        Outlet updated = outlet.blockSales(cmd.reason(), when, cmd.actorUserId());
         if (updated.equals(outlet)) return; // idempotent: already blocked with same state
 
         writer.save(updated);

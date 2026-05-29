@@ -1,0 +1,84 @@
+{
+  "fragment_type": "FeatureGridPayload",
+  "schema_version": 2,
+  "title_key": "home.features.title",
+  "subtitle_key": "home.features.subtitle",
+  "items": [
+    {
+      "id": "results_live",
+      "icon": "emoji_events",
+      "image": null,
+      "title_key": "home.features.results_live.title",
+      "description_key": "home.features.results_live.description",
+      "action": {
+        "id": "results",
+        "type": "destination",
+        "label_key": "nav.results",
+        "label": null,
+        "path": "/results",
+        "kind": "internal",
+        "icon": "emoji_events",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      }
+    },
+    {
+      "id": "check_ticket",
+      "icon": "qr_code_scanner",
+      "image": null,
+      "title_key": "home.features.check_ticket.title",
+      "description_key": "home.features.check_ticket.description",
+      "action": {
+        "id": "check_ticket",
+        "type": "destination",
+        "label_key": "nav.check_ticket",
+        "label": null,
+        "path": "/verifier",
+        "kind": "internal",
+        "icon": "qr_code_scanner",
+        "image": null,
+        "active_match": "prefix",
+        "disabled": false,
+        "reason_key": null,
+        "badge": null,
+        "children": []
+      }
+    },
+    {
+      "id": "multi_game",
+      "icon": "casino",
+      "image": null,
+      "title_key": "home.features.multi_game.title",
+      "description_key": "home.features.multi_game.description",
+      "action": null
+    },
+    {
+      "id": "secure",
+      "icon": "verified_user",
+      "image": null,
+      "title_key": "home.features.secure.title",
+      "description_key": "home.features.secure.description",
+      "action": null
+    },
+    {
+      "id": "multi_tenant",
+      "icon": "store",
+      "image": null,
+      "title_key": "home.features.multi_tenant.title",
+      "description_key": "home.features.multi_tenant.description",
+      "action": null
+    },
+    {
+      "id": "mobile_ready",
+      "icon": "smartphone",
+      "image": null,
+      "title_key": "home.features.mobile_ready.title",
+      "description_key": "home.features.mobile_ready.description",
+      "action": null
+    }
+  ]
+}

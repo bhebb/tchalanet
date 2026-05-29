@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.infra.persistence.DrawJpaEntity;
 import org.springframework.stereotype.Component;
 

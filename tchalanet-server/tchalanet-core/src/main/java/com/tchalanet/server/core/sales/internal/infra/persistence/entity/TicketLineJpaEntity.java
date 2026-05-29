@@ -4,6 +4,9 @@ import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
+import com.tchalanet.server.core.sales.api.model.promotion.TicketLineSelectionSource;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -95,6 +98,30 @@ public class TicketLineJpaEntity extends BaseTenantEntity {
     @Column(name = "potential_payout_amount", nullable = false,
         precision = 19, scale = 4, updatable = false)
     private BigDecimal potentialPayoutAmount;
+
+    @Column(name = "payout_base_amount", nullable = false, precision = 19, scale = 4, updatable = false)
+    private BigDecimal payoutBaseAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "origin", nullable = false, length = 16)
+    private TicketLineOrigin origin;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pricing_source", nullable = false, length = 16)
+    private TicketLinePricingSource pricingSource;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "selection_source", nullable = false, length = 32)
+    private TicketLineSelectionSource selectionSource;
+
+    @Column(name = "promotion_decision_id", columnDefinition = "uuid")
+    private UUID promotionDecisionId;
+
+    @Column(name = "promotion_label", length = 128)
+    private String promotionLabel;
+
+    @Column(name = "promotion_effect_type", length = 32)
+    private String promotionEffectType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "result_status", nullable = false, length = 16)

@@ -1,0 +1,1343 @@
+{
+  "public_shell": {
+    "header": {
+      "brand": {
+        "id": "tchalanet-public",
+        "label_key": "app.name",
+        "label": null,
+        "subtitle_key": null,
+        "path": "/",
+        "image": {
+          "url": "/assets/brand/tchalanet-logo.svg",
+          "alt_key": "brand.logo_alt",
+          "title_key": null,
+          "width": 36,
+          "height": 36,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        }
+      },
+      "primary": [
+        {
+          "id": "home",
+          "type": "destination",
+          "label_key": "nav.home",
+          "label": null,
+          "path": "/",
+          "kind": "internal",
+          "icon": "home",
+          "image": null,
+          "active_match": "exact",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "features",
+          "type": "destination",
+          "label_key": "nav.features",
+          "label": null,
+          "path": "/features",
+          "kind": "internal",
+          "icon": "widgets",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "pricing",
+          "type": "destination",
+          "label_key": "nav.pricing",
+          "label": null,
+          "path": "/pricing",
+          "kind": "internal",
+          "icon": "payments",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "about",
+          "type": "destination",
+          "label_key": "nav.about",
+          "label": null,
+          "path": "/about",
+          "kind": "internal",
+          "icon": "info",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "secondary": [
+        {
+          "id": "login",
+          "type": "destination",
+          "label_key": "cta.login",
+          "label": null,
+          "path": "/login",
+          "kind": "internal",
+          "icon": "login",
+          "image": null,
+          "active_match": "none",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "actions": [
+        {
+          "id": "REQUEST_DEMO",
+          "type": "action",
+          "label_key": "cta.request_demo",
+          "label": null,
+          "path": "/demo",
+          "kind": "internal",
+          "icon": "rocket_launch",
+          "image": null,
+          "style": "primary",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ]
+    },
+    "footer": {
+      "brand": {
+        "id": "tchalanet-footer",
+        "label_key": "app.name",
+        "label": null,
+        "subtitle_key": null,
+        "path": "/",
+        "image": {
+          "url": "/assets/brand/tchalanet-logo.svg",
+          "alt_key": "brand.logo_alt",
+          "title_key": null,
+          "width": 36,
+          "height": 36,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        }
+      },
+      "primary": [
+        {
+          "id": "about",
+          "type": "destination",
+          "label_key": "footer.section.about",
+          "label": null,
+          "path": "/about",
+          "kind": "internal",
+          "icon": "info",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "pricing",
+          "type": "destination",
+          "label_key": "footer.section.pricing",
+          "label": null,
+          "path": "/pricing",
+          "kind": "internal",
+          "icon": "payments",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "support",
+          "type": "destination",
+          "label_key": "footer.section.support",
+          "label": null,
+          "path": "/support",
+          "kind": "internal",
+          "icon": "support_agent",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "secondary": [
+        {
+          "id": "terms",
+          "type": "destination",
+          "label_key": "legal.terms",
+          "label": null,
+          "path": "/legal/terms",
+          "kind": "internal",
+          "icon": "gavel",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "privacy",
+          "type": "destination",
+          "label_key": "legal.privacy",
+          "label": null,
+          "path": "/legal/privacy",
+          "kind": "internal",
+          "icon": "privacy_tip",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "responsible_gaming",
+          "type": "destination",
+          "label_key": "legal.responsible_gaming",
+          "label": null,
+          "path": "/legal/responsible-gaming",
+          "kind": "internal",
+          "icon": "verified_user",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ]
+    }
+  },
+  "private_shell_cashier": {
+    "topAppBar": {
+      "title": {
+        "label_key": "surface.cashier",
+        "label": null
+      },
+      "context": {},
+      "leftActions": [
+        {
+          "id": "TOGGLE_NAVIGATION_DRAWER",
+          "type": "action",
+          "label_key": "nav.toggle_menu",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "menu",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ],
+      "actions": [
+        {
+          "id": "OPEN_NOTIFICATIONS",
+          "type": "action",
+          "label_key": "nav.notifications",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "notifications",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        },
+        {
+          "id": "CHANGE_LANGUAGE",
+          "type": "action",
+          "label_key": "nav.language",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "language",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        },
+        {
+          "id": "TOGGLE_THEME",
+          "type": "action",
+          "label_key": "nav.theme_toggle",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "dark_mode",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ],
+      "profile": {
+        "displayName": null,
+        "avatar": {
+          "url": null,
+          "alt_key": "profile.avatar_alt",
+          "title_key": null,
+          "width": 32,
+          "height": 32,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        },
+        "menu": [
+          {
+            "id": "profile",
+            "type": "destination",
+            "label_key": "nav.profile",
+            "label": null,
+            "path": "/app/profile",
+            "kind": "internal",
+            "icon": "account_circle",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "settings",
+            "type": "destination",
+            "label_key": "nav.settings",
+            "label": null,
+            "path": "/app/settings",
+            "kind": "internal",
+            "icon": "settings",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "logout",
+            "type": "destination",
+            "label_key": "auth.logout",
+            "label": null,
+            "path": "/logout",
+            "kind": "internal",
+            "icon": "logout",
+            "image": null,
+            "active_match": "none",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": [],
+            "style": "danger"
+          }
+        ]
+      }
+    },
+    "navigationDrawer": {
+      "brand": {
+        "id": "cashier-brand",
+        "label_key": "app.name",
+        "label": null,
+        "subtitle_key": "surface.cashier",
+        "path": "/app/cashier",
+        "image": {
+          "url": "/assets/brand/tchalanet-logo.svg",
+          "alt_key": "brand.logo_alt",
+          "title_key": null,
+          "width": 36,
+          "height": 36,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        }
+      },
+      "topDestinations": [
+        {
+          "id": "dashboard",
+          "type": "destination",
+          "label_key": "nav.dashboard",
+          "label": null,
+          "path": "/app/cashier",
+          "kind": "internal",
+          "icon": "dashboard",
+          "image": null,
+          "active_match": "exact",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "quick_sale",
+          "type": "destination",
+          "label_key": "nav.quick_sale",
+          "label": null,
+          "path": "/app/cashier/sale",
+          "kind": "internal",
+          "icon": "point_of_sale",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "tickets",
+          "type": "destination",
+          "label_key": "nav.tickets",
+          "label": null,
+          "path": "/app/cashier/tickets",
+          "kind": "internal",
+          "icon": "receipt_long",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "verify_ticket",
+          "type": "destination",
+          "label_key": "nav.verify_ticket",
+          "label": null,
+          "path": "/app/cashier/tickets/verify",
+          "kind": "internal",
+          "icon": "qr_code_scanner",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "draws",
+          "type": "destination",
+          "label_key": "nav.draws",
+          "label": null,
+          "path": "/app/cashier/draws",
+          "kind": "internal",
+          "icon": "event",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "session",
+          "type": "destination",
+          "label_key": "nav.session",
+          "label": null,
+          "path": "/app/cashier/session",
+          "kind": "internal",
+          "icon": "account_balance_wallet",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "sections": [],
+      "footerDestinations": [
+        {
+          "id": "support",
+          "type": "destination",
+          "label_key": "footer.support",
+          "label": null,
+          "path": "/support",
+          "kind": "internal",
+          "icon": "support_agent",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "actions": []
+    },
+    "footer": null
+  },
+  "private_shell_tenant_admin": {
+    "topAppBar": {
+      "title": {
+        "label_key": "surface.tenant_admin",
+        "label": null
+      },
+      "context": {
+        "tenantName": null,
+        "tenantCode": null
+      },
+      "leftActions": [
+        {
+          "id": "TOGGLE_NAVIGATION_DRAWER",
+          "type": "action",
+          "label_key": "nav.toggle_menu",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "menu",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ],
+      "actions": [
+        {
+          "id": "OPEN_NOTIFICATIONS",
+          "type": "action",
+          "label_key": "nav.notifications",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "notifications",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        },
+        {
+          "id": "CHANGE_LANGUAGE",
+          "type": "action",
+          "label_key": "nav.language",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "language",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        },
+        {
+          "id": "TOGGLE_THEME",
+          "type": "action",
+          "label_key": "nav.theme_toggle",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "dark_mode",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ],
+      "profile": {
+        "displayName": null,
+        "avatar": {
+          "url": null,
+          "alt_key": "profile.avatar_alt",
+          "title_key": null,
+          "width": 32,
+          "height": 32,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        },
+        "menu": [
+          {
+            "id": "profile",
+            "type": "destination",
+            "label_key": "nav.profile",
+            "label": null,
+            "path": "/app/profile",
+            "kind": "internal",
+            "icon": "account_circle",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "settings",
+            "type": "destination",
+            "label_key": "nav.settings",
+            "label": null,
+            "path": "/app/settings",
+            "kind": "internal",
+            "icon": "settings",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "logout",
+            "type": "destination",
+            "label_key": "auth.logout",
+            "label": null,
+            "path": "/logout",
+            "kind": "internal",
+            "icon": "logout",
+            "image": null,
+            "active_match": "none",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": [],
+            "style": "danger"
+          }
+        ]
+      }
+    },
+    "navigationDrawer": {
+      "brand": {
+        "id": "tenant-admin-brand",
+        "label_key": null,
+        "label": null,
+        "subtitle_key": "surface.tenant_admin",
+        "path": "/app/admin",
+        "image": {
+          "url": "/assets/brand/tchalanet-logo.svg",
+          "alt_key": "brand.logo_alt",
+          "title_key": null,
+          "width": 36,
+          "height": 36,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        }
+      },
+      "topDestinations": [
+        {
+          "id": "dashboard",
+          "type": "destination",
+          "label_key": "nav.dashboard",
+          "label": null,
+          "path": "/app/admin",
+          "kind": "internal",
+          "icon": "dashboard",
+          "image": null,
+          "active_match": "exact",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "tenant_overview",
+          "type": "destination",
+          "label_key": "nav.tenant_overview",
+          "label": null,
+          "path": "/app/admin/overview",
+          "kind": "internal",
+          "icon": "map",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "sections": [
+        {
+          "id": "administration",
+          "label_key": "nav.section.administration",
+          "label": null,
+          "items": [
+            {
+              "id": "users",
+              "type": "destination",
+              "label_key": "nav.users",
+              "label": null,
+              "path": "/app/admin/users",
+              "kind": "internal",
+              "icon": "group",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "outlets",
+              "type": "destination",
+              "label_key": "nav.outlets",
+              "label": null,
+              "path": "/app/admin/outlets",
+              "kind": "internal",
+              "icon": "storefront",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "terminals",
+              "type": "destination",
+              "label_key": "nav.terminals",
+              "label": null,
+              "path": "/app/admin/terminals",
+              "kind": "internal",
+              "icon": "point_of_sale",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "sessions",
+              "type": "destination",
+              "label_key": "nav.sessions",
+              "label": null,
+              "path": "/app/admin/sessions",
+              "kind": "internal",
+              "icon": "account_balance_wallet",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "games_sales",
+          "label_key": "nav.section.games_sales",
+          "label": null,
+          "items": [
+            {
+              "id": "tickets_sales",
+              "type": "destination",
+              "label_key": "nav.tickets_sales",
+              "label": null,
+              "path": "/app/admin/sales",
+              "kind": "internal",
+              "icon": "receipt_long",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "draws",
+              "type": "destination",
+              "label_key": "nav.draws",
+              "label": null,
+              "path": "/app/admin/draws",
+              "kind": "internal",
+              "icon": "event",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "games_pricing",
+              "type": "destination",
+              "label_key": "nav.games_pricing",
+              "label": null,
+              "path": "/app/admin/games-pricing",
+              "kind": "internal",
+              "icon": "casino",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "business_rules",
+          "label_key": "nav.section.business_rules",
+          "label": null,
+          "items": [
+            {
+              "id": "limits",
+              "type": "destination",
+              "label_key": "nav.limits",
+              "label": null,
+              "path": "/app/admin/limits",
+              "kind": "internal",
+              "icon": "rule",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "promotions",
+              "type": "destination",
+              "label_key": "nav.promotions",
+              "label": null,
+              "path": "/app/admin/promotions",
+              "kind": "internal",
+              "icon": "local_offer",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "personalization",
+          "label_key": "nav.section.personalization",
+          "label": null,
+          "items": [
+            {
+              "id": "settings",
+              "type": "destination",
+              "label_key": "nav.settings",
+              "label": null,
+              "path": "/app/admin/settings",
+              "kind": "internal",
+              "icon": "settings",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "translations",
+              "type": "destination",
+              "label_key": "nav.translations",
+              "label": null,
+              "path": "/app/admin/i18n",
+              "kind": "internal",
+              "icon": "translate",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "appearance",
+              "type": "destination",
+              "label_key": "nav.appearance",
+              "label": null,
+              "path": "/app/admin/appearance",
+              "kind": "internal",
+              "icon": "palette",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "reports",
+          "label_key": "nav.section.reports",
+          "label": null,
+          "items": [
+            {
+              "id": "reports",
+              "type": "destination",
+              "label_key": "nav.reports",
+              "label": null,
+              "path": "/app/admin/reports",
+              "kind": "internal",
+              "icon": "assessment",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        }
+      ],
+      "footerDestinations": [],
+      "actions": []
+    },
+    "footer": null
+  },
+  "private_shell_superadmin": {
+    "topAppBar": {
+      "title": {
+        "label_key": "surface.platform_admin",
+        "label": null
+      },
+      "context": {},
+      "leftActions": [
+        {
+          "id": "TOGGLE_NAVIGATION_DRAWER",
+          "type": "action",
+          "label_key": "nav.toggle_menu",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "menu",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ],
+      "actions": [
+        {
+          "id": "OPEN_NOTIFICATIONS",
+          "type": "action",
+          "label_key": "nav.notifications",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "notifications",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        },
+        {
+          "id": "CHANGE_LANGUAGE",
+          "type": "action",
+          "label_key": "nav.language",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "language",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        },
+        {
+          "id": "TOGGLE_THEME",
+          "type": "action",
+          "label_key": "nav.theme_toggle",
+          "label": null,
+          "path": null,
+          "kind": "action",
+          "icon": "dark_mode",
+          "image": null,
+          "style": "neutral",
+          "disabled": false,
+          "reason_key": null,
+          "confirm": null
+        }
+      ],
+      "profile": {
+        "displayName": null,
+        "avatar": {
+          "url": null,
+          "alt_key": "profile.avatar_alt",
+          "title_key": null,
+          "width": 32,
+          "height": 32,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        },
+        "menu": [
+          {
+            "id": "profile",
+            "type": "destination",
+            "label_key": "nav.profile",
+            "label": null,
+            "path": "/app/profile",
+            "kind": "internal",
+            "icon": "account_circle",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "settings",
+            "type": "destination",
+            "label_key": "nav.settings",
+            "label": null,
+            "path": "/app/settings",
+            "kind": "internal",
+            "icon": "settings",
+            "image": null,
+            "active_match": "prefix",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": []
+          },
+          {
+            "id": "logout",
+            "type": "destination",
+            "label_key": "auth.logout",
+            "label": null,
+            "path": "/logout",
+            "kind": "internal",
+            "icon": "logout",
+            "image": null,
+            "active_match": "none",
+            "disabled": false,
+            "reason_key": null,
+            "badge": null,
+            "children": [],
+            "style": "danger"
+          }
+        ]
+      }
+    },
+    "navigationDrawer": {
+      "brand": {
+        "id": "platform-admin-brand",
+        "label_key": "app.name",
+        "label": null,
+        "subtitle_key": "surface.platform_admin",
+        "path": "/app/platform",
+        "image": {
+          "url": "/assets/brand/tchalanet-logo.svg",
+          "alt_key": "brand.logo_alt",
+          "title_key": null,
+          "width": 36,
+          "height": 36,
+          "aspect_ratio": "1:1",
+          "loading": "eager"
+        }
+      },
+      "topDestinations": [
+        {
+          "id": "dashboard",
+          "type": "destination",
+          "label_key": "nav.dashboard",
+          "label": null,
+          "path": "/app/platform",
+          "kind": "internal",
+          "icon": "dashboard",
+          "image": null,
+          "active_match": "exact",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        },
+        {
+          "id": "platform_overview",
+          "type": "destination",
+          "label_key": "nav.platform_overview",
+          "label": null,
+          "path": "/app/platform/overview",
+          "kind": "internal",
+          "icon": "map",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "sections": [
+        {
+          "id": "platform",
+          "label_key": "nav.section.platform",
+          "label": null,
+          "items": [
+            {
+              "id": "tenants",
+              "type": "destination",
+              "label_key": "nav.tenants",
+              "label": null,
+              "path": "/app/platform/tenants",
+              "kind": "internal",
+              "icon": "apartment",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "tenant_onboarding",
+              "type": "destination",
+              "label_key": "nav.tenant_onboarding",
+              "label": null,
+              "path": "/app/platform/tenant-onboarding",
+              "kind": "internal",
+              "icon": "playlist_add_check",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "subscriptions",
+              "type": "destination",
+              "label_key": "nav.subscriptions",
+              "label": null,
+              "path": "/app/platform/subscriptions",
+              "kind": "internal",
+              "icon": "workspace_premium",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "global_configuration",
+          "label_key": "nav.section.global_configuration",
+          "label": null,
+          "items": [
+            {
+              "id": "global_settings",
+              "type": "destination",
+              "label_key": "nav.global_settings",
+              "label": null,
+              "path": "/app/platform/settings",
+              "kind": "internal",
+              "icon": "settings",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "global_translations",
+              "type": "destination",
+              "label_key": "nav.global_translations",
+              "label": null,
+              "path": "/app/platform/i18n",
+              "kind": "internal",
+              "icon": "translate",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "theme_presets",
+              "type": "destination",
+              "label_key": "nav.theme_presets",
+              "label": null,
+              "path": "/app/platform/theme-presets",
+              "kind": "internal",
+              "icon": "palette",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "referentials",
+              "type": "destination",
+              "label_key": "nav.referentials",
+              "label": null,
+              "path": "/app/platform/referentials",
+              "kind": "internal",
+              "icon": "dataset",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "global_draw_channels",
+              "type": "destination",
+              "label_key": "nav.global_draw_channels",
+              "label": null,
+              "path": "/app/platform/draw-channels",
+              "kind": "internal",
+              "icon": "event",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "operations",
+          "label_key": "nav.section.operations",
+          "label": null,
+          "items": [
+            {
+              "id": "platform_health",
+              "type": "destination",
+              "label_key": "nav.platform_health",
+              "label": null,
+              "path": "/app/platform/ops/health",
+              "kind": "internal",
+              "icon": "monitor_heart",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "jobs_schedulers",
+              "type": "destination",
+              "label_key": "nav.jobs_schedulers",
+              "label": null,
+              "path": "/app/platform/ops/jobs",
+              "kind": "internal",
+              "icon": "schedule",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "cache",
+              "type": "destination",
+              "label_key": "nav.cache",
+              "label": null,
+              "path": "/app/platform/ops/cache",
+              "kind": "internal",
+              "icon": "cached",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "audit",
+              "type": "destination",
+              "label_key": "nav.audit",
+              "label": null,
+              "path": "/app/platform/audit",
+              "kind": "internal",
+              "icon": "fact_check",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            },
+            {
+              "id": "communications",
+              "type": "destination",
+              "label_key": "nav.notifications_communications",
+              "label": null,
+              "path": "/app/platform/communications",
+              "kind": "internal",
+              "icon": "notifications",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "reports",
+          "label_key": "nav.section.reports",
+          "label": null,
+          "items": [
+            {
+              "id": "platform_reports",
+              "type": "destination",
+              "label_key": "nav.platform_reports",
+              "label": null,
+              "path": "/app/platform/reports",
+              "kind": "internal",
+              "icon": "assessment",
+              "image": null,
+              "active_match": "prefix",
+              "disabled": false,
+              "reason_key": null,
+              "badge": null,
+              "children": []
+            }
+          ]
+        }
+      ],
+      "footerDestinations": [
+        {
+          "id": "release_notes",
+          "type": "destination",
+          "label_key": "footer.release_notes",
+          "label": null,
+          "path": "/app/platform/releases",
+          "kind": "internal",
+          "icon": "article",
+          "image": null,
+          "active_match": "prefix",
+          "disabled": false,
+          "reason_key": null,
+          "badge": null,
+          "children": []
+        }
+      ],
+      "actions": []
+    },
+    "footer": null
+  }
+}

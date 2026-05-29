@@ -4,14 +4,20 @@ import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.operational.OperationalContextHint;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import com.tchalanet.server.core.sales.api.query.ListCashierRecentTicketsQuery;
+import com.tchalanet.server.core.payout.api.query.ListPayoutsQuery;
+import com.tchalanet.server.core.payout.internal.domain.model.PayoutClaimStatus;
 import com.tchalanet.server.core.session.api.query.GetCashierSessionSummaryQuery;
+import com.tchalanet.server.features.cashier.home.model.CashierAttentionLevel;
+import com.tchalanet.server.features.cashier.home.model.CashierBadge;
 import com.tchalanet.server.features.cashier.draws.CashierAvailableDrawView;
 import com.tchalanet.server.features.cashier.draws.CashierDrawsService;
 import com.tchalanet.server.features.cashier.home.model.CashierHomeDrawSummary;
 import com.tchalanet.server.features.cashier.home.model.CashierHomeOperationalContext;
 import com.tchalanet.server.features.cashier.home.model.CashierHomeResponse;
 import com.tchalanet.server.features.cashier.home.model.CashierHomeSessionSummary;
+import com.tchalanet.server.features.cashier.home.model.CashierNotification;
+import com.tchalanet.server.features.cashier.home.model.CashierReadinessBlocker;
+import com.tchalanet.server.features.cashier.home.model.CashierReadinessResponse;
 import com.tchalanet.server.features.cashier.home.model.HomeAction;
 import com.tchalanet.server.features.cashier.home.model.HomeHeader;
 import com.tchalanet.server.features.cashier.home.model.HomeNavigationItem;
@@ -29,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -93,50 +100,54 @@ public class CashierHomeService {
         List.of());
   }
 
-  public CashierHomeResponse webHome(TchRequestContext ctx, String requestedSurface) {
-    var surface = surfaceResolver.resolve(ctx, requestedSurface);
-    if (surface != ClientSurface.CASHIER_WEB) {
-      throw ProblemRest.forbidden("surface.not_allowed");
+  public CashierReadinessResponse readiness(TchRequestContext ctx) {
+    var operational = operationalContext(ctx);
+    var blockers = new ArrayList<CashierReadinessBlocker>();
+    if (!operational.ready() || !operational.trusted()) {
+      blockers.add(new CashierReadinessBlocker(
+          "OPERATIONAL_CONTEXT",
+          "pos.readiness.operational_context.title",
+          "pos.readiness.operational_context.message",
+          Map.of("missing", operational.missing())));
     }
 
-    var operational = operationalContext(ctx);
     var session = sessionSummary(ctx);
-    var primaryDraw = primaryDraw(ctx);
-    return new CashierHomeResponse(
-        surface,
-        VERSION,
-        new HomeHeader("Caisse", subtitle(operational), null),
-        null,
-        operational,
-        session,
-        primaryDraw,
-        new HomeAction("SELL_TICKET", "Vendre un ticket", true, "/cashier/sell"),
-        List.of(),
-        List.of(
-            new HomeWidget(
-                "session_summary",
-                "Session",
-                "SUMMARY_CARD",
-                Map.of(
-                    "open", session != null && session.open(),
-                    "openedAtLabel", session != null ? value(session.openedAtLabel()) : "",
-                    "ticketCount", session != null ? session.ticketCount() : 0,
-                    "salesTotal", session != null ? value(session.salesTotal()) : money(0, ctx))),
-            new HomeWidget(
-                "next_draw",
-                "Tirage actif",
-                "DRAW_CARD",
-                Map.of(
-                    "label", primaryDraw != null ? value(primaryDraw.label()) : "",
-                    "cutoffLabel", primaryDraw != null ? value(primaryDraw.cutoffLabel()) : "",
-                    "status", primaryDraw != null ? value(primaryDraw.status()) : "")),
-            new HomeWidget(
-                "recent_tickets",
-                "Tickets récents",
-                "RECENT_TICKETS",
-                Map.of("items", recentTickets(ctx)))),
-        List.of(),
-        List.of());
+    if (session == null || !session.open()) {
+      blockers.add(new CashierReadinessBlocker(
+          "SESSION_CLOSED",
+          "pos.readiness.session_closed.title",
+          "pos.readiness.session_closed.message",
+          Map.of()));
+    }
+
+    var badges = new ArrayList<CashierBadge>();
+    var notifications = new ArrayList<CashierNotification>();
+    var previousUnpaidCount = previousUnpaidPayoutCount(ctx);
+    if (previousUnpaidCount > 0) {
+      var params = Map.<String, Object>of("count", previousUnpaidCount);
+      badges.add(new CashierBadge(
+          "PREVIOUS_UNPAID_PAYOUTS",
+          CashierAttentionLevel.BADGE,
+          "pos.notification.previous_unpaid_payouts.title",
+          params));
+      notifications.add(new CashierNotification(
+          "PREVIOUS_UNPAID_PAYOUTS",
+          CashierAttentionLevel.CARD,
+          "pos.notification.previous_unpaid_payouts.title",
+          "pos.notification.previous_unpaid_payouts.message",
+          "VIEW_PAYOUTS_TO_PROCESS",
+          "pos.notification.previous_unpaid_payouts.action",
+          params));
+    }
+
+    var ready = blockers.isEmpty();
+    return new CashierReadinessResponse(
+        ready,
+        !ready ? CashierAttentionLevel.BLOCKED
+            : notifications.isEmpty() ? CashierAttentionLevel.NONE : CashierAttentionLevel.CARD,
+        badges,
+        notifications,
+        blockers);
   }
 
   private CashierHomeResponse missingOperationalContextHome(
@@ -222,6 +233,25 @@ public class CashierHomeService {
         money(view.salesTotalCents(), ctx));
   }
 
+  private long previousUnpaidPayoutCount(TchRequestContext ctx) {
+    var zone = ctx.tenantZoneId() == null ? ZoneId.of("UTC") : ctx.tenantZoneId();
+    var todayStart = java.time.LocalDate.now(zone).atStartOfDay(zone).toInstant();
+    return oldPayoutCount(PayoutClaimStatus.OPEN, todayStart)
+        + oldPayoutCount(PayoutClaimStatus.BLOCKED, todayStart);
+  }
+
+  private long oldPayoutCount(PayoutClaimStatus status, Instant before) {
+    return queryBus.ask(new ListPayoutsQuery(
+        status,
+        null,
+        null,
+        null,
+        null,
+        before,
+        PageRequest.of(0, 1)
+    )).totalElements();
+  }
+
   private CashierHomeDrawSummary primaryDraw(TchRequestContext ctx) {
     List<CashierAvailableDrawView> draws = drawsService.listAvailable(ctx, 24, 1);
     if (draws.isEmpty()) {
@@ -239,18 +269,6 @@ public class CashierHomeService {
         draw.status());
   }
 
-  private List<Map<String, Object>> recentTickets(TchRequestContext ctx) {
-    var rows = queryBus.ask(new ListCashierRecentTicketsQuery(ctx.currentUserIdRequired(), 5));
-    return rows.stream()
-        .map(ticket -> Map.<String, Object>of(
-            "publicCode", value(ticket.publicCode()),
-            "status", value(ticket.statusCode()),
-            "soldAt", ticket.soldAt() != null ? ticket.soldAt().toString() : "",
-            "stakeTotal", money(ticket.stakeTotalCents(), ctx),
-            "drawLabel", value(ticket.drawLabel()),
-            "lineCount", ticket.lineCount()))
-        .toList();
-  }
 
   private List<HomeNavigationItem> mobileNavigation() {
     return List.of(

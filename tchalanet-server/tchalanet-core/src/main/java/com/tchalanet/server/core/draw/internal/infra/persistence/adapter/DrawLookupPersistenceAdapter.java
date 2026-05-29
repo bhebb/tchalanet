@@ -5,7 +5,7 @@ import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.DrawResultId;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLookupPort;
 import com.tchalanet.server.core.draw.internal.domain.model.Draw;
-import com.tchalanet.server.core.draw.internal.domain.model.DrawStatus;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.internal.infra.persistence.mapper.DrawMapper;
 import com.tchalanet.server.core.draw.internal.infra.persistence.repo.DrawJpaRepository;
 import jakarta.persistence.EntityNotFoundException;

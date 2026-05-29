@@ -48,17 +48,22 @@ SELECT t.id                         AS ticket_id,
        t.seller_user_id,
        COALESCE(au.display_name, au.email::text) AS seller_display_name,
 
-       COALESCE(tn.name, o.name, 'Tchalanet') AS tenant_display_name,
+       COALESCE(
+           NULLIF(tn.config #>> '{document,receipt,displayName}', ''),
+           tn.name,
+           o.name,
+           'Tchalanet'
+       )                            AS tenant_display_name,
        NULLIF(
            COALESCE(
-               tn.config #>> '{receipt,header}',
+               tn.config #>> '{document,receipt,headerMessage}',
                ''
            ),
            ''
        )                            AS tenant_receipt_header,
        NULLIF(
            COALESCE(
-               tn.config #>> '{receipt,footer}',
+               tn.config #>> '{document,receipt,footerMessage}',
                ''
            ),
            ''

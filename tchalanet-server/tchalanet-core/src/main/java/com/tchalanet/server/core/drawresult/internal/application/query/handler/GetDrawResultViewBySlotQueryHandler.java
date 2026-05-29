@@ -5,7 +5,7 @@ import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.drawresult.internal.application.exception.DrawResultNotFoundException;
 import com.tchalanet.server.core.drawresult.internal.application.port.out.DrawResultReaderPort;
 import com.tchalanet.server.core.drawresult.api.query.GetDrawResultViewBySlotQuery;
-import com.tchalanet.server.core.drawresult.internal.application.view.DrawResultView;
+import com.tchalanet.server.core.drawresult.api.query.view.DrawResultView;
 import lombok.RequiredArgsConstructor;
 
 @UseCase

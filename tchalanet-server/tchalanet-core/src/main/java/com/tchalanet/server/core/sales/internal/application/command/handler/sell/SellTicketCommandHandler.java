@@ -10,6 +10,7 @@ import com.tchalanet.server.common.types.id.CorrelationId;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.common.types.id.TicketId;
+import com.tchalanet.server.core.promotion.api.model.PromotionDecisionStatus;
 import com.tchalanet.server.core.sales.api.event.TicketLinePlacedItem;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
 import com.tchalanet.server.core.sales.api.event.payload.TicketContextPayload;
@@ -18,6 +19,8 @@ import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketOutcome;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketResult;
+import com.tchalanet.server.core.sales.api.command.sell.SoldTicketView;
+import com.tchalanet.server.core.sales.internal.application.port.out.AppliedPromotionSnapshotWriterPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketCodeGeneratorPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort;
 import com.tchalanet.server.core.sales.internal.application.port.out.TicketWriterPort;
@@ -30,6 +33,7 @@ import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketCodes;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketContext;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketIdentity;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
+import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +49,7 @@ public class SellTicketCommandHandler
     private final TicketPrintReaderPort ticketPrintReader;
     private final DomainEventPublisher eventPublisher;
     private final SaleAcceptanceEvaluator saleAcceptanceEvaluator;
+    private final AppliedPromotionSnapshotWriterPort appliedPromotionSnapshotWriter;
     private final TicketReceiptAssembler ticketReceiptAssembler;
     private final TicketBackupAssembler ticketBackupAssembler;
     private final TicketCommunicationRequestDispatcher communicationDispatcher;
@@ -84,7 +89,9 @@ public class SellTicketCommandHandler
                 prepared.pos().actorUserId(),
                 prepared.pos().salesSessionId(),
                 command.drawId(),
-                command.drawChannelId()
+                command.drawChannelId(),
+                prepared.sellerId(),
+                prepared.sellerAssignmentId()
             ),
             new TicketCodes(
                 ticketCodeGenerator.nextTicketCode(),
@@ -102,6 +109,12 @@ public class SellTicketCommandHandler
         );
 
         var saved = ticketWriter.save(ticket);
+
+        var promo = prepared.promotionDecision();
+        if (promo != null && promo.status() == PromotionDecisionStatus.APPLIED) {
+            appliedPromotionSnapshotWriter.createIfAbsent(ticketId, promo, saved, prepared.now());
+        }
+
         // Push the freshly persisted ticket to DB so the SQL view
         // (sales_ticket_print_header_v) used by the print reader sees it within the same tx.
         ticketWriter.flushPending();
@@ -113,7 +126,7 @@ public class SellTicketCommandHandler
 
         // 3. Publish AFTER COMMIT.
         AfterCommit.run(() -> {
-            eventPublisher.publish(toTicketPlacedEvent(saved, prepared.now(), correlationId));
+            eventPublisher.publish(toTicketPlacedEvent(saved, prepared.now(), correlationId, prepared.promotionDecision()));
 
             communicationDispatcher.enqueueTicketPlaced(
                 saved,
@@ -128,7 +141,7 @@ public class SellTicketCommandHandler
             : SellTicketOutcome.ACCEPTED;
 
         return new SellTicketResult(
-            saved,
+            toSoldTicketView(saved, backup.displayCode()),
             outcome,
             prepared.approvalRequestId(),
             prepared.notices(),
@@ -139,7 +152,32 @@ public class SellTicketCommandHandler
         );
     }
 
-    private TicketPlacedEvent toTicketPlacedEvent(Ticket saved, Instant now, CorrelationId correlationId
+    private SoldTicketView toSoldTicketView(Ticket ticket, String displayCode) {
+        return new SoldTicketView(
+            ticket.identity().id(),
+            ticket.codes().ticketCode().value(),
+            ticket.codes().publicCode().value(),
+            displayCode,
+            ticket.codes().verificationCode().value(),
+            ticket.lifecycle().sale().status(),
+            ticket.lifecycle().result().status(),
+            ticket.lifecycle().settlement().status(),
+            ticket.origin().channel(),
+            ticket.context().drawId(),
+            ticket.context().outletId(),
+            ticket.context().terminalId(),
+            ticket.context().salesSessionId(),
+            ticket.context().sellerUserId(),
+            ticket.money().breakdown().total(),
+            ticket.money().potentialPayoutAmount(),
+            TicketPrintStatus.valueOf(ticket.print().status().name()),
+            ticket.lifecycle().sale().soldAt(),
+            ticket.lifecycle().sale().placedAt()
+        );
+    }
+
+    private TicketPlacedEvent toTicketPlacedEvent(Ticket saved, Instant now, CorrelationId correlationId,
+        com.tchalanet.server.core.promotion.api.model.PromotionDecision promotionDecision
     ) {
         var context = new TicketContextPayload(
             saved.context().outletId(),
@@ -178,7 +216,8 @@ public class SellTicketCommandHandler
             context,
             money,
             lines,
-            null  // offlineRef: always null for POS_ONLINE flow
+            null,  // offlineRef: always null for POS_ONLINE flow
+            promotionDecision
         );
     }
 
@@ -193,7 +232,14 @@ public class SellTicketCommandHandler
             line.betOption(),
             line.stakeAmount(),
             line.oddsSnapshot(),
-            line.potentialPayoutAmount()
+            line.potentialPayoutAmount(),
+            line.origin(),
+            line.pricingSource(),
+            line.selectionSource(),
+            line.payoutBaseAmount(),
+            line.promotionDecisionId(),
+            line.promotionLabel(),
+            line.promotionEffectType()
         );
     }
 }
