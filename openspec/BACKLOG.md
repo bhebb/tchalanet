@@ -19,6 +19,26 @@
 
 ---
 
+## Audit platform — écarts corrigés (2026-05-30)
+
+| Doc | Écart trouvé | Statut |
+|---|---|---|
+| `PLATFORM_TENANTCONFIG.md` | API décrivait `get(key)` / `getAll()` au lieu de `createTenant`, `getTenantById`, etc. — modèle TenantConfigView absent, TenantStatus/TenantType absents, interfaces secondaires (TenantZoneApi, TenantLocaleApi, TenantBusinessCalendarApi) absentes | ✅ Réécrit |
+| `PLATFORM_TENANTTHEME.md` | Décrivait "overrides couleurs/logos" + `ThemeOverride.java` inexistant — API réelle : `applyTenantTheme(presetCode)`, `TenantThemeView` avec presetCode/version | ✅ Corrigé |
+| `PLATFORM_PUBLICCONTENT.md` | Décrivait "CGU, mentions légales, `getContent(ContentKey)`" — API réelle : `listPublicHomeNews/TenantAdminDashboardNews/etc`, `PublicContentSurface` (4 valeurs), `PublicContentStatus` DRAFT/PUBLISHED/ARCHIVED | ✅ Réécrit |
+| `PLATFORM_IDENTITY.md` | API `resolveUser`/`getCurrentUser` incorrect — réel : `bootstrapCurrentUser`, `getUserProfile`, `findAppUser`, `countTenantUsers`. `UserStatus`/`TenantUserStatus`/`AutonomyLevel`/`ClientSurface` tous absents | ✅ Corrigé |
+| `PLATFORM_AUDIT.md` | `AuditAction` (80+ valeurs), `AuditEntityType`, `AuditActorType`, `@AuditLog` annotation absents | ✅ Corrigé |
+| `PLATFORM_DOCUMENT.md` | `DocumentKind`/`DocumentFormat`/`PaperSize`/`LineStyle`/`AssetKind` enum values absents | ✅ Corrigé |
+| `PLATFORM_ENTITLEMENT.md` | `EntitlementKeys` constants absents (4 features + 4 limites), `TenantPlanStatus` absent | ✅ Corrigé |
+| `PLATFORM_TENANTGAME.md` | API `listActiveGames`/`getGameSettings` incorrect — réel : `enableTenantGame`/`disableTenantGame`/`resolveTenantGames`/`updateTenantGamePolicy` | ✅ Corrigé |
+
+### Découverte : `catalog.tenant` non documenté
+
+`TenantStatus` et `TenantType` vivent dans `tchalanet-catalog/catalog/tenant/api/model/` — pas dans `tchalanet-platform`.  
+Ce package (`catalog.tenant`) n'a pas de `CATALOG_*.md` et n'était pas dans l'inventaire.
+
+---
+
 ## Audit catalog — écarts corrigés (2026-05-30)
 
 | Doc | Écart trouvé | Statut |

@@ -1,50 +1,90 @@
-# Platform Capability `platform.publiccontent` — Public Content Delivery
+# Platform Capability `platform.publiccontent` — Public Content
 
-> Archetype : Application Service Module.
+## Rôle
 
-## 1. Rôle
-
-Exposer et servir le contenu public (pages, assets, messages, CGU, etc.) destiné aux utilisateurs non authentifiés ou à large diffusion.
+Gérer et exposer des articles de contenu (news, annonces) par surface applicative.  
+Chaque surface (home public, dashboards admin/tenant/POS) a son propre flux de contenus.
 
 **Ce module fait** :
-- Servir des pages ou assets publics (CGU, mentions légales, landing pages, etc.).
-- Gérer la publication et la mise à jour de contenu public.
-- Exposer une API de lecture pour le contenu public.
+- Publier et gérer des articles de contenu par surface
+- Exposer des listes de contenus récents par surface via `PublicContentApi`
+- Gérer le cycle de vie DRAFT → PUBLISHED → ARCHIVED
 
 **Ce module ne fait pas** :
-- Authentification ou gestion d’accès restreint (→ accesscontrol).
-- Stockage de contenu métier privé ou sensible.
-- Gestion de contenu multilingue avancée (à spécifier si besoin).
+- Pages légales / CGU / mentions légales (hors scope de ce module)
+- Assets statiques (images, logos) — via CDN
+- Contenu multilingue avancé (localization non gérée ici)
 
-## 2. Structure
+---
 
-```text
-platform/publiccontent/
-  api/
-    PublicContentApi.java         ← getContent(ContentKey)
-    model/
-      PublicContentView.java
-      ContentKey.java
-  internal/
-    service/
-    persistence/
-    web/                         ← PublicContentController (/api/v1/public/content)
-    config/
+## Enums
+
+### `PublicContentStatus`
+
+| Valeur | Sens |
+|---|---|
+| `DRAFT` | Brouillon — non visible |
+| `PUBLISHED` | Publié — visible par les consommateurs |
+| `ARCHIVED` | Archivé — masqué |
+
+### `PublicContentSourceType`
+
+| Valeur | Sens |
+|---|---|
+| `INTERNAL` | Contenu créé manuellement en admin |
+| `EXTERNAL_RSS` | Contenu importé depuis un flux RSS |
+
+### `PublicContentSurface`
+
+| Valeur | Consommateur |
+|---|---|
+| `PUBLIC_HOME` | Site public / page d'accueil |
+| `TENANT_ADMIN_DASHBOARD` | Dashboard administrateur tenant |
+| `PLATFORM_ADMIN_DASHBOARD` | Dashboard super-admin |
+| `POS_DASHBOARD` | Dashboard POS cashier |
+
+---
+
+## API — `PublicContentApi`
+
+```java
+List<PublicContentItemView> listPublicHomeNews(int limit)
+List<PublicContentItemView> listTenantAdminDashboardNews(int limit)
+List<PublicContentItemView> listPlatformAdminDashboardNews(int limit)
+List<PublicContentItemView> listPosDashboardNews(int limit)
 ```
 
-## 3. Règles
+---
 
-- Le contenu public doit être validé avant publication.
-- Les modifications sont auditées via platform.audit.
-- Pas de RLS (contenu non tenant-scoped, sauf exception à documenter).
-- Les assets volumineux peuvent être stockés en externe (S3, CDN…).
+## Modèle — `PublicContentItemView`
 
-## 4. Intégration
+| Champ | Type | Sens |
+|---|---|---|
+| `id` | `UUID` | — |
+| `title` | `String` | Titre de l'article |
+| `content` | `String` | Corps du contenu |
+| `imageUrl` | `String?` | URL image optionnelle |
+| `sourceUrl` | `String?` | URL source (pour RSS) |
+| `sourceType` | `PublicContentSourceType` | Origine |
+| `publishedAt` | `Instant` | Date de publication |
 
-- Les apps web/mobiles consomment l’API pour afficher le contenu public.
-- Les modifications de contenu sont traçables et auditées.
+---
 
-## 5. Guardrails
+## Intégration PageModel
 
-- Ne jamais exposer de données sensibles via ce module.
-- Les dépendances doivent rester internes à platform/publiccontent.
+- `PublicNewsProvider` (source : `public_news`) consomme `listPublicHomeNews`
+- Les providers des dashboards admin consomment les méthodes correspondantes
+
+---
+
+## Règles
+
+- Pas de RLS (contenu global — sauf surfaces POS qui peuvent être tenant-scoped à préciser)
+- Modifications auditées via `platform.audit`
+- `EXTERNAL_RSS` : import planifié, pas temps réel
+
+---
+
+## Références
+
+- PageModel providers : `features/pagemodel/FEATURE_PAGEMODEL.md §Current dynamic sources`

@@ -21,7 +21,7 @@ Gérer les paramètres de jeux activés et configurés par tenant (quels jeux so
 ```text
 platform/tenantgame/
   api/
-    TenantGameApi.java        ← listActiveGames(TenantId), getGameSettings(TenantId, GameId)
+    TenantGameApi.java        ← enableTenantGame, disableTenantGame, resolveTenantGames, updateTenantGamePolicy
     model/
       TenantGameView.java
       TenantGameSettings.java

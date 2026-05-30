@@ -26,6 +26,25 @@ Exposer un contrat transversal unique pour rendre des documents binaires (PDF, E
 
 Pas d’endpoint REST public direct (API Java consommée par d’autres modules platform/core).
 
+
+## Enums
+
+### `DocumentKind` : `RECEIPT` · `REPORT` · `QR_CODE`
+### `DocumentFormat`
+| Valeur | Content-Type | Extension |
+|---|---|---|
+| `PDF` | `application/pdf` | `.pdf` |
+| `ESC_POS` | `application/octet-stream` | `.bin` |
+| `PNG` | `image/png` | `.png` |
+| `HTML_PREVIEW` | `text/html` | `.html` |
+
+### `PaperSize` : `RECEIPT_58MM` (164pt) · `RECEIPT_80MM` (227pt) · `A4` (595pt)
+### `LineStyle` : `NORMAL` · `BOLD` · `TITLE` · `SMALL` · `WARNING`
+### `AssetKind` : `QR` · `IMAGE` · `LOGO`
+
+`DocumentOptions` factory : `defaults()` · `receipt80mm()` · `receipt58mm()`  
+`DocumentContent` : sealed interface — `GenericDocumentContent` · `QrDocumentContent` · `ReceiptDocumentContent` · `ReportDocumentContent`
+
 ## Intégration
 
 - Les modules platform/core appellent `DocumentApi` pour générer des documents binaires
