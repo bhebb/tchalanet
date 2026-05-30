@@ -22,9 +22,24 @@ No permanent MCP by default. An MCP is activated only when the current task need
 
 ## Status reference
 
-- GitHub MCP: available, off by default. Activate for PR/issue work.
-- Nx Cloud MCP: on only while web/Nx work is active.
-- Trello / Slack / Filesystem MCP: not enabled at this stage.
+- GitHub MCP: ✓ active (PAT, scope local). Activer pour PR/issues. ⚠️ PAT à régénérer.
+- Slack MCP: ✓ active (claude.ai). Canal `#tchalanet-agents` (`C0B76AV9WAW`).
+- Nx Cloud MCP: on seulement pendant un travail web/Nx actif.
+- Trello / Filesystem MCP: pas encore activés.
+
+## Pipeline Slack → #tchalanet-agents
+
+Envoyer dans `#tchalanet-agents` **uniquement** pour ces événements :
+
+| Événement | Déclencheur | Format |
+|---|---|---|
+| ✅ PR mergée | après merge sur `main` | `PR #N — titre` |
+| ⚠️ Blocage agent | 3 tentatives échouées | slice + raison + next step |
+| 🔴 Alerte safety | refus d'action sensible | action refusée + règle citée |
+| 📋 Handoff session | fin de session longue ou `/clear` | slice / fichiers / risques / next |
+| 🔁 Review MCP | audit mensuel (date dans mcp-activations.md) | liste actifs + à désactiver |
+
+**Ne pas envoyer** : chaque commit, chaque lecture de fichier, chaque step intermédiaire — seulement les événements ci-dessus.
 
 ## Do not
 
