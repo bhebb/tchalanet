@@ -55,6 +55,7 @@ venv/
 envs/**/.secrets
 
 # Environnement
+.env
 .env.*
 !.env.example
 

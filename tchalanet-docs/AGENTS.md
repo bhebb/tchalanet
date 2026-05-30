@@ -1,6 +1,6 @@
 # AGENTS.md — Tchalanet Docs
 
-Documentation agent router for `tchalanet-docs/`.
+Documentation agent router for `tchalanet-docs/` (MkDocs).
 
 Read first:
 
@@ -9,23 +9,24 @@ Read first:
 - `CLAUDE.md`
 - `openspec/project.md`
 
-Canonical local docs:
+Canonical docs (source of truth — do not duplicate here):
 
-- `docs/`
-- `mkdocs.yml`
-- `CLAUDE.md`
+- `docs/` — published documentation.
+- `mkdocs.yml` — navigation and portal config.
 - `openspec/`
 
 OpenSpec:
 
-- Use `tchalanet-docs/openspec/` for published documentation changes.
-- Use root `openspec/` only for cross-project coordination.
+- Published-docs changes: `tchalanet-docs/openspec/`.
+- Root `openspec/` only for cross-project coordination.
+
+Shared workflow skills: `.agents/skills/` (see `.agents/README.md`).
 
 Validation:
 
 - `venv/bin/mkdocs build --config-file mkdocs.yml`
-- Use strict mode only when nav coverage/link warnings are intentionally resolved.
+- Strict mode only when nav/link warnings are intentionally resolved.
 
 Context rule:
 
-- Keep MkDocs as a portal. Link to component docs instead of copying long implementation detail.
+- Keep MkDocs as a portal. Link to component docs; do not copy long implementation detail.

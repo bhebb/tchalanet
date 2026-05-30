@@ -8,56 +8,33 @@ Read first:
 - `../VERSIONS.md`
 - `CLAUDE.md`
 - `openspec/project.md`
-- `openspec/context/10-non-negotiables.md`
 
-Canonical local docs:
+Canonical docs (source of truth — do not duplicate here):
 
-- `docs/ARCHITECTURE.md` — Layer structure, hexagonal pattern, CQRS, Command/Query Bus, cross-domain calls
-- `docs/PLAYBOOK.md` — Operational workflows, handler templates, inter-domain patterns
-- `docs/NAMING.md` — Naming conventions
-- `docs/conventions/` — Technical standards (clean architecture, bus patterns, context, RLS, etc.)
-- `src/**/DOMAIN_*.md` — Domain-specific invariants and lifecycle rules
-- `src/**/FEATURE_*.md` — Feature-specific orchestration flows
+- `docs/ARCHITECTURE.md` — layers, hexagonal, CQRS, Command/Query Bus, cross-domain calls.
+- `docs/PLAYBOOK.md` — workflows, handler templates, inter-domain patterns.
+- `docs/NAMING.md` — naming conventions.
+- `docs/conventions/` — clean architecture, bus, context, RLS, persistence (e.g. `persistence/persistence.md`).
+- `openspec/context/10-non-negotiables.md` — architecture layers and hard constraints.
+- `src/**/DOMAIN_*.md`, `src/**/FEATURE_*.md` — near-code invariants and flows.
 
 OpenSpec:
 
-- Use `tchalanet-server/openspec/` for backend changes.
-- Use `openspec/context/80-core-rules.md` for core module architecture (layers, ports, CQRS).
-- Use `openspec/context/81-features-rules.md` for feature module architecture (vertical slices, orchestration).
-- Use root `openspec/` only for cross-project coordination.
+- Backend changes: `tchalanet-server/openspec/`.
+- Core module rules: `openspec/context/80-core-rules.md`.
+- Feature module rules: `openspec/context/81-features-rules.md`.
+- Root `openspec/` only for cross-project coordination.
 
-Core Architecture Rules (KEY DECISION):
+Architecture: see `openspec/context/10-non-negotiables.md` and `docs/ARCHITECTURE.md`.
 
-- **Mandatory layering** (domain → application → infra, NO reverse dependencies)
-- **Typed IDs everywhere** (UUID only in persistence)
-- **CommandBus / QueryBus only** (no port.in, no direct handler calls)
-- **Events after commit** (AfterCommit.run)
-- **Clean separation**: domain is pure, application orchestrates, infra adapts
-- **Cross-domain via queries or events** (never direct repository access)
-
-Feature Architecture Rules (KEY DECISION):
-
-- **Vertical slices** (NOT hexagonal)
-- **Orchestration only** (no business invariants)
-- **Depends on core/catalog** (never vice versa)
-- **Use CommandBus/QueryBus** (no direct core repository access)
+DB migrations: see `docs/conventions/persistence/persistence.md` §9. Pré-go-live, ask before creating any new `V*.sql`.
 
 Validation:
 
-- `./mvnw test`
-- `./mvnw verify`
-- Relevant focused tests for touched packages.
-- `archUnit` enforces layer and dependency rules
+- `./mvnw test`, `./mvnw verify`.
+- Focused tests for touched packages. `archUnit` enforces layer rules.
 
 Context rule:
 
-- Load root rules (`AGENTS.md`, `../AGENTS.md`), local `CLAUDE.md`, relevant convention pack (`command_query_handlers.md`, `clean_architecture.md`, `inter_domain_calls.md`), and near-code `DOMAIN_*.md` or `FEATURE_*.md` for touched area.
-- Prefer reading narrow scopes over whole-repo audits.
-
-DB migrations (NORMATIVE — voir `docs/conventions/persistence.md` §9):
-
-- **Pré-go-live** : ne pas créer de nouveau `V*.sql`. Absorber les évolutions dans la migration d'origine (`CREATE TABLE`, index, trigger, RLS, vue, seed).
-- **Avant tout nouveau fichier de migration**, demander confirmation explicite à l'utilisateur.
-- **Cible** : `V001` + `V100-V108` (schéma + vues) + `V200-V209` (seeds).
-- **Vues read-model** vivent dans `V108__create_read_views.sql`. Toute modification de table doit vérifier les 3 vues : `v_ticket_summary`, `v_ticket_print`, `v_draw_summary`.
-- **Synchro obligatoire** à chaque modification de table : entités JPA + mappers/projections + tables `_aud` (si `@Audited`) + vues V108 + seeds. Tolérance temporaire en PR adjacente, mais jamais laissé en dette.
+- Load root rules, this router, the one relevant convention pack, and near-code `DOMAIN_*.md`/`FEATURE_*.md` for the touched area.
+- Prefer narrow reads over whole-repo audits.

@@ -1,65 +1,19 @@
-# /mobile-task
+---
+description: Scoped mobile task in tchalanet-mobile
+---
 
-Use for Tchalanet Flutter mobile tasks.
+Canonical skill: `.agents/skills/scoped-task/SKILL.md`
+Project router: `tchalanet-mobile/AGENTS.md`
+Default slice: mobile
 
-Default agent:
+Scope lock:
+- Allowed: `tchalanet-mobile/`
+- Forbidden unless explicitly requested: `tchalanet-server/`, `tchalanet-web/`, `tchalanet-edge-service/`, `tchalanet-infra/`, `tchalanet-docs/`
 
-- mobile-slice-agent
+Load only:
+1. `AGENTS.md`
+2. `tchalanet-mobile/AGENTS.md`
+3. `.agents/skills/scoped-task/SKILL.md`
+4. files being edited/reviewed
 
-Rules:
-
-- Work under `tchalanet-mobile` only.
-- Do one task only.
-- Do not scan the whole repo.
-- Do not invent backend endpoints.
-- Do not modify backend/web/edge/infra unless explicitly requested.
-- Do not add native plugins without approval.
-- Explain Android/iOS permission changes.
-- Run narrow Flutter validation.
-
-Required input:
-
-- Mobile area affected
-- Task
-- Files to inspect first
-- Files/folders allowed to edit
-- Validation command
-
-Output:
-
-1. Mobile area affected
-2. Files inspected
-3. Files changed
-4. API assumptions
-5. Native/plugin/permission impact
-6. Validation command
-7. Handoff
-
-Template:
-
-Area:
-
-- sellprocess
-
-Task:
-
-- <one precise task>
-
-Can edit:
-
-- tchalanet-mobile/lib/...
-
-Must inspect first:
-
-- ...
-
-Do not touch:
-
-- tchalanet-server
-- tchalanet-web
-- tchalanet-edge-service
-- tchalanet-infra
-
-Validation:
-
-- cd tchalanet-mobile && flutter analyze
+Feature-first Flutter. Do not duplicate backend rules. Treat offline submissions as pending, never confirmed.
