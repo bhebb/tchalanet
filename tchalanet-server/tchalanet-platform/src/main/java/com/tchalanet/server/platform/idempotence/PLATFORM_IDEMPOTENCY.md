@@ -1,62 +1,28 @@
+
 # Platform Capability `platform.idempotence`
 
-`platform.idempotence` owns replay safety for HTTP writes and event consumers.
+`platform.idempotence` gère la sécurité anti-rejeu pour les écritures HTTP et les consommateurs d’événements.
 
-Idempotency is a replay guard. It is not a replacement for domain state transitions, row locks,
-unique constraints, or business invariants.
+**Ce module fait** :
+- HTTP Idempotency (contrat API) : protège les endpoints write contre le double-submit client/réseau
+- Event Idempotency (handlers/projectors) : protège les projections contre la redelivery d’événements
 
-Ce document décrit les deux couches d’idempotence utilisées dans Tchalanet :
+**Ce module ne fait pas** :
+- Ne remplace pas les transitions d’état métier, verrous, contraintes uniques, invariants métier
 
-- HTTP Idempotency (contrat API) — protège les endpoints write contre le double-submit client / réseau.
-- Event Idempotence (projectors / handlers) — protège les projections (facts / read models) contre la redelivery d’événements (at-least-once).
 
-Ces deux mécanismes se ressemblent mais ne se remplacent pas.
+## Surface API et intégration
 
----
+- Header HTTP `Idempotency-Key` (UUID recommandé)
+- Contrôle du tuple `(tenant, scope, idem_key, payload_hash)`
+- Codes d’erreur explicites (`idempotency.missing`, `idempotency.payload_mismatch`, `idempotency.in_progress`)
+- Stockage en table `idempotency_record` (tenant-scoped, RLS)
 
-## 1) HTTP Idempotency (contrat API)
+## Règles et limitations
 
-### Header
-
-- `Idempotency-Key : string` (recommandé : UUID)
-
-### Règle
-
-- Même tuple `(tenant, scope, idem_key)` et même payload (hash) DOIT être traité une seule fois et DOIT renvoyer le même résultat (replay).
-- Même clé avec payload différent DOIT échouer avec `409 idempotency.payload_mismatch`.
-- Si une requête avec la même clé est déjà en cours, DOIT échouer avec `409 idempotency.in_progress`.
-
-### Endpoints requis (MVP)
-
-- `POST /api/v1/tenant/tickets` (SellTicket) : REQUIS
-
-### Codes d'erreur (ProblemDetail)
-
-- `idempotency.missing` (400)
-- `idempotency.payload_mismatch` (409)
-- `idempotency.in_progress` (409)
-
-### Hashing
-
-Le serveur calcule :
-
-```
-request_hash = sha256(normalized_json(body))
-```
-
-Normalisation JSON :
-
-- trier récursivement les clés des objets
-- conserver l’ordre des tableaux
-- sérialiser en JSON canonique puis sha256 (hex)
-
-> Exemple : utilisez une fonction utilitaire server-side qui prend un objet (Map/record) et renvoie le SHA256 hex de sa sérialisation canonique.
-
-### Stockage (table)
-
-Table : `idempotency_record` (tenant-scoped via RLS).
-
-Contrainte d’unicité :
+- Ne remplace pas les contrôles métier ou les verrous
+- Les handlers d’event doivent être idempotents
+- La logique de hash et de normalisation JSON doit être canonique côté serveur
 
 ```
 UNIQUE (tenant_id, scope, idem_key)

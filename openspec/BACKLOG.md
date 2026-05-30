@@ -21,16 +21,7 @@
 
 ## Flows manquants (role-flows.md les référence, fichiers absents)
 
-| Flow | Fichier attendu | Complexité estimée |
-|---|---|---|
-| Ouverture de session POS | `tchalanet-docs/docs/02-functional/flows/session-opening.md` | Faible |
-| Admin POS selection | `tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md` | Faible |
-| Payout terrain | `tchalanet-docs/docs/02-functional/flows/payout-field-flow.md` | Moyen |
-| Offline grant / sync | `tchalanet-docs/docs/02-functional/flows/offline-sync.md` | Élevé |
-| Settlement | `tchalanet-docs/docs/02-functional/flows/settlement.md` | Élevé |
-| Réconciliation | `tchalanet-docs/docs/02-functional/flows/reconciliation.md` | Élevé |
-
-Note : `seller-onboarding.md` et `terminal-binding.md` sont créés mais encore marqués `*(TODO)*` dans `role-flows.md` — corriger les liens.
+✅ Tous les flows sont créés — liens corrigés dans `role-flows.md`.
 
 ---
 

@@ -2,61 +2,39 @@
 
 > Archetype : Application Service Module.
 
-## 1. Rôle
 
-Exposer un contrat **transversal** unique pour rendre des documents binaires
-(PDF, ESC/POS pour imprimantes thermiques, PNG pour QR).
+## Rôle
 
-```java
-RenderedDocument render(DocumentRenderRequest request);
-```
+Exposer un contrat transversal unique pour rendre des documents binaires (PDF, ESC/POS, PNG QR).
 
-**Ce module fait** :
-- Rendre un `DocumentRenderRequest` typé dans un format cible (`DocumentFormat`).
-- Supporter plusieurs `DocumentContent` typés (reçus, rapports, contenu générique).
-- Encapsuler PDFBox, ZXing et le builder ESC/POS dans `internal/`.
+**Ce module fait** :
+- `render(DocumentRenderRequest)` → `RenderedDocument` (API Java)
+- Supporte plusieurs formats et types de contenu (reçu, rapport, QR, générique)
+- Encapsule PDFBox, ZXing, builder ESC/POS dans `internal/`
 
-**Ce module ne fait pas** :
-- Composer les données métier (le caller doit fournir le contenu déjà formaté).
-- Stocker les documents générés.
-- Connaître `Ticket`, `Payout`, `Draw`, `SalesSession`, `Outlet` ou tout type
-  `core.*` / `features.*`.
-- Distribuer par email/SMS (→ `platform.communication`).
+**Ce module ne fait pas** :
+- Composer les données métier (le contenu doit être déjà formaté)
+- Stocker les documents générés
+- Connaître les types métier core/features
+- Distribuer (voir `platform.communication`)
 
-## 2. Structure
 
-```text
-platform/document/
-  api/
-    DocumentApi.java
-    model/
-      DocumentRenderRequest.java
-      RenderedDocument.java
-      DocumentKind.java          ← RECEIPT, REPORT, QR, GENERIC
-      DocumentFormat.java        ← PDF, ESC_POS, PNG (+ contentType/extension)
-      DocumentContent.java       ← sealed
-      ReceiptDocumentContent.java
-      ReportDocumentContent.java
-      GenericDocumentContent.java
-      DocumentSection.java
-      DocumentLine.java          ← (text, LineStyle)
-      LineStyle.java             ← NORMAL, BOLD, TITLE
-      DocumentTable.java
-      DocumentAsset.java         ← QR | IMAGE (bytes or payload+sizePx)
-      AssetKind.java
-      DocumentOptions.java
-  internal/
-    service/DefaultDocumentApi.java  ← dispatch par DocumentFormat
-    render/
-      DocumentRenderer.java          ← format() + render(request)
-      PdfDocumentRenderer.java
-      EscPosDocumentRenderer.java
-      QrPngDocumentRenderer.java
-    pdf/ReceiptPdfRenderer.java      ← PDFBox
-    escpos/EscPosBuilder.java
-    qr/QrRenderer.java + zxing/ + escpos/
-    receipt/ReceiptModel(.Line/.Span)
-```
+## Surface API
+
+- `DocumentApi` (Java) : `render(DocumentRenderRequest)`
+- Modèles : `DocumentRenderRequest`, `RenderedDocument`, `DocumentKind`, `DocumentFormat`, `DocumentContent` (scellé)
+
+Pas d’endpoint REST public direct (API Java consommée par d’autres modules platform/core).
+
+## Intégration
+
+- Les modules platform/core appellent `DocumentApi` pour générer des documents binaires
+- La distribution se fait via `platform.communication` si besoin
+
+## Règles et limitations
+
+- Pas de logique métier ni de stockage dans ce module
+- Les formats supportés sont extensibles côté internal/
 
 ## 3. Imports autorisés
 
