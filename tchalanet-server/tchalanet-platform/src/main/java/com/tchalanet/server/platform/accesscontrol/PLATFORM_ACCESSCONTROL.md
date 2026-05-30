@@ -1,84 +1,87 @@
+
 # Platform Capability `platform.accesscontrol`
 
 ## Role
 
+
 `platform.accesscontrol` owns authorization policy:
 
-- roles;
-- permissions;
-- tenant role assignments;
-- effective permission resolution;
-- permission decisions.
+- Gestion des rôles (création, mise à jour, hiérarchie, multi-tenant)
+- Permissions (catalogue, affectation aux rôles)
+- Affectation mono-rôle par utilisateur/tenant
+- Résolution des permissions effectives
+- Décision d’autorisation (API et annotations)
 
-It answers: **may this actor attempt this action in this scope?**
+Il répond à : **cet acteur peut-il effectuer cette action dans ce contexte ?**
 
-It does not answer whether a target resource is in a valid business state.
+Ne valide pas l’état métier des ressources cibles (voir core).
+
 
 ## Public Surface
 
-Consumers outside the capability use only:
+**API publique** :
 
-```text
-platform/accesscontrol/api/
-```
+- `platform/accesscontrol/api/AccessControlApi.java` — gestion des rôles, permissions, affectations, vérification des droits
+- `@RequiresPermission` — annotation pour vérification déclarative
+- `TchPermissionEvaluator` — intégration Spring Security
 
-Implementation stays private:
+**Endpoints admin** (REST, internes) :
 
-```text
-platform/accesscontrol/internal/
-```
+- `/admin/roles` — CRUD rôles (multi-tenant)
+- `/admin/permissions` — catalogue des permissions
+- `/admin/roles/{roleId}/permissions` — gestion des permissions d’un rôle
 
-Core/features/platform peers must never import `platform.accesscontrol.internal.*`.
+**Important** :
+- Les consumers ne doivent jamais importer `platform.accesscontrol.internal.*`.
+
 
 ## Deny-Safe Evaluation
 
-Permission evaluation is deny-by-default when security facts are missing or ambiguous.
+L’évaluation des permissions est **deny-by-default** si des faits de sécurité sont manquants ou ambigus.
 
-Required facts for tenant-scoped checks:
+Faits requis pour les checks tenant-scoped :
+- acteur authentifié
+- tenant effectif (contexte canonique)
+- permission demandée
+- faits de rôle/membership issus de l’état platform
 
-- authenticated actor;
-- effective tenant from canonical context;
-- requested permission;
-- actor role/membership facts from platform-owned state.
+Ne jamais faire confiance aux tenantId issus du payload HTTP comme source d’autorité.
 
-Never trust tenant ids from request bodies as authorization source-of-truth.
 
-## What AccessControl Does Not Do
+## Ce que AccessControl ne fait pas
 
-Access control must not validate:
+Ne valide pas :
+- l’état métier (payout, ticket, terminal, etc.)
+- les eligibility business (offline, limits, draw, etc.)
 
-- payout status or payout eligibility;
-- ticket cancellability or settlement state;
-- terminal/outlet/session state;
-- seller terminal assignment;
-- offline sync business eligibility;
-- limits, draw state, cutoff, or game availability.
+Ces checks relèvent des validateurs/handlers du domaine core.
 
-Those checks belong to the owning `core` domain validators/handlers.
 
-## Integration
+## Intégration
 
-HTTP controllers declare requirements using method security:
+- Contrôleurs HTTP :
+	- `@PreAuthorize("hasPermission('permission:code')")` (Spring Security)
+	- `@RequiresPermission` (annotation custom)
+- Flows non-HTTP : appel direct à `AccessControlApi`
+- Endpoints d’écriture (rôles, permissions) audités via `platform.audit`
 
-```java
-@PreAuthorize("hasPermission('payout:approve')")
-```
-
-Non-HTTP or reusable application flows call `AccessControlApi`.
-
-Role and permission write endpoints must be functionally audited through `platform.audit`.
 
 ## Persistence
 
-Role, permission and assignment tables are owned by `platform.accesscontrol`.
+- Tables rôles, permissions, affectations détenues par `platform.accesscontrol`
+- Rows tenant-scoped compatibles RLS
+- Les queries ne doivent jamais utiliser un tenantId client comme source d’isolation
 
-Tenant-scoped rows must be RLS-compatible. Application queries must not use client-provided tenant
-ids as the isolation source.
 
 ## Guardrails
 
-- Platform must not depend on `core` or `features`.
-- Accesscontrol must not import core/features domain packages.
-- Permission checks deny when actor/tenant/permission facts are missing.
-- Permission write endpoints are audited.
-- Business invariants remain in core domains.
+- Platform ne doit pas dépendre de core/features
+- Aucune importation de packages métier core/features
+- Deny systématique si faits manquants (actor, tenant, permission)
+- Endpoints d’écriture audités
+- Les invariants métier restent dans core
+
+## Limitations connues
+
+- La méthode `setTenantUserRole` n’est pas encore implémentée (UnsupportedOperationException)
+- L’affectation mono-rôle par utilisateur/tenant est prévue, mais nécessite wiring avec platform.identity

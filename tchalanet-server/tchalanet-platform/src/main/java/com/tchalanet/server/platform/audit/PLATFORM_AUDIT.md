@@ -1,43 +1,43 @@
+
 # Platform Capability `platform.audit`
 
-## Role
 
-`platform.audit` owns functional audit: the history of business/user actions.
+## Rôle
 
-Functional audit is not the same thing as technical revision audit. Envers can tell us what row
-changed; functional audit tells us which business action was attempted, by whom, in which tenant,
-with which outcome.
+`platform.audit` gère l’audit fonctionnel : historique des actions métier/utilisateur.
 
-## Functional Audit
+**Ce module fait** :
+- Enregistrement d’événements d’audit métier (succès, échec, refus)
+- Exposition d’une API pour loguer, lister, purger les événements d’audit
+- Annotation `@AuditLog` pour audit automatique sur endpoints critiques
 
-Functional audit entries should capture:
+**Ce module ne fait pas** :
+- Audit technique de révision (Envers)
+- Audit d’infrastructure technique
 
-- actor;
-- tenant or effective tenant;
-- action;
-- target type and target id;
-- outcome: success, denied, failure;
-- request id and correlation id;
-- safe details needed for investigation.
 
-Functional audit is produced through `@AuditLog` or explicit `AuditApi` calls.
+## Surface API
 
-## Technical Revision Audit
+- `AuditApi` (Java) :
+  - `logAuditEvent(LogAuditEventRequest)`
+  - `listAuditEvents(ListAuditEventsRequest)`
+  - `purgeOldAuditEvents(PurgeOldAuditEventsRequest)`
+- Annotation `@AuditLog` (méthode/type) : audit automatique
 
-Envers revision metadata is technical audit. It may include actor, tenant, request id and
-correlation id, but it does not replace functional audit for sensitive business actions.
 
-Examples:
+## Intégration
 
-- A denied action may have no row revision but still needs functional audit.
-- A row update may have an Envers revision but still need a functional audit entry naming the
-  business action.
+- Les endpoints critiques utilisent `@AuditLog` pour générer automatiquement des entrées d’audit
+- Les modules platform/core peuvent loguer explicitement via `AuditApi`
+- Les événements d’audit sont paginés et consultables (TchPage)
 
-## Transaction Rules
 
-- Success audit should be emitted after the main business transaction commits.
-- Failure or denied audit may use a separate transaction.
-- Audit infrastructure failure must be logged/observed.
+## Règles et limitations
+
+- L’audit fonctionnel ne remplace pas l’audit technique (Envers)
+- Les actions refusées ou échouées doivent aussi être auditées
+- L’audit doit être émis après commit de la transaction principale (succès)
+- Les échecs d’infrastructure d’audit doivent être logués/observés
 - Audit infrastructure failure must not turn an already committed business operation into a client
   failure.
 
