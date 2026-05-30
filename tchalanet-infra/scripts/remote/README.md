@@ -65,21 +65,3 @@ Notes:
 
 Installe Docker/compose-plugin sur la machine. Appelé par bootstrap si nécessaire.
 
-## 03-rotate-meili-master-key.sh
-
-À exécuter sur le serveur (dans `/opt/tchalanet-infra`).
-
-Objectif:
-
-- Régénérer `MEILI_MASTER_KEY` pour un env donné
-- Sauvegarder `envs/<env>/.secrets`
-- Redémarrer Meilisearch via docker compose (project + meilisearch)
-
-Usage:
-
-```bash
-cd /opt/tchalanet-infra
-./scripts/remote/03-rotate-meili-master-key.sh staging
-```
-
-Attention: la rotation invalide les API keys Meili dérivées de l’ancienne master key. Prévoir une procédure de communication/renouvellement côté apps si nécessaire.

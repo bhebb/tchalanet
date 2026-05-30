@@ -117,7 +117,7 @@ services:
         max-file: ${KC_LOG_MAX_FILES:-3}
 
     labels:
-      - traefik.enable=${UNLEASH_TRAEFIK_ENABLE:-true}
+      - traefik.enable=${KC_TRAEFIK_ENABLE:-true}
       - traefik.docker.network=${DOCKER_NETWORK_EDGE:-edge-${ENV}}
       # KC_HOST is the bare hostname (no scheme) used by Traefik's Host matcher.
       # KC_HOSTNAME is the full URL used by Keycloak v2 — not suitable for Host(...).
