@@ -1,71 +1,63 @@
 # Tasks — Phase 2 : OpenSpec Archive Extraction
 
-**Dépendance :** Phase 1 complétée (policies en place).  
+**Dépendance :** Phase 1 complétée ✅  
 **Règle :** Checklist d'extraction complète AVANT toute suppression.  
 **Validation Stevens obligatoire** avant d'appliquer les extractions.
 
 ---
 
-## 1. Lire archive 2026-05-05
+## 1. Lire archive 2026-05-05 ✅
 
-- [ ] Lire `openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/` entièrement
-- [ ] Prendre notes : décisions, propositions, canonical ownership map, contexte
+- [x] Lire `openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/` entièrement
+- [x] `proposal.md` : problème docs éparpillées, objectif inventaire + MkDocs portal
+- [x] `design.md` : canonical ownership map, structure MkDocs cible, archive policy (ancienne)
+- [x] `tasks.md` : toutes tâches ✅ — script inventory, MkDocs, classification tout livré
 
-## 2. Lire archive 2026-05-07
+## 2. Lire archive 2026-05-07 ✅
 
-- [ ] Lire `openspec/changes/archive/2026-05-07-organize-ai-agent-files/` entièrement
-- [ ] Prendre notes : structure agents, décisions prises
+- [x] Lire `openspec/changes/archive/2026-05-07-organize-ai-agent-files/` entièrement
+- [x] `proposal.md` : problème AI files éparpillés, objectif router + component ownership
+- [x] `design.md` : target model router global + component AGENTS.md, context loading rule
+- [x] `tasks.md` : toutes tâches ✅ — 6 component AGENTS.md créés, AGENTS.md root allégé
 
-## 3. Classer et proposer extraction — 2026-05-05
+## 3. Matrice d'extraction 2026-05-05 ✅
 
-Pour chaque élément identifié :
+- [x] Canonical ownership map → couvert par `doc-policy.md` v2.0.0 (Phase 1) — **rien à extraire**
+- [x] Structure MkDocs cible → déjà implémentée — **rien à extraire**
+- [x] Archive policy "move to docs/archive/" → obsolète, remplacée par `archive-policy.md` v2.0.0 — **rien à extraire**
+- [x] Tâches complétées → **rien à extraire**
+- **Conclusion : rien de durable → DELETE**
 
-- [ ] Classifier : norme stable | ADR | context pack IA | rien de durable
-- [ ] Proposer destination cible (fichier exact)
-- [ ] Produire matrice d'extraction
+## 4. Matrice d'extraction 2026-05-07 ✅
 
-## 4. Classer et proposer extraction — 2026-05-07
+- [x] Router global + component AGENTS.md → déjà implémenté (6 AGENTS.md existent) — **rien à extraire**
+- [x] Context loading rule → dans `00-index.md` (Phase 1) — **rien à extraire**
+- [x] Archive policy "move to .ai-archive/" → obsolète, remplacée par `archive-policy.md` v2.0.0 — **rien à extraire**
+- [x] Tâches complétées → **rien à extraire**
+- **Conclusion : rien de durable → DELETE**
 
-- [ ] Classifier : norme stable | ADR | context pack IA | rien de durable
-- [ ] Proposer destination cible
-- [ ] Produire matrice d'extraction
+## 5. Validation Stevens ✅
 
-## 5. Validation Stevens
+- [x] Matrices présentées sur Slack (`#tchalanet-agents`)
+- [x] Approbation reçue : "ok"
 
-- [ ] Présenter les deux matrices (Slack + PR)
-- [ ] **Attendre approbation explicite avant toute création/modification**
+## 6–7. Extractions ✅
 
-## 6. Appliquer extractions — 2026-05-05
+- [x] Aucune extraction nécessaire — tout déjà dans les docs canoniques
 
-- [ ] Créer/mettre à jour les fichiers cibles selon matrice validée
-- [ ] Vérifier liens dans les nouveaux documents
+## 8. Supprimer archive 2026-05-05 ✅
 
-## 7. Appliquer extractions — 2026-05-07
+- [x] Rien de durable restant — confirmé par matrice
+- [x] Stevens a confirmé
+- [x] Supprimé `openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/`
 
-- [ ] Créer/mettre à jour les fichiers cibles selon matrice validée
-- [ ] Vérifier liens
+## 9. Supprimer archive 2026-05-07 ✅
 
-## 8. Supprimer archive 2026-05-05
+- [x] Rien de durable restant — confirmé par matrice
+- [x] Stevens a confirmé
+- [x] Supprimé `openspec/changes/archive/2026-05-07-organize-ai-agent-files/`
 
-Checklist avant suppression :
-- [ ] Tous les éléments durables extraits ?
-- [ ] Tous les liens valides ?
-- [ ] Rien de durable restant ?
-- [ ] Stevens a confirmé ?
+## 10. Supprimer dossier archive/ ✅
 
-Action :
-- [ ] Supprimer `openspec/changes/archive/2026-05-05-audit-project-docs-and-mkdocs/`
-
-## 9. Supprimer archive 2026-05-07
-
-Checklist avant suppression :
-- [ ] Éléments durables extraits ou confirmé "rien à extraire" ?
-- [ ] Stevens a confirmé ?
-
-Action :
-- [ ] Supprimer `openspec/changes/archive/2026-05-07-organize-ai-agent-files/`
-
-## 10. Nettoyer le dossier archive
-
-- [ ] Vérifier que `openspec/changes/archive/` est vide
-- [ ] Supprimer `openspec/changes/archive/` si vide
+- [x] Dossier vide après suppression des deux archives
+- [x] Supprimé `openspec/changes/archive/`
