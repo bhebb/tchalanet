@@ -111,6 +111,6 @@ public class TicketReceiptMessageFormatter {
     private String lineLabel(TicketReceiptGameSectionView section, TicketReceiptLineView line, TicketReceiptI18nResolver.TicketReceiptTranslations translations) {
         var game = labelResolver.gameTitle(section, translations);
         var option = labelResolver.lineOptionLabel(line, translations);
-        return game + " - " + option + " - " + line.selection();
+        return game + option + "- " + line.selection();
     }
 }

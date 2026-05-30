@@ -76,20 +76,26 @@
 
 ## 6. Cashier POS
 
-- [ ] POS home works with active context.
-- [ ] Missing context returns required step.
-- [ ] Closed session returns required step.
-- [ ] Open session.
-- [ ] List available draws.
-- [ ] Sell short ticket.
-- [ ] Print ticket.
-- [ ] Send ticket notification if configured.
-- [ ] List recent tickets.
-- [ ] Close session.
-- [ ] Terminal locked blocks sell.
-- [ ] Outlet blocked/sales disabled blocks sell.
-- [ ] Session mismatch blocks sell.
-- [ ] Cross-tenant terminal/outlet/session usage is blocked.
+- [x] POS home works with active context.
+- [x] Missing context returns required step.
+- [x] Closed session returns required step.
+- [x] Open session.
+- [x] List available draws.
+- [x] Sell short ticket.
+- [x] Print ticket (fixed payload: `printOptionsRequest.outputFormat`, not top-level `format`).
+- [x] Send ticket notification if configured (`§9 step 8`, env-guarded via `TCH_TEST_SLACK_CHANNEL_KEY`).
+- [x] List recent tickets.
+- [x] Close session (`§9 step 10`, asserts session no longer OPEN).
+- [ ] Terminal locked blocks sell. *(skipped — needs admin lock endpoint)*
+- [ ] Outlet blocked/sales disabled blocks sell. *(skipped — needs admin outlet-block endpoint)*
+- [x] Session mismatch blocks sell.
+- [x] Cross-tenant terminal/outlet/session usage is blocked.
+
+> Happy path `test_cashier_morning_happy_path` now covers the full §9 main path
+> (draws → preview → sell → print → send → list → close). Aligned with the live
+> cashier API: `/tenant/cashier/tickets/{preview,sell,{id}/print,{id}/send}`,
+> `SaleDecision.ACCEPTABLE`, `SellTicketOutcome.ACCEPTED`,
+> `PrintTicketRequest.printOptionsRequest.outputFormat`.
 
 ## 7. Ticket matrix and payout
 

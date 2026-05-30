@@ -44,6 +44,7 @@ public class TicketReceiptPrintFormatter {
         // separator between branding and ticket facts
         add(header, layout.separator(layoutProfile));
         header.addAll(factsFormatter.ticketIdentityLines(receipt, translations, layoutProfile));
+        add(header, layout.separator(layoutProfile));
 
         var sections = new ArrayList<TicketReceiptSectionContent>();
         // draw section (no separator between draw and games)
@@ -57,14 +58,24 @@ public class TicketReceiptPrintFormatter {
                 List.of(TicketReceiptTextLine.normal(currencyNote))
             ));
         }
+        sections.add(blankSection());
+
+        boolean firstGame = true;
 
         for (var section : receipt.gameSections()) {
+            if (!firstGame) {
+                sections.add(blankSection());
+            }
+
             var gameTitle = labelResolver.gameTitle(section, translations);
             var safeTitle = layout.truncate(gameTitle, layoutProfile.charsPerLine());
+
             sections.add(new TicketReceiptSectionContent(
                 safeTitle,
                 gameLinesFormatter.format(section.lines(), translations, layoutProfile)
             ));
+
+            firstGame = false;
         }
 
         var totals = new ArrayList<TicketReceiptTextLine>();
@@ -117,6 +128,13 @@ public class TicketReceiptPrintFormatter {
                 "format", documentProfile.outputFormat().name(),
                 "paperSize", documentProfile.paperSize().name()
             )
+        );
+    }
+
+    private TicketReceiptSectionContent blankSection() {
+        return new TicketReceiptSectionContent(
+            null,
+            List.of(TicketReceiptTextLine.normal(""))
         );
     }
 

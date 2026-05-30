@@ -10,13 +10,14 @@ DO $$ BEGIN
 END $$;
 
 -- Outlet
-INSERT INTO outlet (id, tenant_id, name, slug, timezone, receipt_printing_enabled, require_opening_float, created_at, updated_at)
+INSERT INTO outlet (id, tenant_id, name, slug, timezone, status, receipt_printing_enabled, require_opening_float, created_at, updated_at)
 SELECT
     '00000000-0000-0000-0000-000000003001'::uuid,
     t.id,
     'PDV Principal',
     'pdv-principal',
     'America/Toronto',
+    'ACTIVE',                 -- seed outlet must be operable (POS sell/session); default is DRAFT
     true,
     true,
     now(),

@@ -46,7 +46,7 @@ public class TicketPrintDocumentMapper {
             receipt.title(),
             content,
             assets(receipt, request, tenantReceiptConfig, profile),
-            options(tenantReceiptConfig),
+            options(profile, tenantReceiptConfig),
             receipt.locale(),
             receipt.timezone(),
             receipt.metadata()
@@ -120,8 +120,18 @@ public class TicketPrintDocumentMapper {
         };
     }
 
-    private DocumentOptions options(TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig) {
-        var paperSize = parsePaperSize(tenantReceiptConfig);
+    private DocumentOptions options(
+        DocumentPrintProfile profile,
+        TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig
+    ) {
+        // Honor an explicit paper size from the print request first; fall back to
+        // the tenant receipt config (which itself defaults to 80mm). The profile
+        // resolver collapses "unspecified" into A4, so only an explicit RECEIPT_*
+        // request overrides the tenant default.
+        var requested = profile == null ? null : profile.paperSize();
+        var paperSize = (requested == PaperSize.RECEIPT_58MM || requested == PaperSize.RECEIPT_80MM)
+            ? requested
+            : parsePaperSize(tenantReceiptConfig);
         return switch (paperSize) {
             case RECEIPT_58MM -> DocumentOptions.receipt58mm();
             case A4, RECEIPT_80MM -> DocumentOptions.receipt80mm();

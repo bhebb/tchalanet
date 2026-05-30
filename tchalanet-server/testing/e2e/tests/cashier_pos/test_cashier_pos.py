@@ -41,13 +41,22 @@ from tch_e2e.scenario_world import ScenarioWorld
 
 
 def _artifact_dir() -> Path:
+    """Resolve the PDF output dir, always to an ABSOLUTE path.
+
+    ``TCH_ARTIFACT_DIR`` may be relative (e.g. ``target/e2e/tickets``); a relative
+    value is anchored to the e2e root (``testing/e2e``) so it doesn't depend on
+    pytest's working directory and is easy to find.
+    """
+    e2e_root = Path(__file__).resolve().parents[2]  # testing/e2e
     raw = os.environ.get("TCH_ARTIFACT_DIR")
     if raw:
         base = Path(raw)
+        if not base.is_absolute():
+            base = e2e_root / base
     else:
-        e2e_root = Path(__file__).resolve().parents[2]
-        base = e2e_root.parent.parent / "tchalanet-app" / "target" / "pdf" / "cashier-pos"
+        base = e2e_root / "target" / "e2e" / "tickets"
     base.mkdir(parents=True, exist_ok=True)
+    print(f"[artifacts] PDFs -> {base}")
     return base
 
 
@@ -112,10 +121,31 @@ def test_cashier_morning_happy_path(onboard_cashier_for_pos) -> None:
         detail = flow.get_ticket(ticket.ticket_id)
         assert detail["ticketCode"] == ticket.ticket_code
 
+        # Step 8 — send receipt notification (only when a Slack channel is wired).
+        # Optional by design (§9): skip silently when not configured so the happy
+        # path stays green without external delivery infra.
+        if os.environ.get("TCH_TEST_SLACK_CHANNEL_KEY"):
+            send_result = flow.send_slack(ticket.ticket_id)
+            assert send_result, "send returned an empty body"
+
     all_tickets = flow.list_tickets()
     listed_ids = {row["id"] for row in all_tickets}
     missing = set(sold) - listed_ids
     assert not missing, f"tickets just sold missing from list: {missing}"
+
+    # Step 10 — close the session and confirm it is no longer OPEN.
+    flow.close_session(pos.session_id, reason="e2e:test_cashier_morning_happy_path")
+    current = pos.cashier_client.get(
+        "/tenant/cashier/session/current",
+        params={"terminalId": pos.terminal_id},
+    )
+    if current.status_code == 200:
+        status = (current.json().get("data") or {}).get("status")
+        assert status != "OPEN", f"session still OPEN after close: {status!r}"
+    else:
+        assert current.status_code in (204, 404), (
+            f"unexpected session/current status after close: {current.status_code}"
+        )
 
 
 # ===========================================================================

@@ -183,11 +183,17 @@ class CashierFlow:
         return self._print(ticket_id, "ESC_POS")
 
     def _print(self, ticket_id: str, fmt: str) -> bytes:
+        # PrintTicketRequest carries the format inside `printOptionsRequest`
+        # (the backend field name; outputFormat = PDF | ESC_POS | PNG | HTML_PREVIEW,
+        # paperSize = RECEIPT_58MM | RECEIPT_80MM | A4). POS receipts use 80mm.
         response = self.client.post(
             f"/tenant/cashier/tickets/{ticket_id}/print",
             json={
                 "terminalId": self.context.terminal_id,
-                "format": fmt,
+                "printOptionsRequest": {
+                    "outputFormat": fmt,
+                    "paperSize": "RECEIPT_80MM",
+                },
                 "recordPrint": True,
                 "deliveryOptions": ["RETURN_FILE"],
             },
@@ -211,6 +217,28 @@ class CashierFlow:
         )
         assert_ok(response, expected=(200, 202))
         return response.json()["data"]
+
+    # --- session -----------------------------------------------------------
+
+    def close_session(
+        self,
+        session_id: str,
+        *,
+        closing_amount: str = "100.00",
+        reason: str = "e2e:happy-path-close",
+    ) -> dict[str, Any]:
+        """Close the POS session (design §9 step 10)."""
+        response = self.client.post(
+            "/tenant/cashier/session/close",
+            json={
+                "sessionId": session_id,
+                "closingAmount": closing_amount,
+                "reason": reason,
+            },
+            context=self.context,
+        )
+        assert_ok(response)
+        return response.json().get("data") or {}
 
     # --- helpers -----------------------------------------------------------
 

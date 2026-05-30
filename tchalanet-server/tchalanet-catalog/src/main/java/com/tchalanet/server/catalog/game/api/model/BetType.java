@@ -59,4 +59,8 @@ public enum BetType {
   public boolean isPattern() {
     return this == LOTTO4_PATTERN || this == LOTTO5_PATTERN;
   }
+
+  public boolean isBorlette() {
+    return this == MATCH_1_2D || this == MATCH_2_2D || this == MATCH_3_2D;
+  }
 }
