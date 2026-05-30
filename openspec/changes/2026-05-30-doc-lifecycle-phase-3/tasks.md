@@ -1,120 +1,65 @@
 # Tasks — Phase 3 : Full Audits + Prévention
 
-**Dépendance :** Phase 1 + Phase 2 complétées.  
-**Règle :** Validation humaine avant toute création, modification ou suppression.  
-**Principe :** Créer uniquement ce qui manque — ne pas surcharger.
+**Dépendance :** Phase 1 + Phase 2 complétées ✅  
+**PR :** #112 mergée le 2026-05-30
 
 ---
 
-## tchalanet-server
+## Archives component ✅
 
-### 1. Audit server
+- [x] Lire et classer 33 archives server + 6 archives infra/mobile/edge
+- [x] Matrice d'extraction : 28 changes DELETE, 5 extractions (context docs, DOMAIN_ANALYTICS, common README)
+- [x] Validation Stevens
+- [x] Créer `DOMAIN_ANALYTICS.md` near-code dans `core/analytics/`
+- [x] Mettre à jour `tchalanet-common/README.md` en fonction du code réel
+- [x] Supprimer 250 fichiers d'archives (server + infra + mobile + edge)
 
-- [ ] Lire `tchalanet-server/docs/ARCHITECTURE.md` — référence tous les composants ? à jour ?
-- [ ] Lister fichiers dans `tchalanet-server/docs/conventions/`
-- [ ] Identifier conventions manquantes (batch, cache, persistence, RLS, etc.)
-- [ ] Lister `src/**/DOMAIN_*.md` par slice — existence + cohérence surface
-- [ ] Produire matrice : convention/DOMAIN | existe | à jour | action (créer | mettre à jour | supprimer)
+## Documentation contexte de connexion ✅
 
-### 2. Valider + exécuter server
+- [x] Créer `tchalanet-server/docs/conventions/context/README.md`
+- [x] Créer `request-context.md` — contexte universel, pipeline HTTP, resolvers, tenant policy, batch, RLS
+- [x] Créer `operational-context.md` — contexte POS/terrain, sources, fail-fast, owner boundaries
+- [x] Créer `role-flows.md` — flows par rôle (seller, admin POS, super-admin, system, public)
+- [x] Créer `tchalanet-docs/docs/02-functional/flows/role-login-flow.visual.html`
+- [x] Supprimer fichiers pointeurs éparpillés (`user-contexte-operational.md`, `request_context_usage.md`)
+- [x] `docs/architecture/OPERATIONAL_CONTEXT.md` → pointeur vers `conventions/context/`
 
-- [ ] Proposer matrice à Stevens, attendre approbation
-- [ ] Mettre à jour `ARCHITECTURE.md` si nécessaire
-- [ ] Créer/mettre à jour conventions manquantes (max 5-7 fichiers)
-- [ ] Créer/vérifier `DOMAIN_*.md` manquants par slice
+## tchalanet-docs — orphelins + 99-reference ✅
 
----
+- [x] Supprimer `00-audit/` (audits ponctuels avril 2026)
+- [x] Supprimer `02-domains/` (index vide)
+- [x] Supprimer `03-apps/` (doublon de `99-links/`)
+- [x] `OFFLINE_SALES_RISK_POLICY.md` déplacé → `03-adr/`
+- [x] Supprimer `05-decisions/`
+- [x] `99-reference/` : planning one-shot supprimé, générés exclus de la nav MkDocs
+- [x] `mkdocs.yml` nettoyé
 
-## tchalanet-infra
+## tchalanet-web ✅
 
-### 3. Audit infra
+- [x] Créer `docs/ARCHITECTURE.md` — structure `tch-portal`, libs cible, convention Page/Container/Component
+- [x] Créer `docs/conventions/` avec 5 conventions migrées depuis `docs/web/`
+  (`naming`, `state-management`, `nx-boundaries`, `feature-playbook`, `placement-guide`)
 
-- [ ] Lister tous les docs dans `tchalanet-infra/docs/`
-- [ ] Évaluer chacun : utile pour créer/modifier un module infra ? (oui/non/obsolète)
-- [ ] Identifier conventions manquantes (déploiement, secrets, réseau, volumes)
-- [ ] Produire liste : garder | mettre à jour | supprimer | créer
+## tchalanet-mobile ✅
 
-### 4. Valider + exécuter infra
+- [x] Créer `docs/conventions/README.md` — index des conventions existantes
 
-- [ ] Proposer liste à Stevens, attendre approbation
-- [ ] Supprimer docs obsolètes
-- [ ] Mettre à jour docs existants si nécessaire
-- [ ] Créer conventions manquantes
+## tchalanet-edge-service ✅
 
----
+- [x] Créer `docs/ARCHITECTURE.md` — stack Fastify/TS, rôle, endpoints, providers
+- [x] Créer `docs/conventions/README.md`
 
-## tchalanet-web
+## Bilan Phase 3 ✅
 
-### 5. Audit web
+- [x] Tous les composants ont `docs/ARCHITECTURE.md` ou équivalent + `docs/conventions/`
+- [x] Aucun dossier orphelin dans `tchalanet-docs/`
+- [x] `openspec/changes/archive/` inexistant dans tous les composants
+- [x] Flows manquants identifiés (TODO dans `role-flows.md`)
+- [ ] `pnpm docs:check` — à implémenter (Phase future)
+- [ ] `DOMAIN_*.md` near-code server — dette identifiée, à traiter séparément
 
-- [ ] Lister docs existants (README, docs/, conventions si présentes)
-- [ ] Vérifier cohérence surface avec le code actuel
-- [ ] Identifier conventions manquantes (Angular/Nx, NgRx, theming, page model, i18n)
-- [ ] Produire liste : à jour | à mettre à jour | à créer
+## Dette restante documentée
 
-### 6. Valider + exécuter web
-
-- [ ] Proposer liste à Stevens, attendre approbation
-- [ ] Créer `docs/ARCHITECTURE.md` si absent
-- [ ] Créer `docs/conventions/` si absent
-- [ ] Ajouter conventions clés (2-3 fichiers max)
-
----
-
-## tchalanet-mobile
-
-### 7. Audit mobile
-
-- [ ] Lister docs existants
-- [ ] Vérifier cohérence surface avec le code
-- [ ] Identifier conventions manquantes (Flutter, secure storage, offline sync, terminal binding)
-- [ ] Produire liste
-
-### 8. Valider + exécuter mobile
-
-- [ ] Proposer liste à Stevens, attendre approbation
-- [ ] Créer structure minimale + conventions clés
-
----
-
-## tchalanet-edge-service
-
-### 9. Audit edge
-
-- [ ] Lister docs existants
-- [ ] Vérifier cohérence surface
-- [ ] Identifier conventions manquantes
-- [ ] Produire liste
-
-### 10. Valider + exécuter edge
-
-- [ ] Proposer liste à Stevens, attendre approbation
-- [ ] Créer structure minimale + conventions clés
-
----
-
-## tchalanet-docs
-
-### 11. Audit + cleanup tchalanet-docs
-
-- [ ] Lire dossiers orphelins (`02-domains/`, `03-apps/`, `05-decisions/`)
-  - Contenu unique ou doublons dans les dossiers canoniques ?
-  - Proposer : fusionner | rediriger | supprimer
-- [ ] Analyser `99-reference/` (rapports générés) — exclure nav MkDocs ou supprimer
-- [ ] Lister flows dans `02-functional/flows/` — workflows métier clés manquants ?
-
-### 12. Valider + exécuter tchalanet-docs
-
-- [ ] Proposer plan complet à Stevens, attendre approbation
-- [ ] Fusionner/rediriger/supprimer orphelins selon plan validé
-- [ ] Nettoyer `99-reference/`
-- [ ] Créer liste de flows manquants (pas les flows eux-mêmes)
-
----
-
-## Bilan Phase 3
-
-- [ ] Tous les composants ont `docs/ARCHITECTURE.md` + `docs/conventions/` minimal
-- [ ] Aucun dossier orphelin dans `tchalanet-docs/`
-- [ ] `openspec/changes/archive/` inexistant
-- [ ] Tous les liens valides (`pnpm docs:check` passe)
+- `DOMAIN_*.md` : 0 fichiers near-code dans `tchalanet-server/src/` — gap connu, à traiter slice par slice
+- `pnpm docs:check` : tool non implémenté — identifié dans `doc-policy.md`
+- Flows fonctionnels manquants : seller-onboarding, terminal-binding, session-opening, payout, offline-sync, settlement, reconciliation — listés dans `role-flows.md`
