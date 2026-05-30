@@ -1,23 +1,16 @@
-# Codex Router — Tchalanet
+# Codex — Tchalanet
 
-Codex should use the shared project routers instead of duplicating rules here.
+Thin adapter. The canonical router is the root `AGENTS.md`; read it first.
 
-Read first:
+Slice-first: for any task load only
+1. `AGENTS.md` (root)
+2. the target project `AGENTS.md`
+3. one skill from `.agents/skills/`
+4. touched files
 
-- `AGENTS.md`
-- `VERSIONS.md`
-- `openspec/context/00-index.md`
-- `openspec/context/10-non-negotiables.md`
-- the component `AGENTS.md` for the files being changed
+Target <500 lines outside source code. No global scans without an explicit reason.
 
-Common reusable workflows live in:
+Canonical workflow skills live in `.agents/skills/` (see `.agents/README.md`):
+ai-safety, openspec-workflow, pr-readiness, handoff, mcp-on-demand, scoped-task, spec-scoping.
 
-- `.agents/skills/`
-
-Mode:
-
-- Inspect the smallest relevant file set.
-- Prefer focused diffs and targeted validation.
-- Do not scan the whole repo unless the task is an explicit audit/inventory.
-- Do not modify unrelated components.
-- Do not implement broad changes without an OpenSpec change.
+Safety: never push to `main`, never force-push, never auto-merge. See `.agents/skills/ai-safety/SKILL.md`.

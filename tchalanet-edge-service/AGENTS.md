@@ -1,6 +1,6 @@
 # AGENTS.md — Tchalanet Edge Service
 
-Edge-service agent router for `tchalanet-edge-service/`.
+Edge-service agent router for `tchalanet-edge-service/` (Node/Fastify).
 
 Read first:
 
@@ -9,18 +9,19 @@ Read first:
 - `CLAUDE.md`
 - `openspec/project.md`
 
-Canonical local docs:
+Canonical docs (source of truth — do not duplicate here):
 
 - `README.md`
-- `CLAUDE.md`
+- `docs/`
 - `openspec/`
-- `templates/`
-- `rules/`
+- Notification templates and routing rules stay in this project (under `src/`).
 
 OpenSpec:
 
-- Use `tchalanet-edge-service/openspec/` for edge-service changes.
-- Use root `openspec/` only for cross-project coordination.
+- Edge-service changes: `tchalanet-edge-service/openspec/`.
+- Root `openspec/` only for cross-project coordination.
+
+Shared workflow skills: `.agents/skills/` (see `.agents/README.md`).
 
 Validation:
 
@@ -30,4 +31,4 @@ Validation:
 
 Context rule:
 
-- Load root rules, local edge router, relevant template/rule docs, and touched module files.
+- Load root rules, this router, the relevant template/rule docs, and touched module files.
