@@ -1,233 +1,227 @@
-# Sell Ticket — Flow cross-domaines
+# Sell Ticket — Flow
 
-> Cycle complet de vente d'un ticket : du POST initial jusqu'aux events post-commit consommés par limites, session, ledger et stats. Inclut la branche `PENDING_APPROVAL` et la sous-séquence `approve` / `reject`.
+> Le flow le plus critique du système. Toute vente passe par ce pipeline.  
+> Domaine pivot : `core.sales` · Référence : `core/sales/DOMAIN_SALES.md`
 
 ---
 
-## Vue d'ensemble (3 étapes)
+## Vue d'ensemble
 
 ```
-Cashier (POS)         Backend                       Listeners (AFTER_COMMIT)
-     │                   │                                 │
-     ▼                   ▼                                 ▼
-┌──────────┐    ┌──────────────────┐         ┌─────────────────────────────┐
-│  POST    │ →  │ TicketSalePolicy │ → save  │ exposure / ledger / session │
-│ /tenant/ │    │  + Factory + Tx  │         │ totals / stats              │
-│ tickets  │    │  + emit event    │         │                             │
-└──────────┘    └──────────────────┘         └─────────────────────────────┘
-                       │
-                       └─→ Si limit BLOCK + autonomy.requireApprovalOnBlock :
-                            statut PENDING_APPROVAL, 202 Accepted, notice APPROVAL_REQUIRED
-                            → POST /{id}/approve ou /{id}/reject ensuite
+Vendeur POS
+    │
+    ├─ Preview ─────────────────── Validation read-only (pas de réservation)
+    │
+    ├─ Sell ──────────────────────── Transaction : validate → save → event
+    │         ├─ ACCEPTED (201)   → afficher displayCode immédiatement
+    │         ├─ PENDING_APPROVAL (202) → workflow admin
+    │         └─ REJECTED         → aucun ticket créé
+    │
+    ├─ Cancel ───────────────────── Fenêtre 3 min après vente
+    │
+    └─ Post-sell ────────────────── ResultedEvent → Settlement → Payout claim
 ```
 
-| Phase                   | Domaine pivot | Action                                                                               |
-| ----------------------- | ------------- | ------------------------------------------------------------------------------------ |
-| **Prepare**             | `core.sales`  | `TicketSalePolicy.prepareSale` : session + cutoff + normalize + limits + odds        |
-| **Persist**             | `core.sales`  | Factory `Ticket.sell()` ou `Ticket.pendingApproval()` + `TicketWritterPort.save`     |
-| **Publish AfterCommit** | `core.sales`  | `TicketPlacedEvent` (sauf branche REJECTED — pas d'event)                            |
-| **Approve (option)**    | `core.sales`  | `ApproveTicketSaleCommand` re-valide cutoff + session ; transition SOLD ; émet event |
-| **Reject (option)**     | `core.sales`  | `RejectTicketSaleCommand` ; pas d'event publié                                       |
+---
+
+## Modèle ticket — 3 statuts indépendants
+
+Un ticket porte **3 statuts séparés** qui évoluent de façon indépendante :
+
+| Statut | Valeurs | Cycle |
+|---|---|---|
+| `TicketSaleStatus` | `SOLD` · `PENDING_APPROVAL` · `VOID` · `REJECTED` | Vente / annulation |
+| `TicketResultStatus` | `NOT_RESULTED` · `WON` · `LOST` · `OVERRIDDEN` | Après tirage |
+| `TicketSettlementStatus` | `NOT_SETTLED` · `PAYOUT_PENDING` · `NO_PAYOUT` · `SETTLED` · `PAID` · `REVERSED` | Paiement |
+
+Un ticket `SOLD` + `NOT_RESULTED` = vendu, résultat inconnu.  
+Un ticket `SOLD` + `WON` + `PAYOUT_PENDING` = gagnant, paiement à effectuer.
+
+---
+
+## Phase 1 — Preview (validation read-only)
+
+```
+POST /tenant/cashier/tickets/preview
+  { terminalId, drawId, drawChannelId, currency, lines:[...] }
+  → SaleAcceptanceEvaluator.evaluatePreview()
+```
+
+**Pas de write.** Pas de réservation d'exposition.
+
+| Décision | Signification | Action mobile |
+|---|---|---|
+| `ACCEPTABLE` | Panier valide, vente autorisée | Activer "Vendre" |
+| `REQUIRES_CHANGES` | Approbation requise (mise > autonomie) | Afficher `sellerInstruction`, modifier |
+| `REJECTED_FINAL` | Tirage fermé, session invalide | Bloquer |
+
+> ⚠ Preview ne réserve pas l'exposition. Un sell peut encore retourner `EXPOSURE_CHANGED` si une autre vente arrive entre preview et sell.
+
+---
+
+## Phase 2 — Vente (transaction)
+
+```
+POST /tenant/cashier/tickets/sell
+Idempotency-Key: <uuid-v4>
+{ terminalId, drawId, drawChannelId, currency, lines:[...] }
+```
+
+### Pipeline interne (`SellTicketCommandHandler`, `@TchTx`)
+
+```
+1. TicketSalePolicy.prepareSale()
+   ├─ validateSession()         → session OPEN + outlet non bloqué
+   ├─ DrawCutoffRule()          → now < draw.cutoffAt
+   ├─ normalize + mergeDuplicates(lines)
+   ├─ EvaluateLimitPolicyQuery  → notices (WARN / BLOCK)
+   ├─ ResolveAutonomyPolicy     → BLOCK → PENDING_APPROVAL si autonomy.requireApprovalOnBlock
+   └─ PricingCatalog.oddsFor()  → snapshot odds + potentialPayout
+
+2. Selon outcome :
+   ├─ BLOCK sans autonomy → 422 limitBlocked
+   ├─ BLOCK avec autonomy → TicketSaleFactory.newPendingApprovalTicket()
+   │                        → save → 202 ACCEPTED (notice APPROVAL_REQUIRED)
+   └─ OK → TicketSaleFactory.newSoldTicket()
+           → save → emit TicketPlacedEvent (AfterCommit)
+           → 201 CREATED
+```
+
+### Branches de réponse
+
+| HTTP | `outcome` | `TicketSaleStatus` | Event |
+|---|---|---|---|
+| 201 | `ACCEPTED` | `SOLD` | `TicketPlacedEvent` (AfterCommit) |
+| 202 | `PENDING_APPROVAL` | `PENDING_APPROVAL` | aucun (émis à l'approve) |
+| 422 | `REJECTED` | non créé | aucun |
+
+### Règle idempotency
+
+`Idempotency-Key` = UNE FOIS par panier.  
+Si timeout → re-poster le **même payload avec la même clé** → réponse stockée rejouée.  
+Si panier change → **générer une nouvelle clé**.
+
+### Sur ACCEPTED : afficher `backup.displayCode` immédiatement
+
+```json
+"backup": {
+  "displayCode": "40CP-JBMR",
+  "verificationShortUrl": "https://app.tchalanet.com/ticket/40CP-JBMR",
+  "shareableText": "Ticket Tchalanet...\nCode: 40CP-JBMR"
+}
+```
+
+C'est la preuve offline client. Disponible avant print/send.
+
+---
+
+## Phase 3 — Approbation (PENDING_APPROVAL uniquement)
+
+```
+POST /tenant/tickets/{id}/approve   [TENANT_ADMIN, SUPER_ADMIN]
+  → re-valide cutoff + session
+  → Ticket: PENDING_APPROVAL → SOLD
+  → TicketPlacedEvent publié
+
+POST /tenant/tickets/{id}/reject    [TENANT_ADMIN, SUPER_ADMIN]
+  → Ticket: PENDING_APPROVAL → REJECTED
+  → aucun event
+```
+
+> ⚠ Si le draw a dépassé son cutoff entre la mise en attente et l'approbation → 409 Conflict.
+
+---
+
+## Phase 4 — Annulation (fenêtre 3 min)
+
+```
+POST /tenant/cashier/tickets/{id}/cancel
+{ terminalId, reason }
+→ Ticket: SOLD → VOID
+→ TicketCancelledEvent (AfterCommit)
+   → core.limitpolicy : libère l'exposition
+   → core.session : décrémente les totaux
+   → features.stats : met à jour les agrégats
+```
+
+**Fenêtre V1 : 3 minutes après la vente.**  
+Au-delà → `REJECTED` + issue `CANCEL_WINDOW_EXPIRED`.
+
+---
+
+## Événements post-commit
+
+| Event | Producteur | Consommateurs |
+|---|---|---|
+| `TicketPlacedEvent` | `SellTicketCommandHandler` · `ApproveTicketSaleCommandHandler` | `core.limitpolicy` (exposure), `core.session` (totaux), `core.ledger` (écriture comptable), `features.stats` (×2) |
+| `TicketCancelledEvent` | `CancelSaleCommandHandler` | `core.limitpolicy`, `core.session`, `features.stats` |
+| `TicketResultedEvent` | `RecordDrawTicketsResultCommandHandler` | `features.stats`, `core.sales` → settlement |
+| `TicketWinningSettlementCreatedEvent` | `core.sales` | `core.payout` → `OpenPayoutClaimFromSettlementCommand` |
+
+> `SalesLedgerListener` consomme `TicketPlacedEvent` en `@EventListener` synchrone (dans la TX) — anomalie connue, les exceptions sont loguées mais silencieusement ignorées.
+
+---
+
+## Phase 5 — Post-sell : résultat et settlement
+
+Après le tirage :
+
+```
+DrawResultAppliedEvent
+  → core.sales : RecordDrawTicketsResultCommandHandler
+    → Évaluation de chaque ligne vs résultat
+    → Ticket: NOT_RESULTED → WON / LOST
+    → TicketResultedEvent publié
+
+Si WON :
+  → TicketWinningSettlementCreatedEvent
+  → core.payout : OpenPayoutClaimFromSettlementCommand
+  → PayoutClaim OPEN → vendeur peut payer
+
+Si LOST :
+  → TicketSettlementStatus: NO_PAYOUT
+  → Cycle terminé
+```
+
+→ Voir flow complet : [settlement](./settlement.md) · [payout-field-flow](./payout-field-flow.md)
+
+---
+
+## Anomalies connues
+
+| Anomalie | Impact | Statut |
+|---|---|---|
+| `SalesLedgerListener` synchrone (dans TX) | Exception ledger ignorée silencieusement | Connu |
+| `outlet bloqué → 500` au lieu de `403/422` | Message d'erreur technique exposé | Connu |
+| `PENDING_APPROVAL` : `outletId/agentId` null si session non retrouvée à l'approve | Données audit incomplètes | Connu |
+| `DrawSalesGuardPort` = NoOp | Annulation draw sans vérification des tickets vendus | À corriger |
+| Vérification "single gameCode per ticket" après save | Rollback nécessaire si lignes mixtes | Connu (MVP) |
 
 ---
 
 ## Domaines impliqués
 
-| Domaine            | Type    | Rôle                                                                       |
-| ------------------ | ------- | -------------------------------------------------------------------------- |
-| `core.sales`       | tenant  | Pivot : commande, factory, persistence, events                             |
-| `core.session`     | tenant  | `SalesSessionReaderPort.findOpenByTerminal` (session ouverte requise)      |
-| `core.outlet`      | tenant  | `OutletLookupPort.isSalesBlocked(outletId)` (refus si bloqué)              |
-| `core.draw`        | tenant  | `GetDrawQuery` + `Draw.cutoffAt()` (refus si cutoff dépassé)               |
-| `catalog.pricing`  | tenant  | `PricingCatalog.oddsFor(tenant, gameCode, betType, betOption)` (snapshot)  |
-| `core.limitpolicy` | tenant  | `EvaluateLimitPolicyQuery` + `ApplyTicketExposureCommand` (post-event)     |
-| `core.autonomy`    | tenant  | `ResolveAutonomyPolicyService.resolve(...)` (override approval sur BLOCK)  |
-| `core.ledger`      | tenant  | `RecordLedgerFromSalesPort.recordTicketSale` (consume `TicketPlacedEvent`) |
-| `features.stats`   | feature | `StatsAggregatesEventListener`, `StatsDailyUpdater` (consume event)        |
+| Domaine | Rôle dans le flow |
+|---|---|
+| `core.sales` | Pivot : commande, factory, persistence, events |
+| `core.session` | Validation session ouverte |
+| `core.outlet` | Vérification outlet non bloqué |
+| `core.draw` | Vérification cutoff |
+| `catalog.pricing` | Snapshot odds |
+| `core.limitpolicy` | Évaluation seuils, application exposure post-event |
+| `core.autonomy` | Décision BLOCK → PENDING_APPROVAL |
+| `core.ledger` | Écriture comptable (event listener) |
+| `core.payout` | Claim de paiement post-settlement |
+| `features.stats` | Agrégats temps réel |
 
 ---
 
-## Vocabulaire métier
+## Références
 
-| Terme               | Sens court                                                    | Source of truth                                             |
-| ------------------- | ------------------------------------------------------------- | ----------------------------------------------------------- |
-| **Ticket**          | Agrégat tenant : SOLD / PENDING_APPROVAL / VOID / REJECTED    | `core/sales/DOMAIN_SALES.md`                                |
-| **TicketLine**      | Mise individuelle (gameCode + betType + selection + stake)    | `core/sales/DOMAIN_SALES.md`                                |
-| **ticketCode**      | Code interne `TCK-YYMMDD-HHMMSS-XXXXXX-C` (per-tenant unique) | `core.sales.infra.generator.TimeBasedTicketNumberGenerator` |
-| **publicCode**      | Code public Crockford 12 chars (globalement unique)           | `core.sales.infra.generator.CrockfordPublicCodeGenerator`   |
-| **Session POS**     | Session ouverte obligatoire pour vendre                       | `core/session/DOMAIN_SESSION.md`                            |
-| **Limit policy**    | Évaluation de seuils (stake / cumul / payout potentiel)       | `core/limitpolicy/DOMAIN_LIMITPOLICY.md`                    |
-| **Autonomy policy** | Décide si BLOCK doit basculer en PENDING_APPROVAL             | `core/autonomy/DOMAIN_AUTONOMY.md`                          |
-
----
-
-## Pipeline détaillé
-
-```
-POST /tenant/tickets   (SellTicketRequest)
-   ⚠ tenantId, sessionId, cashierId du body sont silencieusement écrasés/ignorés
-   │
-   ▼
-TicketController.sell()  [@Secured CASHIER, ADMIN, SUPER_ADMIN]
-   │
-   ▼  TicketWebMapper.toSellCommand(req)  ← contexte écrase tenantId + cashierId
-SellTicketCommand → CommandBus
-   │
-   ▼
-SellTicketCommandHandler  [@TchTx]
-   │
-   ├── TicketSalePolicy.prepareSale(cmd)
-   │     ├── validateSession(tenantId, terminalId)
-   │     │     ├── SalesSessionReaderPort.findOpenByTerminal()    → SecurityException si absent
-   │     │     └── OutletLookupPort.isSalesBlocked(outletId)    → SecurityException si bloqué
-   │     ├── DrawCutoffRule.requireBeforeCutoff(drawId)
-   │     │     └── QueryBus.send(GetDrawQuery) → ProblemRest.conflict si now > cutoff
-   │     ├── TicketLinePreparationService.normalize(lines)      ← BetSelectionNormalizer
-   │     ├── TicketLinePreparationService.mergeDuplicates(lines)
-   │     ├── evaluateLimitsAndAutonomy()
-   │     │     ├── QueryBus.send(EvaluateLimitPolicyQuery)      ← LimitContext OperationType.SALE
-   │     │     │      ⚠ ZoneId.systemDefault() utilisé
-   │     │     ├── ResolveAutonomyPolicyService.resolve(...)
-   │     │     └── BLOCK + !autonomy.requireApprovalOnBlock
-   │     │           → throw ProblemRest.limitBlocked(...) 422
-   │     └── TicketLinePreparationService.toTicketLines(tenantId, merged)
-   │           └── PricingCatalog.oddsFor(tenant, gameCode, betType, betOption)
-   │                 └── potentialPayout = stake × odds (HALF_UP, scale 2)
-   │
-   ├── Si prepared.limits.outcome == BLOCK :
-   │     ├── TicketSaleFactory.newPendingApprovalTicket(...)
-   │     │     ├── TicketNumberGeneratorPort.generate()  → "TCK-YYMMDD-HHMMSS-XXXXXX-C"
-   │     │     └── TicketPublicCodeGeneratorPort.generate()  → 12 chars Base32
-   │     ├── TicketWritterPort.save(ticket)
-   │     ├── ApiResponseContext.addNotice(APPROVAL_REQUIRED, approvalRequestId aléatoire)
-   │     │     ⚠ approvalRequestId = UUID.randomUUID() (TODO domaine approval)
-   │     └── return 202 ACCEPTED + ApiResponse.pending(notice, ticket)
-   │
-   └── Sinon :
-         ├── TicketSaleFactory.newSoldTicket(...)
-         ├── TicketWritterPort.save(ticket)
-         ├── Vérifie "single gameCode per ticket" (MVP)
-         │      ⚠ Vérification APRÈS save → tx rollback nécessaire si mixed
-         ├── Construit TicketPlacedEvent (lines en cents)
-         ├── AfterCommit.run(() -> publisher.publish(event))
-         ├── outcome = WARN ? SUCCESS_WITH_WARNINGS : SUCCESS
-         └── return 201 CREATED + ApiResponse.created(ticket)
-   │
-   ▼  AFTER COMMIT
-   ├── core.limitpolicy.LimitPolicyEventsListener
-   │     └── CommandBus.send(ApplyTicketExposureCommand) → projette exposure
-   ├── core.session.SalesSessionTotalsProjectionListener
-   │     └── met à jour les totaux de session
-   ├── features.stats.StatsAggregatesEventListener
-   │     └── agrégats temps réel
-   └── features.stats.StatsDailyUpdater
-         └── compteurs journaliers
-   │
-   ▼  DURANT TX  (anomalie : @EventListener synchrone, devrait être AFTER_COMMIT)
-core.sales.SalesLedgerListener
-   └── RecordLedgerFromSalesPort.recordTicketSale(tenantId, ticketId, stakeCents, occurredAt)
-         ⚠ Exception loggée mais silencieusement ignorée
-```
-
----
-
-## Décisions / branches
-
-### Outcome SELL
-
-| Outcome                 | HTTP | Statut ticket    | Event publié               |
-| ----------------------- | ---- | ---------------- | -------------------------- |
-| `SUCCESS`               | 201  | SOLD             | `TicketPlacedEvent`        |
-| `SUCCESS_WITH_WARNINGS` | 201  | SOLD + notices   | `TicketPlacedEvent`        |
-| `PENDING_APPROVAL`      | 202  | PENDING_APPROVAL | (aucun ; émis à l'approve) |
-
-### Outcome APPROVE / REJECT
-
-`POST /tenant/tickets/{id}/approve` (ROLE_ADMIN/SUPER_ADMIN) :
-
-- Re-valide cutoff (`DrawCutoffRule`) → 409 si dépassé.
-- Re-valide session (`SalesSessionReaderPort.findById(sessionId)`) → 409 si absente.
-- `Ticket.approve(now)` : transition `PENDING_APPROVAL → SOLD`.
-- Publie `TicketPlacedEvent` (mais avec `outletId/agentId/drawChannelId` potentiellement null si la session n'est pas re-trouvée — voir audit).
-
-`POST /tenant/tickets/{id}/reject` (ROLE_ADMIN/SUPER_ADMIN) :
-
-- `Ticket.reject(now)` : `PENDING_APPROVAL → REJECTED`.
-- **Aucun event publié**.
-
-### Cutoff dépassé
-
-- Réponse 409 Conflict : `Draw cutoff time has passed`.
-- Le ticket n'est pas sauvegardé (le check est fait en amont du save).
-
-### Outlet bloqué
-
-- Réponse 500 (SecurityException brute, pas mappée en `ProblemRest.forbidden`).
-- Anomalie : devrait retourner 403 ou 422 avec `ProblemRest`.
-
----
-
-## Events canoniques
-
-| Event                         | Producer                                                      | Mode          | Consumers                                                                                          |
-| ----------------------------- | ------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------- |
-| `TicketPlacedEvent`           | `SellTicketCommandHandler`, `ApproveTicketSaleCommandHandler` | `AfterCommit` | `core.limitpolicy`, `core.session`, `features.stats` (×2), `core.sales.SalesLedgerListener` (sync) |
-| `TicketCancelledEvent`        | `CancelSaleCommandHandler`                                    | `AfterCommit` | `core.limitpolicy`, `core.session`, `features.stats`                                               |
-| `TicketResultedEvent`         | `RecordDrawTicketsResultCommandHandler`                       | `AfterCommit` | `features.stats`                                                                                   |
-| `TicketResultOverriddenEvent` | `OverrideTicketResultCommandHandler`                          | `AfterCommit` | (aucun listener confirmé)                                                                          |
-| `TicketPaidEvent`             | `core.payout` (cross-domain)                                  | `AfterCommit` | `features.stats`                                                                                   |
-
-> Tous publiés via `AfterCommit.run(...)` sauf `SalesLedgerListener` qui consomme `TicketPlacedEvent` en `@EventListener` synchrone (anomalie connue).
-
----
-
-## Cross-apps
-
-### Mobile (POS)
-
-- Écran "Vente" : sélection `Draw`, lignes (`gameCode`, `betType`, `betOption`, `selection`, `stake`).
-- Affiche les notices `LIMIT_WARN` au cashier sans bloquer ; bloque sur `APPROVAL_REQUIRED` (statut 202) avec demande de validation manager.
-- Imprime ticket via `GET /tenant/tickets/{id}/print.escpos` (ESC/POS) ou `.pdf` (Capacitor) — ⚠ pas de `@Secured` actuellement.
-
-### Web (admin)
-
-- `/admin/tickets` — liste paginée + filtres (`terminalId`, `outletId`, `agentId`, `drawId`, `status`, `from`, `to`).
-- Approve/Reject : `POST /tenant/tickets/{id}/approve|reject?approvedBy=&reason=`.
-- Override result : `PATCH /tenant/tickets/{id}/result/override` (rôle ADMIN/SUPER_ADMIN + permission `ticket.result.override`).
-
-### API tenant (POS / admin)
-
-- `POST /tenant/tickets` — sell
-- `POST /tenant/tickets/{id}/approve|reject` — workflow d'approbation
-- `PATCH /tenant/tickets/{id}/cancel` — annulation (⚠ pas de `@Secured`)
-- `PATCH /tenant/tickets/{id}/result/override` — override admin
-- `GET /tenant/tickets` — liste filtrée
-- `GET /tenant/tickets/{id}` — détails
-- `GET /tenant/tickets/{id}/print[.escpos|.pdf]` — impression (⚠ pas de `@Secured`)
-
----
-
-## Source of truth backend
-
-> Cette page est une **vue fonctionnelle cross-apps**. La source de vérité technique vit près du code.
-
-- Backend `core.sales` : `99-links/_ref/server/core/sales/DOMAIN_SALES.md`
-- Backend `core.draw` : `99-links/_ref/server/core/draw/DOMAIN_DRAW.md`
-- Backend `core.session` : `99-links/_ref/server/core/session/DOMAIN_SESSION.md`
-- Backend `core.outlet` : `99-links/_ref/server/core/outlet/DOMAIN_OUTLET.md`
-- Backend `core.limitpolicy` : `99-links/_ref/server/core/limitpolicy/DOMAIN_LIMITPOLICY.md`
-- Backend `core.autonomy` : `99-links/_ref/server/core/autonomy/DOMAIN_AUTONOMY.md`
-- Backend `core.ledger` : `99-links/_ref/server/core/ledger/DOMAIN_LEDGER.md`
-- Backend `catalog.pricing` : `99-links/_ref/server/catalog/pricing/CATALOG_PRICING.md`
-- Audit : `99-links/_ref/server/docs/audit/2026-04-26-sales-pipeline-audit.md`
-
-> En cas d'incohérence entre cette page et les `DOMAIN_*.md` backend, **les docs backend font foi**.
-
----
-
-## Liens
-
-- Conventions backend : `tchalanet-server/docs/conventions/`
-  - `event_model.md`, `idempotency.md`, `timezone.md`, `inter_domain_calls.md`
-- Architecture backend : `tchalanet-server/docs/ARCHITECTURE.md`
-- Functional domains : `docs/02-functional/domains/sales.md`, `limitpolicy.md`, `session.md`
+- Domaine : `core/sales/DOMAIN_SALES.md`
+- Intégration mobile : `features.cashier/MOBILE_FLOW.md`
+- Session POS requise : [session-opening](./session-opening.md)
+- Settlement après tirage : [settlement](./settlement.md)
+- Payout terrain : [payout-field-flow](./payout-field-flow.md)
+- Vérification ticket public : [verify-ticket](./verify-ticket.md)
+- Audit pipeline : `tchalanet-server/docs/audit/2026-04-26-sales-pipeline-audit.md`
