@@ -19,6 +19,11 @@ Rule: a skill = one responsibility, ≤120 lines. Workflow skills only — no bu
 
 - Web Nx/Angular: `tchalanet-web/.agents/skills/` (`angular-developer`, `nx-workspace`, `nx-generate`, `nx-run-tasks`, `nx-import`, `nx-plugins`, `link-workspace-packages`, `monitor-ci`).
 
+## Workflow
+
+- `dev-workflow.md` — commandes Claude/Codex, optimisation tokens, séquence type.
+- `mobile-workflow.md` — setup iPhone + Termius + tmux + Tailscale.
+
 ## MCP
 
 On-demand only. No permanent MCP by default. Log activations in `mcp-activations.md`; audit monthly. See `skills/mcp-on-demand/`.
