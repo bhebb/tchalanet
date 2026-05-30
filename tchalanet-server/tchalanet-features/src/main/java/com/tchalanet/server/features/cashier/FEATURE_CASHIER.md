@@ -1,4 +1,4 @@
-# Feature Cashier — Guide du Seller
+# Feature Cashier
 
 > **Surface** : POS mobile / web cashier — BFF vendeur transactionnel  
 > **Scope** : `features.cashier` — orchestration, pas de logique métier propre  

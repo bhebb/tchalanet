@@ -33,7 +33,7 @@
 
 ## Pointeurs (source of truth near-code)
 
-- Game: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/game/DOMAIN_GAME.md`
-- Pricing: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/pricing/DOMAIN_PRICING.md`
+- Game: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/game/CATALOG_GAME.md`
+- Pricing: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/pricing/CATALOG_PRICING.md`
 - DrawResult: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/drawresult/DOMAIN_DRAWRESULT.md`
-- ResultSlot: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/resultslot/DOMAIN_RESULTSLOT.md`
+- ResultSlot: `tchalanet-server/src/main/java/com/tchalanet/server/catalog/resultslot/CATALOG_RESULTSLOT.md`

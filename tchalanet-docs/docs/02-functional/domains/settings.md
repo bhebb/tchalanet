@@ -16,4 +16,4 @@ App settings (registry + values) par tenant/outlet.
 
 ## Pointeurs (source of truth near-code)
 
-- Règles et modèle backend: `99-links/_ref/server/domains/core/settings/DOMAIN_SETTINGS.md`
+- Règles et modèle backend: `99-links/_ref/server/domains/core/settings/CATALOG_SETTINGS.md`

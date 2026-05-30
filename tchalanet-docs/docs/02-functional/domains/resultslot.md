@@ -24,4 +24,4 @@ Slots globaux (provider, timezone, drawTime, daysOfWeek).
 
 ## Pointeurs (source of truth near-code)
 
-- Backend: `../../99-links/_ref/server/domains/catalog/resultslot/DOMAIN_RESULTSLOT.md`
+- Backend: `../../99-links/_ref/server/domains/catalog/resultslot/CATALOG_RESULTSLOT.md`

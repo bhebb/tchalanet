@@ -48,9 +48,9 @@ SCHEDULED      OPEN           CLOSED        draw_result       RESULTED         S
 
 | Terme             | Sens court                                       | Source of truth                             |
 | ----------------- | ------------------------------------------------ | ------------------------------------------- |
-| **Game**          | Type de jeu (HT_BOLET, HT_LOTO3, etc.)           | `catalog/game/DOMAIN_GAME.md`               |
-| **Slot**          | Créneau global de tirage provider                | `catalog/resultslot/DOMAIN_RESULTSLOT.md`   |
-| **Channel**       | Canal de vente tenant pointant vers un slot      | `catalog/drawchannel/DOMAIN_DRAWCHANNEL.md` |
+| **Game**          | Type de jeu (HT_BOLET, HT_LOTO3, etc.)           | `catalog/game/CATALOG_GAME.md`               |
+| **Slot**          | Créneau global de tirage provider                | `catalog/resultslot/CATALOG_RESULTSLOT.md`   |
+| **Channel**       | Canal de vente tenant pointant vers un slot      | `catalog/drawchannel/CATALOG_DRAWCHANNEL.md` |
 | **Draw**          | Instance de vente tenant pour un (channel, date) | `core/draw/DOMAIN_DRAW.md`                  |
 | **Draw Result**   | Résultat externe global ingéré + projeté Haïti   | `core/drawresult/DOMAIN_DRAWRESULT.md`      |
 | **Draw Exposure** | Compteur risk par scope sur un draw              | `core/draw/DOMAIN_DRAW.md`                  |
@@ -140,8 +140,8 @@ Gates ops distinctes : fetch, apply, refresh, manual et override peuvent être c
 - Backend `core.drawresult` : `99-links/_ref/server/core/drawresult/DOMAIN_DRAWRESULT.md`
 - Backend `core.uslottery` : `99-links/_ref/server/core/uslottery/DOMAIN_USLOTTERY.md`
 - Backend `core.haiti` : `99-links/_ref/server/core/haiti/DOMAIN_HAITI.md`
-- Backend `catalog.resultslot` : `99-links/_ref/server/catalog/resultslot/DOMAIN_RESULTSLOT.md`
-- Backend `catalog.drawchannel` : `99-links/_ref/server/catalog/drawchannel/DOMAIN_DRAWCHANNEL.md`
+- Backend `catalog.resultslot` : `99-links/_ref/server/catalog/resultslot/CATALOG_RESULTSLOT.md`
+- Backend `catalog.drawchannel` : `99-links/_ref/server/catalog/drawchannel/CATALOG_DRAWCHANNEL.md`
 
 > En cas d'incohérence entre cette page et les `DOMAIN_*.md` backend, **les docs backend font foi**.
 

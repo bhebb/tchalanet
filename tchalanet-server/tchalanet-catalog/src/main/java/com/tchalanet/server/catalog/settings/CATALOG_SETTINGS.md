@@ -1,4 +1,4 @@
-# DOMAIN_SETTINGS.md
+# CATALOG_SETTINGS
 
 > **Domain**: `catalog/settings`  
 > **Status**: FUNCTIONAL (meaning + semantics)  

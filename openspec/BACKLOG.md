@@ -6,6 +6,19 @@
 
 ---
 
+## Convention de nommage near-code (établie, à documenter formellement)
+
+| Slice | Préfixe near-code | Statut |
+|---|---|---|
+| `tchalanet-core` | `DOMAIN_*.md` | ✅ En place |
+| `tchalanet-catalog` | `CATALOG_*.md` | ✅ Renommé 2026-05-30 |
+| `tchalanet-platform` | `PLATFORM_*.md` | ✅ En place |
+| `tchalanet-features` | `FEATURE_*.md` | ✅ En place |
+
+À ajouter dans `doc-policy.md` §Near-code docs et dans l'ARCHITECTURE.md de `tchalanet-server`.
+
+---
+
 ## Flows manquants (role-flows.md les référence, fichiers absents)
 
 | Flow | Fichier attendu | Complexité estimée |

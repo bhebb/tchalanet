@@ -16,4 +16,4 @@ Référentiel des jeux et bet types.
 
 ## Pointeurs (source of truth near-code)
 
-- Backend: `99-links/_ref/server/domains/catalog/game/DOMAIN_GAME.md`
+- Backend: `99-links/_ref/server/domains/catalog/game/CATALOG_GAME.md`
