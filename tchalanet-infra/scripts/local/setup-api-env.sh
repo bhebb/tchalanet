@@ -78,6 +78,12 @@ KEYCLOAK_RESOURCE=tchalanet-api
 KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CLIENT_SECRET:-change-me-in-production}
 
 # ========================================
+# 📡 Edge Service
+# ========================================
+TCH_EDGE_BASE_URL=http://localhost:3000
+TCH_EDGE_HMAC_SECRET=${EDGE_HMAC_SECRET:-tch-local-ide-edge-hmac-2026}
+
+# ========================================
 # 🔧 Application Config
 # ========================================
 SERVER_PORT=8083
