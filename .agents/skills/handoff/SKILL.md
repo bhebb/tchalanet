@@ -30,3 +30,8 @@ Tests run: <command + result>
 Risks: <list or none>
 Next step: <one concrete action>
 ```
+
+## Mobile output (Slack)
+
+Toujours envoyer le handoff dans `#tchalanet-agents` (`C0B76AV9WAW`) — c'est le cas d'usage principal.
+Format : titre `📋 Handoff — <slice> — <date>` + les 6 sections.

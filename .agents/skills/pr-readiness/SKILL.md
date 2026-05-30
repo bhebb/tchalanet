@@ -43,3 +43,8 @@ Important (non-blocking): <list>
 Missing tests: <list or none>
 Overall risk: Low / Medium / High
 ```
+
+## Mobile output (Slack)
+
+Si session mobile ou résultat > 30 lignes : envoyer le rapport dans `#tchalanet-agents` (`C0B76AV9WAW`).
+Format : titre `🔍 Ready-check — <branche>` + les 5 sections.

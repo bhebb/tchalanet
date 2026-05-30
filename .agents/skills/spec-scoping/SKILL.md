@@ -35,3 +35,10 @@ Turning a vague idea into an implementable spec. This is the skill behind `/spec
 6. Open questions
 7. Assumptions
 ```
+
+## Mobile output (Slack)
+
+Si la session vient d'un terminal mobile (Termius/SSH) ou si le résultat dépasse ~50 lignes :
+- Envoyer le résultat complet en markdown dans `#tchalanet-agents` (`C0B76AV9WAW`) via Slack MCP.
+- Format : titre `📋 Spec — <sujet>` + les 7 sections en markdown.
+- Mentionner dans le terminal : « Spec envoyée sur #tchalanet-agents ».
