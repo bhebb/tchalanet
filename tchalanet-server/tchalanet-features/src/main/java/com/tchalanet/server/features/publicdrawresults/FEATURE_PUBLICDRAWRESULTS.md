@@ -1,30 +1,61 @@
-# Feature publicdrawresults
+# Feature PublicDrawResults
 
-Public vertical for global draw result display.
+> Surface publique (anonymous) pour afficher les résultats de tirages globaux.  
+> Pas de contexte tenant requis — données de référence globales uniquement.
 
-Boundary:
+---
 
-- `features.publicdrawresults` calls `core.drawresult` through `QueryBus`.
-- Public readers use global `result_slot + draw_result`.
-- Public readers must not require tenant context.
-- Public readers must not query `draw` or `draw_channel`.
-- Public DTOs must not expose internal UUIDs by default.
+## Rôle
 
-Endpoints are mounted under the global `/api/v1` servlet path:
+BFF read-only pour l'affichage public des résultats de tirages. Consomme `core.drawresult` via `QueryBus`.  
+Utilisé par le site public, les terminaux POS et le widget PageModel `public_draw_results`.
 
-- `GET /public/draw-results/slots`
-  - non-paginated slot list for lightweight public/mobile/terminal display
-  - returns slot metadata, latest result, next expected time/countdown, `history=[]`
-- `GET /public/draw-results/slots/details`
-  - non-paginated slot list with recent per-slot history
-  - `historyLimit` defaults to `5` and is capped to `10`
-- `GET /public/draw-results/history`
-  - paginated advanced history search
-  - supports date range and optional slot/provider filters
+---
 
-PageModel integration:
+## Endpoints
 
-- `PublicDrawResultsProvider` uses source `public_draw_results`.
-- It calls `QueryBus.send(new ListPublicDrawResultSlotsQuery(..., false, 0))`.
-- It does not call HTTP endpoints.
-- It does not call tenant-scoped `core.draw` queries.
+```http
+GET /public/draw-results/slots
+```
+Liste non paginée des slots actifs — vue légère pour mobile/terminal/affichage.  
+Retourne : métadonnées slot, dernier résultat disponible, prochain tirage attendu (countdown), `history=[]`.
+
+```http
+GET /public/draw-results/slots/details
+```
+Liste non paginée avec historique récent par slot.  
+Paramètre `historyLimit` : défaut 5, max 10.
+
+```http
+GET /public/draw-results/history
+```
+Historique paginé avec recherche avancée.  
+Supporte : filtre par plage de dates, slot, provider.
+
+---
+
+## Frontières
+
+- Appelle `core.drawresult` uniquement — jamais `core.draw` ni `core.draw_channel` (tenant-scoped)
+- Sources de vérité : `result_slot` + `draw_result` (globaux)
+- Les DTOs ne exposent pas d'UUID internes par défaut
+- Pas de contexte tenant requis (anonymous)
+- Pas de mutation — lecture seule
+
+---
+
+## Intégration PageModel
+
+`PublicDrawResultsProvider` (source : `public_draw_results`) :
+- Appelle `QueryBus.send(new ListPublicDrawResultSlotsQuery(..., false, 0))` directement
+- Ne passe pas par les endpoints HTTP
+- Ne consulte pas `core.draw` (tenant-scoped)
+
+---
+
+## Références
+
+- Domaine : `core/drawresult/DOMAIN_DRAWRESULT.md`
+- Slot global : `catalog/resultslot/CATALOG_RESULTSLOT.md`
+- Pipeline résultats : `tchalanet-docs/docs/02-functional/flows/draw-execution.md`
+- Intégration PageModel : `features/pagemodel/FEATURE_PAGEMODEL.md`
