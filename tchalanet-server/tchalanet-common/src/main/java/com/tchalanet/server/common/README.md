@@ -1,58 +1,73 @@
-# `com.tchalanet.server.common`
+# `tchalanet-common` — Shared Technical Kernel
 
-Ce module contient les **éléments réellement transverses** au backend Tchalanet.
+Noyau technique transverse. Ne contient **pas** de logique métier.
 
-> Règle d’or : si une classe n’est utilisée que dans un seul domaine (`tenant`, `ticket`, `user`, `draw`, …),  
-> elle doit rester dans ce domaine, **pas** dans `common`.
-
----
-
-## Structure
-
-- `common.domain`
-
-  - `model` : types métiers génériques (ex: `TenantId`, `UserId`, `Money`) utilisés par plusieurs domaines.
-  - `ports` : ports transverses (ex: horloge système, bus d’événements, générateur d’UUID).
-  - `usecase` : use cases transverses (rares : ex. tâches techniques globales).
-
-- `common.error`
-
-  - Exceptions génériques (ex: `DomainException`, `NotFoundException`, `ValidationException`).
-  - Mapping global vers les réponses HTTP (ex: base pour les `ProblemDetails`).
-
-- `common.web`
-
-  - Composants web globaux : `GlobalExceptionHandler`, résolveurs MVC génériques, wrappers de réponses (`ApiResponse`).
-  - Ne contient pas d’API métier : celles vivent dans `<domaine>.web`.
-
-- `common.config`
-
-  - Configuration Spring globale (CORS, Jackson, OpenAPI, config Actuator, etc.).
-  - `@ConfigurationProperties` partagés (ex: `AppProperties`).
-
-- `common.security`
-
-  - Configuration de sécurité globale (Spring Security, Keycloak, filtres JWT).
-  - Filtres HTTP transverses : ex. `TenantContextFilter`, `UserContextFilter`, RLS DB, etc.
-
-- `common.context`
-  - Représentation du contexte actuel : `TenantContext`, `UserContext`, utilitaires pour les récupérer.
-  - Ne dépend pas des domaines (`ticket`, `tenant`, …).
+> Règle d'or : si une classe n'est utilisée que dans un seul domaine, elle reste dans ce domaine.  
+> `common` ne reçoit un type que quand au moins deux domaines indépendants en ont besoin.
 
 ---
 
-## Ce qu’on met **dans** `common`
+## Packages
 
-- Types métiers **vraiment transverses** (identifiants, valeurs génériques).
-- Infrastructure transversale (sécurité, contextes, config globale).
-- Gestion des erreurs et mappage HTTP globaux.
-- Ports techniques utilisés par plusieurs domaines (ex: `ClockPort`, `EventPublisherPort`).
+| Package | Rôle |
+|---|---|
+| `bus` | `CommandBus`, `CommandHandler`, `HandlerTypeResolver` — dispatch commands/queries |
+| `cache` | `CacheSpec`, `CacheKeyBuilder`, `CacheSpecProvider` — convention cache Redis |
+| `constant` | Constantes applicatives globales |
+| `context` | `TchRequestContext`, `TchContextFilter`, `TchContextBinder`, resolvers, operational context, scope, tenant, auth, JWT |
+| `crypto` | Utilitaires crypto transverses |
+| `event` | `DomainEvent`, `DomainEventPublisher` — publication d'événements domaine |
+| `exception` | Exceptions génériques (`DomainException`, validation, not-found, conflict) |
+| `http` | Composants HTTP transverses |
+| `job` | Support jobs/batch transverses |
+| `json` | Configuration Jackson globale |
+| `mapper` | Utilitaires de mapping transverses |
+| `persistence` | `BaseEntity`, `BaseTenantEntity`, `AuditableEntity`, converters JPA |
+| `security` | Configuration Spring Security, Keycloak, filtres JWT |
+| `spring` | Configuration Spring Boot globale (CORS, OpenAPI, Actuator) |
+| `stereotype` | Annotations transverses (`@DomainService`, etc.) |
+| `time` | `ClockPort`, utilitaires timezone/date |
+| `tx` | Support transactionnel transverse |
+| `types/id` | Typed IDs transverses — voir `docs/conventions/typed_ids.md` |
+| `types/money` | `Money`, `Currency` — types monétaires |
+| `web` | `ApiResponse`, `GlobalExceptionHandler`, résolveurs MVC |
 
-## Ce qu’on ne met **pas** dans `common`
+---
 
-- Les entités et value objects spécifiques à un domaine (`Ticket`, `Draw`, `Theme`, `Subscription`, …).
-- Les repositories métiers (`TicketRepository`, `TenantRepository`, …).
-- Les use cases métier (`CreateTicketUseCase`, `ConfigureTenantThemeUseCase`, …).
-- Les contrôleurs REST liés à un domaine.
+## Règles
 
-Si un type commence à être utilisé dans 2 domaines ou plus, on peut alors **le déplacer** de `<domaine>.domain.model` vers `common.domain.model` au moment où le besoin apparaît.
+**Ce qui appartient à `common` :**
+- Infrastructure technique réutilisée par ≥ 2 domaines indépendants
+- Contrats techniques (`CommandBus`, `DomainEventPublisher`, `ClockPort`)
+- Types fondamentaux (`TchRequestContext`, Typed IDs, `Money`)
+- Configuration Spring globale
+
+**Ce qui n'appartient pas à `common` :**
+- Entités et value objects métier spécifiques (`Ticket`, `Draw`, `Outlet`…)
+- Repositories métier
+- Use cases métier
+- Contrôleurs REST liés à un domaine
+
+---
+
+## Context
+
+Le sous-package `context` est le plus sensible — lire obligatoirement :
+
+- [`docs/conventions/context/request-context.md`](../../../../../../docs/conventions/context/request-context.md) — contexte universel, pipeline HTTP, batch
+- [`docs/conventions/context/operational-context.md`](../../../../../../docs/conventions/context/operational-context.md) — contexte POS/terrain
+- [`docs/conventions/context/role-flows.md`](../../../../../../docs/conventions/context/role-flows.md) — flows par rôle
+
+---
+
+## Dépendances autorisées
+
+`tchalanet-common` ne dépend d'aucun autre module Tchalanet.  
+Tous les autres modules peuvent dépendre de `tchalanet-common`.
+
+```
+tchalanet-common ← tchalanet-catalog
+tchalanet-common ← tchalanet-platform
+tchalanet-common ← tchalanet-core
+tchalanet-common ← tchalanet-features
+```

@@ -1,5 +1,0 @@
-schema: spec-driven
-created: 2026-04-26
-status: superseded
-summary: Former sell/print hardening plan. Superseded because receipt rendering now belongs to features.ticketreceipt, not core.sales.
-superseded_by: consolidate-core-sales-cleanup

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tchalanet — Flows de connexion par rôle</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f8f9fa; color: #1a1a2e; margin: 0; padding: 2rem; }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; font-size: 0.85rem; margin-bottom: 2rem; }
+    .subtitle a { color: #4361ee; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+    .card { background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .card h2 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+    .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+    .badge-pos { background: #d1fae5; color: #065f46; }
+    .badge-admin { background: #dbeafe; color: #1e40af; }
+    .badge-super { background: #ede9fe; color: #5b21b6; }
+    .badge-system { background: #fef3c7; color: #92400e; }
+    .badge-public { background: #f1f5f9; color: #475569; }
+    .steps { list-style: none; padding: 0; margin: 0; }
+    .steps li { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.3rem 0; font-size: 0.82rem; border-bottom: 1px solid #f0f0f0; }
+    .steps li:last-child { border-bottom: none; }
+    .step-num { min-width: 20px; height: 20px; border-radius: 50%; background: #4361ee; color: #fff; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .step-num.optional { background: #94a3b8; }
+    .link { color: #4361ee; text-decoration: none; font-size: 0.75rem; }
+    .link:hover { text-decoration: underline; }
+    .sep { border: none; border-top: 1px solid #eee; margin: 0.5rem 0; }
+    .ctx-tag { display: inline-block; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-top: 0.4rem; }
+    .ctx-request { background: #e0f2fe; color: #0369a1; }
+    .ctx-operational { background: #dcfce7; color: #166534; }
+    .ctx-none { background: #f1f5f9; color: #64748b; }
+    .warning { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.78rem; color: #92400e; margin-top: 0.75rem; }
+    .rules { margin-top: 2rem; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; padding: 1.25rem; }
+    .rules h2 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.75rem; }
+    .rules ul { margin: 0; padding-left: 1.2rem; font-size: 0.82rem; line-height: 1.8; }
+    .canonical { margin-top: 2rem; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 1rem 1.25rem; font-size: 0.82rem; }
+    .canonical strong { display: block; margin-bottom: 0.4rem; color: #0369a1; }
+    .canonical a { color: #0369a1; }
+  </style>
+</head>
+<body>
+
+<h1>Tchalanet — Flows de connexion par rôle</h1>
+<p class="subtitle">
+  Vue pédagogique uniquement.
+  Source normative :
+  <a href="../../tchalanet-server/docs/conventions/context/request-context.md">request-context.md</a> ·
+  <a href="../../tchalanet-server/docs/conventions/context/operational-context.md">operational-context.md</a> ·
+  <a href="../../tchalanet-server/docs/conventions/context/role-flows.md">role-flows.md</a>
+</p>
+
+<div class="grid">
+
+  <!-- SELLER POS -->
+  <div class="card">
+    <h2>
+      🧾 Seller POS
+      <span class="badge badge-pos">POS</span>
+    </h2>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span>Login Keycloak → JWT</span></li>
+      <li><span class="step-num">2</span><span>Request Context construit<br><small>TchContextFilter — scope TENANT</small></span></li>
+      <li><span class="step-num">3</span><span>App user bootstrappé<br><small>UserBootstrapFilter</small></span></li>
+      <li><span class="step-num">4</span><span>Seller actif &amp; onboardé<br><small><a class="link" href="./seller-onboarding.md">→ seller-onboarding</a> (TODO)</small></span></li>
+      <li><span class="step-num">5</span><span>Terminal bindé &amp; trusted<br><small><a class="link" href="./terminal-binding.md">→ terminal-binding</a> (TODO)</small></span></li>
+      <li><span class="step-num">6</span><span>Session POS ouverte<br><small><a class="link" href="./session-opening.md">→ session-opening</a> (TODO)</small></span></li>
+      <li><span class="step-num">7</span><span>Operational Context validé par action<br><small>terminal → outlet → session → permission → gates</small></span></li>
+    </ul>
+    <span class="ctx-tag ctx-request">Request Context</span>
+    <span class="ctx-tag ctx-operational">Operational Context</span>
+    <div class="warning">Fail-fast : trusted context → terminal → outlet → session → permission → action</div>
+  </div>
+
+  <!-- TENANT ADMIN NORMAL -->
+  <div class="card">
+    <h2>
+      ⚙️ Tenant Admin
+      <span class="badge badge-admin">Admin</span>
+    </h2>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span>Login Keycloak → JWT</span></li>
+      <li><span class="step-num">2</span><span>Request Context construit<br><small>TchContextFilter — scope ADMIN</small></span></li>
+      <li><span class="step-num">3</span><span>App user bootstrappé</span></li>
+      <li><span class="step-num">4</span><span>Accès selon permissions<br><small>users · outlets · terminals · settings</small></span></li>
+    </ul>
+    <span class="ctx-tag ctx-request">Request Context</span>
+    <span class="ctx-tag ctx-none">Pas d'Operational Context</span>
+    <div class="warning">Pas d'accès POS sans sélection explicite.</div>
+  </div>
+
+  <!-- ADMIN POS -->
+  <div class="card">
+    <h2>
+      🖥️ Admin en mode POS
+      <span class="badge badge-admin">Admin POS</span>
+    </h2>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span>Login Keycloak → JWT</span></li>
+      <li><span class="step-num">2</span><span>Request Context construit<br><small>scope ADMIN</small></span></li>
+      <li><span class="step-num">3</span><span>Sélection POS explicite<br><small>POST /tenant/me/operational-context/select<br>Source : ADMIN_SELECTION</small></span></li>
+      <li><span class="step-num">4</span><span><a class="link" href="./admin-pos-selection.md">→ admin-pos-selection</a> (TODO)</span></li>
+      <li><span class="step-num">5</span><span>Mêmes validations que Seller<br><small>terminal → outlet → session</small></span></li>
+    </ul>
+    <span class="ctx-tag ctx-request">Request Context</span>
+    <span class="ctx-tag ctx-operational">Operational Context (ADMIN_SELECTION)</span>
+  </div>
+
+  <!-- SUPER-ADMIN -->
+  <div class="card">
+    <h2>
+      🔑 Super-admin
+      <span class="badge badge-super">Super</span>
+    </h2>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span>Login Keycloak → JWT SUPER_ADMIN</span></li>
+      <li><span class="step-num">2</span><span>Request Context construit<br><small>scope SUPER_ADMIN</small></span></li>
+      <li><span class="step-num optional">3</span><span>Override tenant explicite si nécessaire<br><small>X-Tch-Tenant-Override + X-Tch-Override-Reason (obligatoire)</small></span></li>
+      <li><span class="step-num">4</span><span>Audit automatique</span></li>
+    </ul>
+    <span class="ctx-tag ctx-request">Request Context</span>
+    <span class="ctx-tag ctx-none">Pas d'Operational Context POS</span>
+    <div class="warning">Raison obligatoire pour chaque override tenant.</div>
+  </div>
+
+  <!-- SYSTEM / BATCH -->
+  <div class="card">
+    <h2>
+      ⚡ System / Batch
+      <span class="badge badge-system">System</span>
+    </h2>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span>Pas de HTTP — pas de TchContextFilter</span></li>
+      <li><span class="step-num">2</span><span>Contexte construit explicitement<br><small>BatchTchContextBinder</small></span></li>
+      <li><span class="step-num">3</span><span>actor = SYSTEM · tenant explicite · correlationId</span></li>
+      <li><span class="step-num">4</span><span>Exécution job<br><small>reconciliation · settlement · analytics</small></span></li>
+    </ul>
+    <span class="ctx-tag ctx-request">Request Context (BatchTchContextBinder)</span>
+    <span class="ctx-tag ctx-none">Pas d'Operational Context</span>
+    <div class="warning">Offline replay : actorUserId = SYSTEM, sellerUserId = cashier original préservé.</div>
+  </div>
+
+  <!-- PUBLIC -->
+  <div class="card">
+    <h2>
+      🌐 Public (anonymous)
+      <span class="badge badge-public">Public</span>
+    </h2>
+    <ul class="steps">
+      <li><span class="step-num">1</span><span>Requête HTTP sans authentification</span></li>
+      <li><span class="step-num">2</span><span>Request Context construit<br><small>scope PUBLIC · tenant public par défaut</small></span></li>
+      <li><span class="step-num optional">3</span><span>JWT optionnel → tenant JWT préféré si présent</span></li>
+    </ul>
+    <span class="ctx-tag ctx-request">Request Context</span>
+    <span class="ctx-tag ctx-none">Pas d'Operational Context</span>
+    <br>
+    <small>
+      <a class="link" href="./verify-ticket.md">→ verify-ticket</a> ·
+      <a class="link" href="./draw-execution.md">→ draw-execution</a>
+    </small>
+  </div>
+
+</div>
+
+<div class="rules">
+  <h2>📌 Règles à ne pas casser</h2>
+  <ul>
+    <li>Request Context est universel. Operational Context est POS/terrain, pas global.</li>
+    <li>Operational Context est attaché tôt mais validé tard, par action.</li>
+    <li>Le controller reçoit <code>@CurrentContext</code>. Les handlers reçoivent les champs via commands/queries.</li>
+    <li>Les batchs construisent explicitement un contexte avec <code>BatchTchContextBinder</code>.</li>
+    <li>Le tenant ne vient jamais du body client comme vérité.</li>
+    <li>Les events/async ne doivent pas dépendre d'un ThreadLocal HTTP invisible.</li>
+    <li>Un flow compose des sous-flows par liens. Il ne les recopie pas.</li>
+    <li>Ce HTML est une vue pédagogique, pas une source de vérité concurrente.</li>
+  </ul>
+</div>
+
+<div class="canonical">
+  <strong>Sources normatives</strong>
+  <a href="../../tchalanet-server/docs/conventions/context/request-context.md">request-context.md</a> —
+  <a href="../../tchalanet-server/docs/conventions/context/operational-context.md">operational-context.md</a> —
+  <a href="../../tchalanet-server/docs/conventions/context/role-flows.md">role-flows.md</a>
+</div>
+
+</body>
+</html>

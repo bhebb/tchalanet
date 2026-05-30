@@ -1,11 +1,17 @@
 site_name: Tchalanet Docs
 not_in_nav: |
-  00-audit/**
   01-architecture/page-model.md
   01-architecture/flows/**
   02-features/**
   02-functional/domains/**/*.md
   03-adr/index.md
+  03-adr/offline_sales_risk_matrix.html
+  99-reference/docs-inventory.md
+  99-reference/docs-duplicates.md
+  99-reference/docs-cleanup-plan.md
+  99-reference/ai-agent-files-inventory.md
+  99-reference/ai-agent-duplicates.md
+  99-reference/ai-agent-cleanup-plan.md
 theme:
   name: material
   features:
@@ -53,7 +59,6 @@ nav:
 
   - Métier:
       - Index: 02-functional/index.md
-      - Domains portal: 02-domains/index.md
       - Domain index: 02-functional/domains/index.md
       - Flows:
           - Index: 02-functional/flows/index.md
@@ -72,20 +77,11 @@ nav:
           - Notifications: 02-functional/features/notifications.md
           - Reporting: 02-functional/features/reporting.md
 
-  - Applications:
-      - Index: 03-apps/index.md
-      - Server: 03-apps/server.md
-      - Web: 03-apps/web.md
-      - Mobile: 03-apps/mobile.md
-      - Edge: 03-apps/edge.md
-      - Infra: 03-apps/infra.md
-
   - Operations:
       - Index: 04-operations/index.md
 
-  - Decisions:
-      - Index: 05-decisions/index.md
-      - ADR Index: 05-decisions/adr-index.md
+  - ADR:
+      - Offline Sales Risk Policy: 03-adr/ADR-offline-sales-risk-policy.md
 
   - OpenSpec:
       - Index: 06-openspec/index.md
@@ -95,17 +91,8 @@ nav:
 
   - Reference:
       - Index: 99-reference/index.md
-      - Docs inventory: 99-reference/docs-inventory.md
-      - Duplicate report: 99-reference/docs-duplicates.md
-      - Cleanup plan: 99-reference/docs-cleanup-plan.md
-      - AI agent inventory: 99-reference/ai-agent-files-inventory.md
-      - AI duplicate report: 99-reference/ai-agent-duplicates.md
-      - AI cleanup plan: 99-reference/ai-agent-cleanup-plan.md
       - Component AGENTS map: 99-reference/component-agents-map.md
       - AI context loading: 99-reference/ai-context-loading.md
-      - Root AGENTS simplification: 99-reference/root-agents-simplification-proposal.md
-      - MkDocs nav plan: 99-reference/mkdocs-nav-plan.md
-      - Component docs: 99-reference/links-to-component-docs.md
 
   - Liens:
       - Index: 99-links/index.md
