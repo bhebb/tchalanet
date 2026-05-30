@@ -2,6 +2,8 @@
 
 > Phases bloquantes. Pas de saut sans validation humaine du livrable de la phase précédente.
 
+**Statut global : ✅ V1 livrée — PR #107 mergée sur `main` le 2026-05-30.**
+
 ## Phase 0 — Freeze scope
 
 - [x] Créer la branche `chore/ai-agent-setup`. (déjà sur la branche)
@@ -39,7 +41,7 @@
 - [x] `tchalanet-infra/AGENTS.md` → keep.
 - [x] CLAUDE.md pointeurs minimaux créés (racine + 6 projets), sens unique → AGENTS.md.
 
-**Note** : commits non effectués (règle projet : commit seulement sur demande). Changements dans le working tree, prêts à committer par fichier.
+**Note** : tous les changements committés dans `chore/ai-agent-setup` → PR #107 mergée sur `main` (2026-05-30).
 
 ## Phase 3 — Hub .agents/
 
@@ -83,8 +85,8 @@
 
 - [x] Slice backend : `AGENTS.md` (51) + `tchalanet-server/AGENTS.md` (40) + `scoped-task` (44) = **135 l.** (cible <250). ✅
 - [x] Slice web : `AGENTS.md` (51) + `tchalanet-web/AGENTS.md` (57) + `scoped-task` (44) = **152 l.** (cible <250). ✅
-- [ ] Installer/configurer GitHub MCP (humain).
-- [ ] Tester activation/désactivation, logger dans `.agents/mcp-activations.md` (humain).
+- [x] Installer/configurer GitHub MCP (humain) — `github` (PAT, scope local), ✓ Connected 2026-05-30.
+- [x] Tester activation/désactivation, logger dans `.agents/mcp-activations.md` — Slack + GitHub testés, loggés.
 - [x] Aucun MCP activé en permanence (règle dans `mcp-on-demand`, log prêt).
 
 **Livrable** : mesures sous cible. GitHub MCP : install à faire par l'humain.
@@ -94,4 +96,4 @@
 - [ ] Skills officiels Nx supplémentaires : étendre `tchalanet-web/.claude/skills/` avec pointeurs vers `nx-workspace`, `nx-generate`, `nx-run-tasks`.
 - [ ] Enchaînement Claude/Codex/Copilot (10+ tâches sur 2 semaines, `.agents/lessons-learned.md`).
 - [ ] Async léger (Slack MCP, garde-fous, 1 tâche éligible).
-- [ ] Setup accès distant Mac (Tailscale, SSH par clé, tmux, ntfy.sh).
+- [~] Setup accès distant Mac — Tailscale ✅, Termius ✅ (SSH par mot de passe opérationnel), tmux à installer, SSH par clé + PAT GitHub à régénérer (sécurité).
