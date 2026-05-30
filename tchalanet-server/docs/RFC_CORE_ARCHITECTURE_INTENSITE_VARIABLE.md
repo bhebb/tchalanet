@@ -1,7 +1,7 @@
 # RFC — Architecture à intensité variable pour `core/`
 
 **Projet** : Tchalanet  
-**Statut proposé** : RFC / discussion avec Claude  
+**Statut proposé** : ARCHIVED — RFC historique. Décisions retenues reflétées dans `docs/ARCHITECTURE.md`. Ne pas appliquer directement — contexte 2025.  
 **But** : réduire le boilerplate dans `core/` sans fragiliser les frontières Clean Architecture, CQRS, RLS et multi-tenant.
 
 ---

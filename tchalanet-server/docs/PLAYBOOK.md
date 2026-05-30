@@ -1113,3 +1113,4 @@ public class CancelTicketHandler implements CommandHandler<CancelTicketCommand, 
 - [ ] after-commit si side effects
 - [ ] pas de UUID brut hors persistence
 - [ ] docs mises à jour si pattern nouveau (ARCHI / conventions)
+- [ ] `DOMAIN_*.md` / `CATALOG_*.md` / `PLATFORM_*.md` / `FEATURE_*.md` mis à jour si API du domaine change

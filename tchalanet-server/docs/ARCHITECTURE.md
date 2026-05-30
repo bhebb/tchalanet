@@ -960,7 +960,24 @@ See: `docs/conventions/routing_and_path.md`
 
 ---
 
-## 15) Additional Resources
+## 15) Near-Code Documentation Convention
+
+Chaque slice possède une documentation d'invariants co-localisée avec le code source :
+
+| Slice | Préfixe | Emplacement |
+|---|---|---|
+| `tchalanet-core` | `DOMAIN_*.md` | `core/<domain>/DOMAIN_*.md` |
+| `tchalanet-catalog` | `CATALOG_*.md` | `catalog/<bc>/CATALOG_*.md` |
+| `tchalanet-platform` | `PLATFORM_*.md` | `platform/<cap>/PLATFORM_*.md` |
+| `tchalanet-features` | `FEATURE_*.md` | `features/<feat>/FEATURE_*.md` |
+
+Ces fichiers sont **normatifs** : ils documentent les enums, modèles, invariants et intégrations réels. Un `DOMAIN_*.md` doit être mis à jour quand l'API du domaine change.
+
+Règle de chargement agent : ne charger que le `DOMAIN_*.md` / `FEATURE_*.md` du domaine touché — pas tous à la fois.
+
+---
+
+## 16) Additional Resources
 
 - `docs/PLAYBOOK.md` — How to add features, DoD, templates
 - `docs/AGENTS.md` — Multi-agent orchestration rules
@@ -968,9 +985,9 @@ See: `docs/conventions/routing_and_path.md`
 - `openspec/context/80-core-rules.md` — Detailed core architecture rules
 - `openspec/context/81-features-rules.md` — Detailed feature rules
 - `VERSIONS.md` — Runtime, framework, library versions
-- Each core domain has its own `CLAUDE.md` for scope & rules
+- `openspec/BACKLOG.md` — Running list of doc/code inconsistencies
 
 ---
 
-**Last reviewed**: 2026-05-09  
+**Last reviewed**: 2026-05-30  
 **Status**: NORMATIVE (non-negotiable rules for all contributors)

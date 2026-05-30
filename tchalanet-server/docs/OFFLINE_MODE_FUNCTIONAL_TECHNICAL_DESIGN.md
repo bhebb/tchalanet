@@ -1,6 +1,8 @@
 # Tchalanet — Mode Offline Sales
 
-> **Status**: Draft design / à valider avant implémentation  
+> **Status**: SUPERSEDED — implémenté dans `core.offlinesync` (2026). Source canonique : `tchalanet-core/.../core/offlinesync/DOMAIN_OFFLINESYNC.md` et `openspec/changes/add-offlinesync-module/`.  
+> **Conserver** : contient les décisions de conception et les risques historiques.  
+
 > **Scope**: `tchalanet-server`, Flutter mobile app, POS app  
 > **Domains**: `core.offlinesync`, `core.sales`, `core.session`, `core.terminal`, `core.outlet`, `core.limitpolicy`, `core.payout`, `features.stats`, `features.tenantadmin`  
 > **Priority**: Security first, user experience second

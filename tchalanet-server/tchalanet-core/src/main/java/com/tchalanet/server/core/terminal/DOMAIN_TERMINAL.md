@@ -43,11 +43,15 @@ Enums normatives :
 ```text
 TerminalKind        = PHYSICAL | VIRTUAL
 TerminalSurface     = POS | MOBILE | WEB | BACK_OFFICE
-TerminalStatus      = REGISTERED | PENDING_ACTIVATION | ACTIVE | LOCKED | REVOKED | RETIRED
+TerminalStatus      = REGISTERED | PENDING_ACTIVATION | ACTIVE | LOCKED | REVOKED | RETIRED  ← internal/domain only
+TerminalState       = REGISTERED | ACTIVE | LOCKED | OFFLINE | UNREGISTERED                 ← exposé dans TerminalView (api/)
 TerminalSyncState   = ONLINE | OFFLINE | SYNC_PENDING | SYNC_CONFLICT
 TerminalCapability  = SELL_TICKET | SELL_PHONE | PAYOUT_CLAIM | PRINT_TICKET | REPRINT_TICKET | OFFLINE_SELL | OFFLINE_SYNC | SCAN_TICKET
 TerminalOperation   = SELL_TICKET | SELL_PHONE | PAYOUT_CLAIM | PRINT_TICKET | REPRINT_TICKET | OFFLINE_GRANT | OFFLINE_SYNC | SCAN_TICKET
 ```
+
+> **Deux enums de lifecycle** — intentionnel : `TerminalStatus` (internal/domain, 6 valeurs) modélise le lifecycle métier riche. `TerminalState` (api/, 5 valeurs) est le subset exposé publiquement dans `TerminalView`, orienté consommateur. La traduction Status → State est faite dans l'adapter.  
+> `OFFLINE` est dans `TerminalState` (état connectivité visible) mais PAS dans `TerminalStatus` (lifecycle interne) — cf. règle ci-dessous.
 
 Binding :
 
@@ -106,18 +110,30 @@ Le téléphone vendeur reste `VIRTUAL + MOBILE` en V1. Le binding/fingerprint pr
 
 ## Lifecycle
 
-`TerminalStatus` décrit seulement le cycle de vie métier du terminal :
+### `TerminalStatus` — lifecycle interne (`internal/domain/model/`)
 
-- `REGISTERED` : créé côté admin, pas encore prêt ;
-- `PENDING_ACTIVATION` : assigné ou challenge en cours, binding attendu ;
-- `ACTIVE` : utilisable si binding, capabilities et gates applicables passent ;
-- `LOCKED` : blocage temporaire ;
-- `REVOKED` : arrêt sécurité, compromis ou sanction ;
-- `RETIRED` : fin de vie propre.
+| Valeur | Sens |
+|---|---|
+| `REGISTERED` | Créé côté admin, pas encore prêt |
+| `PENDING_ACTIVATION` | Assigné ou challenge en cours, binding attendu |
+| `ACTIVE` | Utilisable si binding, capabilities et gates applicables passent |
+| `LOCKED` | Blocage temporaire |
+| `REVOKED` | Arrêt sécurité, compromis ou sanction |
+| `RETIRED` | Fin de vie propre |
 
-`OFFLINE` n'est pas un lifecycle status. Il appartient à `TerminalSyncState`.
+### `TerminalState` — état exposé dans `TerminalView` (`api/`)
 
-`EXPIRED` n'est pas un `TerminalStatus`. Ce qui expire est un binding, un challenge, une session ou un offline grant.
+| Valeur | Sens |
+|---|---|
+| `REGISTERED` | Terminal enregistré, non activé |
+| `ACTIVE` | Terminal opérationnel |
+| `LOCKED` | Bloqué temporairement |
+| `OFFLINE` | Hors ligne (syncState) — exposé comme état composite |
+| `UNREGISTERED` | Retiré / révoqué |
+
+`OFFLINE` n'est pas dans `TerminalStatus` (lifecycle interne). Il est dans `TerminalState` comme projection du `TerminalSyncState` dans la vue API.
+
+`EXPIRED` n'est pas un status terminal. Ce qui expire : binding, challenge, session, offline grant.
 
 ## Capabilities Et Operations
 
