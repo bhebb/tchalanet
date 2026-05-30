@@ -1,117 +1,96 @@
 # OpenSpec — Context Packs Index
 
-This file is a router for context packs.
-
-Purpose:
-
-- Load only the context needed for a feature.
-- Avoid flooding AI agents or developers with irrelevant context.
-- Point to the real sources of truth: docs near code, backend domain docs, infra docs, and MkDocs.
+**Router IA** — pointe vers les fichiers canoniques, ne recopie pas les règles.  
+Charger 2-4 packs max par feature. Charger l'inutile est une erreur.
 
 ---
 
-## Mandatory packs
+## Packs globaux (toujours charger)
 
-Load these for every feature.
-
-- `05-version-guard.md` — Runtime and framework version enforcement.
-- `tchalanet-server/openspec/context/10-non-negotiables.md` — Architecture layers, dependency graph, hard constraints (backend). Source unique — ne pas dupliquer ici.
-
----
-
-## Technical packs
-
-Pick at most one technical pack when relevant.
-
-- `20-backend-rules.md` — Java 25, Spring Boot 4, persistence, CQRS, APIs, RLS.
-- `30-frontend-rules.md` — Angular 20, Nx, theming, i18n, widgets, layout rules.
-- `40-mobile-rules.md` — Flutter/mobile app constraints.
-- `50-edge-service-rules.md` — Edge service, Node/Fastify, routing, lightweight APIs.
-- `60-infra-rules.md` — Docker, Traefik, Keycloak, CI/CD, environments.
-- `75-catalog-rules.md` — Referential data, read-mostly models, catalog boundaries.
-- `80-core-rules.md` — Core domain/application rules, lifecycle logic, commands, events.
-- `81-feature-rules.md` — Feature/BFF rules, vertical slices, public/private composition.
+| Pack | Fichier | Statut |
+|---|---|---|
+| Version guard | `openspec/context/05-version-guard.md` | ✅ existe |
+| Non-négociables backend | `tchalanet-server/openspec/context/10-non-negotiables.md` | ✅ existe |
 
 ---
 
-## Domain packs
+## Packs techniques backend (charger si pertinent)
 
-Pick at most one domain pack only when the feature touches domain logic.
+Ces packs vivent dans `tchalanet-server/openspec/context/` :
 
-Examples:
-
-- `70-domain-draw.md`
-- `71-domain-sales.md`
-- `72-domain-payout.md`
-- `73-domain-ledger.md`
-- `74-domain-limitpolicy.md`
-
-Domain packs:
-
-- describe business rules;
-- do not duplicate implementation details;
-- point to backend `DOMAIN_*.md` files where deeper details live.
-
----
-
-## Glossary
-
-Optional.
-
-- `90-glossary.md` — Load only when vocabulary clarification is needed.
-
----
-
-## Usage rule
-
-For each feature spec, load 2 to 4 packs max.
-
-Always load:
-
-- `05-version-guard.md`
-- `tchalanet-server/openspec/context/10-non-negotiables.md`
-
-Then load only what is needed:
-
-- at most one technical pack;
-- at most one domain pack;
-- optional glossary only if terminology is unclear.
-
-Do not load every pack.
-
-Loading unnecessary context is considered an error.
+| Pack | Fichier | Statut |
+|---|---|---|
+| Modulith global rules | `tchalanet-server/openspec/context/70-modulith-global-rules.md` | ✅ existe |
+| Idempotency | `tchalanet-server/openspec/context/25-idempotency.md` | ✅ existe |
+| Ticket codes | `tchalanet-server/openspec/context/26-ticket-codes.md` | ✅ existe |
+| Common rules | `tchalanet-server/openspec/context/72-common-rules.md` | ✅ existe |
+| API response rules | `tchalanet-server/openspec/context/76-api-response-rules.md` | ✅ existe |
+| Persistence rules | `tchalanet-server/openspec/context/77-persistence-rules.md` | ✅ existe |
+| Platform rules | `tchalanet-server/openspec/context/78-platform-rules.md` | ✅ existe |
+| Request context rules | `tchalanet-server/openspec/context/79-request-context-rules.md` | ✅ existe |
+| Core rules | `tchalanet-server/openspec/context/80-core-rules.md` | ✅ existe |
+| Features rules | `tchalanet-server/openspec/context/81-features-rules.md` | ✅ existe |
+| Bus rules | `tchalanet-server/openspec/context/82-bus-rules.md` | ✅ existe |
+| Cache rules | `tchalanet-server/openspec/context/83-cache-rules.md` | ✅ existe |
+| Typed IDs rules | `tchalanet-server/openspec/context/84-typed-ids-rules.md` | ✅ existe |
+| Pagination rules | `tchalanet-server/openspec/context/85-pagination-rules.md` | ✅ existe |
+| Naming rules | `tchalanet-server/openspec/context/74-naming-rules.md` | ✅ existe |
+| Catalog rules | `tchalanet-server/openspec/context/75-catalog-rules.md` | ✅ existe |
+| Operational context | `tchalanet-server/openspec/context/73-operational-context-rules.md` | ✅ existe |
+| Maven module rules | `tchalanet-server/openspec/context/71-maven-module-rules.md` | ✅ existe |
+| Security flows | `tchalanet-server/openspec/context/90-security-flows-guide.md` | ✅ existe |
 
 ---
 
-## Component OpenSpecs
+## Packs domaine (charger si la feature touche la logique domaine)
 
-Each component/project may have its own OpenSpec workspace.
-
-Examples:
-
-- backend: `tchalanet-server/openspec/`
-- web: `apps/tchalanet-web/openspec/`
-- mobile: `tchalanet-mobile/openspec/`
-- edge: `tchalanet-edge-service/openspec/`
-- infra: `tchalanet-infra/openspec/`
-- docs: `tchalanet-docs/openspec/`
-
-The global OpenSpec context must stay light. It is a routing layer, not a full documentation copy.
-
-Component OpenSpecs may contain detailed context closer to the code.
+| Pack | Fichier | Statut |
+|---|---|---|
+| Domain sales | `tchalanet-server/openspec/context/71-domain-sales.md` | ✅ existe |
 
 ---
 
-## Source of truth
+## Packs manquants (à créer — Phase 3)
 
-Context packs summarize rules. They never replace canonical documentation.
+Ces packs sont référencés dans des specs mais n'existent pas encore :
 
-Canonical sources:
+| Pack | Destination attendue |
+|---|---|
+| Frontend rules (Angular/Nx) | `openspec/context/30-frontend-rules.md` ou `tchalanet-web/openspec/context/` |
+| Mobile rules (Flutter) | `openspec/context/40-mobile-rules.md` ou `tchalanet-mobile/openspec/context/` |
+| Edge service rules | `openspec/context/50-edge-service-rules.md` ou `tchalanet-edge-service/openspec/context/` |
+| Infra rules | `openspec/context/60-infra-rules.md` ou `tchalanet-infra/openspec/context/` |
+| Domain draw | `tchalanet-server/openspec/context/70-domain-draw.md` |
+| Domain payout | `tchalanet-server/openspec/context/72-domain-payout.md` |
+| Domain ledger | `tchalanet-server/openspec/context/73-domain-ledger.md` |
+| Domain limit policy | `tchalanet-server/openspec/context/74-domain-limitpolicy.md` |
+| Glossary | `openspec/context/90-glossary.md` |
 
-- Backend: `tchalanet-server/docs/` and `src/**/DOMAIN_*.md`
-- Web: `tchalanet-web/**/README.md` and app/lib docs
-- Mobile: `tchalanet-mobile/**/README.md` and app docs
-- Edge: `tchalanet-edge-service/docs/`
-- Infra: `tchalanet-infra/docs/`
-- Published docs: `tchalanet-docs/docs/`
-- Runtime versions: `VERSIONS.md`
+---
+
+## Règle de chargement
+
+```
+Toujours :
+  - 05-version-guard.md
+  - tchalanet-server/openspec/context/10-non-negotiables.md
+
+Puis seulement si pertinent :
+  - 1 pack technique max
+  - 1 pack domaine max
+  - jamais tous les packs
+```
+
+---
+
+## Sources canoniques
+
+Les context packs pointent vers ces sources, ne les copient pas :
+
+- Backend : `tchalanet-server/docs/` et `src/**/DOMAIN_*.md`
+- Web : `tchalanet-web/docs/` et README libs
+- Mobile : `tchalanet-mobile/docs/`
+- Edge : `tchalanet-edge-service/docs/`
+- Infra : `tchalanet-infra/docs/`
+- Portail : `tchalanet-docs/docs/`
+- Versions : `VERSIONS.md`

@@ -5,7 +5,7 @@
 > vit dans la source canonique :
 > 👉 `tchalanet-docs/docs/00-guidelines/doc-policy.md`
 
-**Version** : 2.0.0 | **Date** : 2026-04-23
+**Version** : 2.1.0 | **Date** : 2026-05-30
 
 ---
 
@@ -59,4 +59,4 @@
 | Infra docs                      | `tchalanet-infra/docs/`                             |
 | OpenSpec project                | `openspec/project.md`                               |
 | Specs en cours                  | `openspec/specs/`                                   |
-| Skills IA                       | `.claude/skills/`                                   |
+| Skills IA                       | `.agents/skills/`                                   |

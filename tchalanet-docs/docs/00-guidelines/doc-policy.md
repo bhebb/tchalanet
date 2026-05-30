@@ -1,193 +1,154 @@
 # Politique documentaire Tchalanet
 
-**Version**: 1.1.0 | **Date**: 2026-04-23
+**Version**: 2.0.0 | **Date**: 2026-05-30
 
 ---
 
 ## Objectif
 
-1. **Trouver vite** la bonne doc (IA / dev / business)
-2. **Éviter la duplication** (une source de vérité par type d'info)
-3. **Garder la doc à jour** en la mettant là où on travaille
-4. **Avoir un workflow SDD rapide** (OpenSpec) sans polluer la doc centrale
+1. **Trouver vite** la bonne doc (IA / dev / business) — un endroit par type d'information
+2. **Éviter la duplication** — une source de vérité par type d'info, rien en triple
+3. **Garder la doc à jour** — mise à jour en même commit que le code qui change la règle
+4. **Avoir un workflow SDD rapide** — OpenSpec comme atelier temporaire, pas comme source normative
 
 ---
 
-## Les 3 espaces documentation
+## Hiérarchie de vérité documentaire
 
-### A) Documentation centrale (MkDocs) — `tchalanet-docs/docs/`
-
-**Contient** :
-
-- ✅ Guidelines stables (constitution, règles IA)
-- ✅ Architecture "maps" (où est quoi dans le code)
-- ✅ Docs métier (domaines + workflows) lisibles business
-- ✅ ADR (Architecture Decision Records)
-
-**Ne contient pas** :
-
-- ❌ How-to locaux, notes de debug quotidiennes
-- ❌ Détails d'implémentation d'un module spécifique
-- ❌ Docs qui changent chaque jour
-- ❌ Specs features work-in-progress
-
-**Mise à jour** : peu fréquente (règles stables)  
-**Public** : dev, business, IA, externe
-
----
-
-### B) Docs proches du code — `**/docs/*.md`, `**/README.md`
-
-**Exemples** :
-
-- `tchalanet-server/docs/*.md` (backend)
-- `tchalanet-server/src/**/DOMAIN*.md`, `CACHE.md` (détails implémentation)
-- `libs/**/README.md` (libs Nx)
-- `tchalanet-infra/docs/*.md` (infra)
-- `apps/tchalanet-web/docs/*.md` (web)
-
-**Règle** :
-
-> Si c'est utile **pendant que tu modifies ce composant** → doc ici.
-
-**Contient** :
-
-- ✅ Détails techniques (JPA, API, routing, state management)
-- ✅ How-to spécifiques (setup, debug, troubleshooting)
-- ✅ Notes d'implémentation (cache strategy, performance)
-- ✅ Exemples de code
-
-**Mise à jour** : fréquente (suit le code)  
-**Public** : dev travaillant sur ce module
-
----
-
-### C) Workflow SDD — `openspec/changes/`
-
-**Contient** :
-
-- ✅ Specs features en cours (`FEAT-XXX/specify.md`)
-- ✅ Plans d'implémentation (`plan.md`)
-- ✅ Tasks (`tasks.md`)
-- ✅ Notes de conception (`notes.md`)
-
-**Règle** :
-
-> `openspec/` = "atelier de construction", pas "livre officiel".
-
-**Mise à jour** : quotidienne (work-in-progress)  
-**Public** : dev feature, IA  
-**Archivage** : une fois feature livrée → archiver ou supprimer
-
----
-
-## Arborescence cible
-
-### Documentation centrale (MkDocs)
+En cas de conflit entre deux sources, la priorité est :
 
 ```
-tchalanet-docs/docs/
-├── index.md
-├── 00-guidelines/
-│   ├── index.md
-│   ├── constitution.md
-│   ├── doc-policy.md         # Ce fichier
-│   ├── ai-policy.md
-│   └── glossary.md
-├── 01-architecture/
-│   ├── index.md
-│   ├── system-overview.md
-│   ├── backend-map.md
-│   ├── frontend-map.md
-│   ├── infra-map.md
-│   └── security-model.md
-├── 02-functional/
-│   ├── index.md
-│   ├── domains/
-│   │   ├── index.md
-│   │   ├── draw.md
-│   │   ├── sales.md
-│   │   ├── payout.md
-│   │   ├── ledger.md
-│   │   └── pagemodel.md
-│   └── flows/
-│       ├── index.md
-│       ├── ticket-verify-public.md
-│       └── results-pipeline.md
-├── 03-adr/
-│   └── index.md
-└── 99-links/
-    ├── index.md
-    ├── backend.md
-    ├── web.md
-    ├── infra.md
-    └── specs.md
+1. Code livré + tests verts       (état réel — pas "code idéal")
+2. ADR accepté                     (intention architecturale)
+3. <projet>/docs/ARCHITECTURE.md
+4. <projet>/docs/conventions/*
+5. src/**/DOMAIN_*.md              (invariants métier locaux)
+6. tchalanet-docs/docs/*           (portail cross-project)
+7. openspec/context/*              (router IA)
+8. openspec/changes/*              (atelier WIP — non normatif)
 ```
 
-### Workflow SDD (OpenSpec)
-
-```
-openspec/
-├── context/
-├── changes/
-└── specs/
-```
+> Si le code contredit une règle normative → c'est une **dette explicite** à tracker, pas une vérité à accepter.
 
 ---
 
-## Règles de placement (décision rapide)
+## Où vit chaque type de document
 
-### Question 1 : C'est stable et partagé entre modules ?
-
-➡️ **Oui** : `tchalanet-docs/docs/00-guidelines/` ou `01-architecture/`
-
-### Question 2 : C'est du métier (domaine ou workflow) ?
-
-➡️ **Oui** : `tchalanet-docs/docs/02-functional/domains/` ou `flows/`
-
-### Question 3 : C'est une décision technique importante ?
-
-➡️ **Oui** : `tchalanet-docs/docs/03-adr/`
-
-### Question 4 : C'est technique spécifique à un module (backend/web/infra) ?
-
-➡️ **Oui** : docs proches du code (`tchalanet-server/docs/`, `apps/*/docs/`, etc.)
-
-### Question 5 : C'est une spec/plan en cours ?
-
-➡️ **Oui** : `openspec/changes/<change-id>/`
+| Type | Emplacement | Cycle de vie | Mise à jour |
+|---|---|---|---|
+| Normes, guidelines stables | `tchalanet-docs/docs/00-guidelines/` | Permanent | Rare (décision d'équipe) |
+| Architecture maps | `tchalanet-docs/docs/01-architecture/` | Permanent | Refactors structurants |
+| Domaines métier (vue fonctionnelle) | `tchalanet-docs/docs/02-functional/domains/` | Permanent | Évolutions domaine |
+| Flows métier observables | `tchalanet-docs/docs/02-functional/flows/` | Permanent | Évolutions flux |
+| ADR | `tchalanet-docs/docs/03-adr/` | Immutable | Nouvelles décisions uniquement |
+| Liens vers composants | `tchalanet-docs/docs/99-links/` | Permanent | Suivi des moves |
+| Architecture composant | `<projet>/docs/ARCHITECTURE.md` | Permanent | Refactors structurants |
+| Conventions techniques | `<projet>/docs/conventions/` | Permanent | **Même commit que le code** |
+| Règles métier domaine | `src/**/DOMAIN_*.md` | Permanent | Même commit que le domaine |
+| Context packs IA | `openspec/context/` | Permanent, léger | Quand convention change |
+| Specs features WIP | `openspec/changes/<id>/` | **Temporaire** | Quotidien pendant la feature |
 
 ---
 
-## Règles de référencement croisé
+## Règles par type de document
 
-### Depuis doc centrale → doc détaillée
+### `tchalanet-docs/docs/` — portail fonctionnel
 
-✅ Utiliser des liens relatifs ou absolus vers `tchalanet-server/docs/`, `apps/*/docs/`
+Contient des descriptions fonctionnelles stables lisibles sans lire le code.
+Ne copie pas les règles techniques détaillées ni les règles métier exhaustives des domaines.
 
-Exemple dans `tchalanet-docs/docs/99-links/backend.md` :
+```
+✅ "Un ticket peut être vérifié publiquement par code public/QR."
+✅ "Le payout terrain passe par une vérification POS avant exécution."
+❌ Recopier les classes, handlers, tables, packages, statuts internes.
+```
+
+Quand un détail appartient à un projet ou domaine, `tchalanet-docs` **pointe** vers la source canonique.
+
+### `<projet>/docs/conventions/` — comment faire
+
+Un fichier par sujet technique. Mis à jour **en même commit** que le code qui change la règle.
+Si une règle s'applique à plusieurs projets → elle monte vers `tchalanet-docs/docs/00-guidelines/`.
+
+### `src/**/DOMAIN_*.md` — règles métier locales
+
+**Contenu autorisé :**
+- vocabulaire métier du domaine
+- états et transitions
+- invariants métier
+- événements publiés/consommés
+- décisions métier locales
+- diagrammes simples si utiles
+
+**Ne contient pas :**
+- conventions Java/Spring générales → `docs/conventions/`
+- détails JPA/Flyway génériques → `docs/conventions/`
+- règles déjà dans `docs/conventions/*`
+- historique long de discussions
+
+Si une règle s'applique à plusieurs domaines → elle monte vers `<projet>/docs/conventions/`.
+
+### `openspec/context/` — router IA, pas résumé
+
+Chaque pack contient uniquement :
+- objectif du pack
+- fichiers canoniques à lire (chemins exacts)
+- ordre de lecture recommandé
+- exclusions / pièges connus
+- liens vers specs actives si nécessaire
+
+**Ne copie pas les règles des docs.** Exemple :
 
 ```markdown
-## JPA & Persistence
-
-Voir [tchalanet-server/docs/persistence.md](../../tchalanet-server/docs/persistence.md)
+# backend-core-context
+Lire dans cet ordre :
+1. tchalanet-server/docs/ARCHITECTURE.md
+2. tchalanet-server/docs/conventions/command_query_handlers.md
+3. tchalanet-server/docs/conventions/typed_ids.md
 ```
 
-### Depuis doc détaillée → doc centrale
+---
 
-✅ Référencer la doc centrale pour contexte
+## Documentation Ownership par projet
 
-Exemple dans `tchalanet-server/docs/api-controllers.md` :
+Chaque projet own sa propre documentation technique :
 
-```markdown
-Pour les règles métier sales, voir [Documentation centrale - Domain Sales](../../tchalanet-docs/docs/02-functional/domains/sales.md)
+| Projet | ARCHITECTURE.md | conventions/ |
+|---|---|---|
+| `tchalanet-server` | architecture Java/Spring | CQRS, persistence, RLS, batch, cache, typed IDs... |
+| `tchalanet-web` | architecture Angular/Nx | NgRx, theming, page model, i18n... |
+| `tchalanet-mobile` | architecture Flutter/Ionic | secure storage, offline sync, terminal binding... |
+| `tchalanet-infra` | architecture infra | déploiement, secrets, réseau, volumes... |
+| `tchalanet-edge-service` | architecture edge | proxy rules, auth flow... |
+
+`tchalanet-docs` = portail cross-project (comportements observables, maps système, ADRs, guidelines partagées, liens).
+
+**Règles critiques :**
+- Les règles web ne vivent pas dans `tchalanet-server`
+- Les règles mobile ne vivent pas dans `tchalanet-server`
+- Les principes partagés frontend/mobile peuvent vivre dans `tchalanet-docs/docs/00-guidelines/`
+
+---
+
+## Cycle de vie OpenSpec
+
+```
+openspec/changes/<id>/     ← atelier WIP pendant la feature
+        │
+        ▼ feature livrée → checklist d'extraction :
+        ├─ [ ] décisions durables extraites vers leur destination
+        ├─ [ ] conventions mises à jour si nécessaire
+        ├─ [ ] ADR créé si décision architecturale
+        ├─ [ ] context pack IA mis à jour si nécessaire
+        ├─ [ ] rien de durable restant dans la change
+        └─ [ ] supprimer openspec/changes/<id>/
 ```
 
-### Docs fonctionnelles (agnostiques implémentation)
+**Pas d'archive.** Suppression après preuve d'extraction, pas avant.
+Les changes actives ne sont jamais nettoyées par une passe documentaire générale —
+elles sont nettoyées uniquement au moment de leur livraison.
 
-❌ **Ne jamais** inclure de code Java/TS dans `02-functional/`  
-✅ Décrire **contrats**, **états**, **workflows** (diagrammes, tableaux)  
-✅ Référencer les implémentations techniques via liens
+Voir `tchalanet-docs/docs/06-openspec/archive-policy.md` pour les règles complètes.
 
 ---
 
@@ -199,35 +160,33 @@ Pour les règles métier sales, voir [Documentation centrale - Domain Sales](../
 
 C'est **toujours** le premier fichier à modifier.
 
-| Type de règle                               | Fichier à modifier en premier                                  |
-| ------------------------------------------- | -------------------------------------------------------------- |
-| Architecture backend (couches, dépendances) | `tchalanet-server/docs/ARCHITECTURE.md`                        |
-| Nommage Java                                | `tchalanet-server/docs/NAMING.md`                              |
-| Typed IDs                                   | `tchalanet-server/docs/conventions/typed_ids.md`               |
-| RLS / multi-tenant                          | `tchalanet-server/docs/conventions/persistence/rls.md`         |
-| Events / effets de bord                     | `tchalanet-server/docs/conventions/event_model.md`             |
-| Tests                                       | `tchalanet-server/docs/conventions/testing.md`                 |
-| Persistence / Flyway                        | `tchalanet-server/docs/conventions/persistence/persistence.md` |
-| Frontend Angular                            | `apps/tchalanet-web/README.md` ou `libs/**/README.md`          |
-| Infra / Docker                              | `tchalanet-infra/docs/`                                        |
-| Edge service                                | `tchalanet-edge-service/README.md`                             |
-| Domaine métier                              | `tchalanet-server/src/**/DOMAIN_*.md`                          |
+| Type de règle | Fichier à modifier en premier |
+|---|---|
+| Architecture backend (couches, dépendances) | `tchalanet-server/docs/ARCHITECTURE.md` |
+| Typed IDs | `tchalanet-server/docs/conventions/typed_ids.md` |
+| RLS / multi-tenant | `tchalanet-server/docs/conventions/persistence/rls.md` |
+| Events / effets de bord | `tchalanet-server/docs/conventions/event_model.md` |
+| Tests | `tchalanet-server/docs/conventions/testing.md` |
+| Persistence / Flyway | `tchalanet-server/docs/conventions/persistence/persistence.md` |
+| Frontend Angular | `tchalanet-web/docs/conventions/` |
+| Infra / Docker | `tchalanet-infra/docs/conventions/` |
+| Edge service | `tchalanet-edge-service/docs/conventions/` |
+| Domaine métier | `tchalanet-server/src/**/DOMAIN_*.md` |
 
 ### Étape 2 — Mettre à jour le skill IA correspondant
 
-Après avoir modifié la convention near-code, mettre à jour le résumé `.claude/skills/*/SKILL.md` correspondant.
+Après avoir modifié la convention near-code, mettre à jour le skill `.agents/skills/*/SKILL.md` correspondant.
 
 > ⚠️ Ne jamais modifier un skill sans avoir d'abord modifié la convention source.
 
-| Convention modifiée | Skill à mettre à jour                          |
-| ------------------- | ---------------------------------------------- |
-| `ARCHITECTURE.md`   | `.claude/skills/backend-architecture/SKILL.md` |
-| `NAMING.md`         | `.claude/skills/backend-naming/SKILL.md`       |
-| `typed_ids.md`      | `.claude/skills/backend-typed-ids/SKILL.md`    |
-| `rls.md`            | `.claude/skills/backend-rls/SKILL.md`          |
-| `event_model.md`    | `.claude/skills/backend-events/SKILL.md`       |
-| `testing.md`        | `.claude/skills/backend-testing/SKILL.md`      |
-| `persistence.md`    | `.claude/skills/backend-persistence/SKILL.md`  |
+| Convention modifiée | Skill à mettre à jour |
+|---|---|
+| `ARCHITECTURE.md` | `.agents/skills/backend-architecture/SKILL.md` |
+| `typed_ids.md` | `.agents/skills/backend-typed-ids/SKILL.md` |
+| `rls.md` | `.agents/skills/backend-rls/SKILL.md` |
+| `event_model.md` | `.agents/skills/backend-events/SKILL.md` |
+| `testing.md` | `.agents/skills/backend-testing/SKILL.md` |
+| `persistence.md` | `.agents/skills/backend-persistence/SKILL.md` |
 
 ### Étape 3 — Mettre à jour la doc fonctionnelle (si impact métier)
 
@@ -237,8 +196,7 @@ Seulement si la règle a un impact visible côté business ou architecture globa
 - Décision structurante → `tchalanet-docs/docs/03-adr/` (ADR obligatoire)
 - Architecture map → `tchalanet-docs/docs/01-architecture/`
 
-> ❌ Ne jamais commencer par la doc fonctionnelle.  
-> ❌ Ne jamais commencer par les skills IA.  
+> ❌ Ne jamais commencer par la doc fonctionnelle.
 > ✅ Toujours commencer par la source near-code.
 
 ### Résumé visuel
@@ -246,66 +204,58 @@ Seulement si la règle a un impact visible côté business ou architecture globa
 ```
 1. near-code (convention source)
         ↓
-2. .claude/skills/ (résumé IA)
+2. .agents/skills/ (résumé IA)
         ↓
 3. tchalanet-docs/docs/ (si impact métier ou archi)
 ```
 
 ---
 
-## Workflow contributions
+## Validation automatique (`pnpm docs:check`)
 
-### Modifier doc centrale (MkDocs)
+À lancer avant chaque PR :
 
-```bash
-cd tchalanet-docs
-pip install -r requirements.txt
-mkdocs serve
-# Modifier docs/*.md
-# Commiter
-```
+**Erreurs (bloquantes) :**
+- Liens Markdown cassés
+- `openspec/changes/archive/` présent
+- Context pack référencé dans `00-index.md` mais fichier absent
+- Référence `.claude/skills/` (doit être `.agents/skills/`)
 
-### Modifier doc proche du code
+**Avertissements (revue humaine) :**
+- Convention potentiellement impactée par les fichiers modifiés
+- DOMAIN_*.md potentiellement impacté
+- Flow fonctionnel potentiellement impacté
 
-```bash
-# Naviguer vers le module
-cd tchalanet-server  # ou apps/tchalanet-web, tchalanet-infra
-# Modifier docs/*.md ou README.md
-# Commiter avec le code
-```
+Les warnings nécessitent une revue humaine, pas de fix automatique.
 
-### Créer une spec feature (SDD)
+---
 
-```bash
-# Utiliser script (à créer)
-openspec/scripts/new-feature.sh FEAT-123 "Description courte"
-# Éditer openspec/changes/FEAT-123/specify.md
-# Générer plan/tasks via agents SpecKit
+## Checklist PR — Documentation impact
+
+```markdown
+## Documentation impact
+- [ ] J'ai changé une règle technique → convention doc mise à jour (même commit)
+- [ ] J'ai changé une règle métier → DOMAIN_*.md revu
+- [ ] J'ai changé un workflow observable → flow doc revu
+- [ ] J'ai livré une change OpenSpec → extraction complétée et change supprimée
+- [ ] J'ai lancé `pnpm docs:check`
 ```
 
 ---
 
-## Migration ancien contenu
+## Règles de placement (décision rapide)
 
-| Ancien emplacement                             | Nouveau                                                     |
-| ---------------------------------------------- | ----------------------------------------------------------- |
-| `tchalanet-docs/docs/architecture/overview.md` | `01-architecture/system-overview.md`                        |
-| `tchalanet-docs/docs/backend/security.md`      | `99-links/backend.md` → `tchalanet-server/docs/security.md` |
-| `tchalanet-docs/docs/web/dev-rules.md`         | `99-links/web.md` → `apps/tchalanet-web/docs/dev-rules.md`  |
-| `OpenSpec context packs`                       | Migré vers docs centrales ou proches du code                |
-
----
-
-## Checklist avant de créer un doc
-
-- [ ] C'est stable et partagé ? → Doc centrale
-- [ ] C'est technique spécifique à un module ? → Doc proche du code
-- [ ] C'est work-in-progress ? → `openspec/changes/`
-- [ ] Pas de duplication avec existant
-- [ ] Liens croisés clairs
-- [ ] Mention "Dernière mise à jour" + version si pertinent
+| Question | Destination |
+|---|---|
+| C'est stable et partagé entre projets ? | `tchalanet-docs/docs/00-guidelines/` |
+| C'est une architecture map ? | `tchalanet-docs/docs/01-architecture/` |
+| C'est du métier (domaine ou workflow) ? | `tchalanet-docs/docs/02-functional/` |
+| C'est une décision technique structurante ? | `tchalanet-docs/docs/03-adr/` |
+| C'est technique spécifique à un projet ? | `<projet>/docs/conventions/` |
+| C'est une règle métier locale d'un domaine ? | `src/**/DOMAIN_*.md` |
+| C'est une spec en cours ? | `openspec/changes/<change-id>/` |
 
 ---
 
 **Maintenu par** : équipe Tchalanet  
-**Dernière mise à jour** : 2026-04-23
+**Dernière mise à jour** : 2026-05-30
