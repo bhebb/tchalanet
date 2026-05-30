@@ -78,14 +78,12 @@ cd /opt/tchalanet-infra/compose
 docker compose -f docker-compose-project.yml \
   -f docker-compose-keycloak.yml \
   -f docker-compose-api.yml \
-  -f docker-compose-unleash.yml \
   pull
 
 # Redémarrer les services concernés
 docker compose -f docker-compose-project.yml \
   -f docker-compose-keycloak.yml \
   -f docker-compose-api.yml \
-  -f docker-compose-unleash.yml \
   up -d api keycloak
 ```
 

@@ -85,7 +85,6 @@ docker compose --env-file envs/staging/.env.merged \
   -f compose/docker-compose-postgres.yml \
   -f compose/docker-compose-redis.yml \
   -f compose/docker-compose-keycloak.yml \
-  -f compose/docker-compose-unleash.yml \
   -f compose/docker-compose-api.yml \
   -f compose/docker-compose-traefik.yml pull
 
@@ -95,7 +94,6 @@ docker compose --env-file envs/staging/.env.merged \
   -f compose/docker-compose-postgres.yml \
   -f compose/docker-compose-redis.yml \
   -f compose/docker-compose-keycloak.yml \
-  -f compose/docker-compose-unleash.yml \
   -f compose/docker-compose-api.yml \
   -f compose/docker-compose-traefik.yml up -d
 ```
@@ -106,7 +104,6 @@ Vérifications rapides (sur la VM) :
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 docker logs -f tchl-api-staging
 curl -fsS http://api:8080/actuator/health
-curl -fsS http://unleash:4242/health
 ```
 
 3. Production (procédure courte)

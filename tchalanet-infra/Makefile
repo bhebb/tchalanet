@@ -136,15 +136,13 @@ up-prod: env-merge render-traefik acme-perms get-realm ensure-exec networks
 down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
 
 down-all:
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down edge $(ENV) || true
+	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml down edge-service || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down postgres $(ENV) || true
@@ -171,7 +169,7 @@ rebuild-api:
 rebuild-edge: env-merge ensure-exec networks
 	@echo "→ Rebuild de l'image Edge locale..."
 	@docker compose --env-file envs/$(ENV)/.env.merged \
-	                -f compose/docker-compose.edge.yml up -d --build edge
+	                -f compose/docker-compose.edge.yml up -d --build edge-service
 	@echo "✅ Edge rebuildé et redémarré"
 
 rebuild-all: rebuild-api rebuild-keycloak
@@ -182,11 +180,11 @@ rebuild-all: rebuild-api rebuild-keycloak
 # Per service (legacy, via service-up.sh)
 up-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV)
 down-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV)
-up-edge:     env-merge ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up edge $(ENV)
-down-edge:   ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down edge $(ENV)
+up-edge:   env-merge ensure-exec networks
+	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml up -d edge-service
+down-edge: env-merge ensure-exec
+	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml down edge-service
 up-keycloak: ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
-up-unleash:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up unleash $(ENV)
-down-unleash:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV)
 
 logs-%:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" logs $* $(ENV)
@@ -327,12 +325,12 @@ local-api-smoke:
 
 # local-product : server-v0 complet en local (API + Edge + Web)
 local-product-up: local-api-up
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up edge $(ENV)
+	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml up -d edge-service
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up web $(ENV)
 
 local-product-down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down web $(ENV) || true
-	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down edge $(ENV) || true
+	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml down edge-service || true
 	@$(MAKE) local-api-down
 
 # ============================================================================
@@ -364,7 +362,7 @@ smoke-staging:
 .PHONY: env-merge
 .PHONY: up up-all up-staging up-prod down down-all
 .PHONY: rebuild-keycloak rebuild-api rebuild-edge rebuild-all
-.PHONY: up-api down-api up-edge down-edge up-keycloak up-unleash down-unleash ps
+.PHONY: up-api down-api up-edge down-edge up-keycloak ps
 .PHONY: ssh-staging ssh-prod push-staging push-prod deploy-staging deploy-prod
 .PHONY: doppler-download doppler-download-staging doppler-download-prod
 .PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down

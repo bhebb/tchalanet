@@ -22,7 +22,7 @@ Ce guide explique comment builder, publier et déployer les images Docker person
 
 ### Images Tierces (non modifiées)
 
-- Postgres, Redis, Traefik, Unleash, Meilisearch : utilisent les images officielles (voir `envs/common/compose.env`)
+- Postgres, Redis, Traefik : utilisent les images officielles (voir `envs/common/compose.env`)
 
 ## 🚀 Publication des Images
 
@@ -146,8 +146,6 @@ docker compose -f docker-compose-project.yml \
   -f docker-compose-redis.yml \
   -f docker-compose-keycloak.yml \
   -f docker-compose-api.yml \
-  -f docker-compose-unleash.yml \
-  -f docker-compose-meilisearch.yml \
   -f docker-compose-traefik.yml \
   pull
 
@@ -157,8 +155,6 @@ docker compose -f docker-compose-project.yml \
   -f docker-compose-redis.yml \
   -f docker-compose-keycloak.yml \
   -f docker-compose-api.yml \
-  -f docker-compose-unleash.yml \
-  -f docker-compose-meilisearch.yml \
   -f docker-compose-traefik.yml \
   up -d api keycloak
 

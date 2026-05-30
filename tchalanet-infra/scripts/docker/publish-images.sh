@@ -186,13 +186,11 @@ Next steps (on staging host):
   docker compose -f docker-compose-project.yml \
     -f docker-compose-keycloak.yml \
     -f docker-compose-api.yml \
-    -f docker-compose-unleash.yml \
     pull
 
   docker compose -f docker-compose-project.yml \
     -f docker-compose-keycloak.yml \
     -f docker-compose-api.yml \
-    -f docker-compose-unleash.yml \
     up -d api keycloak
 
 Tip: If you want full restart for all services, run the up -d without service names.

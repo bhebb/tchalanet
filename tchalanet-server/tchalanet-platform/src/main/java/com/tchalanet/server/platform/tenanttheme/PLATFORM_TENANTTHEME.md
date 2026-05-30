@@ -1,30 +1,60 @@
-
-# Platform Capability `platform.tenanttheme` — Tenant Theme Management
+# Platform Capability `platform.tenanttheme` — Tenant Theme
 
 ## Rôle
 
-Gérer les overrides de thème (couleurs, logos, polices) par tenant, au-dessus des presets définis dans `catalog.theme`.
+Appliquer et résoudre le thème actif d'un tenant à partir d'un preset `catalog.theme`.
 
-**Ce module fait** :
-- Stockage et exposition des overrides de thème par tenant
-- Calcul du thème effectif = preset catalog + overrides tenant
-- CRUD admin des overrides
+**Ce module fait** :
+- Appliquer un preset à un tenant (`applyTenantTheme(presetCode)`)
+- Résoudre le thème effectif d'un tenant (`resolveTenantTheme`)
+- Désactiver le thème d'un tenant
+- Gérer la version et les métadonnées du thème actif
 
-**Ce module ne fait pas** :
-- Définition des presets de thème (voir `catalog.theme`)
-- Rendu CSS/frontend (voir web app)
+**Ce module ne fait pas** :
+- Définition des presets globaux (→ `catalog.theme`)
+- Rendu CSS ou application frontend
+- Personnalisation de palette/tokens par tenant — un tenant choisit un preset, pas une couleur
 
-## Surface API
+---
 
-- `TenantThemeApi` (Java) : `getEffectiveTheme(TenantId)`
-- Modèles : `TenantThemeView`, `ThemeOverride`
+## API — `TenantThemeApi`
 
-## Intégration
+```java
+void            applyTenantTheme(ApplyTenantThemeRequest)
+  // presetCode requis + non-blank — applique le preset au tenant
 
-- Consomme `catalog.theme.api` pour lire les presets
-- RLS actif sur les overrides
-- Caching du thème effectif (TTL, evict sur update admin)
+TenantThemeView resolveTenantTheme(ResolveTenantThemeRequest)
+  // retourne le thème actif du tenant
 
-## Règles et limitations
+void            deactivateTenantTheme(DeactivateTenantThemeRequest)
+  // désactive le thème (tenant sans thème)
+```
 
-- Les overrides sont propres à chaque tenant
+---
+
+## Modèle — `TenantThemeView`
+
+| Champ | Type | Sens |
+|---|---|---|
+| `tenantId` | `TenantId` | — |
+| `presetCode` | `String` | Code du preset catalog appliqué |
+| `metadata` | `Map<String,String>` | Métadonnées additionnelles |
+| `isDefault` | `boolean` | Preset par défaut ? |
+| `version` | `long` | Version du thème (incrémentée à chaque apply) |
+| `updatedAt` | `Instant` | — |
+
+---
+
+## Invariants
+
+- `presetCode` doit exister dans `catalog.theme` (actif) — validé à l'apply
+- RLS actif
+- Caching du thème résolu (eviction sur apply/deactivate)
+- La version permet de détecter les changements côté frontend (ETag)
+
+---
+
+## Références
+
+- Presets globaux : `catalog/theme/CATALOG_THEME.md`
+- Provisioning : `tchalanet-docs/docs/02-functional/flows/tenant-onboarding.md`

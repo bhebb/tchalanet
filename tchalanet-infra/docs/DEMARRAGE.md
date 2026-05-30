@@ -25,12 +25,9 @@ Tous les fichiers de configuration sont en place et prêts :
 
 ### Services configurés :
 
-- ✅ Postgres (5 bases de données créées automatiquement)
+- ✅ Postgres (2 bases de données créées automatiquement)
 - ✅ Redis
 - ✅ Keycloak (HTTP OK en dev, SSL désactivé)
-- ✅ Unleash
-- ✅ Unleash Edge (avec tokens par défaut pour dev)
-- ✅ Meilisearch
 - ✅ Traefik
 
 ---
@@ -63,7 +60,6 @@ cd /Users/bhebb/Documents/projets/tchalanet/tchalanet-infra
 
 # Tout en une commande
 make local-setup-dev && \
-make generate-meili-master-key ENV=dev && \
 make realm-generate ENV=dev && \
 make build-keycloak
 
@@ -98,7 +94,6 @@ docker compose logs -f
 
 # État de santé
 curl http://localhost:8082/health  # Keycloak
-curl http://localhost:4242/health  # Unleash
 ```
 
 **Conteneurs attendus :**
@@ -106,9 +101,6 @@ curl http://localhost:4242/health  # Unleash
 - `tchl-postgres-dev` (healthy)
 - `tchl-redis-dev` (healthy)
 - `tchl-keycloak-dev` (healthy)
-- `tchl-unleash-dev` (healthy)
-- `tchl-unleash-edge-dev` (running)
-- `tchl-meilisearch-dev` (healthy)
 - `tchl-traefik-dev` (healthy)
 
 ---
@@ -121,47 +113,11 @@ Une fois tous les conteneurs "healthy" ou "running" :
 | --------------------- | --------------------------------- | -------------------------------------------------------------------------- |
 | **Keycloak**          | http://localhost:8082             | `super_admin` / `Changeme1!`<br>`admin` / `Changeme1!`<br>`agent` / `Changeme1!` |
 | **Traefik Dashboard** | http://localhost:8080             | -                                                                          |
-| **Unleash**           | http://localhost:4242             | Token: `*:*.devtoken123456789`                                             |
-| **Unleash Edge**      | http://localhost:3063/edge/health | -                                                                          |
 | **Postgres**          | localhost:5432                    | `postgres` / `devpass`                                                     |
 | **Redis**             | localhost:6379                    | Password: `devredis`                                                       |
-| **Meilisearch**       | http://localhost:7700             | Master key dans `.secrets`                                                 |
 
 ---
 
-## ⚠️ IMPORTANT : Unleash Edge
-
-### Tokens par défaut (dev uniquement)
-
-Pour **dev local**, Unleash Edge utilise des tokens de démonstration :
-
-- `UNLEASH_SERVER_TOKEN=*:*.devtoken123456789` (admin/server token pour bootstrap)
-- `UNLEASH_FRONTEND_TOKEN=*:*.dev-frontend-token` (token public/front pour Edge)
-
-⚠️ **Ces tokens sont INSECURE et uniquement pour dev !**
-
-### Pour staging/prod : Créer de vrais tokens
-
-```bash
-# 1. Démarrer Unleash d'abord
-make up-unleash ENV=staging
-
-# 2. Se connecter à Unleash UI (http://localhost:4242)
-#    - Créer un compte admin
-#    - Aller dans Admin > API tokens
-#    - Créer un Admin API token (metadata: "bootstrap-<env>")
-#    - Copier le token
-
-# 3. Exporter le token et lancer le script
-export UNLEASH_SERVER_TOKEN="<votre-admin-token>"
-export ENV=staging
-make create-unleash-edge-tokens
-
-# Le script va créer des tokens Edge et écrire la première token dans `envs/staging/.secrets`
-# sous la variable `UNLEASH_FRONTEND_TOKEN`.
-```
-
----
 
 ### 5. Tests de santé
 
@@ -311,17 +267,7 @@ make realm-generate ENV=dev
    - Vérifier les 3 users (super_admin, admin, agent)
    - Tester le claim custom "tch" dans les tokens JWT
 
-2. **Configurer Unleash**
-
-   - Créer des feature flags
-   - Tester l'API Unleash depuis le front
-
-3. **Tester Meilisearch**
-
-   - Indexer des données de test
-   - Tester la recherche
-
-4. **Lancer l'API Spring Boot**
+2. **Lancer l'API Spring Boot**
    - Voir `tchalanet-server/README.md`
    - `./mvnw spring-boot:run`
 
@@ -329,80 +275,6 @@ make realm-generate ENV=dev
 
 **Tout est prêt ! Il ne reste plus qu'à lancer Docker Desktop.** 🚀
 
-## 🎯 CONFIGURER KEYCLOAK COMME SSO POUR UNLEASH (MANUEL)
-
-Cette section décrit comment configurer Keycloak pour fournir l'authentification SSO à Unleash (UI/API) et les points d'intégration pour Unleash Edge.
-
-> Les étapes ci-dessous couvrent : création du client Keycloak, configuration des scopes/mappers, création des rôles nécessaires, et variables d'environnement à définir dans `envs/<env>/.secrets`.
-
-### A. Créer le client Keycloak pour Unleash
-
-1. Ouvrir Keycloak Admin UI (ex: http://localhost:8082/admin) et sélectionner le realm `tchalanet`.
-2. Créer un nouveau client :
-
-   - Client ID : (create an appropriate Keycloak client for your web apps if needed; Unleash OSS uses token-based access)
-   - Protocol : `openid-connect`
-   - Root URL : `https://flags.<host>` (ex: `https://flags.localtest.me` pour dev)
-   - Valid Redirect URIs : `https://flags.<host>/oauth2/callback`
-   - Web Origins : `https://flags.<host>`
-   - Access Type : `confidential` (si utilisé via `oauth2-proxy`) ou `public` (si client public)
-   - Standard Flow : ON
-
-3. Côté Credentials → copy `Secret` si Access Type = `confidential`.
-
-### B. Scopes & mappers recommandés
-
-Dans l'onglet `Client Scopes` ou `Mappers` du client :
-
-- Ajouter `email` et `profile` si besoin.
-- Mapper `roles` pour exposer les rôles realm ou client dans le token (claim `roles`).
-- Si Unleash attend un champ particulier (ex: `tch`), crée un mapper custom pour ajouter ce claim.
-
-Exemple de mapper pour `roles` :
-
-- Mapper type : `Role List` / `oidc-role-name-mapper`
-- Token claim name: `roles`
-- Add to access token: true
-
-### C. Rôles et permissions
-
-- Dans Keycloak → Roles (Realm Roles) ajouter : `UNLEASH_ADMIN` ou `UNLEASH_USER` selon vos besoins.
-- Associer ces rôles aux comptes utilisateurs ou groupes.
-- Optionnel : configurer `Client Roles` pour le client `unleash` si vous souhaitez scoper les droits par client.
-
-### D. Accès à Unleash sans proxy (token-based)
-
-Unleash OSS ne supporte pas SAML côté SP et nous n'utilisons plus de proxy oauth2. L'accès machine/Edge doit être protégé par des tokens API.
-
-- Générer un token depuis l'UI Unleash (Admin → API tokens)
-- Stocker les tokens dans `envs/<env>/.secrets` :
-
-```dotenv
-UNLEASH_SERVER_TOKEN=<token-for-admin-bootstrap-or-edge>
-UNLEASH_FRONTEND_TOKEN=<edge-frontend-token-or-csv>
-```
-
-- Relancer l'Edge (et Unleash si nécessaire) :
-
-```bash
-make up-all ENV=dev
-```
-
-La UI restera accessible en local pour development ; en staging/prod, restreins l'accès via firewall, VPN ou règles Traefik si nécessaire.
-
-### E. Vérifier l'intégration
-
-1. Accéder à `https://flags.<host>` → tu dois être redirigé vers Keycloak (login page)
-2. Après login, vérifier le payload du token (JWT) et s'assurer que le claim `roles` contient `UNLEASH_ADMIN` ou `UNLEASH_USER` selon ton rôle.
-3. Dans l'UI Unleash, vérifier que l'accès est correct et que tu peux créer/éditer flags.
-
-### F. Notes pour staging / production
-
-- En staging/prod, ne laisse pas `OAUTH2_PROXY_UNLEASH_COOKIE_SECURE=false`. Utilise HTTPS et `true`.
-- Stocke secrets (client secret, cookie secrets, Unleash tokens) dans Doppler / Vault et injecte-les dans CI.
-- Configure Traefik / DNS pour exposer `flags.<domain>` et `auth.<domain>` (Keycloak) avec TLS.
-
----
 
 # DÉMARRAGE (consolidé)
 

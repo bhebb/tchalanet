@@ -1,10 +1,10 @@
 services:
-  edge:
+  edge-service:
     build:
       context: ../../tchalanet-edge-service
       dockerfile: Dockerfile
     image: ${TCH_EDGE_IMAGE:-tchalanet-edge-service:${TCH_EDGE_TAG:-local}}
-    container_name: tchalanet-edge-${ENV:-dev}
+    container_name: tchalanet-edge-service-${ENV:-dev}
     restart: unless-stopped
 
     environment:

@@ -1,36 +1,126 @@
-# Domaine Catalog DrawChannel
+# CATALOG_DRAWCHANNEL
 
-> Tenant-scoped catalog that exposes the sale channels a tenant can use for draws.
+> Référentiel tenant-scoped des canaux de vente pour les tirages.  
+> Lie un canal tenant (`HT_NY_MID`) à un slot global (`NY_MID`).  
+> Catalog pur — pas de lifecycle métier, pas d'événements.
 
-## Role
+---
 
-`draw_channel` links a tenant-facing channel such as `HT_NY_MID` to a global `result_slot`
-such as `NY_MID`. It is a catalog module: it stores reference/configuration data and exposes
-read APIs to domains and features, but it does not own draw lifecycle business rules.
+## Rôle
 
-## Responsibilities
+`catalog.drawchannel` répond à : **quels canaux de vente ce tenant a-t-il configurés ?**
 
-- Provide active channels per tenant for draw generation and public display.
-- Carry tenant-facing labels, local cutoff seconds, active status, sort order, and channel games.
-- Point to exactly one global `result_slot` when the channel is backed by an external provider slot.
-- Expose read contracts through `catalog.drawchannel.api`.
+Il porte la configuration tenant-facing d'un canal (label, horaire, jeux actifs, fuseau horaire) et pointe vers un `result_slot` global quand le canal est piloté par un provider externe.
 
-## Non Responsibilities
+---
 
-- No domain events.
-- No draw state transitions.
-- No provider HTTP calls.
-- No Haiti projection.
-- No ticket settlement.
+## Modèle — champs clés
 
-## Pipeline Position
+| Champ | Type | Sémantique |
+|---|---|---|
+| `code` | `String` | Identifiant stable tenant, ex: `HT_NY_MID` |
+| `label` | `String` | Label affiché vendeur, ex: `Haïti • New York Midi` |
+| `timezone` | `ZoneId` | Fuseau horaire du tirage |
+| `drawTime` | `LocalTime` | Heure du tirage dans `timezone` |
+| `cutoffSec` | `Integer` | Secondes avant `drawTime` → calcul de `cutoffAt` |
+| `daysOfWeek` | `List<DayOfWeek>` | Jours actifs (null = tous les jours) |
+| `active` | `boolean` | Canal actif — seuls les actifs génèrent des draws |
+| `sortOrder` | `int` | Ordre d'affichage |
+| `resultSlotId` | `ResultSlotId?` | FK vers `catalog.resultslot` (null → résultat manuel obligatoire) |
+| `defaultSource` | `DrawSource` | Source du résultat (voir enum ci-dessous) |
 
-`catalog.drawchannel` is consumed by `core.draw` during `generate/open/close/apply/settle` flows and
-by `features.publicdraw` for public read models. The external result is fetched globally from
-`catalog.resultslot`; the tenant draw is then applied through channels that point to that slot.
+### `DrawSource` — enum
 
-## Boundaries
+| Valeur | Sens |
+|---|---|
+| `AUTO` | Application automatique du résultat provider |
+| `EXTERNAL` | Résultat externe générique |
+| `US_LOTTERY` | Provider US Lottery |
+| `NY_OPEN_DATA` | NY Open Data |
+| `FL_APIM` | Florida APIM |
+| `MANUAL` | Résultat saisi manuellement par ops |
+| `ADMIN_OVERRIDE` | Override par un admin |
+| `SYSTEM` | Système interne |
 
-- Other modules must call `DrawChannelCatalog`; they must not depend on `internal.*`.
-- Business invariants remain in `core.draw`.
-- Provider mapping remains in `catalog.resultslot.source_cfg` and `application-uslottery.yaml`.
+### Calcul du cutoff
+
+```
+cutoffAt = drawDate.atTime(drawTime, timezone).minus(cutoffSec seconds)
+```
+
+`core.draw` snapshot `cutoffAt` à la génération — modifier le channel n'affecte pas les draws déjà créés.
+
+---
+
+## API publique (`DrawChannelCatalog`)
+
+| Méthode | Retour |
+|---|---|
+| `listAll(tenantId, activeOnly)` | `List<DrawChannelSummaryView>` |
+| `findById(tenantId, id)` | `Optional<DrawChannelView>` |
+| `findByTenantAndCode(tenantId, code)` | `Optional<DrawChannelView>` |
+| `listGamesByChannel(tenantId, channelId)` | `List<DrawChannelGameView>` |
+| `listChannelGames(tenantId)` | `List<ChannelGamesView>` |
+| `listCalendarRows(tenantId, activeOnly, enabledOnly)` | `List<DrawChannelCalendarRow>` |
+| `search(criteria, pageReq)` | `TchPage<DrawChannelView>` |
+
+Tous les appelants passent par `DrawChannelCatalog` — jamais par `internal.*`.
+
+### `DrawChannelCalendarRow` — champs clés
+
+| Champ | Sémantique |
+|---|---|
+| `channelId` | ID du canal |
+| `code` | Code stable |
+| `timezone` | Fuseau horaire |
+| `drawTime` | Heure du tirage |
+| `salesOpenTime` | Heure d'ouverture commerciale (pour scheduler) |
+| `cutoffSec` | Secondes avant drawTime → cutoffAt |
+| `daysOfWeek` | Jours actifs |
+| `resultSlotId` | Slot provider lié |
+| `defaultSource` | Source par défaut |
+| `dependsOnChannelId` | Canal prérequis (ex: EVE dépend de MID) |
+| `active` | Canal actif |
+| `enabled` | Canal activé pour le tenant |
+
+---
+
+## Position dans le pipeline draw
+
+```
+catalog.drawchannel
+    ↓ listAll(tenantId, activeOnly=true)
+core.draw : GenerateDrawsForRangeCommand
+    → Crée un Draw par (tenant, channel, date) active
+    → snapshot cutoffAt depuis channel.cutoffSec + timezone
+    ↓ résultat disponible dans catalog.resultslot
+core.draw : ApplyExternalResultsWindowCommand
+    → lie draw au draw_result via resultSlotId
+```
+
+---
+
+## Invariants
+
+- `UNIQUE(tenant_id, code)` — un code channel par tenant
+- `resultSlotId` null → canal sans provider, résultat manuel obligatoire
+- Changer `cutoffSec` ou `drawTime` n'affecte que les draws générés après la modification
+- `active = false` → plus de nouveaux draws générés, draws existants non impactés
+
+---
+
+## Non-responsabilités
+
+- Pas d'événements domaine
+- Pas de transitions d'état draw
+- Pas d'appels HTTP provider (rôle de `core.uslottery`)
+- Pas de projection Haïti (rôle de `core.haiti`)
+- Pas de settlement tickets
+
+---
+
+## Références
+
+- Slot global : `catalog/resultslot/CATALOG_RESULTSLOT.md`
+- Jeux du canal : `catalog/game/CATALOG_GAME.md`
+- Pipeline draw : `tchalanet-docs/docs/02-functional/flows/draw-execution.md`

@@ -23,7 +23,7 @@ services:
     ports:
       - "8082:8080"
 
-  edge:
+  edge-service:
     # Same local desktop DNS fix as api.
     extra_hosts:
       - "auth.localtest.me:host-gateway"

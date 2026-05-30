@@ -1,53 +1,66 @@
-# Feature Reporting (BFF)
+# Feature Reporting
 
-> BFF pour dashboards et rapports agrégés (multi-domaines: sales/payout/ledger). Expose vues paginées et agrégations.
-
----
-
-## 1. Rôle & objectifs
-
-- Produire des vues consolidées (tenant/admin) à partir des domaines core.
-- Filtrer/paginer/exporter.
+> BFF de rapports agrégés pour les administrateurs tenant.  
+> Lecture seule — consolide sales, payouts, ledger sans logique métier.
 
 ---
 
-## 2. Endpoints
+## Rôle
 
-- GET `/admin/reporting/sales` — agrégats ventes.
-- GET `/admin/reporting/payouts` — agrégats payouts.
-- GET `/admin/reporting/ledger` — écritures.
-
-Retour: `ApiResponse<TchPage<XxxResponse>>` + endpoints d’agrégats.
+Produit des vues paginées et des agrégats à partir des domaines core.  
+Pas de logique métier : filtre, pagine, projette, retourne.
 
 ---
 
-## 3. Services appelés & agrégation
+## Endpoints
 
-- Services BFF locaux par rapport (`SalesReportService`, `OutletPerformanceReportService`, `GetTenantKpisService`).
-- Critères d'entrée nommés `*Criteria`, modèles de sortie `*Response` / `*Line` / `*View`.
-- Les projections SQL read-only sont encapsulées dans des `*Reader`.
+```http
+GET /tenant/reports/sales-by-period-and-game
+```
+Rapport ventes par période et jeu.  
+Service : `SalesReportService` · Critères : `SalesReportCriteria` · Sortie : `SalesReportResponse`.
+
+```http
+GET /tenant/reports/outlet-performance
+```
+Performance comparative des points de vente.  
+Service : `OutletPerformanceReportService` · Sortie : `OutletPerformanceReportResponse`.
+
+```http
+GET /tenant/reports/outlet/{id}/export
+GET /tenant/reports/outlet/{id}/download
+```
+Export et téléchargement du rapport d'un outlet spécifique.
+
+```http
+GET /tenant/reports/tenant-kpis
+```
+KPIs synthétiques du tenant (tickets vendus, montants, sessions, payouts).  
+Service : `GetTenantKpisService` · Sortie : `TenantKpisResponse`.
 
 ---
 
-## 4. Pagination & cache
+## Conventions
 
-- `@TchPaging TchPageRequest` pour listes.
-- Cache optionnel pour agrégats courants (TTL court).
-
----
-
-## 5. Sécurité & permissions
-
-- `@Secured` / `@PreAuthorize` selon rôle.
-- Permissions fines via `TchPermissionEvaluator`.
+- Entrée : critères nommés `*Criteria` (période, filtres, pagination)
+- Sortie : `ApiResponse<TchPage<*Response>>` pour listes, `ApiResponse<*Response>` pour agrégats
+- Projections SQL read-only encapsulées dans des `*Reader`
+- Cache optionnel sur agrégats courants (TTL court)
+- `@TchPaging TchPageRequest` pour la pagination
+- `@Secured` / `@PreAuthorize` selon rôle, `TchPermissionEvaluator` pour permissions fines
 
 ---
 
-## 6. Notes techniques
+## Frontières
 
-- UI contract suffixes; wrappers ID.
-- Pas de logique métier.
+- Pas de `CommandHandler` ni d'écriture
+- Pas de logique métier (calcul de gains, validation vente, etc.)
+- Les données sources restent dans leurs domaines propriétaires (`core.sales`, `core.payout`, `core.ledger`)
 
 ---
 
-> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/features/reporting.md`
+## Références
+
+- Sales : `core/sales/DOMAIN_SALES.md`
+- Payout : `core/payout/DOMAIN_PAYOUT.md`
+- Ledger : `core/ledger/DOMAIN_LEDGER.md`

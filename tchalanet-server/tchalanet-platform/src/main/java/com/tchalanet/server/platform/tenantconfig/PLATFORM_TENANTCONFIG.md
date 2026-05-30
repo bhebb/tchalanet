@@ -1,31 +1,136 @@
-
 # Platform Capability `platform.tenantconfig` — Tenant Configuration
 
 ## Rôle
 
-Stocker et exposer les valeurs de configuration spécifiques à chaque tenant (paramètres opérationnels, feature flags, limites de configuration).
+Gérer le cycle de vie des tenants et leur configuration opérationnelle.  
+Source de vérité pour l'identité tenant, les paramètres internes, le calendrier métier, la locale et le fuseau horaire.
 
-**Ce module fait** :
-- Lecture de la config d’un tenant (`TenantConfigApi.get(key)`, `getAll()`)
-- CRUD admin de la config tenant
-- Caching des valeurs (TTL court, eviction sur update)
+**Ce module fait** :
+- Création, activation, suspension des tenants (`TenantConfigApi`)
+- Lecture et mise à jour de la configuration tenant (identité, paramètres internes)
+- Résolution du fuseau horaire (`TenantZoneApi`), locale (`TenantLocaleApi`), calendrier métier (`TenantBusinessCalendarApi`)
+- Accès aux configurations communication et document du tenant
 
-**Ce module ne fait pas** :
-- Évaluation des limites métier (voir `core.limitpolicy`)
-- Gestion des jeux par tenant (voir `platform.tenantgame`)
-- Profil utilisateur (voir `platform.identity`)
+**Ce module ne fait pas** :
+- Évaluation des limites métier (→ `core.limitpolicy`)
+- Gestion des jeux par tenant (→ `platform.tenantgame`)
+- Profil utilisateur (→ `platform.identity`)
+- Authentification (→ `common.security`)
 
-## Surface API
+---
 
-- `TenantConfigApi` (Java) : `get`, `getAll`
-- Modèles : `TenantConfigView`, `ConfigKey`
+## Enums — depuis `catalog.tenant`
+
+### `TenantStatus`
+
+| Valeur | Sens |
+|---|---|
+| `DRAFT` | Tenant créé, provisioning non terminé |
+| `ACTIVE` | Tenant opérationnel |
+| `SUSPENDED` | Suspendu (paiement, compliance…) |
+| `REJECTED` | Demande de tenant rejetée |
+| `ARCHIVED` | Tenant archivé (fin de vie) |
+
+### `TenantType`
+
+| Valeur | Sens |
+|---|---|
+| `BORLETTE` | Opérateur borlette/loterie |
+| `RESEAU` | Réseau de revendeurs |
+| `AMBULANT` | Vendeur ambulant |
+
+---
+
+## API — `TenantConfigApi`
+
+```java
+void     createTenant(CreateTenantRequest)
+void     activateTenant(ActivateTenantRequest)
+void     suspendTenant(SuspendTenantRequest)
+void     updateTenantIdentity(UpdateTenantIdentityRequest)
+void     updateTenantInternalSettings(UpdateTenantInternalSettingsRequest)
+
+TenantConfigView getTenantById(GetTenantByIdRequest)
+TenantConfigView getTenantByCode(GetTenantByCodeRequest)
+List<TenantConfigView> listTenants(ListTenantsRequest)
+
+TenantInternalCommunicationConfig getTenantCommunicationConfig(GetTenantByIdRequest)
+TenantInternalDocumentConfig      getTenantDocumentConfig(GetTenantByIdRequest)
+```
+
+## API — interfaces secondaires
+
+```java
+// TenantZoneApi
+ZoneId resolveTenantZone(TenantId)
+
+// TenantLocaleApi
+Locale         resolveDefaultLocale(TenantId)
+String         resolveDefaultLanguage(TenantId)
+List<String>   resolveSupportedLanguages(TenantId)
+
+// TenantBusinessCalendarApi
+TenantBusinessDayView resolveBusinessDay(TenantId, OutletId, LocalDate)
+```
+
+---
+
+## Modèle — `TenantConfigView`
+
+| Champ | Type | Sens |
+|---|---|---|
+| `tenantId` | `TenantId` | — |
+| `code` | `String` | Code stable du tenant |
+| `name` | `String` | Nom affiché |
+| `type` | `TenantType` | Type d'opérateur |
+| `timezone` | `ZoneId` | Fuseau horaire opérationnel |
+| `currency` | `Currency` | Devise (ex: HTG) |
+| `status` | `TenantStatus` | Statut lifecycle |
+| `activeThemeId` | `ThemePresetId` | ID du preset actif |
+| `activeThemeCode` | `String` | Code du preset actif (affichage) |
+| `address` | `AddressView` | Adresse principale |
+| `internalSettings` | `JsonNode` | Config interne (communication, document, rules, locale) |
+
+### `TenantInternalSettings` — structure du blob JSON
+
+```
+internalSettings:
+  communication:
+    buyerTicketDelivery:
+      sms:       { enabled, amount, currency, paidBy }
+      whatsapp:  { enabled, amount, currency, paidBy }
+      email:     { enabled, amount, currency, paidBy }
+  document:
+    receipt:
+      { enabled, displayName, headerMessage, footerMessage,
+        defaultPaperSize, showQrCode, showSellerName,
+        showOutletName, showPotentialPayout, defaultTemplateKey }
+  rules:     { ... }
+  locale:    { ... }
+```
+
+### `TenantBusinessDayView`
+
+| Champ | Type | Sens |
+|---|---|---|
+| `tenantId` | `TenantId` | — |
+| `businessDate` | `LocalDate` | Jour évalué |
+| `open` | `boolean` | Jour ouvrable ? |
+| `reasonCode` | `String` | Code raison si fermé |
+| `label` | `String` | Libellé |
+
+---
 
 ## Intégration
 
-- RLS actif (config toujours scoped au tenant courant)
-- Caching agressif
-- Consommé par `core.limitpolicy` pour les paramètres opérationnels
+- RLS actif (toutes les tables tenant-scoped)
+- Caching des lookups fréquents (timezone, locale, status)
+- Consommé par `TchContextFilter` pour bootstrapper le contexte de requête
+- `createTenant` déclenche le provisioning dans `features.platformadmin`
 
-## Règles et limitations
+---
 
-- Les valeurs changent rarement, eviction sur update admin
+## Références
+
+- Provisioning tenant : `tchalanet-docs/docs/02-functional/flows/tenant-onboarding.md`
+- Contexte HTTP : `tchalanet-server/docs/conventions/context/request-context.md`

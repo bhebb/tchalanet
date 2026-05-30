@@ -1,7 +1,7 @@
 services:
-  edge:
+  unleash:
     image: ${EDGE_IMAGE_BASE:-ghcr.io/tchalanet/edge}:${IMAGE_TAG}
-    container_name: ${EDGE_CONTAINER:-${DOCKER_PREFIX:-tchl}-edge}-${ENV}
+    container_name: ${EDGE_CONTAINER:-${DOCKER_PREFIX:-tchl}-unleash-edge}-${ENV}
     env_file:
       - ../envs/${ENV}/.env.merged
       - ../envs/${ENV}/.secrets
@@ -14,7 +14,7 @@ services:
     networks:
       back: {}
       edge:
-        aliases: ["edge"]
+        aliases: ["unleash-edge"]
     restart: unless-stopped
     logging:
       driver: json-file
@@ -24,4 +24,4 @@ services:
     labels:
       - traefik.enable=${EDGE_TRAEFIK_ENABLE:-true}
       - traefik.docker.network=${DOCKER_NETWORK_EDGE:-edge-${ENV}}
-      - traefik.http.services.edge-svc.loadbalancer.server.port=${EDGE_PORT:-3000}
+      - traefik.http.services.unleash-edge-svc.loadbalancer.server.port=${EDGE_PORT:-3000}

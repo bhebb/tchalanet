@@ -78,21 +78,6 @@ KEYCLOAK_RESOURCE=tchalanet-api
 KEYCLOAK_CREDENTIALS_SECRET=${KEYCLOAK_CLIENT_SECRET:-change-me-in-production}
 
 # ========================================
-# 🚩 Unleash (Feature Flags)
-# ========================================
-UNLEASH_API_URL=http://localhost:4242/api
-# Prefer server/admin token for API access, fall back to personal token, then frontend token if present (dev convenience)
-UNLEASH_API_TOKEN=${UNLEASH_SERVER_TOKEN:-${UNLEASH_PERSONAL_TOKEN:-${UNLEASH_FRONTEND_TOKEN:-*:*.dev-edge-token}}}
-UNLEASH_APP_NAME=tchalanet-api
-UNLEASH_ENVIRONMENT=$ENV
-
-# ========================================
-# 🔍 Meilisearch (Search Engine)
-# ========================================
-MEILI_URL=http://localhost:7700
-MEILI_MASTER_KEY=${MEILI_MASTER_KEY:-dev-meili-master-key}
-
-# ========================================
 # 🔧 Application Config
 # ========================================
 SERVER_PORT=8083

@@ -1,204 +1,79 @@
-> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/catalog.md` (theme overview)
+# CATALOG_THEME
 
-# Domaine Theme
-
-## 1. Rôle du domaine
-
-Le domaine **Theme** est responsable de la **gestion des thèmes visuels par tenant** dans Tchalanet.
-
-Il permet de :
-
-- Créer et modifier des thèmes (draft ou publiés)
-- Publier un thème comme thème actif d’un tenant
-- Archiver un thème
-- Conserver l’historique des versions via **Hibernate Envers**
-- Fournir le thème actif au frontend (via tenant.active_theme_id)
-
-Le domaine **ne fait pas** :
-
-- Le rendu UI
-- L’application CSS côté frontend
-- La gestion des permissions (AccessControl)
-- La gestion des presets globaux (référencés par `basePresetId`)
+> Référentiel global des presets de thème visuels.  
+> Un preset = une configuration de thème prête à l'emploi (couleurs, mode, vendor).  
+> Catalog global — pas de tenant-scope, pas d'états lifecycle, pas d'événements.
 
 ---
 
-## 2. Concepts métier
+## Rôle
 
-### Theme (agrégat racine)
+`catalog.theme` répond à : **quels presets de thème sont disponibles sur la plateforme ?**
+
+Un preset est une configuration de thème globale (définie par la plateforme ou un vendor). Les tenants y font référence via `platform.tenanttheme` qui contient la personnalisation spécifique au tenant (palette, tokens, cssVars, cycle DRAFT/PUBLISHED/ARCHIVED).
+
+`catalog.theme` ≠ `platform.tenanttheme` — catalog = référentiel global de presets, platform = thème personnalisé du tenant.
+
+---
+
+## Modèle — `ThemePresetView`
+
+| Champ | Type | Sémantique |
+|---|---|---|
+| `id` | `ThemePresetId` | Identifiant |
+| `code` | `String` | Code stable, ex: `default-light`, `tchalanet-dark` |
+| `vendor` | `String` | Fournisseur du preset, ex: `tchalanet`, `custom` |
+| `config` | `JsonNode` | Configuration complète du preset (couleurs, tokens, variables CSS) |
+| `labelKey` | `String` | Clé i18n du nom du preset |
+| `isDefault` | `boolean` | Preset par défaut proposé aux nouveaux tenants |
+| `active` | `boolean` | Preset actif (visible en admin) |
+| `createdAt` | `Instant` | — |
+| `updatedAt` | `Instant` | — |
+
+### `ThemeMode` — enum (utilisé dans les configs de preset)
+
+| Valeur | Sens |
+|---|---|
+| `LIGHT` | Mode clair |
+| `DARK` | Mode sombre |
+| `SYSTEM` | Suit les préférences système de l'utilisateur |
+
+---
+
+## API publique — `ThemeCatalog`
 
 ```java
-Theme(
-  UUID id,
-  UUID tenantId,
-  String basePresetId,
-  String label,
-  ThemeMode mode,
-  short density,
-  Map<String, Object> palette,
-  Map<String, Object> tokens,
-  Map<String, String> cssVars,
-  ThemeStatus status,
-  int version,
-  Instant createdAt,
-  Instant updatedAt
-)
+List<ThemePresetView> listActive()
+Optional<ThemePresetView> findById(ThemePresetId id)
+Optional<ThemePresetView> findByCode(String code)
+ThemePresetStatsView stats()    // total + active count
 ```
 
-### ThemeMode
+---
 
-- `LIGHT`
-- `DARK`
-- `SYSTEM`
+## Invariants
 
-### ThemeStatus
-
-- `DRAFT` : thème modifiable, non actif
-- `PUBLISHED` : thème actif ou publiable
-- `ARCHIVED` : thème obsolète (lecture seule)
+- `code` unique — identifiant stable du preset
+- `isDefault = true` : au plus un preset par défaut actif (non enforced par DB — convention)
+- `config` : blob JSON opaque pour ce catalog — interprété par `platform.tenanttheme` et le frontend
 
 ---
 
-## 3. Versioning & concurrence
+## Séparation des responsabilités
 
-Deux notions distinctes :
+| `catalog.theme` | `platform.tenanttheme` |
+|---|---|
+| Presets globaux définis par la plateforme | Thème personnalisé d'un tenant |
+| Global (pas de tenantId) | Tenant-scoped (RLS) |
+| Pas de lifecycle (actif/inactif seulement) | Cycle DRAFT → PUBLISHED → ARCHIVED |
+| Pas d'événements | Publie des événements de publication |
+| Référentiel de templates | Personnalisation effective |
 
-### 3.1 Optimistic Locking (technique)
-
-- Géré via `@Version` (hérité de `BaseTenantEntity`)
-- **Non exposé** dans le domaine
-- Sert uniquement à la concurrence JPA
-
-### 3.2 Version métier du thème
-
-- Champ `theme_version`
-- Incrémenté à chaque publication
-- Sert à :
-
-  - Identifier une version publiée
-  - Revenir à une version précédente via Envers
-
-➡️ **Le domaine ne dépend pas du champ `@Version`**
+Lors du provisioning d'un tenant : `platform.tenanttheme` duplique un preset `catalog.theme` comme point de départ.
 
 ---
 
-## 4. Historique (Hibernate Envers)
+## Références
 
-- Chaque modification d’un thème est auditée
-- Les anciennes versions sont stockées dans les tables `_aud`
-- Permet :
-
-  - rollback vers une version précédente
-  - comparaison historique
-
-➡️ Pas de table custom d’historique nécessaire
-
----
-
-## 5. Cycle de vie d’un thème
-
-```text
-DRAFT ── publish ──▶ PUBLISHED ── archive ──▶ ARCHIVED
-  ▲          │
-  └── edit ──┘
-```
-
-Règles :
-
-- Un thème **publié reste modifiable** (nouvelle révision Envers)
-- La publication incrémente `theme_version`
-- Un seul thème publié actif par tenant
-
----
-
-## 6. Règles de publication
-
-### PublishThemeCommand
-
-Responsabilités :
-
-- Vérifier que le thème appartient bien au tenant cible
-- Passer le statut à `PUBLISHED`
-- Incrémenter `theme_version`
-- Mettre à jour `tenant.active_theme_id`
-
-➡️ La publication est **la seule opération** qui modifie le tenant
-
----
-
-## 7. Multi-tenant & Super Admin
-
-### Règle clé
-
-> **Toutes les opérations Theme utilisent `effectiveTenantUuid()`**
-
-- Tenant Admin : `originalTenant == effectiveTenant`
-- Super Admin : `effectiveTenant` forcé via override
-
-➡️ Le domaine Theme **ne connaît pas** la notion de Super Admin
-➡️ La sécurité est assurée par AccessControl
-
----
-
-## 8. Ports & architecture
-
-### Ports de sortie
-
-- `ThemeReaderPort`
-- `ThemeWriterPort`
-
-Implémentation :
-
-- `ThemePersistenceAdapter`
-
-### Repositories
-
-- `JpaThemeRepository` (interne)
-- `ThemeRestRepository` (Spring Data REST pour CRUD basique)
-
----
-
-## 9. API & Handlers
-
-### Queries
-
-- `ListThemesQuery`
-- `GetThemeByIdQuery`
-
-### Commands
-
-- `PublishThemeCommand`
-- `ArchiveThemeCommand`
-
-⚠️ Création / mise à jour basique : via Spring Data REST
-⚠️ Actions métier critiques : via CommandBus uniquement
-
----
-
-## 10. Sécurité & permissions
-
-Exemples de permissions :
-
-- `theme.read`
-- `theme.publish`
-- `theme.archive`
-
-Les vérifications sont faites :
-
-- en amont (Controller / Aspect)
-- jamais dans le domaine
-
----
-
-## 11. Décisions clés (résumé)
-
-- Thème publié **modifiable**
-- Historique géré par Envers
-- `tenant.active_theme_id` mis à jour au publish
-- `effectiveTenant` = source de vérité
-- Pas de logique Super Admin dans le domaine
-- Optimistic lock hors domaine
-
----
-
-_Document : CATALOG_THEME.md — état validé du domaine Theme_
+- Provisioning : `tchalanet-docs/docs/02-functional/flows/tenant-onboarding.md`
+- Thème tenant : `tchalanet-platform/.../tenanttheme/PLATFORM_TENANTTHEME.md`

@@ -56,12 +56,4 @@ EOSQL
 create_user_and_db "${KC_DB_USERNAME}" "${KC_PW}" "${KC_DB_NAME}" "Keycloak"
 create_user_and_db "${APP_DB_USER}" "${APP_PW}" "${APP_DB_NAME}" "Application"
 
-# post-v0 optional
-if [ -n "${UNLEASH_DB_NAME:-}" ] && [ -n "${UNLEASH_DB_USER:-}" ] && [ -n "${UNLEASH_DB_PASSWORD:-}" ]; then
-  UNLEASH_PW=$(escape_sql "${UNLEASH_DB_PASSWORD}")
-  create_user_and_db "${UNLEASH_DB_USER}" "${UNLEASH_PW}" "${UNLEASH_DB_NAME}" "Unleash"
-else
-  echo "[init] Unleash DB skipped (UNLEASH_DB_NAME/USER/PASSWORD not set — post-v0 optional)"
-fi
-
 echo "[init] Database initialization completed successfully"

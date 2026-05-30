@@ -17,8 +17,20 @@ Gérer les paramètres de jeux activés et configurés par tenant (quels jeux so
 
 ## Surface API
 
-- `TenantGameApi` (Java) : `listActiveGames`, `getGameSettings`
-- Modèles : `TenantGameView`, `TenantGameSettings`
+```text
+platform/tenantgame/
+  api/
+    TenantGameApi.java        ← enableTenantGame, disableTenantGame, resolveTenantGames, updateTenantGamePolicy
+    model/
+      TenantGameView.java
+      TenantGameSettings.java
+  internal/
+    service/
+    persistence/
+    web/                      ← TenantGameAdminController (/api/v1/admin/games)
+    cache/
+    config/
+```
 
 ## Intégration
 
