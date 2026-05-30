@@ -11,7 +11,11 @@ Read first:
 
 Canonical local docs:
 
-- `docs/`
+- `docs/architecture/` — ENV-ARCHITECTURE.md, BUILD-LOCAL-VS-PUBLISHED.md
+- `docs/setup/` — DEMARRAGE.md, LAN-SETUP.md, DOPPLER-SETUP-GUIDE.md
+- `docs/operations/` — DEPLOYMENT.md, OPERATIONS.md, HETZNER.md, IMAGES-DEPLOYMENT.md
+- `docs/services/` — EDGE-SERVICE.md, VITE-ALLOWED-HOSTS.md, ACTION-REALM-REGEN.md
+- `docs/reference/` — QUICK-REFERENCE.md, scripts-index.md
 - `CLAUDE.md`
 - `openspec/`
 - `envs/common/compose.env`

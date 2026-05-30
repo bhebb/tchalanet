@@ -3,7 +3,7 @@ not_in_nav: |
   01-architecture/page-model.md
   01-architecture/flows/**
   02-features/**
-  02-functional/domains/**/*.md
+  02-functional/**
   03-adr/index.md
   03-adr/offline_sales_risk_matrix.html
   99-reference/docs-inventory.md
@@ -12,6 +12,10 @@ not_in_nav: |
   99-reference/ai-agent-files-inventory.md
   99-reference/ai-agent-duplicates.md
   99-reference/ai-agent-cleanup-plan.md
+  99-links/**
+  server-docs/**
+  mobile-docs/**
+  07-design-system/**
 theme:
   name: material
   features:
@@ -54,28 +58,47 @@ nav:
       - System overview: 01-architecture/system-overview.md
       - Security model: 01-architecture/security-model.md
       - Backend map: 01-architecture/backend-map.md
+      - Backend architecture: server-docs/ARCHITECTURE.md
       - Frontend map: 01-architecture/frontend-map.md
       - Infra map: 01-architecture/infra-map.md
 
-  - Métier:
-      - Index: 02-functional/index.md
-      - Domain index: 02-functional/domains/index.md
-      - Flows:
-          - Index: 02-functional/flows/index.md
-          - Sell ticket: 02-functional/flows/sell-ticket.md
-          - Verify ticket: 02-functional/flows/verify-ticket.md
-          - Draw execution: 02-functional/flows/draw-execution.md
-      - Features:
-          - Index: 02-functional/features/index.md
-          - PageModel: 02-functional/features/pagemodel.md
-          - PublicDraw: 02-functional/features/publicdraw.md
-          - News: 02-functional/features/news.md
-          - PrivateDashboard: 02-functional/features/privatedashboard.md
-          - PublicHome: 02-functional/features/publichome.md
-          - Stats: 02-functional/features/stats.md
-          - i18n: 02-functional/features/i18n.md
-          - Notifications: 02-functional/features/notifications.md
-          - Reporting: 02-functional/features/reporting.md
+  - Conventions:
+      - Backend:
+          - Clean Architecture: server-docs/conventions/clean_architecture.md
+          - Bus & Handlers: server-docs/conventions/bus.md
+          - Command/Query: server-docs/conventions/command_query_handlers.md
+          - Inter-Domain: server-docs/conventions/inter_domain_calls.md
+          - Event Model: server-docs/conventions/event_model.md
+          - Typed IDs: server-docs/conventions/typed_ids.md
+          - Idempotency: server-docs/conventions/idempotency.md
+          - Persistence: server-docs/conventions/persistence/persistence.md
+          - RLS: server-docs/conventions/persistence/rls.md
+          - API: server-docs/conventions/api/web_api.md
+          - Context: server-docs/conventions/context/request-context.md
+          - Security: server-docs/conventions/security_permissions.md
+          - Testing: server-docs/conventions/testing.md
+          - Cache: server-docs/conventions/cache.md
+          - Timezone: server-docs/conventions/timezone.md
+      - Backend Playbook: server-docs/PLAYBOOK.md
+      - Mobile:
+          - Architecture: mobile-docs/ARCHITECTURE.md
+          - Playbook: mobile-docs/PLAYBOOK.md
+          - UI Rules: mobile-docs/mobile/ui-rules.md
+
+  - Flows:
+      - Index: 02-functional/flows/index.md
+      - Admin POS selection: 02-functional/flows/admin-pos-selection.md
+      - Draw execution: 02-functional/flows/draw-execution.md
+      - Offline sync: 02-functional/flows/offline-sync.md
+      - Payout: 02-functional/flows/payout-field-flow.md
+      - Reconciliation: 02-functional/flows/reconciliation.md
+      - Sell ticket: 02-functional/flows/sell-ticket.md
+      - Seller onboarding: 02-functional/flows/seller-onboarding.md
+      - Session opening: 02-functional/flows/session-opening.md
+      - Settlement: 02-functional/flows/settlement.md
+      - Tenant onboarding: 02-functional/flows/tenant-onboarding.md
+      - Terminal binding: 02-functional/flows/terminal-binding.md
+      - Verify ticket: 02-functional/flows/verify-ticket.md
 
   - Operations:
       - Index: 04-operations/index.md
@@ -93,12 +116,3 @@ nav:
       - Index: 99-reference/index.md
       - Component AGENTS map: 99-reference/component-agents-map.md
       - AI context loading: 99-reference/ai-context-loading.md
-
-  - Liens:
-      - Index: 99-links/index.md
-      - Backend: 99-links/backend.md
-      - Web: 99-links/web.md
-      - Mobile: 99-links/mobile.md
-      - Infra: 99-links/infra.md
-      - Edge: 99-links/edge.md
-      - OpenSpec: 99-links/openspec.md

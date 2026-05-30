@@ -58,9 +58,9 @@ Seller POS flow:
 
 1. Request Context construit — `TchContextFilter`
 2. App user bootstrappé — `UserBootstrapFilter`
-3. Seller actif et onboardé → voir [seller-onboarding](../../../../../tchalanet-docs/docs/02-functional/flows/seller-onboarding.md)
-4. Terminal bindé et trusted → voir [terminal-binding](../../../../../tchalanet-docs/docs/02-functional/flows/terminal-binding.md)
-5. Session POS ouverte → voir [session-opening](../../../../../tchalanet-docs/docs/02-functional/flows/session-opening.md)
+3. Seller actif et onboardé → voir [seller-onboarding](../../../02-functional/flows/seller-onboarding.md)
+4. Terminal bindé et trusted → voir [terminal-binding](../../../02-functional/flows/terminal-binding.md)
+5. Session POS ouverte → voir [session-opening](../../../02-functional/flows/session-opening.md)
 
 **Pour chaque action sensible (sell, payout, offline grant) :**
 
@@ -104,7 +104,7 @@ Pas d'accès POS sans sélection explicite.
    Source : `ADMIN_SELECTION` — **pas automatique**
 3. Mêmes validations terminal/outlet/session que Seller ensuite
 
-→ Voir [admin-pos-selection](../../../../../tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md)
+→ Voir [admin-pos-selection](../../../02-functional/flows/admin-pos-selection.md)
 
 ---
 
@@ -167,8 +167,8 @@ Sous-flows :
 4. Pas d'Operational Context
 
 **Actions disponibles :**
-- Vérification ticket public → voir [verify-ticket](../../../../../tchalanet-docs/docs/02-functional/flows/verify-ticket.md)
-- Résultats tirage public → voir [draw-execution](../../../../../tchalanet-docs/docs/02-functional/flows/draw-execution.md)
+- Vérification ticket public → voir [verify-ticket](../../../02-functional/flows/verify-ticket.md)
+- Résultats tirage public → voir [draw-execution](../../../02-functional/flows/draw-execution.md)
 - Page model public
 
 ---

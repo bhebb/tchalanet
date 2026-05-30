@@ -1,37 +1,52 @@
-# Documentation Tchalanet
+# Tchalanet Docs
 
-MkDocs is the published portal for Tchalanet documentation. It provides curated
-navigation, stable summaries, decision records, and links to the canonical docs
-that remain close to each project.
+Tchalanet is a multi-tenant lottery and POS platform for selling tickets,
+managing draws, settling results, paying winners, and operating tenant networks.
 
-## Operating Model
+## Start here
 
-| Need                                      | Start here                                                             | Canonical source                                               |
-| ----------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Project rules for agents and contributors | [Guidelines](00-guidelines/index.md)                                   | `AGENTS.md`                                                    |
-| Runtime and tool versions                 | [Versions](00-guidelines/versions.md)                                  | `VERSIONS.md`                                                  |
-| System boundaries and maps                | [Architecture](01-architecture/index.md)                               | `tchalanet-docs/docs/01-architecture/` plus component docs     |
-| Domain and workflow summaries             | [Functional docs](02-functional/index.md)                              | `tchalanet-server/src/**/DOMAIN_*.md` for backend domain truth |
-| Component implementation docs             | [Applications](03-apps/index.md)                                       | Docs near the owning component                                 |
-| Local operations and deployments          | [Operations](04-operations/index.md), [Infra links](99-links/infra.md) | `tchalanet-infra/docs/` and component runbooks                 |
-| Architecture decisions                    | [Decisions](05-decisions/index.md)                                     | `tchalanet-docs/docs/03-adr/`                                  |
-| Change planning                           | [OpenSpec](06-openspec/index.md)                                       | `openspec/` and component `openspec/` workspaces               |
-| Full documentation audit                  | [Reference](99-reference/index.md)                                     | Generated inventory reports                                    |
+- **Nouveau sur le projet ?** Lire [What is Tchalanet](00-overview/what-is-tchalanet.md)
+- **Besoin d'une vue système ?** Lire [System map](00-overview/system-map.md)
+- **Travailler sur le backend ?** Lire [Backend architecture](server-docs/ARCHITECTURE.md)
+- **Travailler sur le POS / cashier ?** Lire [Sell ticket flow](02-functional/flows/sell-ticket.md)
+- **Chercher les règles canoniques ?** Lire [Where truth lives](00-overview/where-truth-lives.md)
 
-## Portal Rules
+## Reading paths
 
-- MkDocs links to long implementation docs instead of copying them.
-- Component docs remain canonical near code.
-- Global OpenSpec context stays light and works as a router.
-- Unknown or possibly stale docs are reviewed before any archive or deletion.
-- The main navigation stays curated; large component inventories live in
-  [Reference](99-reference/index.md) and [Links](99-links/index.md).
+=== "New to the project"
 
-## Generated Reports
+    1. [What is Tchalanet](00-overview/what-is-tchalanet.md)
+    2. [System map](00-overview/system-map.md)
+    3. [Sell ticket flow](02-functional/flows/sell-ticket.md)
+    4. [Where truth lives](00-overview/where-truth-lives.md)
 
-- [Documentation inventory](99-reference/docs-inventory.md)
-- [Duplicate documentation report](99-reference/docs-duplicates.md)
-- [Documentation cleanup plan](99-reference/docs-cleanup-plan.md)
-- [MkDocs navigation plan](99-reference/mkdocs-nav-plan.md)
-- [AI-agent files inventory](99-reference/ai-agent-files-inventory.md)
-- [AI-agent cleanup plan](99-reference/ai-agent-cleanup-plan.md)
+=== "Working on backend"
+
+    1. [Backend architecture](server-docs/ARCHITECTURE.md)
+    2. [Backend playbook](server-docs/PLAYBOOK.md)
+    3. [Command / Query handlers](server-docs/conventions/command_query_handlers.md)
+    4. [Backend conventions index](99-reference/backend-conventions.md)
+
+=== "Working on POS / cashier"
+
+    1. [Operational context](server-docs/conventions/context/request-context.md)
+    2. [Session opening](02-functional/flows/session-opening.md)
+    3. [Sell ticket flow](02-functional/flows/sell-ticket.md)
+    4. [Payout flow](02-functional/flows/payout-field-flow.md)
+
+## Main areas
+
+### Overview
+Product description, system map, and where to find authoritative information.
+
+### Architecture
+Component maps and deep-dive architecture docs for backend, web, mobile, and infra.
+
+### Flows
+Business flows — sell ticket, verify ticket, draw execution, payout, and onboarding.
+
+### Operations
+Run the local stack and deploy to staging / production.
+
+### Reference
+Backend convention index, component AGENTS maps, and canonical links.
