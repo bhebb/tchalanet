@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import com.tchalanet.server.common.types.money.Money;
 
 public record TicketReceiptView(
     TicketId ticketId,
@@ -24,7 +25,10 @@ public record TicketReceiptView(
     String tenantDisplayName,
     String tenantReceiptHeader,
     String outletReceiptHeader,
+    // drawLabel: optional localized slot alias (may be null)
     String drawLabel,
+    // drawChannelLabel: preferred market/channel name (e.g. "Texas")
+    String drawChannelLabel,
     Instant drawScheduledAt,
     String outletName,
     String terminalCode,
@@ -33,9 +37,9 @@ public record TicketReceiptView(
     Locale locale,
     ZoneId timezone,
     List<TicketReceiptGameSectionView> gameSections,
-    String stakeTotal,
-    String totalAmount,
-    String potentialPayout,
+    Money stakeTotal,
+    Money totalAmount,
+    Money potentialPayout,
     String outletReceiptFooter,
     String tenantReceiptFooter,
     String verificationUrl

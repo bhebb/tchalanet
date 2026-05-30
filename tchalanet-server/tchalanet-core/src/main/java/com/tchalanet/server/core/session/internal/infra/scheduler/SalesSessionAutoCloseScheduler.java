@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SalesSessionAutoCloseScheduler {
 
-    private static final JobKey SALES_SESSION_AUTO_CLOSE = JobKey.of("session:auto-close");
+    private static final JobKey SALES_SESSION_AUTO_CLOSE = JobKey.of("session:auto:close");
 
     private final CommandBus commandBus;
     private final SalesSessionAutoProperties salesSessionAutoProperties;

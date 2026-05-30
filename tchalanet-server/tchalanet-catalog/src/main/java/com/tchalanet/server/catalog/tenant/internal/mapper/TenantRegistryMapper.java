@@ -26,6 +26,8 @@ public interface TenantRegistryMapper {
   @Mapping(target = "tenantId", source = "id")
   @Mapping(target = "timezone", expression = "java(safeZoneId(entity.getTimezone()))")
   @Mapping(target = "currency", expression = "java(safeCurrency(entity.getCurrency()))")
+  @Mapping(target = "defaultLanguage", expression = "java((entity.getDefaultLanguage() == null || entity.getDefaultLanguage().isBlank()) ? \"fr\" : entity.getDefaultLanguage())")
+  @Mapping(target = "defaultLocale", expression = "java((entity.getDefaultLocale() == null || entity.getDefaultLocale().isBlank()) ? \"fr-HT\" : entity.getDefaultLocale())")
   TenantBootstrapView toBootstrapView(TenantRegistryJpaEntity entity);
 
   /**
@@ -60,4 +62,5 @@ public interface TenantRegistryMapper {
       return Currency.getInstance("USD");
     }
   }
+
 }

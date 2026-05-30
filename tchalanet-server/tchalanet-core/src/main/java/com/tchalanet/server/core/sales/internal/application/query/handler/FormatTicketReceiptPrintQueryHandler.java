@@ -21,7 +21,8 @@ public class FormatTicketReceiptPrintQueryHandler
     @Override
     public TicketReceiptPrintContent handle(FormatTicketReceiptPrintQuery query) {
         var printView = reader.findPrintViewRequired(query.ticketId());
+        var profile = query.documentPrintProfile();
         var receipt = assembler.assemble(printView, query.locale());
-        return formatter.format(receipt, query.format());
+        return formatter.format(receipt, profile);
     }
 }

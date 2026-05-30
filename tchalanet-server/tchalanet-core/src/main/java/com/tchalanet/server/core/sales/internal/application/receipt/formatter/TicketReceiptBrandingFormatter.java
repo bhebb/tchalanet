@@ -3,15 +3,32 @@ package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 import com.tchalanet.server.core.sales.api.model.receipt.ReceiptBrandingDisplayMode;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
+@RequiredArgsConstructor
 public class TicketReceiptBrandingFormatter {
+
+    private final ReceiptTextLayout layout;
 
     public List<TicketReceiptTextLine> headerLines(TicketReceiptView receipt) {
         return headerLines(receipt, ReceiptBrandingDisplayMode.AUTO, ReceiptBrandingDisplayMode.AUTO);
+    }
+
+    public List<TicketReceiptTextLine> headerLines(TicketReceiptView receipt, TicketReceiptLayoutProfile profile) {
+        var lines = headerLines(receipt);
+        if (profile == null) {
+            return lines;
+        }
+        var out = new ArrayList<TicketReceiptTextLine>();
+        for (var l : lines) {
+            out.add(fitBrandingLine(l, profile));
+        }
+        return List.copyOf(out);
     }
 
     public List<TicketReceiptTextLine> headerLines(
@@ -30,6 +47,27 @@ public class TicketReceiptBrandingFormatter {
         add(lines, receipt.outletReceiptFooter(), false);
         add(lines, receipt.tenantReceiptFooter(), false);
         return List.copyOf(lines);
+    }
+
+    public List<TicketReceiptTextLine> footerLines(TicketReceiptView receipt, TicketReceiptLayoutProfile profile) {
+        var lines = footerLines(receipt);
+        if (profile == null) {
+            return lines;
+        }
+        var out = new ArrayList<TicketReceiptTextLine>();
+        for (var l : lines) {
+            out.add(l.style() == null || l.style().name().equals("BOLD")
+                ? TicketReceiptTextLine.bold(layout.truncate(l.text(), profile.charsPerLine()))
+                : TicketReceiptTextLine.normal(layout.truncate(l.text(), profile.charsPerLine()))
+            );
+        }
+        return List.copyOf(out);
+    }
+
+    private TicketReceiptTextLine fitBrandingLine(TicketReceiptTextLine line, TicketReceiptLayoutProfile profile) {
+        var text = layout.center(line.text(), profile);
+        boolean bold = line.style() != null && line.style() == com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineStyle.BOLD;
+        return bold ? TicketReceiptTextLine.bold(text) : TicketReceiptTextLine.normal(text);
     }
 
     private void add(List<TicketReceiptTextLine> lines, String value, boolean bold) {

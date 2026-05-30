@@ -29,9 +29,12 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('fr', 'receipt.message.games', 'Jeux'),
     ('fr', 'receipt.message.game', 'Jeu'),
     ('fr', 'receipt.message.amount', 'Montant'),
+    ('fr', 'receipt.message.backup.code', 'Votre code est {code}.'),
+    ('fr', 'receipt.message.backup.verify', 'Verifier sur {url}'),
     ('fr', 'receipt.charge.sms', 'Frais SMS'),
     ('fr', 'receipt.charge.whatsapp', 'Frais WhatsApp'),
     ('fr', 'receipt.charge.email', 'Frais email'),
+    ('fr', 'receipt.currency_note', 'Montants en {code}'),
     ('fr', 'pos.ticket.verify.not_found.title', 'Ticket introuvable'),
     ('fr', 'pos.ticket.verify.not_found.message', 'Aucun ticket ne correspond au code scanne.'),
     ('fr', 'pos.ticket.verify.not_payable_pending_draw.title', 'Tirage en attente'),
@@ -92,9 +95,12 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('en', 'receipt.message.games', 'Games'),
     ('en', 'receipt.message.game', 'Game'),
     ('en', 'receipt.message.amount', 'Amount'),
+    ('en', 'receipt.message.backup.code', 'Your code is {code}.'),
+    ('en', 'receipt.message.backup.verify', 'Verify at {url}'),
     ('en', 'receipt.charge.sms', 'SMS fee'),
     ('en', 'receipt.charge.whatsapp', 'WhatsApp fee'),
     ('en', 'receipt.charge.email', 'Email fee'),
+    ('en', 'receipt.currency_note', 'Amounts in {code}'),
     ('en', 'pos.ticket.verify.not_found.title', 'Ticket not found'),
     ('en', 'pos.ticket.verify.not_found.message', 'No ticket matches the scanned code.'),
     ('en', 'pos.ticket.verify.not_payable_pending_draw.title', 'Draw pending'),
@@ -155,9 +161,12 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('ht', 'receipt.message.games', 'Jwet'),
     ('ht', 'receipt.message.game', 'Jwet'),
     ('ht', 'receipt.message.amount', 'Montan'),
+    ('ht', 'receipt.message.backup.code', 'Kòd ou se {code}.'),
+    ('ht', 'receipt.message.backup.verify', 'Verifye sou {url}'),
     ('ht', 'receipt.charge.sms', 'Fre SMS'),
     ('ht', 'receipt.charge.whatsapp', 'Fre WhatsApp'),
     ('ht', 'receipt.charge.email', 'Fre email'),
+    ('ht', 'receipt.currency_note', 'Montan an {code}'),
     ('ht', 'pos.ticket.verify.not_found.title', 'Tikè pa jwenn'),
     ('ht', 'pos.ticket.verify.not_found.message', 'Pa gen tikè ki mache ak kod eskane a.'),
     ('ht', 'pos.ticket.verify.not_payable_pending_draw.title', 'Tiraj poko fèt'),
@@ -193,6 +202,34 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ('ht', 'pos.readiness.operational_context.message', 'Chwazi yon pwen vant ak terminal verifye.'),
     ('ht', 'pos.readiness.session_closed.title', 'Sesyon fèmen'),
     ('ht', 'pos.readiness.session_closed.message', 'Louvri yon sesyon pou komanse.')
+    -- Game titles
+    ,('fr', 'receipt.game.HT_BOLET', 'Borlette')
+    ,('fr', 'receipt.game.HT_MARYAJ', 'Mariage')
+    ,('fr', 'receipt.game.HT_MARYAJ_GRATUIT', 'Mariage gratuit')
+
+    ,('en', 'receipt.game.HT_BOLET', 'Bolet')
+    ,('en', 'receipt.game.HT_MARYAJ', 'Marriage')
+    ,('en', 'receipt.game.HT_MARYAJ_GRATUIT', 'Free Marriage')
+
+    ,('ht', 'receipt.game.HT_BOLET', 'Bolèt')
+    ,('ht', 'receipt.game.HT_MARYAJ', 'Maryaj')
+    ,('ht', 'receipt.game.HT_MARYAJ_GRATUIT', 'Maryaj gratis')
+
+    -- Bet / option labels
+    ,('fr', 'receipt.bet_type.MATCH_1_2D', '1er lot')
+    ,('fr', 'receipt.bet_type.MATCH_2_2D', '2e lot')
+    ,('fr', 'receipt.bet_type.MATCH_3_2D', '3e lot')
+    ,('fr', 'receipt.bet_type.MARRIAGE_2D', 'Marriage')
+
+    ,('en', 'receipt.bet_type.MATCH_1_2D', '1st prize')
+    ,('en', 'receipt.bet_type.MATCH_2_2D', '2nd prize')
+    ,('en', 'receipt.bet_type.MATCH_3_2D', '3rd prize')
+    ,('en', 'receipt.bet_type.MARRIAGE_2D', 'Marriage')
+
+    ,('ht', 'receipt.bet_type.MATCH_1_2D', '1er lot')
+    ,('ht', 'receipt.bet_type.MATCH_2_2D', '2e lot')
+    ,('ht', 'receipt.bet_type.MATCH_3_2D', '3e lot')
+    ,('ht', 'receipt.bet_type.MARRIAGE_2D', 'Maryaj')
 )
 INSERT INTO i18n_override (level, tenant_id, locale, i18n_key, i18n_value, active)
 SELECT 'GLOBAL', NULL, seed.locale, seed.i18n_key, seed.i18n_value, true

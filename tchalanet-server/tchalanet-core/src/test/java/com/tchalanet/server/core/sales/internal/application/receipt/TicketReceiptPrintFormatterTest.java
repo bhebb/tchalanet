@@ -11,7 +11,12 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
-import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptSectionContent;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptDrawFormatter;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
+import com.tchalanet.server.platform.document.api.model.DocumentPrintProfile;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
+import com.tchalanet.server.core.sales.internal.application.receipt.formatter.ReceiptTextLayout;
 import com.tchalanet.server.core.sales.api.model.receipt.ReceiptBrandingDisplayMode;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectionView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
@@ -34,6 +39,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import com.tchalanet.server.common.types.money.Money;
+import com.tchalanet.server.common.types.money.CurrencyCode;
 
 class TicketReceiptPrintFormatterTest {
 
@@ -42,28 +49,38 @@ class TicketReceiptPrintFormatterTest {
 
     @Test
     void includesTenantAndOutletBrandingAndCanonicalReceiptFacts() {
+        var layout = new ReceiptTextLayout();
+        var moneyFormatter = new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter();
+        var gameLines = new TicketReceiptGameLinesFormatter(layout, moneyFormatter, new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver());
         var formatter = new TicketReceiptPrintFormatter(
-            new TicketReceiptBrandingFormatter(),
-            new TicketReceiptFactsFormatter(),
-            new TicketReceiptGameLinesFormatter(),
-            new TicketReceiptI18nResolver(new StubI18nOverridesCatalog())
+            new TicketReceiptBrandingFormatter(new ReceiptTextLayout()),
+            new TicketReceiptFactsFormatter(new ReceiptTextLayout()),
+            new TicketReceiptDrawFormatter(new ReceiptTextLayout()),
+            gameLines,
+            new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver(),
+            new TicketReceiptI18nResolver(new StubI18nOverridesCatalog()),
+            layout,
+            moneyFormatter
         );
 
-        var content = formatter.format(receipt(), PrintOutputFormat.PDF);
+        var profile = DocumentPrintProfile.of(DocumentFormat.PDF, PaperSize.A4);
+        var content = formatter.format(receipt(), profile);
+        var separator = layout.separator(com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLayoutProfile.from(profile));
 
-        assertThat(texts(content.headerLines())).containsSubsequence(
+        assertThat(texts(content.headerLines()).stream().map(String::trim).toList()).containsSubsequence(
             "Tenant header",
             "Outlet header",
-            "--------------------------------",
+            separator,
             "Ticket: TCK-001",
             "Public code: ABCD-EFGH",
             "Sold at: 2026-05-27 09:00",
             "Terminal: POS-1",
             "Seller: Seller One"
         );
-        assertThat(content.sections()).extracting(section -> section.title())
+        assertThat(content.sections()).extracting(TicketReceiptSectionContent::title)
             .containsExactly("Draw", "Bolet");
         assertThat(texts(content.totals())).containsExactly(
+            separator,
             "Stake total: HTG 10.00",
             "Total: HTG 10.00",
             "Max payout: HTG 125.00"
@@ -79,7 +96,7 @@ class TicketReceiptPrintFormatterTest {
 
     @Test
     void brandingFormatterSupportsExplicitDisplayModes() {
-        var formatter = new TicketReceiptBrandingFormatter();
+        var formatter = new TicketReceiptBrandingFormatter(new ReceiptTextLayout());
         var receipt = receipt();
 
         assertThat(texts(formatter.headerLines(
@@ -114,6 +131,7 @@ class TicketReceiptPrintFormatterTest {
             "Tenant header",
             "Outlet header",
             "Haiti Soir",
+            "Haiti",
             Instant.parse("2026-05-27T20:00:00Z"),
             "Outlet Centre",
             "POS-1",
@@ -133,16 +151,16 @@ class TicketReceiptPrintFormatterTest {
                     "Bolet",
                     "12-34",
                     new BigDecimal("12.5"),
-                    "HTG 10.00",
-                    "HTG 125.00",
+                    new Money(new BigDecimal("10.00"), CurrencyCode.of("HTG")),
+                    new Money(new BigDecimal("125.00"), CurrencyCode.of("HTG")),
                     false,
                     null,
                     null
                 ))
             )),
-            "HTG 10.00",
-            "HTG 10.00",
-            "HTG 125.00",
+            new Money(new BigDecimal("10.00"), CurrencyCode.of("HTG")),
+            new Money(new BigDecimal("10.00"), CurrencyCode.of("HTG")),
+            new Money(new BigDecimal("125.00"), CurrencyCode.of("HTG")),
             "Outlet footer",
             "Tenant footer",
             "https://verify.example/t/ABCDEFGH"
@@ -191,8 +209,100 @@ class TicketReceiptPrintFormatterTest {
                 Map.entry(TicketReceiptI18nKeys.TOTAL_AMOUNT, "Total"),
                 Map.entry(TicketReceiptI18nKeys.TOTAL_MAX_PAYOUT, "Max payout"),
                 Map.entry(TicketReceiptI18nKeys.VERIFICATION, "Verification"),
-                Map.entry(TicketReceiptI18nKeys.QR, "QR")
+                Map.entry(TicketReceiptI18nKeys.QR, "QR"),
+                Map.entry(TicketReceiptI18nKeys.CURRENCY_NOTE, "Montants en {code}")
             );
         }
+    }
+
+    @Test
+    void receipt_profiles_respect_width_and_currency_note() {
+        var layout = new ReceiptTextLayout();
+        var moneyFormatter = new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter();
+        var gameLines = new TicketReceiptGameLinesFormatter(layout, moneyFormatter, new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver());
+        var formatter = new TicketReceiptPrintFormatter(
+            new TicketReceiptBrandingFormatter(new ReceiptTextLayout()),
+            new TicketReceiptFactsFormatter(new ReceiptTextLayout()),
+            new TicketReceiptDrawFormatter(new ReceiptTextLayout()),
+            gameLines,
+            new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver(),
+            new TicketReceiptI18nResolver(new StubI18nOverridesCatalog()),
+            layout,
+            moneyFormatter
+        );
+
+        var profiles = List.of(
+            DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM),
+            DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_80MM),
+            DocumentPrintProfile.of(DocumentFormat.PDF, PaperSize.A4)
+        );
+
+        for (var profile : profiles) {
+            var content = formatter.format(receipt(), profile);
+            var layoutProfile = com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLayoutProfile.from(profile);
+
+            // no line must exceed width
+            for (var line : content.headerLines()) {
+                assertThat(line.text().length()).isLessThanOrEqualTo(layoutProfile.charsPerLine());
+            }
+            for (var section : content.sections()) {
+                for (var line : section.lines()) {
+                    assertThat(line.text().length()).isLessThanOrEqualTo(layoutProfile.charsPerLine());
+                }
+            }
+            for (var line : content.totals()) {
+                assertThat(line.text().length()).isLessThanOrEqualTo(layoutProfile.charsPerLine());
+            }
+            for (var line : content.footerLines()) {
+                assertThat(line.text().length()).isLessThanOrEqualTo(layoutProfile.charsPerLine());
+            }
+
+            // currency note present for receipt paper (ESC_POS)
+            boolean isReceipt = profile.outputFormat() == DocumentFormat.ESC_POS;
+            boolean hasCurrencyNote = content.sections().stream()
+                .flatMap(s -> s.lines().stream())
+                .anyMatch(l -> l.text().contains("Montants") || l.text().contains("Amounts"));
+
+            if (isReceipt) {
+                assertThat(hasCurrencyNote).isTrue();
+            } else {
+                assertThat(hasCurrencyNote).isFalse();
+            }
+        }
+    }
+
+    @Test
+    void long_game_label_is_truncated_and_lines_under_width() {
+        var layout = new ReceiptTextLayout();
+        var moneyFormatter = new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter();
+        var gameLines = new TicketReceiptGameLinesFormatter(layout, moneyFormatter, new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver());
+        var formatter = new TicketReceiptPrintFormatter(
+            new TicketReceiptBrandingFormatter(new ReceiptTextLayout()),
+            new TicketReceiptFactsFormatter(new ReceiptTextLayout()),
+            new TicketReceiptDrawFormatter(new ReceiptTextLayout()),
+            gameLines,
+            new com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLabelResolver(),
+            new TicketReceiptI18nResolver(new StubI18nOverridesCatalog()),
+            layout,
+            moneyFormatter
+        );
+
+        var longTitle = "This is a very long game label that should be truncated to fit on a receipt line".repeat(2);
+        var r = receipt();
+        var section = new TicketReceiptGameSectionView(r.gameSections().get(0).gameCode(), longTitle, r.gameSections().get(0).lines());
+        var receiptLong = new TicketReceiptView(
+            r.ticketId(), r.tenantId(), r.ticketCode(), r.publicCode(), r.verificationUrl(), r.displayCode(), r.saleStatus(), r.resultStatus(), r.settlementStatus(),
+            r.tenantDisplayName(), r.tenantReceiptHeader(), r.outletReceiptHeader(), r.drawLabel(), r.drawChannelLabel(), r.drawScheduledAt(), r.outletName(), r.terminalCode(), r.sellerDisplayName(), r.placedAt(),
+            r.locale(), r.timezone(), List.of(section), r.stakeTotal(), r.totalAmount(), r.potentialPayout(), r.outletReceiptFooter(), r.tenantReceiptFooter(), r.verificationUrl()
+        );
+
+        var profile = DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM);
+        var content = formatter.format(receiptLong, profile);
+        var layoutProfile = com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptLayoutProfile.from(profile);
+
+        // section title truncated
+        assertThat(content.sections().get(0).title().length()).isLessThanOrEqualTo(layoutProfile.charsPerLine());
+        // all lines under width
+        content.sections().forEach(s -> s.lines().forEach(l -> assertThat(l.text().length()).isLessThanOrEqualTo(layoutProfile.charsPerLine())));
     }
 }

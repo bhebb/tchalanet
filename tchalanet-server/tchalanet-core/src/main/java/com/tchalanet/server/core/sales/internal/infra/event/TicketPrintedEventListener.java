@@ -1,14 +1,15 @@
 package com.tchalanet.server.core.sales.internal.infra.event;
 
-import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
-
 import com.tchalanet.server.core.sales.api.event.TicketPrintedEvent;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
+
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Slf4j
 @Component
@@ -34,12 +35,13 @@ public class TicketPrintedEventListener {
 
         // TODO(v1.5): replace this log-only listener with persistent sales_ticket_print_log writes.
         log.info(
-            "Ticket printed: eventId={}, tenantId={}, ticketId={}, printedBy={}, format={}, reprint={}, reason={}",
+            "Ticket printed: eventId={}, tenantId={}, ticketId={}, printedBy={}, outputFormat={}, paperSize={}, reprint={}, reason={}",
             eventId,
             event.tenantId(),
             event.ticketId(),
             event.printedBy(),
-            event.format(),
+            event.outputFormat(),
+            event.paperSize(),
             hasReason,
             hasReason ? event.reason() : ""
         );

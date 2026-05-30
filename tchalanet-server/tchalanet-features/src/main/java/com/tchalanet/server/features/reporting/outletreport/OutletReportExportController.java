@@ -49,7 +49,7 @@ public class OutletReportExportController {
               ctx.tenantIdSafe(), id, LocalDate.parse(from), LocalDate.parse(to));
       return ApiResponse.success(path.toString());
     } catch (DateTimeParseException e) {
-      throw ProblemRest.badRequest("invalid date format: " + from + " / " + to);
+      throw ProblemRest.badRequest("invalid date printOptionsRequest: " + from + " / " + to);
     }
   }
 
@@ -63,7 +63,7 @@ public class OutletReportExportController {
     try {
       parsedDate = LocalDate.parse(date);
     } catch (DateTimeParseException e) {
-      throw ProblemRest.badRequest("invalid date format: " + date);
+      throw ProblemRest.badRequest("invalid date printOptionsRequest: " + date);
     }
 
     Path path = reportExportService.generate(ctx.tenantIdSafe(), id, parsedDate, parsedDate);

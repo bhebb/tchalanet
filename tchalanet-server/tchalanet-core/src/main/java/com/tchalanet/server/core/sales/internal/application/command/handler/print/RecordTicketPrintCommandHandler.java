@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.command.handler.print;
 
 import com.tchalanet.server.common.bus.CommandHandler;
-import com.tchalanet.server.common.context.TchContext;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -36,18 +37,30 @@ public class RecordTicketPrintCommandHandler
     @TchTx
     public RecordTicketPrintResult handle(RecordTicketPrintCommand command) {
         var now = Instant.now(clock);
-        var context = TchContext.currentOrThrow();
         var ticket = reader.getRequired(command.ticketId());
+        // use actor carried on the command (avoid reading TchContext here)
         printPolicy.requirePrintAllowed(ticket, command);
-        ticket = ticket.markPrinted(context.userId(), now);
+        ticket = ticket.markPrinted(command.actorUserId(), now);
 
         Ticket saved = writer.save(ticket);
 
+        // Resolve print options snapshot (DocumentFormat + PaperSize) preserving defaults
+        var printOptions = command.printOptionsRequest();
+        DocumentFormat outputFormat = (printOptions == null || printOptions.outputFormat() == null)
+            ? DocumentFormat.PDF
+            : printOptions.outputFormat();
+        PaperSize paperSize = (printOptions == null || printOptions.paperSize() == null)
+            ? PaperSize.A4
+            : printOptions.paperSize();
+
+        // Publish event with profile snapshot (do not convert back to legacy PrintOutputFormat)
         AfterCommit.run(() -> events.publish(
             TicketPrintedEvent.from(
                 EventId.of(idGenerator.newUuid()),
                 saved,
-                command.format(),
+                command.actorUserId(),
+                outputFormat,
+                paperSize,
                 command.reason(),
                 now)
         ));

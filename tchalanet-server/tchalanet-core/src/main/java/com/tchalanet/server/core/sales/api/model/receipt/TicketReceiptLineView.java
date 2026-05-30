@@ -2,6 +2,7 @@ package com.tchalanet.server.core.sales.api.model.receipt;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import com.tchalanet.server.common.types.money.Money;
 
 public record TicketReceiptLineView(
     int lineNo,
@@ -12,8 +13,8 @@ public record TicketReceiptLineView(
     String gameLabel,
     String selection,
     BigDecimal odds,
-    String stake,
-    String potentialPayout,
+    Money stake,
+    Money potentialPayout,
     boolean promotional,
     String promotionLabel,
     String promotionEffectType

@@ -4,16 +4,15 @@ import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;
 import com.tchalanet.server.common.types.id.TenantId;
 import java.util.Locale;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class TicketReceiptI18nResolver {
 
     private final I18nOverridesCatalog catalog;
-
-    public TicketReceiptI18nResolver(I18nOverridesCatalog catalog) {
-        this.catalog = catalog;
-    }
 
     public TicketReceiptTranslations resolve(Locale locale, TenantId tenantId) {
         var localeTag = localeTag(locale);

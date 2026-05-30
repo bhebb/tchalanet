@@ -54,7 +54,7 @@
 | `drawResultId`                                                  | `DrawResultId?` | FK vers `draw_result` (set à l'apply)                                   |
 | `resultSource`                                                  | `DrawSource`    | `AUTO` (apply automatique) ou `OPS` (override)                          |
 | `resultOverrideReason`, `resultOverriddenAt`                    |                 | Audit override                                                          |
-| `cancelReason`, `canceledAt`                                    |                 | Audit annulation                                                        |
+| `cancelReasonCode`, `cancelReasonLabel`, `canceledAt`           |                 | Audit annulation : code canonique + libellé libre optionnel             |
 | `systemGenerated`                                               | `boolean`       | `true` si scheduler, `false` si manuel                                  |
 | `locked`                                                        | `boolean`       | Verrou anti-concurrence pendant settlement                              |
 

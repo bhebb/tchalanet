@@ -30,7 +30,9 @@ class TenantConfigContextLookupTest {
                 "ACTIVE",
                 "COMMERCIAL",
                 timezone,
-                currency)));
+                currency,
+                "fr",
+                "fr-HT")));
 
         assertThat(lookup).isInstanceOf(TenantContextLookup.class);
 

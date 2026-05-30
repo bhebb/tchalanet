@@ -371,3 +371,16 @@ ON business_day_override (
     business_date
 )
 WHERE deleted_at IS NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- result_slot_calendar_override unique indexes (one per XOR shape)
+-- These also serve the generator's per-slot lookups; the table is tiny so no
+-- extra date-scan index is needed.
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE UNIQUE INDEX uq_result_slot_calendar_override__specific
+ON result_slot_calendar_override (result_slot_id, slot_local_date)
+WHERE slot_local_date IS NOT NULL AND deleted_at IS NULL;
+
+CREATE UNIQUE INDEX uq_result_slot_calendar_override__recurring
+ON result_slot_calendar_override (result_slot_id, recurring_md)
+WHERE recurring_md IS NOT NULL AND deleted_at IS NULL;

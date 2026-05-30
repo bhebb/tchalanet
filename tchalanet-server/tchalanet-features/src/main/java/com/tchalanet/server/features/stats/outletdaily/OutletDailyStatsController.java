@@ -42,7 +42,7 @@ public class OutletDailyStatsController {
           queryBus.ask(new GetOutletDailySummaryQuery(ctx.tenantIdSafe(), id, LocalDate.parse(date)));
       return ApiResponse.success(summary);
     } catch (DateTimeParseException e) {
-      throw ProblemRest.badRequest("invalid date format: " + date);
+      throw ProblemRest.badRequest("invalid date printOptionsRequest: " + date);
     }
   }
 }

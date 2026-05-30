@@ -13,6 +13,8 @@ import com.tchalanet.server.common.types.id.IdGenerator;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeResult;
 import com.tchalanet.server.core.draw.internal.application.port.out.DrawLifecyclePort;
+import com.tchalanet.server.core.draw.internal.application.port.out.ResultSlotCalendarReaderPort;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.core.draw.api.query.ExistingDrawKey;
 import com.tchalanet.server.core.draw.api.query.NewDrawRow;
 import com.tchalanet.server.core.draw.api.model.DrawStatus;
@@ -34,6 +36,7 @@ public class GenerateDrawsForRangeCommandHandler
 
     private final DrawChannelCatalog drawChannelCatalog;
     private final DrawLifecyclePort drawLifecyclePort;
+    private final ResultSlotCalendarReaderPort resultSlotCalendarReader;
     private final IdGenerator idGenerator;
     private final TchTimeProvider timeProvider;
 
@@ -53,51 +56,55 @@ public class GenerateDrawsForRangeCommandHandler
                 command.dryRun(),
                 command.force());
 
-            return new GenerateDrawsForRangeResult(0, 0, 0, 0);
+            return new GenerateDrawsForRangeResult(0, 0, 0, 0, 0);
         }
 
         var acc = generateRows(command, channels);
 
         if (command.dryRun()) {
             log.info(
-                "draw.generate dryRun tenantId={} from={} to={} force={} wouldCreate={} skippedNotDay={} alreadyExists={}",
+                "draw.generate dryRun tenantId={} from={} to={} force={} wouldCreate={} skippedNotDay={} alreadyExists={} skippedProviderClosed={}",
                 command.tenantId(),
                 command.from(),
                 command.to(),
                 command.force(),
                 acc.rows.size(),
                 acc.skippedNotDay,
-                acc.alreadyExists);
+                acc.alreadyExists,
+                acc.skippedProviderClosed);
 
             return new GenerateDrawsForRangeResult(
                 0,
                 acc.skippedNotDay,
                 acc.alreadyExists,
-                0);
+                0,
+                acc.skippedProviderClosed);
         }
 
         if (acc.rows.isEmpty()) {
             log.info(
-                "draw.generate no-op tenantId={} from={} to={} force={} skippedNotDay={} alreadyExists={}",
+                "draw.generate no-op tenantId={} from={} to={} force={} skippedNotDay={} alreadyExists={} skippedProviderClosed={}",
                 command.tenantId(),
                 command.from(),
                 command.to(),
                 command.force(),
                 acc.skippedNotDay,
-                acc.alreadyExists);
+                acc.alreadyExists,
+                acc.skippedProviderClosed);
 
             return new GenerateDrawsForRangeResult(
                 0,
                 acc.skippedNotDay,
                 acc.alreadyExists,
-                0);
+                0,
+                acc.skippedProviderClosed);
         }
 
         int created = drawLifecyclePort.bulkInsert(acc.rows);
         int conflicts = Math.max(0, acc.rows.size() - created);
 
         log.info(
-            "draw.generate tenantId={} from={} to={} force={} created={} skippedNotDay={} alreadyExists={} conflicts={}",
+            "draw.generate tenantId={} from={} to={} force={} created={} skippedNotDay={} alreadyExists={} conflicts={} skippedProviderClosed={}",
             command.tenantId(),
             command.from(),
             command.to(),
@@ -105,13 +112,15 @@ public class GenerateDrawsForRangeCommandHandler
             created,
             acc.skippedNotDay,
             acc.alreadyExists,
-            conflicts);
+            conflicts,
+            acc.skippedProviderClosed);
 
         return new GenerateDrawsForRangeResult(
             created,
             acc.skippedNotDay,
             acc.alreadyExists,
-            conflicts);
+            conflicts,
+            acc.skippedProviderClosed);
     }
 
     private Acc generateRows(
@@ -120,6 +129,7 @@ public class GenerateDrawsForRangeCommandHandler
 
         int skippedNotDay = 0;
         int alreadyExists = 0;
+        int skippedProviderClosed = 0;
         var rows = new ArrayList<NewDrawRow>();
 
         /*
@@ -138,6 +148,15 @@ public class GenerateDrawsForRangeCommandHandler
             daysCache.put(c.channelId().value(), parsed);
         }
 
+        // Provider no-draw dates per result_slot for the whole range (one query each).
+        Map<ResultSlotId, Set<LocalDate>> providerClosedCache = new HashMap<>();
+        for (var c : channels) {
+            providerClosedCache.computeIfAbsent(
+                c.resultSlotId(),
+                slot -> resultSlotCalendarReader.findUnavailableDates(
+                    slot, command.from(), command.to()));
+        }
+
         var date = command.from();
 
         while (!date.isAfter(command.to())) {
@@ -149,6 +168,14 @@ public class GenerateDrawsForRangeCommandHandler
 
                 if (!allowed.contains(date.getDayOfWeek())) {
                     skippedNotDay++;
+                    continue;
+                }
+
+                // Provider calendar: skip generation when the slot has no draw that day.
+                var providerClosed =
+                    providerClosedCache.getOrDefault(c.resultSlotId(), Set.of());
+                if (providerClosed.contains(date)) {
+                    skippedProviderClosed++;
                     continue;
                 }
 
@@ -189,11 +216,12 @@ public class GenerateDrawsForRangeCommandHandler
 
             date = date.plusDays(1);
         }
-        return new Acc(rows, skippedNotDay, alreadyExists);
+        return new Acc(rows, skippedNotDay, alreadyExists, skippedProviderClosed);
     }
 
 
-    private record Acc(List<NewDrawRow> rows, int skippedNotDay, int alreadyExists) {
+    private record Acc(List<NewDrawRow> rows, int skippedNotDay, int alreadyExists,
+                       int skippedProviderClosed) {
     }
 
     private void validate(GenerateDrawsForRangeCommand command) {

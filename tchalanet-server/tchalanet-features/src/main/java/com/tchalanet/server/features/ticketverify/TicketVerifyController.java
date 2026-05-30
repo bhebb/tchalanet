@@ -39,7 +39,7 @@ public class TicketVerifyController {
     )
     @ApiResponses({
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Ticket found"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid code format"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid code printOptionsRequest"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Ticket not found"),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Too many requests")
     })
@@ -50,7 +50,7 @@ public class TicketVerifyController {
         @PathVariable
         @NotBlank
         @Size(min = 6, max = 32)
-        @Pattern(regexp = "^[A-Z0-9-]+$", message = "Invalid public code format")
+        @Pattern(regexp = "^[A-Z0-9-]+$", message = "Invalid public code printOptionsRequest")
         String publicCode,
         @RequestParam("verificationCode")
         @NotBlank

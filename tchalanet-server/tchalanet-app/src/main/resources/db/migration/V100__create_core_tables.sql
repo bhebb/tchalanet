@@ -6,6 +6,8 @@ CREATE TABLE tenant (
   type varchar(32) NOT NULL DEFAULT 'PERSONAL',
   timezone varchar(64) NOT NULL DEFAULT 'UTC',
   currency varchar(3) NOT NULL DEFAULT 'USD',
+  default_language varchar(8) NOT NULL DEFAULT 'fr',
+  default_locale varchar(16) NOT NULL DEFAULT 'fr-HT',
   status varchar(32) NOT NULL DEFAULT 'DRAFT',
   address_id uuid,
   config jsonb NOT NULL DEFAULT '{}'::jsonb,
@@ -353,7 +355,8 @@ CREATE TABLE draw (
   resulted_at timestamptz,
   settled_at timestamptz,
   canceled_at timestamptz,
-  cancel_reason text,
+  cancel_reason_code varchar(96),
+  cancel_reason_label varchar(255),
   status varchar(16) NOT NULL,
   draw_result_id uuid REFERENCES draw_result(id),
   system_generated boolean NOT NULL DEFAULT true,
@@ -1866,3 +1869,41 @@ CREATE TABLE business_day_override (
 COMMENT ON TABLE business_day_override IS
     'Tenant or outlet-level business day open/close overrides (holidays, exceptional closures/openings).
      outlet_id IS NULL = tenant-level rule. outlet_id IS NOT NULL = outlet-level override (wins over tenant).';
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- result_slot_calendar_override
+-- Global (no tenant_id) — reflects provider closures per result_slot.
+-- Two mutually-exclusive shapes (XOR, see CHECK):
+--   * slot_local_date  : a specific dated occurrence (movable feasts, one-offs).
+--   * recurring_md      : a year-less 'MM-dd' annual rule (fixed holidays).
+-- Both are evaluated in the result_slot timezone.
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE result_slot_calendar_override (
+    id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    result_slot_id  uuid        NOT NULL REFERENCES result_slot(id),
+    slot_local_date date        NULL,           -- specific occurrence (Easter, one-offs)
+    recurring_md    varchar(5)  NULL,           -- 'MM-dd' annual rule (e.g. '12-25')
+    available       boolean     NOT NULL,
+    reason_code     varchar(96) NOT NULL,
+    reason_label    varchar(255) NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    created_by      uuid        NULL,
+    updated_at      timestamptz NOT NULL DEFAULT now(),
+    updated_by      uuid        NULL,
+    deleted_at      timestamptz NULL,
+    deleted_by      uuid        NULL,
+    version         bigint      NOT NULL DEFAULT 0,
+    -- Exclusive-or: exactly one shape populated. Both-set OR neither-set is rejected.
+    CONSTRAINT chk_result_slot_calendar_override__shape CHECK (
+        (slot_local_date IS NOT NULL AND recurring_md IS NULL)
+        OR
+        (slot_local_date IS NULL
+         AND recurring_md ~ '^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
+    )
+);
+
+COMMENT ON TABLE result_slot_calendar_override IS
+    'Global provider calendar overrides per result_slot. available=false marks a no-draw day.
+     XOR shape: slot_local_date (specific dated occurrence) vs recurring_md (year-less MM-dd
+     annual rule). Both dates are in result_slot.timezone. A specific dated row overrides a
+     recurring rule for the same day. Runtime truth (SUPER_ADMIN managed); seeds are bootstrap.';

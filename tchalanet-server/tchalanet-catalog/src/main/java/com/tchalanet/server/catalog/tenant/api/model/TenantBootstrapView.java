@@ -16,5 +16,7 @@ public record TenantBootstrapView(
     String status,           // e.g. ACTIVE, SUSPENDED, ARCHIVED
     String type,             // e.g. COMMERCIAL, PERSONAL
     ZoneId timezone,         // parsed from DB string with fallback to UTC
-    Currency currency        // parsed from DB code with fallback to USD
+    Currency currency,       // parsed from DB code with fallback to USD
+    String defaultLanguage,  // e.g. "fr"
+    String defaultLocale     // e.g. "fr-HT"
 ) {}

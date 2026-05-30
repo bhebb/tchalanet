@@ -22,11 +22,9 @@ import com.tchalanet.server.core.sales.api.model.print.TicketPrintQrPayload;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintSellerContext;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintState;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
-import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintView;
 import com.tchalanet.server.core.sales.api.model.status.TicketPrintStatus;
-import com.tchalanet.server.core.sales.internal.application.receipt.formatter.DrawLabelFormat;
-import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketDrawLabelFormatter;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptI18nKeys;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import com.tchalanet.server.core.sales.internal.domain.model.ticket.TicketLine;
@@ -46,22 +44,12 @@ public class TicketPrintViewMapper {
     private static final String DEFAULT_QR_PAYLOAD_VERSION = "v1";
 
     private final TicketVerificationUrlBuilder verificationUrlBuilder;
-    private final TicketDrawLabelFormatter drawLabelFormatter;
 
     public TicketPrintView toPrintView(TicketPrintHeaderViewEntity header, Ticket ticket) {
         var verificationUrl = verificationUrlBuilder.buildUrl(header.getPublicCode());
         var drawLabel = resolveDrawChannelName(header);
         var locale = parseLocale(header.getLocale());
         var timezone = parseTimezone(header.getTimezone());
-        var formattedDrawLabel = drawLabelFormatter.format(
-            drawLabel,
-            header.getDrawDate(),
-            null,
-            timezone,
-            header.getScheduledAt(),
-            locale,
-            DrawLabelFormat.TICKET_SHORT
-        );
 
         return new TicketPrintView(
             new TicketPrintIdentity(
@@ -85,7 +73,7 @@ public class TicketPrintViewMapper {
             new TicketPrintDraw(
                 DrawId.of(header.getDrawId()),
                 DrawChannelId.of(header.getDrawChannelId()),
-                formattedDrawLabel,
+                drawLabel,
                 drawLabel,
                 header.getDrawDate(),
                 header.getScheduledAt(),

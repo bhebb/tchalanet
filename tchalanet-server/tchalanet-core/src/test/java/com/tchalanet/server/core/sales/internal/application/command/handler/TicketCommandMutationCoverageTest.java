@@ -25,7 +25,9 @@ import com.tchalanet.server.common.types.money.Money;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
 import com.tchalanet.server.core.sales.api.model.money.TicketMoneyBreakdown;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
-import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
+import com.tchalanet.server.platform.document.api.model.PrintOptionsRequest;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLineOrigin;
 import com.tchalanet.server.core.sales.api.model.promotion.TicketLinePricingSource;
 import com.tchalanet.server.core.sales.api.model.status.TicketLineResultStatus;
@@ -89,7 +91,7 @@ class TicketCommandMutationCoverageTest {
 
         handler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
-            PrintOutputFormat.PDF,
+            new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4),
             null,
             USER,
             original.context().terminalId(),
@@ -179,7 +181,7 @@ class TicketCommandMutationCoverageTest {
 
         printHandler.handle(new RecordTicketPrintCommand(
             original.identity().id(),
-            PrintOutputFormat.PDF,
+            new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4),
             null,
             USER,
             original.context().terminalId(),

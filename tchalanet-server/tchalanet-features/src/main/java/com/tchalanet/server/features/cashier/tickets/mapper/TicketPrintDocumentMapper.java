@@ -1,9 +1,10 @@
 package com.tchalanet.server.features.cashier.tickets.mapper;
 
-import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
-import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineStyle;
+import com.tchalanet.server.platform.document.api.model.PrintOptionsRequest;
+import com.tchalanet.server.platform.document.api.model.DocumentPrintProfile;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
+import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineStyle;
 import com.tchalanet.server.features.cashier.tickets.model.PrintTicketRequest;
 import com.tchalanet.server.platform.document.api.model.DocumentAsset;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
@@ -26,7 +27,8 @@ public class TicketPrintDocumentMapper {
     public DocumentRenderRequest toRenderRequest(
         TicketReceiptPrintContent receipt,
         PrintTicketRequest request,
-        TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig
+        TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig,
+        DocumentPrintProfile profile
     ) {
         var content = new ReceiptDocumentContent(
             toDocumentLines(receipt.headerLines()),
@@ -38,12 +40,12 @@ public class TicketPrintDocumentMapper {
         );
 
         return new DocumentRenderRequest(
-            templateKey(request.format(), tenantReceiptConfig),
+            templateKey(profile, tenantReceiptConfig),
             DocumentKind.RECEIPT,
-            toDocumentFormat(request.format()),
+            toDocumentFormat(profile),
             receipt.title(),
             content,
-            assets(receipt, request, tenantReceiptConfig),
+            assets(receipt, request, tenantReceiptConfig, profile),
             options(tenantReceiptConfig),
             receipt.locale(),
             receipt.timezone(),
@@ -66,7 +68,7 @@ public class TicketPrintDocumentMapper {
     }
 
     private DocumentTemplateKey templateKey(
-        PrintOutputFormat format,
+        DocumentPrintProfile profile,
         TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig
     ) {
         if (receiptConfigEnabled(tenantReceiptConfig)
@@ -75,34 +77,46 @@ public class TicketPrintDocumentMapper {
             return DocumentTemplateKey.of(tenantReceiptConfig.defaultTemplateKey());
         }
 
-        return switch (format) {
+        var docFormat = profile == null || profile.outputFormat() == null
+            ? DocumentFormat.PDF
+            : profile.outputFormat();
+
+        return switch (docFormat) {
             case PDF -> DocumentTemplateKey.of("sales.ticket.receipt.pdf.v1");
             case ESC_POS -> DocumentTemplateKey.of("sales.ticket.receipt.escpos.v1");
+            case PNG -> null;
+            case HTML_PREVIEW -> null;
         };
     }
 
-    private DocumentFormat toDocumentFormat(PrintOutputFormat format) {
-        return switch (format) {
-            case PDF -> DocumentFormat.PDF;
-            case ESC_POS -> DocumentFormat.ESC_POS;
-        };
+    private DocumentFormat toDocumentFormat(DocumentPrintProfile profile) {
+        if (profile == null || profile.outputFormat() == null) {
+            return DocumentFormat.PDF;
+        }
+        return profile.outputFormat();
     }
 
     private List<DocumentAsset> assets(
         TicketReceiptPrintContent receipt,
         PrintTicketRequest request,
-        TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig
+        TenantInternalDocumentConfig.ReceiptConfig tenantReceiptConfig,
+        DocumentPrintProfile profile
     ) {
         if (!showQrCode(tenantReceiptConfig) || receipt.qr() == null || receipt.qr().payload() == null) {
             return List.of();
         }
-        return List.of(DocumentAsset.qr(receipt.qr().payload(), qrSize(request.format())));
+        return List.of(DocumentAsset.qr(receipt.qr().payload(), qrSize(profile)));
     }
 
-    private int qrSize(PrintOutputFormat format) {
-        return switch (format) {
+    private int qrSize(DocumentPrintProfile profile) {
+        var docFormat = profile == null || profile.outputFormat() == null
+            ? DocumentFormat.PDF
+            : profile.outputFormat();
+        return switch (docFormat) {
             case PDF -> 300;
             case ESC_POS -> 280;
+            case PNG -> 0;
+            case HTML_PREVIEW -> 0;
         };
     }
 

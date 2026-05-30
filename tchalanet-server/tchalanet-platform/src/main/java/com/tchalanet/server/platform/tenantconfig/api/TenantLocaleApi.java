@@ -2,12 +2,15 @@ package com.tchalanet.server.platform.tenantconfig.api;
 
 import com.tchalanet.server.common.types.id.TenantId;
 
+import java.util.List;
 import java.util.Locale;
 
-/** Resolves default locale settings for a tenant. */
+/** Resolves locale settings for a tenant. */
 public interface TenantLocaleApi {
 
     Locale resolveDefaultLocale(TenantId tenantId);
 
     String resolveDefaultLanguage(TenantId tenantId);
+
+    List<String> resolveSupportedLanguages(TenantId tenantId);
 }

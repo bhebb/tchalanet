@@ -9,6 +9,7 @@ Read first:
 - `../VERSIONS.md`
 - `AGENTS.md`
 - `docs/ARCHITECTURE.md`
+- `docs/CALENDARS.md` for business-day / provider-calendar / session-open work
 - nearest `DOMAIN_*.md` or `FEATURE_*.md` for the touched area
 
 OpenSpec:

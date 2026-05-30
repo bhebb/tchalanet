@@ -34,14 +34,14 @@ public class CancelDrawCommandHandler implements VoidCommandHandler<CancelDrawCo
     @TchTx
     public void handle(CancelDrawCommand command) {
         Objects.requireNonNull(command.drawId(), "drawId is required");
-        Objects.requireNonNull(command.reason(), "reason is required");
+        Objects.requireNonNull(command.reasonCode(), "reasonCode is required");
 
         var draw = drawLookupPort.getById(command.drawId());
 
         // Validate that draw can be cancelled (checks sales, payouts, etc.)
         salesGuard.assertCanCancel(draw.id(), command.force());
 
-        draw.cancel(command.reason(), clock.instant());
+        draw.cancel(command.reasonCode(), command.reasonLabel(), clock.instant());
 
         drawLifecyclePort.save(draw);
 
@@ -53,7 +53,8 @@ public class CancelDrawCommandHandler implements VoidCommandHandler<CancelDrawCo
             draw.id(),
             draw.drawChannelId(),
             draw.drawDate(),
-            command.reason()
+            draw.cancelReasonCode(),
+            draw.cancelReasonLabel()
         )));
     }
 }

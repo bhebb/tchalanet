@@ -9,7 +9,7 @@ public class PageModelJsonFragmentRegistry {
 
   private static final Map<String, String> FRAGMENTS =
       Map.ofEntries(
-          // Public shell fragments (v2 typed NavigationDestination format)
+          // Public shell fragments (v2 typed NavigationDestination printOptionsRequest)
           Map.entry("public_header_links", "pagemodel/fragments/public/public_header_links.json"),
           Map.entry("public_footer_links", "pagemodel/fragments/public/public_footer_links.json"),
           // Public content fragments

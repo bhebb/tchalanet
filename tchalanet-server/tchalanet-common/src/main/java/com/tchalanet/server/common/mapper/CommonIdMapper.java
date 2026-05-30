@@ -390,6 +390,26 @@ public class CommonIdMapper {
         return ResultSlotId.nullableOf(id);
     }
 
+    // BusinessDayOverrideId
+    public UUID mapFromBusinessDayOverrideId(
+        com.tchalanet.server.common.types.id.BusinessDayOverrideId id) {
+        return id == null ? null : id.value();
+    }
+
+    public com.tchalanet.server.common.types.id.BusinessDayOverrideId mapToBusinessDayOverrideId(UUID id) {
+        return com.tchalanet.server.common.types.id.BusinessDayOverrideId.nullableOf(id);
+    }
+
+    // ResultSlotCalendarOverrideId
+    public UUID mapFromResultSlotCalendarOverrideId(
+        com.tchalanet.server.common.types.id.ResultSlotCalendarOverrideId id) {
+        return id == null ? null : id.value();
+    }
+
+    public com.tchalanet.server.common.types.id.ResultSlotCalendarOverrideId mapToResultSlotCalendarOverrideId(UUID id) {
+        return com.tchalanet.server.common.types.id.ResultSlotCalendarOverrideId.nullableOf(id);
+    }
+
 
     // GameId
     public UUID mapFromTicketLineId(TicketLineId id) {

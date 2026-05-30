@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.tenantconfig.internal.adapter;
+package com.tchalanet.server.platform.tenantconfig.internal.persistence;
 
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -19,20 +19,20 @@ class JdbcTenantBusinessCalendarOverrideReader implements TenantBusinessCalendar
     private static final String OUTLET_SQL = """
         SELECT open, reason_code, label
         FROM business_day_override
-        WHERE tenant_id    = :tenant_id
-          AND outlet_id    = :outlet_id
+        WHERE tenant_id = :tenant_id
+          AND outlet_id = :outlet_id
           AND business_date = :business_date
-          AND deleted_at   IS NULL
+          AND deleted_at IS NULL
         LIMIT 1
         """;
 
     private static final String TENANT_SQL = """
         SELECT open, reason_code, label
         FROM business_day_override
-        WHERE tenant_id    = :tenant_id
-          AND outlet_id    IS NULL
+        WHERE tenant_id = :tenant_id
+          AND outlet_id IS NULL
           AND business_date = :business_date
-          AND deleted_at   IS NULL
+          AND deleted_at IS NULL
         LIMIT 1
         """;
 
@@ -40,36 +40,43 @@ class JdbcTenantBusinessCalendarOverrideReader implements TenantBusinessCalendar
 
     @Override
     public Optional<TenantBusinessDayView> findOutletOverride(
-        TenantId tenantId, OutletId outletId, LocalDate date) {
-
+        TenantId tenantId,
+        OutletId outletId,
+        LocalDate date
+    ) {
         var params = new MapSqlParameterSource()
-            .addValue("tenant_id",     tenantId.value())
-            .addValue("outlet_id",     outletId.value())
+            .addValue("tenant_id", tenantId.value())
+            .addValue("outlet_id", outletId.value())
             .addValue("business_date", date);
 
         return jdbc.query(OUTLET_SQL, params, (rs, i) ->
             new TenantBusinessDayView(
-                tenantId, date,
+                tenantId,
+                date,
                 rs.getBoolean("open"),
                 rs.getString("reason_code"),
-                rs.getString("label"))
+                rs.getString("label")
+            )
         ).stream().findFirst();
     }
 
     @Override
     public Optional<TenantBusinessDayView> findTenantOverride(
-        TenantId tenantId, LocalDate date) {
-
+        TenantId tenantId,
+        LocalDate date
+    ) {
         var params = new MapSqlParameterSource()
-            .addValue("tenant_id",     tenantId.value())
+            .addValue("tenant_id", tenantId.value())
             .addValue("business_date", date);
 
         return jdbc.query(TENANT_SQL, params, (rs, i) ->
             new TenantBusinessDayView(
-                tenantId, date,
+                tenantId,
+                date,
                 rs.getBoolean("open"),
                 rs.getString("reason_code"),
-                rs.getString("label"))
+                rs.getString("label")
+            )
         ).stream().findFirst();
     }
 }

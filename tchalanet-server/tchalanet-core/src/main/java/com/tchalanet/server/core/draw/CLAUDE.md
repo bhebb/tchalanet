@@ -40,6 +40,8 @@ Before editing:
 - Load `/batch` only for scheduler/job changes.
 - Load `/event` only for listeners/events.
 - Load `/rls` only for tenant SQL/RLS changes.
+- Read `docs/CALENDARS.md` for provider no-draw days (`result_slot_calendar_override`),
+  generation skip, and open-today cancellation.
 
 Output:
 
