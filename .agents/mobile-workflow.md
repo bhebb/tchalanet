@@ -77,6 +77,82 @@ tmux attach -t claude
 handoff → Ctrl+B D   (détacher, laisser tourner)
 ```
 
+## Serveur tchalanet.lan (Manjaro Linux)
+
+> Serveur local LAN — fait tourner l'API backend + edge service pour le dev web sans charger le Mac.
+
+### Quand l'utiliser
+
+| Contexte | Sans tchalanet.lan | Avec tchalanet.lan |
+|---|---|---|
+| Dev `tchalanet-web` | démarrer backend + edge sur le Mac | pointer le web vers le serveur |
+| Test API isolé | tout local | utiliser le serveur |
+| Mac faible en ressources | Java + Node + Angular = lourd | soulager le Mac |
+
+**Limite** : LAN local uniquement — pas accessible depuis l'extérieur ni via Tailscale (pas encore configuré).
+
+### Connexion SSH
+
+```bash
+# Depuis le Mac ou Termius (sur le même réseau Wi-Fi)
+ssh <user>@tchalanet.lan
+# ou par IP si mDNS ne résout pas :
+ssh <user>@192.168.x.x
+```
+
+Dans Termius : ajouter un hôte `tchalanet-lan` avec Hostname `tchalanet.lan`, Port `22`, Username `<ton-user-manjaro>`.
+
+### Services qui tournent
+
+| Service | Projet | Port défaut |
+|---|---|---|
+| API Spring Boot | `tchalanet-server` | `8080` |
+| Edge service | `tchalanet-edge-service` | `3000` (à confirmer) |
+
+### Démarrer / arrêter les services
+
+```bash
+# Se connecter
+ssh <user>@tchalanet.lan
+tmux attach -t backend   # ou tmux new -s backend
+
+# Démarrer l'API (depuis tchalanet-server/)
+./mvnw spring-boot:run
+
+# Démarrer l'edge (depuis tchalanet-edge-service/)
+npm run dev
+
+# Détacher sans arrêter : Ctrl+B D
+```
+
+### Configurer le web pour pointer vers tchalanet.lan
+
+Dans `tchalanet-web`, le fichier d'env local à modifier :
+
+```bash
+# tchalanet-web/.env.local  (ou proxy config Nx)
+API_URL=http://tchalanet.lan:8080
+EDGE_URL=http://tchalanet.lan:3000
+```
+
+> Vérifier dans `tchalanet-web/AGENTS.md` ou `docs/` la convention exacte pour l'URL d'API en dev local.
+
+### Précautions spécifiques
+
+| Risque | Précaution |
+|---|---|
+| Serveur éteint/suspendu | Vérifier que Manjaro ne se suspend pas (`systemd-sleep` ou réglages énergie) |
+| LAN uniquement | Pas accessible depuis l'extérieur — revenir sur le Mac si hors réseau |
+| Migrations DB | Ne jamais lancer une migration sur le serveur sans sauvegarde |
+| Tailscale à ajouter | Quand dispo : ajouter `tchalanet.lan` dans Tailscale → accessible depuis le tel partout |
+
+### TODO tchalanet.lan
+
+- [ ] Confirmer ports réels (edge-service notamment)
+- [ ] Ajouter Tailscale sur le serveur Manjaro (accès distant depuis le tel)
+- [ ] SSH par clé (même principe que le Mac)
+- [ ] Ajouter hôte `tchalanet-lan` dans Termius
+
 ## MCP actifs (2026-05-30)
 
 | MCP | Usage | Review |
