@@ -73,7 +73,6 @@ fi
 
 FILES+=(
   "compose/docker-compose-keycloak.yml"
-  "compose/docker-compose-unleash.yml"
   "compose/docker-compose-api.yml"
 )
 
@@ -133,15 +132,8 @@ if ! scripts/utils/wait-keycloak.sh "$REALM" "$KC_INTERNAL_URL" 240; then
   echo "❌ Realm '$REALM' non prêt" >&2; exit 1
 fi
 
-# 9) Up services applicatifs (api, unleash)
-for svc in api unleash; do
-  echo "→ Up $svc"
-  "$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d "$svc" || echo "⚠️  $svc up non-zero" >&2
-done
-
-# Meilisearch retiré de la v1: ignorer si présent
-if grep -q 'meilisearch' compose/docker-compose-project.yml 2>/dev/null; then
-  echo "→ (Ignoré) meilisearch présent dans compose mais non utilisé"
-fi
+# 9) Up API
+echo "→ Up api"
+"$DOCKER_BIN" compose --project-name "tch-${ENV}" --env-file "$TMP_ENV_FILE" "${compose_files_args[@]}" up -d api || echo "⚠️  api up non-zero" >&2
 
 echo "ℹ️  Stack initiale opérationnelle (LOCAL_BUILD=$LOCAL_BUILD)."

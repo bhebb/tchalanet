@@ -218,13 +218,10 @@ make deploy-prod
 ### Stack complète (ordre de démarrage)
 
 1. **Traefik** - Reverse proxy & TLS
-2. **Postgres** - Base de données (3 DB : app, keycloak, unleash)
+2. **Postgres** - Base de données (2 DB : app, keycloak)
 3. **Redis** - Cache
 4. **Keycloak** - Authentification & SSO
-5. **Unleash** - Feature flags
-6. **Meilisearch** - Moteur de recherche
-7. **API Spring Boot** - Backend applicatif
-8. **Unleash Edge** (optionnel) - Proxy feature flags
+5. **API Spring Boot** - Backend applicatif
 
 ### Vérification
 
@@ -403,7 +400,6 @@ Makefile → run-compose.sh → docker compose --env-file $MERGED
   - [ ] Keycloak : `https://auth.staging.tchalanet.com/health`
   - [ ] API : `https://api.staging.tchalanet.com/actuator/health`
 - [ ] Base de données accessible
-- [ ] Feature flags Unleash actifs
 
 ---
 

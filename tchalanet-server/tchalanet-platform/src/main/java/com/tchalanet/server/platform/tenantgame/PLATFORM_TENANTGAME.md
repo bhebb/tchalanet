@@ -1,22 +1,21 @@
+
 # Platform Capability `platform.tenantgame` — Tenant Game Settings
 
-> Archetype : Application Service Module.
-
-## 1. Rôle
+## Rôle
 
 Gérer les paramètres de jeux activés et configurés par tenant (quels jeux sont disponibles, avec quels paramètres opérationnels).
 
-**Ce module fait** :
-- Stocker les associations tenant ↔ jeux activés avec leurs paramètres.
-- Exposer la liste des jeux disponibles pour un tenant.
-- CRUD admin de l'activation et configuration des jeux par tenant.
+**Ce module fait** :
+- Stockage des associations tenant ↔ jeux activés + paramètres
+- Exposition de la liste des jeux disponibles pour un tenant
+- CRUD admin de l’activation/configuration des jeux par tenant
 
-**Ce module ne fait pas** :
-- Définition des jeux (→ `catalog.game`).
-- Évaluation des limites de mise (→ `core.limitpolicy`).
-- Calcul des odds (→ `catalog.pricing` ou `core.draw`).
+**Ce module ne fait pas** :
+- Définition des jeux (voir `catalog.game`)
+- Évaluation des limites de mise (voir `core.limitpolicy`)
+- Calcul des odds (voir `catalog.pricing` ou `core.draw`)
 
-## 2. Structure
+## Surface API
 
 ```text
 platform/tenantgame/
@@ -33,8 +32,12 @@ platform/tenantgame/
     config/
 ```
 
-## 3. Règles
+## Intégration
 
-- Consomme `catalog.game.api` pour les métadonnées de jeux.
-- RLS actif.
-- Caching des jeux activés (evict sur update admin).
+- Consomme `catalog.game.api` pour les métadonnées de jeux
+- RLS actif
+- Caching des jeux activés (evict sur update admin)
+
+## Règles et limitations
+
+- Les paramètres sont propres à chaque tenant

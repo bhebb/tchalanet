@@ -23,7 +23,6 @@ All scripts are internal implementation details. Prefer `make <target>` over cal
 | ------------------------------ | ---------------------------------------------------------------------------------- |
 | `local-setup-env.sh`           | Bootstrap a new env profile (creates compose.env, runs setup-networks + env-merge) |
 | `setup-api-env.sh`             | Generate `../tchalanet-server/.env` from infra secrets for IDE development         |
-| `generate-meili-master-key.sh` | Generate and write MEILI_MASTER_KEY into `envs/<env>/.secrets`                     |
 
 ## scripts/keycloak/
 

@@ -33,7 +33,7 @@ make -C tchalanet-infra check-health ENV=staging
 
 ### 📦 Build & up séquentiel (helper)
 
-Le script `scripts/utils/up-seq.sh` prend en charge un build séquentiel des fichiers compose (en utilisant `envs/common/compose.env` + `envs/$ENV/compose.env` comme env-file temporaire) puis démarre la stack dans l'ordre configuré : traefik → postgres → redis → keycloak → api → unleash → …
+Le script `scripts/utils/up-seq.sh` prend en charge un build séquentiel des fichiers compose (en utilisant `envs/common/compose.env` + `envs/$ENV/compose.env` comme env-file temporaire) puis démarre la stack dans l'ordre configuré : traefik → postgres → redis → keycloak → api → …
 
 - Usage :
 ```bash

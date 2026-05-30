@@ -22,7 +22,6 @@ Statuts :
 | `render-traefik-dynamic.sh` | KEEP_PUBLIC   | Rend `traefik/dynamic/` depuis `dynamic-src/<env>/`              |
 | `setup-networks.sh`         | KEEP_INTERNAL | Crée les réseaux Docker edge/back                                |
 | `wait-keycloak.sh`          | KEEP_INTERNAL | Attend que Keycloak soit prêt                                    |
-| `wait-unleash.sh`           | KEEP_INTERNAL | Attend que Unleash soit prêt (post-v0)                           |
 | `health-check.sh`           | KEEP_INTERNAL | Health check générique sur un endpoint HTTP                      |
 | `ssh-host-refresh.sh`       | KEEP_INTERNAL | Rafraîchit known_hosts pour un hôte SSH                          |
 | `generate-staging-certs.sh` | LEGACY        | Générateur de certs auto-signés staging (remplacé Let's Encrypt) |
@@ -33,10 +32,9 @@ Statuts :
 
 | Script                  | Statut        | Rôle                                            |
 | ----------------------- | ------------- | ----------------------------------------------- |
-| `postgres-init.sh`      | KEEP_INTERNAL | Init DB PostgreSQL (KC, App, Unleash optionnel) |
+| `postgres-init.sh`      | KEEP_INTERNAL | Init DB PostgreSQL (KC, App)                    |
 | `redis-entrypoint.sh`   | KEEP_INTERNAL | Entrypoint Redis avec support requirepass       |
 | `traefik-entrypoint.sh` | KEEP_INTERNAL | Entrypoint Traefik custom                       |
-| `meili-entrypoint.sh`   | KEEP_INTERNAL | Entrypoint Meilisearch (post-v0)                |
 | `publish-images.sh`     | KEEP_PUBLIC   | Publie les images Docker vers le registry       |
 
 ## scripts/keycloak/
@@ -63,8 +61,6 @@ Statuts :
 | `01-bootstrap.sh`                 | KEEP_INTERNAL | Bootstrap Docker + infra sur serveur remote       |
 | `install-docker.sh`               | KEEP_INTERNAL | Installation Docker sur serveur remote            |
 | `push-infra-bkup.sh`              | KEEP_INTERNAL | Pousse le dossier infra sur un serveur remote     |
-| `03-rotate-meili-master-key.sh`   | LEGACY        | Rotation clé Meilisearch (post-v0)                |
-| `04-generate-meili-master-key.sh` | LEGACY        | Génération clé Meilisearch (post-v0)              |
 | `staging-backup.sh`               | KEEP_PUBLIC   | Backup PostgreSQL staging vers ./backups/staging/ |
 | `staging-restore-latest.sh`       | KEEP_PUBLIC   | Restaure le dernier backup sur staging            |
 
@@ -84,4 +80,3 @@ Statuts :
 | `local-setup-env.sh`           | LEGACY | Setup env local (remplacé par merge-env.sh + Makefile) |
 | `setup-api-env.sh`             | LEGACY | Setup env API local (remplacé par merge-env.sh)        |
 | `start-traefik.sh`             | LEGACY | Démarrage Traefik direct (remplacé par Makefile)       |
-| `generate-meili-master-key.sh` | LEGACY | Génération clé Meilisearch local (post-v0)             |
