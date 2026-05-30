@@ -1,39 +1,30 @@
+
 # Platform Capability `platform.tenanttheme` — Tenant Theme Management
 
-> Archetype : Application Service Module. Migré depuis `core.tenanttheme`.
-
-## 1. Rôle
+## Rôle
 
 Gérer les overrides de thème (couleurs, logos, polices) par tenant, au-dessus des presets définis dans `catalog.theme`.
 
-**Ce module fait** :
-- Stocker et exposer les overrides de thème par tenant.
-- Fournir le thème effectif = preset catalog + overrides tenant.
-- CRUD admin des overrides.
+**Ce module fait** :
+- Stockage et exposition des overrides de thème par tenant
+- Calcul du thème effectif = preset catalog + overrides tenant
+- CRUD admin des overrides
 
-**Ce module ne fait pas** :
-- Définition des presets de thème (→ `catalog.theme`).
-- Rendu CSS/frontend (→ web app).
+**Ce module ne fait pas** :
+- Définition des presets de thème (voir `catalog.theme`)
+- Rendu CSS/frontend (voir web app)
 
-## 2. Structure
+## Surface API
 
-```text
-platform/tenanttheme/
-  api/
-    TenantThemeApi.java       ← getEffectiveTheme(TenantId) → TenantThemeView
-    model/
-      TenantThemeView.java
-      ThemeOverride.java
-  internal/
-    service/                  ← merge preset + overrides
-    persistence/
-    web/                      ← ThemeAdminController (/api/v1/admin/theme)
-    cache/
-    config/
-```
+- `TenantThemeApi` (Java) : `getEffectiveTheme(TenantId)`
+- Modèles : `TenantThemeView`, `ThemeOverride`
 
-## 3. Règles
+## Intégration
 
-- Consomme `catalog.theme.api` pour lire les presets.
-- RLS actif sur les overrides.
-- Caching du thème effectif (TTL, evict sur update admin).
+- Consomme `catalog.theme.api` pour lire les presets
+- RLS actif sur les overrides
+- Caching du thème effectif (TTL, evict sur update admin)
+
+## Règles et limitations
+
+- Les overrides sont propres à chaque tenant

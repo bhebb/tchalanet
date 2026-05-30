@@ -18,14 +18,17 @@
 En cas de conflit entre deux sources, la priorité est :
 
 ```
-1. Code livré + tests verts       (état réel — pas "code idéal")
-2. ADR accepté                     (intention architecturale)
+1. Code livré + tests verts              (état réel — pas "code idéal")
+2. ADR accepté                            (intention architecturale)
 3. <projet>/docs/ARCHITECTURE.md
 4. <projet>/docs/conventions/*
-5. src/**/DOMAIN_*.md              (invariants métier locaux)
-6. tchalanet-docs/docs/*           (portail cross-project)
-7. openspec/context/*              (router IA)
-8. openspec/changes/*              (atelier WIP — non normatif)
+5. src/**/DOMAIN_*.md                    (invariants métier — tchalanet-core)
+   src/**/CATALOG_*.md                   (invariants métier — tchalanet-catalog)
+   src/**/PLATFORM_*.md                  (règles capabilities — tchalanet-platform)
+   src/**/FEATURE_*.md                   (contrat BFF — tchalanet-features)
+6. tchalanet-docs/docs/*                 (portail cross-project)
+7. openspec/context/*                    (router IA)
+8. openspec/changes/*                    (atelier WIP — non normatif)
 ```
 
 > Si le code contredit une règle normative → c'est une **dette explicite** à tracker, pas une vérité à accepter.
@@ -70,23 +73,30 @@ Quand un détail appartient à un projet ou domaine, `tchalanet-docs` **pointe**
 Un fichier par sujet technique. Mis à jour **en même commit** que le code qui change la règle.
 Si une règle s'applique à plusieurs projets → elle monte vers `tchalanet-docs/docs/00-guidelines/`.
 
-### `src/**/DOMAIN_*.md` — règles métier locales
+### Docs near-code — convention par slice
 
-**Contenu autorisé :**
-- vocabulaire métier du domaine
+Chaque slice `tchalanet-server` utilise un préfixe différent. **Un seul fichier near-code par package.**
+
+| Slice | Préfixe | Contenu |
+|---|---|---|
+| `tchalanet-core` | `DOMAIN_*.md` | Vocabulaire, états, invariants métier, events |
+| `tchalanet-catalog` | `CATALOG_*.md` | Idem — référentiels globaux (jeux, pricing, slots) |
+| `tchalanet-platform` | `PLATFORM_*.md` | Capabilities infra (idempotence, audit, identity…) |
+| `tchalanet-features` | `FEATURE_*.md` | Contrat BFF : surfaces, endpoints, frontières |
+
+**Contenu autorisé dans tous :**
+- vocabulaire métier du package
 - états et transitions
-- invariants métier
+- invariants
 - événements publiés/consommés
-- décisions métier locales
-- diagrammes simples si utiles
+- décisions locales au package
 
 **Ne contient pas :**
 - conventions Java/Spring générales → `docs/conventions/`
-- détails JPA/Flyway génériques → `docs/conventions/`
 - règles déjà dans `docs/conventions/*`
-- historique long de discussions
+- historique de discussions
 
-Si une règle s'applique à plusieurs domaines → elle monte vers `<projet>/docs/conventions/`.
+Si une règle s'applique à plusieurs packages → elle monte vers `<projet>/docs/conventions/`.
 
 ### `openspec/context/` — router IA, pas résumé
 
@@ -171,7 +181,10 @@ C'est **toujours** le premier fichier à modifier.
 | Frontend Angular | `tchalanet-web/docs/conventions/` |
 | Infra / Docker | `tchalanet-infra/docs/conventions/` |
 | Edge service | `tchalanet-edge-service/docs/conventions/` |
-| Domaine métier | `tchalanet-server/src/**/DOMAIN_*.md` |
+| Domaine métier (core) | `tchalanet-server/src/**/DOMAIN_*.md` |
+| Référentiel catalog | `tchalanet-server/src/**/CATALOG_*.md` |
+| Capability platform | `tchalanet-server/src/**/PLATFORM_*.md` |
+| BFF feature | `tchalanet-server/src/**/FEATURE_*.md` |
 
 ### Étape 2 — Mettre à jour le skill IA correspondant
 
@@ -235,7 +248,10 @@ Les warnings nécessitent une revue humaine, pas de fix automatique.
 ```markdown
 ## Documentation impact
 - [ ] J'ai changé une règle technique → convention doc mise à jour (même commit)
-- [ ] J'ai changé une règle métier → DOMAIN_*.md revu
+- [ ] J'ai changé une règle métier (core) → `DOMAIN_*.md` revu
+- [ ] J'ai changé un référentiel catalog → `CATALOG_*.md` revu
+- [ ] J'ai changé une capability platform → `PLATFORM_*.md` revu
+- [ ] J'ai changé un contrat BFF → `FEATURE_*.md` revu
 - [ ] J'ai changé un workflow observable → flow doc revu
 - [ ] J'ai livré une change OpenSpec → extraction complétée et change supprimée
 - [ ] J'ai lancé `pnpm docs:check`
@@ -252,7 +268,10 @@ Les warnings nécessitent une revue humaine, pas de fix automatique.
 | C'est du métier (domaine ou workflow) ? | `tchalanet-docs/docs/02-functional/` |
 | C'est une décision technique structurante ? | `tchalanet-docs/docs/03-adr/` |
 | C'est technique spécifique à un projet ? | `<projet>/docs/conventions/` |
-| C'est une règle métier locale d'un domaine ? | `src/**/DOMAIN_*.md` |
+| C'est une règle métier locale (core) ? | `src/**/DOMAIN_*.md` |
+| C'est un référentiel catalog ? | `src/**/CATALOG_*.md` |
+| C'est une capability platform ? | `src/**/PLATFORM_*.md` |
+| C'est un contrat BFF feature ? | `src/**/FEATURE_*.md` |
 | C'est une spec en cours ? | `openspec/changes/<change-id>/` |
 
 ---

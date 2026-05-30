@@ -6,55 +6,35 @@
 
 ---
 
-## Convention de nommage near-code (établie, à documenter formellement)
+## Convention de nommage near-code
 
-| Slice | Préfixe near-code | Statut |
+✅ Établie, documentée dans `doc-policy.md` et dans l'ARCHITECTURE.md de `tchalanet-server` (TODO).
+
+| Slice | Préfixe near-code | Couverture |
 |---|---|---|
-| `tchalanet-core` | `DOMAIN_*.md` | ✅ En place |
-| `tchalanet-catalog` | `CATALOG_*.md` | ✅ Renommé 2026-05-30 |
-| `tchalanet-platform` | `PLATFORM_*.md` | ✅ En place |
-| `tchalanet-features` | `FEATURE_*.md` | ✅ En place |
-
-À ajouter dans `doc-policy.md` §Near-code docs et dans l'ARCHITECTURE.md de `tchalanet-server`.
+| `tchalanet-core` | `DOMAIN_*.md` | ✅ 17 packages couverts |
+| `tchalanet-catalog` | `CATALOG_*.md` | ✅ 6 packages couverts |
+| `tchalanet-platform` | `PLATFORM_*.md` | ✅ 13 packages couverts |
+| `tchalanet-features` | `FEATURE_*.md` | ✅ 8 features couvertes |
 
 ---
 
-## Flows manquants (role-flows.md les référence, fichiers absents)
+## Flows fonctionnels
 
-✅ Tous les flows sont créés — liens corrigés dans `role-flows.md`.
+✅ Tous les flows référencés dans `role-flows.md` sont créés.
 
 ---
 
-## DOMAIN_*.md manquants
+## DOMAIN_*.md — items en attente
 
-### tchalanet-platform — aucun DOMAIN_*.md dans les 13 packages
-
-| Package | Chemin |
-|---|---|
-| `platform.identity` | `tchalanet-platform/.../identity/` |
-| `platform.tenantconfig` | `tchalanet-platform/.../tenantconfig/` |
-| `platform.accesscontrol` | `tchalanet-platform/.../accesscontrol/` |
-| `platform.idempotence` | `tchalanet-platform/.../idempotence/` |
-| `platform.notification` | `tchalanet-platform/.../notification/` |
-| `platform.communication` | `tchalanet-platform/.../communication/` |
-| `platform.audit` | `tchalanet-platform/.../audit/` |
-| `platform.address` | `tchalanet-platform/.../address/` |
-| `platform.document` | `tchalanet-platform/.../document/` |
-| `platform.entitlement` | `tchalanet-platform/.../entitlement/` |
-| `platform.publiccontent` | `tchalanet-platform/.../publiccontent/` |
-| `platform.tenantgame` | `tchalanet-platform/.../tenantgame/` |
-| `platform.tenanttheme` | `tchalanet-platform/.../tenanttheme/` |
-
-Tous ont des `PLATFORM_*.md` enrichis (infrastructure/config) mais pas de `DOMAIN_*.md` near-code (vocabulaire, états, invariants, events).
-
-### tchalanet-core — en attente d'active changes
+### tchalanet-core — bloqué par active changes
 
 | Domaine | Bloqué par |
 |---|---|
 | `core.seller` | Change `tchalanet-commercial-network-v1` |
 | `core.promotion` | Change `tchalanet-commercial-network-v1` + `tchalanet-promotion-integration-pack` |
 
-### tchalanet-core — incohérence à corriger après spec
+### Incohérence à corriger après spec
 
 | Fichier | Problème |
 |---|---|
@@ -64,11 +44,9 @@ Tous ont des `PLATFORM_*.md` enrichis (infrastructure/config) mais pas de `DOMAI
 
 ## Liens stale dans les docs existants
 
-| Fichier | Ligne | Problème |
-|---|---|---|
-| `role-flows.md` | L41-44 | `seller-onboarding.md` et `terminal-binding.md` existent maintenant mais marqués `*(TODO)*` |
-| `role-flows.md` | L63-65, L109 | Liens vers flows seller/terminal/session encore en forme `flow/` sans nom de fichier |
-| `FEATURE_CASHIER.md` | Références | `print-ticket/` est un dossier (`00-index.md`, `01-backend.md`, etc.) — le lien devrait pointer vers `print-ticket/00-index.md` |
+| Fichier | Problème |
+|---|---|
+| `FEATURE_CASHIER.md` | `print-ticket/` est un dossier — le lien devrait pointer vers `print-ticket/00-index.md` |
 
 ---
 
@@ -76,49 +54,53 @@ Tous ont des `PLATFORM_*.md` enrichis (infrastructure/config) mais pas de `DOMAI
 
 | Outil | Référencé dans | Description |
 |---|---|---|
-| `pnpm docs:check` | `tchalanet-docs/docs/00-guidelines/doc-policy.md` | Validation automatique des conventions doc — jamais implémenté |
+| `pnpm docs:check` | `doc-policy.md` | Validation automatique — jamais implémenté |
 
 ---
 
-## Duplications / ambiguïtés à résoudre
+## Openspec changes offlinesync — deux changes actives
 
-| Observation | Localisation |
+`add-offlinesync` et `add-offlinesync-module` couvrent le même domaine.  
+Les deux ont des tâches ouvertes — ce sont des specs actives, pas des archives.  
+Le `DOMAIN_OFFLINESYNC.md` dans les changes est un doc de conception (pas un near-code dupliqué).  
+Source canonique near-code : `tchalanet-core/.../core/offlinesync/DOMAIN_OFFLINESYNC.md`.  
+**Action à la livraison** : vérifier si les deux changes peuvent être fusionnées avant merge.
+
+---
+
+## tchalanet-infra — gaps documentaires
+
+Audit 2026-05-30 :
+
+| Constat | Impact |
 |---|---|
-| `openspec/changes/add-offlinesync/` et `openspec/changes/add-offlinesync-module/` — deux changes pour le même domaine offlinesync | `openspec/changes/` |
-| `DOMAIN_OFFLINESYNC.md` existe à 3 endroits : `changes/add-offlinesync/`, `changes/add-offlinesync-module/docs/`, `core/offlinesync/` — seul le near-code est canonique, les deux autres sont des artefacts de changes non nettoyés | `tchalanet-core/core/offlinesync/DOMAIN_OFFLINESYNC.md` = source |
+| Pas d'`docs/ARCHITECTURE.md` | Pas de vue globale de l'infra (services, réseau, volumes) |
+| Pas de `docs/conventions/` | Pas de règles formalisées (nommage, env vars, volumes) |
+| 15 docs opérationnels (~3800 lignes), datés nov 2025 | Probablement stales sur certains détails |
+| Overlap entre `DEPLOYMENT.md` et `OPERATIONS.md` | Deux sources pour le même sujet |
+| `DEMARRAGE.md` — état "100% opérationnel" nov 2025 | Potentiellement périmé |
+| `mobile-distribution-v0.md` — "v0" dans le nom | À renommer ou archiver si supersédé |
+
+**À créer :**
+- `tchalanet-infra/docs/ARCHITECTURE.md` — services Docker, réseau Traefik, volumes, Keycloak, Doppler
+- `tchalanet-infra/docs/conventions/` — conventions env vars, secrets, nommage services
 
 ---
 
-## Features sans FEATURE_*.md
+## Features — contenu à vérifier
 
-| Feature package | Fichier existant | Contenu actuel |
-|---|---|---|
-| `features.reporting` | `FEATURE_REPORTING.md` ✅ | À vérifier si à jour |
-| `features.stats` | `FEATURE_STATS.md` ✅ | À vérifier si à jour |
-| `features.publicdrawresults` | `FEATURE_PUBLICDRAWRESULTS.md` ✅ | À vérifier si à jour |
-| `features.ops` | `FEATURE_OPS.md` ✅ | À vérifier si à jour |
-
----
-
-## Couverture mobile docs
-
-| Fichier | Statut |
+| Feature | Statut |
 |---|---|
-| `tchalanet-mobile/docs/ARCHITECTURE.md` | Existe ✅ |
-| `tchalanet-mobile/docs/conventions/README.md` | Existe ✅ |
-| `tchalanet-mobile/docs/OFFLINE.md` | Existe ✅ |
-| Conventions spécifiques mobile (state management, navigation, providers) | Stub seulement — TODO quand règles stabilisées dans le code |
-
----
-
-## Audit tchalanet-infra (non terminé)
-
-Phase 3 a supprimé les archives de `tchalanet-infra`. L'audit du contenu documentaire (est-ce que les docs existants sont à jour, utiles, ou à supprimer) n'a pas été fait.
+| `FEATURE_REPORTING.md` | Existe — contenu à vérifier |
+| `FEATURE_STATS.md` | Existe — contenu à vérifier |
+| `FEATURE_PUBLICDRAWRESULTS.md` | Existe — contenu à vérifier |
+| `FEATURE_OPS.md` | Existe — contenu à vérifier |
+| `FEATURE_TENANTADMIN_OFFLINE.md` | Existe — probablement stub |
 
 ---
 
 ## Observations mineures
 
-- `FEATURE_TENANTADMIN_OFFLINE.md` existe mais est probablement un stub — vérifier contenu avant PR
-- `tchalanet-web/.prettierignore` et `.prettierrc` modifiés sur `chore/ai-agent-setup` — vérifier si intentionnel ou vestige
-- `SELLER_GUIDE.md` créé en FR — si l'app est bilingue (FR/HT), une version en créole haïtien sera nécessaire (V2)
+- `tchalanet-server/docs/ARCHITECTURE.md` — à mettre à jour avec la convention nommage near-code (DOMAIN/CATALOG/PLATFORM/FEATURE)
+- `tchalanet-web/.prettierignore` et `.prettierrc` modifiés sur `chore/ai-agent-setup` — vérifier si intentionnel
+- `SELLER_GUIDE.md` en FR uniquement — version créole haïtien à prévoir (V2 si app bilingue)

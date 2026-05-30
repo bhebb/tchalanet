@@ -1,50 +1,33 @@
+
 # Platform Capability `platform.publiccontent` — Public Content Delivery
 
-> Archetype : Application Service Module.
-
-## 1. Rôle
+## Rôle
 
 Exposer et servir le contenu public (pages, assets, messages, CGU, etc.) destiné aux utilisateurs non authentifiés ou à large diffusion.
 
-**Ce module fait** :
-- Servir des pages ou assets publics (CGU, mentions légales, landing pages, etc.).
-- Gérer la publication et la mise à jour de contenu public.
-- Exposer une API de lecture pour le contenu public.
+**Ce module fait** :
+- Service de pages/assets publics (CGU, mentions légales, landing, etc.)
+- Publication/mise à jour de contenu public
+- API de lecture pour le contenu public
 
-**Ce module ne fait pas** :
-- Authentification ou gestion d’accès restreint (→ accesscontrol).
-- Stockage de contenu métier privé ou sensible.
-- Gestion de contenu multilingue avancée (à spécifier si besoin).
+**Ce module ne fait pas** :
+- Authentification ou gestion d’accès restreint (voir accesscontrol)
+- Stockage de contenu métier privé ou sensible
+- Gestion multilingue avancée (à spécifier si besoin)
 
-## 2. Structure
+## Surface API
 
-```text
-platform/publiccontent/
-  api/
-    PublicContentApi.java         ← getContent(ContentKey)
-    model/
-      PublicContentView.java
-      ContentKey.java
-  internal/
-    service/
-    persistence/
-    web/                         ← PublicContentController (/api/v1/public/content)
-    config/
-```
+- `PublicContentApi` (Java) : `getContent(ContentKey)`
+- Modèles : `PublicContentView`, `ContentKey`
 
-## 3. Règles
+## Intégration
 
-- Le contenu public doit être validé avant publication.
-- Les modifications sont auditées via platform.audit.
-- Pas de RLS (contenu non tenant-scoped, sauf exception à documenter).
-- Les assets volumineux peuvent être stockés en externe (S3, CDN…).
+- Les apps web/mobiles consomment l’API pour afficher le contenu public
+- Les modifications sont auditées via platform.audit
 
-## 4. Intégration
+## Règles et limitations
 
-- Les apps web/mobiles consomment l’API pour afficher le contenu public.
-- Les modifications de contenu sont traçables et auditées.
-
-## 5. Guardrails
-
-- Ne jamais exposer de données sensibles via ce module.
-- Les dépendances doivent rester internes à platform/publiccontent.
+- Le contenu public doit être validé avant publication
+- Pas de RLS (contenu non tenant-scoped, sauf exception)
+- Les assets volumineux peuvent être stockés en externe (S3, CDN…)
+- Ne jamais exposer de données sensibles via ce module
