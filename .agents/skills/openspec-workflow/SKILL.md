@@ -16,6 +16,8 @@ A task is planning, architecture, refactor, a new capability, a breaking change,
 - Keep a change as `proposal.md` + `tasks.md` (+ `design.md` when non-trivial).
 - Use the `opsx:*` skills for the lifecycle: `propose`, `apply`, `continue`, `verify`, `archive`.
 - Keep global OpenSpec context light — it routes, it does not copy component docs.
+- **Checkpoint obligatoire** : au début de chaque session sur un change, lire `tasks.md` d'abord — c'est l'état réel de l'avancement.
+- **Cocher en temps réel** : après chaque tâche complétée, mettre à jour `tasks.md` (`[ ]` → `[x]`) avant de passer à la suivante.
 
 ## Change locations
 
@@ -36,3 +38,11 @@ A task is planning, architecture, refactor, a new capability, a breaking change,
 ## Output
 
 A change folder with `proposal.md` (Why / What / Impact / Non-goals) and `tasks.md` (checkable steps).
+
+## Limite de contexte atteinte
+
+Si la limite de contexte approche en cours de change :
+1. Cocher toutes les tâches **réellement terminées** dans `tasks.md` avant de s'arrêter.
+2. Produire un handoff (`.agents/skills/handoff/SKILL.md`) avec `Slice`, `Files changed`, `Next step` pointant vers la prochaine tâche non cochée.
+3. Envoyer le handoff dans `#tchalanet-agents` (`C0B76AV9WAW`).
+4. Nouvelle session : lire `tasks.md` → reprendre à la première tâche `[ ]`.

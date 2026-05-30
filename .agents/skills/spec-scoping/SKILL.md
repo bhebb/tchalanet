@@ -4,6 +4,8 @@
 
 Turning a vague idea into an implementable spec. This is the skill behind `/spec`. No code is written.
 
+Also use when a spec is **in draft and needs deeper analysis** — see "Draft deepening" below.
+
 ## Load
 
 1. `AGENTS.md` (root router).
@@ -35,6 +37,37 @@ Turning a vague idea into an implementable spec. This is the skill behind `/spec
 6. Open questions
 7. Assumptions
 ```
+
+## Draft deepening
+
+Quand une spec est **en draft** et que l'analyse doit être approfondie :
+
+1. **Lire la spec** : `openspec/changes/<change>/proposal.md` + `tasks.md`.
+2. **Identifier les zones floues** : open questions, assumptions marquées, sections vides.
+3. **Recherche ciblée** : lire uniquement les docs sources nommés dans la spec (pas de scan global). Exemples : un `DOMAIN_*.md`, un `flow.md`, un contrat API.
+4. **Mettre à jour `proposal.md`** : compléter les sections floues, déplacer assumptions → décisions si clarifiées, ajouter open questions nouvelles.
+5. **Mettre à jour `tasks.md`** : affiner le découpage si la recherche change la granularité.
+6. **Ne pas coder** — si la recherche révèle qu'une implémentation est nécessaire pour valider, le noter comme open question.
+
+Output : `proposal.md` mis à jour avec sections `## Deepened — <date>` pour tracer ce qui a changé.
+
+## OpenSpec pipeline (obligatoire)
+
+Chaque change OpenSpec suit ce pipeline — ne pas sauter d'étape :
+
+```
+proposal.md créé
+    ↓
+tasks.md créé (tâches checkables, une par slice)
+    ↓
+[par tâche] implémentation → valider → cocher dans tasks.md
+    ↓
+[par tâche] mise à jour docs concernés (voir "Doc update" dans scoped-task)
+    ↓
+Toutes tâches cochées → archiver via opsx:archive
+```
+
+**Checkpoint de session** : au début de chaque session sur un change existant, lire `tasks.md` en premier pour savoir où on en est. Ne jamais repartir de zéro.
 
 ## Mobile output (Slack)
 
