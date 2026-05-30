@@ -31,6 +31,8 @@ public final class TicketReceiptI18nKeys {
     public static final String MESSAGE_AMOUNT = "receipt.message.amount";
     public static final String MESSAGE_BACKUP_CODE = "receipt.message.backup.code";
     public static final String MESSAGE_BACKUP_VERIFY = "receipt.message.backup.verify";
+    public static final String REF = "receipt.ref";
+    public static final String SCAN_TO_VERIFY = "receipt.scan_to_verify";
     public static final String CHARGE_SMS = "receipt.charge.sms";
     public static final String CHARGE_WHATSAPP = "receipt.charge.whatsapp";
     public static final String CHARGE_EMAIL = "receipt.charge.email";
@@ -62,6 +64,8 @@ public final class TicketReceiptI18nKeys {
         MESSAGE_AMOUNT,
         MESSAGE_BACKUP_CODE,
         MESSAGE_BACKUP_VERIFY,
+        REF,
+        SCAN_TO_VERIFY,
         CURRENCY_NOTE,
         CHARGE_SMS,
         CHARGE_WHATSAPP,

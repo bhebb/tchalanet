@@ -73,7 +73,7 @@ public class TicketPrintViewMapper {
             new TicketPrintDraw(
                 DrawId.of(header.getDrawId()),
                 DrawChannelId.of(header.getDrawChannelId()),
-                drawLabel,
+                null,
                 drawLabel,
                 header.getDrawDate(),
                 header.getScheduledAt(),

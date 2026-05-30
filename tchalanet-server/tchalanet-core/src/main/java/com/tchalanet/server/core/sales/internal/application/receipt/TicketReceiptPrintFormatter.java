@@ -91,11 +91,17 @@ public class TicketReceiptPrintFormatter {
         footer.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
 
         if (layoutProfile.printFullVerificationUrl()) {
+            // A4/full print: keep full verification URL and QR text
             addLabel(footer, translations.text(TicketReceiptI18nKeys.VERIFICATION), receipt.verificationUrl(), false, layoutProfile);
+            addLabel(footer, translations.text(TicketReceiptI18nKeys.QR), receipt.displayCode(), false, layoutProfile);
         } else {
-            addLabel(footer, "Code", receipt.displayCode(), false, layoutProfile);
+            // Thermal receipt: compact footer — show public code only, do not print QR text or full URL
+            addLabel(footer, translations.text(TicketReceiptI18nKeys.PUBLIC_CODE), receipt.displayCode(), false, layoutProfile);
+            var scan = translations.text(TicketReceiptI18nKeys.SCAN_TO_VERIFY);
+            if (scan != null && !scan.isBlank()) {
+                add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
+            }
         }
-        addLabel(footer, translations.text(TicketReceiptI18nKeys.QR), receipt.displayCode(), false, layoutProfile);
 
         // Assert no produced line exceeds the layout width (guard anti-overflow)
         assertLines("header", header, layoutProfile);
