@@ -47,5 +47,6 @@ See `.agents/skills/openspec-workflow/SKILL.md`.
 - If a task touches multiple projects, state the slices explicitly before editing.
 - If unsure, stop and ask for scope confirmation.
 - Never run global scans (`grep -R`, `find /`, `tree` at root) without an explicit reason.
-- Never push to `main`, never force-push, never auto-merge.
+- Never push to `main` directly (except pure status-doc updates to `tasks.md` / `mcp-activations.md`). All code/skill/config changes → branch → PR → human merge.
+- Never force-push, never auto-merge.
 - See `.agents/skills/ai-safety/SKILL.md`.
