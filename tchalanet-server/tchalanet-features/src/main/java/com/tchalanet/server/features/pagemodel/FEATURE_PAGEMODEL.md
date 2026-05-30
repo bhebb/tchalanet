@@ -1,4 +1,59 @@
-# Feature pagemodel
+# Feature PageModel — Le mini-CMS Tchalanet
+
+> **Rôle** : moteur de composition de pages publiques et de dashboards  
+> **Scope** : `features.pagemodel` — BFF/composition layer  
+> **Domaine** : `core.pagemodel` (lifecycle, templates, publications)  
+> **Specs** : `openspec/specs/pagemodel-contract/spec.md` · `openspec/specs/platform-pagemodel/spec.md` · `openspec/specs/pagemodel-security/spec.md`
+
+---
+
+## Concept central
+
+Un PageModel est un document JSON qui décrit le **layout et les widgets** d'une surface applicative.  
+Le frontend le consomme pour construire dynamiquement l'écran — sans que le backend connaisse le rendu.
+
+```
+Backend : PageModel document (layout + widget bindings + props)
+        ↓
+features.pagemodel : résout le document + enrichit les widgets via Dynamic Providers
+        ↓
+Frontend : rendu dynamique (composants Angular, Flutter)
+```
+
+**Le PageModel est layout/config, pas vérité opérationnelle.**  
+Pour savoir si un seller peut vendre → utiliser le cashier home BFF, pas le PageModel.
+
+---
+
+## Surfaces
+
+| Type | logicalId | Scope | Consommateur |
+|---|---|---|---|
+| `PUBLIC_HOME` | `public.home` | public | Web public, anonymous |
+| `DASHBOARD_SUPERADMIN` | `private.dashboard.superadmin` | private | Super-admin |
+| `DASHBOARD_TENANT_ADMIN` | `private.dashboard.tenant_admin` | private | Tenant admin |
+| `DASHBOARD_OPERATOR` | `private.dashboard.operator` | private | Opérateur |
+| `DASHBOARD_CASHIER` | `private.dashboard.cashier` | private | Cashier (legacy) |
+| `DASHBOARD_CASHIER_WEB` | `private.dashboard.cashier.web` | private | Cashier web dashboard |
+
+> **Note** : Le POS mobile utilise `GET /tenant/cashier/home` — pas le PageModel.
+
+---
+
+## Endpoints
+
+```http
+GET /public/page-models/{logicalId}     ← page publique (anonymous)
+GET /tenant/page-models                 ← dashboard tenant (résolu par rôle)
+GET /platform/page-models               ← dashboard platform (SUPER_ADMIN)
+```
+
+La résolution du logicalId privé est faite server-side depuis `TchRequestContext` (rôle de l'acteur).  
+Le client ne fournit pas d'id pour les dashboards privés.
+
+---
+
+## Architecture : Dynamic Providers
 
 `features.pagemodel` is the BFF/composition layer for public and private PageModel
 responses. It resolves the effective PageModel through core queries, then enriches
@@ -6,12 +61,11 @@ dynamic widgets and shell sections through `PageModelDynamicProvider`.
 
 ## Dynamic source rules
 
-- `binding.source` values are stable `snake_case` identifiers.
-- `providerKey()` must equal the `binding.source` handled by the provider.
-- Providers compose payloads through `QueryBus` or stable application services.
-- Providers must not access repositories, JPA entities, SQL, or business tables directly.
-- Tenant and actor data comes from `TchRequestContext`; clients must not provide tenant data
-  inside dynamic widget props.
+- `binding.source` = identifiant stable `snake_case`
+- `providerKey()` doit correspondre exactement au `binding.source` géré
+- Les providers composent via `QueryBus` ou application services stables
+- Les providers n'accèdent jamais directement aux repositories, JPA, SQL, tables métier
+- Les données tenant/actor viennent de `TchRequestContext` — le client ne fournit pas de tenant data dans les widget props
 
 ## JSON fragments
 
@@ -66,3 +120,68 @@ Fragments use `label_key` only. Do not put translated labels in fragment JSON.
 | `superadmin_batch_status`  | `SuperAdminBatchStatusProvider`  |
 | `superadmin_tenants`       | `SuperAdminTenantsProvider`      |
 | `superadmin_version`       | `SuperAdminVersionProvider`      |
+
+---
+
+## Sécurité PageModel
+
+**PageModels publics** : exposent uniquement du contenu public-safe — pas de routes privées/admin, pas de contexte opérationnel.
+
+**PageModels privés** : le logicalId est résolu server-side depuis `TchRequestContext`.
+
+| Rôle acteur | PageModel retourné |
+|---|---|
+| `CASHIER` | `private.dashboard.cashier.web` |
+| `TENANT_ADMIN` | `private.dashboard.tenant_admin` |
+| `SUPER_ADMIN` | `private.dashboard.superadmin` |
+
+**Accès non autorisé → 403** — aucun provider n'est invoqué si l'acteur n'a pas le droit.  
+Les providers sensibles re-valident l'accès indépendamment.
+
+---
+
+## Cycle de vie des documents (core.pagemodel)
+
+```
+Template global (PUBLISHED)
+      ↓ DuplicatePageModel
+   DRAFT tenant
+      ↓ PublishPageModel
+ PUBLISHED (actif)
+      ↓ Mise à jour template disponible
+   Évaluation compatibilité (PATCH / MINOR / MAJOR)
+      ↓ MergePageModelWithTemplate ou CreateDraftFromTemplateUpdate
+ DRAFT → PUBLISHED
+      ↓
+  ARCHIVED
+```
+
+Voir domaine : `core/pagemodel/DOMAIN_PAGEMODEL.md`
+
+---
+
+## Onboarding tenant
+
+Lors du provisioning d'un nouveau tenant, `core.pagemodel` reçoit une commande `DuplicatePageModelCommand` depuis `features.platformadmin.tenantonboarding` pour chaque surface.
+
+Le tenant reçoit ses propres documents (draft ou published selon profil). Il peut ensuite les personnaliser.
+
+---
+
+## Règles critiques
+
+- PageModel ≠ vérité opérationnelle (POS readiness, session, draw status)
+- Le POS mobile utilise `/tenant/cashier/home`, pas le PageModel
+- Les fragments JSON utilisent `label_key` uniquement — jamais de labels traduits inline
+- Chemins raw interdits dans `file_key` — path traversal rejeté avant tout chargement classpath
+- Les providers s'exécutent dans le contexte HTTP existant — ne pas le modifier
+
+---
+
+## Références
+
+- Domaine lifecycle : `core/pagemodel/DOMAIN_PAGEMODEL.md`
+- Contract widgets/shell : `openspec/specs/pagemodel-contract/spec.md`
+- Sécurité : `openspec/specs/pagemodel-security/spec.md`
+- Platform rules : `openspec/specs/platform-pagemodel/spec.md`
+- Contexte HTTP : `docs/conventions/context/request-context.md` §PageModel Rules

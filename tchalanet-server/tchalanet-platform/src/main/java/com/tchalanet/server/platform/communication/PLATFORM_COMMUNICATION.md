@@ -4,64 +4,41 @@
 
 **NORMATIVE — proposed**
 
-## Purpose
 
-`platform.communication` is the transversal capability responsible for external delivery:
+## Rôle
 
-- email;
-- SMS;
-- Slack internal ops alerts;
-- optional tenant Slack webhook;
-- push provider later;
-- message templates;
-- delivery attempts;
-- retry/backoff;
-- provider adapters.
+`platform.communication` gère la livraison externe :
+- email
+- SMS
+- alertes Slack internes
+- webhooks Slack tenant (optionnel)
+- push provider (à venir)
+- templates de messages
+- gestion des tentatives, retry/backoff, adaptateurs providers
 
-It does not own business decisions. It delivers communication intents produced from events or explicit API calls.
+Ce module ne prend pas de décision métier : il délivre les intentions produites par events ou API explicite.
 
-## Core decision
-
-```text
 enqueue is the normal path.
 sendNow is the controlled exception.
-```
 
-### `enqueue(...)`
+## Surface API
 
-Use for:
+- `CommunicationApi` (Java) :
+  - `enqueue(SendOutboundMessageRequest)` — chemin normal (asynchrone, traçable)
+  - `sendNow(SendOutboundMessageRequest)` — exception contrôlée (synchrone, à éviter)
 
-```text
-- event-driven messages;
-- email/SMS/Slack in real flows;
-- provider can be slow/unavailable;
-- retry is required;
-- delivery attempts must be traced;
-- send must not block a business transaction;
-- message must be idempotent via correlationKey.
-```
+## Intégration
 
-Examples:
+- Les modules platform/core publient des intentions de communication via `enqueue`
+- `sendNow` réservé aux cas d’exception (ne pas bloquer les transactions métier)
+- Les tentatives, statuts et erreurs sont tracés
 
-```text
-PayoutPaidEvent -> enqueue payout receipt SMS/email
-OfflineSubmissionRejectedEvent -> enqueue tenant admin email + internal Slack alert
-BatchFailedEvent -> enqueue internal Slack alert
-TenantAdminInvitedEvent -> enqueue invitation email
-```
+## Règles et limitations
 
-### `sendNow(...)`
-
-Use only for:
-
-```text
-- platform ops test Slack;
-- platform ops test email;
-- controlled health/ping endpoint;
-- rare explicit diagnostic where caller needs provider result immediately.
-```
-
-`sendNow` is not a fallback when `enqueue` fails. If `enqueue` fails, the local persistence/validation/transaction path must be fixed. Provider failure is handled after enqueue through retry and delivery attempts.
+- Jamais de logique métier dans ce module
+- Les providers peuvent être lents/indisponibles : retry/backoff obligatoire
+- Les livraisons sont asynchrones par défaut
+- Les templates sont gérés côté platform
 
 ## Module organization
 
