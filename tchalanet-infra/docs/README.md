@@ -15,6 +15,10 @@
 
 - **[DOPPLER-SETUP-GUIDE.md](DOPPLER-SETUP-GUIDE.md)** — Doppler project setup, service tokens, secret rotation, download to server
 
+## Services
+
+- **[EDGE-SERVICE.md](EDGE-SERVICE.md)** — Edge service Docker config : build, démarrage, env vars, intégration backend
+
 ## Images & Deployment
 
 - **[IMAGES-DEPLOYMENT.md](IMAGES-DEPLOYMENT.md)** — Build and publish Docker images to GHCR

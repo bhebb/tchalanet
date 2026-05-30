@@ -199,13 +199,9 @@ if [ "$ENV" != "skip" ]; then
         doppler secrets set KC_BOOTSTRAP_ADMIN_PASSWORD="$(openssl rand -base64 24)" --silent
         doppler secrets set APP_DB_PASSWORD="$(openssl rand -base64 32)" --silent
         doppler secrets set REDIS_PASSWORD="$(openssl rand -base64 32)" --silent
-        doppler secrets set UNLEASH_DB_PASSWORD="$(openssl rand -base64 32)" --silent
-        doppler secrets set MEILI_MASTER_KEY="$(openssl rand -base64 32)" --silent
         doppler secrets set GA_MEASUREMENT_ID="" --silent
 
         success "Secrets ajoutés dans Doppler (config: $doppler_config)"
-
-        warn "N'oubliez pas d'ajouter les tokens Unleash après démarrage !"
       else
         "$SCRIPT_DIR/generate-secrets.sh" "$env"
       fi

@@ -33,7 +33,7 @@ fi
 SECRETS_FILE="$INFRA_ROOT/envs/$ENV/.secrets"
 if [ ! -f "$SECRETS_FILE" ]; then
   warn "Fichier secrets introuvable: $SECRETS_FILE"
-  echo "Exécute d'abord: make generate-meili-master-key ENV=$ENV"
+  echo "Exécute d'abord: make env-merge ENV=$ENV"
   exit 1
 fi
 

@@ -28,10 +28,6 @@ services:
     extra_hosts:
       - "auth.localtest.me:host-gateway"
 
-  unleash:
-    ports:
-      - "4242:4242"
-
   traefik:
     ports:
       - "80:80"

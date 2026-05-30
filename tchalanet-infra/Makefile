@@ -141,7 +141,7 @@ down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
 
 down-all:
-	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml down edge-service || true
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down redis $(ENV) || true
@@ -168,8 +168,8 @@ rebuild-api:
 
 rebuild-edge: env-merge ensure-exec networks
 	@echo "→ Rebuild de l'image Edge locale..."
-	@docker compose --env-file envs/$(ENV)/.env.merged \
-	                -f compose/docker-compose.edge.yml up -d --build edge-service
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged \
+	                -f compose/docker-compose-edge-service.yml up -d --build edge-service
 	@echo "✅ Edge rebuildé et redémarré"
 
 rebuild-all: rebuild-api rebuild-keycloak
@@ -181,9 +181,9 @@ rebuild-all: rebuild-api rebuild-keycloak
 up-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV)
 down-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV)
 up-edge:   env-merge ensure-exec networks
-	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml up -d edge-service
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml up -d edge-service
 down-edge: env-merge ensure-exec
-	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml down edge-service
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service
 up-keycloak: ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
 
 logs-%:
@@ -325,12 +325,12 @@ local-api-smoke:
 
 # local-product : server-v0 complet en local (API + Edge + Web)
 local-product-up: local-api-up
-	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml up -d edge-service
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml up -d edge-service
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up web $(ENV)
 
 local-product-down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down web $(ENV) || true
-	@docker compose --env-file envs/$(ENV)/.env.merged -f compose/docker-compose.edge.yml down edge-service || true
+	@ENV=$(ENV) docker compose --project-name tch-$(ENV) --env-file envs/$(ENV)/.env.merged -f compose/docker-compose-edge-service.yml down edge-service || true
 	@$(MAKE) local-api-down
 
 # ============================================================================

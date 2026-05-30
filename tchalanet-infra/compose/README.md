@@ -19,14 +19,9 @@ compose/
 │
 │   # server-v0
 ├── docker-compose-api.yml               # API Spring Boot — réseaux edge + back
-├── docker-compose-edge.yml              # Edge service — réseaux edge + back
-├── docker-compose-web.yml               # Web Angular — réseau edge
-│
-│   # post-v0 (optionnel)
-├── docker-compose-unleash.yml           # Unleash (feature flags)
-├── docker-compose-unleash-seeds.yml     # Unleash seeds (one-shot)
-├── docker-compose-meilisearch.yml       # Meilisearch
-└── docker-compose-umami.yml             # Umami (analytics)
+├── docker-compose-edge.yml              # Unleash Edge proxy — réseaux edge + back
+├── docker-compose-edge-service.yml              # Tchalanet edge-service (build local) — réseau back
+└── docker-compose-web.yml               # Web Angular — réseau edge
 ```
 
 ## 🚀 Usage
@@ -170,17 +165,19 @@ Affectation réseau par service :
 
 | Service    | edge | back |
 |------------|------|------|
-| Traefik    | ✅   |      |
-| Web        | ✅   |      |
-| API        | ✅   | ✅   |
-| Edge       | ✅   | ✅   |
-| Keycloak   | ✅   | ✅   |
-| PostgreSQL |      | ✅   |
-| Redis      |      | ✅   |
+| Traefik      | ✅   |      |
+| Web          | ✅   |      |
+| API          | ✅   | ✅   |
+| edge-service |      | ✅   |
+| Keycloak     | ✅   | ✅   |
+| PostgreSQL   |      | ✅   |
+| Redis        |      | ✅   |
 
 ### IMAGE_TAG
 
-`IMAGE_TAG` est **obligatoire** pour les services applicatifs (api, edge, web). Pas de fallback `:latest` ni tag flottant. Définir dans `envs/common/compose.env` ou `envs/<env>/compose.env`.
+`IMAGE_TAG` est **obligatoire** pour les services applicatifs (api, web). Pas de fallback `:latest` ni tag flottant. Définir dans `envs/common/compose.env` ou `envs/<env>/compose.env`.
+
+`edge-service` utilise un build local (`TCH_EDGE_TAG=local`) — pas d'`IMAGE_TAG` requis.
 
 ### Variables d'environnement
 
@@ -196,12 +193,10 @@ Affectation réseau par service :
 
 ## 📝 Ordre de démarrage (dépendances)
 
-1. **Postgres** + **Redis** + **Meilisearch** (bases de données)
-2. **Unleash** (dépend de Postgres)
-3. **Keycloak** (dépend de Postgres)
-4. **Traefik** (reverse proxy)
-5. **Umami** (dépend de Postgres)
-6. **API** (dépend de Postgres, Keycloak, Redis, etc.)
+1. **Postgres** + **Redis** (bases de données)
+2. **Keycloak** (dépend de Postgres)
+3. **Traefik** (reverse proxy)
+4. **API** (dépend de Postgres, Keycloak, Redis)
 
 L'ordre est géré par `depends_on` dans les fichiers compose.
 

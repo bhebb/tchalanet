@@ -97,9 +97,9 @@ services:
 - `DOCKER_PREFIX`, `DOCKER_NETWORK_EDGE`, `DOCKER_NETWORK_BACK`
 - `POSTGRES_CONTAINER`, `REDIS_CONTAINER`, `API_CONTAINER`, etc.
 - `POSTGRES_VOLUME`, `KEYCLOAK_DATA_VOLUME`
-- `POSTGRES_VERSION`, `REDIS_IMAGE`, `MEILI_IMAGE`, etc.
+- `POSTGRES_VERSION`, `REDIS_IMAGE`, etc.
 - `PG_LOG_MAX_SIZE`, `KC_LOG_MAX_FILES`, etc.
-- `API_TRAEFIK_ENABLE`, `UNLEASH_TRAEFIK_ENABLE`
+- `API_TRAEFIK_ENABLE`
 - `KC_XMS`, `KC_XMX`, `KC_METASPACE_SIZE`, etc.
 - Noms de databases/users NON-SECRETS (POSTGRES_DB, POSTGRES_USER, APP_DB_NAME, KC_DB_USERNAME, etc.)
 
@@ -121,9 +121,7 @@ APP_DB_NAME=tchalanet_db
 
 - Configuration Spring Boot (SPRING_PROFILES_ACTIVE, SPRING_DATASOURCE_URL, etc.)
 - Configuration Keycloak (KC_DB, KC_DB_URL, KC_LOG_LEVEL, etc.)
-- Configuration Unleash (NODE_ENV, DATABASE_HOST, LOG_LEVEL, etc.)
-- Configuration Meilisearch (MEILI_NO_ANALYTICS, MEILI_DB_PATH, etc.)
-- URLs et hostnames (API_HOST, FLAGS_HOST, TCH_KC_ISSUER, etc.)
+- URLs et hostnames (API_HOST, TCH_KC_ISSUER, etc.)
 - Configuration Postgres (TZ, PGDATA, POSTGRES_INITDB_ARGS, etc.)
 - Flags et features (ENABLE_METRICS, OTEL_ENABLED, etc.)
 
@@ -147,12 +145,10 @@ API_HOST=api.stg.tchalanet.com
 **Mots de passe, tokens, clés sensibles :**
 
 - `POSTGRES_PASSWORD`
-- `APP_DB_PASSWORD`, `KC_DB_PASSWORD`, `UNLEASH_DB_PASSWORD`
+- `APP_DB_PASSWORD`, `KC_DB_PASSWORD`
 - `KC_BOOTSTRAP_ADMIN_USERNAME`, `KC_BOOTSTRAP_ADMIN_PASSWORD`
 - `REDIS_PASSWORD`
-- `MEILI_MASTER_KEY`
 - `API_JWT_SECRET`, `KC_CLIENT_SECRET`
-- `UNLEASH_ADMIN_TOKEN`, `UNLEASH_CLIENT_TOKEN`
 
 **⚠️ Jamais versionné !** Téléchargé via Doppler :
 
@@ -189,8 +185,6 @@ APP_DB_NAME=tchalanet_db
 APP_DB_USER=app_user
 KC_DB_NAME=keycloak_db
 KC_DB_USERNAME=kc_user
-UNLEASH_DB_NAME=unleash_db
-UNLEASH_DB_USER=unleash_user
 ```
 
 ### 3. **.secrets** (Doppler)
@@ -200,7 +194,6 @@ UNLEASH_DB_USER=unleash_user
 POSTGRES_PASSWORD=<secret>
 APP_DB_PASSWORD=<secret>
 KC_DB_PASSWORD=<secret>
-UNLEASH_DB_PASSWORD=<secret>
 ```
 
 ### 4. **docker-compose-postgres.yml**
