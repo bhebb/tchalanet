@@ -10,9 +10,11 @@
 ```
 Vendeur POS
     │
-    ├─ Preview ─────────────────── Validation read-only (pas de réservation)
+    ├─ Preview ─────────────────── Validation read-only + promotion PROPOSED (pas d'effet)
+    │                              → Décision: ACCEPTABLE / REQUIRES_CHANGES / REJECTED_FINAL
+    │                              → Si promotion avec choix : PROPOSED + choiceMode
     │
-    ├─ Sell ──────────────────────── Transaction : validate → save → event
+    ├─ Sell ──────────────────────── Transaction : validate → promotion appliquée → save → event
     │         ├─ ACCEPTED (201)   → afficher displayCode immédiatement
     │         ├─ PENDING_APPROVAL (202) → workflow admin
     │         └─ REJECTED         → aucun ticket créé
@@ -64,27 +66,36 @@ POST /tenant/cashier/tickets/preview
 ```
 POST /tenant/cashier/tickets/sell
 Idempotency-Key: <uuid-v4>
-{ terminalId, drawId, drawChannelId, currency, lines:[...] }
+{ terminalId, drawId, drawChannelId, currency, lines:[...], promotionChoiceInput?: {...} }
 ```
 
-### Pipeline interne (`SellTicketCommandHandler`, `@TchTx`)
+### Pipeline interne (`SalePreparationOrchestrator`, `@TchTx`)
 
 ```
-1. TicketSalePolicy.prepareSale()
-   ├─ validateSession()         → session OPEN + outlet non bloqué
-   ├─ DrawCutoffRule()          → now < draw.cutoffAt
-   ├─ normalize + mergeDuplicates(lines)
-   ├─ EvaluateLimitPolicyQuery  → notices (WARN / BLOCK)
-   ├─ ResolveAutonomyPolicy     → BLOCK → PENDING_APPROVAL si autonomy.requireApprovalOnBlock
-   └─ PricingCatalog.oddsFor()  → snapshot odds + potentialPayout
+1. validateSession()            → session OPEN + outlet non bloqué
+2. DrawCutoffRule()             → now < draw.cutoffAt
+3. normalize + toTicketLines()  → snapshot odds via PricingCatalog
+4. saleChargeCalculator()       → charges initiales (ex: frais SMS)
+5. SalePromotionEvaluator       → EvaluatePromotionQuery → core.promotion
+   ├─ decision.status = APPLIED / NOT_ELIGIBLE / PROPOSED / DECLINED / ERROR
+   └─ decision.effects = [FREE_GAME_LINE, BOOST_ODDS, WAIVE_CHARGE]
 
-2. Selon outcome :
+6. SalePromotionEffectApplier   → applique les effets sur les lignes finales
+   ├─ FREE_GAME_LINE  → ajoute une ligne gratuite (ex: maryaj gratuit)
+   ├─ BOOST_ODDS      → remplace les odds sur les lignes concernées
+   └─ WAIVE_CHARGE    → annule une charge (ex: frais SMS waivés)
+
+7. saleLimitAutonomyEvaluator   → évalue les limites sur les LIGNES FINALES (après promo)
+   ├─ EvaluateLimitPolicyQuery → notices WARN / BLOCK
+   └─ ResolveAutonomyPolicy    → BLOCK → PENDING_APPROVAL si requireApprovalOnBlock
+
+8. Selon outcome :
    ├─ BLOCK sans autonomy → 422 limitBlocked
    ├─ BLOCK avec autonomy → TicketSaleFactory.newPendingApprovalTicket()
    │                        → save → 202 ACCEPTED (notice APPROVAL_REQUIRED)
    └─ OK → TicketSaleFactory.newSoldTicket()
-           → save → emit TicketPlacedEvent (AfterCommit)
-           → 201 CREATED
+           → save → AppliedPromotionSnapshotWriterPort.save()
+           → emit TicketPlacedEvent (AfterCommit) → 201 CREATED
 ```
 
 ### Branches de réponse
@@ -94,6 +105,93 @@ Idempotency-Key: <uuid-v4>
 | 201 | `ACCEPTED` | `SOLD` | `TicketPlacedEvent` (AfterCommit) |
 | 202 | `PENDING_APPROVAL` | `PENDING_APPROVAL` | aucun (émis à l'approve) |
 | 422 | `REJECTED` | non créé | aucun |
+
+---
+
+## Promotions — intégration dans le sell
+
+### Évaluation : preview vs final
+
+La promotion est évaluée à **chaque appel** (preview et sell), mais les effets ne sont matérialisés que sur le sell final :
+
+| Phase | `EvaluatePromotionQuery` | Effets appliqués |
+|---|---|---|
+| `SALE_PREVIEW` | Oui — décision calculée | **Non** — lignes inchangées |
+| `SALE_CONFIRMATION` | Oui — décision recalculée | **Oui** — lignes modifiées |
+
+> La décision en preview peut retourner `PROPOSED` avec des effets lisibles — c'est l'information pour l'UI. Les effets réels sont calculés et stockés uniquement lors du sell.
+
+### Statuts de décision
+
+| `PromotionDecisionStatus` | Signification |
+|---|---|
+| `NOT_ELIGIBLE` | Aucune campagne active ne correspond au contexte |
+| `PROPOSED` | Promotion applicable — affichée au vendeur/client |
+| `APPLIED` | Effets matérialisés sur le ticket (sell final uniquement) |
+| `DECLINED` | Promotion proposée mais refusée (ex: client ne veut pas) |
+| `ERROR` | Erreur d'évaluation — dégradé silencieux, pas de blocage |
+
+### Effets V1
+
+| `PromotionEffectType` | Ce que ça fait | Exemple |
+|---|---|---|
+| `FREE_GAME_LINE` | Ajoute une ligne gratuite au ticket | "Maryaj gratuit avec 5 bolets achetés" |
+| `BOOST_ODDS` | Remplace les odds sur les lignes concernées | "Odds ×1.5 ce week-end" |
+| `WAIVE_CHARGE` | Annule une charge acheteur | "SMS gratuit sur cette vente" |
+
+### Traçabilité par ligne
+
+Chaque `TicketLine` porte deux champs de traçabilité promotion :
+
+| Champ | Valeurs | Sens |
+|---|---|---|
+| `TicketLineSelectionSource` | `CUSTOMER_SELECTED` · `PROMOTION_GENERATED` · `PROMOTION_DEFINED` | Qui a créé la ligne |
+| `TicketLinePricingSource` | `STANDARD` · `PROMOTION` | D'où viennent les odds/prix |
+
+Exemples :
+- Ligne bolet normale : `CUSTOMER_SELECTED` + `STANDARD`
+- Ligne maryaj gratuite : `PROMOTION_GENERATED` + `PROMOTION`
+- Ligne bolet avec boost odds : `CUSTOMER_SELECTED` + `PROMOTION`
+
+### Promotions avec choix (`PromotionChoiceMode`)
+
+Quand `choiceMode = CUSTOMER_SELECTS` ou `SELLER_SELECTS`, la promotion propose un effet mais le numéro doit être fourni :
+
+```
+1. Preview → response inclut promotionDecision :
+   {
+     decisionId: "uuid",
+     status: "PROPOSED",
+     effects: [{ type: "FREE_GAME_LINE", choiceMode: "CUSTOMER_SELECTS", gameCode: "HT_MARYAJ", ... }]
+   }
+
+2. Client/vendeur choisit le numéro gratuit
+
+3. Sell → inclure promotionChoiceInput :
+   {
+     "promotionChoiceInput": {
+       "decisionId": "<uuid du PROPOSED>",
+       "gameCode": "HT_MARYAJ",
+       "index": 0,
+       "rawSelection": "21-33",
+       "selectionSource": "CUSTOMER_SELECTED"
+     }
+   }
+```
+
+Sans `promotionChoiceInput` quand requis → la ligne gratuite n'est pas générée.
+
+### Snapshot et settlement
+
+À chaque sell avec promotion appliquée, un `AppliedPromotionSnapshot` est persisté.  
+Le settlement consomme **uniquement les snapshots** — jamais re-évalué après la vente.
+
+### Offline et promotions
+
+**Les ventes offline ne bénéficient pas de promotions** (`OfflineSyncPromotionPolicy`).  
+Les promotions requièrent une connexion pour l'évaluation en temps réel.
+
+---
 
 ### Règle idempotency
 
