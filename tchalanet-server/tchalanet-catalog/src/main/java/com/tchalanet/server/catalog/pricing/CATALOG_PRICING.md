@@ -90,6 +90,30 @@ Read access must be:
 - side-effect free
 - cacheable
 
+**Interface `PricingCatalog`** :
+
+```java
+BigDecimal oddsFor(TenantId tenantId, String gameCode, BetType betType, Short betOption)
+  // Retourne les odds pour la combinaison tenant/gameCode/betType/betOption
+
+PricingStatsView stats()
+  // total + active count
+```
+
+**`PricingView`** (record exposé en admin) :
+
+| Champ | Type | Sens |
+|---|---|---|
+| `id` | `PricingOddsId` | Identifiant |
+| `tenantId` | `TenantId` | Propriétaire |
+| `gameCode` | `String` | Code du jeu |
+| `betType` | `String` | Nom du BetType |
+| `betOption` | `Short?` | Code de l'option (null si non requis) |
+| `odds` | `BigDecimal` | Multiplicateur (scale 4) |
+| `active` | `boolean` | Entrée active |
+
+**`PricingStatsView`** : `int total` · `int active`
+
 Example usage (conceptual):
 
 ```java

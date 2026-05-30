@@ -19,6 +19,25 @@
 
 ---
 
+## Audit catalog — écarts corrigés (2026-05-30)
+
+| Doc | Écart trouvé | Statut |
+|---|---|---|
+| `CATALOG_DRAWCHANNEL.md` | `DrawSource` n'avait que 2 valeurs (AUTO/OPS) au lieu de 8 (SYSTEM, AUTO, EXTERNAL, US_LOTTERY, NY_OPEN_DATA, FL_APIM, MANUAL, ADMIN_OVERRIDE) | ✅ Corrigé |
+| `CATALOG_DRAWCHANNEL.md` | `findByCode` → nom réel `findByTenantAndCode` | ✅ Corrigé |
+| `CATALOG_DRAWCHANNEL.md` | API incomplète : `listGamesByChannel`, `listChannelGames`, `search` manquants | ✅ Corrigé |
+| `CATALOG_DRAWCHANNEL.md` | `DrawChannelCalendarRow` : `salesOpenTime` et `dependsOnChannelId` absents | ✅ Corrigé |
+| `CATALOG_GAME.md` | `HT_MARYAJ_GRATUIT` (gamecode pour FREE_GAME_LINE promotion) absent | ✅ Corrigé |
+| `CATALOG_GAME.md` | `stats()` et `listRecent(int)` absents de l'API publique | ✅ Corrigé |
+| `CATALOG_PRICING.md` | `PricingView` record et `stats()` absents | ✅ Corrigé |
+| `CATALOG_RESULTSLOT.md` | `getByKey` → nom réel `findByKey` | ✅ Corrigé |
+| `CATALOG_RESULTSLOT.md` | `findById` et `stats()` absents | ✅ Corrigé |
+| `CATALOG_RESULTSLOT.md` | `sourceCfg` et `projectionCfg` (champs critiques) absents de `ResultSlotView` | ✅ Corrigé |
+| `CATALOG_RESULTSLOT.md` | `ResultSlotCalendarCatalog` et `ResultSlotCalendarOverrideView` (avec invariant XOR) absents | ✅ Corrigé |
+| `CATALOG_THEME.md` | **Critique** : doc décrivait `platform.tenanttheme` (DRAFT/PUBLISHED/ARCHIVED) au lieu de `catalog.theme` (ThemePreset global) | ✅ Réécrit |
+
+---
+
 ## Flows manquants (role-flows.md les référence, fichiers absents)
 
 ✅ Tous les flows sont créés — liens corrigés dans `role-flows.md`.

@@ -106,17 +106,19 @@ catalog/game/
 ```java
 List<GameView> listActive()
   // Retourne jeux où active=true AND deleted_at IS NULL
-  // Cacheable, rapide, pour bootstrap/UI
 
 Optional<GameView> findByCode(String code)
-  // Lookup fonctionnel par code
   // Retourne inactifs si actifs=false (pas soft-deleted)
-  // Cacheable
+  // Filtre deleted_at IS NULL seulement
 
 Optional<GameView> findById(GameId id)
-  // Lookup technique par ID
   // Filtre deleted_at IS NULL
-  // Cacheable
+
+GameStatsView stats()
+  // total + active count
+
+List<GameSummaryView> listRecent(int limit)
+  // N derniers jeux par updatedAt
 ```
 
 **Spec compliance**: Spec G1 (read operations)
@@ -238,12 +240,25 @@ void softDelete(GameId id)
 données de référence stables consommées par `core.sales` et `features.cashier`.
 Le code d'option est interprété uniquement dans le contexte de son `BetType`.
 
+**GameCode** — valeurs V1 :
+
+| Code | BetTypes autorisés |
+|---|---|
+| `HT_BOLET` | MATCH_1_2D, MATCH_2_2D, MATCH_3_2D |
+| `HT_MARYAJ` | MARRIAGE_2D2D |
+| `HT_MARYAJ_GRATUIT` | MARRIAGE_2D2D — ligne gratuite générée par promotion |
+| `HT_LOTO3` | LOTTO3_3D |
+| `HT_LOTO4` | LOTTO4_PATTERN |
+| `HT_LOTO5` | LOTTO5_PATTERN |
+
+`HT_MARYAJ_GRATUIT` est un code de jeu dédié aux lignes de promotion (FREE_GAME_LINE). Il ne doit pas apparaître dans les paniers vendeur standards.
+
 Options MVP:
 
-- `MARRIAGE_2D2D`: ordre exact, revers/double.
-- `LOTTO3_3D`: exact, désordre/box.
-- `LOTTO4_PATTERN`: exact, désordre/box, 2 premiers chiffres, 2 derniers chiffres.
-- `LOTTO5_PATTERN`: 1er+2e lot, 1er+3e lot, mixte 1er/2e/3e lot.
+- `MARRIAGE_2D2D`: ordre exact (code 1), revers/double (code 2).
+- `LOTTO3_3D`: exact (1), désordre/box (2).
+- `LOTTO4_PATTERN`: exact (1), désordre/box (2), 2 premiers chiffres (3), 2 derniers chiffres (4).
+- `LOTTO5_PATTERN`: 1er+2e lot (1), 1er+3e lot (2), mixte 1er/2e/3e lot (3).
 
 Les bet types 2D simples (`MATCH_1_2D`, `MATCH_2_2D`, `MATCH_3_2D`) ne
 supportent pas `betOption`.

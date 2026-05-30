@@ -27,7 +27,20 @@ Il porte la configuration tenant-facing d'un canal (label, horaire, jeux actifs,
 | `active` | `boolean` | Canal actif — seuls les actifs génèrent des draws |
 | `sortOrder` | `int` | Ordre d'affichage |
 | `resultSlotId` | `ResultSlotId?` | FK vers `catalog.resultslot` (null → résultat manuel obligatoire) |
-| `defaultSource` | `DrawSource` | `AUTO` (provider) ou `OPS` (manuel) |
+| `defaultSource` | `DrawSource` | Source du résultat (voir enum ci-dessous) |
+
+### `DrawSource` — enum
+
+| Valeur | Sens |
+|---|---|
+| `AUTO` | Application automatique du résultat provider |
+| `EXTERNAL` | Résultat externe générique |
+| `US_LOTTERY` | Provider US Lottery |
+| `NY_OPEN_DATA` | NY Open Data |
+| `FL_APIM` | Florida APIM |
+| `MANUAL` | Résultat saisi manuellement par ops |
+| `ADMIN_OVERRIDE` | Override par un admin |
+| `SYSTEM` | Système interne |
 
 ### Calcul du cutoff
 
@@ -45,11 +58,30 @@ cutoffAt = drawDate.atTime(drawTime, timezone).minus(cutoffSec seconds)
 |---|---|
 | `listAll(tenantId, activeOnly)` | `List<DrawChannelSummaryView>` |
 | `findById(tenantId, id)` | `Optional<DrawChannelView>` |
-| `findByCode(tenantId, code)` | `Optional<DrawChannelView>` |
-| `listWithGames(tenantId, activeOnly)` | `List<ChannelGamesView>` |
-| `listCalendar(tenantId, criteria)` | `List<DrawChannelCalendarRow>` |
+| `findByTenantAndCode(tenantId, code)` | `Optional<DrawChannelView>` |
+| `listGamesByChannel(tenantId, channelId)` | `List<DrawChannelGameView>` |
+| `listChannelGames(tenantId)` | `List<ChannelGamesView>` |
+| `listCalendarRows(tenantId, activeOnly, enabledOnly)` | `List<DrawChannelCalendarRow>` |
+| `search(criteria, pageReq)` | `TchPage<DrawChannelView>` |
 
 Tous les appelants passent par `DrawChannelCatalog` — jamais par `internal.*`.
+
+### `DrawChannelCalendarRow` — champs clés
+
+| Champ | Sémantique |
+|---|---|
+| `channelId` | ID du canal |
+| `code` | Code stable |
+| `timezone` | Fuseau horaire |
+| `drawTime` | Heure du tirage |
+| `salesOpenTime` | Heure d'ouverture commerciale (pour scheduler) |
+| `cutoffSec` | Secondes avant drawTime → cutoffAt |
+| `daysOfWeek` | Jours actifs |
+| `resultSlotId` | Slot provider lié |
+| `defaultSource` | Source par défaut |
+| `dependsOnChannelId` | Canal prérequis (ex: EVE dépend de MID) |
+| `active` | Canal actif |
+| `enabled` | Canal activé pour le tenant |
 
 ---
 
