@@ -54,8 +54,11 @@ public class DrawJpaEntity extends BaseTenantEntity {
     @Column(name = "canceled_at")
     private Instant canceledAt;
 
-    @Column(name = "cancel_reason")
-    private String cancelReason;
+    @Column(name = "cancel_reason_code", length = 96)
+    private String cancelReasonCode;
+
+    @Column(name = "cancel_reason_label", length = 255)
+    private String cancelReasonLabel;
 
     @Column(name = "status", nullable = false, length = 16)
     @Enumerated(EnumType.STRING)

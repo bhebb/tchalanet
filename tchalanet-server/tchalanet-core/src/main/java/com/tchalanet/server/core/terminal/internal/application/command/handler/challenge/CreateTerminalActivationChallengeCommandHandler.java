@@ -57,6 +57,11 @@ public class CreateTerminalActivationChallengeCommandHandler
             throw new IllegalStateException("Terminal is assigned to another user");
         }
 
+        // Cancel any existing PENDING challenge for this terminal/user/type combination
+        // to avoid violating ux_terminal_challenge__pending_terminal_user_type.
+        challengeWriter.revokeAllPending(
+            command.tenantId(), command.terminalId(), command.userId(), command.challengeType());
+
         var now = Instant.now(clock);
         var challengeId = TerminalActivationChallengeId.of(idGenerator.newUuid());
         var channel = TerminalChallengeDeliveryPolicy.defaultChannel(command.challengeType(), command.deliveryMode());

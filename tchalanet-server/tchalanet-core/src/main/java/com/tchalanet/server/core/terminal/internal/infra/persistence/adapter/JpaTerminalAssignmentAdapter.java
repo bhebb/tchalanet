@@ -31,6 +31,15 @@ public class JpaTerminalAssignmentAdapter implements TerminalAssignmentReaderPor
     }
 
     @Override
+    public Optional<TerminalAssignment> findActiveAssignmentByTerminal(TenantId tenantId, TerminalId terminalId) {
+        return repository.findByTenantIdAndTerminalIdAndStatus(
+            tenantId.value(),
+            terminalId.value(),
+            TerminalAssignmentStatus.ACTIVE
+        ).map(this::toDomain);
+    }
+
+    @Override
     public TerminalAssignment save(TerminalAssignment assignment) {
         return toDomain(repository.save(toEntity(assignment)));
     }

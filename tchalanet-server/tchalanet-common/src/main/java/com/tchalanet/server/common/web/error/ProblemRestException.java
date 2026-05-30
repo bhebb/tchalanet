@@ -42,6 +42,13 @@ public class ProblemRestException extends RuntimeException {
     return new ProblemRestException(pd);
   }
 
+  public static ProblemRestException conflict(String message) {
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    pd.setTitle("Conflict");
+    pd.setDetail(message);
+    return new ProblemRestException(pd);
+  }
+
   public static ProblemRestException internal(String message) {
     ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     pd.setTitle("Internal error");

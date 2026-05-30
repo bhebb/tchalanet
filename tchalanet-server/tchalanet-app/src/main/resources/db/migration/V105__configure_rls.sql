@@ -909,3 +909,29 @@ CREATE POLICY seller_commission_rls_all ON seller_commission_policy FOR ALL
   WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
 CREATE POLICY seller_commission_rls_select ON seller_commission_policy FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- business_day_override (tenant-scoped, outlet_id is nullable)
+-- ─────────────────────────────────────────────────────────────────────────────
+ALTER TABLE business_day_override ENABLE ROW LEVEL SECURITY;
+ALTER TABLE business_day_override FORCE ROW LEVEL SECURITY;
+CREATE POLICY business_day_override_rls_all ON business_day_override
+  FOR ALL
+  USING (
+    public.current_tenant() IS NOT NULL
+    AND tenant_id = public.current_tenant()
+    AND (public.deleted_visibility() = 'all'
+      OR (public.deleted_visibility() = 'active'  AND deleted_at IS NULL)
+      OR (public.deleted_visibility() = 'deleted' AND deleted_at IS NOT NULL))
+  )
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY business_day_override_rls_select ON business_day_override
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- result_slot_calendar_override is global (no tenant_id) — same RLS posture
+-- as result_slot itself (no RLS). Writes are gated by the SUPER_ADMIN
+-- controller layer.
+-- ─────────────────────────────────────────────────────────────────────────────

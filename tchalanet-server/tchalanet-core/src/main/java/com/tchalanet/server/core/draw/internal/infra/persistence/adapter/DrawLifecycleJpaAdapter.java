@@ -93,11 +93,14 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         com.tchalanet.server.core.draw.internal.infra.persistence.projection.OpenableDrawProjection projection) {
         TenantId tenantId = TenantId.of(projection.getTenantId());
         DrawId drawId = DrawId.of(projection.getDrawId());
+        var resultSlotId = projection.getResultSlotId() == null
+            ? null
+            : com.tchalanet.server.common.types.id.ResultSlotId.of(projection.getResultSlotId());
         Boolean locked = projection.getLocked() == null ? Boolean.FALSE : projection.getLocked();
         Instant scheduledAt = projection.getScheduledAt();
         Instant cutoffAt = projection.getCutoffAt();
-        // preserve existing shape of OpenableDrawRow
-        return new OpenableDrawRow(tenantId, drawId, locked, scheduledAt, cutoffAt);
+        return new OpenableDrawRow(
+            tenantId, drawId, resultSlotId, projection.getDrawDate(), locked, scheduledAt, cutoffAt);
     }
 
     private UUID currentTenantUuid() {
@@ -109,6 +112,14 @@ public class DrawLifecycleJpaAdapter implements DrawLifecyclePort {
         if (drawIds == null || drawIds.isEmpty()) return 0;
         UUID[] ids = drawIds.stream().map(DrawId::value).toArray(UUID[]::new);
         return repo.bulkOpen(ids, now);
+    }
+
+    @Override
+    public int bulkCancelScheduled(
+        List<DrawId> drawIds, String reasonCode, String reasonLabel, Instant now) {
+        if (drawIds == null || drawIds.isEmpty()) return 0;
+        UUID[] ids = drawIds.stream().map(DrawId::value).toArray(UUID[]::new);
+        return repo.bulkCancelScheduled(ids, reasonCode, reasonLabel, now);
     }
 
     private static Timestamp ts(Instant instant) {

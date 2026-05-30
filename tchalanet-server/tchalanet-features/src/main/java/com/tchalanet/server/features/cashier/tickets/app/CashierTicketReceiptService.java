@@ -7,7 +7,6 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.print.RecordTicketPrintCommand;
-import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptPrintContent;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptMessageQuery;
 import com.tchalanet.server.core.sales.api.query.receipt.FormatTicketReceiptPrintQuery;
@@ -27,6 +26,10 @@ import com.tchalanet.server.platform.communication.api.model.value.OutboundRecip
 import com.tchalanet.server.platform.document.api.DocumentApi;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.platform.document.api.model.RenderedDocument;
+import com.tchalanet.server.platform.document.api.model.PrintOptionsRequest;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
+import com.tchalanet.server.platform.document.api.DocumentPrintProfileResolver;
+import com.tchalanet.server.platform.document.api.model.DocumentPrintProfile;
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
 import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantInternalDocumentConfig;
@@ -57,6 +60,7 @@ public class CashierTicketReceiptService {
     private final TicketPrintDocumentMapper documentMapper;
     private final TicketPrintCommunicationMapper communicationMapper;
     private final SellerOperationalContextResolver sellerContextResolver;
+    private final DocumentPrintProfileResolver profileResolver;
 
     public ResponseEntity<ByteArrayResource> print(
         TchRequestContext ctx,
@@ -65,16 +69,27 @@ public class CashierTicketReceiptService {
     ) {
         var sellerContext = validateSellerContextForPrint(ctx, request);
 
-        var receipt = queryBus.ask(new FormatTicketReceiptPrintQuery(ticketId, request.format(), request.buyerLocale()));
+        // Resolve print profile once here (applies defaults and rejects invalid combos like ESC_POS+A4)
+        final DocumentPrintProfile profile;
+        try {
+            profile = profileResolver.resolve(request.printOptionsRequest());
+        } catch (IllegalArgumentException ex) {
+            throw ProblemRest.badRequest(ex.getMessage());
+        }
+
+        // Use resolved profile for formatting and document rendering
+        var receipt = queryBus.ask(new FormatTicketReceiptPrintQuery(ticketId, profile, request.buyerLocale()));
         var receiptConfig = resolveReceiptConfig(ctx);
         var rendered = documentApi.render(
-            documentMapper.toRenderRequest(receipt, request, receiptConfig)
+            documentMapper.toRenderRequest(receipt, request, receiptConfig, profile)
         );
 
         if (request.recordPrint()) {
+            // record the resolved print options (platform model) in the command
+            var recordedOptions = new PrintOptionsRequest(profile.outputFormat(), profile.paperSize());
             commandBus.execute(new RecordTicketPrintCommand(
                 ticketId,
-                request.format(),
+                recordedOptions,
                 request.reprintReason(),
                 sellerContext.actorUserId(),
                 sellerContext.terminalId(),
@@ -85,7 +100,9 @@ public class CashierTicketReceiptService {
         }
 
         if (request.shouldSendToBuyer()) {
-            var outboundDocument = toCommunicationDocument(receipt, request, rendered, receiptConfig);
+            // For buyer communication we always render PDF + A4 (never ESC_POS)
+            var pdfOptions = new PrintOptionsRequest(DocumentFormat.PDF, PaperSize.A4);
+            var outboundDocument = toCommunicationDocument(receipt, request, rendered, receiptConfig, pdfOptions);
             var message = queryBus.ask(new FormatTicketReceiptMessageQuery(ticketId, request.buyerLocale()));
             communicationMapper.toOutboundMessages(ctx, receipt, message, outboundDocument, request)
                 .forEach(communicationApi::enqueue);
@@ -168,15 +185,17 @@ public class CashierTicketReceiptService {
         TicketReceiptPrintContent receipt,
         PrintTicketRequest request,
         RenderedDocument rendered,
-        TenantInternalDocumentConfig.ReceiptConfig receiptConfig
+        TenantInternalDocumentConfig.ReceiptConfig receiptConfig,
+        PrintOptionsRequest communicationPrintOptions
     ) {
         if (rendered.format() == DocumentFormat.PDF) {
             return rendered;
         }
 
+        // communicationPrintOptions must be PDF+A4; caller ensures no ESC_POS reaches here
         var pdfRequest = new PrintTicketRequest(
             request.terminalId(),
-            PrintOutputFormat.PDF,
+            communicationPrintOptions,
             false,
             request.reprintReason(),
             request.deliveryOptions(),
@@ -185,7 +204,7 @@ public class CashierTicketReceiptService {
             request.buyerLocale()
         );
 
-        return documentApi.render(documentMapper.toRenderRequest(receipt, pdfRequest, receiptConfig));
+        return documentApi.render(documentMapper.toRenderRequest(receipt, pdfRequest, receiptConfig, profileResolver.resolve(communicationPrintOptions)));
     }
 
     // -- send helpers -------------------------------------------------------------
@@ -222,13 +241,13 @@ public class CashierTicketReceiptService {
 
     // -- operational context ------------------------------------------------------
 
-    private SellerOperationalContextView validateSellerContext(TchRequestContext ctx, java.util.UUID terminalId) {
+    private SellerOperationalContextView validateSellerContext(TchRequestContext ctx, TerminalId terminalId) {
         return validateSellerContext(ctx, terminalId, SellerOperation.SELL);
     }
 
     private SellerOperationalContextView validateSellerContext(
         TchRequestContext ctx,
-        java.util.UUID terminalId,
+        TerminalId terminalId,
         SellerOperation operation
     ) {
         if (terminalId == null) {
@@ -236,7 +255,7 @@ public class CashierTicketReceiptService {
         }
         return sellerContextResolver.resolve(new ResolveSellerOperationalContextRequest(
             ctx,
-            TerminalId.of(terminalId),
+            terminalId,
             operation
         ));
     }

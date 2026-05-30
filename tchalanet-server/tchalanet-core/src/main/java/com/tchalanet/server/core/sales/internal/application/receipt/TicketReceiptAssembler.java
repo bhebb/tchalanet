@@ -7,8 +7,8 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectio
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketPublicCodeFormatter;
-import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptMoneyFormatter;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketVerificationUrlBuilder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -17,21 +17,11 @@ import java.util.Locale;
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class TicketReceiptAssembler {
 
-    private final TicketReceiptMoneyFormatter moneyFormatter;
     private final TicketPublicCodeFormatter publicCodeFormatter;
     private final TicketVerificationUrlBuilder verificationUrlBuilder;
-
-    public TicketReceiptAssembler(
-        TicketReceiptMoneyFormatter moneyFormatter,
-        TicketPublicCodeFormatter publicCodeFormatter,
-        TicketVerificationUrlBuilder verificationUrlBuilder
-    ) {
-        this.moneyFormatter = moneyFormatter;
-        this.publicCodeFormatter = publicCodeFormatter;
-        this.verificationUrlBuilder = verificationUrlBuilder;
-    }
 
     public TicketReceiptView assemble(TicketPrintView printView, Locale requestedLocale) {
         Objects.requireNonNull(printView, "ticket_receipt.print_view_required");
@@ -64,7 +54,9 @@ public class TicketReceiptAssembler {
             printView.branding() == null ? null : printView.branding().tenantDisplayName(),
             printView.branding() == null ? null : printView.branding().tenantReceiptHeader(),
             printView.branding() == null ? null : printView.branding().outletReceiptHeader(),
+            // drawLabel: keep slot alias if present; drawChannelLabel: preferred market/channel name
             printView.draw().label(),
+            printView.draw().drawChannelName(),
             printView.draw().scheduledAt(),
             printView.context().outletName(),
             printView.context().terminalCode(),
@@ -73,9 +65,9 @@ public class TicketReceiptAssembler {
             locale,
             printView.metadata().timezone(),
             gameSections(printView.lines()),
-            moneyFormatter.format(printView.money().stake()),
-            moneyFormatter.format(printView.money().totalAmount()),
-            moneyFormatter.format(printView.money().potentialPayoutAmount()),
+            printView.money().stake(),
+            printView.money().totalAmount(),
+            printView.money().potentialPayoutAmount(),
             printView.branding() == null ? null : printView.branding().outletReceiptFooter(),
             printView.branding() == null ? null : printView.branding().tenantReceiptFooter(),
             verificationUrl
@@ -105,8 +97,8 @@ public class TicketReceiptAssembler {
             line.gameLabel(),
             line.selectionCanonical(),
             line.odds(),
-            moneyFormatter.format(line.stake()),
-            moneyFormatter.format(line.potentialPayout()),
+            line.stake(),
+            line.potentialPayout(),
             line.promotional(),
             line.promotionLabel(),
             line.promotionEffectType()

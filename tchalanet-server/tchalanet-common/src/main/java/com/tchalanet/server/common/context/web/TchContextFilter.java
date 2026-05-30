@@ -84,6 +84,11 @@ public class TchContextFilter extends OncePerRequestFilter {
                 return;
             }
 
+            // Bind tenant context immediately after resolution so RLS is active for all
+            // subsequent DB queries (actorContextResolver queries tenant_user with RLS,
+            // operationalContextResolver queries terminal_binding with RLS).
+            contextBinder.bind(req, ctx);
+
             ctx = actorContextResolver.attachBootstrappedAppUserId(req, res, ctx);
 
             if (ctx == null) {
@@ -106,6 +111,7 @@ public class TchContextFilter extends OncePerRequestFilter {
                     ? OperationalContextHeaderParser.parseHint(req::getHeader)
                     : resolver.resolve(ctx, req::getHeader));
 
+            // Re-bind with the fully resolved context (including actor + operational context).
             contextBinder.bind(req, ctx);
 
             chain.doFilter(req, res);

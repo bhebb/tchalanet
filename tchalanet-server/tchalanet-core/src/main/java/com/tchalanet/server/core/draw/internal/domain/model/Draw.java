@@ -30,7 +30,8 @@ public final class Draw {
     private Instant resultedAt;
     private Instant settledAt;
     private Instant canceledAt;
-    private String cancelReason;
+    private String cancelReasonCode;
+    private String cancelReasonLabel;
 
     private DrawSource resultSource;
     private String resultOverrideReason;
@@ -53,7 +54,8 @@ public final class Draw {
         Instant resultedAt,
         Instant settledAt,
         Instant canceledAt,
-        String cancelReason,
+        String cancelReasonCode,
+        String cancelReasonLabel,
         DrawSource resultSource,
         String resultOverrideReason,
         Instant resultOverriddenAt,
@@ -74,7 +76,8 @@ public final class Draw {
         this.resultedAt = resultedAt;
         this.settledAt = settledAt;
         this.canceledAt = canceledAt;
-        this.cancelReason = cancelReason;
+        this.cancelReasonCode = cancelReasonCode;
+        this.cancelReasonLabel = cancelReasonLabel;
         this.resultSource = resultSource;
         this.resultOverrideReason = resultOverrideReason;
         this.resultOverriddenAt = resultOverriddenAt;
@@ -97,6 +100,7 @@ public final class Draw {
             scheduledAt,
             cutoffAt,
             DrawStatus.SCHEDULED,
+            null,
             null,
             null,
             null,
@@ -163,8 +167,12 @@ public final class Draw {
         return canceledAt;
     }
 
-    public String cancelReason() {
-        return cancelReason;
+    public String cancelReasonCode() {
+        return cancelReasonCode;
+    }
+
+    public String cancelReasonLabel() {
+        return cancelReasonLabel;
     }
 
     public DrawSource resultSource() {
@@ -246,15 +254,18 @@ public final class Draw {
         this.settledAt = Objects.requireNonNull(now, "now is required");
     }
 
-    public void cancel(String reason, Instant now) {
+    public void cancel(String reasonCode, String reasonLabel, Instant now) {
         ensureNotLocked();
         DrawStatusTransition.check(this.status, DrawStatus.CANCELED);
 
-        if (reason == null || reason.isBlank()) {
-            throw new DrawInvalidCancelException(id, "Cancel reason is required");
+        if (reasonCode == null || reasonCode.isBlank()) {
+            throw new DrawInvalidCancelException(id, "Cancel reason code is required");
         }
 
-        this.cancelReason = reason.trim();
+        this.cancelReasonCode = reasonCode.trim();
+        this.cancelReasonLabel = (reasonLabel == null || reasonLabel.isBlank())
+            ? null
+            : reasonLabel.trim();
         this.canceledAt = Objects.requireNonNull(now, "now is required");
         this.status = DrawStatus.CANCELED;
     }

@@ -33,7 +33,8 @@ spring:
       maximum-pool-size: 10
       jdbc-url: jdbc:postgresql://localhost:5432/tchalanet_db
   flyway:
-    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    enabled: ${SPRING_FLYWAY_ENABLED:false}
+    repair-on-migrate: true   # repairs checksum mismatches automatically in dev
 
   boot:
     admin:
@@ -80,7 +81,11 @@ tch:
         min-minutes-after-draw: 0
         max-minutes-after-draw: 1440
         cooldown-minutes: 10
-
+      open-today:
+        active: true
+        cron: "0 */5 * * * *"
+        default-sales-open-time: "00:00"
+        max-items-per-run: 10000
   # Disable Spring Batch jobs in local IDE profile while debugging UI/docs
   batch:
     job:

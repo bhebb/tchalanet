@@ -98,6 +98,20 @@ Runtime image tags are centralized in `tchalanet-infra/envs/common/compose.env`.
 
 ---
 
+## 3) Infra images
+
+Runtime image tags are centralized in `tchalanet-infra/envs/common/compose.env`.
+
+| Image/runtime      | Version/tag |
+| ------------------ | ----------- |
+| Traefik            | v3.7.0      |
+| PostgreSQL         | 18.4        |
+| Redis              | 8.6.3       |
+| Keycloak upstream  | 26.6.2      |
+| Tchalanet Keycloak | keycloak-26.6.2 |
+
+---
+
 ### Notes backend
 
 - `tchalanet-server/pom.xml` exige Java >= 25 via maven-enforcer.

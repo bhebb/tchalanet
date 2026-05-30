@@ -344,3 +344,43 @@ CREATE INDEX idx_seller_assignment__outlet ON seller_outlet_assignment (tenant_i
 CREATE INDEX idx_seller_commission__seller ON seller_commission_policy (tenant_id, seller_id) WHERE status = 'ACTIVE' AND deleted_at IS NULL;
 CREATE INDEX idx_sales_ticket__seller     ON sales_ticket (tenant_id, seller_id)            WHERE seller_id IS NOT NULL;
 CREATE INDEX idx_sales_ticket__assignment ON sales_ticket (tenant_id, seller_assignment_id) WHERE seller_assignment_id IS NOT NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- sales_session constraints V1 update
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Drop the old constraint that prevents CLOSED+OPEN on the same businessDate.
+-- V1 rule: a CLOSED session does NOT block opening a new session on the same
+-- business day. Only one OPEN session per operational context is enforced.
+DROP INDEX IF EXISTS ux_sales_session__user_business_day;
+
+-- New: one OPEN session per (tenant, outlet, terminal, seller).
+CREATE UNIQUE INDEX uq_sales_session_one_open_per_operational_context
+ON sales_session (tenant_id, outlet_id, terminal_id, opened_by)
+WHERE status = 'OPEN' AND deleted_at IS NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- business_day_override index
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- One override per (tenant, outlet-or-null, date).
+CREATE UNIQUE INDEX uq_business_day_override_scope_date
+ON business_day_override (
+    tenant_id,
+    COALESCE(outlet_id, '00000000-0000-0000-0000-000000000000'::uuid),
+    business_date
+)
+WHERE deleted_at IS NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- result_slot_calendar_override unique indexes (one per XOR shape)
+-- These also serve the generator's per-slot lookups; the table is tiny so no
+-- extra date-scan index is needed.
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE UNIQUE INDEX uq_result_slot_calendar_override__specific
+ON result_slot_calendar_override (result_slot_id, slot_local_date)
+WHERE slot_local_date IS NOT NULL AND deleted_at IS NULL;
+
+CREATE UNIQUE INDEX uq_result_slot_calendar_override__recurring
+ON result_slot_calendar_override (result_slot_id, recurring_md)
+WHERE recurring_md IS NOT NULL AND deleted_at IS NULL;

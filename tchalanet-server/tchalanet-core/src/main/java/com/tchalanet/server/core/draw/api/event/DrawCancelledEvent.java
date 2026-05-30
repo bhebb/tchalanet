@@ -19,7 +19,8 @@ public record DrawCancelledEvent(
     DrawId drawId,
     DrawChannelId drawChannelId,
     LocalDate drawDate,
-    String reason)
+    String reasonCode,
+    String reasonLabel)
     implements DomainEvent {
 }
 

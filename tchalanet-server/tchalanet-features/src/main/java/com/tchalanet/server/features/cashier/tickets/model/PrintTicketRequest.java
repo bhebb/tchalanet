@@ -1,16 +1,18 @@
 package com.tchalanet.server.features.cashier.tickets.model;
 
-import com.tchalanet.server.core.sales.api.model.print.PrintOutputFormat;
+import com.tchalanet.server.platform.document.api.model.DocumentFormat;
+import com.tchalanet.server.platform.document.api.model.PaperSize;
+import com.tchalanet.server.platform.document.api.model.PrintOptionsRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
+import com.tchalanet.server.common.types.id.TerminalId;
 
 public record PrintTicketRequest(
-    UUID terminalId,
-    PrintOutputFormat format,
+    TerminalId terminalId,
+    PrintOptionsRequest printOptionsRequest,
     boolean recordPrint,
     @Size(max = 500) String reprintReason,
     List<PrintDeliveryOption> deliveryOptions,
@@ -20,7 +22,8 @@ public record PrintTicketRequest(
 ) {
 
     public PrintTicketRequest {
-        format = format == null ? PrintOutputFormat.PDF : format;
+        // do not resolve defaults here; resolution must happen once in the service layer
+        // leave printOptionsRequest nullable and let the service resolve it
 
         deliveryOptions = deliveryOptions == null || deliveryOptions.isEmpty()
             ? List.of(PrintDeliveryOption.RETURN_FILE)

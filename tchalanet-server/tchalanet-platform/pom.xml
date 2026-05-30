@@ -16,6 +16,8 @@
   <dependencies>
     <!-- Inter-module: platform may depend only on common/catalog. Other platform capabilities
          live in this same Maven module and communicate through their public api packages. -->
+    <!-- Inter-module: platform may depend only on common/catalog. Other platform capabilities
+         live in this same Maven module and communicate through their public api packages. -->
     <dependency>
       <groupId>com.tchalanet</groupId>
       <artifactId>tchalanet-common</artifactId>

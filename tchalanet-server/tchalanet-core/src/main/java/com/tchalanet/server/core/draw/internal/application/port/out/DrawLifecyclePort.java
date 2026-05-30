@@ -28,6 +28,15 @@ public interface DrawLifecyclePort {
 
     int bulkOpen(List<DrawId> drawIds, Instant now);
 
+    /**
+     * Cancel still-SCHEDULED draws (e.g. provider became unavailable for that day).
+     * Guarded to {@code status='SCHEDULED'} so it is idempotent and never touches
+     * draws that already opened or have sales.
+     *
+     * @return number of rows transitioned to CANCELED.
+     */
+    int bulkCancelScheduled(List<DrawId> drawIds, String reasonCode, String reasonLabel, Instant now);
+
     List<DueToCloseRow> findDueToClose(Instant now, int limit);
 
     int bulkClose(List<DrawId> drawIds, Instant now);

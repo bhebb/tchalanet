@@ -1,8 +1,7 @@
 package com.tchalanet.server.platform.tenantconfig.api.model.view;
 
-import tools.jackson.databind.JsonNode;
-
-import java.util.List;
-
-public record TenantInternalRules(List<JsonNode> values) {}
+public record TenantInternalRules(
+    TenantBusinessCalendarRules businessCalendar
+    // Other rule groups added here as the tenant config model evolves.
+) {}
 

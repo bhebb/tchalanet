@@ -65,7 +65,7 @@ public class DrawAdminOpsController {
         @PathVariable DrawId drawId,
         @RequestBody @Valid CancelDrawRequest request) {
 
-        commandBus.execute(new CancelDrawCommand(drawId, request.reason(), request.force()));
+        commandBus.execute(new CancelDrawCommand(drawId, request.reasonCode(), request.reasonLabel(), request.force()));
 
         return ApiResponse.success(reload(drawId));
     }

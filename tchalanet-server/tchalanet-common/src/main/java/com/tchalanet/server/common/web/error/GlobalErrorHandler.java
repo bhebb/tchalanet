@@ -17,9 +17,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -179,6 +182,72 @@ public class GlobalErrorHandler {
         var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
         pd.setTitle("Validation failed");
         pd.setProperty("code", "validation.failed");
+
+        decorate(pd, req, ex, true);
+
+        log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), detail);
+
+        return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Malformed or unparseable request body (Jackson deserialization failure, etc.).
+     *
+     * <p>Without this handler Spring's DefaultHandlerExceptionResolver short-circuits to the
+     * BasicErrorController, leaking a bare {@code {"timestamp",...,"status":400}} response that
+     * bypasses our problem+json contract. We surface the most specific cause message instead.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleNotReadable(
+        HttpMessageNotReadableException ex,
+        HttpServletRequest req
+    ) {
+        var cause = ex.getMostSpecificCause();
+        var detail = cause != null ? cause.getMessage() : ex.getMessage();
+
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        pd.setTitle("Malformed request body");
+        pd.setProperty("code", "request.not_readable");
+
+        decorate(pd, req, ex, true);
+
+        log.warn("[400] {} {} - not readable: {}", req.getMethod(), req.getRequestURI(), detail);
+
+        return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ProblemDetail> handleMissingParam(
+        MissingServletRequestParameterException ex,
+        HttpServletRequest req
+    ) {
+        var detail = "Missing required request parameter: " + ex.getParameterName();
+
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        pd.setTitle("Missing request parameter");
+        pd.setProperty("code", "request.missing_parameter");
+
+        decorate(pd, req, ex, true);
+
+        log.warn("[400] {} {} - {}", req.getMethod(), req.getRequestURI(), detail);
+
+        return buildResponse(pd, req, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ProblemDetail> handleTypeMismatch(
+        MethodArgumentTypeMismatchException ex,
+        HttpServletRequest req
+    ) {
+        var detail = "Invalid value for '" + ex.getName() + "'";
+        var cause = ex.getMostSpecificCause();
+        if (cause != null && cause.getMessage() != null) {
+            detail += ": " + cause.getMessage();
+        }
+
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        pd.setTitle("Type mismatch");
+        pd.setProperty("code", "request.type_mismatch");
 
         decorate(pd, req, ex, true);
 

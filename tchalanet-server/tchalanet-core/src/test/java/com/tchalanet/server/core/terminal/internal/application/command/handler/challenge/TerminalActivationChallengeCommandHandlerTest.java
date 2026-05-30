@@ -297,6 +297,11 @@ class TerminalActivationChallengeCommandHandlerTest {
             this.challenge = challenge;
             return challenge;
         }
+
+        @Override
+        public void revokeAllPending(TenantId tenantId, TerminalId terminalId, UserId userId, TerminalChallengeType challengeType) {
+
+        }
     }
 
     private static final class InMemoryBindingStore

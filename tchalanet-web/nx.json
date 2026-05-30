@@ -1,10 +1,9 @@
 {
-  "installation": {
-    "version": "21.4.1"
-  },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "neverConnectToCloud": true,
   "targetDefaults": {
+    "test": {
+      "cache": true
+    },
     "@angular/build:application": {
       "cache": true,
       "dependsOn": ["^build"],
@@ -14,21 +13,19 @@
       "cache": true,
       "inputs": [
         "default",
+        "^default",
         "{workspaceRoot}/.eslintrc.json",
         "{workspaceRoot}/.eslintignore",
-        "{workspaceRoot}/eslint.config.mjs"
+        "{workspaceRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/eslint-rules/**/*"
       ]
     },
-    "@nx/vite:test": {
+    "@angular/build:unit-test": {
       "cache": true,
-      "inputs": ["default", "^default"]
-    },
-    "@nx/js:tsc": {
-      "cache": true,
-      "dependsOn": ["^build"],
       "inputs": ["default", "^default"]
     }
   },
+  "analytics": true,
   "plugins": [
     {
       "plugin": "@nx/playwright/plugin",
@@ -41,20 +38,6 @@
       "options": {
         "targetName": "lint"
       }
-    },
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "build",
-        "testTargetName": "vite:test",
-        "serveTargetName": "serve",
-        "devTargetName": "dev",
-        "previewTargetName": "preview",
-        "serveStaticTargetName": "serve-static",
-        "typecheckTargetName": "typecheck",
-        "buildDepsTargetName": "build-deps",
-        "watchDepsTargetName": "watch-deps"
-      }
     }
   ],
   "generators": {
@@ -62,17 +45,7 @@
       "e2eTestRunner": "playwright",
       "linter": "eslint",
       "style": "scss",
-      "unitTestRunner": "vitest"
-    },
-    "@nx/angular:library": {
-      "linter": "eslint",
-      "unitTestRunner": "vitest"
-    },
-    "@nx/angular:component": {
-      "style": "scss",
-      "changeDetection": "OnPush",
-      "inlineStyle": false,
-      "inlineTemplate": false
+      "unitTestRunner": "vitest-angular"
     }
   }
 }

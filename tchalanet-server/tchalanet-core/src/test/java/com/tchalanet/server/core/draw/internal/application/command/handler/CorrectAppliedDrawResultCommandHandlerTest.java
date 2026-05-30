@@ -75,6 +75,7 @@ class CorrectAppliedDrawResultCommandHandlerTest {
             @Override public List<OpenableDrawRow> findOpenable(Instant now, int limit, int openHorizonHours, int openLagHours) { return List.of(); }
             @Override public List<OpenableDrawRow> findOpenableForSalesOpenTime(Instant now, LocalDate drawDate, LocalTime defaultSalesOpenTime, int limit) { return List.of(); }
             @Override public int bulkOpen(List<DrawId> drawIds, Instant now) { return 0; }
+            @Override public int bulkCancelScheduled(List<DrawId> drawIds, String reasonCode, String reasonLabel, Instant now) { return 0; }
             @Override public List<DueToCloseRow> findDueToClose(Instant now, int limit) { return List.of(); }
             @Override public int bulkClose(List<DrawId> drawIds, Instant now) { return 0; }
             @Override public int bulkInsert(List<NewDrawRow> rows) { return 0; }
@@ -170,6 +171,7 @@ class CorrectAppliedDrawResultCommandHandlerTest {
             now.minusSeconds(3600),
             now.minusSeconds(1800),
             now.minusSeconds(1200),
+            null,
             null,
             null,
             null,

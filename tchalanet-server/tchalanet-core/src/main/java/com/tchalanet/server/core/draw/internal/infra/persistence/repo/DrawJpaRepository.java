@@ -60,10 +60,13 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         value = """
             select d.tenant_id as tenantId,
                    d.id as drawId,
+                   dc.result_slot_id as resultSlotId,
+                   d.draw_date as drawDate,
                    d.locked as locked,
                    d.scheduled_at as scheduledAt,
                    d.cutoff_at as cutoffAt
             from draw d
+            join draw_channel dc on dc.id = d.draw_channel_id
             where d.deleted_at is null
               and d.tenant_id = :tenantId
               and d.status = 'SCHEDULED'
@@ -91,6 +94,8 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         value = """
             select d.tenant_id as tenantId,
                    d.id as drawId,
+                   dc.result_slot_id as resultSlotId,
+                   d.draw_date as drawDate,
                    d.locked as locked,
                    d.scheduled_at as scheduledAt,
                    d.cutoff_at as cutoffAt
@@ -122,6 +127,8 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
         value = """
             select d.tenant_id as tenantId,
                    d.id as drawId,
+                   dc.result_slot_id as resultSlotId,
+                   d.draw_date as drawDate,
                    d.locked as locked,
                    d.scheduled_at as scheduledAt,
                    d.cutoff_at as cutoffAt
@@ -162,6 +169,27 @@ public interface DrawJpaRepository extends JpaRepository<DrawJpaEntity, UUID> {
             """,
         nativeQuery = true)
     int bulkOpen(@Param("ids") UUID[] ids, @Param("now") Instant now);
+
+    @Modifying
+    @Query(
+        value = """
+            update draw
+            set status = 'CANCELED',
+                canceled_at = :now,
+                cancel_reason_code = :reasonCode,
+                cancel_reason_label = :reasonLabel,
+                updated_at = :now
+            where deleted_at is null
+              and locked = false
+              and status = 'SCHEDULED'
+              and id = any(:ids)
+            """,
+        nativeQuery = true)
+    int bulkCancelScheduled(
+        @Param("ids") UUID[] ids,
+        @Param("reasonCode") String reasonCode,
+        @Param("reasonLabel") String reasonLabel,
+        @Param("now") Instant now);
 
     Optional<DrawJpaEntity> findByTenantIdAndIdAndDeletedAtIsNull(UUID tenantId, UUID id);
 

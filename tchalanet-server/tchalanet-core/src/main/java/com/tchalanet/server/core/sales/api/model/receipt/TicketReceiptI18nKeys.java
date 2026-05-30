@@ -20,6 +20,7 @@ public final class TicketReceiptI18nKeys {
     public static final String TOTAL_MAX_PAYOUT = "receipt.total.max_payout";
     public static final String VERIFICATION = "receipt.verification";
     public static final String QR = "receipt.qr";
+    public static final String CURRENCY_NOTE = "receipt.currency_note";
     public static final String PROMOTION = "receipt.promotion";
     public static final String PROMOTION_FREE_GAME_LINE = "receipt.promotion.free_game_line";
     public static final String PROMOTION_BOOST_ODDS = "receipt.promotion.boost_odds";
@@ -28,6 +29,10 @@ public final class TicketReceiptI18nKeys {
     public static final String MESSAGE_GAMES = "receipt.message.games";
     public static final String MESSAGE_GAME = "receipt.message.game";
     public static final String MESSAGE_AMOUNT = "receipt.message.amount";
+    public static final String MESSAGE_BACKUP_CODE = "receipt.message.backup.code";
+    public static final String MESSAGE_BACKUP_VERIFY = "receipt.message.backup.verify";
+    public static final String REF = "receipt.ref";
+    public static final String SCAN_TO_VERIFY = "receipt.scan_to_verify";
     public static final String CHARGE_SMS = "receipt.charge.sms";
     public static final String CHARGE_WHATSAPP = "receipt.charge.whatsapp";
     public static final String CHARGE_EMAIL = "receipt.charge.email";
@@ -57,6 +62,11 @@ public final class TicketReceiptI18nKeys {
         MESSAGE_GAMES,
         MESSAGE_GAME,
         MESSAGE_AMOUNT,
+        MESSAGE_BACKUP_CODE,
+        MESSAGE_BACKUP_VERIFY,
+        REF,
+        SCAN_TO_VERIFY,
+        CURRENCY_NOTE,
         CHARGE_SMS,
         CHARGE_WHATSAPP,
         CHARGE_EMAIL

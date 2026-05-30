@@ -47,6 +47,12 @@ public class TenantRegistryJpaEntity {
     @Column(name = "currency", length = 3)
     private String currency;
 
+    @Column(name = "default_language", length = 8)
+    private String defaultLanguage;
+
+    @Column(name = "default_locale", length = 16)
+    private String defaultLocale;
+
     @Column(name = "address_id")
     private UUID addressId;
 

@@ -13,10 +13,8 @@ import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
 import com.tchalanet.server.core.draw.api.command.CloseDueDrawsResult;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeCommand;
 import com.tchalanet.server.core.draw.api.command.GenerateDrawsForRangeResult;
-import com.tchalanet.server.core.draw.api.command.OpenDueDrawsCommand;
 import com.tchalanet.server.core.draw.api.command.OpenDueDrawsResult;
 import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
-import com.tchalanet.server.core.draw.internal.infra.config.DrawProperties;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
@@ -48,7 +46,6 @@ public class DrawCalendarOpsController {
     private final CommandBus commandBus;
     private final BatchGate batchGate;
     private final Clock clock;
-    private final DrawProperties drawProperties;
 
     @Operation(summary = "Generate draws for a date range (ops)")
     @PostMapping("/generate")
@@ -62,22 +59,6 @@ public class DrawCalendarOpsController {
         var res = commandBus.execute(
             new GenerateDrawsForRangeCommand(
                 TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force(), req.reason()));
-        return ApiResponse.success(res);
-    }
-
-    @Operation(summary = "Open due draws (ops)")
-    @PostMapping("/open-due")
-    @AuditLog(
-        entity = AuditEntityType.DRAW,
-        action = AuditAction.DRAW_OPEN,
-        idExpression = "'draw-open-due'",
-        detailsExpression = "#req")
-    public ApiResponse<OpenDueDrawsResult> openDue(@Valid @RequestBody OpenDueDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(DRAW_OPEN, null);
-        var now = req.now() == null ? clock.instant() : req.now();
-        var res = commandBus.execute(
-            new OpenDueDrawsCommand(
-                now, req.limit(), req.openHorizonHours(), req.openLagHours(), req.dryRun()));
         return ApiResponse.success(res);
     }
 
@@ -95,7 +76,6 @@ public class DrawCalendarOpsController {
         var res = commandBus.execute(new OpenTodayDrawsCommand(
             now,
             req.drawDate(),
-            drawProperties.getScheduler().getOpenToday().getDefaultSalesOpenTime(),
             limit,
             req.dryRun()));
         return ApiResponse.success(res);

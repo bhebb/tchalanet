@@ -58,7 +58,8 @@ public class DrawMapper {
             jpaEntity.getResultedAt(),
             jpaEntity.getSettledAt(),
             jpaEntity.getCanceledAt(),
-            jpaEntity.getCancelReason(),
+            jpaEntity.getCancelReasonCode(),
+            jpaEntity.getCancelReasonLabel(),
             jpaEntity.getResultSource(),
             jpaEntity.getResultOverrideReason(),
             jpaEntity.getResultOverriddenAt(),
@@ -111,7 +112,8 @@ public class DrawMapper {
         jpaEntity.setResultedAt(drawAggregate.resultedAt());
         jpaEntity.setSettledAt(drawAggregate.settledAt());
         jpaEntity.setCanceledAt(drawAggregate.canceledAt());
-        jpaEntity.setCancelReason(drawAggregate.cancelReason());
+        jpaEntity.setCancelReasonCode(drawAggregate.cancelReasonCode());
+        jpaEntity.setCancelReasonLabel(drawAggregate.cancelReasonLabel());
 
         jpaEntity.setResultSource(drawAggregate.resultSource());
         jpaEntity.setResultOverrideReason(drawAggregate.resultOverrideReason());

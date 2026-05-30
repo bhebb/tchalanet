@@ -12,6 +12,7 @@ public final class TypedIdRegistry {
     public static final Class<?>[] ALL = {
         // --- Add all your *Id here (alphabetical) ---
         AddressId.class,
+        BusinessDayOverrideId.class,
         DrawChannelGameId.class,
         DrawChannelId.class,
         DrawId.class,
@@ -30,6 +31,7 @@ public final class TypedIdRegistry {
         PlanId.class,
         PromotionAttemptId.class,
         PromotionRuleId.class, // Added PromotionRuleId
+        ResultSlotCalendarOverrideId.class,
         ResultSlotId.class,
         RoleId.class,
         SalesSessionId.class,

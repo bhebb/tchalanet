@@ -160,6 +160,6 @@ class AnalyticsDailyUpsertRepositoryImpl implements AnalyticsDailyUpsertReposito
         .setParameter("pp",    payoutsPaidDelta)
         .setParameter("so",    sessionsOpenedDelta)
         .setParameter("sc",    sessionsClosedDelta)
-        .executeUpdate();
+        .getSingleResult();
   }
 }

@@ -50,7 +50,7 @@ public class OpenDueDrawsCommandHandler
                 openableCount,
                 skippedLocked);
 
-            return new OpenDueDrawsResult(0, skippedLocked, 0);
+            return new OpenDueDrawsResult(0, skippedLocked, 0, 0);
         }
 
         if (command.dryRun()) {
@@ -64,7 +64,7 @@ public class OpenDueDrawsCommandHandler
                 nonLockedIds.size(),
                 skippedLocked,
                 sample(nonLockedIds));
-            return new OpenDueDrawsResult(0, skippedLocked, 0);
+            return new OpenDueDrawsResult(0, skippedLocked, 0, 0);
         }
 
         int opened = port.bulkOpen(nonLockedIds, command.now());
@@ -80,7 +80,7 @@ public class OpenDueDrawsCommandHandler
             skippedLocked,
             sample(nonLockedIds));
 
-        return new OpenDueDrawsResult(opened, skippedLocked, 0);
+        return new OpenDueDrawsResult(opened, skippedLocked, 0, 0);
     }
 
     private static void validateCommand(OpenDueDrawsCommand command) {

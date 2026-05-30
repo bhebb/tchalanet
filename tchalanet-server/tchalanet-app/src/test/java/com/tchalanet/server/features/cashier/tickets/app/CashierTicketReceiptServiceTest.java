@@ -38,6 +38,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.tchalanet.server.platform.document.api.DocumentPrintProfileResolver;
 import org.junit.jupiter.api.Test;
 
 class CashierTicketReceiptServiceTest {
@@ -68,13 +70,13 @@ class CashierTicketReceiptServiceTest {
         null,
         null,
         null,
-        sellerContextResolver);
+        sellerContextResolver, new DocumentPrintProfileResolver());
 
     var response = service.send(
         context(),
         TICKET_ID,
         new SendTicketReceiptRequest(
-            TERMINAL_ID.value(),
+            TERMINAL_ID,
             CommunicationChannel.SMS,
             "+15145550100",
             null,

@@ -14,11 +14,27 @@ public interface SalesSessionJpaRepository extends JpaRepository<SalesSessionJpa
 
     Optional<SalesSessionJpaEntity> findByTenantIdAndId(UUID tenantId, UUID id);
 
-    boolean existsByTenantIdAndOutletIdAndOpenedByAndBusinessDate(
-        UUID tenantId,
-        UUID outletId,
-        UUID openedBy,
-        LocalDate businessDate);
+    /**
+     * Returns true if a non-terminal session (OPEN or CLOSED) exists for the given
+     * user+outlet+businessDate. FINALIZED and CANCELLED sessions are excluded so
+     * that admins can finalize a closed session and then reopen a fresh one on the
+     * same business day.
+     */
+    @Query("""
+        select count(s) > 0
+        from SalesSessionJpaEntity s
+        where s.tenantId  = :tenantId
+          and s.outletId  = :outletId
+          and s.openedBy  = :openedBy
+          and s.businessDate = :businessDate
+          and s.status not in (:excludedStatuses)
+        """)
+    boolean existsActiveForBusinessDate(
+        @Param("tenantId") UUID tenantId,
+        @Param("outletId") UUID outletId,
+        @Param("openedBy") UUID openedBy,
+        @Param("businessDate") LocalDate businessDate,
+        @Param("excludedStatuses") java.util.Collection<SalesSessionStatus> excludedStatuses);
 
     Optional<SalesSessionJpaEntity> findByTenantIdAndTerminalIdAndStatus(
         UUID tenantId,

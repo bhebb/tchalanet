@@ -48,6 +48,12 @@ public class TenantJpaEntity extends BaseEntity {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
+    @Column(name = "default_language", nullable = false, length = 8)
+    private String defaultLanguage;
+
+    @Column(name = "default_locale", nullable = false, length = 16)
+    private String defaultLocale;
+
     @Column(name = "status", nullable = false, length = 32)
     @Enumerated(EnumType.STRING)
     private TenantStatus status;

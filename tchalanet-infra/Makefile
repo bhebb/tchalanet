@@ -142,6 +142,7 @@ down:
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down traefik $(ENV) || true
 
 down-all:
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down edge $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV) || true
 	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down keycloak $(ENV) || true
@@ -167,6 +168,12 @@ rebuild-api:
 	                -f compose/docker-compose.local-build.yml up -d --build api
 	@echo "✅ API rebuildée et redémarrée"
 
+rebuild-edge: env-merge ensure-exec networks
+	@echo "→ Rebuild de l'image Edge locale..."
+	@docker compose --env-file envs/$(ENV)/.env.merged \
+	                -f compose/docker-compose.edge.yml up -d --build edge
+	@echo "✅ Edge rebuildé et redémarré"
+
 rebuild-all: rebuild-api rebuild-keycloak
 	@echo "✅ API et Keycloak rebuildés"
 
@@ -175,6 +182,8 @@ rebuild-all: rebuild-api rebuild-keycloak
 # Per service (legacy, via service-up.sh)
 up-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV)
 down-api:      ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down api $(ENV)
+up-edge:     env-merge ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up edge $(ENV)
+down-edge:   ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down edge $(ENV)
 up-keycloak: ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up keycloak $(ENV)
 up-unleash:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up unleash $(ENV)
 down-unleash:  ensure-exec networks ; @ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" down unleash $(ENV)
@@ -354,8 +363,8 @@ smoke-staging:
 .PHONY: ensure-exec print-env networks render-traefik get-realm mkcert-local mkcert-recreate certs-staging acme-perms
 .PHONY: env-merge
 .PHONY: up up-all up-staging up-prod down down-all
-.PHONY: rebuild-keycloak rebuild-api rebuild-all
-.PHONY: up-api down-api up-keycloak up-unleash down-unleash ps
+.PHONY: rebuild-keycloak rebuild-api rebuild-edge rebuild-all
+.PHONY: up-api down-api up-edge down-edge up-keycloak up-unleash down-unleash ps
 .PHONY: ssh-staging ssh-prod push-staging push-prod deploy-staging deploy-prod
 .PHONY: doppler-download doppler-download-staging doppler-download-prod
 .PHONY: p0-up p0-smoke p0-down p0-plus-up p0-plus-down
