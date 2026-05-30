@@ -1,4 +1,4 @@
-# Feature PlatformAdmin — Guide Super-Admin / Platform Admin
+# Feature PlatformAdmin
 
 > **Surface** : Interface administration plateforme  
 > **Scope** : `features.platformadmin` — vue globale plateforme, onboarding tenants  

@@ -16,4 +16,4 @@ Référentiel de pricing (multipliers, odds).
 
 ## Pointeurs (source of truth near-code)
 
-- Backend: `99-links/_ref/server/domains/catalog/pricing/DOMAIN_PRICING.md`
+- Backend: `99-links/_ref/server/domains/catalog/pricing/CATALOG_PRICING.md`

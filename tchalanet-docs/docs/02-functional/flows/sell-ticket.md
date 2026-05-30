@@ -218,7 +218,7 @@ core.sales.SalesLedgerListener
 - Backend `core.limitpolicy` : `99-links/_ref/server/core/limitpolicy/DOMAIN_LIMITPOLICY.md`
 - Backend `core.autonomy` : `99-links/_ref/server/core/autonomy/DOMAIN_AUTONOMY.md`
 - Backend `core.ledger` : `99-links/_ref/server/core/ledger/DOMAIN_LEDGER.md`
-- Backend `catalog.pricing` : `99-links/_ref/server/catalog/pricing/DOMAIN_PRICING.md`
+- Backend `catalog.pricing` : `99-links/_ref/server/catalog/pricing/CATALOG_PRICING.md`
 - Audit : `99-links/_ref/server/docs/audit/2026-04-26-sales-pipeline-audit.md`
 
 > En cas d'incohérence entre cette page et les `DOMAIN_*.md` backend, **les docs backend font foi**.

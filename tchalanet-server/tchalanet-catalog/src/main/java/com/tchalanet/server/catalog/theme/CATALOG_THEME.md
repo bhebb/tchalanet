@@ -201,4 +201,4 @@ Les vérifications sont faites :
 
 ---
 
-_Document : DOMAIN_THEME.md — état validé du domaine Theme_
+_Document : CATALOG_THEME.md — état validé du domaine Theme_

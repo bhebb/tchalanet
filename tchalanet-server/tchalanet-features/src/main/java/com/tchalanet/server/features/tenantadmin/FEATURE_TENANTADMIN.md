@@ -1,4 +1,4 @@
-# Feature TenantAdmin — Guide Administrateur Tenant
+# Feature TenantAdmin
 
 > **Surface** : Interface administration tenant  
 > **Scope** : `features.tenantadmin` — diagnostic structurel, readiness, policies  

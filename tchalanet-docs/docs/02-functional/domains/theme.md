@@ -16,4 +16,4 @@ Thèmes visuels par tenant (publication, audit, versionning).
 
 ## Pointeurs (source of truth near-code)
 
-- Règles et modèle backend: `99-links/_ref/server/domains/core/theme/DOMAIN_THEME.md`
+- Règles et modèle backend: `99-links/_ref/server/domains/core/theme/CATALOG_THEME.md`

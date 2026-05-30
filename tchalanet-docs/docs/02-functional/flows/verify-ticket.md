@@ -46,7 +46,7 @@ Public (URL/QR)        Backend                              Sources lues
 | Terme            | Sens court                                                                 | Source of truth                         |
 | ---------------- | -------------------------------------------------------------------------- | --------------------------------------- |
 | **publicCode**   | Code Crockford Base32 12 chars (globalement unique)                        | `core/sales/DOMAIN_SALES.md`            |
-| **Visibility**   | Fenêtre temporelle pendant laquelle un ticket est consultable publiquement | `catalog/settings/DOMAIN_SETTINGS.md`   |
+| **Visibility**   | Fenêtre temporelle pendant laquelle un ticket est consultable publiquement | `catalog/settings/CATALOG_SETTINGS.md`   |
 | **payoutStatus** | `POTENTIAL_WIN` / `NO_PAYOUT` / `EXPIRED` (⚠ basé sur `potentialPayout`)   | `TicketVerificationResult.payoutStatus` |
 
 ---
@@ -242,7 +242,7 @@ ResponseEntity.ok()
 > Cette page est une **vue fonctionnelle cross-apps**. La source de vérité technique vit près du code.
 
 - Backend `core.sales` : `99-links/_ref/server/core/sales/DOMAIN_SALES.md`
-- Backend `catalog.settings` : `99-links/_ref/server/catalog/settings/DOMAIN_SETTINGS.md`
+- Backend `catalog.settings` : `99-links/_ref/server/catalog/settings/CATALOG_SETTINGS.md`
 - Backend `core.outlet` : `99-links/_ref/server/core/outlet/DOMAIN_OUTLET.md`
 - Backend `core.terminal` : `99-links/_ref/server/core/terminal/DOMAIN_TERMINAL.md`
 - Backend `core.address` : `99-links/_ref/server/core/address/DOMAIN_ADDRESS.md`
