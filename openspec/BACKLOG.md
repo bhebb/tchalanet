@@ -64,7 +64,14 @@ Ce package (`catalog.tenant`) n'a pas de `CATALOG_*.md` et n'était pas dans l'i
 
 ---
 
-## DOMAIN_*.md — items en attente
+## Audit core — écarts corrigés (2026-05-30)
+
+| Doc | Écart trouvé | Statut |
+|---|---|---|
+| `DOMAIN_PAYOUT.md` | Contenu `# Domaine Ledger` (stub) en tête du fichier payout — deux docs fusionnés par erreur. Statuts incorrects (`PARTIALLY_PAID` inexistant). `PayoutClaimStatus`, `PayoutStatus`, `PayoutClaimSource` absents. Commandes (Block/Unblock/Execute/Approve/Reject) absentes. Queries réconciliation absentes | ✅ Réécrit |
+| `DOMAIN_SESSION.md` | `SalesSessionStatus` = OPEN/CLOSED seulement — `CANCELLED` et `FINALIZED` présents dans le code mais absents du doc. `ValidateSalesSessionForOperationQuery` (query critique pour les opérations POS) absent | ✅ Corrigé |
+| `DOMAIN_TERMINAL.md` | Doc mentionne uniquement `TerminalStatus` (internal, 6 valeurs) — `TerminalState` (api/, 5 valeurs, exposé dans `TerminalView`) absent et non documenté. Distinction interne/api non expliquée | ✅ Corrigé |
+| `DOMAIN_DRAWRESULT.md` | Headers emoji (🎯, 🧱, 🔥…) incohérents avec la convention markdown du projet. Contenu correct mais formaté comme note de design plutôt que doc normatif | ✅ Converti + restructuré |
 
 ### tchalanet-core — bloqué par active changes
 
@@ -73,11 +80,14 @@ Ce package (`catalog.tenant`) n'a pas de `CATALOG_*.md` et n'était pas dans l'i
 | `core.seller` | Change `tchalanet-commercial-network-v1` |
 | `core.promotion` | Change `tchalanet-commercial-network-v1` + `tchalanet-promotion-integration-pack` |
 
-### Incohérence à corriger après spec
+### Stubs à enrichir quand domaine stabilisé
 
-| Fichier | Problème |
-|---|---|
-| `core/terminal/DOMAIN_TERMINAL.md` | `TerminalStatus` dans le doc vs `TerminalState` dans le code — attente de `terminal-reorg-security` |
+| Fichier | Niveau actuel | Action |
+|---|---|---|
+| `DOMAIN_OUTLET.md` | Stub (CRUD basique, pas d'enums, pas de statuts) | Enrichir : OutletStatus, OutletCapabilities, OutletSettingsView |
+| `DOMAIN_ANALYTICS.md` | Stub (responsabilité décrite, implémentation TODO) | Enrichir à la livraison des KPI dashboards |
+| `DOMAIN_AUTONOMY.md` | Stub (vision + runtime model, pas d'implémentation) | Enrichir quand autonomy intégré dans sell/payout workflow |
+| `core/ledger/DOMAIN_LEDGER.md` | Stub — même contenu était dupliqué en tête de DOMAIN_PAYOUT.md (erreur corrigée). Domaine non encore implémenté | Enrichir quand ledger livré |
 
 ---
 
@@ -135,6 +145,19 @@ Audit 2026-05-30 :
 | `FEATURE_PUBLICDRAWRESULTS.md` | Existe — contenu à vérifier |
 | `FEATURE_OPS.md` | Existe — contenu à vérifier |
 | `FEATURE_TENANTADMIN_OFFLINE.md` | Existe — probablement stub |
+
+---
+
+## Docs obsolètes / à ranger (tchalanet-server/docs/)
+
+| Fichier | Statut actuel | Action recommandée |
+|---|---|---|
+| `01_sell_handler_services_matrix.html` | HTML généré (probablement 2025) — pas de versioning | Vérifier si à jour ; si stale, archiver ou supprimer |
+| `02_events_producers_consumers.html` | idem | idem |
+| `03_batches_jobs_matrix.html` | idem | idem |
+| `OFFLINE_MODE_FUNCTIONAL_TECHNICAL_DESIGN.md` | ✅ marqué SUPERSEDED (2026-05-30) | Conserver pour histoire, ne plus référencer comme source |
+| `RFC_CORE_ARCHITECTURE_INTENSITE_VARIABLE.md` | ✅ marqué ARCHIVED (2026-05-30) | Conserver pour histoire |
+| `PLATFORM_TEMPLATE.md` | Template platform — pas de CATALOG_TEMPLATE ni FEATURE_TEMPLATE | Créer templates manquants si besoin |
 
 ---
 

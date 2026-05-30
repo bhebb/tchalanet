@@ -383,8 +383,6 @@ No "naked" routes (`/tenant`, `/draw`, etc.) by convention.
 
 ---
 
----
-
 ## 4) Controllers — Request Mapping & Entry Point Rules
 
 Controllers are the HTTP boundary layer — they MUST be thin and delegate to CommandBus/QueryBus.
@@ -395,278 +393,46 @@ Controllers are the HTTP boundary layer — they MUST be thin and delegate to Co
 - **Feature controllers**: `features/<slice_key>/web/`
 - **Catalog admin controllers**: `catalog/<name>/infra/web/` or Spring Data REST (SDR)
 
-### 4.2 Canonical controller structures
+### 4.2 Canonical controller structure
 
-**Tenant-scoped controller**:
+- `@RestController` + `@RequestMapping("/api/v1/<scope>/...")` + `@RequiredArgsConstructor`
+- `@Tag` (Swagger group) on class ; `@Operation(summary, description)` on each method
+- `@CurrentContext TchRequestContext ctx` → `ctx.effectiveTenantIdRequired()` into command/query
+- `@Valid @RequestBody` on mutations ; `@PreAuthorize` on all secured endpoints
+- `@AuditLog` on all write endpoints (POST/PUT/PATCH/DELETE)
+- Return `ApiResponse.success(commandBus.execute(...))` or `ApiResponse.success(queryBus.ask(...))`
 
-```java
-@RestController
-@RequestMapping("/api/v1/tenant/tickets")
-@RequiredArgsConstructor
-@Tag(name = "Tickets • Tenant", description = "Ticket selling and management")
-public class TicketController {
-
-  private final CommandBus commandBus;
-  private final QueryBus queryBus;
-
-  @PostMapping
-  @Operation(summary = "Sell a ticket", description = "Sell a ticket to a customer")
-  @PreAuthorize("hasPermission('ticket.sell')")           // ← Permission
-  @AuditLog(entity = "ticket", action = "SELL", idExpression = "#result.id()")
-  public ApiResponse<TicketResultDto> sellTicket(
-      @CurrentContext TchRequestContext ctx,
-      @Valid @RequestBody SellTicketRequest request       // ← Validation
-  ) {
-    var cmd = new SellTicketCommand(
-        ctx.effectiveTenantIdRequired(),
-        TerminalId.of(request.terminalId()),
-        request.amount()
-    );
-    return ApiResponse.success(commandBus.execute(cmd));
-  }
-
-  @GetMapping("/{id}")
-  @Operation(summary = "Get ticket details")
-  @PreAuthorize("hasPermission('ticket.read')")
-  public ApiResponse<TicketDetailDto> getTicket(
-      @CurrentContext TchRequestContext ctx,
-      @PathVariable String id
-  ) {
-    var query = new GetTicketDetailQuery(
-        ctx.effectiveTenantIdRequired(),
-        TicketId.of(id)
-    );
-    return ApiResponse.success(queryBus.ask(query));
-  }
-}
-```
-
-**Admin controller with @PreAuthorize hierarchy**:
-
-```java
-@RestController
-@RequestMapping("/api/v1/admin/payouts")
-@RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")  // ← Class: roles
-@Tag(name = "Payouts • Admin")
-@Validated
-public class PayoutAdminController {
-
-  private final CommandBus commandBus;
-
-  @PostMapping("/{payoutId}/approve")
-  @Operation(summary = "Approve a payout", description = "Admin approves a pending payout")
-  @PreAuthorize("hasPermission(null, 'PAYOUT_APPROVE')")   // ← Method: permission
-  @AuditLog(entity = "payout", action = "APPROVE", idExpression = "#payoutId")
-  public ApiResponse<PayoutWorkflowResponse> approve(
-      @CurrentContext TchRequestContext ctx,
-      @PathVariable PayoutId payoutId
-  ) {
-    var cmd = new ApprovePayoutCommand(
-        ctx.effectiveTenantIdRequired(),
-        payoutId,
-        ctx.userId()
-    );
-    return ApiResponse.success(commandBus.execute(cmd));
-  }
-
-  @PostMapping("/{payoutId}/reject")
-  @Operation(summary = "Reject a payout")
-  @PreAuthorize("hasPermission(null, 'PAYOUT_REJECT')")    // ← Method: permission
-  @AuditLog(entity = "payout", action = "REJECT", idExpression = "#payoutId")
-  public ApiResponse<PayoutWorkflowResponse> reject(
-      @CurrentContext TchRequestContext ctx,
-      @PathVariable PayoutId payoutId,
-      @Valid @RequestBody RejectPayoutRequest body        // ← Validation
-  ) {
-    var cmd = new RejectPayoutCommand(
-        ctx.effectiveTenantIdRequired(),
-        payoutId,
-        ctx.userId(),
-        body.reason()
-    );
-    return ApiResponse.success(commandBus.execute(cmd));
-  }
-}
-```
+**Code templates → `docs/PLAYBOOK.md §6`**
 
 ### 4.2.1 @PreAuthorize Hierarchy for Admin Controllers
 
-For **admin endpoints**, use two-level authorization:
+- Class level : `@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")` — WHO can access the area
+- Method level : `@PreAuthorize("hasPermission(null, 'PAYOUT_APPROVE')")` — WHAT action is allowed
+- Never ad-hoc role checks in handler code
 
-**Class level** = role/authority gates (WHO):
+### 4.2.2 Validation & Swagger
 
-```java
-@RestController
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
-public class PayoutAdminController { }
-```
+- `@Valid @RequestBody` on all mutations
+- Jakarta Bean Validation on request models AND commands (`@NotNull`, `@NotBlank`, `@DecimalMin`, etc.)
+- `@Schema` on request model fields for Swagger
+- Auto-generated spec at `/api-docs`, UI at `/swagger-ui.html`
 
-**Method level** = permission gates (WHAT):
-
-```java
-@PostMapping("/{id}/approve")
-@PreAuthorize("hasPermission(null, 'PAYOUT_APPROVE')")
-public ApiResponse<...> approve(...) { }
-```
-
-**Rationale**:
-
-- ✅ Class: broad role checks (access area)
-- ✅ Method: fine-grained permission checks (action allowed)
-- ✅ Combines Spring Security roles + domain permissions
-- ❌ NO ad-hoc role checks in code
-
-### 4.2.2 Swagger / OpenAPI Documentation
-
-**On classes**:
-
-```java
-@Tag(
-    name = "Tickets • Tenant",
-    description = "Ticket selling and management"
-)
-public class TicketController { }
-```
-
-**On methods**:
-
-```java
-@PostMapping
-@Operation(
-    summary = "Sell a ticket",
-    description = "Sell a ticket to a customer",
-    tags = {"Tickets • Tenant"}
-)
-public ApiResponse<TicketResultDto> sellTicket(...) { }
-```
-
-Auto-generated at:
-
-- `GET /api-docs` — JSON spec
-- `GET /swagger-ui.html` — Interactive Swagger UI
-
-### 4.2.3 Jakarta Bean Validation — Detailed
-
-**Request models with @Schema (Swagger)**:
-
-```java
-public record SellTicketRequest(
-    @NotBlank(message = "Terminal ID required")
-    @Schema(
-        description = "Terminal identifier",
-        example = "550e8400-e29b-41d4-a716-446655440000"
-    )
-    String terminalId,
-
-    @NotNull(message = "Amount required")
-    @DecimalMin(value = "0.01", inclusive = true)
-    @Digits(integer = 10, fraction = 2, message = "Max 10 digits, 2 decimal places")
-    @Schema(description = "Sale amount in cents", example = "10000")
-    BigDecimal amount,
-
-    @Email(message = "Invalid email format")
-    @Schema(description = "Customer email", example = "customer@example.com")
-    String notificationEmail
-) {}
-
-public record RejectPayoutRequest(
-    @NotBlank(message = "Reason required")
-    @Size(
-        min = 10,
-        max = 500,
-        message = "Reason must be between 10 and 500 characters"
-    )
-    @Schema(description = "Rejection reason", example = "Insufficient documentation")
-    String reason
-) {}
-```
-
-**Commands/Queries also validated**:
-
-```java
-public record SellTicketCommand(
-    TenantId tenantId,
-    TerminalId terminalId,
-    @NotNull(message = "Amount required")
-    @DecimalMin(value = "0.01", inclusive = true)
-    BigDecimal amount
-) {}
-```
-
-**In controller**:
-
-```java
-public ApiResponse<TicketResultDto> sellTicket(
-    @CurrentContext TchRequestContext ctx,
-    @Valid @RequestBody SellTicketRequest request    // ← @Valid triggers validation
-) { }
-```
-
-**Jakarta constraints**:
-
-- `@NotNull` — non-null
-- `@NotBlank` — non-null and non-empty string
-- `@NotEmpty` — non-null and non-empty collection
-- `@Min(n)` / `@Max(n)` — numeric min/max
-- `@DecimalMin(n)` / `@DecimalMax(n)` — decimal min/max
-- `@Size(min, max)` — string/collection length
-- `@Email` — email format
-- `@Pattern(regex)` — regex match
-- `@Digits(int, frac)` — decimal format (e.g., monetary)
-- `@Valid` — recursive validation
-
-**Rules**:
-
-- ✅ Apply constraints to BOTH request models AND commands
-- ✅ Add `@Schema` for Swagger documentation
-- ✅ Use `@Valid` on `@RequestBody` parameters
-- ✅ Custom `require*` for business logic ONLY
-- ❌ NO manual validation for structural constraints
+**Full validation + Swagger examples → `docs/PLAYBOOK.md §6.3`**
 
 ---
 
-## 5) Typed IDs (Wrappers)
+## 5) Request Context & Typed IDs
 
-Every HTTP request is wrapped with **`TchRequestContext`**:
+Every request carries a **`TchRequestContext`** — injected via `@CurrentContext` — with `tenantId()`, `userId()`, `roles()`, `locale()`, `timezone()`. RLS filters data at DB level; never pass `tenantId` from client input.
 
-```java
-public interface TchRequestContext {
-  TenantId tenantId();                      // from JWT, guaranteed non-null
-  TenantId effectiveTenantId();             // same as tenantId() (tenant-scoped)
-  UserId userId();                          // from JWT
-  Set<Role> roles();                        // TENANT_ADMIN, TENANT_USER, SUPER_ADMIN
-  Locale locale();                          // from Accept-Language or config
-  ZoneId timezone();                        // from user profile or tenant config
-}
-```
+**Typed IDs** : hors persistence, on n'utilise jamais `UUID` brut. Wrappers obligatoires : `TenantId`, `TicketId`, `OutletId`, etc. UUID brut uniquement dans JPA entities, repositories JDBC, SQL/Flyway.
 
-### Context Injection
+- ✅ Inject context via `@CurrentContext TchRequestContext ctx`
+- ✅ Use `ctx.effectiveTenantIdRequired()` to build commands/queries
+- ✅ For batch/jobs: `TchContext.set(ctx)` manually
+- ❌ MUST NOT read JWT in handlers; MUST NOT resolve tenant elsewhere
 
-```java
-@RestController
-public class MyController {
-  @GetMapping
-  public ApiResponse<MyResult> myEndpoint(
-      @CurrentContext TchRequestContext ctx,
-      @RequestBody MyRequest req
-  ) {
-    var cmd = new MyCommand(ctx.effectiveTenantIdRequired(), ...);
-    return ApiResponse.success(commandBus.execute(cmd));
-  }
-}
-```
-
-### Rules
-
-- ✅ Inject via `@CurrentContext` annotation
-- ✅ RLS (Row-Level Security) filters data at DB level
-- ✅ Never pass `tenantId` from client—use context
-- ✅ For batch/scheduled jobs: manually call `TchContext.set(ctx)`
-- ❌ MUST NOT read JWT directly in handlers
-- ❌ MUST NOT resolve tenant elsewhere
-
-See: `docs/conventions/api/request_context_usage.md`, `docs/conventions/security_permissions.md`
+See: `docs/conventions/api/request_context_usage.md`, `docs/conventions/typed_ids.md`
 
 ---
 
@@ -674,183 +440,38 @@ See: `docs/conventions/api/request_context_usage.md`, `docs/conventions/security
 
 The canonical entry point for all business operations is **CommandBus** (writes) or **QueryBus** (reads).
 
-### CommandBus
+| | CommandBus | QueryBus |
+|---|---|---|
+| Type | Immutable record implementing `Command<R>` | Immutable record implementing `Query<R>` |
+| Handler | `@UseCase CommandHandler<C, R>` + `@TchTx` | `@UseCase QueryHandler<Q, R>` — no `@TchTx` |
+| Side-effects | `AfterCommit.run(() -> events.publish(...))` | None — read-only |
+| Forbidden | State mutations after return, partial tx | `CommandBus.execute`, event publishing |
 
-```java
-// Define: an immutable record
-public record SellTicketCommand(
-    TenantId tenantId,
-    TerminalId terminalId,
-    BigDecimal amount
-) {}
+- Commands always carry `TenantId` explicitly
+- Events published **after commit** only — never during transaction
+- Handlers never access infra from another domain — use ports
 
-// Implement: @UseCase + CommandHandler
-@UseCase
-@RequiredArgsConstructor
-public class SellTicketHandler implements CommandHandler<SellTicketCommand, TicketResult> {
-
-  private final TicketWriterPort writer;
-  private final DomainEventPublisher events;
-
-  @Override
-  @TchTx  // marks write transaction
-  public TicketResult handle(SellTicketCommand cmd) {
-    // 1. Load, validate, mutate
-    var ticket = writer.sellAndSave(cmd.tenantId(), cmd.terminalId(), cmd.amount());
-
-    // 2. Publish side-effects AFTER commit
-    AfterCommit.run(() -> events.publish(
-        new TicketSoldEvent(cmd.tenantId(), ticket.id())
-    ));
-
-    return new TicketResult(ticket.id(), ticket.status());
-  }
-}
-
-// Execute: from controller or feature orchestrator
-var result = commandBus.execute(new SellTicketCommand(...));
-```
-
-**Rules**:
-
-- ✅ Command = immutable record
-- ✅ Handler = `@UseCase` + implements `CommandHandler<C, R>`
-- ✅ Mutations use `@TchTx` annotation
-- ✅ Events published via `AfterCommit.run(...)`
-- ❌ NO state mutations after response
-- ❌ NO partial transactions
-
+**Code templates → `docs/PLAYBOOK.md §7`**  
 See: `docs/conventions/command_query_handlers.md`
-
-### QueryBus
-
-```java
-// Define: an immutable record
-public record GetTicketSummaryQuery(TenantId tenantId, TicketId ticketId) {}
-
-// Implement: @UseCase + QueryHandler (read-only)
-@UseCase
-@RequiredArgsConstructor
-public class GetTicketSummaryHandler implements QueryHandler<GetTicketSummaryQuery, TicketSummaryView> {
-
-  private final TicketReaderPort reader;
-
-  @Override
-  public TicketSummaryView handle(GetTicketSummaryQuery q) {
-    // pure read, no transaction needed
-    return reader.findSummaryBy(q.tenantId(), q.ticketId());
-  }
-}
-
-// Execute: from controller
-var view = queryBus.ask(new GetTicketSummaryQuery(...));
-```
-
-**Rules**:
-
-- ✅ Query = immutable record
-- ✅ Handler = `@UseCase` + implements `QueryHandler<Q, R>`
-- ✅ Queries are read-only (no mutations)
-- ✅ No transaction annotation needed
-- ✅ Queries MAY use projections for UI models
-- ❌ MUST NOT call CommandBus
-- ❌ MUST NOT publish events
 
 ---
 
 ## 6.5) Cross-Domain Calls (Inter-Domain Integration)
 
-### Read-Side: Queries across domains
+### Read-side: Queries across domains
 
-**Pattern**: Domain A asks Domain B for data via stable query APIs.
+- Use `QueryBus.ask(new GetXxxQuery(tenantId, id))` from the owning domain
+- Never read from another domain's repositories or JPA entities
+- Consume read-models / projections only
 
-```java
-// ✅ CORRECT — Feature orchestrates via queries
-@RequiredArgsConstructor
-public class CheckoutService {
-  private final QueryBus queryBus;
+### Write-side: Events after commit
 
-  public CheckoutResultDto checkout(CheckoutRequest req) {
-    var ctx = TchContext.current();
+- Source domain publishes event in `AfterCommit.run(() -> events.publish(...))`
+- Target domain subscribes with `@TransactionalEventListener(AFTER_COMMIT)` (or `@EventListener` + `@Transactional`)
+- Listener executes its own command via `CommandBus` in a separate transaction
+- No direct handler-to-handler calls ; no nested transactions ; no bypassing CommandBus
 
-    // 1. Get ticket from sales domain
-    var ticket = queryBus.ask(
-        new GetTicketQuery(ctx.tenantId(), req.ticketId())
-    );
-
-    // 2. Get payout options from payout domain
-    var payouts = queryBus.ask(
-        new ListPayoutOptionsQuery(ctx.tenantId(), ticket.category())
-    );
-
-    // 3. Aggregate into UI model
-    return new CheckoutResultDto(ticket, payouts);
-  }
-}
-```
-
-**Rules for cross-domain reads**:
-
-- ✅ Use stable `GetXxxQuery(tenantId, id)` from owning domain
-- ✅ Never read from another domain's repositories
-- ✅ Consume read-models / projections
-- ❌ MUST NOT access infra/persistence from another domain
-- ❌ MUST NOT depend on another domain's JPA entities
-
-### Write-Side: Events after commit
-
-**Pattern**: Domain A publishes event, Domain B subscribes and executes its own command.
-
-```java
-// Step 1: Domain A (Sales) publishes event after commit
-@UseCase
-public class SellTicketHandler implements CommandHandler<SellTicketCommand, TicketResult> {
-  private final TicketWriterPort writer;
-  private final DomainEventPublisher events;
-
-  @Override
-  @TchTx
-  public TicketResult handle(SellTicketCommand cmd) {
-    var ticket = writer.sell(...);
-
-    // Publish AFTER commit (not during)
-    AfterCommit.run(() -> events.publish(
-        new TicketSoldEvent(cmd.tenantId(), ticket.id(), ticket.drawId())
-    ));
-
-    return new TicketResult(ticket.id());
-  }
-}
-
-// Step 2: Domain B (Draw) listens in a separate transaction
-@Component
-@RequiredArgsConstructor
-public class TicketSoldEventListener {
-  private final CommandBus commandBus;
-
-  @EventListener(TicketSoldEvent.class)
-  @Transactional  // separate transaction
-  public void onTicketSold(TicketSoldEvent event) {
-    // Execute own command with tenant context
-    commandBus.execute(new ApplyTicketToDrawCommand(
-        event.tenantId(),
-        event.drawId(),
-        event.ticketId()
-    ));
-  }
-}
-```
-
-**Rules for cross-domain effects**:
-
-- ✅ Source domain publishes event in `AfterCommit`
-- ✅ Target domain subscribes with `@EventListener`
-- ✅ Listener executes local command (own transaction)
-- ✅ Listener sets tenant context from event
-- ❌ NO direct calls between domain handlers
-- ❌ NO nested transactions
-- ❌ NO bypassing CommandBus
-
+**Code templates → `docs/PLAYBOOK.md §8`**  
 See: `docs/conventions/inter_domain_calls.md`
 
 ---
@@ -960,7 +581,24 @@ See: `docs/conventions/routing_and_path.md`
 
 ---
 
-## 15) Additional Resources
+## 15) Near-Code Documentation Convention
+
+Chaque slice possède une documentation d'invariants co-localisée avec le code source :
+
+| Slice | Préfixe | Emplacement |
+|---|---|---|
+| `tchalanet-core` | `DOMAIN_*.md` | `core/<domain>/DOMAIN_*.md` |
+| `tchalanet-catalog` | `CATALOG_*.md` | `catalog/<bc>/CATALOG_*.md` |
+| `tchalanet-platform` | `PLATFORM_*.md` | `platform/<cap>/PLATFORM_*.md` |
+| `tchalanet-features` | `FEATURE_*.md` | `features/<feat>/FEATURE_*.md` |
+
+Ces fichiers sont **normatifs** : ils documentent les enums, modèles, invariants et intégrations réels. Un `DOMAIN_*.md` doit être mis à jour quand l'API du domaine change.
+
+Règle de chargement agent : ne charger que le `DOMAIN_*.md` / `FEATURE_*.md` du domaine touché — pas tous à la fois.
+
+---
+
+## 16) Additional Resources
 
 - `docs/PLAYBOOK.md` — How to add features, DoD, templates
 - `docs/AGENTS.md` — Multi-agent orchestration rules
@@ -968,9 +606,9 @@ See: `docs/conventions/routing_and_path.md`
 - `openspec/context/80-core-rules.md` — Detailed core architecture rules
 - `openspec/context/81-features-rules.md` — Detailed feature rules
 - `VERSIONS.md` — Runtime, framework, library versions
-- Each core domain has its own `CLAUDE.md` for scope & rules
+- `openspec/BACKLOG.md` — Running list of doc/code inconsistencies
 
 ---
 
-**Last reviewed**: 2026-05-09  
+**Last reviewed**: 2026-05-30  
 **Status**: NORMATIVE (non-negotiable rules for all contributors)

@@ -121,13 +121,12 @@ Résumé financier utilisé lors de la clôture :
 
 ### `SalesSessionStatus`
 
-- `OPEN`
-- `CLOSED`
-
-Statuts futurs possibles :
-
-- `ABORTED`
-- `SUSPENDED`
+| Valeur | Sens |
+|---|---|
+| `OPEN` | Session active, ventes autorisées |
+| `CLOSED` | Session fermée normalement (manuelle ou auto) |
+| `CANCELLED` | Session annulée (ex. : erreur d'ouverture, terminal révoqué) |
+| `FINALIZED` | Session clôturée et réconciliée (état terminal) |
 
 ---
 
@@ -222,12 +221,18 @@ tch:
 
 ### Session courante
 
-- `GetCurrentSessionQuery`
+- `GetCurrentSalesSessionQuery` — session ouverte sur le terminal courant
+- `GetOpenedSalesSessionQuery` — par sessionId
+- `ValidateSalesSessionForOperationQuery` — validation stricte avant opération sensible (vente, payout) ; retourne `ValidatedSalesSessionOperationView` avec `SalesSessionOperation`
 
 ### Summaries cash
 
 - `GetTicketSalesSummaryBySessionQuery`
 - `GetPayoutSummaryBySessionQuery`
+
+### Résumé cashier
+
+- `CashierSessionSummaryView` — totaux session (ventes, payouts, variance) pour l'écran cashier
 
 ---
 

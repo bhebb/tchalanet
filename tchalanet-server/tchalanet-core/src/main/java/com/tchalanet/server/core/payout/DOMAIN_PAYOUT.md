@@ -1,120 +1,168 @@
-# Domaine Ledger
+# Domaine `core.payout` — Claims & Payments
 
-> Domaine annoncé mais encore en cours de conception / implémentation.  
-> Cette fiche sert de stub pour la future comptabilité interne.
+> Gère le cycle de vie des demandes de gain (PayoutClaim) : ouverture depuis le settlement, approbation, exécution du paiement, blocage, annulation, reversement.
+
+> Functional overview (MkDocs) : `tchalanet-docs/docs/02-functional/domains/payout.md`
+> Flow associé : `tchalanet-docs/docs/02-functional/flows/payout-field-flow.md`
 
 ---
 
 ## 1. Rôle du domaine
-
-**Responsabilité principale**
-
-Modéliser le “grand livre” interne de Tchalanet : mouvements financiers, soldes de caisses/PDV/tenant, et journaux comptables liés aux ventes, paiements et ajustements.
 
 **Ce que le domaine fait**
 
-- TODO: détailler les cas d’usage (enregistrement mouvements, consultation soldes, rapprochements, export comptable, etc.).
+- Ouvrir des `PayoutClaim` pour les tickets SETTLED (déclenché par `TicketWinningSettlementCreatedEvent`).
+- Exposer le workflow de paiement : approbation, exécution (PAID), blocage, déblocage, annulation, reversement.
+- Calculer les montants dus et tracker les acteurs (paidBy, blockedBy, cancelledBy, reversedBy).
+- Exposer les queries session summary et réconciliation draw.
 
-...
+**Ce que le domaine ne fait pas**
 
-## 9. Domaines existants (référence)
-
-À titre indicatif, les domaines actuellement présents dans Tchalanet :
-
-- `accesscontrol` — permissions & rôles par tenant.
-- `audit` — audit applicatif & révisions.
-- `draw` — tirages & résultats.
-- `sales` / `ticket` — création & gestion des tickets.
-- `payout` — calcul et paiement des gains.
-- `ledger` — **(ce domaine)** journalisation des mouvements et soldes.
-- `session` — sessions POS & vendeurs.
-- `tenantconfig` — configuration de tenant (limites, odds, etc.).
-- `pagemodel` — configuration dynamique des pages publiques/privées.
-- `identity` — utilisateurs & profils (hors auth Keycloak).
-
-# Domaine core.payout — Claims & Payments
-
-> Gère le calcul/ingestion des settlements, création des PayoutClaims, exécution des PayoutPayments, statuts agrégés.
-
-> Functional overview (MkDocs): `tchalanet-docs/docs/02-functional/domains/payout.md`
+- Émission de tickets (`core.sales`).
+- Écritures comptables grand livre (`core.ledger`).
+- Vérification des tickets (`core.sales.VerifyPublicTicketQuery`).
 
 ---
 
-## 1. Rôle du domaine
+## 2. Enums
 
-- Ouvrir des claims pour tickets SETTLED.
-  - Poster des paiements (split possible) avec idempotence.
-  - Fermer les claims quand payé net == due.
+### `PayoutClaimStatus`
 
-**Ne fait pas**
+| Valeur | Transition | Sens |
+|---|---|---|
+| `OPEN` | initial | Claim ouvert, en attente de traitement |
+| `BLOCKED` | depuis OPEN | Blocage temporaire (investigation, fraude suspectée) |
+| `PAID` | depuis OPEN ou APPROVED | Paiement exécuté |
+| `CANCELLED` | depuis OPEN/BLOCKED | Annulé (ticket invalide, correction admin) |
+| `REVERSED` | depuis PAID | Reversement post-paiement |
 
-- Émission ticket.
-  - Écritures comptables (ledger).
+> Pas de `PARTIALLY_PAID` — un claim est atomic (un ticket = un claim = un paiement).
 
----
+### `PayoutStatus` (statut interne du payout individuel)
 
-## 2. Modèle & invariants
+| Valeur | Sens |
+|---|---|
+| `REQUESTED` | Paiement demandé, pas encore approuvé |
+| `APPROVED` | Approuvé manuellement ou auto-approved via entitlement |
+| `REJECTED` | Refusé |
+| `PAID` | Payé |
+| `CANCELLED` | Annulé |
 
-- `PayoutClaim`: OPEN → PARTIALLY_PAID → PAID (VOIDED possible).
-  - `PayoutPayment`: POSTED → REVERSED.
-  - Invariants:
-    - netPaid <= amount_due.
-    - Paiement immutable (append-only); reversal via entry miroir.
+### `PayoutClaimSource`
 
----
+| Valeur | Sens |
+|---|---|
+| `SALES_SETTLEMENT` | Ouvert automatiquement depuis `TicketWinningSettlementCreatedEvent` |
+| `OPS_RECONCILIATION` | Créé manuellement par ops lors d'une réconciliation |
+| `MANUAL_ADMIN_CORRECTION` | Correction admin manuelle |
 
-## 3. Use Cases
+### `RegisterPayoutStatus` (résultat du flow exécution)
 
-- `OpenPayoutClaimCommandHandler`
-  - `PostPayoutPaymentCommandHandler`
-  - `ReversePayoutPaymentCommandHandler`
-
----
-
-## 4. Ports out
-
-- `PayoutClaimRepoPort`
-  - `PayoutPaymentRepoPort`
-  - (futur) provider paiement externe
-
----
-
-## 5. Événements
-
-- `PayoutClaimOpenedEvent`, `PayoutPaymentPostedEvent`, `PayoutPaymentReversedEvent`, `PayoutClaimClosedEvent`.
-  - Publier via `AfterCommit`.
+| Valeur | Sens |
+|---|---|
+| `PAID` | Paiement exécuté immédiatement |
+| `REQUESTED` | Paiement en attente d'approbation |
+| `BLOCKED` | Paiement bloqué (limite auto-approve dépassée) |
 
 ---
 
-## 6. Idempotence & Concurrence
+## 3. Commandes (`application/command/`)
 
-- Idempotency-Key obligatoire pour post payment.
-  - Optimistic lock `version` sur claim.
+| Commande | Sens |
+|---|---|
+| `OpenPayoutClaimFromSettlementCommand` | Ouvre un claim depuis un event settlement (idempotent via `sourceEventId`) |
+| `ExecutePayoutCommand` | Exécute le paiement (transition OPEN/APPROVED → PAID) |
+| `ApprovePayoutCommand` | Approuve manuellement un paiement |
+| `RejectPayoutCommand` | Rejette un paiement |
+| `BlockPayoutClaimCommand` | Bloque un claim (blockReason obligatoire) |
+| `UnblockPayoutClaimCommand` | Débloque un claim BLOCKED |
+| `CancelPayoutClaimCommand` | Annule un claim OPEN ou BLOCKED |
+| `RegisterPayoutCommand` | Enregistre un paiement externe (réconciliation) |
+| `ReversePayoutPaymentCommand` | Reverse un paiement PAID |
 
 ---
 
-## 7. Mapping & DTOs
+## 4. Queries (`application/query/`)
 
-- MapStruct; DTO `PayoutClaimResponse`, `PayoutPaymentResponse`.
-  - Wrappers ID en web.
+### Queries opérationnelles
+
+| Query | Résultat |
+|---|---|
+| `GetPayoutDetailsQuery` | `PayoutDetails` — détails complets d'un claim |
+| `ListPayoutsQuery` | `TchPage<PayoutRow>` — liste paginée |
+| `GetPayoutSummaryBySessionQuery` | `PayoutSessionSummary` — totaux payouts d'une session |
+| `GetPayoutReceiptQuery` | `PayoutReceiptView` — receipt pour impression |
+
+### Queries réconciliation
+
+| Query | Sens |
+|---|---|
+| `GetPayoutSummaryForDrawQuery` | Résumé agrégé payouts pour un draw |
+| `ListPayoutClaimsForDrawQuery` | Tous les claims d'un draw (`PayoutClaimForDrawRow`) |
+| `ListPayoutPaymentsForDrawQuery` | Tous les payments d'un draw (`PayoutPaymentForDrawRow`) |
+
+---
+
+## 5. Modèles de lecture
+
+### `PayoutDetails`
+
+| Champ | Type | Sens |
+|---|---|---|
+| `id` | `PayoutId` | — |
+| `ticketId` | `TicketId` | Ticket source |
+| `drawId` | `DrawId` | Draw associé |
+| `amount` | `BigDecimal` | Montant dû |
+| `status` | `PayoutClaimStatus` | Statut courant |
+| `source` | `PayoutClaimSource` | Origine du claim |
+| `outletId/Name` | — | PDV de vente |
+| `sessionId` | `SalesSessionId` | Session de vente |
+| `terminalId` | `TerminalId` | Terminal |
+| `paidBy/blockedBy/cancelledBy/reversedBy` | `UserId` | Acteurs des transitions |
+| `openedAt/paidAt/blockedAt/cancelledAt/reversedAt` | `Instant` | Timestamps |
+| `blockReason/cancelReason/reverseReason` | `String` | Motifs |
+
+### `PayoutRow` (liste)
+
+`id, ticketId, amount, status, openedAt, outletId, outletName`
+
+---
+
+## 6. Événements publiés (after-commit)
+
+| Événement | Déclencheur |
+|---|---|
+| `PayoutClaimOpenedEvent` | `OpenPayoutClaimFromSettlementCommand` |
+| `PayoutPaymentPostedEvent` | `ExecutePayoutCommand` |
+| `PayoutPaymentReversedEvent` | `ReversePayoutPaymentCommand` |
+| `PayoutClaimClosedEvent` | Transition finale (PAID/CANCELLED/REVERSED) |
+
+---
+
+## 7. Invariants
+
+- Idempotence sur `OpenPayoutClaimFromSettlementCommand` via `sourceEventId`.
+- Optimistic lock `version` sur le claim (concurrence multi-terminal).
+- `netPaid <= amountDue` — paiement partiel interdit (un claim = une transaction).
+- Paiements immutables : append-only, pas de mise à jour — reversal via entrée miroir.
+- RLS actif (multi-tenant).
 
 ---
 
 ## 8. Intégrations
 
-- `core.sales` fournit tickets SETTLED.
-  - `core.ledger` poste entries sur events.
+| Direction | Type | Détail |
+|---|---|---|
+| `core.sales` → payout | Event | `TicketWinningSettlementCreatedEvent` déclenche `OpenPayoutClaimFromSettlementCommand` |
+| `core.payout` → `core.sales` | Ports | `TicketReaderPort`, `markPayoutPaid()` |
+| `core.payout` → `core.ledger` | Event | `PayoutPaymentPostedEvent` consommé par ledger |
+| `core.reconciliation` → payout | Query | `ListPayoutClaimsForDrawQuery`, `GetPayoutSummaryForDrawQuery` |
+| `core.session` → payout | Query | `GetPayoutSummaryBySessionQuery` (clôture de session) |
 
 ---
 
-## 9. Notes techniques
+## 9. TODO / Anomalies
 
-- Multi-tenant strict; RLS.
-  - Unique constraint idempotence sur payments.
-
----
-
-## 10. Incohérences / TODO
-
-- Confirmer statuts et transitions exacts implémentés.
-  - Vérifier clé d’unicité ledger pour idempotence.
+- Vérifier la cohérence entre `PayoutStatus` (internal) et `PayoutClaimStatus` (api) — deux enums pour des transitions partiellement redondantes.
+- `RegisterPayoutCommand` : confirmer le cas d'usage exact (réconciliation externe ou saisie manuelle).
+- Auto-approve entitlement : `FEATURE_PAYOUT_AUTO_APPROVE` non encore hookée dans le handler (ROADMAP).

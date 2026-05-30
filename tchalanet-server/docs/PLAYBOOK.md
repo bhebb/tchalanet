@@ -128,277 +128,20 @@ Voir : `openspec/context/75-catalog-rules.md`.
 
 ## 5) Catalog (Reference Data Layer)
 
-### Principe : Read/Write Separation
+Structure et règles : voir **ARCHITECTURE.md §1.6**.
 
-Catalog est une architecture **complètement différente** de Core.
-
-Catalog = **reference data seulement**, NO business invariants, NO events.
-
-### Structure canonique
-
-```
-catalog/drawchannel/
-  ├── api/                           ← Public read contract
-  │   ├── DrawChannelCatalog.java    (interface)
-  │   └── model/
-  │       ├── DrawChannelView.java
-  │       ├── DrawChannelSummaryView.java
-  │       └── DrawChannelSearchCriteria.java
-  ├── internal/read/
-  │   └── DrawChannelCatalogImpl.java (implements XCatalog)
-  ├── internal/write/
-  │   └── DrawChannelAdminService.java
-  ├── internal/web/
-  │   └── DrawChannelAdminController.java
-  ├── internal/persistence/
-  │   ├── DrawChannelJpaEntity.java
-  │   └── DrawChannelRepository.java
-  ├── internal/mapper/
-  │   └── DrawChannelMapper.java
-  └── internal/cache/
-      └── DrawChannelCacheSpecs.java
-```
-
-### 5.1 API package (public read contract)
+**Règle d'usage depuis `core/` ou `features/`** : injecter uniquement `XCatalog` depuis `catalog/<name>/api/`. Ne jamais importer `internal.*`, ne jamais écrire dans un catalog depuis core.
 
 ```java
-// catalog/drawchannel/api/DrawChannelCatalog.java
-public interface DrawChannelCatalog {
-  List<DrawChannelView> listActive();
-  Optional<DrawChannelView> findById(DrawChannelId id);
-}
+// ✅ Inject only the XCatalog interface
+private final DrawChannelCatalog catalog;
+
+var channel = catalog.findById(q.channelId()).orElseThrow(...);
 ```
 
-**Règles** :
+**Nommage des DTOs catalog** : `*View` (détail), `*SummaryView` (liste), `*Row` (cas spécifique), `*SearchCriteria` (filtres).
 
-- ✅ READ-ONLY interface
-- ✅ No dependencies on `internal/*`
-- ✅ Consumed by `core/` and `features/`
-- ✅ Uses typed IDs and immutable DTOs
-- ❌ NEVER depends on JPA entities
-- ❌ NEVER exposes internal packages
-
-### 5.2 API models (read DTOs)
-
-```java
-// catalog/drawchannel/api/model/DrawChannelView.java
-public record DrawChannelView(
-    DrawChannelId id,
-    String name,
-    String displayName,
-    boolean active,
-    int sequence
-) {}
-
-// catalog/drawchannel/api/model/DrawChannelSearchCriteria.java
-public record DrawChannelSearchCriteria(
-    String nameFilter,
-    boolean activeOnly,
-    Pageable page
-) {}
-```
-
-**Naming** :
-
-- `*View` = detailed read model
-- `*SummaryView` = lightweight list model
-- `*Row` = specialized use-case model
-- `*SearchCriteria` = filters
-
-### 5.3 Read implementation (CatalogImpl)
-
-```java
-// catalog/drawchannel/internal/read/DrawChannelCatalogImpl.java
-@Component
-@RequiredArgsConstructor
-public class DrawChannelCatalogImpl implements DrawChannelCatalog {
-
-  private final DrawChannelRepository repo;
-  private final DrawChannelMapper mapper;
-
-  @Override
-  @Cacheable(cacheNames = "catalog:drawchannel:active")
-  public List<DrawChannelView> listActive() {
-    return mapper.toViews(
-        repo.findByActiveAndDeletedAtIsNullOrderByName(true)
-    );
-  }
-
-  @Override
-  @Cacheable(cacheNames = "catalog:drawchannel:by_id", unless = "#result.isEmpty()")
-  public Optional<DrawChannelView> findById(DrawChannelId id) {
-    return repo.findByIdAndDeletedAtIsNull(id.value())
-        .map(mapper::toView);
-  }
-}
-```
-
-**Règles** :
-
-- ✅ Implémente `XCatalog`
-- ✅ Reads only, caching
-- ✅ Maps Entity → View
-- ✅ Internal-only (pas d'export)
-- ❌ NO writes
-- ❌ NO events
-
-### 5.4 Write service (AdminService)
-
-```java
-// catalog/drawchannel/internal/write/DrawChannelAdminService.java
-@Service
-@RequiredArgsConstructor
-public class DrawChannelAdminService {
-
-  private final DrawChannelRepository repo;
-  private final DrawChannelMapper mapper;
-  private final CacheManager cache;
-
-  public DrawChannelView createChannel(CreateChannelRequest req) {
-    var entity = new DrawChannelJpaEntity(req.name(), req.displayName());
-    var saved = repo.save(entity);
-    cache.getCache("catalog:drawchannel:active").clear();
-    return mapper.toView(saved);
-  }
-
-  public DrawChannelView updateChannel(DrawChannelId id, UpdateChannelRequest req) {
-    var entity = repo.findByIdAndDeletedAtIsNull(id.value())
-        .orElseThrow(() -> new ChannelNotFoundException(id));
-    entity.setName(req.name());
-    entity.setDisplayName(req.displayName());
-    var saved = repo.save(entity);
-    cache.getCache("catalog:drawchannel:active").clear();
-    cache.getCache("catalog:drawchannel:by_id").evict(id.value());
-    return mapper.toView(saved);
-  }
-}
-```
-
-**Règles** :
-
-- ✅ Admin CRUD operations
-- ✅ Evict caches after writes
-- ✅ Validation + mapping
-- ✅ Internal-only (pas d'export)
-- ❌ NO queries from core via write service
-- ❌ NO events published
-
-### 5.5 Admin controller (thin)
-
-```java
-// catalog/drawchannel/internal/web/DrawChannelAdminController.java
-@RestController
-@RequestMapping("/api/v1/platform/draw-channels")
-@PreAuthorize("hasPermission('catalog.admin')")
-@RequiredArgsConstructor
-public class DrawChannelAdminController {
-
-  private final DrawChannelCatalog catalog;
-  private final DrawChannelAdminService adminService;
-
-  @GetMapping
-  public ApiResponse<List<DrawChannelView>> list() {
-    return ApiResponse.success(catalog.listActive());
-  }
-
-  @PostMapping
-  @AuditLog(entity = "drawchannel", action = "CREATE")
-  public ApiResponse<DrawChannelView> create(
-      @Valid @RequestBody CreateChannelRequest req
-  ) {
-    var result = adminService.createChannel(req);
-    return ApiResponse.success(result);
-  }
-
-  @PutMapping("/{id}")
-  @AuditLog(entity = "drawchannel", action = "UPDATE")
-  public ApiResponse<DrawChannelView> update(
-      @PathVariable String id,
-      @Valid @RequestBody UpdateChannelRequest req
-  ) {
-    var result = adminService.updateChannel(DrawChannelId.of(id), req);
-    return ApiResponse.success(result);
-  }
-}
-```
-
-**Règles** :
-
-- ✅ Admin-only (`@PreAuthorize`)
-- ✅ Thin (validation + dispatch)
-- ✅ Never call repositories directly
-- ✅ Call AdminService for writes
-- ✅ Call Catalog (api/) for reads
-
-### 5.6 Using Catalog in Core
-
-```java
-// core/lottery/application/query/handler/GetLotteryDetailsHandler.java
-@UseCase
-@RequiredArgsConstructor
-public class GetLotteryDetailsHandler
-    implements QueryHandler<GetLotteryDetailsQuery, LotteryDetailsView> {
-
-  private final DrawChannelCatalog catalog;  // ← Inject from api/ package
-  private final LotteryReaderPort reader;
-
-  @Override
-  public LotteryDetailsView handle(GetLotteryDetailsQuery q) {
-    // Read reference data (no side-effects, cached)
-    var channel = catalog.findById(q.channelId())
-        .orElseThrow(...);
-
-    // Read core data
-    var lottery = reader.findById(q.lotteryId());
-
-    // Compose result
-    return new LotteryDetailsView(lottery, channel);
-  }
-}
-```
-
-**Règles** :
-
-- ✅ Inject only `XCatalog` (from `api/` package)
-- ✅ Never import `internal.*`
-- ✅ Never import JPA entities
-- ✅ Use for read-only reference data
-- ❌ Never write to catalogs from core
-- ❌ Never depend on admin services
-
-### 5.7 Persistence (internal)
-
-```java
-// catalog/drawchannel/internal/persistence/DrawChannelJpaEntity.java
-@Entity
-@Table(name = "draw_channels")
-public class DrawChannelJpaEntity {
-  @Id
-  private UUID id;
-
-  private String name;
-  private String displayName;
-  private boolean active;
-  private LocalDateTime deletedAt;
-
-  // getters / setters
-}
-
-// catalog/drawchannel/internal/persistence/DrawChannelRepository.java
-public interface DrawChannelRepository extends JpaRepository<DrawChannelJpaEntity, UUID> {
-  List<DrawChannelJpaEntity> findByActiveAndDeletedAtIsNullOrderByName(boolean active);
-  Optional<DrawChannelJpaEntity> findByIdAndDeletedAtIsNull(UUID id);
-}
-```
-
-**Règles** :
-
-- ✅ JPA entities only (internal)
-- ✅ Soft-delete (`deletedAt`)
-- ✅ Repositories (internal-only)
-- ✅ UUID in JPA (raw)
-- ❌ NO Spring Data REST
-- ❌ NO `@RepositoryRestResource`
+Voir : `docs/modules/catalog.md`, `openspec/context/75-catalog-rules.md`.
 
 ---
 
@@ -758,22 +501,6 @@ public class GetTicketDetailHandler implements QueryHandler<GetTicketDetailQuery
 - ❌ MUST NOT call CommandBus
 - ❌ NO transaction annotation needed
 
-### Tenant scoping in Commands/Queries
-
-```java
-// ❌ WRONG — don't include tenantId if context guarantees it
-public record ListTicketsQuery(
-    TenantId tenantId,  // ← redundant for tenant-scoped endpoints
-    Pageable page
-) {}
-
-// ✅ CORRECT — tenant-scoped reading (RLS handles filtering)
-public record ListTicketsQuery(Pageable page) {}
-
-// ✅ CORRECT — explicit tenantId for multi-tenant, batch, public, or override
-public record ListAllTenantsTicketsQuery(TenantId optionalFilterByTenant, Pageable page) {}
-```
-
 See: `docs/conventions/command_query_handlers.md`
 
 ---
@@ -961,18 +688,14 @@ Voir : `docs/conventions/cache.md`.
 
 ## 10) Sécurité, Contexte & RLS
 
-**Vérités** :
-
-## Request Context — DO / DON'T
-
-### DO
+**DO** :
 
 - Lire le tenant via `@CurrentContext TchRequestContext`
 - Utiliser `ctx.effectiveTenantId()` ou `ctx.tenantId()` (wrapper)
 - Laisser RLS filtrer les données
 - Pour les batch/jobs : appeler `TchContext.set(ctx)` manuellement
 
-### DON'T
+**DON'T** :
 
 - Lire le JWT dans un controller ou un handler
 - Résoudre un tenant UUID ailleurs que dans `TchContextFilter`
@@ -1113,3 +836,4 @@ public class CancelTicketHandler implements CommandHandler<CancelTicketCommand, 
 - [ ] after-commit si side effects
 - [ ] pas de UUID brut hors persistence
 - [ ] docs mises à jour si pattern nouveau (ARCHI / conventions)
+- [ ] `DOMAIN_*.md` / `CATALOG_*.md` / `PLATFORM_*.md` / `FEATURE_*.md` mis à jour si API du domaine change

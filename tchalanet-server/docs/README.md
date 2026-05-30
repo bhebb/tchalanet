@@ -133,6 +133,23 @@ Si un sujet est défini ici, il ne doit **pas** être redéfini ailleurs.
 
 ---
 
+## 📌 Documentation near-code (DOMAIN_*.md / CATALOG_*.md / PLATFORM_*.md / FEATURE_*.md)
+
+Chaque domaine/capability dispose d'un fichier normatif co-localisé avec son code :
+
+| Slice | Préfixe | Lieu |
+|---|---|---|
+| `core/` | `DOMAIN_*.md` | `core/<domain>/DOMAIN_<NAME>.md` |
+| `catalog/` | `CATALOG_*.md` | `catalog/<bc>/CATALOG_<NAME>.md` |
+| `platform/` | `PLATFORM_*.md` | `platform/<cap>/PLATFORM_<NAME>.md` |
+| `features/` | `FEATURE_*.md` | `features/<feat>/FEATURE_<NAME>.md` |
+
+Ces fichiers documentent enums, modèles, invariants, commandes/queries, et intégrations réels. Ils doivent être mis à jour quand l'API du domaine change.
+
+Templates : `docs/DOMAIN_TEMPLATE.md`, `docs/PLATFORM_TEMPLATE.md`.
+
+---
+
 ## 🤖 Contrat IA (résumé)
 
 Tout agent IA contribuant au repo doit :
@@ -145,7 +162,7 @@ Tout agent IA contribuant au repo doit :
 - Ne jamais inventer de patterns
 - Ne jamais bypasser RLS
 
-Les règles détaillées sont dans `AGENTS.md`.
+Les règles détaillées sont dans `../AGENTS.md` (tchalanet-server router).
 
 ---
 
