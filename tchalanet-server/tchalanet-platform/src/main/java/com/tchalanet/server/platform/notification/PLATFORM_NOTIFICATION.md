@@ -1,34 +1,37 @@
-# PLATFORM_NOTIFICATION — Notification in-app / notification center
+
+# Platform Capability `platform.notification` — In-app Notification Center
 
 ## Status
 
 **NORMATIVE — proposed**
 
-## Purpose
 
-`platform.notification` est la capacité transverse qui gère les notifications applicatives persistantes :
+## Rôle
 
-- notification center ;
-- unread count ;
-- mark read / archive ;
-- ciblage user / role / outlet / tenant / platform ;
-- templates in-app ;
-- préférences de notification ;
-- création de notifications depuis des events métier ou système.
+`platform.notification` gère les notifications applicatives persistantes (in-app) :
+- notification center, unread count, mark read/archive
+- ciblage user/role/outlet/tenant/platform
+- templates in-app, préférences de notification
+- création de notifications à partir d’events métier ou système
 
-`platform.notification` ne livre pas d'email, SMS, Slack ou push provider externe. Ces livraisons appartiennent à `platform.communication`.
+Ce module ne livre pas d’email, SMS, Slack ou push (voir `platform.communication`).
 
-## Core decision
 
-```text
-Core publishes facts.
-Platform notification creates persistent in-app notifications.
-Platform communication delivers external messages.
-```
+## Surface API
 
-Aucune classe de `core`, `catalog`, `features`, `common.batch` ou `common.event` ne doit écrire directement dans la table `notification`.
+- `NotificationApi` (Java) : création, lecture, gestion des notifications
+- Modèles : `CreateNotificationRequest`, `NotificationView`, etc.
 
-Les producteurs publient des events. `platform.notification` écoute ces events et applique des règles transverses de ciblage.
+## Intégration
+
+- Les modules publient des events métier/système
+- `platform.notification` écoute les events et applique les règles de ciblage
+- Personne ne doit écrire directement dans la table notification
+
+## Règles et limitations
+
+- Les notifications externes sont gérées par `platform.communication`
+- Les préférences et templates sont internes à ce module
 
 ## Module organization
 

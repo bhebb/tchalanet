@@ -1,40 +1,31 @@
+
 # Platform Capability `platform.tenantconfig` — Tenant Configuration
 
-> Archetype : Application Service Module. Migré depuis `core.tenantconfig`.
-
-## 1. Rôle
+## Rôle
 
 Stocker et exposer les valeurs de configuration spécifiques à chaque tenant (paramètres opérationnels, feature flags, limites de configuration).
 
-**Ce module fait** :
-- Lire la configuration d'un tenant (`TenantConfigApi.get(key)`).
-- Gérer le CRUD admin de la configuration tenant.
-- Cacher les valeurs de configuration (changent rarement).
+**Ce module fait** :
+- Lecture de la config d’un tenant (`TenantConfigApi.get(key)`, `getAll()`)
+- CRUD admin de la config tenant
+- Caching des valeurs (TTL court, eviction sur update)
 
-**Ce module ne fait pas** :
-- Évaluation des limites métier (→ `core.limitpolicy`).
-- Gestion des jeux disponibles par tenant (→ `platform.tenantgame`).
-- Profil utilisateur (→ `platform.identity`).
+**Ce module ne fait pas** :
+- Évaluation des limites métier (voir `core.limitpolicy`)
+- Gestion des jeux par tenant (voir `platform.tenantgame`)
+- Profil utilisateur (voir `platform.identity`)
 
-## 2. Structure
+## Surface API
 
-```text
-platform/tenantconfig/
-  api/
-    TenantConfigApi.java      ← get(ConfigKey), getAll()
-    model/
-      TenantConfigView.java
-      ConfigKey.java          ← enum ou string constant
-  internal/
-    service/
-    persistence/
-    web/                      ← TenantConfigAdminController (/api/v1/admin/config)
-    cache/
-    config/
-```
+- `TenantConfigApi` (Java) : `get`, `getAll`
+- Modèles : `TenantConfigView`, `ConfigKey`
 
-## 3. Règles
+## Intégration
 
-- RLS actif — la configuration est toujours scoped au tenant courant.
-- Caching agressif (TTL court, eviction sur update admin).
-- `core.limitpolicy` consomme `TenantConfigApi` pour les paramètres opérationnels.
+- RLS actif (config toujours scoped au tenant courant)
+- Caching agressif
+- Consommé par `core.limitpolicy` pour les paramètres opérationnels
+
+## Règles et limitations
+
+- Les valeurs changent rarement, eviction sur update admin

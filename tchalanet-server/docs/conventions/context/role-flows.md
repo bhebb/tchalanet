@@ -38,19 +38,17 @@ Seller POS flow:
 
 | Sous-flow | Source canonique |
 |---|---|
-| Création / onboarding seller | `tchalanet-docs/docs/02-functional/flows/seller-onboarding.md` *(TODO)* |
-| Terminal binding / device trust | `tchalanet-docs/docs/02-functional/flows/terminal-binding.md` *(TODO)* |
-| Ouverture de session POS | `tchalanet-docs/docs/02-functional/flows/session-opening.md` *(TODO)* |
-| Sélection Admin POS | `tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md` *(TODO)* |
+| Création / onboarding seller | `tchalanet-docs/docs/02-functional/flows/seller-onboarding.md` |
+| Terminal binding / device trust | `tchalanet-docs/docs/02-functional/flows/terminal-binding.md` |
+| Ouverture de session POS | `tchalanet-docs/docs/02-functional/flows/session-opening.md` |
+| Sélection Admin POS | `tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md` |
 | Vérification ticket public | `tchalanet-docs/docs/02-functional/flows/verify-ticket.md` |
 | Vente ticket | `tchalanet-docs/docs/02-functional/flows/sell-ticket.md` |
-| Payout terrain | `tchalanet-docs/docs/02-functional/flows/payout-field-flow.md` *(TODO)* |
-| Offline grant / sync | `tchalanet-docs/docs/02-functional/flows/offline-sync.md` *(TODO)* |
+| Payout terrain | `tchalanet-docs/docs/02-functional/flows/payout-field-flow.md` |
+| Offline grant / sync | `tchalanet-docs/docs/02-functional/flows/offline-sync.md` |
 | Pipeline résultats | `tchalanet-docs/docs/02-functional/flows/draw-execution.md` |
-| Settlement | `tchalanet-docs/docs/02-functional/flows/settlement.md` *(TODO)* |
-| Réconciliation | `tchalanet-docs/docs/02-functional/flows/reconciliation.md` *(TODO)* |
-
-*(TODO) = flow identifié, document à créer — voir Phase 3 audit flows.*
+| Settlement | `tchalanet-docs/docs/02-functional/flows/settlement.md` |
+| Réconciliation | `tchalanet-docs/docs/02-functional/flows/reconciliation.md` |
 
 ---
 
@@ -60,9 +58,9 @@ Seller POS flow:
 
 1. Request Context construit — `TchContextFilter`
 2. App user bootstrappé — `UserBootstrapFilter`
-3. Seller actif et onboardé → voir [seller-onboarding](../../../../../tchalanet-docs/docs/02-functional/flows/) *(TODO)*
-4. Terminal bindé et trusted → voir [terminal-binding](../../../../../tchalanet-docs/docs/02-functional/flows/) *(TODO)*
-5. Session POS ouverte → voir [session-opening](../../../../../tchalanet-docs/docs/02-functional/flows/) *(TODO)*
+3. Seller actif et onboardé → voir [seller-onboarding](../../../../../tchalanet-docs/docs/02-functional/flows/seller-onboarding.md)
+4. Terminal bindé et trusted → voir [terminal-binding](../../../../../tchalanet-docs/docs/02-functional/flows/terminal-binding.md)
+5. Session POS ouverte → voir [session-opening](../../../../../tchalanet-docs/docs/02-functional/flows/session-opening.md)
 
 **Pour chaque action sensible (sell, payout, offline grant) :**
 
@@ -106,7 +104,7 @@ Pas d'accès POS sans sélection explicite.
    Source : `ADMIN_SELECTION` — **pas automatique**
 3. Mêmes validations terminal/outlet/session que Seller ensuite
 
-→ Voir [admin-pos-selection](../../../../../tchalanet-docs/docs/02-functional/flows/) *(TODO)*
+→ Voir [admin-pos-selection](../../../../../tchalanet-docs/docs/02-functional/flows/admin-pos-selection.md)
 
 ---
 

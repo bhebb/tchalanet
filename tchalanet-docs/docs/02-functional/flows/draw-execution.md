@@ -1,155 +1,297 @@
-# Draw Execution — Flow cross-domaines
+# Draw Execution — Cycles et pipeline
 
-> Pipeline complet de l'exécution d'un tirage : de la planification à la résolution finale, en passant par l'ouverture/fermeture de la vente, l'ingestion du résultat externe et le settlement des tickets.
+> Lifecycle complet d'un draw tenant. Plusieurs cycles selon les cas opérationnels.  
+> Domaine pivot : `core.draw` · Référence : `core/draw/DOMAIN_DRAW.md`
 
 ---
 
-## Vue d'ensemble (6 phases)
+## Machine d'états complète
 
 ```
-T-N jours       T-...           T-cutoff       T (tirage)      T+5min        T+...
-   │               │                │              │              │             │
-   ▼               ▼                ▼              ▼              ▼             ▼
-┌─────────┐  ┌─────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────┐
-│Generate │→ │  Open   │→ │    Close    │→ │   Fetch     │→ │   Apply     │→ │  Settle  │
-│         │  │ (vente) │  │  (cutoff)   │  │ (provider)  │  │  (résultat) │  │ (tickets)│
-└─────────┘  └─────────┘  └─────────────┘  └─────────────┘  └─────────────┘  └──────────┘
-SCHEDULED      OPEN           CLOSED        draw_result       RESULTED         SETTLED
+              ┌─────────────────────────────────────────────────────┐
+              │                CYCLE NORMAL                         │
+              └─────────────────────────────────────────────────────┘
+
+SCHEDULED ──► OPEN ──► CLOSED ──► RESULTED ──► SETTLED ──► ARCHIVED
+                                      │
+                           (PROVISIONAL → CONFIRMED)
+                           Watchdog 30min si bloqué PROVISIONAL
+
+              ┌─────────────────────────────────────────────────────┐
+              │              CYCLE ANNULATION                       │
+              └─────────────────────────────────────────────────────┘
+
+SCHEDULED ─┐
+OPEN       ├──► CANCELED ──► ARCHIVED
+CLOSED     ┘
+
+              ┌─────────────────────────────────────────────────────┐
+              │              CYCLE CORRECTION                       │
+              └─────────────────────────────────────────────────────┘
+
+RESULTED ──► CorrectAppliedDrawResult ──► RESULTED (nouveau drawResultId)
+            (interdit si SETTLED)
+
+              ┌─────────────────────────────────────────────────────┐
+              │           CYCLE RÉSULTAT MANUEL                     │
+              └─────────────────────────────────────────────────────┘
+
+CLOSED ──► RecordManualDrawResultCommand / OverrideDrawResultCommand
+        ──► RESULTED (resultSource: OPS)
 ```
 
-| Phase        | Quand                                  | Domaine pivot              | Action                                                       |
-| ------------ | -------------------------------------- | -------------------------- | ------------------------------------------------------------ |
-| **Generate** | J → J+7 (5h UTC daily)                 | `core.draw`                | Crée les `Draw` tenant à partir des `draw_channel`           |
-| **Open**     | À l'heure de vente                     | `core.draw`                | `SCHEDULED → OPEN`                                           |
-| **Close**    | Au cutoff (avant tirage)               | `core.draw`                | `OPEN → CLOSED`                                              |
-| **Fetch**    | Après tirage provider                  | `core.drawresult`          | Lit `result_slot.source_cfg`, fetch provider, projette Haïti |
-| **Apply**    | Après tirage (résultat externe arrivé) | `core.draw`                | `CLOSED → RESULTED` (lie au `draw_result`)                   |
-| **Settle**   | Après apply (résultat FINAL)           | `core.draw` (Spring Batch) | `RESULTED → SETTLED` (tickets WON/LOST)                      |
+---
+
+## États
+
+| État | Signification | Terminal |
+|---|---|---|
+| `SCHEDULED` | Généré, pas encore ouvert à la vente | Non |
+| `OPEN` | Vente active | Non |
+| `CLOSED` | Cutoff dépassé — plus de vente | Non |
+| `RESULTED` | Résultat lié (PROVISIONAL ou CONFIRMED) | Non |
+| `SETTLED` | Tickets traités (WON/LOST) | Oui |
+| `CANCELED` | Annulé par ops — refund si tickets vendus | Oui |
+| `ARCHIVED` | Archivé après SETTLED ou CANCELED | Oui |
 
 ---
 
-## Domaines impliqués
+## Cycle 1 — Normal (automatique)
 
-| Domaine               | Type    | Rôle                                                                        |
-| --------------------- | ------- | --------------------------------------------------------------------------- |
-| `catalog.game`        | global  | Définition des jeux (HT_BOLET, HT_LOTO3...)                                 |
-| `catalog.resultslot`  | global  | Créneaux providers (NY_MID, FL_EVE...) avec `source_cfg` + `projection_cfg` |
-| `catalog.drawchannel` | tenant  | Canal de vente tenant pointant vers un slot                                 |
-| `core.uslottery`      | global  | Clients HTTP providers (NY/FL/GA/TX/TN)                                     |
-| `core.haiti`          | global  | Projection lot1..lot4 depuis pick3+pick4                                    |
-| `core.drawresult`     | global  | Ingestion + persistance `draw_result` global                                |
-| `core.draw`           | tenant  | Lifecycle tenant + risk + settlement                                        |
-| `features.publicdraw` | feature | Exposition publique des résultats                                           |
-| `features.ops`        | feature | Orchestration manuelle                                                      |
+### Phase Generate — J → J+7 (5h UTC quotidien)
+
+```
+Scheduler GenerateDrawsForRangeCommand (gate: DRAW_GENERATE)
+  → Pour chaque draw_channel actif du tenant :
+    UNIQUE(tenant_id, draw_channel_id, draw_date) — idempotent
+  → Draw créé : SCHEDULED
+  → systemGenerated = true
+  → scheduledAt, cutoffAt calculés depuis draw_channel.draw_time + timezone
+```
+
+### Phase Open (scheduler, fenêtre configurable)
+
+```
+Scheduler OpenDueDrawsCommand (gate: DRAW_OPEN)
+  → Draws SCHEDULED où sales_open_time <= now
+  → SCHEDULED → OPEN
+  → DrawOpenedEvent (pas publié — state transition interne)
+```
+
+> Fallback : si `draw_channel.sales_open_time` absent → `tch.draw.scheduler.open-today.default-sales-open-time`
+
+### Phase Close (scheduler, fenêtre configurable)
+
+```
+Scheduler CloseDueDrawsCommand (gate: DRAW_CLOSE)
+  → Draws OPEN où cutoffAt <= now
+  → OPEN → CLOSED
+  → DrawClosedEvent publié (AfterCommit)
+     → core.sales : refuse nouvelles ventes
+     → cache : invalidation
+```
+
+### Phase Fetch — ingestion résultat externe
+
+```
+Scheduler FetchExternalResultsWindowCommand (gate: RESULTS_EXTERNAL_FETCH)
+  → core.drawresult : lit result_slot.source_cfg pour chaque slot actif
+  → Appel provider externe (core.uslottery : NY/FL/GA/TX/TN)
+  → Projection Haïti via core.haiti (lot1..lot4 depuis pick3+pick4)
+  → draw_result créé : status PROVISIONAL ou CONFIRMED
+  → DrawResultIngestedEvent publié → accélère apply
+```
+
+**Fenêtres fetch (timezone NY) :** `12:00-14:00, 20:00-23:00`
+
+### Phase Apply — liaison résultat → draw (gate: RESULTS_EXTERNAL_APPLY)
+
+```
+Scheduler ApplyExternalResultsWindowCommand
+  → Draws CLOSED + draw_result disponible (PROVISIONAL ou CONFIRMED)
+  → draw.drawResultId = drawResultId
+  → CLOSED → RESULTED
+  → DrawResultAppliedEvent publié (AfterCommit)
+     → core.sales : RecordDrawTicketsResultCommandHandler
+     → core.draw : Declenche settlement si result CONFIRMED
+     → features.stats, cache
+```
+
+> ⚠ Apply autorisé dès PROVISIONAL. Settle nécessite CONFIRMED.
+
+**Watchdog PROVISIONAL :** Si draw reste RESULTED avec résultat PROVISIONAL > 30 min → alerte ops (`DrawProvisionalWatchdogScheduler`, gate: `DRAW_WATCHDOG_PROVISIONAL`).
+
+### Phase Settle — traitement des tickets (gate: DRAW_SETTLE)
+
+```
+Scheduler SettleDrawCommand
+  Prérequis : draw_result.status = CONFIRMED  ← pas PROVISIONAL
+  → draw.locked = true  (verrou anti-concurrence)
+  → RESULTED → SETTLED
+  → Pour chaque ticket du draw : WON ou LOST calculé
+  → DrawSettledEvent publié (AfterCommit)
+     → core.payout : OpenPayoutClaimFromSettlementCommand (si WON)
+     → features.stats, notifications, cache
+  → draw.locked = false
+```
+
+**Fenêtres settle (timezone NY) :** `12:00-15:00, 20:00-23:30`
 
 ---
 
-## Vocabulaire métier
+## Cycle 2 — Annulation
 
-| Terme             | Sens court                                       | Source of truth                             |
-| ----------------- | ------------------------------------------------ | ------------------------------------------- |
-| **Game**          | Type de jeu (HT_BOLET, HT_LOTO3, etc.)           | `catalog/game/CATALOG_GAME.md`               |
-| **Slot**          | Créneau global de tirage provider                | `catalog/resultslot/CATALOG_RESULTSLOT.md`   |
-| **Channel**       | Canal de vente tenant pointant vers un slot      | `catalog/drawchannel/CATALOG_DRAWCHANNEL.md` |
-| **Draw**          | Instance de vente tenant pour un (channel, date) | `core/draw/DOMAIN_DRAW.md`                  |
-| **Draw Result**   | Résultat externe global ingéré + projeté Haïti   | `core/drawresult/DOMAIN_DRAWRESULT.md`      |
-| **Draw Exposure** | Compteur risk par scope sur un draw              | `core/draw/DOMAIN_DRAW.md`                  |
+```
+Ops (ou admin) : CancelDrawCommand
+  Autorisé depuis : SCHEDULED, OPEN, CLOSED
+  Interdit depuis : RESULTED, SETTLED, ARCHIVED
+
+  → CANCELED
+  → DrawCancelledEvent publié
+     → core.sales : refund tickets vendus (SOLD → VOID)
+     → features.stats, notifications
+
+  → Ops : ArchiveDrawCommand
+  → CANCELED → ARCHIVED
+```
+
+Cas d'usage : erreur de configuration, fraude détectée, incident provider.
 
 ---
 
-## Decision points
+## Cycle 3 — Correction de résultat (après Apply, avant Settle)
 
-### PROVISIONAL vs FINAL
+```
+Ops : CorrectAppliedDrawResultCommand
+  { drawId, correctedDrawResultId, reason, idempotencyKey }
 
-- **Apply** dès `draw_result.status IN (PROVISIONAL, FINAL)`.
-- **Settle** uniquement si `draw_result.status = FINAL`.
-- La projection Haïti lit d'abord `result_slot.projection_cfg`, puis utilise le fallback global documenté.
+  Prérequis :
+  - draw.status = RESULTED
+  - draw non SETTLED (DrawSalesGuardPort.assertCanCorrectAppliedResult)
+  - correctedDrawResultId ≠ previousDrawResultId
 
-### Override après SETTLED
+  → draw.drawResultId = correctedDrawResultId
+  → DrawResultCorrectedEvent publié (AfterCommit)
+     → core.drawresult : MarkDrawResultOverriddenCommand
+       (previous DrawResult → OVERRIDDEN)
+  → DrawResultAppliedEvent re-publié
+     → Re-trigger settlement pipeline avec le nouveau résultat
+```
 
-- **Refusé** purement et simplement (MVP). Cas correction provider post-settlement → traité manuellement par les ops.
+> ⚠ Interdit si le draw est déjà SETTLED — les payouts ont été émis.  
+> ⚠ `DrawSalesGuardPort` actuellement NoOp (TODO: implémenter RealDrawSalesGuardAdapter).
 
-### Force=true
+---
 
-- Bypasse les contrôles non critiques uniquement.
-- `reason` obligatoire.
-- Audité systématiquement.
-- Exposé uniquement sur `/platform/ops/**`.
+## Cycle 4 — Résultat manuel (ops)
+
+```
+Pour draw CLOSED sans résultat provider disponible :
+
+RecordManualDrawResultCommand  ← résultat saisi par ops
+  → draw_result créé avec source MANUAL et status CONFIRMED directement
+  → resultSource: OPS
+
+OverrideDrawResultCommand  ← remplacement d'un résultat existant
+  → draw_result existant → OVERRIDDEN
+  → nouveau draw_result créé
+  → DrawResultAppliedEvent re-publié
+  → Re-trigger settlement
+```
+
+Gates ops sur `/platform/ops/draw-results/**` :
+`RESULTS_MANUAL_RECORD` · `RESULTS_OVERRIDE` · `RESULTS_EXTERNAL_REFRESH`
+
+---
+
+## Cycle 5 — Reprogrammation
+
+```
+Ops : RescheduleDrawCommand
+  { drawId, scheduledAt, cutoffAt, reason, force }
+
+  Autorisé depuis : SCHEDULED (ou OPEN avec force=true)
+  → Mise à jour scheduledAt + cutoffAt
+  → Audité si force=true
+```
+
+Cas d'usage : décalage provider, heure d'été, incident réseau.
+
+---
+
+## DrawResultStatus — états du résultat global
+
+| État | Signification | Settlement autorisé |
+|---|---|---|
+| `PROVISIONAL` | Résultat reçu, pas encore confirmé | Non |
+| `CONFIRMED` | Résultat validé et définitif | Oui |
+| `OVERRIDDEN` | Remplacé par un résultat corrigé | Non |
+| `ERROR` | Erreur d'ingestion provider | Non |
+
+---
+
+## Scheduler windows (timezone NY — configurable)
+
+| Opération | Fenêtres par défaut |
+|---|---|
+| Open draws | Continu (configurable par `draw_channel.sales_open_time`) |
+| Close draws | Continu (déclenchée par `cutoffAt`) |
+| Fetch results | `12:00-14:00`, `20:00-23:00` |
+| Apply results | `12:00-14:30`, `20:00-23:30` |
+| Settle draws | `12:00-15:00`, `20:00-23:30` |
+| Watchdog PROVISIONAL | Toutes les N minutes (configurable) |
+
+Désactiver une gate = suspendre cette phase sans arrêter les autres.
+
+---
+
+## Règle force=true
+
+`force=true` est exposé uniquement sur `/platform/ops/**`.  
+Il bypasse les contrôles non critiques (unicité, vérifications de statut).  
+Il **ne bypasse jamais** : règle override post-SETTLED, RLS, authentification.  
+Il **exige** un `reason` non vide. Il est **toujours audité** (`@AuditedForceCommand`).
 
 ---
 
 ## Events canoniques
 
-| Event                     | Producer          | Consumers                                   |
-| ------------------------- | ----------------- | ------------------------------------------- |
-| `DrawClosedEvent`         | `core.draw`       | `sales` (refuse vente), `cache`             |
-| `DrawResultIngestedEvent` | `core.drawresult` | `core.draw` (accélère apply, optionnel)     |
-| `DrawResultAppliedEvent`  | `core.draw`       | `sales` (settle), `stats`, `cache`          |
-| `DrawSettledEvent`        | `core.draw`       | `stats`, `notifications`, `cache`, `payout` |
-| `DrawCanceledEvent`       | `core.draw`       | `sales` (refund), `stats`, `notifications`  |
+| Event | Producteur | Consommateurs |
+|---|---|---|
+| `DrawClosedEvent` | `core.draw` | `core.sales` (refuse vente), cache |
+| `DrawResultAppliedEvent` | `core.draw` | `core.sales` (settle tickets), stats, cache |
+| `DrawResultCorrectedEvent` | `core.draw` | `core.drawresult` (mark OVERRIDDEN) |
+| `DrawSettledEvent` | `core.draw` | `core.payout`, stats, notifications, cache |
+| `DrawCancelledEvent` | `core.draw` | `core.sales` (refund), stats, notifications |
+| `DrawResultIngestedEvent` | `core.drawresult` | `core.draw` (accélère apply — optionnel) |
 
-> Tous publiés via `AfterCommit.run(...)`. Tous consommés en `@TransactionalEventListener(AFTER_COMMIT)`. Idempotence garantie par `processed_event` ou contraintes métier.
-
----
-
-## Cross-apps (Web / Mobile)
-
-### Web (UI)
-
-- Pages :
-  - `/public/results` — historique des résultats publics
-  - `/public/draws/today` — draws ouverts du jour
-- Components :
-  - `PublicDrawList`, `LatestResultsPanel`, `DrawCountdown`
-- i18n namespaces : `draw.*`, `publicdraw.*`, `result.*`
-
-### Mobile (POS)
-
-- Écrans :
-  - "Ventes en cours" (draws OPEN du tenant)
-  - "Consulter dernier résultat"
-  - "Settlement en cours" (draws RESULTED non settled)
-- Offline/Sync : cache court (5 min) sur les draws OPEN.
-
-### API publique (cross-apps)
-
-- `GET /api/v1/public/draws` — liste des draws OPEN (avec countdown)
-- `GET /api/v1/public/results/latest` — derniers résultats par channel
-- `GET /api/v1/public/results` — historique paginé
-- Notes : rate-limit, noindex pour public.
-
-### API tenant (POS / admin)
-
-- `GET /api/v1/tenant/draws` — draws du tenant
-- `GET /api/v1/tenant/draws/{id}` — détails d'un draw
-
-### API ops (super-admin)
-
-- `POST /platform/ops/draws/generate|open-due|close-due|apply` — orchestration manuelle
-- `POST /platform/ops/draw-results/fetch|refresh|override|manual` — gestion résultats
-
-Gates ops distinctes : fetch, apply, refresh, manual et override peuvent être coupés séparément.
+Tous publiés via `AfterCommit.run(...)`. Consommés en `@TransactionalEventListener(AFTER_COMMIT)`.  
+Idempotence garantie par `processed_event` ou contraintes métier.
 
 ---
 
-## Source of truth backend
+## Domaines impliqués
 
-> Cette page est une **vue fonctionnelle cross-apps**. La source de vérité technique vit près du code dans `tchalanet-server`.
-
-- Backend `core.draw` : `99-links/_ref/server/core/draw/DOMAIN_DRAW.md`
-- Backend `core.drawresult` : `99-links/_ref/server/core/drawresult/DOMAIN_DRAWRESULT.md`
-- Backend `core.uslottery` : `99-links/_ref/server/core/uslottery/DOMAIN_USLOTTERY.md`
-- Backend `core.haiti` : `99-links/_ref/server/core/haiti/DOMAIN_HAITI.md`
-- Backend `catalog.resultslot` : `99-links/_ref/server/catalog/resultslot/CATALOG_RESULTSLOT.md`
-- Backend `catalog.drawchannel` : `99-links/_ref/server/catalog/drawchannel/CATALOG_DRAWCHANNEL.md`
-
-> En cas d'incohérence entre cette page et les `DOMAIN_*.md` backend, **les docs backend font foi**.
+| Domaine | Rôle |
+|---|---|
+| `core.draw` | Lifecycle tenant + risk + settlement |
+| `core.drawresult` | Ingestion résultats externes |
+| `core.uslottery` | Clients HTTP providers NY/FL/GA/TX/TN |
+| `core.haiti` | Projection lot1..lot4 depuis pick3+pick4 |
+| `catalog.resultslot` | Créneaux providers avec `source_cfg` + `projection_cfg` |
+| `catalog.drawchannel` | Canaux de vente tenant (timezone, cutoff_sec) |
+| `catalog.game` | Définition des jeux disponibles par canal |
+| `core.sales` | Tickets vendus sur le draw |
+| `core.payout` | Claims de paiement après settlement |
+| `features.ops` | Orchestration manuelle + gates |
 
 ---
 
-## Liens
+## Références
 
-- Conventions backend : `tchalanet-server/docs/conventions/`
-  - `event_model.md`, `idempotency.md`, `timezone.md`, `cache.md`, `inter_domain_calls.md`
-- Architecture backend : `tchalanet-server/docs/ARCHITECTURE.md`
-- Functional domains : `docs/02-functional/domains/draw.md`, `drawresult.md`
+- Domaine draw : `core/draw/DOMAIN_DRAW.md`
+- Domaine drawresult : `core/drawresult/DOMAIN_DRAWRESULT.md`
+- Settlement tickets : [settlement](./settlement.md)
+- Vente ticket : [sell-ticket](./sell-ticket.md)
+- Réconciliation : [reconciliation](./reconciliation.md)
+- API ops : `POST /platform/ops/draws/{generate|open-due|close-due|apply}` · `POST /platform/ops/draw-results/{fetch|refresh|override|manual}`

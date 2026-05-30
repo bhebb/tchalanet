@@ -1,67 +1,38 @@
-# PLATFORM_ENTITLEMENT — Runtime Capabilities V1
+
+# Platform Capability `platform.entitlement` — Runtime Capabilities
 
 ## Status
 
 New normative design document for `platform.entitlement`.
 
-## Decision
+## Rôle
 
-Create `platform.entitlement` as a small transversal application service that resolves tenant capabilities from existing `core.subscription` and `catalog.plan`.
+`platform.entitlement` expose les capacités runtime d’un tenant (feature flags, limites, statut plan, etc.)
 
-It is intentionally simple for V1.
+**Ce module fait** :
+- Résout les capacités d’un tenant à partir de core.subscription et catalog.plan
+- Expose un snapshot runtime (`TenantCapabilitySnapshot`)
+- API Java : `EntitlementApi`, `TenantPlanSnapshotProvider`, `UsageService`
 
-```text
-No rule engine.
-No plan inheritance runtime.
-No billing integration.
-No if(plan == PRO) in business code.
-```
+**Ce module ne fait pas** :
+- Pas de moteur de règles
+- Pas d’héritage de plan runtime
+- Pas d’intégration billing
+- Pas de if(plan == PRO) dans le métier
 
-## Purpose
+## Surface API
 
-`platform.entitlement` answers one runtime question:
+- `EntitlementApi` (Java) : snapshot des capacités
+- `TenantPlanSnapshotProvider`, `UsageService` (Java)
 
-```text
-What can this tenant do right now?
-```
+## Intégration
 
-It returns a cached `TenantCapabilitySnapshot` containing:
+- Les modules platform/core interrogent ce module pour connaître les droits/features d’un tenant
 
-- tenant id;
-- plan code;
-- subscription status;
-- feature booleans;
-- numeric limits;
-- optional notices/reasons.
+## Règles et limitations
 
-## Module shape
-
-```text
-platform/entitlement/
-  api/
-    EntitlementApi.java
-    TenantPlanSnapshotProvider.java
-    UsageService.java
-    UsageKeys.java
-    LimitKeys.java
-    RequiredFeature.java
-    RequiredQuota.java
-    model/TenantCapabilitySnapshot.java
-    model/TenantPlanSnapshot.java
-    model/TenantPlanStatus.java
-    model/EntitlementDecision.java
-  internal/
-    EntitlementCapabilitiesGetter.java
-    EntitlementCapabilitiesGetterImpl.java
-    UsageServiceImpl.java
-    EntitlementService.java
-    web/TenantCapabilitiesController.java
-    aspect/RequiredFeatureAspect.java
-    aspect/RequiredQuotaAspect.java
-    cache/EntitlementCacheSpecProvider.java
-    cache/EntitlementCacheEvictor.java
-    config/EntitlementProperties.java
-```
+- Les snapshots sont mis en cache
+- Les décisions sont purement techniques, pas métier
 
 ## Public API
 
