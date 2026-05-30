@@ -1,6 +1,32 @@
 
 # Platform Capability `platform.entitlement` — Runtime Capabilities
 
+
+## Constantes — `EntitlementKeys`
+
+### Features (booléens)
+
+| Clé | Constante |
+|---|---|
+| `sale.manual` | `FEATURE_SALE_MANUAL` |
+| `sale.offline` | `FEATURE_SALE_OFFLINE` |
+| `promotion.basic` | `FEATURE_PROMOTION_BASIC` |
+| `payout.auto_approve` | `FEATURE_PAYOUT_AUTO_APPROVE` |
+
+### Limites (entiers)
+
+| Clé | Constante |
+|---|---|
+| `outlets` | `LIMIT_OUTLETS` |
+| `terminals` | `LIMIT_TERMINALS` |
+| `users` | `LIMIT_USERS` |
+| `maxTicketsPerDay` | `LIMIT_MAX_TICKETS_PER_DAY` |
+
+Usage : `entitlementApi.checkFeature(tenantId, EntitlementKeys.FEATURE_SALE_OFFLINE)`  
+Annotation : `@RequiredFeature("sale.offline")` ou `@RequiredQuota(limit = "outlets", ...)`
+
+## `TenantPlanStatus` : `NONE` · `TRIAL` · `ACTIVE` · `SUSPENDED` · `CANCELED` · `EXPIRED`
+
 ## Status
 
 New normative design document for `platform.entitlement`.
