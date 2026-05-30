@@ -138,8 +138,8 @@ Le cashier n'est pas propriétaire de la vérité payout — il affiche une atte
 
 ## Références
 
-- Implémentation mobile complète : [`MOBILE_FLOW.md`](./MOBILE_FLOW.md)
-- Sell flow détaillé : [`MOBILE_FLOW.md v2`](./mobile_cashier_flow_v2.md)
+- Intégration mobile (Flutter) : [`MOBILE_FLOW.md`](./MOBILE_FLOW.md)
+- Guide vendeur (non-technique) : [`SELLER_GUIDE.md`](./SELLER_GUIDE.md)
 - Contexte opérationnel : `docs/conventions/context/operational-context.md`
 - Sell ticket flow : `tchalanet-docs/docs/02-functional/flows/sell-ticket.md`
 - Print ticket : `tchalanet-docs/docs/02-functional/domains/sales/print-ticket/`

@@ -1,58 +1,136 @@
-# Mobile cashier flow
+# Mobile cashier flow — Guide d'intégration Flutter
 
-Guide pour coder l'app mobile vendeur contre l'API `features.cashier`. Toutes les routes
-sont préfixées par `${TCH_BASE_URL}` (ex: `http://localhost:8083/api/v1`).
+Guide pour coder l'app mobile vendeur contre l'API `features.cashier`.
+Toutes les routes sont préfixées par `${TCH_BASE_URL}` (ex: `http://localhost:8083/api/v1`).
+
+---
 
 ## 0. Pré-requis
 
 - JWT cashier (Keycloak password grant ou refresh)
-- IDs `outletId`, `terminalId` (provisionnés côté tenant_admin)
-- `sessionId` après ouverture de session POS
-- L'app envoie sur **chaque requête** :
+- IDs `outletId`, `terminalId` provisionnés côté tenant_admin
+- `sessionId` obtenu après ouverture de session POS
+- L'app envoie sur **chaque requête protégée** :
   - `Authorization: Bearer <jwt>`
-  - `X-Tch-Outlet-Id`, `X-Tch-Terminal-Id`, `X-Tch-Sales-Session-Id`
-  - `Idempotency-Key` (UUID v4) **obligatoire** sur `POST /sell`
+  - `X-Tch-Outlet-Id`
+  - `X-Tch-Terminal-Id`
+  - `X-Tch-Sales-Session-Id` (après ouverture de session)
+  - `Idempotency-Key` (UUID v4) **obligatoire** uniquement sur `POST /sell`
+
+---
 
 ## 1. Login
 
-```
+```http
 POST {KEYCLOAK_TOKEN_URL}
-  grant_type=password&client_id=...&username=...&password=...
-→ { access_token, refresh_token, expires_in, ... }
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=...&username=...&password=...
 ```
 
-Persiste `access_token` jusqu'à `expires_in`. À l'expiration, refresh ou re-login.
-
-## 2. Validation du contexte opérationnel
-
-Avant la première vente, valide que le vendeur peut utiliser ce terminal :
-
-```
-POST /tenant/cashier/operational-context/select
+```json
 {
-  "outletId":        "<outletId>",
-  "terminalId":      "<terminalId>",
-  "salesSessionId":  "<sessionId>"
+  "access_token": "...",
+  "refresh_token": "...",
+  "expires_in": 300
 }
-→ 200  data: { terminalId, outletId, salesSessionId, source, trust }
 ```
 
-Échec → 403 `seller_context.permission_denied` ou validation error → afficher un message
-ops "contactez votre admin tenant".
+Persiste `access_token` jusqu'à `expires_in`. À l'expiration : refresh token ou re-login.
 
-L'app peut aussi lire l'état courant :
+---
 
+## 2. Profil vendeur
+
+Charge les informations de l'utilisateur connecté et ses préférences. Ne remplace pas le contexte opérationnel POS.
+
+```http
+GET /tenant/cashier/profile/current
 ```
+
+```json
+{
+  "userId": "uuid",
+  "username": "agent01",
+  "displayName": "Agent",
+  "email": "agent@example.com",
+  "phoneNumber": "+50937700000",
+  "locale": "fr",
+  "timezone": "America/Port-au-Prince",
+  "roles": ["CASHIER"],
+  "permissions": ["cashier.sell", "cashier.ticket.print"],
+  "tenant": { "tenantId": "uuid", "tenantName": "Tchalanet Demo" },
+  "defaults": {
+    "receiptFormat": "PDF",
+    "receiptLayout": "THERMAL_80MM",
+    "currency": "HTG"
+  }
+}
+```
+
+```http
+PATCH /tenant/cashier/profile/current
+Content-Type: application/json
+
+{
+  "displayName": "Agent",
+  "phoneNumber": "+50937700000",
+  "locale": "fr",
+  "timezone": "America/Port-au-Prince",
+  "defaults": { "receiptFormat": "PDF", "receiptLayout": "THERMAL_80MM" }
+}
+```
+
+Règles :
+- Utiliser `locale` pour les libellés et le reçu.
+- Utiliser `defaults.receiptFormat` et `defaults.receiptLayout` pour le bouton impression.
+- Ne pas déduire la permission de vendre depuis le profil seul — ça dépend aussi du terminal, outlet et session.
+- Les rôles, permissions, tenant, outlet et terminal ne sont pas modifiables via le profil.
+
+---
+
+## 3. Contexte opérationnel
+
+Avant la première vente, valide que le vendeur peut utiliser ce terminal/outlet/session.
+
+```http
+POST /tenant/cashier/operational-context/select
+Content-Type: application/json
+
+{
+  "outletId": "<outletId>",
+  "terminalId": "<terminalId>",
+  "salesSessionId": "<sessionId>"
+}
+```
+
+```json
+{
+  "terminalId": "uuid",
+  "outletId": "uuid",
+  "salesSessionId": "uuid",
+  "source": "ADMIN_SELECTION",
+  "trust": "TRUSTED"
+}
+```
+
+Lire l'état courant :
+
+```http
 GET /tenant/cashier/operational-context/current
-→ 200  data: {...}   ou 204 No Content
+→ 200 data:{...}  ou  204 No Content
 ```
 
-## 3. Session POS
+Échec → 403 `seller_context.permission_denied` → afficher "Contactez votre administrateur".
 
-```
-GET  /tenant/cashier/session/current?terminalId=<terminalId>
+---
+
+## 4. Session POS
+
+```http
+GET /tenant/cashier/session/current?terminalId=<terminalId>
 → 200 data:{sessionId, status:"OPEN", openedAt, openingFloat, ...}
-  ou 204 No Content (pas de session ouverte)
+  ou 204 No Content
 
 POST /tenant/cashier/session/open
 { "outletId": "...", "terminalId": "...", "openingFloat": "100.00" }
@@ -63,251 +141,373 @@ POST /tenant/cashier/session/close
 → 200 data:{sessionId, status:"CLOSED", closedAt, closingAmount}
 ```
 
-Stocke `sessionId` localement et utilise-le dans `X-Tch-Sales-Session-Id` sur les
-requêtes suivantes.
+Stocke `sessionId` localement et envoie dans `X-Tch-Sales-Session-Id` sur les requêtes suivantes.
 
-## 4. Tirages vendables
+---
 
-```
+## 5. Tirages vendables
+
+```http
 GET /tenant/cashier/draws/available?lookaheadHours=24&limit=20
-→ 200 data:[
+```
+
+```json
+[
   {
-    drawId, drawChannelId, drawDate, resultSlotId, resultSlotKey,
-    channelCode,   // ex "HT_TX_1000"
-    channelLabel,  // ex "Haïti • Texas • 10:00 (11:00)"  ← déjà formaté
-    gameCodes,     // ex ["HT_BOLET","HT_MARYAJ","HT_LOTO3","HT_LOTO4","HT_LOTO5"]
-    status,        // "OPEN" | "SCHEDULED" | "CLOSED" — n'autoriser la vente que sur OPEN
-    scheduledAt, cutoffAt
-  }, ...
+    "drawId": "uuid",
+    "drawChannelId": "uuid",
+    "drawDate": "2026-05-21",
+    "resultSlotKey": "HT_TX_1000",
+    "channelCode": "HT_TX_1000",
+    "channelLabel": "Haïti • Texas • 10:00 (11:00)",
+    "gameCodes": ["HT_BOLET", "HT_MARYAJ", "HT_LOTO3", "HT_LOTO4", "HT_LOTO5"],
+    "status": "OPEN",
+    "scheduledAt": "2026-05-21T15:00:00Z",
+    "cutoffAt": "2026-05-21T14:55:00Z"
+  }
 ]
 ```
 
-Filtre client-side sur `status == "OPEN"` pour le panier de vente. `cutoffAt` est
-l'heure-limite côté serveur ; l'app peut désactiver la vente quand `now > cutoffAt - 60s`
-pour une transition douce.
+Règles :
+- Autoriser la vente uniquement sur `status == "OPEN"`.
+- `cutoffAt` : désactiver progressivement côté mobile (ex: `now > cutoffAt - 60s`), le serveur reste source de vérité.
+- Recharger périodiquement (toutes les ~30s).
 
-## 5. Construction du panier
+---
 
-Le panier est local au mobile : une liste de lignes `(gameCode, betType, selection,
-betOption, stake)`. Voir [§ Selection / betOption matrix](#7-selection--betoption-matrix)
-pour les formats valides.
+## 6. Panier et vente
 
-### 5.1 Preview (validation read-only)
+Le panier est local au mobile : liste de lignes `(gameCode, betType, selection, betOption, stake)`.
 
-Appelle avant chaque "ajouter au panier" pour donner un feedback immédiat :
+### 6.1 Règle idempotency
 
-```
+- Générer un `Idempotency-Key` (UUID v4) **au moment de confirmer la vente** — pas avant.
+- Si la requête timeout, re-poster le **même payload avec la même clé** → réponse stockée rejouée, pas de double vente.
+- Si le panier change, générer une **nouvelle clé**.
+- Si le serveur retourne un conflit idempotency, ne pas forcer — refaire preview et confirmer.
+
+### 6.2 Preview (validation read-only)
+
+Appeler avant chaque "ajouter au panier" pour feedback immédiat :
+
+```http
 POST /tenant/cashier/tickets/preview
+Content-Type: application/json
+
 {
-  "terminalId":     "<terminalId>",
-  "drawId":         "<drawId>",
-  "drawChannelId":  "<drawChannelId>",
-  "currency":       "HTG",
+  "terminalId": "<terminalId>",
+  "drawId": "<drawId>",
+  "drawChannelId": "<drawChannelId>",
+  "currency": "HTG",
   "lines": [
-    {"gameCode":"HT_BOLET","betType":"MATCH_1_2D","selection":"11","betOption":null,"stake":"1.00"}
+    { "gameCode": "HT_BOLET", "betType": "MATCH_1_2D", "selection": "11", "betOption": null, "stake": "1.00" }
   ]
 }
-→ 200 data:{
-  decision:            "ACCEPTABLE" | "REQUIRES_CHANGES" | "REJECTED_FINAL",
-  issues:              [{code, severity, message, sellerInstruction, lineIndex, details}],
-  actionAvailability:  {canSell, canPrint, canSendSms, canSendWhatsapp, canSendEmail, canCopy},
-  sellerInstruction:   "..." | null,
-  warning:             "..." | null
+```
+
+```json
+{
+  "decision": "ACCEPTABLE",
+  "issues": [],
+  "actionAvailability": {
+    "canSell": true, "canPrint": true, "canSendSms": true,
+    "canSendWhatsapp": true, "canSendEmail": true, "canCopy": true
+  },
+  "sellerInstruction": "Ce billet peut être vendu.",
+  "warning": null
 }
 ```
 
 - `ACCEPTABLE` → activer le bouton "Vendre".
-- `REQUIRES_CHANGES` → afficher `sellerInstruction`, garder le panier modifiable.
-- `REJECTED_FINAL` → bloquer (ex: tirage fermé).
+- `REQUIRES_CHANGES` → garder le panier modifiable, afficher `sellerInstruction`.
+- `REJECTED_FINAL` → bloquer (ex: tirage fermé, session fermée).
 
-Cf. [§ Issue codes](#8-issue-codes-fréquents) pour la liste.
+Preview ne réserve pas l'exposition — un sell peut encore retourner `EXPOSURE_CHANGED`.
 
-### 5.2 Vente
+### 6.3 Vente
 
-```
+```http
 POST /tenant/cashier/tickets/sell
 Idempotency-Key: <uuid-v4>
+Content-Type: application/json
+
 {
-  "terminalId":     "...",
-  "drawId":         "...",
-  "drawChannelId":  "...",
-  "currency":       "HTG",
-  "lines": [ ... ]   // identique au panier validé via preview
+  "terminalId": "...", "drawId": "...", "drawChannelId": "...",
+  "currency": "HTG",
+  "lines": [ ... ]
 }
-→ 201 data:{
-  outcome:            "ACCEPTED" | "REJECTED" | "PENDING_APPROVAL",
-  ticketId, ticketCode, publicCode,    // tous null si REJECTED
-  saleStatus:         "PLACED" | "APPROVED" | ...
-  issues:             [...],
-  backup: {                              // null si REJECTED
-    displayCode:           "7EX7-0YME",
-    verificationShortUrl:  "https://app.tchalanet.com/ticket/7EX70YME",
-    shareableText:         "Ticket Tchalanet ...\nCode: 7EX7-0YME\n..."
+```
+
+Réponse acceptée :
+
+```json
+{
+  "outcome": "ACCEPTED",
+  "ticketId": "uuid",
+  "ticketCode": "TCK-260521-125433-GV5G0P-0",
+  "publicCode": "40CPJBMR",
+  "saleStatus": "PLACED",
+  "issues": [],
+  "backup": {
+    "displayCode": "40CP-JBMR",
+    "verificationShortUrl": "https://app.tchalanet.com/ticket/40CP-JBMR",
+    "shareableText": "Ticket Tchalanet valide\nCode: 40CP-JBMR\n..."
   },
-  actionAvailability: {...},
-  sellerInstruction:  "..." | null
+  "actionAvailability": { "canPrint": true, "canSendSms": true, "canSendWhatsapp": true, "canSendEmail": true, "canCopy": true },
+  "sellerInstruction": "Vente acceptée. Donnez le code au client ou imprimez/envoyez le ticket."
+}
+```
+
+Réponse refusée :
+
+```json
+{
+  "outcome": "REJECTED",
+  "ticketId": null, "ticketCode": null, "publicCode": null,
+  "issues": [
+    {
+      "code": "EXPOSURE_CHANGED",
+      "severity": "ERROR",
+      "message": "La limite a changé pendant la vente.",
+      "sellerInstruction": "Réduisez la mise et réessayez.",
+      "lineIndex": 0,
+      "details": { "allowedRemaining": "1.00 HTG" }
+    }
+  ],
+  "backup": null,
+  "actionAvailability": { "canPrint": false, "canSendSms": false, "canSendWhatsapp": false, "canSendEmail": false, "canCopy": false },
+  "sellerInstruction": "Vente refusée. Ajustez le panier et réessayez."
 }
 ```
 
 **Règles critiques** :
+- Le cashier POS expose seulement `ACCEPTED` ou `REJECTED` — `PENDING_APPROVAL` est un workflow tenant_admin hors scope mobile.
+- Sur `ACCEPTED` : **afficher `backup.displayCode` immédiatement**, avant tout appel print/send. C'est la garantie offline pour le client.
+- Sur `REJECTED` : aucun ticket créé — `ticketId` est null.
 
-- L'`Idempotency-Key` doit être généré UNE FOIS pour le panier. Si la requête timeout,
-  re-poste le même payload avec la même clé → la réponse stockée est rejouée
-  (pas de double vente).
-- Sur `ACCEPTED`, **affiche `backup.displayCode` au vendeur immédiatement** (avant tout
-  appel print/send). C'est la garantie offline pour le client.
-- Sur `REJECTED`, le ticket n'a pas été créé : `ticketId` est null.
-- Sur `PENDING_APPROVAL`, ne pas afficher comme vendu — c'est un workflow tenant_admin
-  (out of scope mobile cashier).
+### 6.4 Écran de succès (après ACCEPTED)
 
-## 6. Reçu
+Afficher :
+1. `backup.displayCode` en grand
+2. `backup.verificationShortUrl` sous le code
+3. Boutons : `Copier le code` · `Copier le lien` · `Copier le message`
+4. Actions optionnelles : `Imprimer` · `Envoyer SMS` · `Envoyer WhatsApp` · `Envoyer Email`
 
-### 6.1 Imprimer (PDF ou ESC/POS)
+> Print/send sont des bonus. La preuve minimale client est le code + lien de vérification.
 
-```
+---
+
+## 7. Reçu
+
+### 7.1 Imprimer (PDF ou ESC/POS)
+
+```http
 POST /tenant/cashier/tickets/{ticketId}/print
+Content-Type: application/json
+
 {
-  "format":           "PDF" | "ESC_POS",
-  "recordPrint":      true,           // false en reprint pour ne pas auditer doublon
-  "deliveryOptions":  ["RETURN_FILE"],// ou + ["SMS","WHATSAPP","EMAIL"]
-  "reprintReason":    null,           // string si re-print
-  "buyerPhoneNumber": null,           // requis si SMS/WHATSAPP
-  "buyerEmail":       null,           // requis si EMAIL
-  "buyerLocale":      "fr"            // optionnel
+  "format": "PDF",
+  "layout": "THERMAL_80MM",
+  "recordPrint": true,
+  "reprintReason": null,
+  "buyerLocale": "fr"
 }
 → 200 binary body
-Headers:
-  Content-Type: application/pdf  | application/octet-stream
-  Content-Disposition: inline; filename="ticket-{ticketId}.pdf"
-  Cache-Control: no-store
+Content-Type: application/pdf | application/octet-stream
+Content-Disposition: inline; filename="ticket-{displayCode}.pdf"
+Cache-Control: no-store
 ```
 
-Stream directement vers la file d'impression locale (Bluetooth thermique, AirPrint, etc.).
-Pour le visuel client, le PDF est le format de référence.
+- `print` rend un fichier uniquement — il n'envoie pas SMS/WhatsApp/Email.
+- `recordPrint: false` sur reprint pour ne pas auditer le doublon.
+- Streamer directement vers la file d'impression locale (Bluetooth thermique, AirPrint, etc.).
 
-### 6.2 Envoyer (Slack/SMS/Email/WhatsApp — text-only)
+### 7.2 Envoyer (SMS / WhatsApp / Email)
 
-```
+```http
 POST /tenant/cashier/tickets/{ticketId}/send
+Content-Type: application/json
+
 {
-  "terminalId":  "...",
-  "channel":     "SLACK_INTERNAL" | "SMS" | "WHATSAPP" | "EMAIL" | "SLACK_TENANT_WEBHOOK",
-  "channelKey":  "delivery",         // pour les channels Slack
-  "to":          "+50937700000",     // pour SMS/WHATSAPP/EMAIL
-  "locale":      "fr"
+  "terminalId": "...",
+  "channel": "SMS",
+  "to": "+50937700000",
+  "locale": "fr",
+  "includeVerificationLink": true,
+  "includeLines": true
 }
-→ 202 data:{ ticketId, channel, recipient, queued:true, dedup:false }
 ```
 
-L'envoi est **text-only** (pas de PDF en pièce jointe). Le mobile peut afficher
-"envoyé" dès que `queued:true` — la livraison réelle passe par `tchalanet-edge-service`.
-
-Dedup côté serveur : 60 secondes pour le même `(ticketId, channel, recipient)`. Re-poste
-sans risquer le doublon.
-
-## 7. Selection / betOption matrix
-
-| Game     | BetType         | BetOption | Selection (exemple)      |
-|----------|-----------------|-----------|--------------------------|
-| BOLET    | `MATCH_1_2D`    | `null`    | 2 chiffres (`"11"`)      |
-| MARYAJ   | `MARRIAGE_2D2D` | `1` Ordre exact / `2` Revers | paire (`"21-25"`) |
-| LOTO 3   | `LOTTO3_3D`     | `1` Exact / `2` Box | 3 chiffres (`"012"`)   |
-| LOTO 4   | `LOTTO4_PATTERN`| `1` Exact / `2` Box | 4 chiffres (`"1234"`)  |
-|          |                 | `3` Front pair | **2 chiffres** (`"12"`) |
-|          |                 | `4` Back pair  | **2 chiffres** (`"34"`) |
-| LOTO 5   | `LOTTO5_PATTERN`| `1` Lot1+Lot2 / `2` Lot1+Lot3 / `3` Lot2+Lot3 | 5 chiffres (`"12345"`) |
-
-⚠️ **Piège** : LOTO 4 front-pair / back-pair attendent **2 chiffres**, pas 4. L'UI doit
-adapter le clavier d'entrée selon le betOption choisi sinon `SELECTION_INVALID`.
-
-## 8. Issue codes fréquents
-
-| Code                              | Sens | Action UI |
-|-----------------------------------|------|-----------|
-| `DRAW_NOT_OPEN`                   | Tirage fermé ou pas encore ouvert | Bloquer, suggérer un autre tirage |
-| `SELECTION_INVALID`               | Format selection incompatible avec betType/Option | Corriger la ligne |
-| `APPROVAL_REQUIRED`               | Montant > seuil — exposé comme `REQUIRES_CHANGES` côté POS | Réduire la mise OU envoyer pour approbation hors mobile |
-| `EXPOSURE_LIMIT`                  | Sélection saturée pour le tirage | Choisir autre numéro |
-| `STAKE_TOO_HIGH`                  | Mise dépasse la limite vendeur/outlet | Réduire |
-| `EXPOSURE_CHANGED`                | Entre preview et sell, une autre vente a saturé la limite | Refaire preview |
-| `DUPLICATE_IDEMPOTENCY_KEY_CONFLICT` | Même clé + payload différent | Régénérer la clé |
-| `SESSION_CLOSED`                  | La session POS est fermée | Re-ouvrir une session |
-
-## 9. Cancel (annulation dans la fenêtre)
-
+```json
+{ "ticketId": "uuid", "channel": "SMS", "recipient": "+50937700000", "queued": true, "deduplicated": false }
 ```
+
+- Envoi V1 text-only — pas de PDF en pièce jointe.
+- Afficher "envoyé" dès `queued:true`.
+- Dedup serveur : 60s pour le même `(ticketId, channel, recipient)`.
+
+---
+
+## 8. Selection / betOption matrix
+
+| Game | BetType | BetOption | Selection |
+|---|---|---|---|
+| BOLET | `MATCH_1_2D` | `null` | 2 chiffres, ex. `11` |
+| BOLET | `MATCH_2_2D` | `null` | 2 chiffres, ex. `11` |
+| BOLET | `MATCH_3_2D` | `null` | 2 chiffres, ex. `11` |
+| MARYAJ | `MARRIAGE_2D2D` | `1` Ordre exact | paire, ex. `21-25` |
+| MARYAJ | `MARRIAGE_2D2D` | `2` Revers / Double | paire, ex. `21-25` |
+| LOTO 3 | `LOTTO3_3D` | `1` Exact | 3 chiffres, ex. `012` |
+| LOTO 3 | `LOTTO3_3D` | `2` Box | 3 chiffres, ex. `012` |
+| LOTO 4 | `LOTTO4_PATTERN` | `1` Exact | 4 chiffres, ex. `1234` |
+| LOTO 4 | `LOTTO4_PATTERN` | `2` Box | 4 chiffres, ex. `1234` |
+| LOTO 4 | `LOTTO4_PATTERN` | `3` Front pair | **2 chiffres**, ex. `12` |
+| LOTO 4 | `LOTTO4_PATTERN` | `4` Back pair | **2 chiffres**, ex. `34` |
+| LOTO 5 | `LOTTO5_PATTERN` | `1` 1er lot + 2e lot | 5 chiffres, ex. `12345` |
+| LOTO 5 | `LOTTO5_PATTERN` | `2` 1er lot + 3e lot | 5 chiffres, ex. `12345` |
+| LOTO 5 | `LOTTO5_PATTERN` | `3` Mixte 1er/2e/3e lot | 5 chiffres, ex. `34567` |
+
+**Pièges** :
+- LOTO 4 front pair / back pair attendent **2 chiffres**, pas 4 — adapter le clavier d'entrée selon betOption.
+- LOTO 5 option 3 (mixte) : dernier chiffre du 1er lot + 2 chiffres du 2e lot + 2 chiffres du 3e lot.
+- Ne jamais afficher les noms techniques (`LOTTO5_PATTERN`, `MATCH_1_2D`) au vendeur — afficher les labels humains.
+
+---
+
+## 9. Issue codes fréquents
+
+| Code | Sens | Action UI |
+|---|---|---|
+| `DRAW_NOT_OPEN` | Tirage fermé ou pas encore ouvert | Bloquer, suggérer un autre tirage |
+| `SELECTION_INVALID` | Format selection incompatible avec betType/option | Corriger la ligne |
+| `APPROVAL_REQUIRED` | Montant > autonomie POS | Réduire la mise ou contacter admin |
+| `EXPOSURE_LIMIT` | Sélection saturée pour le tirage | Choisir autre numéro ou réduire |
+| `STAKE_TOO_HIGH` | Mise dépasse la limite vendeur/outlet | Réduire |
+| `EXPOSURE_CHANGED` | Entre preview et sell, une autre vente a saturé la limite | Refaire preview |
+| `DUPLICATE_IDEMPOTENCY_KEY_CONFLICT` | Même clé + payload différent | Générer nouvelle clé après modification panier |
+| `SESSION_CLOSED` | Session POS fermée | Réouvrir une session |
+| `CANCEL_WINDOW_EXPIRED` | Fenêtre 3min dépassée | Informer le client |
+
+---
+
+## 10. Annulation
+
+```http
 POST /tenant/cashier/tickets/{ticketId}/cancel
-{ "terminalId":"...", "reason":"customer change of mind" }
-→ 200 data:{ ticketId, outcome:"CANCELLED", cancelledAt, issues:[] }
+Content-Type: application/json
+
+{ "terminalId": "...", "reason": "customer change of mind" }
 ```
 
-La fenêtre de cancel est de 3 minutes après la vente (config tenant). Au-delà →
-`outcome=REJECTED` + `issue=CANCEL_WINDOW_EXPIRED`.
-
-## 10. Consultation des tickets
-
+```json
+{ "ticketId": "uuid", "outcome": "CANCELLED", "cancelledAt": "2026-05-21T13:00:00Z", "issues": [] }
 ```
+
+Fenêtre V1 : 3 minutes après la vente. Au-delà → `REJECTED` + `CANCEL_WINDOW_EXPIRED`.
+
+---
+
+## 11. Consultation des tickets
+
+```http
 GET /tenant/cashier/tickets?page=0&size=50&sort=createdAt,desc
-→ 200 data:{ items:[{id,ticketCode,status,drawId,totalAmountCents,currency,placedAt},...],
-             page, size, totalElements, totalPages, hasNext, hasPrevious }
+```
+
+```json
+{
+  "items": [
+    { "id": "uuid", "ticketCode": "TCK-...", "displayCode": "40CP-JBMR",
+      "status": "PLACED", "drawId": "uuid", "totalAmount": "15.00 HTG", "placedAt": "..." }
+  ],
+  "page": 0, "size": 50, "totalElements": 1, "totalPages": 1, "hasNext": false, "hasPrevious": false
+}
 
 GET /tenant/cashier/tickets/{ticketId}
-→ 200 data:{ id, ticketCode, status, drawId, totalAmountCents, currency,
-             placedAt, cancelledAt }
 ```
 
-`sort` autorisé : `createdAt`, `totalAmount`, `ticketCode`.
+Tri autorisé : `createdAt`, `totalAmount`, `ticketCode`.
 
-## 11. Offline (mobile en zone sans réseau)
+---
 
+## 12. Offline (mobile sans réseau)
+
+```http
+GET /tenant/cashier/offline/grant/current?terminalId=...&deviceId=...
 ```
-GET  /tenant/cashier/offline/grant/current?terminalId=...&deviceId=...
-→ 200 data:{ grantId, codes:[...], validFrom, validUntil, maxTicketCount, maxTotalAmount }
 
-POST /tenant/cashier/offline/submissions
+```json
 {
-  grantId, clientBatchId, batchPayloadHash,
-  submissions: [
-    { clientSubmissionId, offlineCode, drawId, clientSoldAt, totalStakeAmount, lines:[...], payloadHash, signature }
+  "grantId": "uuid", "codes": ["..."],
+  "validFrom": "2026-05-21T12:00:00Z", "validUntil": "2026-05-21T18:00:00Z",
+  "maxTicketCount": 100, "maxTotalAmount": "10000.00 HTG"
+}
+```
+
+Soumettre les ventes offline :
+
+```http
+POST /tenant/cashier/offline/submissions
+Content-Type: application/json
+
+{
+  "grantId": "uuid", "clientBatchId": "uuid", "batchPayloadHash": "sha256...",
+  "submissions": [
+    {
+      "clientSubmissionId": "uuid", "offlineCode": "...", "drawId": "uuid",
+      "clientSoldAt": "...", "totalStakeAmount": "10.00 HTG",
+      "lines": [], "payloadHash": "sha256...", "signature": "ed25519..."
+    }
   ]
 }
-→ 202 data:{ syncBatchId, outcomes:[{clientSubmissionId, submissionId, outcome, rejectionCode, rejectionReason}] }
 ```
 
-Le mobile doit signer chaque submission avec sa clé device (Ed25519). Le serveur
-re-vérifie le `payloadHash` et la signature. Cf. `core.offlinesync` pour le détail
-du protocole.
+```json
+{
+  "syncBatchId": "uuid",
+  "outcomes": [
+    { "clientSubmissionId": "uuid", "submissionId": "uuid", "outcome": "ACCEPTED", "rejectionCode": null, "rejectionReason": null }
+  ]
+}
+```
 
-## 12. Erreurs HTTP communes
+Le serveur re-vérifie le `payloadHash` et la signature device (Ed25519). Cf. `core.offlinesync` pour le protocole complet.
+
+---
+
+## 13. Erreurs HTTP communes
 
 | Status | Cas | Action mobile |
-|--------|------|----------------|
-| 400    | Validation request body | Afficher `detail`, ne pas réessayer sans modif |
-| 401    | JWT expiré ou invalide | Re-login |
-| 403    | Permissions / context refusé | Vérifier role + operational context |
-| 404    | Tirage / ticket inexistant | Recharger |
-| 409    | Idempotency conflict (clé réutilisée avec payload différent) | Régénérer la clé + re-poster |
-| 422    | Body OK mais business rule échoue | Lire `issues`, corriger panier |
-| 500    | Erreur serveur | Retry exponentiel max 3 fois, surface error |
+|---:|---|---|
+| 400 | Validation request body | Afficher `detail`, ne pas réessayer sans modif |
+| 401 | JWT expiré ou invalide | Refresh ou re-login |
+| 403 | Permissions / contexte refusé | Vérifier rôle + operational context |
+| 404 | Tirage / ticket inexistant | Recharger |
+| 409 | Idempotency conflict (clé réutilisée + payload différent) | Générer nouvelle clé après modification panier |
+| 422 | Body OK mais règle métier échoue | Lire `issues`, corriger panier |
+| 500 | Erreur serveur | Retry exponentiel max 3 fois, surface error |
 
-## 13. Sequence happy-path
+---
+
+## 14. Séquence happy-path
 
 1. Login → JWT
-2. `POST /operational-context/select` (une fois par session app)
-3. `GET /session/current` → si null, `POST /session/open`
-4. `GET /draws/available` (poll toutes les ~30s)
-5. Boucle vente :
-   - `POST /tickets/preview` à chaque ligne ajoutée
-   - `POST /tickets/sell` (Idempotency-Key fresh) à la confirmation
-   - Afficher `backup.displayCode`
-   - `POST /tickets/{id}/print` → flux vers imprimante
-   - Optionnel : `POST /tickets/{id}/send` (SMS/Slack)
-6. En fin de service : `POST /session/close`
+2. `GET /profile/current` — charger préférences et locale
+3. `GET /session/current?terminalId=...` — si 204, `POST /session/open`
+4. `POST /operational-context/select` — confirmer terminal + outlet + session
+5. `GET /draws/available` (poll ~30s)
+6. **Boucle vente** :
+   - Construire panier local
+   - `POST /tickets/preview` → décision
+   - Si `ACCEPTABLE` : `POST /tickets/sell` avec `Idempotency-Key` fresh
+   - **Afficher `backup.displayCode` immédiatement**
+   - Optionnel : `POST /tickets/{id}/print` · `POST /tickets/{id}/send`
+7. En fin de service : `POST /session/close`
 
-## 14. Références côté serveur
+---
 
-- Controllers : `features.cashier.{tickets,session,draws,offline,operationalcontext}`
-- Domaine : `core.sales.api.command.sell.SellTicketCommand`,
-  `SaleAcceptanceEvaluator`, `TicketBackupAssembler`
-- Tests E2E : `tchalanet-server/tests/e2e/tests/cashier/`
-  (`test_happy_path.py`, `test_single_ticket.py`, `test_layouts.py`)
+## 15. Références côté serveur
+
+- Controllers : `features.cashier.{tickets,session,draws,offline,operationalcontext,profile}`
+- Domaine : `core.sales.api.command.sell.SellTicketCommand`, `SaleAcceptanceEvaluator`, `TicketBackupAssembler`
+- Tests E2E : `tchalanet-server/tests/e2e/tests/cashier/` (`test_happy_path.py`, `test_single_ticket.py`, `test_layouts.py`)
+- Guide non-technique seller : [`SELLER_GUIDE.md`](./SELLER_GUIDE.md)
