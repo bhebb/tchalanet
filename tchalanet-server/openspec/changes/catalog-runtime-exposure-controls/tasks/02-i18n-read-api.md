@@ -12,7 +12,7 @@ Add `I18nSurface surface` field to the existing view record. Adjust field order 
 
 ### 2. Upgrade `SearchI18nOverridesCriteria`
 
-Replace single `surface` field (if present) with `Set<I18nSurface> surfaces`. Null or empty set means "no surface filter" (return all).
+Replace single `surface` field (if present) with `Set<I18nSurface> surfaces`. Null or empty set means **no surface filter** — all surfaces returned. Non-empty set means `surface IN (:surfaces)`.
 
 ```java
 public record SearchI18nOverridesCriteria(
@@ -23,7 +23,12 @@ public record SearchI18nOverridesCriteria(
 ) {}
 ```
 
-Update all callers of this criteria.
+**Caller rules:**
+- Public runtime controller → always passes `PublicI18nSurfacePolicy.publicSurfaces()` (never null).
+- Tenant admin controller → passes `null` / empty (no surface filter — sees all surfaces for their tenant).
+- Super admin controller → passes `null` / empty (no surface filter — sees all surfaces, all tenants).
+
+Update all existing callers of this criteria.
 
 ### 3. Update `I18nOverrideRepository`
 

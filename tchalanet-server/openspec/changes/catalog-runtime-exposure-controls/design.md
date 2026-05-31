@@ -159,14 +159,61 @@ public I18nBundleView getPublicBundle(
 ) { ... }
 ```
 
+## Read visibility rules by role
+
+Surface and exposure constrain **public/runtime** reads only. Admin roles have broader visibility.
+
+### Super admin
+
+No surface or exposure filter. Super admin can read and search all `i18n_override` and `app_setting` rows across the entire system — all surfaces, all exposures, all tenants.
+
+The admin catalog/search API must support `surfaces = null` and `exposure = null` to mean "no filter". Super admin passes null/empty criteria to get everything.
+
+### Tenant admin
+
+No surface or exposure filter within their own tenant scope. Tenant admin can read:
+- All `i18n_override` rows for their tenant (any surface) + all GLOBAL rows (any surface).
+- All `app_setting` rows for their tenant (any exposure).
+
+The tenant admin list/search endpoints must not apply surface or exposure filtering. They pass tenant-scoped criteria without a surface/exposure constraint.
+
+### Summary table
+
+| Actor | i18n visibility | settings visibility |
+|---|---|---|
+| Public (anonymous) | Only `PUBLIC_SURFACES` | Only `PUBLIC_RUNTIME` |
+| Tenant runtime (cashier) | `PUBLIC_*` + `CASHIER` + `TENANT_ADMIN` (TBD per use case) | `PUBLIC_RUNTIME` + `TENANT_RUNTIME` |
+| Tenant admin | All surfaces for own tenant + all GLOBAL | All exposures for own tenant |
+| Super admin | All surfaces, all tenants | All exposures, all tenants |
+| Backend/internal | Unrestricted (`INTERNAL` included) | Unrestricted (`INTERNAL` included) |
+
+### Catalog read API shape
+
+The catalog read methods must support unconstrained reads:
+
+```java
+// null surfaces = no surface filter (admin use)
+// non-empty surfaces = filter by surface IN (:surfaces) (public/runtime use)
+SearchI18nOverridesCriteria(locale, Set<I18nSurface> surfaces, level, active)
+
+// null exposure = no exposure filter (admin use)
+// non-null exposure = filter by exposure = :exposure (public/runtime use)
+SearchSettingsAdminCriteria(..., SettingExposure exposure, ...)
+```
+
+Controllers are responsible for setting the correct filter based on the caller's role:
+- Public controllers → always set the restrictive filter (PUBLIC_SURFACES / PUBLIC_RUNTIME).
+- Admin controllers → pass null/empty to get all rows.
+- Never filter at the repository level unconditionally.
+
 ## Security invariants
 
 ```
-/public/**  → only PUBLIC_SURFACES; any private surface → 400 invalid_public_surface
-/public/**  → only PUBLIC_RUNTIME settings; INTERNAL/TENANT_RUNTIME/ADMIN_RUNTIME never returned
-/tenant/**  → PUBLIC_RUNTIME + TENANT_RUNTIME (depending on use case)
-/admin/**   → PUBLIC_RUNTIME + TENANT_RUNTIME + ADMIN_RUNTIME (depending on permissions)
-INTERNAL    → never leaves the backend
+/public/**       → only PUBLIC_SURFACES; any private surface → 400 invalid_public_surface
+/public/**       → only PUBLIC_RUNTIME settings; INTERNAL/TENANT_RUNTIME/ADMIN_RUNTIME never returned
+tenant admin     → all surfaces + exposures scoped to own tenant, no restriction
+super admin      → all surfaces + exposures, all tenants, no restriction
+backend/internal → unrestricted (INTERNAL included)
 ```
 
 Public tenant selection (future) must use a public code/slug, never a tenant UUID.

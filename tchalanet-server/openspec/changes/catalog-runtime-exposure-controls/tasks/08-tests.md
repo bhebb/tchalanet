@@ -65,6 +65,31 @@ security / public endpoint (if implemented in task 07):
   - Hibernate ddl-auto=validate passes (schema matches entity declarations)
 ```
 
+## Admin visibility tests
+
+```
+i18n — super admin:
+  - search with no surface filter returns all surfaces (PUBLIC_HOME, CASHIER, INTERNAL, etc.)
+  - search with no surface filter returns rows from all tenants
+  - surface filter is null/empty → no WHERE surface IN clause in query
+
+i18n — tenant admin:
+  - search returns all surfaces for own tenant (PUBLIC_HOME, CASHIER, TENANT_ADMIN, INTERNAL)
+  - search returns GLOBAL rows for all surfaces
+  - does not return rows for other tenants (RLS enforced)
+  - surface filter is null/empty → no surface constraint applied
+
+settings — super admin:
+  - search with no exposure filter returns all exposures (PUBLIC_RUNTIME, INTERNAL, TENANT_RUNTIME, ADMIN_RUNTIME)
+  - search with no exposure filter returns settings from all tenants
+  - exposure filter is null → no WHERE exposure = clause in query
+
+settings — tenant admin:
+  - search returns all exposures for own tenant (PUBLIC_RUNTIME, TENANT_RUNTIME, ADMIN_RUNTIME, INTERNAL)
+  - does not return settings for other tenants (RLS enforced)
+  - exposure filter is null → no exposure constraint applied
+```
+
 ## Public endpoint tests
 
 ```

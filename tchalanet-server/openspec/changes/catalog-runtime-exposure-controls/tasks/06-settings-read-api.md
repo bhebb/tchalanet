@@ -12,15 +12,20 @@ Add `SettingExposure exposure` field to the existing view record.
 
 ### 2. Update `SearchSettingsAdminCriteria`
 
-Add `SettingExposure exposure` (nullable — null means no filter).
+Add `SettingExposure exposure` (nullable — null means **no exposure filter**, all exposures returned).
+
+**Caller rules:**
+- Super admin search → passes `null` (no filter — sees all exposures, all tenants).
+- Tenant admin search → passes `null` (no filter — sees all exposures scoped to their tenant by RLS).
+- Public runtime endpoint → always passes `PUBLIC_RUNTIME` (never null).
 
 ### 3. Update `SearchSettingsCriteria` (web model)
 
-Add `SettingExposure exposure` (nullable).
+Add `SettingExposure exposure` (nullable — null means no filter for admin callers).
 
 ### 4. Update `ResolveSettingsCriteria`
 
-Add `SettingExposure exposure` if the resolver should filter by exposure. For public bootstrap resolvers, this must be `PUBLIC_RUNTIME`.
+Add `SettingExposure exposure`. For public bootstrap resolvers this must be `PUBLIC_RUNTIME`. For internal resolvers and admin resolvers, pass `null`.
 
 ### 5. Update `SettingRepository`
 
