@@ -10,11 +10,14 @@ import java.time.Instant;
  * level:
  *  - GLOBAL: applies to all tenants (tenantId null)
  *  - TENANT: applies to current tenant (tenantId non-null)
+ *
+ * surface: where this translation is used/exposed (e.g. PUBLIC_HOME, CASHIER, INTERNAL).
  */
 public record I18nOverrideView(
     I18nOverrideId id,
     I18nOverrideLevel level,
     TenantId tenantId,     // null for GLOBAL
+    I18nSurface surface,
     String locale,         // fr/en/ht
     String i18nKey,
     String i18nValue,

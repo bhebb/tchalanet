@@ -10,6 +10,7 @@ public record CreateSettingAdminRequest(
     String settingValue,
     SettingValueType valueType,
     SettingLevel level,
+    SettingExposure exposure,
     TenantId tenantId,
     OutletId outletId,
     TerminalId terminalId) {}

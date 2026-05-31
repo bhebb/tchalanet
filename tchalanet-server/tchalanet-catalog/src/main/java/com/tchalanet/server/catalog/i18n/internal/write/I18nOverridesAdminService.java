@@ -91,6 +91,7 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
             request.tenantId(),
             request.locale(),
             request.level(),
+            request.surface(),
             request.i18nKey(),
             request.i18nValue()));
   }
@@ -99,12 +100,14 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
         var entity = new I18nOverrideEntity();
         entity.setId(UUID.randomUUID());
         entity.setLevel(request.level());
-        // tenantId must be null for GLOBAL level
         if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.GLOBAL) {
-          entity.setTenantId(null);
+            entity.setTenantId(null);
         } else {
-          entity.setTenantId(request.tenantId().value());
+            entity.setTenantId(request.tenantId().value());
         }
+        entity.setSurface(request.surface() != null
+            ? request.surface()
+            : com.tchalanet.server.catalog.i18n.api.model.I18nSurface.INTERNAL);
         entity.setLocale(request.locale());
         entity.setI18nKey(request.i18nKey());
         entity.setI18nValue(request.i18nValue());
@@ -139,10 +142,14 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
     // Update level (if provided)
     if (request.level() != null) {
       entity.setLevel(request.level());
-      // adjust tenantId according to level
       if (request.level() == I18nOverrideLevel.GLOBAL) {
         entity.setTenantId(null);
       }
+    }
+
+    // Update surface (if provided)
+    if (request.surface() != null) {
+      entity.setSurface(request.surface());
     }
 
     // Update value (if provided)

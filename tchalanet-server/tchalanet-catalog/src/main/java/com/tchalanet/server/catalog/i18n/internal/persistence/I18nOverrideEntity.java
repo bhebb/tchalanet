@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.i18n.internal.persistence;
 
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
+import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,10 @@ public class I18nOverrideEntity extends BaseEntity {
     @Column(name = "tenant_id")
     private UUID tenantId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "surface", nullable = false, length = 50)
+    private I18nSurface surface = I18nSurface.INTERNAL;
+
     @Column(name = "locale", nullable = false, length = 10)
     private String locale;
 
@@ -42,6 +47,6 @@ public class I18nOverrideEntity extends BaseEntity {
     private Boolean active = true;
 
     public String fullKey() {
-        return locale + ":" + i18nKey;
+        return surface + ":" + locale + ":" + i18nKey;
     }
 }

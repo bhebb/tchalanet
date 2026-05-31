@@ -1,22 +1,26 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
+import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 
 /**
  * Setting Key Definition (INTERNAL)
  *
- * <p>Type-safe definition of a setting with its namespace, key, type, and default value.
- *
- * @param namespace setting namespace
- * @param key setting key
- * @param type value type
- * @param defaultValue default value (typed)
- * @param <T> value type
+ * <p>defaultExposure: canonical exposure for this key. Defaults to INTERNAL.
+ * exposureOverridable: if false, admin cannot change the exposure of this key.
  */
 public record SettingKeyDef<T>(
-    String namespace, String key, SettingValueType type, T defaultValue) {
+    String namespace,
+    String key,
+    SettingValueType type,
+    T defaultValue,
+    SettingExposure defaultExposure,
+    boolean exposureOverridable) {
 
-  /** Full key in format "namespace.key" */
+  public SettingKeyDef(String namespace, String key, SettingValueType type, T defaultValue) {
+    this(namespace, key, type, defaultValue, SettingExposure.INTERNAL, true);
+  }
+
   public String fullKey() {
     return namespace + "." + key;
   }

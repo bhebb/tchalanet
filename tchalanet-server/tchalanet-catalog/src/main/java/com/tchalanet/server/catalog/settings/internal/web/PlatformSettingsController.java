@@ -2,6 +2,7 @@ package com.tchalanet.server.catalog.settings.internal.web;
 
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
 import com.tchalanet.server.catalog.settings.api.model.SearchSettingsAdminCriteria;
+import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingsCatalogStatsView;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
@@ -44,6 +45,7 @@ public class PlatformSettingsController {
       @RequestParam(required = false) String namespace,
       @RequestParam(required = false) String settingKey,
       @RequestParam(required = false) SettingLevel level,
+      @RequestParam(required = false) SettingExposure exposure,
       @RequestParam(required = false) UUID tenantId,
       @RequestParam(required = false) Boolean active,
       TchPageRequest pageRequest) {
@@ -52,6 +54,7 @@ public class PlatformSettingsController {
         namespace,
         settingKey,
         level,
+        exposure,
         tenantId != null ? TenantId.of(tenantId) : null,
         active);
 

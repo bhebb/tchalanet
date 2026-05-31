@@ -22,6 +22,7 @@ import com.tchalanet.server.common.types.id.TerminalId;
  * @param tenantId tenant context (null for GLOBAL)
  * @param outletId outlet context (null unless OUTLET level)
  * @param terminalId terminal context (null unless TERMINAL level)
+ * @param exposure runtime visibility (PUBLIC_RUNTIME, TENANT_RUNTIME, ADMIN_RUNTIME, INTERNAL)
  * @param active whether this setting is active
  */
 public record SettingView(
@@ -31,6 +32,7 @@ public record SettingView(
     String settingValue,
     SettingValueType valueType,
     SettingLevel level,
+    SettingExposure exposure,
     TenantId tenantId,
     OutletId outletId,
     TerminalId terminalId,

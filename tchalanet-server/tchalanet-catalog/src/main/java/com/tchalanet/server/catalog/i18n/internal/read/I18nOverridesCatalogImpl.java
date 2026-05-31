@@ -1,10 +1,14 @@
 package com.tchalanet.server.catalog.i18n.internal.read;
 
 import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;
+import com.tchalanet.server.catalog.i18n.api.model.I18nBundleView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nGlobalKeyStatsView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
+import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
+import java.util.EnumMap;
+import java.util.Set;
 import com.tchalanet.server.catalog.i18n.internal.cache.I18nOverridesCacheNames;
 import com.tchalanet.server.catalog.i18n.internal.mapper.I18nOverrideMapper;
 import com.tchalanet.server.catalog.i18n.internal.persistence.I18nOverrideEntity;
@@ -240,7 +244,55 @@ public class I18nOverridesCatalogImpl implements I18nOverridesCatalog {
             });
         }
 
+        // Surface filter: null/empty = no filter (admin); non-empty = surface IN (:surfaces)
+        if (criteria.surfaces() != null && !criteria.surfaces().isEmpty()) {
+            spec = spec.and((root, q, cb) -> {
+                q.getRoots();
+                return root.get("surface").in(criteria.surfaces());
+            });
+        }
+
         return spec;
+    }
+
+    // ------------------------------------------------------------
+    // Bundle (runtime multi-surface read)
+    // ------------------------------------------------------------
+
+    @Override
+    public I18nBundleView loadBundle(String locale, Set<I18nSurface> surfaces) {
+        if (locale == null || locale.isBlank() || surfaces == null || surfaces.isEmpty()) {
+            return new I18nBundleView(locale, Map.of());
+        }
+        String loc = locale.trim();
+
+        List<I18nOverrideEntity> globals =
+            repository.findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+                loc, I18nOverrideLevel.GLOBAL, surfaces);
+
+        // RLS scopes tenant rows to current tenant automatically
+        List<I18nOverrideEntity> tenants =
+            repository.findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+                loc, I18nOverrideLevel.TENANT, surfaces);
+
+        // Build per-surface maps: global first, then tenant overwrites
+        Map<I18nSurface, Map<String, String>> result = new EnumMap<>(I18nSurface.class);
+        for (var e : globals) {
+            if (e.getSurface() == null || e.getI18nKey() == null || e.getI18nValue() == null) continue;
+            result.computeIfAbsent(e.getSurface(), s -> new LinkedHashMap<>())
+                  .put(e.getI18nKey().trim(), e.getI18nValue());
+        }
+        for (var e : tenants) {
+            if (e.getSurface() == null || e.getI18nKey() == null || e.getI18nValue() == null) continue;
+            result.computeIfAbsent(e.getSurface(), s -> new LinkedHashMap<>())
+                  .put(e.getI18nKey().trim(), e.getI18nValue());
+        }
+
+        // Wrap surface maps as unmodifiable
+        Map<I18nSurface, Map<String, String>> immutable = new EnumMap<>(I18nSurface.class);
+        result.forEach((s, m) -> immutable.put(s, Map.copyOf(m)));
+
+        return new I18nBundleView(loc, Map.copyOf(immutable));
     }
 
     @Override

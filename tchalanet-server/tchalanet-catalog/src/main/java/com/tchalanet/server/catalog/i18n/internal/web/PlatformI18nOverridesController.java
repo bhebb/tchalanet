@@ -59,7 +59,7 @@ public class PlatformI18nOverridesController {
         TchPageRequest pageRequest) {
         var i18nLevel = level == null ? null : I18nOverrideLevel.valueOf(level.toUpperCase());
         SearchI18nOverridesCriteria criteria =
-            new SearchI18nOverridesCriteria(i18nLevel, locale, i18nKeyContains, active, null, "active");
+            new SearchI18nOverridesCriteria(i18nLevel, locale, i18nKeyContains, active, null, null, "active");
 
         return ApiResponse.success(i18nOverridesCatalog.search(criteria, pageRequest));
     }

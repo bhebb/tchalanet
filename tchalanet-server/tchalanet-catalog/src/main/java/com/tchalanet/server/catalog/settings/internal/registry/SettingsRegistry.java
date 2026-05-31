@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.registry;
 
+import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import java.util.List;
 import java.util.Map;
@@ -101,10 +102,12 @@ public final class SettingsRegistry {
   // ========================================
 
   public static final SettingKeyDef<String> UI_DEFAULT_LOCALE =
-      new SettingKeyDef<>("ui.i18n", "default_locale", SettingValueType.STRING, "fr");
+      new SettingKeyDef<>("ui.i18n", "default_locale", SettingValueType.STRING, "fr",
+          SettingExposure.PUBLIC_RUNTIME, true);
 
   public static final SettingKeyDef<String> UI_SUPPORTED_LOCALES =
-      new SettingKeyDef<>("ui.i18n", "supported_locales", SettingValueType.STRING, "fr,en,ht");
+      new SettingKeyDef<>("ui.i18n", "supported_locales", SettingValueType.STRING, "fr,en,ht",
+          SettingExposure.PUBLIC_RUNTIME, true);
 
   public static final SettingKeyDef<String> UI_THEME_MODE =
       new SettingKeyDef<>("ui.theme", "mode", SettingValueType.STRING, "system");
@@ -113,7 +116,8 @@ public final class SettingsRegistry {
       new SettingKeyDef<>("ui.theme", "density", SettingValueType.INT, 0);
 
   public static final SettingKeyDef<String> UI_PUBLIC_HOME_VARIANT =
-      new SettingKeyDef<>("ui.public_home", "variant", SettingValueType.STRING, "v1");
+      new SettingKeyDef<>("ui.public_home", "variant", SettingValueType.STRING, "v1",
+          SettingExposure.PUBLIC_RUNTIME, true);
 
   // ========================================
   // Ops / Hours & Outlet config

@@ -152,6 +152,7 @@ CREATE TABLE app_setting (
   setting_value text NOT NULL,
   value_type varchar(50) NOT NULL,
   level varchar(50) NOT NULL,
+  exposure varchar(50) NOT NULL DEFAULT 'INTERNAL',
   active boolean NOT NULL DEFAULT true,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
@@ -160,14 +161,20 @@ CREATE TABLE app_setting (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_app_setting__level CHECK (level IN ('GLOBAL','TENANT','OUTLET','TERMINAL')),
-  CONSTRAINT chk_app_setting__value_type CHECK (value_type IN ('STRING','INT','LONG','DECIMAL','BOOLEAN','JSON'))
+  CONSTRAINT chk_app_setting__level CHECK (level IN ('TENANT','OUTLET','TERMINAL')),
+  CONSTRAINT chk_app_setting__value_type CHECK (value_type IN ('STRING','INT','LONG','DECIMAL','BOOLEAN','JSON')),
+  CONSTRAINT chk_app_setting__exposure CHECK (exposure IN ('INTERNAL','PUBLIC_RUNTIME','TENANT_RUNTIME','ADMIN_RUNTIME'))
 );
+
+CREATE INDEX idx_app_setting_runtime_lookup
+ON app_setting (tenant_id, exposure, active, namespace, setting_key)
+WHERE deleted_at IS NULL;
 
 CREATE TABLE i18n_override (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   level varchar(32) NOT NULL DEFAULT 'TENANT',
   tenant_id uuid,
+  surface varchar(50) NOT NULL DEFAULT 'INTERNAL',
   locale varchar(10) NOT NULL,
   i18n_key varchar(255) NOT NULL,
   i18n_value text NOT NULL,
@@ -179,8 +186,24 @@ CREATE TABLE i18n_override (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_i18n_override__level CHECK (level IN ('GLOBAL','TENANT'))
+  CONSTRAINT chk_i18n_override__level CHECK (level IN ('GLOBAL','TENANT')),
+  CONSTRAINT chk_i18n_override__surface CHECK (surface IN (
+    'PUBLIC_HOME','PUBLIC_RESULTS','PUBLIC_TICKET_CHECK','COMMON_PUBLIC_ERROR',
+    'AUTH','CASHIER','TENANT_ADMIN','PLATFORM_ADMIN','COMMON_PRIVATE_ERROR','INTERNAL'
+  ))
 );
+
+CREATE UNIQUE INDEX uq_i18n_override_global
+ON i18n_override (surface, locale, i18n_key)
+WHERE tenant_id IS NULL AND deleted_at IS NULL;
+
+CREATE UNIQUE INDEX uq_i18n_override_tenant
+ON i18n_override (tenant_id, surface, locale, i18n_key)
+WHERE tenant_id IS NOT NULL AND deleted_at IS NULL;
+
+CREATE INDEX idx_i18n_override_runtime_lookup
+ON i18n_override (tenant_id, surface, locale, active)
+WHERE deleted_at IS NULL;
 
 CREATE TABLE theme_preset (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

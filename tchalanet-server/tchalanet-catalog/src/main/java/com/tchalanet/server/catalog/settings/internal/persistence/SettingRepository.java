@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.persistence;
 
+import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import java.util.Collection;
 import java.util.List;
@@ -69,4 +70,10 @@ public interface SettingRepository
           String settingKey);
 
   Page<SettingEntity> findByActiveTrueAndDeletedAtIsNull(Pageable pageable);
+
+  // Runtime exposure queries
+  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndExposure(SettingExposure exposure);
+
+  List<SettingEntity> findByActiveTrueAndDeletedAtIsNullAndExposureAndNamespace(
+      SettingExposure exposure, String namespace);
 }

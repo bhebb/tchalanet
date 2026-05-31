@@ -1,6 +1,7 @@
 package com.tchalanet.server.catalog.i18n.internal.persistence;
 
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel;
+import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -48,4 +49,11 @@ public interface I18nOverrideRepository
 
     // NEW: list all active global overrides (for stats)
     List<I18nOverrideEntity> findByLevelAndActiveTrueAndDeletedAtIsNull(I18nOverrideLevel level);
+
+    // Runtime bundle queries: surface IN (:surfaces)
+    List<I18nOverrideEntity> findByLocaleAndLevelAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+        String locale, I18nOverrideLevel level, java.util.Collection<I18nSurface> surfaces);
+
+    List<I18nOverrideEntity> findByLocaleAndLevelAndTenantIdAndSurfaceInAndActiveTrueAndDeletedAtIsNull(
+        String locale, I18nOverrideLevel level, UUID tenantId, java.util.Collection<I18nSurface> surfaces);
 }

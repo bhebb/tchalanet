@@ -1,8 +1,11 @@
 package com.tchalanet.server.catalog.i18n.api;
 
+import com.tchalanet.server.catalog.i18n.api.model.I18nBundleView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nGlobalKeyStatsView;
 import com.tchalanet.server.catalog.i18n.api.model.I18nOverrideView;
+import com.tchalanet.server.catalog.i18n.api.model.I18nSurface;
 import com.tchalanet.server.catalog.i18n.api.model.SearchI18nOverridesCriteria;
+import java.util.Set;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -58,6 +61,13 @@ public interface I18nOverridesCatalog {
      * Convenience: resolve merged GLOBAL + TENANT overrides for the specified tenant.
      */
     Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId);
+
+    /**
+     * Load translations grouped by surface for runtime bootstrap.
+     * GLOBAL rows are merged under TENANT rows (tenant wins per surface per key).
+     * Caller must validate surfaces against policy before calling.
+     */
+    I18nBundleView loadBundle(String locale, Set<I18nSurface> surfaces);
 
     // NEW: platform global stats for i18n keys/overrides
     I18nGlobalKeyStatsView keyStats();
