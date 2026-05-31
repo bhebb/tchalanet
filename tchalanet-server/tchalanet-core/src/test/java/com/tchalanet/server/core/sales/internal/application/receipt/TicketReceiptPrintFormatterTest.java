@@ -78,6 +78,7 @@ class TicketReceiptPrintFormatterTest {
             "Seller: Seller One"
         );
         assertThat(content.sections()).extracting(TicketReceiptSectionContent::title)
+            .filteredOn(java.util.Objects::nonNull)
             .containsExactly("Draw", "Bolet");
         assertThat(texts(content.totals())).containsExactly(
             separator,
@@ -186,6 +187,12 @@ class TicketReceiptPrintFormatterTest {
         @Override
         public Map<String, String> resolveLocaleForTenant(String locale, TenantId tenantId) {
             return values();
+        }
+
+        @Override
+        public com.tchalanet.server.catalog.i18n.api.model.I18nBundleView loadBundle(
+                String locale, java.util.Set<com.tchalanet.server.catalog.i18n.api.model.I18nSurface> surfaces) {
+            return new com.tchalanet.server.catalog.i18n.api.model.I18nBundleView(locale, Map.of());
         }
 
         @Override

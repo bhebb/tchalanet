@@ -195,6 +195,12 @@ class VerifyTicketByPublicCodeQueryHandlerTest {
         }
 
         @Override
+        public com.tchalanet.server.catalog.i18n.api.model.I18nBundleView loadBundle(
+                String locale, java.util.Set<com.tchalanet.server.catalog.i18n.api.model.I18nSurface> surfaces) {
+            return new com.tchalanet.server.catalog.i18n.api.model.I18nBundleView(locale, Map.of());
+        }
+
+        @Override
         public I18nGlobalKeyStatsView keyStats() {
             return new I18nGlobalKeyStatsView(0, 0, 0);
         }
