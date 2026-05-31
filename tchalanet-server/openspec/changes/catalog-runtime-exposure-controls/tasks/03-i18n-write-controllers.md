@@ -35,20 +35,37 @@ Add `@NotNull I18nSurface surface` — same rule as above.
 - Accept `surface` in create/update endpoints.
 - Allow filtering by `surface` on list/search if a list endpoint exists (pass `Set.of(surface)` to criteria).
 
-### 5. Wiring for runtime public endpoint (plumbing only)
+### 5. Create `PublicI18nRuntimeController`
 
-If a `/public/i18n` endpoint exists or is created in this task:
+Package: `catalog.i18n.internal.web`
 
-- Accept `@RequestParam List<I18nSurface> surface` (repeated params).
-- Validate: `PublicI18nSurfacePolicy.publicSurfaces().containsAll(requested)` — if not, throw `400 invalid_public_surface`.
+```java
+@RestController
+@Tag(name = "Public i18n")
+public class PublicI18nRuntimeController {
+
+    @GetMapping("/public/i18n")
+    public I18nBundleView getBundle(
+        @RequestParam String locale,
+        @RequestParam List<I18nSurface> surface
+    ) { ... }
+}
+```
+
+Rules:
+- `surface` is **required** — reject with `400` if missing or empty.
+- Validate: `PublicI18nSurfacePolicy.publicSurfaces().containsAll(Set.copyOf(surface))` — if not, throw `400 invalid_public_surface`.
+- Do not silently ignore private surfaces.
 - Delegate to `I18nOverridesCatalog.loadBundle(locale, Set.copyOf(surface))`.
 - Return `I18nBundleView`.
-
-If no public endpoint exists yet, document the contract in a `follow-up-public-bootstrap.md` note and leave the plumbing in place.
+- Do not accept `tenantId` from the request. Use server-resolved public tenant context.
+- Controller stays thin: validate → policy check → catalog dispatch → return DTO.
 
 ## Acceptance criteria
 
 - Create/update DTOs include `surface`.
 - Admin/platform controller wires `surface` on create/update.
-- Public endpoint (if created) validates all surfaces against `PublicI18nSurfacePolicy.publicSurfaces()` before reading.
+- `PublicI18nRuntimeController` exists at `GET /public/i18n`.
+- Missing or empty `surface` → `400`.
+- Any private surface in `surface` list → `400 invalid_public_surface`.
 - `./mvnw compile -pl tchalanet-catalog -am -q` clean.

@@ -58,15 +58,26 @@ private SettingExposure exposure = SettingExposure.INTERNAL;
 
 Map `exposure` in all `entity → view` and `request → entity/command` conversions.
 
-### 5. Consider `SettingKeyDef` (registry)
+### 5. Update `SettingKeyDef` (registry)
 
-If `SettingKeyDef` should carry a default exposure per key (enforced on write-path validation), add:
+Add `defaultExposure` and `exposureOverridable` to `SettingKeyDef`:
 
 ```java
-SettingExposure defaultExposure()
+public record SettingKeyDef(
+    String namespace,
+    String key,
+    SettingValueType valueType,
+    SettingLevel allowedLevel,
+    SettingExposure defaultExposure,
+    boolean exposureOverridable
+) {}
 ```
 
-Resolve the open question from `design.md` before implementing. If the registry stays exposure-agnostic, document the decision here.
+Update `SettingsRegistry` and `SettingsValidator` to:
+- Use `SettingKeyDef.defaultExposure()` as the default when a known key is created without an explicit exposure.
+- Reject writes that change exposure on a key where `exposureOverridable = false`.
+
+Update all existing `SettingKeyDef` usages in `SettingsRegistry` to declare `defaultExposure`. Known public runtime keys (e.g. `public.brand_name`, `public.supported_languages`, `public.default_locale`) should be `PUBLIC_RUNTIME, exposureOverridable = false`. Everything else defaults to `INTERNAL`.
 
 ## Acceptance criteria
 

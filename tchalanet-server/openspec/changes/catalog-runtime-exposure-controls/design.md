@@ -118,6 +118,35 @@ public record I18nBundleView(
 
 The admin CRUD path continues using `I18nOverrideView` (per-row shape).
 
+## Public runtime controllers (in scope)
+
+Minimal public runtime endpoints are shipped in this change. They are catalog-only reads — they do not aggregate PageModel, theme, shell, or public content.
+
+Controller placement:
+- `catalog.i18n.internal.web.PublicI18nRuntimeController`
+- `catalog.settings.internal.web.PublicSettingsRuntimeController`
+
+These live inside `catalog.*` because they are mono-catalog reads. A future `/public/bootstrap` that aggregates across catalogs belongs in a `features/` or BFF slice.
+
+### GET /public/i18n
+
+```
+locale   required
+surface  repeated, required — 400 if missing or empty
+```
+
+`surface` is **required**. Do not silently default to all surfaces. If a default is ever needed, use `PUBLIC_HOME + COMMON_PUBLIC_ERROR` — but prefer requiring it explicitly.
+
+### GET /public/settings
+
+```
+namespace  optional
+```
+
+Exposure is **not** a query parameter. The endpoint always filters by `PUBLIC_RUNTIME` server-side. Clients cannot request other exposure levels.
+
+Both endpoints use the public tenant resolved from server context. Do not accept `tenantId` UUID from the client.
+
 ## Controller binding — repeated query params
 
 Spring MVC binds repeated `surface=` params to `List<I18nSurface>` automatically when the parameter type is a list/set of enums. No CSV parsing.
@@ -152,8 +181,35 @@ Public tenant selection (future) must use a public code/slug, never a tenant UUI
 
 Never default to `PUBLIC_HOME` or `PUBLIC_RUNTIME` on create.
 
-## Open questions
+## SettingKeyDef — canonical exposure (resolved)
 
-1. Should `SettingKeyDef` (registry) carry a canonical `exposure` per key, enforced on write? Or is exposure fully admin-settable at runtime?
-2. Does `SettingsBatchGateFlagStore` need to filter by exposure when reading feature flags?
-3. Is a `/public/i18n` or `/public/settings` endpoint shipped in this change, or is task 03/07 only building the plumbing?
+**Decision: add `defaultExposure` + `exposureOverridable` to `SettingKeyDef` in this change.**
+
+Exposure is security-sensitive. Known system keys must not have their exposure set arbitrarily by an admin.
+
+```java
+public record SettingKeyDef(
+    String namespace,
+    String key,
+    SettingValueType valueType,
+    SettingLevel allowedLevel,
+    SettingExposure defaultExposure,
+    boolean exposureOverridable
+) {}
+```
+
+Rules:
+- Known system keys: `defaultExposure` comes from `SettingKeyDef`.
+- `exposureOverridable = false` → admin cannot change exposure.
+- `exposureOverridable = true` → admin may choose among allowed exposures.
+- Unknown/custom settings → default to `INTERNAL`.
+
+If `SettingKeyDef` already exists and is easy to update, add it now. Otherwise create a follow-up task — but admin-created settings must always default to `INTERNAL`.
+
+## SettingsBatchGateFlagStore — exposure filtering (resolved)
+
+**Decision: no exposure filtering in `SettingsBatchGateFlagStore`.**
+
+It is a backend-internal reader for operational flags. Batch gates are internal and should be seeded with `exposure = INTERNAL`. Public exposure filtering applies only to public runtime readers, not to internal infrastructure reads.
+
+Do not apply exposure filtering globally at the repository level. Add it only in specific public/runtime catalog methods.

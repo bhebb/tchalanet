@@ -65,6 +65,33 @@ security / public endpoint (if implemented in task 07):
   - Hibernate ddl-auto=validate passes (schema matches entity declarations)
 ```
 
+## Public endpoint tests
+
+```
+GET /public/i18n:
+  - multiple public surfaces → 200, grouped bundle
+  - single public surface → 200, bundle with one surface key
+  - TENANT_ADMIN surface among request → 400 invalid_public_surface
+  - all private surfaces → 400 invalid_public_surface
+  - missing surface param → 400
+  - empty surface list → 400
+  - tenant_admin surface never appears in response
+  - CASHIER, PLATFORM_ADMIN, INTERNAL never appear in response
+
+GET /public/settings:
+  - returns only PUBLIC_RUNTIME settings
+  - INTERNAL settings never in response
+  - TENANT_RUNTIME never in response
+  - ADMIN_RUNTIME never in response
+  - namespace filter returns only settings in that namespace
+  - does not accept tenantId as query parameter
+
+SettingKeyDef:
+  - exposureOverridable=false → write attempt to change exposure rejected
+  - exposureOverridable=true → exposure change accepted if valid value
+  - unknown key creation defaults to INTERNAL
+```
+
 ## Run
 
 ```

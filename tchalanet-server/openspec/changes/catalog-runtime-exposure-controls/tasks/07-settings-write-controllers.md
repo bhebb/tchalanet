@@ -35,16 +35,35 @@ Add `SettingExposure exposure`. Nullable patch semantics or mandatory — follow
 - If tenants must not set `PUBLIC_RUNTIME` themselves (platform-only privilege), validate and reject with `403` or `400`.
 - Allow filtering by `exposure` on list endpoints.
 
-### 6. Public endpoint (plumbing only)
+### 6. Create `PublicSettingsRuntimeController`
 
-If a `/public/settings` endpoint exists or is created here:
+Package: `catalog.settings.internal.web`
 
-- Filter strictly by `PUBLIC_RUNTIME` before reading — never pass `INTERNAL`, `TENANT_RUNTIME`, or `ADMIN_RUNTIME`.
-- Use `PublicSettingExposurePolicy.publicExposures()` for the allowlist check.
+```java
+@RestController
+@Tag(name = "Public settings")
+public class PublicSettingsRuntimeController {
+
+    @GetMapping("/public/settings")
+    public List<SettingView> getPublicSettings(
+        @RequestParam(required = false) String namespace
+    ) { ... }
+}
+```
+
+Rules:
+- Always filter by `exposure = PUBLIC_RUNTIME` — hardcoded server-side, not from the request.
+- Do not accept `exposure` as a query parameter.
+- Do not return `INTERNAL`, `TENANT_RUNTIME`, or `ADMIN_RUNTIME` settings.
+- `namespace` is optional — if absent, return all active `PUBLIC_RUNTIME` settings.
+- Do not accept `tenantId` UUID from the client. Use server-resolved public tenant context.
+- Controller stays thin: validate namespace → catalog dispatch → return DTOs.
 
 ## Acceptance criteria
 
 - Create/update DTOs include `exposure`.
 - Platform controller wires `exposure` on create/update.
 - Tenant controller wires `exposure`; validate if tenant write of `PUBLIC_RUNTIME` is restricted.
+- `PublicSettingsRuntimeController` exists at `GET /public/settings`.
+- Response never includes `INTERNAL`, `TENANT_RUNTIME`, or `ADMIN_RUNTIME` settings.
 - `./mvnw compile -pl tchalanet-catalog -am -q` clean.

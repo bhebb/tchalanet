@@ -84,8 +84,10 @@ Response is grouped by surface:
 
 ## Non-goals
 
-- Do not create new public bootstrap endpoints (the plumbing is ready; endpoints come later).
+- Do not create a full `/public/bootstrap` endpoint (PageModel, theme, shell, public content aggregation).
+- Minimal public runtime endpoints for i18n and settings **are in scope** — see design.md.
 - Do not implement tenant domain/subdomain resolution.
+- Do not implement public tenant selection by tenantCode/publicSlug (future).
 - Do not create `ALTER TABLE` migrations — edit V100 in place (pre-go-live).
 - Do not redesign the catalog module.
 - Do not expose JPA entities.
