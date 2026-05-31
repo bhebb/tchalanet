@@ -1,15 +1,13 @@
 package com.tchalanet.server.catalog.i18n.api.model;
 
 import com.tchalanet.server.common.types.id.TenantId;
+import java.util.Set;
 
 /**
- * Search I18n Overrides Criteria
+ * Search criteria for paginated i18n override queries.
  *
- * <p>Search criteria for paginated search of i18n overrides.
- *
- * @param locale          filter by locale (optional, exact match)
- * @param i18nKeyContains filter by key (optional, contains match)
- * @param active          filter by active status (optional, null = all)
+ * <p>surfaces: null/empty = no surface filter (admin use). Non-empty = surface IN (:surfaces).
+ * Public runtime callers must always pass {@link PublicI18nSurfacePolicy#publicSurfaces()}.
  */
 public record SearchI18nOverridesCriteria(
     I18nOverrideLevel level,
@@ -17,10 +15,11 @@ public record SearchI18nOverridesCriteria(
     String i18nKeyContains,
     Boolean active,
     TenantId tenantId,
+    Set<I18nSurface> surfaces,
     String visibility // "active" | "deleted" | "all"
 ) {
   public static SearchI18nOverridesCriteria empty() {
-    return new SearchI18nOverridesCriteria(null, null, null, null, null, null);
+    return new SearchI18nOverridesCriteria(null, null, null, null, null, null, null);
   }
 
   public String visibilitySafe() {

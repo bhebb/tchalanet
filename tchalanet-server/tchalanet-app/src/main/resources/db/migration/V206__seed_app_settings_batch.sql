@@ -34,20 +34,20 @@ SELECT set_config('app.api_scope', 'platform', true);
 SELECT set_config('app.is_super_admin', 'true', true);
 
 INSERT INTO app_setting (
-    level, namespace, setting_key, value_type, setting_value, active
+    level, namespace, setting_key, value_type, setting_value, active, exposure
 )
 VALUES
-    ('GLOBAL', 'batch.gate', 'batch:global:enabled', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'results:external:fetch', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'results:external:apply', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'results:external:refresh', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'results:external:manual', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'results:external:override', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'draw:lifecycle:generate', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'draw:lifecycle:open', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'draw:lifecycle:close', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'draw:lifecycle:settle', 'BOOLEAN', 'true', true),
-    ('GLOBAL', 'batch.gate', 'draw:watchdog:provisional', 'BOOLEAN', 'true', true)
+    ('GLOBAL', 'batch.gate', 'batch:global:enabled',        'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'results:external:fetch',      'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'results:external:apply',      'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'results:external:refresh',    'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'results:external:manual',     'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'results:external:override',   'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:generate',     'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:open',         'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:close',        'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'draw:lifecycle:settle',       'BOOLEAN', 'true', true, 'INTERNAL'),
+    ('GLOBAL', 'batch.gate', 'draw:watchdog:provisional',   'BOOLEAN', 'true', true, 'INTERNAL')
     ON CONFLICT DO NOTHING;
 
 SELECT set_config('app.current_tenant', '', true);

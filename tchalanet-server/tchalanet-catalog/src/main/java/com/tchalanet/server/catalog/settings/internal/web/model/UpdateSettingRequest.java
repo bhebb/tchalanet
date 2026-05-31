@@ -1,13 +1,11 @@
 package com.tchalanet.server.catalog.settings.internal.web.model;
 
+import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
+
 /**
- * Update Setting Request
- *
- * <p>Request to update an existing setting. Only value and active status can be changed.
- *
- * <p>To change level or limitScopeRef IDs, delete and recreate the setting.
- *
- * @param settingValue new value as text (optional, null = no change)
- * @param active new active status (optional, null = no change)
+ * Update Setting Request (patch semantics — null fields = no change).
  */
-public record UpdateSettingRequest(String settingValue, Boolean active) {}
+public record UpdateSettingRequest(
+    String settingValue,
+    SettingExposure exposure,
+    Boolean active) {}

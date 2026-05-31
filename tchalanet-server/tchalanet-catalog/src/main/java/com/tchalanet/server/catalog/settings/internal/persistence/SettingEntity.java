@@ -1,5 +1,6 @@
 package com.tchalanet.server.catalog.settings.internal.persistence;
 
+import com.tchalanet.server.catalog.settings.api.model.SettingExposure;
 import com.tchalanet.server.catalog.settings.api.model.SettingLevel;
 import com.tchalanet.server.catalog.settings.api.model.SettingValueType;
 import com.tchalanet.server.catalog.settings.api.model.SettingView;
@@ -46,6 +47,10 @@ public class SettingEntity extends BaseTenantEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "level", nullable = false, length = 50)
   private SettingLevel level;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "exposure", nullable = false, length = 50)
+  private SettingExposure exposure = SettingExposure.INTERNAL;
 
   @Column(name = "active", nullable = false)
   private Boolean active = true;

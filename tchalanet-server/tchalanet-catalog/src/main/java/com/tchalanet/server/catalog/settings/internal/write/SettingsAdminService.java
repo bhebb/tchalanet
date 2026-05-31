@@ -82,6 +82,7 @@ public class SettingsAdminService implements SettingsAdminCatalog {
             criteria.namespace(),
             criteria.settingKey(),
             criteria.level(),
+            criteria.exposure(),
             criteria.tenantId(),
             criteria.active()),
         pageRequest);
@@ -145,9 +146,20 @@ public class SettingsAdminService implements SettingsAdminCatalog {
             request.settingValue(),
             request.valueType(),
             request.level(),
+            request.exposure(),
             request.tenantId(),
             request.outletId(),
             request.terminalId()));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public java.util.List<SettingView> listActiveByExposure(
+      com.tchalanet.server.catalog.settings.api.model.SettingExposure exposure, String namespace) {
+    var entities = namespace != null && !namespace.isBlank()
+        ? repository.findByActiveTrueAndDeletedAtIsNullAndExposureAndNamespace(exposure, namespace)
+        : repository.findByActiveTrueAndDeletedAtIsNullAndExposure(exposure);
+    return mapper.toViews(entities);
   }
 
     private static @NonNull SettingEntity createSettingEntity(CreateSettingRequest request) {
@@ -157,6 +169,9 @@ public class SettingsAdminService implements SettingsAdminCatalog {
         entity.setSettingValue(request.settingValue());
         entity.setValueType(request.valueType());
         entity.setLevel(request.level());
+        entity.setExposure(request.exposure() != null
+            ? request.exposure()
+            : com.tchalanet.server.catalog.settings.api.model.SettingExposure.INTERNAL);
         entity.setTenantId(request.tenantId() != null ? request.tenantId().value() : null);
         entity.setOutletId(request.outletId() != null ? request.outletId().value() : null);
         entity.setTerminalId(request.terminalId() != null ? request.terminalId().value() : null);
@@ -191,6 +206,11 @@ public class SettingsAdminService implements SettingsAdminCatalog {
           entity.getValueType(),
           request.settingValue());
       entity.setSettingValue(request.settingValue());
+    }
+
+    // Update exposure (if provided)
+    if (request.exposure() != null) {
+      entity.setExposure(request.exposure());
     }
 
     // Update active status (if provided)
@@ -326,6 +346,10 @@ public class SettingsAdminService implements SettingsAdminCatalog {
           spec.and(
               (root, query, cb) ->
                   cb.equal(root.get("tenantId"), criteria.tenantId().value()));
+    }
+
+    if (criteria.exposure() != null) {
+      spec = spec.and((root, query, cb) -> cb.equal(root.get("exposure"), criteria.exposure()));
     }
 
     if (criteria.active() != null) {

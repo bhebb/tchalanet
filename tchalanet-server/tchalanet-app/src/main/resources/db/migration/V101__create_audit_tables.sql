@@ -143,6 +143,7 @@ CREATE TABLE app_setting_aud
     setting_value text,
     value_type    varchar(50),
     level         varchar(50),
+    exposure      varchar(50),
     active        boolean,
     CONSTRAINT pk_app_setting_aud PRIMARY KEY (id, rev),
     CONSTRAINT fk_app_setting_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
@@ -161,6 +162,7 @@ CREATE TABLE i18n_override_aud
     version    bigint,
     tenant_id  uuid,
     level      varchar(32),
+    surface    varchar(50),
     locale     varchar(10),
     i18n_key   varchar(255),
     i18n_value text,

@@ -6,5 +6,6 @@ public record CreateI18nOverrideAdminRequest(
     TenantId tenantId,
     String locale,
     I18nOverrideLevel level,
+    I18nSurface surface,
     String i18nKey,
     String i18nValue) {}
