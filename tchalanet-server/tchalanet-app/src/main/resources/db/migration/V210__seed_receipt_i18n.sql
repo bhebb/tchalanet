@@ -237,14 +237,15 @@ WITH receipt_i18n(locale, i18n_key, i18n_value) AS (
     ,('ht', 'receipt.bet_type.MATCH_3_2D', '3e lot')
     ,('ht', 'receipt.bet_type.MARRIAGE_2D', 'Maryaj')
 )
-INSERT INTO i18n_override (level, tenant_id, locale, i18n_key, i18n_value, active)
-SELECT 'GLOBAL', NULL, seed.locale, seed.i18n_key, seed.i18n_value, true
+INSERT INTO i18n_override (level, tenant_id, surface, locale, i18n_key, i18n_value, active)
+SELECT 'GLOBAL', NULL, 'CASHIER', seed.locale, seed.i18n_key, seed.i18n_value, true
 FROM receipt_i18n seed
 WHERE NOT EXISTS (
   SELECT 1
   FROM i18n_override existing
   WHERE existing.level = 'GLOBAL'
     AND existing.tenant_id IS NULL
+    AND existing.surface = 'CASHIER'
     AND existing.locale = seed.locale
     AND existing.i18n_key = seed.i18n_key
     AND existing.deleted_at IS NULL

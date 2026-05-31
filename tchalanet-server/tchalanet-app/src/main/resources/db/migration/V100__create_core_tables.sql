@@ -161,7 +161,7 @@ CREATE TABLE app_setting (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_app_setting__level CHECK (level IN ('TENANT','OUTLET','TERMINAL')),
+  CONSTRAINT chk_app_setting__level CHECK (level IN ('GLOBAL','TENANT','OUTLET','TERMINAL')),
   CONSTRAINT chk_app_setting__value_type CHECK (value_type IN ('STRING','INT','LONG','DECIMAL','BOOLEAN','JSON')),
   CONSTRAINT chk_app_setting__exposure CHECK (exposure IN ('INTERNAL','PUBLIC_RUNTIME','TENANT_RUNTIME','ADMIN_RUNTIME'))
 );
