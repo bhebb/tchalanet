@@ -76,13 +76,13 @@ BEGIN
 
   -- ── terminal_binding ─────────────────────────────────────────────────────
   -- Seed a known dev binding so local E2E can authenticate with credential 'e2e-cred-dev'.
-  -- binding_secret_hash MUST equal TerminalBindingCredentialHasher.hash(...) =
+  -- credential_hash MUST equal TerminalBindingCredentialHasher.hash(...) =
   --   SHA256Hex(tenantId + "|" + terminalId + "|" + "e2e-cred-dev")
   -- Computed in-DB via pgcrypto so it stays correct for any tenant id (a hardcoded
   -- literal here was previously wrong, which broke STRONG operational-context trust).
   INSERT INTO terminal_binding (
     id, tenant_id, terminal_id, binding_type, status,
-    binding_public_key, binding_secret_hash, device_fingerprint_hash,
+    binding_public_key, credential_hash, device_fingerprint_hash,
     bound_at, created_at, updated_at
   )
   VALUES (

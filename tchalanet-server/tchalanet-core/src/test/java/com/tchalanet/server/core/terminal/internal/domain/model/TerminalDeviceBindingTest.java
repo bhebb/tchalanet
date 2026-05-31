@@ -61,9 +61,12 @@ class TerminalDeviceBindingTest {
         TenantId.of(UUID.fromString("00000000-0000-0000-0000-000000000001")),
         TerminalId.of(UUID.fromString("00000000-0000-0000-0000-000000000002")),
         type,
-        "public-key",
-        "secret-hash",
+        null,
+        null,
+        null,
+        "credential-hash",
         "fingerprint-hash",
+        null,
         Instant.parse("2026-05-26T10:00:00Z"),
         expiresAt
     );

@@ -280,3 +280,10 @@ management:
       enabled: false
       ticket-sold-enabled: false
       ticket-won-enabled: false
+
+  keymanagement:
+    server-signing:
+      active-key-id: ${TCH_SERVER_SIGNING_KEY_ID:server-signing-key-2026-01}
+      algorithm: ED25519
+      private-key-pkcs8-base64: ${TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64}
+      public-key-spki-base64: ${TCH_SERVER_SIGNING_ED25519_PUBLIC_KEY_SPKI_BASE64}

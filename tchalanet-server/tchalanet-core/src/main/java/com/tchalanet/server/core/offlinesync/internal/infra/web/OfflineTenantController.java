@@ -19,6 +19,8 @@ import com.tchalanet.server.core.offlinesync.api.query.submission.OfflineSubmiss
 import com.tchalanet.server.core.offlinesync.internal.infra.web.model.OfflineGrantIssuedResponse;
 import com.tchalanet.server.core.offlinesync.internal.infra.web.model.RequestOfflineGrantRequest;
 import com.tchalanet.server.core.offlinesync.internal.infra.web.model.SyncOfflineSalesRequest;
+import com.tchalanet.server.core.terminal.api.query.TerminalDeviceProofGate;
+import com.tchalanet.server.core.terminal.api.query.TerminalProofPurpose;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,9 +60,18 @@ public class OfflineTenantController {
     @PostMapping("/grants")
     public ApiResponse<OfflineGrantIssuedResponse> requestGrant(
         @CurrentContext TchRequestContext ctx,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_TERMINAL_ID) String terminalId,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_BINDING_ID)  String bindingId,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_NONCE)       String nonce,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNED_AT)   String signedAt,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNATURE)   String signature,
         @Valid @RequestBody RequestOfflineGrantRequest body
     ) {
         var op = ctx.operationalContext();
+        TerminalDeviceProofGate.verify(queryBus, ctx.effectiveTenantIdRequired(),
+            terminalId, bindingId, TerminalProofPurpose.OFFLINE_GRANT_REQUEST,
+            "POST", "/tenant/offline/grants", null, op, nonce, signedAt, signature);
+
         if (op == null || !op.trustedForSensitiveOperation()) {
             throw new IllegalStateException(
                 "offlinesync.context_untrusted: trusted operational context required");
@@ -107,9 +119,18 @@ public class OfflineTenantController {
     @PostMapping("/sync")
     public ApiResponse<SyncOfflineSalesResult> sync(
         @CurrentContext TchRequestContext ctx,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_TERMINAL_ID) String terminalId,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_BINDING_ID)  String bindingId,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_NONCE)       String nonce,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNED_AT)   String signedAt,
+        @RequestHeader(TerminalDeviceProofGate.HEADER_SIGNATURE)   String signature,
         @Valid @RequestBody SyncOfflineSalesRequest body
     ) {
         var op = ctx.operationalContext();
+        TerminalDeviceProofGate.verify(queryBus, ctx.effectiveTenantIdRequired(),
+            terminalId, bindingId, TerminalProofPurpose.OFFLINE_SYNC,
+            "POST", "/tenant/offline/sync", null, op, nonce, signedAt, signature);
+
         if (op == null || !op.trustedForSensitiveOperation()) {
             throw new IllegalStateException(
                 "offlinesync.context_untrusted: trusted operational context required");
@@ -126,12 +147,9 @@ public class OfflineTenantController {
             ))
             .toList();
         var result = commandBus.execute(new SyncOfflineSalesCommand(
-            ctx.effectiveTenantIdRequired(),
-            body.grantId(),
-            body.clientBatchId(),
-            body.batchPayloadHash(),
-            submissions,
-            op.trustedForSensitiveOperation()
+            ctx.effectiveTenantIdRequired(), body.grantId(),
+            body.clientBatchId(), body.batchPayloadHash(),
+            submissions, op.trustedForSensitiveOperation()
         ));
         return ApiResponse.success(result);
     }

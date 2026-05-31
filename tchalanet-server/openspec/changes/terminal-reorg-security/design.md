@@ -152,6 +152,8 @@ nonce unused for binding
 purpose matches endpoint
 ```
 
+Canonical payload is produced by `TerminalSignaturePayloadCanonicalizerV1`. The class name is versioned so a V2 can be introduced without silently breaking existing POS clients.
+
 Suggested API:
 
 ```java
@@ -271,3 +273,95 @@ terminal_binding_key
 ```
 
 V1 can keep key columns directly on `terminal_binding`. Add child table only when rotation/history is needed.
+
+## 7. `platform.keymanagement` V1 module structure
+
+New module, does not exist today. V1 is minimal and config-backed.
+
+```text
+platform.keymanagement
+  api/
+    ServerSigningApi              (interface — called by core.offlinesync)
+    BackendPublicKeyApi           (interface — called by internal bootstrap controller)
+    model/
+      ServerSigningPurpose        (enum: OFFLINE_GRANT, …)
+      ServerSignatureResult       (signature, algorithm, keyId)
+      BackendPublicKeyView        (keyId, algorithm, publicKeyFormat, publicKey, validFrom, validUntil, status)
+      BackendPublicKeySetView     (activeKeyId, keys: List<BackendPublicKeyView>)
+
+  internal/
+    service/
+      Ed25519ServerSigningService (implements ServerSigningApi + BackendPublicKeyApi)
+      ConfigBackedBackendKeyProvider
+    web/
+      BackendPublicKeysController
+        GET /public/security/backend-signing-keys  (no auth — public keys are not secret)
+    config/
+      KeyManagementProperties
+```
+
+`core.terminal` does NOT depend on `platform.keymanagement`. It only verifies POS/mobile device proof using POS public keys stored on `terminal_binding`.
+`core.offlinesync` calls only `platform.keymanagement.api.ServerSigningApi`.
+
+## 8. Backend signing key storage — V1
+
+V1: config-backed, injected as environment secret at runtime.
+
+```yaml
+tch:
+  keymanagement:
+    server-signing:
+      active-key-id: server-signing-key-2026-01
+      algorithm: ED25519
+      private-key-pkcs8-base64: ${TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64}
+      public-key-spki-base64: ${TCH_SERVER_SIGNING_ED25519_PUBLIC_KEY_SPKI_BASE64}
+```
+
+Rules:
+- private key is never logged, never returned by any API;
+- public key is exposed through `GET /public/security/backend-signing-keys`;
+- `keyId` is mandatory in every signed grant;
+- V1 rotation is manual (change config + deploy);
+- `KeyManagementProperties` must validate presence of both keys on startup (fail-fast);
+- evolution path: V2 → Vault/cloud secrets manager; V3 → HSM/KMS signing without key material in JVM.
+
+## 9. Nonce retention policy
+
+Clock skew window: 5 minutes.
+Nonce retention TTL: 65 minutes (clock skew + 1 hour).
+
+```text
+terminal_device_nonce
+  tenant_id        not null
+  binding_id       not null
+  nonce            not null
+  purpose          not null
+  signed_at        not null
+  expires_at       not null   (= signed_at + 65 min)
+
+UNIQUE (tenant_id, binding_id, purpose, nonce)
+INDEX  (expires_at)           (for purge job)
+```
+
+Device proof is accepted only if all conditions hold:
+1. `abs(now - signedAt) <= 5 minutes`
+2. nonce not already present for `(tenant_id, binding_id, purpose, nonce)`
+3. binding active
+4. terminal active and unlocked
+5. signature valid
+6. purpose matches endpoint
+
+Purge: safe condition is `expires_at < now`. Purge job is a follow-up scheduler task; it is not blocking V1 delivery.
+
+## 10. Device proof endpoint scope — V1
+
+| Endpoint | Device proof required |
+|---|---|
+| `POST /tenant/tickets` | Yes |
+| `POST /tenant/payouts/{id}/confirm` | Yes |
+| `POST /tenant/offline-grants` | Yes |
+| `POST /tenant/offline-sync` | Yes |
+| `POST /tenant/terminals/{id}/heartbeat` | No (V1) |
+| `POST /tenant/terminals/{id}/sync-state` | Deferred — required if it mutates grant or offline state |
+
+No tenant feature flag in V1. Device proof enforcement is hardcoded and explicit to avoid security ambiguity.

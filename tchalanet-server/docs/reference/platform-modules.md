@@ -18,6 +18,7 @@
 | `platform.communication` | target | Outbound channels, providers, message delivery | Sends email/SMS/Slack/etc. |
 | `platform.notification` | target | Notification intent, inbox/preferences/batch lifecycle notifications | Uses `platform.communication` to deliver. |
 | `platform.idempotence` | target | Persistent idempotency records, replay protection, cleanup jobs | Annotations/interfaces may remain in `common.idempotence`. |
+| `platform.keymanagement` | target | Backend signing key ownership, Ed25519 grant signing, backend public key bootstrap endpoint | V1 config-backed (env vars). V2+ Vault/KMS. Private key never exposed in API or logs. |
 
 ## Explicit naming decision
 

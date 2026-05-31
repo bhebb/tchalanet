@@ -46,19 +46,26 @@ Use deterministic canonicalization. Do not sign ad-hoc JSON string formats.
 
 3. Add technical crypto primitive:
    - `SignatureVerifier` in common/platform crypto;
-   - support Ed25519 first if available in target runtime.
+   - use Java 25 native Ed25519 (`java.security` — no third-party library needed).
 
-4. Add nonce storage:
-   - table `terminal_binding_nonce` or equivalent;
-   - unique `(tenant_id, binding_id, nonce)`;
-   - TTL/purge scheduled job later.
+4. Add nonce storage — table `terminal_device_nonce`:
+   - columns: `tenant_id`, `binding_id`, `nonce`, `purpose`, `signed_at`, `expires_at`;
+   - `expires_at = signed_at + 65 minutes`;
+   - unique constraint: `(tenant_id, binding_id, purpose, nonce)`;
+   - index on `expires_at` for future purge job;
+   - purge job is a follow-up task; do not block V1 on it.
 
-5. Hook validation into critical handlers:
-   - sell ticket;
-   - payout confirm;
-   - heartbeat/sync-state if configured;
-   - offline grant request;
-   - offline sync.
+5. Hook validation into critical handlers (V1 required):
+   - `POST /tenant/tickets` — sell ticket;
+   - `POST /tenant/payouts/{id}/confirm` — payout confirm;
+   - `POST /tenant/offline-grants` — offline grant request;
+   - `POST /tenant/offline-sync` — offline sync submission.
+
+   Not required in V1:
+   - `POST /tenant/terminals/{id}/heartbeat`.
+
+   Deferred (conditional):
+   - `POST /tenant/terminals/{id}/sync-state` — add device proof only if this endpoint mutates grant or offline state.
 
 ## Acceptance
 

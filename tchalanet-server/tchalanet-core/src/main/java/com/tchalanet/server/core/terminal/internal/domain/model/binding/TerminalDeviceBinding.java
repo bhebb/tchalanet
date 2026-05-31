@@ -3,6 +3,7 @@ package com.tchalanet.server.core.terminal.internal.domain.model.binding;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalBindingId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.terminal.internal.domain.model.TerminalKind;
 import com.tchalanet.server.core.terminal.internal.domain.model.TerminalSurface;
 import java.time.Instant;
@@ -15,8 +16,11 @@ public record TerminalDeviceBinding(
     TerminalBindingType bindingType,
     TerminalBindingStatus status,
     String bindingPublicKey,
-    String bindingSecretHash,
+    TerminalPublicKeyAlgorithm publicKeyAlgorithm,
+    String publicKeyHash,
+    String credentialHash,
     String deviceFingerprintHash,
+    UserId boundBy,
     Instant boundAt,
     Instant expiresAt,
     Instant revokedAt,
@@ -30,8 +34,14 @@ public record TerminalDeviceBinding(
         Objects.requireNonNull(bindingType, "bindingType is required");
         Objects.requireNonNull(status, "status is required");
         Objects.requireNonNull(boundAt, "boundAt is required");
+        if (credentialHash == null || credentialHash.isBlank()) {
+            throw new IllegalArgumentException("credentialHash is required");
+        }
         if (status == TerminalBindingStatus.REVOKED && revokedAt == null) {
             throw new IllegalArgumentException("revokedAt is required for revoked binding");
+        }
+        if (bindingPublicKey != null && publicKeyAlgorithm == null) {
+            throw new IllegalArgumentException("publicKeyAlgorithm is required when bindingPublicKey is provided");
         }
     }
 
@@ -41,8 +51,11 @@ public record TerminalDeviceBinding(
         TerminalId terminalId,
         TerminalBindingType bindingType,
         String bindingPublicKey,
-        String bindingSecretHash,
+        TerminalPublicKeyAlgorithm publicKeyAlgorithm,
+        String publicKeyHash,
+        String credentialHash,
         String deviceFingerprintHash,
+        UserId boundBy,
         Instant boundAt,
         Instant expiresAt
     ) {
@@ -53,8 +66,11 @@ public record TerminalDeviceBinding(
             bindingType,
             TerminalBindingStatus.ACTIVE,
             bindingPublicKey,
-            bindingSecretHash,
+            publicKeyAlgorithm,
+            publicKeyHash,
+            credentialHash,
             deviceFingerprintHash,
+            boundBy,
             boundAt,
             expiresAt,
             null,
@@ -80,18 +96,9 @@ public record TerminalDeviceBinding(
             return this;
         }
         return new TerminalDeviceBinding(
-            id,
-            tenantId,
-            terminalId,
-            bindingType,
-            TerminalBindingStatus.EXPIRED,
-            bindingPublicKey,
-            bindingSecretHash,
-            deviceFingerprintHash,
-            boundAt,
-            expiresAt,
-            revokedAt,
-            lastSeenAt
+            id, tenantId, terminalId, bindingType, TerminalBindingStatus.EXPIRED,
+            bindingPublicKey, publicKeyAlgorithm, publicKeyHash, credentialHash,
+            deviceFingerprintHash, boundBy, boundAt, expiresAt, revokedAt, lastSeenAt
         );
     }
 
@@ -100,18 +107,10 @@ public record TerminalDeviceBinding(
             return this;
         }
         return new TerminalDeviceBinding(
-            id,
-            tenantId,
-            terminalId,
-            bindingType,
-            TerminalBindingStatus.REVOKED,
-            bindingPublicKey,
-            bindingSecretHash,
-            deviceFingerprintHash,
-            boundAt,
-            expiresAt,
-            Objects.requireNonNull(now, "now is required"),
-            lastSeenAt
+            id, tenantId, terminalId, bindingType, TerminalBindingStatus.REVOKED,
+            bindingPublicKey, publicKeyAlgorithm, publicKeyHash, credentialHash,
+            deviceFingerprintHash, boundBy, boundAt, expiresAt,
+            Objects.requireNonNull(now, "now is required"), lastSeenAt
         );
     }
 }

@@ -119,7 +119,7 @@ BEGIN
 
   INSERT INTO terminal_binding (
     id, tenant_id, terminal_id, binding_type, status,
-    binding_public_key, binding_secret_hash, device_fingerprint_hash,
+    binding_public_key, credential_hash, device_fingerprint_hash,
     bound_at, created_at, updated_at
   )
   VALUES (

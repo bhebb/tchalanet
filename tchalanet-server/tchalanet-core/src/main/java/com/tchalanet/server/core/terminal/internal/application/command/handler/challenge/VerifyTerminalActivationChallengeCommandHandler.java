@@ -14,6 +14,8 @@ import com.tchalanet.server.core.terminal.internal.application.port.out.binding.
 import com.tchalanet.server.core.terminal.internal.application.port.out.binding.TerminalDeviceBindingWriterPort;
 import com.tchalanet.server.core.terminal.internal.application.port.out.challenge.TerminalActivationChallengeReaderPort;
 import com.tchalanet.server.core.terminal.internal.application.port.out.challenge.TerminalActivationChallengeWriterPort;
+import com.tchalanet.server.core.terminal.internal.application.service.binding.TerminalBindingCredentialHasher;
+import com.tchalanet.server.core.terminal.internal.application.service.binding.TerminalPublicKeyHasher;
 import com.tchalanet.server.core.terminal.internal.application.service.challenge.TerminalChallengeCodeHasher;
 import com.tchalanet.server.core.terminal.internal.domain.model.binding.TerminalDeviceBinding;
 import java.time.Clock;
@@ -57,6 +59,10 @@ public class VerifyTerminalActivationChallengeCommandHandler
     @TchTx
     public VerifyTerminalActivationChallengeResult handle(VerifyTerminalActivationChallengeCommand command) {
         var challenge = challengeReader.getRequired(command.tenantId(), command.challengeId());
+
+        if (!challenge.terminalId().equals(command.terminalId())) {
+            throw ProblemRestException.badRequest("activation_challenge.terminal_mismatch");
+        }
         if (!challenge.userId().equals(command.userId())) {
             throw ProblemRestException.badRequest("terminal.challenge.user_mismatch");
         }
@@ -76,14 +82,27 @@ public class VerifyTerminalActivationChallengeCommandHandler
         }
 
         var terminal = terminalReader.getRequired(command.tenantId(), updatedChallenge.terminalId());
+
+        var credentialHash = TerminalBindingCredentialHasher.hash(
+            command.tenantId(),
+            terminal.id(),
+            command.bindingCredential()
+        );
+        var publicKeyHash = command.bindingPublicKey() != null
+            ? TerminalPublicKeyHasher.hash(command.bindingPublicKey())
+            : null;
+
         var binding = TerminalDeviceBinding.active(
             TerminalBindingId.of(idGenerator.newUuid()),
             command.tenantId(),
             terminal.id(),
             command.bindingType(),
             command.bindingPublicKey(),
-            command.bindingSecretHash(),
+            command.publicKeyAlgorithm(),
+            publicKeyHash,
+            credentialHash,
             command.deviceFingerprintHash(),
+            command.actorUserId(),
             now,
             null
         );

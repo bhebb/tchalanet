@@ -3,6 +3,7 @@ package com.tchalanet.server.core.terminal.internal.infra.persistence;
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
 import com.tchalanet.server.core.terminal.internal.domain.model.binding.TerminalBindingStatus;
 import com.tchalanet.server.core.terminal.internal.domain.model.binding.TerminalBindingType;
+import com.tchalanet.server.core.terminal.internal.domain.model.binding.TerminalPublicKeyAlgorithm;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -35,11 +36,21 @@ public class TerminalBindingJpaEntity extends BaseTenantEntity {
     @Column(name = "binding_public_key")
     private String bindingPublicKey;
 
-    @Column(name = "binding_secret_hash")
-    private String bindingSecretHash;
+    @Column(name = "public_key_algorithm", length = 32)
+    @Enumerated(EnumType.STRING)
+    private TerminalPublicKeyAlgorithm publicKeyAlgorithm;
+
+    @Column(name = "public_key_hash")
+    private String publicKeyHash;
+
+    @Column(name = "credential_hash", nullable = false)
+    private String credentialHash;
 
     @Column(name = "device_fingerprint_hash")
     private String deviceFingerprintHash;
+
+    @Column(name = "bound_by")
+    private UUID boundBy;
 
     @Column(name = "bound_at", nullable = false)
     private Instant boundAt;

@@ -3,7 +3,7 @@
 > **Statut** : NORMATIVE  
 > **Scope** : `tchalanet-server` — référence croisée tous composants  
 > **Règle** : Un flow compose des sous-flows par liens. Il ne les recopie pas.  
-> **Dernière mise à jour** : 2026-05-30
+> **Dernière mise à jour** : 2026-05-31
 
 ---
 
@@ -62,9 +62,12 @@ Seller POS flow:
 4. Terminal bindé et trusted → voir [terminal-binding](../../../02-functional/flows/terminal-binding.md)
 5. Session POS ouverte → voir [session-opening](../../../02-functional/flows/session-opening.md)
 
-**Pour chaque action sensible (sell, payout, offline grant) :**
+**Pour chaque action sensible (sell, payout, offline grant, offline sync) :**
 
 ```
+device proof signature                             [core.terminal — TerminalDeviceProofGate]
+  → headers X-Terminal-{Id,Binding-Id,Nonce,Signed-At,Signature} présents
+  → VerifyTerminalDeviceProofQuery → Trusted ou Rejected
 trusted operational context requis
   → terminal existe / tenant / non bloqué          [core.terminal]
   → outlet existe / tenant / actif                 [core.outlet]
@@ -72,6 +75,9 @@ trusted operational context requis
   → permission accordée                            [platform.accesscontrol]
   → gates action-specific                          [core.sales / core.payout]
 ```
+
+Device proof requis en V1 : `POST /tenant/tickets`, `POST /tenant/payouts/{id}/execute`, `POST /tenant/offline/grants`, `POST /tenant/offline/sync`.  
+Voir `DOMAIN_TERMINAL.md §Device Proof` et `TerminalSignaturePayloadCanonicalizerV1`.
 
 Voir fail-fast order complet : [`operational-context.md`](./operational-context.md#fail-fast-order)
 

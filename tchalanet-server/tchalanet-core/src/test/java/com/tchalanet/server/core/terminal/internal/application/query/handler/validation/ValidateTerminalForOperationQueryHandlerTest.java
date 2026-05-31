@@ -184,9 +184,12 @@ class ValidateTerminalForOperationQueryHandlerTest {
             TENANT_ID,
             TERMINAL_ID,
             bindingType,
-            "public-key",
+            null,
+            null,
+            null,
             "secret-hash",
             "fingerprint-hash",
+            USER_ID,
             NOW.minusSeconds(60),
             NOW.plusSeconds(600)
         );
@@ -302,6 +305,11 @@ class ValidateTerminalForOperationQueryHandlerTest {
         @Override
         public List<TerminalDeviceBinding> findActiveByTerminal(TenantId tenantId, TerminalId terminalId) {
             return bindings;
+        }
+
+        @Override
+        public java.util.Optional<TerminalDeviceBinding> findById(TenantId tenantId, com.tchalanet.server.common.types.id.TerminalBindingId bindingId) {
+            return bindings.stream().filter(b -> b.id().equals(bindingId)).findFirst();
         }
     }
 

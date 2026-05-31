@@ -167,6 +167,40 @@ Pour éviter plusieurs sources de vérité :
 - `SellerOutletAssignment` porte `sellerId + outletId` ;
 - `SalesSession` confirme l'outlet courant.
 
+## Device Proof (POS/Mobile → Backend)
+
+Pour les opérations sensibles (vente, payout, offline grant, offline sync), le POS signe une charge canonique avec sa clé privée avant d'envoyer la requête. Le backend vérifie cette signature via `VerifyTerminalDeviceProofQuery`.
+
+**Headers requis (V1) :**
+```http
+X-Terminal-Id:         <terminalId>
+X-Terminal-Binding-Id: <bindingId>
+X-Terminal-Nonce:      <nonce unique>
+X-Terminal-Signed-At:  <Instant ISO-8601>
+X-Terminal-Signature:  <base64url signature Ed25519>
+```
+
+**Payload canonique signé (V1) :**
+```
+purpose\nmethod\npath\nbodyHash\nterminalId\nbindingId\noutletId\nsessionId\nnonce\nsignedAt
+```
+`bodyHash` = `""` en V1 (à compléter quand `ContentCachingFilter` sera disponible).
+
+**Purposes :** `SELL_TICKET`, `PAYOUT_CONFIRM`, `OFFLINE_GRANT_REQUEST`, `OFFLINE_SYNC`
+
+Le contrôleur appelle `TerminalDeviceProofGate.verify()` avant de dispatcher la commande. Si rejeté → `ProblemRest.forbidden(code)`.
+
+## Nouveaux types (terminal-reorg-security)
+
+```text
+TerminalPublicKeyAlgorithm = ED25519
+TerminalProofPurpose       = SELL_TICKET | PAYOUT_CONFIRM | OFFLINE_GRANT_REQUEST | OFFLINE_SYNC | HEARTBEAT | SYNC_STATE
+```
+
+`terminal_binding` porte maintenant : `publicKeyAlgorithm`, `publicKeyHash`, `credentialHash` (ex `bindingSecretHash`), `boundBy`.
+
+`terminal_device_nonce` : anti-replay log, TTL 65 minutes, unique `(tenantId, bindingId, purpose, nonce)`.
+
 ## Validation
 
 Les ventes et autres opérations sensibles doivent utiliser le modèle fail-fast défini dans `terminal_binding.md` :
@@ -174,14 +208,15 @@ Les ventes et autres opérations sensibles doivent utiliser le modèle fail-fast
 1. contexte authentifié ;
 2. permission ;
 3. idempotence si requise ;
-4. contexte opérationnel trusted ;
-5. terminal actif et tenant-compatible ;
-6. assignation active pour l'acteur ;
-7. binding actif compatible ;
-8. capability terminal requise ;
-9. outlet flag ;
-10. session valide ;
-11. seller/outlet eligibility ;
-12. entitlement/règles métier selon l'action.
+4. **device proof signature** (`TerminalDeviceProofGate.verify` → `VerifyTerminalDeviceProofQuery`) ;
+5. contexte opérationnel trusted ;
+6. terminal actif et tenant-compatible ;
+7. assignation active pour l'acteur ;
+8. binding actif compatible ;
+9. capability terminal requise ;
+10. outlet flag ;
+11. session valide ;
+12. seller/outlet eligibility ;
+13. entitlement/règles métier selon l'action.
 
 `core.terminal` ne décide pas seul qu'une opération métier peut avoir lieu. Il produit un snapshot terminal validé pour les domaines appelants.

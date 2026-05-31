@@ -18,14 +18,21 @@ Backend -> POS:
 
 The backend does not sign with the POS public key. Public keys verify signatures; private keys produce signatures.
 
+## Prerequisite
+
+Task 03 (`platform.keymanagement` V1) must be complete before implementing grant signing. `core.offlinesync` must not sign grants itself.
+
 ## Steps
 
-1. Introduce platform capability:
-   - `platform.keymanagement.api.ServerSigningApi`
-   - `SignedPayload sign(ServerSigningPurpose purpose, byte[] canonicalPayload)`
-   - `List<ServerPublicKeyView> listActivePublicKeys()`
+1. Confirm `platform.keymanagement` V1 is done (see `tasks.md` task 03):
+   - `platform.keymanagement.api.ServerSigningApi` exists;
+   - `Ed25519ServerSigningService` is wired with config-backed key;
+   - `GET /public/security/backend-signing-keys` endpoint is live;
+   - startup fails fast if signing key env vars are absent.
 
-2. Offline grant payload must include:
+2. Call `ServerSigningApi.sign(ServerSigningPurpose.OFFLINE_GRANT, canonicalPayload)` from `core.offlinesync` handler — do NOT inject `Ed25519ServerSigningService` directly.
+
+3. Offline grant payload must include:
    - type/version;
    - grantId;
    - tenantId;
@@ -42,9 +49,7 @@ The backend does not sign with the POS public key. Public keys verify signatures
    - issuer;
    - keyId.
 
-3. `core.offlinesync` creates the grant and asks platform signing API to sign canonical payload.
-
-4. POS stores:
+4. POS stores (mobile contract — see `follow-up-mobile.md`):
    - signed grant;
    - backend public key(s) by keyId;
    - local usage counters.
