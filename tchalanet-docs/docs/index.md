@@ -1,52 +1,74 @@
 # Tchalanet Docs
 
-Tchalanet is a multi-tenant lottery and POS platform for selling tickets,
-managing draws, settling results, paying winners, and operating tenant networks.
+Tchalanet est une plateforme multi-tenant de loterie et POS pour vendre des tickets,
+gérer des tirages, régler les résultats, payer les gagnants et opérer des réseaux de vente.
 
-## Start here
+---
 
-- **Nouveau sur le projet ?** Lire [What is Tchalanet](00-overview/what-is-tchalanet.md)
-- **Besoin d'une vue système ?** Lire [System map](00-overview/system-map.md)
-- **Travailler sur le backend ?** Lire [Backend architecture](server-docs/ARCHITECTURE.md)
-- **Travailler sur le POS / cashier ?** Lire [Sell ticket flow](02-functional/flows/sell-ticket.md)
-- **Chercher les règles canoniques ?** Lire [Where truth lives](00-overview/where-truth-lives.md)
+## Par où commencer ?
 
-## Reading paths
+**Opérateur ou admin ?** → [Guide opérateur](02-functional/guides/operator-admin-guide.md)
 
-=== "New to the project"
+**Agent terrain (vendeur / caissier) ?** → [Guide agent terrain](02-functional/guides/field-agent-guide.md)
 
-    1. [What is Tchalanet](00-overview/what-is-tchalanet.md)
-    2. [System map](00-overview/system-map.md)
-    3. [Sell ticket flow](02-functional/flows/sell-ticket.md)
-    4. [Where truth lives](00-overview/where-truth-lives.md)
+**Développeur backend ?** → [Guide développeur backend](99-reference/backend-conventions.md)
 
-=== "Working on backend"
+**Nouveau sur le projet ?** → [Qu'est-ce que Tchalanet ?](00-overview/what-is-tchalanet.md)
 
-    1. [Backend architecture](server-docs/ARCHITECTURE.md)
-    2. [Backend playbook](server-docs/PLAYBOOK.md)
-    3. [Command / Query handlers](server-docs/conventions/command_query_handlers.md)
-    4. [Backend conventions index](99-reference/backend-conventions.md)
+**Besoin de la carte système ?** → [Carte système](00-overview/system-map.md)
 
-=== "Working on POS / cashier"
+---
 
-    1. [Operational context](server-docs/conventions/context/request-context.md)
-    2. [Session opening](02-functional/flows/session-opening.md)
-    3. [Sell ticket flow](02-functional/flows/sell-ticket.md)
-    4. [Payout flow](02-functional/flows/payout-field-flow.md)
+## Parcours par rôle
 
-## Main areas
+### Opérateur / admin
 
-### Overview
-Product description, system map, and where to find authoritative information.
+1. [Qu'est-ce que Tchalanet ?](00-overview/what-is-tchalanet.md)
+2. [Onboarding tenant](02-functional/flows/tenant-onboarding.md)
+3. [Ouverture de session](02-functional/flows/session-opening.md)
+4. [Réconciliation](02-functional/flows/reconciliation.md)
+5. [Règlement (settlement)](02-functional/flows/settlement.md)
+
+### Agent terrain (vendeur)
+
+1. [Liaison terminal](02-functional/flows/terminal-binding.md)
+2. [Ouverture de session](02-functional/flows/session-opening.md)
+3. [Vente de ticket](02-functional/flows/sell-ticket.md)
+4. [Vérification de ticket](02-functional/flows/verify-ticket.md)
+5. [Paiement terrain (payout)](02-functional/flows/payout-field-flow.md)
+
+### Développeur backend
+
+1. [Architecture backend](server-docs/ARCHITECTURE.md)
+2. [Backend Playbook](server-docs/PLAYBOOK.md)
+3. [Command / Query handlers](server-docs/conventions/command_query_handlers.md)
+4. [Guide développeur backend](99-reference/backend-conventions.md)
+
+### Développeur mobile / POS
+
+1. [Architecture mobile](mobile-docs/ARCHITECTURE.md)
+2. [Sell ticket flow](02-functional/flows/sell-ticket.md)
+3. [Payout flow](02-functional/flows/payout-field-flow.md)
+4. [Offline sync](02-functional/flows/offline-sync.md)
+
+---
+
+## Zones principales
+
+### Guide utilisateur
+Parcours guidés pour opérateurs et agents terrain — self-serve, sans solliciter l'équipe.
+
+### Métier
+Flows système complets : vente ticket, tirage, payout, réconciliation, onboarding.
 
 ### Architecture
-Component maps and deep-dive architecture docs for backend, web, mobile, and infra.
+Cartes des composants, modèle de sécurité, décisions d'architecture (ADR).
 
-### Flows
-Business flows — sell ticket, verify ticket, draw execution, payout, and onboarding.
+### Technique
+Conventions backend, conventions mobile, OpenSpec en cours.
 
-### Operations
-Run the local stack and deploy to staging / production.
+### Opérations
+Déploiement, stack locale, infrastructure.
 
-### Reference
-Backend convention index, component AGENTS maps, and canonical links.
+### Référence interne
+Guidelines, versions, où vit la vérité, maps AGENTS.
