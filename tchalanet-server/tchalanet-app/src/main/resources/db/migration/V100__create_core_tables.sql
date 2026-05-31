@@ -166,10 +166,6 @@ CREATE TABLE app_setting (
   CONSTRAINT chk_app_setting__exposure CHECK (exposure IN ('INTERNAL','PUBLIC_RUNTIME','TENANT_RUNTIME','ADMIN_RUNTIME'))
 );
 
-CREATE INDEX idx_app_setting_runtime_lookup
-ON app_setting (tenant_id, exposure, active, namespace, setting_key)
-WHERE deleted_at IS NULL;
-
 CREATE TABLE i18n_override (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   level varchar(32) NOT NULL DEFAULT 'TENANT',
@@ -192,18 +188,6 @@ CREATE TABLE i18n_override (
     'AUTH','CASHIER','TENANT_ADMIN','PLATFORM_ADMIN','COMMON_PRIVATE_ERROR','INTERNAL'
   ))
 );
-
-CREATE UNIQUE INDEX uq_i18n_override_global
-ON i18n_override (surface, locale, i18n_key)
-WHERE tenant_id IS NULL AND deleted_at IS NULL;
-
-CREATE UNIQUE INDEX uq_i18n_override_tenant
-ON i18n_override (tenant_id, surface, locale, i18n_key)
-WHERE tenant_id IS NOT NULL AND deleted_at IS NULL;
-
-CREATE INDEX idx_i18n_override_runtime_lookup
-ON i18n_override (tenant_id, surface, locale, active)
-WHERE deleted_at IS NULL;
 
 CREATE TABLE theme_preset (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

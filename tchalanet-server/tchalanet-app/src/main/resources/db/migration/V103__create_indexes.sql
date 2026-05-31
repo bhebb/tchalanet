@@ -21,7 +21,11 @@ CREATE INDEX ix_address__tenant ON address (tenant_id);
 
 -- ─── Settings, theming, i18n ────────────────────────────────────────
 CREATE INDEX ix_app_setting__tenant ON app_setting (tenant_id, namespace, setting_key);
+CREATE INDEX ix_app_setting__runtime ON app_setting (tenant_id, exposure, active, namespace, setting_key) WHERE deleted_at IS NULL;
 CREATE INDEX ix_i18n_override__tenant_lookup ON i18n_override (tenant_id, locale, i18n_key);
+CREATE INDEX ix_i18n_override__runtime ON i18n_override (tenant_id, surface, locale, active) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_i18n_override__global ON i18n_override (surface, locale, i18n_key) WHERE tenant_id IS NULL AND deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_i18n_override__tenant ON i18n_override (tenant_id, surface, locale, i18n_key) WHERE tenant_id IS NOT NULL AND deleted_at IS NULL;
 CREATE UNIQUE INDEX ux_tenant_theme__tenant_preset ON tenant_theme (tenant_id, preset_code) WHERE deleted_at IS NULL;
 CREATE INDEX ix_tenant_game__tenant_enabled ON tenant_game (tenant_id, enabled) WHERE deleted_at IS NULL;
 

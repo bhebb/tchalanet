@@ -230,23 +230,25 @@ public class I18nOverridesAdminService implements I18nOverridesAdminCatalog {
   }
 
   private void checkUniqueness(CreateI18nOverrideRequest request) {
-    // For tenant level we check tenant/locale/key uniqueness; for global we check locale/key/level
+    com.tchalanet.server.catalog.i18n.api.model.I18nSurface surface =
+        request.surface() != null
+            ? request.surface()
+            : com.tchalanet.server.catalog.i18n.api.model.I18nSurface.INTERNAL;
+
     Optional<I18nOverrideEntity> existing;
     if (request.level() == com.tchalanet.server.catalog.i18n.api.model.I18nOverrideLevel.TENANT) {
-      existing = repository.findFirstByTenantIdAndLocaleAndI18nKeyAndActiveTrue(
-          request.tenantId().value(), request.locale(), request.i18nKey());
+      existing = repository.findFirstByTenantIdAndLocaleAndSurfaceAndI18nKeyAndActiveTrue(
+          request.tenantId().value(), request.locale(), surface, request.i18nKey());
     } else {
-      existing = repository.findFirstByLocaleAndI18nKeyAndLevel(request.locale(), request.i18nKey(), request.level());
+      existing = repository.findFirstByLocaleAndSurfaceAndI18nKeyAndLevel(
+          request.locale(), surface, request.i18nKey(), request.level());
     }
 
     if (existing.isPresent()) {
       throw new IllegalArgumentException(
           "I18n override already exists: "
-              + request.locale()
-              + ":"
-              + request.i18nKey()
-              + " for tenant "
-              + request.tenantId());
+              + surface + ":" + request.locale() + ":" + request.i18nKey()
+              + (request.tenantId() != null ? " for tenant " + request.tenantId() : " (GLOBAL)"));
     }
   }
 
