@@ -581,8 +581,11 @@ create table terminal_binding (
                                   binding_type varchar(32) not null,
                                   status varchar(32) not null,
                                   binding_public_key text,
-                                  binding_secret_hash text,
+                                  public_key_algorithm varchar(32),
+                                  public_key_hash text,
+                                  credential_hash text not null,
                                   device_fingerprint_hash text,
+                                  bound_by uuid references app_user(id),
                                   bound_at timestamptz not null,
                                   expires_at timestamptz,
                                   revoked_at timestamptz,
@@ -625,6 +628,21 @@ comment on table terminal_capability is 'Authorized/capable actions for a termin
 comment on table terminal_assignment is 'Terminal-to-user assignment lifecycle. Outlet remains owned by terminal/session.';
 comment on table terminal_binding is 'Trusted device/app binding for a terminal. Secrets and fingerprints are stored only as hashes.';
 comment on table terminal_challenge is 'Short-lived activation proof. Clear challenge codes are never stored.';
+
+create table terminal_device_nonce (
+                                       id uuid primary key default gen_random_uuid(),
+                                       tenant_id uuid not null,
+                                       binding_id uuid not null references terminal_binding(id),
+                                       nonce text not null,
+                                       purpose varchar(32) not null,
+                                       signed_at timestamptz not null,
+                                       expires_at timestamptz not null,
+                                       constraint uq_terminal_device_nonce unique (tenant_id, binding_id, purpose, nonce)
+);
+
+create index idx_terminal_device_nonce_expires_at on terminal_device_nonce (expires_at);
+
+comment on table terminal_device_nonce is 'Anti-replay nonce log for device-signed requests. Entries expire after 65 minutes.';
 
 -- =========================================================
 -- SALES SESSION

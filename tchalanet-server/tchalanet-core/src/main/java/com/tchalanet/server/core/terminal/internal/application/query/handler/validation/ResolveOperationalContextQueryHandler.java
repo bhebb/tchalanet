@@ -60,7 +60,7 @@ public class ResolveOperationalContextQueryHandler
                 query.tenantId(),
                 terminal.id(),
                 query.bindingCredential(),
-                binding.bindingSecretHash()));
+                binding.credentialHash()));
 
         if (!hasVerifiedBinding) {
             return weak(candidate);

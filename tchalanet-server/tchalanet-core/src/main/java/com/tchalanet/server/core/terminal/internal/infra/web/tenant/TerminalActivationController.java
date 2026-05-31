@@ -10,7 +10,6 @@ import com.tchalanet.server.core.terminal.api.command.CreateTerminalActivationCh
 import com.tchalanet.server.core.terminal.api.command.CreateTerminalActivationChallengeResult;
 import com.tchalanet.server.core.terminal.api.command.VerifyTerminalActivationChallengeCommand;
 import com.tchalanet.server.core.terminal.api.command.VerifyTerminalActivationChallengeResult;
-import com.tchalanet.server.core.terminal.internal.application.service.binding.TerminalBindingCredentialHasher;
 import com.tchalanet.server.core.terminal.internal.domain.model.binding.TerminalBindingType;
 import com.tchalanet.server.core.terminal.internal.domain.model.challenge.TerminalChallengeDeliveryMode;
 import com.tchalanet.server.core.terminal.internal.domain.model.challenge.TerminalChallengeType;
@@ -83,15 +82,14 @@ public class TerminalActivationController {
     ) {
         var result = commandBus.execute(new VerifyTerminalActivationChallengeCommand(
             ctx.effectiveTenantIdRequired(),
+            terminalId,
             challengeId,
             ctx.currentUserIdRequired(),
             request.clearCode(),
             TerminalBindingType.POS_DEVICE,
             request.bindingPublicKey(),
-            TerminalBindingCredentialHasher.hash(
-                ctx.effectiveTenantIdRequired(),
-                terminalId,
-                request.bindingCredential()),
+            request.publicKeyAlgorithm(),
+            request.bindingCredential(),
             request.deviceFingerprintHash(),
             ctx.currentUserIdRequired()));
 

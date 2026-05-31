@@ -221,6 +221,16 @@ CREATE POLICY terminal_challenge_rls_select ON terminal_challenge
   FOR SELECT
   USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
 
+ALTER TABLE terminal_device_nonce ENABLE ROW LEVEL SECURITY;
+ALTER TABLE terminal_device_nonce FORCE ROW LEVEL SECURITY;
+CREATE POLICY terminal_device_nonce_rls_all ON terminal_device_nonce
+  FOR ALL
+  USING (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant())
+  WITH CHECK (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant());
+CREATE POLICY terminal_device_nonce_rls_select ON terminal_device_nonce
+  FOR SELECT
+  USING (public.allow_platform_cross_tenant_select() OR (public.current_tenant() IS NOT NULL AND tenant_id = public.current_tenant()));
+
 ALTER TABLE sales_session ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sales_session FORCE ROW LEVEL SECURITY;
 CREATE POLICY sales_session_rls_all ON sales_session

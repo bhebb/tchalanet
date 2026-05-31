@@ -58,9 +58,6 @@ tch:
 
   offlinesync:
     enabled: ${TCH_OFFLINESYNC_ENABLED:true}
-    crypto:
-      server-private-key: ${TCH_OFFLINESYNC_CRYPTO_SERVER_PRIVATE_KEY:}
-      server-public-key: ${TCH_OFFLINESYNC_CRYPTO_SERVER_PUBLIC_KEY:}
 
   communication:
     edge:
@@ -113,3 +110,7 @@ logging:
 springdoc:
   swagger-ui:
     oauth2-redirect-url: http://localhost:8083/api/v1/swagger-ui/oauth2-redirect.html
+
+# No signing key set here — Ed25519ServerSigningService generates an ephemeral keypair
+# at startup for local/dev profiles. Set TCH_SERVER_SIGNING_ED25519_PRIVATE_KEY_PKCS8_BASE64
+# and TCH_SERVER_SIGNING_ED25519_PUBLIC_KEY_SPKI_BASE64 for staging/prod.

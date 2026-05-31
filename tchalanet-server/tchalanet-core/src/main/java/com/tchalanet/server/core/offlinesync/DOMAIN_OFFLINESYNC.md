@@ -176,10 +176,11 @@ Côté `core.sales` : colonne `ticket.offline_submission_id` + index unique part
 
 ## 6. Crypto Ed25519
 
-- **Server keypair** : config `tch.offlinesync.crypto.server-{private,public}-key` (PKCS#8 / X.509 SPKI base64). Ephemeral keypair generated at boot si absent — interdit en profile `prod/staging`.
+- **Server keypair** : géré par `platform.keymanagement` (config `tch.keymanagement.server-signing.*`). `core.offlinesync` ne gère plus de clé serveur directement — il appelle `platform.keymanagement.api.ServerSigningApi.sign(OFFLINE_GRANT, payload)`.
 - **Grant signature canonique v1** : `OfflineGrantPayloadSigner` ; format `v1|grantId|tenantId|deviceId|keyId|validFrom|validUntil|syncAcceptedUntil|maxTicketCount|maxTotalAmount.value:currency`.
-- **Submission verification** : `OfflineCryptoPort.verifySubmission(payloadBytes, sigB64, devicePublicKeyB64)` via JDK 17+ `Signature.getInstance("Ed25519")`.
+- **Submission verification** : `OfflineCryptoPort.verifySubmission(payloadBytes, sigB64, devicePublicKeyB64)` — implémenté par `PlatformBackedOfflineCryptoAdapter`, qui vérifie directement avec la clé publique device (pas de dépendance plateforme pour cette vérification).
 - **Submission payload hash v1** : `OfflineSubmissionPayloadHasher` ; SHA-256 sur format canonique versionné incluant `clientSubmissionId|offlineCode|clientSoldAt|stake|lineCount|lines[]` triées par `lineNo`.
+- **Clé publique serveur** : exposée via `GET /public/security/backend-signing-keys` (aucune auth requise). Le POS bootstrap et cache par `keyId`.
 
 ---
 

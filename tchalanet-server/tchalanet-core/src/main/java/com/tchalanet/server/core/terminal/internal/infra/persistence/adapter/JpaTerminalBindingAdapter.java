@@ -3,6 +3,7 @@ package com.tchalanet.server.core.terminal.internal.infra.persistence.adapter;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalBindingId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.terminal.internal.application.port.out.binding.TerminalDeviceBindingReaderPort;
 import com.tchalanet.server.core.terminal.internal.application.port.out.binding.TerminalDeviceBindingWriterPort;
 import com.tchalanet.server.core.terminal.internal.domain.model.binding.TerminalBindingStatus;
@@ -10,6 +11,7 @@ import com.tchalanet.server.core.terminal.internal.domain.model.binding.Terminal
 import com.tchalanet.server.core.terminal.internal.infra.persistence.TerminalBindingJpaEntity;
 import com.tchalanet.server.core.terminal.internal.infra.persistence.TerminalBindingJpaRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,12 @@ public class JpaTerminalBindingAdapter implements TerminalDeviceBindingReaderPor
     }
 
     @Override
+    public Optional<TerminalDeviceBinding> findById(TenantId tenantId, TerminalBindingId bindingId) {
+        return repository.findByTenantIdAndId(tenantId.value(), bindingId.value())
+            .map(this::toDomain);
+    }
+
+    @Override
     public TerminalDeviceBinding save(TerminalDeviceBinding binding) {
         return toDomain(repository.save(toEntity(binding)));
     }
@@ -41,8 +49,11 @@ public class JpaTerminalBindingAdapter implements TerminalDeviceBindingReaderPor
             entity.getBindingType(),
             entity.getStatus(),
             entity.getBindingPublicKey(),
-            entity.getBindingSecretHash(),
+            entity.getPublicKeyAlgorithm(),
+            entity.getPublicKeyHash(),
+            entity.getCredentialHash(),
             entity.getDeviceFingerprintHash(),
+            entity.getBoundBy() != null ? UserId.of(entity.getBoundBy()) : null,
             entity.getBoundAt(),
             entity.getExpiresAt(),
             entity.getRevokedAt(),
@@ -58,8 +69,11 @@ public class JpaTerminalBindingAdapter implements TerminalDeviceBindingReaderPor
         entity.setBindingType(binding.bindingType());
         entity.setStatus(binding.status());
         entity.setBindingPublicKey(binding.bindingPublicKey());
-        entity.setBindingSecretHash(binding.bindingSecretHash());
+        entity.setPublicKeyAlgorithm(binding.publicKeyAlgorithm());
+        entity.setPublicKeyHash(binding.publicKeyHash());
+        entity.setCredentialHash(binding.credentialHash());
         entity.setDeviceFingerprintHash(binding.deviceFingerprintHash());
+        entity.setBoundBy(binding.boundBy() != null ? binding.boundBy().value() : null);
         entity.setBoundAt(binding.boundAt());
         entity.setExpiresAt(binding.expiresAt());
         entity.setRevokedAt(binding.revokedAt());

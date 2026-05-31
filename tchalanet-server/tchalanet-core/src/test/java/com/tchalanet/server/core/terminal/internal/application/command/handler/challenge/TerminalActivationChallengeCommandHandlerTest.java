@@ -128,12 +128,14 @@ class TerminalActivationChallengeCommandHandlerTest {
 
         var result = verifyHandler.handle(new VerifyTerminalActivationChallengeCommand(
             TENANT_ID,
+            TERMINAL_ID,
             TerminalActivationChallengeId.of(CHALLENGE_UUID),
             USER_ID,
             "12345678",
             TerminalBindingType.POS_DEVICE,
-            "public-key",
-            "secret-hash",
+            null,
+            null,
+            "secret-credential",
             "fingerprint-hash",
             ACTOR_ID
         ));
@@ -180,12 +182,14 @@ class TerminalActivationChallengeCommandHandlerTest {
 
         assertThatThrownBy(() -> verifyHandler.handle(new VerifyTerminalActivationChallengeCommand(
             TENANT_ID,
+            TERMINAL_ID,
             TerminalActivationChallengeId.of(CHALLENGE_UUID),
             USER_ID,
             "00000000",
             TerminalBindingType.POS_DEVICE,
-            "public-key",
-            "secret-hash",
+            null,
+            null,
+            "secret-credential",
             "fingerprint-hash",
             ACTOR_ID
         ))).isInstanceOf(ProblemRestException.class);
@@ -240,9 +244,12 @@ class TerminalActivationChallengeCommandHandlerTest {
             TENANT_ID,
             TERMINAL_ID,
             TerminalBindingType.POS_DEVICE,
-            "old-public-key",
-            "old-secret-hash",
+            null,
+            null,
+            null,
+            "old-credential-hash",
             "old-fingerprint-hash",
+            ACTOR_ID,
             NOW.minusSeconds(60),
             null
         );
@@ -320,6 +327,11 @@ class TerminalActivationChallengeCommandHandlerTest {
                 .filter(binding -> binding.terminalId().equals(terminalId))
                 .filter(binding -> binding.status() == TerminalBindingStatus.ACTIVE)
                 .toList();
+        }
+
+        @Override
+        public java.util.Optional<TerminalDeviceBinding> findById(TenantId tenantId, com.tchalanet.server.common.types.id.TerminalBindingId bindingId) {
+            return bindings.stream().filter(b -> b.id().equals(bindingId)).findFirst();
         }
 
         @Override
