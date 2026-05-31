@@ -228,9 +228,9 @@ Ce dossier contient les fichiers Docker Compose, les scripts et la documentation
 
 Documents essentiels:
 
-- docs/OPERATIONS.md — guide opérationnel consolidé (local, staging, prod)
-- docs/HETZNER.md — création/recréation d'une instance Hetzner et (re)déploiement
-- docs/DOPPLER.md — gestion des secrets (service tokens, intégration CI)
+- docs/operations/OPERATIONS.md — guide opérationnel consolidé (local, staging, prod)
+- docs/operations/HETZNER.md — création/recréation d'une instance Hetzner et (re)déploiement
+- docs/setup/DOPPLER-SETUP-GUIDE.md — gestion des secrets (service tokens, intégration CI)
 
 Scripts clés:
 
@@ -238,4 +238,4 @@ Scripts clés:
 - scripts/remote/\* — bootstrap machine distante, push infra, installation Docker
 - scripts/utils/\* — merge env, up séquentiel, rendu traefik, réseaux
 
-Pour un démarrage rapide local, voir docs/QUICKSTART.md. Pour une procédure complète de déploiement, voir docs/OPERATIONS.md. Pour (re)créer un serveur Hetzner en staging, suivre docs/HETZNER.md.
+Pour un démarrage rapide local, voir QUICK-START.md. Pour une procédure complète de déploiement, voir docs/operations/OPERATIONS.md. Pour (re)créer un serveur Hetzner en staging, suivre docs/operations/HETZNER.md.

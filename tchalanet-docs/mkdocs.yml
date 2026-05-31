@@ -3,7 +3,9 @@ not_in_nav: |
   01-architecture/page-model.md
   01-architecture/flows/**
   02-features/**
-  02-functional/domains/**/*.md
+  02-functional/domains/**
+  02-functional/features/**
+  02-functional/flows/index.md
   03-adr/index.md
   03-adr/offline_sales_risk_matrix.html
   99-reference/docs-inventory.md
@@ -12,6 +14,10 @@ not_in_nav: |
   99-reference/ai-agent-files-inventory.md
   99-reference/ai-agent-duplicates.md
   99-reference/ai-agent-cleanup-plan.md
+  99-links/**
+  07-design-system/**
+  server-docs/**
+  mobile-docs/**
 theme:
   name: material
   features:
@@ -36,69 +42,75 @@ markdown_extensions:
 nav:
   - Accueil: index.md
 
-  - Overview:
-      - Product: 00-overview/product.md
-      - Architecture map: 00-overview/architecture-map.md
-      - Glossary: 00-overview/glossary.md
-
-  - Guidelines:
-      - Vue d'ensemble: 00-guidelines/index.md
-      - Constitution: 00-guidelines/constitution.md
-      - IA Policy: 00-guidelines/ai-policy.md
-      - Doc Policy: 00-guidelines/doc-policy.md
-      - Glossaire: 00-guidelines/glossary.md
-      - Versions: 00-guidelines/versions.md
-
-  - Architecture:
-      - Index: 01-architecture/index.md
-      - System overview: 01-architecture/system-overview.md
-      - Security model: 01-architecture/security-model.md
-      - Backend map: 01-architecture/backend-map.md
-      - Frontend map: 01-architecture/frontend-map.md
-      - Infra map: 01-architecture/infra-map.md
+  - Guide utilisateur:
+      - Qu'est-ce que Tchalanet ?: 00-overview/what-is-tchalanet.md
+      - Glossaire: 00-overview/glossary.md
+      - Opérateur / admin:
+          - Parcours opérateur: 02-functional/guides/operator-admin-guide.md
+          - Onboarding tenant: 02-functional/flows/tenant-onboarding.md
+          - Onboarding vendeur: 02-functional/flows/seller-onboarding.md
+          - Ouverture de session: 02-functional/flows/session-opening.md
+          - Sélection POS admin: 02-functional/flows/admin-pos-selection.md
+          - Réconciliation: 02-functional/flows/reconciliation.md
+          - Règlement: 02-functional/flows/settlement.md
+      - Agent terrain:
+          - Parcours vendeur: 02-functional/guides/field-agent-guide.md
+          - Liaison terminal: 02-functional/flows/terminal-binding.md
+          - Vente de ticket: 02-functional/flows/sell-ticket.md
+          - Vérification de ticket: 02-functional/flows/verify-ticket.md
+          - Paiement terrain: 02-functional/flows/payout-field-flow.md
+          - Sync offline: 02-functional/flows/offline-sync.md
 
   - Métier:
       - Index: 02-functional/index.md
-      - Domain index: 02-functional/domains/index.md
-      - Flows:
-          - Index: 02-functional/flows/index.md
-          - Sell ticket: 02-functional/flows/sell-ticket.md
-          - Verify ticket: 02-functional/flows/verify-ticket.md
-          - Draw execution: 02-functional/flows/draw-execution.md
-      - Features:
-          - Index: 02-functional/features/index.md
-          - PageModel: 02-functional/features/pagemodel.md
-          - PublicDraw: 02-functional/features/publicdraw.md
-          - News: 02-functional/features/news.md
-          - PrivateDashboard: 02-functional/features/privatedashboard.md
-          - PublicHome: 02-functional/features/publichome.md
-          - Stats: 02-functional/features/stats.md
-          - i18n: 02-functional/features/i18n.md
-          - Notifications: 02-functional/features/notifications.md
-          - Reporting: 02-functional/features/reporting.md
+      - Sell ticket: 02-functional/flows/sell-ticket.md
+      - Verify ticket: 02-functional/flows/verify-ticket.md
+      - Payout terrain: 02-functional/flows/payout-field-flow.md
+      - Settlement: 02-functional/flows/settlement.md
+      - Réconciliation: 02-functional/flows/reconciliation.md
+      - Draw execution: 02-functional/flows/draw-execution.md
+      - Offline sync: 02-functional/flows/offline-sync.md
+      - Session opening: 02-functional/flows/session-opening.md
+      - Seller onboarding: 02-functional/flows/seller-onboarding.md
+      - Tenant onboarding: 02-functional/flows/tenant-onboarding.md
+      - Terminal binding: 02-functional/flows/terminal-binding.md
+      - Admin POS selection: 02-functional/flows/admin-pos-selection.md
 
-  - Operations:
+  - Architecture:
+      - Index: 01-architecture/index.md
+      - Carte système: 00-overview/system-map.md
+      - Backend map: 01-architecture/backend-map.md
+      - Frontend / Mobile / Edge: 01-architecture/frontend-map.md
+      - Infra map: 01-architecture/infra-map.md
+      - Modèle de sécurité: 01-architecture/security-model.md
+      - System overview: 01-architecture/system-overview.md
+      - ADR: 03-adr/ADR-offline-sales-risk-policy.md
+
+  - Technique:
+      - Backend:
+          - Guide développeur: 99-reference/backend-conventions.md
+          - Architecture source: server-docs/ARCHITECTURE.md
+          - Playbook: server-docs/PLAYBOOK.md
+      - Mobile:
+          - Architecture: mobile-docs/ARCHITECTURE.md
+          - Playbook: mobile-docs/PLAYBOOK.md
+          - UI Rules: mobile-docs/mobile/ui-rules.md
+      - OpenSpec:
+          - Index: 06-openspec/index.md
+          - Changements actifs: 06-openspec/active-changes.md
+          - Context packs: 06-openspec/context-packs.md
+          - Archive policy: 06-openspec/archive-policy.md
+
+  - Opérations:
       - Index: 04-operations/index.md
 
-  - ADR:
-      - Offline Sales Risk Policy: 03-adr/ADR-offline-sales-risk-policy.md
-
-  - OpenSpec:
-      - Index: 06-openspec/index.md
-      - Active changes: 06-openspec/active-changes.md
-      - Context packs: 06-openspec/context-packs.md
-      - Archive policy: 06-openspec/archive-policy.md
-
-  - Reference:
+  - Référence interne:
       - Index: 99-reference/index.md
+      - Où vit la vérité: 00-overview/where-truth-lives.md
+      - Guidelines: 00-guidelines/index.md
+      - Constitution: 00-guidelines/constitution.md
+      - Doc Policy: 00-guidelines/doc-policy.md
+      - IA Policy: 00-guidelines/ai-policy.md
+      - Versions: 00-guidelines/versions.md
       - Component AGENTS map: 99-reference/component-agents-map.md
       - AI context loading: 99-reference/ai-context-loading.md
-
-  - Liens:
-      - Index: 99-links/index.md
-      - Backend: 99-links/backend.md
-      - Web: 99-links/web.md
-      - Mobile: 99-links/mobile.md
-      - Infra: 99-links/infra.md
-      - Edge: 99-links/edge.md
-      - OpenSpec: 99-links/openspec.md

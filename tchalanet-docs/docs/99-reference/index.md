@@ -14,8 +14,5 @@ Generated reports:
 
 Curated maps:
 
-- [MkDocs navigation plan](mkdocs-nav-plan.md)
-- [Links to component docs](links-to-component-docs.md)
 - [Component AGENTS.md map](component-agents-map.md)
 - [AI context loading](ai-context-loading.md)
-- [Root AGENTS.md simplification proposal](root-agents-simplification-proposal.md)

@@ -1,6 +1,6 @@
 # ⚡ Quick Reference - Déploiement Staging
 
-**Pour les pressés. Guide détaillé:** [SERVER-STAGING-SETUP.md](./SERVER-STAGING-SETUP.md)
+**Pour les pressés. Guide détaillé:** [DEPLOYMENT.md](../operations/DEPLOYMENT.md)
 
 ---
 
@@ -164,9 +164,7 @@ curl http://localhost:8080/health               # Keycloak
 
 ## 📚 Documentation Complète
 
-- **Setup complet:** [SERVER-STAGING-SETUP.md](./SERVER-STAGING-SETUP.md)
-- **Déploiement:** [DEPLOYMENT.md](./DEPLOYMENT.md)
-- **Fix détaillé:** [FIX-STAGING-BUILD-ISSUE.md](./FIX-STAGING-BUILD-ISSUE.md)
+- **Déploiement:** [DEPLOYMENT.md](../operations/DEPLOYMENT.md)
 - **Historique:** [../CHANGELOG.md](../CHANGELOG.md)
 
 ---

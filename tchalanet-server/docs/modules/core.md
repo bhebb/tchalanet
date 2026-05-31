@@ -8,7 +8,7 @@
 
 | Domaine | Rôle | Doc focal |
 |---|---|---|
-| `core.sales` | Cycle de vie ticket, settlement, override, promotion offline | [`DOMAIN_SALES.md`](../../tchalanet-core/src/main/java/com/tchalanet/server/core/sales/DOMAIN_SALES.md) |
+| `core.sales` | Cycle de vie ticket, settlement, override, promotion offline | `src/main/java/.../core/sales/DOMAIN_SALES.md` |
 | `core.draw` | Cycle de vie draw (SCHEDULED → OPEN → CLOSED → RESULTED → SETTLED) | — |
 | `core.drawresult` | Ingestion résultats externes (providers normalisés) | — |
 | `core.payout` | Exécution payout après ticket gagnant | — |
@@ -16,7 +16,7 @@
 | `core.limitpolicy` | Limites par scope + per-tenant offline policy override | — |
 | `core.session` | POS operational context (terminal/outlet/session) trusted | — |
 | `core.selection` | Catalogue de sélections (numbers, patterns) | — |
-| `core.offlinesync` | Ventes offline POS + grants Ed25519 + promotion vers sales | [`DOMAIN_OFFLINESYNC.md`](../../tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/DOMAIN_OFFLINESYNC.md) · [`ROADMAP.md`](../../tchalanet-core/src/main/java/com/tchalanet/server/core/offlinesync/ROADMAP.md) |
+| `core.offlinesync` | Ventes offline POS + grants Ed25519 + promotion vers sales | `src/main/java/.../core/offlinesync/DOMAIN_OFFLINESYNC.md` |
 | `core.uslottery` | Provider HTTP clients US (NY/FL/GA/TX) | — |
 | `core.autonomy` | Approval workflows (sale, payout) | — |
 

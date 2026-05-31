@@ -19,7 +19,7 @@ La session est aussi la source de vérité pour le solde cash déclaré en débu
 - Seller authentifié (JWT valide)
 - Terminal bindé et actif → [terminal-binding](./terminal-binding.md)
 - Seller assigné à l'outlet → [seller-onboarding](./seller-onboarding.md)
-- Contexte opérationnel sélectionné (terminal + outlet) → [operational-context](../../../tchalanet-server/docs/conventions/context/operational-context.md)
+- Contexte opérationnel sélectionné (terminal + outlet) → `tchalanet-server/docs/conventions/context/operational-context.md`
 
 ---
 
@@ -202,6 +202,6 @@ Si la session n'est plus `OPEN` au moment de la vente → rejet avec issue `SESS
 ## Références
 
 - Domaine : `core/session/DOMAIN_SESSION.md`
-- Contexte opérationnel : [operational-context](../../../tchalanet-server/docs/conventions/context/operational-context.md)
+- Contexte opérationnel : `tchalanet-server/docs/conventions/context/operational-context.md`
 - Sell ticket : [sell-ticket](./sell-ticket.md)
 - Settlement après fermeture : [settlement](./settlement.md)
