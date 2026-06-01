@@ -217,7 +217,7 @@ class SellerOperationalContextResolverTest {
     @Override
     public com.tchalanet.server.platform.identity.api.model.result.CreateUserResult createTenantUser(
         com.tchalanet.server.common.types.id.TenantId tenantId,
-        String email, String firstName, String lastName,
+        String tenantCode, String email, String firstName, String lastName,
         com.tchalanet.server.common.security.TchRole role) {
       return null;
     }
@@ -271,6 +271,27 @@ class SellerOperationalContextResolverTest {
 
     @Override
     public void setTenantUserRole(SetTenantUserRoleRequest request) {
+    }
+
+    @Override
+    public void assignRoleToUser(com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest request) {}
+
+    @Override
+    public void removeRoleFromUser(com.tchalanet.server.platform.accesscontrol.api.model.request.RemoveRoleFromUserRequest request) {}
+
+    @Override
+    public void grantUserPermission(com.tchalanet.server.platform.accesscontrol.api.model.request.GrantUserPermissionRequest request) {}
+
+    @Override
+    public void denyUserPermission(com.tchalanet.server.platform.accesscontrol.api.model.request.DenyUserPermissionRequest request) {}
+
+    @Override
+    public void removeUserPermissionOverride(com.tchalanet.server.platform.accesscontrol.api.model.request.RemoveUserPermissionOverrideRequest request) {}
+
+    @Override
+    public com.tchalanet.server.platform.accesscontrol.api.model.result.BootstrapAccessControlResult bootstrap(
+        com.tchalanet.server.platform.accesscontrol.api.model.request.BootstrapAccessControlRequest request) {
+      return null;
     }
   }
 }
