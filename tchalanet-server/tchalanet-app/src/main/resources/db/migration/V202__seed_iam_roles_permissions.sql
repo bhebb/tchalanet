@@ -102,7 +102,8 @@ INSERT INTO app_role (id, tenant_id, code, name, description, scope, system, cus
   ('00000000-0000-0000-0000-000000000302'::uuid, NULL, 'TENANT_ADMIN',  'Tenant Admin',  'Tenant-level administrator',      'TENANT',   true, false, true),
   ('00000000-0000-0000-0000-000000000303'::uuid, NULL, 'OPERATOR',      'Operator',      'Outlet operator / supervisor',    'TENANT',   true, false, true),
   ('00000000-0000-0000-0000-000000000304'::uuid, NULL, 'CASHIER',       'Cashier',       'Point-of-sale cashier',           'TENANT',   true, false, true)
-ON CONFLICT (tenant_id, code) DO UPDATE SET
+-- ON CONFLICT (id) using fixed UUIDs — tenant_id IS NULL cannot be used in ON CONFLICT target
+ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name, description = EXCLUDED.description,
   scope = EXCLUDED.scope, system = EXCLUDED.system,
   active = EXCLUDED.active, updated_at = now();
@@ -176,7 +177,7 @@ BEGIN
   VALUES ('00000000-0000-0000-0000-000000010001'::uuid,
           '00000000-0000-0000-0000-000000010001'::uuid,
           'super_admin', 'super_admin@local', 'Super Admin', 'ACTIVE', now(), now())
-  ON CONFLICT (keycloak_sub) DO UPDATE SET
+  ON CONFLICT (id) DO UPDATE SET
     username = 'super_admin', email = 'super_admin@local',
     display_name = 'Super Admin', status = 'ACTIVE', updated_at = now();
 
@@ -185,7 +186,7 @@ BEGIN
   VALUES ('00000000-0000-0000-0000-000000010002'::uuid,
           '00000000-0000-0000-0000-000000010002'::uuid,
           'admin', 'admin@local', 'Admin', 'ACTIVE', now(), now())
-  ON CONFLICT (keycloak_sub) DO UPDATE SET
+  ON CONFLICT (id) DO UPDATE SET
     username = 'admin', email = 'admin@local',
     display_name = 'Admin', status = 'ACTIVE', updated_at = now();
 
@@ -194,7 +195,7 @@ BEGIN
   VALUES ('00000000-0000-0000-0000-000000010003'::uuid,
           '00000000-0000-0000-0000-000000010003'::uuid,
           'cashier', 'cashier@local', 'Cashier', 'ACTIVE', now(), now())
-  ON CONFLICT (keycloak_sub) DO UPDATE SET
+  ON CONFLICT (id) DO UPDATE SET
     username = 'cashier', email = 'cashier@local',
     display_name = 'Cashier', status = 'ACTIVE', updated_at = now();
 
@@ -216,21 +217,21 @@ BEGIN
   VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, false, now(), now())
   ON CONFLICT (tenant_id, user_id) DO NOTHING;
 
-  -- Role assignments via tenant_user_role
-  INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
-  VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid,
-          '00000000-0000-0000-0000-000000000301'::uuid, now())
-  ON CONFLICT DO NOTHING;
+  -- Role assignments via tenant_user_role (no ON CONFLICT — partial unique index not supported)
+  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010001'::uuid AND role_id = '00000000-0000-0000-0000-000000000301'::uuid AND deleted_at IS NULL) THEN
+    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
+    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid, '00000000-0000-0000-0000-000000000301'::uuid, now());
+  END IF;
 
-  INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
-  VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010002'::uuid,
-          '00000000-0000-0000-0000-000000000302'::uuid, now())
-  ON CONFLICT DO NOTHING;
+  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010002'::uuid AND role_id = '00000000-0000-0000-0000-000000000302'::uuid AND deleted_at IS NULL) THEN
+    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
+    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010002'::uuid, '00000000-0000-0000-0000-000000000302'::uuid, now());
+  END IF;
 
-  INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
-  VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid,
-          '00000000-0000-0000-0000-000000000304'::uuid, now())
-  ON CONFLICT DO NOTHING;
+  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010003'::uuid AND role_id = '00000000-0000-0000-0000-000000000304'::uuid AND deleted_at IS NULL) THEN
+    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
+    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, '00000000-0000-0000-0000-000000000304'::uuid, now());
+  END IF;
 
   RAISE NOTICE 'V202: done for tenant %', t_id;
 END $$;

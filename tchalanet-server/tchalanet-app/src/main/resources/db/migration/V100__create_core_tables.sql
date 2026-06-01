@@ -120,9 +120,12 @@ CREATE TABLE app_role (
   deleted_at timestamptz,
   deleted_by uuid,
   version bigint NOT NULL DEFAULT 0,
-  CONSTRAINT chk_app_role__scope CHECK (scope IN ('PLATFORM','TENANT')),
-  CONSTRAINT uq_app_role__tenant_code UNIQUE (tenant_id, code)
+  CONSTRAINT chk_app_role__scope CHECK (scope IN ('PLATFORM','TENANT'))
 );
+-- Separate partial indexes for system roles (tenant_id IS NULL) and tenant roles (tenant_id IS NOT NULL)
+-- because PostgreSQL ON CONFLICT target doesn't work with nullable columns in UNIQUE constraints.
+CREATE UNIQUE INDEX uq_app_role__system_code ON app_role (code) WHERE tenant_id IS NULL AND deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_app_role__tenant_code ON app_role (tenant_id, code) WHERE tenant_id IS NOT NULL AND deleted_at IS NULL;
 
 CREATE TABLE role_permission (
   role_id uuid NOT NULL REFERENCES app_role(id),
