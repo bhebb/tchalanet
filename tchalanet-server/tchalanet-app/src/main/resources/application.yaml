@@ -40,7 +40,9 @@ tch:
   communication:
     edge:
       enabled: ${TCH_COMMUNICATION_EDGE_ENABLED:true}
-      base-url: ${TCH_COMMUNICATION_EDGE_BASE_URL:http://localhost:3000}
+      # Infra standardizes on TCH_EDGE_BASE_URL (envs/common/api.env); fall back to the older
+      # TCH_COMMUNICATION_EDGE_BASE_URL, then localhost for bare local runs.
+      base-url: ${TCH_EDGE_BASE_URL:${TCH_COMMUNICATION_EDGE_BASE_URL:http://localhost:3000}}
       messages-path: ${TCH_COMMUNICATION_EDGE_MESSAGES_PATH:/internal/messages/send}
       hmac-secret: ${EDGE_HMAC_SECRET}
       connect-timeout: ${TCH_COMMUNICATION_EDGE_CONNECT_TIMEOUT:2s}

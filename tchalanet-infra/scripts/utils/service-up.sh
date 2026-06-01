@@ -45,6 +45,9 @@ EXTRA_FILES=""
 case "$SERVICE" in
   api)
     EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml $COMPOSE_DIR/docker-compose-redis.yml $COMPOSE_DIR/docker-compose-keycloak.yml"
+    if [ -f "$COMPOSE_DIR/docker-compose.local-build.yml" ]; then
+      EXTRA_FILES="$EXTRA_FILES $COMPOSE_DIR/docker-compose.local-build.yml"
+    fi
     ;;
   keycloak)
     EXTRA_FILES="$COMPOSE_DIR/docker-compose-postgres.yml"

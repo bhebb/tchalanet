@@ -298,10 +298,6 @@ class TerminalDeviceProofVerifierTest {
         @Override public List<com.tchalanet.server.core.terminal.api.query.TerminalSummaryView> listSyncPending() { throw new UnsupportedOperationException(); }
         @Override public Optional<Terminal> findCurrentForUser(UserId u) { throw new UnsupportedOperationException(); }
         @Override public int countActiveByTenant(TenantId t) { throw new UnsupportedOperationException(); }
-        @Override public Terminal save(Terminal t) { throw new UnsupportedOperationException(); }
-        @Override public void setSalesBlocked(TerminalId id, boolean b, String r, Instant at, UserId by) { throw new UnsupportedOperationException(); }
-        @Override public void setPayoutBlocked(TerminalId id, boolean b, String r, Instant at, UserId by) { throw new UnsupportedOperationException(); }
-        @Override public void setOfflineBlocked(TerminalId id, boolean b, String r, Instant at, UserId by) { throw new UnsupportedOperationException(); }
     }
 
     private record StubBindingReader(TerminalDeviceBinding binding)
@@ -312,7 +308,6 @@ class TerminalDeviceProofVerifierTest {
         @Override public Optional<TerminalDeviceBinding> findById(TenantId t, TerminalBindingId id) {
             return Optional.ofNullable(binding);
         }
-        @Override public TerminalDeviceBinding save(TerminalDeviceBinding b) { throw new UnsupportedOperationException(); }
     }
 
     private static final class RecordingNonceStore implements TerminalDeviceNonceWriterPort {

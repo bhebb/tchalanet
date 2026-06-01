@@ -26,6 +26,16 @@ public class JpaIdempotencyStore implements IdempotencyStore {
     key = normalizeKey(key);
     var tenantId = requireTenantId();
 
+    // Check-first: a resend with the same key is the common case. Resolving it via SELECT keeps
+    // the request transaction clean. A blind INSERT-then-catch would let the duplicate-key
+    // violation abort the Postgres transaction ("current transaction is aborted, commands
+    // ignored until end of transaction block"), so the recovery SELECT in the catch block would
+    // itself fail and the whole sell would surface as a 500.
+    var existing = repo.findByTenantIdAndScopeAndKey(tenantId, scope, key).orElse(null);
+    if (existing != null) {
+      return decisionFor(existing, requestHash);
+    }
+
     var e = new IdempotencyRecordJpaEntity();
     e.setId(UUID.randomUUID());
     e.setTenantId(tenantId);
@@ -40,24 +50,24 @@ public class JpaIdempotencyStore implements IdempotencyStore {
       repo.saveAndFlush(e);
       return new BeginResult(Decision.STARTED, Optional.empty());
     } catch (DataIntegrityViolationException dup) {
-      var existing = repo.findByTenantIdAndScopeAndKey(tenantId, scope, key).orElse(null);
-      if (existing == null) {
-        return new BeginResult(Decision.IN_PROGRESS, Optional.empty());
-      }
-
-      if (!StringUtils.equals(existing.getRequestHash(), requestHash)) {
-        return new BeginResult(Decision.PAYLOAD_MISMATCH, Optional.empty());
-      }
-
-      if (existing.getStatus() == IdempotencyRecordJpaEntity.Status.COMPLETED
-          && existing.getResourceId() != null) {
-        return new BeginResult(
-            Decision.ALREADY_COMPLETED,
-            Optional.of(new CompletedRecord(existing.getResourceId(), existing.getResponseJson())));
-      }
-
+      // Lost a concurrent insert race. The transaction is now aborted, so we cannot SELECT the
+      // winning record here; report IN_PROGRESS so the caller treats it as a concurrent attempt
+      // on the same key rather than a server error.
       return new BeginResult(Decision.IN_PROGRESS, Optional.empty());
     }
+  }
+
+  private BeginResult decisionFor(IdempotencyRecordJpaEntity existing, String requestHash) {
+    if (!StringUtils.equals(existing.getRequestHash(), requestHash)) {
+      return new BeginResult(Decision.PAYLOAD_MISMATCH, Optional.empty());
+    }
+    if (existing.getStatus() == IdempotencyRecordJpaEntity.Status.COMPLETED
+        && existing.getResourceId() != null) {
+      return new BeginResult(
+          Decision.ALREADY_COMPLETED,
+          Optional.of(new CompletedRecord(existing.getResourceId(), existing.getResponseJson())));
+    }
+    return new BeginResult(Decision.IN_PROGRESS, Optional.empty());
   }
 
   @Override

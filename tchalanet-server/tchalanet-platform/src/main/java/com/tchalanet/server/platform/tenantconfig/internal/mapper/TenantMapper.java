@@ -30,6 +30,8 @@ public interface TenantMapper {
   @Mapping(target = "timezone", source = "tenant.timezone")
   @Mapping(target = "currency", expression = "java(tenant.currency() != null ? tenant.currency().getCurrencyCode() : null)")
   @Mapping(target = "config", expression = "java(writeConfig(tenant.config()))")
+  @Mapping(target = "defaultLanguage", expression = "java(extractLocaleField(tenant.config(), \"defaultLanguage\", \"fr\"))")
+  @Mapping(target = "defaultLocale", expression = "java(extractLocaleField(tenant.config(), \"defaultLocale\", \"fr-HT\"))")
   @Mapping(target = "version", constant = "0L")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
@@ -52,6 +54,8 @@ public interface TenantMapper {
   @Mapping(target = "addressId", source = "tenant.addressId")
   @Mapping(target = "activeThemeId", source = "tenant.activeThemeId")
   @Mapping(target = "config", expression = "java(writeConfig(tenant.config()))")
+  @Mapping(target = "defaultLanguage", expression = "java(extractLocaleField(tenant.config(), \"defaultLanguage\", entity.getDefaultLanguage()))")
+  @Mapping(target = "defaultLocale", expression = "java(extractLocaleField(tenant.config(), \"defaultLocale\", entity.getDefaultLocale()))")
   @Mapping(target = "updatedAt", expression = "java(java.time.Instant.now())")
   @Mapping(target = "updatedBy", ignore = true)
   void updateEntity(TenantConfig tenant, @MappingTarget TenantJpaEntity entity);
@@ -68,6 +72,14 @@ public interface TenantMapper {
       return "{}";
     }
     return JsonUtilsHolder.get().toJson(node);
+  }
+
+  default String extractLocaleField(JsonNode config, String field, String defaultValue) {
+    if (config == null) return defaultValue;
+    JsonNode locale = config.get("locale");
+    if (locale == null || !locale.has(field)) return defaultValue;
+    String value = locale.get(field).asText(null);
+    return (value == null || value.isBlank()) ? defaultValue : value;
   }
 }
 

@@ -3,6 +3,7 @@ package com.tchalanet.server.core.terminal.internal.application.port.out;
 import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.exception.TchNotFoundException;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -45,8 +46,10 @@ public interface TerminalReaderPort {
     Optional<Terminal> findCurrentForUser(UserId userId);
 
     default Terminal getRequired(TenantId tenantId, TerminalId terminalId) {
+        // An unknown or cross-tenant (RLS-filtered) terminal must surface as a clean 404,
+        // not a raw IllegalArgumentException that the error handler maps to 500.
         return findById(tenantId, terminalId)
-            .orElseThrow(() -> new IllegalArgumentException("Terminal not found: " + terminalId));
+            .orElseThrow(() -> new TchNotFoundException(terminalId.toString(), "Terminal not found: "));
     }
 
     int countActiveByTenant(TenantId tenantId);

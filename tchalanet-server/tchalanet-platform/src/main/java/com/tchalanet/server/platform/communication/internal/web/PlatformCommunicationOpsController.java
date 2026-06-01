@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/platform/ops/communication")
+// The servlet path already prefixes /api/v1 (spring.mvc.servlet.path); do not repeat it here
+// or the endpoint resolves to /api/v1/api/v1/... and 404s.
+@RequestMapping("/platform/ops/communication")
 @Tag(name = "Platform Ops • Communication")
 @RequiredArgsConstructor
 public class PlatformCommunicationOpsController {

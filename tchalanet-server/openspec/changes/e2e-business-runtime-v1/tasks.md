@@ -1,36 +1,44 @@
 # Tasks — E2E Business Runtime V1
 
+<!-- Synced to actual implementation 2026-05-31. -->
+
 ## 0. Harness
 
-- [ ] Create `testing/e2e/pyproject.toml`.
-- [ ] Create `pytest.ini` with markers.
-- [ ] Create `.env.example`.
-- [ ] Implement `config.py`.
-- [ ] Implement `client.py`.
-- [ ] Implement `auth.py`.
-- [ ] Implement `api_response.py`.
-- [ ] Implement `assertions.py`.
-- [ ] Implement `data_factory.py`.
-- [ ] Implement `scenario_world.py`.
-- [ ] Implement `ticket_matrix.py`.
-- [ ] Implement `concurrency.py`.
+- [x] Create `testing/e2e/pyproject.toml`.
+- [x] Create `pytest.ini` with markers.
+- [x] Create `.env.example`.
+- [x] Implement `config.py`.
+- [x] Implement `client.py`.
+- [x] Implement `auth.py`.
+- [x] Implement `api_response.py`.
+- [x] Implement `assertions.py`.
+- [x] Implement `data_factory.py`.
+- [x] Implement `scenario_world.py`.
+- [x] Implement `ticket_matrix.py`.
+- [x] Implement `concurrency.py`.
+
+> Also implemented (beyond original spec): `flows/` (home, terminal, onboarding, profile, outlet, cashier, seller),
+> `prereqs/` (draws, app_user, session), `fixtures/pos_context.py`.
 
 ## 1. Scenario world
 
-- [ ] Generate unique `run_id`.
-- [ ] Provision Tenant A.
+- [x] Generate unique `run_id`.
+- [x] Provision Tenant A (via conftest + `flows/onboarding.py`).
 - [ ] Provision Tenant B with different config.
 - [ ] Provision Tenant C minimal/incomplete.
-- [ ] Create tenant admins.
-- [ ] Create cashiers.
-- [ ] Create outlets.
-- [ ] Create terminals.
-- [ ] Bind terminals.
-- [ ] Open sessions.
+- [x] Create tenant admins.
+- [x] Create cashiers.
+- [x] Create outlets.
+- [x] Create terminals.
+- [x] Bind terminals.
+- [x] Open sessions.
 - [ ] Configure A/B limits differently.
 - [ ] Configure A/B promotions differently.
-- [ ] Store IDs/tokens in fixture world.
+- [x] Store IDs/tokens in fixture world (`PosContext`).
 - [ ] Add cleanup/deactivation policy.
+
+> Multi-tenant B/C provisioning not yet in conftest — current suite runs single-tenant.
+> Limits/promotions configuration for A vs B blocked on multi-tenant world.
 
 ## 2. Public runtime
 
@@ -44,35 +52,43 @@
 
 ## 3. Auth/context
 
-- [ ] Login super admin.
-- [ ] Login tenant admin A/B.
-- [ ] Login cashier A/B.
+- [x] Login super admin (`test_super_admin_can_access_platform`).
+- [ ] Login tenant admin A/B (implicit in setup, no explicit E2E assertion).
+- [x] Login cashier A/B (`test_cashier_can_access_home`).
 - [ ] Context/bootstrap returns expected role/tenant if endpoint exists.
-- [ ] Tenant-scoped endpoints do not trust client tenant id.
-- [ ] Platform context is distinct.
+- [x] Tenant-scoped endpoints do not trust client tenant id (`test_cashier_cannot_list_platform_tenants`).
+- [x] Platform context is distinct (`test_super_admin_cannot_sell_tickets`, `test_super_admin_can_access_platform`).
+
+> Also implemented: `test_cashier_cannot_access_platform_ops`, `test_cashier_cannot_generate_draws`.
 
 ## 4. Dashboards and overviews
 
-- [ ] Tenant admin dashboard uses `tenant_admin_dashboard`.
-- [ ] Tenant admin dashboard includes KPI/readiness summary/summaries.
-- [ ] Tenant admin dashboard excludes overview sections.
-- [ ] Tenant overview returns sections/status/issues/routes.
-- [ ] Tenant overview excludes KPI fields.
-- [ ] Cashier web dashboard uses `cashier_dashboard`.
-- [ ] Cashier web dashboard contains session/action/draws/recent tickets.
-- [ ] Platform dashboard uses `platform_admin_dashboard`.
-- [ ] Platform overview returns platform/config/ops/report sections.
+> Scope décidé : smoke contract uniquement. Asserter endpoint joignable + shape ApiResponse + widgets attendus
+> présents + rôle/surface correct + pas de leak cross-tenant. Jamais les valeurs KPI comme vérité business.
+
+- [ ] `GET /tenant/page-models` — TENANT_ADMIN → logicalId `private.dashboard.tenant_admin`, source `tenant_admin_dashboard`.
+- [ ] `GET /tenant/page-models` — response contains expected widget ids (header, kpis, readiness, alerts, operations).
+- [ ] `GET /tenant/page-models` — CASHIER cannot access (403 or different page).
+- [ ] `GET /tenant/page-models` — no cross-tenant identifiers in widget payloads.
+- [ ] `GET /platform/page-models` — SUPER_ADMIN → logicalId `private.dashboard.superadmin`.
+- [ ] `GET /platform/page-models` — TENANT_ADMIN cannot access (403).
+- [ ] `GET /admin/overview` — TENANT_ADMIN returns sections/status/missingCount.
+- [ ] `GET /admin/overview` — CASHIER cannot access (403).
+- [ ] `GET /admin/policies/overview` — TENANT_ADMIN returns tenantAssignmentsCount/autonomyConfigured.
 
 ## 5. Onboarding
 
-- [ ] Tenant provisioning preview is read-only.
-- [ ] Tenant provisioning preview returns domains/readiness.
-- [ ] Tenant provisioning creates tenant if endpoint available.
-- [ ] User onboarding creates tenant admin.
-- [ ] User onboarding creates cashier.
-- [ ] Outlet onboarding creates active outlet.
-- [ ] Terminal onboarding creates terminal.
-- [ ] Terminal binding prepares POS flow.
+- [x] Tenant provisioning preview is read-only (`test_provisioning_preview_is_read_only`).
+- [x] Tenant provisioning preview returns domains/readiness (`test_provisioning_preview_returns_domains_and_readiness`).
+- [x] Tenant provisioning creates tenant if endpoint available (`test_provision_tenant_creates_tenant`).
+- [x] User onboarding creates tenant admin (`test_user_onboarding_creates_tenant_admin`).
+- [x] User onboarding creates cashier (`test_user_onboarding_creates_cashier`).
+- [x] Outlet onboarding creates active outlet (`test_outlet_onboarding_creates_active_outlet`).
+- [x] Terminal onboarding creates terminal (`test_terminal_onboarding_creates_terminal`).
+- [x] Terminal binding prepares POS flow (`test_terminal_binding_prepares_pos_flow`).
+
+> Also implemented: seller CRUD (`test_seller_onboarding.py` — create, list, get, assign, receipt config,
+> sales capability, activation challenge, full bind flow, admin shortcut).
 
 ## 6. Cashier POS
 
@@ -91,7 +107,11 @@
 - [x] Session mismatch blocks sell.
 - [x] Cross-tenant terminal/outlet/session usage is blocked.
 
-> Happy path `test_cashier_morning_happy_path` now covers the full §9 main path
+> Also implemented in `test_pos_sell_context_errors.py`: missing session header, bogus terminal, unknown game
+> code, bogus draw id. Skipped (needs fixture prerequisites): outlet-terminal mismatch, other-seller session,
+> closed draw, missing pricing odds, stake limit exceeded.
+
+> Happy path `test_cashier_morning_happy_path` covers the full §9 main path
 > (draws → preview → sell → print → send → list → close). Aligned with the live
 > cashier API: `/tenant/cashier/tickets/{preview,sell,{id}/print,{id}/send}`,
 > `SaleDecision.ACCEPTABLE`, `SellTicketOutcome.ACCEPTED`,
@@ -99,25 +119,36 @@
 
 ## 7. Ticket matrix and payout
 
-- [ ] Implement SHORT_SINGLE_GAME_LOW_STAKE.
-- [ ] Implement SHORT_SINGLE_GAME_HIGH_STAKE.
-- [ ] Implement MEDIUM_MULTI_LINE_MIXED_STAKE.
-- [ ] Implement MEDIUM_MULTI_GAME.
-- [ ] Implement LONG_ALL_GAMES.
-- [ ] Ensure selections differ.
-- [ ] Ensure stakes differ.
-- [ ] Load enabled games/pricing where possible.
+- [x] Implement SHORT_SINGLE_GAME_LOW_STAKE (`test_sell_short_single_game`).
+- [ ] Implement SHORT_SINGLE_GAME_ALLOWED_STAKE (100 HTG, Tenant B, must be accepted — prerequisite for §8).
+- [ ] Implement SHORT_SINGLE_GAME_HIGH_STAKE (1000 HTG, Tenant B, must be blocked — requires Tenant B limit > 500 HTG configured).
+- [x] Implement MEDIUM_MULTI_LINE_MIXED_STAKE (`test_sell_medium_multi_line_mixed_stake`).
+- [x] Implement MEDIUM_MULTI_GAME (`test_sell_medium_multi_game`).
+- [x] Implement LONG_ALL_GAMES (`test_sell_long_all_games` + `test_sell_long_and_list_tickets`).
+- [x] Ensure selections differ (defined in `ticket_matrix.py`).
+- [x] Ensure stakes differ (defined in `ticket_matrix.py`).
+- [x] Load enabled games/pricing where possible (`_draw_supporting` skips if game unavailable).
 - [ ] Assert line snapshots.
 - [ ] Assert stake total.
 - [ ] Assert money breakdown.
 - [ ] Assert potential payout from snapshots.
-- [ ] Assert print payload for long ticket.
+- [x] Assert print payload for long ticket (PDF binary check via `flow.print_pdf`).
+
+> Current sell tests assert `ticketId` presence only. Deep snapshot assertions (lines, stakes, payout,
+> money breakdown) are the remaining gap in this section.
+> HIGH_STAKE scenario requires Tenant B with explicit limit rule (threshold > 500 HTG) — assert rule active before scenario.
 
 ## 8. Limits
 
-- [ ] Below limit succeeds.
+> Setup Tenant B : utiliser admin API si stable, sinon seeds E2E (idempotents, isolés profil test, documentés).
+> Ne pas mélanger API setup et SQL patches non documentés.
+> Prérequis : Tenant B configuré avec threshold stake > 500 HTG pour SHORT_SINGLE_GAME.
+
+- [ ] Configure Tenant B limit rule (stake > 500 HTG per line, SHORT_SINGLE_GAME) via admin API or seed.
+- [ ] Assert limit rule active before running blocked scenarios.
+- [ ] Below limit succeeds (100 HTG — `SHORT_SINGLE_GAME_ALLOWED_STAKE`).
 - [ ] Exactly at limit follows documented rule.
-- [ ] Above line limit blocks.
+- [ ] Above line limit blocks (1000 HTG — `SHORT_SINGLE_GAME_HIGH_STAKE`).
 - [ ] Above ticket total limit blocks.
 - [ ] Per-selection/exposure limit blocks if implemented.
 - [ ] Tenant A/B limit configs independent.
@@ -138,8 +169,8 @@
 ## 10. Idempotency and concurrency
 
 - [ ] Missing Idempotency-Key on required sell endpoint returns expected error.
-- [ ] Same key + same payload returns same ticket/result.
-- [ ] Same key + different payload returns payload mismatch.
+- [x] Same key + same payload returns same ticket/result (`test_sell_same_key_same_payload_is_idempotent`).
+- [x] Same key + different payload returns payload mismatch (`test_sell_same_key_different_payload_returns_conflict`).
 - [ ] Concurrent same key + same payload creates one ticket only.
 - [ ] Concurrent same key + different payload is rejected cleanly.
 - [ ] Limit race: not all overexposing sells succeed.

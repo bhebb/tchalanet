@@ -213,6 +213,14 @@ class SellerOperationalContextResolverTest {
     public long countTenantUsers() {
       return 0;
     }
+
+    @Override
+    public com.tchalanet.server.platform.identity.api.model.result.CreateUserResult createTenantUser(
+        com.tchalanet.server.common.types.id.TenantId tenantId,
+        String email, String firstName, String lastName,
+        com.tchalanet.server.common.security.TchRole role) {
+      return null;
+    }
   }
 
   private record TestAccessControlApi(boolean permissionAllowed) implements AccessControlApi {

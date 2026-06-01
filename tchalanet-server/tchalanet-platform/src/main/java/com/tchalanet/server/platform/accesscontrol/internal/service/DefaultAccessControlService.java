@@ -34,6 +34,7 @@ public class DefaultAccessControlService implements AccessControlApi {
 
   private final AppRoleJpaRepository appRoleRepository;
   private final PermissionCatalogAdminAdapter permissionCatalogAdminAdapter;
+  private final TenantUserRoleWriterPort tenantUserRoleWriter;
 
   @Override
   public CheckUserPermissionsResult checkPermissions(CheckUserPermissionsRequest request) {
@@ -124,8 +125,12 @@ public class DefaultAccessControlService implements AccessControlApi {
 
   @Override
   public void setTenantUserRole(SetTenantUserRoleRequest request) {
-    throw new UnsupportedOperationException(
-        "setTenantUserRole requires identity writer wiring in platform.identity");
+    var roleEntity = appRoleRepository.findByCode(request.role().name())
+        .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.role()));
+    tenantUserRoleWriter.setUserRole(
+        request.tenantId(),
+        request.userId(),
+        RoleId.of(roleEntity.getId()));
   }
 
   private RoleView toRoleView(AppRoleJpaEntity entity) {

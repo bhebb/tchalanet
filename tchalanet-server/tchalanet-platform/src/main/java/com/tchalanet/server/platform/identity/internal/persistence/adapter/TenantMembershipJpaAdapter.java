@@ -1,10 +1,12 @@
 package com.tchalanet.server.platform.identity.internal.persistence.adapter;
 
+import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.platform.accesscontrol.internal.service.TenantUserRoleWriterPort;
 import com.tchalanet.server.platform.identity.api.model.TenantUserStatus;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TenantMembershipJpaAdapter {
+public class TenantMembershipJpaAdapter implements TenantUserRoleWriterPort {
 
   private final TenantUserJpaRepository repository;
   private final EntityManager entityManager;
@@ -54,6 +56,15 @@ public class TenantMembershipJpaAdapter {
     entity.setStatus(membership.status());
     entity.setIsOwner(membership.owner());
     return IdentityPersistenceMapper.toMembership(repository.save(entity));
+  }
+
+  @Override
+  public void setUserRole(TenantId tenantId, UserId userId, RoleId roleId) {
+    repository.findByTenantIdAndUserIdAndDeletedAtIsNull(tenantId.value(), userId.value())
+        .ifPresent(entity -> {
+          entity.setRoleId(roleId == null ? null : roleId.value());
+          repository.save(entity);
+        });
   }
 
   public void softDelete(TenantId tenantId, UserId userId, Instant when) {

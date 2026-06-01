@@ -16,4 +16,6 @@ public record TenantProvisioningResultView(
     TenantProvisioningProfile profile,
     Map<String, String> domainStatuses,
     List<String> nextSteps,
-    TenantReadinessView readiness) {}
+    List<String> warnings,
+    TenantReadinessView readiness,
+    String initialAdminUserId) {}

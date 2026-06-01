@@ -10,6 +10,8 @@ services:
         IMAGE_TAG: ${IMAGE_TAG:-local-build}
     image: ${API_IMAGE_BASE:-ghcr.io/bhebb/tchalanet-api}:${IMAGE_TAG:-local-build}
     pull_policy: never
+    extra_hosts:
+      - "auth.localtest.me:host-gateway"
 
   keycloak:
     build:
