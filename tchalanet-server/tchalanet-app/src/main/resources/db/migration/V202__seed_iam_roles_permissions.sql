@@ -204,6 +204,10 @@ BEGIN
     RETURN;
   END IF;
 
+  -- Set RLS context so tenant_user inserts pass the RLS policy
+  PERFORM set_config('app.current_tenant', t_id::text, true);
+  PERFORM set_config('app.deleted_visibility', 'active', true);
+
   -- Tenant membership
   INSERT INTO tenant_user (id, tenant_id, user_id, is_owner, created_at, updated_at)
   VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid, true,  now(), now())
@@ -232,6 +236,9 @@ BEGIN
     INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
     VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, '00000000-0000-0000-0000-000000000304'::uuid, now());
   END IF;
+
+  -- Reset RLS context
+  PERFORM set_config('app.current_tenant', '', true);
 
   RAISE NOTICE 'V202: done for tenant %', t_id;
 END $$;
