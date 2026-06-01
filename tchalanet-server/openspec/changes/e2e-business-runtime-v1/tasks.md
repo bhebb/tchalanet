@@ -73,16 +73,37 @@
 
 > Scope décidé : smoke contract uniquement. Asserter endpoint joignable + shape ApiResponse + widgets attendus
 > présents + rôle/surface correct + pas de leak cross-tenant. Jamais les valeurs KPI comme vérité business.
+>
+> Implemented in `tests/dashboard/test_dashboard_pagemodels.py`,
+> `tests/overview/test_tenant_overview.py`, `tests/overview/test_platform_overview.py`.
+> Post-login surfaces only (public pages already covered by `tests/public`). Cashier surface
+> = the *web* dashboard (`private.dashboard.cashier.web`, seller on computer/tablet, page
+> engine), distinct from the POS/Android app in `tests/cashier_pos`.
 
-- [ ] `GET /tenant/page-models` — TENANT_ADMIN → logicalId `private.dashboard.tenant_admin`, source `tenant_admin_dashboard`.
-- [ ] `GET /tenant/page-models` — response contains expected widget ids (header, kpis, readiness, alerts, operations).
-- [ ] `GET /tenant/page-models` — CASHIER cannot access (403 or different page).
-- [ ] `GET /tenant/page-models` — no cross-tenant identifiers in widget payloads.
-- [ ] `GET /platform/page-models` — SUPER_ADMIN → logicalId `private.dashboard.superadmin`.
-- [ ] `GET /platform/page-models` — TENANT_ADMIN cannot access (403).
-- [ ] `GET /admin/overview` — TENANT_ADMIN returns sections/status/missingCount.
-- [ ] `GET /admin/overview` — CASHIER cannot access (403).
-- [ ] `GET /admin/policies/overview` — TENANT_ADMIN returns tenantAssignmentsCount/autonomyConfigured.
+- [x] `GET /tenant/page-models` — TENANT_ADMIN → logicalId `private.dashboard.tenant_admin`, source `tenant_admin_dashboard`.
+- [x] `GET /tenant/page-models` — response contains expected widget ids (header, kpis, readiness, alerts, operations).
+- [x] `GET /tenant/page-models` — CASHIER cannot access (resolves a *different* page: `private.dashboard.cashier.web`, source `cashier_dashboard`).
+- [x] `GET /tenant/page-models` — no cross-surface provider leak (tenant_admin model must not carry `platform_admin_dashboard`, and vice-versa).
+- [x] `GET /platform/page-models` — SUPER_ADMIN → logicalId `private.dashboard.superadmin`.
+- [x] `GET /platform/page-models` — TENANT_ADMIN cannot access (403); CASHIER cannot access (403).
+- [x] `GET /admin/overview` — TENANT_ADMIN returns sections/status/missingCount; omits dashboard KPI fields.
+- [x] `GET /admin/overview` — CASHIER cannot access (403).
+- [x] `GET /admin/policies/overview` — TENANT_ADMIN returns tenantAssignmentsCount/autonomyConfigured.
+- [x] `GET /platform/overview` — SUPER_ADMIN returns catalog/core/platform/sections (counts sane); TENANT_ADMIN 403.
+- [x] Readiness consistency (via overview sections): valid statuses + `missingCount` == #(MISSING)+#(PARTIAL).
+- [x] `?lang=fr|en|ht` echoes in `currentLang` (tenant admin dashboard).
+
+> **Runtime bugs surfaced + fixed by this section (committed on the e2e branch):**
+> 1. `GlobalErrorHandler` had no handler for Spring Security `AccessDeniedException`, so every
+>    `@PreAuthorize` (method-security) denial fell through to the catch-all → **500 instead of 403**.
+>    Added an `AccessDeniedException` handler → 403 (`code=access.denied`).
+> 2. `GET /platform/overview` → **500**: `ThemePresetJpaEntity.config` was `@Lob String` on a PG
+>    `text` column; on PostgreSQL `@Lob String` maps as a large-object OID (read via `getLong`) →
+>    "Bad value for type long". Removed `@Lob`.
+> 3. `GET /tenant/outlets/{id}/{operational-context,sales-capability}` guarded on a **non-existent**
+>    authority `TENANT_USER` (real roles: CASHIER/OPERATOR/TENANT_ADMIN/SUPER_ADMIN) → denied everyone
+>    (was masked as 500, now correctly fixed). Guard set to
+>    `hasAnyAuthority('CASHIER','TENANT_ADMIN','SUPER_ADMIN','OPERATOR')`.
 
 ## 5. Onboarding
 
