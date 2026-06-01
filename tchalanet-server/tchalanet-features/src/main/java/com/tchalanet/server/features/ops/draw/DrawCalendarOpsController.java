@@ -1,6 +1,7 @@
 package com.tchalanet.server.features.ops.draw;
 
 import com.tchalanet.server.common.bus.CommandBus;
+import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.job.gate.BatchGate;
@@ -55,10 +56,18 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-generate'",
         detailsExpression = "#req")
     public ApiResponse<GenerateDrawsForRangeResult> generate(@Valid @RequestBody GenerateDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(DRAW_GENERATE, TenantId.parse(req.tenantId()));
-        var res = commandBus.execute(
-            new GenerateDrawsForRangeCommand(
-                TenantId.parse(req.tenantId()), req.from(), req.to(), req.dryRun(), req.force(), req.reason()));
+        TenantId tenantId = TenantId.parse(req.tenantId());
+        batchGate.assertEnabledOrThrow(DRAW_GENERATE, tenantId);
+        // Generate reads the target tenant's draw channels and INSERTs draws for it. Both are
+        // tenant-scoped under RLS (draw WITH CHECK requires tenant_id = current_tenant()), so the
+        // command must run in the TARGET tenant's context — not the caller's. Otherwise generating
+        // for any tenant other than the caller's reads the wrong channels and the INSERT is
+        // rejected by the draw RLS policy (500).
+        var res = TchContextScope.runWithTemporaryTenantResult(
+            tenantId.value(), "draw-generate",
+            () -> commandBus.execute(
+                new GenerateDrawsForRangeCommand(
+                    tenantId, req.from(), req.to(), req.dryRun(), req.force(), req.reason())));
         return ApiResponse.success(res);
     }
 
