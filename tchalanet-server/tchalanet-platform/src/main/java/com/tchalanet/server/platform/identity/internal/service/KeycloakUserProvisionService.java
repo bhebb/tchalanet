@@ -34,8 +34,7 @@ public class KeycloakUserProvisionService {
       String lastName,
       String tenantCode,
       String plan,
-      String realmRole,
-      String tempPassword) {
+      String realmRole) {
 
     if (!props.enabled()) {
       log.warn("KC bootstrap disabled — skipping Keycloak user creation for {}", username);
@@ -62,18 +61,32 @@ public class KeycloakUserProvisionService {
         return new KeycloakProvisionResult(id, false);
       }
 
+      var attributes = new java.util.HashMap<String, List<String>>();
+      // Roles/permissions are resolved app-side from tenant_user, not Keycloak realm roles.
+      // The one claim the runtime needs from the token is tenant_code (mapped from this
+      // attribute) so RLS/tenant resolution works on the new user's first login.
+      if (tenantCode != null && !tenantCode.isBlank()) {
+        attributes.put("tenant_code", List.of(tenantCode));
+      }
+      attributes.put("plan", List.of(plan != null ? plan : "pro"));
+      attributes.put("featureSetId", List.of("base"));
+      attributes.put("locale", List.of("fr"));
+
       var userRep = new UserRepresentation();
       userRep.setUsername(username);
       userRep.setEmail(email);
-      userRep.setFirstName(firstName != null ? firstName : "");
-      userRep.setLastName(lastName != null ? lastName : "");
+      // The realm enables VERIFY_PROFILE, which Keycloak evaluates dynamically at login: a user
+      // missing a required profile attribute (firstName/lastName) is rejected with "Account is
+      // not fully set up" even when no required action is stored. Onboarding may not supply names,
+      // so fall back to non-blank values derived from the email/username.
+      userRep.setFirstName(firstNameOrDerived(firstName, username, email));
+      userRep.setLastName(lastNameOrDefault(lastName));
       userRep.setEnabled(true);
       userRep.setEmailVerified(true);
-      userRep.setAttributes(Map.of(
-          "tenant_code", List.of(tenantCode),
-          "plan", List.of(plan != null ? plan : "pro"),
-          "featureSetId", List.of("base"),
-          "locale", List.of("fr")));
+      // Clear any realm-default required actions (VERIFY_EMAIL, UPDATE_PASSWORD, ...) so the
+      // provisioned user can authenticate immediately.
+      userRep.setRequiredActions(List.of());
+      userRep.setAttributes(attributes);
 
       var response = usersResource.create(userRep);
       if (response.getStatus() != 201) {
@@ -86,16 +99,38 @@ public class KeycloakUserProvisionService {
 
       var cred = new CredentialRepresentation();
       cred.setType(CredentialRepresentation.PASSWORD);
-      cred.setValue(tempPassword);
+      cred.setValue(props.defaultUserPassword());
       cred.setTemporary(false);
       usersResource.get(kcUserId.toString()).resetPassword(cred);
 
-      var roleRep = kc.realm(props.targetRealm()).roles().get(realmRole).toRepresentation();
-      usersResource.get(kcUserId.toString()).roles().realmLevel().add(List.of(roleRep));
+      // Realm-role assignment is optional: this platform derives authorization from the app's
+      // tenant_user.role_id, not Keycloak realm roles (the realm only defines
+      // platform.tenant.override). Only assign when an existing realm role is explicitly named.
+      if (realmRole != null && !realmRole.isBlank()) {
+        var roleRep = kc.realm(props.targetRealm()).roles().get(realmRole).toRepresentation();
+        usersResource.get(kcUserId.toString()).roles().realmLevel().add(List.of(roleRep));
+      }
 
       log.info("KC user created username={} id={} role={}", username, kcUserId, realmRole);
       return new KeycloakProvisionResult(kcUserId, true);
     }
+  }
+
+  private static String firstNameOrDerived(String firstName, String username, String email) {
+    if (firstName != null && !firstName.isBlank()) {
+      return firstName.trim();
+    }
+    var source = (email != null && !email.isBlank()) ? email : username;
+    if (source == null || source.isBlank()) {
+      return "User";
+    }
+    // local part before '@' and before any '+' tag, e.g. "admin+kc12@x.test" -> "admin".
+    var local = source.split("@", 2)[0].split("\\+", 2)[0].trim();
+    return local.isBlank() ? "User" : local;
+  }
+
+  private static String lastNameOrDefault(String lastName) {
+    return (lastName != null && !lastName.isBlank()) ? lastName.trim() : "User";
   }
 
   private static String readSecret(String value, String file) {

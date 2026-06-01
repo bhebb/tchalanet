@@ -15,7 +15,6 @@ import com.tchalanet.server.platform.identity.internal.persistence.mapper.Identi
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,8 +28,7 @@ public class DefaultIdentityApi implements IdentityApi {
   private final UserBootstrapService bootstrapService;
   private final AppUserJpaRepository appUserRepository;
   private final TenantUserJpaRepository tenantUserRepository;
-  private final UserAdminService userAdminService;
-  private final TenantMembershipService tenantMembershipService;
+  private final TenantUserProvisioningService provisioningService;
 
   @Override
   public CurrentUserView getCurrentUser(GetCurrentUserRequest request) {
@@ -61,16 +59,11 @@ public class DefaultIdentityApi implements IdentityApi {
   @Transactional
   public CreateUserResult createTenantUser(
       TenantId tenantId,
+      String tenantCode,
       String email,
       String firstName,
       String lastName,
       TchRole role) {
-    var created = userAdminService.createUser(
-        email, null, firstName, lastName,
-        null, null, null, null, null,
-        false, Set.of());
-    tenantMembershipService.assign(tenantId, created.userId(), null, null, null, false);
-    tenantMembershipService.setRole(tenantId, created.userId(), role);
-    return created;
+    return provisioningService.provisionTenantUser(tenantId, tenantCode, email, firstName, lastName, role);
   }
 }

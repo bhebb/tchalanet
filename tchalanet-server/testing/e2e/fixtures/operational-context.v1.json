@@ -1,0 +1,16 @@
+{
+  "tenant_a_cashier_1": {
+    "trusted": {
+      "source": "SIGNED_DEVICE_BINDING",
+      "outletCode": "OUTLET_A_1",
+      "terminalCode": "TERM_A_1",
+      "sessionCode": "SESSION_A_OPEN"
+    },
+    "untrusted": {
+      "source": "CLIENT_CLAIM",
+      "outletCode": "OUTLET_A_1",
+      "terminalCode": "TERM_A_1",
+      "sessionCode": "SESSION_A_OPEN"
+    }
+  }
+}

@@ -17,6 +17,8 @@ import com.tchalanet.server.catalog.plan.api.PlanLimitKeys; // Import LimitKeys
 import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys; // Import UsageKeys
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
+import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
@@ -61,6 +63,7 @@ public class IdentityUserAdminController {
     private final CurrentUserProfileService profiles;
     private final UserAdminService users;
     private final TenantMembershipService memberships;
+    private final AccessControlApi accessControlApi;
 
     @GetMapping
     @Operation(summary = "List identity users for current tenant")
@@ -104,8 +107,10 @@ public class IdentityUserAdminController {
                 null,
                 false,
                 Set.of());
-        memberships.assign(ctx.tenantId(), created.userId(), null, req.outletId(), req.terminalId(), false);
-        memberships.setRole(ctx.tenantId(), created.userId(), req.role());
+        memberships.assign(ctx.tenantId(), created.userId(), req.outletId(), req.terminalId(), false);
+        if (req.role() != null) {
+            accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(ctx.tenantId(), created.userId(), req.role().name(), ctx.currentUserIdRequired()));
+        }
         return ApiResponse.success(loadAndMap(ctx, created.userId(), InvitationStatus.NOT_SENT, null));
     }
 
@@ -164,7 +169,7 @@ public class IdentityUserAdminController {
         @PathVariable UserId userId,
         @Valid @RequestBody UpsertMembershipRequest req) {
         assertTenantScopedUser(ctx, userId);
-        memberships.assign(ctx.tenantId(), userId, null, req.outletId(), req.terminalId(), false);
+        memberships.assign(ctx.tenantId(), userId, req.outletId(), req.terminalId(), false);
         return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
@@ -187,7 +192,7 @@ public class IdentityUserAdminController {
         @Valid @RequestBody SetUserRoleRequest req) {
         assertTenantScopedUser(ctx, userId);
         forbidSuperAdminAssignmentForTenantAdmin(ctx, req.role());
-        memberships.setRole(ctx.tenantId(), userId, req.role());
+        accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(ctx.tenantId(), userId, req.role().name(), ctx.currentUserIdRequired()));
         return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
@@ -244,7 +249,7 @@ public class IdentityUserAdminController {
             profile.email(),
             profile.phone(),
             profile.status() == null ? null : profile.status().name(),
-            membership == null || membership.roleId() == null ? null : membership.roleId().value().toString(),
+            null, // roles are now in tenant_user_role — use /admin/access-control/users/{id}/roles
             membership == null || membership.status() == null ? null : membership.status().name(),
             membership == null ? null : membership.outletId(),
             membership == null ? null : membership.terminalId(),

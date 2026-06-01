@@ -28,11 +28,13 @@ public interface IdentityApi {
 
     /**
      * Creates a user and assigns them to a tenant with the given role.
-     * Reuses the same service logic as POST /admin/identity/users.
-     * Caller must run within the target tenant's RLS context.
+     * tenantCode is passed explicitly so KC provisioning sets the correct
+     * tenant_code claim on the very first login (avoids context-lookup failures
+     * in startup-tenant scopes).
      */
     CreateUserResult createTenantUser(
         TenantId tenantId,
+        String tenantCode,
         String email,
         String firstName,
         String lastName,

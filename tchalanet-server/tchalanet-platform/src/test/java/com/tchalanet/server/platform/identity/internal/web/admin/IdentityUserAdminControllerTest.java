@@ -32,9 +32,11 @@ class IdentityUserAdminControllerTest {
   private final CurrentUserProfileService profiles = mock(CurrentUserProfileService.class);
   private final UserAdminService users = mock(UserAdminService.class);
   private final TenantMembershipService memberships = mock(TenantMembershipService.class);
+  private final com.tchalanet.server.platform.accesscontrol.api.AccessControlApi accessControlApi =
+      mock(com.tchalanet.server.platform.accesscontrol.api.AccessControlApi.class);
 
   private final IdentityUserAdminController controller =
-      new IdentityUserAdminController(profiles, users, memberships);
+      new IdentityUserAdminController(profiles, users, memberships, accessControlApi);
 
   @Nested
   @DisplayName("Role restrictions")

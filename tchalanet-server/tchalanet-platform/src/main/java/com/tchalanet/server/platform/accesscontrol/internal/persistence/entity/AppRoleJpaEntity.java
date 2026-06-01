@@ -31,8 +31,17 @@ public class AppRoleJpaEntity extends BaseEntity {
   @Column(name = "description")
   private String description;
 
-  @Column(name = "parent_role_id", columnDefinition = "uuid")
-  private UUID parentRoleId;
+  @Column(name = "scope", nullable = false, length = 32)
+  private String scope = "TENANT";
+
+  @Column(name = "system", nullable = false)
+  private boolean system = true;
+
+  @Column(name = "custom", nullable = false)
+  private boolean custom = false;
+
+  @Column(name = "active", nullable = false)
+  private boolean active = true;
 
   @OneToMany(
       mappedBy = "role",

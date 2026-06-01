@@ -1,0 +1,22 @@
+{
+  "source": "mirror of backend access-control/default-role-permissions.v1.json for Python E2E assertions",
+  "version": 1,
+  "roles": {
+    "SUPER_ADMIN": ["platform.access", "platform.ops.execute", "tenant.create", "tenant.admin.create", "audit.read"],
+    "TENANT_ADMIN": ["admin.access", "dashboard.read", "user.read", "user.create", "user.update", "user.disable", "user.role.assign", "user.permission.manage", "role.read", "permission.read", "outlet.create", "terminal.create", "session.open", "operational-context.read", "operational-context.select", "report.read"],
+    "OPERATOR": ["operator.access", "dashboard.read", "operational-context.read", "operational-context.select", "ticket.read", "ticket.verify", "ticket.print", "payout.read", "payout.execute", "report.read"],
+    "CASHIER": ["cashier.access", "operational-context.read", "ticket.sell", "ticket.read", "ticket.print", "ticket.verify", "payout.read", "payout.execute"]
+  },
+  "scenarios": {
+    "cashier_without_sell_permission": {
+      "user": "tenant_a_cashier_1",
+      "deny": ["ticket.sell"],
+      "expectDenied": ["ticket.sell"]
+    },
+    "cashier_role_removed": {
+      "user": "tenant_a_cashier_1",
+      "removeRoles": ["CASHIER"],
+      "expectDenied": ["ticket.sell"]
+    }
+  }
+}

@@ -92,6 +92,8 @@ CREATE TABLE permission (
   name varchar(128) NOT NULL,
   category varchar(64),
   description text,
+  system boolean NOT NULL DEFAULT true,
+  active boolean NOT NULL DEFAULT true,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
@@ -107,14 +109,19 @@ CREATE TABLE app_role (
   code varchar(64) NOT NULL,
   name varchar(128) NOT NULL,
   description text,
-  parent_role_id uuid REFERENCES app_role(id),
+  scope varchar(32) NOT NULL DEFAULT 'TENANT',
+  system boolean NOT NULL DEFAULT true,
+  custom boolean NOT NULL DEFAULT false,
+  active boolean NOT NULL DEFAULT true,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),
   updated_by uuid,
   deleted_at timestamptz,
   deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0
+  version bigint NOT NULL DEFAULT 0,
+  CONSTRAINT chk_app_role__scope CHECK (scope IN ('PLATFORM','TENANT')),
+  CONSTRAINT uq_app_role__tenant_code UNIQUE (tenant_id, code)
 );
 
 CREATE TABLE role_permission (
@@ -127,7 +134,6 @@ CREATE TABLE tenant_user (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
   user_id uuid NOT NULL REFERENCES app_user(id),
-  role_id uuid REFERENCES app_role(id),
   status varchar(32),
   is_owner boolean DEFAULT false,
   outlet_id uuid,
@@ -141,6 +147,39 @@ CREATE TABLE tenant_user (
   version bigint NOT NULL DEFAULT 0,
   CONSTRAINT uq_tenant_user__tenant_user UNIQUE (tenant_id, user_id)
 );
+
+-- Role assignments are stored separately from membership so a user can hold
+-- multiple roles without duplicating the membership row.
+CREATE TABLE tenant_user_role (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  user_id uuid NOT NULL REFERENCES app_user(id),
+  role_id uuid NOT NULL REFERENCES app_role(id),
+  assigned_at timestamptz NOT NULL DEFAULT now(),
+  assigned_by uuid NULL,
+  deleted_at timestamptz NULL
+);
+CREATE UNIQUE INDEX uq_tenant_user_role__active
+  ON tenant_user_role (tenant_id, user_id, role_id)
+  WHERE deleted_at IS NULL;
+
+-- Per-user GRANT / DENY overrides on top of the role-permission defaults.
+-- DENY wins over both role grants and explicit GRANTs.
+CREATE TABLE user_permission_override (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL REFERENCES tenant(id),
+  user_id uuid NOT NULL REFERENCES app_user(id),
+  permission_code varchar(128) NOT NULL REFERENCES permission(code),
+  effect varchar(16) NOT NULL,
+  reason text NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  created_by uuid NULL,
+  deleted_at timestamptz NULL,
+  CONSTRAINT chk_user_permission_override__effect CHECK (effect IN ('GRANT','DENY'))
+);
+CREATE UNIQUE INDEX uq_user_permission_override__active
+  ON user_permission_override (tenant_id, user_id, permission_code)
+  WHERE deleted_at IS NULL;
 
 CREATE TABLE app_setting (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

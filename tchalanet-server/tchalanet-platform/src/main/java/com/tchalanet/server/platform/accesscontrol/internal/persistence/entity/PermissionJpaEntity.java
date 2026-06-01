@@ -35,6 +35,12 @@ public class PermissionJpaEntity extends AuditableEntity {
   @Column(name = "description")
   private String description;
 
+  @Column(name = "system", nullable = false)
+  private boolean system = true;
+
+  @Column(name = "active", nullable = false)
+  private boolean active = true;
+
   // Inverse side for role_permission -> permission
   @OneToMany(
       mappedBy = "permission",

@@ -85,6 +85,7 @@ public class TenantProvisioningOrchestrator {
           if (request.initialAdminEmail() != null && !request.initialAdminEmail().isBlank()) {
             var adminResult = identityApi.createTenantUser(
                 TenantId.of(tenantId),
+                created.code(),
                 request.initialAdminEmail(),
                 null,
                 null,

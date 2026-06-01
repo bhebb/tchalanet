@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "rolesCustomSupported": false,
+  "permissions": [
+    {"code": "platform.access", "label": "Platform access", "category": "platform", "system": true, "active": true},
+    {"code": "platform.ops.execute", "label": "Execute platform ops", "category": "platform", "system": true, "active": true},
+    {"code": "tenant.create", "label": "Create tenant", "category": "tenant", "system": true, "active": true},
+    {"code": "tenant.admin.create", "label": "Create tenant admin", "category": "tenant", "system": true, "active": true},
+    {"code": "admin.access", "label": "Tenant admin access", "category": "admin", "system": true, "active": true},
+    {"code": "dashboard.read", "label": "Read dashboard", "category": "dashboard", "system": true, "active": true},
+    {"code": "user.read", "label": "Read users", "category": "user", "system": true, "active": true},
+    {"code": "user.create", "label": "Create users", "category": "user", "system": true, "active": true},
+    {"code": "user.update", "label": "Update users", "category": "user", "system": true, "active": true},
+    {"code": "user.disable", "label": "Disable users", "category": "user", "system": true, "active": true},
+    {"code": "user.role.assign", "label": "Assign user roles", "category": "user", "system": true, "active": true},
+    {"code": "user.permission.manage", "label": "Manage user permission overrides", "category": "user", "system": true, "active": true},
+    {"code": "role.read", "label": "Read roles", "category": "access-control", "system": true, "active": true},
+    {"code": "permission.read", "label": "Read permissions", "category": "access-control", "system": true, "active": true},
+    {"code": "outlet.create", "label": "Create outlets", "category": "outlet", "system": true, "active": true},
+    {"code": "terminal.create", "label": "Create terminals", "category": "terminal", "system": true, "active": true},
+    {"code": "session.open", "label": "Open sessions", "category": "session", "system": true, "active": true},
+    {"code": "cashier.access", "label": "Cashier access", "category": "cashier", "system": true, "active": true},
+    {"code": "operator.access", "label": "Operator access", "category": "operator", "system": true, "active": true},
+    {"code": "operational-context.read", "label": "Read operational context", "category": "operational-context", "system": true, "active": true},
+    {"code": "operational-context.select", "label": "Select operational context", "category": "operational-context", "system": true, "active": true},
+    {"code": "ticket.sell", "label": "Sell tickets", "category": "ticket", "system": true, "active": true},
+    {"code": "ticket.read", "label": "Read tickets", "category": "ticket", "system": true, "active": true},
+    {"code": "ticket.print", "label": "Print tickets", "category": "ticket", "system": true, "active": true},
+    {"code": "ticket.verify", "label": "Verify tickets", "category": "ticket", "system": true, "active": true},
+    {"code": "payout.read", "label": "Read payouts", "category": "payout", "system": true, "active": true},
+    {"code": "payout.execute", "label": "Execute payouts", "category": "payout", "system": true, "active": true},
+    {"code": "report.read", "label": "Read reports", "category": "report", "system": true, "active": true},
+    {"code": "audit.read", "label": "Read audit", "category": "audit", "system": true, "active": true}
+  ],
+  "roles": [
+    {
+      "code": "SUPER_ADMIN",
+      "label": "Super admin",
+      "scope": "PLATFORM",
+      "system": true,
+      "custom": false,
+      "permissions": [
+        "platform.access",
+        "platform.ops.execute",
+        "tenant.create",
+        "tenant.admin.create",
+        "audit.read"
+      ]
+    },
+    {
+      "code": "TENANT_ADMIN",
+      "label": "Tenant admin",
+      "scope": "TENANT",
+      "system": true,
+      "custom": false,
+      "permissions": [
+        "admin.access",
+        "dashboard.read",
+        "user.read",
+        "user.create",
+        "user.update",
+        "user.disable",
+        "user.role.assign",
+        "user.permission.manage",
+        "role.read",
+        "permission.read",
+        "outlet.create",
+        "terminal.create",
+        "session.open",
+        "operational-context.read",
+        "operational-context.select",
+        "report.read"
+      ]
+    },
+    {
+      "code": "OPERATOR",
+      "label": "Operator",
+      "scope": "TENANT",
+      "system": true,
+      "custom": false,
+      "permissions": [
+        "operator.access",
+        "dashboard.read",
+        "operational-context.read",
+        "operational-context.select",
+        "ticket.read",
+        "ticket.verify",
+        "ticket.print",
+        "payout.read",
+        "payout.execute",
+        "report.read"
+      ]
+    },
+    {
+      "code": "CASHIER",
+      "label": "Cashier",
+      "scope": "TENANT",
+      "system": true,
+      "custom": false,
+      "permissions": [
+        "cashier.access",
+        "operational-context.read",
+        "ticket.sell",
+        "ticket.read",
+        "ticket.print",
+        "ticket.verify",
+        "payout.read",
+        "payout.execute"
+      ]
+    }
+  ]
+}
