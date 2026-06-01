@@ -20,17 +20,20 @@ public class JpaIdempotencyStore implements IdempotencyStore {
 
   private final IdempotencyRecordRepository repo;
 
+  // Intentionally NOT @Transactional. Each repository call below runs in its own transaction,
+  // so a duplicate-key violation on the insert rolls back only that inner transaction and
+  // throws cleanly — it cannot mark a surrounding transaction rollback-only (which would make
+  // begin()'s own commit fail with UnexpectedRollbackException), nor abort a shared Postgres
+  // transaction (which would make the recovery SELECT fail with "current transaction is
+  // aborted"). RLS still applies: RlsAwareDataSource sets app.current_tenant on every
+  // connection acquisition from the request's TchContext, so each of these transactions is
+  // tenant-scoped. This is what makes concurrent same-key sells correct (exactly one winner).
   @Override
-  @Transactional
   public BeginResult begin(IdempotencyScope scope, String key, String requestHash, long ttlSeconds) {
     key = normalizeKey(key);
     var tenantId = requireTenantId();
 
-    // Check-first: a resend with the same key is the common case. Resolving it via SELECT keeps
-    // the request transaction clean. A blind INSERT-then-catch would let the duplicate-key
-    // violation abort the Postgres transaction ("current transaction is aborted, commands
-    // ignored until end of transaction block"), so the recovery SELECT in the catch block would
-    // itself fail and the whole sell would surface as a 500.
+    // Check-first: a resend with the same key is the common case.
     var existing = repo.findByTenantIdAndScopeAndKey(tenantId, scope, key).orElse(null);
     if (existing != null) {
       return decisionFor(existing, requestHash);
@@ -50,10 +53,13 @@ public class JpaIdempotencyStore implements IdempotencyStore {
       repo.saveAndFlush(e);
       return new BeginResult(Decision.STARTED, Optional.empty());
     } catch (DataIntegrityViolationException dup) {
-      // Lost a concurrent insert race. The transaction is now aborted, so we cannot SELECT the
-      // winning record here; report IN_PROGRESS so the caller treats it as a concurrent attempt
-      // on the same key rather than a server error.
-      return new BeginResult(Decision.IN_PROGRESS, Optional.empty());
+      // Lost a concurrent insert race. begin() is non-transactional, so the failed insert's
+      // own transaction rolled back in isolation — we can safely re-read the winning record in
+      // a fresh transaction and return its real decision (e.g. ALREADY_COMPLETED replay).
+      var winner = repo.findByTenantIdAndScopeAndKey(tenantId, scope, key).orElse(null);
+      return winner != null
+          ? decisionFor(winner, requestHash)
+          : new BeginResult(Decision.IN_PROGRESS, Optional.empty());
     }
   }
 

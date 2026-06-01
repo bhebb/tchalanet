@@ -156,7 +156,13 @@ spring:
   # --- Datasource & JPA ---
   datasource:
     hikari:
-      maximum-pool-size: 10
+      # An audited write (e.g. ticket sell) holds two connections at once: its own
+      # @Transactional plus the audit's REQUIRES_NEW nested tx. With a pool of 10 that
+      # caps real concurrency at ~5 before the pool starves and requests time out
+      # (HikariPool "Connection is not available"). Size for the documented E2E
+      # concurrency target (controlled parallelism up to ~10) with headroom.
+      maximum-pool-size: ${SPRING_DATASOURCE_MAX_POOL:30}
+      minimum-idle: ${SPRING_DATASOURCE_MIN_IDLE:5}
       jdbc-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
       username: ${SPRING_DATASOURCE_USERNAME:app_user}
       password: ${SPRING_DATASOURCE_PASSWORD:devpass}

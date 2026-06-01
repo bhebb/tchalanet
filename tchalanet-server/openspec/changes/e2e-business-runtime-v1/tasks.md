@@ -171,16 +171,28 @@
 - [ ] Missing Idempotency-Key on required sell endpoint returns expected error.
 - [x] Same key + same payload returns same ticket/result (`test_sell_same_key_same_payload_is_idempotent`).
 - [x] Same key + different payload returns payload mismatch (`test_sell_same_key_different_payload_returns_conflict`).
-- [ ] Concurrent same key + same payload creates one ticket only.
-- [ ] Concurrent same key + different payload is rejected cleanly.
-- [ ] Limit race: not all overexposing sells succeed.
-- [ ] Session close vs sell race remains consistent.
-- [ ] Tenant A/B parallel sales do not leak data/config.
+- [x] Concurrent same key + same payload creates one ticket only (`test_concurrent_same_key_same_payload_creates_one_ticket`).
+- [x] Concurrent same key + different payload is rejected cleanly (`test_concurrent_same_key_different_payload_rejected_cleanly`).
+- [x] Concurrent distinct keys → N distinct tickets, no interference (`test_concurrent_distinct_keys_all_create_tickets`).
+- [ ] Limit race: not all overexposing sells succeed. *(deferred — needs Tenant B + limit config)*
+- [ ] Session close vs sell race remains consistent. *(deferred)*
+- [ ] Tenant A/B parallel sales do not leak data/config. *(deferred — needs Tenant B)*
+
+> Concurrency suite (`tests/concurrency/test_pos_concurrency.py`, L3) surfaced and fixed two
+> runtime bugs: (1) Hikari pool starvation — an audited sell holds 2 connections (own tx +
+> audit REQUIRES_NEW), so a pool of 10 deadlocked at ~5 parallel sells; pool sized to 30.
+> (2) `JpaIdempotencyStore.begin` made non-transactional so a concurrent duplicate-key insert
+> rolls back in isolation instead of marking the tx rollback-only (UnexpectedRollbackException
+> → 500); the race loser now re-reads and replays the winner.
 
 ## 11. Documentation
 
-- [ ] Document smoke/critical/concurrency/full commands.
-- [ ] Document env vars.
-- [ ] Document seed assumptions.
+- [x] Document smoke/critical/concurrency/full commands (`testing/e2e/README.md` §4).
+- [x] Document env vars (`testing/e2e/README.md` §3).
+- [x] Document seed assumptions (`testing/e2e/README.md` §3).
 - [ ] Document cleanup policy.
-- [ ] Document E2E is not performance/load testing.
+- [x] Document E2E is not performance/load testing (`testing/e2e/README.md` §9, design §2).
+
+> `testing/e2e/README.md` (entry points, URLs, env, Keycloak + keycloak-init cache gotcha,
+> edge-service verification, reliable API rebuild, Makefile, troubleshooting) + `AGENTS.md`
+> router added for agents.
