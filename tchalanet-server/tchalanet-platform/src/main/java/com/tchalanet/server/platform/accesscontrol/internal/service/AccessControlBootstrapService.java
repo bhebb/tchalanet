@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.accesscontrol.internal.bootstrap;
+package com.tchalanet.server.platform.accesscontrol.internal.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
