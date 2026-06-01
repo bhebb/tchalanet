@@ -110,6 +110,9 @@ public class IdentityUserAdminController {
         memberships.assign(ctx.tenantId(), created.userId(), req.outletId(), req.terminalId(), false);
         if (req.role() != null) {
             accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(ctx.tenantId(), created.userId(), req.role().name(), ctx.currentUserIdRequired()));
+            // Mirror the role to Keycloak so the new user's JWT carries the matching authority;
+            // otherwise an API-created cashier/admin is rejected (403) on its role-gated endpoints.
+            users.syncKeycloakRealmRole(created.userId(), req.role().name());
         }
         return ApiResponse.success(loadAndMap(ctx, created.userId(), InvitationStatus.NOT_SENT, null));
     }

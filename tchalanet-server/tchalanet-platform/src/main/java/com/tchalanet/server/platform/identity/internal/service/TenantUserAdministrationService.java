@@ -117,6 +117,18 @@ public class TenantUserAdministrationService {
     return new CreateUserResult(user.id());
   }
 
+  /**
+   * Mirror a user's app role to a Keycloak realm role so the JWT carries the matching
+   * authority (SecurityConfig derives authorities from realm roles). Best-effort.
+   */
+  public void syncKeycloakRealmRole(UserId userId, String roleName) {
+    users.findById(userId).ifPresent(u -> {
+      if (u.keycloakSub() != null && u.keycloakSub().value() != null) {
+        keycloakUserProvisionService.assignRealmRole(u.keycloakSub().value(), roleName);
+      }
+    });
+  }
+
   public void approveUser(UserId userId, UserId approvedBy) {
     var user = users.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
     users.save(user.approve(timeProvider.nowInstant(), approvedBy));

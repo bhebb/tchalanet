@@ -116,6 +116,37 @@ public class KeycloakUserProvisionService {
     }
   }
 
+  /**
+   * Assigns an existing realm role to a Keycloak user (best-effort, idempotent).
+   *
+   * <p>API-created users get their app role in {@code tenant_user_role}, but the JWT
+   * authorities are derived from Keycloak realm roles (see SecurityConfig). Without this
+   * a created cashier/admin carries no authority and is rejected (403) on every
+   * role-gated endpoint. No-op when bootstrap is disabled or the role/user is unknown;
+   * never throws, so it cannot break user creation.
+   */
+  public void assignRealmRole(UUID kcUserId, String roleName) {
+    if (!props.enabled() || kcUserId == null || roleName == null || roleName.isBlank()) {
+      return;
+    }
+    var adminPass = readSecret(props.adminPassword(), props.adminPasswordFile());
+    try (var kc = KeycloakBuilder.builder()
+            .serverUrl(props.baseUrl())
+            .realm(props.adminRealm())
+            .clientId("admin-cli")
+            .grantType(OAuth2Constants.PASSWORD)
+            .username(props.adminUsername())
+            .password(adminPass)
+            .build()) {
+      var roleRep = kc.realm(props.targetRealm()).roles().get(roleName).toRepresentation();
+      kc.realm(props.targetRealm()).users().get(kcUserId.toString())
+          .roles().realmLevel().add(List.of(roleRep));
+      log.info("KC realm role '{}' assigned to user {}", roleName, kcUserId);
+    } catch (Exception e) {
+      log.warn("Could not assign KC realm role '{}' to user {}: {}", roleName, kcUserId, e.getMessage());
+    }
+  }
+
   private static String firstNameOrDerived(String firstName, String username, String email) {
     if (firstName != null && !firstName.isBlank()) {
       return firstName.trim();
