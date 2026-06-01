@@ -119,6 +119,39 @@
 > Also implemented: seller CRUD (`test_seller_onboarding.py` — create, list, get, assign, receipt config,
 > sales capability, activation challenge, full bind flow, admin shortcut).
 
+### 5b. Full tenant onboarding from scratch — NO seed (`test_tenant_no_seed_onboarding.py`)
+
+> Drives the spec flow with no pre-existing seed: SUPER_ADMIN provisions a brand-new tenant
+> + initial TENANT_ADMIN, then completes the config via REST acting as the new tenant
+> (X-Tenant-Id override — the optional "super admin finishes the config" path). Asserts
+> readiness goes MISSING → READY.
+
+- [x] Provision a fresh tenant + initial admin; provision-result readiness shows identity READY, users/outlets/terminals MISSING, overall MISSING.
+- [x] initialAdminEmail provided → initial TENANT_ADMIN created, `CREATE_INITIAL_ADMIN` absent from nextSteps.
+- [x] Complete config without seed: apply plan → outlet → cashier user → seller (linked+assigned) → terminal; readiness rolls up to READY.
+- [x] Document the catalog gap: DEFAULT_HAITI_LOTTERY provision reports games/draw_channels seeded in `domainStatuses` but nothing is created (games_pricing/draws stay UNKNOWN).
+
+> **Runtime bugs surfaced + fixed by the no-seed flow (committed on the e2e branch):**
+> 4. `POST /admin/terminals` (and every `@RequiredFeature` endpoint: promotions, phone-sell,
+>    terminal-licensing) → **500 NPE**. `RequiredFeatureAspect` used a
+>    `@annotation(x) || @within(x)` pointcut; Spring AOP can't bind `x` from an OR of
+>    method- and class-level annotations, so it passed `null`. Now resolves the annotation
+>    from the join point (method → declaring class).
+> 5. `POST /admin/outlets` with no `slug` → **500** (DataIntegrityViolation: slug NOT NULL).
+>    Added `@NotBlank` on `CreateOutletRequest.name/slug` → clean 400.
+>
+> **Provisioning-completeness gaps (NOT yet fixed — need a product decision):**
+> - Provisioning does **not** attach a subscription/plan, so a fresh tenant can't create
+>   outlets until `POST /platform/subscriptions/{id}/apply` is called (the e2e does this as
+>   an explicit step). `EntitlementService.requireLimitAtMost` throws `ProblemRest.internal`
+>   (500) when no plan — arguably should be a clearer 4xx, and/or provisioning should apply a
+>   default plan.
+> - Provisioning does **not** seed games/pricing/draw_channels for DEFAULT_HAITI_LOTTERY
+>   despite advertising them in `domainStatuses` ("channels pas copiés"). A provisioned tenant
+>   is readiness-READY but cannot actually sell (no draws/games). No tenant-admin REST path to
+>   create them yet (catalog-level).
+> - `GET /platform/plans` → 500 (separate, not on the onboarding critical path).
+
 ## 6. Cashier POS
 
 - [x] POS home works with active context.
