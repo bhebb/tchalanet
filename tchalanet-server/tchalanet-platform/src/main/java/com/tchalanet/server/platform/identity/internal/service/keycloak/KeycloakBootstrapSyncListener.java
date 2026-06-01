@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.identity.internal.service;
+package com.tchalanet.server.platform.identity.internal.service.keycloak;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

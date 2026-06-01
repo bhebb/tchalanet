@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.identity.internal.web.ops;
 
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.platform.identity.internal.service.KeycloakBootstrapSyncService;
+import com.tchalanet.server.platform.identity.internal.service.keycloak.KeycloakBootstrapSyncService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/platform/ops/sync")
 @Tag(name = "Platform Ops • Sync")
 @RequiredArgsConstructor
-public class PlatformSyncOpsController {
+public class PlatformIdentitySyncOpsController {
 
   private final KeycloakBootstrapSyncService syncService;
 

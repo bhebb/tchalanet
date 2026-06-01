@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.identity.internal.service;
+package com.tchalanet.server.platform.identity.internal.adapter;
 
 import com.tchalanet.server.common.security.TchRole;
 import com.tchalanet.server.common.types.id.TenantId;
@@ -14,15 +14,24 @@ import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
+import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
+import com.tchalanet.server.platform.identity.internal.service.UserBootstrapService;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+/**
+ * Adapter implementing the public {@link IdentityApi} contract.
+ *
+ * <p>Bridges the public module API to the internal identity services. Holds no business logic of
+ * its own — it only delegates to the capability's internal services.
+ */
+@Component
 @RequiredArgsConstructor
-public class DefaultIdentityApi implements IdentityApi {
+public class IdentityApiAdapter implements IdentityApi {
 
   private final CurrentUserProfileService profiles;
   private final UserBootstrapService bootstrapService;

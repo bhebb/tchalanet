@@ -10,9 +10,9 @@ import com.tchalanet.server.platform.identity.api.model.view.AppUserView;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.UserPreferenceJpaEntity;
-import com.tchalanet.server.platform.identity.internal.service.AppUser;
-import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
-import com.tchalanet.server.platform.identity.internal.service.UserPreference;
+import com.tchalanet.server.platform.identity.internal.model.AppUser;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 
 public final class IdentityPersistenceMapper {
 

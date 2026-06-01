@@ -5,7 +5,7 @@ import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUse
 import com.tchalanet.server.platform.identity.internal.persistence.entity.UserPreferenceJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.UserPreferenceJpaRepository;
-import com.tchalanet.server.platform.identity.internal.service.UserPreference;
+import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -20,9 +20,9 @@ import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfil
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
-import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
-import com.tchalanet.server.platform.identity.internal.service.UserAdminService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.CreateUserRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.KeycloakSyncStatus;
@@ -61,7 +61,7 @@ import java.util.Set;
 public class IdentityUserAdminController {
 
     private final CurrentUserProfileService profiles;
-    private final UserAdminService users;
+    private final TenantUserAdministrationService users;
     private final TenantMembershipService memberships;
     private final AccessControlApi accessControlApi;
 

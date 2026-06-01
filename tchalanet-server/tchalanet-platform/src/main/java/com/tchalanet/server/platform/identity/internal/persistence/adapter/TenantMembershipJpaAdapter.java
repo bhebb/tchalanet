@@ -10,8 +10,8 @@ import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUse
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
-import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
-import com.tchalanet.server.platform.identity.internal.service.TenantUserRow;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.TenantUserRow;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import java.time.Instant;

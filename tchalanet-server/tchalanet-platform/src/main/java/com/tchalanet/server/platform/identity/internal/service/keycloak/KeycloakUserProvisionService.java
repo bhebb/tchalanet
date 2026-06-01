@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.identity.internal.service;
+package com.tchalanet.server.platform.identity.internal.service.keycloak;
 
 import java.util.List;
 import java.util.Map;

@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TenantUserProvisioningService {
 
-  private final UserAdminService userAdminService;
+  private final TenantUserAdministrationService userAdminService;
   private final TenantMembershipService tenantMembershipService;
   private final AccessControlApi accessControlApi;
 

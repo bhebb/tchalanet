@@ -1,4 +1,4 @@
-package com.tchalanet.server.platform.identity.internal.service;
+package com.tchalanet.server.platform.identity.internal.service.keycloak;
 
 import java.io.IOException;
 import java.nio.file.Files;

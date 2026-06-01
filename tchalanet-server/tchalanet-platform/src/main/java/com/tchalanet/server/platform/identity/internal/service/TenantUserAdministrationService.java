@@ -9,8 +9,12 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
+import com.tchalanet.server.platform.identity.internal.model.AppUser;
+import com.tchalanet.server.platform.identity.internal.model.UserPreference;
+import com.tchalanet.server.platform.identity.internal.model.UserRow;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.UserPreferenceJpaAdapter;
+import com.tchalanet.server.platform.identity.internal.service.keycloak.KeycloakUserProvisionService;
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
 import java.time.Instant;
@@ -25,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserAdminService {
+public class TenantUserAdministrationService {
 
   private final AppUserJpaAdapter users;
   private final UserPreferenceJpaAdapter preferences;

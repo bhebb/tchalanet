@@ -7,6 +7,8 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.TenantUserRow;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.TenantMembershipJpaAdapter;
 import java.time.Instant;
 import java.util.Optional;
