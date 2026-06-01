@@ -1,7 +1,6 @@
 package com.tchalanet.server.platform.accesscontrol.internal.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.BootstrapAccessControlRequest;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.BootstrapAccessControlRequest.BootstrapMode;
 import com.tchalanet.server.platform.accesscontrol.api.model.result.BootstrapAccessControlResult;
@@ -37,7 +36,7 @@ public class AccessControlBootstrapService {
   private final AppRoleJpaRepository roleRepository;
   private final PermissionJpaRepository permissionRepository;
   private final RolePermissionAdminJpaRepository rolePermissionRepository;
-  private final ObjectMapper objectMapper;
+  private final JsonUtils jsonUtils;
 
   @Transactional
   public BootstrapAccessControlResult execute(BootstrapAccessControlRequest request) {
@@ -155,7 +154,7 @@ public class AccessControlBootstrapService {
     try {
       ClassPathResource resource = new ClassPathResource(MATRIX_PATH);
       try (InputStream is = resource.getInputStream()) {
-        return objectMapper.readValue(is, RolePermissionMatrix.class);
+        return jsonUtils.readValue(is, RolePermissionMatrix.class);
       }
     } catch (IOException e) {
       throw new IllegalStateException("Cannot load access-control matrix from " + MATRIX_PATH, e);
@@ -163,13 +162,12 @@ public class AccessControlBootstrapService {
   }
 
   // ─── JSON model ──────────────────────────────────────────────────────────
+  // Unknown properties are ignored globally by the shared JsonMapper (JacksonConfig disables
+  // FAIL_ON_UNKNOWN_PROPERTIES), so no per-type annotation is needed here.
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
   public record RolePermissionMatrix(List<PermissionDef> permissions, List<RoleDef> roles) {}
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
   public record PermissionDef(String code, String label, String category, boolean system, boolean active) {}
 
-  @JsonIgnoreProperties(ignoreUnknown = true)
   public record RoleDef(String code, String label, String scope, boolean system, boolean custom, List<String> permissions) {}
 }
