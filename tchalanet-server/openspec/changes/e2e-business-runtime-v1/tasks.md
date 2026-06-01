@@ -24,7 +24,7 @@
 
 - [x] Generate unique `run_id`.
 - [x] Provision Tenant A (via conftest + `flows/onboarding.py`).
-- [ ] Provision Tenant B with different config.
+- [x] Provision Tenant B dynamically (no static env): `tests/multitenant/test_tenant_isolation.py` provisions a full Tenant B (plan + outlet + seller + terminal) per run — see §12.
 - [ ] Provision Tenant C minimal/incomplete.
 - [x] Create tenant admins.
 - [x] Create cashiers.
@@ -238,7 +238,8 @@
 - [x] Concurrent distinct keys → N distinct tickets, no interference (`test_concurrent_distinct_keys_all_create_tickets`).
 - [ ] Limit race: not all overexposing sells succeed. *(deferred — needs Tenant B + limit config)*
 - [ ] Session close vs sell race remains consistent. *(deferred)*
-- [ ] Tenant A/B parallel sales do not leak data/config. *(deferred — needs Tenant B)*
+- [x] Tenant A/B isolation under concurrency: interleaved A/B reads never leak (`tests/multitenant/test_tenant_isolation.py::test_concurrent_mixed_tenant_reads_never_leak`).
+- [ ] Tenant A/B parallel **sales** do not leak. *(still deferred — Tenant B has no operational catalog/cashier auth to sell; isolation proven for admin reads instead)*
 
 > Concurrency suite (`tests/concurrency/test_pos_concurrency.py`, L3) surfaced and fixed two
 > runtime bugs: (1) Hikari pool starvation — an audited sell holds 2 connections (own tx +
@@ -258,3 +259,23 @@
 > `testing/e2e/README.md` (entry points, URLs, env, Keycloak + keycloak-init cache gotcha,
 > edge-service verification, reliable API rebuild, Makefile, troubleshooting) + `AGENTS.md`
 > router added for agents.
+
+## 12. Multi-tenant isolation & concurrency (`tests/multitenant/test_tenant_isolation.py`)
+
+> Stands up a freshly-provisioned, fully-onboarded Tenant B alongside the seeded Tenant A
+> (both driven by SUPER_ADMIN via the X-Tenant-Id override) and proves RLS isolation holds —
+> including under concurrency. No static `TCH_TENANT_2_*` env needed; B is provisioned per run.
+
+- [x] Admin lists are tenant-isolated: outlets/terminals/sellers disjoint between A and B; each sees only its own rows.
+- [x] Cross-tenant fetch by id is blocked (404), not a data leak.
+- [x] **RLS holds under concurrency**: 40 interleaved A/B outlet-list reads on the shared connection pool — no probe ever saw the other tenant's rows, none missed its own (`@L3`).
+
+> **Result: no RLS leak found** — `app.current_tenant` is correct per request even under
+> concurrent mixed-tenant traffic (`RlsAwareDataSource` re-applies `set_config` on every
+> connection checkout; `ResetOnCloseConnection` resets on return).
+>
+> **Runtime bug surfaced + fixed (committed on the e2e branch):**
+> 6. `GET /admin/outlets/{id}` for a non-visible (cross-tenant / RLS-filtered) or absent outlet
+>    threw `IllegalArgumentException` → **500**. `OutletReaderPort.getRequired` now throws
+>    `TchNotFoundException` → clean **404** (matching the terminal reader convention), so a
+>    cross-tenant probe cannot distinguish "hidden" from "absent".
