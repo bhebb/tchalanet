@@ -2,10 +2,10 @@
 
 ## 1. Package cleanup
 
-- [ ] Move identity domain-ish records from `internal.service` to `internal.model`.
-- [ ] Move Keycloak sync classes to `internal.service.keycloak`.
-- [ ] Move `DefaultIdentityApi` to `internal.adapter`.
-- [ ] Keep controllers under `internal.web.me`, `internal.web.admin`, `internal.web.ops`.
+- [x] Move identity domain-ish records from `internal.service` to `internal.model`.
+- [x] Move Keycloak sync classes to `internal.service.keycloak`.
+- [x] Move `DefaultIdentityApi` to `internal.adapter` (renamed `IdentityApiAdapter` per addendum 2026-06-01).
+- [x] Keep controllers under `internal.web.me`, `internal.web.admin`, `internal.web.ops` (`PlatformSyncOpsController` → `PlatformIdentitySyncOpsController`).
 
 ## 2. Tenant membership cleanup
 

@@ -78,7 +78,7 @@ platform/identity/
       mapper/
 
     adapter/
-      DefaultIdentityApi.java
+      IdentityApiAdapter.java
 
     web/me/
       CurrentUserProfileController.java

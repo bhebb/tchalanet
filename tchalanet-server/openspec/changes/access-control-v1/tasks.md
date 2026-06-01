@@ -30,12 +30,13 @@
 
 ## 4. Services
 
-- [ ] Add `PermissionCatalogService`.
-- [ ] Add `RoleCatalogService`.
-- [ ] Add `TenantUserRoleService`.
-- [ ] Add `UserPermissionOverrideService`.
-- [ ] Add `EffectivePermissionService`.
-- [ ] Implement DENY precedence.
+- [x] Add `PermissionCatalogService` (implemented as `PermissionRegistryService`).
+- [x] Add `RoleCatalogService`.
+- [x] Add `TenantUserRoleService`.
+- [x] Add `UserPermissionOverrideService`.
+- [x] Add `EffectivePermissionService`.
+- [x] Implement DENY precedence.
+- [x] Add `internal/adapter/AccessControlApiAdapter` implementing `AccessControlApi` (delegates only, per addendum 2026-06-01); remove `DefaultAccessControlService` monolith.
 
 ## 5. API
 

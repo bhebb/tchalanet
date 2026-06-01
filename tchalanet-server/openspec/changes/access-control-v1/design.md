@@ -85,7 +85,7 @@ platform/accesscontrol/
       mapper/
 
     adapter/
-      DefaultAccessControlApi.java
+      AccessControlApiAdapter.java
 
     web/admin/
       AccessControlAdminController.java
