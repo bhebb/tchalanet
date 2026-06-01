@@ -4,7 +4,6 @@ import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.Audited;
@@ -22,7 +21,9 @@ public class ThemePresetJpaEntity extends BaseEntity {
     @Column(name = "vendor", length = 128)
     private String vendor;
 
-    @Lob
+    // NOTE: no @Lob — on PostgreSQL @Lob on a String maps the column as a large-object
+    // OID (read via getLong), which makes Hibernate fail with "Bad value for type long"
+    // when reading this text/JSON column. Plain text mapping is correct here.
     @Column(name = "config", columnDefinition = "text", nullable = false)
     private String config; // store JSON as text; mapper converts to JsonNode
 
