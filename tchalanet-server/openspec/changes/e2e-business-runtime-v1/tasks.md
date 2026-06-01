@@ -42,13 +42,21 @@
 
 ## 2. Public runtime
 
-- [ ] Public home loads without auth.
-- [ ] Public home uses `public_home`.
-- [ ] Public home contains no private provider source.
-- [ ] Public draw results loads without auth.
-- [ ] Public draw results uses `public_draw_results`.
-- [ ] Public ticket check unknown code returns controlled response/no 500.
-- [ ] Public ticket check sold ticket returns expected public status.
+> Implemented in `tests/public/test_public.py` (17 tests). Full anonymous surface swept:
+> `/public/settings`, `/public/i18n`, `/public/news`, `/public/draw-results/{slots,history}`,
+> `/public/page-models/{logicalId}`, `/public/tickets/{code}/verify`, `/public/tchala/*`,
+> `/public/security/backend-signing-keys`.
+
+- [x] Public home loads without auth (`test_public_home_page_model_loads`).
+- [x] Public home uses `public_home` (asserts `meta.context == public_home`, `scope == public`).
+- [x] Public home contains no private provider source (`test_public_home_has_no_private_provider_source`).
+- [x] Public draw results loads without auth (`test_public_draw_result_slots` / `_history`).
+- [x] Public draw results expose provider/slot metadata (slots carry `provider`/`slotKey`).
+- [x] Public ticket check unknown code returns controlled 404 / no 500 (`test_public_ticket_check_unknown_is_controlled`).
+- [ ] Public ticket check sold ticket returns expected public status. *(deferred — needs a real sold ticket publicCode + verificationCode)*
+- [x] Public settings reachable + namespace filter (`test_public_settings_*`).
+- [x] Public i18n bundle (locale + multi-surface; missing-locale → 400) (`test_public_i18n_*`).
+- [x] Public endpoints survive parallel anonymous reads (L3 `test_public_endpoints_handle_parallel_reads`).
 
 ## 3. Auth/context
 
