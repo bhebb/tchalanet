@@ -8,14 +8,13 @@ import java.util.Objects;
 /**
  * Request body for generating draws for a date range (ops).
  *
- * <p>Tenant targeting is optional and resolved as: {@code tenantIds} if present, else the
- * single {@code tenantId} (back-compat), else <b>all active tenants</b> (mirrors the
- * scheduled {@code generateNext7Days} job). Generation is idempotent, so running across all
- * active tenants only creates the draws that are still missing.
+ * <p>Tenant targeting is optional: list one or more {@code tenantCodes}, or leave it empty to
+ * target <b>all active tenants</b> (mirrors the scheduled {@code generateNext7Days} job).
+ * Generation is idempotent, so running across all active tenants only creates the draws that
+ * are still missing.
  */
 public record GenerateDrawsRequest(
-    String tenantId,
-    List<String> tenantIds,
+    List<String> tenantCodes,
     @NotNull LocalDate from,
     @NotNull LocalDate to,
     Boolean dryRun,

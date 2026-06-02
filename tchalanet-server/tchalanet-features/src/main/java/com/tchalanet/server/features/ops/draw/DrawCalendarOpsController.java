@@ -64,11 +64,11 @@ public class DrawCalendarOpsController {
         detailsExpression = "#req")
     public ApiResponse<TenantBatchResponse<GenerateDrawsForRangeResult>> generate(
             @Valid @RequestBody GenerateDrawsRequest req) {
-        // Target tenants: explicit tenantIds, else single tenantId (back-compat), else ALL active
-        // tenants — mirroring the scheduled generateNext7Days job. Generation is idempotent, so a
-        // full sweep only fills tenants that are still missing draws in the range.
+        // Target tenants: the listed tenant codes, else ALL active tenants — mirroring the
+        // scheduled generateNext7Days job. Generation is idempotent, so a full sweep only fills
+        // tenants that are still missing draws in the range.
         return ApiResponse.success(runPerTenant(
-            req.tenantIds(), req.tenantId(), DRAW_GENERATE, "draw-generate",
+            req.tenantCodes(), DRAW_GENERATE, "draw-generate",
             tenantId -> commandBus.execute(new GenerateDrawsForRangeCommand(
                 tenantId, req.from(), req.to(), req.dryRun(), req.force(), req.reason()))));
     }
@@ -80,14 +80,13 @@ public class DrawCalendarOpsController {
      * wrong tenant or be rejected by RLS. A single tenant's failure does not abort the rest.
      */
     private <R> TenantBatchResponse<R> runPerTenant(
-            List<String> explicitTenantIds, String singleTenantId,
-            JobKey gate, String label, Function<TenantId, R> work) {
+            List<String> tenantCodes, JobKey gate, String label, Function<TenantId, R> work) {
         // The gate gates the operation, not an individual tenant: check it once up front (like the
         // scheduler) so a disabled gate surfaces clearly instead of being swallowed as N per-tenant
         // failures inside the loop.
         batchGate.assertEnabledOrThrow(gate, null);
 
-        List<TenantId> targets = resolveTargetTenants(explicitTenantIds, singleTenantId);
+        List<TenantId> targets = resolveTargetTenants(tenantCodes);
         var outcomes = new ArrayList<TenantBatchResponse.Outcome<R>>(targets.size());
         int succeeded = 0, failed = 0;
         for (TenantId tenantId : targets) {
@@ -111,14 +110,15 @@ public class DrawCalendarOpsController {
         return new TenantBatchResponse<>(targets.size(), succeeded, failed, outcomes);
     }
 
-    private List<TenantId> resolveTargetTenants(List<String> explicitTenantIds, String singleTenantId) {
-        if (explicitTenantIds != null && !explicitTenantIds.isEmpty()) {
-            return explicitTenantIds.stream().map(TenantId::parse).toList();
+    private List<TenantId> resolveTargetTenants(List<String> tenantCodes) {
+        if (tenantCodes == null || tenantCodes.isEmpty()) {
+            return tenantCatalog.listActiveTenantIds();
         }
-        if (singleTenantId != null && !singleTenantId.isBlank()) {
-            return List.of(TenantId.parse(singleTenantId));
-        }
-        return tenantCatalog.listActiveTenantIds();
+        return tenantCodes.stream()
+            .filter(code -> code != null && !code.isBlank())
+            .map(code -> tenantCatalog.findIdByCode(code.trim().toLowerCase())
+                .orElseThrow(() -> ProblemRest.badRequest("Unknown tenant code: " + code)))
+            .toList();
     }
 
     @Operation(summary = "Open today's scheduled draws (ops)")
@@ -135,7 +135,7 @@ public class DrawCalendarOpsController {
         Instant now = req.now() == null ? clock.instant() : req.now();
         int limit = req.limit() == null ? 10000 : req.limit();
         return ApiResponse.success(runPerTenant(
-            req.tenantIds(), null, DRAW_OPEN, "draw-open-today",
+            req.tenantCodes(), DRAW_OPEN, "draw-open-today",
             tenantId -> commandBus.execute(new OpenTodayDrawsCommand(
                 now, req.drawDate(), limit, req.dryRun()))));
     }
@@ -152,7 +152,7 @@ public class DrawCalendarOpsController {
         // Optional tenant list, else ALL active tenants — each closed in its own RLS context.
         Instant now = req.now() == null ? clock.instant() : req.now();
         return ApiResponse.success(runPerTenant(
-            req.tenantIds(), null, DRAW_CLOSE, "draw-close-due",
+            req.tenantCodes(), DRAW_CLOSE, "draw-close-due",
             tenantId -> commandBus.execute(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()))));
     }
 
