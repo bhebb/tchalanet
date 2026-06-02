@@ -63,8 +63,13 @@
 
 ## Entitlements / quotas
 
-- [ ] Feature keys deferred.
-- [ ] Quota deferred.
+- [x] `PlanFeatureKeys.TENANTGAME_MANAGEMENT` — gate enable/disable jeu.
+- [x] `PlanFeatureKeys.TENANTGAME_SETTINGS` — gate settings (stakes, display, visibility).
+- [x] `PlanFeatureKeys.TENANTGAME_AVAILABILITY` — ajouté dans `PlanFeatureKeys` (V2 readiness).
+- [x] `@RequiredFeature(TENANTGAME_MANAGEMENT)` sur `POST /admin/games/{gameCode}/enable`.
+- [x] `@RequiredFeature(TENANTGAME_SETTINGS)` sur `PATCH /admin/games/{gameCode}/settings`.
+- Logique : activation jeux + settings = plan payant potentiel. Runtime + lecture = gratuit.
+- [ ] Quota `tenant_games.max_enabled` — deferred.
 
 ## Tests
 

@@ -62,6 +62,13 @@ public final class PlanFeatureKeys {
 
     public static final String TENANT_THEME_LOGO = "tenant.theme.logo";
     public static final String TENANT_THEME_BASIC_BRANDING = "tenant.theme.basic_branding";
+    public static final String THEME_PRESET_SELECTION = "theme.preset_selection";
+    public static final String THEME_CUSTOM_TOKENS = "theme.custom_tokens";
+    public static final String THEME_CUSTOM_FONT = "theme.custom_font";
+
+    public static final String TENANTGAME_MANAGEMENT = "tenantgame.management";
+    public static final String TENANTGAME_SETTINGS = "tenantgame.settings";
+    public static final String TENANTGAME_AVAILABILITY = "tenantgame.availability";
 
     public static final String SECURITY_ROLE_BASIC = "security.role.basic";
     public static final String AUDIT_BASIC = "audit.basic";
@@ -128,6 +135,12 @@ public final class PlanFeatureKeys {
         NOTIFICATION_EMAIL,
         TENANT_THEME_LOGO,
         TENANT_THEME_BASIC_BRANDING,
+        THEME_PRESET_SELECTION,
+        THEME_CUSTOM_TOKENS,
+        THEME_CUSTOM_FONT,
+        TENANTGAME_MANAGEMENT,
+        TENANTGAME_SETTINGS,
+        TENANTGAME_AVAILABILITY,
         SECURITY_ROLE_BASIC,
         AUDIT_BASIC,
         AUDIT_VIEWER,

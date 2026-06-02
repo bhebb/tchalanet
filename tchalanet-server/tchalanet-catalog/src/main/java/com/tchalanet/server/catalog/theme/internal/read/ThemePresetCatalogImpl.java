@@ -44,6 +44,14 @@ public class ThemePresetCatalogImpl implements ThemeCatalog {
     }
 
     @Override
+    public Optional<ThemePresetView> findDefault() {
+        return repo.findAll().stream()
+            .filter(e -> e.isDefaultPreset() && e.isActive() && e.getDeletedAt() == null)
+            .findFirst()
+            .map(mapper::toView);
+    }
+
+    @Override
     public ThemePresetStatsView stats() {
         long total = repo.count();
         long active = repo.findAll().stream().filter(e -> e.isActive() && e.getDeletedAt() == null).count();

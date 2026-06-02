@@ -14,5 +14,5 @@ public interface TenantThemeJpaRepository extends JpaRepository<TenantThemeJpaEn
 
   Optional<TenantThemeJpaEntity> findByTenantId(UUID tenantId);
 
-  void deleteByTenantId(UUID tenantId);
+  Optional<TenantThemeJpaEntity> findByTenantIdAndActive(UUID tenantId, boolean active);
 }

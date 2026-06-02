@@ -1,8 +1,10 @@
 package com.tchalanet.server.platform.tenantgame.internal.web;
 
+import com.tchalanet.server.catalog.plan.api.PlanFeatureKeys;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
 import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
@@ -72,6 +74,7 @@ public class TenantGameAdminController {
     @PostMapping("/{gameCode}/enable")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasPermission('tenantgame.manage')")
+    @RequiredFeature(PlanFeatureKeys.TENANTGAME_MANAGEMENT)
     public ApiResponse<EnableTenantGameResult> enable(
         @PathVariable String gameCode,
         @CurrentContext TchRequestContext ctx) {
@@ -98,6 +101,7 @@ public class TenantGameAdminController {
     @Operation(summary = "Update tenant game settings")
     @PatchMapping("/{gameCode}/settings")
     @PreAuthorize("hasPermission('tenantgame.manage')")
+    @RequiredFeature(PlanFeatureKeys.TENANTGAME_SETTINGS)
     public ApiResponse<Void> updateSettings(
         @PathVariable String gameCode,
         @Valid @RequestBody UpdateGameSettingsWebRequest body,

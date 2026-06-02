@@ -18,6 +18,7 @@ public interface ThemeCatalog {
 
     Optional<ThemePresetView> findByCode(String code);
 
-    // NEW: stats for platform admin
+    Optional<ThemePresetView> findDefault();
+
     ThemePresetStatsView stats();
 }

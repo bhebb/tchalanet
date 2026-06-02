@@ -237,6 +237,8 @@ CREATE TABLE theme_preset (
   vendor varchar(128),
   config text NOT NULL,
   label_key varchar(255),
+  description text,
+  sort_order integer NOT NULL DEFAULT 0,
   active boolean NOT NULL DEFAULT true,
   is_default boolean NOT NULL DEFAULT false,
   created_at timestamptz DEFAULT now(),
@@ -252,7 +254,8 @@ CREATE TABLE tenant_theme (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenant(id),
   preset_code varchar(128) NOT NULL,
-  metadata jsonb,
+  default_mode varchar(16) NOT NULL DEFAULT 'SYSTEM',
+  active boolean NOT NULL DEFAULT true,
   is_default boolean NOT NULL DEFAULT false,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
@@ -260,7 +263,7 @@ CREATE TABLE tenant_theme (
   updated_by uuid,
   deleted_at timestamptz,
   deleted_by uuid,
-  version bigint NOT NULL DEFAULT 0
+  version bigint NOT NULL DEFAULT 1
 );
 
 CREATE TABLE game (

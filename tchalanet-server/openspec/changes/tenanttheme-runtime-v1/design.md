@@ -262,34 +262,18 @@ SUPER_ADMIN gets catalog theme management and theme management. TENANT_ADMIN get
 
 ## Entitlements / features
 
-Add feature keys:
+La customisation theme (choix preset, tokens à venir) est potentiellement payante. Runtime et lecture sont toujours gratuits.
 
-```text
-theme.preset_selection
-theme.custom_tokens
-theme.custom_font
-branding.logo
-branding.custom_assets
-```
+| Action | Permission | Feature gate |
+|---|---|---|
+| `GET /admin/theme` | `theme.read` | aucun |
+| `GET /admin/theme/presets` | `theme.read` | aucun |
+| `POST /admin/theme/preset` | `theme.manage` | `theme.preset_selection` |
+| `DELETE /admin/theme` | `theme.manage` | aucun |
+| `GET /public/theme/runtime` | aucun | aucun |
+| `PATCH /admin/theme/tokens` (V2) | `theme.manage` | `theme.custom_tokens` |
 
-Rules:
-
-```text
-POST /admin/theme/preset
-→ permission theme.manage
-→ optional @RequiredFeature(theme.preset_selection)
-
-PATCH /admin/theme/tokens
-→ permission theme.manage
-→ @RequiredFeature(theme.custom_tokens)
-
-font override
-→ permission theme.manage
-→ @RequiredFeature(theme.custom_font)
-→ fontFamilyCode in preset allowedFonts
-```
-
-If entitlement depends on token key or preset code, check inside `TenantThemeAdminService` with `EntitlementApi.requireFeature(...)`.
+Feature keys définis dans `PlanFeatureKeys` (catalog.plan.api) — `THEME_PRESET_SELECTION`, `THEME_CUSTOM_TOKENS`, `THEME_CUSTOM_FONT`.
 
 ## Controller validation
 
