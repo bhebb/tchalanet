@@ -21,6 +21,8 @@ public record TenantRegistryView(
     TenantType type,                    // enum: COMMERCIAL, PERSONAL
     ZoneId timezone,                    // tenant timezone
     Currency currency,                  // tenant currency
+    String defaultLanguage,             // e.g. "fr"
+    String defaultLocale,               // e.g. "fr-HT"
     Optional<AddressId> addressId,      // optional
     Optional<ThemePresetId> activeThemeId  // optional, typed ID
 ) {}

@@ -11,10 +11,10 @@ import com.tchalanet.server.features.platformadmin.tenantonboarding.model.Tenant
 import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
 import com.tchalanet.server.platform.identity.api.IdentityApi;
-import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
-import com.tchalanet.server.platform.tenantconfig.api.model.request.CreateTenantRequest;
-import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByCodeRequest;
-import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantConfigView;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByCodeRequest;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

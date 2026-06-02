@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.scheduler;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.types.id.OfflineGrantId;
@@ -33,7 +33,7 @@ public class GrantExpirationScheduler {
 
     private final OfflineGrantJpaRepository grantRepo;
     private final CommandBus commandBus;
-    private final TenantCatalog tenantCatalog;
+    private final TenantPreContextLookupApi tenantRegistry;
     private final JobContextBinder binder;
     private final Clock clock;
 
@@ -46,7 +46,7 @@ public class GrantExpirationScheduler {
         MDC.put("job", ACTOR);
         try {
             var now = clock.instant();
-            for (TenantId tenantId : tenantCatalog.listActiveTenantIds()) {
+            for (TenantId tenantId : tenantRegistry.listActiveTenantIds()) {
                 try {
                     binder.bindTenant(tenantId, ACTOR);
                     var expired = grantRepo.findAllByStatusAndSyncAcceptedUntilLessThan(

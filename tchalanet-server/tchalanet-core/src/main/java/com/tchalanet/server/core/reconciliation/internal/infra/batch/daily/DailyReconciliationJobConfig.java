@@ -8,8 +8,8 @@ import com.tchalanet.server.core.reconciliation.internal.application.Reconciliat
 import com.tchalanet.server.core.reconciliation.internal.domain.model.ReconciliationRunType;
 import com.tchalanet.server.core.reconciliation.internal.infra.config.ReconciliationDailyJobProperties;
 import com.tchalanet.server.core.reconciliation.internal.infra.persistence.ReconciliationRunJpaRepository;
-import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
-import com.tchalanet.server.platform.tenantconfig.api.model.request.ListTenantsRequest;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.request.ListTenantsRequest;
 import java.time.LocalTime;
 import java.util.Comparator;
 import lombok.RequiredArgsConstructor;

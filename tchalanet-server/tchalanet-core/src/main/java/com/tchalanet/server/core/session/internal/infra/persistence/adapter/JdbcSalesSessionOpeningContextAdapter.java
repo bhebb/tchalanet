@@ -7,7 +7,7 @@ import com.tchalanet.server.common.types.id.TerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.session.internal.application.port.out.SalesSessionOpeningContextReaderPort;
 import com.tchalanet.server.core.session.internal.domain.model.SalesSessionOpeningContext;
-import com.tchalanet.server.platform.tenantconfig.api.TenantBusinessCalendarApi;
+import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

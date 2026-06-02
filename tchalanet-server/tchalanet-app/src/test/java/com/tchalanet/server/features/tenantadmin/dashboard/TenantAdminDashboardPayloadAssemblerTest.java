@@ -199,6 +199,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
         TenantStatus.ACTIVE, TenantType.BORLETTE,
         java.time.ZoneId.of("America/Port-au-Prince"),
         Currency.getInstance("HTG"),
+        "fr", "fr-HT",
         Optional.empty(), Optional.empty());
   }
 

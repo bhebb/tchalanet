@@ -17,7 +17,7 @@ import com.tchalanet.server.platform.document.api.model.DocumentTemplateKey;
 import com.tchalanet.server.platform.document.api.model.LineStyle;
 import com.tchalanet.server.platform.document.api.model.PaperSize;
 import com.tchalanet.server.platform.document.api.model.ReceiptDocumentContent;
-import com.tchalanet.server.platform.tenantconfig.api.model.view.TenantInternalDocumentConfig;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
 import java.util.List;
 import org.springframework.stereotype.Component;
 

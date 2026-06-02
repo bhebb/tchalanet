@@ -37,6 +37,8 @@ public interface TenantRegistryMapper {
   @Mapping(target = "tenantId", source = "id")
   @Mapping(target = "timezone", expression = "java(safeZoneId(entity.getTimezone()))")
   @Mapping(target = "currency", expression = "java(safeCurrency(entity.getCurrency()))")
+  @Mapping(target = "defaultLanguage", expression = "java((entity.getDefaultLanguage() == null || entity.getDefaultLanguage().isBlank()) ? \"fr\" : entity.getDefaultLanguage())")
+  @Mapping(target = "defaultLocale", expression = "java((entity.getDefaultLocale() == null || entity.getDefaultLocale().isBlank()) ? \"fr-HT\" : entity.getDefaultLocale())")
   @Mapping(target = "addressId", expression = "java(entity.getAddressId() != null ? Optional.of(com.tchalanet.server.common.types.id.AddressId.of(entity.getAddressId())) : Optional.empty())")
   @Mapping(target = "activeThemeId", expression = "java(entity.getActiveThemeId() != null ? Optional.of(com.tchalanet.server.common.types.id.ThemePresetId.of(entity.getActiveThemeId())) : Optional.empty())")
   TenantRegistryView toRegistryView(TenantRegistryJpaEntity entity);

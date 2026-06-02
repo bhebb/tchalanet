@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.session.internal.application.command.handler;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.stereotype.TchTx;
@@ -10,7 +10,7 @@ import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsComman
 import com.tchalanet.server.core.session.api.command.CloseDueSalesSessionsResult;
 import com.tchalanet.server.core.session.internal.application.port.out.AutoSessionTargetReaderPort;
 import com.tchalanet.server.core.session.internal.application.service.SalesSessionAutoCloser;
-import com.tchalanet.server.platform.tenantconfig.api.TenantZoneApi;
+import com.tchalanet.server.platform.tenant.api.TenantZoneApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +39,7 @@ public class CloseDueSalesSessionsCommandHandler
 
     private final AutoSessionTargetReaderPort autoSessionTargetReader;
     private final SalesSessionAutoCloser autoCloser;
-    private final TenantCatalog tenantCatalog;
+    private final TenantPreContextLookupApi tenantRegistry;
     private final TenantZoneApi tenantZoneApi;
     private final JobContextBinder jobContextBinder;
     private final Clock clock;
@@ -51,7 +51,7 @@ public class CloseDueSalesSessionsCommandHandler
         int totalTargets = 0;
         int totalClosed  = 0;
 
-        for (TenantId tenantId : tenantCatalog.listActiveTenantIds()) {
+        for (TenantId tenantId : tenantRegistry.listActiveTenantIds()) {
             try {
                 jobContextBinder.bindTenant(tenantId, ACTOR);
 

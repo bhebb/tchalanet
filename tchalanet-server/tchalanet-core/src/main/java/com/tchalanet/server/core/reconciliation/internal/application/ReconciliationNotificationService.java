@@ -9,8 +9,8 @@ import com.tchalanet.server.platform.communication.api.model.request.SendOutboun
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.api.model.value.MessagePriority;
 import com.tchalanet.server.platform.communication.api.model.value.OutboundRecipient;
-import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
-import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.offlinesync.internal.infra.scheduler;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.types.id.OfflineCodeId;
@@ -29,7 +29,7 @@ public class OrphanedCodeReservationScheduler {
 
     private final OfflineCodeJpaRepository codeRepo;
     private final CommandBus commandBus;
-    private final TenantCatalog tenantCatalog;
+    private final TenantPreContextLookupApi tenantRegistry;
     private final JobContextBinder binder;
     private final Clock clock;
 
@@ -42,7 +42,7 @@ public class OrphanedCodeReservationScheduler {
         MDC.put("job", ACTOR);
         try {
             var threshold = clock.instant().minus(Duration.ofMinutes(30));
-            for (TenantId tenantId : tenantCatalog.listActiveTenantIds()) {
+            for (TenantId tenantId : tenantRegistry.listActiveTenantIds()) {
                 try {
                     binder.bindTenant(tenantId, ACTOR);
                     var orphaned = codeRepo.findAllByStatusAndReservedAtLessThan(
