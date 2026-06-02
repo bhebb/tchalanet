@@ -7,7 +7,6 @@ import com.tchalanet.server.common.types.id.TicketId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.document.api.model.DocumentFormat;
 import com.tchalanet.server.platform.document.api.model.PaperSize;
-import com.tchalanet.server.core.sales.internal.domain.model.ticket.Ticket;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -25,7 +24,8 @@ public record TicketPrintedEvent(
 ) implements DomainEvent {
     public static DomainEvent from(
         EventId eventId,
-        Ticket saved,
+        @NotNull TenantId tenantId,
+        @NotNull TicketId ticketId,
         @NotNull UserId printedBy,
         @NotNull DocumentFormat outputFormat,
         @NotNull PaperSize paperSize,
@@ -35,8 +35,8 @@ public record TicketPrintedEvent(
         return new TicketPrintedEvent(
             eventId,
             now,
-            saved.identity().tenantId(),
-            saved.identity().id(),
+            tenantId,
+            ticketId,
             printedBy,
             outputFormat,
             paperSize,

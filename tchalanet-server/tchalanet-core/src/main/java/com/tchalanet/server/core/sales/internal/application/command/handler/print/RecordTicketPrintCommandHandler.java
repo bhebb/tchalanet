@@ -57,7 +57,8 @@ public class RecordTicketPrintCommandHandler
         AfterCommit.run(() -> events.publish(
             TicketPrintedEvent.from(
                 EventId.of(idGenerator.newUuid()),
-                saved,
+                saved.identity().tenantId(),
+                saved.identity().id(),
                 command.actorUserId(),
                 outputFormat,
                 paperSize,
