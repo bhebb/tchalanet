@@ -30,14 +30,23 @@ platform/<name>/
     <Name>Api.java        ← Interface unique consommée par les autres modules
     model/                ← Records immuables (pas de JPA entities, pas de Spring MVC types)
   internal/
-    service/              ← Implémentation de l'api
-    persistence/          ← JPA entities, repositories (si stateful)
-    web/                  ← Controllers admin (optionnel, /api/v1/platform/**)
+    model/                ← Records domaine internes (sortis de service/, pas de JPA, pas d'api)
+    service/              ← Implémentation métier fine (un service par responsabilité)
+    adapter/              ← <Name>ApiAdapter (impl de l'api, délègue) + adapters externes (mail, push…)
+    persistence/          ← JPA entities, repositories, mappers (si stateful)
+    web/                  ← Controllers (optionnel) — sous-paquets me/ admin/ ops/ si pertinent
     event/                ← Listeners d'events core (optionnel)
-    adapter/              ← Adapters externes (HTTP, mail, push…)
     cache/                ← Cache specs (optionnel)
     config/               ← Spring @Configuration
 ```
+
+**Conventions de paquet** :
+- `internal/model/` accueille les records domaine internes ; ne pas les laisser dans
+  `internal/service/`. Interdit d'y mettre des JPA entities ou des types de l'`api/`.
+- L'impl de l'`api/` publique vit dans `internal/adapter/<Name>ApiAdapter` et **délègue uniquement**
+  aux services — pas de logique métier dans l'adapter ni dans les controllers.
+- Un service = une responsabilité ; l'orchestration cross-service vit dans un service dédié
+  (ex. `…ProvisioningService`), pas dans le controller.
 
 ---
 

@@ -6,53 +6,101 @@
 
 `platform.accesscontrol` owns authorization policy:
 
-- Gestion des rôles (création, mise à jour, hiérarchie, multi-tenant)
-- Permissions (catalogue, affectation aux rôles)
-- Affectation mono-rôle par utilisateur/tenant
-- Résolution des permissions effectives
-- Décision d’autorisation (API et annotations)
+- Catalogue des rôles système et des permissions (lecture pour tenant admins, écriture ops only en V1)
+- Affectation de rôle(s) système à un utilisateur dans un tenant (`tenant_user_role`)
+- Overrides de permission par utilisateur : GRANT / DENY (`user_permission_override`)
+- Résolution des **permissions effectives** et décision d'autorisation (API + annotations)
+- Bootstrap de la matrice rôle→permissions par défaut
 
 Il répond à : **cet acteur peut-il effectuer cette action dans ce contexte ?**
 
-Ne valide pas l’état métier des ressources cibles (voir core).
+Ne valide pas l'état métier des ressources cibles (voir core).
 
 
 ## Public Surface
 
-**API publique** :
+**API publique** — `platform/accesscontrol/api/AccessControlApi.java` :
 
-- `platform/accesscontrol/api/AccessControlApi.java` — gestion des rôles, permissions, affectations, vérification des droits
-- `@RequiresPermission` — annotation pour vérification déclarative
-- `TchPermissionEvaluator` — intégration Spring Security
+| Groupe | Méthodes |
+|---|---|
+| Checks | `checkPermissions` (utilisé par `TchPermissionEvaluator`) |
+| Lectures catalogue | `listRoles`, `listPermissions`, `listRolePermissions`, `getEffectivePermissions` |
+| Affectation de rôle | `assignRoleToUser`, `removeRoleFromUser` (opèrent sur `tenant_user_role`) |
+| Overrides utilisateur | `grantUserPermission`, `denyUserPermission`, `removeUserPermissionOverride` |
+| Bootstrap | `bootstrap` |
+| Catalogue rôles (ops only) | `createRole`, `updateRole`, `grantPermission`, `revokePermission` |
+| Déprécié | `setTenantUserRole` → utiliser `assignRoleToUser` |
 
-**Endpoints admin** (REST, internes) :
+**Constantes** — `platform/accesscontrol/api/PermissionKeys.java` : la source unique des codes
+de permission (`user.role.assign`, `user.permission.manage`, `platform.ops.execute`, `terminal.bind`…).
+Les `@PreAuthorize("hasPermission('…')")` doivent référencer ces clés, jamais des littéraux ad hoc.
 
-- `/admin/roles` — CRUD rôles (multi-tenant)
-- `/admin/permissions` — catalogue des permissions
-- `/admin/roles/{roleId}/permissions` — gestion des permissions d’un rôle
+**Intégration Spring Security** :
+- `@RequiresPermission` — annotation déclarative
+- `TchPermissionEvaluator` — `hasPermission('code')` dans `@PreAuthorize`
+
+**Endpoints admin** (REST, `/api/v1/admin/access-control`, gate `TENANT_ADMIN`/`SUPER_ADMIN`) :
+
+| Méthode | Route | Permission |
+|---|---|---|
+| GET | `/roles` | `role.read` |
+| GET | `/permissions` | `permission.read` |
+| GET | `/roles/{roleId}/permissions` | `role.read` |
+| GET | `/users/{userId}/permissions/effective` | `user.read` |
+| POST/DELETE | `/users/{userId}/roles/{roleCode}` | `user.role.assign` |
+| PUT | `/users/{userId}/permissions/{permissionCode}/grant` | `user.permission.manage` |
+| PUT | `/users/{userId}/permissions/{permissionCode}/deny` | `user.permission.manage` |
+| DELETE | `/users/{userId}/permissions/{permissionCode}/override` | `user.permission.manage` |
+| POST | `/bootstrap/{mode}` | `SUPER_ADMIN` + `platform.ops.execute` |
 
 **Important** :
 - Les consumers ne doivent jamais importer `platform.accesscontrol.internal.*`.
 
 
+## Permissions effectives
+
+```text
+effective = permissions des rôles actifs (tenant_user_role)
+            + overrides GRANT de l'utilisateur
+            − overrides DENY de l'utilisateur
+```
+
+**DENY l'emporte toujours** sur les grants de rôle et les GRANT explicites
+(`EffectivePermissionService`). Les permissions ne sont jamais copiées dans la ligne utilisateur :
+elles se recalculent depuis rôle + overrides.
+
+
+## Autorités JWT vs rôle applicatif (invariant cross-module)
+
+Les **autorités** portées par le JWT (`hasAnyAuthority('TENANT_ADMIN', …)`) sont dérivées des
+**realm roles Keycloak** par `SecurityConfig`, *pas* du `tenant_user_role` applicatif. Lorsqu'un
+utilisateur est provisionné via l'API, le rôle applicatif affecté ici doit donc être **miroité**
+dans Keycloak (cf. `platform.identity` → `KeycloakUserProvisionService.assignRealmRole`). Les
+**permissions fines** (`hasPermission('code')`) restent, elles, résolues ici via les permissions
+effectives. Voir `PLATFORM_IDENTITY.md` § Provisioning.
+
+
 ## Deny-Safe Evaluation
 
-L’évaluation des permissions est **deny-by-default** si des faits de sécurité sont manquants ou ambigus.
+L'évaluation des permissions est **deny-by-default** si des faits de sécurité sont manquants ou ambigus.
 
 Faits requis pour les checks tenant-scoped :
 - acteur authentifié
 - tenant effectif (contexte canonique)
 - permission demandée
-- faits de rôle/membership issus de l’état platform
+- faits de rôle/membership issus de l'état platform
 
-Ne jamais faire confiance aux tenantId issus du payload HTTP comme source d’autorité.
+Ne jamais faire confiance aux tenantId issus du payload HTTP comme source d'autorité.
 
 
 ## Ce que AccessControl ne fait pas
 
 Ne valide pas :
-- l’état métier (payout, ticket, terminal, etc.)
+- l'état métier (payout, ticket, terminal, etc.)
 - les eligibility business (offline, limits, draw, etc.)
+- le **contexte opérationnel** (terminal/outlet/session) — une action sensible exige
+  `permission + contexte opérationnel de confiance + validation terminal/outlet/session`.
+  Il n'existe pas de permission `operational-context.valid`.
 
 Ces checks relèvent des validateurs/handlers du domaine core.
 
@@ -60,17 +108,19 @@ Ces checks relèvent des validateurs/handlers du domaine core.
 ## Intégration
 
 - Contrôleurs HTTP :
-	- `@PreAuthorize("hasPermission('permission:code')")` (Spring Security)
+	- `@PreAuthorize("hasPermission('permission.code')")` (Spring Security)
 	- `@RequiresPermission` (annotation custom)
 - Flows non-HTTP : appel direct à `AccessControlApi`
-- Endpoints d’écriture (rôles, permissions) audités via `platform.audit`
+- `platform.identity` (provisioning) appelle `assignRoleToUser` lors de la création d'un utilisateur
+- Endpoints d'écriture (rôles, permissions, overrides) audités via `platform.audit`
 
 
 ## Persistence
 
-- Tables rôles, permissions, affectations détenues par `platform.accesscontrol`
+- Tables détenues par `platform.accesscontrol` : `app_role`, `permission`, `app_role_permission`,
+  `tenant_user_role`, `user_permission_override`
 - Rows tenant-scoped compatibles RLS
-- Les queries ne doivent jamais utiliser un tenantId client comme source d’isolation
+- Les queries ne doivent jamais utiliser un tenantId client comme source d'isolation
 
 
 ## Guardrails
@@ -78,10 +128,13 @@ Ces checks relèvent des validateurs/handlers du domaine core.
 - Platform ne doit pas dépendre de core/features
 - Aucune importation de packages métier core/features
 - Deny systématique si faits manquants (actor, tenant, permission)
-- Endpoints d’écriture audités
+- Endpoints d'écriture audités
 - Les invariants métier restent dans core
+- Les codes de permission passent par `PermissionKeys`, jamais en dur
 
 ## Limitations connues
 
-- La méthode `setTenantUserRole` n’est pas encore implémentée (UnsupportedOperationException)
-- L’affectation mono-rôle par utilisateur/tenant est prévue, mais nécessite wiring avec platform.identity
+- Rôles custom par tenant : non supportés en V1 (roadmap 2027) — l'écriture du catalogue de rôles
+  (`createRole`/`updateRole`/grant/revoke) est **ops only**, les tenant admins sont read-only.
+- `setTenantUserRole` est conservé déprécié pour compat ; toute nouvelle intégration utilise
+  `assignRoleToUser`.
