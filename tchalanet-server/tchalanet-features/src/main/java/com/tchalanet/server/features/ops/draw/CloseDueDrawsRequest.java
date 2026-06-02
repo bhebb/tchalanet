@@ -6,8 +6,8 @@ import java.util.List;
 
 /** Request body for closing due draws (ops). */
 public record CloseDueDrawsRequest(
-    // Optional tenant targeting: these tenants if present, else ALL active tenants.
-    List<String> tenantIds,
+    // Optional tenant targeting: these tenant codes if present, else ALL active tenants.
+    List<String> tenantCodes,
     Instant now,
     @Min(1) int limit,
     Boolean dryRun) {

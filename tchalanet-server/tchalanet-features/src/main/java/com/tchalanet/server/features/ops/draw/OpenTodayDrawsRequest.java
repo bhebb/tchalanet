@@ -6,8 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record OpenTodayDrawsRequest(
-    // Optional tenant targeting: these tenants if present, else ALL active tenants.
-    List<String> tenantIds,
+    // Optional tenant targeting: these tenant codes if present, else ALL active tenants.
+    List<String> tenantCodes,
     Instant now,
     LocalDate drawDate,
     @Min(1) Integer limit,
