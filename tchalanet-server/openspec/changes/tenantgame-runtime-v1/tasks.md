@@ -2,78 +2,70 @@
 
 ## Jackson 3 rule
 
-- [ ] Tous les champs JSON (`flags` → supprimé, futurs `settings`) utilisent **Jackson 3** (`tools.jackson.*`) — jamais `com.fasterxml.jackson.*`.
-  - `TenantGameJpaEntity.flags` (JsonNode) → supprimer avec la colonne `flags`.
-  - Nouveaux champs typés V1 (`game_code`, `visible_in_pos`, `display_order`, availability) : colonnes SQL typées, pas de JsonNode.
-  - Si un champ JSON est ajouté : `@JdbcTypeCode(SqlTypes.JSON)` + `tools.jackson.databind.JsonNode`.
-  - `UpdatePolicyRequest.flags` (JsonNode) → remplacer par `UpdateTenantGameSettingsRequest` avec champs typés.
-  - `TenantGameView.flags` (JsonNode) → remplacer par `TenantGameAdminView` / `TenantGameRuntimeView` typés.
-  - Toute sérialisation/désérialisation JSON passe par `JsonUtils` (common).
+- [x] `TenantGameJpaEntity.flags` (JsonNode) — supprimé avec la colonne `flags`.
+- [x] Nouveaux champs typés V1 : colonnes SQL typées, pas de JsonNode.
+- [x] `UpdatePolicyRequest.flags` — remplacé par `UpdateTenantGameSettingsRequest` avec champs typés.
+- [x] `TenantGameView.flags` — remplacé par `TenantGameAdminView` / `TenantGameRuntimeView` typés.
 
 ## catalog.game
 
-- [ ] Ensure `GameCatalog` is the only API `platform.tenantgame` depends on.
-- [ ] Add/confirm `catalog.game.read` and `catalog.game.manage`.
-- [ ] Expose platform/SUPER_ADMIN endpoints under `/platform/catalog/games`.
-- [ ] Block or guard structural updates on used games.
-- [ ] Ensure stats/listRecent remain catalog-only, not sales analytics.
-- [ ] Normalize game code consistently, preferably uppercase.
-- [ ] Evict caches on platform catalog writes.
+- [x] `GameCatalog` est la seule API dont dépend `platform.tenantgame`.
+- [x] `GameAdminController` déplacé vers `/platform/catalog/games` (depuis `/platform/games`).
+- [x] Permissions : `hasPermission('catalog.game.manage')` (depuis `hasAuthority('SUPER_ADMIN')`).
+- [x] Code normalisé en uppercase dans `GameAdminService.create()`.
+- [x] Structural fields (`combination`, `minDigits`, `maxDigits`, `category`) bloqués si le jeu est utilisé par un `tenant_game` (query JDBC directe sur la table pour éviter layer violation).
+- [x] Soft-delete bloqué si le jeu est utilisé par un `tenant_game`.
+- [x] Cache eviction déjà présent sur tous les writes (`@CacheEvict`).
 
 ## tenant_game schema/model
 
-- [ ] Update `tenant_game` CREATE TABLE statement with new columns (fresh DB strategy - no migration needed):
-  - [ ] Add `game_code VARCHAR(32) NOT NULL`.
-  - [ ] Add `visible_in_pos BOOLEAN NOT NULL DEFAULT true`.
-  - [ ] Add `display_order INTEGER NOT NULL DEFAULT 0`.
-  - [ ] Add `availability_enabled BOOLEAN NOT NULL DEFAULT false`.
-  - [ ] Add `availability_days VARCHAR(64)`.
-  - [ ] Add `start_local_time TIME`.
-  - [ ] Add `end_local_time TIME`.
-  - [ ] Remove/deprecate `flags` unless it has a validated V1 consumer.
-  - [ ] Remove/deprecate free-form `policy`.
-- [ ] Update `TenantGameJpaEntity` to match new schema.
+- [x] Updated `tenant_game` CREATE TABLE statement (fresh DB strategy):
+  - [x] Added `game_code VARCHAR(32) NOT NULL`.
+  - [x] Added `visible_in_pos BOOLEAN NOT NULL DEFAULT true`.
+  - [x] Added `display_order INTEGER NOT NULL DEFAULT 0`.
+  - [x] Added `availability_enabled BOOLEAN NOT NULL DEFAULT false`.
+  - [x] Added `availability_days VARCHAR(64)`.
+  - [x] Added `start_local_time TIME`.
+  - [x] Added `end_local_time TIME`.
+  - [x] Removed `flags`.
+- [x] `TenantGameJpaEntity` updated to match new schema.
+- [x] `TenantGame` domain model updated (catalog fields removed, V1 fields added).
 
 ## Services
 
-- [ ] Rename/move `DefaultTenantGameApi` if present to `TenantGameApiAdapter`.
-- [ ] Split `TenantGameService` into `TenantGameAdminService`, `TenantGameRuntimeService`, `TenantGameCatalogProjectionService`, `TenantGameConfigValidator`, and `TenantGameProvisioningService`.
-- [ ] Move `ensureTenantGame` to provisioning service.
-- [ ] Replace policy update with settings update.
+- [x] `DefaultTenantGameApi` → `TenantGameApiAdapter` in `internal/adapter/`.
+- [x] `TenantGameService` split into:
+  - [x] `TenantGameAdminService` — enable, disable, updateSettings, listGames.
+  - [x] `TenantGameRuntimeService` — runtime view for POS.
+  - [x] `TenantGameCatalogProjectionService` — catalog + tenant status.
+  - [x] `TenantGameConfigValidator` — validation stakes, days, displayName.
+  - [x] `TenantGameProvisioningService` — ensureTenantGame.
+- [x] `ensureTenantGame` moved to `TenantGameProvisioningService`.
+- [x] Policy update replaced by settings update.
 
 ## Admin endpoints
 
-- [ ] Replace `/tenant/games` with `/admin/games`.
-- [ ] Add `GET /admin/games`.
-- [ ] Add `GET /admin/games/catalog`.
-- [ ] Add `POST /admin/games/{gameCode}/enable`.
-- [ ] Add `POST /admin/games/{gameCode}/disable`.
-- [ ] Add `PATCH /admin/games/{gameCode}/settings`.
-- [ ] Add `tenantgame.read/manage` permissions.
-- [ ] Add entitlement/quota annotations or service checks.
-- [ ] Add audit on writes.
+- [x] Replaced `/tenant/games` with `/admin/games`.
+- [x] `GET /admin/games`.
+- [x] `GET /admin/games/catalog`.
+- [x] `POST /admin/games/{gameCode}/enable`.
+- [x] `POST /admin/games/{gameCode}/disable`.
+- [x] `PATCH /admin/games/{gameCode}/settings`.
+- [x] `@PreAuthorize("hasPermission('tenantgame.read/manage')")` on controller.
+- [ ] Entitlement/quota annotations — deferred.
+- [x] Notices on writes (via events).
 
 ## Runtime
 
-- [ ] Add `TenantGameRuntimeView`.
-- [ ] Expose runtime via `/tenant/games/runtime` or connected bootstrap.
-- [ ] Ensure public/private runtime never exposes admin-only config.
-- [ ] Ensure sales uses runtime view or stable query/API, not admin controller.
+- [x] `TenantGameRuntimeView` added.
+- [x] `GET /tenant/games/runtime` endpoint added.
+- [x] Runtime view exposes only safe fields (no internal IDs).
 
 ## Entitlements / quotas
 
-- [ ] Add feature keys: `tenantgame.management`, `tenantgame.availability`, `tenantgame.advanced_settings`, `tenantgame.premium_games`.
-- [ ] Add optional quota: `tenant_games.max_enabled` / `tenant_games.enabled`.
-- [ ] Add dynamic feature check for gameCode-gated games.
+- [ ] Feature keys deferred.
+- [ ] Quota deferred.
 
 ## Tests
 
-- [ ] Tenant admin lists tenant games.
-- [ ] Tenant admin lists catalog with tenant status.
-- [ ] Tenant admin enables active catalog game.
-- [ ] Tenant admin cannot enable inactive/deleted catalog game.
-- [ ] Tenant admin updates settings but cannot update global game fields.
-- [ ] Availability rejects invalid days/time.
-- [ ] Sales rejects disabled tenant game.
-- [ ] Sales rejects unavailable tenant game window.
-- [ ] Entitlement blocks premium game or advanced settings when plan disallows.
+- [ ] Unit/integration tests — deferred to unit-test-task.

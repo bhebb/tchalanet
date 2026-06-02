@@ -9,20 +9,17 @@ import java.util.Optional;
 
 /**
  * Registry view for tenant listings and admin operations.
- * Per DOMAIN_TENANT_CATALOG.md: used for filters / admin listings.
- * Enhanced with currency, zoneId and typed ThemePresetId per typed_ids.md.
- * Uses TenantStatus and TenantType enums for type safety.
  */
 public record TenantRegistryView(
     TenantId tenantId,
     String code,
     String name,
-    TenantStatus status,                // enum: ACTIVE, SUSPENDED, ARCHIVED
-    TenantType type,                    // enum: COMMERCIAL, PERSONAL
-    ZoneId timezone,                    // tenant timezone
-    Currency currency,                  // tenant currency
-    String defaultLanguage,             // e.g. "fr"
-    String defaultLocale,               // e.g. "fr-HT"
-    Optional<AddressId> addressId,      // optional
-    Optional<ThemePresetId> activeThemeId  // optional, typed ID
+    TenantStatus status,
+    TenantType type,
+    ZoneId timezone,
+    Currency currency,
+    String defaultLanguage,
+    String defaultLocale,
+    Optional<AddressId> addressId,
+    Optional<ThemePresetId> activeThemeId
 ) {}

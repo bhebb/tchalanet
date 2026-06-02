@@ -21,9 +21,9 @@ import java.util.Map;
  * Translates web requests into service-layer commands.
  */
 @RestController
-@RequestMapping("/platform/games")
+@RequestMapping("/platform/catalog/games")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasPermission('catalog.game.manage')")
 public class GameAdminController {
 
   private final GameAdminService gameAdminService;

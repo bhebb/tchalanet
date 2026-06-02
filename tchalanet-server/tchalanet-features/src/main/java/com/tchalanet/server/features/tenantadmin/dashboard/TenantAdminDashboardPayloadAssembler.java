@@ -214,7 +214,7 @@ public class TenantAdminDashboardPayloadAssembler {
    * PARTIAL if at least one configured. MISSING if none. UNKNOWN if no tenant.
    */
   private TenantReadinessSummaryPayload buildReadinessSummary(
-      TenantRegistryView registry, OperationsBundle ops, CommercialBundle commercial) {
+          TenantRegistryView registry, OperationsBundle ops, CommercialBundle commercial) {
     List<TenantReadinessIssue> issues = new ArrayList<>();
     int missing = 0;
 

@@ -1,5 +1,6 @@
 package com.tchalanet.server.platform.tenant.internal.service;
 
+import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
 import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
@@ -291,12 +292,12 @@ public class TenantConfigService {
         return tenants.getRequiredByIdActive(tenantId);
     }
 
-    private TenantConfigView toView(com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView registry) {
+    private TenantConfigView toView(TenantRegistryView registry) {
         return toView(registry, true);
     }
 
     private TenantConfigView toView(
-        com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView registry, boolean includeDetails) {
+        TenantRegistryView registry, boolean includeDetails) {
         AddressView address = null;
         if (includeDetails && registry.addressId().isPresent()) {
             address = addressApi.get(registry.tenantId(), registry.addressId().get()).orElse(null);
