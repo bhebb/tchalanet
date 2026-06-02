@@ -215,17 +215,38 @@ public class TenantUserAdministrationService {
       return null;
     }
     var tenantId = ctx.effectiveTenantIdOrNull();
+    // A SUPER_ADMIN tenant override carries the target tenant as a UUID in X-Tenant-Id, so the
+    // context "code" fields then hold that UUID, not a real tenant code. Resolve the real code
+    // from the effective tenant id in that case (using the context code would store a UUID as
+    // the Keycloak tenant_code attribute).
+    if (ctx.tenantOverridden()) {
+      return lookupTenantCodeOrNull(tenantId);
+    }
+    // Normal request: the JWT-claim tenant code is already a real code — use it directly so the
+    // new Keycloak user gets the right tenant_code attribute without a DB round-trip.
+    if (ctx.effectiveTenantCode() != null && !ctx.effectiveTenantCode().isBlank()) {
+      return ctx.effectiveTenantCode().trim();
+    }
+    if (ctx.originalTenantCode() != null && !ctx.originalTenantCode().isBlank()) {
+      return ctx.originalTenantCode().trim();
+    }
+    return lookupTenantCodeOrNull(tenantId);
+  }
+
+  private String lookupTenantCodeOrNull(TenantId tenantId) {
     if (tenantId == null) {
       return null;
     }
     try {
       var view = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
-      return view != null ? view.code() : null;
+      if (view != null && view.code() != null && !view.code().isBlank()) {
+        return view.code();
+      }
     } catch (RuntimeException e) {
       log.warn("Could not resolve tenant code for tenantId={} during user creation: {}",
           tenantId, e.getMessage());
-      return null;
     }
+    return null;
   }
 
   private static String buildDisplayName(String firstName, String lastName) {
