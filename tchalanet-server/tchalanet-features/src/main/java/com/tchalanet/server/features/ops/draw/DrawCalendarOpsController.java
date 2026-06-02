@@ -9,6 +9,8 @@ import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
+import com.tchalanet.server.common.web.error.ProblemRest;
+import org.springframework.http.HttpStatus;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
 import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
@@ -80,12 +82,16 @@ public class DrawCalendarOpsController {
     private <R> TenantBatchResponse<R> runPerTenant(
             List<String> explicitTenantIds, String singleTenantId,
             JobKey gate, String label, Function<TenantId, R> work) {
+        // The gate gates the operation, not an individual tenant: check it once up front (like the
+        // scheduler) so a disabled gate surfaces clearly instead of being swallowed as N per-tenant
+        // failures inside the loop.
+        batchGate.assertEnabledOrThrow(gate, null);
+
         List<TenantId> targets = resolveTargetTenants(explicitTenantIds, singleTenantId);
         var outcomes = new ArrayList<TenantBatchResponse.Outcome<R>>(targets.size());
         int succeeded = 0, failed = 0;
         for (TenantId tenantId : targets) {
             try {
-                batchGate.assertEnabledOrThrow(gate, tenantId);
                 R res = TchContextScope.runWithTemporaryTenantResult(
                     tenantId.value(), label, () -> work.apply(tenantId));
                 outcomes.add(new TenantBatchResponse.Outcome<>(tenantId.value().toString(), true, res, null));
@@ -94,6 +100,13 @@ public class DrawCalendarOpsController {
                 outcomes.add(new TenantBatchResponse.Outcome<>(tenantId.value().toString(), false, null, ex.getMessage()));
                 failed++;
             }
+        }
+        // A single tenant's failure must not abort the rest, but a sweep where EVERY tenant failed
+        // (incl. the single-tenant case) is a real error — surface it instead of a 200 that masks it.
+        if (succeeded == 0 && failed > 0) {
+            throw ProblemRest.of(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Draw " + label + " failed for all " + failed + " tenant(s); first error: "
+                    + outcomes.get(0).error());
         }
         return new TenantBatchResponse<>(targets.size(), succeeded, failed, outcomes);
     }
