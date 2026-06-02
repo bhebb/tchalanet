@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.ops.draw;
 
+import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -31,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/platform/ops/draws")
@@ -46,6 +49,7 @@ public class DrawCalendarOpsController {
 
     private final CommandBus commandBus;
     private final BatchGate batchGate;
+    private final TenantCatalog tenantCatalog;
     private final Clock clock;
 
     @Operation(summary = "Generate draws for a date range (ops)")
@@ -55,20 +59,58 @@ public class DrawCalendarOpsController {
         action = AuditAction.DRAW_GENERATE,
         idExpression = "'draw-generate'",
         detailsExpression = "#req")
-    public ApiResponse<GenerateDrawsForRangeResult> generate(@Valid @RequestBody GenerateDrawsRequest req) {
-        TenantId tenantId = TenantId.parse(req.tenantId());
-        batchGate.assertEnabledOrThrow(DRAW_GENERATE, tenantId);
-        // Generate reads the target tenant's draw channels and INSERTs draws for it. Both are
-        // tenant-scoped under RLS (draw WITH CHECK requires tenant_id = current_tenant()), so the
-        // command must run in the TARGET tenant's context — not the caller's. Otherwise generating
-        // for any tenant other than the caller's reads the wrong channels and the INSERT is
-        // rejected by the draw RLS policy (500).
-        var res = TchContextScope.runWithTemporaryTenantResult(
-            tenantId.value(), "draw-generate",
-            () -> commandBus.execute(
-                new GenerateDrawsForRangeCommand(
-                    tenantId, req.from(), req.to(), req.dryRun(), req.force(), req.reason())));
-        return ApiResponse.success(res);
+    public ApiResponse<GenerateDrawsBatchResponse> generate(@Valid @RequestBody GenerateDrawsRequest req) {
+        // Target tenants: explicit tenantIds, else single tenantId (back-compat), else ALL active
+        // tenants — mirroring the scheduled generateNext7Days job. Generation is idempotent, so a
+        // full sweep only fills tenants that are still missing draws in the range.
+        List<TenantId> targets = resolveTargetTenants(req);
+
+        var outcomes = new ArrayList<GenerateDrawsBatchResponse.TenantOutcome>(targets.size());
+        int created = 0, skipped = 0, alreadyExists = 0, conflicts = 0, providerClosed = 0;
+        int succeeded = 0, failed = 0;
+
+        for (TenantId tenantId : targets) {
+            try {
+                // Per-tenant gate + run in the TARGET tenant's RLS context: generate reads that
+                // tenant's draw channels and INSERTs its draws, both tenant-scoped under RLS
+                // (draw WITH CHECK requires tenant_id = current_tenant()). Running in the caller's
+                // context would read the wrong channels and the INSERT would be rejected (500).
+                batchGate.assertEnabledOrThrow(DRAW_GENERATE, tenantId);
+                var res = TchContextScope.runWithTemporaryTenantResult(
+                    tenantId.value(), "draw-generate",
+                    () -> commandBus.execute(new GenerateDrawsForRangeCommand(
+                        tenantId, req.from(), req.to(), req.dryRun(), req.force(), req.reason())));
+
+                created += res.created();
+                skipped += res.skipped();
+                alreadyExists += res.alreadyExists();
+                conflicts += res.conflicts();
+                providerClosed += res.skippedProviderClosed();
+                succeeded++;
+                outcomes.add(new GenerateDrawsBatchResponse.TenantOutcome(
+                    tenantId.value().toString(), true, res, null));
+            } catch (Exception ex) {
+                // One tenant's failure must not abort the rest (resilient batch, like the job).
+                failed++;
+                outcomes.add(new GenerateDrawsBatchResponse.TenantOutcome(
+                    tenantId.value().toString(), false, null, ex.getMessage()));
+            }
+        }
+
+        var totals = new GenerateDrawsForRangeResult(
+            created, skipped, alreadyExists, conflicts, providerClosed);
+        return ApiResponse.success(new GenerateDrawsBatchResponse(
+            targets.size(), succeeded, failed, totals, outcomes));
+    }
+
+    private List<TenantId> resolveTargetTenants(GenerateDrawsRequest req) {
+        if (req.tenantIds() != null && !req.tenantIds().isEmpty()) {
+            return req.tenantIds().stream().map(TenantId::parse).toList();
+        }
+        if (req.tenantId() != null && !req.tenantId().isBlank()) {
+            return List.of(TenantId.parse(req.tenantId()));
+        }
+        return tenantCatalog.listActiveTenantIds();
     }
 
     @Operation(summary = "Open today's scheduled draws (ops)")
