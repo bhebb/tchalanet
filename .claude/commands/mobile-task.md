@@ -16,4 +16,8 @@ Load only:
 3. `.agents/skills/scoped-task/SKILL.md`
 4. files being edited/reviewed
 
+Do NOT load testing skills unless:
+- task explicitly mentions "test" or "coverage"
+- `/test-ready-check` is called before PR
+
 Feature-first Flutter. Do not duplicate backend rules. Treat offline submissions as pending, never confirmed.

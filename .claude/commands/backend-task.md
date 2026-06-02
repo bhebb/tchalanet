@@ -16,4 +16,8 @@ Load only:
 3. `.agents/skills/scoped-task/SKILL.md`
 4. files being edited/reviewed
 
+Do NOT load testing skills unless:
+- task explicitly mentions "test" or "coverage"
+- `/test-ready-check` is called before PR
+
 Backend rules live in `tchalanet-server/docs/` and `openspec/context/` — read by pointer, do not restate here.
