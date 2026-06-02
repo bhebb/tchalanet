@@ -16,6 +16,7 @@ import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfil
 import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
 import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.SetUserRoleRequest;
 import java.util.Currency;
 import java.util.Locale;
@@ -34,9 +35,12 @@ class IdentityUserAdminControllerTest {
   private final TenantMembershipService memberships = mock(TenantMembershipService.class);
   private final com.tchalanet.server.platform.accesscontrol.api.AccessControlApi accessControlApi =
       mock(com.tchalanet.server.platform.accesscontrol.api.AccessControlApi.class);
+  private final TenantUserProvisioningService provisioning = mock(TenantUserProvisioningService.class);
+  // Real assembler over the mocked services so tenant-scoping/view composition stays exercised.
+  private final TenantUserAdminViewAssembler view = new TenantUserAdminViewAssembler(profiles, memberships);
 
   private final IdentityUserAdminController controller =
-      new IdentityUserAdminController(profiles, users, memberships, accessControlApi);
+      new IdentityUserAdminController(profiles, users, memberships, accessControlApi, provisioning, view);
 
   @Nested
   @DisplayName("Role restrictions")

@@ -1,10 +1,14 @@
 package com.tchalanet.server.platform.identity.internal.service;
 
 import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.id.OutletId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.types.id.TerminalId;
+import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
 import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.identity.api.model.result.CreateUserResult;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,15 +44,45 @@ public class TenantUserProvisioningService {
       TchRole role) {
 
     var created = userAdminService.createUserForTenant(email, null, firstName, lastName, tenantCode);
-
-    tenantMembershipService.assign(tenantId, created.userId(), null, null, false);
-
-    if (role != null) {
-      accessControlApi.assignRoleToUser(
-          new AssignRoleToUserRequest(tenantId, created.userId(), role.name(), null));
-      log.info("Provisioned user {} in tenant {} with role {}", created.userId(), tenantId, role);
-    }
-
+    assignMembershipAndRole(tenantId, created.userId(), null, null, role, null);
     return created;
+  }
+
+  /**
+   * Provisions a new user from the admin controller, in the current request's tenant context.
+   * The tenantCode for the KC claim is resolved from {@link TchContext} (not passed explicitly),
+   * the membership carries the requested outlet/terminal, and {@code actor} is recorded as the
+   * role assigner.
+   */
+  @Transactional
+  public CreateUserResult provisionTenantUser(
+      TenantId tenantId,
+      UserId actor,
+      String email,
+      String phone,
+      String firstName,
+      String lastName,
+      OutletId outletId,
+      TerminalId terminalId,
+      TchRole role) {
+
+    var created =
+        userAdminService.createUser(
+            email, phone, firstName, lastName, null, null, null, null, null, false, Set.of());
+    assignMembershipAndRole(tenantId, created.userId(), outletId, terminalId, role, actor);
+    return created;
+  }
+
+  private void assignMembershipAndRole(
+      TenantId tenantId, UserId userId, OutletId outletId, TerminalId terminalId, TchRole role, UserId actor) {
+    tenantMembershipService.assign(tenantId, userId, outletId, terminalId, false);
+    if (role != null) {
+      accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(tenantId, userId, role.name(), actor));
+      // Mirror the role to a Keycloak realm role so the new user's JWT carries the matching
+      // authority (SecurityConfig derives authorities from realm roles); otherwise an API-created
+      // cashier/admin is rejected (403) on its role-gated endpoints. Best-effort, never throws.
+      userAdminService.syncKeycloakRealmRole(userId, role.name());
+      log.info("Provisioned user {} in tenant {} with role {}", userId, tenantId, role);
+    }
   }
 }
