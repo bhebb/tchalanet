@@ -1,12 +1,16 @@
 package com.tchalanet.server.features.platformadmin.tenantonboarding;
 
+import com.tchalanet.server.common.context.TchContext;
 import com.tchalanet.server.common.context.TchContextScope;
+import com.tchalanet.server.common.security.TchRole;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningPreviewView;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningProfile;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningRequest;
 import com.tchalanet.server.features.platformadmin.tenantonboarding.model.TenantProvisioningResultView;
 import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
+import com.tchalanet.server.platform.identity.api.IdentityApi;
 import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.CreateTenantRequest;
 import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByCodeRequest;
@@ -21,13 +25,11 @@ import org.springframework.stereotype.Service;
 /**
  * Tenant provisioning orchestrator (dashboard-overview-runtime-v1 §tenant-provisioning).
  *
- * Hard rules enforced here:
+ * Hard rules:
  *   - calls owning domain APIs only (no direct INSERTs into other domains)
- *   - never copies transactional data (tickets/sales/sessions/payouts/bindings/
- *     audit/notifications/stats/ledger/offline)
- *   - V1 supports MINIMAL / DEFAULT_HAITI_LOTTERY / DEMO profiles only;
- *     CUSTOM_FROM_TENANT is out of V1
- *   - result includes a freshly-computed {@link TenantReadinessView}
+ *   - never copies transactional data
+ *   - V1 supports MINIMAL / DEFAULT_HAITI_LOTTERY / DEMO profiles only
+ *   - result includes a freshly-computed TenantReadinessView
  */
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class TenantProvisioningOrchestrator {
 
   private final TenantConfigApi tenantConfigApi;
   private final TenantReadinessAssembler readinessAssembler;
+  private final IdentityApi identityApi;
 
   public TenantProvisioningPreviewView preview(TenantProvisioningRequest request) {
     return new TenantProvisioningPreviewView(
@@ -46,10 +49,6 @@ public class TenantProvisioningOrchestrator {
   }
 
   public TenantProvisioningResultView provision(TenantProvisioningRequest request) {
-    // 1. Create the tenant via the owning platform API. Side effects (PageModel
-    //    seeding, identity bootstrap, theme/settings defaults) are wired through
-    //    domain listeners (see PageModelOnboardingService et al.) — the
-    //    orchestrator never inserts into those tables directly.
     tenantConfigApi.createTenant(new CreateTenantRequest(
         request.code(),
         request.name(),
@@ -75,21 +74,36 @@ public class TenantProvisioningOrchestrator {
     domainStatuses.put("promotions", "TEMPLATES_AVAILABLE");
     domainStatuses.put("limits", "TEMPLATES_AVAILABLE");
 
-    // 2. Compute readiness in the freshly-provisioned tenant context.
     UUID tenantId = created.tenantId().value();
+    final String[] initialAdminUserId = {null};
+
+    // Run in new tenant context for RLS — creates admin + computes readiness.
     TenantReadinessView readiness = TchContextScope.runStartupTenantResult(
         tenantId,
         "tenant-provisioning",
-        () -> readinessAssembler.assemble(
-            com.tchalanet.server.common.context.TchContext.currentOrNull()));
+        () -> {
+          if (request.initialAdminEmail() != null && !request.initialAdminEmail().isBlank()) {
+            var adminResult = identityApi.createTenantUser(
+                TenantId.of(tenantId),
+                created.code(),
+                request.initialAdminEmail(),
+                null,
+                null,
+                TchRole.TENANT_ADMIN);
+            initialAdminUserId[0] = adminResult.userId().value().toString();
+          }
+          return readinessAssembler.assemble(TchContext.currentOrNull());
+        });
 
     return new TenantProvisioningResultView(
         tenantId.toString(),
         created.code(),
         request.profile(),
         Map.copyOf(domainStatuses),
-        nextSteps(request.profile()),
-        readiness);
+        nextSteps(request.profile(), request.initialAdminEmail()),
+        warnings(request),
+        readiness,
+        initialAdminUserId[0]);
   }
 
   // --- profile descriptors --------------------------------------------------
@@ -129,10 +143,15 @@ public class TenantProvisioningOrchestrator {
     };
   }
 
-  private static List<String> nextSteps(TenantProvisioningProfile profile) {
+  private static List<String> nextSteps(TenantProvisioningProfile profile, String initialAdminEmail) {
+    boolean adminCreated = initialAdminEmail != null && !initialAdminEmail.isBlank();
     return switch (profile) {
-      case MINIMAL -> List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL");
-      case DEFAULT_HAITI_LOTTERY -> List.of("CREATE_INITIAL_ADMIN", "CREATE_OUTLET", "CREATE_TERMINAL");
+      case MINIMAL -> adminCreated
+          ? List.of("CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL")
+          : List.of("CREATE_INITIAL_ADMIN", "CONFIGURE_GAMES", "CREATE_OUTLET", "CREATE_TERMINAL");
+      case DEFAULT_HAITI_LOTTERY -> adminCreated
+          ? List.of("CREATE_OUTLET", "CREATE_TERMINAL")
+          : List.of("CREATE_INITIAL_ADMIN", "CREATE_OUTLET", "CREATE_TERMINAL");
       case DEMO -> List.of("VERIFY_DEMO_SETUP");
     };
   }

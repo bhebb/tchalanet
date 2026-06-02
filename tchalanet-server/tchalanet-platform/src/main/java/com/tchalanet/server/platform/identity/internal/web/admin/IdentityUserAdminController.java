@@ -17,13 +17,14 @@ import com.tchalanet.server.catalog.plan.api.PlanLimitKeys; // Import LimitKeys
 import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys; // Import UsageKeys
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
+import com.tchalanet.server.platform.accesscontrol.api.AccessControlApi;
+import com.tchalanet.server.platform.accesscontrol.api.model.request.AssignRoleToUserRequest;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
-import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
-import com.tchalanet.server.platform.identity.internal.service.UserAdminService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.CreateUserRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.InvitationStatus;
-import com.tchalanet.server.platform.identity.internal.web.admin.model.KeycloakSyncStatus;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.SetUserRoleRequest;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.TenantUserAdminResponse;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.UpdatePreferencesRequest;
@@ -44,12 +45,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/admin/identity/users")
@@ -59,22 +58,25 @@ import java.util.Set;
 public class IdentityUserAdminController {
 
     private final CurrentUserProfileService profiles;
-    private final UserAdminService users;
+    private final TenantUserAdministrationService users;
     private final TenantMembershipService memberships;
+    private final AccessControlApi accessControlApi;
+    private final TenantUserProvisioningService provisioning;
+    private final TenantUserAdminViewAssembler view;
 
     @GetMapping
     @Operation(summary = "List identity users for current tenant")
     public ApiResponse<TchPage<TenantUserAdminResponse>> list(
         @CurrentContext TchRequestContext ctx, @TchPaging TchPageRequest pageReq) {
         var page = memberships.list(ctx.tenantId(), pageReq);
-        return ApiResponse.success(TchPageMapper.map(page, row -> loadAndMap(ctx, row.id(), InvitationStatus.NOT_SENT, row.createdAt())));
+        return ApiResponse.success(TchPageMapper.map(page, row -> view.load(ctx, row.id(), InvitationStatus.NOT_SENT, row.createdAt())));
     }
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get identity user details")
     public ApiResponse<TenantUserAdminResponse> getUser(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PostMapping
@@ -90,23 +92,11 @@ public class IdentityUserAdminController {
         if (req.role() == TchRole.CASHIER && req.outletId() == null) {
             throw ProblemRest.badRequest("outletId is required when role=CASHIER");
         }
-
-        var created =
-            users.createUser(
-                req.email(),
-                req.phone(),
-                req.firstName(),
-                req.lastName(),
-                null,
-                null,
-                null,
-                null,
-                null,
-                false,
-                Set.of());
-        memberships.assign(ctx.tenantId(), created.userId(), null, req.outletId(), req.terminalId(), false);
-        memberships.setRole(ctx.tenantId(), created.userId(), req.role());
-        return ApiResponse.success(loadAndMap(ctx, created.userId(), InvitationStatus.NOT_SENT, null));
+        var created = provisioning.provisionTenantUser(
+            ctx.tenantId(), ctx.currentUserIdRequired(),
+            req.email(), req.phone(), req.firstName(), req.lastName(),
+            req.outletId(), req.terminalId(), req.role());
+        return ApiResponse.success(view.load(ctx, created.userId(), InvitationStatus.NOT_SENT, null));
     }
 
     @PostMapping("/{userId}/approve")
@@ -114,9 +104,9 @@ public class IdentityUserAdminController {
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
     public ApiResponse<TenantUserAdminResponse> approve(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         users.approveUser(userId, ctx.currentUserIdRequired());
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PutMapping("/{userId}")
@@ -126,7 +116,7 @@ public class IdentityUserAdminController {
         @CurrentContext TchRequestContext ctx,
         @PathVariable UserId userId,
         @Valid @RequestBody UpdateUserRequest req) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         profiles.updateProfile(
             new UpdateUserProfileRequest(
                 userId,
@@ -135,7 +125,7 @@ public class IdentityUserAdminController {
                 Optional.empty(),
                 Optional.ofNullable(req.phone()),
                 Optional.empty()));
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PatchMapping("/{userId}/preferences")
@@ -145,7 +135,7 @@ public class IdentityUserAdminController {
         @CurrentContext TchRequestContext ctx,
         @PathVariable UserId userId,
         @Valid @RequestBody UpdatePreferencesRequest req) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         profiles.updatePreferences(
             userId,
             req.themeMode(),
@@ -153,7 +143,7 @@ public class IdentityUserAdminController {
             parseLocale(req.locale()).orElse(null),
             parseZone(req.timeZone()).orElse(null),
             parseCurrency(req.currency()).orElse(null));
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PutMapping("/{userId}/membership")
@@ -163,9 +153,9 @@ public class IdentityUserAdminController {
         @CurrentContext TchRequestContext ctx,
         @PathVariable UserId userId,
         @Valid @RequestBody UpsertMembershipRequest req) {
-        assertTenantScopedUser(ctx, userId);
-        memberships.assign(ctx.tenantId(), userId, null, req.outletId(), req.terminalId(), false);
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        view.assertTenantScoped(ctx, userId);
+        memberships.assign(ctx.tenantId(), userId, req.outletId(), req.terminalId(), false);
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @DeleteMapping("/{userId}/membership")
@@ -173,9 +163,9 @@ public class IdentityUserAdminController {
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
     public ApiResponse<TenantUserAdminResponse> deleteMembership(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         memberships.unassign(ctx.tenantId(), userId);
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PutMapping("/{userId}/role")
@@ -185,10 +175,10 @@ public class IdentityUserAdminController {
         @CurrentContext TchRequestContext ctx,
         @PathVariable UserId userId,
         @Valid @RequestBody SetUserRoleRequest req) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         forbidSuperAdminAssignmentForTenantAdmin(ctx, req.role());
-        memberships.setRole(ctx.tenantId(), userId, req.role());
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        accessControlApi.assignRoleToUser(new AssignRoleToUserRequest(ctx.tenantId(), userId, req.role().name(), ctx.currentUserIdRequired()));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PostMapping("/{userId}/suspend")
@@ -196,9 +186,9 @@ public class IdentityUserAdminController {
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
     public ApiResponse<TenantUserAdminResponse> suspend(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         users.suspendUser(userId);
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PostMapping("/{userId}/reactivate")
@@ -206,9 +196,9 @@ public class IdentityUserAdminController {
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
     public ApiResponse<TenantUserAdminResponse> reactivate(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         users.reactivateUser(userId);
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     @PostMapping("/{userId}/send-invitation")
@@ -216,9 +206,9 @@ public class IdentityUserAdminController {
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
     public ApiResponse<TenantUserAdminResponse> sendInvitation(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         users.sendInvitation(userId);
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.SENT, null));
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.SENT, null));
     }
 
     @PostMapping("/{userId}/resync-keycloak")
@@ -226,55 +216,15 @@ public class IdentityUserAdminController {
     @AuditLog(action = AuditAction.USER_UPDATE, entity = AuditEntityType.USER, idExpression = "#userId")
     public ApiResponse<TenantUserAdminResponse> resyncKeycloak(
         @CurrentContext TchRequestContext ctx, @PathVariable UserId userId) {
-        assertTenantScopedUser(ctx, userId);
+        view.assertTenantScoped(ctx, userId);
         users.resyncKeycloak(userId);
-        return ApiResponse.success(loadAndMap(ctx, userId, InvitationStatus.NOT_SENT, null));
-    }
-
-    private TenantUserAdminResponse loadAndMap(
-        TchRequestContext ctx, UserId userId, InvitationStatus invitationStatus, Instant createdAtOverride) {
-        assertTenantScopedUser(ctx, userId);
-        var profile = profiles.getUserProfile(userId);
-        var membership = memberships.findByTenantAndUser(ctx.tenantId(), userId).orElse(null);
-        var createdAt = createdAtOverride != null ? createdAtOverride : memberships.findCreatedAt(ctx.tenantId(), userId).orElse(null);
-        return new TenantUserAdminResponse(
-            profile.id(),
-            profile.keycloakSub() == null ? null : profile.keycloakSub().value().toString(),
-            profile.username(),
-            profile.email(),
-            profile.phone(),
-            profile.status() == null ? null : profile.status().name(),
-            membership == null || membership.roleId() == null ? null : membership.roleId().value().toString(),
-            membership == null || membership.status() == null ? null : membership.status().name(),
-            membership == null ? null : membership.outletId(),
-            membership == null ? null : membership.terminalId(),
-            resolveSyncStatus(profile, membership),
-            invitationStatus,
-            createdAt,
-            profile.firstName(),
-            profile.lastName(),
-            profile.displayName());
+        return ApiResponse.success(view.load(ctx, userId, InvitationStatus.NOT_SENT, null));
     }
 
     private static void forbidSuperAdminAssignmentForTenantAdmin(TchRequestContext ctx, TchRole role) {
         if (ctx.isTenantAdmin() && role == TchRole.SUPER_ADMIN) {
             throw ProblemRest.forbidden("Tenant admin cannot assign SUPER_ADMIN role");
         }
-    }
-
-    private void assertTenantScopedUser(TchRequestContext ctx, UserId userId) {
-        if (memberships.findByTenantAndUser(ctx.tenantId(), userId).isEmpty()) {
-            throw ProblemRest.forbidden("User is outside effective tenant scope");
-        }
-    }
-
-    private static KeycloakSyncStatus resolveSyncStatus(
-        com.tchalanet.server.platform.identity.api.model.view.UserProfileView profile,
-        TenantMembership membership) {
-        if (membership == null) {
-            return KeycloakSyncStatus.NOT_REQUIRED;
-        }
-        return profile.keycloakSub() == null ? KeycloakSyncStatus.PENDING : KeycloakSyncStatus.SYNCED;
     }
 
     private static Optional<Locale> parseLocale(String locale) {

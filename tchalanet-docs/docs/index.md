@@ -1,8 +1,14 @@
 # Tchalanet Docs
+Tchalanet est une plateforme multi-tenant pour gérer un réseau de loterie : vente de tickets, tirages, résultats, paiements gagnants, terminaux POS et opérations terrain.
 
-Tchalanet est une plateforme multi-tenant de loterie et POS pour vendre des tickets,
-gérer des tirages, régler les résultats, payer les gagnants et opérer des réseaux de vente.
+## Ce que vous trouverez ici
 
+Cette documentation aide à :
+
+- comprendre le produit et les principaux parcours métier ;
+- trouver les règles d’architecture et de développement ;
+- suivre les décisions stables et les changements OpenSpec ;
+- retrouver les procédures d’opération locale.
 ---
 
 ## Par où commencer ?
@@ -50,6 +56,15 @@ gérer des tirages, régler les résultats, payer les gagnants et opérer des r�
 2. [Sell ticket flow](02-functional/flows/sell-ticket.md)
 3. [Payout flow](02-functional/flows/payout-field-flow.md)
 4. [Offline sync](02-functional/flows/offline-sync.md)
+
+---
+## Où est la vérité ?
+
+- Architecture et conventions : docs projet et conventions backend.
+- Décisions stables : ADR.
+- Changements en cours : OpenSpec.
+- Règles proches du code : DOMAIN_*.md.
+- Versions : VERSIONS.md.
 
 ---
 

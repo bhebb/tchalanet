@@ -158,12 +158,11 @@ rebuild-keycloak: env-merge get-realm
 	                -f compose/docker-compose.local-build.yml up -d --build keycloak
 	@echo "✅ Keycloak rebuilé et redémarré"
 
-rebuild-api:
+rebuild-api: env-merge ensure-exec networks
 	@echo "→ Build du JAR Spring Boot..."
 	@cd ../tchalanet-server && ./mvnw -q -DskipTests package
-	@echo "→ Rebuild de l'image API locale..."
-	@docker compose -f compose/docker-compose-project.yml \
-	                -f compose/docker-compose.local-build.yml up -d --build api
+	@echo "→ Rebuild de l'image API et redémarrage..."
+	@ENV=$(ENV) DOCKER_BIN="$(DOCKER_BIN)" "$(SVC)" up api $(ENV) --build
 	@echo "✅ API rebuildée et redémarrée"
 
 rebuild-edge: env-merge ensure-exec networks

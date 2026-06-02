@@ -1,4 +1,12 @@
 {
+  "roles": {
+    "realm": [
+      {
+        "name": "platform.tenant.override",
+        "description": "Allows a super admin to operate in another tenant's context (X-Tenant-Id override)"
+      }
+    ]
+  },
   "clients": [
     {
       "clientId": "tchalanet-web",
@@ -44,6 +52,7 @@
   ],
   "users": [
     {
+      "id": "00000000-0000-0000-0000-000000010001",
       "username": "super_admin",
       "enabled": true,
       "email": "super_admin@local",
@@ -51,7 +60,7 @@
       "lastName": "Admin",
       "emailVerified": true,
       "credentials": [{ "type": "password", "value": "Changeme1!", "temporary": false }],
-      "realmRoles": ["SUPER_ADMIN"],
+      "realmRoles": ["SUPER_ADMIN", "platform.tenant.override"],
       "groups": [],
       "attributes": {
         "locale": ["fr"],
@@ -61,6 +70,7 @@
       }
     },
     {
+      "id": "00000000-0000-0000-0000-000000010002",
       "username": "admin",
       "enabled": true,
       "email": "admin@local",
@@ -95,6 +105,7 @@
       }
     },
     {
+      "id": "00000000-0000-0000-0000-000000010003",
       "username": "cashier",
       "enabled": true,
       "email": "cashier@local",

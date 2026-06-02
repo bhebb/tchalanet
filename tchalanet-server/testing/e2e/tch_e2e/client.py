@@ -68,17 +68,23 @@ class ApiClient:
     def delete(self, path: str, *, context: OpContext | None = None) -> httpx.Response:
         return self._client.delete(path, headers=_ctx_headers(context))
 
-    def with_tenant(self, tenant_id: str) -> "ApiClient":
+    def with_tenant(self, tenant_id: str, override_reason: str = "e2e-test") -> "ApiClient":
         """Return a copy scoped to *tenant_id* via the X-Tenant-Id header.
 
         Required for /admin/* endpoints when using a SUPER_ADMIN token — the
         server reads X-Tenant-Id to populate TchRequestContext.tenantIdSafe().
+        X-Tch-Override-Reason is required by TchContextFilter when a super admin
+        sends X-Tenant-Id (tenant override).
         """
         return ApiClient(
             base_url=self.base_url,
             token=self.token,
             timeout=self.timeout,
-            extra_headers={**self.extra_headers, "X-Tenant-Id": tenant_id},
+            extra_headers={
+                **self.extra_headers,
+                "X-Tenant-Id": tenant_id,
+                "X-Tch-Override-Reason": override_reason,
+            },
         )
 
     def close(self) -> None:

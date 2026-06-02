@@ -40,7 +40,9 @@ tch:
   communication:
     edge:
       enabled: ${TCH_COMMUNICATION_EDGE_ENABLED:true}
-      base-url: ${TCH_COMMUNICATION_EDGE_BASE_URL:http://localhost:3000}
+      # Infra standardizes on TCH_EDGE_BASE_URL (envs/common/api.env); fall back to the older
+      # TCH_COMMUNICATION_EDGE_BASE_URL, then localhost for bare local runs.
+      base-url: ${TCH_EDGE_BASE_URL:${TCH_COMMUNICATION_EDGE_BASE_URL:http://localhost:3000}}
       messages-path: ${TCH_COMMUNICATION_EDGE_MESSAGES_PATH:/internal/messages/send}
       hmac-secret: ${EDGE_HMAC_SECRET}
       connect-timeout: ${TCH_COMMUNICATION_EDGE_CONNECT_TIMEOUT:2s}
@@ -107,6 +109,7 @@ kc:
     admin-username: ${KC_ADMIN_USERNAME:admin}
     admin-password: ${KC_ADMIN_PASSWORD:admin}
     admin-password-file: ${KC_ADMIN_PASSWORD_FILE:}
+    default-user-password: ${KC_DEFAULT_USER_PASSWORD:Changeme1!}
     users:
       - super_admin
       - admin
@@ -154,7 +157,13 @@ spring:
   # --- Datasource & JPA ---
   datasource:
     hikari:
-      maximum-pool-size: 10
+      # An audited write (e.g. ticket sell) holds two connections at once: its own
+      # @Transactional plus the audit's REQUIRES_NEW nested tx. With a pool of 10 that
+      # caps real concurrency at ~5 before the pool starves and requests time out
+      # (HikariPool "Connection is not available"). Size for the documented E2E
+      # concurrency target (controlled parallelism up to ~10) with headroom.
+      maximum-pool-size: ${SPRING_DATASOURCE_MAX_POOL:30}
+      minimum-idle: ${SPRING_DATASOURCE_MIN_IDLE:5}
       jdbc-url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tchalanet_db}
       username: ${SPRING_DATASOURCE_USERNAME:app_user}
       password: ${SPRING_DATASOURCE_PASSWORD:devpass}

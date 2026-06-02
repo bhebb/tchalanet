@@ -3,7 +3,11 @@
   "enabled": true,
   "internationalizationEnabled": true,
   "defaultLocale": "fr",
-  "supportedLocales": ["fr", "en", "ht"],
+  "supportedLocales": [
+    "fr",
+    "en",
+    "ht"
+  ],
   "loginTheme": "keycloak",
   "sslRequired": "external",
   "bruteForceProtected": true,
@@ -16,9 +20,21 @@
   "ssoSessionMaxLifespan": 36000,
   "offlineSessionIdleTimeout": 2592000,
   "roles": {
-    "realm": [{ "name": "SUPER_ADMIN" }, { "name": "TENANT_ADMIN" }, { "name": "OPERATOR" }, { "name": "CASHIER" }]
+    "realm": [
+      {
+        "name": "SUPER_ADMIN"
+      },
+      {
+        "name": "TENANT_ADMIN"
+      },
+      {
+        "name": "OPERATOR"
+      },
+      {
+        "name": "CASHIER"
+      }
+    ]
   },
-
   "groups": [
     {
       "name": "tenants",
@@ -41,7 +57,6 @@
       ]
     }
   ],
-
   "clientScopes": [
     {
       "name": "tch-basic",
@@ -64,11 +79,12 @@
         }
       ]
     },
-
     {
       "name": "email",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "true" },
+      "attributes": {
+        "include.in.token.scope": "true"
+      },
       "protocolMappers": [
         {
           "name": "email",
@@ -100,11 +116,12 @@
         }
       ]
     },
-
     {
       "name": "profile",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "true" },
+      "attributes": {
+        "include.in.token.scope": "true"
+      },
       "protocolMappers": [
         {
           "name": "username",
@@ -175,11 +192,12 @@
         }
       ]
     },
-
     {
       "name": "roles",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "true" },
+      "attributes": {
+        "include.in.token.scope": "true"
+      },
       "protocolMappers": [
         {
           "name": "realm-roles",
@@ -213,18 +231,20 @@
         }
       ]
     },
-
     {
       "name": "web-origins",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "false" },
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
       "protocolMappers": []
     },
-
     {
       "name": "tch-groups",
       "protocol": "openid-connect",
-      "attributes": { "include.in.token.scope": "true" },
+      "attributes": {
+        "include.in.token.scope": "true"
+      },
       "protocolMappers": [
         {
           "name": "groups",
@@ -241,7 +261,6 @@
         }
       ]
     },
-
     {
       "name": "tch",
       "protocol": "openid-connect",
@@ -267,7 +286,6 @@
       ]
     }
   ],
-
   "clients": [
     {
       "clientId": "tchalanet-web",
@@ -279,12 +297,26 @@
         "http://127.0.0.1:4200/*",
         "https://app.localtest.me/*"
       ],
-      "webOrigins": ["http://localhost:4200", "http://127.0.0.1:4200", "https://app.localtest.me"],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://127.0.0.1:4200",
+        "https://app.localtest.me"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
-      "defaultClientScopes": ["tch-basic", "email", "profile", "tch", "tch-groups", "web-origins", "roles"],
-      "optionalClientScopes": ["offline_access"],
+      "defaultClientScopes": [
+        "tch-basic",
+        "email",
+        "profile",
+        "tch",
+        "tch-groups",
+        "web-origins",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ],
       "protocolMappers": [
         {
           "name": "aud-tchalanet-api",
@@ -299,7 +331,6 @@
         }
       ]
     },
-
     {
       "clientId": "tchalanet-api",
       "name": "Tchalanet API (resource server)",
@@ -307,20 +338,32 @@
       "bearerOnly": true,
       "publicClient": false
     },
-
     {
       "clientId": "tchalanet-mobile-pos",
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["com.tchalanet.mobile:/oauth2redirect"],
-      "webOrigins": ["+"],
+      "redirectUris": [
+        "com.tchalanet.mobile:/oauth2redirect"
+      ],
+      "webOrigins": [
+        "+"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
-      "defaultClientScopes": ["tch-basic", "email", "profile", "tch", "tch-groups", "roles"],
-      "optionalClientScopes": ["offline_access"],
+      "defaultClientScopes": [
+        "tch-basic",
+        "email",
+        "profile",
+        "tch",
+        "tch-groups",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ],
       "protocolMappers": [
         {
           "name": "aud-tchalanet-api",
@@ -335,19 +378,41 @@
         }
       ]
     },
-
     {
       "clientId": "tchalanet-swagger",
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": true,
-      "redirectUris": ["http://localhost:8081/swagger-ui/oauth2-redirect.html"],
-      "webOrigins": ["http://localhost:8081"],
+      "redirectUris": [
+        "http://localhost:8081/swagger-ui/oauth2-redirect.html"
+      ],
+      "webOrigins": [
+        "http://localhost:8081"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
-      "defaultClientScopes": ["tch-basic", "profile", "email", "roles", "tch", "web-origins"]
+      "defaultClientScopes": [
+        "tch-basic",
+        "profile",
+        "email",
+        "roles",
+        "tch",
+        "web-origins"
+      ]
     }
-  ]
+  ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"required\":{\"roles\":[\"user\"]},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}],\"unmanagedAttributePolicy\":\"ENABLED\"}"
+          ]
+        }
+      }
+    ]
+  }
 }

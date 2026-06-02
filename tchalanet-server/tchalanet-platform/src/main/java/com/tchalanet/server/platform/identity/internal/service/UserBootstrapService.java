@@ -3,6 +3,8 @@ package com.tchalanet.server.platform.identity.internal.service;
 import com.tchalanet.server.common.time.TimeProvider;
 import com.tchalanet.server.platform.identity.api.model.request.BootstrapCurrentUserRequest;
 import com.tchalanet.server.platform.identity.api.model.result.BootstrapUserResult;
+import com.tchalanet.server.platform.identity.internal.model.AppUser;
+import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.UserPreferenceJpaAdapter;
 import lombok.RequiredArgsConstructor;

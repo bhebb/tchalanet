@@ -10,11 +10,10 @@ import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUse
 import com.tchalanet.server.platform.identity.internal.persistence.entity.TenantUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.TenantUserJpaRepository;
-import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
-import com.tchalanet.server.platform.identity.internal.service.TenantUserRow;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.TenantUserRow;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
-
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +47,6 @@ public class TenantMembershipJpaAdapter {
             .orElseGet(TenantUserJpaEntity::new);
     entity.setTenantId(membership.tenantId().value());
     entity.setUserId(membership.userId().value());
-    entity.setRoleId(membership.roleId() == null ? null : membership.roleId().value());
     entity.setOutletId(membership.outletId() == null ? null : membership.outletId().value());
     entity.setTerminalId(membership.terminalId() == null ? null : membership.terminalId().value());
     entity.setStatus(membership.status());
@@ -59,11 +57,10 @@ public class TenantMembershipJpaAdapter {
   public void softDelete(TenantId tenantId, UserId userId, Instant when) {
     repository
         .findByTenantIdAndUserIdAndDeletedAtIsNull(tenantId.value(), userId.value())
-        .ifPresent(
-            entity -> {
-              entity.setDeletedAt(when);
-              repository.save(entity);
-            });
+        .ifPresent(entity -> {
+          entity.setDeletedAt(when);
+          repository.save(entity);
+        });
   }
 
   public TchPage<TenantUserRow> listByTenant(TenantId tenantId, TchPageRequest pageRequest) {
@@ -78,7 +75,6 @@ public class TenantMembershipJpaAdapter {
         user.get("displayName").alias("displayName"),
         user.get("email").alias("email"),
         membership.get("status").alias("status"),
-        membership.get("roleId").alias("roleId"),
         membership.get("createdAt").alias("createdAt"));
     query.where(
         cb.and(
@@ -108,9 +104,6 @@ public class TenantMembershipJpaAdapter {
         (String) tuple.get("displayName"),
         (String) tuple.get("email"),
         (TenantUserStatus) tuple.get("status"),
-        tuple.get("roleId") == null
-            ? null
-            : com.tchalanet.server.common.types.id.RoleId.of((java.util.UUID) tuple.get("roleId")),
-        (java.time.Instant) tuple.get("createdAt"));
+        (Instant) tuple.get("createdAt"));
   }
 }

@@ -4,21 +4,20 @@ import com.tchalanet.server.common.types.id.RoleId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public record EffectivePermissionsView(
-    TenantId tenantId, UserId userId, RoleId roleId, Set<String> permissionCodes) {
+    TenantId tenantId,
+    UserId userId,
+    List<RoleId> roleIds,
+    Set<String> permissionCodes) {
 
   public EffectivePermissionsView {
     Objects.requireNonNull(tenantId, "tenantId cannot be null");
     Objects.requireNonNull(userId, "userId cannot be null");
-    if (permissionCodes == null) {
-      permissionCodes = Set.of();
-    } else {
-      permissionCodes = Collections.unmodifiableSet(permissionCodes);
-    }
+    roleIds = roleIds == null ? List.of() : List.copyOf(roleIds);
+    permissionCodes = permissionCodes == null ? Set.of() : Collections.unmodifiableSet(permissionCodes);
   }
 }
-
-

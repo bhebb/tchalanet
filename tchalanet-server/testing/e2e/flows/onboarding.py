@@ -127,7 +127,9 @@ class OnboardingFlow:
             if isinstance(body, str):
                 seller_id = body
             elif isinstance(body, dict):
-                seller_id = body.get("sellerId") or body.get("id")
+                # data may be a wrapped id {"value": "uuid"} or a full object
+                raw = body.get("sellerId") or body.get("id") or body.get("value")
+                seller_id = raw.get("value") if isinstance(raw, dict) else raw
             else:
                 # Unexpected — fall back to list lookup
                 seller_id = self._find_seller_for_user(user_id)
@@ -147,6 +149,64 @@ class OnboardingFlow:
             assert_ok(assign_resp, expected=(200, 201))
 
         return {"sellerId": seller_id}
+
+    # --- tenant-admin level endpoints (use admin_client scoped to tenant) ----
+
+    def create_outlet_admin(self, name: str, **extra: Any) -> dict[str, Any]:
+        """POST /admin/outlets — tenant admin creates an outlet."""
+        resp = self.client.post(
+            "/admin/outlets",
+            json={"name": name, "status": "ACTIVE", **extra},
+        )
+        self._skip_if_not_available(resp, "create_outlet_admin")
+        if resp.status_code == 409:
+            return resp.json().get("data") or {}
+        assert_ok(resp, expected=(200, 201))
+        return resp.json()["data"]
+
+    def create_terminal_admin(
+        self, outlet_id: str, label: str, **extra: Any
+    ) -> dict[str, Any]:
+        """POST /admin/terminals — tenant admin creates a terminal."""
+        resp = self.client.post(
+            "/admin/terminals",
+            json={"outletId": outlet_id, "label": label, **extra},
+        )
+        self._skip_if_not_available(resp, "create_terminal_admin")
+        if resp.status_code == 409:
+            return resp.json().get("data") or {}
+        assert_ok(resp, expected=(200, 201))
+        return resp.json()["data"]
+
+    def create_identity_user(
+        self,
+        email: str,
+        role: str,
+        first_name: str = "E2E",
+        last_name: str = "User",
+        **extra: Any,
+    ) -> dict[str, Any]:
+        """POST /admin/identity/users — creates a user in DB + Keycloak."""
+        resp = self.client.post(
+            "/admin/identity/users",
+            json={"email": email, "firstName": first_name, "lastName": last_name,
+                  "role": role, **extra},
+        )
+        self._skip_if_not_available(resp, "create_identity_user")
+        if resp.status_code == 409:
+            return resp.json().get("data") or {}
+        assert_ok(resp, expected=(200, 201))
+        return resp.json()["data"]
+
+    def assign_terminal_to_user(self, terminal_id: str, user_id: str) -> None:
+        """POST /admin/terminals/{id}/assign-user."""
+        resp = self.client.post(
+            f"/admin/terminals/{terminal_id}/assign-user",
+            json={"userId": user_id},
+        )
+        self._skip_if_not_available(resp, "assign_terminal_to_user")
+        if resp.status_code not in (409, 422):
+            assert_ok(resp, expected=(200, 201, 204))
 
     def bind_terminal(self, tenant_id: str, terminal_id: str) -> dict[str, Any]:
         """POST /platform/tenants/{id}/terminals/{tid}/bind."""
@@ -173,7 +233,8 @@ class OnboardingFlow:
                 return None
             for s in sellers:
                 if isinstance(s, dict) and s.get("userId") == user_id:
-                    return s.get("sellerId") or s.get("id")
+                    raw = s.get("sellerId") or s.get("id")
+                    return raw.get("value") if isinstance(raw, dict) else raw
         except Exception:
             pass
         return None

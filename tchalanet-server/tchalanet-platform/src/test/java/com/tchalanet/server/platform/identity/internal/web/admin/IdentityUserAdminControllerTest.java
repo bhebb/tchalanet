@@ -13,9 +13,10 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
 import com.tchalanet.server.platform.identity.internal.service.CurrentUserProfileService;
-import com.tchalanet.server.platform.identity.internal.service.TenantMembership;
+import com.tchalanet.server.platform.identity.internal.model.TenantMembership;
 import com.tchalanet.server.platform.identity.internal.service.TenantMembershipService;
-import com.tchalanet.server.platform.identity.internal.service.UserAdminService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserAdministrationService;
+import com.tchalanet.server.platform.identity.internal.service.TenantUserProvisioningService;
 import com.tchalanet.server.platform.identity.internal.web.admin.model.SetUserRoleRequest;
 import java.util.Currency;
 import java.util.Locale;
@@ -30,11 +31,16 @@ import org.junit.jupiter.api.Test;
 class IdentityUserAdminControllerTest {
 
   private final CurrentUserProfileService profiles = mock(CurrentUserProfileService.class);
-  private final UserAdminService users = mock(UserAdminService.class);
+  private final TenantUserAdministrationService users = mock(TenantUserAdministrationService.class);
   private final TenantMembershipService memberships = mock(TenantMembershipService.class);
+  private final com.tchalanet.server.platform.accesscontrol.api.AccessControlApi accessControlApi =
+      mock(com.tchalanet.server.platform.accesscontrol.api.AccessControlApi.class);
+  private final TenantUserProvisioningService provisioning = mock(TenantUserProvisioningService.class);
+  // Real assembler over the mocked services so tenant-scoping/view composition stays exercised.
+  private final TenantUserAdminViewAssembler view = new TenantUserAdminViewAssembler(profiles, memberships);
 
   private final IdentityUserAdminController controller =
-      new IdentityUserAdminController(profiles, users, memberships);
+      new IdentityUserAdminController(profiles, users, memberships, accessControlApi, provisioning, view);
 
   @Nested
   @DisplayName("Role restrictions")

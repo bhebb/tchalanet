@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/platform/ops/communication")
+@RequestMapping("/platform/ops/communication")
 @Tag(name = "Platform Ops • Communication")
 @RequiredArgsConstructor
 public class PlatformCommunicationOpsController {

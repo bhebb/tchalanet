@@ -1,167 +1,251 @@
--- V42: seed IAM roles, permissions and mappings
+-- V202: V1 permission catalog, system roles, role-permission matrix, local dev users
+-- Replaces the former V42 seed. Volume wipe required when upgrading from pre-V202.
 
--- Seed local test users (super_admin, admin, cashier)
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 1. Permission catalog — V1 full set
+-- ─────────────────────────────────────────────────────────────────────────────
+INSERT INTO permission (code, name, category, system, active) VALUES
+  -- Platform
+  ('platform.access',          'Platform access',                'platform', true, true),
+  ('platform.ops.read',        'Platform ops read',              'platform', true, true),
+  ('platform.ops.execute',     'Execute platform ops',           'platform', true, true),
+  -- Tenant management
+  ('tenant.create',            'Create tenant',                  'tenant',   true, true),
+  ('tenant.read',              'Read tenants',                   'tenant',   true, true),
+  ('tenant.update',            'Update tenant',                  'tenant',   true, true),
+  ('tenant.activate',          'Activate tenant',                'tenant',   true, true),
+  ('tenant.suspend',           'Suspend tenant',                 'tenant',   true, true),
+  ('tenant.admin.create',      'Create tenant admin',            'tenant',   true, true),
+  ('tenant.override',          'Override tenant context',        'tenant',   true, true),
+  -- Admin area
+  ('admin.access',             'Tenant admin access',            'admin',    true, true),
+  ('dashboard.read',           'Read dashboard',                 'dashboard',true, true),
+  -- User management
+  ('user.read',                'Read users',                     'user',     true, true),
+  ('user.create',              'Create users',                   'user',     true, true),
+  ('user.update',              'Update users',                   'user',     true, true),
+  ('user.disable',             'Disable users',                  'user',     true, true),
+  ('user.invite',              'Invite users',                   'user',     true, true),
+  ('user.sync',                'Sync users with identity provider','user',   true, true),
+  ('user.membership.manage',   'Manage tenant membership',       'user',     true, true),
+  ('user.role.assign',         'Assign user roles',              'user',     true, true),
+  ('user.permission.manage',   'Manage user permission overrides','user',    true, true),
+  -- Access control
+  ('role.read',                'Read roles',                     'access-control', true, true),
+  ('role.manage',              'Manage roles',                   'access-control', true, true),
+  ('role.permission.manage',   'Manage role permissions',        'access-control', true, true),
+  ('permission.read',          'Read permissions',               'access-control', true, true),
+  -- Outlet
+  ('outlet.read',              'Read outlets',                   'outlet',   true, true),
+  ('outlet.create',            'Create outlets',                 'outlet',   true, true),
+  ('outlet.update',            'Update outlets',                 'outlet',   true, true),
+  ('outlet.disable',           'Disable outlets',                'outlet',   true, true),
+  -- Terminal
+  ('terminal.read',            'Read terminals',                 'terminal', true, true),
+  ('terminal.create',          'Create terminals',               'terminal', true, true),
+  ('terminal.update',          'Update terminals',               'terminal', true, true),
+  ('terminal.disable',         'Disable terminals',              'terminal', true, true),
+  ('terminal.bind',            'Bind terminal devices',          'terminal', true, true),
+  ('terminal.unbind',          'Unbind terminal devices',        'terminal', true, true),
+  -- Session
+  ('session.read',             'Read sessions',                  'session',  true, true),
+  ('session.open',             'Open sessions',                  'session',  true, true),
+  ('session.close',            'Close sessions',                 'session',  true, true),
+  ('session.force-close',      'Force-close sessions',           'session',  true, true),
+  -- Settings / pricing
+  ('settings.read',            'Read settings',                  'settings', true, true),
+  ('settings.update',          'Update settings',                'settings', true, true),
+  ('game-pricing.read',        'Read game pricing',              'pricing',  true, true),
+  ('game-pricing.update',      'Update game pricing',            'pricing',  true, true),
+  -- Limits / promotions
+  ('limit.read',               'Read limits',                    'limit',    true, true),
+  ('limit.manage',             'Manage limits',                  'limit',    true, true),
+  ('promotion.read',           'Read promotions',                'promotion',true, true),
+  ('promotion.manage',         'Manage promotions',              'promotion',true, true),
+  -- Reports / audit
+  ('report.read',              'Read reports',                   'report',   true, true),
+  ('audit.read',               'Read audit log',                 'audit',    true, true),
+  -- Cashier / operator area
+  ('cashier.access',           'Cashier access',                 'cashier',  true, true),
+  ('operator.access',          'Operator access',                'operator', true, true),
+  -- Operational context
+  ('operational-context.read', 'Read operational context',       'operational-context', true, true),
+  ('operational-context.select','Select operational context',    'operational-context', true, true),
+  -- Tickets
+  ('ticket.sell',              'Sell tickets',                   'ticket',   true, true),
+  ('ticket.read',              'Read tickets',                   'ticket',   true, true),
+  ('ticket.print',             'Print tickets',                  'ticket',   true, true),
+  ('ticket.resend',            'Resend tickets',                 'ticket',   true, true),
+  ('ticket.verify',            'Verify tickets',                 'ticket',   true, true),
+  ('ticket.cancel-own',        'Cancel own tickets',             'ticket',   true, true),
+  -- Payout
+  ('payout.read',              'Read payouts',                   'payout',   true, true),
+  ('payout.review',            'Review payouts',                 'payout',   true, true),
+  ('payout.execute',           'Execute payouts',                'payout',   true, true),
+  -- Offline sync
+  ('sync.read',                'Read sync state',                'sync',     true, true),
+  ('sync.submit',              'Submit sync',                    'sync',     true, true),
+  ('offline.grant.request',    'Request offline grant',          'offline',  true, true),
+  ('offline.sync.submit',      'Submit offline sync',            'offline',  true, true)
+ON CONFLICT (code) DO UPDATE SET
+  name   = EXCLUDED.name,
+  category = EXCLUDED.category,
+  system = EXCLUDED.system,
+  active = EXCLUDED.active,
+  updated_at = now();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 2. System roles
+-- ─────────────────────────────────────────────────────────────────────────────
+INSERT INTO app_role (id, tenant_id, code, name, description, scope, system, custom, active) VALUES
+  ('00000000-0000-0000-0000-000000000301'::uuid, NULL, 'SUPER_ADMIN',   'Super Admin',   'System super administrator',      'PLATFORM', true, false, true),
+  ('00000000-0000-0000-0000-000000000302'::uuid, NULL, 'TENANT_ADMIN',  'Tenant Admin',  'Tenant-level administrator',      'TENANT',   true, false, true),
+  ('00000000-0000-0000-0000-000000000303'::uuid, NULL, 'OPERATOR',      'Operator',      'Outlet operator / supervisor',    'TENANT',   true, false, true),
+  ('00000000-0000-0000-0000-000000000304'::uuid, NULL, 'CASHIER',       'Cashier',       'Point-of-sale cashier',           'TENANT',   true, false, true)
+-- ON CONFLICT (id) using fixed UUIDs — tenant_id IS NULL cannot be used in ON CONFLICT target
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, description = EXCLUDED.description,
+  scope = EXCLUDED.scope, system = EXCLUDED.system,
+  active = EXCLUDED.active, updated_at = now();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 3. Role-permission matrix (V1 defaults)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- SUPER_ADMIN
+INSERT INTO role_permission (role_id, permission_code)
+SELECT '00000000-0000-0000-0000-000000000301'::uuid, unnest(ARRAY[
+  'platform.access','platform.ops.read','platform.ops.execute',
+  'tenant.create','tenant.read','tenant.update','tenant.activate','tenant.suspend',
+  'tenant.admin.create','tenant.override',
+  'audit.read'
+]) ON CONFLICT DO NOTHING;
+
+-- TENANT_ADMIN
+INSERT INTO role_permission (role_id, permission_code)
+SELECT '00000000-0000-0000-0000-000000000302'::uuid, unnest(ARRAY[
+  'admin.access','dashboard.read',
+  'user.read','user.create','user.update','user.disable','user.invite','user.sync',
+  'user.membership.manage','user.role.assign','user.permission.manage',
+  'role.read','permission.read',
+  'outlet.read','outlet.create','outlet.update','outlet.disable',
+  'terminal.read','terminal.create','terminal.update','terminal.disable',
+  'terminal.bind','terminal.unbind',
+  'session.read','session.open','session.close','session.force-close',
+  'settings.read','settings.update',
+  'game-pricing.read','game-pricing.update',
+  'limit.read','limit.manage',
+  'promotion.read','promotion.manage',
+  'operational-context.read','operational-context.select',
+  'report.read'
+]) ON CONFLICT DO NOTHING;
+
+-- OPERATOR
+INSERT INTO role_permission (role_id, permission_code)
+SELECT '00000000-0000-0000-0000-000000000303'::uuid, unnest(ARRAY[
+  'operator.access','dashboard.read',
+  'operational-context.read','operational-context.select',
+  'outlet.read','terminal.read',
+  'session.read','session.open','session.close',
+  'ticket.read','ticket.verify','ticket.print','ticket.resend',
+  'payout.read','payout.review','payout.execute',
+  'report.read'
+]) ON CONFLICT DO NOTHING;
+
+-- CASHIER
+INSERT INTO role_permission (role_id, permission_code)
+SELECT '00000000-0000-0000-0000-000000000304'::uuid, unnest(ARRAY[
+  'cashier.access','operational-context.read',
+  'ticket.sell','ticket.read','ticket.print','ticket.resend','ticket.verify',
+  'payout.read','payout.execute',
+  'offline.grant.request','offline.sync.submit'
+]) ON CONFLICT DO NOTHING;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 4. Local dev / E2E seed users (super_admin, admin, cashier)
+--    These users exist only for local dev and E2E runs.
+-- ─────────────────────────────────────────────────────────────────────────────
 DO $$
 DECLARE
   t_id uuid;
-  u_id uuid;
-  r_id uuid;
 BEGIN
-  RAISE NOTICE 'V42__seed_iam_roles_permissions: seeding local users (super_admin, admin, cashier)';
-
-  -- find tenant 'default' if present (optional)
+  RAISE NOTICE 'V202: seeding local dev users';
   SELECT id INTO t_id FROM tenant WHERE code = 'tchalanet' LIMIT 1;
 
-  -- --- super_admin ---
-  IF NOT EXISTS (SELECT 1 FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010001'::uuid AND deleted_at IS NULL) THEN
-    INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
-    VALUES (
-      '00000000-0000-0000-0000-000000010001'::uuid,
-      '00000000-0000-0000-0000-000000010001'::uuid,
-      'super_admin', 'super_admin@local', 'Super Admin', 'ACTIVE', now(), now()
-    );
-  ELSE
-    UPDATE app_user
-    SET username = 'super_admin', email = 'super_admin@local', display_name = 'Super Admin', status = 'ACTIVE', updated_at = now()
-    WHERE keycloak_sub = '00000000-0000-0000-0000-000000010001'::uuid;
+  -- super_admin
+  INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
+  VALUES ('00000000-0000-0000-0000-000000010001'::uuid,
+          '00000000-0000-0000-0000-000000010001'::uuid,
+          'super_admin', 'super_admin@local', 'Super Admin', 'ACTIVE', now(), now())
+  ON CONFLICT (id) DO UPDATE SET
+    username = 'super_admin', email = 'super_admin@local',
+    display_name = 'Super Admin', status = 'ACTIVE', updated_at = now();
+
+  -- admin (TENANT_ADMIN)
+  INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
+  VALUES ('00000000-0000-0000-0000-000000010002'::uuid,
+          '00000000-0000-0000-0000-000000010002'::uuid,
+          'admin', 'admin@local', 'Admin', 'ACTIVE', now(), now())
+  ON CONFLICT (id) DO UPDATE SET
+    username = 'admin', email = 'admin@local',
+    display_name = 'Admin', status = 'ACTIVE', updated_at = now();
+
+  -- cashier
+  INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
+  VALUES ('00000000-0000-0000-0000-000000010003'::uuid,
+          '00000000-0000-0000-0000-000000010003'::uuid,
+          'cashier', 'cashier@local', 'Cashier', 'ACTIVE', now(), now())
+  ON CONFLICT (id) DO UPDATE SET
+    username = 'cashier', email = 'cashier@local',
+    display_name = 'Cashier', status = 'ACTIVE', updated_at = now();
+
+  IF t_id IS NULL THEN
+    RAISE NOTICE 'V202: tenant tchalanet not found, skipping tenant_user and tenant_user_role inserts';
+    RETURN;
   END IF;
 
-  SELECT id INTO u_id FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010001'::uuid LIMIT 1;
-  SELECT id INTO r_id FROM app_role WHERE code = 'SUPER_ADMIN' AND tenant_id IS NULL LIMIT 1;
-  IF u_id IS NOT NULL AND r_id IS NOT NULL AND t_id IS NOT NULL THEN
-    IF NOT EXISTS (SELECT 1 FROM tenant_user WHERE tenant_id = t_id AND user_id = u_id AND role_id = r_id AND deleted_at IS NULL) THEN
-      INSERT INTO tenant_user (id, tenant_id, user_id, role_id, is_owner, created_at, updated_at)
-      VALUES (gen_random_uuid(), t_id, u_id, r_id, true, now(), now());
-    END IF;
+  -- Set RLS context so tenant_user inserts pass the RLS policy
+  PERFORM set_config('app.current_tenant', t_id::text, true);
+  PERFORM set_config('app.deleted_visibility', 'active', true);
+
+  -- Tenant membership
+  INSERT INTO tenant_user (id, tenant_id, user_id, is_owner, created_at, updated_at)
+  VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid, true,  now(), now())
+  ON CONFLICT (tenant_id, user_id) DO NOTHING;
+
+  INSERT INTO tenant_user (id, tenant_id, user_id, is_owner, created_at, updated_at)
+  VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010002'::uuid, false, now(), now())
+  ON CONFLICT (tenant_id, user_id) DO NOTHING;
+
+  INSERT INTO tenant_user (id, tenant_id, user_id, is_owner, created_at, updated_at)
+  VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, false, now(), now())
+  ON CONFLICT (tenant_id, user_id) DO NOTHING;
+
+  -- Role assignments via tenant_user_role (no ON CONFLICT — partial unique index not supported)
+  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010001'::uuid AND role_id = '00000000-0000-0000-0000-000000000301'::uuid AND deleted_at IS NULL) THEN
+    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
+    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010001'::uuid, '00000000-0000-0000-0000-000000000301'::uuid, now());
   END IF;
 
-  -- --- admin ---
-  IF NOT EXISTS (SELECT 1 FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010002'::uuid AND deleted_at IS NULL) THEN
-    INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
-    VALUES (
-      '00000000-0000-0000-0000-000000010002'::uuid,
-      '00000000-0000-0000-0000-000000010002'::uuid,
-      'admin', 'admin@local', 'Admin', 'ACTIVE', now(), now()
-    );
-  ELSE
-    UPDATE app_user
-    SET username = 'admin', email = 'admin@local', display_name = 'Admin', status = 'ACTIVE', updated_at = now()
-    WHERE keycloak_sub = '00000000-0000-0000-0000-000000010002'::uuid;
+  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010002'::uuid AND role_id = '00000000-0000-0000-0000-000000000302'::uuid AND deleted_at IS NULL) THEN
+    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
+    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010002'::uuid, '00000000-0000-0000-0000-000000000302'::uuid, now());
   END IF;
 
-  SELECT id INTO u_id FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010002'::uuid LIMIT 1;
-  SELECT id INTO r_id FROM app_role WHERE code = 'TENANT_ADMIN' AND tenant_id IS NULL LIMIT 1;
-  IF u_id IS NOT NULL AND r_id IS NOT NULL AND t_id IS NOT NULL THEN
-    IF NOT EXISTS (SELECT 1 FROM tenant_user WHERE tenant_id = t_id AND user_id = u_id AND role_id = r_id AND deleted_at IS NULL) THEN
-      INSERT INTO tenant_user (id, tenant_id, user_id, role_id, is_owner, created_at, updated_at)
-      VALUES (gen_random_uuid(), t_id, u_id, r_id, false, now(), now());
-    END IF;
+  IF NOT EXISTS (SELECT 1 FROM tenant_user_role WHERE tenant_id = t_id AND user_id = '00000000-0000-0000-0000-000000010003'::uuid AND role_id = '00000000-0000-0000-0000-000000000304'::uuid AND deleted_at IS NULL) THEN
+    INSERT INTO tenant_user_role (id, tenant_id, user_id, role_id, assigned_at)
+    VALUES (gen_random_uuid(), t_id, '00000000-0000-0000-0000-000000010003'::uuid, '00000000-0000-0000-0000-000000000304'::uuid, now());
   END IF;
 
-  -- --- cashier ---
-  IF NOT EXISTS (SELECT 1 FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid AND deleted_at IS NULL) THEN
-    INSERT INTO app_user (id, keycloak_sub, username, email, display_name, status, created_at, updated_at)
-    VALUES (
-      '00000000-0000-0000-0000-000000010003'::uuid,
-      '00000000-0000-0000-0000-000000010003'::uuid,
-      'cashier', 'cashier@local', 'Cashier', 'ACTIVE', now(), now()
-    );
-  ELSE
-    UPDATE app_user
-    SET username = 'cashier', email = 'cashier@local', display_name = 'Cashier', status = 'ACTIVE', updated_at = now()
-    WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid;
-  END IF;
+  -- Reset RLS context
+  PERFORM set_config('app.current_tenant', '', true);
 
-  SELECT id INTO u_id FROM app_user WHERE keycloak_sub = '00000000-0000-0000-0000-000000010003'::uuid LIMIT 1;
-  SELECT id INTO r_id FROM app_role WHERE code = 'CASHIER' AND tenant_id IS NULL LIMIT 1;
-  IF u_id IS NOT NULL AND r_id IS NOT NULL AND t_id IS NOT NULL THEN
-    IF NOT EXISTS (SELECT 1 FROM tenant_user WHERE tenant_id = t_id AND user_id = u_id AND role_id = r_id AND deleted_at IS NULL) THEN
-      INSERT INTO tenant_user (id, tenant_id, user_id, role_id, is_owner, created_at, updated_at)
-      VALUES (gen_random_uuid(), t_id, u_id, r_id, false, now(), now());
-    END IF;
-  END IF;
-
+  RAISE NOTICE 'V202: done for tenant %', t_id;
 END $$;
-
-DO $$ BEGIN
-  RAISE NOTICE 'V42__seed_iam_roles_permissions: seeding roles & permissions';
-END $$;
-
--- permissions (stable codes)
-INSERT INTO permission (code, name, description)
-VALUES
-    ('session.read', 'Session Read', 'Read session totals and status'),
-    ('session.totals.recompute', 'Session Totals Recompute', 'Force recompute of session totals'),
-    ('reporting.view', 'Reporting View', 'View tenant reports'),
-    ('ticket.sell', 'Ticket create', 'Create / Sell Ticket'),
-    ('terminal.challenge.create', 'Terminal Challenge Create', 'Create POS terminal activation challenges'),
-    ('terminal.binding.create', 'Terminal Binding Create', 'Verify POS challenges and bind terminal devices'),
-    ('terminal.phone.challenge.create', 'Phone Terminal Challenge Create', 'Create virtual phone terminal activation challenges'),
-    ('terminal.phone.binding.create', 'Phone Terminal Binding Create', 'Verify virtual phone challenges and bind mobile app instances'),
-    ('terminal.operational_context.read', 'Terminal Operational Context Read', 'Read the current request operational context'),
-    ('terminal.create', 'Terminal Create', 'Create tenant terminals'),
-    ('terminal.retire', 'Terminal Retire', 'Retire tenant terminals'),
-    ('terminal.lock', 'Terminal Lock', 'Lock tenant terminals'),
-    ('terminal.unlock', 'Terminal Unlock', 'Unlock tenant terminals'),
-    ('outlet.day.close', 'Outlet Day Close', 'Close the current outlet for the day from the POS')
-    ON CONFLICT (code) DO NOTHING;
-
--- system roles (tenant_id NULL)
-INSERT INTO app_role (id, tenant_id, code, name, description)
-VALUES
-    ('00000000-0000-0000-0000-000000000301'::uuid, NULL, 'SUPER_ADMIN', 'Super Admin', 'System super administrator'),
-    ('00000000-0000-0000-0000-000000000302'::uuid, NULL, 'TENANT_ADMIN', 'Tenant Admin', 'Tenant-level administrator'),
-    ('00000000-0000-0000-0000-000000000303'::uuid, NULL, 'CASHIER', 'Cashier', 'Point-of-sale cashier')
-    ON CONFLICT DO NOTHING;
-
--- role_permission mappings (idempotent)
-INSERT INTO role_permission (role_id, permission_code)
-SELECT r.id, p.code
-FROM app_role r
-         JOIN permission p
-              ON p.code IN ('session.read','session.totals.recompute','reporting.view')
-WHERE r.tenant_id IS NULL
-  AND r.code IN ('SUPER_ADMIN','TENANT_ADMIN','CASHIER')
-    ON CONFLICT DO NOTHING;
-
-INSERT INTO role_permission (role_id, permission_code)
-SELECT r.id, p.code
-FROM app_role r
-         JOIN permission p
-              ON p.code IN (
-                  'terminal.challenge.create',
-                  'terminal.binding.create',
-                  'terminal.phone.challenge.create',
-                  'terminal.phone.binding.create',
-                  'terminal.operational_context.read',
-                  'terminal.create',
-                  'terminal.retire',
-                  'terminal.lock',
-                  'terminal.unlock')
-WHERE r.tenant_id IS NULL
-  AND r.code IN ('SUPER_ADMIN','TENANT_ADMIN','CASHIER')
-    ON CONFLICT DO NOTHING;
-
--- Outlet day-close from the POS: cashier (seller), tenant admin, super admin.
-INSERT INTO role_permission (role_id, permission_code)
-SELECT r.id, p.code
-FROM app_role r
-         JOIN permission p ON p.code = 'outlet.day.close'
-WHERE r.tenant_id IS NULL
-  AND r.code IN ('SUPER_ADMIN','TENANT_ADMIN','CASHIER')
-    ON CONFLICT DO NOTHING;
 
 -- Sanity check
-DO $$
-DECLARE cnt int;
-BEGIN
-SELECT count(*) INTO cnt
-FROM app_role
-WHERE tenant_id IS NULL AND deleted_at IS NULL;
-
-IF cnt < 3 THEN
-    RAISE EXCEPTION 'V42 sanity check failed: expected >=3 system roles, found %', cnt;
-ELSE
-    RAISE NOTICE 'V42 sanity check OK: % system roles present', cnt;
-END IF;
+DO $$ DECLARE cnt int; BEGIN
+  SELECT count(*) INTO cnt FROM app_role WHERE tenant_id IS NULL AND deleted_at IS NULL;
+  IF cnt < 4 THEN RAISE EXCEPTION 'V202 sanity: expected >=4 system roles, found %', cnt; END IF;
+  RAISE NOTICE 'V202 sanity OK: % system roles', cnt;
 END $$;

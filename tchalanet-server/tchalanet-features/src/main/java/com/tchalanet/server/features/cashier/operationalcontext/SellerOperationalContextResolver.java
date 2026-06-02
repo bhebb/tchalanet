@@ -43,8 +43,18 @@ public class SellerOperationalContextResolver {
     var outletId = operationalContext.outletId();
     var salesSessionId = operationalContext.salesSessionId();
 
-    if (!operationalContext.terminalId().equals(terminalId)) {
+    if (operationalContext.terminalId() == null || !operationalContext.terminalId().equals(terminalId)) {
       throw ProblemRest.forbidden("seller_context.terminal_mismatch");
+    }
+
+    // Missing operational-context headers must surface as a clean "required context" error
+    // (422), not a NullPointerException downstream when the validate queries dereference a
+    // null id.
+    if (outletId == null) {
+      throw ProblemRest.unprocessable("seller_context.outlet_required");
+    }
+    if (salesSessionId == null) {
+      throw ProblemRest.unprocessable("seller_context.session_required");
     }
 
     identityApi.getUserProfile(new GetUserProfileRequest(actorUserId));

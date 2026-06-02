@@ -208,8 +208,8 @@ public class GenerateDrawsForRangeCommandHandler
                         snap.cutoffAt(),
                         DrawSource.SYSTEM.name(),
                         pastBackfill ? DrawStatus.CLOSED.name() : DrawStatus.SCHEDULED.name(),
-                        now,
-                        now,
+                        pastBackfill ? now : null,
+                        pastBackfill ? now : null,
                         true,
                         false));
             }

@@ -6,6 +6,7 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.platform.identity.api.model.request.UpdateUserProfileRequest;
 import com.tchalanet.server.platform.identity.api.model.view.CurrentUserView;
 import com.tchalanet.server.platform.identity.api.model.view.UserProfileView;
+import com.tchalanet.server.platform.identity.internal.model.UserPreference;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.AppUserJpaAdapter;
 import com.tchalanet.server.platform.identity.internal.persistence.adapter.UserPreferenceJpaAdapter;
 import java.util.Currency;

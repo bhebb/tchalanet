@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -294,6 +295,29 @@ public class GlobalErrorHandler {
         log.warn("[422] {} {} - {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
 
         return buildResponse(pd, req, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     * Method-security (@PreAuthorize) denials throw Spring Security's
+     * {@link AccessDeniedException} (including its subclass
+     * {@code AuthorizationDeniedException}) <em>inside</em> the dispatcher, so they
+     * reach this advice instead of the filter-chain translator. Map them to a clean
+     * 403 — otherwise the catch-all below turns every forbidden access into a 500.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleAccessDenied(
+        AccessDeniedException ex,
+        HttpServletRequest req
+    ) {
+        var pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
+        pd.setTitle("Forbidden");
+        pd.setProperty("code", "access.denied");
+
+        decorate(pd, req, ex, true);
+
+        log.warn("[403] {} {} - access denied", req.getMethod(), req.getRequestURI());
+
+        return buildResponse(pd, req, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

@@ -27,9 +27,6 @@ public class TenantUserJpaEntity extends BaseTenantEntity {
   @Column(name = "user_id", nullable = false)
   private UUID userId;
 
-  @Column(name = "role_id")
-  private UUID roleId;
-
   @Enumerated(EnumType.STRING)
   @Column(name = "status", length = 32)
   private TenantUserStatus status;

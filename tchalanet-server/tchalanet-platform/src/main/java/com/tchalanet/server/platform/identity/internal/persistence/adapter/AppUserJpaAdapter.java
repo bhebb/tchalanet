@@ -7,7 +7,7 @@ import com.tchalanet.server.platform.identity.api.model.UserStatus;
 import com.tchalanet.server.platform.identity.internal.persistence.entity.AppUserJpaEntity;
 import com.tchalanet.server.platform.identity.internal.persistence.mapper.IdentityPersistenceMapper;
 import com.tchalanet.server.platform.identity.internal.persistence.repository.AppUserJpaRepository;
-import com.tchalanet.server.platform.identity.internal.service.AppUser;
+import com.tchalanet.server.platform.identity.internal.model.AppUser;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,22 @@ public class AppUserJpaAdapter {
     }
 
     public Optional<AppUser> findByEmailOrPhone(String email, String phone) {
-        return repository.findByEmailOrPhone(email, phone).map(IdentityPersistenceMapper::toUser);
+        // Dispatch to single-field finders: Spring Data translates a null argument to "= null"
+        // into "IS NULL", so findByEmailOrPhone(email, null) becomes "email = ? OR phone IS NULL"
+        // and matches every phone-less row, yielding a NonUniqueResultException. Only query the
+        // fields actually provided.
+        var hasEmail = email != null && !email.isBlank();
+        var hasPhone = phone != null && !phone.isBlank();
+        if (hasEmail) {
+            var byEmail = repository.findByEmail(email).map(IdentityPersistenceMapper::toUser);
+            if (byEmail.isPresent() || !hasPhone) {
+                return byEmail;
+            }
+        }
+        if (hasPhone) {
+            return repository.findByPhone(phone).map(IdentityPersistenceMapper::toUser);
+        }
+        return Optional.empty();
     }
 
     public AppUser save(AppUser user) {

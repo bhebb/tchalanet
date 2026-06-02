@@ -2,9 +2,12 @@ package com.tchalanet.server.features.ops.draw;
 
 import jakarta.validation.constraints.Min;
 import java.time.Instant;
+import java.util.List;
 
 /** Request body for closing due draws (ops). */
 public record CloseDueDrawsRequest(
+    // Optional tenant targeting: these tenants if present, else ALL active tenants.
+    List<String> tenantIds,
     Instant now,
     @Min(1) int limit,
     Boolean dryRun) {

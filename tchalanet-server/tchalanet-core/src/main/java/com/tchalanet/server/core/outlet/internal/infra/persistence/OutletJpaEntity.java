@@ -13,7 +13,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 import java.time.LocalTime;
 import java.util.UUID;
@@ -41,8 +44,9 @@ public class OutletJpaEntity extends BaseTenantEntity {
   @Column(name = "zone_id")
   private UUID zoneId;
 
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata_json", columnDefinition = "jsonb")
-  private String metadataJson;
+  private JsonNode metadataJson;
 
   @Column(name = "status", nullable = false, length = 40)
   @Enumerated(EnumType.STRING)
