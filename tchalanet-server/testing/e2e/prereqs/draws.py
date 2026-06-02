@@ -55,9 +55,15 @@ def ensure_draws_today(super_admin: ApiClient, seed_ids: SeedIds) -> dict[str, i
     data = body.get("data") if isinstance(body, dict) else {}
     if not isinstance(data, dict):
         data = {}
-    return {
-        "opened": int(data.get("opened", 0)),
-        "skippedLocked": int(data.get("skippedLocked", 0)),
-        "skippedTooLateOrCutoffPassed": int(data.get("skippedTooLateOrCutoffPassed", 0)),
-        "canceledProviderClosed": int(data.get("canceledProviderClosed", 0)),
-    }
+
+    # open-today is now a per-tenant batch: data = {tenants: [{result: {...}}, ...]}.
+    # Sum the per-tenant results; fall back to the legacy single-result shape.
+    keys = ("opened", "skippedLocked", "skippedTooLateOrCutoffPassed", "canceledProviderClosed")
+    if isinstance(data.get("tenants"), list):
+        totals = {k: 0 for k in keys}
+        for outcome in data["tenants"]:
+            res = (outcome or {}).get("result") or {}
+            for k in keys:
+                totals[k] += int(res.get(k, 0) or 0)
+        return totals
+    return {k: int(data.get(k, 0) or 0) for k in keys}

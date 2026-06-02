@@ -34,6 +34,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @RestController
 @RequestMapping("/platform/ops/draws")
@@ -59,56 +60,50 @@ public class DrawCalendarOpsController {
         action = AuditAction.DRAW_GENERATE,
         idExpression = "'draw-generate'",
         detailsExpression = "#req")
-    public ApiResponse<GenerateDrawsBatchResponse> generate(@Valid @RequestBody GenerateDrawsRequest req) {
+    public ApiResponse<TenantBatchResponse<GenerateDrawsForRangeResult>> generate(
+            @Valid @RequestBody GenerateDrawsRequest req) {
         // Target tenants: explicit tenantIds, else single tenantId (back-compat), else ALL active
         // tenants — mirroring the scheduled generateNext7Days job. Generation is idempotent, so a
         // full sweep only fills tenants that are still missing draws in the range.
-        List<TenantId> targets = resolveTargetTenants(req);
-
-        var outcomes = new ArrayList<GenerateDrawsBatchResponse.TenantOutcome>(targets.size());
-        int created = 0, skipped = 0, alreadyExists = 0, conflicts = 0, providerClosed = 0;
-        int succeeded = 0, failed = 0;
-
-        for (TenantId tenantId : targets) {
-            try {
-                // Per-tenant gate + run in the TARGET tenant's RLS context: generate reads that
-                // tenant's draw channels and INSERTs its draws, both tenant-scoped under RLS
-                // (draw WITH CHECK requires tenant_id = current_tenant()). Running in the caller's
-                // context would read the wrong channels and the INSERT would be rejected (500).
-                batchGate.assertEnabledOrThrow(DRAW_GENERATE, tenantId);
-                var res = TchContextScope.runWithTemporaryTenantResult(
-                    tenantId.value(), "draw-generate",
-                    () -> commandBus.execute(new GenerateDrawsForRangeCommand(
-                        tenantId, req.from(), req.to(), req.dryRun(), req.force(), req.reason())));
-
-                created += res.created();
-                skipped += res.skipped();
-                alreadyExists += res.alreadyExists();
-                conflicts += res.conflicts();
-                providerClosed += res.skippedProviderClosed();
-                succeeded++;
-                outcomes.add(new GenerateDrawsBatchResponse.TenantOutcome(
-                    tenantId.value().toString(), true, res, null));
-            } catch (Exception ex) {
-                // One tenant's failure must not abort the rest (resilient batch, like the job).
-                failed++;
-                outcomes.add(new GenerateDrawsBatchResponse.TenantOutcome(
-                    tenantId.value().toString(), false, null, ex.getMessage()));
-            }
-        }
-
-        var totals = new GenerateDrawsForRangeResult(
-            created, skipped, alreadyExists, conflicts, providerClosed);
-        return ApiResponse.success(new GenerateDrawsBatchResponse(
-            targets.size(), succeeded, failed, totals, outcomes));
+        return ApiResponse.success(runPerTenant(
+            req.tenantIds(), req.tenantId(), DRAW_GENERATE, "draw-generate",
+            tenantId -> commandBus.execute(new GenerateDrawsForRangeCommand(
+                tenantId, req.from(), req.to(), req.dryRun(), req.force(), req.reason()))));
     }
 
-    private List<TenantId> resolveTargetTenants(GenerateDrawsRequest req) {
-        if (req.tenantIds() != null && !req.tenantIds().isEmpty()) {
-            return req.tenantIds().stream().map(TenantId::parse).toList();
+    /**
+     * Run {@code work} once per target tenant — each in that tenant's RLS context — collecting a
+     * per-tenant outcome. The draw queries/writes are tenant-scoped (draw WITH CHECK requires
+     * {@code tenant_id = current_tenant()}), so running in the caller's context would touch the
+     * wrong tenant or be rejected by RLS. A single tenant's failure does not abort the rest.
+     */
+    private <R> TenantBatchResponse<R> runPerTenant(
+            List<String> explicitTenantIds, String singleTenantId,
+            JobKey gate, String label, Function<TenantId, R> work) {
+        List<TenantId> targets = resolveTargetTenants(explicitTenantIds, singleTenantId);
+        var outcomes = new ArrayList<TenantBatchResponse.Outcome<R>>(targets.size());
+        int succeeded = 0, failed = 0;
+        for (TenantId tenantId : targets) {
+            try {
+                batchGate.assertEnabledOrThrow(gate, tenantId);
+                R res = TchContextScope.runWithTemporaryTenantResult(
+                    tenantId.value(), label, () -> work.apply(tenantId));
+                outcomes.add(new TenantBatchResponse.Outcome<>(tenantId.value().toString(), true, res, null));
+                succeeded++;
+            } catch (Exception ex) {
+                outcomes.add(new TenantBatchResponse.Outcome<>(tenantId.value().toString(), false, null, ex.getMessage()));
+                failed++;
+            }
         }
-        if (req.tenantId() != null && !req.tenantId().isBlank()) {
-            return List.of(TenantId.parse(req.tenantId()));
+        return new TenantBatchResponse<>(targets.size(), succeeded, failed, outcomes);
+    }
+
+    private List<TenantId> resolveTargetTenants(List<String> explicitTenantIds, String singleTenantId) {
+        if (explicitTenantIds != null && !explicitTenantIds.isEmpty()) {
+            return explicitTenantIds.stream().map(TenantId::parse).toList();
+        }
+        if (singleTenantId != null && !singleTenantId.isBlank()) {
+            return List.of(TenantId.parse(singleTenantId));
         }
         return tenantCatalog.listActiveTenantIds();
     }
@@ -120,16 +115,16 @@ public class DrawCalendarOpsController {
         action = AuditAction.DRAW_OPEN,
         idExpression = "'draw-open-today'",
         detailsExpression = "#req")
-    public ApiResponse<OpenDueDrawsResult> openToday(@Valid @RequestBody OpenTodayDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(DRAW_OPEN, null);
+    public ApiResponse<TenantBatchResponse<OpenDueDrawsResult>> openToday(
+            @Valid @RequestBody OpenTodayDrawsRequest req) {
+        // Optional tenant list, else ALL active tenants — each opened in its own RLS context
+        // (mirrors the scheduled openToday job).
         Instant now = req.now() == null ? clock.instant() : req.now();
         int limit = req.limit() == null ? 10000 : req.limit();
-        var res = commandBus.execute(new OpenTodayDrawsCommand(
-            now,
-            req.drawDate(),
-            limit,
-            req.dryRun()));
-        return ApiResponse.success(res);
+        return ApiResponse.success(runPerTenant(
+            req.tenantIds(), null, DRAW_OPEN, "draw-open-today",
+            tenantId -> commandBus.execute(new OpenTodayDrawsCommand(
+                now, req.drawDate(), limit, req.dryRun()))));
     }
 
     @Operation(summary = "Close due draws (ops)")
@@ -139,11 +134,13 @@ public class DrawCalendarOpsController {
         action = AuditAction.DRAW_CLOSE,
         idExpression = "'draw-close-due'",
         detailsExpression = "#req")
-    public ApiResponse<CloseDueDrawsResult> closeDue(@Valid @RequestBody CloseDueDrawsRequest req) {
-        batchGate.assertEnabledOrThrow(DRAW_CLOSE, null);
+    public ApiResponse<TenantBatchResponse<CloseDueDrawsResult>> closeDue(
+            @Valid @RequestBody CloseDueDrawsRequest req) {
+        // Optional tenant list, else ALL active tenants — each closed in its own RLS context.
         Instant now = req.now() == null ? clock.instant() : req.now();
-        var res = commandBus.execute(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()));
-        return ApiResponse.success(res);
+        return ApiResponse.success(runPerTenant(
+            req.tenantIds(), null, DRAW_CLOSE, "draw-close-due",
+            tenantId -> commandBus.execute(new CloseDueDrawsCommand(now, req.limit(), req.dryRun()))));
     }
 
     @Operation(summary = "Apply draw_result to draw.draw_result_id (slot-first)")
