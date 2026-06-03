@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../features/cashier/operationalcontext/data/interceptor/op_context_interceptor.dart';
+import '../../features/cashier/operationalcontext/data/storage/op_context_storage.dart';
 import '../config/app_config.dart';
 import '../storage/secure_token_storage.dart';
 import 'api_exception.dart';
@@ -7,6 +10,7 @@ import 'auth_interceptor.dart';
 
 final apiClientProvider = Provider<Dio>((ref) {
   final tokenStorage = ref.watch(tokenStorageProvider);
+  final opCtxStorage = ref.watch(opContextStorageProvider);
 
   final dio = Dio(
     BaseOptions(
@@ -17,6 +21,7 @@ final apiClientProvider = Provider<Dio>((ref) {
   );
 
   dio.interceptors.add(AuthInterceptor(tokenStorage));
+  dio.interceptors.add(OpContextInterceptor(opCtxStorage));
 
   return dio;
 });
