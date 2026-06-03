@@ -405,7 +405,7 @@ class _SyncButton extends StatelessWidget {
         onPressed: onPressed,
         icon: Icon(Icons.sync_rounded, color: scheme.primary),
         label: Text(
-          'SYNC. DONNÉES',
+          'ACTUALISER',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                 color: scheme.primary,
                 fontWeight: FontWeight.w700,

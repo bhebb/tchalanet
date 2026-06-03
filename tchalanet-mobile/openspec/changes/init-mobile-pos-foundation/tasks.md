@@ -155,26 +155,29 @@ All endpoints under `/tenant/cashier/*` require `Authorization: Bearer` and `X-C
 - [ ] `data/models/cashier_home_models.dart` — Dart records: `CashierHomeResponse`, `CashierHomeHeader`,
   `CashierHomeRequiredStep`, `CashierHomeOpCtx`, `CashierHomeSession`, `CashierHomeDrawSummary`,
   `HomeAction`, `HomeWidget`, `HomeNavigationItem`, `CashierReadinessResponse`.
-- [ ] `data/services/cashier_home_service.dart` — `GET /tenant/cashier/home` (adds `X-Client-Surface` header).
-- [ ] `data/services/cashier_readiness_service.dart` — `GET /tenant/cashier/readiness`.
-- [ ] `presentation/view_models/cashier_home_provider.dart` — `FutureProvider<CashierHomeResponse>` (refreshable).
-- [ ] `presentation/view_models/cashier_readiness_provider.dart` — `FutureProvider<CashierReadinessResponse>`.
-- [ ] Add `X-Client-Surface: MOBILE_POS` to Dio interceptor or per-call header.
+- [x] `data/services/cashier_home_service.dart` — `GET /tenant/cashier/home` (header `X-Tch-Surface: MOBILE_POS`).
+- [x] `data/services/cashier_readiness_service.dart` — `GET /tenant/cashier/readiness`.
+- [x] `presentation/view_models/cashier_home_providers.dart` — `cashierHomeProvider` + `cashierReadinessProvider`.
+- [x] Header `X-Tch-Surface: MOBILE_POS` added per-call (matches `ClientSurfaceResolver.HEADER_NAME`).
 
 Acceptance:
 
-- [ ] `cashierHomeProvider` returns the correct state for each of the three server responses.
-- [ ] Missing `X-Client-Surface` header does not silently return a 403 without a typed error.
-- [ ] `requiredStep` null-safety is handled exhaustively (no NPE on operational home state).
+- [x] `cashierHomeProvider` returns the correct state for each of the three server responses.
+- [x] Missing header does not silently fail — `mapDioException` wraps 403 as typed `ApiException`.
+- [x] `requiredStep` null-safety handled exhaustively via `needsOpContext / needsSession / isOperational`.
 
 ## 9-B. Operational context setup screen
 
-- [ ] `data/services/cashier_op_context_service.dart` — `GET /tenant/cashier/operational-context/current`,
-  `POST /tenant/cashier/operational-context/select`, `DELETE /tenant/cashier/operational-context`.
-- [ ] Setup screen triggered when `home.requiredStep.type == SELECT_OPERATIONAL_CONTEXT`.
-- [ ] On successful `POST /select`, refresh `cashierHomeProvider` and navigate back to home.
+Decision (2026-06-03): picker must use controlled backend lists — no free-form UUID.
+Agreed endpoint: `GET /tenant/me/operational-context/options` →
+`{outlets: OutletOption[], terminals: TerminalOption[], defaults?: {outletId?, terminalId?}}`.
+Do NOT use `/tenant/outlets` (admin CRUD). Backend must add this endpoint before T9-B is unblocked.
 
-Open question: outlet/terminal picker needs a list endpoint (`/tenant/outlets`?) — confirm before implementing picker UI.
+- [ ] `data/services/cashier_op_context_service.dart` — `GET /operational-context/options`,
+  `GET /operational-context/current`, `POST /operational-context/select`, `DELETE /operational-context`.
+- [ ] Setup screen triggered when `home.requiredStep.type == SELECT_OPERATIONAL_CONTEXT`.
+- [ ] Outlet picker → terminal picker (filtered by selected outlet) → `POST /select`.
+- [ ] On success, `ref.invalidate(cashierHomeProvider)` and pop back to home.
 
 Acceptance:
 
@@ -192,30 +195,36 @@ Operational layout components:
 - [ ] **TopAppBar** — menu icon + "Tchalanet" + terminal ID (`#` + shortId from op context) + `OnlineBadge` + user avatar.
 - [ ] **Primary action button** — `home.primaryAction` ("Vendre Ticket", h-128, disabled if `enabled == false`).
 - [ ] **Quick actions grid** — 2-col: "Vérifier Ticket" + "Payer Gagnant" from `home.quickActions`.
-- [ ] **Sync button** — outline/white, "Sync. Données" (P1: wire to `POST /tenant/cashier/offline/sync` or local-only).
-- [ ] **Stats section** — `home.session.salesTotal` (display-numeric) + `home.session.ticketCount`.
-- [ ] **Quick log** — last transaction via `GET /tenant/cashier/tickets?size=1&sort=createdAt,desc`.
-- [ ] **Bottom navigation** — 4 tabs: Sales (active) | Reports | History | Settings via `GoRouter`.
-  Reports/History are placeholder routes for this cycle.
+- [x] **Sync button** — label "Actualiser", calls `ref.invalidate(cashierHomeProvider)` (V1 refresh-only).
+  `POST /offline/sync` reserved for future offline — do NOT wire it until offline is activated.
+- [x] **Stats section** — `home.session.salesTotal` (display-numeric) + `home.session.ticketCount`.
+  Payout "Gagnants" widget shown only if `home.widgets` contains `POS_PAYOUT_STATUS`; hidden otherwise.
+  Backend must add `payout_summary` widget to `CashierHomeResponse` to enable this stat.
+- [ ] **Quick log** — deferred; last transaction needs `GET /tenant/cashier/tickets?size=1&sort=createdAt,desc`.
+- [x] **Bottom navigation** — 4 tabs via `NavigationBar` + GoRouter.
+  History = stub for now (can show ticket list once tickets service is wired). Reports = stub V1.
+
+Refresh strategy (decided 2026-06-03): pull-to-refresh + app foreground return + after sell/pay/select.
+No 30s polling. Local countdown timer for `primaryDraw.cutoffLabel` display; server revalidates at sell time.
 
 Acceptance:
 
-- [ ] All three home states render without error.
-- [ ] Primary action button is disabled when `home.primaryAction.enabled == false`.
-- [ ] Stats section reflects live session data from `home.session`.
-- [ ] Tapping bottom nav "Sales" preserves active state; other tabs navigate to stub screens.
+- [x] All three home states render without error.
+- [x] Primary action button is disabled when `home.primaryAction.enabled == false`.
+- [x] Stats section reflects live session data from `home.session`.
+- [x] Tapping bottom nav "Sales" preserves active state; other tabs navigate to stub screens.
 
 ## 11. Design system components
 
-- [ ] `StatCard` — large display-numeric value, label row, optional unit tag.
-- [ ] `PosActionButton` — large variant (h-128) and medium variant (h-112); icon + uppercase label; enabled/disabled.
-- [ ] `OnlineBadge` — animated pulse dot + "Online" label (green) / static dot + "Hors ligne" (grey).
-- [ ] `PosBottomNavBar` — wraps Material 3 `NavigationBar` with 4 fixed destinations; active destination driven by GoRouter.
+- [x] `StatCard` / `StatCardLarge` — large display-numeric value, label, optional unit and accent border.
+- [x] `PosActionButton` — large (h-128) and medium (h-112); icon + uppercase label; enabled/disabled.
+- [x] `OnlineBadge` — animated pulse dot + label; animation scoped to `SingleTickerProviderStateMixin`.
+- [x] `_PosBottomNavBar` — Material 3 `NavigationBar`, 4 destinations, active index via GoRouter.
 
 Acceptance:
 
-- [ ] `PosActionButton` disabled state matches `FilledButton` disabled style (no custom opacity hacks).
-- [ ] `OnlineBadge` pulse animation does not trigger unnecessary rebuilds outside its subtree.
+- [x] `PosActionButton` disabled uses `scheme.onSurface.withValues(alpha: 0.12/0.38)` — no custom hacks.
+- [x] `OnlineBadge` pulse isolated in `_OnlineBadgeState` — no parent rebuilds.
 
 ## 12. Sell / verify / session flows — contract docs only
 
@@ -224,6 +233,7 @@ Do not implement these flows in this cycle. Document the contracts so the next c
 - [ ] Document sell flow: `POST /tickets/preview` (validate) → confirm → `POST /tickets/sell` (idempotent) → `POST /tickets/{id}/print` or `/send`.
 - [ ] Document verify flow: scan public code → `POST /tickets/verify` → display `CashierTicketVerificationResponse`.
 - [ ] Document session lifecycle: `GET /session/current` on home load → `POST /session/open` (OPEN_SESSION required step) → `POST /session/close`.
-- [ ] Document payout stat gap: "Gagnants" total in mockup — confirm source (widget `home.widgets` key `payout_summary`? separate endpoint?).
+- [ ] Document payout stat: backend must add `payout_summary` widget (type `POS_PAYOUT_STATUS`) to `CashierHomeResponse.widgets`
+  with `{pendingCount, payableCount, paidTodayAmount, pendingAmount}`. No separate endpoint. Mobile shows widget if present.
 - [ ] Keep cashier Web separate unless chosen for V1.
 
