@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../design_system/layout/screen_size.dart';
 import '../../../../design_system/tokens/tch_colors.dart';
 import '../../../../design_system/tokens/tch_radius.dart';
 import '../../../../design_system/tokens/tch_spacing.dart';
@@ -22,26 +23,106 @@ class LoginPage extends ConsumerWidget {
     final errorMessage =
         authState is AuthUnauthenticated ? authState.errorMessage : null;
 
+    void onLogin() => ref.read(authControllerProvider.notifier).login();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(flex: 3),
-              _BrandBlock(),
-              const Spacer(flex: 2),
-              if (errorMessage != null) ...[
-                _ErrorBanner(message: errorMessage),
-                const SizedBox(height: TchSpacing.s16),
+        child: context.isPosTerminal
+            ? _TerminalLayout(
+                isLoading: isLoading,
+                errorMessage: errorMessage,
+                onLogin: onLogin,
+              )
+            : _PhoneLayout(
+                isLoading: isLoading,
+                errorMessage: errorMessage,
+                onLogin: onLogin,
+              ),
+      ),
+    );
+  }
+}
+
+// ─── Phone layout (< 960 px) ─────────────────────────────────────────────────
+
+class _PhoneLayout extends StatelessWidget {
+  const _PhoneLayout({
+    required this.isLoading,
+    required this.onLogin,
+    this.errorMessage,
+  });
+
+  final bool isLoading;
+  final String? errorMessage;
+  final VoidCallback onLogin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(flex: 3),
+          const _BrandBlock(iconSize: 80, large: false),
+          const Spacer(flex: 2),
+          if (errorMessage != null) ...[
+            _ErrorBanner(message: errorMessage!),
+            const SizedBox(height: TchSpacing.s16),
+          ],
+          _ConnectButton(isLoading: isLoading, height: 56, onPressed: onLogin),
+          const Spacer(flex: 1),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── POS terminal layout (≥ 960 px) ──────────────────────────────────────────
+
+class _TerminalLayout extends StatelessWidget {
+  const _TerminalLayout({
+    required this.isLoading,
+    required this.onLogin,
+    this.errorMessage,
+  });
+
+  final bool isLoading;
+  final String? errorMessage;
+  final VoidCallback onLogin;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 420,
+        child: Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(TchRadius.xl),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: TchSpacing.s40,
+              vertical: TchSpacing.s48,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const _BrandBlock(iconSize: 96, large: true),
+                const SizedBox(height: TchSpacing.s40),
+                if (errorMessage != null) ...[
+                  _ErrorBanner(message: errorMessage!),
+                  const SizedBox(height: TchSpacing.s20),
+                ],
+                _ConnectButton(isLoading: isLoading, height: 64, onPressed: onLogin),
               ],
-              _ConnectButton(isLoading: isLoading, onPressed: () {
-                ref.read(authControllerProvider.notifier).login();
-              }),
-              const Spacer(flex: 1),
-            ],
+            ),
           ),
         ),
       ),
@@ -49,30 +130,41 @@ class LoginPage extends ConsumerWidget {
   }
 }
 
+// ─── Shared components ────────────────────────────────────────────────────────
+
 class _BrandBlock extends StatelessWidget {
+  const _BrandBlock({required this.iconSize, required this.large});
+
+  final double iconSize;
+  final bool large;
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final containerSize = iconSize + 40;
 
     return Column(
       children: [
         Container(
-          width: 80,
-          height: 80,
+          width: containerSize,
+          height: containerSize,
           decoration: BoxDecoration(
             color: scheme.primaryContainer,
             borderRadius: BorderRadius.circular(TchRadius.xl),
           ),
           child: Icon(
             Icons.point_of_sale_rounded,
-            size: 40,
+            size: iconSize / 2,
             color: scheme.primary,
           ),
         ),
         const SizedBox(height: TchSpacing.s24),
         Text(
           'Tchalanet POS',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+          style: (large
+                  ? Theme.of(context).textTheme.displaySmall
+                  : Theme.of(context).textTheme.headlineLarge)
+              ?.copyWith(
             fontWeight: FontWeight.bold,
             color: scheme.onSurface,
             letterSpacing: -0.5,
@@ -128,15 +220,20 @@ class _ErrorBanner extends StatelessWidget {
 }
 
 class _ConnectButton extends StatelessWidget {
-  const _ConnectButton({required this.isLoading, required this.onPressed});
+  const _ConnectButton({
+    required this.isLoading,
+    required this.height,
+    required this.onPressed,
+  });
 
   final bool isLoading;
+  final double height;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 56,
+      height: height,
       child: FilledButton(
         onPressed: isLoading ? null : onPressed,
         style: FilledButton.styleFrom(
