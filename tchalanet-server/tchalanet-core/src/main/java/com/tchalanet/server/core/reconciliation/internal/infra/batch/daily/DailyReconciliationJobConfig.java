@@ -3,7 +3,7 @@ package com.tchalanet.server.core.reconciliation.internal.infra.batch.daily;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.gate.BatchGate;
 import com.tchalanet.server.common.job.key.JobKey;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.core.reconciliation.internal.application.ReconciliationDailyRunService;
 import com.tchalanet.server.core.reconciliation.internal.domain.model.ReconciliationRunType;
 import com.tchalanet.server.core.reconciliation.internal.infra.config.ReconciliationDailyJobProperties;

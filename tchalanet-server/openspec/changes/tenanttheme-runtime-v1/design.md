@@ -230,12 +230,12 @@ DELETE /platform/catalog/theme-presets/{id}
 Tenant admin theme management:
 
 ```text
-GET    /admin/theme
-GET    /admin/theme/presets
-POST   /admin/theme/preset
-PATCH  /admin/theme/settings
-PATCH  /admin/theme/tokens
-DELETE /admin/theme
+GET    /admin/theme                ← TenantThemeAdminView (presetCode, defaultMode, active, version)
+GET    /admin/theme/presets        ← list ThemePresetView from catalog
+POST   /admin/theme/preset         ← apply preset (permission: theme.manage, feature: THEME_PRESET_SELECTION)
+PATCH  /admin/theme/settings       ← update defaultMode LIGHT|DARK|SYSTEM (permission: theme.manage) [V1]
+PATCH  /admin/theme/tokens         ← [V2] token overrides (feature: THEME_CUSTOM_TOKENS)
+DELETE /admin/theme                ← deactivate / reset to fallback (permission: theme.manage)
 ```
 
 Public runtime:

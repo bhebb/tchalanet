@@ -10,6 +10,7 @@ import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeAdminView;
+import com.tchalanet.server.platform.tenanttheme.api.model.UpdateTenantThemeSettingsRequest;
 import com.tchalanet.server.platform.tenanttheme.internal.service.TenantThemeAdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +64,18 @@ public class TenantThemeAdminController {
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "Update theme settings (defaultMode)")
+    @PatchMapping("/settings")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasPermission('theme.manage')")
+    public ApiResponse<Void> updateSettings(
+        @Valid @RequestBody UpdateSettingsRequest body,
+        @CurrentContext TchRequestContext ctx) {
+        adminService.updateSettings(new UpdateTenantThemeSettingsRequest(
+            ctx.effectiveTenantIdRequired(), body.defaultMode()));
+        return ApiResponse.success(null);
+    }
+
     @Operation(summary = "Deactivate tenant theme (reset to default)")
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -72,4 +86,6 @@ public class TenantThemeAdminController {
     }
 
     public record ApplyPresetRequest(@NotBlank String presetCode) {}
+
+    public record UpdateSettingsRequest(String defaultMode) {}
 }

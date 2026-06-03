@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "forbidden": {
+      "back": "Retounen nan paj piblik la",
+      "body": "Wòl ou genyen kounye a pa pèmèt ou antre nan espas sa a.",
+      "title": "Aksè entèdi"
+    }
+  },
+  "common": {
+    "disabled": "dezaktive",
+    "enabled": "aktive",
+    "unknown": "Enkoni"
+  },
+  "dashboard": {
+    "actions": {
+      "logout": "Dekonekte",
+      "publicHome": "Akèy piblik"
+    },
+    "fields": {
+      "roles": "Wòl",
+      "settings": "Paramèt",
+      "tenant": "Tenant",
+      "user": "Itilizatè"
+    },
+    "rolesEmpty": "Pa gen wòl detekte",
+    "tenantMissing": "Pa detekte",
+    "titles": {
+      "admin": "Tablo admin tenant",
+      "cashier": "Tablo kesye",
+      "platform": "Tablo platfòm"
+    }
+  },
+  "error": {
+    "generic": "Erè lokal.",
+    "network": "Koneksyon lokal pa disponib.",
+    "not_found": "Paj lokal pa jwenn."
+  },
+  "home": {
+    "hero": {
+      "cta": "Konekte",
+      "subtitle": "Fallback lokal san override backend.",
+      "title": "Tchalanet Web"
+    },
+    "nav": {
+      "check_ticket": "Tikè",
+      "results": "Rezilta lokal"
+    }
+  },
+  "public": {
+    "home": {
+      "demoFlag": "Flag demo",
+      "login": "Konekte",
+      "logout": "Dekonekte",
+      "nav": {
+        "admin": "Admin tenant",
+        "cashier": "Kesye",
+        "platform": "Platfòm"
+      },
+      "settings": "Paramèt",
+      "subtitle": "Wout piblik la disponib san koneksyon.",
+      "title": "Tchalanet Web"
+    }
+  },
+  "theme": {
+    "modes": {
+      "dark": "Fènwa",
+      "light": "Klè",
+      "system": "Sistèm"
+    },
+    "presets": {
+      "materialGreen": "Material vèt",
+      "materialIndigo": "Material indigo",
+      "tchalanet": "Tchalanet"
+    }
+  }
+}

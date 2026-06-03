@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.tenantadmin.readiness;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
@@ -15,6 +14,8 @@ import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadiness
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TenantReadinessAssembler {
 
-  private final TenantCatalog tenantCatalog;
+  private final TenantPreContextLookupApi tenantPreContextLookupApi;
   private final QueryBus queryBus;
 
   /** V1 section catalog (mirrors dashboard-overview-runtime-v1 §11 tenant table). */
@@ -150,7 +151,7 @@ public class TenantReadinessAssembler {
 
   private boolean checkIdentity(TchRequestContext ctx) {
     try {
-      return tenantCatalog.findRegistryById(ctx.tenantId()).isPresent();
+      return tenantPreContextLookupApi.findById(ctx.tenantId()).isPresent();
     } catch (RuntimeException e) {
       return false;
     }

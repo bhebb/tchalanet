@@ -1,8 +1,8 @@
 package com.tchalanet.server.platform.tenant.internal.domain;
 
-import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
-import com.tchalanet.server.catalog.tenant.api.model.TenantType;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
@@ -83,7 +83,7 @@ public record TenantConfig(
      * Per user request: eliminates need for separate mapper.
      * Converts catalog view to mutable domain model for mutations.
      */
-    public static TenantConfig fromRegistryView(TenantRegistryView registryView) {
+    public static TenantConfig fromRegistryView(TenantContextLookupView registryView) {
         return new TenantConfig(
             registryView.tenantId(),
             registryView.code(),

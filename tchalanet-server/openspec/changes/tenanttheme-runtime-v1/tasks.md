@@ -16,7 +16,7 @@
 - [x] URL déplacée vers `/platform/catalog/theme-presets` (depuis `/platform/theme-presets`).
 - [x] Permission : `hasPermission('catalog.theme.manage')` (depuis `hasAuthority('SUPER_ADMIN')`).
 - [x] `sort_order`, `description` ajoutés dans CREATE TABLE `theme_preset`.
-- [ ] Validate preset config JSON before save — deferred (config is TEXT, validation at mapper level).
+- [x] Validate preset config JSON before save — `ThemePresetConfigValidator` (modes, defaultMode, tokens structure, editableTokens/allowedFonts arrays).
 - [x] `TenantThemeFallbackService` utilise `findDefault()` directement.
 
 ## tenant_theme schema/model
@@ -26,7 +26,7 @@
   - [x] Added `default_mode VARCHAR(16) NOT NULL DEFAULT 'SYSTEM'`.
   - [x] Added `active BOOLEAN NOT NULL DEFAULT true`.
   - [x] `version` updated to DEFAULT 1.
-  - [x] No `token_overrides` column (deferred V2).
+  - [x] `token_overrides jsonb` column ajoutée (nullable, null = aucun override).
 - [x] `TenantThemeJpaEntity` updated.
 - [x] `TenantThemePersistenceAdapter` updated (deactivate soft, findActiveByTenantId added).
 - [x] `TenantThemeJpaRepository` updated (findByTenantIdAndActive added).
@@ -52,7 +52,8 @@
 - [x] `DELETE /admin/theme`.
 - [x] Use `ApiResponse<T>`.
 - [x] Permission annotations `theme.read/manage`.
-- [ ] `PATCH /admin/theme/settings`, `PATCH /admin/theme/tokens` — deferred (no token overrides in V1).
+- [x] `PATCH /admin/theme/settings` — update `defaultMode` (LIGHT/DARK/SYSTEM), gate `theme.manage`.
+- [ ] `PATCH /admin/theme/tokens` — deferred V2 (token overrides).
 
 ## Public/runtime endpoints
 
@@ -71,4 +72,7 @@
 
 ## Tests
 
-- [ ] Unit/integration tests — deferred to unit-test-task.
+- [x] `TenantThemeTokenValidatorTest` — 3 tests (null, empty, non-empty rejected in V1).
+- [x] `TenantThemeRuntimeServiceTest` — 7 tests (mode resolution, token extraction, fallback, inactive preset).
+- [x] `TenantThemeAdminServiceTest` — 7 tests (apply preset, settings update, validation, version increment).
+- [x] `ThemePresetConfigValidatorTest` — 11 tests (valid, null, blank, invalid JSON, missing fields, unknown mode key).

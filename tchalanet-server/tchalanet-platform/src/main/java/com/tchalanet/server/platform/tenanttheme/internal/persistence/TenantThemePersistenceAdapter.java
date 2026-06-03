@@ -25,6 +25,7 @@ public class TenantThemePersistenceAdapter {
     entity.setDefaultMode(tenantTheme.defaultMode() != null ? tenantTheme.defaultMode() : "SYSTEM");
     entity.setActive(tenantTheme.active());
     entity.setDefaultTheme(tenantTheme.isDefault());
+    entity.setTokenOverrides(tenantTheme.tokenOverrides());
     var saved = repository.save(entity);
     return toDomain(saved);
   }
@@ -52,6 +53,7 @@ public class TenantThemePersistenceAdapter {
         entity.isActive(),
         entity.isDefaultTheme(),
         entity.getVersion(),
+        entity.getTokenOverrides(),
         entity.getCreatedAt(),
         entity.getUpdatedAt(),
         entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "system");

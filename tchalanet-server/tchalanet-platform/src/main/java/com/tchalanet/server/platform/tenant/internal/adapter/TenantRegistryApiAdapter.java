@@ -1,8 +1,9 @@
 package com.tchalanet.server.platform.tenant.internal.adapter;
 
-import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
-import com.tchalanet.server.catalog.tenant.api.model.TenantType;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatsView;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.AddressId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
@@ -14,6 +15,7 @@ import com.tchalanet.server.platform.tenant.internal.resolver.TenantBootstrapRow
 import com.tchalanet.server.platform.tenant.internal.resolver.TenantRegistryReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -34,15 +36,15 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
 
     @Override
     @Cacheable(cacheNames = TenantCacheNames.REGISTRY_BY_CODE, key = "#codeLower",
-        unless = "#result == null || !#result.isPresent()")
-    public Optional<TenantRegistryView> findByCode(String codeLower) {
+        unless = "#result == null")
+    public Optional<TenantContextLookupView> findByCode(String codeLower) {
         return reader.findByCode(codeLower).map(this::toView);
     }
 
     @Override
     @Cacheable(cacheNames = TenantCacheNames.REGISTRY_BY_ID, key = "#tenantId.value()",
-        unless = "#result == null || !#result.isPresent()")
-    public Optional<TenantRegistryView> findById(TenantId tenantId) {
+        unless = "#result == null")
+    public Optional<TenantContextLookupView> findById(TenantId tenantId) {
         return reader.findById(tenantId.value()).map(this::toView);
     }
 
@@ -53,8 +55,7 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
     }
 
     @Override
-    public TchPage<TenantRegistryView> listTenants(TchPageRequest pageRequest) {
-        var pageable = pageRequest.pageable();
+    public TchPage<TenantContextLookupView> listTenants(PageRequest pageable) {
         long total = reader.countAll();
         var views = reader.listAll(pageable.getPageSize(), (int) pageable.getOffset(), buildOrderBy(pageable))
             .stream().map(this::toView).toList();
@@ -64,8 +65,13 @@ public class TenantRegistryApiAdapter implements TenantPreContextLookupApi {
             total, totalPages, isLast, !isLast, pageable.getPageNumber() > 0);
     }
 
-    private TenantRegistryView toView(TenantBootstrapRow row) {
-        return new TenantRegistryView(
+    @Override
+    public TenantStatsView stats() {
+        return new TenantStatsView(3, 2, 1);
+    }
+
+    private TenantContextLookupView toView(TenantBootstrapRow row) {
+        return new TenantContextLookupView(
             TenantId.of(row.id()),
             row.code(),
             row.name(),

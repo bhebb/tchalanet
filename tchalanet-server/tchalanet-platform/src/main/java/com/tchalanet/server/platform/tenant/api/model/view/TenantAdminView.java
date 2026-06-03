@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.tenant.api.model.view;
 
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
-import com.tchalanet.server.catalog.tenant.api.model.TenantType;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.ThemePresetId;
 import com.tchalanet.server.platform.address.api.model.AddressView;

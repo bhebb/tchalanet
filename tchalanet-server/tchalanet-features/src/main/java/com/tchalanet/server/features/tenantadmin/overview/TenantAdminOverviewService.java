@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.tenantadmin.overview;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.features.tenantadmin.readiness.TenantReadinessAssembler;
 import com.tchalanet.server.features.tenantadmin.readiness.model.TenantReadinessView;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TenantAdminOverviewService {
 
-  private final TenantCatalog tenantCatalog;
+  private final TenantPreContextLookupApi tenantCatalog;
   private final TenantReadinessAssembler readinessAssembler;
 
   public TenantAdminOverviewView getOverview(TchRequestContext ctx) {
@@ -41,7 +41,7 @@ public class TenantAdminOverviewService {
     if (ctx == null || ctx.tenantId() == null) {
       return new TenantAdminOverviewView.TenantHeader(null, null, null, null, null, null, null);
     }
-    var registry = tenantCatalog.findRegistryById(ctx.tenantId()).orElse(null);
+    var registry = tenantCatalog.findById(ctx.tenantId()).orElse(null);
     if (registry == null) {
       return new TenantAdminOverviewView.TenantHeader(
           ctx.tenantId().value().toString(),

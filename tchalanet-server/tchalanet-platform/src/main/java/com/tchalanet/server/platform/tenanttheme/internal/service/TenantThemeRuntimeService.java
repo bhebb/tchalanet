@@ -27,24 +27,31 @@ public class TenantThemeRuntimeService {
 
     @Transactional(readOnly = true)
     public ThemeRuntimeView getRuntime(TenantId tenantId, String requestedMode) {
-        var tenantTheme = persistence.findActiveByTenantId(tenantId);
-
         String presetCode;
         String defaultMode;
         long version;
         boolean isDefault;
 
-        if (tenantTheme.isPresent()) {
-            var t = tenantTheme.get();
-            presetCode = t.presetCode();
-            defaultMode = t.defaultMode();
-            version = t.version();
-            isDefault = t.isDefault();
-        } else {
-            presetCode = fallback.resolveFallback(tenantId, null);
+        if (tenantId == null) {
+            // No tenant context (unauthenticated public call) — serve global default
+            presetCode = fallback.resolveFallback(null, null);
             defaultMode = "SYSTEM";
             version = 0L;
             isDefault = true;
+        } else {
+            var tenantTheme = persistence.findActiveByTenantId(tenantId);
+            if (tenantTheme.isPresent()) {
+                var t = tenantTheme.get();
+                presetCode = t.presetCode();
+                defaultMode = t.defaultMode();
+                version = t.version();
+                isDefault = t.isDefault();
+            } else {
+                presetCode = fallback.resolveFallback(tenantId, null);
+                defaultMode = "SYSTEM";
+                version = 0L;
+                isDefault = true;
+            }
         }
 
         var preset = themeCatalog.findByCode(presetCode);

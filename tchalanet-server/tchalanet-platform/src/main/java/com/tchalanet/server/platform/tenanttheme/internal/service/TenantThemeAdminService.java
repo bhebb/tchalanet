@@ -7,6 +7,7 @@ import com.tchalanet.server.platform.tenanttheme.api.model.ApplyTenantThemeReque
 import com.tchalanet.server.platform.tenanttheme.api.model.DeactivateTenantThemeRequest;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeAdminView;
 import com.tchalanet.server.platform.tenanttheme.api.model.TenantThemeUpdatedEvent;
+import com.tchalanet.server.platform.tenanttheme.api.model.UpdateTenantThemeSettingsRequest;
 import com.tchalanet.server.platform.tenanttheme.internal.persistence.TenantThemePersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,7 +40,7 @@ public class TenantThemeAdminService {
 
         var saved = persistence.save(new TenantTheme(
             request.tenantId(), request.presetCode(), "SYSTEM",
-            true, false, newVersion,
+            true, false, newVersion, null,
             existing.map(TenantTheme::createdAt).orElse(now), now, "system"));
 
         AfterCommit.run(() -> eventPublisher.publishEvent(
@@ -54,6 +55,26 @@ public class TenantThemeAdminService {
         var theme = existing.get();
         AfterCommit.run(() -> eventPublisher.publishEvent(
             new TenantThemeUpdatedEvent(theme.tenantId(), null, theme.version() + 1, Instant.now(clock), "system")));
+    }
+
+    @Transactional
+    public void updateSettings(UpdateTenantThemeSettingsRequest request) {
+        var existing = persistence.findActiveByTenantId(request.tenantId())
+            .orElseThrow(() -> new IllegalArgumentException(
+                "No active theme found for tenant — apply a preset first"));
+
+        if (request.defaultMode() == null) return;
+
+        String newMode = request.defaultMode().toUpperCase();
+        var updated = new TenantTheme(
+            existing.tenantId(), existing.presetCode(), newMode,
+            existing.active(), existing.isDefault(), existing.version() + 1,
+            existing.tokenOverrides(),
+            existing.createdAt(), Instant.now(clock), "system");
+
+        var saved = persistence.save(updated);
+        AfterCommit.run(() -> eventPublisher.publishEvent(
+            new TenantThemeUpdatedEvent(saved.tenantId(), saved.presetCode(), saved.version(), saved.updatedAt(), "system")));
     }
 
     @Transactional(readOnly = true)

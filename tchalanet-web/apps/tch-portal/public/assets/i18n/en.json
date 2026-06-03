@@ -1,0 +1,76 @@
+{
+  "auth": {
+    "forbidden": {
+      "back": "Back to public home",
+      "body": "Your current role does not allow access to this surface.",
+      "title": "Forbidden"
+    }
+  },
+  "common": {
+    "disabled": "disabled",
+    "enabled": "enabled",
+    "unknown": "Unknown"
+  },
+  "dashboard": {
+    "actions": {
+      "logout": "Logout",
+      "publicHome": "Public home"
+    },
+    "fields": {
+      "roles": "Roles",
+      "settings": "Settings",
+      "tenant": "Tenant",
+      "user": "User"
+    },
+    "rolesEmpty": "No role detected",
+    "tenantMissing": "Not detected",
+    "titles": {
+      "admin": "Tenant admin dashboard",
+      "cashier": "Cashier dashboard",
+      "platform": "Platform dashboard"
+    }
+  },
+  "error": {
+    "generic": "Local error.",
+    "network": "Local connection unavailable.",
+    "not_found": "Local page not found."
+  },
+  "home": {
+    "hero": {
+      "cta": "Login",
+      "subtitle": "Local fallback without backend override.",
+      "title": "Tchalanet Web"
+    },
+    "nav": {
+      "check_ticket": "Ticket",
+      "results": "Local results"
+    }
+  },
+  "public": {
+    "home": {
+      "demoFlag": "Demo flag",
+      "login": "Login",
+      "logout": "Logout",
+      "nav": {
+        "admin": "Tenant admin",
+        "cashier": "Cashier",
+        "platform": "Platform"
+      },
+      "settings": "Settings",
+      "subtitle": "Public route is available without login.",
+      "title": "Tchalanet Web"
+    }
+  },
+  "theme": {
+    "modes": {
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    },
+    "presets": {
+      "materialGreen": "Material green",
+      "materialIndigo": "Material indigo",
+      "tchalanet": "Tchalanet"
+    }
+  }
+}

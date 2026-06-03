@@ -2,11 +2,8 @@ package com.tchalanet.server.platform.tenanttheme.internal.service;
 
 import com.tchalanet.server.common.types.id.TenantId;
 import java.time.Instant;
+import java.util.Map;
 
-/**
- * Domain model for tenant-scoped theme.
- * No free-form metadata — token overrides deferred to V2.
- */
 public record TenantTheme(
     TenantId tenantId,
     String presetCode,
@@ -14,6 +11,7 @@ public record TenantTheme(
     boolean active,
     boolean isDefault,
     long version,
+    Map<String, String> tokenOverrides,
     Instant createdAt,
     Instant updatedAt,
     String createdBy

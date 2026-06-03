@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.tenant.internal.service;
 
 import com.tchalanet.server.common.event.DomainEvent;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.common.types.id.EventId;
 import com.tchalanet.server.common.types.id.TenantId;
 

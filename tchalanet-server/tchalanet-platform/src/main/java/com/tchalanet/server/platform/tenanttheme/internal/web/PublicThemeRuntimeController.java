@@ -21,11 +21,10 @@ public class PublicThemeRuntimeController {
 
     @Operation(summary = "Public theme runtime — safe, no auth required")
     @GetMapping("/public/theme/runtime")
-    public ApiResponse<ThemeRuntimeView> publicRuntime(
-        @CurrentContext TchRequestContext ctx,
-        @RequestParam(required = false) String mode) {
+    public ApiResponse<ThemeRuntimeView> publicRuntime(@CurrentContext TchRequestContext ctx,
+                                                       @RequestParam(required = false) String mode) {
         return ApiResponse.success(
-            runtimeService.getRuntime(ctx.effectiveTenantIdRequired(), mode));
+            runtimeService.getRuntime(ctx.effectiveTenantIdOrNull(), mode));
     }
 
     @Operation(summary = "Authenticated theme runtime (with user mode preference)")

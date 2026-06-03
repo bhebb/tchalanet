@@ -1,8 +1,5 @@
 package com.tchalanet.server.platform.tenant.internal.service;
 
-import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
-import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.common.event.DomainEventPublisher;
 import com.tchalanet.server.common.json.utils.JsonUtils;
@@ -13,6 +10,9 @@ import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageMapper;
 import com.tchalanet.server.platform.address.api.AddressApi;
 import com.tchalanet.server.platform.address.api.model.AddressView;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.platform.tenant.api.model.request.ActivateTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.ArchiveTenantRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.CreateTenantRequest;
@@ -23,14 +23,15 @@ import com.tchalanet.server.platform.tenant.api.model.request.SuspendTenantReque
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantIdentityRequest;
 import com.tchalanet.server.platform.tenant.api.model.request.UpdateTenantInternalSettingsRequest;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
-import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalCommunicationConfig;
-import com.tchalanet.server.platform.tenant.api.model.view.TenantRuntimeView;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalDocumentConfig;
 import com.tchalanet.server.platform.tenant.api.model.view.TenantInternalSettings;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantRuntimeView;
 import com.tchalanet.server.platform.tenant.internal.adapter.TenantPersistenceAdapter;
+import com.tchalanet.server.platform.tenant.internal.domain.TenantConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -167,7 +168,7 @@ public class TenantConfigService {
     }
 
     public TchPage<TenantConfigView> listTenants(ListTenantsRequest request) {
-        return TchPageMapper.map(tenantRegistry.listTenants(new com.tchalanet.server.common.web.paging.TchPageRequest(request.pageable())), registry -> toView(registry, false));
+        return TchPageMapper.map(tenantRegistry.listTenants(PageRequest.of(request.pageable().getPageNumber(), request.pageable().getPageSize())), registry -> toView(registry, false));
     }
 
     @Transactional
@@ -292,12 +293,12 @@ public class TenantConfigService {
         return tenants.getRequiredByIdActive(tenantId);
     }
 
-    private TenantConfigView toView(TenantRegistryView registry) {
+    private TenantConfigView toView(TenantContextLookupView registry) {
         return toView(registry, true);
     }
 
     private TenantConfigView toView(
-        TenantRegistryView registry, boolean includeDetails) {
+        TenantContextLookupView registry, boolean includeDetails) {
         AddressView address = null;
         if (includeDetails && registry.addressId().isPresent()) {
             address = addressApi.get(registry.tenantId(), registry.addressId().get()).orElse(null);

@@ -1,9 +1,9 @@
 package com.tchalanet.server.features.platformadmin.dashboard;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatsView;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatsView;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.web.paging.TchPage;
@@ -50,7 +50,7 @@ public class PlatformAdminDashboardPayloadAssembler {
 
   private static final int PUBLIC_CONTENT_LIMIT = 5;
 
-  private final TenantCatalog tenantCatalog;
+  private final TenantPreContextLookupApi tenantPreContextLookupApi;
   private final QueryBus queryBus;
   private final PublicContentApi publicContentApi;
   /** Optional — adapter typically lives in the app layer (wraps actuator HealthEndpoint). */
@@ -72,7 +72,7 @@ public class PlatformAdminDashboardPayloadAssembler {
   }
 
   /**
-   * Platform health snapshot from Spring Boot's {@link org.springframework.boot.actuate.health.HealthEndpoint}.
+   * Platform health snapshot from Spring Boot's {@link org.springframework.boot.actuate.health.}.
    * No SQL — reads the in-process health registry the actuator already maintains.
    */
   @SuppressWarnings("unchecked")
@@ -111,7 +111,7 @@ public class PlatformAdminDashboardPayloadAssembler {
     long onboarding = 0L;
 
     try {
-      TenantStatsView catalogStats = tenantCatalog.stats();
+      TenantStatsView catalogStats = tenantPreContextLookupApi.stats();
       if (catalogStats != null) {
         total = catalogStats.total();
         active = catalogStats.active();
@@ -177,10 +177,10 @@ public class PlatformAdminDashboardPayloadAssembler {
    */
   private OnboardingAlertsPayload buildOnboardingAlerts() {
     try {
-      TchPage<TenantRegistryView> page = tenantCatalog.listTenants(PageRequest.of(0, 50));
+      TchPage<TenantContextLookupView> page = tenantPreContextLookupApi.listTenants(PageRequest.of(0, 50));
       if (page != null && page.items() != null) {
         List<OnboardingAlertItem> items = new ArrayList<>();
-        for (TenantRegistryView t : page.items()) {
+        for (TenantContextLookupView t : page.items()) {
           if (t.status() == TenantStatus.DRAFT && items.size() < 10) {
             items.add(new OnboardingAlertItem(
                 t.tenantId().value().toString(),

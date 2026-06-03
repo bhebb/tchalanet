@@ -257,6 +257,7 @@ CREATE TABLE tenant_theme (
   default_mode varchar(16) NOT NULL DEFAULT 'SYSTEM',
   active boolean NOT NULL DEFAULT true,
   is_default boolean NOT NULL DEFAULT false,
+  token_overrides jsonb,
   created_at timestamptz DEFAULT now(),
   created_by uuid,
   updated_at timestamptz DEFAULT now(),

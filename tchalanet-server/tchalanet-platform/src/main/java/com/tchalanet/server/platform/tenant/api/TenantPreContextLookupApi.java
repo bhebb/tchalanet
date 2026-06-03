@@ -1,9 +1,11 @@
 package com.tchalanet.server.platform.tenant.api;
 
-import com.tchalanet.server.catalog.tenant.api.model.TenantRegistryView;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatsView;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,11 +25,13 @@ import java.util.Optional;
  */
 public interface TenantPreContextLookupApi {
 
-    Optional<TenantRegistryView> findByCode(String codeLower);
+    Optional<TenantContextLookupView> findByCode(String codeLower);
 
-    Optional<TenantRegistryView> findById(TenantId tenantId);
+    Optional<TenantContextLookupView> findById(TenantId tenantId);
 
     List<TenantId> listActiveTenantIds();
 
-    TchPage<TenantRegistryView> listTenants(TchPageRequest pageRequest);
+    TchPage<TenantContextLookupView> listTenants(PageRequest pageRequest);
+
+    TenantStatsView stats();
 }

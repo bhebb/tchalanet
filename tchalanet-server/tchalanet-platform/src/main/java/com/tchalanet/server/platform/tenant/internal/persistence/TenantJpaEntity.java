@@ -1,7 +1,7 @@
 package com.tchalanet.server.platform.tenant.internal.persistence;
 
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatus;
-import com.tchalanet.server.catalog.tenant.api.model.TenantType;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantType;
 import com.tchalanet.server.common.persistence.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

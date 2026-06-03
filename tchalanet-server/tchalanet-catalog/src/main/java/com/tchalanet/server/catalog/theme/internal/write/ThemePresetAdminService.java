@@ -19,10 +19,12 @@ public class ThemePresetAdminService {
 
     private final ThemePresetJpaRepository repo;
     private final ThemePresetMapper mapper;
+    private final ThemePresetConfigValidator configValidator;
 
     @Transactional
     @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
     public ThemePresetView create(ThemePresetCreateRequest req) {
+        configValidator.validate(req.configAsString());
         var e = new ThemePresetJpaEntity();
         e.setCode(req.code());
         e.setVendor(req.vendor());
@@ -37,6 +39,7 @@ public class ThemePresetAdminService {
     @CacheEvict(cacheNames = {ThemeCacheNames.ACTIVE_PRESETS, ThemeCacheNames.PRESET_BY_CODE}, allEntries = true)
     public ThemePresetView update(ThemePresetId id, ThemePresetUpdateRequest req) {
         var e = repo.findById(id.value()).orElseThrow(() -> new RuntimeException("theme_preset_not_found"));
+        if (req.configAsString() != null) configValidator.validate(req.configAsString());
         if (req.code() != null) e.setCode(req.code());
         if (req.vendor() != null) e.setVendor(req.vendor());
         if (req.configAsString() != null) e.setConfig(req.configAsString());

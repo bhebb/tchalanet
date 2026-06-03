@@ -28,7 +28,10 @@ public class TenantContextLookupService implements TenantContextLookup {
 
     @Override
     public Optional<TenantContextInfo> findById(TenantId tenantId) {
-        if (tenantId == null) return Optional.empty();
+        if (tenantId == null)
+        {
+            return Optional.empty();
+        }
         return registry.findById(tenantId)
             .map(v -> new TenantContextInfo(v.tenantId(), v.code(), v.currency(), v.timezone()));
     }
