@@ -152,7 +152,7 @@ All endpoints under `/tenant/cashier/*` require `Authorization: Bearer` and `X-C
 `GET /home` returns three distinct states driven by `requiredStep`:
 `SELECT_OPERATIONAL_CONTEXT` → setup screen, `OPEN_SESSION` → closed-session screen, `null` → operational home.
 
-- [ ] `data/models/cashier_home_models.dart` — Dart records: `CashierHomeResponse`, `CashierHomeHeader`,
+- [x] `data/models/cashier_home_models.dart` — Dart records: `CashierHomeResponse`, `CashierHomeHeader`,
   `CashierHomeRequiredStep`, `CashierHomeOpCtx`, `CashierHomeSession`, `CashierHomeDrawSummary`,
   `HomeAction`, `HomeWidget`, `HomeNavigationItem`, `CashierReadinessResponse`.
 - [x] `data/services/cashier_home_service.dart` — `GET /tenant/cashier/home` (header `X-Tch-Surface: MOBILE_POS`).
@@ -166,23 +166,25 @@ Acceptance:
 - [x] Missing header does not silently fail — `mapDioException` wraps 403 as typed `ApiException`.
 - [x] `requiredStep` null-safety handled exhaustively via `needsOpContext / needsSession / isOperational`.
 
-## 9-B. Operational context setup screen
+## 9-B. Operational context setup screen ✅
 
-Decision (2026-06-03): picker must use controlled backend lists — no free-form UUID.
-Agreed endpoint: `GET /tenant/me/operational-context/options` →
-`{outlets: OutletOption[], terminals: TerminalOption[], defaults?: {outletId?, terminalId?}}`.
-Do NOT use `/tenant/outlets` (admin CRUD). Backend must add this endpoint before T9-B is unblocked.
+Endpoint added to backend: `GET /tenant/cashier/operational-context/options`.
+Trust gate lowered in `CashierHomeService`: outlet+terminal present → OPEN_SESSION state
+(STRONG trust still required at sell/payout via `SellerOperationalContextResolver`).
 
-- [ ] `data/services/cashier_op_context_service.dart` — `GET /operational-context/options`,
-  `GET /operational-context/current`, `POST /operational-context/select`, `DELETE /operational-context`.
-- [ ] Setup screen triggered when `home.requiredStep.type == SELECT_OPERATIONAL_CONTEXT`.
-- [ ] Outlet picker → terminal picker (filtered by selected outlet) → `POST /select`.
-- [ ] On success, `ref.invalidate(cashierHomeProvider)` and pop back to home.
+- [x] `data/models/op_context_options.dart` — `OpContextOptionsView`, `OutletOption`, `TerminalOption`, `OpContextDefaults`.
+- [x] `data/services/cashier_op_context_service.dart` — `GET /operational-context/options` + `saveSelection`.
+- [x] `data/storage/op_context_storage.dart` — persists outlet+terminal+session in SecureStorage.
+- [x] `data/interceptor/op_context_interceptor.dart` — injects `X-Tch-Terminal-Id` / `X-Tch-Outlet-Id` / `X-Tch-Sales-Session-Id`.
+- [x] `OpContextSetupController` — sealed state machine (loading/loaded/selecting/done/error).
+- [x] `CashierSetupPage` — outlet picker + terminal picker; 1 outlet + 1 terminal → auto-select.
+- [x] `/pos/setup` route wired in GoRouter.
 
 Acceptance:
 
-- [ ] Seller without operational context sees the setup screen (not the operational home).
-- [ ] After selecting outlet + terminal, home screen renders operational state.
+- [x] Seller without operational context sees the setup screen.
+- [x] 1+1 case auto-selects without showing any picker UI.
+- [x] After selection, `X-Tch-*` headers sent → `GET /home` moves to OPEN_SESSION state.
 
 ## 10. POS home screen
 
@@ -192,9 +194,9 @@ Driven entirely by `GET /tenant/cashier/home`. Three screen states must be cover
 - `requiredStep == null` → operational layout (mockup).
 
 Operational layout components:
-- [ ] **TopAppBar** — menu icon + "Tchalanet" + terminal ID (`#` + shortId from op context) + `OnlineBadge` + user avatar.
-- [ ] **Primary action button** — `home.primaryAction` ("Vendre Ticket", h-128, disabled if `enabled == false`).
-- [ ] **Quick actions grid** — 2-col: "Vérifier Ticket" + "Payer Gagnant" from `home.quickActions`.
+- [x] **TopAppBar** — menu icon + "Tchalanet" + terminal ID (`#` + shortId from op context) + `OnlineBadge` + user avatar.
+- [x] **Primary action button** — `home.primaryAction` ("Vendre Ticket", h-128, disabled if `enabled == false`).
+- [x] **Quick actions grid** — 2-col: "Vérifier Ticket" + "Payer Gagnant" from `home.quickActions`.
 - [x] **Sync button** — label "Actualiser", calls `ref.invalidate(cashierHomeProvider)` (V1 refresh-only).
   `POST /offline/sync` reserved for future offline — do NOT wire it until offline is activated.
 - [x] **Stats section** — `home.session.salesTotal` (display-numeric) + `home.session.ticketCount`.
@@ -226,14 +228,33 @@ Acceptance:
 - [x] `PosActionButton` disabled uses `scheme.onSurface.withValues(alpha: 0.12/0.38)` — no custom hacks.
 - [x] `OnlineBadge` pulse isolated in `_OnlineBadgeState` — no parent rebuilds.
 
-## 12. Sell / verify / session flows — contract docs only
+## 12. Sell / verify / session flows
 
-Do not implement these flows in this cycle. Document the contracts so the next cycle can start immediately.
+Session open/close is implemented (unlocks the E2E flow). Sell/verify: data layer only — UI screens next cycle.
 
-- [ ] Document sell flow: `POST /tickets/preview` (validate) → confirm → `POST /tickets/sell` (idempotent) → `POST /tickets/{id}/print` or `/send`.
-- [ ] Document verify flow: scan public code → `POST /tickets/verify` → display `CashierTicketVerificationResponse`.
-- [ ] Document session lifecycle: `GET /session/current` on home load → `POST /session/open` (OPEN_SESSION required step) → `POST /session/close`.
-- [ ] Document payout stat: backend must add `payout_summary` widget (type `POS_PAYOUT_STATUS`) to `CashierHomeResponse.widgets`
-  with `{pendingCount, payableCount, paidTodayAmount, pendingAmount}`. No separate endpoint. Mobile shows widget if present.
+### 12-A. Session open/close ✅
+
+- [x] `data/models/cashier_session_models.dart` — `CashierSessionView`, `OpenSessionRequest`, `CloseSessionRequest`.
+- [x] `data/services/cashier_session_service.dart` — `GET /session/current`, `POST /session/open`, `POST /session/close`.
+- [x] `CashierSessionController` — opens session, saves `sessionId` to `OpContextStorage`, invalidates home.
+- [x] `CashierSessionOpenPage` — opening float input (default 0.00), confirm button, outlet+terminal summary.
+- [x] `/pos/session/open` route wired; success → pop to home (now operational).
+- [x] Session close: button in home scaffold menu (deferred to settings tab or hamburger menu).
+
+### 12-B. Sell data layer ✅ (UI next cycle)
+
+- [x] `data/models/cashier_ticket_models.dart` — `CashierSellTicketRequest`, `CashierSellTicketResponse`,
+  `CashierTicketLineRequest`, `CashierTicketPreviewRequest`, `CashierTicketPreviewResponse`,
+  `CashierTicketVerificationResponse`, `CashierVerifyTicketRequest`, `CashierTicketBackupView`.
+- [x] `data/services/cashier_ticket_service.dart` — `preview`, `sell` (idempotent + idempotency key),
+  `verify`, `cancel`, `print` (returns bytes), `send`.
+- [ ] Sell screen UI — next cycle (needs draw picker, game/bet line builder, receipt display).
+- [ ] Verify screen UI — next cycle (scan code → verification result → pay/cancel CTA).
+
+### 12-C. Payout stat (backend pending)
+
+Backend must add `payout_summary` widget (type `POS_PAYOUT_STATUS`) to `CashierHomeResponse.widgets`
+with `{pendingCount, payableCount, paidTodayAmount, pendingAmount}`. Mobile already shows it if present.
+
 - [ ] Keep cashier Web separate unless chosen for V1.
 

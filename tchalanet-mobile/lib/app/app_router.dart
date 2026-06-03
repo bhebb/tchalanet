@@ -7,6 +7,7 @@ import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
 import '../features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart';
+import '../features/cashier/session/presentation/views/cashier_session_open_page.dart';
 import '../features/pos/presentation/views/pos_stub_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -40,6 +41,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/pos/setup',
         builder: (context, _) => const CashierSetupPage(),
+      ),
+      GoRoute(
+        path: '/pos/session/open',
+        builder: (context, _) => const CashierSessionOpenPage(),
       ),
       GoRoute(
         path: '/pos/reports',
