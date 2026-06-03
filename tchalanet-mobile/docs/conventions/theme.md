@@ -186,7 +186,39 @@ Logout
 
 ---
 
-## 10. Ce qui n'est pas implémenté en V1
+## 10. Responsive — `ScreenSize`
+
+Source : `lib/design_system/layout/screen_size.dart`
+
+| Valeur | Largeur | Contexte |
+|---|---|---|
+| `compact` | < 600 px | Téléphone portrait |
+| `medium` | 600–959 px | Téléphone paysage, tablette portrait |
+| `expanded` | ≥ 960 px | Terminal POS 10", tablette paysage |
+
+Usage dans les widgets :
+
+```dart
+// Extension sur BuildContext — aucune import supplémentaire dans les widgets
+if (context.isPosTerminal) {
+  // Layout POS tablette : boutons larges, sidebar
+} else {
+  // Layout téléphone : plein écran, navigation bottom
+}
+
+// Variantes disponibles
+context.isCompact       // téléphone portrait
+context.isMedium        // intermédiaire
+context.isExpanded      // terminal POS
+context.isPosTerminal   // alias de isExpanded
+context.isPhone         // alias de isCompact
+```
+
+**Règle** : ne jamais hardcoder des conditions sur `MediaQuery.sizeOf(context).width` dans les widgets — passer toujours par `context.screenSize` pour rester cohérent.
+
+---
+
+## 11. Ce qui n'est pas implémenté en V1
 
 - Mode sombre (`mode = 'dark'`) — les tokens dark existent côté serveur, le switch n'est pas câblé
 - Réinitialisation automatique du thème au logout — à appeler explicitement depuis `AuthController.logout()`
