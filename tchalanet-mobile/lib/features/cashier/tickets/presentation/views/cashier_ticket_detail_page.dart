@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../design_system/tokens/tch_colors.dart';
+
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../data/models/cashier_ticket_models.dart';
@@ -165,19 +167,16 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final (bgColor, fgColor, label) = switch (status) {
-      'PLACED' => (const Color(0xFFDCFCE7), const Color(0xFF166534), 'ACTIF'),
-      'CANCELLED' => (
-          Theme.of(context).colorScheme.errorContainer,
-          Theme.of(context).colorScheme.onErrorContainer,
-          'ANNULÉ'
-        ),
+      'PLACED' => (TchColors.successContainer, TchColors.success, 'ACTIF'),
+      'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
       'VOIDED' => (
-          Theme.of(context).colorScheme.surfaceContainerHighest,
-          Theme.of(context).colorScheme.onSurfaceVariant,
+          scheme.surfaceContainerHighest,
+          scheme.onSurfaceVariant,
           'INVALIDÉ'
         ),
-      _ => (const Color(0xFFFEF9C3), const Color(0xFF854D0E), status),
+      _ => (TchColors.warningContainer, TchColors.warning, status),
     };
     return Container(
       padding: const EdgeInsets.symmetric(

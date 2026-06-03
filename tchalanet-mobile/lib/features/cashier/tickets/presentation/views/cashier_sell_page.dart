@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -393,8 +395,8 @@ class _PreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final accepted = result.isAccepted;
-    final bgColor = accepted ? const Color(0xFFDCFCE7) : scheme.errorContainer;
-    final fgColor = accepted ? const Color(0xFF166534) : scheme.onErrorContainer;
+    final bgColor = accepted ? TchColors.successContainer : scheme.errorContainer;
+    final fgColor = accepted ? TchColors.success : scheme.onErrorContainer;
     final icon = accepted ? Icons.check_circle_outline_rounded : Icons.cancel_outlined;
 
     return Container(
@@ -404,7 +406,7 @@ class _PreviewCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(TchRadius.md),
         border: Border.all(
             color: accepted
-                ? const Color(0xFF86EFAC)
+                ? TchColors.successContainer.withValues(alpha: 0.5)
                 : scheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -500,7 +502,7 @@ class _BottomActions extends StatelessWidget {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2, color: TchColors.onPrimary),
                       )
                     : const Icon(Icons.sell_rounded),
                 label: Text(

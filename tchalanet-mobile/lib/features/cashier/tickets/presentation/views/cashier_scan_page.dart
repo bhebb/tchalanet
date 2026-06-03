@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -232,7 +234,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                               fontWeight: FontWeight.w700, letterSpacing: 0.5),
                         ),
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF166534),
+                          backgroundColor: TchColors.success,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(TchRadius.md),
                           ),
@@ -274,7 +276,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                               width: 18,
                               height: 18,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white),
+                                  strokeWidth: 2, color: TchColors.onPrimary),
                             )
                           : const Icon(Icons.search_rounded),
                       label: Text(
@@ -350,15 +352,15 @@ class _VerifyResultCard extends StatelessWidget {
 
     final (bgColor, fgColor, borderColor, icon) = switch (result.severity) {
       'SUCCESS' => (
-          const Color(0xFFDCFCE7),
-          const Color(0xFF166534),
-          const Color(0xFF86EFAC),
+          TchColors.successContainer,
+          TchColors.success,
+          TchColors.successContainer,
           Icons.check_circle_outline_rounded,
         ),
       'WARNING' => (
-          const Color(0xFFFEF9C3),
-          const Color(0xFF854D0E),
-          const Color(0xFFFDE047),
+          TchColors.warningContainer,
+          TchColors.warning,
+          TchColors.warning,
           Icons.warning_amber_rounded,
         ),
       'ERROR' => (

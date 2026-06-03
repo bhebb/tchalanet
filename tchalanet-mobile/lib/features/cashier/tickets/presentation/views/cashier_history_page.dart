@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -350,7 +352,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final (bgColor, fgColor, label) = switch (status) {
-      'PLACED' => (scheme.secondaryContainer, scheme.onSecondaryContainer, 'VALIDÉ'),
+      'PLACED' => (TchColors.successContainer, TchColors.success, 'VALIDÉ'),
       'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
       'VOIDED' => (
           scheme.surfaceContainerHighest,
