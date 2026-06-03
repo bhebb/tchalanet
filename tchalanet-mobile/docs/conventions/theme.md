@@ -2,196 +2,192 @@
 
 **Scope** : `tchalanet-mobile/`
 **Status** : normative
-**Source de vérité** : `lib/design_system/` — le code prime sur tout autre doc.
+**Source de vérité** : `lib/design_system/` + `lib/core/theme/` — le code prime sur tout autre doc.
 
 ---
 
-## 1. Structure du design system
+## 1. Principe : défaut local, backend enrichit
 
 ```
-lib/design_system/
-  tokens/
-    tch_colors.dart    ← palette de couleurs
-    tch_radius.dart    ← rayons de bordure
-    tch_spacing.dart   ← espacements
-  theme/
-    tch_theme.dart     ← ThemeData statique (défaut Tchalanet)
-    runtime_theme.dart ← ThemePreset + RuntimeTheme (modèles runtime)
+RuntimeTheme.defaultTheme    ← appliqué immédiatement au démarrage
+        +
+GET /public/theme/runtime    ← chargé au démarrage, sans auth
+        +
+GET /tenant/theme/runtime    ← chargé après auth (thème tenant)
+        ↓
+ThemeBuilder.buildFromTokens(tokens)
+        ↓
+runtimeThemeDataProvider     ← ThemeData live dans MaterialApp
 ```
+
+L'app démarre avec le thème par défaut Tchalanet. Le backend enrichit sans bloquer le rendu.
 
 ---
 
-## 2. Couleurs — `TchColors`
+## 2. Endpoints serveur
 
-Source : `lib/design_system/tokens/tch_colors.dart`
-
-| Token | Valeur | Rôle |
+| Endpoint | Auth | Usage |
 |---|---|---|
-| `primary` | `0xFF5E89EF` | Action principale |
-| `primaryStrong` | `0xFF2457BA` | État pressé, accent fort |
-| `onPrimary` | `0xFFFFFFFF` | Texte sur primary |
-| `onPrimarySoft` | `0xFFF2F3F5` | Texte léger sur primary |
-| `primaryContainer` | `0xFFDAE2FF` | Surface primary douce |
-| `onPrimaryContainer` | `0xFF001847` | Texte sur primaryContainer |
-| `secondary` | `0xFF6F5EEF` | Action secondaire |
-| `onSecondary` | `0xFFFCFDFF` | Texte sur secondary |
-| `secondaryContainer` | `0xFFE4DFFF` | Surface secondary douce |
-| `onSecondaryContainer` | `0xFF160066` | Texte sur secondaryContainer |
-| `tertiary` | `0xFFFF7844` | Accent chaud |
-| `onTertiary` | `0xFFFCFDFF` | Texte sur tertiary |
-| `tertiaryContainer` | `0xFFFFDBCF` | Surface tertiary douce |
-| `onTertiaryContainer` | `0xFF380D00` | Texte sur tertiaryContainer |
-| `background` | `0xFFF7F9FB` | Fond écran |
-| `surface` | `0xFFF3EFF2` | Cartes, panneaux |
-| `surfaceBright` | `0xFFFFFFFF` | Blanc pur (champs, modales) |
-| `surfaceContainer` | `0xFFECEEF0` | Fond muet, zones basse emphase |
-| `surfaceContainerHigh` | `0xFFE8E7F0` | Variante surfaceContainer |
-| `onSurface` | `0xFF1D1B20` | Texte principal |
-| `onSurfaceVariant` | `0xFF49454F` | Texte secondaire |
-| `outline` | `0xFFCAC4D0` | Bordures légères |
-| `outlineStrong` | `0xFF79767D` | Bordures marquées |
-| `success` | `0xFF006C49` | Session ouverte, vente acceptée, OK |
-| `successContainer` | `0xFFDDFBEA` | Badge succès, fond positif |
-| `warning` | `0xFFB26A00` | Limite proche, offline, confirmation |
-| `warningContainer` | `0xFFFFF2D6` | Fond avertissement |
-| `error` | `0xFFBA1A1A` | Rejeté, bloqué, action destructive |
-| `onError` | `0xFFFFFFFF` | Texte sur error |
-| `errorContainer` | `0xFFFFEDEA` | Fond erreur doux |
+| `GET /public/theme/runtime?mode=light` | Aucune | Thème public ou défaut platform |
+| `GET /tenant/theme/runtime?mode=light` | Bearer | Thème spécifique au tenant connecté |
 
-**Règles :**
-- Rouge (`error`) → uniquement erreurs bloquantes et actions destructives.
-- Vert (`success`) → uniquement succès et état OK.
-- Bleu primaire → actions principales.
-- Jamais de couleurs hardcodées dans les widgets — toujours `Theme.of(context).colorScheme.*` ou un token `TchColors.*`.
+Réponse (`ThemeRuntimeView`) :
 
----
-
-## 3. Espacement — `TchSpacing`
-
-Source : `lib/design_system/tokens/tch_spacing.dart`
-
-Grille de 4 px.
-
-| Token | Valeur |
-|---|---|
-| `s4` | 4 |
-| `s8` | 8 |
-| `s12` | 12 |
-| `s16` | 16 |
-| `s20` | 20 |
-| `s24` | 24 |
-| `s32` | 32 |
-| `s40` | 40 |
-| `s48` | 48 |
-| `s64` | 64 |
-
-Dimensions POS de référence :
-- Marge écran : `s12` ou `s16`
-- Gap standard : `s12`
-- Hauteur header : `s48`–`s64`
-- Hauteur bouton primaire : `s48`–`s64`
-- Zone tactile minimum : 44 px (tout élément interactif)
-
----
-
-## 4. Radius — `TchRadius`
-
-Source : `lib/design_system/tokens/tch_radius.dart`
-
-| Token | Valeur |
-|---|---|
-| `xs` | 4 |
-| `sm` | 8 |
-| `md` | 12 |
-| `lg` | 16 |
-| `xl` | 24 |
-| `pill` | 999 |
-
-Usage :
-- Champs et cartes → `sm` (8) ou `md` (12)
-- Badges et chips → `pill`
-- Boutons primaires → `md` (12) ou `lg` (16)
-
----
-
-## 5. Thème statique — `TchTheme`
-
-Source : `lib/design_system/theme/tch_theme.dart`
-
-```dart
-ThemeData theme = TchTheme.light();
+```json
+{
+  "status": "success",
+  "data": {
+    "presetCode": "tchalanet",
+    "mode": "light",
+    "tokens": {
+      "color.primary":   "#006874",
+      "color.secondary": "#4A6267",
+      "color.surface":   "#FFFBFE",
+      "color.onSurface": "#1C1B1F",
+      "typography.fontFamily": "roboto"
+    },
+    "isDefault": true,
+    "version": 1
+  }
+}
 ```
 
-`TchTheme.light()` construit un `ThemeData` Material 3 câblé sur `TchColors` :
-- `useMaterial3: true`
-- `fontFamily: 'Inter'`
-- `scaffoldBackgroundColor: TchColors.background`
-- `ColorScheme` entièrement défini depuis les tokens
+---
 
-C'est le thème appliqué dans `app.dart`. Il ne change pas à runtime.
+## 3. Tokens reconnus
+
+| Clé | Type | Effet Flutter |
+|---|---|---|
+| `color.primary` | `#RRGGBB` | `ColorScheme.fromSeed(seedColor)` |
+| `color.secondary` | `#RRGGBB` | `colorScheme.copyWith(secondary)` |
+| `color.surface` | `#RRGGBB` | `colorScheme.copyWith(surface)` |
+| `color.onSurface` | `#RRGGBB` | `colorScheme.copyWith(onSurface)` |
+| `typography.fontFamily` | `inter` \| `roboto` \| `poppins` \| `system` | `ThemeData.fontFamily` |
+
+Tokens non reconnus sont ignorés silencieusement.
 
 ---
 
-## 6. Thème runtime — `RuntimeTheme` / `ThemePreset`
+## 4. Modèle `RuntimeTheme`
 
 Source : `lib/design_system/theme/runtime_theme.dart`
 
 ```dart
-class ThemePreset {
-  final String id;
-  final String name;
-  final int primaryColor;    // ARGB int ex: 0xFF5E89EF
-  final int? secondaryColor;
-  final int? surfaceColor;
-}
-
-class RuntimeTheme {
-  final ThemePreset preset;
-  final bool isDefault;
-
-  static const defaultTheme = RuntimeTheme(
-    preset: ThemePreset(
-      id: 'tchalanet-default',
-      name: 'Tchalanet Default',
-      primaryColor: 0xFF1A237E,
-    ),
-    isDefault: true,
-  );
-}
+RuntimeTheme(
+  presetCode: 'tchalanet',
+  mode:       'light',
+  tokens:     {'color.primary': '#5E89EF', ...},
+  isDefault:  true,
+  version:    0,
+)
 ```
 
-`ThemePreset` est le modèle retourné par le backend (endpoint theme runtime). Il ne contient que les surcharges — `primaryColor`, `secondaryColor?`, `surfaceColor?`.
-
-**Ce qui n'est pas encore implémenté (T8) :**
-- Provider Riverpod `runtimeThemeProvider`
-- Conversion `ThemePreset → ThemeData` (application des couleurs du preset sur `TchColors`)
+`RuntimeTheme.defaultTheme` — thème Tchalanet intégré, appliqué avant toute réponse du backend.
 
 ---
 
-## 7. Règles d'usage dans les widgets
+## 5. Construction du ThemeData — `ThemeBuilder`
+
+Source : `lib/design_system/theme/theme_builder.dart`
+
+```dart
+ThemeData theme = ThemeBuilder.buildFromTokens(tokens);
+```
+
+Logique :
+1. Parse `color.primary` (#RRGGBB → `Color`)
+2. `ColorScheme.fromSeed(seedColor: primary)` — génère la palette M3 complète
+3. `copyWith(secondary, surface, onSurface)` si présents dans les tokens
+4. `fontFamily` depuis `typography.fontFamily`
+5. `scaffoldBackgroundColor = colorScheme.surface`
+
+---
+
+## 6. Providers Riverpod
+
+```dart
+// ThemeData live — à passer à MaterialApp.theme
+ref.watch(runtimeThemeDataProvider)   // Provider<ThemeData>
+
+// RuntimeTheme brut — si besoin du presetCode, mode, version
+ref.watch(themeNotifierProvider)      // NotifierProvider<ThemeNotifier, RuntimeTheme>
+
+// Déclencher le chargement tenant après auth
+ref.read(themeNotifierProvider.notifier).loadTenantTheme();
+
+// Réinitialiser au thème défaut (ex: à la déconnexion)
+ref.read(themeNotifierProvider.notifier).reset();
+```
+
+**Règle** : seul `MaterialApp` consomme `runtimeThemeDataProvider`. Les widgets utilisent `Theme.of(context)`.
+
+---
+
+## 7. Utilisation dans les widgets
 
 ```dart
 // ✅ Correct — via ColorScheme Material 3
 color: Theme.of(context).colorScheme.primary
+color: Theme.of(context).colorScheme.errorContainer
 
-// ✅ Correct — token sémantique direct si non disponible via ColorScheme
+// ✅ Correct — token TchColors si le rôle n'est pas dans ColorScheme
 color: TchColors.success
+color: TchColors.warning
 
-// ✅ Correct — spacing via token
+// ✅ Correct — spacing et radius via tokens
 padding: EdgeInsets.all(TchSpacing.s16)
-
-// ✅ Correct — radius via token
 borderRadius: BorderRadius.circular(TchRadius.sm)
 
 // ❌ Interdit — couleur hardcodée
 color: Color(0xFF5E89EF)
+color: Colors.blue
 
 // ❌ Interdit — valeur numérique brute
 padding: EdgeInsets.all(16)
+borderRadius: BorderRadius.circular(8)
 ```
 
 ---
 
-## 8. Incohérence documentaire connue
+## 8. Tokens design system locaux
 
-`docs/mobile/02_mobile_design_tokens.md` contient des valeurs de couleurs différentes du code Dart (ex. `primary` y est `#3525CD`, le code a `0xFF5E89EF`). **Le code fait foi.** La doc sera mise à jour quand la palette sera stabilisée.
+Pour les couleurs non couvertes par `ColorScheme` (succès, warning, statuts POS) :
+
+| Token | Valeur | Usage |
+|---|---|---|
+| `TchColors.success` | `#006C49` | Session ouverte, vente OK |
+| `TchColors.successContainer` | `#DDFBEA` | Badge succès |
+| `TchColors.warning` | `#B26A00` | Offline, limite proche |
+| `TchColors.warningContainer` | `#FFF2D6` | Fond avertissement |
+
+Ces couleurs sont fixes — elles ne sont pas surchargées par le thème runtime.
+
+---
+
+## 9. Cycle de vie du thème
+
+```
+App start
+  → ThemeNotifier.build()
+  → fetchPublicTheme() en background
+  → state = RuntimeTheme depuis serveur (ou defaultTheme si erreur)
+  → runtimeThemeDataProvider se met à jour
+  → MaterialApp re-render
+
+Après login
+  → AuthController → loadTenantTheme()
+  → fetchTenantTheme() avec Bearer
+  → state = thème tenant
+  → MaterialApp re-render
+
+Logout
+  → themeNotifier.reset() → defaultTheme
+```
+
+---
+
+## 10. Ce qui n'est pas implémenté en V1
+
+- Mode sombre (`mode = 'dark'`) — les tokens dark existent côté serveur, le switch n'est pas câblé
+- Réinitialisation automatique du thème au logout — à appeler explicitement depuis `AuthController.logout()`
+- Tokens `shape.radius.md` et `density.default` — ignorés (câblage Material 3 non trivial en V1)
