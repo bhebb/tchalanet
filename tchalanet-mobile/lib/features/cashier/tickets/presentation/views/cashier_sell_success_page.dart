@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
+import 'send_receipt_sheet.dart';
 
 /// Shown after a successful `POST /sell`. Displays the ticket code and
 /// delivery actions (copy, message, print, WhatsApp/SMS).
@@ -156,17 +157,23 @@ class CashierSellSuccessPage extends ConsumerWidget {
                         _ActionTile(
                           icon: Icons.sms_rounded,
                           label: 'Message',
-                          onTap: () {},
+                          onTap: () => SendReceiptSheet.show(
+                            context, ref,
+                            ticketId: ticketCode,
+                          ),
                         ),
                         _ActionTile(
                           icon: Icons.print_rounded,
                           label: 'Imprimer',
-                          onTap: () {},
+                          onTap: () {}, // print flow: bytes from /print endpoint
                         ),
                         _ActionTile(
                           icon: Icons.share_rounded,
                           label: 'WhatsApp/SMS',
-                          onTap: () {},
+                          onTap: () => SendReceiptSheet.show(
+                            context, ref,
+                            ticketId: ticketCode,
+                          ),
                         ),
                       ],
                     ),

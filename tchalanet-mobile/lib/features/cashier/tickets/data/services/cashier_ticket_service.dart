@@ -116,6 +116,27 @@ class CashierTicketService {
     }
   }
 
+  /// Send a ticket receipt to the buyer via SMS, WhatsApp, or email.
+  Future<void> sendReceipt(
+    String ticketId, {
+    required String deliveryMode, // SMS | WHATSAPP | EMAIL
+    String? phoneNumber,
+    String? email,
+  }) async {
+    try {
+      await _dio.post<void>(
+        '/tenant/cashier/tickets/$ticketId/send',
+        data: {
+          'deliveryOptions': [deliveryMode],
+          'buyerPhoneNumber': phoneNumber,
+          'buyerEmail': email,
+        },
+      );
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
+
   /// Cancel a ticket within the cancel window.
   Future<void> cancel(String ticketId, {String? reason}) async {
     try {

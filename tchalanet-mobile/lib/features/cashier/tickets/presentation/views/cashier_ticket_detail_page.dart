@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../design_system/tokens/tch_colors.dart';
-
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
+import 'send_receipt_sheet.dart';
 
 final _ticketDetailProvider = FutureProvider.family<CashierTicketDetailsView, String>(
   (ref, ticketId) => ref.watch(cashierTicketServiceProvider).getDetails(ticketId),
@@ -50,13 +50,13 @@ class CashierTicketDetailPage extends ConsumerWidget {
   }
 }
 
-class _DetailBody extends StatelessWidget {
+class _DetailBody extends ConsumerWidget {
   const _DetailBody({required this.detail});
 
   final CashierTicketDetailsView detail;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: ListView(
@@ -73,7 +73,10 @@ class _DetailBody extends StatelessWidget {
                   icon: Icons.share_rounded,
                   label: 'Partager',
                   primary: true,
-                  onTap: () {},
+                  onTap: () => SendReceiptSheet.show(
+                    context, ref,
+                    ticketId: detail.id,
+                  ),
                 ),
               ),
               const SizedBox(width: TchSpacing.s12),
