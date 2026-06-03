@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { KeycloakService } from 'keycloak-angular';
+import Keycloak, { KeycloakProfile } from 'keycloak-js';
 
 import { UserRole, UserSession } from '../../shared/types';
 
@@ -7,7 +7,7 @@ const supportedRoles: readonly UserRole[] = ['CASHIER', 'TENANT_ADMIN', 'SUPER_A
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
-  private readonly keycloak = inject(KeycloakService);
+  private readonly keycloak = inject(Keycloak);
   private readonly sessionState = signal<UserSession>({
     authenticated: false,
     roles: [],
@@ -21,20 +21,24 @@ export class AuthSessionService {
   }
 
   async refreshSession(): Promise<UserSession> {
-    const authenticated = this.keycloak.isLoggedIn();
+    const authenticated = this.keycloak.authenticated === true;
 
     if (!authenticated) {
       return this.setAnonymousSession();
     }
 
-    const instance = this.keycloak.getKeycloakInstance();
-    const token = toRecord(instance.tokenParsed);
+    const token = toRecord(this.keycloak.tokenParsed);
     const profile = await this.loadProfileSafely();
     const session: UserSession = {
       authenticated: true,
       userId: readString(token, 'sub') ?? profile?.id,
-      username: profile?.username ?? this.keycloak.getUsername(),
-      displayName: profileDisplayName(profile) ?? this.keycloak.getUsername(),
+      username: profile?.username ?? readString(token, 'preferred_username') ?? readString(token, 'email'),
+      displayName:
+        profileDisplayName(profile) ??
+        readString(token, 'name') ??
+        readString(token, 'preferred_username') ??
+        readString(token, 'email') ??
+        readString(token, 'sub'),
       tenantId: readString(token, 'tenant_id'),
       tenantCode: readString(token, 'tenant_code'),
       roles: this.roles(),
@@ -54,12 +58,11 @@ export class AuthSessionService {
   }
 
   logout(redirectUri = globalThis.location.origin + '/public'): Promise<void> {
-    return this.keycloak.logout(redirectUri);
+    return this.keycloak.logout({ redirectUri });
   }
 
   private roles(): readonly UserRole[] {
-    const keycloakRoles = this.keycloak.getUserRoles(true);
-    return keycloakRoles
+    return collectRoles(this.keycloak)
       .map(role => role.toUpperCase())
       .filter((role): role is UserRole => supportedRoles.includes(role as UserRole));
   }
@@ -74,24 +77,23 @@ export class AuthSessionService {
     return session;
   }
 
-  private async loadProfileSafely(): Promise<KeycloakProfileView | null> {
+  private async loadProfileSafely(): Promise<KeycloakProfile | null> {
     try {
-      return (await this.keycloak.loadUserProfile()) as KeycloakProfileView;
+      return await this.keycloak.loadUserProfile();
     } catch {
       return null;
     }
   }
 }
 
-interface KeycloakProfileView {
-  readonly id?: string;
-  readonly username?: string;
-  readonly firstName?: string;
-  readonly lastName?: string;
-  readonly email?: string;
+function collectRoles(keycloak: Keycloak): readonly string[] {
+  const realmRoles = keycloak.realmAccess?.roles ?? [];
+  const resourceRoles = Object.values(keycloak.resourceAccess ?? {}).flatMap(access => access.roles);
+
+  return [...new Set([...realmRoles, ...resourceRoles])];
 }
 
-function profileDisplayName(profile: KeycloakProfileView | null): string | undefined {
+function profileDisplayName(profile: KeycloakProfile | null): string | undefined {
   if (!profile) {
     return undefined;
   }

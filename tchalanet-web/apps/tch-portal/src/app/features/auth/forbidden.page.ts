@@ -1,14 +1,18 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { LanguageSwitcherComponent } from '../../core/i18n';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, LanguageSwitcherComponent],
   selector: 'tch-forbidden-page',
   template: `
     <section class="page">
-      <h1>Forbidden</h1>
-      <p>Your current role does not allow access to this surface.</p>
-      <a routerLink="/public">Back to public home</a>
+      <tch-language-switcher />
+      <h1>{{ 'auth.forbidden.title' | translate }}</h1>
+      <p>{{ 'auth.forbidden.body' | translate }}</p>
+      <a routerLink="/public">{{ 'auth.forbidden.back' | translate }}</a>
     </section>
   `,
   styles: [

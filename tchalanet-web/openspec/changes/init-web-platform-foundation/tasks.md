@@ -18,57 +18,57 @@ Manual-friendly tasks:
 
 Create typed contracts before store/effects/services depend on `any`.
 
-- [ ] `ApiResponse<T>`.
-- [ ] `ApiStatus`.
-- [ ] `ApiNotice`.
-- [ ] `NoticeSeverity`.
-- [ ] `ServiceStatus`.
-- [ ] `ServiceHealth`.
-- [ ] `ProblemDetail`.
-- [ ] `TchPage<T>`.
-- [ ] `ActionItem`.
-- [ ] `NavigationDestination`.
-- [ ] `UserSession`.
-- [ ] `UserRole`.
-- [ ] `RuntimeSettings`.
-- [ ] `FeatureFlag` / `FeatureToggle`.
-- [ ] `I18nBundle` / `I18nOverrides`.
-- [ ] `ThemePreset` / `RuntimeTheme`.
-- [ ] `PageModel`, `PageWidget`, `PageSection` minimal.
-- [ ] `OperationalContextView` for later cashier/POS usage.
+- [x] `ApiResponse<T>`.
+- [x] `ApiStatus`.
+- [x] `ApiNotice`.
+- [x] `NoticeSeverity`.
+- [x] `ServiceStatus`.
+- [x] `ServiceHealth`.
+- [x] `ProblemDetail`.
+- [x] `TchPage<T>`.
+- [x] `ActionItem`.
+- [x] `NavigationDestination`.
+- [x] `UserSession`.
+- [x] `UserRole`.
+- [x] `RuntimeSettings`.
+- [x] `FeatureFlag` / `FeatureToggle`.
+- [x] `I18nBundle` / `I18nOverrides`.
+- [x] `ThemePreset` / `RuntimeTheme`.
+- [x] `PageModel`, `PageWidget`, `PageSection` minimal.
+- [x] `OperationalContextView` for later cashier/POS usage.
 
 Acceptance:
 
-- [ ] No `any` in these contracts.
-- [ ] Contract names match backend concepts where possible.
-- [ ] IDs remain strings at the frontend boundary unless a frontend typed-id wrapper is deliberately introduced later.
+- [x] No `any` in these contracts.
+- [x] Contract names match backend concepts where possible.
+- [x] IDs remain strings at the frontend boundary unless a frontend typed-id wrapper is deliberately introduced later.
 
 ## 2. Setup Angular technical baseline
 
-- [ ] Configure Angular Material.
-- [ ] Configure NgRx Store.
-- [ ] Configure NgRx Effects.
-- [ ] Configure NgRx Devtools in dev only.
-- [ ] Configure HTTP client providers.
-- [ ] Add HTTP auth interceptor.
-- [ ] Add HTTP error interceptor or centralized error mapper.
-- [ ] Add correlation/request id handling if already available.
-- [ ] Add `ApiResponse` unwrap helper or typed API client pattern.
+- [x] Configure Angular Material.
+- [x] Configure NgRx Store.
+- [x] Configure NgRx Effects.
+- [x] Configure NgRx Devtools in dev only.
+- [x] Configure HTTP client providers.
+- [x] Add HTTP auth interceptor.
+- [x] Add HTTP error interceptor or centralized error mapper.
+- [x] Add correlation/request id handling if already available.
+- [x] Add `ApiResponse` unwrap helper or typed API client pattern.
 - [ ] Add environment/runtime config loader only if needed for Keycloak/backend URLs.
 
 Acceptance:
 
-- [ ] App starts with Material loaded.
-- [ ] Store Devtools are available only in dev.
-- [ ] HTTP errors can be mapped to `ProblemDetail`.
+- [x] App starts with Material loaded.
+- [x] Store Devtools are available only in dev.
+- [x] HTTP errors can be mapped to `ProblemDetail`.
 - [ ] No business feature state is added to store yet.
 
 ## 3. Dependency governance
 
-- [ ] Add `docs/frontend/dependencies.md` or equivalent.
-- [ ] For every new dependency, document purpose/category/owner/alternative/removal trigger.
-- [ ] Keep a short dependency table for web.
-- [ ] Reject dependencies that duplicate Angular/Material/NgRx built-ins without strong reason.
+- [x] Add `docs/frontend/dependencies.md` or equivalent.
+- [x] For every new dependency, document purpose/category/owner/alternative/removal trigger.
+- [x] Keep a short dependency table for web.
+- [x] Reject dependencies that duplicate Angular/Material/NgRx built-ins without strong reason.
 
 Required initial dependency rationale entries:
 
@@ -81,9 +81,9 @@ Required initial dependency rationale entries:
 
 ## 4. Lint / format / pre-commit policy
 
-- [ ] Configure lint command.
-- [ ] Configure format command.
-- [ ] Configure test command or placeholder if tests are not ready.
+- [x] Configure lint command.
+- [x] Configure format command.
+- [x] Configure test command or placeholder if tests are not ready.
 - [ ] Decide whether pre-commit hooks are enabled immediately or after baseline cleanup.
 - [ ] If hooks are enabled, keep them fast: format + lint only.
 - [ ] Do not put e2e/performance tests in pre-commit.
@@ -95,72 +95,72 @@ Recommended:
 
 ## 5. Keycloak/Auth proof
 
-- [ ] Configure Keycloak bootstrap.
-- [ ] Add login button.
-- [ ] Add logout button.
-- [ ] Add token interceptor.
-- [ ] Extract roles from token.
-- [ ] Create `UserSession` from Keycloak claims.
-- [ ] Create `AuthGuard`.
-- [ ] Create `RoleGuard`.
-- [ ] Add `/forbidden` page.
-- [ ] Add `/public` route.
-- [ ] Add `/app/cashier` route.
-- [ ] Add `/app/admin` route.
-- [ ] Add `/app/platform` route.
+- [x] Configure Keycloak bootstrap.
+- [x] Add login button.
+- [x] Add logout button.
+- [x] Add token interceptor.
+- [x] Extract roles from token.
+- [x] Create `UserSession` from Keycloak claims.
+- [x] Create `AuthGuard`.
+- [x] Create `RoleGuard`.
+- [x] Add `/forbidden` page.
+- [x] Add `/public` route.
+- [x] Add `/app/cashier` route.
+- [x] Add `/app/admin` route.
+- [x] Add `/app/platform` route.
 
 Acceptance:
 
-- [ ] Public route opens without login.
-- [ ] Protected route redirects or blocks anonymous user.
-- [ ] A user without required role is blocked.
-- [ ] A user with required role can access the correct dashboard.
-- [ ] Empty dashboards display detected role, user, and tenant if available.
+- [x] Public route opens without login.
+- [x] Protected route redirects or blocks anonymous user.
+- [x] A user without required role is blocked.
+- [x] A user with required role can access the correct dashboard.
+- [x] Empty dashboards display detected role, user, and tenant if available.
 
 ## 6. Runtime settings
 
-- [ ] Create `SettingsApi`.
-- [ ] Create `RuntimeSettingsStore` or NgRx feature slice.
-- [ ] Load public settings for public surface.
-- [ ] Load private settings after auth for admin/cashier/platform surfaces.
-- [ ] Add feature toggle helper.
-- [ ] Document V1 settings as temporary feature-toggle/config mechanism before future Unleash.
+- [x] Create `SettingsApi`.
+- [x] Create `RuntimeSettingsStore` or NgRx feature slice.
+- [x] Load public settings for public surface.
+- [x] Load private settings after auth for admin/cashier/platform surfaces.
+- [x] Add feature toggle helper.
+- [x] Document V1 settings as temporary feature-toggle/config mechanism before future Unleash.
 
 Acceptance:
 
-- [ ] UI can check a feature flag without calling API directly from components.
-- [ ] Missing settings fail safely with defaults.
+- [x] UI can check a feature flag without calling API directly from components.
+- [x] Missing settings fail safely with defaults.
 
 ## 7. i18n runtime
 
-- [ ] Add local frontend translation files.
-- [ ] Add backend i18n override API client.
-- [ ] Merge local translations with backend overrides.
-- [ ] Backend wins when a key exists in both.
-- [ ] Add `LanguageSwitcher` later or in layout stage.
-- [ ] Support at least default language and one additional language if available.
+- [x] Add local frontend translation files.
+- [x] Add backend i18n override API client.
+- [x] Merge local translations with backend overrides.
+- [x] Backend wins when a key exists in both.
+- [x] Add `LanguageSwitcher` later or in layout stage.
+- [x] Support at least default language and one additional language if available.
 
 Acceptance:
 
-- [ ] Local translation works without backend override.
-- [ ] Backend override changes a visible label at runtime.
-- [ ] Missing backend response does not break app if local fallback exists.
+- [x] Local translation works without backend override.
+- [x] Backend override changes a visible label at runtime.
+- [x] Missing backend response does not break app if local fallback exists.
 
 ## 8. Theme runtime
 
-- [ ] Create Tchalanet default theme.
-- [ ] Create theme preset contract.
-- [ ] Add Material-equivalent preset list placeholder.
-- [ ] Add theme runtime service/store.
-- [ ] Apply active theme to CSS variables / Material theme integration.
-- [ ] Add light/dark mode support if low cost.
-- [ ] Keep custom theme builder out of V1.
+- [x] Create Tchalanet default theme.
+- [x] Create theme preset contract.
+- [x] Add Material-equivalent preset list placeholder.
+- [x] Add theme runtime service/store.
+- [x] Apply active theme to CSS variables / Material theme integration.
+- [x] Add light/dark mode support if low cost.
+- [x] Keep custom theme builder out of V1.
 
 Acceptance:
 
-- [ ] App starts with Tchalanet default theme.
-- [ ] Theme can be switched to a preset without rebuild.
-- [ ] Components use tokens, not hardcoded colors.
+- [x] App starts with Tchalanet default theme.
+- [x] Theme can be switched to a preset without rebuild.
+- [x] Components use tokens, not hardcoded colors.
 
 ## 9. PageModel runtime
 
@@ -178,6 +178,9 @@ Acceptance:
 
 ## 10. Runtime bootstrap orchestration
 
+- [x] Create pre-PageModel `AppRuntimeStore` for public auth/i18n/theme/settings readiness.
+- [x] Expose global runtime signals: current language, connected user/session, current theme, settings.
+- [x] Keep PageModel out of the initial runtime readiness check.
 - [ ] Create `PublicBootstrapService` or NgRx effect.
 - [ ] Load settings, i18n overrides, theme, and PageModel as separate calls.
 - [ ] Use parallel loading where safe.
@@ -253,4 +256,3 @@ Superadmin:
 
 - [ ] Create minimal protected platform dashboard.
 - [ ] Prioritize onboarding tenant later before full superadmin console.
-

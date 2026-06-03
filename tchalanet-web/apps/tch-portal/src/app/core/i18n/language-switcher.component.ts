@@ -33,8 +33,4 @@ import { I18nFacade } from './i18n.facade';
 })
 export class LanguageSwitcherComponent {
   readonly i18n = inject(I18nFacade);
-
-  constructor() {
-    this.i18n.init();
-  }
 }

@@ -68,9 +68,18 @@
       "system": "Système"
     },
     "presets": {
+      "tchalanet": "Tchalanet",
+      "materialPurple": "Material violet",
+      "materialBlue": "Material bleu",
       "materialGreen": "Material vert",
+      "materialRed": "Material rouge",
+      "materialOrange": "Material orange",
+      "materialTeal": "Material bleu-vert",
+      "materialPink": "Material rose",
       "materialIndigo": "Material indigo",
-      "tchalanet": "Tchalanet"
+      "materialCyan": "Material cyan",
+      "materialAmber": "Material ambre",
+      "materialBrown": "Material marron"
     }
   }
 }

@@ -1,27 +1,37 @@
 import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthSessionService } from '../../core/auth/auth-session.service';
+import { I18nFacade, LanguageSwitcherComponent } from '../../core/i18n';
+import { RuntimeSettingsStore } from '../../core/settings';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe, LanguageSwitcherComponent],
   selector: 'tch-role-dashboard-page',
   template: `
     <section class="page">
-      <h1>{{ title() }}</h1>
+      <tch-language-switcher />
+      <h1>{{ titleKey() | translate }}</h1>
 
       <dl>
-        <dt>User</dt>
-        <dd>{{ session().displayName || session().username || 'Unknown' }}</dd>
-        <dt>Tenant</dt>
-        <dd>{{ session().tenantCode || session().tenantId || 'Not detected' }}</dd>
-        <dt>Roles</dt>
-        <dd>{{ roles() }}</dd>
+        <dt>{{ 'dashboard.fields.user' | translate }}</dt>
+        <dd>{{ session().displayName || session().username || ('common.unknown' | translate) }}</dd>
+        <dt>{{ 'dashboard.fields.tenant' | translate }}</dt>
+        <dd>
+          {{ session().tenantCode || session().tenantId || ('dashboard.tenantMissing' | translate) }}
+        </dd>
+        <dt>{{ 'dashboard.fields.roles' | translate }}</dt>
+        <dd>{{ roles() || ('dashboard.rolesEmpty' | translate) }}</dd>
+        <dt>{{ 'dashboard.fields.settings' | translate }}</dt>
+        <dd>{{ settingsState() }}</dd>
       </dl>
 
       <div class="actions">
-        <a routerLink="/public">Public home</a>
-        <button type="button" (click)="logout()">Logout</button>
+        <a routerLink="/public">{{ 'dashboard.actions.publicHome' | translate }}</a>
+        <button type="button" (click)="logout()">
+          {{ 'dashboard.actions.logout' | translate }}
+        </button>
       </div>
     </section>
   `,
@@ -54,10 +64,18 @@ import { AuthSessionService } from '../../core/auth/auth-session.service';
 export class RoleDashboardPage {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthSessionService);
+  private readonly i18n = inject(I18nFacade);
+  private readonly settings = inject(RuntimeSettingsStore);
 
   readonly session = this.auth.session;
-  readonly title = computed(() => this.route.snapshot.data['title'] as string);
-  readonly roles = computed(() => this.session().roles.join(', ') || 'No role detected');
+  readonly titleKey = computed(() => this.route.snapshot.data['titleKey'] as string);
+  readonly roles = computed(() => this.session().roles.join(', '));
+  readonly settingsState = this.settings.loadState;
+
+  constructor() {
+    this.i18n.init();
+    this.settings.loadPrivateSettings();
+  }
 
   logout(): void {
     void this.auth.logout();
