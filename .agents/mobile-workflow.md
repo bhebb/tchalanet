@@ -27,6 +27,7 @@ Si `tmux attach` dit "no session" → `tmux new -s claude && claude`.
 
 | Action | Comment |
 |---|---|
+<!-- caffeinate -d -->
 | Détacher tmux (laisser tourner) | Barre spéciale → `Ctrl` + `B`, relâcher, puis `D` |
 | Remonter dans le terminal | `Ctrl+B` puis `[` → flèches/PageUp → `Q` pour sortir |
 | Nouvelle fenêtre tmux | `Ctrl+B` puis `C` |
