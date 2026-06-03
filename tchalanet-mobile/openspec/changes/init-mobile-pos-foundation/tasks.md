@@ -122,16 +122,16 @@ Acceptance:
 
 ## 7. i18n runtime
 
-- [ ] Add local mobile translations.
-- [ ] Add backend i18n override client.
-- [ ] Merge local translations with backend overrides.
-- [ ] Backend wins when the same key exists on both sides.
-- [ ] Support switching active language if needed for V1.
+- [x] Add local mobile translations.
+- [x] Add backend i18n override client.
+- [x] Merge local translations with backend overrides.
+- [x] Backend wins when the same key exists on both sides.
+- [x] Support switching active language if needed for V1.
 
 Acceptance:
 
-- [ ] Local translation works offline or when backend override is unavailable.
-- [ ] Backend override changes a visible label after merge.
+- [x] Local translation works offline or when backend override is unavailable.
+- [x] Backend override changes a visible label after merge.
 
 ## 8. Theme runtime
 

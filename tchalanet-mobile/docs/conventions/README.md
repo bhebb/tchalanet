@@ -11,7 +11,7 @@ Conventions techniques Flutter/Dart. Les docs détaillés vivent à la racine de
 | Testing | [`../TESTING.md`](../TESTING.md) |
 | API contract | [`../API_CONTRACT.md`](../API_CONTRACT.md) |
 | Playbook (delivery) | [`../PLAYBOOK.md`](../PLAYBOOK.md) |
-| i18n | *(à venir — T7)* |
+| i18n runtime | [`i18n.md`](i18n.md) |
 | Theme runtime | *(à venir — T8)* |
 
 > Règle : les conventions mobile sont mises à jour **en même commit** que le code qui change la règle.
