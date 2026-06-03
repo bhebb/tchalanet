@@ -35,23 +35,37 @@ final _localBundleProvider = FutureProvider.family<I18nBundle, String>(
   },
 );
 
-/// Backend overrides — fetched after auth, fails safely (returns empty).
-final _backendOverridesProvider = FutureProvider.family<I18nOverrides, String>(
+/// Public backend overrides — no auth required, fails safely.
+final _publicOverridesProvider = FutureProvider.family<I18nOverrides, String>(
   (ref, locale) async {
     try {
-      return await ref.watch(i18nServiceProvider).fetchOverrides(locale);
+      return await ref.watch(i18nServiceProvider).fetchPublicBundle(locale);
     } catch (_) {
       return I18nOverrides.empty;
     }
   },
 );
 
-/// Merged bundle: local translations + backend overrides (backend wins).
+/// Tenant backend overrides — authenticated, CASHIER surface.
+/// Returns empty until the backend endpoint is implemented.
+final _tenantOverridesProvider = FutureProvider.family<I18nOverrides, String>(
+  (ref, locale) async {
+    try {
+      return await ref.watch(i18nServiceProvider).fetchTenantBundle(locale);
+    } catch (_) {
+      return I18nOverrides.empty;
+    }
+  },
+);
+
+/// Merged bundle: local + public overrides + tenant overrides.
+/// Merge order: local ← public ← tenant (each layer wins over previous).
 final i18nProvider = FutureProvider<I18nBundle>((ref) async {
   final locale = ref.watch(localeProvider);
   final local = await ref.watch(_localBundleProvider(locale).future);
-  final overrides = await ref.watch(_backendOverridesProvider(locale).future);
-  return local.mergeWith(overrides);
+  final publicOverrides = await ref.watch(_publicOverridesProvider(locale).future);
+  final tenantOverrides = await ref.watch(_tenantOverridesProvider(locale).future);
+  return local.mergeWith(publicOverrides).mergeWith(tenantOverrides);
 });
 
 /// Synchronous helper — returns the merged bundle when loaded,
