@@ -476,10 +476,7 @@ class _PosAppBar extends ConsumerWidget implements PreferredSizeWidget {
     final session = ref.watch(userSessionProvider);
 
     return AppBar(
-      backgroundColor: scheme.surface,
-      elevation: 0,
-      scrolledUnderElevation: 1,
-      surfaceTintColor: Colors.transparent,
+      // backgroundColor, elevation, surfaceTintColor from appBarTheme in ThemeBuilder
       leading: IconButton(
         icon: const Icon(Icons.menu_rounded),
         onPressed: onMenuTap,

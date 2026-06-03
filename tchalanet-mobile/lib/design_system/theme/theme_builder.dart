@@ -34,7 +34,30 @@ abstract final class ThemeBuilder {
       useMaterial3: true,
       colorScheme: scheme,
       fontFamily: fontFamily,
-      scaffoldBackgroundColor: scheme.surface,
+      // POS terminals: surfaceContainerLow as page background so white cards
+      // (surfaceContainerLowest) stand out clearly under ambient/glare conditions.
+      scaffoldBackgroundColor: scheme.surfaceContainerLow,
+      // AppBar: white background = max legibility for terminal ID + status.
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surfaceContainerLowest,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+      ),
+      // Cards always white to contrast with the tinted page background.
+      cardTheme: CardThemeData(
+        color: scheme.surfaceContainerLowest,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+      // NavigationBar matches surfaceContainerLowest for bottom nav contrast.
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: scheme.surfaceContainerLowest,
+        indicatorColor: scheme.primaryContainer,
+      ),
     );
   }
 

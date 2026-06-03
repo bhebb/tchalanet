@@ -27,7 +27,7 @@ class StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(TchSpacing.s16),
       decoration: BoxDecoration(
-        color: scheme.surface,
+        color: scheme.surfaceContainerLowest,
         border: Border(
           left: accentColor != null
               ? BorderSide(color: accentColor!, width: 4)
@@ -92,7 +92,7 @@ class StatCardLarge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(TchSpacing.s24),
       decoration: BoxDecoration(
-        color: scheme.surface,
+        color: scheme.surfaceContainerLowest,
         border: Border.all(color: scheme.outlineVariant),
         borderRadius: BorderRadius.circular(TchRadius.md),
       ),
