@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../core/theme/theme_repository.dart';
 import 'app_router.dart';
-import 'app_theme.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -9,10 +10,11 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final theme = ref.watch(runtimeThemeDataProvider);
 
     return MaterialApp.router(
       title: 'Tchalanet POS',
-      theme: buildAppTheme(),
+      theme: theme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

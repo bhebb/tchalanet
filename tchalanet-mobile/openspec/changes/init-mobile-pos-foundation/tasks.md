@@ -135,16 +135,16 @@ Acceptance:
 
 ## 8. Theme runtime
 
-- [ ] Add Tchalanet default mobile theme.
-- [ ] Create runtime theme provider/state.
-- [ ] Support applying backend/tenant theme or preset when available.
-- [ ] Keep custom theme builder out of V1.
-- [ ] Align naming with Web theme concepts where practical.
+- [x] Add Tchalanet default mobile theme.
+- [x] Create runtime theme provider/state.
+- [x] Support applying backend/tenant theme or preset when available.
+- [x] Keep custom theme builder out of V1.
+- [x] Align naming with Web theme concepts where practical.
 
 Acceptance:
 
-- [ ] App starts with Tchalanet default theme.
-- [ ] Theme can be updated from runtime state.
+- [x] App starts with Tchalanet default theme.
+- [x] Theme can be updated from runtime state.
 
 ## 9. Operational context foundation
 
