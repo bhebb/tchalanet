@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../design_system/tokens/tch_colors.dart';
+import '../../../../design_system/tokens/tch_radius.dart';
+import '../../../../design_system/tokens/tch_spacing.dart';
 import '../view_models/auth_controller.dart';
 
 class LoginPage extends ConsumerWidget {
@@ -20,63 +23,150 @@ class LoginPage extends ConsumerWidget {
         authState is AuthUnauthenticated ? authState.errorMessage : null;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Tchalanet POS',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Connectez-vous avec votre compte Tchalanet',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 48),
-                if (errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      errorMessage,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                FilledButton.icon(
-                  onPressed: isLoading
-                      ? null
-                      : () => ref.read(authControllerProvider.notifier).login(),
-                  icon: isLoading
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.login),
-                  label: Text(isLoading ? 'Connexion…' : 'Se connecter'),
-                ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: TchSpacing.s24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(flex: 3),
+              _BrandBlock(),
+              const Spacer(flex: 2),
+              if (errorMessage != null) ...[
+                _ErrorBanner(message: errorMessage),
+                const SizedBox(height: TchSpacing.s16),
               ],
-            ),
+              _ConnectButton(isLoading: isLoading, onPressed: () {
+                ref.read(authControllerProvider.notifier).login();
+              }),
+              const Spacer(flex: 1),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BrandBlock extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: scheme.primaryContainer,
+            borderRadius: BorderRadius.circular(TchRadius.xl),
+          ),
+          child: Icon(
+            Icons.point_of_sale_rounded,
+            size: 40,
+            color: scheme.primary,
+          ),
+        ),
+        const SizedBox(height: TchSpacing.s24),
+        Text(
+          'Tchalanet POS',
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: scheme.onSurface,
+            letterSpacing: -0.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: TchSpacing.s8),
+        Text(
+          'Connectez-vous avec votre compte Tchalanet',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: TchSpacing.s16,
+        vertical: TchSpacing.s12,
+      ),
+      decoration: BoxDecoration(
+        color: TchColors.errorContainer,
+        borderRadius: BorderRadius.circular(TchRadius.md),
+        border: Border.all(color: TchColors.error.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded, color: TchColors.error, size: 20),
+          const SizedBox(width: TchSpacing.s12),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: TchColors.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConnectButton extends StatelessWidget {
+  const _ConnectButton({required this.isLoading, required this.onPressed});
+
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 56,
+      child: FilledButton(
+        onPressed: isLoading ? null : onPressed,
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(TchRadius.md),
+          ),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                height: 22,
+                width: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white,
+                ),
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.login_rounded, size: 20),
+                  const SizedBox(width: TchSpacing.s8),
+                  Text(
+                    'Se connecter',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
