@@ -146,54 +146,84 @@ Acceptance:
 - [x] App starts with Tchalanet default theme.
 - [x] Theme can be updated from runtime state.
 
-## 9. Operational context foundation
+## 9-A. Cashier home data layer
 
-- [ ] Create `OperationalContextView` model.
-- [ ] Create `TerminalBindingView` model.
-- [ ] Create `OperationalContextApi` placeholder/client.
-- [ ] Create provider/state for current operational context.
-- [ ] Show terminal/outlet/session state on POS dashboard.
-- [ ] Do not implement sensitive sell/payout validation in the client; backend remains source of truth.
+All endpoints under `/tenant/cashier/*` require `Authorization: Bearer` and `X-Client-Surface: MOBILE_POS`.
+`GET /home` returns three distinct states driven by `requiredStep`:
+`SELECT_OPERATIONAL_CONTEXT` → setup screen, `OPEN_SESSION` → closed-session screen, `null` → operational home.
+
+- [ ] `data/models/cashier_home_models.dart` — Dart records: `CashierHomeResponse`, `CashierHomeHeader`,
+  `CashierHomeRequiredStep`, `CashierHomeOpCtx`, `CashierHomeSession`, `CashierHomeDrawSummary`,
+  `HomeAction`, `HomeWidget`, `HomeNavigationItem`, `CashierReadinessResponse`.
+- [ ] `data/services/cashier_home_service.dart` — `GET /tenant/cashier/home` (adds `X-Client-Surface` header).
+- [ ] `data/services/cashier_readiness_service.dart` — `GET /tenant/cashier/readiness`.
+- [ ] `presentation/view_models/cashier_home_provider.dart` — `FutureProvider<CashierHomeResponse>` (refreshable).
+- [ ] `presentation/view_models/cashier_readiness_provider.dart` — `FutureProvider<CashierReadinessResponse>`.
+- [ ] Add `X-Client-Surface: MOBILE_POS` to Dio interceptor or per-call header.
 
 Acceptance:
 
-- [ ] POS dashboard clearly displays missing/ready operational context.
-- [ ] No sale flow can be started from this change unless operational context rules are explicitly implemented later.
+- [ ] `cashierHomeProvider` returns the correct state for each of the three server responses.
+- [ ] Missing `X-Client-Surface` header does not silently return a 403 without a typed error.
+- [ ] `requiredStep` null-safety is handled exhaustively (no NPE on operational home state).
 
-## 10. POS dashboard skeleton
+## 9-B. Operational context setup screen
 
-- [ ] Create protected POS dashboard route.
-- [ ] Display user/session role.
-- [ ] Display tenant if available.
-- [ ] Display terminal binding placeholder/actual state.
-- [ ] Display outlet/session placeholder/actual state.
-- [ ] Display settings/i18n/theme readiness.
+- [ ] `data/services/cashier_op_context_service.dart` — `GET /tenant/cashier/operational-context/current`,
+  `POST /tenant/cashier/operational-context/select`, `DELETE /tenant/cashier/operational-context`.
+- [ ] Setup screen triggered when `home.requiredStep.type == SELECT_OPERATIONAL_CONTEXT`.
+- [ ] On successful `POST /select`, refresh `cashierHomeProvider` and navigate back to home.
 
-## 11. Minimal mobile/POS UI core
+Open question: outlet/terminal picker needs a list endpoint (`/tenant/outlets`?) — confirm before implementing picker UI.
 
-- [ ] Notice/banner component.
-- [ ] Error panel/screen.
-- [ ] Loading overlay/spinner.
-- [ ] Empty state.
-- [ ] Status badge.
-- [ ] Operational context bar/card.
-- [ ] Session status card.
-- [ ] Sync/offline indicator placeholder.
+Acceptance:
 
-Deferred until real POS flows:
+- [ ] Seller without operational context sees the setup screen (not the operational home).
+- [ ] After selecting outlet + terminal, home screen renders operational state.
 
-- [ ] Ticket summary.
-- [ ] Ticket line list.
-- [ ] Money breakdown.
-- [ ] Receipt preview.
-- [ ] Payout status card.
-- [ ] Pending sync list.
+## 10. POS home screen
 
-## 12. Prepare next V1 POS legs
+Driven entirely by `GET /tenant/cashier/home`. Three screen states must be covered:
+- `requiredStep.type == SELECT_OPERATIONAL_CONTEXT` → `_SetupRequiredView` (btn "Configurer le poste" → T9-B flow).
+- `requiredStep.type == OPEN_SESSION` → `_SessionClosedView` (btn "Ouvrir session" → `POST /session/open`).
+- `requiredStep == null` → operational layout (mockup).
 
-- [ ] Document next steps for terminal binding.
-- [ ] Document next steps for session open/close or selection.
-- [ ] Document next steps for sell flow.
-- [ ] Document next steps for print/send/verify flows.
+Operational layout components:
+- [ ] **TopAppBar** — menu icon + "Tchalanet" + terminal ID (`#` + shortId from op context) + `OnlineBadge` + user avatar.
+- [ ] **Primary action button** — `home.primaryAction` ("Vendre Ticket", h-128, disabled if `enabled == false`).
+- [ ] **Quick actions grid** — 2-col: "Vérifier Ticket" + "Payer Gagnant" from `home.quickActions`.
+- [ ] **Sync button** — outline/white, "Sync. Données" (P1: wire to `POST /tenant/cashier/offline/sync` or local-only).
+- [ ] **Stats section** — `home.session.salesTotal` (display-numeric) + `home.session.ticketCount`.
+- [ ] **Quick log** — last transaction via `GET /tenant/cashier/tickets?size=1&sort=createdAt,desc`.
+- [ ] **Bottom navigation** — 4 tabs: Sales (active) | Reports | History | Settings via `GoRouter`.
+  Reports/History are placeholder routes for this cycle.
+
+Acceptance:
+
+- [ ] All three home states render without error.
+- [ ] Primary action button is disabled when `home.primaryAction.enabled == false`.
+- [ ] Stats section reflects live session data from `home.session`.
+- [ ] Tapping bottom nav "Sales" preserves active state; other tabs navigate to stub screens.
+
+## 11. Design system components
+
+- [ ] `StatCard` — large display-numeric value, label row, optional unit tag.
+- [ ] `PosActionButton` — large variant (h-128) and medium variant (h-112); icon + uppercase label; enabled/disabled.
+- [ ] `OnlineBadge` — animated pulse dot + "Online" label (green) / static dot + "Hors ligne" (grey).
+- [ ] `PosBottomNavBar` — wraps Material 3 `NavigationBar` with 4 fixed destinations; active destination driven by GoRouter.
+
+Acceptance:
+
+- [ ] `PosActionButton` disabled state matches `FilledButton` disabled style (no custom opacity hacks).
+- [ ] `OnlineBadge` pulse animation does not trigger unnecessary rebuilds outside its subtree.
+
+## 12. Sell / verify / session flows — contract docs only
+
+Do not implement these flows in this cycle. Document the contracts so the next cycle can start immediately.
+
+- [ ] Document sell flow: `POST /tickets/preview` (validate) → confirm → `POST /tickets/sell` (idempotent) → `POST /tickets/{id}/print` or `/send`.
+- [ ] Document verify flow: scan public code → `POST /tickets/verify` → display `CashierTicketVerificationResponse`.
+- [ ] Document session lifecycle: `GET /session/current` on home load → `POST /session/open` (OPEN_SESSION required step) → `POST /session/close`.
+- [ ] Document payout stat gap: "Gagnants" total in mockup — confirm source (widget `home.widgets` key `payout_summary`? separate endpoint?).
 - [ ] Keep cashier Web separate unless chosen for V1.
 

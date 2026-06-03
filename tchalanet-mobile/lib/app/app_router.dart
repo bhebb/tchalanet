@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/view_models/auth_controller.dart';
 import '../features/auth/presentation/views/forbidden_page.dart';
 import '../features/auth/presentation/views/login_page.dart';
-import '../features/pos/presentation/views/pos_dashboard_page.dart';
+import '../features/cashier/home/presentation/views/cashier_home_page.dart';
+import '../features/pos/presentation/views/pos_stub_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -33,7 +34,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/pos',
-        builder: (context, _) => const PosDashboardPage(),
+        builder: (context, _) => const CashierHomePage(),
+      ),
+      GoRoute(
+        path: '/pos/reports',
+        builder: (context, _) => const PosStubPage(title: 'Reports', index: 1),
+      ),
+      GoRoute(
+        path: '/pos/history',
+        builder: (context, _) => const PosStubPage(title: 'History', index: 2),
+      ),
+      GoRoute(
+        path: '/pos/settings',
+        builder: (context, _) => const PosStubPage(title: 'Settings', index: 3),
       ),
       GoRoute(
         path: '/forbidden',
