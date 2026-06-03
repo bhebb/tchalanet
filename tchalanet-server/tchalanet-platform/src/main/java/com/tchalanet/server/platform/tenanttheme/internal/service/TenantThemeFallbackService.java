@@ -40,13 +40,8 @@ public class TenantThemeFallbackService {
             return tenantDefaultTheme.get().presetCode();
         }
 
-        // 2) Platform default:
-        //    Prefer a single preset flagged as default (if present).
-        //    Since ThemeCatalog does not yet expose findDefault(), we derive it from listActive().
-        Optional<String> flaggedDefault = themeCatalog.listActive().stream()
-            .filter(ThemePresetView::isDefault)
-            .map(ThemePresetView::code)
-            .findFirst();
+        // 2) Platform default preset
+        Optional<String> flaggedDefault = themeCatalog.findDefault().map(ThemePresetView::code);
 
         if (flaggedDefault.isPresent() && isAvailable(flaggedDefault.get())) {
             return flaggedDefault.get();

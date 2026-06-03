@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
@@ -20,7 +20,6 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -33,7 +32,7 @@ public class DrawLifeCycleTickScheduler {
     private static final JobKey DRAW_GENERATE = JobKey.of("draw:lifecycle:generate");
     private static final JobKey DRAW_OPEN = JobKey.of("draw:lifecycle:open");
 
-    private final TenantCatalog tenantCatalog;
+    private final TenantPreContextLookupApi tenantRegistry;
     private final CommandBus commandBus;
     private final BatchGate batchGate;
     private final TchTimeProvider timeProvider;
@@ -56,7 +55,7 @@ public class DrawLifeCycleTickScheduler {
         int generationDays = Math.max(1, drawProps.getScheduler().getGenerate().getDaysAhead());
         var to = from.plusDays(generationDays - 1L);
 
-        var activeTenants = tenantCatalog.listActiveTenantIds();
+        var activeTenants = tenantRegistry.listActiveTenantIds();
         if (activeTenants.isEmpty()) {
             throw new JobSkippedException("no_active_tenants", "No active tenants");
         }
@@ -127,7 +126,7 @@ public class DrawLifeCycleTickScheduler {
         validateOpenTodayCanRun();
 
         var maxItems = Math.max(1, drawProps.getScheduler().getOpenToday().getMaxItemsPerRun());
-        var activeTenants = tenantCatalog.listActiveTenantIds();
+        var activeTenants = tenantRegistry.listActiveTenantIds();
         if (activeTenants.isEmpty()) {
             throw new JobSkippedException("no_active_tenants", "No active tenants");
         }

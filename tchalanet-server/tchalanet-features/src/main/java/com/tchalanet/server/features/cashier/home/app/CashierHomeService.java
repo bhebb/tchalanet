@@ -58,7 +58,10 @@ public class CashierHomeService {
     }
 
     var operational = operationalContext(ctx);
-    if (!operational.ready() || !operational.trusted()) {
+    // Require outlet + terminal; STRONG trust is gated at sell/payout, not at home.
+    // CLIENT_CLAIM (weak, no device binding) still shows OPEN_SESSION state so V1
+    // mobile can proceed to open a session after selecting outlet/terminal.
+    if (!operational.missing().isEmpty()) {
       return missingOperationalContextHome(surface, operational);
     }
 

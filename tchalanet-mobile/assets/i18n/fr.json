@@ -1,0 +1,27 @@
+{
+  "app.name": "Tchalanet POS",
+
+  "auth.login.title": "Tchalanet POS",
+  "auth.login.subtitle": "Connectez-vous avec votre compte Tchalanet",
+  "auth.login.button": "Se connecter",
+  "auth.login.loading": "Connexion…",
+  "auth.logout": "Déconnexion",
+  "auth.forbidden.title": "Accès refusé",
+  "auth.forbidden.message": "Vous n'avez pas les droits nécessaires pour accéder à cette page.",
+  "auth.forbidden.back": "Retour à la connexion",
+
+  "pos.dashboard.title": "Tchalanet POS",
+  "pos.session.card_title": "Session",
+  "pos.session.user": "Utilisateur",
+  "pos.session.name": "Nom",
+  "pos.session.tenant": "Tenant",
+  "pos.session.roles": "Rôles",
+  "pos.session.no_roles": "Aucun rôle détecté",
+  "pos.session.token_expiry": "Expiration token",
+
+  "common.loading": "Chargement…",
+  "common.error.network": "Impossible de se connecter au serveur",
+  "common.error.timeout": "Délai de connexion dépassé",
+  "common.error.unknown": "Une erreur inattendue s'est produite",
+  "common.retry": "Réessayer"
+}

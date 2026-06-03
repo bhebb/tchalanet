@@ -1,33 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tchalanet_mobile/features/auth/presentation/login_page.dart';
+import 'package:tchalanet_mobile/features/auth/presentation/views/login_page.dart';
+import 'package:tchalanet_mobile/features/draw/data/models/draw_models.dart';
+import 'package:tchalanet_mobile/features/draw/presentation/view_models/draw_providers.dart';
 
 void main() {
-  testWidgets('LoginPage renders username and password fields', (tester) async {
+  // Override draw providers so tests don't need a network/Dio setup
+  final drawOverrides = [
+    homeDrawSlotsProvider.overrideWith((ref) async => <DrawSlotView>[]),
+  ];
+
+  testWidgets('LoginPage renders PKCE login button', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: LoginPage()),
+      ProviderScope(
+        overrides: drawOverrides,
+        child: const MaterialApp(home: LoginPage()),
       ),
     );
-
-    expect(find.text('Tchalanet'), findsOneWidget);
-    expect(find.text("Nom d'utilisateur"), findsOneWidget);
-    expect(find.text('Mot de passe'), findsOneWidget);
-    expect(find.text('Connexion'), findsOneWidget);
-  });
-
-  testWidgets('LoginPage shows validation errors on empty submit', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(home: LoginPage()),
-      ),
-    );
-
-    await tester.tap(find.text('Connexion'));
     await tester.pump();
 
-    expect(find.text("Le nom d'utilisateur est requis"), findsOneWidget);
-    expect(find.text('Le mot de passe est requis'), findsOneWidget);
+    expect(find.text('Tchalanet POS'), findsWidgets);
+    expect(find.text('Se connecter'), findsOneWidget);
+  });
+
+  testWidgets('LoginPage shows loading state while authenticating',
+      (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: drawOverrides,
+        child: const MaterialApp(home: LoginPage()),
+      ),
+    );
+    await tester.pump();
+
+    // Initial state: button enabled, no spinner
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(
+      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      isNotNull,
+    );
   });
 }

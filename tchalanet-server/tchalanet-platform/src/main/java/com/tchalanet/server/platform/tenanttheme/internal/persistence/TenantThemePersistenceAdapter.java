@@ -18,36 +18,42 @@ public class TenantThemePersistenceAdapter {
   private final TenantThemeJpaRepository repository;
 
   public TenantTheme save(TenantTheme tenantTheme) {
-    var entity =
-        repository
-            .findByTenantId(tenantTheme.tenantId().value())
-            .orElse(new TenantThemeJpaEntity());
-
+    var entity = repository.findByTenantId(tenantTheme.tenantId().value())
+        .orElse(new TenantThemeJpaEntity());
     entity.setTenantId(tenantTheme.tenantId().value());
     entity.setPresetCode(tenantTheme.presetCode());
-    entity.setMetadata(tenantTheme.metadata());
+    entity.setDefaultMode(tenantTheme.defaultMode() != null ? tenantTheme.defaultMode() : "SYSTEM");
+    entity.setActive(tenantTheme.active());
     entity.setDefaultTheme(tenantTheme.isDefault());
-    // Note: version and createdBy are managed by JPA (@Version) and AuditableEntity
-
+    entity.setTokenOverrides(tenantTheme.tokenOverrides());
     var saved = repository.save(entity);
     return toDomain(saved);
   }
 
   public void deactivate(TenantId tenantId) {
-    repository.deleteByTenantId(tenantId.value());
+    repository.findByTenantId(tenantId.value()).ifPresent(e -> {
+      e.setActive(false);
+      repository.save(e);
+    });
   }
 
   public Optional<TenantTheme> findByTenantId(TenantId tenantId) {
     return repository.findByTenantId(tenantId.value()).map(this::toDomain);
   }
 
+  public Optional<TenantTheme> findActiveByTenantId(TenantId tenantId) {
+    return repository.findByTenantIdAndActive(tenantId.value(), true).map(this::toDomain);
+  }
+
   private TenantTheme toDomain(TenantThemeJpaEntity entity) {
     return new TenantTheme(
         TenantId.of(entity.getTenantId()),
         entity.getPresetCode(),
-        entity.getMetadata(),
+        entity.getDefaultMode() != null ? entity.getDefaultMode() : "SYSTEM",
+        entity.isActive(),
         entity.isDefaultTheme(),
         entity.getVersion(),
+        entity.getTokenOverrides(),
         entity.getCreatedAt(),
         entity.getUpdatedAt(),
         entity.getCreatedBy() != null ? entity.getCreatedBy().toString() : "system");

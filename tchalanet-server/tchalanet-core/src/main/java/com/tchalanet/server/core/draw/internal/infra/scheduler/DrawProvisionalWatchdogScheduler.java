@@ -1,6 +1,6 @@
 package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
 import com.tchalanet.server.common.job.exception.JobContextClearException;
@@ -31,7 +31,7 @@ public class DrawProvisionalWatchdogScheduler {
   private static final JobKey DRAW_WATCHDOG_PROVISIONAL = JobKey.of("draw:watchdog:provisional");
 
   private final DrawReaderPort drawReader;
-  private final TenantCatalog tenantCatalog;
+  private final TenantPreContextLookupApi tenantRegistry;
   private final MeterRegistry meterRegistry;
   private final BatchGate batchGate;
   private final DrawProperties drawProps;
@@ -45,7 +45,7 @@ public class DrawProvisionalWatchdogScheduler {
     log.debug("draw.watchdog.provisional tick fired");
 
     var threshold = Duration.ofMinutes(drawProps.getWatchdog().getProvisionalStuckMinutes());
-    var activeTenants = tenantCatalog.listActiveTenantIds();
+    var activeTenants = tenantRegistry.listActiveTenantIds();
     if (activeTenants.isEmpty()) {
       throw new JobSkippedException("no_active_tenants", "No active tenants");
     }

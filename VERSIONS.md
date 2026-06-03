@@ -77,14 +77,37 @@ Règle : aucune version (runtime/build/service) ne doit changer sans :
 | ---------------------- | ------- |
 | cupertino_icons        | ^1.0.9  |
 | flutter_riverpod       | ^3.3.1  |
-| go_router              | ^17.2.3 |
+| go_router              | ^17.3.0 |
 | dio                    | ^5.9.2  |
-| flutter_secure_storage | ^10.2.0 |
+| flutter_secure_storage | ^10.3.1 |
+| flutter_appauth        | ^8.0.0  |
 | flutter_lints          | ^6.0.0  |
 
 ---
 
-## 3) Infra images
+## 3) Web (Nx / Angular)
+
+- Angular : 21.x (voir `tchalanet-web/package.json`)
+- Nx : workspace géré via `tchalanet-web/`
+- Package manager : pnpm (voir `packageManager` dans `tchalanet-web/package.json`)
+
+### Dépendances principales (versions dans `tchalanet-web/package.json`)
+
+| Package                     | Version  | Purpose                        |
+| --------------------------- | -------- | ------------------------------ |
+| `@ngrx/store`               | ^21.1.0  | App state management           |
+| `@ngrx/effects`             | ^21.1.0  | Side effects (HTTP, i18n)      |
+| `@ngrx/router-store`        | ^21.1.0  | Router/store sync              |
+| `@ngrx/store-devtools`      | ^21.1.0  | Dev tools                      |
+| `@angular/material`         | ^21.2.13 | UI component library           |
+| `@angular/cdk`              | ^21.2.13 | Component primitives           |
+| `@ngx-translate/core`       | ^17.0.0  | i18n runtime                   |
+| `@ngx-translate/http-loader`| ^17.0.0  | i18n HTTP loader               |
+| `keycloak-angular`          | ^21.0.0  | Keycloak OIDC integration      |
+
+---
+
+## 5) Infra images
 
 Runtime image tags are centralized in `tchalanet-infra/envs/common/compose.env`.
 

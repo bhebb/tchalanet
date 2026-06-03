@@ -1,135 +1,136 @@
 package com.tchalanet.server.platform.tenantgame.internal.web;
 
-import com.tchalanet.server.common.context.web.CurrentContext;
+import com.tchalanet.server.catalog.plan.api.PlanFeatureKeys;
 import com.tchalanet.server.common.context.TchRequestContext;
+import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
-import com.tchalanet.server.common.web.api.NoticeSeverity;
-import com.tchalanet.server.common.web.advice.ApiResponseContext;
-import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
+import com.tchalanet.server.platform.entitlement.api.RequiredFeature;
 import com.tchalanet.server.platform.tenantgame.api.model.DisableTenantGameResult;
-import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
 import com.tchalanet.server.platform.tenantgame.api.model.EnableTenantGameResult;
-import com.tchalanet.server.platform.tenantgame.api.model.request.ResolveTenantGamesRequest;
-import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGamePolicyRequest;
-import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameService;
-import com.tchalanet.server.platform.tenantgame.internal.web.mapper.TenantGameWebMapper;
-import java.util.List;
+import com.tchalanet.server.platform.tenantgame.api.model.request.DisableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.EnableTenantGameRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.request.UpdateTenantGameSettingsRequest;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameAdminView;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameCatalogItemView;
+import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameAdminService;
+import com.tchalanet.server.platform.tenantgame.internal.service.TenantGameCatalogProjectionService;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * REST controller for tenant game management (core/tenantgame).
- * Follows all conventions:
- * - typed_ids.md: TenantId typed wrapper
- * - web_api.md: ApiResponse<T> wrapping, @ResponseStatus
- * - request_context_usage.md: TchContext for tenant resolution (not path param)
- * - security_permissions.md: @PreAuthorize with permission checks
- */
+import java.math.BigDecimal;
+import java.util.List;
+
+@Tag(name = "Admin • Games")
 @RestController
-@RequestMapping("/tenant/games")
+@RequestMapping("/admin/games")
+@PreAuthorize("hasPermission('tenantgame.read')")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyAuthority('TENANT_ADMIN', 'SUPER_ADMIN')")
 public class TenantGameAdminController {
 
-  private final TenantGameService tenantGameService;
-  private final TenantGameWebMapper webMapper;
+    private final TenantGameAdminService adminService;
+    private final TenantGameCatalogProjectionService catalogProjection;
+    private final GameCatalog gameCatalog;
 
-  /**
-   * List all enabled games for the current tenant.
-   * Tenant resolved from TchContext (request context filter).
-   * Per request_context_usage.md: tenant is always available in context.
-   */
-  @GetMapping
-  public ApiResponse<List<TenantGameView>> getTenantGames(@CurrentContext TchRequestContext ctx) {
-    var tenantId = ctx.effectiveTenantIdRequired();
-    var query = ResolveTenantGamesRequest.builder()
-        .tenantId(tenantId)
-        .build();
-    var games = tenantGameService.resolveTenantGames(query);
-    var views = games.stream().map(webMapper::toView).toList();
-    return ApiResponse.success(views);
-  }
+    @Operation(summary = "List tenant games")
+    @GetMapping
+    public ApiResponse<List<TenantGameAdminView>> list(@CurrentContext TchRequestContext ctx) {
+        var tenantId = ctx.effectiveTenantIdRequired();
+        var games = adminService.listGames(tenantId);
+        var views = games.stream().map(g -> {
+            var catalogName = gameCatalog.findByCode(g.gameCode()).map(gv -> gv.name()).orElse(g.gameCode());
+            var category = gameCatalog.findByCode(g.gameCode()).map(gv -> gv.category()).orElse(null);
+            return new TenantGameAdminView(
+                g.gameCode(), catalogName, category, g.displayName(),
+                g.enabled(), g.visibleInPos(), g.displayOrder(),
+                g.minStake(), g.maxStake(),
+                g.availabilityEnabled(), g.availabilityDays(),
+                g.startLocalTime() != null ? g.startLocalTime().toString() : null,
+                g.endLocalTime() != null ? g.endLocalTime().toString() : null,
+                g.enabled());
+        }).toList();
+        return ApiResponse.success(views);
+    }
 
-  /**
-   * Enable a game for the current tenant.
-   * Permission check: tenantgame.write (per security_permissions.md).
-   * Tenant resolved from context, not from client input.
-   */
-  @PostMapping("/{gameCode}/enable")
-  @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<EnableTenantGameResult> enableGame(
-      @PathVariable String gameCode,
-      @CurrentContext TchRequestContext ctx) {
-    var tenantId = ctx.effectiveTenantIdRequired();
-    var command = EnableTenantGameRequest.builder()
-        .tenantId(tenantId)
-        .gameCode(gameCode)
-        .policy(null)
-        .build();
-    var result = tenantGameService.enableTenantGame(command);
-    ApiResponseContext.get().addNotice(
-        "GAME_ENABLED",
-        "Jeu activé pour le tenant",
-        "tenantgame",
-        NoticeSeverity.INFO
-    );
-    return ApiResponse.created(result);
-  }
+    @Operation(summary = "Catalog projection — all catalog games with tenant status")
+    @GetMapping("/catalog")
+    public ApiResponse<List<TenantGameCatalogItemView>> catalog(@CurrentContext TchRequestContext ctx) {
+        return ApiResponse.success(catalogProjection.getCatalogProjection(ctx.effectiveTenantIdRequired()));
+    }
 
-  /**
-   * Disable a game for the current tenant.
-   * Permission check: tenantgame.write (per security_permissions.md).
-   */
-  @PostMapping("/{gameCode}/disable")
-  public ApiResponse<DisableTenantGameResult> disableGame(
-      @PathVariable String gameCode,
-      @CurrentContext TchRequestContext ctx) {
-    var tenantId = ctx.effectiveTenantIdRequired();
-    var command = DisableTenantGameRequest.builder()
-        .tenantId(tenantId)
-        .gameCode(gameCode)
-        .build();
-    var result = tenantGameService.disableTenantGame(command);
-    ApiResponseContext.get().addNotice(
-        "GAME_DISABLED",
-        "Jeu désactivé pour le tenant",
-        "tenantgame",
-        NoticeSeverity.INFO
-    );
-    return ApiResponse.success(result);
-  }
+    @Operation(summary = "Enable a catalog game for this tenant")
+    @PostMapping("/{gameCode}/enable")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasPermission('tenantgame.manage')")
+    @RequiredFeature(PlanFeatureKeys.TENANTGAME_MANAGEMENT)
+    public ApiResponse<EnableTenantGameResult> enable(
+        @PathVariable String gameCode,
+        @CurrentContext TchRequestContext ctx) {
+        var result = adminService.enableGame(EnableTenantGameRequest.builder()
+            .tenantId(ctx.effectiveTenantIdRequired())
+            .gameCode(gameCode)
+            .build());
+        return ApiResponse.created(result);
+    }
 
-  /**
-   * Update policy for a game in the current tenant.
-   * Permission check: tenantgame.write (per security_permissions.md).
-   */
-  @PutMapping("/{gameCode}/policy")
-  public ApiResponse<Void> updatePolicy(
-      @PathVariable String gameCode,
-      @RequestBody UpdatePolicyRequest request,
-      @CurrentContext TchRequestContext ctx) {
-    var tenantId = ctx.effectiveTenantIdRequired();
-    var command = UpdateTenantGamePolicyRequest.builder()
-        .tenantId(tenantId)
-        .gameCode(gameCode)
-        .policy(request.getPolicy())
-        .build();
-    tenantGameService.updateTenantGamePolicy(command);
-    ApiResponseContext.get().addNotice(
-        "POLICY_UPDATED",
-        "Politique du jeu mise à jour",
-        "tenantgame",
-        NoticeSeverity.INFO
-    );
-    return ApiResponse.success(null);
-  }
+    @Operation(summary = "Disable a game for this tenant")
+    @PostMapping("/{gameCode}/disable")
+    @PreAuthorize("hasPermission('tenantgame.manage')")
+    public ApiResponse<DisableTenantGameResult> disable(
+        @PathVariable String gameCode,
+        @CurrentContext TchRequestContext ctx) {
+        var result = adminService.disableGame(DisableTenantGameRequest.builder()
+            .tenantId(ctx.effectiveTenantIdRequired())
+            .gameCode(gameCode)
+            .build());
+        return ApiResponse.success(result);
+    }
+
+    @Operation(summary = "Update tenant game settings")
+    @PatchMapping("/{gameCode}/settings")
+    @PreAuthorize("hasPermission('tenantgame.manage')")
+    @RequiredFeature(PlanFeatureKeys.TENANTGAME_SETTINGS)
+    public ApiResponse<Void> updateSettings(
+        @PathVariable String gameCode,
+        @Valid @RequestBody UpdateGameSettingsWebRequest body,
+        @CurrentContext TchRequestContext ctx) {
+        adminService.updateSettings(UpdateTenantGameSettingsRequest.builder()
+            .tenantId(ctx.effectiveTenantIdRequired())
+            .gameCode(gameCode)
+            .displayName(body.displayName())
+            .displayOrder(body.displayOrder())
+            .visibleInPos(body.visibleInPos())
+            .minStake(body.minStake())
+            .maxStake(body.maxStake())
+            .availabilityEnabled(body.availabilityEnabled())
+            .availabilityDays(body.availabilityDays())
+            .startLocalTime(body.startLocalTime())
+            .endLocalTime(body.endLocalTime())
+            .build());
+        return ApiResponse.success(null);
+    }
+
+    public record UpdateGameSettingsWebRequest(
+        String displayName,
+        Integer displayOrder,
+        Boolean visibleInPos,
+        BigDecimal minStake,
+        BigDecimal maxStake,
+        Boolean availabilityEnabled,
+        String availabilityDays,
+        String startLocalTime,
+        String endLocalTime
+    ) {}
 }

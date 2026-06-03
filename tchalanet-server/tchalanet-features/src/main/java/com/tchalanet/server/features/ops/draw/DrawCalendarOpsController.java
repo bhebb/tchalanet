@@ -1,6 +1,5 @@
 package com.tchalanet.server.features.ops.draw;
 
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.context.TchContextScope;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -10,7 +9,6 @@ import com.tchalanet.server.common.job.key.JobKey;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.common.web.error.ProblemRest;
-import org.springframework.http.HttpStatus;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowCommand;
 import com.tchalanet.server.core.draw.api.command.ApplyExternalResultsWindowResult;
 import com.tchalanet.server.core.draw.api.command.CloseDueDrawsCommand;
@@ -22,10 +20,13 @@ import com.tchalanet.server.core.draw.api.command.OpenTodayDrawsCommand;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantContextLookupView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +38,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/platform/ops/draws")
@@ -52,7 +54,7 @@ public class DrawCalendarOpsController {
 
     private final CommandBus commandBus;
     private final BatchGate batchGate;
-    private final TenantCatalog tenantCatalog;
+    private final TenantPreContextLookupApi tenantPreContextLookupApi;
     private final Clock clock;
 
     @Operation(summary = "Generate draws for a date range (ops)")
@@ -63,7 +65,7 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-generate'",
         detailsExpression = "#req")
     public ApiResponse<TenantBatchResponse<GenerateDrawsForRangeResult>> generate(
-            @Valid @RequestBody GenerateDrawsRequest req) {
+        @Valid @RequestBody GenerateDrawsRequest req) {
         // Target tenants: the listed tenant codes, else ALL active tenants — mirroring the
         // scheduled generateNext7Days job. Generation is idempotent, so a full sweep only fills
         // tenants that are still missing draws in the range.
@@ -80,7 +82,7 @@ public class DrawCalendarOpsController {
      * wrong tenant or be rejected by RLS. A single tenant's failure does not abort the rest.
      */
     private <R> TenantBatchResponse<R> runPerTenant(
-            List<String> tenantCodes, JobKey gate, String label, Function<TenantId, R> work) {
+        List<String> tenantCodes, JobKey gate, String label, Function<TenantId, R> work) {
         // The gate gates the operation, not an individual tenant: check it once up front (like the
         // scheduler) so a disabled gate surfaces clearly instead of being swallowed as N per-tenant
         // failures inside the loop.
@@ -112,13 +114,14 @@ public class DrawCalendarOpsController {
 
     private List<TenantId> resolveTargetTenants(List<String> tenantCodes) {
         if (tenantCodes == null || tenantCodes.isEmpty()) {
-            return tenantCatalog.listActiveTenantIds();
+            return tenantPreContextLookupApi.listActiveTenantIds();
         }
         return tenantCodes.stream()
             .filter(code -> code != null && !code.isBlank())
-            .map(code -> tenantCatalog.findIdByCode(code.trim().toLowerCase())
+            .map(code -> tenantPreContextLookupApi.findByCode(code.trim().toLowerCase())
+                .map(TenantContextLookupView::tenantId)
                 .orElseThrow(() -> ProblemRest.badRequest("Unknown tenant code: " + code)))
-            .toList();
+            .collect(Collectors.toList());
     }
 
     @Operation(summary = "Open today's scheduled draws (ops)")
@@ -129,7 +132,7 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-open-today'",
         detailsExpression = "#req")
     public ApiResponse<TenantBatchResponse<OpenDueDrawsResult>> openToday(
-            @Valid @RequestBody OpenTodayDrawsRequest req) {
+        @Valid @RequestBody OpenTodayDrawsRequest req) {
         // Optional tenant list, else ALL active tenants — each opened in its own RLS context
         // (mirrors the scheduled openToday job).
         Instant now = req.now() == null ? clock.instant() : req.now();
@@ -148,7 +151,7 @@ public class DrawCalendarOpsController {
         idExpression = "'draw-close-due'",
         detailsExpression = "#req")
     public ApiResponse<TenantBatchResponse<CloseDueDrawsResult>> closeDue(
-            @Valid @RequestBody CloseDueDrawsRequest req) {
+        @Valid @RequestBody CloseDueDrawsRequest req) {
         // Optional tenant list, else ALL active tenants — each closed in its own RLS context.
         Instant now = req.now() == null ? clock.instant() : req.now();
         return ApiResponse.success(runPerTenant(

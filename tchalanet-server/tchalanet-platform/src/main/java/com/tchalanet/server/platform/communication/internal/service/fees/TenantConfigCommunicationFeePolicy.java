@@ -7,8 +7,8 @@ import com.tchalanet.server.platform.communication.api.CommunicationFeePolicy;
 import com.tchalanet.server.platform.communication.api.model.request.CommunicationCostBearer;
 import com.tchalanet.server.platform.communication.api.model.request.CommunicationFee;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
-import com.tchalanet.server.platform.tenantconfig.api.TenantConfigApi;
-import com.tchalanet.server.platform.tenantconfig.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -11,11 +11,6 @@ import org.hibernate.type.SqlTypes;
 
 import java.util.Map;
 
-/**
- * JPA entity for tenant_theme table.
- * Maps to spec requirement T2.
- * RLS policies MUST be enforced at DB level.
- */
 @Entity
 @Table(name = "tenant_theme")
 @Getter
@@ -25,10 +20,16 @@ public class TenantThemeJpaEntity extends BaseTenantEntity {
     @Column(name = "preset_code", nullable = false, length = 128)
     private String presetCode;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
-    private Map<String, String> metadata;
+    @Column(name = "default_mode", nullable = false, length = 16)
+    private String defaultMode = "SYSTEM";
+
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 
     @Column(name = "is_default", nullable = false)
     private boolean defaultTheme = false;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "token_overrides", columnDefinition = "jsonb")
+    private Map<String, String> tokenOverrides;
 }

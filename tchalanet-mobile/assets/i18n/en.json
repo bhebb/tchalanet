@@ -1,0 +1,27 @@
+{
+  "app.name": "Tchalanet POS",
+
+  "auth.login.title": "Tchalanet POS",
+  "auth.login.subtitle": "Sign in with your Tchalanet account",
+  "auth.login.button": "Sign in",
+  "auth.login.loading": "Signing in…",
+  "auth.logout": "Sign out",
+  "auth.forbidden.title": "Access denied",
+  "auth.forbidden.message": "You do not have the required permissions to access this page.",
+  "auth.forbidden.back": "Back to sign in",
+
+  "pos.dashboard.title": "Tchalanet POS",
+  "pos.session.card_title": "Session",
+  "pos.session.user": "User",
+  "pos.session.name": "Name",
+  "pos.session.tenant": "Tenant",
+  "pos.session.roles": "Roles",
+  "pos.session.no_roles": "No roles detected",
+  "pos.session.token_expiry": "Token expiry",
+
+  "common.loading": "Loading…",
+  "common.error.network": "Unable to connect to server",
+  "common.error.timeout": "Connection timed out",
+  "common.error.unknown": "An unexpected error occurred",
+  "common.retry": "Retry"
+}

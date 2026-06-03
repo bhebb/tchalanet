@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TenantGameJpaRepository extends JpaRepository<TenantGameJpaEntity, UUID> {
-  Optional<TenantGameJpaEntity> findByTenantIdAndGameId(UUID tenantId, UUID gameId);
-  List<TenantGameJpaEntity> findByTenantId(UUID tenantId);
+    Optional<TenantGameJpaEntity> findByTenantIdAndGameId(UUID tenantId, UUID gameId);
+    Optional<TenantGameJpaEntity> findByTenantIdAndGameCode(UUID tenantId, String gameCode);
+    List<TenantGameJpaEntity> findByTenantId(UUID tenantId);
+    List<TenantGameJpaEntity> findByTenantIdAndEnabled(UUID tenantId, boolean enabled);
 }

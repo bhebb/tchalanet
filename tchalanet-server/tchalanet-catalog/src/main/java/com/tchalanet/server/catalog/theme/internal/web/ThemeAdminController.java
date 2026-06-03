@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/platform/theme-presets")
+@RequestMapping("/platform/catalog/theme-presets")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SUPER_ADMIN')")
+@PreAuthorize("hasPermission('catalog.theme.manage')")
 public class ThemeAdminController {
 
     private final ThemePresetAdminService admin;

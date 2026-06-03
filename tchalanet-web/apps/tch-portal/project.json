@@ -49,6 +49,9 @@
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/tch-portal/proxy.conf.cjs"
+      },
       "configurations": {
         "production": {
           "buildTarget": "tch-portal:build:production"

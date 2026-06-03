@@ -36,10 +36,10 @@ class Ed25519ServerSigningServiceTest {
 
         assertThat(result.signature()).isNotBlank();
         assertThat(result.algorithm()).isEqualTo("Ed25519");
-        assertThat(result.keyId()).isEqualTo("server-signing-key-dev");
+        assertThat(result.keyId()).isEqualTo("test-key-id");
 
         var publicKeySet = service.listActivePublicKeys();
-        assertThat(publicKeySet.activeKeyId()).isEqualTo("server-signing-key-dev");
+        assertThat(publicKeySet.activeKeyId()).isEqualTo("test-key-id");
         assertThat(publicKeySet.keys()).hasSize(1);
 
         var spki = Base64.getDecoder().decode(publicKeySet.keys().get(0).publicKey());

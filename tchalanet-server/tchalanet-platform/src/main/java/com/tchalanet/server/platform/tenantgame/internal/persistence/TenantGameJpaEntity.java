@@ -5,20 +5,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import tools.jackson.databind.JsonNode;
 
-/**
- * JPA entity for tenant-scoped game configuration.
- * Stores game_id as UUID (FK reference to catalog/game, not as JPA relation).
- * Per inter_domain_calls.md: core/tenantgame depends on GameCatalog API only,
- * not on catalog/game internal entities (GameJpaEntity).
- * Validation of game existence happens at application layer via GameCatalog.
- */
 @Entity
 @Table(name = "tenant_game")
 @Getter
@@ -28,11 +19,20 @@ public class TenantGameJpaEntity extends BaseTenantEntity {
   @Column(name = "game_id", nullable = false)
   private UUID gameId;
 
+  @Column(name = "game_code", nullable = false, length = 32)
+  private String gameCode;
+
   @Column(name = "enabled", nullable = false)
   private boolean enabled = true;
 
+  @Column(name = "visible_in_pos", nullable = false)
+  private boolean visibleInPos = true;
+
   @Column(name = "display_name", length = 128)
   private String displayName;
+
+  @Column(name = "display_order", nullable = false)
+  private int displayOrder = 0;
 
   @Column(name = "min_stake", precision = 12, scale = 2)
   private BigDecimal minStake;
@@ -40,7 +40,15 @@ public class TenantGameJpaEntity extends BaseTenantEntity {
   @Column(name = "max_stake", precision = 12, scale = 2)
   private BigDecimal maxStake;
 
-  @Column(name = "flags", nullable = false, columnDefinition = "jsonb")
-  @JdbcTypeCode(SqlTypes.JSON)
-  private JsonNode flags;
+  @Column(name = "availability_enabled", nullable = false)
+  private boolean availabilityEnabled = false;
+
+  @Column(name = "availability_days", length = 64)
+  private String availabilityDays;
+
+  @Column(name = "start_local_time")
+  private LocalTime startLocalTime;
+
+  @Column(name = "end_local_time")
+  private LocalTime endLocalTime;
 }

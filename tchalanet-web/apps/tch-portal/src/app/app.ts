@@ -1,13 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NxWelcome } from './nx-welcome';
+
+import { AppRuntimeStore } from './core/runtime';
 
 @Component({
-  imports: [NxWelcome, RouterModule],
+  imports: [RouterModule],
   selector: 'tch-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App {
+  private readonly runtime = inject(AppRuntimeStore);
+
   protected title = 'tch-portal';
+
+  constructor() {
+    this.runtime.initPublicRuntime();
+  }
 }

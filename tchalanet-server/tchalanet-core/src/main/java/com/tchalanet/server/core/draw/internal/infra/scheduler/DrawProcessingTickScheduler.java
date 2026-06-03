@@ -2,7 +2,7 @@ package com.tchalanet.server.core.draw.internal.infra.scheduler;
 
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.job.annotation.TchJob;
 import com.tchalanet.server.common.job.context.JobContextBinder;
@@ -57,7 +57,7 @@ public class DrawProcessingTickScheduler {
     private final CommandBus commandBus;
     private final BatchJobStarter batchJobStarter;
     private final BatchGate gate;
-    private final TenantCatalog tenantCatalog;
+    private final TenantPreContextLookupApi tenantRegistry;
     private final ResultSlotCatalog resultSlotCatalog;
     private final DrawResultReaderPort drawResultReader;
     private final JobContextBinder binder;
@@ -115,7 +115,7 @@ public class DrawProcessingTickScheduler {
         if (!cfg.isActive()) return StepSummary.skipped("inactive");
         if (!gate.enabled(DRAW_CLOSE, null)) return StepSummary.skipped("gate_disabled");
 
-        var tenants = tenantCatalog.listActiveTenantIds();
+        var tenants = tenantRegistry.listActiveTenantIds();
         int processed = 0;
         int errors = 0;
 
@@ -206,7 +206,7 @@ public class DrawProcessingTickScheduler {
                         LinkedHashMap::new,
                         Collectors.toList()));
 
-        var tenants = tenantCatalog.listActiveTenantIds();
+        var tenants = tenantRegistry.listActiveTenantIds();
 
         int processed = 0;
         int skippedNoCandidates = 0;
@@ -362,7 +362,7 @@ public class DrawProcessingTickScheduler {
             return StepSummary.skipped("no_processing_candidates");
         }
 
-        var tenants = tenantCatalog.listActiveTenantIds();
+        var tenants = tenantRegistry.listActiveTenantIds();
 
         int processed = 0;
         int skippedNoCandidates = 0;

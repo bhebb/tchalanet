@@ -68,3 +68,4 @@ Route → Page → Container(s) → Component(s)
 
 Voir [`docs/conventions/`](./conventions/README.md) :
 - Naming, state management, Nx boundaries, feature playbook, placement guide.
+- Auth, theme, i18n, runtime settings, PageModel, HTTP API.

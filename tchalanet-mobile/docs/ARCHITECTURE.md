@@ -31,6 +31,50 @@ Agents MUST NOT introduce architecture patterns that contradict these references
 
 ---
 
+## 0.1 Key principles
+
+These five principles drive every architecture decision in this app. If a class or pattern violates one of them, it is wrong regardless of what it is called.
+
+### 1 — MVVM: one View, one ViewModel
+
+Every screen has exactly one ViewModel. The View displays state; the ViewModel owns logic.
+
+```
+View  →  watches state   →  ViewModel
+View  →  triggers action →  ViewModel
+ViewModel  →  calls    →  Repository / Use Case
+```
+
+### 2 — Views contain no business logic
+
+A View (screen/widget) may only:
+- render data provided by its ViewModel
+- forward user gestures to the ViewModel
+- run layout/animation logic
+
+A View must NOT: call Dio, parse JSON, access secure storage, evaluate tenant rules, or decide whether a sale is allowed.
+
+### 3 — Repositories are the single source of truth
+
+One Repository per data type. The Repository decides:
+- remote vs. local read
+- cache policy
+- offline queue
+- retry strategy
+- DTO → model mapping
+
+A Repository exposes typed domain models, never raw API responses.
+
+### 4 — Services are stateless data sources
+
+A Service (or DataSource) wraps one external source: an HTTP endpoint, a local DB table, or the platform Keychain. It is stateless and returns raw data. It does not cache or combine sources.
+
+### 5 — `domain/` is for use cases, not models
+
+Models live in `data/models/`. The `domain/` folder is optional and exists only for use cases that orchestrate multiple repositories. If a feature has no cross-repository orchestration, skip `domain/` entirely.
+
+---
+
 ## 1. Architectural style
 
 Tchalanet Mobile uses:
@@ -49,33 +93,23 @@ The app is NOT organized around global folders like `screens/`, `services/`, `mo
 
 ```text
 lib/
-  app/
-    bootstrap/
+  app/           ← composition, router, theme, bootstrap
+  core/          ← shared technical primitives (no feature logic)
     config/
-    router/
-    theme/
-    localization/
-    error/
-  core/
-    api/
-    auth/
-    storage/
     network/
-    result/
-    pagination/
-    ids/
-    money/
-    time/
-    offline/
-  features/
-    auth/
-    shell/
-    pos_session/
-    sell_ticket/
-    ticket_verify/
-    payout/
-    sync/
+    storage/
     settings/
+    i18n/
+  design_system/ ← tokens, theme, shared UI primitives
+    tokens/
+    theme/
+  features/      ← one folder per user-facing slice
+    auth/
+    pos/
+    settings/
+    sync/
+    ...
+  main.dart
 ```
 
 ### `app/`
@@ -123,218 +157,180 @@ Examples:
 
 ## 3. Canonical feature structure
 
-Large feature:
+This structure is the direct application of the Flutter app architecture guide (see §0 references) to our feature-first organization.
+
+Full feature:
 
 ```text
 features/<feature_key>/
-  ui/
-    xxx_screen.dart
-    xxx_view_model.dart
-    xxx_state.dart
-  application/
-    xxx_use_case.dart
-    xxx_orchestrator.dart
-  domain/
-    xxx.dart
-    xxx_policy.dart
   data/
-    xxx_repository.dart
-    xxx_remote_data_source.dart
-    xxx_local_data_source.dart
-    dto/
-      xxx_request_dto.dart
-      xxx_response_dto.dart
-    mapper/
-      xxx_mapper.dart
+    models/                   ← typed domain models (no raw maps)
+      xxx.dart
+    repositories/             ← interface + implementation
+      xxx_repository.dart
+      xxx_repository_impl.dart
+    services/                 ← stateless data sources (HTTP, local DB)
+      xxx_service.dart
+  domain/                     ← OPTIONAL — use cases only
+    use_cases/
+      xxx_use_case.dart
+  presentation/
+    view_models/              ← Riverpod Notifiers / ViewModels
+      xxx_controller.dart
+    views/                    ← screens and widgets
+      xxx_page.dart
 ```
 
-Small feature:
+Small feature (Rule of 3: fewer than 3 files per role → keep flat):
 
 ```text
 features/<feature_key>/
-  xxx_screen.dart
-  xxx_view_model.dart
-  xxx_state.dart
+  xxx_page.dart
+  xxx_controller.dart
   xxx_repository.dart
 ```
 
 Apply the **Rule of 3**:
 
-- fewer than 3 files for a role: keep flat
-- 3 or more files for a role: create `ui/`, `data/`, `application/`, etc.
+- fewer than 3 files for a role → keep flat in the feature folder
+- 3 or more files for a role → create the sub-folder (`data/`, `presentation/`, `domain/`)
+
+Skip `domain/` entirely if the feature has no cross-repository orchestration.
 
 ---
 
 ## 4. Dependency direction
 
-Canonical dependency direction:
-
 ```text
-ui -> application -> data
-ui -> data is allowed only for simple read/write flows
-application -> domain
-application -> data
-data -> core/api, core/storage, core/network
-domain -> core value primitives only
+presentation/views
+    ↓
+presentation/view_models   ←→   domain/use_cases (optional)
+    ↓                                  ↓
+data/repositories  ←────────────────────┘
+    ↓
+data/services
+    ↓
+core/ (network, storage, config)
 ```
 
-Forbidden:
+Allowed:
+- `views → view_models` (watches state, triggers actions)
+- `view_models → repositories` (direct, for simple features)
+- `view_models → domain/use_cases` (when orchestration exists)
+- `use_cases → repositories` (compose multiple repos)
+- `repositories → services` (delegate IO)
+- `services → core` (network, storage)
 
-- `data -> ui`
-- `core -> features`
-- direct feature-to-feature dependencies
-- UI calling Dio directly
-- UI reading secure storage directly
-- ViewModel parsing raw JSON or backend errors directly
+Forbidden:
+- `data → presentation` (any direction upward)
+- `core → features`
+- direct feature-to-feature imports
+- View calling a Service or Dio directly
+- View reading secure storage directly
+- ViewModel parsing raw JSON or `Map<String, dynamic>`
+- ViewModel implementing backend business rules
 
 ---
 
-## 5. UI layer rules
+## 5. Presentation layer rules
 
-UI layer contains:
+### Views (`presentation/views/`)
 
-- screens/widgets
-- view models/controllers
-- UI state records/classes
-- UI-only formatting helpers
+A View:
+- renders data from its ViewModel
+- forwards user gestures to the ViewModel
+- runs layout and animation logic
 
-UI layer responsibilities:
-
-- display state
-- collect user input
-- call ViewModel actions
-- show loading/error/success states
-
-UI layer MUST NOT:
-
-- call Dio directly
-- access local database directly
-- access secure storage directly
+A View must NOT:
+- call Dio or any Service directly
+- access local DB or secure storage
 - parse `ApiResponse` or `ProblemDetail`
 - implement backend business rules
 - decide tenant/session truth
 
----
+### ViewModels (`presentation/view_models/`)
 
-## 6. ViewModel rules
+A ViewModel:
+- holds the UI state as a Riverpod `Notifier` or `AsyncNotifier`
+- exposes commands (methods) for user interactions
+- calls Repositories or Use Cases
+- translates results into UI state
+- is testable without Flutter widgets
 
-ViewModels:
-
-- expose immutable UI state
-- receive user actions
-- call use cases or repositories
-- translate domain/application results into UI state
-- are testable without Flutter widgets where possible
-
-ViewModels MUST NOT:
-
+A ViewModel must NOT:
 - construct raw API URLs
-- parse JSON
+- parse raw JSON or `Map<String, dynamic>`
 - mutate local DB directly
-- hide long-running sync side effects
-- contain critical business decisions that belong to backend
+- contain final backend decisions (limits, payout finality, fraud, tenant isolation)
 
 ---
 
-## 7. Application layer rules
+## 6. Domain layer rules (optional)
 
-`application/` is optional.
-
-Create it when a feature needs:
-
-- orchestration across multiple repositories
-- multi-step flow logic
-- command-like mobile actions
-- sync planning
-- reusable client-side workflow logic
+`domain/use_cases/` exists only when a feature needs to orchestrate multiple repositories or reuse a client-side workflow across ViewModels.
 
 Examples:
+- `OpenPosSessionUseCase` (coordinates terminal binding + session creation)
+- `SyncOfflineSubmissionsUseCase` (reads queue, calls sync service, updates status)
 
-- `StartPosSessionUseCase`
-- `SellTicketUseCase`
-- `SyncOfflineSubmissionsUseCase`
-- `ResolveSellerOperationContextUseCase`
+Use Cases:
+- take typed inputs, return typed outputs
+- depend on Repositories only (never on ViewModels or Views)
+- are pure Dart — no Flutter, no Riverpod, no Dio directly
 
-Application layer MUST NOT duplicate backend critical rules such as final limits, final draw cutoff, payout finality, fraud decisions, or tenant isolation.
-
----
-
-## 8. Domain layer rules
-
-`domain/` is optional.
-
-Use it only for pure client-side concepts:
-
-- value objects
-- local drafts
-- offline submission models
-- client-side policies for UX
-- calculations needed for display or local validation
-
-Domain objects must be pure Dart:
-
-- no Flutter widgets
-- no Riverpod
-- no Dio
-- no database APIs
-- no secure storage
-
-Critical business truth stays on the backend.
+Skip `domain/` if no orchestration is needed. Most simple features only need `view_model → repository`.
 
 ---
 
-## 9. Data layer rules
+## 7. Data layer rules
 
-Data layer contains:
+### Models (`data/models/`)
 
-- repositories
-- remote data sources
-- local data sources
-- DTOs
-- mappers
+- Typed Dart classes — no raw `Map<String, dynamic>` outside `fromJson`
+- `fromJson` factory for deserialization
+- No Flutter, no Riverpod, no Dio
+- Sensitive fields (tokens) never appear in `toString()`
 
-Repository is the client-side source of truth for a feature's data.
+### Repositories (`data/repositories/`)
 
-Repositories decide:
+- One repository per data type or feature concern
+- Abstract interface + concrete implementation (for testability)
+- Owns: cache policy, offline queue, retry, DTO → model mapping
+- Exposes typed domain models, never raw DTOs
 
-- remote vs local reads
-- cache fallback
-- offline queueing
-- sync status
-- retry strategy
-- DTO/model mapping
+### Services (`data/services/`)
 
-Remote data sources:
-
-- use `core/api`
-- contain endpoint-specific HTTP calls
-- return DTOs or low-level API results
-
-Local data sources:
-
-- use local DB/secure storage through `core/storage`
-- never expose raw database rows to UI
+- Stateless wrapper around one data source (HTTP endpoint, local DB table, Keychain)
+- Returns raw data (DTO or `Map<String, dynamic>`)
+- No caching, no combining sources
+- One service per external source
 
 ---
 
-## 10. Backend contract alignment
+## 8. Use case layer rules
+
+See §6. Alias: the folder is `domain/use_cases/`, not `application/`.
+
+---
+
+## 9. Backend contract alignment
 
 Backend 2xx responses use `ApiResponse<T>`.  
 Backend 4xx/5xx responses use `ProblemDetail`.
 
-Mobile must centralize parsing in:
+Mobile centralizes parsing in:
 
 ```text
-core/api/api_response.dart
-core/api/problem_detail.dart
-core/api/api_client.dart
+shared/models/api_response.dart
+shared/models/problem_detail.dart
+core/network/api_client.dart
 ```
 
-Feature code must receive typed results, not raw maps.
+Feature code receives typed results only — never raw maps.
 
 ---
 
-## 11. Offline architecture
+## 10. Offline architecture
 
 Offline support is explicit.
 
@@ -350,9 +346,9 @@ features/sell_ticket/data/
   offline_ticket_submission_repository.dart
 
 features/sync/
-  ui/
-  application/
   data/
+  domain/use_cases/
+  presentation/
 ```
 
 Rules:
@@ -365,9 +361,9 @@ Rules:
 
 ---
 
-## 12. Security and session rules
+## 11. Security and session rules
 
-- Tokens live in `core/auth` + secure storage.
+- Tokens live in `core/storage` + secure storage.
 - Features never read tokens directly.
 - Seller operational context must be explicit: outlet, terminal, session.
 - Client-provided operational context is convenience, not final trust.
@@ -375,27 +371,31 @@ Rules:
 
 ---
 
-## 13. Testing expectations
+## 12. Testing expectations
 
 Minimum tests:
 
 - ViewModel tests for screen states
-- Repository tests with fake remote/local data sources
-- Mapper tests for DTO conversion
+- Repository tests with fake Services (no real HTTP)
+- Use case tests for orchestration logic
 - Offline sync use-case tests for pending/success/failure cases
 
-Widget tests are added for critical screens and flows.
+Widget tests for critical screens and flows.
 
 ---
 
-## 14. Mental model
+## 13. Mental model
 
-- `app` = composition
-- `core` = technical primitives
-- `features` = user-facing slices
-- `ui` = state and presentation
-- `application` = mobile orchestration
-- `domain` = pure client concepts, optional
-- `data` = repository and IO boundary
+| Folder | Role |
+|---|---|
+| `app/` | Composition — wires everything, no logic |
+| `core/` | Technical primitives — no feature workflow |
+| `design_system/` | Tokens, theme, shared UI components |
+| `features/<x>/data/models/` | Typed domain models |
+| `features/<x>/data/services/` | Stateless data sources (HTTP, DB) |
+| `features/<x>/data/repositories/` | Single source of truth per data type |
+| `features/<x>/domain/use_cases/` | Cross-repo orchestration (optional) |
+| `features/<x>/presentation/view_models/` | UI state + user action handlers |
+| `features/<x>/presentation/views/` | Screens and widgets — display only |
 
-If a class does not clearly fit one role, it is misplaced.
+If a class does not clearly fit one row, it is misplaced.

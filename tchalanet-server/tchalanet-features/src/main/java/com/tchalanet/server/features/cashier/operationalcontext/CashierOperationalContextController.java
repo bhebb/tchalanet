@@ -4,6 +4,7 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.features.cashier.operationalcontext.app.CashierOperationalContextService;
+import com.tchalanet.server.features.cashier.operationalcontext.model.CashierOpContextOptionsView;
 import com.tchalanet.server.features.cashier.operationalcontext.model.CashierOperationalContextView;
 import com.tchalanet.server.features.cashier.operationalcontext.model.SelectCashierOperationalContextRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +30,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class CashierOperationalContextController {
 
     private final CashierOperationalContextService service;
+
+    @GetMapping("/options")
+    @Operation(summary = "Outlets and terminals available to the current seller. "
+        + "When outlets.size==1 && terminals.size==1, mobile SHOULD auto-select without showing a picker.")
+    public ApiResponse<CashierOpContextOptionsView> options(@CurrentContext TchRequestContext ctx) {
+        return ApiResponse.success(service.options(ctx));
+    }
 
     @GetMapping("/current")
     @Operation(summary = "Operational context attached to the current request (204 if none)")

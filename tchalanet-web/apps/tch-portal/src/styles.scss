@@ -1,1 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--tch-color-background);
+  color: var(--tch-color-foreground);
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+:root {
+  --tch-color-background: #f7f8fb;
+  --tch-color-foreground: #16202a;
+  --tch-color-primary: #0c7c59;
+  --tch-color-primary-contrast: #ffffff;
+  --tch-color-secondary: #2458d3;
+  --tch-color-surface: #ffffff;
+  --tch-color-surface-muted: #edf2f7;
+  --tch-color-outline: #c9d4df;
+  --tch-radius-control: 6px;
+}

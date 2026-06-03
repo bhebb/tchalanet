@@ -4,8 +4,8 @@ import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.pagemodeltemplate.api.PageModelTemplateCatalog;
 import com.tchalanet.server.catalog.pricing.api.PricingCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
-import com.tchalanet.server.catalog.tenant.api.TenantCatalog;
-import com.tchalanet.server.catalog.tenant.api.model.TenantStatsView;
+import com.tchalanet.server.platform.tenant.api.TenantPreContextLookupApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatsView;
 import com.tchalanet.server.catalog.theme.api.ThemeCatalog;
 import com.tchalanet.server.catalog.i18n.api.I18nOverridesCatalog;
 import com.tchalanet.server.catalog.settings.api.SettingsCatalog;
@@ -31,7 +31,7 @@ public class PlatformAdminOverviewOrchestrator {
     private final QueryBus queryBus;
 
     // Catalogs
-    private final TenantCatalog tenantCatalog; // ✅ direct
+    private final TenantPreContextLookupApi tenantCatalog; // ✅ direct
     private final GameCatalog gameCatalog;
     private final ResultSlotCatalog resultSlotCatalog;
     private final PageModelTemplateCatalog pageModelTemplateCatalog;
