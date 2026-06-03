@@ -3,9 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
+import '../../data/models/cashier_ticket_models.dart';
+import '../../data/services/cashier_ticket_service.dart';
 
-/// Ticket detail / receipt view — shown from History tab or post-sell.
-/// Receives a ticket ID; stub implementation until sell data layer is connected.
+final _ticketDetailProvider = FutureProvider.family<CashierTicketDetailsView, String>(
+  (ref, ticketId) => ref.watch(cashierTicketServiceProvider).getDetails(ticketId),
+);
+
+/// Ticket detail / receipt view — shown from History tab, Scanner, or post-sell.
 class CashierTicketDetailPage extends ConsumerWidget {
   const CashierTicketDetailPage({super.key, required this.ticketId});
 
@@ -13,22 +18,52 @@ class CashierTicketDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(_ticketDetailProvider(ticketId));
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Détails du Ticket'),
       ),
+      body: detailAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
+              const SizedBox(height: TchSpacing.s16),
+              Text(e.toString(), textAlign: TextAlign.center),
+              const SizedBox(height: TchSpacing.s24),
+              FilledButton.tonal(
+                onPressed: () => ref.invalidate(_ticketDetailProvider(ticketId)),
+                child: const Text('Réessayer'),
+              ),
+            ],
+          ),
+        ),
+        data: (detail) => _DetailBody(detail: detail),
+      ),
+    );
+  }
+}
+
+class _DetailBody extends StatelessWidget {
+  const _DetailBody({required this.detail});
+
+  final CashierTicketDetailsView detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Scaffold(
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           TchSpacing.s16, TchSpacing.s16, TchSpacing.s16, TchSpacing.s64,
         ),
         children: [
-          // Receipt card
-          _ReceiptCard(ticketId: ticketId),
+          _ReceiptCard(detail: detail),
           const SizedBox(height: TchSpacing.s16),
-
-          // Actions
           Row(
             children: [
               Expanded(
@@ -58,8 +93,6 @@ class CashierTicketDetailPage extends ConsumerWidget {
             isDestructive: true,
             onTap: () => _confirmCancel(context),
           ),
-
-          // QR placeholder
           const SizedBox(height: TchSpacing.s32),
           Center(
             child: Column(
@@ -125,23 +158,60 @@ class CashierTicketDetailPage extends ConsumerWidget {
 
 // ─── Receipt card ─────────────────────────────────────────────────────────────
 
-class _ReceiptCard extends StatelessWidget {
-  const _ReceiptCard({required this.ticketId});
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.status});
 
-  final String ticketId;
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final (bgColor, fgColor, label) = switch (status) {
+      'PLACED' => (const Color(0xFFDCFCE7), const Color(0xFF166534), 'ACTIF'),
+      'CANCELLED' => (
+          Theme.of(context).colorScheme.errorContainer,
+          Theme.of(context).colorScheme.onErrorContainer,
+          'ANNULÉ'
+        ),
+      'VOIDED' => (
+          Theme.of(context).colorScheme.surfaceContainerHighest,
+          Theme.of(context).colorScheme.onSurfaceVariant,
+          'INVALIDÉ'
+        ),
+      _ => (const Color(0xFFFEF9C3), const Color(0xFF854D0E), status),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: TchSpacing.s12, vertical: TchSpacing.s4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(TchRadius.pill),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: fgColor,
+          fontWeight: FontWeight.w700,
+          fontSize: 11,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _ReceiptCard extends StatelessWidget {
+  const _ReceiptCard({required this.detail});
+
+  final CashierTicketDetailsView detail;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    // Stub data — replace with live CashierTicketDetailsResponse
-    const entries = [
-      _TicketEntry(number: '45', game: 'Bolet Ordinaire', bet: 'Unité', amount: '100 HTG'),
-      _TicketEntry(number: '12-45-89', game: 'Borlette', bet: null, amount: '250 HTG', isCasino: true),
-      _TicketEntry(number: '772', game: 'Lotto-3', bet: 'Triple', amount: '150 HTG'),
-    ];
-    const total = '500 HTG';
+    // Line entries not available in CashierTicketDetailsResponse V1 (no lines field)
+    const entries = <_TicketEntry>[];
+    final total = detail.formattedAmount;
 
     return Container(
       decoration: BoxDecoration(
@@ -182,7 +252,7 @@ class _ReceiptCard extends StatelessWidget {
                           ),
                           const SizedBox(height: TchSpacing.s4),
                           Text(
-                            '#${ticketId.substring(0, 8).toUpperCase()}',
+                            detail.ticketCode,
                             style: textTheme.headlineMedium?.copyWith(
                               color: scheme.primary,
                               fontWeight: FontWeight.w700,
@@ -191,36 +261,28 @@ class _ReceiptCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: TchSpacing.s12,
-                        vertical: TchSpacing.s4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(TchRadius.pill),
-                      ),
-                      child: const Text(
-                        'PAYÉ',
-                        style: TextStyle(
-                          color: Color(0xFF166534),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 11,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
+                    _StatusBadge(status: detail.status),
                   ],
                 ),
                 const SizedBox(height: TchSpacing.s12),
-                const Row(
+                Row(
                   children: [
                     Expanded(
-                      child: _MetaItem(label: 'DATE ET HEURE', value: "Aujourd'hui"),
+                      child: _MetaItem(
+                        label: 'DATE ET HEURE',
+                        value: detail.placedAt != null
+                            ? detail.placedAt!.toLocal().toString().substring(0, 16)
+                            : '—',
+                      ),
                     ),
                     Expanded(
                       child: _MetaItem(
-                          label: 'TIRAGE', value: 'New York Night', alignRight: true),
+                        label: 'TIRAGE',
+                        value: detail.drawId != null
+                            ? detail.drawId!.substring(0, 8).toUpperCase()
+                            : '—',
+                        alignRight: true,
+                      ),
                     ),
                   ],
                 ),
@@ -321,15 +383,11 @@ class _TicketEntry {
     required this.number,
     required this.game,
     required this.amount,
-    this.bet,
-    this.isCasino = false,
   });
 
   final String number;
   final String game;
-  final String? bet;
   final String amount;
-  final bool isCasino;
 }
 
 class _EntryRow extends StatelessWidget {
@@ -356,33 +414,16 @@ class _EntryRow extends StatelessWidget {
                   color: scheme.outlineVariant.withValues(alpha: 0.5)),
               borderRadius: BorderRadius.circular(TchRadius.sm),
             ),
-            child: entry.isCasino
-                ? Icon(Icons.casino_rounded,
-                    size: 20, color: scheme.onSurfaceVariant)
-                : Text(
-                    entry.number.length > 4 ? '…' : entry.number,
-                    style: textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+            child: Text(
+              entry.number.length > 4 ? '…' : entry.number,
+              style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
           const SizedBox(width: TchSpacing.s12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(entry.game,
-                    style:
-                        textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700)),
-                if (entry.bet != null)
-                  Text(entry.bet!,
-                      style: textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant)),
-                if (entry.isCasino)
-                  Text(entry.number,
-                      style: textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant)),
-              ],
+            child: Text(
+              entry.game,
+              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           Text(

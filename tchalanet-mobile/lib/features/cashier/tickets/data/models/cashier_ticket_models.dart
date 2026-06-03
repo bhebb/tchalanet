@@ -211,6 +211,75 @@ class CashierAction {
       );
 }
 
+class CashierTicketSummaryView {
+  const CashierTicketSummaryView({
+    required this.id,
+    required this.ticketCode,
+    required this.status,
+    required this.totalAmountCents,
+    required this.currency,
+    this.drawId,
+    this.placedAt,
+  });
+
+  final String id;
+  final String ticketCode;
+  final String status; // PLACED | CANCELLED | VOIDED
+  final int totalAmountCents;
+  final String currency;
+  final String? drawId;
+  final DateTime? placedAt;
+
+  String get formattedAmount {
+    final amount = totalAmountCents / 100;
+    return '${amount.toStringAsFixed(2)} $currency';
+  }
+
+  factory CashierTicketSummaryView.fromJson(Map<String, dynamic> json) =>
+      CashierTicketSummaryView(
+        id: json['id'] as String? ?? '',
+        ticketCode: json['ticketCode'] as String? ?? '',
+        status: json['status'] as String? ?? 'UNKNOWN',
+        totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
+        currency: json['currency'] as String? ?? 'HTG',
+        drawId: json['drawId'] as String?,
+        placedAt: json['placedAt'] != null
+            ? DateTime.tryParse(json['placedAt'] as String)
+            : null,
+      );
+}
+
+class CashierTicketDetailsView extends CashierTicketSummaryView {
+  const CashierTicketDetailsView({
+    required super.id,
+    required super.ticketCode,
+    required super.status,
+    required super.totalAmountCents,
+    required super.currency,
+    super.drawId,
+    super.placedAt,
+    this.cancelledAt,
+  });
+
+  final DateTime? cancelledAt;
+
+  factory CashierTicketDetailsView.fromJson(Map<String, dynamic> json) =>
+      CashierTicketDetailsView(
+        id: json['id'] as String? ?? '',
+        ticketCode: json['ticketCode'] as String? ?? '',
+        status: json['status'] as String? ?? 'UNKNOWN',
+        totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
+        currency: json['currency'] as String? ?? 'HTG',
+        drawId: json['drawId'] as String?,
+        placedAt: json['placedAt'] != null
+            ? DateTime.tryParse(json['placedAt'] as String)
+            : null,
+        cancelledAt: json['cancelledAt'] != null
+            ? DateTime.tryParse(json['cancelledAt'] as String)
+            : null,
+      );
+}
+
 class CashierTicketVerificationResponse {
   const CashierTicketVerificationResponse({
     required this.status,
