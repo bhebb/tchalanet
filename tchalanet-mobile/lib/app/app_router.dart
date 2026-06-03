@@ -8,6 +8,8 @@ import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
 import '../features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart';
 import '../features/cashier/session/presentation/views/cashier_session_open_page.dart';
+import '../features/cashier/tickets/presentation/views/cashier_sell_success_page.dart';
+import '../features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
 import '../features/pos/presentation/views/pos_stub_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -46,17 +48,36 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/pos/session/open',
         builder: (context, _) => const CashierSessionOpenPage(),
       ),
-      GoRoute(
-        path: '/pos/reports',
-        builder: (context, _) => const PosStubPage(title: 'Reports', index: 1),
-      ),
+      // Bottom nav: Ventes | Historique | Scanner | Profil
       GoRoute(
         path: '/pos/history',
-        builder: (context, _) => const PosStubPage(title: 'History', index: 2),
+        builder: (context, _) => const PosStubPage(title: 'Historique', index: 1),
       ),
       GoRoute(
-        path: '/pos/settings',
-        builder: (context, _) => const PosStubPage(title: 'Settings', index: 3),
+        path: '/pos/scan',
+        builder: (context, _) => const PosStubPage(title: 'Scanner', index: 2),
+      ),
+      GoRoute(
+        path: '/pos/profile',
+        builder: (context, _) => const PosStubPage(title: 'Profil', index: 3),
+      ),
+      // Ticket flows
+      GoRoute(
+        path: '/pos/sell/success',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, String?>?;
+          return CashierSellSuccessPage(
+            ticketCode: extra?['ticketCode'] ?? '',
+            publicCode: extra?['publicCode'],
+            shareableText: extra?['shareableText'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/pos/tickets/:ticketId',
+        builder: (context, state) => CashierTicketDetailPage(
+          ticketId: state.pathParameters['ticketId']!,
+        ),
       ),
       GoRoute(
         path: '/forbidden',

@@ -562,10 +562,10 @@ class _PosBottomNavBar extends StatelessWidget {
   final int currentIndex;
 
   static const _destinations = [
-    (icon: Icons.point_of_sale_rounded, label: 'Sales', route: '/pos'),
-    (icon: Icons.bar_chart_rounded, label: 'Reports', route: '/pos/reports'),
-    (icon: Icons.history_rounded, label: 'History', route: '/pos/history'),
-    (icon: Icons.settings_rounded, label: 'Settings', route: '/pos/settings'),
+    (icon: Icons.point_of_sale_rounded, label: 'Ventes', route: '/pos'),
+    (icon: Icons.history_rounded, label: 'Historique', route: '/pos/history'),
+    (icon: Icons.qr_code_scanner_rounded, label: 'Scanner', route: '/pos/scan'),
+    (icon: Icons.person_rounded, label: 'Profil', route: '/pos/profile'),
   ];
 
   @override

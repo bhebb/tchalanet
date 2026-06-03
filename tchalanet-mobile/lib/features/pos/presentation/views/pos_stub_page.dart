@@ -10,14 +10,14 @@ class PosStubPage extends StatelessWidget {
   final String title;
   final int index;
 
-  static const _routes = ['/pos', '/pos/reports', '/pos/history', '/pos/settings'];
+  static const _routes = ['/pos', '/pos/history', '/pos/scan', '/pos/profile'];
   static const _icons = [
     Icons.point_of_sale_rounded,
-    Icons.bar_chart_rounded,
     Icons.history_rounded,
-    Icons.settings_rounded,
+    Icons.qr_code_scanner_rounded,
+    Icons.person_rounded,
   ];
-  static const _labels = ['Sales', 'Reports', 'History', 'Settings'];
+  static const _labels = ['Ventes', 'Historique', 'Scanner', 'Profil'];
 
   @override
   Widget build(BuildContext context) {
