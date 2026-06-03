@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/auth_repository_impl.dart';
-import '../domain/auth_repository.dart';
-import '../domain/auth_session.dart';
-import '../domain/login_credentials.dart';
+
+import '../../data/models/user_session.dart';
+import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/auth_repository_impl.dart';
 
 sealed class AuthState {}
 
@@ -17,7 +17,7 @@ final class AuthLoading extends AuthState {}
 
 final class AuthAuthenticated extends AuthState {
   AuthAuthenticated(this.session);
-  final AuthSession session;
+  final UserSession session;
 }
 
 class AuthController extends Notifier<AuthState> {
@@ -39,10 +39,10 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> login(LoginCredentials credentials) async {
+  Future<void> login() async {
     state = AuthLoading();
     try {
-      final session = await _repository.login(credentials);
+      final session = await _repository.login();
       state = AuthAuthenticated(session);
     } catch (e) {
       state = AuthUnauthenticated(errorMessage: e.toString());
@@ -58,3 +58,13 @@ class AuthController extends Notifier<AuthState> {
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,
 );
+
+/// Derived provider — exposes the current UserSession to any widget.
+/// Returns UserSession.unauthenticated when not logged in.
+final userSessionProvider = Provider<UserSession>((ref) {
+  final auth = ref.watch(authControllerProvider);
+  return switch (auth) {
+    AuthAuthenticated(:final session) => session,
+    _ => UserSession.unauthenticated,
+  };
+});

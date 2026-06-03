@@ -3,7 +3,7 @@ import '../tokens/tch_colors.dart';
 
 abstract final class TchTheme {
   static ThemeData light() {
-    final scheme = const ColorScheme(
+    const scheme = ColorScheme(
       brightness: Brightness.light,
       primary: TchColors.primary,
       onPrimary: TchColors.onPrimary,

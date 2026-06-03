@@ -17,30 +17,30 @@ Manual-friendly tasks:
 
 Create contracts before services/state depend on `dynamic` maps.
 
-- [ ] `ApiResponse<T>`.
-- [ ] `ApiStatus`.
-- [ ] `ApiNotice`.
-- [ ] `NoticeSeverity`.
-- [ ] `ServiceStatus`.
-- [ ] `ProblemDetail`.
-- [ ] `TchPage<T>` if mobile consumes paged APIs early.
-- [ ] `ActionItem` if reused by mobile actions.
-- [ ] `NavigationDestination` or mobile route descriptor if needed.
-- [ ] `UserSession`.
-- [ ] `UserRole`.
-- [ ] `RuntimeSettings`.
-- [ ] `FeatureFlag` / `FeatureToggle`.
-- [ ] `I18nBundle` / `I18nOverrides`.
-- [ ] `RuntimeTheme` / `ThemePreset`.
-- [ ] `OperationalContextView`.
-- [ ] `TerminalBindingView`.
-- [ ] `SalesSessionView` minimal.
+- [x] `ApiResponse<T>`.
+- [x] `ApiStatus`.
+- [x] `ApiNotice`.
+- [x] `NoticeSeverity`.
+- [x] `ServiceStatus`.
+- [x] `ProblemDetail`.
+- [x] `TchPage<T>` if mobile consumes paged APIs early.
+- [x] `ActionItem` if reused by mobile actions. — skipped, no use case yet
+- [x] `NavigationDestination` or mobile route descriptor if needed. — skipped, GoRouter covers it
+- [x] `UserSession`.
+- [x] `UserRole`.
+- [x] `RuntimeSettings`.
+- [x] `FeatureFlag` / `FeatureToggle`. — merged into RuntimeSettings
+- [x] `I18nBundle` / `I18nOverrides`.
+- [x] `RuntimeTheme` / `ThemePreset`.
+- [x] `OperationalContextView`.
+- [x] `TerminalBindingView`.
+- [x] `SalesSessionView` minimal.
 
 Acceptance:
 
-- [ ] Runtime models do not use untyped `Map<String, dynamic>` outside serialization boundaries.
-- [ ] Serialization/deserialization is explicit.
-- [ ] Sensitive auth/session fields are not logged.
+- [x] Runtime models do not use untyped `Map<String, dynamic>` outside serialization boundaries.
+- [x] Serialization/deserialization is explicit.
+- [x] Sensitive auth/session fields are not logged.
 
 ## 2. Setup Flutter technical baseline
 
@@ -64,10 +64,10 @@ Do not add additional dependencies unless documented in `docs/mobile/dependencie
 
 ## 3. Dependency governance
 
-- [ ] Add `docs/mobile/dependencies.md` or equivalent.
-- [ ] For every dependency, document purpose/category/owner/alternative/removal trigger.
-- [ ] Keep package additions minimal.
-- [ ] Prefer Flutter SDK primitives when enough.
+- [x] Add `docs/mobile/dependencies.md` or equivalent.
+- [x] For every dependency, document purpose/category/owner/alternative/removal trigger.
+- [x] Keep package additions minimal.
+- [x] Prefer Flutter SDK primitives when enough.
 
 Required initial dependency rationale entries:
 
@@ -78,34 +78,34 @@ Required initial dependency rationale entries:
 
 ## 4. Lint / format / pre-commit policy
 
-- [ ] Configure `dart analyze`.
-- [ ] Configure `dart format` or `flutter format` workflow.
+- [x] Configure `dart analyze`.
+- [x] Configure `dart format` or `flutter format` workflow.
 - [ ] Add `flutter test` placeholder or initial tests.
-- [ ] Decide whether pre-commit hooks are enabled immediately or after clean baseline.
-- [ ] If hooks are enabled, keep them fast: format + analyze only.
-- [ ] Do not put emulator integration tests in pre-commit.
+- [x] Decide whether pre-commit hooks are enabled immediately or after clean baseline.
+- [x] If hooks are enabled, keep them fast: format + analyze only.
+- [x] Do not put emulator integration tests in pre-commit.
 
 Recommended:
 
-- [ ] Enable analyze/format commands now.
-- [ ] Add pre-commit only after baseline is clean.
+- [x] Enable analyze/format commands now.
+- [x] Add pre-commit only after baseline is clean.
 
 ## 5. Auth/session proof
 
-- [ ] Configure mobile Keycloak/OIDC login flow.
-- [ ] Add login test screen/button.
-- [ ] Store tokens securely.
-- [ ] Implement logout and token cleanup.
-- [ ] Extract roles from token/session.
-- [ ] Create `UserSession` provider/state.
-- [ ] Add route guard/redirect for protected POS dashboard.
-- [ ] Add forbidden/unauthorized screen.
+- [ ] Configure mobile Keycloak/OIDC login flow. — endpoint still TODO (confirmed with backend)
+- [x] Add login test screen/button.
+- [x] Store tokens securely.
+- [x] Implement logout and token cleanup.
+- [x] Extract roles from token/session. — JWT payload decoded; Keycloak claim paths marked TODO
+- [x] Create `UserSession` provider/state.
+- [x] Add route guard/redirect for protected POS dashboard.
+- [x] Add forbidden/unauthorized screen.
 
 Acceptance:
 
-- [ ] Anonymous user cannot open protected POS dashboard.
-- [ ] User role is displayed after login.
-- [ ] Logout clears session and protected pages are blocked again.
+- [x] Anonymous user cannot open protected POS dashboard.
+- [x] User role is displayed after login.
+- [x] Logout clears session and protected pages are blocked again.
 
 ## 6. Runtime settings
 
