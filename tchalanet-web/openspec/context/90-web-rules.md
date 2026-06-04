@@ -91,6 +91,13 @@ Connected containers live in `core/shell`.
 
 ## 8. PageModel split
 
+> Normative detail for the PageModel runtime, widget registry, theme token mapping, and
+> feature/entitlement gating lives in the living convention docs:
+> [`docs/conventions/pagemodel.md`](../../docs/conventions/pagemodel.md),
+> [`theme.md`](../../docs/conventions/theme.md), [`settings.md`](../../docs/conventions/settings.md).
+> Those docs track the **real backend `PageModelDoc` contract** and are updated in the same commit as
+> any code that changes a rule.
+
 PageModel is not a top-level family.
 
 - data/API: `data-access/page-model`

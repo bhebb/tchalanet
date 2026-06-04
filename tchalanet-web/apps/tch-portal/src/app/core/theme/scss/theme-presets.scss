@@ -1,0 +1,25 @@
+@use '@angular/material' as mat;
+@use './generate-theme' as gen;
+@use './tchalanet/theme-colors' as tchalanet;
+
+// Preset ids MUST match backend `theme_preset.code` (V203 seed) so a backend `presetCode`
+// always resolves to a generated preset. The brand `tchalanet` preset uses the generated brand
+// palette; the `m3-*` presets approximate each seeded hue with the nearest Material named palette.
+//
+// Follow-up: regenerate per-`m3-*` brand palettes from the backend `color.primary` hex
+// (via the Material theme-color schematic) for exact hue parity. Until then these are M3-correct
+// presets with approximate hues.
+
+@include gen.tch-generate-theme('tchalanet', tchalanet.$primary-palette, tchalanet.$tertiary-palette);
+
+@include gen.tch-generate-theme('m3-blue', mat.$blue-palette, mat.$orange-palette);
+@include gen.tch-generate-theme('m3-indigo', mat.$blue-palette, mat.$violet-palette);
+@include gen.tch-generate-theme('m3-purple', mat.$violet-palette, mat.$green-palette);
+@include gen.tch-generate-theme('m3-cyan', mat.$cyan-palette, mat.$magenta-palette);
+@include gen.tch-generate-theme('m3-teal', mat.$cyan-palette, mat.$rose-palette);
+@include gen.tch-generate-theme('m3-green', mat.$green-palette, mat.$magenta-palette);
+@include gen.tch-generate-theme('m3-amber', mat.$yellow-palette, mat.$violet-palette);
+@include gen.tch-generate-theme('m3-orange', mat.$orange-palette, mat.$blue-palette);
+@include gen.tch-generate-theme('m3-brown', mat.$orange-palette, mat.$azure-palette);
+@include gen.tch-generate-theme('m3-red', mat.$red-palette, mat.$yellow-palette);
+@include gen.tch-generate-theme('m3-pink', mat.$rose-palette, mat.$blue-palette);

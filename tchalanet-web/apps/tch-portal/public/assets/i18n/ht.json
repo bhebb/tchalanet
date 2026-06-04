@@ -69,17 +69,17 @@
     },
     "presets": {
       "tchalanet": "Tchalanet",
-      "materialPurple": "Material vyolèt",
-      "materialBlue": "Material ble",
-      "materialGreen": "Material vèt",
-      "materialRed": "Material wouj",
-      "materialOrange": "Material oranj",
-      "materialTeal": "Material ble-vèt",
-      "materialPink": "Material woz",
-      "materialIndigo": "Material indigo",
-      "materialCyan": "Material syan",
-      "materialAmber": "Material anb",
-      "materialBrown": "Material mawon"
+      "m3-purple": "Material vyolèt",
+      "m3-blue": "Material ble",
+      "m3-green": "Material vèt",
+      "m3-red": "Material wouj",
+      "m3-orange": "Material oranj",
+      "m3-teal": "Material ble-vèt",
+      "m3-pink": "Material woz",
+      "m3-indigo": "Material indigo",
+      "m3-cyan": "Material syan",
+      "m3-amber": "Material anb",
+      "m3-brown": "Material mawon"
     }
   }
 }

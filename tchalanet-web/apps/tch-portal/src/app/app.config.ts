@@ -18,6 +18,7 @@ import {
 } from 'keycloak-angular';
 
 import { appRoutes } from './app.routes';
+import { FeatureFlags, SettingsFeatureFlags } from './core/feature';
 import {
   correlationRequestInterceptor,
   problemDetailInterceptor,
@@ -51,6 +52,9 @@ export const appConfig: ApplicationConfig = {
     provideEffects([I18nEffects]),
     provideRouterStore(),
     themeRuntimeStoreProvider,
+    // Feature-management isolation seam: call sites depend on FeatureFlags, swapping the backing
+    // provider (e.g. to Unleash) only rebinds this token.
+    { provide: FeatureFlags, useExisting: SettingsFeatureFlags },
     ...(isDevMode()
       ? [
           provideStoreDevtools({

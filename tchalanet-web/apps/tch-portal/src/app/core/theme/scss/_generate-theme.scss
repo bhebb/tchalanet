@@ -1,0 +1,74 @@
+@use '@angular/material' as mat;
+
+/// Generates a Tchalanet M3 preset from two Material tonal palettes:
+/// - $primaryPalette  => brand primary (header/footer, primary surfaces)
+/// - $accentPalette   => accent / tertiary (CTA, hover, active underline)
+///
+/// $id = stable preset id ('tchalanet', 'violet-green', …).
+///
+/// Emits, scoped by `data-preset`:
+///   1. all M3 system tokens (--mat-sys-*) via mat.theme(), light + dark;
+///   2. brand "-base" tokens mapped from --mat-sys-* (consumed by runtime-vars.scss).
+/// It does NOT define the final --tch-* tokens; runtime-vars.scss derives those globally so a
+/// single mapping serves every preset.
+@mixin tch-generate-theme($id, $primaryPalette, $accentPalette) {
+  /* ================= LIGHT VARIANT ================= */
+  .tch-theme[data-preset='#{$id}'] {
+    --tch-header-bg-base: var(--mat-sys-primary);
+    --tch-header-fg-base: var(--mat-sys-on-primary);
+    --tch-footer-bg-base: var(--mat-sys-primary);
+    --tch-footer-fg-base: var(--mat-sys-on-primary);
+    --tch-accent-bg-base: var(--mat-sys-tertiary);
+    --tch-accent-fg-base: var(--mat-sys-on-tertiary);
+
+    color-scheme: light;
+
+    @include mat.theme(
+      (
+        color: (
+          theme-type: light,
+          primary: $primaryPalette,
+          tertiary: $accentPalette,
+        ),
+        typography: (
+          plain-family: 'Poppins, system-ui, sans-serif',
+          brand-family: 'Poppins, system-ui, sans-serif',
+          regular-weight: 400,
+          medium-weight: 500,
+          bold-weight: 600,
+        ),
+        density: 0,
+      )
+    );
+  }
+
+  /* ================= DARK VARIANT ================= */
+  .tch-theme.dark[data-preset='#{$id}'] {
+    --tch-header-bg-base: var(--mat-sys-primary);
+    --tch-header-fg-base: var(--mat-sys-on-primary);
+    --tch-footer-bg-base: var(--mat-sys-primary);
+    --tch-footer-fg-base: var(--mat-sys-on-primary);
+    --tch-accent-bg-base: var(--mat-sys-tertiary);
+    --tch-accent-fg-base: var(--mat-sys-on-tertiary);
+
+    color-scheme: dark;
+
+    @include mat.theme(
+      (
+        color: (
+          theme-type: dark,
+          primary: $primaryPalette,
+          tertiary: $accentPalette,
+        ),
+        typography: (
+          plain-family: 'Poppins, system-ui, sans-serif',
+          brand-family: 'Poppins, system-ui, sans-serif',
+          regular-weight: 400,
+          medium-weight: 500,
+          bold-weight: 600,
+        ),
+        density: 0,
+      )
+    );
+  }
+}
