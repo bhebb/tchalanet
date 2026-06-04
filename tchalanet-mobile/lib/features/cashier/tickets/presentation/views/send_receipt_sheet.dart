@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
+import '../../../operationalcontext/data/storage/op_context_storage.dart';
 import '../../data/services/cashier_ticket_service.dart';
 
-enum _DeliveryMode { sms, whatsapp, email, slackDev }
+enum _DeliveryMode { sms, whatsapp, email }
 
 /// Bottom sheet for sending a ticket receipt via SMS, WhatsApp, email,
 /// or Slack (dev-only, for testing without real carrier infrastructure).
@@ -19,8 +20,7 @@ class SendReceiptSheet extends ConsumerStatefulWidget {
   final String ticketId;
 
   static Future<void> show(
-    BuildContext context,
-    WidgetRef ref, {
+    BuildContext context, {
     required String ticketId,
   }) {
     return showModalBottomSheet(
@@ -105,48 +105,22 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
           const SizedBox(height: TchSpacing.s20),
 
           // Input
-          if (_mode != _DeliveryMode.slackDev) ...[
-            TextField(
-              controller: _inputController,
-              keyboardType: _mode == _DeliveryMode.email
-                  ? TextInputType.emailAddress
-                  : TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: _inputLabel,
-                hintText: _inputHint,
-                prefixIcon: Icon(_inputIcon),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(TchRadius.md),
-                ),
-              ),
-              onChanged: (_) => setState(() => _error = null),
-            ),
-            const SizedBox(height: TchSpacing.s16),
-          ] else ...[
-            Container(
-              padding: const EdgeInsets.all(TchSpacing.s12),
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerLow,
+          TextField(
+            controller: _inputController,
+            keyboardType: _mode == _DeliveryMode.email
+                ? TextInputType.emailAddress
+                : TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: _inputLabel,
+              hintText: _inputHint,
+              prefixIcon: Icon(_inputIcon),
+              border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(TchRadius.md),
-                border: Border.all(color: scheme.outlineVariant),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.developer_mode_rounded, size: 18),
-                  const SizedBox(width: TchSpacing.s8),
-                  Expanded(
-                    child: Text(
-                      'Poste dans #tchalanet-agents sur Slack — dev uniquement.',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
-            const SizedBox(height: TchSpacing.s16),
-          ],
+            onChanged: (_) => setState(() => _error = null),
+          ),
+          const SizedBox(height: TchSpacing.s16),
 
           // Error
           if (_error != null) ...[
@@ -219,10 +193,23 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     );
   }
 
+  String? _validate(String value) {
+    if (value.isEmpty) return 'Veuillez saisir ${_inputLabel.toLowerCase()}.';
+    if (_mode == _DeliveryMode.email) {
+      if (!value.contains('@') || !value.contains('.')) {
+        return 'Adresse e-mail invalide.';
+      }
+    } else {
+      if (value.length < 8) return 'Numéro de téléphone invalide.';
+    }
+    return null;
+  }
+
   Future<void> _send() async {
     final value = _inputController.text.trim();
-    if (_mode != _DeliveryMode.slackDev && value.isEmpty) {
-      setState(() => _error = 'Veuillez saisir ${_inputLabel.toLowerCase()}.');
+    final validationError = _validate(value);
+    if (validationError != null) {
+      setState(() => _error = validationError);
       return;
     }
 
@@ -232,16 +219,18 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     });
 
     try {
-      if (_mode == _DeliveryMode.slackDev) {
-        await _sendToSlackDev();
-      } else {
-        await ref.read(cashierTicketServiceProvider).sendReceipt(
-              widget.ticketId,
-              deliveryMode: _mode.serverKey,
-              phoneNumber: _mode == _DeliveryMode.email ? null : value,
-              email: _mode == _DeliveryMode.email ? value : null,
-            );
+      final terminalId =
+          await ref.read(opContextStorageProvider).readTerminalId();
+      if (terminalId == null || terminalId.isEmpty) {
+        setState(() => _error = 'Aucun terminal actif. Rouvrez une session.');
+        return;
       }
+      await ref.read(cashierTicketServiceProvider).sendReceipt(
+            widget.ticketId,
+            terminalId: terminalId,
+            channel: _mode.serverKey,
+            to: value,
+          );
       setState(() => _sent = true);
     } catch (e) {
       setState(() => _error = e.toString());
@@ -250,42 +239,28 @@ class _SendReceiptSheetState extends ConsumerState<SendReceiptSheet> {
     }
   }
 
-  // Posts ticket ID to #tchalanet-agents for dev testing (no real SMS/email needed).
-  Future<void> _sendToSlackDev() async {
-    // Dev-only: uses the Slack MCP. In production this path is never reached.
-    // The server-side send endpoint requires buyerPhoneNumber or buyerEmail,
-    // so we bypass it here and just notify the dev channel.
-    await Future.delayed(const Duration(milliseconds: 500)); // simulate
-    // Actual Slack posting handled via CI/tooling, not from the mobile app.
-    // This stub confirms the action and shows success to the tester.
-  }
-
   String get _inputLabel => switch (_mode) {
         _DeliveryMode.sms => 'Numéro de téléphone',
         _DeliveryMode.whatsapp => 'Numéro WhatsApp',
         _DeliveryMode.email => 'Adresse e-mail',
-        _DeliveryMode.slackDev => '',
       };
 
   String get _inputHint => switch (_mode) {
         _DeliveryMode.sms => '+509 XXXX XXXX',
         _DeliveryMode.whatsapp => '+509 XXXX XXXX',
         _DeliveryMode.email => 'client@example.com',
-        _DeliveryMode.slackDev => '',
       };
 
   IconData get _inputIcon => switch (_mode) {
         _DeliveryMode.sms => Icons.sms_rounded,
         _DeliveryMode.whatsapp => Icons.chat_rounded,
         _DeliveryMode.email => Icons.email_outlined,
-        _DeliveryMode.slackDev => Icons.developer_mode_rounded,
       };
 
   IconData get _modeIcon => switch (_mode) {
         _DeliveryMode.sms => Icons.sms_rounded,
         _DeliveryMode.whatsapp => Icons.chat_rounded,
         _DeliveryMode.email => Icons.email_rounded,
-        _DeliveryMode.slackDev => Icons.send_rounded,
       };
 }
 
@@ -294,7 +269,6 @@ extension on _DeliveryMode {
         _DeliveryMode.sms => 'SMS',
         _DeliveryMode.whatsapp => 'WHATSAPP',
         _DeliveryMode.email => 'EMAIL',
-        _DeliveryMode.slackDev => 'SMS', // never used, dev-only path bypasses
       };
 }
 
@@ -318,7 +292,6 @@ class _ModeChip extends StatelessWidget {
       _DeliveryMode.sms => (Icons.sms_rounded, 'SMS'),
       _DeliveryMode.whatsapp => (Icons.chat_rounded, 'WhatsApp'),
       _DeliveryMode.email => (Icons.email_outlined, 'Email'),
-      _DeliveryMode.slackDev => (Icons.developer_mode_rounded, 'Slack'),
     };
 
     return GestureDetector(

@@ -19,35 +19,52 @@ import java.io.IOException;
 @Component
 public class ReceiptPdfRenderer {
 
-    private static final float MARGIN = 12f;
-    private static final float TITLE_FONT_SIZE = 13f;
-    private static final float NORMAL_FONT_SIZE = 9f;
-    private static final float SMALL_FONT_SIZE = 7f;
-    private static final float LINE_GAP = 3f;
+    // Thermal receipt (58mm / 80mm): narrow strip, small fonts, tight spacing.
+    private static final float THERMAL_MARGIN = 12f;
+    private static final float THERMAL_TITLE_SIZE = 13f;
+    private static final float THERMAL_NORMAL_SIZE = 9f;
+    private static final float THERMAL_SMALL_SIZE = 7f;
+    private static final float THERMAL_LINE_GAP = 3f;
+
+    // A4 page: readable layout, standard margins, larger fonts.
+    private static final float A4_MARGIN = 40f;
+    private static final float A4_HEIGHT_PT = 841.89f;  // ISO A4
+    private static final float A4_TITLE_SIZE = 16f;
+    private static final float A4_NORMAL_SIZE = 11f;
+    private static final float A4_SMALL_SIZE = 9f;
+    private static final float A4_LINE_GAP = 5f;
 
     public byte[] render(ReceiptModel model, byte[] qrPngBytes, PaperSize paperSize) {
         try (var doc = new PDDocument()) {
+            boolean isA4 = paperSize == PaperSize.A4;
             float width = paperSize.widthPoints();
-            float height = calculateHeight(model, qrPngBytes);
+            float height = isA4 ? A4_HEIGHT_PT : calculateThermalHeight(model, qrPngBytes);
             var page = new PDPage(new PDRectangle(width, height));
             doc.addPage(page);
 
+            float margin = isA4 ? A4_MARGIN : THERMAL_MARGIN;
+            float lineGap = isA4 ? A4_LINE_GAP : THERMAL_LINE_GAP;
+
             try (var cs = new PDPageContentStream(doc, page)) {
-                float y = height - MARGIN;
+                float y = height - margin;
 
-                y = drawCenteredText(cs, model.title(), width, y, fontBold(), TITLE_FONT_SIZE);
-                y -= 8f;
-
+                // The tenant/outlet branding is already the first thing in
+                // model.lines() (canonical branding header). Do NOT also draw
+                // model.title() here, or the tenant name prints twice.
                 for (ReceiptLine line : model.lines()) {
-                    y = drawLine(cs, line, width, y);
+                    y = drawLine(cs, line, width, y, margin, isA4);
+                    y -= lineGap;
+                    if (y < margin) break;
                 }
 
                 if (qrPngBytes != null && qrPngBytes.length > 0) {
-                    y -= 8f;
+                    y -= isA4 ? 16f : 8f;
                     var qr = PDImageXObject.createFromByteArray(doc, qrPngBytes, "qr");
-                    float qrSize = Math.min(120f, width - (MARGIN * 2));
+                    float qrSize = isA4 ? 160f : Math.min(120f, width - (margin * 2));
                     float x = (width - qrSize) / 2f;
-                    cs.drawImage(qr, x, Math.max(MARGIN, y - qrSize), qrSize, qrSize);
+                    if (y - qrSize > margin) {
+                        cs.drawImage(qr, x, y - qrSize, qrSize, qrSize);
+                    }
                 }
             }
 
@@ -59,8 +76,42 @@ public class ReceiptPdfRenderer {
         }
     }
 
-    private float calculateHeight(ReceiptModel model, byte[] qrPngBytes) {
-        float height = MARGIN * 2 + 24f;
+    private float drawLine(
+        PDPageContentStream cs,
+        ReceiptLine line,
+        float pageWidth,
+        float y,
+        float margin,
+        boolean isA4
+    ) throws IOException {
+        var font = line.style() == ReceiptLineStyle.BOLD
+            || line.style() == ReceiptLineStyle.TITLE
+            || line.style() == ReceiptLineStyle.WARNING
+            ? fontBold()
+            : fontRegular();
+
+        float size = isA4
+            ? switch (line.style()) {
+                case TITLE -> A4_TITLE_SIZE;
+                case SMALL -> A4_SMALL_SIZE;
+                default -> A4_NORMAL_SIZE;
+            }
+            : switch (line.style()) {
+                case TITLE -> THERMAL_TITLE_SIZE;
+                case SMALL -> THERMAL_SMALL_SIZE;
+                default -> THERMAL_NORMAL_SIZE;
+            };
+
+        if (line.style() == ReceiptLineStyle.TITLE) {
+            return drawCenteredText(cs, line.text(), pageWidth, y, font, size) - THERMAL_LINE_GAP;
+        }
+
+        drawText(cs, line.text(), margin, y, font, size);
+        return y - size;
+    }
+
+    private float calculateThermalHeight(ReceiptModel model, byte[] qrPngBytes) {
+        float height = THERMAL_MARGIN * 2 + 24f;
 
         for (ReceiptLine line : model.lines()) {
             height += switch (line.style()) {
@@ -77,32 +128,6 @@ public class ReceiptPdfRenderer {
         return Math.max(height, 220f);
     }
 
-    private float drawLine(
-        PDPageContentStream cs,
-        ReceiptLine line,
-        float pageWidth,
-        float y
-    ) throws IOException {
-        var font = line.style() == ReceiptLineStyle.BOLD
-            || line.style() == ReceiptLineStyle.TITLE
-            || line.style() == ReceiptLineStyle.WARNING
-            ? fontBold()
-            : fontRegular();
-
-        float size = switch (line.style()) {
-            case TITLE -> TITLE_FONT_SIZE;
-            case SMALL -> SMALL_FONT_SIZE;
-            default -> NORMAL_FONT_SIZE;
-        };
-
-        if (line.style() == ReceiptLineStyle.TITLE) {
-            return drawCenteredText(cs, line.text(), pageWidth, y, font, size) - LINE_GAP;
-        }
-
-        drawText(cs, line.text(), MARGIN, y, font, size);
-        return y - size - LINE_GAP;
-    }
-
     private float drawCenteredText(
         PDPageContentStream cs,
         String text,
@@ -113,9 +138,9 @@ public class ReceiptPdfRenderer {
     ) throws IOException {
         String safe = text == null ? "" : text;
         float textWidth = font.getStringWidth(safe) / 1000f * fontSize;
-        float x = Math.max(MARGIN, (pageWidth - textWidth) / 2f);
+        float x = Math.max(THERMAL_MARGIN, (pageWidth - textWidth) / 2f);
         drawText(cs, safe, x, y, font, fontSize);
-        return y - fontSize - LINE_GAP;
+        return y - fontSize - THERMAL_LINE_GAP;
     }
 
     private void drawText(

@@ -33,8 +33,12 @@ extension ScreenSizeX on BuildContext {
   bool get isMedium => screenSize == ScreenSize.medium;
   bool get isExpanded => screenSize == ScreenSize.expanded;
 
-  /// Two-column layout available (tablet landscape ≥ 960 px).
-  bool get isPosTerminal => isExpanded;
+  /// True when the surface is a POS terminal — either via dart-define
+  /// (POS_DEVICE=true) or when screen width is ≥ 960 px.
+  bool get isPosTerminal {
+    final surfaceCtx = PosContextProvider.of(this);
+    return surfaceCtx == SurfaceContext.posTerminal || isExpanded;
+  }
 
   /// True for a phone-sized screen (< 600 px).
   bool get isPhone => isCompact;

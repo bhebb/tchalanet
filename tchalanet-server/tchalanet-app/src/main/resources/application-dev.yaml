@@ -1,9 +1,21 @@
 app:
   cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200,https://app.localtest.me,https://auth.localtest.me}
-  api-base-url: ${APP_API_BASEURL:https://api.localtest.me}
+    # http://localhost:* couvre tous les ports Flutter Web/DevTools en dev (port aléatoire)
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:*,https://app.localtest.me,https://auth.localtest.me,https://auth.localtest.me:8443}
+  api-base-url: ${APP_API_BASEURL:https://api.localtest.me:8443}
 
 
 spring:
   main:
     allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # issuer-uri externe : utilisé pour valider le claim "iss" dans les tokens KC
+          # (KC_HOSTNAME=https://auth.localtest.me:8443 → iss inclut le port)
+          issuer-uri: https://auth.localtest.me:8443/realms/tchalanet
+          # IMPORTANT: jwk-set-uri doit pointer vers l'URL interne Docker (http, pas https).
+          # L'URL externe (auth.localtest.me) est injoignable depuis le container API
+          # car localtest.me → 127.0.0.1 = le container lui-même, pas Traefik.
+          jwk-set-uri: http://keycloak:8080/realms/tchalanet/protocol/openid-connect/certs

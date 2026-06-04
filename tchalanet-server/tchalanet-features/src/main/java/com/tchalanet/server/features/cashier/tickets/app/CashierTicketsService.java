@@ -64,6 +64,7 @@ public class CashierTicketsService {
     private final SellerOperationalContextResolver sellerContextResolver;
     private final CashierTicketMapper mapper;
     private final TicketScanResolver ticketScanResolver;
+    private final com.tchalanet.server.core.sales.internal.application.port.out.TicketPrintReaderPort ticketPrintReader;
 
     public CashierTicketPreviewResponse preview(
         TchRequestContext ctx,
@@ -130,8 +131,10 @@ public class CashierTicketsService {
     }
 
     public CashierTicketDetailsResponse getDetails(TicketId ticketId) {
-        var view = queryBus.ask(new GetTicketDetailsQuery(ticketId));
-        return mapper.toDetailsResponse(view);
+        // Use the print view — it includes publicCode, drawChannelName, seller context,
+        // bet lines (with promo flags), and charges. Richer than TicketDetailsView.
+        var printView = ticketPrintReader.findPrintViewRequired(ticketId);
+        return mapper.toDetailsResponse(printView);
     }
 
     public CashierTicketVerificationResponse verify(

@@ -21,6 +21,15 @@ public record DocumentOptions(
         return new DocumentOptions(240, PaperSize.RECEIPT_58MM, true, EscPosCodePage.CP850);
     }
 
+    /**
+     * A4 page layout: full-width PDF (595pt), larger QR, not compact.
+     * Use for mobile print preview — renders as a readable A4 document,
+     * not a narrow receipt strip.
+     */
+    public static DocumentOptions a4() {
+        return new DocumentOptions(200, PaperSize.A4, false, null);
+    }
+
     public int qrSizePxOrDefault(int fallback) {
         return qrSizePx != null && qrSizePx > 0 ? qrSizePx : fallback;
     }

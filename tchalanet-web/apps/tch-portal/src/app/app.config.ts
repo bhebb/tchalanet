@@ -73,7 +73,7 @@ export const appConfig: ApplicationConfig = {
         assetsPrefix: '/assets/i18n/',
         assetsSuffix: '.json',
         backendPath: '/api/v1/public/i18n',
-        surfaces: ['PUBLIC_HOME', 'COMMON_PUBLIC_ERROR'],
+        surfaces: ['PUBLIC_COMMON', 'PUBLIC_HOME'],
       },
     },
     provideKeycloak({

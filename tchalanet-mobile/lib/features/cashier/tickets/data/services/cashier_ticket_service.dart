@@ -116,20 +116,23 @@ class CashierTicketService {
     }
   }
 
-  /// Send a ticket receipt to the buyer via SMS, WhatsApp, or email.
+  /// Send a ticket receipt through an external channel (text-only).
+  /// Backend contract: SendTicketReceiptRequest { terminalId, channel, to }.
+  /// [channel] is a CommunicationChannel: EMAIL | SMS | WHATSAPP | SLACK | ...
+  /// [to] is the recipient for that channel (email address, phone number, …).
   Future<void> sendReceipt(
     String ticketId, {
-    required String deliveryMode, // SMS | WHATSAPP | EMAIL
-    String? phoneNumber,
-    String? email,
+    required String terminalId,
+    required String channel,
+    required String to,
   }) async {
     try {
       await _dio.post<void>(
         '/tenant/cashier/tickets/$ticketId/send',
         data: {
-          'deliveryOptions': [deliveryMode],
-          'buyerPhoneNumber': phoneNumber,
-          'buyerEmail': email,
+          'terminalId': terminalId,
+          'channel': channel,
+          'to': to,
         },
       );
     } on DioException catch (e) {

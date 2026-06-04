@@ -9,7 +9,8 @@ export const i18nFeature = createFeature({
     i18nInitialState,
     on(I18nActions.init, (state, { languages, defaultLanguage }) => ({
       ...state,
-      currentLanguage: defaultLanguage,
+      currentLanguage: state.initialized ? state.currentLanguage : defaultLanguage,
+      initialized: true,
       languages,
     })),
     on(I18nActions.setCurrent, (state, { language }) => ({

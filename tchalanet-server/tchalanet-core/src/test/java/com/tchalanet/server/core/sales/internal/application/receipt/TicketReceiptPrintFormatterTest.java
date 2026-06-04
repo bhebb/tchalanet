@@ -164,7 +164,8 @@ class TicketReceiptPrintFormatterTest {
             new Money(new BigDecimal("125.00"), CurrencyCode.of("HTG")),
             "Outlet footer",
             "Tenant footer",
-            "https://verify.example/t/ABCDEFGH"
+            "https://verify.example/t/ABCDEFGH",
+            false
         );
     }
 
@@ -300,7 +301,7 @@ class TicketReceiptPrintFormatterTest {
         var receiptLong = new TicketReceiptView(
             r.ticketId(), r.tenantId(), r.ticketCode(), r.publicCode(), r.verificationUrl(), r.displayCode(), r.saleStatus(), r.resultStatus(), r.settlementStatus(),
             r.tenantDisplayName(), r.tenantReceiptHeader(), r.outletReceiptHeader(), r.drawLabel(), r.drawChannelLabel(), r.drawScheduledAt(), r.outletName(), r.terminalCode(), r.sellerDisplayName(), r.placedAt(),
-            r.locale(), r.timezone(), List.of(section), r.stakeTotal(), r.totalAmount(), r.potentialPayout(), r.outletReceiptFooter(), r.tenantReceiptFooter(), r.verificationUrl()
+            r.locale(), r.timezone(), List.of(section), r.stakeTotal(), r.totalAmount(), r.potentialPayout(), r.outletReceiptFooter(), r.tenantReceiptFooter(), r.verificationUrl(), r.isReprint()
         );
 
         var profile = DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM);

@@ -75,6 +75,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, String?>?;
           return CashierSellSuccessPage(
+            ticketId: extra?['ticketId'] ?? '',
             ticketCode: extra?['ticketCode'] ?? '',
             publicCode: extra?['publicCode'],
             shareableText: extra?['shareableText'],

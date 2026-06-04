@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../design_system/components/online_badge.dart';
 import '../../../../../design_system/components/pos_action_button.dart';
+import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
 import '../../../../../design_system/components/stat_card.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -236,10 +237,6 @@ class _OperationalScaffold extends ConsumerWidget {
     final primaryAction = home.primaryAction;
     final quickActions = home.quickActions;
 
-    final syncAction = home.widgets
-        .where((w) => w.type == 'POS_SYNC')
-        .firstOrNull;
-
     // "Gagnants" widget if server sends it (open question — graceful skip if absent)
     final payoutWidget = home.widgets
         .where((w) => w.type == 'POS_PAYOUT_STATUS')
@@ -250,95 +247,85 @@ class _OperationalScaffold extends ConsumerWidget {
         terminalLabel: home.operationalContext != null
             ? _subtitle(home.operationalContext!)
             : null,
-        onMenuTap: () => Scaffold.of(context).openDrawer(),
+        onMenuTap: null,
       ),
+      bottomNavigationBar: const PosBottomNavBar(currentIndex: 0),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  TchSpacing.s16,
-                  TchSpacing.s16,
-                  TchSpacing.s16,
-                  TchSpacing.s8,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            TchSpacing.s16,
+            TchSpacing.s16,
+            TchSpacing.s16,
+            TchSpacing.s8,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Primary action
+              if (primaryAction != null)
+                PosActionButton(
+                  label: primaryAction.label,
+                  icon: Icons.confirmation_number_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: PosActionButtonSize.large,
+                  enabled: primaryAction.enabled,
+                  onPressed: primaryAction.enabled
+                      ? () => context.push(primaryAction.route)
+                      : null,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+              const SizedBox(height: TchSpacing.s16),
+
+              // Quick actions grid
+              if (quickActions.isNotEmpty)
+                _QuickActionsGrid(actions: quickActions),
+              const SizedBox(height: TchSpacing.s12),
+
+              // Sync button
+              _SyncButton(
+                onPressed: () => ref.invalidate(cashierHomeProvider),
+              ),
+              const SizedBox(height: TchSpacing.s24),
+
+              // Stats
+              if (session != null) ...[
+                StatCardLarge(
+                  label: "Ventes Aujourd'hui",
+                  value: session.salesTotal?.split(' ').first ?? '0.00',
+                  unit: session.salesTotal?.contains(' ') == true
+                      ? session.salesTotal!.split(' ').last
+                      : 'HTG',
+                ),
+                const SizedBox(height: TchSpacing.s12),
+                Row(
                   children: [
-                    // Primary action
-                    if (primaryAction != null)
-                      PosActionButton(
-                        label: primaryAction.label,
-                        icon: Icons.confirmation_number_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: PosActionButtonSize.large,
-                        enabled: primaryAction.enabled,
-                        onPressed: primaryAction.enabled
-                            ? () => context.push(primaryAction.route)
-                            : null,
+                    Expanded(
+                      child: StatCard(
+                        label: 'Tickets',
+                        value: session.ticketCount.toString(),
                       ),
-                    const SizedBox(height: TchSpacing.s16),
-
-                    // Quick actions grid
-                    if (quickActions.isNotEmpty)
-                      _QuickActionsGrid(actions: quickActions),
-                    const SizedBox(height: TchSpacing.s12),
-
-                    // Sync button
-                    _SyncButton(
-                      onPressed: syncAction != null
-                          ? () {}
-                          : () => ref.invalidate(cashierHomeProvider),
                     ),
-                    const SizedBox(height: TchSpacing.s24),
-
-                    // Stats
-                    if (session != null) ...[
-                      StatCardLarge(
-                        label: "Ventes Aujourd'hui",
-                        value: session.salesTotal?.split(' ').first ?? '0.00',
-                        unit: session.salesTotal?.contains(' ') == true
-                            ? session.salesTotal!.split(' ').last
-                            : 'HTG',
-                      ),
-                      const SizedBox(height: TchSpacing.s12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: StatCard(
-                              label: 'Tickets',
-                              value: session.ticketCount.toString(),
-                            ),
-                          ),
-                          if (payoutWidget != null) ...[
-                            const SizedBox(width: TchSpacing.s12),
-                            Expanded(
-                              child: StatCard(
-                                label: payoutWidget.title ?? 'Gagnants',
-                                value: payoutWidget.data['total']?.toString() ??
-                                    '—',
-                                accentColor:
-                                    Theme.of(context).colorScheme.tertiary,
-                              ),
-                            ),
-                          ],
-                        ],
+                    if (payoutWidget != null) ...[
+                      const SizedBox(width: TchSpacing.s12),
+                      Expanded(
+                        child: StatCard(
+                          label: payoutWidget.title ?? 'Gagnants',
+                          value: payoutWidget.data['total']?.toString() ?? '—',
+                          accentColor: Theme.of(context).colorScheme.tertiary,
+                        ),
                       ),
                     ],
-
-                    // Session info row
-                    if (session?.openedAtLabel != null) ...[
-                      const SizedBox(height: TchSpacing.s12),
-                      _SessionInfoRow(session: session!),
-                    ],
-                    const SizedBox(height: TchSpacing.s8),
                   ],
                 ),
-              ),
-            ),
-            const _PosBottomNavBar(currentIndex: 0),
-          ],
+              ],
+
+              // Session info row
+              if (session?.openedAtLabel != null) ...[
+                const SizedBox(height: TchSpacing.s12),
+                _SessionInfoRow(session: session!),
+              ],
+              const SizedBox(height: TchSpacing.s8),
+            ],
+          ),
         ),
       ),
     );
@@ -547,38 +534,6 @@ class _UserAvatar extends StatelessWidget {
               color: scheme.onPrimaryContainer,
             ),
       ),
-    );
-  }
-}
-
-// ─── Bottom nav bar ───────────────────────────────────────────────────────────
-
-class _PosBottomNavBar extends StatelessWidget {
-  const _PosBottomNavBar({required this.currentIndex});
-
-  final int currentIndex;
-
-  static const _destinations = [
-    (icon: Icons.point_of_sale_rounded, label: 'Ventes', route: '/pos'),
-    (icon: Icons.history_rounded, label: 'Historique', route: '/pos/history'),
-    (icon: Icons.qr_code_scanner_rounded, label: 'Scanner', route: '/pos/scan'),
-    (icon: Icons.person_rounded, label: 'Profil', route: '/pos/profile'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: (i) {
-        if (i != currentIndex) context.go(_destinations[i].route);
-      },
-      destinations: [
-        for (final d in _destinations)
-          NavigationDestination(
-            icon: Icon(d.icon),
-            label: d.label,
-          ),
-      ],
     );
   }
 }

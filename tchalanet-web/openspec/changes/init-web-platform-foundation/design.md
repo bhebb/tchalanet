@@ -193,3 +193,50 @@ Minimum initial tests:
 
 Do not start with massive e2e before the runtime foundation is stable.
 
+## 9. V1 runtime bootstrap and private layout refinement
+
+`AppRuntimeStore` owns the first web runtime orchestration before PageModel is introduced.
+It separates runtime scope from readiness:
+
+- `initPublicRuntime()` initializes i18n and theme, refreshes the auth session opportunistically, then requests public theme and settings.
+- `initPrivateRuntime()` initializes i18n and theme, refreshes the auth session first, then requests private theme and settings only when the session is authenticated.
+- If private bootstrap refreshes to an anonymous session, it falls back to public theme and settings.
+- `ready` remains derived from theme/settings readiness plus bootstrap state, so starting loads is not treated as complete rendering readiness.
+- Repeated calls for the same scope are idempotent, while a public boot may upgrade to private boot after protected navigation.
+- `RuntimeBootstrapScope` represents the loaded runtime capability, not the current route. Public-to-private upgrade is allowed; private-to-public downgrade is not needed except on a full logout/reset.
+- `RuntimeBootstrapState` includes `error` so auth/session refresh failures can be surfaced instead of silently becoming ready.
+
+Private surfaces use guarded layout routes:
+
+- `/app/cashier` is guarded by `roleGuard('CASHIER')`.
+- `/app/admin` is guarded by `roleGuard('TENANT_ADMIN')`.
+- `/app/platform` is guarded by `roleGuard('SUPER_ADMIN')`.
+
+Each route renders the private shell first, then the empty child route renders `RoleDashboardPage` as the temporary smoke dashboard.
+Placeholder cashier routes such as `sale` and `tickets` stay deferred until real pages or intentional placeholders exist.
+
+`roleGuard` remains role-based and protects only the top-level surface.
+Button/action authorization is deferred to backend capabilities, for example `ticket.sell`, `payout.execute`, and `terminal.bind`.
+
+`I18nFacade.init()` is idempotent so repeated page/runtime bootstrap calls do not reset a user-selected language to `fr`.
+Changing language dispatches the state change and the i18n effect calls `TranslateService.use(language)` to reload local/backend bundles.
+
+Future language precedence is:
+
+1. URL language
+2. user preference
+3. tenant default
+4. page default
+5. fallback `fr`
+
+The V1 target backend i18n shape is `ApiResponse<I18nBundleResponse>`.
+Transitional normalization may continue to accept older shapes during frontend/backend alignment, but those shapes are not the final contract.
+
+Surface bundles are requested and merged in configured order.
+Common surfaces must come first and specific surfaces later, for example:
+
+```ts
+['PUBLIC_COMMON', 'PUBLIC_HOME']
+```
+
+Later surfaces override earlier keys.

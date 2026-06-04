@@ -86,6 +86,11 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scanner / Vérifier'),
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          tooltip: 'Accueil',
+          onPressed: () => context.go('/pos'),
+        ),
         actions: [
           if (state is VerifyResult || state is VerifyError)
             TextButton(
@@ -244,15 +249,16 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                     const SizedBox(height: TchSpacing.s8),
                   ],
 
-                  // View detail action
+                  // View detail action — only enabled when ticketId is available
                   if (state is VerifyResult) ...[
                     SizedBox(
                       width: double.infinity,
                       height: 48,
                       child: OutlinedButton.icon(
-                        onPressed: () => context.push(
-                          '/pos/tickets/${Uri.encodeComponent(state.scannedValue)}',
-                        ),
+                        onPressed: state.response.ticketId != null
+                            ? () => context.push(
+                                '/pos/tickets/${state.response.ticketId}')
+                            : null,
                         icon: const Icon(Icons.receipt_long_rounded),
                         label: const Text('VOIR LES DÉTAILS'),
                         style: OutlinedButton.styleFrom(

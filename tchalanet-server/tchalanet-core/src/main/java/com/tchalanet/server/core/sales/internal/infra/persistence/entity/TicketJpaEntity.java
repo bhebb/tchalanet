@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.infra.persistence.entity;
 
 import com.tchalanet.server.common.persistence.BaseTenantEntity;
+import org.hibernate.annotations.Formula;
 import com.tchalanet.server.core.sales.api.model.origin.TicketSaleChannel;
 import com.tchalanet.server.core.sales.api.model.print.TicketPrintStateStatus;
 import com.tchalanet.server.core.sales.api.model.status.OfflineSyncStatus;
@@ -117,6 +118,14 @@ public class TicketJpaEntity extends BaseTenantEntity {
 
     @Column(name = "draw_channel_id", nullable = false, columnDefinition = "uuid")
     private UUID drawChannelId;
+
+    /** Draw channel human name — resolved via sub-select for list projections. */
+    @Formula("(SELECT dc.name FROM draw_channel dc WHERE dc.id = draw_channel_id)")
+    private String drawChannelName;
+
+    /** Scheduled draw time — resolved via sub-select for list projections. */
+    @Formula("(SELECT d.scheduled_at FROM draw d WHERE d.id = draw_id)")
+    private java.time.Instant drawScheduledAt;
 
     @Column(name = "seller_id", columnDefinition = "uuid")
     private UUID sellerId;

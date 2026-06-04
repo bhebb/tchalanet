@@ -134,7 +134,10 @@ public class TicketPrintDocumentMapper {
             : parsePaperSize(tenantReceiptConfig);
         return switch (paperSize) {
             case RECEIPT_58MM -> DocumentOptions.receipt58mm();
-            case A4, RECEIPT_80MM -> DocumentOptions.receipt80mm();
+            case RECEIPT_80MM -> DocumentOptions.receipt80mm();
+            // A4: full-width readable PDF — not a narrow receipt strip.
+            // Mobile /print with RETURN_FILE lands here by default.
+            case A4 -> DocumentOptions.a4();
         };
     }
 

@@ -16,6 +16,10 @@ export interface MergedTranslateLoaderOptions {
   readonly assetsPrefix: string;
   readonly assetsSuffix: string;
   readonly backendPath: string;
+  /**
+   * Surfaces are requested and merged in order. Put common bundles first and
+   * specific surfaces later so specific keys override shared defaults.
+   */
   readonly surfaces: readonly string[];
 }
 
@@ -55,7 +59,7 @@ export class MergedTranslateLoader implements TranslateLoader {
         { params },
       )
       .pipe(
-        map((response) => normalizeBackendTranslations(response)),
+        map((response) => normalizeBackendTranslations(response, this.options.surfaces)),
         catchError(() => of({})),
       );
   }
@@ -63,6 +67,7 @@ export class MergedTranslateLoader implements TranslateLoader {
 
 export function normalizeBackendTranslations(
   response: ApiResponse<I18nBundleResponse> | I18nBundleResponse | TranslationTree,
+  surfaceOrder: readonly string[] = [],
 ): TranslationTree {
   const payload = isApiResponse(response) ? response.data : response;
   if (!isRecord(payload)) {
@@ -74,14 +79,22 @@ export function normalizeBackendTranslations(
   }
 
   if (isRecord(payload['surfaces'])) {
-    return flattenSurfaceBundle(payload['surfaces']);
+    return flattenSurfaceBundle(payload['surfaces'], surfaceOrder);
   }
 
   return payload as TranslationTree;
 }
 
-function flattenSurfaceBundle(surfaces: Record<string, unknown>): TranslationTree {
-  return Object.values(surfaces).reduce<TranslationTree>((accumulator, surfaceTranslations) => {
+function flattenSurfaceBundle(
+  surfaces: Record<string, unknown>,
+  surfaceOrder: readonly string[],
+): TranslationTree {
+  const orderedSurfaces =
+    surfaceOrder.length > 0
+      ? surfaceOrder.map((surface) => surfaces[surface])
+      : Object.values(surfaces);
+
+  return orderedSurfaces.reduce<TranslationTree>((accumulator, surfaceTranslations) => {
     if (!isRecord(surfaceTranslations)) {
       return accumulator;
     }

@@ -4,6 +4,9 @@ import java.util.List;
 
 public final class TicketReceiptI18nKeys {
 
+    public static final String COPY_ORIGINAL = "receipt.copy.original";
+    public static final String COPY_DUPLICATE = "receipt.copy.duplicate";
+
     public static final String TICKET = "receipt.ticket";
     public static final String PUBLIC_CODE = "receipt.public_code";
     public static final String SALE_TIMESTAMP = "receipt.sale_timestamp";

@@ -42,7 +42,9 @@ public record TicketReceiptView(
     Money potentialPayout,
     String outletReceiptFooter,
     String tenantReceiptFooter,
-    String verificationUrl
+    String verificationUrl,
+    // false = first print (ORIGINAL), true = any subsequent print (DUPLICATA)
+    boolean isReprint
 ) {
     public TicketReceiptView {
         Objects.requireNonNull(ticketId, "ticketId is required");

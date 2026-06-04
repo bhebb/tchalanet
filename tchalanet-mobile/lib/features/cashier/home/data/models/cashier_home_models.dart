@@ -212,6 +212,7 @@ class CashierHomeResponse {
     this.session,
     this.primaryDraw,
     this.primaryAction,
+    this.currency,
   });
 
   final String? surface;
@@ -226,6 +227,8 @@ class CashierHomeResponse {
   final List<HomeWidget> widgets;
   final List<HomeNavigationItem> navigation;
   final List<String> notices;
+  /// Tenant currency code from backend (e.g. "HTG"). Never hardcode client-side.
+  final String? currency;
 
   bool get isOperational => requiredStep == null;
   bool get needsOpContext =>
@@ -276,6 +279,7 @@ class CashierHomeResponse {
                 ?.map((e) => e as String)
                 .toList() ??
             [],
+        currency: json['currency'] as String?,
       );
 }
 

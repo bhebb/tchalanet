@@ -131,9 +131,9 @@ class _TerminalLayout extends ConsumerWidget {
 
     return Row(
       children: [
-        // Left column — brand + connect
+        // Left column — brand + connect + terminal footer
         SizedBox(
-          width: 380,
+          width: (MediaQuery.sizeOf(context).width * 0.34).clamp(380.0, 480.0),
           child: Padding(
             padding: const EdgeInsets.all(TchSpacing.s48),
             child: Column(
@@ -146,7 +146,9 @@ class _TerminalLayout extends ConsumerWidget {
                   _ErrorBanner(message: errorMessage!),
                   const SizedBox(height: TchSpacing.s16),
                 ],
-                _ConnectButton(isLoading: isLoading, height: 64, onPressed: onLogin),
+                _ConnectButton(isLoading: isLoading, height: 72, onPressed: onLogin),
+                const SizedBox(height: TchSpacing.s24),
+                const _TerminalModeLabel(),
               ],
             ),
           ),
@@ -156,26 +158,50 @@ class _TerminalLayout extends ConsumerWidget {
           width: 1,
           color: Theme.of(context).colorScheme.outlineVariant,
         ),
-        // Right column — draws
+        // Right column — draws or empty state
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(TchSpacing.s32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (nextDraw != null) ...[
-                  _NextDrawCard(slot: nextDraw),
-                  const SizedBox(height: TchSpacing.s16),
-                ],
-                slotsAsync.when(
-                  data: (slots) => slots.isEmpty
-                      ? const SizedBox.shrink()
-                      : _DrawResultsSection(slots: slots),
-                  loading: () => const _DrawLoadingShimmer(),
-                  error: (_, _) => const SizedBox.shrink(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _DrawsColumnHeader(onRefresh: () => ref.invalidate(homeDrawSlotsProvider)),
+              Expanded(
+                child: slotsAsync.when(
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(TchSpacing.s32),
+                    child: _DrawLoadingShimmer(),
+                  ),
+                  error: (_, _) => _DrawsEmptyState(
+                    onRefresh: () => ref.invalidate(homeDrawSlotsProvider),
+                  ),
+                  data: (slots) {
+                    final hasNextDraw = nextDraw != null;
+                    final hasResults = slots.any(
+                        (s) => s.latest?.numbers?.hasNumbers == true);
+                    if (!hasNextDraw && !hasResults) {
+                      return _DrawsEmptyState(
+                        onRefresh: () => ref.invalidate(homeDrawSlotsProvider),
+                      );
+                    }
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        TchSpacing.s32, TchSpacing.s16,
+                        TchSpacing.s32, TchSpacing.s32,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (hasNextDraw) ...[
+                            _NextDrawCard(slot: nextDraw),
+                            const SizedBox(height: TchSpacing.s16),
+                          ],
+                          if (hasResults) _DrawResultsSection(slots: slots),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -552,12 +578,12 @@ class _ConnectButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 22,
                 width: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               )
             : Row(
@@ -568,12 +594,127 @@ class _ConnectButton extends StatelessWidget {
                   Text(
                     'Se connecter',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
+      ),
+    );
+  }
+}
+
+// ─── Terminal mode label ──────────────────────────────────────────────────────
+
+class _TerminalModeLabel extends StatelessWidget {
+  const _TerminalModeLabel();
+
+  static const _version = '1.0.0';
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Mode Terminal POS • v$_version',
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
+            letterSpacing: 0.4,
+            fontWeight: FontWeight.w500,
+          ),
+      textAlign: TextAlign.center,
+    );
+  }
+}
+
+// ─── Right column header ──────────────────────────────────────────────────────
+
+class _DrawsColumnHeader extends StatelessWidget {
+  const _DrawsColumnHeader({required this.onRefresh});
+
+  final VoidCallback onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        TchSpacing.s32, TchSpacing.s20, TchSpacing.s16, TchSpacing.s12,
+      ),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Tirages & résultats',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
+                  ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh_rounded, size: 20, color: scheme.onSurfaceVariant),
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Actualiser',
+            onPressed: onRefresh,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Right column empty state ─────────────────────────────────────────────────
+
+class _DrawsEmptyState extends StatelessWidget {
+  const _DrawsEmptyState({this.onRefresh});
+
+  final VoidCallback? onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.event_note_outlined,
+            size: 48,
+            color: scheme.onSurface.withValues(alpha: 0.15),
+          ),
+          const SizedBox(height: TchSpacing.s16),
+          Text(
+            'Aucun tirage disponible',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: TchSpacing.s8),
+          Text(
+            'Les prochains tirages et résultats\napparaîtront ici.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                ),
+          ),
+          if (onRefresh != null) ...[
+            const SizedBox(height: TchSpacing.s24),
+            OutlinedButton.icon(
+              onPressed: onRefresh,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Actualiser'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: scheme.onSurfaceVariant,
+                side: BorderSide(color: scheme.outlineVariant),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

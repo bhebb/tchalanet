@@ -20,14 +20,16 @@ public interface DrawSummaryViewRepository
 
     Optional<DrawSummaryViewEntity> findByTenantIdAndDrawId(UUID tenantId, UUID drawId);
 
+    // cast() forces typed CAST for nullable params — avoids PostgreSQL
+    // "could not determine data type of parameter $N" with Hibernate 6.
     @Query("""
         select v
         from DrawSummaryViewEntity v
         where v.tenantId = :tenantId
-          and (:resultSlotId is null or v.resultSlotId = :resultSlotId)
-          and (:status is null or v.status = :status)
-          and (:fromDate is null or v.drawDate >= :fromDate)
-          and (:toDate is null or v.drawDate <= :toDate)
+          and (cast(:resultSlotId as java.util.UUID) is null or v.resultSlotId = :resultSlotId)
+          and (cast(:status as String) is null or v.status = :status)
+          and (cast(:fromDate as java.time.LocalDate) is null or v.drawDate >= :fromDate)
+          and (cast(:toDate as java.time.LocalDate) is null or v.drawDate <= :toDate)
         """)
     Page<DrawSummaryViewEntity> search(
         @Param("tenantId") UUID tenantId,

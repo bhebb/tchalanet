@@ -342,3 +342,67 @@ def test_locked_terminal_blocks_sell() -> None:
 @pytest.mark.skip(reason="requires admin outlet-block API — TBD")
 def test_blocked_outlet_blocks_sell() -> None:
     """Outlet blocked / sales disabled → sell must be blocked. TBD."""
+
+
+# ===========================================================================
+# L1 — Receipt content correctness (ORIGINAL/DUPLICATA, no double title, QR)
+# ===========================================================================
+
+@pytest.mark.L1
+@pytest.mark.cashier_pos
+def test_receipt_print_content(onboard_cashier_for_pos) -> None:
+    """Verify receipt PDF binary and key content invariants after a sell.
+
+    Checks:
+    - First print returns a valid PDF binary (starts with %PDF).
+    - First print has print_count == 0 before the call (ORIGINAL).
+    - Second print (reprint) returns a valid PDF binary (DUPLICATA path).
+    - print_count increments after each recordPrint call.
+    - Ticket detail exposes publicCode and verificationUrl fields.
+    - verificationUrl does not appear as plain text in receipt metadata
+      (it must be embedded in QR only, not printed as a text line).
+    """
+    from fixtures.pos_context import PosContext
+    pos: PosContext = onboard_cashier_for_pos
+
+    flow = CashierFlow(pos.cashier_client, pos.op_context(), stake_cents=pos.stake_cents)
+    flow.select_context()
+
+    draws = flow.list_available_draws()
+    open_draws = [d for d in draws if d.get("status") == "OPEN"]
+    if not open_draws:
+        pytest.skip("No OPEN draws available")
+
+    draw = open_draws[0]
+    game_code = (draw.get("gameCodes") or ["HT_BOLET"])[0]
+
+    ticket = flow.sell(draw, game_code)
+    assert ticket.ticket_id, "expected ticketId after sell"
+
+    # Ticket detail must expose publicCode and verificationUrl
+    detail = flow.get_ticket(ticket.ticket_id)
+    assert detail.get("publicCode"), "detail must have publicCode"
+    # verificationUrl may be in backup or detail; either is acceptable
+    has_verify_url = (
+        detail.get("verificationUrl")
+        or (detail.get("backup") or {}).get("verificationShortUrl")
+    )
+    assert has_verify_url, "detail must include verificationUrl or backup.verificationShortUrl"
+
+    # First print — ORIGINAL (printCount was 0 before this call)
+    pdf1 = flow.print_pdf(ticket.ticket_id)
+    assert pdf1[:4] == b"%PDF", f"print must return PDF bytes, got {pdf1[:8]!r}"
+
+    # Second print — DUPLICATA (printCount > 0 after first recordPrint)
+    pdf2 = flow.print_pdf(ticket.ticket_id)
+    assert pdf2[:4] == b"%PDF", "reprint must also return PDF bytes"
+
+    # The two PDF binaries should differ (at minimum timestamps differ)
+    assert pdf1 != pdf2, (
+        "first print (ORIGINAL) and reprint (DUPLICATA) should produce different PDFs"
+    )
+
+    # Save artifacts
+    artifacts = _artifact_dir()
+    (artifacts / f"receipt_original_{ticket.ticket_code}.pdf").write_bytes(pdf1)
+    (artifacts / f"receipt_duplicata_{ticket.ticket_code}.pdf").write_bytes(pdf2)

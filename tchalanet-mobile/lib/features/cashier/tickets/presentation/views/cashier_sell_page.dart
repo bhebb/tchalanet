@@ -35,7 +35,10 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
           );
       ref
           .read(sellControllerProvider.notifier)
-          .loadCatalog(preselectedDrawId: home?.primaryDraw?.drawId);
+          .loadCatalog(
+            preselectedDrawId: home?.primaryDraw?.drawId,
+            currency: home?.currency,
+          );
     });
   }
 
@@ -59,6 +62,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
     ref.listen<SellState>(sellControllerProvider, (_, next) {
       if (next is SellSuccess) {
         context.pushReplacement('/pos/sell/success', extra: {
+          'ticketId': next.response.ticketId,
           'ticketCode': next.response.ticketCode,
           'publicCode': next.response.publicCode,
           'shareableText': next.response.backup?.shareableText,
@@ -69,6 +73,11 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vendre un Ticket'),
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          tooltip: 'Annuler',
+          onPressed: () => context.pop(),
+        ),
       ),
       body: switch (state) {
         SellLoadingCatalog() => const Center(child: CircularProgressIndicator()),
@@ -98,18 +107,23 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 ref.read(sellControllerProvider.notifier).updateSelection(v),
             onStakeChanged: (v) =>
                 ref.read(sellControllerProvider.notifier).updateStake(v),
+            onAddLine: () {
+              ref.read(sellControllerProvider.notifier).addLine();
+              _selectionController.clear();
+              _stakeController.clear();
+            },
+            onRemoveLine: (i) =>
+                ref.read(sellControllerProvider.notifier).removeLine(i),
             onPreview: () {
               if (opCtx?.terminalId == null) return;
               ref.read(sellControllerProvider.notifier).preview(
                     opCtx!.terminalId!,
-                    'HTG',
                   );
             },
             onConfirm: () {
               if (opCtx?.terminalId == null) return;
               ref.read(sellControllerProvider.notifier).confirmSell(
                     opCtx!.terminalId!,
-                    'HTG',
                   );
             },
           ),
@@ -127,6 +141,8 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             onSelectBetOption: (_) {},
             onSelectionChanged: (_) {},
             onStakeChanged: (_) {},
+            onAddLine: () {},
+            onRemoveLine: (_) {},
             onPreview: () {},
             onConfirm: () {},
           ),
@@ -139,28 +155,18 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             opCtx: opCtx,
             stakeController: _stakeController,
             selectionController: _selectionController,
-            onSelectDraw: (id) =>
-                ref.read(sellControllerProvider.notifier).selectDraw(id),
-            onSelectGame: (g) =>
-                ref.read(sellControllerProvider.notifier).selectGame(g),
-            onSelectBetOption: (o) =>
-                ref.read(sellControllerProvider.notifier).selectBetOption(o),
-            onSelectionChanged: (v) =>
-                ref.read(sellControllerProvider.notifier).updateSelection(v),
-            onStakeChanged: (v) =>
-                ref.read(sellControllerProvider.notifier).updateStake(v),
-            onPreview: () {
-              if (opCtx?.terminalId == null) return;
-              ref.read(sellControllerProvider.notifier).preview(
-                    opCtx!.terminalId!,
-                    'HTG',
-                  );
-            },
+            onSelectDraw: (_) {},
+            onSelectGame: (_) {},
+            onSelectBetOption: (_) {},
+            onSelectionChanged: (_) {},
+            onStakeChanged: (_) {},
+            onAddLine: () {},
+            onRemoveLine: (_) {},
+            onPreview: () {},
             onConfirm: () {
               if (opCtx?.terminalId == null) return;
               ref.read(sellControllerProvider.notifier).confirmSell(
                     opCtx!.terminalId!,
-                    'HTG',
                   );
             },
           ),
@@ -185,6 +191,8 @@ class _SellBody extends StatelessWidget {
     required this.onStakeChanged,
     required this.onPreview,
     required this.onConfirm,
+    required this.onAddLine,
+    required this.onRemoveLine,
     this.previewResult,
     this.error,
     this.opCtx,
@@ -205,6 +213,8 @@ class _SellBody extends StatelessWidget {
   final ValueChanged<double> onStakeChanged;
   final VoidCallback onPreview;
   final VoidCallback onConfirm;
+  final VoidCallback onAddLine;
+  final ValueChanged<int> onRemoveLine;
 
   bool get _isLoading => isPreviewing || isConfirming;
 
@@ -247,15 +257,25 @@ class _SellBody extends StatelessWidget {
                   child: Wrap(
                     spacing: TchSpacing.s8,
                     runSpacing: TchSpacing.s8,
-                    children: form.games.map((g) {
-                      final selected = form.selectedGameCode == g.gameCode;
-                      return _Chip(
-                        label: g.gameLabel,
-                        selected: selected,
-                        enabled: !_isLoading,
-                        onTap: () => onSelectGame(g),
-                      );
-                    }).toList(),
+                    // Deduplicate: one chip per unique gameLabel.
+                    // Lot variants (1er lot, 2ème lot…) share the same label;
+                    // the payout engine handles lot attribution — sellers don't
+                    // need to pre-select a lot.
+                    children: () {
+                      final seen = <String>{};
+                      return form.games
+                          .where((g) => seen.add(g.gameLabel))
+                          .map((g) {
+                        final selected = form.selectedGameCode == g.gameCode &&
+                            form.selectedBetType == g.betType;
+                        return _Chip(
+                          label: g.gameLabel,
+                          selected: selected,
+                          enabled: !_isLoading,
+                          onTap: () => onSelectGame(g),
+                        );
+                      }).toList();
+                    }(),
                   ),
                 ),
 
@@ -321,7 +341,7 @@ class _SellBody extends StatelessWidget {
                         onStakeChanged(double.tryParse(v.replaceAll(',', '.')) ?? 0),
                     decoration: InputDecoration(
                       hintText: '0.00',
-                      suffixText: 'HTG',
+                      suffixText: form.currency,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(TchRadius.md),
                       ),
@@ -332,6 +352,79 @@ class _SellBody extends StatelessWidget {
                     ),
                   ),
                 ),
+
+              // ── Committed lines list ────────────────────────────────
+              if (form.committedLines.isNotEmpty) ...[
+                const SizedBox(height: TchSpacing.s8),
+                _Section(
+                  label: 'LIGNES DU TICKET (${form.committedLines.length})',
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < form.committedLines.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: TchSpacing.s8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: TchSpacing.s12,
+                                    vertical: TchSpacing.s8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: scheme.surfaceContainerHighest,
+                                    borderRadius: BorderRadius.circular(TchRadius.md),
+                                  ),
+                                  child: Text(
+                                    '#${i + 1}  ${form.committedLines[i].displayLabel}',
+                                    style: textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (!_isLoading) ...[
+                                const SizedBox(width: TchSpacing.s4),
+                                IconButton(
+                                  icon: const Icon(Icons.close_rounded, size: 18),
+                                  onPressed: () => onRemoveLine(i),
+                                  tooltip: 'Supprimer la ligne',
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+
+              // ── Add line button — always visible once a game is selected,
+              //    enabled only when the current entry (number + stake) is valid.
+              if (form.selectedGameCode != null && !_isLoading) ...[
+                const SizedBox(height: TchSpacing.s4),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: form.canAddLine ? onAddLine : null,
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: Text(form.canAddLine
+                        ? 'Ajouter une ligne'
+                        : 'Entrez un numéro et une mise'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: TchSpacing.s12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(TchRadius.md),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
 
               // ── Preview result ──────────────────────────────────────
               if (previewResult != null) ...[
@@ -365,7 +458,8 @@ class _SellBody extends StatelessWidget {
                 ),
               ],
 
-              const SizedBox(height: TchSpacing.s16),
+              // Extra bottom padding so the add-line button clears the sticky CTA.
+              const SizedBox(height: 88),
             ],
           ),
         ),

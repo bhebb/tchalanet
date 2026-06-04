@@ -4,12 +4,18 @@ import com.tchalanet.server.platform.communication.api.model.request.SendOutboun
 import com.tchalanet.server.platform.communication.api.model.result.SendOutboundMessageResult;
 import com.tchalanet.server.platform.communication.api.model.value.CommunicationChannel;
 import com.tchalanet.server.platform.communication.internal.adapter.DeliveryProvider;
-import lombok.extern.slf4j.Slf4j;
+import com.tchalanet.server.platform.communication.internal.provider.EdgeCommunicationGateway;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/// Forwards EMAIL deliveries to the edge service (mirrors SlackProviderAdapter).
+/// The edge service performs the actual send via its configured email provider
+/// (EMAIL_ENABLED / EMAIL_PROVIDER, e.g. brevo).
 @Component
-@Slf4j
+@RequiredArgsConstructor
 public class EmailProviderAdapter implements DeliveryProvider {
+
+  private final EdgeCommunicationGateway edgeCommunicationGateway;
 
   @Override
   public boolean supports(CommunicationChannel channel) {
@@ -18,10 +24,6 @@ public class EmailProviderAdapter implements DeliveryProvider {
 
   @Override
   public SendOutboundMessageResult send(SendOutboundMessageRequest request) {
-    log.info("DEV email delivery skipped recipient={} subject={} attachments={}",
-        request.recipient() == null ? null : request.recipient().to(),
-        request.subject(),
-        request.attachments().size());
-    return SendOutboundMessageResult.skipped("dev-email", "dev adapter");
+    return edgeCommunicationGateway.send(request);
   }
 }

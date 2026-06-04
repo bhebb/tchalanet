@@ -39,6 +39,7 @@ dependencies:
   dio: ^5.9.2
   flutter_secure_storage: ^10.2.0
   flutter_appauth: ^8.0.0
+  printing: ^5.14.3
 
 dev_dependencies:
   flutter_test:

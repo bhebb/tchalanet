@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
 import '../../../../../design_system/tokens/tch_colors.dart';
 
 import '../../../../../design_system/tokens/tch_radius.dart';
@@ -40,7 +41,10 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
           : !local.isBefore(yesterdayStart) && local.isBefore(todayStart);
       if (!inRange) return false;
       if (_search.isEmpty) return true;
-      return t.ticketCode.toUpperCase().contains(_search.toUpperCase());
+      final q = _search.toUpperCase();
+      return t.ticketCode.toUpperCase().contains(q) ||
+          (t.publicCode?.toUpperCase().contains(q) ?? false) ||
+          (t.drawChannelName?.toUpperCase().contains(q) ?? false);
     }).toList();
   }
 
@@ -189,7 +193,7 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
           ),
         ],
       ),
-      bottomNavigationBar: _BottomNav(),
+      bottomNavigationBar: const PosBottomNavBar(currentIndex: 1),
     );
   }
 }
@@ -291,15 +295,29 @@ class _TicketRow extends StatelessWidget {
               ),
               const SizedBox(width: TchSpacing.s12),
 
-              // Ticket code
+              // Public code + draw channel name
               Expanded(
                 flex: 2,
-                child: Text(
-                  ticket.ticketCode,
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isCancelled ? scheme.onSurfaceVariant : scheme.primary,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ticket.displayCode,
+                      style: textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: isCancelled
+                            ? scheme.onSurfaceVariant
+                            : scheme.primary,
+                      ),
+                    ),
+                    Text(
+                      ticket.drawLabel,
+                      style: textTheme.labelSmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
 
@@ -396,31 +414,6 @@ class _IconBtn extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       onPressed: onTap,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
-    );
-  }
-}
-
-// ─── Bottom nav ───────────────────────────────────────────────────────────────
-
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: 1,
-      onDestinationSelected: (i) {
-        const routes = ['/pos', '/pos/history', '/pos/scan', '/pos/profile'];
-        if (i != 1) context.go(routes[i]);
-      },
-      destinations: const [
-        NavigationDestination(
-            icon: Icon(Icons.point_of_sale_rounded), label: 'Ventes'),
-        NavigationDestination(
-            icon: Icon(Icons.history_rounded), label: 'Historique'),
-        NavigationDestination(
-            icon: Icon(Icons.qr_code_scanner_rounded), label: 'Scanner'),
-        NavigationDestination(
-            icon: Icon(Icons.person_rounded), label: 'Profil'),
-      ],
     );
   }
 }

@@ -65,39 +65,26 @@ WITH t AS (
              gen_random_uuid() AS id,
              t.tenant_id,
              g.game_id,
+             g.code AS game_code,
              true AS enabled,
              g.name AS display_name,
-             CASE g.code
-                 WHEN 'HT_BOLET'  THEN jsonb_build_object('odds', jsonb_build_object('lot2', 50, 'lot3', 20, 'lot4', 10))
-                  WHEN 'HT_MARYAJ' THEN jsonb_build_object('multiplier', 1000)
-                  WHEN 'HT_MARYAJ_GRATUIT' THEN jsonb_build_object(
-                      'multiplier', 1000,
-                      'promotionGame', true,
-                      'baseGameCode', 'HT_MARYAJ'
-                  )
-                 WHEN 'HT_LOTO3'  THEN jsonb_build_object('multiplier', 500)
-                 WHEN 'HT_LOTO4'  THEN jsonb_build_object('multiplier', 5000)
-                 WHEN 'HT_LOTO5'  THEN jsonb_build_object('multiplier', 25000)
-                 ELSE '{}'::jsonb
-                 END AS flags,
              NULL::numeric(12,2) AS min_stake,
              NULL::numeric(12,2) AS max_stake
          FROM t CROSS JOIN g
      )
 INSERT INTO tenant_game (
-  id, tenant_id, game_id, enabled, display_name,
-  flags, min_stake, max_stake,
+  id, tenant_id, game_id, game_code, enabled, display_name,
+  min_stake, max_stake,
   created_at, updated_at, version
 )
 SELECT
-    id, tenant_id, game_id, enabled, display_name,
-    flags, min_stake, max_stake,
+    id, tenant_id, game_id, game_code, enabled, display_name,
+    min_stake, max_stake,
     now(), now(), 0
 FROM tg_src
     ON CONFLICT (tenant_id, game_id) DO UPDATE
                                             SET enabled      = EXCLUDED.enabled,
                                             display_name = EXCLUDED.display_name,
-                                            flags        = EXCLUDED.flags,
                                             min_stake    = EXCLUDED.min_stake,
                                             max_stake    = EXCLUDED.max_stake,
                                             updated_at   = now(),
