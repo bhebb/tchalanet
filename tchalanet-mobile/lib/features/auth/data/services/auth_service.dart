@@ -3,16 +3,26 @@ import 'package:flutter_appauth/flutter_appauth.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/network/api_exception.dart';
 
+class AuthService {
 /// Wraps flutter_appauth for Keycloak Authorization Code + PKCE.
 /// Does NOT use the authenticated API Dio client.
-class AuthService {
   const AuthService({FlutterAppAuth? appAuth})
       : _appAuth = appAuth ?? const FlutterAppAuth();
 
   final FlutterAppAuth _appAuth;
 
-  String get _discoveryUrl =>
-      '$kcBaseUrl/realms/$kcRealm/.well-known/openid-configuration';
+  /// Endpoints explicites — évite la discovery XHR sur Flutter Web où Keycloak
+  /// bloque les requêtes cross-origin depuis localhost. Sur Android/iOS, AppAuth
+  /// utilise HTTPURLConnection (pas de CORS) donc les deux modes fonctionnent.
+  AuthorizationServiceConfiguration get _serviceConfig =>
+      const AuthorizationServiceConfiguration(
+        authorizationEndpoint:
+            '$kcBaseUrl/realms/$kcRealm/protocol/openid-connect/auth',
+        tokenEndpoint:
+            '$kcBaseUrl/realms/$kcRealm/protocol/openid-connect/token',
+        endSessionEndpoint:
+            '$kcBaseUrl/realms/$kcRealm/protocol/openid-connect/logout',
+      );
 
   /// Opens the system browser for Keycloak login (PKCE flow).
   /// Throws [ApiException] if the user cancels or the exchange fails.
@@ -22,7 +32,7 @@ class AuthService {
         AuthorizationTokenRequest(
           kcClientId,
           kcRedirectUri,
-          discoveryUrl: _discoveryUrl,
+          serviceConfiguration: _serviceConfig,
           scopes: ['openid', 'profile', 'email'],
           promptValues: ['login'],
         ),
@@ -47,7 +57,7 @@ class AuthService {
         TokenRequest(
           kcClientId,
           kcRedirectUri,
-          discoveryUrl: _discoveryUrl,
+          serviceConfiguration: _serviceConfig,
           refreshToken: refreshToken,
           scopes: ['openid', 'profile', 'email'],
         ),

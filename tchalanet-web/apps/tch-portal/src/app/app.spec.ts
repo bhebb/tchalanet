@@ -1,18 +1,28 @@
 import { TestBed } from '@angular/core/testing';
+
 import { App } from './app';
-import { NxWelcome } from './nx-welcome';
+import { AppRuntimeStore } from './core/runtime';
 
 describe('App', () => {
+  const runtime = {
+    initPublicRuntime: vi.fn(),
+  };
+
   beforeEach(async () => {
+    runtime.initPublicRuntime.mockClear();
+
     await TestBed.configureTestingModule({
-      imports: [App, NxWelcome],
+      imports: [App],
+      providers: [{ provide: AppRuntimeStore, useValue: runtime }],
     }).compileComponents();
   });
 
-  it('should render title', async () => {
+  it('initializes public runtime and renders the router outlet', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Welcome tch-portal');
+
+    expect(runtime.initPublicRuntime).toHaveBeenCalledOnce();
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
 });

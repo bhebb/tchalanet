@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../layout/screen_size.dart';
 import '../tokens/tch_radius.dart';
 import '../tokens/tch_spacing.dart';
 
@@ -25,8 +26,10 @@ class PosActionButton extends StatelessWidget {
   final PosActionButtonSize size;
   final bool enabled;
 
-  double get _height =>
-      size == PosActionButtonSize.large ? 128 : 112;
+  double _height(BuildContext context) {
+    final scale = context.posScale;
+    return size == PosActionButtonSize.large ? 128 * scale : 112 * scale;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,7 @@ class PosActionButton extends StatelessWidget {
     final effectiveOnPressed = enabled ? onPressed : null;
 
     return SizedBox(
-      height: _height,
+      height: _height(context),
       child: Material(
         color: effectiveOnPressed != null
             ? bg

@@ -125,6 +125,7 @@ Acceptance:
 - [x] Load private settings after auth for admin/cashier/platform surfaces.
 - [x] Add feature toggle helper.
 - [x] Document V1 settings as temporary feature-toggle/config mechanism before future Unleash.
+- [x] Centralize private runtime bootstrap in `AppRuntimeStore.initPrivateRuntime()`.
 
 Acceptance:
 
@@ -139,6 +140,8 @@ Acceptance:
 - [x] Backend wins when a key exists in both.
 - [x] Add `LanguageSwitcher` later or in layout stage.
 - [x] Support at least default language and one additional language if available.
+- [x] Make i18n initialization idempotent so repeated bootstraps do not reset selected language.
+- [x] Document backend surface override ordering and V1 response contract.
 
 Acceptance:
 
@@ -181,6 +184,7 @@ Acceptance:
 - [x] Create pre-PageModel `AppRuntimeStore` for public auth/i18n/theme/settings readiness.
 - [x] Expose global runtime signals: current language, connected user/session, current theme, settings.
 - [x] Keep PageModel out of the initial runtime readiness check.
+- [x] Split public and private runtime bootstrap paths.
 - [ ] Create `PublicBootstrapService` or NgRx effect.
 - [ ] Load settings, i18n overrides, theme, and PageModel as separate calls.
 - [ ] Use parallel loading where safe.
@@ -221,17 +225,17 @@ Deferred until real admin/POS pages:
 ## 12. Layout shells
 
 - [ ] `PublicShell`.
-- [ ] `PrivateShell`.
+- [x] `PrivateShell`.
 - [ ] `TopAppBar`.
 - [ ] `NavigationDrawer` / `SideNav`.
 - [ ] `UserMenu`.
-- [ ] `LanguageSwitcher`.
+- [x] `LanguageSwitcher`.
 - [ ] `ThemeToggle`.
 
 Acceptance:
 
 - [ ] Private top app bar remains utility-focused.
-- [ ] Main navigation lives in drawer/sidenav, not duplicated in top bar.
+- [x] Main navigation lives in drawer/sidenav, not duplicated in top bar.
 - [ ] Shell consumes resolved navigation/session data; it does not decide business permissions manually.
 
 ## 13. First public home

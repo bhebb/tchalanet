@@ -28,6 +28,7 @@ services:
       - "80:80"
       - "443:443"
       - "8080:8080" # dashboard/API (insecure mode)
+      - "8443:8443" # HTTPS alt — Android emulator dev (adb reverse tcp:8443 tcp:8443)
     # Permettre à Traefik d'accéder à l'hôte (macOS/Linux)
     extra_hosts:
       - "host.docker.internal:host-gateway"

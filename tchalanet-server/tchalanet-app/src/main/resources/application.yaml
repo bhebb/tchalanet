@@ -65,6 +65,13 @@ tch:
       visibility:
         public-visibility-days: 90
 
+  tickets:
+    public:
+      # Base URL for the public ticket verification page (QR target).
+      # Override per environment — dev uses the local web app URL.
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://app.tchalanet.com}
+      ticket-path-template: ${TCH_TICKET_PATH_TEMPLATE:/ticket/{code}}
+
   public:
     tickets:
       rate-limit:
@@ -202,6 +209,11 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak:8080/realms/tchalanet
+          # jwk-set-uri explicite — évite la discovery OIDC au démarrage depuis Docker.
+          # Surchargé par SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI en dev pour la
+          # validation du claim iss (KC_HOSTNAME externe), mais les clés sont toujours
+          # récupérées depuis l'URL interne Keycloak sans traverser Traefik.
+          jwk-set-uri: http://keycloak:8080/realms/tchalanet/protocol/openid-connect/certs
 
   # --- Redis Cache ---
   data:

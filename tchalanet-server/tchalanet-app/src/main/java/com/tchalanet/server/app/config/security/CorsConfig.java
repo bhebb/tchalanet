@@ -14,8 +14,10 @@ public class CorsConfig {
     CorsConfigurationSource corsConfigurationSource(AppProperties appProperties) {
         var cfg = new CorsConfiguration();
 
-        // Origins autorisés (séparés par virgules dans la config)
-        cfg.setAllowedOrigins(appProperties.cors().allowedOrigins());
+        // Origins autorisés (séparés par virgules dans la config).
+        // setAllowedOriginPatterns supporte les wildcards (ex: http://localhost:*)
+        // et reste compatible avec allowCredentials: true.
+        cfg.setAllowedOriginPatterns(appProperties.cors().allowedOrigins());
 
         // Méthodes explicitement autorisées
         cfg.setAllowedMethods(appProperties.cors().allowedMethods());

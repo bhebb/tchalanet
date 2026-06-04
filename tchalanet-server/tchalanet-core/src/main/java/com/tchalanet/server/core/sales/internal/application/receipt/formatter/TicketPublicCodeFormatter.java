@@ -1,7 +1,8 @@
 package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 
-import java.util.Locale;
 import org.springframework.stereotype.Component;
+
+import java.util.Locale;
 
 @Component
 public class TicketPublicCodeFormatter {
@@ -13,7 +14,8 @@ public class TicketPublicCodeFormatter {
         return code.trim()
             .toUpperCase(Locale.ROOT)
             .replace("-", "")
-            .replace(" ", "");
+            .replace(" ", "")
+            .trim();
     }
 
     public String display(String code) {

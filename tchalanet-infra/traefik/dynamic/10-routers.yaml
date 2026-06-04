@@ -11,7 +11,7 @@ http:
     # Keycloak SSO
     keycloak:
       rule: Host(`auth.localtest.me`)
-      entryPoints: [ websecure ]
+      entryPoints: [ websecure, mobile-https ]
       service: keycloak-svc
       tls: { }
       middlewares: [ kc-iframe@file, gzip@file ]
@@ -19,7 +19,7 @@ http:
     # Backend API
     api:
       rule: Host(`api.localtest.me`)
-      entryPoints: [ websecure ]
+      entryPoints: [ websecure, mobile-https ]
       service: api-svc
       tls: { }
       middlewares: [ secure-headers@file, gzip@file ]

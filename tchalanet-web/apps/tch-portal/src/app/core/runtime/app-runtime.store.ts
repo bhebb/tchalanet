@@ -5,7 +5,8 @@ import { I18nFacade } from '../i18n';
 import { RuntimeSettingsStore } from '../settings';
 import { ThemeRuntimeStore } from '../theme';
 
-type RuntimeBootstrapState = 'idle' | 'loading' | 'ready';
+type RuntimeBootstrapState = 'idle' | 'loading' | 'ready' | 'error';
+type RuntimeBootstrapScope = 'none' | 'public' | 'private';
 
 @Injectable({ providedIn: 'root' })
 export class AppRuntimeStore {
@@ -14,8 +15,12 @@ export class AppRuntimeStore {
   private readonly settings = inject(RuntimeSettingsStore);
   private readonly theme = inject(ThemeRuntimeStore);
   private readonly bootstrapState = signal<RuntimeBootstrapState>('idle');
+  private readonly bootstrapScope = signal<RuntimeBootstrapScope>('none');
+  private readonly bootstrapError = signal<unknown | null>(null);
 
   readonly state = this.bootstrapState.asReadonly();
+  readonly scope = this.bootstrapScope.asReadonly();
+  readonly error = this.bootstrapError.asReadonly();
   readonly currentLanguage = this.i18n.currentLanguage;
   readonly connectedUser = computed(() => this.auth.session());
   readonly currentTheme = this.theme.activeTheme;
@@ -30,16 +35,57 @@ export class AppRuntimeStore {
   );
 
   initPublicRuntime(): void {
-    if (this.bootstrapState() !== 'idle') {
+    if (this.bootstrapScope() !== 'none') {
       return;
     }
 
+    this.bootstrapScope.set('public');
     this.bootstrapState.set('loading');
+    this.bootstrapError.set(null);
     this.i18n.init();
     this.theme.init();
-    this.theme.loadPublicTheme();
-    this.settings.loadPublicSettings();
-    void this.auth.refreshSession().finally(() => this.bootstrapState.set('ready'));
+    void this.auth
+      .refreshSession()
+      .catch((error: unknown) => this.bootstrapError.set(error))
+      .finally(() => {
+        if (this.bootstrapScope() !== 'public') {
+          return;
+        }
+
+        this.theme.loadPublicTheme();
+        this.settings.loadPublicSettings();
+        this.bootstrapState.set(this.bootstrapError() ? 'error' : 'ready');
+      });
+  }
+
+  initPrivateRuntime(): void {
+    if (this.bootstrapScope() === 'private') {
+      return;
+    }
+
+    this.bootstrapScope.set('private');
+    this.bootstrapState.set('loading');
+    this.bootstrapError.set(null);
+    this.i18n.init();
+    this.theme.init();
+    void this.auth
+      .refreshSession()
+      .then((session) => {
+        if (session.authenticated) {
+          this.theme.loadPrivateTheme();
+          this.settings.loadPrivateSettings();
+          return;
+        }
+
+        this.theme.loadPublicTheme();
+        this.settings.loadPublicSettings();
+      })
+      .catch((error: unknown) => {
+        this.bootstrapError.set(error);
+        this.theme.loadPublicTheme();
+        this.settings.loadPublicSettings();
+      })
+      .finally(() => this.bootstrapState.set(this.bootstrapError() ? 'error' : 'ready'));
   }
 
   isFeatureEnabled(key: string, defaultValue = false): boolean {

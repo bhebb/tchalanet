@@ -57,17 +57,23 @@ public class CashierHomeService {
       throw ProblemRest.forbidden("surface.not_allowed");
     }
 
+    // Resolve tenant currency once — used in all response paths so that the
+    // mobile never needs to hardcode a currency code.
+    var currency = ctx.tenantCurrency() != null
+        ? ctx.tenantCurrency().getCurrencyCode()
+        : "HTG";
+
     var operational = operationalContext(ctx);
     // Require outlet + terminal; STRONG trust is gated at sell/payout, not at home.
     // CLIENT_CLAIM (weak, no device binding) still shows OPEN_SESSION state so V1
     // mobile can proceed to open a session after selecting outlet/terminal.
     if (!operational.missing().isEmpty()) {
-      return missingOperationalContextHome(surface, operational);
+      return missingOperationalContextHome(surface, operational, currency);
     }
 
     var session = sessionSummary(ctx);
     if (session == null || !session.open()) {
-      return closedSessionHome(surface, operational);
+      return closedSessionHome(surface, operational, currency);
     }
 
     var primaryDraw = primaryDraw(ctx);
@@ -100,7 +106,8 @@ public class CashierHomeService {
                     "cutoffLabel", primaryDraw != null ? value(primaryDraw.cutoffLabel()) : "",
                     "status", primaryDraw != null ? value(primaryDraw.status()) : ""))),
         mobileNavigation(),
-        List.of());
+        List.of(),
+        currency);
   }
 
   public CashierReadinessResponse readiness(TchRequestContext ctx) {
@@ -154,7 +161,7 @@ public class CashierHomeService {
   }
 
   private CashierHomeResponse missingOperationalContextHome(
-      ClientSurface surface, CashierHomeOperationalContext operational) {
+      ClientSurface surface, CashierHomeOperationalContext operational, String currency) {
     return new CashierHomeResponse(
         surface,
         VERSION,
@@ -174,11 +181,12 @@ public class CashierHomeService {
         List.of(),
         List.of(),
         List.of(new HomeNavigationItem("profile", "Profil", "/profile")),
-        List.of());
+        List.of(),
+        currency);
   }
 
   private CashierHomeResponse closedSessionHome(
-      ClientSurface surface, CashierHomeOperationalContext operational) {
+      ClientSurface surface, CashierHomeOperationalContext operational, String currency) {
     return new CashierHomeResponse(
         surface,
         VERSION,
@@ -194,7 +202,8 @@ public class CashierHomeService {
         List.of(new HomeAction("PROFILE", "Profil", true, "/profile")),
         List.of(),
         List.of(new HomeNavigationItem("profile", "Profil", "/profile")),
-        List.of());
+        List.of(),
+        currency);
   }
 
   private CashierHomeOperationalContext operationalContext(TchRequestContext ctx) {

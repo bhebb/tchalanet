@@ -15,4 +15,6 @@ public record CashierHomeResponse(
     List<HomeAction> quickActions,
     List<HomeWidget> widgets,
     List<HomeNavigationItem> navigation,
-    List<String> notices) {}
+    List<String> notices,
+    /** Tenant currency code (e.g. "HTG"). Used by mobile to send sell/preview requests. */
+    String currency) {}

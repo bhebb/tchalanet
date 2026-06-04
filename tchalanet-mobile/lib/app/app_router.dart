@@ -8,6 +8,9 @@ import '../features/auth/presentation/views/login_page.dart';
 import '../features/cashier/home/presentation/views/cashier_home_page.dart';
 import '../features/cashier/operationalcontext/presentation/views/cashier_setup_page.dart';
 import '../features/cashier/session/presentation/views/cashier_session_open_page.dart';
+import '../features/cashier/tickets/presentation/views/cashier_history_page.dart';
+import '../features/cashier/tickets/presentation/views/cashier_scan_page.dart';
+import '../features/cashier/tickets/presentation/views/cashier_sell_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_success_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
 import '../features/pos/presentation/views/pos_stub_page.dart';
@@ -51,15 +54,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Bottom nav: Ventes | Historique | Scanner | Profil
       GoRoute(
         path: '/pos/history',
-        builder: (context, _) => const PosStubPage(title: 'Historique', index: 1),
+        builder: (context, _) => const CashierHistoryPage(),
       ),
       GoRoute(
         path: '/pos/scan',
-        builder: (context, _) => const PosStubPage(title: 'Scanner', index: 2),
+        builder: (context, _) => const CashierScanPage(),
       ),
       GoRoute(
         path: '/pos/profile',
         builder: (context, _) => const PosStubPage(title: 'Profil', index: 3),
+      ),
+      // Sell flow — /sell matches server-side HomeAction.route
+      GoRoute(
+        path: '/sell',
+        builder: (context, _) => const CashierSellPage(),
       ),
       // Ticket flows
       GoRoute(
@@ -67,6 +75,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, String?>?;
           return CashierSellSuccessPage(
+            ticketId: extra?['ticketId'] ?? '',
             ticketCode: extra?['ticketCode'] ?? '',
             publicCode: extra?['publicCode'],
             shareableText: extra?['shareableText'],

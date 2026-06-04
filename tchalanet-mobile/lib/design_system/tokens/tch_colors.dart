@@ -29,6 +29,7 @@ abstract final class TchColors {
   static const outline = Color(0xFFCAC4D0);
   static const outlineStrong = Color(0xFF79767D);
 
+  static const online = Color(0xFF22C55E); // live terminal indicator
   static const success = Color(0xFF006C49);
   static const successContainer = Color(0xFFDDFBEA);
   static const warning = Color(0xFFB26A00);

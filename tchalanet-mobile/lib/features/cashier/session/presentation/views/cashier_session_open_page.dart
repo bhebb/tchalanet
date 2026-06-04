@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
@@ -203,7 +205,7 @@ class _CashierSessionOpenPageState
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2, color: TchColors.onPrimary),
                         )
                       : const Icon(Icons.play_arrow_rounded),
                   label: Text(
@@ -348,7 +350,7 @@ class _OnlineDot extends StatelessWidget {
           width: 8,
           height: 8,
           decoration: const BoxDecoration(
-            color: Color(0xFF22C55E),
+            color: TchColors.online,
             shape: BoxShape.circle,
           ),
         ),

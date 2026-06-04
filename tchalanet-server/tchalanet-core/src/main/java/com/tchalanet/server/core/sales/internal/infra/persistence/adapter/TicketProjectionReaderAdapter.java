@@ -166,8 +166,11 @@ public class TicketProjectionReaderAdapter implements TicketProjectionReaderPort
         return new TicketRow(
             TicketId.of(entity.getId()),
             entity.getTicketCode(),
+            entity.getPublicCode(),
             entity.getSaleStatus(),
             DrawId.of(entity.getDrawId()),
+            entity.getDrawChannelName(),
+            entity.getDrawScheduledAt(),
             cents(entity.getTotalAmount()),
             entity.getCurrency(),
             entity.getPlacedAt()

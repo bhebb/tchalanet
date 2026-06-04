@@ -9,8 +9,11 @@ import java.time.Instant;
 public record TicketRow(
     TicketId id,
     String ticketCode,
+    String publicCode,
     TicketSaleStatus status,
     DrawId drawId,
+    String drawChannelName,
+    Instant drawScheduledAt,
     long totalAmountCents,
     String currency,
     Instant placedAt

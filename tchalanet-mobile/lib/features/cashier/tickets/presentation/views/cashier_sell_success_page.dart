@@ -6,17 +6,22 @@ import 'package:go_router/go_router.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
+import '../../../home/presentation/view_models/cashier_home_providers.dart';
+import '../print_ticket_action.dart';
+import 'send_receipt_sheet.dart';
 
 /// Shown after a successful `POST /sell`. Displays the ticket code and
 /// delivery actions (copy, message, print, WhatsApp/SMS).
 class CashierSellSuccessPage extends ConsumerWidget {
   const CashierSellSuccessPage({
     super.key,
+    required this.ticketId,
     required this.ticketCode,
     this.publicCode,
     this.shareableText,
   });
 
+  final String ticketId;
   final String ticketCode;
   final String? publicCode;
   final String? shareableText;
@@ -32,6 +37,14 @@ class CashierSellSuccessPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded),
+          tooltip: 'Retour à l\'accueil',
+          onPressed: () {
+            ref.invalidate(cashierHomeProvider);
+            context.go('/pos');
+          },
+        ),
         title: Row(
           children: [
             const Icon(Icons.person_outline_rounded, size: 18),
@@ -156,17 +169,23 @@ class CashierSellSuccessPage extends ConsumerWidget {
                         _ActionTile(
                           icon: Icons.sms_rounded,
                           label: 'Message',
-                          onTap: () {},
+                          onTap: () => SendReceiptSheet.show(
+                            context,
+                            ticketId: ticketId,
+                          ),
                         ),
                         _ActionTile(
                           icon: Icons.print_rounded,
                           label: 'Imprimer',
-                          onTap: () {},
+                          onTap: () => printTicket(context, ref, ticketId),
                         ),
                         _ActionTile(
                           icon: Icons.share_rounded,
                           label: 'WhatsApp/SMS',
-                          onTap: () {},
+                          onTap: () => SendReceiptSheet.show(
+                            context,
+                            ticketId: ticketId,
+                          ),
                         ),
                       ],
                     ),
@@ -184,7 +203,10 @@ class CashierSellSuccessPage extends ConsumerWidget {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton.icon(
-                  onPressed: () => context.go('/pos'),
+                  onPressed: () {
+                    ref.invalidate(cashierHomeProvider);
+                    context.go('/pos');
+                  },
                   icon: const Icon(Icons.add_rounded),
                   label: const Text(
                     'NOUVEAU TICKET',

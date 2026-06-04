@@ -84,6 +84,62 @@ class CashierTicketService {
     }
   }
 
+  Future<CashierTicketDetailsView> getDetails(String ticketId) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/tenant/cashier/tickets/$ticketId',
+      );
+      return CashierTicketDetailsView.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
+
+  Future<List<CashierTicketSummaryView>> listRecent({int size = 20}) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/tenant/cashier/tickets',
+        queryParameters: {
+          'size': size,
+          'sort': 'createdAt,desc',
+        },
+      );
+      final items =
+          (response.data?['data']?['items'] as List<dynamic>?) ?? [];
+      return items
+          .map((e) =>
+              CashierTicketSummaryView.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
+
+  /// Send a ticket receipt through an external channel (text-only).
+  /// Backend contract: SendTicketReceiptRequest { terminalId, channel, to }.
+  /// [channel] is a CommunicationChannel: EMAIL | SMS | WHATSAPP | SLACK | ...
+  /// [to] is the recipient for that channel (email address, phone number, …).
+  Future<void> sendReceipt(
+    String ticketId, {
+    required String terminalId,
+    required String channel,
+    required String to,
+  }) async {
+    try {
+      await _dio.post<void>(
+        '/tenant/cashier/tickets/$ticketId/send',
+        data: {
+          'terminalId': terminalId,
+          'channel': channel,
+          'to': to,
+        },
+      );
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
+
   /// Cancel a ticket within the cancel window.
   Future<void> cancel(String ticketId, {String? reason}) async {
     try {

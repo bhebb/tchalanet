@@ -18,6 +18,10 @@ entryPoints:
   websecure:
     address: ":443"
 
+  # Non-privileged HTTPS port for Android emulator dev (adb reverse tcp:8443 tcp:8443)
+  mobile-https:
+    address: ":8443"
+
 providers:
   docker:
     exposedByDefault: false

@@ -40,7 +40,17 @@ public class TicketReceiptPrintFormatter {
         var translations = i18nResolver.resolve(receipt.locale(), receipt.tenantId());
         var layoutProfile = TicketReceiptLayoutProfile.from(documentProfile);
 
-        var header = new ArrayList<>(brandingFormatter.headerLines(receipt, layoutProfile));
+        var header = new ArrayList<TicketReceiptTextLine>();
+        // Copy marker: ORIGINAL on first print, DUPLICATA on reprints.
+        // Sourced from i18n (receipt.copy.original / receipt.copy.duplicate), seeded by V220.
+        var copyKey = receipt.isReprint()
+            ? TicketReceiptI18nKeys.COPY_DUPLICATE
+            : TicketReceiptI18nKeys.COPY_ORIGINAL;
+        var copyLabel = translations.text(copyKey);
+        if (copyLabel != null && !copyLabel.isBlank()) {
+            header.add(TicketReceiptTextLine.bold(layout.truncate(copyLabel, layoutProfile.charsPerLine())));
+        }
+        header.addAll(brandingFormatter.headerLines(receipt, layoutProfile));
         // separator between branding and ticket facts
         add(header, layout.separator(layoutProfile));
         header.addAll(factsFormatter.ticketIdentityLines(receipt, translations, layoutProfile));
@@ -90,17 +100,13 @@ public class TicketReceiptPrintFormatter {
         add(footer, layout.separator(layoutProfile));
         footer.addAll(brandingFormatter.footerLines(receipt, layoutProfile));
 
-        if (layoutProfile.printFullVerificationUrl()) {
-            // A4/full print: keep full verification URL and QR text
-            addLabel(footer, translations.text(TicketReceiptI18nKeys.VERIFICATION), receipt.verificationUrl(), false, layoutProfile);
-            addLabel(footer, translations.text(TicketReceiptI18nKeys.QR), receipt.displayCode(), false, layoutProfile);
-        } else {
-            // Thermal receipt: compact footer — show public code only, do not print QR text or full URL
-            addLabel(footer, translations.text(TicketReceiptI18nKeys.PUBLIC_CODE), receipt.displayCode(), false, layoutProfile);
-            var scan = translations.text(TicketReceiptI18nKeys.SCAN_TO_VERIFY);
-            if (scan != null && !scan.isBlank()) {
-                add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
-            }
+        // Verification footer (A4 + thermal): show the public code under a
+        // "Vérification" label and invite scanning the QR. Never print the full
+        // verification URL as text — the QR (built from verificationUrl) carries it.
+        addLabel(footer, translations.text(TicketReceiptI18nKeys.VERIFICATION), receipt.displayCode(), false, layoutProfile);
+        var scan = translations.text(TicketReceiptI18nKeys.SCAN_TO_VERIFY);
+        if (scan != null && !scan.isBlank()) {
+            add(footer, layout.truncate(scan, layoutProfile.charsPerLine()));
         }
 
         // Assert no produced line exceeds the layout width (guard anti-overflow)

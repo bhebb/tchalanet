@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../design_system/components/pos_bottom_nav_bar.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
+import '../../data/models/cashier_ticket_models.dart';
+import '../../data/services/cashier_ticket_service.dart';
+import '../print_ticket_action.dart';
+import 'send_receipt_sheet.dart';
 
-/// Ticket detail / receipt view — shown from History tab or post-sell.
-/// Receives a ticket ID; stub implementation until sell data layer is connected.
+final _ticketDetailProvider = FutureProvider.family<CashierTicketDetailsView, String>(
+  (ref, ticketId) => ref.watch(cashierTicketServiceProvider).getDetails(ticketId),
+);
+
+/// Ticket detail / receipt view — shown from History tab, Scanner, or post-sell.
 class CashierTicketDetailPage extends ConsumerWidget {
   const CashierTicketDetailPage({super.key, required this.ticketId});
 
@@ -13,43 +23,80 @@ class CashierTicketDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(_ticketDetailProvider(ticketId));
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Détails du Ticket'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          TchSpacing.s16, TchSpacing.s16, TchSpacing.s16, TchSpacing.s64,
-        ),
-        children: [
-          // Receipt card
-          _ReceiptCard(ticketId: ticketId),
-          const SizedBox(height: TchSpacing.s16),
-
-          // Actions
-          Row(
+      bottomNavigationBar: const PosBottomNavBar(currentIndex: 1),
+      body: detailAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: _ActionButton(
-                  icon: Icons.share_rounded,
-                  label: 'Partager',
-                  primary: true,
-                  onTap: () {},
-                ),
-              ),
-              const SizedBox(width: TchSpacing.s12),
-              Expanded(
-                child: _ActionButton(
-                  icon: Icons.print_rounded,
-                  label: 'Imprimer',
-                  primary: true,
-                  onTap: () {},
-                ),
+              Icon(Icons.cloud_off_rounded, size: 48, color: scheme.error),
+              const SizedBox(height: TchSpacing.s16),
+              Text(e.toString(), textAlign: TextAlign.center),
+              const SizedBox(height: TchSpacing.s24),
+              FilledButton.tonal(
+                onPressed: () => ref.invalidate(_ticketDetailProvider(ticketId)),
+                child: const Text('Réessayer'),
               ),
             ],
           ),
+        ),
+        data: (detail) => _DetailBody(detail: detail, ticketId: ticketId),
+      ),
+    );
+  }
+}
+
+class _DetailBody extends ConsumerWidget {
+  const _DetailBody({required this.detail, required this.ticketId});
+
+  final CashierTicketDetailsView detail;
+  final String ticketId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final canCancel = detail.status == 'PLACED';
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        TchSpacing.s16, TchSpacing.s16, TchSpacing.s16, TchSpacing.s24,
+      ),
+      children: [
+        _ReceiptCard(detail: detail),
+        const SizedBox(height: TchSpacing.s16),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.share_rounded,
+                label: 'Partager',
+                primary: true,
+                onTap: () => SendReceiptSheet.show(
+                  context,
+                  ticketId: detail.id,
+                ),
+              ),
+            ),
+            const SizedBox(width: TchSpacing.s12),
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.print_rounded,
+                label: 'Imprimer',
+                primary: true,
+                onTap: () => printTicket(context, ref, ticketId),
+              ),
+            ),
+          ],
+        ),
+        if (canCancel) ...[
           const SizedBox(height: TchSpacing.s12),
           _ActionButton(
             icon: Icons.cancel_outlined,
@@ -58,43 +105,41 @@ class CashierTicketDetailPage extends ConsumerWidget {
             isDestructive: true,
             onTap: () => _confirmCancel(context),
           ),
-
-          // QR placeholder
-          const SizedBox(height: TchSpacing.s32),
-          Center(
-            child: Column(
-              children: [
-                Container(
-                  width: 96,
-                  height: 96,
-                  padding: const EdgeInsets.all(TchSpacing.s8),
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerLowest,
-                    border: Border.all(color: scheme.outlineVariant),
-                    borderRadius: BorderRadius.circular(TchRadius.md),
-                  ),
-                  child: Icon(
-                    Icons.qr_code_2_rounded,
-                    size: 64,
-                    color: scheme.onSurface.withValues(alpha: 0.3),
-                  ),
-                ),
-                const SizedBox(height: TchSpacing.s8),
-                Text(
-                  'POS VERIFICATION SECURE',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
-                        letterSpacing: 1,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 10,
-                      ),
-                ),
-              ],
-            ),
-          ),
         ],
-      ),
-      bottomNavigationBar: _BottomNav(),
+        const SizedBox(height: TchSpacing.s32),
+        // TODO(qr): replace with real QR once verificationUrl/publicCode available
+        Center(
+          child: Column(
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                padding: const EdgeInsets.all(TchSpacing.s8),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLowest,
+                  border: Border.all(color: scheme.outlineVariant),
+                  borderRadius: BorderRadius.circular(TchRadius.md),
+                ),
+                child: Icon(
+                  Icons.qr_code_2_rounded,
+                  size: 64,
+                  color: scheme.onSurface.withValues(alpha: 0.3),
+                ),
+              ),
+              const SizedBox(height: TchSpacing.s8),
+              Text(
+                'QR — disponible prochainement',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -125,23 +170,55 @@ class CashierTicketDetailPage extends ConsumerWidget {
 
 // ─── Receipt card ─────────────────────────────────────────────────────────────
 
-class _ReceiptCard extends StatelessWidget {
-  const _ReceiptCard({required this.ticketId});
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.status});
 
-  final String ticketId;
+  final String status;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final (bgColor, fgColor, label) = switch (status) {
+      'PLACED' => (TchColors.successContainer, TchColors.success, 'ACTIF'),
+      'CANCELLED' => (scheme.errorContainer, scheme.onErrorContainer, 'ANNULÉ'),
+      'VOIDED' => (
+          scheme.surfaceContainerHighest,
+          scheme.onSurfaceVariant,
+          'INVALIDÉ'
+        ),
+      _ => (TchColors.warningContainer, TchColors.warning, status),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: TchSpacing.s12, vertical: TchSpacing.s4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(TchRadius.pill),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: fgColor,
+          fontWeight: FontWeight.w700,
+          fontSize: 11,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _ReceiptCard extends StatelessWidget {
+  const _ReceiptCard({required this.detail});
+
+  final CashierTicketDetailsView detail;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-
-    // Stub data — replace with live CashierTicketDetailsResponse
-    const entries = [
-      _TicketEntry(number: '45', game: 'Bolet Ordinaire', bet: 'Unité', amount: '100 HTG'),
-      _TicketEntry(number: '12-45-89', game: 'Borlette', bet: null, amount: '250 HTG', isCasino: true),
-      _TicketEntry(number: '772', game: 'Lotto-3', bet: 'Triple', amount: '150 HTG'),
-    ];
-    const total = '500 HTG';
+    final displayCode = detail.publicCode ?? detail.ticketCode;
+    final total = detail.formattedAmount;
 
     return Container(
       decoration: BoxDecoration(
@@ -174,56 +251,100 @@ class _ReceiptCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'RÉFÉRENCE TICKET',
+                            'CODE PUBLIC',
                             style: textTheme.labelSmall?.copyWith(
                               color: scheme.onSurfaceVariant,
                               letterSpacing: 0.5,
                             ),
                           ),
                           const SizedBox(height: TchSpacing.s4),
-                          Text(
-                            '#${ticketId.substring(0, 8).toUpperCase()}',
-                            style: textTheme.headlineMedium?.copyWith(
-                              color: scheme.primary,
-                              fontWeight: FontWeight.w700,
+                          GestureDetector(
+                            onTap: () {
+                              Clipboard.setData(
+                                  ClipboardData(text: displayCode));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Code copié'),
+                                  duration: Duration(seconds: 1),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  displayCode,
+                                  style: textTheme.headlineMedium?.copyWith(
+                                    color: scheme.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(width: TchSpacing.s8),
+                                Icon(Icons.copy_rounded,
+                                    size: 16,
+                                    color: scheme.onSurfaceVariant),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: TchSpacing.s12,
-                        vertical: TchSpacing.s4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(TchRadius.pill),
-                      ),
-                      child: const Text(
-                        'PAYÉ',
-                        style: TextStyle(
-                          color: Color(0xFF166534),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 11,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
+                    _StatusBadge(status: detail.status),
                   ],
                 ),
                 const SizedBox(height: TchSpacing.s12),
-                const Row(
+                // Row 1 — sale time + draw
+                Row(
                   children: [
                     Expanded(
-                      child: _MetaItem(label: 'DATE ET HEURE', value: "Aujourd'hui"),
+                      child: _MetaItem(
+                        label: 'HEURE DE VENTE',
+                        value: detail.placedAt != null
+                            ? _fmtDateTime(detail.placedAt!)
+                            : '—',
+                      ),
                     ),
                     Expanded(
                       child: _MetaItem(
-                          label: 'TIRAGE', value: 'New York Night', alignRight: true),
+                        label: 'TIRAGE',
+                        value: detail.drawLabel,
+                        alignRight: true,
+                      ),
                     ),
                   ],
                 ),
+                // Row 2 — outlet + terminal (context enrichi)
+                if (detail.outletName != null ||
+                    detail.terminalCode != null) ...[
+                  const SizedBox(height: TchSpacing.s8),
+                  Row(
+                    children: [
+                      if (detail.outletName != null)
+                        Expanded(
+                          child: _MetaItem(
+                            label: 'POINT DE VENTE',
+                            value: detail.outletName!,
+                          ),
+                        ),
+                      if (detail.terminalCode != null)
+                        Expanded(
+                          child: _MetaItem(
+                            label: 'TERMINAL',
+                            value: detail.terminalCode!,
+                            alignRight: true,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+                // Row 3 — vendeur
+                if (detail.sellerDisplayName != null) ...[
+                  const SizedBox(height: TchSpacing.s8),
+                  _MetaItem(
+                    label: 'VENDEUR',
+                    value: detail.sellerDisplayName!,
+                  ),
+                ],
               ],
             ),
           ),
@@ -243,11 +364,16 @@ class _ReceiptCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: TchSpacing.s12),
-                for (int i = 0; i < entries.length; i++) ...[
-                  if (i > 0)
-                    Divider(color: scheme.surfaceContainerLow, height: 1),
-                  _EntryRow(entry: entries[i]),
-                ],
+                if (detail.lines.isEmpty)
+                  Text('—',
+                      style: textTheme.bodySmall
+                          ?.copyWith(color: scheme.onSurfaceVariant))
+                else
+                  for (int i = 0; i < detail.lines.length; i++) ...[
+                    if (i > 0)
+                      Divider(color: scheme.outlineVariant, height: 1),
+                    _LineRow(line: detail.lines[i]),
+                  ],
               ],
             ),
           ),
@@ -262,9 +388,19 @@ class _ReceiptCard extends StatelessWidget {
             ),
             child: Column(
               children: [
-                const _SummaryRow(label: 'Sous-total', value: '500 HTG'),
-                const SizedBox(height: TchSpacing.s4),
-                const _SummaryRow(label: 'Frais', value: '0 HTG'),
+                _SummaryRow(
+                  label: 'Mise',
+                  value: '${detail.formattedStake} ${detail.currency}',
+                ),
+                for (final charge in detail.charges) ...[
+                  const SizedBox(height: TchSpacing.s4),
+                  _SummaryRow(
+                    label: charge.displayLabel,
+                    value: charge.waived
+                        ? '0.00 (offert)'
+                        : '${charge.formattedAmount} ${detail.currency}',
+                  ),
+                ],
                 const Divider(height: TchSpacing.s24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -283,6 +419,12 @@ class _ReceiptCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: TchSpacing.s4),
+                _SummaryRow(
+                  label: 'Gain maximal',
+                  value:
+                      '${detail.formattedPotentialPayout} ${detail.currency}',
+                ),
               ],
             ),
           ),
@@ -290,57 +432,32 @@ class _ReceiptCard extends StatelessWidget {
       ),
     );
   }
-}
 
-// ─── Bottom nav ───────────────────────────────────────────────────────────────
-
-class _BottomNav extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: 1, // Historique active
-      onDestinationSelected: (_) {},
-      destinations: const [
-        NavigationDestination(
-            icon: Icon(Icons.confirmation_number_rounded), label: 'Ventes'),
-        NavigationDestination(
-            icon: Icon(Icons.history_rounded), label: 'Historique'),
-        NavigationDestination(
-            icon: Icon(Icons.qr_code_scanner_rounded), label: 'Scanner'),
-        NavigationDestination(
-            icon: Icon(Icons.person_rounded), label: 'Profil'),
-      ],
-    );
+  static String _fmtDateTime(DateTime dt) {
+    final l = dt.toLocal();
+    return '${l.day.toString().padLeft(2, '0')}/'
+        '${l.month.toString().padLeft(2, '0')}/'
+        '${l.year} '
+        '${l.hour.toString().padLeft(2, '0')}:'
+        '${l.minute.toString().padLeft(2, '0')}';
   }
 }
 
 // ─── Small widgets ────────────────────────────────────────────────────────────
 
-class _TicketEntry {
-  const _TicketEntry({
-    required this.number,
-    required this.game,
-    required this.amount,
-    this.bet,
-    this.isCasino = false,
-  });
+class _LineRow extends StatelessWidget {
+  const _LineRow({required this.line});
 
-  final String number;
-  final String game;
-  final String? bet;
-  final String amount;
-  final bool isCasino;
-}
-
-class _EntryRow extends StatelessWidget {
-  const _EntryRow({required this.entry});
-
-  final _TicketEntry entry;
+  final CashierTicketLineDetail line;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final gameLabel =
+        line.betTypeLabel != null && line.betTypeLabel!.isNotEmpty
+            ? '${line.gameLabel} · ${line.betTypeLabel}'
+            : line.gameLabel;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: TchSpacing.s12),
@@ -351,44 +468,56 @@ class _EntryRow extends StatelessWidget {
             height: 40,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerLow,
+              color: line.promotional
+                  ? scheme.tertiaryContainer
+                  : scheme.surfaceContainerLow,
               border: Border.all(
                   color: scheme.outlineVariant.withValues(alpha: 0.5)),
               borderRadius: BorderRadius.circular(TchRadius.sm),
             ),
-            child: entry.isCasino
-                ? Icon(Icons.casino_rounded,
-                    size: 20, color: scheme.onSurfaceVariant)
-                : Text(
-                    entry.number.length > 4 ? '…' : entry.number,
-                    style: textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+            child: Text(
+              line.selection.length > 4
+                  ? line.selection.substring(0, 4)
+                  : line.selection,
+              style: textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: line.promotional ? scheme.onTertiaryContainer : null,
+              ),
+            ),
           ),
           const SizedBox(width: TchSpacing.s12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(entry.game,
-                    style:
-                        textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700)),
-                if (entry.bet != null)
-                  Text(entry.bet!,
-                      style: textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant)),
-                if (entry.isCasino)
-                  Text(entry.number,
-                      style: textTheme.labelSmall?.copyWith(
-                          color: scheme.onSurfaceVariant)),
+                Text(gameLabel,
+                    style: textTheme.bodySmall
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+                if (line.promotional && line.promotionLabel != null)
+                  Text(
+                    line.promotionLabel!,
+                    style: textTheme.labelSmall?.copyWith(
+                      color: scheme.tertiary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
               ],
             ),
           ),
-          Text(
-            entry.amount,
-            style:
-                textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${line.formattedStake} HTG',
+                style: textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              Text(
+                'max ${line.formattedPayout}',
+                style: textTheme.labelSmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
+              ),
+            ],
           ),
         ],
       ),

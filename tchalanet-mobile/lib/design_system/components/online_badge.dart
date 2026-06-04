@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../tokens/tch_colors.dart';
+
 import '../tokens/tch_spacing.dart';
 
 /// Animated pulse dot + label indicating connectivity.
@@ -50,7 +52,7 @@ class _OnlineBadgeState extends State<OnlineBadge>
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final dotColor =
-        widget.online ? const Color(0xFF22C55E) : const Color(0xFF9CA3AF);
+        widget.online ? TchColors.online : const Color(0xFF9CA3AF);
     final label = widget.online ? 'Online' : 'Hors ligne';
     final labelColor = widget.online
         ? Theme.of(context).colorScheme.onSurfaceVariant

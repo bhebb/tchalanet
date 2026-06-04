@@ -25,7 +25,11 @@ public class GetTicketForCashierVerificationQueryHandler
 
     @Override
     public TicketCashierVerificationView handle(GetTicketForCashierVerificationQuery query) {
-        var publicCode = publicCodeFormatter.normalize(query.publicCode());
+        // Canonicalize to the stored format: codes are stored WITH the dash
+        // (e.g. "64A8-5KK3"). normalize() strips it → no match. display() strips
+        // then re-inserts the dash, so both "64A8-5KK3" (typed) and "64A85KK3"
+        // (from QR URL, which normalizes before embedding) resolve correctly.
+        var publicCode = publicCodeFormatter.display(query.publicCode());
         var ticket = repository.findWithLinesByPublicCode(publicCode)
             .orElseThrow(() -> ProblemRest.notFound("ticket.not_found"));
         var currency = CurrencyCode.of(ticket.getCurrency());

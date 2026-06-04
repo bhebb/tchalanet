@@ -35,6 +35,10 @@ The first web milestone is not a business page. It is a platform proof:
 - Create layout shells for public and private surfaces.
 - Implement the first public home skeleton through runtime bootstrap.
 
+## Design notes
+
+- See `design.md` for V1 public/private runtime separation, guarded private layout routes, i18n initialization rules, and backend i18n surface override ordering.
+
 ## Non-goals
 
 - No full design system before real tenant admin and POS flows.
@@ -78,4 +82,3 @@ Do not put all forms, paged lists, dashboards, and temporary modal state into Ng
 ### Lint/pre-commit
 
 Configure lint/format commands early. Add pre-commit hooks only after the baseline is clean, unless the current workspace already passes quickly.
-

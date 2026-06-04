@@ -4,6 +4,7 @@ import { roleGuard } from './core/auth/auth.guard';
 import { ForbiddenPage } from './features/auth/forbidden.page';
 import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
 import { PublicHomePage } from './features/public/public-home.page';
+import { PrivateShellPage } from './features/shell/private-shell.page';
 
 export const appRoutes: Route[] = [
   {
@@ -16,27 +17,45 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'app/cashier',
-    component: RoleDashboardPage,
+    component: PrivateShellPage,
     canActivate: [roleGuard('CASHIER')],
-    data: {
-      titleKey: 'dashboard.titles.cashier',
-    },
+    children: [
+      {
+        path: '',
+        component: RoleDashboardPage,
+        data: {
+          titleKey: 'dashboard.titles.cashier',
+        },
+      },
+    ],
   },
   {
     path: 'app/admin',
-    component: RoleDashboardPage,
+    component: PrivateShellPage,
     canActivate: [roleGuard('TENANT_ADMIN')],
-    data: {
-      titleKey: 'dashboard.titles.admin',
-    },
+    children: [
+      {
+        path: '',
+        component: RoleDashboardPage,
+        data: {
+          titleKey: 'dashboard.titles.admin',
+        },
+      },
+    ],
   },
   {
     path: 'app/platform',
-    component: RoleDashboardPage,
+    component: PrivateShellPage,
     canActivate: [roleGuard('SUPER_ADMIN')],
-    data: {
-      titleKey: 'dashboard.titles.platform',
-    },
+    children: [
+      {
+        path: '',
+        component: RoleDashboardPage,
+        data: {
+          titleKey: 'dashboard.titles.platform',
+        },
+      },
+    ],
   },
   {
     path: '',

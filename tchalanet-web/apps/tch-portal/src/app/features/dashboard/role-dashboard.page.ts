@@ -3,15 +3,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthSessionService } from '../../core/auth/auth-session.service';
-import { I18nFacade, LanguageSwitcherComponent } from '../../core/i18n';
-import { RuntimeSettingsStore } from '../../core/settings';
+import { AppRuntimeStore } from '../../core/runtime';
 
 @Component({
-  imports: [RouterLink, TranslatePipe, LanguageSwitcherComponent],
+  imports: [RouterLink, TranslatePipe],
   selector: 'tch-role-dashboard-page',
   template: `
     <section class="page">
-      <tch-language-switcher />
       <h1>{{ titleKey() | translate }}</h1>
 
       <dl>
@@ -64,18 +62,12 @@ import { RuntimeSettingsStore } from '../../core/settings';
 export class RoleDashboardPage {
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthSessionService);
-  private readonly i18n = inject(I18nFacade);
-  private readonly settings = inject(RuntimeSettingsStore);
+  private readonly runtime = inject(AppRuntimeStore);
 
   readonly session = this.auth.session;
   readonly titleKey = computed(() => this.route.snapshot.data['titleKey'] as string);
   readonly roles = computed(() => this.session().roles.join(', '));
-  readonly settingsState = this.settings.loadState;
-
-  constructor() {
-    this.i18n.init();
-    this.settings.loadPrivateSettings();
-  }
+  readonly settingsState = this.runtime.settingsState;
 
   logout(): void {
     void this.auth.logout();

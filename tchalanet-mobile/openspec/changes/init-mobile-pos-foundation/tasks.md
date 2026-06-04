@@ -248,8 +248,53 @@ Session open/close is implemented (unlocks the E2E flow). Sell/verify: data laye
   `CashierTicketVerificationResponse`, `CashierVerifyTicketRequest`, `CashierTicketBackupView`.
 - [x] `data/services/cashier_ticket_service.dart` — `preview`, `sell` (idempotent + idempotency key),
   `verify`, `cancel`, `print` (returns bytes), `send`.
-- [ ] Sell screen UI — next cycle (needs draw picker, game/bet line builder, receipt display).
-- [ ] Verify screen UI — next cycle (scan code → verification result → pay/cancel CTA).
+
+### 12-D. Sell screen UI ✅ (complete)
+
+- [x] Draw/game catalog loading via `CashierSellCatalogService`.
+- [x] `CashierSellPage` — sealed state machine (`SellController`) with catalog, form, preview, success states.
+- [x] Draw chips (horizontal scroll, cutoff countdown auto-computed).
+- [x] Game chips + bet type options (conditional).
+- [x] Number input (uppercase formatter) + HTG stake display.
+- [x] Preview card (ACCEPTED green / REJECTED red with issues).
+- [x] Idempotency key (UUID v4, reset on new ticket).
+- [x] POST /preview + POST /sell with op-context headers.
+- [x] `CashierSellSuccessPage` — ticket code display + send receipt sheet.
+- [x] `/pos/sell` + `/pos/sell/success` routes wired.
+- [x] Design system compliance (TchColors, TchSpacing, touch targets 56dp POS / 48dp mobile).
+
+### 12-E. Verify screen UI ✅ (complete)
+
+- [x] `CashierScanPage` — QR placeholder + manual code input (uppercase formatter).
+- [x] Verification result card (status colors: SUCCESS/WARNING/ERROR/INFO).
+- [x] Status labels (PAYABLE/ALREADY_PAID/LOST/PENDING/CANCELLED/VOIDED/NOT_FOUND/BLOCKED).
+- [x] Available actions badge display (from `CashierTicketVerificationResponse.availableActions`).
+- [x] "PAYER LE GAGNANT" button for payable tickets (payout confirmation dialog).
+- [x] "VOIR LES DÉTAILS" → `/pos/tickets/{id}` detail route.
+- [x] Error handling (network, validation).
+
+### 12-F. History & ticket detail pages ✅ (complete)
+
+- [x] `CashierHistoryPage` — segmented filter (Aujourd'hui/Hier) + search + ticket list.
+- [x] FutureProvider for GET /tenant/cashier/tickets (listRecent).
+- [x] Ticket rows: time, code (primary), amount, status badge, view+print actions.
+- [x] Empty states per filter.
+- [x] Bottom navigation wired (Scanner/Historique/Profil tabs).
+- [x] `CashierTicketDetailPage` — real data from backend, status badge, share/print/cancel buttons.
+- [x] Wired to scanner "VOIR LES DÉTAILS" navigation.
+
+### 12-G. Send receipt flow ✅ (complete)
+
+- [x] `SendReceiptSheet` — SMS/WhatsApp/email/Slack (dev-only) delivery modes.
+- [x] Phone/email input validation.
+- [x] POST /tenant/cashier/tickets/{id}/send with deliveryMode + contact.
+- [x] Success/error states with loading spinner.
+- [x] Wired to CashierSellSuccessPage (Message, WhatsApp, SMS tiles).
+- [x] Wired to CashierTicketDetailPage (Partager button).
+
+### 12-H. Documentation ✅ (complete)
+
+- [x] `docs/SELL_FLOW.md` — complete architecture guide covering state machine, data contracts, UX flows, testing, design system compliance, accessibility, offline behavior, future enhancements.
 
 ### 12-C. Payout stat (backend pending)
 
@@ -257,4 +302,23 @@ Backend must add `payout_summary` widget (type `POS_PAYOUT_STATUS`) to `CashierH
 with `{pendingCount, payableCount, paidTodayAmount, pendingAmount}`. Mobile already shows it if present.
 
 - [ ] Keep cashier Web separate unless chosen for V1.
+
+## Deferred / Next Cycle
+
+These are implementation stubs ready for the next cycle:
+
+- **POST /payout** — Button shows "Paiement — bientôt disponible"; confirm dialog ready.
+- **Print integration** — CashierTicketService.print() returns bytes; `printing` package integration deferred.
+- **Camera QR scanner** — CashierScanPage shows "Scan QR — bientôt disponible"; mobile_scanner integration deferred.
+- **Quick log** — GET /tenant/cashier/tickets?size=1 endpoint ready; UI deferred to home bottom section.
+- **Session close** — Button placeholder in home menu; full close flow deferred.
+
+## Archive / Out of Scope for Init
+
+- **Offline sync**: `POST /offline/sync` reserved for future offline. Not wired; Dio errors fail gracefully.
+- **Keycloak mobile endpoint**: Marked TODO; backend ownership until endpoint finalized.
+- **Runtime settings load**: Task 6 marked incomplete; low priority for V1 (safe defaults used).
+- **Multi-line tickets**: Feature request; out of scope for initial sell flow.
+- **Suggested numbers**: ML enhancement; future.
+- **Offline drafts**: Future; rely on idempotency key for safety instead.
 
