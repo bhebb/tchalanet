@@ -5,8 +5,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="loading" role="status" [attr.aria-label]="label() || 'Loading'">
-      <div class="loading__spinner" aria-hidden="true"></div>
+    <div class="loading" role="status" [attr.aria-label]="ariaLabel() || label() || 'Chargement'">      <div class="loading__spinner" aria-hidden="true"></div>
       @if (label()) {
         <p class="loading__label">{{ label() }}</p>
       }
@@ -41,4 +40,5 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 })
 export class TchLoading {
   readonly label = input('');
+  readonly ariaLabel = input('');
 }

@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ThemeSwitcherComponent } from '@tch/shared/theme/runtime/theme-switcher.component';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
 import { LanguageSwitcherComponent } from '../../../core/i18n';
-import { ThemeSwitcherComponent } from '../../../core/theme';
 import { PageDynamicPayload, PageShell } from '../../../shared/types';
 import { LabelPipe } from '../label.pipe';
 import { isRecord, toPublicPath } from '../widget.contract';

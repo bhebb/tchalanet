@@ -2,9 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { ApiResponse, RuntimeTheme, ThemeMode } from '../../shared/types';
-import { unwrapApiResponse } from '../http';
 import { mapBackendThemeTokens } from './theme-token-map';
+import { RuntimeTheme, ThemeMode } from './theme.types';
+
+interface ApiResponse<T> {
+  readonly data: T;
+}
 
 interface ThemeRuntimeApiView {
   readonly presetCode: string;
@@ -42,6 +45,10 @@ function toRuntimeTheme(view: ThemeRuntimeApiView): RuntimeTheme {
     effectiveMode: toEffectiveThemeMode(view.mode),
     tokens: mapBackendThemeTokens(view.tokens),
   };
+}
+
+function unwrapApiResponse<T>(response: ApiResponse<T>): T {
+  return response.data;
 }
 
 function toThemeMode(value: string): ThemeMode {

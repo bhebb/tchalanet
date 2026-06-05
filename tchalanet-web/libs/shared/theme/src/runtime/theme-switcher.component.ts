@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { ThemeMode } from '../../shared/types';
 import { ThemeRuntimeStore } from './theme-runtime.store';
+import { ThemeMode } from './theme.types';
 
 @Component({
   imports: [FormsModule, TranslatePipe],

@@ -1,11 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { catchError, of, tap } from 'rxjs';
 
-import { RuntimeTheme, ThemeMode, ThemePreset } from '../../shared/types';
 import { ThemeApi } from './theme-api.service';
 import { ThemeDomService } from './theme-dom.service';
 import { defaultThemePresetId } from './theme-presets';
 import { ThemeRepository } from './theme.repository';
+import { RuntimeTheme, ThemeMode, ThemePreset } from './theme.types';
 
 type ThemeLoadState = 'idle' | 'loading' | 'ready' | 'fallback';
 

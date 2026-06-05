@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
-import { ThemePreset } from '../../shared/types';
 import { defaultThemePresetId, themePresets } from './theme-presets';
+import { ThemePreset } from './theme.types';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeRepository {

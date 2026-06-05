@@ -2,7 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { Injectable, inject } from '@angular/core';
 
-import { RuntimeTheme } from '../../shared/types';
+import { RuntimeTheme } from './theme.types';
 
 const presetStyleElementId = 'tch-theme-preset';
 const overrideStyleElementId = 'tch-theme-overrides';

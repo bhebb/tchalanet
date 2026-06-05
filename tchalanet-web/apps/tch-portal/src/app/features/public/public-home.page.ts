@@ -7,6 +7,7 @@ import { catchError, map, of, startWith } from 'rxjs';
 import { PageModelApi } from '../../core/pagemodel';
 import { PageModelComponent } from '../pagemodel/page-model.component';
 import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
+import { TchErrorPanel, TchLoading } from '@tch/shared/ui';
 
 type PublicHomeState =
   | { readonly status: 'loading' }
@@ -22,33 +23,25 @@ type PublicHomeState =
  */
 @Component({
   selector: 'tch-public-home-page',
-  imports: [PageShellComponent, PageModelComponent, TranslatePipe, RouterLink],
+  imports: [PageShellComponent, PageModelComponent, TranslatePipe, RouterLink, TchLoading, TchErrorPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell [shell]="pageModel()?.shell" [dynamic]="dynamic()">
-      @switch (state().status) {
-        @case ('loading') {
-          <p class="public-home__status">{{ 'common.loading' | translate }}</p>
-        }
-        @case ('error') {
-          <p class="public-home__status">{{ 'public.home.loadError' | translate }}</p>
-        }
-        @case ('ready') {
-          <tch-page-model [pageModel]="pageModel()!" [dynamic]="dynamic()" />
-          <section class="public-home__rules-link" aria-labelledby="public-home-rules-link-title">
-            <div>
-              <p>{{ 'public.home.rules_link.eyebrow' | translate }}</p>
-              <h2 id="public-home-rules-link-title">{{ 'public.home.rules_link.title' | translate }}</h2>
-              <span>{{ 'public.home.rules_link.description' | translate }}</span>
-            </div>
-            <a routerLink="/public/rules">
-              <span class="material-symbols-outlined" aria-hidden="true">calculate</span>
-              {{ 'public.home.rules_link.cta' | translate }}
-            </a>
-          </section>
-        }
-      }
-    </tch-page-shell>
+      <tch-page-shell [shell]="pageModel()?.shell">
+          @switch (state().status) {
+              @case ('loading') {
+                  <tch-loading [label]="'common.loading' | translate"/>
+              }
+              @case ('error') {
+                  <tch-error-panel
+                          [title]="'common.error.title' | translate"
+                          [message]="'public.home.loadError' | translate"
+                  />
+              }
+              @case ('ready') {
+                  <tch-page-model [pageModel]="pageModel()!" [dynamic]="dynamic()"/>
+              }
+          }
+      </tch-page-shell>
   `,
   styles: [
     `

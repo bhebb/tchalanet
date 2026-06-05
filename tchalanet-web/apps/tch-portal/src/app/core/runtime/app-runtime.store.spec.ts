@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ThemeRuntimeStore } from '@tch/shared/theme/runtime/theme-runtime.store';
 
 import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '../feature';
-import { RuntimeSettingsStore } from '../settings';
-import { ThemeRuntimeStore } from '../theme';
 import { I18nFacade } from '../i18n';
+import { RuntimeSettingsStore } from '../settings';
 import { AppRuntimeStore } from './app-runtime.store';
 
 describe('AppRuntimeStore', () => {

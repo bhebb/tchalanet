@@ -1,5 +1,5 @@
-import { ThemePreset } from '../../shared/types';
-import { THEME_PRESETS } from './theme-presets.registry';
+import { THEME_PRESETS } from '../registry/theme-presets.registry';
+import { ThemePreset } from './theme.types';
 
 export const defaultThemePresetId = 'tchalanet';
 

@@ -1,10 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { ThemeRuntimeStore } from '@tch/shared/theme/runtime/theme-runtime.store';
 
 import { AuthSessionService } from '../auth/auth-session.service';
 import { FeatureFlags } from '../feature';
 import { I18nFacade } from '../i18n';
 import { RuntimeSettingsStore } from '../settings';
-import { ThemeRuntimeStore } from '../theme';
 
 type RuntimeBootstrapState = 'idle' | 'loading' | 'ready' | 'error';
 type RuntimeBootstrapScope = 'none' | 'public' | 'private';

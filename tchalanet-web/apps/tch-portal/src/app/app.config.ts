@@ -11,6 +11,7 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
+import { themeRuntimeStoreProvider } from '@tch/shared/theme/runtime/theme-runtime.store';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
   includeBearerTokenInterceptor,
@@ -29,7 +30,6 @@ import {
   MergedTranslateLoader,
   i18nFeature,
 } from './core/i18n';
-import { themeRuntimeStoreProvider } from './core/theme';
 
 const localApiUrlPattern =
   /^(\/api\/|https?:\/\/(localhost|127\.0\.0\.1):8083\/api\/|https?:\/\/api\.(localtest\.me|tchalanet\.lan)\/api\/)/i;

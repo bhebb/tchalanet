@@ -13,7 +13,7 @@
     "default_lang": "fr"
   },
   "theme": {
-    "presetId": "tchalanet_default",
+    "presetId": "tchalanet",
     "mode": "light",
     "density": 0
   },
@@ -230,7 +230,22 @@
           "title_key": "home.check_ticket.title",
           "description_key": "home.check_ticket.description"
         }
-      }
+      },
+      "home.rules": {
+         "type": "RulesWidget",
+          "props": {
+            "eyebrow_key": "public.home.rules_link.eyebrow",
+            "title_key": "public.home.rules_link.title",
+            "description_key": "public.home.rules_link.description",
+            "action": {
+              "id": "rules",
+              "label_key": "public.home.rules_link.cta",
+              "path": "/public/rules",
+              "icon": "calculate",
+              "style": "secondary"
+            }
+          }
+        }
     }
   }
 }
