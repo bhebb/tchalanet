@@ -1,0 +1,427 @@
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+import { AuthSessionService } from '../../../core/auth/auth-session.service';
+import { LanguageSwitcherComponent } from '../../../core/i18n';
+import { PageShell } from '../../../shared/types';
+import { LabelPipe } from '../../pagemodel/label.pipe';
+import { isRecord, toPublicPath } from '../../pagemodel/widget.contract';
+
+interface PublicNavDestination {
+  readonly id?: string;
+  readonly label_key: string;
+  readonly path: string;
+}
+
+interface PublicBrand {
+  readonly id?: string;
+  readonly label_key: string;
+  readonly path: string;
+}
+
+const PUBLIC_HEADER_FALLBACK = {
+  brand: {
+    id: 'tchalanet-public',
+    label_key: 'app.brand',
+    path: '/public',
+  },
+  primary: [
+    { id: 'results', label_key: 'public.nav.results', path: '/public/results' },
+    { id: 'check_ticket', label_key: 'public.nav.check_ticket', path: '/public/check-ticket' },
+    { id: 'operators', label_key: 'public.nav.operators', path: '/public/contact' },
+    { id: 'help', label_key: 'public.nav.help', path: '/public/help' },
+  ],
+  actions: [{ id: 'login', label_key: 'public.nav.login', path: '/login' }],
+} as const;
+
+@Component({
+  selector: 'tch-public-header',
+  imports: [RouterLink, LanguageSwitcherComponent, LabelPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <header class="public-header">
+      <div class="public-header__inner">
+        <a class="public-header__brand" [routerLink]="brand().path" [attr.aria-label]="brand().label_key | tchLabel">
+          <img src="/assets/brand/tchalanet-logo.svg" alt="Tchalanet"/>
+        </a>
+
+        <button
+            type="button"
+            class="public-header__burger"
+            [attr.aria-expanded]="mobileMenuOpen()"
+            aria-controls="public-mobile-menu"
+            (click)="toggleMobileMenu()"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span class="public-header__sr">{{ 'public.nav.menu' | tchLabel }}</span>
+        </button>
+
+        <nav class="public-header__nav" aria-label="Navigation publique">
+          @for (item of nav(); track item.id ?? item.path) {
+            <a [routerLink]="item.path">{{ item.label_key | tchLabel }}</a>
+          }
+        </nav>
+
+        <div class="public-header__actions">
+          <div class="public-header__tools" aria-label="Langue">
+            <tch-language-switcher/>
+          </div>
+          <button type="button" class="public-header__login" (click)="login()">
+            {{ loginAction().label_key | tchLabel }}
+          </button>
+        </div>
+      </div>
+
+      <div
+          id="public-mobile-menu"
+          class="public-header__mobile-panel"
+          [class.public-header__mobile-panel--open]="mobileMenuOpen()"
+      >
+        <nav class="public-header__mobile-nav" aria-label="Navigation publique mobile">
+          @for (item of nav(); track item.id ?? item.path) {
+            <a [routerLink]="item.path" (click)="closeMobileMenu()">{{ item.label_key | tchLabel }}</a>
+          }
+        </nav>
+        <div class="public-header__mobile-tools">
+          <tch-language-switcher/>
+        </div>
+      </div>
+    </header>
+  `,
+  styles: [
+    `
+      .public-header {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: color-mix(
+          in oklab,
+          var(--tch-color-surface-container-lowest, #fff) 92%,
+          transparent
+        );
+        border-bottom: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+        backdrop-filter: blur(16px);
+      }
+
+      .public-header__inner {
+        min-height: 4.5rem;
+        width: min(100% - 2 * var(--tch-page-margin-mobile, 16px), 1120px);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: clamp(0.75rem, 2vw, 1.25rem);
+      }
+
+      .public-header__brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+        text-decoration: none;
+        font-weight: 900;
+      }
+
+      .public-header__brand img {
+        width: 10rem;
+        height: auto;
+        display: block;
+      }
+
+      .public-header__burger {
+        display: none;
+      }
+
+      .public-header__sr {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .public-header__nav {
+        display: flex;
+        flex: 1 1 auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 0.25rem;
+        min-width: 0;
+      }
+
+      .public-header__nav a {
+        min-height: 2.5rem;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 0.625rem;
+        border-radius: var(--tch-radius-pill, 9999px);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+
+      .public-header__nav a:hover {
+        background: var(--tch-color-surface-tonal, var(--mat-sys-surface-container));
+        color: var(--tch-color-primary, var(--mat-sys-primary));
+      }
+
+      .public-header__actions {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.625rem;
+      }
+
+      .public-header__tools {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+      }
+
+      .public-header__login {
+        min-height: var(--tch-touch-target, 48px);
+        padding: 0 1.125rem;
+        border-radius: var(--tch-radius-control, 8px);
+        border: 0;
+        background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
+        color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        cursor: pointer;
+        font-weight: 900;
+      }
+
+      .public-header__mobile-panel {
+        display: none;
+      }
+
+      @media (max-width: 720px) {
+        .public-header__inner {
+          min-height: auto;
+          gap: 0.75rem;
+          padding: 0.75rem 0;
+        }
+
+        .public-header__brand {
+          flex: 1 1 auto;
+        }
+
+        .public-header__brand img {
+          width: 8.75rem;
+        }
+
+        .public-header__nav {
+          display: none;
+        }
+
+        .public-header__burger {
+          flex: 0 0 auto;
+          width: var(--tch-touch-target, 48px);
+          height: var(--tch-touch-target, 48px);
+          display: grid;
+          place-items: center;
+          gap: 0;
+          border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+          border-radius: var(--tch-radius-control, 8px);
+          background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+          color: var(--tch-color-primary, var(--mat-sys-primary));
+        }
+
+        .public-header__burger span:not(.public-header__sr) {
+          width: 1.25rem;
+          height: 2px;
+          display: block;
+          border-radius: 9999px;
+          background: currentColor;
+        }
+
+        .public-header__actions {
+          gap: 0;
+        }
+
+        .public-header__tools {
+          display: none;
+        }
+
+        .public-header__login {
+          min-height: 2.5rem;
+          padding: 0 0.875rem;
+        }
+
+        .public-header__mobile-panel {
+          width: min(100% - 2 * var(--tch-page-margin-mobile, 16px), 1120px);
+          margin: 0 auto;
+          padding: 0 0 0.875rem;
+        }
+
+        .public-header__mobile-panel--open {
+          display: grid;
+          gap: 0.75rem;
+        }
+
+        .public-header__mobile-nav {
+          display: grid;
+          gap: 0.375rem;
+          padding: 0.75rem;
+          border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+          border-radius: var(--tch-radius-lg, 12px);
+          background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+          box-shadow: var(--mat-sys-level2, 0 8px 24px rgba(0, 0, 0, 0.12));
+        }
+
+        .public-header__mobile-nav a {
+          min-height: var(--tch-touch-target, 48px);
+          display: flex;
+          align-items: center;
+          padding: 0 0.875rem;
+          border-radius: var(--tch-radius-control, 8px);
+          color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+          text-decoration: none;
+          font-weight: 850;
+        }
+
+        .public-header__mobile-nav a:nth-child(2) {
+          background: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
+          color: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+        }
+
+        .public-header__mobile-tools {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.75rem;
+          border: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
+          border-radius: var(--tch-radius-lg, 12px);
+          background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        }
+      }
+    `,
+  ],
+})
+export class PublicHeader {
+  private readonly auth = inject(AuthSessionService);
+
+  readonly shell = input<PageShell | undefined>();
+  readonly mobileMenuOpen = signal(false);
+  readonly brand = computed(() => publicBrand(this.shell()));
+  readonly nav = computed(() => publicHeaderNav(this.shell()));
+  readonly loginAction = computed(() => publicLoginAction(this.shell()));
+
+  login(): void {
+    void this.auth.login();
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
+}
+
+function publicBrand(shell: PageShell | undefined): PublicBrand {
+  return normalizeBrand(readUnknown(shell, 'brand'))
+    ?? normalizeBrand(readUnknown(shell?.header?.props, 'brand'))
+    ?? PUBLIC_HEADER_FALLBACK.brand;
+}
+
+function publicHeaderNav(shell: PageShell | undefined): readonly PublicNavDestination[] {
+  const primary = [
+    ...normalizeDestinations(readUnknownArray(shell, 'primary')),
+    ...normalizeDestinations(shell?.header?.nav?.primary),
+  ].map(normalizePublicNav);
+  return mergePublicNav(PUBLIC_HEADER_FALLBACK.primary, primary);
+}
+
+function publicLoginAction(shell: PageShell | undefined): PublicNavDestination {
+  const actions = [
+    ...normalizeDestinations(readUnknownArray(shell, 'actions')),
+    ...normalizeDestinations(shell?.header?.nav?.secondary),
+  ].map(normalizePublicNav);
+  return actions.find((item) => item.id === 'login') ?? PUBLIC_HEADER_FALLBACK.actions[0];
+}
+
+function normalizeBrand(value: unknown): PublicBrand | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const labelKey = stringValue(value['label_key']) ?? stringValue(value['labelKey']);
+  const path = stringValue(value['path']);
+  return labelKey
+    ? { id: stringValue(value['id']), label_key: labelKey, path: path ? toPublicPath(path) : '/public' }
+    : undefined;
+}
+
+function normalizeDestinations(items: readonly unknown[] | undefined): readonly PublicNavDestination[] {
+  return (items ?? []).flatMap((item) => {
+    if (!isRecord(item)) {
+      return [];
+    }
+    const path = stringValue(item['path']);
+    const labelKey = stringValue(item['label_key']) ?? stringValue(item['labelKey']);
+    return path && labelKey
+      ? [{ id: stringValue(item['id']), label_key: labelKey, path: toPublicPath(path) }]
+      : [];
+  });
+}
+
+function normalizePublicNav(item: PublicNavDestination): PublicNavDestination {
+  const id = normalizePublicId(item.id);
+  if (id === 'results') {
+    return { ...item, id, label_key: 'public.nav.results', path: '/public/results' };
+  }
+  if (id === 'check_ticket') {
+    return { ...item, id, label_key: 'public.nav.check_ticket', path: '/public/check-ticket' };
+  }
+  if (id === 'operators') {
+    return { ...item, id, label_key: 'public.nav.operators', path: '/public/contact' };
+  }
+  if (id === 'help') {
+    return { ...item, id, label_key: 'public.nav.help', path: '/public/help' };
+  }
+  if (id === 'login') {
+    return { ...item, id, label_key: 'public.nav.login', path: '/login' };
+  }
+  return item;
+}
+
+function normalizePublicId(id: string | undefined): string {
+  if (id === 'draw_results') {
+    return 'results';
+  }
+  if (id === 'support') {
+    return 'help';
+  }
+  if (id === 'contact_demo') {
+    return 'operators';
+  }
+  return id ?? '';
+}
+
+function mergePublicNav(
+  requiredItems: readonly PublicNavDestination[],
+  backendItems: readonly PublicNavDestination[],
+): readonly PublicNavDestination[] {
+  return requiredItems.map((required) => backendItems.find((item) => item.id === required.id) ?? required);
+}
+
+function readUnknown(source: unknown, key: string): unknown {
+  return isRecord(source) ? source[key] : undefined;
+}
+
+function readUnknownArray(source: unknown, key: string): readonly unknown[] | undefined {
+  const value = readUnknown(source, key);
+  return Array.isArray(value) ? value : undefined;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}

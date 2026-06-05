@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
+import { PublicShellComponent } from './shell/public-shell.component';
 import { ResultStatus } from '../pagemodel/widget.contract';
 
 type ResultFilter = 'all' | 'new-york' | 'florida' | 'georgia';
@@ -61,7 +61,7 @@ const RESULT_ITEMS: readonly PublicResultListItem[] = [
 
 @Component({
   selector: 'tch-public-results-page',
-  imports: [PageShellComponent, RouterLink, TranslatePipe],
+  imports: [PublicShellComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <tch-page-shell>

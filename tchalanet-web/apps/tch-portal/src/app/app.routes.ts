@@ -11,7 +11,7 @@ import { PublicInfoPage } from './features/public/public-info.page';
 import { PublicRulesPage } from './features/public/public-rules.page';
 import { PublicResultDetailPage } from './features/public/public-result-detail.page';
 import { PublicResultsPage } from './features/public/public-results.page';
-import { PrivateShellPage } from './features/shell/private-shell.page';
+import { PrivateShellPage } from './features/dashboard/shell/private-shell.page';
 
 export const appRoutes: Route[] = [
   {

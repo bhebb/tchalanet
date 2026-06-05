@@ -360,7 +360,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -371,7 +372,8 @@
               "cwd": "web-backup/apps/tchalanet-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
+                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
+                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
               },
               "command": "playwright test src/example.spec.ts --output=../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -418,7 +420,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -447,7 +450,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
             ],
             "dependsOn": [
               {
@@ -1635,7 +1639,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1646,7 +1651,8 @@
               "cwd": "apps/tch-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
+                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
+                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
               },
               "command": "playwright test src/example.spec.ts --output=../../dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -1684,7 +1690,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1704,7 +1711,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
             ],
             "dependsOn": [
               {
@@ -2199,5 +2207,5 @@
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1780700110743
+  "computedAt": 1780701209636
 }

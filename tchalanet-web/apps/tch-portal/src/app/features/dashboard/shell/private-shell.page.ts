@@ -2,9 +2,9 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { AuthSessionService } from '../../core/auth/auth-session.service';
-import { LanguageSwitcherComponent } from '../../core/i18n';
-import { AppRuntimeStore } from '../../core/runtime';
+import { AuthSessionService } from '../../../core/auth/auth-session.service';
+import { LanguageSwitcherComponent } from '../../../core/i18n';
+import { AppRuntimeStore } from '../../../core/runtime';
 
 @Component({
   imports: [LanguageSwitcherComponent, RouterLink, RouterOutlet, TranslatePipe],

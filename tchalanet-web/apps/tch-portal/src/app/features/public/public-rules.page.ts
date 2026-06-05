@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 
 import { LabelPipe } from '../pagemodel/label.pipe';
-import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
+import { PublicShellComponent } from './shell/public-shell.component';
 
 export type PublicRuleGameId = 'borlette' | 'mariage' | 'lotto3' | 'lotto4';
 
@@ -103,7 +103,7 @@ export const PUBLIC_TCHALA_ENTRIES: readonly PublicTchalaEntry[] = [
 
 @Component({
   selector: 'tch-public-rules-page',
-  imports: [PageShellComponent, LabelPipe, RouterLink],
+  imports: [PublicShellComponent, LabelPipe, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <tch-page-shell>

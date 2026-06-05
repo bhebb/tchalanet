@@ -4,7 +4,7 @@ import { appRoutes } from './app.routes';
 import { TenantAdminDashboardPage } from './features/admin/tenant-admin-dashboard.page';
 import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
 import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
-import { PrivateShellPage } from './features/shell/private-shell.page';
+import { PrivateShellPage } from './features/dashboard/shell/private-shell.page';
 
 describe('appRoutes', () => {
   it.each<[string, string, Type<unknown>]>([

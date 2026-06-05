@@ -1,8 +1,8 @@
 {
   "run": {
     "command": "nx run tch-portal:build:development",
-    "startTime": "2026-06-05T22:55:10.787Z",
-    "endTime": "2026-06-05T22:55:27.403Z",
+    "startTime": "2026-06-05T23:13:29.967Z",
+    "endTime": "2026-06-05T23:13:41.570Z",
     "inner": false
   },
   "tasks": [
@@ -10,12 +10,12 @@
       "taskId": "tch-portal:build:development",
       "target": "build",
       "projectName": "tch-portal",
-      "hash": "10652563706177665382",
-      "startTime": "2026-06-05T22:55:10.876Z",
-      "endTime": "2026-06-05T22:55:27.397Z",
+      "hash": "389271924222412936",
+      "startTime": "2026-06-05T23:13:30.139Z",
+      "endTime": "2026-06-05T23:13:41.520Z",
       "params": "",
       "cacheStatus": "cache-miss",
-      "status": 1
+      "status": 0
     }
   ]
 }

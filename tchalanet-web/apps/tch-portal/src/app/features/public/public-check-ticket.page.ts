@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
+import { PublicShellComponent } from './shell/public-shell.component';
 import { VerificationStatus } from '../pagemodel/widget.contract';
 
 type CheckState =
@@ -21,7 +21,7 @@ const CODE_PATTERN = /^[A-Z0-9]{3,4}-?[A-Z0-9]{3,4}-?[A-Z0-9]{0,3}$/;
 
 @Component({
   selector: 'tch-public-check-ticket-page',
-  imports: [PageShellComponent, RouterLink, TranslatePipe],
+  imports: [PublicShellComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <tch-page-shell>

@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "paths": {
       "@tch/shared/theme": ["./libs/shared/theme/src/index.ts"],
+      "@tch/shared/theme/*": ["./libs/shared/theme/src/*"],
       "@tch/shared/ui": ["./libs/shared/ui/src/index.ts"]
     }
   },

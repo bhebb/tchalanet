@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
+import { PublicShellComponent } from './shell/public-shell.component';
 import { ResultStatus } from '../pagemodel/widget.contract';
 
 interface PublicResultDetail {
@@ -31,7 +31,7 @@ interface ResultStatusView {
 
 @Component({
   selector: 'tch-public-result-detail-page',
-  imports: [PageShellComponent, RouterLink, TranslatePipe],
+  imports: [PublicShellComponent, RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <tch-page-shell>

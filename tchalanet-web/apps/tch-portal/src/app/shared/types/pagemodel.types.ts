@@ -32,9 +32,19 @@ export interface PageTheme {
 }
 
 export interface PageShell {
+  readonly brand?: ShellBrand;
+  readonly primary?: readonly NavItem[];
+  readonly actions?: readonly NavItem[];
+  readonly mobile?: readonly NavItem[];
   readonly header?: ShellSectionConfig;
   readonly sidenav?: ShellSectionConfig;
   readonly footer?: ShellSectionConfig;
+}
+
+export interface ShellBrand {
+  readonly id?: string;
+  readonly label_key?: string;
+  readonly path?: string;
 }
 
 export interface ShellSectionConfig {
