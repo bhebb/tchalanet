@@ -37,3 +37,4 @@
 - [x] W1 delivered: public PageModel renderer (typed on real `PageModelDoc`) + minimal SUPER_ADMIN
       (tenant provisioning) and TENANT_ADMIN (seller onboarding) surfaces in `tch-portal`.
       `nx build`/`test`/`lint` green (54 unit tests). Backend unchanged (contracts confirmed).
+      Shipped in PR #135 (branch `codex/page-widget-contract-design`).

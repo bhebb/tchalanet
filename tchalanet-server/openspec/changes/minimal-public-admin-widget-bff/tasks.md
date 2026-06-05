@@ -52,4 +52,5 @@
 
 - [x] Document endpoint names in this OpenSpec change.
 - [ ] Document widget source names after reading seeded payload/resources.
-- [ ] Update this task list as implementation progresses.
+- [x] Update this task list as implementation progresses — web W1 consumed these contracts as-is
+      (PR #135); backend unchanged this slice. Remaining backend test tasks (§5) stay open.

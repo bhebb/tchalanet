@@ -35,8 +35,9 @@
   - `POST /api/v1/platform/tenant-onboarding/preview`
   - `POST /api/v1/platform/tenant-onboarding/provision`
   - `POST /api/v1/admin/identity/users` (+ `GET /api/v1/platform/tenants` for tenant list)
-- [ ] If a backend contract is missing data or is unsafe/awkward for the UI, stop and update the
-      backend slice before inventing frontend-only workarounds.
+- [x] If a backend contract is missing data or is unsafe/awkward for the UI, stop and update the
+      backend slice before inventing frontend-only workarounds — **no gap encountered**; existing
+      contracts were sufficient, backend left unchanged.
 
 ## 2. Public widget renderer
 
@@ -91,4 +92,5 @@
       `access.md`, `pagemodel.md` (+ `90-web-rules.md` pointer).
 - [x] Document widget component mapping near the renderer (`features/pagemodel/README.md`).
 - [x] Direct translation and theme-token rules documented in the conventions.
-- [ ] Update this task list as implementation progresses.
+- [x] Update this task list as implementation progresses — W1 delivered and shipped in PR #135
+      (branch `codex/page-widget-contract-design`).
