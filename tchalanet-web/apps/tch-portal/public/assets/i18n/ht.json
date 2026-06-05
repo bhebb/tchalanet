@@ -17,6 +17,9 @@
     "brand": "Tchalanet",
     "footer": {
       "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "Espas mwen"
     }
   },
   "auth": {
