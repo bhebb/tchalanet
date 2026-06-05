@@ -1,103 +1,72 @@
-import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
+import { catchError, map, of, startWith } from 'rxjs';
 
-import { AuthSessionService } from '../../core/auth/auth-session.service';
-import { LanguageSwitcherComponent } from '../../core/i18n';
-import { AppRuntimeStore } from '../../core/runtime';
-import { ThemeSwitcherComponent } from '../../core/theme';
+import { PageModelApi } from '../../core/pagemodel';
+import { PageModelComponent } from '../pagemodel/page-model.component';
+import { PageShellComponent } from '../pagemodel/shell/page-shell.component';
 
+type PublicHomeState =
+  | { readonly status: 'loading' }
+  | { readonly status: 'error' }
+  | {
+      readonly status: 'ready';
+      readonly response: import('../../shared/types').PublicPageModelResponse;
+    };
+
+/**
+ * Public home page. Loads the `public.home` PageModel from the backend and renders it through the
+ * widget engine inside the public shell. Works without an authenticated session.
+ */
 @Component({
-  imports: [RouterLink, TranslatePipe, LanguageSwitcherComponent, ThemeSwitcherComponent],
   selector: 'tch-public-home-page',
+  imports: [PageShellComponent, PageModelComponent, TranslatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="page">
-      <tch-language-switcher />
-      <tch-theme-switcher />
-      <h1>{{ 'home.hero.title' | translate }}</h1>
-      <p>{{ 'home.hero.subtitle' | translate }}</p>
-      <p>{{ 'public.home.settings' | translate }}: {{ settingsState() }}</p>
-      <p>Runtime: {{ runtimeState() }} / {{ currentLanguage() }} / {{ currentTheme().activePresetKey }}</p>
-      <p>
-        {{ 'public.home.demoFlag' | translate }}:
-        {{ (demoFlagEnabled() ? 'common.enabled' : 'common.disabled') | translate }}
-      </p>
-
-      <div class="actions">
-        <button type="button" (click)="login()">
-          {{ 'home.hero.cta' | translate }}
-        </button>
-        @if (authenticated()) {
-          <button type="button" (click)="logout()">
-            {{ 'public.home.logout' | translate }}
-          </button>
+    <tch-page-shell [shell]="pageModel()?.shell">
+      @switch (state().status) {
+        @case ('loading') {
+          <p class="public-home__status">{{ 'common.loading' | translate }}</p>
         }
-      </div>
-
-      <nav>
-        <a routerLink="/public">{{ 'home.nav.results' | translate }}</a>
-        <a routerLink="/public">{{ 'home.nav.check_ticket' | translate }}</a>
-        <a routerLink="/app/cashier">{{ 'public.home.nav.cashier' | translate }}</a>
-        <a routerLink="/app/admin">{{ 'public.home.nav.admin' | translate }}</a>
-        <a routerLink="/app/platform">{{ 'public.home.nav.platform' | translate }}</a>
-      </nav>
-    </section>
+        @case ('error') {
+          <p class="public-home__status">{{ 'public.home.loadError' | translate }}</p>
+        }
+        @case ('ready') {
+          <tch-page-model [pageModel]="pageModel()!" [dynamic]="dynamic()" />
+        }
+      }
+    </tch-page-shell>
   `,
   styles: [
     `
-      .page {
-        color: var(--tch-color-foreground);
-        background: var(--tch-color-background);
-        display: grid;
-        gap: 1rem;
-        max-width: 720px;
+      .public-home__status {
         padding: 2rem;
-      }
-
-      h1 {
-        color: var(--tch-color-primary);
-      }
-
-      button,
-      a {
-        color: var(--tch-color-primary);
-      }
-
-      button {
-        border: 1px solid var(--tch-color-primary);
-        border-radius: var(--tch-radius-control);
-        background: var(--tch-color-primary);
-        color: var(--tch-color-primary-contrast);
-        padding: 0.5rem 0.75rem;
-      }
-
-      .actions,
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        text-align: center;
+        color: var(--tch-color-foreground, var(--mat-sys-on-surface));
       }
     `,
   ],
 })
 export class PublicHomePage {
-  private readonly auth = inject(AuthSessionService);
-  private readonly runtime = inject(AppRuntimeStore);
+  private readonly api = inject(PageModelApi);
 
-  readonly authenticated = computed(() => this.auth.session().authenticated);
-  readonly runtimeState = this.runtime.state;
-  readonly currentLanguage = this.runtime.currentLanguage;
-  readonly currentTheme = this.runtime.currentTheme;
-  readonly settingsState = this.runtime.settingsState;
-  readonly demoFlagEnabled = computed(() =>
-    this.runtime.isFeatureEnabled('web.public.demo_enabled', false),
+  readonly state = toSignal(
+    this.api.getPublicPage('public.home').pipe(
+      map(response => ({ status: 'ready', response }) as PublicHomeState),
+      catchError(() => of({ status: 'error' } as PublicHomeState)),
+      startWith({ status: 'loading' } as PublicHomeState),
+    ),
+    { initialValue: { status: 'loading' } as PublicHomeState },
   );
 
-  login(): void {
-    void this.auth.login();
-  }
+  readonly pageModel = computed(() => {
+    const s = this.state();
+    return s.status === 'ready' ? s.response.pageModel : undefined;
+  });
 
-  logout(): void {
-    void this.auth.logout();
-  }
+  readonly dynamic = computed(() => {
+    const s = this.state();
+    return s.status === 'ready' ? s.response.dynamic : undefined;
+  });
 }

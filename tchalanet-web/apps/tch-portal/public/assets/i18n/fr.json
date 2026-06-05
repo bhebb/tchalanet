@@ -1,4 +1,24 @@
 {
+  "admin": {
+    "seller": {
+      "email": "E-mail",
+      "error": "Échec de l'onboarding du vendeur.",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "outletId": "Point de vente",
+      "phone": "Téléphone",
+      "submit": "Créer le vendeur",
+      "success": "Vendeur créé :",
+      "terminalId": "Terminal",
+      "title": "Onboarding vendeur"
+    }
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    }
+  },
   "auth": {
     "forbidden": {
       "back": "Retour à l'accueil public",
@@ -9,6 +29,7 @@
   "common": {
     "disabled": "désactivé",
     "enabled": "activé",
+    "loading": "Chargement…",
     "unknown": "Inconnu"
   },
   "dashboard": {
@@ -36,6 +57,16 @@
     "not_found": "Page locale introuvable."
   },
   "home": {
+    "check_ticket": {
+      "description": "Vérifiez votre ticket en un instant.",
+      "title": "Vérifier un ticket"
+    },
+    "draws": {
+      "title": "Tirages"
+    },
+    "features": {
+      "title": "Fonctionnalités"
+    },
     "hero": {
       "cta": "Connexion",
       "subtitle": "Fallback local sans override backend.",
@@ -44,11 +75,49 @@
     "nav": {
       "check_ticket": "Ticket",
       "results": "Résultats locaux"
+    },
+    "news": {
+      "empty": "Aucune actualité pour le moment.",
+      "title": "Actualités"
+    },
+    "plans": {
+      "empty": "Aucun plan disponible.",
+      "title": "Plans"
+    }
+  },
+  "layout": {
+    "public_home": {
+      "draws": "Tirages",
+      "features": "Fonctionnalités",
+      "hero": "Hero",
+      "news": "Actualités",
+      "plans": "Plans",
+      "tchala": "Tchala"
+    }
+  },
+  "platform": {
+    "onboarding": {
+      "adminCreated": "Admin tenant créé",
+      "code": "Code tenant",
+      "currency": "Devise",
+      "domains": "Domaines inclus",
+      "error": "Échec de l'opération.",
+      "initialAdminEmail": "E-mail du premier admin",
+      "name": "Nom du tenant",
+      "preview": "Prévisualiser",
+      "previewResult": "Prévisualisation",
+      "profile": "Profil",
+      "provision": "Provisionner",
+      "success": "Tenant provisionné",
+      "timezone": "Fuseau horaire",
+      "title": "Provisionnement de tenant",
+      "type": "Type"
     }
   },
   "public": {
     "home": {
       "demoFlag": "Flag démo",
+      "loadError": "Impossible de charger la page publique.",
       "login": "Connexion",
       "logout": "Déconnexion",
       "nav": {
@@ -60,6 +129,11 @@
       "subtitle": "La route publique est disponible sans connexion.",
       "title": "Tchalanet Web"
     }
+  },
+  "widget": {
+    "error": "Ce contenu est momentanément indisponible.",
+    "invalid": "Widget invalide.",
+    "unsupported": "Type de widget non pris en charge."
   },
   "theme": {
     "modes": {

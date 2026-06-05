@@ -1,4 +1,24 @@
 {
+  "admin": {
+    "seller": {
+      "email": "Imèl",
+      "error": "Onboarding vandè a echwe.",
+      "firstName": "Prenon",
+      "lastName": "Non",
+      "outletId": "Pwen vant",
+      "phone": "Telefòn",
+      "submit": "Kreye vandè",
+      "success": "Vandè kreye:",
+      "terminalId": "Tèminal",
+      "title": "Onboarding vandè"
+    }
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    }
+  },
   "auth": {
     "forbidden": {
       "back": "Retounen nan paj piblik la",
@@ -9,6 +29,7 @@
   "common": {
     "disabled": "dezaktive",
     "enabled": "aktive",
+    "loading": "Ap chaje…",
     "unknown": "Enkoni"
   },
   "dashboard": {
@@ -36,6 +57,16 @@
     "not_found": "Paj lokal pa jwenn."
   },
   "home": {
+    "check_ticket": {
+      "description": "Verifye tikè ou nan kèk segonn.",
+      "title": "Verifye yon tikè"
+    },
+    "draws": {
+      "title": "Tiraj"
+    },
+    "features": {
+      "title": "Fonksyonalite"
+    },
     "hero": {
       "cta": "Konekte",
       "subtitle": "Fallback lokal san override backend.",
@@ -44,11 +75,49 @@
     "nav": {
       "check_ticket": "Tikè",
       "results": "Rezilta lokal"
+    },
+    "news": {
+      "empty": "Pa gen nouvèl pou kounye a.",
+      "title": "Nouvèl"
+    },
+    "plans": {
+      "empty": "Pa gen plan disponib.",
+      "title": "Plan"
+    }
+  },
+  "layout": {
+    "public_home": {
+      "draws": "Tiraj",
+      "features": "Fonksyonalite",
+      "hero": "Hero",
+      "news": "Nouvèl",
+      "plans": "Plan",
+      "tchala": "Tchala"
+    }
+  },
+  "platform": {
+    "onboarding": {
+      "adminCreated": "Admin tenant kreye",
+      "code": "Kòd tenant",
+      "currency": "Lajan",
+      "domains": "Domèn ki enkli",
+      "error": "Operasyon an echwe.",
+      "initialAdminEmail": "Imèl premye admin",
+      "name": "Non tenant",
+      "preview": "Apèsi",
+      "previewResult": "Apèsi",
+      "profile": "Pwofil",
+      "provision": "Pwovizyone",
+      "success": "Tenant pwovizyone",
+      "timezone": "Fizo orè",
+      "title": "Pwovizyònman tenant",
+      "type": "Tip"
     }
   },
   "public": {
     "home": {
       "demoFlag": "Flag demo",
+      "loadError": "Pa kapab chaje paj piblik la.",
       "login": "Konekte",
       "logout": "Dekonekte",
       "nav": {
@@ -60,6 +129,11 @@
       "subtitle": "Wout piblik la disponib san koneksyon.",
       "title": "Tchalanet Web"
     }
+  },
+  "widget": {
+    "error": "Kontni sa a pa disponib pou kounye a.",
+    "invalid": "Widget envalid.",
+    "unsupported": "Tip widget pa sipòte."
   },
   "theme": {
     "modes": {

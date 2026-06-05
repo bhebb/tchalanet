@@ -5,13 +5,19 @@
 - [x] Read current PageModel/public runtime contracts before editing implementation.
 - [x] Read current tenant creation and user provisioning APIs before adding orchestration.
 - [x] Decide whether this slice reuses PageModel runtime directly or adds a narrow BFF facade: reuse existing runtime and existing admin endpoints first.
-- [ ] During web integration, record any backend gap as one of: missing payload data, contract mismatch, missing widget source, authorization/context bug, or missing focused test.
+- [x] During web integration, record any backend gap: **none found** — the existing `PageModelDoc`/
+      `PublicPageModelResponse`/`PageDynamicPayload` contracts and admin/onboarding endpoints (all
+      wrapped in `ApiResponse<T>`) were sufficient for the W1 web renderer + admin surfaces. Backend
+      left unchanged this slice.
 
 ## 2. Public page widget payload
 
 - [x] Confirm public page response model: `PublicPageModelResponse(currentLang, langs, pageModel, dynamic)`.
 - [x] Confirm endpoint for public page runtime payload: `GET /public/page-models/{logicalId}`.
-- [ ] Identify the exact widget types present in the seeded `public.home` payload.
+- [x] Identify the exact widget types present in the seeded `public.home` payload:
+      `HeroWidget`, `NewsTickerWidget`, `PublicDrawResultsWidget`, `CheckTicketWidget`,
+      `TchalaSearchWidget`, `FeatureGridWidget`, `PlansWidget`
+      (`tchalanet-app/src/main/resources/pagemodel/public.home.json`).
 - [x] Confirm contained widget errors exist through `PageDynamicPayload.errors`.
 - [ ] Modify backend if `public.home` lacks an approved widget source/payload needed by the renderer.
 

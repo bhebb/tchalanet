@@ -1,8 +1,10 @@
 import { Route } from '@angular/router';
 
 import { roleGuard } from './core/auth/auth.guard';
+import { TenantAdminDashboardPage } from './features/admin/tenant-admin-dashboard.page';
 import { ForbiddenPage } from './features/auth/forbidden.page';
 import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
+import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
 import { PublicHomePage } from './features/public/public-home.page';
 import { PrivateShellPage } from './features/shell/private-shell.page';
 
@@ -36,7 +38,7 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: '',
-        component: RoleDashboardPage,
+        component: TenantAdminDashboardPage,
         data: {
           titleKey: 'dashboard.titles.admin',
         },
@@ -50,7 +52,7 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: '',
-        component: RoleDashboardPage,
+        component: SuperAdminDashboardPage,
         data: {
           titleKey: 'dashboard.titles.platform',
         },

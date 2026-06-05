@@ -20,8 +20,10 @@
 - [x] Read backend OpenSpec `minimal-public-admin-widget-bff` before implementation.
 - [x] Decision: **type the real backend `PageModelDoc`** (meta/theme/shell/content + separate
       `dynamic.widgets[id]`/`errors`). No abstract widget vocabulary, no legacy-mapping registry.
-- [ ] Create `pagemodel.contract.ts` typed on `PageModelDoc`; replace `shared/types/pagemodel.types.ts`.
-- [ ] Define the `type → component` registry (key = backend `type` string, e.g. `HeroWidget`).
+- [x] Type `PageModelDoc` directly in `shared/types/pagemodel.types.ts` (replaced the abstract
+      hero/text/notice vocabulary); added `PageDynamicPayload`/`WidgetDynamicError`/response types.
+- [x] Define the `type → component` registry (`features/pagemodel/widget-registry.ts`, key = backend
+      `type` string, e.g. `HeroWidget`).
 - [x] Direct translation fallback rule confirmed (i18n-first; missing value → key-derived fallback).
 - [x] Theme token fallback confirmed (validated `--tch-*` derived from M3 tokens with `:root` fallback).
 - [x] Routes for public / SUPER_ADMIN / TENANT_ADMIN confirmed (already wired: `/public`,
@@ -38,53 +40,55 @@
 
 ## 2. Public widget renderer
 
-- [ ] Salvage `WidgetRendererComponent` + `grid-layout` + static widgets (hero/news/feature/plans) +
-      shell/header/footer from `web-backup`, retargeted to `PageModelDoc` and the current foundation.
-- [ ] V1 supported widgets: `HeroWidget`, `NewsTickerWidget`, `FeatureGridWidget`, `PlansWidget`
-      (+ shell). `PublicDrawResultsWidget`/`CheckTicketWidget`/`TchalaSearchWidget` → fallback this slice.
-- [ ] Resolve dynamic payload by widget id from `dynamic.widgets[id]`.
-- [ ] Add unsupported-widget fallback.
-- [ ] Add invalid-widget fallback for missing id/type.
-- [ ] Add widget-local error rendering (`dynamic.errors`).
+- [x] Rebuilt renderer in `features/pagemodel/` (`PageModelComponent` + `WidgetHostComponent` +
+      light `PageShellComponent` header/footer), retargeted to `PageModelDoc` and the PR1 foundation
+      (mono-app `tch-portal`; web-backup libs used as inspiration only, not copied).
+- [x] V1 supported widgets: `HeroWidget`, `NewsTickerWidget`, `FeatureGridWidget`, `PlansWidget`
+      (+ shell). `PublicDrawResultsWidget`/`CheckTicketWidget`/`TchalaSearchWidget` → fallback.
+- [x] Resolve dynamic payload by widget id from `dynamic.widgets[id]`.
+- [x] Add unsupported-widget fallback.
+- [x] Add invalid-widget fallback for missing id/type.
+- [x] Add widget-local error rendering (`dynamic.errors`) + render-failure containment.
 - [x] Widgets use validated theme tokens/CSS variables, not hard-coded colors (theme engine in place).
-- [ ] Ensure missing translations render stable key-derived fallback text.
-- [ ] Ensure public page works without authenticated session.
-- [ ] No copied mockup markup, CDN deps, remote images, or hard-coded palette.
+- [x] Missing translations render stable key-derived fallback text (`LabelPipe`/`tchLabel`).
+- [x] Public page works without authenticated session (anonymous `GET public.home`).
+- [x] No copied mockup markup, CDN deps, remote images, or hard-coded palette.
 
 ## 3. SUPER_ADMIN dashboard UI
 
-- [ ] Route SUPER_ADMIN dashboard to minimal admin surface (`/app/platform`).
-- [ ] Tenant list (`GET /platform/tenants`, paged) + create tenant form (`TenantProvisioningRequest`).
-- [ ] Include `initialAdminEmail` as the first tenant-admin creation field.
-- [ ] Optional preview step using `/platform/tenant-onboarding/preview`.
+- [x] Route SUPER_ADMIN dashboard to minimal admin surface (`/app/platform` →
+      `SuperAdminDashboardPage`).
+- [x] Create tenant form (`TenantProvisioningRequest`: code/name/type/profile/timezone/currency).
+- [x] Include `initialAdminEmail` as the first tenant-admin creation field.
+- [x] Optional preview step using `/platform/tenant-onboarding/preview`.
 - [ ] (W2) Manage tenant admins of a selected tenant via `/admin/identity/users` +
-      `X-Tch-Tenant-Override` header.
-- [ ] Show success/error state from backend responses.
-- [ ] No analytics, jobs, flags, audit, release notes, or service health (separate change).
+      `X-Tch-Tenant-Override` header. (Tenant list `GET /platform/tenants` also W2.)
+- [x] Show success/error state from backend responses.
+- [x] No analytics, jobs, flags, audit, release notes, or service health (separate change).
 
 ## 4. TENANT_ADMIN dashboard UI
 
-- [ ] Route TENANT_ADMIN dashboard to minimal tenant admin surface (`/app/admin`).
-- [ ] Seller onboarding form using `CreateUserRequest` with **`role=CASHIER` + required `outletId`**.
-- [ ] Show success/error state from backend responses.
-- [ ] Do not expose tenant id override UI.
-- [ ] No sales, draws, payout, reconciliation, or limits dashboards.
+- [x] Route TENANT_ADMIN dashboard to minimal tenant admin surface (`/app/admin` →
+      `TenantAdminDashboardPage`).
+- [x] Seller onboarding form using `CreateUserRequest` with **`role=CASHIER` + required `outletId`**.
+- [x] Show success/error state from backend responses.
+- [x] Do not expose tenant id override UI (no tenant field in the form).
+- [x] No sales, draws, payout, reconciliation, or limits dashboards.
 
 ## 5. Tests / validation
 
-- [x] Foundation unit tests green (theme token map, feature/access gating) — 33 passing.
-- [ ] Public widget page renders supported widgets.
-- [ ] Unsupported widget fallback renders without breaking page.
-- [ ] SUPER_ADMIN can submit create tenant flow.
-- [ ] SUPER_ADMIN can submit create tenant admin flow.
-- [ ] TENANT_ADMIN can submit seller onboarding flow.
-- [ ] Route guards prevent wrong roles from accessing each dashboard.
-- [ ] Run focused Nx tests for touched app/libs.
+- [x] Foundation + W1 unit tests green — 54 passing (was 33). `nx build`/`lint` green.
+- [x] Renderer resolves supported widgets (registry spec + page-model spec).
+- [x] Unsupported / invalid / widget-local error fallbacks contained (widget-host spec).
+- [x] SUPER_ADMIN create-tenant flow (incl. `initialAdminEmail`) submit + error state (spec).
+- [x] TENANT_ADMIN seller onboarding submit; CASHIER without `outletId` blocked (spec).
+- [x] Route ownership asserted (`app.routes.spec.ts`); role guards already wired (PR1).
+- [x] Run focused Nx tests for touched app/libs.
 
 ## 6. Documentation
 
 - [x] Convention docs updated/added: `theme.md`, `settings.md`, `feature-flags.md`, `entitlements.md`,
       `access.md`, `pagemodel.md` (+ `90-web-rules.md` pointer).
-- [ ] Document widget component mapping near the renderer once built.
+- [x] Document widget component mapping near the renderer (`features/pagemodel/README.md`).
 - [x] Direct translation and theme-token rules documented in the conventions.
 - [ ] Update this task list as implementation progresses.

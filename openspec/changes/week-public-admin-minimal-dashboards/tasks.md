@@ -34,4 +34,6 @@
 - [x] Material 3 theme engine ported and wired (web `core/theme`, generated preset registry).
 - [x] Isolated gating seams (`core/feature`, `core/entitlement`, `core/access`) with `*tchCan`/pipe/guard.
 - [x] Convention docs updated (theme, settings, feature-flags, entitlements, access, pagemodel).
-- [ ] Next (W1): public PageModel renderer + minimal admin surfaces.
+- [x] W1 delivered: public PageModel renderer (typed on real `PageModelDoc`) + minimal SUPER_ADMIN
+      (tenant provisioning) and TENANT_ADMIN (seller onboarding) surfaces in `tch-portal`.
+      `nx build`/`test`/`lint` green (54 unit tests). Backend unchanged (contracts confirmed).
