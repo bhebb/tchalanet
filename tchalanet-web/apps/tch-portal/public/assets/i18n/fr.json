@@ -198,6 +198,12 @@
         "cashier": "Caissier",
         "platform": "Plateforme"
       },
+      "rules_link": {
+        "cta": "Voir règles et Tchala",
+        "description": "Consultez les règles, l’état de simulation et les repères Tchala depuis une page dédiée.",
+        "eyebrow": "Règles & simulation",
+        "title": "Une page pour comprendre les jeux"
+      },
       "settings": "Paramètres",
       "subtitle": "La route publique est disponible sans connexion.",
       "title": "Tchalanet Web"
@@ -217,6 +223,42 @@
       "demo": "Demander une démo",
       "description": "Découvrez comment Tchalanet peut simplifier votre gestion quotidienne, mieux suivre vos ventes et automatiser vos rapports d’activité.",
       "title": "Vous gérez un point de vente ou un réseau de vendeurs ?"
+    },
+    "check": {
+      "code_hint": "Le format du code se trouve au bas de votre reçu imprimé.",
+      "help_body": "Le code public est imprimé sur le reçu émis par un point de vente participant. Il peut être saisi manuellement ou scanné depuis le QR quand cette option est disponible.",
+      "help_title": "Qu’est-ce qu’un code public ?",
+      "loading_body": "Consultation temporaire du service de vérification publique.",
+      "loading_title": "Vérification du ticket en cours…",
+      "status": {
+        "INVALID_OR_CANCELLED": {
+          "body": "Ce ticket ne peut pas être vérifié comme payable.",
+          "title": "Ticket invalide ou annulé"
+        },
+        "NOT_FOUND": {
+          "body": "Code invalide ou introuvable. Vérifiez le code et réessayez.",
+          "title": "Ticket introuvable"
+        },
+        "NOT_PAYABLE": {
+          "body": "Ce ticket ne présente pas de montant payable selon les résultats disponibles.",
+          "title": "Ticket non payable"
+        },
+        "PAYABLE": {
+          "body": "Si le ticket est payable, suivez les instructions affichées pour contacter le point de vente. Conservez toujours le reçu original.",
+          "title": "Ticket payable"
+        },
+        "PENDING_RESULT": {
+          "body": "Le ticket est reconnu, mais le résultat du tirage n’est pas encore disponible.",
+          "title": "Ticket en attente de résultat"
+        },
+        "SERVICE_UNAVAILABLE": {
+          "body": "La vérification est temporairement indisponible. Réessayez dans quelques instants.",
+          "title": "Service temporairement indisponible"
+        }
+      },
+      "status_label": "Statut du ticket",
+      "verify_another": "Vérifier un autre ticket",
+      "visual_badge": "Ticket vérifiable"
     },
     "pages": {
       "check-ticket": {
@@ -261,21 +303,139 @@
     "results": {
       "all": "Tous les tirages",
       "detail": "Voir détail",
+      "detail_eyebrow": "Statut du résultat",
+      "detail_status": {
+        "CONFIRMED": {
+          "body": "Ce résultat est disponible selon les sources prises en charge.",
+          "title": "Résultats confirmés"
+        },
+        "PENDING": {
+          "body": "Le statut du résultat est en attente. Revenez plus tard pour consulter les informations mises à jour.",
+          "title": "En attente"
+        },
+        "UNAVAILABLE": {
+          "body": "Le résultat est temporairement indisponible pour ce tirage.",
+          "title": "Indisponible"
+        }
+      },
+      "draw_datetime": "Date et heure du tirage",
       "empty": "Aucun résultat disponible pour le moment.",
+      "fallback": {
+        "draw_date": "20 mai 2024",
+        "source": "Source prise en charge",
+        "updated_at": "20 mai 2024 · 14:42"
+      },
+      "filters": {
+        "all": "Tout",
+        "aria": "Filtres de résultats",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "more": "Plus de filtres",
+        "new_york": "New York"
+      },
+      "game": "Jeu",
       "latest_title": "Derniers tirages",
+      "last_update": "Dernière mise à jour",
+      "list": {
+        "accent_label": "Référence",
+        "clear_filters": "Effacer les filtres",
+        "empty_body": "Aucun tirage ne correspond au filtre sélectionné.",
+        "empty_title": "Aucun résultat trouvé",
+        "history": "Historique",
+        "numbers_label": "Numéros",
+        "pending_body": "Le statut du résultat est en attente.",
+        "title": "Flux des tirages",
+        "today": "Aujourd’hui",
+        "unavailable_body": "Résultat temporairement indisponible.",
+        "updated": "Mis à jour selon les sources prises en charge.",
+        "yesterday": "Hier"
+      },
+      "public_reference": "Référence publique",
+      "receipt_note": "Résultat affiché à titre de consultation publique.",
+      "receipt_title": "Détail du tirage",
+      "related_title": "Résultats liés",
       "status": {
         "CONFIRMED": "Résultats confirmés",
         "PENDING": "En attente",
         "UNAVAILABLE": "Indisponible"
       },
-      "subtitle": "Résultats confirmés selon les sources prises en charge."
+      "status_label": "Statut du résultat",
+      "subtitle": "Résultats confirmés selon les sources prises en charge.",
+      "supported_source": "Source prise en charge",
+      "verify_ticket": "Vérifier un ticket"
     },
     "rules": {
       "badge": "Indicatif",
       "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du point de vente, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
+      "games": {
+        "borlette": {
+          "body": "Choisissez un numéro de deux chiffres. Le statut dépend des résultats disponibles pour le tirage concerné.",
+          "detail1_label": "1er lot",
+          "detail1_value": "Selon règles du point de vente",
+          "detail2_label": "2e lot",
+          "detail2_value": "Selon ticket réel",
+          "detail3_label": "3e lot",
+          "detail3_value": "Selon tirage confirmé",
+          "title": "Borlette"
+        },
+        "eyebrow": "Règles publiques",
+        "lotto3": {
+          "body": "Sélectionnez trois chiffres. La vérification dépend du ticket, du tirage et des sources prises en charge.",
+          "detail1_label": "Correspondance",
+          "detail1_value": "Règles fournies par backend",
+          "title": "Lotto 3"
+        },
+        "lotto4": {
+          "body": "Sélectionnez quatre ou cinq chiffres selon le jeu disponible au point de vente participant.",
+          "detail1_label": "Disponibilité",
+          "detail1_value": "Selon catalogue public",
+          "title": "Lotto 4 & 5"
+        },
+        "mariage": {
+          "body": "Associez deux numéros. Les conditions exactes doivent venir du catalogue ou des règles affichées.",
+          "detail1_label": "Association",
+          "detail1_value": "Deux numéros",
+          "detail2_label": "Évaluation",
+          "detail2_value": "Selon résultat confirmé",
+          "title": "Mariage"
+        },
+        "title": "Règles des jeux"
+      },
+      "hero_caption": "Aperçu visuel public, sans promesse de résultat.",
+      "hero_image_alt": "Personne consultant un service mobile Tchalanet",
+      "simulation_backend_note": "Le calcul sera activé lorsque les règles, limites et catalogues seront fournis par le service public.",
       "simulation_title": "Gain estimé indicatif",
       "simulation_unavailable": "La simulation est temporairement indisponible pour ce jeu.",
       "subtitle": "Consultez les règles des jeux et estimez un gain indicatif selon une mise d’exemple.",
+      "tchala": {
+        "empty": "Aucun repère ne correspond à cette recherche.",
+        "entries": {
+          "dog": {
+            "description": "Repère culturel lié à la vigilance, au foyer et aux relations proches.",
+            "term": "Chien"
+          },
+          "money": {
+            "description": "Repère culturel associé aux échanges, aux comptes et aux ressources.",
+            "term": "Argent"
+          },
+          "travel": {
+            "description": "Repère culturel lié au déplacement, au changement et aux démarches.",
+            "term": "Voyage"
+          },
+          "water": {
+            "description": "Repère culturel souvent lié au mouvement, au passage et au renouvellement.",
+            "term": "Eau"
+          }
+        },
+        "eyebrow": "Tchala",
+        "jump_link": "Voir Tchala",
+        "numbers_label": "Numéros associés",
+        "search_label": "Rechercher un repère Tchala",
+        "search_placeholder": "Rechercher eau, chien, argent…",
+        "subtitle": "Une liste indicative de repères culturels. Ces associations ne garantissent aucun résultat.",
+        "title": "Repères Tchala"
+      },
+      "verify_link": "Vérifier un ticket",
       "title": "Règles des jeux et simulation"
     },
     "ticket": {

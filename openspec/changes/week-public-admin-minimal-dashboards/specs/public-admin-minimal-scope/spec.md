@@ -21,11 +21,22 @@ It SHALL establish reusable integration patterns for future surfaces without imp
 ### Requirement: Public page uses a widget engine
 
 The public page SHALL render from a backend-provided widget/page payload rather than hard-coded page sections.
+The engine SHALL use direct translation keys and theme tokens while tolerating missing translation values or incomplete theme values.
 
 #### Scenario: Public payload contains unsupported widget
 
 - **WHEN** the web renderer receives a widget type it does not support
 - **THEN** the web UI shows a contained widget fallback without breaking the whole page
+
+#### Scenario: Translation value is missing
+
+- **WHEN** a widget references a translation key that has no resolved value
+- **THEN** the web UI renders a stable fallback from the key and keeps the widget/page usable
+
+#### Scenario: Theme token is missing
+
+- **WHEN** a widget depends on a theme token that is absent
+- **THEN** the web UI uses the configured fallback token/value and keeps the widget visually coherent
 
 ### Requirement: SUPER_ADMIN dashboard is action-only
 

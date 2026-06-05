@@ -1,8 +1,9 @@
 // Global theme bridge. The active preset CSS (--mat-sys-*) is injected at runtime by the theme
 // engine (core/theme) under `.tch-theme[data-preset=…]`; these globals provide the always-on
 // tokens, the first-paint fallback, and derive the validated --tch-* set from --mat-sys-*.
-@use './app/core/theme/scss/runtime-root';
-@use './app/core/theme/scss/runtime-vars';
+// SCSS resolved via libs/shared/theme/src (stylePreprocessorOptions.includePaths in project.json).
+@use 'scss/runtime-root';
+@use 'scss/runtime-vars';
 
 html,
 body {

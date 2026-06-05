@@ -170,6 +170,11 @@ Do not create shared generic facades/stores or a global store for all public pag
 For this slice, prefer single-file standalone Angular components using inline `template` and inline `styles`.
 Extract templates/styles only if a file becomes hard to maintain or an established local pattern already requires extraction.
 
+## CSS Naming, Tokens, And Theme Safety
+
+Public page CSS must follow the durable convention in `docs/conventions/web-public-css-theming.md`.
+In short: scoped BEM-like classes, no generic unscoped class names, no component-local brand/status hex values, no Tailwind/CDN theme dependency, all themeable values through `--tch-*` variables, and browser validation across mobile/desktop plus light/dark modes.
+
 Testing rules:
 
 - add specs for facades, stores, containers, widgets/components with branching logic, state mapping, output behavior, form validation, i18n fallback handling, or unsafe-copy guards;

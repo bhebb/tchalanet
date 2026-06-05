@@ -14,6 +14,7 @@ The web implementation SHALL establish reusable patterns for future PageModel, d
 ### Requirement: Public page renders backend widgets
 
 The web app SHALL render the public page from a backend-provided widget/page payload.
+It SHALL translate direct backend keys and style widgets through theme tokens with safe fallbacks.
 
 #### Scenario: Public page receives supported widgets
 
@@ -24,6 +25,21 @@ The web app SHALL render the public page from a backend-provided widget/page pay
 
 - **WHEN** the public page receives an unsupported widget type
 - **THEN** the web app renders a contained fallback for that widget
+
+#### Scenario: Widget references missing translation
+
+- **WHEN** a widget references a key that has no resolved translation value
+- **THEN** the web app renders a stable key-derived fallback and keeps the widget visible when the widget is otherwise valid
+
+#### Scenario: Widget theme token is unavailable
+
+- **WHEN** theme data does not include every token a widget uses
+- **THEN** the web app uses token fallback values and keeps the widget usable
+
+#### Scenario: Widget is invalid
+
+- **WHEN** a widget lacks an id or type
+- **THEN** the web app renders an invalid-widget fallback and keeps the page usable
 
 ### Requirement: SUPER_ADMIN dashboard exposes only tenant bootstrap actions
 

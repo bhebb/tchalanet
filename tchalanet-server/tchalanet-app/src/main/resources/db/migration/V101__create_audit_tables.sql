@@ -217,6 +217,55 @@ CREATE TABLE game_aud
     CONSTRAINT pk_game_aud PRIMARY KEY (id, rev),
     CONSTRAINT fk_game_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
 );
+CREATE TABLE tenant_game_aud
+(
+    id                  uuid    NOT NULL,
+    rev                 integer NOT NULL,
+    revtype             smallint,
+    created_at          timestamptz,
+    created_by          uuid,
+    updated_at          timestamptz,
+    updated_by          uuid,
+    deleted_at          timestamptz,
+    deleted_by          uuid,
+    version             bigint,
+    tenant_id           uuid,
+    game_id             uuid,
+    game_code           varchar(32),
+    enabled             boolean,
+    visible_in_pos      boolean,
+    display_name        varchar(128),
+    display_order       integer,
+    min_stake           numeric(12, 2),
+    max_stake           numeric(12, 2),
+    availability_enabled boolean,
+    availability_days   varchar(64),
+    start_local_time    time,
+    end_local_time      time,
+    CONSTRAINT pk_tenant_game_aud PRIMARY KEY (id, rev),
+    CONSTRAINT fk_tenant_game_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
+);
+CREATE TABLE tenant_theme_aud
+(
+    id             uuid    NOT NULL,
+    rev            integer NOT NULL,
+    revtype        smallint,
+    created_at     timestamptz,
+    created_by     uuid,
+    updated_at     timestamptz,
+    updated_by     uuid,
+    deleted_at     timestamptz,
+    deleted_by     uuid,
+    version        bigint,
+    tenant_id      uuid,
+    preset_code    varchar(128),
+    default_mode   varchar(16),
+    active         boolean,
+    is_default     boolean,
+    token_overrides jsonb,
+    CONSTRAINT pk_tenant_theme_aud PRIMARY KEY (id, rev),
+    CONSTRAINT fk_tenant_theme_aud__revinfo FOREIGN KEY (rev) REFERENCES revinfo (rev)
+);
 CREATE TABLE result_slot_aud
 (
     id             uuid    NOT NULL,

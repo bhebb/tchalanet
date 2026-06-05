@@ -9,6 +9,12 @@
 - [x] Require Material Design 3 theming, dark mode support, stateless Angular components, reusable `--tch-*` tokens, and i18n from the first implementation.
 - [x] Align implementation rules to the existing Web architecture: `Route -> Page -> Container(s) -> Component(s)`, facade/store boundaries, inline templates/styles, and focused specs only where logic exists.
 - [x] Add implementation guardrails for typed widget contracts, typed navigation destinations, shared widget states, domain-specific statuses, anonymous-safe public navigation, simulation no-computation rules, and V1/V1.5 scope split.
+- [x] Add CSS naming and theme-safety guardrails:
+  - scoped BEM-like classes: `block`, `block__element`, `block--modifier`, `is-state`;
+  - no generic unscoped `card`/`button`/`title`/`section` naming in public component CSS;
+  - all themeable values use `--tch-*` variables;
+  - page text uses i18n keys or localized PageModel labels even when temporary;
+  - new public pages are checked in mobile/desktop, light/dark, and alternate Material theme when available.
 
 ## 2. Frontend Implementation
 
@@ -129,6 +135,12 @@
 - [x] Add V1.5 public route placeholders or follow-up tasks for `/public/news`, `/public/news/:slug`, `/public/operators`, `/public/status`, `/public/games`, and full rules/simulation backend-backed behavior if not completed in V1.
 - [x] Ensure public components hide private navigation for anonymous users: no `Profile`, private dashboard links, admin navigation, cashier navigation, or tenant admin actions.
 - [x] Adapt the Stitch-generated layout only as a reference; remove remote images/CDNs, winner/jackpot wording, hardcoded Tailwind colors, unsupported lottery brand examples, and any private/off-scope navigation.
+- [x] Audit new `/public/check-ticket` and `/public/results/:id` page CSS before completion:
+  - class names are scoped and BEM-like;
+  - no hardcoded brand/status hex values in component styles;
+  - no Tailwind/CDN-generated class dependency;
+  - no `::ng-deep`;
+  - no brittle structural selectors.
 
 ## 3. Widget Contracts
 
@@ -172,6 +184,12 @@
 - [x] Add focused tests for i18n key rendering/fallbacks and absence of hardcoded unsafe public wording where logic or guard code exists.
 - [x] Validate Material Design 3 light and dark mode render paths for public widgets.
 - [x] Validate mobile and desktop public layouts.
+- [x] For every newly completed public page, browser-check:
+  - mobile light;
+  - mobile dark;
+  - desktop light;
+  - desktop dark;
+  - base `tchalanet` Material theme plus one alternate Material preset when available locally.
 - [x] Run focused Nx validation for touched web projects.
 
 ## 5. Backend Follow-up Tasks
@@ -239,23 +257,24 @@ Frontend owner: implement as follow-up slices after V1 shell/design system is ac
 - [x] `/public/results` V1 placeholder page with empty/latest results state.
 - [x] `/public/results/:id` V1 placeholder route, currently mapped to the generic results page.
 - [x] `/public/rules` V1 placeholder page with simulation unavailable state and mandatory disclaimer.
+- [x] `/public/rules` V1 full public page with rules cards, simulation unavailable state, visible disclaimer, and Tchala references; backend-provided simulation/rules data remains a follow-up.
 - [x] `/public/help` V1 placeholder page with payment responsibility wording.
 - [x] `/public/contact` V1 placeholder page.
 - [x] `/public/privacy` V1 placeholder page.
 - [x] `/public/terms` V1 placeholder page.
 - [ ] Replace generic `PublicInfoPage` placeholders with page-specific PageModel-backed pages/containers where needed:
-  - `PublicCheckTicketPage`
-  - `PublicResultsPage`
-  - `PublicResultDetailPage`
+  - [x] `PublicCheckTicketPage`
+  - [x] `PublicResultsPage`
+  - [x] `PublicResultDetailPage`
   - `PublicHelpPage`
   - `PublicContactPage`
   - `PublicLegalPage`.
-- [ ] Implement `/public/results` as a full mobile-first results page:
+- [x] Implement `/public/results` as a full mobile-first results page:
   - card list, filters by source/game/slot if backend provides them;
   - no dense mobile tables;
   - confirmed/pending/unavailable status mapping;
   - detail links to `/public/results/:id`.
-- [ ] Implement `/public/results/:id` as a full result detail page:
+- [x] Implement `/public/results/:id` as a full result detail page:
   - game/source name;
   - draw date/time;
   - status;
@@ -264,7 +283,7 @@ Frontend owner: implement as follow-up slices after V1 shell/design system is ac
   - last update;
   - CTA to verify ticket;
   - related results if backend provides them.
-- [ ] Implement `/public/check-ticket` as a full page/container flow:
+- [x] Implement `/public/check-ticket` as a full page/container flow:
   - code input and QR scan affordance;
   - explicit `VerificationStatus` result rendering;
   - loading/error/not-found/service-unavailable states;

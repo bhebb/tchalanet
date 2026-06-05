@@ -198,6 +198,12 @@
         "cashier": "Cashier",
         "platform": "Platform"
       },
+      "rules_link": {
+        "cta": "View rules and Tchala",
+        "description": "Consult rules, simulation status, and Tchala references from one dedicated page.",
+        "eyebrow": "Rules and simulation",
+        "title": "One page to understand the games"
+      },
       "settings": "Settings",
       "subtitle": "Public route is available without login.",
       "title": "Tchalanet Web"
@@ -217,6 +223,42 @@
       "demo": "Request a demo",
       "description": "Discover how Tchalanet can simplify daily operations, improve sales tracking, and automate activity reports.",
       "title": "Do you manage a point of sale or a seller network?"
+    },
+    "check": {
+      "code_hint": "The code format appears at the bottom of your printed receipt.",
+      "help_body": "The public code is printed on the receipt issued by a participating point of sale. It can be entered manually or scanned from the QR when that option is available.",
+      "help_title": "What is a public code?",
+      "loading_body": "Temporarily consulting the public verification service.",
+      "loading_title": "Ticket verification in progress…",
+      "status": {
+        "INVALID_OR_CANCELLED": {
+          "body": "This ticket cannot be verified as payable.",
+          "title": "Ticket invalid or cancelled"
+        },
+        "NOT_FOUND": {
+          "body": "Invalid or missing code. Check the code and try again.",
+          "title": "Ticket not found"
+        },
+        "NOT_PAYABLE": {
+          "body": "This ticket does not show a payable amount according to available results.",
+          "title": "Ticket not payable"
+        },
+        "PAYABLE": {
+          "body": "If the ticket is payable, follow the displayed instructions to contact the point of sale. Always keep the original receipt.",
+          "title": "Ticket payable"
+        },
+        "PENDING_RESULT": {
+          "body": "The ticket is recognized, but the draw result is not available yet.",
+          "title": "Ticket awaiting result"
+        },
+        "SERVICE_UNAVAILABLE": {
+          "body": "Verification is temporarily unavailable. Try again in a few moments.",
+          "title": "Service temporarily unavailable"
+        }
+      },
+      "status_label": "Ticket status",
+      "verify_another": "Verify another ticket",
+      "visual_badge": "Verifiable ticket"
     },
     "pages": {
       "check-ticket": {
@@ -261,21 +303,139 @@
     "results": {
       "all": "All draws",
       "detail": "View detail",
+      "detail_eyebrow": "Result status",
+      "detail_status": {
+        "CONFIRMED": {
+          "body": "This result is available according to supported sources.",
+          "title": "Confirmed results"
+        },
+        "PENDING": {
+          "body": "The result status is pending. Come back later to consult updated information.",
+          "title": "Pending"
+        },
+        "UNAVAILABLE": {
+          "body": "The result is temporarily unavailable for this draw.",
+          "title": "Unavailable"
+        }
+      },
+      "draw_datetime": "Draw date and time",
       "empty": "No result is available for now.",
+      "fallback": {
+        "draw_date": "May 20, 2024",
+        "source": "Supported source",
+        "updated_at": "May 20, 2024 · 14:42"
+      },
+      "filters": {
+        "all": "All",
+        "aria": "Result filters",
+        "florida": "Florida",
+        "georgia": "Georgia",
+        "more": "More filters",
+        "new_york": "New York"
+      },
+      "game": "Game",
       "latest_title": "Latest draws",
+      "last_update": "Last update",
+      "list": {
+        "accent_label": "Reference",
+        "clear_filters": "Clear filters",
+        "empty_body": "No draw matches the selected filter.",
+        "empty_title": "No result found",
+        "history": "History",
+        "numbers_label": "Numbers",
+        "pending_body": "The result status is pending.",
+        "title": "Draw feed",
+        "today": "Today",
+        "unavailable_body": "Result temporarily unavailable.",
+        "updated": "Updated according to supported sources.",
+        "yesterday": "Yesterday"
+      },
+      "public_reference": "Public reference",
+      "receipt_note": "Result shown for public consultation.",
+      "receipt_title": "Draw detail",
+      "related_title": "Related results",
       "status": {
         "CONFIRMED": "Confirmed results",
         "PENDING": "Pending",
         "UNAVAILABLE": "Unavailable"
       },
-      "subtitle": "Confirmed results according to supported sources."
+      "status_label": "Result status",
+      "subtitle": "Confirmed results according to supported sources.",
+      "supported_source": "Supported source",
+      "verify_ticket": "Verify a ticket"
     },
     "rules": {
       "badge": "Indicative",
       "disclaimer": "Indicative simulation. The payable amount depends on the real ticket, point-of-sale rules, draw status, and confirmed results. This simulation does not guarantee payment.",
+      "games": {
+        "borlette": {
+          "body": "Choose a two-digit number. Status depends on the available results for the relevant draw.",
+          "detail1_label": "First lot",
+          "detail1_value": "According to point-of-sale rules",
+          "detail2_label": "Second lot",
+          "detail2_value": "According to the real ticket",
+          "detail3_label": "Third lot",
+          "detail3_value": "According to confirmed draw",
+          "title": "Borlette"
+        },
+        "eyebrow": "Public rules",
+        "lotto3": {
+          "body": "Select three digits. Verification depends on the ticket, draw, and supported sources.",
+          "detail1_label": "Match",
+          "detail1_value": "Rules provided by backend",
+          "title": "Lotto 3"
+        },
+        "lotto4": {
+          "body": "Select four or five digits depending on the game available at the participating point of sale.",
+          "detail1_label": "Availability",
+          "detail1_value": "According to public catalog",
+          "title": "Lotto 4 & 5"
+        },
+        "mariage": {
+          "body": "Pair two numbers. Exact conditions must come from the catalog or displayed rules.",
+          "detail1_label": "Pairing",
+          "detail1_value": "Two numbers",
+          "detail2_label": "Evaluation",
+          "detail2_value": "According to confirmed result",
+          "title": "Mariage"
+        },
+        "title": "Game rules"
+      },
+      "hero_caption": "Public visual preview without result promise.",
+      "hero_image_alt": "Person consulting a Tchalanet mobile service",
+      "simulation_backend_note": "Calculation will be enabled when rules, limits, and catalogs are provided by the public service.",
       "simulation_title": "Indicative estimated payout",
       "simulation_unavailable": "Simulation is temporarily unavailable for this game.",
       "subtitle": "Consult game rules and estimate an indicative payout from an example stake.",
+      "tchala": {
+        "empty": "No reference matches this search.",
+        "entries": {
+          "dog": {
+            "description": "Cultural reference linked to vigilance, home, and close relationships.",
+            "term": "Dog"
+          },
+          "money": {
+            "description": "Cultural reference associated with exchanges, accounts, and resources.",
+            "term": "Money"
+          },
+          "travel": {
+            "description": "Cultural reference linked to movement, change, and errands.",
+            "term": "Travel"
+          },
+          "water": {
+            "description": "Cultural reference often linked to movement, passage, and renewal.",
+            "term": "Water"
+          }
+        },
+        "eyebrow": "Tchala",
+        "jump_link": "View Tchala",
+        "numbers_label": "Associated numbers",
+        "search_label": "Search a Tchala reference",
+        "search_placeholder": "Search water, dog, money…",
+        "subtitle": "An indicative list of cultural references. These associations do not guarantee any result.",
+        "title": "Tchala references"
+      },
+      "verify_link": "Verify a ticket",
       "title": "Game rules and simulation"
     },
     "ticket": {

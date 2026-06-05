@@ -792,6 +792,10 @@
       "apps/tch-portal/project.json",
       "nx/core/project-json"
     ],
+    "targets.build.options.stylePreprocessorOptions": [
+      "apps/tch-portal/project.json",
+      "nx/core/project-json"
+    ],
     "targets.build.options.assets": [
       "apps/tch-portal/project.json",
       "nx/core/project-json"
@@ -965,6 +969,114 @@
       "nx/target-defaults"
     ],
     "targets.test.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/shared/theme": {
+    "root": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/shared/theme/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "prefix": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/shared/theme/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
+      "nx.json",
+      "nx/target-defaults"
+    ]
+  },
+  "libs/shared/ui": {
+    "root": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets": [
+      "libs/shared/ui/eslint.config.mjs",
+      "@nx/eslint/plugin"
+    ],
+    "name": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "$schema": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "sourceRoot": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "prefix": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "projectType": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "tags": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.executor": [
+      "libs/shared/ui/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.cache": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.inputs": [
+      "nx.json",
+      "nx/target-defaults"
+    ],
+    "targets.lint.parallelism": [
       "nx.json",
       "nx/target-defaults"
     ]
@@ -3500,6 +3612,10 @@
       "package.json",
       "nx/core/package-json"
     ],
+    "metadata.targetGroups.NPM Scripts.5": [
+      "package.json",
+      "nx/core/package-json"
+    ],
     "metadata.description": [
       "package.json",
       "nx/core/package-json"
@@ -3665,6 +3781,34 @@
       "nx/core/package-json"
     ],
     "targets.test.metadata.runCommand": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate.executor": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate.options": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate.metadata": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate.options.script": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate.metadata.scriptContent": [
+      "package.json",
+      "nx/core/package-json"
+    ],
+    "targets.theme:generate.metadata.runCommand": [
       "package.json",
       "nx/core/package-json"
     ],

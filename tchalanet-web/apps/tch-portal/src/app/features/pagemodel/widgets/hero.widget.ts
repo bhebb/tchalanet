@@ -86,7 +86,12 @@ interface HeroDynamic {
         background:
           radial-gradient(
             circle at 88% 8%,
-            color-mix(in oklab, var(--tch-color-primary-container, #2e3192) 58%, white 0%) 0,
+            color-mix(
+                in oklab,
+                var(--tch-color-primary-container, var(--mat-sys-primary-container)) 58%,
+                var(--tch-color-on-primary, var(--mat-sys-on-primary)) 0%
+              )
+              0,
             transparent 18rem
           ),
           linear-gradient(
@@ -153,7 +158,7 @@ interface HeroDynamic {
       }
       .hero__ticket {
         width: min(100%, 18rem);
-        filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.32));
+        filter: drop-shadow(0 22px 34px color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 32%, transparent));
         transform: rotate(-2deg);
       }
       .hero__quick-check {
@@ -162,14 +167,14 @@ interface HeroDynamic {
         gap: 0.75rem;
         padding: 1rem;
         border-radius: var(--tch-radius-lg, 12px);
-        background: var(--tch-color-surface-container-lowest, #fff);
-        color: var(--tch-color-on-surface, #1a1c1e);
-        box-shadow: var(--mat-sys-level3, 0 14px 32px rgba(0, 0, 0, 0.22));
+        background: var(--tch-color-surface-container-lowest, var(--mat-sys-surface));
+        color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
+        box-shadow: var(--mat-sys-level3, 0 14px 32px color-mix(in oklab, var(--tch-color-on-surface, var(--mat-sys-on-surface)) 22%, transparent));
       }
       .hero__quick-head {
         display: flex;
         justify-content: space-between;
-        color: var(--tch-color-on-surface-variant, #464652);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
         font-size: var(--tch-font-size-label-sm, 0.75rem);
         line-height: var(--tch-line-height-label-sm, 1rem);
         font-weight: 800;
@@ -178,8 +183,8 @@ interface HeroDynamic {
       .hero__quick-code {
         padding: 0.875rem;
         border-radius: var(--tch-radius-control, 8px);
-        background: var(--tch-color-surface-container, #edeef1);
-        color: var(--tch-color-primary, #1a1b4b);
+        background: var(--tch-color-surface-container, var(--mat-sys-surface-container));
+        color: var(--tch-color-primary, var(--mat-sys-primary));
         font-family: var(--tch-font-family-mono, monospace);
         font-size: 1.125rem;
         font-weight: 800;
@@ -187,7 +192,7 @@ interface HeroDynamic {
         letter-spacing: 0.08em;
       }
       .hero__quick-note {
-        color: var(--tch-color-on-surface-variant, #464652);
+        color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
         font-size: 0.75rem;
         text-align: center;
       }

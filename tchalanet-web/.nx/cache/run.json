@@ -1,21 +1,21 @@
 {
   "run": {
-    "command": "nx run tch-portal:serve",
-    "startTime": "2026-06-03T09:30:11.804Z",
-    "endTime": "2026-06-03T09:35:53.074Z",
+    "command": "nx run tch-portal:lint",
+    "startTime": "2026-06-05T21:40:10.151Z",
+    "endTime": "2026-06-05T21:40:17.448Z",
     "inner": false
   },
   "tasks": [
     {
-      "taskId": "tch-portal:serve:development",
-      "target": "serve",
+      "taskId": "tch-portal:lint",
+      "target": "lint",
       "projectName": "tch-portal",
-      "hash": "3696067341013369866",
-      "startTime": "2026-06-03T09:30:11.922Z",
-      "endTime": "2026-06-03T09:35:53.060Z",
+      "hash": "8267781032387826313",
+      "startTime": "2026-06-05T21:40:10.243Z",
+      "endTime": "2026-06-05T21:40:17.443Z",
       "params": "",
       "cacheStatus": "cache-miss",
-      "status": 1
+      "status": 0
     }
   ]
 }

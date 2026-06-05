@@ -74,6 +74,31 @@ New public Angular pages, containers, components, and widgets in this slice SHAL
 - **THEN** its template and styles are inline in the TypeScript file
 - **AND** it continues to consume reusable `--tch-*` variables
 
+### Requirement: Public CSS is scoped, tokenized, and theme-safe
+
+Public page and widget CSS SHALL use scoped semantic class names and reusable `--tch-*` variables.
+Public CSS SHALL NOT hardcode brand hex values, status hex values, Material theme role values, or one-off component colors.
+Public page text SHALL use i18n keys or localized PageModel labels even when copy is temporary.
+
+#### Scenario: Public component defines classes
+
+- **WHEN** a public page, widget, or component adds CSS classes
+- **THEN** class names use a scoped BEM-like convention such as `block`, `block__element`, `block--modifier`, and `is-state`
+- **AND** generic unscoped class names such as `card`, `button`, `title`, `section`, `container`, or `active` are avoided
+
+#### Scenario: Public component uses theme values
+
+- **WHEN** public CSS needs a color, surface, border, focus ring, typography, spacing, or radius
+- **THEN** it uses semantic `--tch-*` variables with Material system fallbacks where useful
+- **AND** it does not hardcode values such as `#1A1B4B`, `#2E3192`, `#FECB00`, or status hex values in component styles
+
+#### Scenario: Public page is validated across themes
+
+- **WHEN** a new or materially changed public page is completed
+- **THEN** it is browser-checked at mobile and desktop breakpoints
+- **AND** it is checked in light and dark mode
+- **AND** it is checked against the base `tchalanet` Material theme plus one alternate theme when an alternate preset is available locally
+
 ### Requirement: Specs are focused on logic
 
 The implementation SHALL add specs for facades, stores, containers, and widgets/components with meaningful logic.

@@ -118,13 +118,13 @@ interface DrawSlot {
         background: var(--tch-color-surface-container-low, var(--mat-sys-surface-container-low));
       }
       .result-card__status[data-status='CONFIRMED'] {
-        color: var(--tch-color-status-ready, #10b981);
+        color: var(--tch-color-status-ready, var(--mat-sys-tertiary));
       }
       .result-card__status[data-status='PENDING'] {
-        color: var(--tch-color-status-warning, #f59e0b);
+        color: var(--tch-color-status-warning, var(--mat-sys-secondary));
       }
       .result-card__status[data-status='UNAVAILABLE'] {
-        color: var(--tch-color-status-missing, #64748b);
+        color: var(--tch-color-status-missing, var(--mat-sys-outline));
       }
       .result-card__numbers {
         display: flex;

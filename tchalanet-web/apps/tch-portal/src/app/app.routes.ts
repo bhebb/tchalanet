@@ -5,8 +5,12 @@ import { TenantAdminDashboardPage } from './features/admin/tenant-admin-dashboar
 import { ForbiddenPage } from './features/auth/forbidden.page';
 import { RoleDashboardPage } from './features/dashboard/role-dashboard.page';
 import { SuperAdminDashboardPage } from './features/platform/super-admin-dashboard.page';
+import { PublicCheckTicketPage } from './features/public/public-check-ticket.page';
 import { PublicHomePage } from './features/public/public-home.page';
 import { PublicInfoPage } from './features/public/public-info.page';
+import { PublicRulesPage } from './features/public/public-rules.page';
+import { PublicResultDetailPage } from './features/public/public-result-detail.page';
+import { PublicResultsPage } from './features/public/public-results.page';
 import { PrivateShellPage } from './features/shell/private-shell.page';
 
 export const appRoutes: Route[] = [
@@ -16,23 +20,19 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'public/check-ticket',
-    component: PublicInfoPage,
-    data: { kind: 'check-ticket' },
+    component: PublicCheckTicketPage,
   },
   {
     path: 'public/results',
-    component: PublicInfoPage,
-    data: { kind: 'results' },
+    component: PublicResultsPage,
   },
   {
     path: 'public/results/:id',
-    component: PublicInfoPage,
-    data: { kind: 'results' },
+    component: PublicResultDetailPage,
   },
   {
     path: 'public/rules',
-    component: PublicInfoPage,
-    data: { kind: 'rules' },
+    component: PublicRulesPage,
   },
   {
     path: 'public/help',

@@ -360,7 +360,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -371,7 +372,8 @@
               "cwd": "web-backup/apps/tchalanet-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
+                "PLAYWRIGHT_HTML_REPORT": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
+                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
               },
               "command": "playwright test src/example.spec.ts --output=../../../dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -418,7 +420,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report/src-example-spec-ts",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report/src-example-spec-ts.zip"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -447,7 +450,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/web-backup/apps/tchalanet-portal-e2e/blob-report"
             ],
             "dependsOn": [
               {
@@ -1635,7 +1639,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1646,7 +1651,8 @@
               "cwd": "apps/tch-portal-e2e",
               "env": {
                 "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
-                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
+                "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
+                "PLAYWRIGHT_BLOB_OUTPUT_FILE": "../../dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
               },
               "command": "playwright test src/example.spec.ts --output=../../dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts"
             },
@@ -1684,7 +1690,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output/src-example-spec-ts",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report/src-example-spec-ts",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report/src-example-spec-ts.zip"
             ],
             "executor": "nx:run-commands",
             "configurations": {},
@@ -1704,7 +1711,8 @@
             ],
             "outputs": [
               "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/test-output",
-              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report"
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/playwright-report",
+              "{workspaceRoot}/dist/.playwright/apps/tch-portal-e2e/blob-report"
             ],
             "dependsOn": [
               {
@@ -1810,6 +1818,37 @@
         "tags": []
       }
     },
+    "theme": {
+      "name": "theme",
+      "type": "lib",
+      "data": {
+        "root": "libs/shared/theme",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          }
+        },
+        "name": "theme",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/shared/theme/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [],
+        "implicitDependencies": []
+      }
+    },
     "tch-portal": {
       "name": "tch-portal",
       "type": "app",
@@ -1841,6 +1880,11 @@
               "browser": "apps/tch-portal/src/main.ts",
               "tsConfig": "apps/tch-portal/tsconfig.app.json",
               "inlineStyleLanguage": "scss",
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "libs/shared/theme/src"
+                ]
+              },
               "assets": [
                 {
                   "glob": "**/*",
@@ -1940,6 +1984,37 @@
         "implicitDependencies": []
       }
     },
+    "ui": {
+      "name": "ui",
+      "type": "lib",
+      "data": {
+        "root": "libs/shared/ui",
+        "targets": {
+          "lint": {
+            "executor": "@nx/eslint:lint",
+            "options": {},
+            "configurations": {},
+            "parallelism": true,
+            "cache": true,
+            "inputs": [
+              "default",
+              "^default",
+              "{workspaceRoot}/.eslintrc.json",
+              "{workspaceRoot}/.eslintignore",
+              "{workspaceRoot}/eslint.config.mjs",
+              "{workspaceRoot}/tools/eslint-rules/**/*"
+            ]
+          }
+        },
+        "name": "ui",
+        "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+        "sourceRoot": "libs/shared/ui/src",
+        "prefix": "tch",
+        "projectType": "library",
+        "tags": [],
+        "implicitDependencies": []
+      }
+    },
     "tchalanet-web": {
       "name": "tchalanet-web",
       "type": "lib",
@@ -1956,7 +2031,8 @@
               "serve:tch-portal",
               "lint",
               "format",
-              "test"
+              "test",
+              "theme:generate"
             ]
           },
           "description": "",
@@ -2029,6 +2105,18 @@
             "parallelism": true,
             "cache": true
           },
+          "theme:generate": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "theme:generate"
+            },
+            "metadata": {
+              "scriptContent": "node apps/tch-portal/tools/generate-theme-registry.mjs",
+              "runCommand": "pnpm run theme:generate"
+            },
+            "configurations": {},
+            "parallelism": true
+          },
           "nx-release-publish": {
             "executor": "@nx/js:release-publish",
             "dependsOn": [
@@ -2092,10 +2180,12 @@
         "type": "implicit"
       }
     ],
+    "theme": [],
     "tch-portal": [],
+    "ui": [],
     "tchalanet-web": []
   },
   "version": "6.0",
   "errors": [],
-  "computedAt": 1780479011704
+  "computedAt": 1780696141466
 }
