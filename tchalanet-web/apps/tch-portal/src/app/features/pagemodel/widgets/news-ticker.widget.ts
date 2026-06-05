@@ -9,6 +9,7 @@ interface NewsItem {
   readonly title?: string;
   readonly title_key?: string;
   readonly date?: string;
+  readonly source?: string;
 }
 
 interface NewsDynamic {
@@ -82,7 +83,9 @@ export class NewsTickerWidget {
   readonly titleKey = computed(
     () => stringProp(this.config(), 'title_key') ?? 'home.news.title',
   );
-  readonly items = computed<readonly NewsItem[]>(
-    () => (this.dynamic() as NewsDynamic)?.items ?? [],
+  readonly items = computed<readonly NewsItem[]>(() =>
+    ((this.dynamic() as NewsDynamic)?.items ?? []).filter(
+      (item) => item.source !== 'EXTERNAL_RSS',
+    ),
   );
 }

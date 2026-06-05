@@ -2,22 +2,47 @@
    Global, non-themed tokens. Always present regardless of active preset/mode. */
 :root {
   /* Typography */
-  --tch-font-family: 'Poppins, system-ui, sans-serif';
+  --tch-font-family: 'Plus Jakarta Sans, system-ui, sans-serif';
+  --tch-font-family-mono: 'JetBrains Mono, ui-monospace, SFMono-Regular, monospace';
   --tch-font-size-body: 1rem;
   --tch-font-size-small: 0.9375rem;
+  --tch-font-size-display-lg: 40px;
+  --tch-font-size-headline-lg: 32px;
+  --tch-font-size-headline-mobile: 24px;
+  --tch-font-size-title-md: 18px;
+  --tch-font-size-body-md: 16px;
+  --tch-font-size-label-sm: 12px;
+  --tch-font-size-receipt-data: 14px;
+  --tch-line-height-display-lg: 48px;
+  --tch-line-height-headline-lg: 40px;
+  --tch-line-height-headline-mobile: 32px;
+  --tch-line-height-title-md: 24px;
+  --tch-line-height-body-md: 24px;
+  --tch-line-height-label-sm: 16px;
+  --tch-line-height-receipt-data: 20px;
+  --tch-letter-spacing-display-lg: -0.02em;
+  --tch-letter-spacing-receipt-data: 0.05em;
   --tch-weight-regular: 400;
   --tch-weight-medium: 500;
   --tch-weight-semibold: 600;
   --tch-weight-bold: 700;
 
   /* Shape / motion */
-  --tch-radius-control: 12px;
+  --tch-radius-sm: 4px;
+  --tch-radius-control: 8px;
+  --tch-radius-lg: 12px;
+  --tch-radius-xl: 24px;
+  --tch-radius-pill: 9999px;
   --tch-duration-fast: 150ms;
   --tch-ease-standard: cubic-bezier(0.2, 0, 0, 0.9);
 
   /* Layout */
+  --tch-space-base: 4px;
   --tch-page-max: 1120px;
-  --tch-page-gutter: clamp(16px, 4vw, 24px);
+  --tch-page-gutter: 16px;
+  --tch-page-margin-mobile: 16px;
+  --tch-page-margin-desktop: 32px;
+  --tch-touch-target: 48px;
 
   /* Dark-layer helpers (used by runtime-vars post-processing) */
   --tch-darken-base: #000;
@@ -26,12 +51,46 @@
   /* First-paint fallback for the validated token set (brand light), used before the active preset
      is injected and `.tch-theme` is applied. Once a preset is active, runtime-vars.scss derives
      these from --mat-sys-* under the more specific `.tch-theme[data-preset]`. */
-  --tch-color-background: #f7f8fb;
-  --tch-color-foreground: #16202a;
-  --tch-color-primary: #2a5caf;
+  --tch-color-background: #f9f9fc;
+  --tch-color-on-background: #1a1c1e;
+  --tch-color-foreground: #1a1c1e;
+  --tch-color-primary: #1a1b4b;
+  --tch-color-primary-strong: #15157d;
   --tch-color-primary-contrast: #ffffff;
-  --tch-color-secondary: #4f5e80;
-  --tch-color-surface: #ffffff;
-  --tch-color-surface-muted: #edf2f7;
-  --tch-color-outline: #c9d4df;
+  --tch-color-on-primary: #ffffff;
+  --tch-color-primary-container: #2e3192;
+  --tch-color-on-primary-container: #e1e0ff;
+  --tch-color-primary-fixed: #e1e0ff;
+  --tch-color-primary-fixed-dim: #c0c1ff;
+  --tch-color-on-primary-fixed: #04006d;
+  --tch-color-on-primary-fixed-variant: #373a9b;
+  --tch-color-secondary: #745b00;
+  --tch-color-on-secondary: #ffffff;
+  --tch-color-secondary-container: #fecb00;
+  --tch-color-on-secondary-container: #241a00;
+  --tch-color-secondary-fixed: #ffe08b;
+  --tch-color-secondary-fixed-dim: #f1c100;
+  --tch-color-orange-accent: #f7931e;
+  --tch-color-surface: #f9f9fc;
+  --tch-color-surface-bright: #f9f9fc;
+  --tch-color-surface-muted: #f3f3f6;
+  --tch-color-surface-container-lowest: #ffffff;
+  --tch-color-surface-container-low: #f3f3f6;
+  --tch-color-surface-container: #edeef1;
+  --tch-color-surface-container-high: #e8e8eb;
+  --tch-color-surface-container-highest: #e2e2e5;
+  --tch-color-surface-variant: #e2e2e5;
+  --tch-color-surface-tonal: #ebebf5;
+  --tch-color-on-surface: #1a1c1e;
+  --tch-color-on-surface-variant: #464652;
+  --tch-color-outline: #777683;
+  --tch-color-outline-variant: #c7c5d4;
+  --tch-color-error: #ba1a1a;
+  --tch-color-on-error: #ffffff;
+  --tch-color-error-container: #ffdad6;
+  --tch-color-on-error-container: #93000a;
+  --tch-color-status-ready: #10b981;
+  --tch-color-status-warning: #f59e0b;
+  --tch-color-status-blocked: #dc2626;
+  --tch-color-status-missing: #64748b;
 }

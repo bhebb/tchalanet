@@ -24,7 +24,7 @@ type PublicHomeState =
   imports: [PageShellComponent, PageModelComponent, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <tch-page-shell [shell]="pageModel()?.shell">
+    <tch-page-shell [shell]="pageModel()?.shell" [dynamic]="dynamic()">
       @switch (state().status) {
         @case ('loading') {
           <p class="public-home__status">{{ 'common.loading' | translate }}</p>

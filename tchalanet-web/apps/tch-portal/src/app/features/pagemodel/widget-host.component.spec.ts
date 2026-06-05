@@ -27,7 +27,7 @@ describe('WidgetHostComponent', () => {
   });
 
   it('reports unsupported for an unknown widget type', () => {
-    const cmp = host({ widgetId: 'home.x', config: { type: 'CheckTicketWidget' } });
+    const cmp = host({ widgetId: 'home.x', config: { type: 'UnknownWidget' } });
     expect(cmp.state().kind).toBe('unsupported');
   });
 

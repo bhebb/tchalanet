@@ -71,9 +71,10 @@
       "title": "Fonctionnalités"
     },
     "hero": {
-      "cta": "Connexion",
-      "subtitle": "Fallback local sans override backend.",
-      "title": "Tchalanet Web"
+      "cta": "Commencer la vérification",
+      "subtitle": "Tchalanet aide les opérateurs à gérer les tickets, les tirages, les points de vente et la vérification publique avec plus de transparence.",
+      "tagline": "Vérification publique du ticket",
+      "title": "Vérifiez vos tickets et consultez les derniers tirages."
     },
     "nav": {
       "check_ticket": "Ticket",
@@ -98,6 +99,19 @@
       "tchala": "Tchala"
     }
   },
+  "footer": {
+    "check_ticket": "Vérification de tickets",
+    "results": "Résultats",
+    "support": "Aide"
+  },
+  "legal": {
+    "privacy": "Confidentialité",
+    "terms": "Conditions d’utilisation"
+  },
+  "nav": {
+    "check_ticket": "Vérifier un ticket",
+    "results": "Résultats"
+  },
   "platform": {
     "onboarding": {
       "adminCreated": "Admin tenant créé",
@@ -118,6 +132,62 @@
     }
   },
   "public": {
+    "footer": {
+      "description": "Infrastructure digitale pour la gestion professionnelle des tickets, tirages et opérations de loterie.",
+      "legal": {
+        "compliance": "Conformité",
+        "privacy": "Confidentialité",
+        "title": "Légal",
+        "terms": "Conditions d’utilisation"
+      },
+      "solutions": {
+        "check_ticket": "Vérification de tickets",
+        "operators": "Pour opérateurs",
+        "pos_management": "Gestion points de vente",
+        "title": "Solutions"
+      },
+      "status": {
+        "operational": "Systèmes opérationnels"
+      },
+      "support": {
+        "contact": "Contact",
+        "help": "Aide",
+        "results": "Résultats",
+        "rules": "Règles",
+        "status": "État du système",
+        "title": "Support"
+      }
+    },
+    "help": {
+      "payment_answer": "Tchalanet permet de consulter le statut du ticket. Le paiement, lorsqu’il est applicable, se fait selon les instructions du point de vente participant.",
+      "payment_question": "Est-ce que Tchalanet paie directement ?",
+      "subtitle": "Réponses aux questions courantes sur la vérification, les résultats et les paiements.",
+      "title": "Aide"
+    },
+    "hero": {
+      "primary_action": "Commencer la vérification",
+      "secondary_action": "Voir les derniers tirages"
+    },
+    "how": {
+      "description": "Un parcours simple pour consulter le statut d’un ticket et suivre les résultats disponibles.",
+      "step1": {
+        "text": "Recevez un ticket avec QR ou code public émis par un point de vente participant.",
+        "title": "Ticket vérifiable"
+      },
+      "step2": {
+        "text": "Entrez le code public ou scannez le QR pour consulter le statut du ticket.",
+        "title": "Vérification en ligne"
+      },
+      "step3": {
+        "text": "Consultez le statut du ticket et les résultats confirmés selon les sources prises en charge.",
+        "title": "Statut & résultats"
+      },
+      "step4": {
+        "text": "Si le ticket est payable, suivez les instructions affichées pour contacter le point de vente.",
+        "title": "Instructions de paiement"
+      },
+      "title": "Comment vérifier un ticket ?"
+    },
     "home": {
       "demoFlag": "Flag démo",
       "loadError": "Impossible de charger la page publique.",
@@ -131,6 +201,92 @@
       "settings": "Paramètres",
       "subtitle": "La route publique est disponible sans connexion.",
       "title": "Tchalanet Web"
+    },
+    "nav": {
+      "check_ticket": "Vérifier un ticket",
+      "help": "Aide",
+      "login": "Connexion",
+      "menu": "Ouvrir le menu",
+      "operators": "Pour opérateurs",
+      "results": "Résultats",
+      "skip": "Aller au contenu",
+      "verify_short": "Vérifier"
+    },
+    "operator": {
+      "access": "Accès opérateur",
+      "demo": "Demander une démo",
+      "description": "Découvrez comment Tchalanet peut simplifier votre gestion quotidienne, mieux suivre vos ventes et automatiser vos rapports d’activité.",
+      "title": "Vous gérez un point de vente ou un réseau de vendeurs ?"
+    },
+    "pages": {
+      "check-ticket": {
+        "description": "Entrez votre code public pour consulter le statut de votre ticket.",
+        "eyebrow": "Vérification publique du ticket",
+        "title": "Vérifier un ticket"
+      },
+      "contact": {
+        "body": "Contactez Tchalanet pour une démonstration ou une orientation opérateur.",
+        "description": "Un point de contact pour les opérateurs, points de vente et demandes de support public.",
+        "eyebrow": "Contact",
+        "title": "Contacter Tchalanet"
+      },
+      "help": {
+        "description": "Trouvez les réponses sur la vérification ticket, les résultats, le paiement et les problèmes courants.",
+        "eyebrow": "Support",
+        "title": "Aide"
+      },
+      "privacy": {
+        "body": "Cette page présentera les informations de confidentialité applicables aux surfaces publiques Tchalanet.",
+        "description": "Informations de confidentialité pour les services publics Tchalanet.",
+        "eyebrow": "Légal",
+        "title": "Confidentialité"
+      },
+      "results": {
+        "description": "Consultez les résultats confirmés selon les sources prises en charge.",
+        "eyebrow": "Résultats confirmés",
+        "title": "Résultats"
+      },
+      "rules": {
+        "description": "Consultez les règles des jeux et estimez un gain indicatif selon une mise d’exemple.",
+        "eyebrow": "Simulation indicative",
+        "title": "Règles des jeux et simulation"
+      },
+      "terms": {
+        "body": "Cette page présentera les conditions d’utilisation applicables aux surfaces publiques Tchalanet.",
+        "description": "Conditions d’utilisation des services publics Tchalanet.",
+        "eyebrow": "Légal",
+        "title": "Conditions d’utilisation"
+      }
+    },
+    "results": {
+      "all": "Tous les tirages",
+      "detail": "Voir détail",
+      "empty": "Aucun résultat disponible pour le moment.",
+      "latest_title": "Derniers tirages",
+      "status": {
+        "CONFIRMED": "Résultats confirmés",
+        "PENDING": "En attente",
+        "UNAVAILABLE": "Indisponible"
+      },
+      "subtitle": "Résultats confirmés selon les sources prises en charge."
+    },
+    "rules": {
+      "badge": "Indicatif",
+      "disclaimer": "Simulation indicative. Le montant payable dépend du ticket réel, des règles du point de vente, du statut du tirage et des résultats confirmés. Cette simulation ne garantit pas un paiement.",
+      "simulation_title": "Gain estimé indicatif",
+      "simulation_unavailable": "La simulation est temporairement indisponible pour ce jeu.",
+      "subtitle": "Consultez les règles des jeux et estimez un gain indicatif selon une mise d’exemple.",
+      "title": "Règles des jeux et simulation"
+    },
+    "ticket": {
+      "code_label": "Code public du ticket",
+      "cta": "Vérifier maintenant",
+      "description": "Entrez votre code public pour consulter le statut de votre ticket.",
+      "eyebrow": "Vérification publique du ticket",
+      "help": "Où trouver le code public ?",
+      "placeholder": "ABC-123-XYZ",
+      "scan_qr": "Scanner QR",
+      "title": "Vérifier un ticket"
     }
   },
   "widget": {

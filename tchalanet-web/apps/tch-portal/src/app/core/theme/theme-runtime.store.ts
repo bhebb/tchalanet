@@ -142,10 +142,14 @@ export class ThemeRuntimeStore {
   }
 
   private resolveBackendTheme(theme: RuntimeTheme): RuntimeTheme {
+    const activePresetKey = normalizePresetKey(
+      theme.activePresetKey || this.repository.defaultPreset().id,
+    );
+
     return {
       ...theme,
       effectiveMode: this.effectiveMode(theme.mode),
-      activePresetKey: theme.activePresetKey || this.repository.defaultPreset().id,
+      activePresetKey,
       tokens: theme.tokens,
     };
   }
@@ -176,4 +180,8 @@ function systemPrefersDark(): boolean {
 
 function aliasPresetCss(css: string, sourceId: string, targetId: string): string {
   return css.split(`[data-preset='${sourceId}']`).join(`[data-preset='${targetId}']`);
+}
+
+function normalizePresetKey(value: string): string {
+  return value === 'tchalanet_default' ? defaultThemePresetId : value;
 }
