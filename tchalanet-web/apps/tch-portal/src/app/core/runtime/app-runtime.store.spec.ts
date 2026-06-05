@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { AuthSessionService } from '../auth/auth-session.service';
+import { FeatureFlags } from '../feature';
 import { RuntimeSettingsStore } from '../settings';
 import { ThemeRuntimeStore } from '../theme';
 import { I18nFacade } from '../i18n';
@@ -69,6 +70,10 @@ describe('AppRuntimeStore', () => {
         { provide: AuthSessionService, useValue: auth },
         { provide: I18nFacade, useValue: i18n },
         { provide: RuntimeSettingsStore, useValue: settings },
+        {
+          provide: FeatureFlags,
+          useValue: { isEnabled: (key: string, fallback = false) => fallback },
+        },
         { provide: ThemeRuntimeStore, useValue: theme },
       ],
     });

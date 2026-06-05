@@ -1,7 +1,8 @@
 # Settings Convention
 
-> Status: DRAFT v0.1  
-> Scope: runtime settings, feature flags, future Unleash handoff
+> Status: DRAFT v0.2
+> Scope: runtime settings, feature flags, gating, entitlements, future Unleash handoff
+> Living doc — update in the same commit as any code that changes a rule here.
 
 ## Rule
 
@@ -47,17 +48,18 @@ features.*
 feature_flags.*
 ```
 
-## Future Unleash Boundary
+## Gating lives in dedicated seams
 
-Feature checks should go through a small helper such as:
+Settings is the **source** for feature flags (`feature.*`) and exported entitlements (`entitlement.*`),
+but gating logic is not documented here — it lives behind isolated seams so settings stays a plain
+config store and call sites never read `settings().featureFlags` directly:
 
-```text
-isFeatureEnabled(key, defaultValue)
-```
+- [`feature-flags.md`](./feature-flags.md) — `FeatureFlags` seam, `*tchFeature`, `featureGuard`
+  (Unleash-ready).
+- [`entitlements.md`](./entitlements.md) — `EntitlementsStore`, exported subset, backend-authoritative.
+- [`access.md`](./access.md) — combined `*tchCan` directive, `can` pipe, `accessGuard` (avoid `&&`).
 
-This keeps the call site stable if the source later changes from runtime settings to Unleash.
-
-Do not spread direct reads of `settings().featureFlags` across pages.
+Rule: never read `settings().featureFlags` from a component — depend on the seams above.
 
 ## Failure Behavior
 

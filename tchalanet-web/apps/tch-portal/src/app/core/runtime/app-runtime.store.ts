@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { AuthSessionService } from '../auth/auth-session.service';
+import { FeatureFlags } from '../feature';
 import { I18nFacade } from '../i18n';
 import { RuntimeSettingsStore } from '../settings';
 import { ThemeRuntimeStore } from '../theme';
@@ -13,6 +14,7 @@ export class AppRuntimeStore {
   private readonly auth = inject(AuthSessionService);
   private readonly i18n = inject(I18nFacade);
   private readonly settings = inject(RuntimeSettingsStore);
+  private readonly features = inject(FeatureFlags);
   private readonly theme = inject(ThemeRuntimeStore);
   private readonly bootstrapState = signal<RuntimeBootstrapState>('idle');
   private readonly bootstrapScope = signal<RuntimeBootstrapScope>('none');
@@ -89,6 +91,6 @@ export class AppRuntimeStore {
   }
 
   isFeatureEnabled(key: string, defaultValue = false): boolean {
-    return this.settings.isFeatureEnabled(key, defaultValue);
+    return this.features.isEnabled(key, defaultValue);
   }
 }

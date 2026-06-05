@@ -1,4 +1,27 @@
 {
+  "admin": {
+    "seller": {
+      "email": "Email",
+      "error": "Seller onboarding failed.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "outletId": "Outlet",
+      "phone": "Phone",
+      "submit": "Create seller",
+      "success": "Seller created:",
+      "terminalId": "Terminal",
+      "title": "Seller onboarding"
+    }
+  },
+  "app": {
+    "brand": "Tchalanet",
+    "footer": {
+      "copyright": "© Tchalanet"
+    },
+    "nav": {
+      "dashboard": "My dashboard"
+    }
+  },
   "auth": {
     "forbidden": {
       "back": "Back to public home",
@@ -9,6 +32,7 @@
   "common": {
     "disabled": "disabled",
     "enabled": "enabled",
+    "loading": "Loading…",
     "unknown": "Unknown"
   },
   "dashboard": {
@@ -36,6 +60,16 @@
     "not_found": "Local page not found."
   },
   "home": {
+    "check_ticket": {
+      "description": "Check your ticket in seconds.",
+      "title": "Check a ticket"
+    },
+    "draws": {
+      "title": "Draws"
+    },
+    "features": {
+      "title": "Features"
+    },
     "hero": {
       "cta": "Login",
       "subtitle": "Local fallback without backend override.",
@@ -44,11 +78,49 @@
     "nav": {
       "check_ticket": "Ticket",
       "results": "Local results"
+    },
+    "news": {
+      "empty": "No news yet.",
+      "title": "News"
+    },
+    "plans": {
+      "empty": "No plans available.",
+      "title": "Plans"
+    }
+  },
+  "layout": {
+    "public_home": {
+      "draws": "Draws",
+      "features": "Features",
+      "hero": "Hero",
+      "news": "News",
+      "plans": "Plans",
+      "tchala": "Tchala"
+    }
+  },
+  "platform": {
+    "onboarding": {
+      "adminCreated": "Tenant admin created",
+      "code": "Tenant code",
+      "currency": "Currency",
+      "domains": "Included domains",
+      "error": "Operation failed.",
+      "initialAdminEmail": "First admin email",
+      "name": "Tenant name",
+      "preview": "Preview",
+      "previewResult": "Preview",
+      "profile": "Profile",
+      "provision": "Provision",
+      "success": "Tenant provisioned",
+      "timezone": "Timezone",
+      "title": "Tenant provisioning",
+      "type": "Type"
     }
   },
   "public": {
     "home": {
       "demoFlag": "Demo flag",
+      "loadError": "Unable to load the public page.",
       "login": "Login",
       "logout": "Logout",
       "nav": {
@@ -61,6 +133,11 @@
       "title": "Tchalanet Web"
     }
   },
+  "widget": {
+    "error": "This content is temporarily unavailable.",
+    "invalid": "Invalid widget.",
+    "unsupported": "Unsupported widget type."
+  },
   "theme": {
     "modes": {
       "dark": "Dark",
@@ -69,17 +146,17 @@
     },
     "presets": {
       "tchalanet": "Tchalanet",
-      "materialPurple": "Material purple",
-      "materialBlue": "Material blue",
-      "materialGreen": "Material green",
-      "materialRed": "Material red",
-      "materialOrange": "Material orange",
-      "materialTeal": "Material teal",
-      "materialPink": "Material pink",
-      "materialIndigo": "Material indigo",
-      "materialCyan": "Material cyan",
-      "materialAmber": "Material amber",
-      "materialBrown": "Material brown"
+      "m3-purple": "Material purple",
+      "m3-blue": "Material blue",
+      "m3-green": "Material green",
+      "m3-red": "Material red",
+      "m3-orange": "Material orange",
+      "m3-teal": "Material teal",
+      "m3-pink": "Material pink",
+      "m3-indigo": "Material indigo",
+      "m3-cyan": "Material cyan",
+      "m3-amber": "Material amber",
+      "m3-brown": "Material brown"
     }
   }
 }

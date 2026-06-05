@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
 import { ThemePreset } from '../../shared/types';
-import { defaultThemePresetId, fallbackThemePresets } from './theme-presets';
+import { defaultThemePresetId, themePresets } from './theme-presets';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeRepository {
@@ -11,12 +11,12 @@ export class ThemeRepository {
   readonly ready = this.readyState.asReadonly();
 
   constructor() {
-    fallbackThemePresets.forEach((preset) => this.presets.set(preset.id, preset));
+    themePresets.forEach((preset) => this.presets.set(preset.id, preset));
     this.readyState.set(true);
   }
 
   defaultPreset(): ThemePreset {
-    return this.get(defaultThemePresetId) ?? fallbackThemePresets[0];
+    return this.get(defaultThemePresetId) ?? themePresets[0];
   }
 
   get(id: string): ThemePreset | null {

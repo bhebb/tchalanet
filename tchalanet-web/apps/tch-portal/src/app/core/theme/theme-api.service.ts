@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 
 import { ApiResponse, RuntimeTheme, ThemeMode } from '../../shared/types';
 import { unwrapApiResponse } from '../http';
+import { mapBackendThemeTokens } from './theme-token-map';
 
 interface ThemeRuntimeApiView {
   readonly presetCode: string;
@@ -39,7 +40,7 @@ function toRuntimeTheme(view: ThemeRuntimeApiView): RuntimeTheme {
     activePresetKey: view.presetCode || 'tchalanet',
     mode: toThemeMode(view.mode),
     effectiveMode: toEffectiveThemeMode(view.mode),
-    tokens: normalizeTokens(view.tokens),
+    tokens: mapBackendThemeTokens(view.tokens),
   };
 }
 
@@ -50,10 +51,4 @@ function toThemeMode(value: string): ThemeMode {
 
 function toEffectiveThemeMode(value: string): 'light' | 'dark' {
   return value.toLowerCase() === 'dark' ? 'dark' : 'light';
-}
-
-function normalizeTokens(tokens: Readonly<Record<string, string>>): Readonly<Record<string, string>> {
-  return Object.fromEntries(
-    Object.entries(tokens).map(([key, value]) => [key.startsWith('--') ? key : `--${key}`, value]),
-  );
 }

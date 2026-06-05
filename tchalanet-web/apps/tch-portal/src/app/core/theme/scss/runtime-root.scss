@@ -1,0 +1,37 @@
+/* runtime-root.scss
+   Global, non-themed tokens. Always present regardless of active preset/mode. */
+:root {
+  /* Typography */
+  --tch-font-family: 'Poppins, system-ui, sans-serif';
+  --tch-font-size-body: 1rem;
+  --tch-font-size-small: 0.9375rem;
+  --tch-weight-regular: 400;
+  --tch-weight-medium: 500;
+  --tch-weight-semibold: 600;
+  --tch-weight-bold: 700;
+
+  /* Shape / motion */
+  --tch-radius-control: 12px;
+  --tch-duration-fast: 150ms;
+  --tch-ease-standard: cubic-bezier(0.2, 0, 0, 0.9);
+
+  /* Layout */
+  --tch-page-max: 1120px;
+  --tch-page-gutter: clamp(16px, 4vw, 24px);
+
+  /* Dark-layer helpers (used by runtime-vars post-processing) */
+  --tch-darken-base: #000;
+  --tch-dark-fg: #fff;
+
+  /* First-paint fallback for the validated token set (brand light), used before the active preset
+     is injected and `.tch-theme` is applied. Once a preset is active, runtime-vars.scss derives
+     these from --mat-sys-* under the more specific `.tch-theme[data-preset]`. */
+  --tch-color-background: #f7f8fb;
+  --tch-color-foreground: #16202a;
+  --tch-color-primary: #2a5caf;
+  --tch-color-primary-contrast: #ffffff;
+  --tch-color-secondary: #4f5e80;
+  --tch-color-surface: #ffffff;
+  --tch-color-surface-muted: #edf2f7;
+  --tch-color-outline: #c9d4df;
+}
